@@ -4,6 +4,22 @@
     android:layout_height="match_parent"
     tools:context=".Home" >
 
+    <Button
+        android:id="@+id/bttnStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/bttn_start" />
+
+    <Button
+        android:id="@+id/bttnStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bttnStart"
+        android:layout_centerHorizontal="true"
+        android:text="@string/bttn_stop" />
+    
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

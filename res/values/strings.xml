@@ -4,5 +4,7 @@
     <string name="app_name">rfcx-src-android</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
+    <string name="bttn_start">START</string>
+    <string name="bttn_stop">STOP</string>
 
 </resources>
