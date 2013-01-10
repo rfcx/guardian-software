@@ -22,7 +22,7 @@ public class Home extends Activity {
 	
 	private static final String APP_NAME = "rfcx-src-android";
 
-	Button bttnStart, bttnStop;
+	Button bttnStart, bttnStop, bttnPowerOn, bttnPowerOff;
 	Handler hndlr;
 
 	private static final int REQUEST_ENABLE_BT = 1;
@@ -51,6 +51,8 @@ public class Home extends Activity {
 
 		bttnStart = (Button) findViewById(R.id.bttnStart);
 		bttnStop = (Button) findViewById(R.id.bttnStop);
+		bttnPowerOn = (Button) findViewById(R.id.bttnPowerOn);
+		bttnPowerOff = (Button) findViewById(R.id.bttnPowerOff);
 
 		hndlr = new Handler() {
 			public void handleMessage(android.os.Message msg) {
@@ -90,6 +92,18 @@ public class Home extends Activity {
 	    bttnStop.setOnClickListener(new OnClickListener() {
 	    	public void onClick(View v) {
 	    		mConnectedThread.write("b");
+	    	}
+	    });
+	    
+	    bttnPowerOn.setOnClickListener(new OnClickListener() {
+	    	public void onClick(View v) {
+	    		mConnectedThread.write("s");
+	    	}
+	    });
+	    
+	    bttnPowerOff.setOnClickListener(new OnClickListener() {
+	    	public void onClick(View v) {
+	    		mConnectedThread.write("t");
 	    	}
 	    });
 	}
