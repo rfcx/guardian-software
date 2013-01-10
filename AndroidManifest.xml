@@ -18,14 +18,17 @@
         android:theme="@style/AppTheme"
         android:name="org.rfcx.rfcx_src_android.RfcxSrcApplication"
         >
-        <service android:name=".RfcxSrcService"
-            />
+        
+        <service android:name="org.rfcx.rfcx_src_android.ArduinoCommService"
+        	/>
+        <service android:name="org.rfcx.rfcx_src_android.AudioCaptureService"
+        	/>
+        
         <activity
             android:name="org.rfcx.rfcx_src_android.Home"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

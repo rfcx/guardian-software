@@ -7,5 +7,7 @@
     <string name="bttn_stop">STOP SERVICE</string>
     <string name="bttn_power_on">PHONE POWER ON</string>
     <string name="bttn_power_off">PHONE POWER OFF</string>
+    <string name="menu_service_start">START SERVICE</string>
+    <string name="menu_service_stop">STOP SERVICE</string>
 
 </resources>
