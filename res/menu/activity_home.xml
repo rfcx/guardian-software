@@ -1,19 +1,40 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/menuSettings"
-        android:orderInCategory="100"
-        android:title="@string/title_prefs"
+        android:id="@+id/menuItemSettings"
+        android:orderInCategory="1"
+        android:title="@string/menuItemSettings"
+	    android:icon="@android:drawable/ic_menu_preferences"
+        />
+    <item
+        android:id="@+id/menuItemSettingsAlt"
+        android:orderInCategory="2"
+        android:title="@string/menuItemSettings"
 	    android:icon="@android:drawable/ic_menu_preferences"
         />
 	<item
-	    android:id="@+id/menuServiceStart"
-	    android:title="@string/menu_service_start"
+	    android:id="@+id/menuItemArduinoServiceStart"
+        android:orderInCategory="3"
+	    android:title="@string/menuItemArduinoService"
 	    android:icon="@android:drawable/ic_media_play"
 	    />
 	<item 
-	    android:id="@+id/menuServiceStop" 
-	    android:title="@string/menu_service_stop"
+	    android:id="@+id/menuItemArduinoServiceStop"
+        android:orderInCategory="4"
+	    android:title="@string/menuItemArduinoService"
+	    android:icon="@android:drawable/ic_media_pause"
+	    />
+	
+	<item
+	    android:id="@+id/menuItemAudioServiceStart"
+        android:orderInCategory="5"
+	    android:title="@string/menuItemAudioService"
+	    android:icon="@android:drawable/ic_media_play"
+	    />
+	<item 
+	    android:id="@+id/menuItemAudioServiceStop"
+        android:orderInCategory="6"
+	    android:title="@string/menuItemAudioService"
 	    android:icon="@android:drawable/ic_media_pause"
 	    />
 	

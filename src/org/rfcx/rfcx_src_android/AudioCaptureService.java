@@ -1,17 +1,30 @@
 package org.rfcx.rfcx_src_android;
 
+import java.text.DecimalFormat;
+
+import ca.uol.aig.fftpack.RealDoubleFFT;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 
 public class AudioCaptureService extends Service {
 
 	static final String TAG = "AudioCaptureService";
 	
-	static final int DELAY = 5000;
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
+	
+    private int audioCaptureSampleRate = 8000;
+    private int audioCaptureChannelConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
+    private int audioCaptureEncoding = AudioFormat.ENCODING_PCM_16BIT;
+    private RealDoubleFFT transformer;
+    private int fftBlockSize = 16;
+    
+    private DecimalFormat decimalFormat = new DecimalFormat("#");
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -24,6 +37,9 @@ public class AudioCaptureService extends Service {
 		super.onCreate();
 		this.audioCapture = new AudioCapture();
 		Log.d(TAG, "onCreated()");
+		
+		//borrowed
+		transformer = new RealDoubleFFT(fftBlockSize);
 	}
 	
 	@Override
@@ -54,14 +70,38 @@ public class AudioCaptureService extends Service {
 		@Override
 		public void run() {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
-			while (audioCaptureService.runFlag) {
-				Log.d(TAG, "AudioCaptureService running");
-				try {
-					Log.d(TAG, "AudioCaptureService complete");
-					Thread.sleep(DELAY);
-				} catch (InterruptedException e) {
-					audioCaptureService.runFlag = false;
+			
+			try {
+				int bufferSize = AudioRecord.getMinBufferSize(audioCaptureSampleRate,audioCaptureChannelConfig, audioCaptureEncoding);
+				AudioRecord audioRecord = new AudioRecord(
+						MediaRecorder.AudioSource.MIC, audioCaptureSampleRate,
+						audioCaptureChannelConfig, audioCaptureEncoding, bufferSize);
+				short[] buffer = new short[fftBlockSize];
+				double[] toTransform = new double[fftBlockSize];
+				audioRecord.startRecording();
+				Log.d(TAG, "AudioCaptureService started");
+				while (audioCaptureService.runFlag) {
+					try {
+						int bufferReadResult = audioRecord.read(buffer, 0, fftBlockSize);
+						for (int i = 0; i < fftBlockSize && i < bufferReadResult; i++) {
+							toTransform[i] = (double) buffer[i] / 32768.0; // signed 16 bit
+						}
+						transformer.ft(toTransform);
+						
+						String console = "";
+						for (int i = 0; i < fftBlockSize; i++) {
+							float val = (float) (java.lang.Math.abs(toTransform[i] * 1000));
+							console += "\t" + decimalFormat.format(val);
+						}
+						Log.i(TAG,console);
+						
+					} catch (Exception e) {
+						audioCaptureService.runFlag = false;
+					}
 				}
+				audioRecord.stop();
+			} catch (Exception e) {
+				audioCaptureService.runFlag = false;
 			}
 		}
 		
