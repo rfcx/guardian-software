@@ -3,16 +3,20 @@ package org.rfcx.rfcx_src_android;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.telephony.TelephonyManager;
+import android.provider.Settings.Secure;
 import android.util.Log;
 
 public class RfcxSrcApplication extends Application implements OnSharedPreferenceChangeListener {
@@ -27,9 +31,11 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	private BluetoothSocket btSocket = null;
 	private StringBuilder sb = new StringBuilder();
 	private BtConnectedThread mConnectedThread;
-
-	private UUID phone_uuid;
+	
+	Context context;
+	
 	private String arduino_bt_mac_addr;
+	private UUID device_uuid;
 	
 	public float envTemperature = 0;
 	public float envHumidity = 0;
@@ -87,7 +93,7 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 		checkSetPreferences();
 		BluetoothDevice device = btAdapter.getRemoteDevice(arduino_bt_mac_addr);
 		try {
-			btSocket = device.createRfcommSocketToServiceRecord(phone_uuid);
+			btSocket = device.createRfcommSocketToServiceRecord(device_uuid);
 		} catch (IOException e) {
 			Log.d(TAG, "appResume() failed to create socket " + e.getMessage());
 		}
@@ -123,16 +129,21 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 		this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		this.prefs.registerOnSharedPreferenceChangeListener(this);
 		
-		phone_uuid = UUID.fromString(this.prefs.getString("phone_uuid", "00000000-0000-0000-0000-000000000000"));
+		DeviceUuidFactory uuidFactory = new DeviceUuidFactory(context, this.prefs);
+		device_uuid = uuidFactory.getDeviceUuid();
+		Log.d(TAG,"new_device_uuid: "+ device_uuid.toString());
+		Log.d(TAG,"prefs_device_uuid: "+ this.prefs.getString("device_uuid", "empty"));
+		
+		
 		arduino_bt_mac_addr = this.prefs.getString("arduino_bt_mac_addr", "00:00:00:00:00:00");
 		
 		if (this.prefs.getString("arduino_bt_mac_addr", null) == null) {
 			Log.e(TAG, "No preference value set for 'arduino_bt_mac_addr'");
 		}
 		
-		if (this.prefs.getString("phone_uuid", null) == null) {
-			Log.e(TAG, "No preference value set for 'phone_uuid'");
-		}
+//		if (this.prefs.getString("phone_uuid", null) == null) {
+//			Log.e(TAG, "No preference value set for 'phone_uuid'");
+//		}
 		
 	}
 	

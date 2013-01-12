@@ -9,7 +9,10 @@ public class ArduinoCommService extends Service {
 	
 	static final String TAG = "ArduinoCommService";
 	
-	static final int DELAY = 5000;
+	static final int DELAY = 10000;
+	static final int DELAY_INNER = 1000;
+	String[] arduinoCommands = new String[] {"a","b"};
+	
 	private boolean runFlag = false;
 	private ArduinoComm arduinoComm;
 	
@@ -57,7 +60,10 @@ public class ArduinoCommService extends Service {
 			while (arduinoCommService.runFlag) {
 				Log.d(TAG, "ArduinoCommService running");
 				try {
-					Log.d(TAG, "ArduinoCommService complete");
+					for (int i = 0; i < arduinoCommands.length; i++) {
+						((RfcxSrcApplication) getApplication()).sendBtCommand(arduinoCommands[i]);
+						Thread.sleep(DELAY_INNER);
+					}
 					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {
 					arduinoCommService.runFlag = false;
@@ -66,5 +72,7 @@ public class ArduinoCommService extends Service {
 		}
 		
 	}
+	
+
 
 }

@@ -15,8 +15,8 @@
     <string name="title_arduino_bt_mac_addr">Arduino MAC</string>
     <string name="desc_arduino_bt_mac_addr">Arduino Bluetooth MAC Address</string>
     
-    <string name="title_phone_uuid">Phone UUID</string>
-    <string name="desc_phone_uuid">Phone Manual UUID</string>
+    <string name="title_device_uuid">Device UUID</string>
+    <string name="desc_device_uuid">Device UUID (should be set automatically)</string>
     
 
     
