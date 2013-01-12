@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <EditTextPreference
+        android:title="@string/title_arduino_bt_mac_addr"
+        android:key="arduino_bt_mac_addr"
+        />
+    
+	<EditTextPreference
+        android:title="@string/title_phone_uuid"
+        android:key="phone_uuid"
+        />
+    
+</PreferenceScreen>

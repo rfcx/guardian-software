@@ -28,8 +28,8 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	private StringBuilder sb = new StringBuilder();
 	private BtConnectedThread mConnectedThread;
 
-	private static final UUID PHONE_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-	private static String ARDUINO_BT_MAC_ADDR = "00:12:09:29:60:54";
+	private UUID phone_uuid;
+	private String arduino_bt_mac_addr;
 	
 	public float envTemperature = 0;
 	public float envHumidity = 0;
@@ -43,9 +43,9 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		this.prefs.registerOnSharedPreferenceChangeListener(this);
 		Log.i(TAG, "onCreated()");
+
+		checkSetPreferences();
 		
 		hndlr = new Handler() {
 			public void handleMessage(android.os.Message msg) {
@@ -84,9 +84,10 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	}
 	
 	public void appResume() {
-		BluetoothDevice device = btAdapter.getRemoteDevice(ARDUINO_BT_MAC_ADDR);
+		checkSetPreferences();
+		BluetoothDevice device = btAdapter.getRemoteDevice(arduino_bt_mac_addr);
 		try {
-			btSocket = device.createRfcommSocketToServiceRecord(PHONE_UUID);
+			btSocket = device.createRfcommSocketToServiceRecord(phone_uuid);
 		} catch (IOException e) {
 			Log.d(TAG, "appResume() failed to create socket " + e.getMessage());
 		}
@@ -116,6 +117,23 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	public synchronized void onSharedPreferenceChanged(
 			SharedPreferences sharedPreferences, String key) {
 	//	this.twitter = null;
+	}
+	
+	private void checkSetPreferences() {
+		this.prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		this.prefs.registerOnSharedPreferenceChangeListener(this);
+		
+		phone_uuid = UUID.fromString(this.prefs.getString("phone_uuid", "00000000-0000-0000-0000-000000000000"));
+		arduino_bt_mac_addr = this.prefs.getString("arduino_bt_mac_addr", "00:00:00:00:00:00");
+		
+		if (this.prefs.getString("arduino_bt_mac_addr", null) == null) {
+			Log.e(TAG, "No preference value set for 'arduino_bt_mac_addr'");
+		}
+		
+		if (this.prefs.getString("phone_uuid", null) == null) {
+			Log.e(TAG, "No preference value set for 'phone_uuid'");
+		}
+		
 	}
 	
 	private void checkBTState() {

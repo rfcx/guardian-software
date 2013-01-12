@@ -3,8 +3,8 @@ package org.rfcx.rfcx_src_android;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,8 +16,8 @@ public class Home extends Activity {
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.activity_home, menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.activity_home, menu);
 		return true;
 	}
 	
@@ -29,6 +29,9 @@ public class Home extends Activity {
 			break;
 		case R.id.menuServiceStop:
 			stopService(new Intent(this, ArduinoCommService.class));
+			break;
+		case R.id.menuSettings:
+			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 		}
 		return true;
