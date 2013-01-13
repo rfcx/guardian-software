@@ -5,12 +5,14 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 public class DeviceUuidFactory {
 	
+	private static final String TAG = DeviceUuidFactory.class.getSimpleName();
 	protected static final String PREFS_DEVICE_ID = "device_uuid";
     protected static UUID uuid;
 
@@ -21,6 +23,7 @@ public class DeviceUuidFactory {
                 if( uuid == null) {
                 	final String id = prefs.getString(PREFS_DEVICE_ID, null );
                     if (id != null) {
+                    	Log.d(TAG, "Device UUID fetched from prefs: "+ id);
                         uuid = UUID.fromString(id);
                     } else {
                         String androidId = "0000000000000000";
@@ -42,9 +45,9 @@ public class DeviceUuidFactory {
                         } catch (UnsupportedEncodingException e) {
                             throw new RuntimeException(e);
                         }
-
-                        // Write the value out to the prefs file
+                        
                         prefs.edit().putString(PREFS_DEVICE_ID, uuid.toString() ).commit();
+                    	Log.d(TAG, "Device UUID generated and saved to prefs: "+ uuid.toString());
                     }
 
                 }

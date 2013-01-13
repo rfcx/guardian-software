@@ -3,7 +3,6 @@ package org.rfcx.rfcx_src_android;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 import android.app.Application;
@@ -15,8 +14,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.telephony.TelephonyManager;
-import android.provider.Settings.Secure;
 import android.util.Log;
 
 public class RfcxSrcApplication extends Application implements OnSharedPreferenceChangeListener {
@@ -25,6 +22,7 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	private SharedPreferences prefs;
 	
 	Handler hndlr;
+	Context context;
 	
 	final int MESSAGE_RECEPTION = 1;
 	private BluetoothAdapter btAdapter = null;
@@ -32,10 +30,8 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	private StringBuilder sb = new StringBuilder();
 	private BtConnectedThread mConnectedThread;
 	
-	Context context;
-	
 	private String arduino_bt_mac_addr;
-	private UUID device_uuid;
+	private UUID phone_uuid;
 	
 	public float envTemperature = 0;
 	public float envHumidity = 0;
@@ -93,7 +89,7 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 		checkSetPreferences();
 		BluetoothDevice device = btAdapter.getRemoteDevice(arduino_bt_mac_addr);
 		try {
-			btSocket = device.createRfcommSocketToServiceRecord(device_uuid);
+			btSocket = device.createRfcommSocketToServiceRecord(phone_uuid);
 		} catch (IOException e) {
 			Log.d(TAG, "appResume() failed to create socket " + e.getMessage());
 		}
@@ -130,20 +126,15 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 		this.prefs.registerOnSharedPreferenceChangeListener(this);
 		
 		DeviceUuidFactory uuidFactory = new DeviceUuidFactory(context, this.prefs);
-		device_uuid = uuidFactory.getDeviceUuid();
-		Log.d(TAG,"new_device_uuid: "+ device_uuid.toString());
-		Log.d(TAG,"prefs_device_uuid: "+ this.prefs.getString("device_uuid", "empty"));
-		
+		phone_uuid = uuidFactory.getDeviceUuid();
 		
 		arduino_bt_mac_addr = this.prefs.getString("arduino_bt_mac_addr", "00:00:00:00:00:00");
+		
+		Log.d(TAG, phone_uuid + " - "+ arduino_bt_mac_addr);
 		
 		if (this.prefs.getString("arduino_bt_mac_addr", null) == null) {
 			Log.e(TAG, "No preference value set for 'arduino_bt_mac_addr'");
 		}
-		
-//		if (this.prefs.getString("phone_uuid", null) == null) {
-//			Log.e(TAG, "No preference value set for 'phone_uuid'");
-//		}
 		
 	}
 	
@@ -193,7 +184,6 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	    }
 	 
 	    public void write(String message) {
-//	    	Log.d(TAG, "BT sent: '" + message +"'");
 	    	byte[] msgBuffer = message.getBytes();
 	    	try {
 	            mmOutStream.write(msgBuffer);
