@@ -9,8 +9,11 @@ import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Handler;
@@ -66,34 +69,21 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 		
 	    btAdapter = BluetoothAdapter.getDefaultAdapter();
 	    checkBTState();
+	    
+	    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+	    this.registerReceiver(btStateReceiver, filter);
 	}
 	
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
+		this.unregisterReceiver(btStateReceiver);
 		Log.d(TAG, "onTerminated()");
 	}
 	
 	public void appResume() {
 		checkSetPreferences();
-		BluetoothDevice device = btAdapter.getRemoteDevice(arduino_bt_mac_addr);
-		try {
-			btSocket = device.createRfcommSocketToServiceRecord(phone_uuid);
-		} catch (IOException e) {
-			Log.d(TAG, "appResume() failed to create socket " + e.getMessage());
-		}
-		btAdapter.cancelDiscovery();
-		try {
-			btSocket.connect();
-		} catch (IOException e) {
-			try {
-				btSocket.close();
-			} catch (IOException e2) {
-				Log.d(TAG, "appResume() failed to close socket " + e2.getMessage());
-			}
-		}
-		mConnectedThread = new BtConnectedThread(btSocket);
-		mConnectedThread.start();
+		connectToArduino();
 	}
 	
 	public void appPause() {
@@ -121,15 +111,43 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 		
 	}
 	
+	private void connectToArduino() {
+		BluetoothDevice device = btAdapter.getRemoteDevice(arduino_bt_mac_addr);
+		try {
+			btSocket = device.createRfcommSocketToServiceRecord(phone_uuid);
+		} catch (IOException e) {
+			Log.d(TAG, "connectToArduino() failed to create socket " + e.getMessage());
+		}
+		btAdapter.cancelDiscovery();
+		try {
+			btSocket.connect();
+		} catch (IOException e) {
+			try {
+				btSocket.close();
+			} catch (IOException e2) {
+				Log.d(TAG, "connectToArduino() failed to close socket " + e2.getMessage());
+			}
+		}
+		mConnectedThread = new BtConnectedThread(btSocket);
+		mConnectedThread.start();
+	}
+	
 	private void checkBTState() {
 		if (btAdapter==null) {
 			Log.e(TAG, "Bluetooth not supported");
 		} else {
 			if (btAdapter.isEnabled()) {
-				Log.d(TAG, "Bluetooth enabled");
+				Log.d(TAG, "bluetooth enabled");
 			} else {
-				Log.e(TAG, "Bluetooth not enabled");
+				Log.e(TAG, "bluetooth not enabled... enabling now...");
+				btAdapter.enable();
 			}
+		}
+	}
+	
+	private void toggleBtPower() {
+		if (btAdapter.isEnabled()) {
+			btAdapter.disable();
 		}
 	}
 	
@@ -170,7 +188,14 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	    	try {
 	            mmOutStream.write(msgBuffer);
 	        } catch (IOException e) {
-	            Log.d(TAG, "Error Sending BT Command: " + e.getMessage());     
+	            String err = e.getMessage();
+	        	Log.d(TAG, "Error Sending BT Command: " + err);
+	        	toggleBtPower();
+	        	ContentValues values = new ContentValues();
+	        	values.clear();
+	        	values.put(ArduinoDbHelper.C_TYPE, "bt_");
+	        	values.put(ArduinoDbHelper.C_MEASUREMENT, 0 );
+	        	arduinoDbHelper.insertOrIgnore(values);
 	          }
 	    }
 	 
@@ -205,7 +230,7 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 		String command = rtrn_init.substring(1+sb.indexOf("^"));
 		String results = rtrn_init.substring(1,sb.indexOf("^"));
 		ContentValues values = new ContentValues();
-		
+		Log.d(TAG, "bt results: "+results);
 		if (command.contains("a")) {
 			// battery charging
 			if (Integer.parseInt(results.substring(0,results.indexOf("/"))) == 1) {
@@ -236,6 +261,31 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 		}
 		
 	}
+	
+	
+	
+	private final BroadcastReceiver btStateReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+	        final String action = intent.getAction();
+	        if (btAdapter != null) {
+	        	if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+	        		final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+	        		
+	        		switch (state) {
+	        			case BluetoothAdapter.STATE_OFF:
+	        				Log.d(TAG,"bluetooth found to be in a disabled state... turning it back on...");
+	        				btAdapter.enable();
+	        				break;
+	        			case BluetoothAdapter.STATE_ON:
+	        				Log.d(TAG,"bluetooth is now on... connecting to arduino...");
+	        				connectToArduino();
+	        				break;
+	        		}
+	        	}
+	        }
+		}
+	};
 	
 	
 }

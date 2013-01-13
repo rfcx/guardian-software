@@ -7,8 +7,6 @@
     <string name="menuItemAudioService">audio</string>
 	<string name="menuItemArduinoService">arduino</string>
     
-    <string name="bttn_start">START SERVICE</string>
-    <string name="bttn_stop">STOP SERVICE</string>
     <string name="bttn_power_on">PHONE POWER ON</string>
     <string name="bttn_power_off">PHONE POWER OFF</string>
 

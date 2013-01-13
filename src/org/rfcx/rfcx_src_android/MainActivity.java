@@ -12,7 +12,7 @@ import android.widget.Button;
 
 public class MainActivity extends Activity {
 	
-	Button bttnStart, bttnStop, bttnPowerOn, bttnPowerOff;
+	Button bttnPowerOn, bttnPowerOff;
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -51,22 +51,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 
-		bttnStart = (Button) findViewById(R.id.bttnStart);
-		bttnStop = (Button) findViewById(R.id.bttnStop);
 		bttnPowerOn = (Button) findViewById(R.id.bttnPowerOn);
 		bttnPowerOff = (Button) findViewById(R.id.bttnPowerOff);
-
-	    bttnStart.setOnClickListener(new OnClickListener() {
-	    	public void onClick(View v) {
-	    		((RfcxSrcApplication) getApplication()).sendBtCommand("a");
-	    	}
-	    });
-
-	    bttnStop.setOnClickListener(new OnClickListener() {
-	    	public void onClick(View v) {
-	    		((RfcxSrcApplication) getApplication()).sendBtCommand("b");
-	    	}
-	    });
 	    
 	    bttnPowerOn.setOnClickListener(new OnClickListener() {
 	    	public void onClick(View v) {

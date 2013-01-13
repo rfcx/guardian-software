@@ -1,11 +1,7 @@
 package org.rfcx.rfcx_src_android;
 
-import java.util.Calendar;
-
 import android.app.Service;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -13,8 +9,8 @@ public class ArduinoCommService extends Service {
 	
 	static final String TAG = "ArduinoCommService";
 	
-	static final int DELAY = 10000;
-	static final int DELAY_INNER = 1000;
+	static final int DELAY = 40000;
+	static final int DELAY_INNER = 2000;
 	String[] arduinoCommands = new String[] {"a","b"};
 	
 	private boolean runFlag = false;
@@ -79,30 +75,8 @@ public class ArduinoCommService extends Service {
 		}		
 	}
 	
-	
 
-	
 
-	
 
-	
-//	public synchronized void setArduinoData() {
-//		try {
-//			ContentValues values = new ContentValues();
-//			
-//			int id = 1;
-//			values.put(ArduinoComm.C_ID, ""+id);
-//			Calendar calendar = Calendar.getInstance();
-//			long createdAt = calendar.get(Calendar.SECOND);
-//			values.put(ArduinoComm.C_CREATED_AT, createdAt);
-//			
-//			values.put(ArduinoComm.C_TYPE, "temperature");
-//			values.put(ArduinoComm.C_VALUE, ""+10.63);
-//			
-//			this.arduinoComm.insertOrIgnore(values);
-//		} catch (RuntimeException e) {
-//			Log.e(TAG, "Failed to save Arduino data", e);
-//		}
-//	}
 
 }

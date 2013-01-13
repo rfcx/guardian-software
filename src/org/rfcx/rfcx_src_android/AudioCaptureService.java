@@ -18,11 +18,13 @@ public class AudioCaptureService extends Service {
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
 	
-    private int audioCaptureSampleRate = 8000;
+	AudioCaptureDbHelper audioCaptureDbHelper = new AudioCaptureDbHelper(this);
+	
+    private int audioCaptureSampleRate = 44100;
     private int audioCaptureChannelConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
     private int audioCaptureEncoding = AudioFormat.ENCODING_PCM_16BIT;
     private RealDoubleFFT transformer;
-    private int fftBlockSize = 16;
+    private int fftBlockSize = 2048;
     
     private DecimalFormat decimalFormat = new DecimalFormat("#");
 	
@@ -36,6 +38,7 @@ public class AudioCaptureService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.audioCapture = new AudioCapture();
+		audioCaptureDbHelper = new AudioCaptureDbHelper(this);
 		Log.d(TAG, "onCreated()");
 		
 		//borrowed
@@ -87,9 +90,8 @@ public class AudioCaptureService extends Service {
 							toTransform[i] = (double) buffer[i] / 32768.0; // signed 16 bit
 						}
 						transformer.ft(toTransform);
-						
 						String console = "";
-						for (int i = 0; i < fftBlockSize; i++) {
+						for (int i = 0; i < 16; i++) {
 							float val = (float) (java.lang.Math.abs(toTransform[i] * 1000));
 							console += "\t" + decimalFormat.format(val);
 						}
