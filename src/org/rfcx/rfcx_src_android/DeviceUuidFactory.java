@@ -32,9 +32,7 @@ public class DeviceUuidFactory {
 						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
-                        // Use the Android ID unless it's broken, in which case fallback on deviceId,
-                        // unless it's not available, then fallback on a random number which we store
-                        // to a prefs file
+
                         try {
                             if (!"9774d56d682e549c".equals(androidId)) {
                                 uuid = UUID.nameUUIDFromBytes(androidId.getBytes("utf8"));

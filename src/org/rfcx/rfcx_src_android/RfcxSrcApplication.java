@@ -9,6 +9,7 @@ import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -23,6 +24,8 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	
 	Handler hndlr;
 	Context context;
+
+	ArduinoDbHelper arduinoDbHelper = new ArduinoDbHelper(this);
 	
 	final int MESSAGE_RECEPTION = 1;
 	private BluetoothAdapter btAdapter = null;
@@ -45,8 +48,8 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.i(TAG, "onCreated()");
-
+		Log.d(TAG, "onCreated()");
+		
 		checkSetPreferences();
 		
 		hndlr = new Handler() {
@@ -55,21 +58,7 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 				case MESSAGE_RECEPTION:
 					byte[] readBuf = (byte[]) msg.obj;
 					sb.append(new String(readBuf, 0, msg.arg1));
-
-	            	if (sb.toString().contains("*")) {
-	            		String rtrn_init = sb.substring(0, sb.indexOf("*"));
-	            		if ((rtrn_init.indexOf("_") >= 0) && rtrn_init.contains("^") && rtrn_init.contains("/")) {
-	            			String rtrn = rtrn_init.substring(1,sb.indexOf("^"));
-	            			Log.d(TAG, "'"+ rtrn +"'");
-	            		} else if (rtrn_init.contains("_") && rtrn_init.contains("^")) {
-	            			String cmd = rtrn_init.substring(1+sb.indexOf("^"));
-	            			mConnectedThread.write(cmd);
-	            		} else {
-//	            			Log.d(TAG, "Skipping: "+rtrn_init);
-	            		}
-	            		sb.delete(0, sb.length());
-	            	}
-
+	            	processArduinoResult();
 	            	break;
 	    		}
 	        };
@@ -82,7 +71,7 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
-		Log.i(TAG, "onTerminated()");
+		Log.d(TAG, "onTerminated()");
 	}
 	
 	public void appResume() {
@@ -109,16 +98,10 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	
 	public void appPause() {
 	    Log.d(TAG, "appPause()");
-	    try {
-	    	btSocket.close();
-	    } catch (IOException e2) {
-	    	Log.d(TAG, "appPause() failed to close socket." + e2.getMessage());
-	    }
 	}
 	
-	public synchronized void onSharedPreferenceChanged(
-			SharedPreferences sharedPreferences, String key) {
-	//	this.twitter = null;
+	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		Log.d(TAG, "onSharedPreferenceChanged()");
 	}
 	
 	private void checkSetPreferences() {
@@ -143,10 +126,9 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 			Log.e(TAG, "Bluetooth not supported");
 		} else {
 			if (btAdapter.isEnabled()) {
-				Log.i(TAG, "Bluetooth enabled");
+				Log.d(TAG, "Bluetooth enabled");
 			} else {
 				Log.e(TAG, "Bluetooth not enabled");
-//				Intent enableBtIntent = new Intent(btAdapter.ACTION_REQUEST_ENABLE);
 			}
 		}
 	}
@@ -200,4 +182,60 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	        }
 	    }
 	}
+	
+	
+	
+	
+	public void processArduinoResult() {
+		if (sb.toString().contains("*")) {
+    		String rtrn_init = sb.substring(0, sb.indexOf("*"));
+    		if ((rtrn_init.indexOf("_") >= 0) && rtrn_init.contains("^") && rtrn_init.contains("/")) {
+    			saveArduinoResult(rtrn_init);
+    		} else if (rtrn_init.contains("_") && rtrn_init.contains("^")) {
+    			String cmd = rtrn_init.substring(1+sb.indexOf("^"));
+    			mConnectedThread.write(cmd);
+    		} else {
+//    			Log.d(TAG, "Skipping: "+rtrn_init);
+    		}
+    		sb.delete(0, sb.length());
+    	}
+	}
+	
+	private void saveArduinoResult(String rtrn_init) {
+		String command = rtrn_init.substring(1+sb.indexOf("^"));
+		String results = rtrn_init.substring(1,sb.indexOf("^"));
+		ContentValues values = new ContentValues();
+		
+		if (command.contains("a")) {
+			// battery charging
+			if (Integer.parseInt(results.substring(0,results.indexOf("/"))) == 1) {
+				values.clear();
+				values.put(ArduinoDbHelper.C_TYPE, "b_c");
+				values.put(ArduinoDbHelper.C_MEASUREMENT, 1 );
+				arduinoDbHelper.insertOrIgnore(values);
+			}
+			// battery fully charged
+			if (Integer.parseInt(results.substring(1+results.indexOf("/"))) == 1) {
+				values.clear();
+				values.put(ArduinoDbHelper.C_TYPE, "b_f");
+				values.put(ArduinoDbHelper.C_MEASUREMENT, 1 );
+				arduinoDbHelper.insertOrIgnore(values);
+			}
+			
+		} else if (command.contains("b")) {
+			// temperature
+			values.clear();
+			values.put(ArduinoDbHelper.C_TYPE, "tmp");
+			values.put(ArduinoDbHelper.C_MEASUREMENT, (int) Math.round(Double.parseDouble(results.substring(0,results.indexOf("/")))) );
+			arduinoDbHelper.insertOrIgnore(values);
+			// humidity
+			values.clear();
+			values.put(ArduinoDbHelper.C_TYPE, "hmd");
+			values.put(ArduinoDbHelper.C_MEASUREMENT, (int) Math.round(Double.parseDouble(results.substring(1+results.indexOf("/")))) );
+			arduinoDbHelper.insertOrIgnore(values);
+		}
+		
+	}
+	
+	
 }

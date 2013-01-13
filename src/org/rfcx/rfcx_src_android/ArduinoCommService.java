@@ -1,7 +1,11 @@
 package org.rfcx.rfcx_src_android;
 
+import java.util.Calendar;
+
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -14,7 +18,9 @@ public class ArduinoCommService extends Service {
 	String[] arduinoCommands = new String[] {"a","b"};
 	
 	private boolean runFlag = false;
-	private ArduinoComm arduinoComm;
+	private ArduinoCommSvc arduinoCommSvc;
+	
+	ArduinoDbHelper arduinoDbHelper = new ArduinoDbHelper(this);
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -25,7 +31,8 @@ public class ArduinoCommService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.arduinoComm = new ArduinoComm();
+		this.arduinoCommSvc = new ArduinoCommSvc();
+		arduinoDbHelper = new ArduinoDbHelper(this);
 		Log.d(TAG, "onCreated()");
 	}
 	
@@ -33,7 +40,7 @@ public class ArduinoCommService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
-		this.arduinoComm.start();
+		this.arduinoCommSvc.start();
 		Log.d(TAG, "onStarted()");
 		return START_STICKY;
 	}
@@ -42,15 +49,15 @@ public class ArduinoCommService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		this.arduinoComm.interrupt();
-		this.arduinoComm = null;
+		this.arduinoCommSvc.interrupt();
+		this.arduinoCommSvc = null;
 		Log.d(TAG, "onDestroyed()");
 	}
 	
 	
-	private class ArduinoComm extends Thread {
+	private class ArduinoCommSvc extends Thread {
 		
-		public ArduinoComm() {
+		public ArduinoCommSvc() {
 			super("ArduinoCommService-ArduinoComm");
 		}
 		
@@ -61,7 +68,7 @@ public class ArduinoCommService extends Service {
 				Log.d(TAG, "ArduinoCommService running");
 				try {
 					for (int i = 0; i < arduinoCommands.length; i++) {
-						((RfcxSrcApplication) getApplication()).sendBtCommand(arduinoCommands[i]);
+						((RfcxSrcApplication) getApplication()).sendBtCommand(arduinoCommands[i]);						
 						Thread.sleep(DELAY_INNER);
 					}
 					Thread.sleep(DELAY);
@@ -69,10 +76,33 @@ public class ArduinoCommService extends Service {
 					arduinoCommService.runFlag = false;
 				}
 			}
-		}
-		
+		}		
 	}
 	
+	
 
+	
+
+	
+
+	
+//	public synchronized void setArduinoData() {
+//		try {
+//			ContentValues values = new ContentValues();
+//			
+//			int id = 1;
+//			values.put(ArduinoComm.C_ID, ""+id);
+//			Calendar calendar = Calendar.getInstance();
+//			long createdAt = calendar.get(Calendar.SECOND);
+//			values.put(ArduinoComm.C_CREATED_AT, createdAt);
+//			
+//			values.put(ArduinoComm.C_TYPE, "temperature");
+//			values.put(ArduinoComm.C_VALUE, ""+10.63);
+//			
+//			this.arduinoComm.insertOrIgnore(values);
+//		} catch (RuntimeException e) {
+//			Log.e(TAG, "Failed to save Arduino data", e);
+//		}
+//	}
 
 }
