@@ -14,19 +14,19 @@ import android.media.MediaRecorder;
 public class AudioCaptureService extends Service {
 
 	static final String TAG = "AudioCaptureService";
-	
+
+    private int audioCaptureSampleRate = 44100;
+    private int fftBlockSize = 2048;
+    private int fftSigFig = 4;
+    
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
-	
 	AudioCaptureDbHelper audioCaptureDbHelper = new AudioCaptureDbHelper(this);
-	
-    private int audioCaptureSampleRate = 44100;
     private int audioCaptureChannelConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
     private int audioCaptureEncoding = AudioFormat.ENCODING_PCM_16BIT;
     private RealDoubleFFT transformer;
-    private int fftBlockSize = 2048;
-    
     private DecimalFormat decimalFormat = new DecimalFormat("#");
+    private double fftSigFigMultiplier = Math.pow(10, fftSigFig);
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -40,8 +40,6 @@ public class AudioCaptureService extends Service {
 		this.audioCapture = new AudioCapture();
 		audioCaptureDbHelper = new AudioCaptureDbHelper(this);
 		Log.d(TAG, "onCreated()");
-		
-		//borrowed
 		transformer = new RealDoubleFFT(fftBlockSize);
 	}
 	
@@ -63,7 +61,6 @@ public class AudioCaptureService extends Service {
 		Log.d(TAG, "onDestroyed()");
 	}
 	
-	
 	private class AudioCapture extends Thread {
 		
 		public AudioCapture() {
@@ -81,6 +78,7 @@ public class AudioCaptureService extends Service {
 						audioCaptureChannelConfig, audioCaptureEncoding, bufferSize);
 				short[] buffer = new short[fftBlockSize];
 				double[] toTransform = new double[fftBlockSize];
+				
 				audioRecord.startRecording();
 				Log.d(TAG, "AudioCaptureService started");
 				while (audioCaptureService.runFlag) {
@@ -90,13 +88,7 @@ public class AudioCaptureService extends Service {
 							toTransform[i] = (double) buffer[i] / 32768.0; // signed 16 bit
 						}
 						transformer.ft(toTransform);
-						String console = "";
-						for (int i = 0; i < 16; i++) {
-							float val = (float) (java.lang.Math.abs(toTransform[i] * 1000));
-							console += "\t" + decimalFormat.format(val);
-						}
-						Log.i(TAG,console);
-						
+						Log.d(TAG, concatValues(toTransform));
 					} catch (Exception e) {
 						audioCaptureService.runFlag = false;
 					}
@@ -107,6 +99,16 @@ public class AudioCaptureService extends Service {
 			}
 		}
 		
+	}
+	
+	
+	private String concatValues(double[] values) {
+		StringBuilder sbFFT = new StringBuilder();
+		sbFFT.append(decimalFormat.format(java.lang.Math.abs(values[0] * fftSigFigMultiplier)));
+		for (int i = 1; i < fftBlockSize; i++) {
+			sbFFT.append(",").append(decimalFormat.format(java.lang.Math.abs(values[i] * fftSigFigMultiplier)));
+		}
+		return sbFFT.toString();
 	}
 	
 }

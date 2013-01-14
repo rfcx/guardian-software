@@ -15,6 +15,8 @@ public class ArduinoDbHelper {
 	
 	static final String TAG = "ArduinoDbHelper";
 	
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+	
 	static final String DATABASE = "rfcx-src-arduino.db";
 	static final int VERSION = 1;
 	static final String TABLE = "arduino";
@@ -61,7 +63,6 @@ public class ArduinoDbHelper {
 	
 	public void insertOrIgnore(ContentValues values) {
 		
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 		Date dateTime = new Date();
 		values.put(ArduinoDbHelper.C_CREATED_AT, dateFormat.format(dateTime));
 		

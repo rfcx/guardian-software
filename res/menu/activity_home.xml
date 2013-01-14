@@ -6,12 +6,6 @@
         android:title="@string/menuItemSettings"
 	    android:icon="@android:drawable/ic_menu_preferences"
         />
-    <item
-        android:id="@+id/menuItemSettingsAlt"
-        android:orderInCategory="2"
-        android:title="@string/menuItemSettings"
-	    android:icon="@android:drawable/ic_menu_preferences"
-        />
 	<item
 	    android:id="@+id/menuItemArduinoServiceStart"
         android:orderInCategory="3"

@@ -27,9 +27,6 @@ public class MainActivity extends Activity {
 		case R.id.menuItemSettings:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
-		case R.id.menuItemSettingsAlt:
-			startActivity(new Intent(this, PrefsActivity.class));
-			break;
 		case R.id.menuItemArduinoServiceStart:
 			startService(new Intent(this, ArduinoCommService.class));
 			break;

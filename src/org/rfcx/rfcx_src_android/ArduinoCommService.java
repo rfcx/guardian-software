@@ -27,6 +27,7 @@ public class ArduinoCommService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		((RfcxSrcApplication) getApplication()).appResume();
 		this.arduinoCommSvc = new ArduinoCommSvc();
 		arduinoDbHelper = new ArduinoDbHelper(this);
 		Log.d(TAG, "onCreated()");

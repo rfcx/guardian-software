@@ -15,6 +15,8 @@ public class AudioCaptureDbHelper {
 
 	static final String TAG = "AudioCaptureDbHelper";
 	
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS", Locale.US);
+	
 	static final String DATABASE = "rfcx-src-audio.db";
 	static final int VERSION = 1;
 	static final String TABLE = "audio";
@@ -59,7 +61,6 @@ public class AudioCaptureDbHelper {
 	
 	public void insertOrIgnore(ContentValues values) {
 		
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 		Date dateTime = new Date();
 		values.put(AudioCaptureDbHelper.C_CREATED_AT, dateFormat.format(dateTime));
 		
