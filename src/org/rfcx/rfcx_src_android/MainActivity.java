@@ -48,6 +48,9 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 
+	    startService(new Intent(this, ArduinoCommService.class));
+	    startService(new Intent(this, AudioCaptureService.class));
+
 		bttnPowerOn = (Button) findViewById(R.id.bttnPowerOn);
 		bttnPowerOff = (Button) findViewById(R.id.bttnPowerOff);
 	    

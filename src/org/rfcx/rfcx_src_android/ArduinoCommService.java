@@ -2,6 +2,7 @@ package org.rfcx.rfcx_src_android;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -17,7 +18,7 @@ public class ArduinoCommService extends Service {
 	private ArduinoCommSvc arduinoCommSvc;
 	
 	ArduinoDbHelper arduinoDbHelper = new ArduinoDbHelper(this);
-	
+		
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
@@ -65,7 +66,7 @@ public class ArduinoCommService extends Service {
 				Log.d(TAG, "ArduinoCommService running");
 				try {
 					for (int i = 0; i < arduinoCommands.length; i++) {
-						((RfcxSrcApplication) getApplication()).sendBtCommand(arduinoCommands[i]);						
+						((RfcxSrcApplication) getApplication()).sendBtCommand(arduinoCommands[i]);
 						Thread.sleep(DELAY_INNER);
 					}
 					Thread.sleep(DELAY);

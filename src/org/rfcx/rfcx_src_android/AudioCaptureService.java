@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 
 import ca.uol.aig.fftpack.RealDoubleFFT;
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -27,6 +28,7 @@ public class AudioCaptureService extends Service {
     private RealDoubleFFT transformer;
     private DecimalFormat decimalFormat = new DecimalFormat("#");
     private double fftSigFigMultiplier = Math.pow(10, fftSigFig);
+    long[] spectrum = new long[fftBlockSize];
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -88,7 +90,10 @@ public class AudioCaptureService extends Service {
 							toTransform[i] = (double) buffer[i] / 32768.0; // signed 16 bit
 						}
 						transformer.ft(toTransform);
-						Log.d(TAG, concatValues(toTransform));
+						for (int i = 0; i < fftBlockSize; i++) {
+							spectrum[i] = Math.round(Math.abs(toTransform[i] * fftSigFigMultiplier));
+						}
+//						saveSpectrum(concatValues(toTransform));
 					} catch (Exception e) {
 						audioCaptureService.runFlag = false;
 					}
@@ -109,6 +114,12 @@ public class AudioCaptureService extends Service {
 			sbFFT.append(",").append(decimalFormat.format(java.lang.Math.abs(values[i] * fftSigFigMultiplier)));
 		}
 		return sbFFT.toString();
+	}
+	
+	private void saveSpectrum(String spectrum) {
+    	ContentValues values = new ContentValues();
+    	values.put(AudioCaptureDbHelper.C_SPECTRUM, spectrum );
+//    	audioCaptureDbHelper.insertOrIgnore(values);
 	}
 	
 }

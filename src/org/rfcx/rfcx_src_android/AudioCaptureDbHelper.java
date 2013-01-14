@@ -64,8 +64,6 @@ public class AudioCaptureDbHelper {
 		Date dateTime = new Date();
 		values.put(AudioCaptureDbHelper.C_CREATED_AT, dateFormat.format(dateTime));
 		
-		Log.d(TAG, "insertOrIgnore() on " + values);
-		
 		SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 		try {
 			db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);

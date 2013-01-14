@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.BatteryManager;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -29,6 +30,7 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	Context context;
 
 	ArduinoDbHelper arduinoDbHelper = new ArduinoDbHelper(this);
+
 	
 	final int MESSAGE_RECEPTION = 1;
 	private BluetoothAdapter btAdapter = null;
@@ -39,10 +41,6 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	private String arduino_bt_mac_addr;
 	private UUID phone_uuid;
 	
-	public float envTemperature = 0;
-	public float envHumidity = 0;
-	public boolean envBatteryCharging = false;
-	public boolean phoneBatteryCharging = false;
 	
 	public void sendBtCommand(String cmd) {
 		mConnectedThread.write(cmd);
@@ -70,8 +68,12 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	    btAdapter = BluetoothAdapter.getDefaultAdapter();
 	    checkBTState();
 	    
-	    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-	    this.registerReceiver(btStateReceiver, filter);
+	    IntentFilter btIntentFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+	    this.registerReceiver(btStateReceiver, btIntentFilter);
+	    
+	    IntentFilter batteryIntentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+	    this.registerReceiver(batteryStateReceiver, batteryIntentFilter);
+	    
 	}
 	
 	@Override
@@ -269,6 +271,7 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 		public void onReceive(Context context, Intent intent) {
 	        final String action = intent.getAction();
 	        if (btAdapter != null) {
+	        	// this 'if' statement might be redundant based on the IntentFilter above...
 	        	if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
 	        		final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
 	        		
@@ -284,6 +287,16 @@ public class RfcxSrcApplication extends Application implements OnSharedPreferenc
 	        		}
 	        	}
 	        }
+		}
+	};
+	
+	private final BroadcastReceiver batteryStateReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+	        int batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+	        int batteryScale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+	        float batteryPct = batteryLevel / (float) batteryScale;	
+	        Log.d(TAG,"battery pct: "+batteryPct);
 		}
 	};
 	
