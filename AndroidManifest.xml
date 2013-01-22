@@ -19,20 +19,22 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:name="org.rfcx.rfcx_src_android.RfcxSrcApplication"
+        android:name="org.rfcx.rfcx_src_android.RfcxSource"
         >
         
-        <service android:name="org.rfcx.rfcx_src_android.ArduinoCommService"
+        <service android:name="org.rfcx.rfcx_src_android.ArduinoService"
         	/>
-        <service android:name="org.rfcx.rfcx_src_android.AudioCaptureService"
+        <service android:name="org.rfcx.rfcx_src_android.ServiceAudioCapture"
+        	/>
+        <service android:name="org.rfcx.src_state.CpuService"
         	/>
         
         <activity
-            android:name=".PrefsActivity"
+            android:name="org.rfcx.rfcx_src_android.ActivityPrefs"
             android:label="@string/menuItemSettings" />
         
         <activity
-            android:name="org.rfcx.rfcx_src_android.MainActivity"
+            android:name="org.rfcx.rfcx_src_android.ActivityMain"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,7 +42,7 @@
             </intent-filter>
         </activity>
         
-        <receiver android:name=".BootReceiver">
+        <receiver android:name="org.rfcx.rfcx_src_android.ReceiverBoot">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>

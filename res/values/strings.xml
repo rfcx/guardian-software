@@ -6,6 +6,7 @@
     <string name="menuItemSettings">settings</string>
     <string name="menuItemAudioService">audio</string>
 	<string name="menuItemArduinoService">arduino</string>
+	<string name="menuItemCpuService">cpu</string>
     
     <string name="bttn_power_on">PHONE POWER ON</string>
     <string name="bttn_power_off">PHONE POWER OFF</string>
