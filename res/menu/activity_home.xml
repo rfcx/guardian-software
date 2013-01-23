@@ -25,6 +25,12 @@
         android:orderInCategory="5"
 	    android:title="@string/menuAirplaneMode"
 	    />
+	<item
+	    android:id="@+id/menuApiSendTest"
+        android:orderInCategory="6"
+	    android:title="@string/menuApiSendTest"
+	    />
+	
 	
 	
 	

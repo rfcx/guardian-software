@@ -20,6 +20,7 @@ import android.util.Log;
 import org.rfcx.src_database.*;
 import org.rfcx.src_state.*;
 import org.rfcx.src_util.*;
+import org.rfcx.src_api.*;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
@@ -27,7 +28,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private SharedPreferences sharedPreferences;
 	
 	Context context;
-	ArduinoDb arduinoDb = new ArduinoDb(this);
+	public ArduinoDb arduinoDb = new ArduinoDb(this);
 
 	// for reading battery charge state
 	public BatteryState batteryState = new BatteryState();
@@ -47,6 +48,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	// for viewing cpu usage
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
+
+	// for transmitting api data
+	public ApiTransmit apiTransmit = new ApiTransmit();
 	
 	@Override
 	public void onCreate() {

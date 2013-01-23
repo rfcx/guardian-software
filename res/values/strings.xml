@@ -8,6 +8,7 @@
 	<string name="menuArduinoService">arduino</string>
 	<string name="menuCpuService">cpu</string>
 	<string name="menuAirplaneMode">network</string>
+	<string name="menuApiSendTest">http</string>
     
     <string name="bttn_power_on">PHONE POWER ON</string>
     <string name="bttn_power_off">PHONE POWER OFF</string>
@@ -20,5 +21,8 @@
     
     <string name="title_allow_wifi">Allow WiFi</string>
     <string name="desc_allow_wifi">Allow WiFi to be enabled</string>
+    
+    <string name="title_api_domain">API Domain</string>
+    <string name="desc_api_domain">API Domain</string>
     
 </resources>

@@ -42,6 +42,9 @@ public class MainActivity extends Activity {
 		case R.id.menuAirplaneModeToggle:
 			((RfcxSource) getApplication()).airplaneMode.setToggle(this);
 			break;
+		case R.id.menuApiSendTest:
+			((RfcxSource) getApplication()).apiTransmit.sendData(this);
+			break;
 		}
 		return true;
 	}

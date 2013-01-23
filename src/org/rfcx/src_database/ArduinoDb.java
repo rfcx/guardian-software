@@ -1,7 +1,10 @@
 package org.rfcx.src_database;
 
+import java.util.Date;
+
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -21,6 +24,7 @@ public class ArduinoDb {
 	static final String DATABASE = "arduino";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_VALUE = "value";
+	private static final String[] STATS = { "COUNT("+C_VALUE+")", "AVG("+C_VALUE+")" };
 	static final String CREATE_CLMNS = "(" + C_CREATED_AT + " DATETIME, " + C_VALUE + " INT " + ")";
 		
 	// for saving humidity values
@@ -52,7 +56,7 @@ public class ArduinoDb {
 		}
 		public void insert(int value) {
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getCurrDateTime());
+			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
 			values.put(C_VALUE, value);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
@@ -94,7 +98,7 @@ public class ArduinoDb {
 		}
 		public void insert(int value) {
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getCurrDateTime());
+			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
 			values.put(C_VALUE, value);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
@@ -103,6 +107,14 @@ public class ArduinoDb {
 			} finally {
 				db.close();
 			}
+		}
+		public int[] getStatsSince(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { Cursor cursor = db.query(TABLE, STATS, C_CREATED_AT+">=?",
+					new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, null);
+				try { return cursor.moveToNext() ? new int[] { cursor.getInt(0), cursor.getInt(1) } : null;
+				} finally { cursor.close(); }
+			} finally { db.close(); }
 		}
 	}
 	public final DbTemperature dbTemperature;
@@ -136,7 +148,7 @@ public class ArduinoDb {
 		}
 		public void insert(int value) {
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getCurrDateTime());
+			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
 			values.put(C_VALUE, value);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {

@@ -18,5 +18,11 @@
 	    android:title="@string/title_allow_wifi"
 	    android:summary="@string/desc_allow_wifi"
 		/>
+
+	<EditTextPreference
+        android:title="@string/title_api_domain"
+        android:key="api_domain"
+        android:summary="@string/desc_api_domain"
+        />
     
 </PreferenceScreen>

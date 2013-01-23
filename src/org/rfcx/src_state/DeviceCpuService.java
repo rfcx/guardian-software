@@ -11,7 +11,7 @@ import android.util.Log;
 public class DeviceCpuService extends Service {
 
 	private static final String TAG = DeviceCpuService.class.getSimpleName();
-	static final int DELAY = 1000;
+	static final int DELAY = 500;
 	private boolean runFlag = false;
 	private CpuServiceCheck cpuServiceCheck;
 	
@@ -59,7 +59,6 @@ public class DeviceCpuService extends Service {
 			while (cpuService.runFlag) {
 				try {
 					deviceCpuUsage.updateCpuUsage();
-					Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsage());
 					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {
 					cpuService.runFlag = false;

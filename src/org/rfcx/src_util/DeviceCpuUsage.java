@@ -7,8 +7,8 @@ public class DeviceCpuUsage {
 	
 	private float cpuUsage = updateUsage();
 	
-	public float getCpuUsage() {
-		return cpuUsage;
+	public int getCpuUsageAvg() {
+		return Math.round(100*cpuUsage);
 	}
 	
 	public void updateCpuUsage() {

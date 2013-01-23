@@ -8,9 +8,13 @@ public class DateTimeUtils {
 	
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 	
-	public String getCurrDateTime() {
-		Date dateTime = new Date();
-		return dateFormat.format(dateTime);
+	public String getDateTime() {
+		Date date = new Date();
+		return dateFormat.format(date);
+	}
+	
+	public String getDateTime(Date date) {
+		return dateFormat.format(date);
 	}
 	
 }
