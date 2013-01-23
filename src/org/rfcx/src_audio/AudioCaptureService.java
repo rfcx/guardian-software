@@ -8,9 +8,9 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
-public class ServiceAudioCapture extends Service {
+public class AudioCaptureService extends Service {
 
-	private static final String TAG = ServiceAudioCapture.class.getSimpleName();
+	private static final String TAG = AudioCaptureService.class.getSimpleName();
 
 	AudioState audioState = new AudioState();
 
@@ -61,7 +61,7 @@ public class ServiceAudioCapture extends Service {
 
 		@Override
 		public void run() {
-			ServiceAudioCapture audioCaptureService = ServiceAudioCapture.this;
+			AudioCaptureService audioCaptureService = AudioCaptureService.this;
 
 			try {
 				int bufferSize = 4 * AudioRecord.getMinBufferSize(

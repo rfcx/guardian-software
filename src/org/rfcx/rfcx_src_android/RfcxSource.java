@@ -18,8 +18,8 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import org.rfcx.src_audio.*;
 import org.rfcx.src_state.*;
+import org.rfcx.src_util.*;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
@@ -45,10 +45,13 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public AirplaneMode airplaneMode = new AirplaneMode();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
 	
+	// for viewing cpu usage
+	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.d(TAG, "onCreated()");
+		Log.d(TAG, "onCreate()");
 		
 		checkSetPreferences();
 		setupArduinoHandler();
@@ -56,21 +59,20 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	    this.registerReceiver(arduinoStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 	    this.registerReceiver(batteryStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
-	    
-	    startService(new Intent(this, ArduinoService.class));
-	    startService(new Intent(this, ServiceAudioCapture.class));
 	}
 	
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
-		Log.d(TAG, "onTerminated()");
+		Log.d(TAG, "onTerminate()");
 		
 		this.unregisterReceiver(arduinoStateReceiver);
 		this.unregisterReceiver(batteryStateReceiver);
+		this.unregisterReceiver(airplaneModeReceiver);
 	}
 	
 	public void appResume() {
+		Log.d(TAG, "appResume()");
 		checkSetPreferences();
 		connectToArduino();
 	}
@@ -81,9 +83,11 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		Log.d(TAG, "onSharedPreferenceChanged()");
+		checkSetPreferences();
 	}
 	
 	private void checkSetPreferences() {
+		Log.d(TAG, "checkSetPreferences()");
 		this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		this.sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 		
@@ -92,14 +96,14 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		
 		arduinoState.setBluetoothMAC(this.sharedPreferences.getString("arduino_bt_mac_addr", "00:00:00:00:00:00"));
 		if (this.sharedPreferences.getString("arduino_bt_mac_addr", null) == null) {
-			Log.e(TAG, "No preference value set for 'arduino_bt_mac_addr'");
+			Log.e(TAG, "You must set preference value for 'arduino_bt_mac_addr'");
 		}
 		
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", false));
-		
 	}
 	
 	public void connectToArduino() {
+		Log.d(TAG, "connectToArduino()");
 		arduinoState.preConnect();
 		arduinoConnectThread = new ArduinoConnectThread(arduinoState.getBluetoothSocket());
 		arduinoConnectThread.start();

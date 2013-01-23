@@ -41,6 +41,7 @@ public class AudioState {
 			audioSpectrumAvg[i] = ( audioSpectrumAvg[i] + Math.abs(audioSpectrum[i]) ) / divAvg;
 		}
 		if (repAvg == cntAvg) {
+//			Log.d(TAG, ""+audioSpectrumAvg[1024]);
 			repAvg = 0;
 			audioSpectrumAvg = new double[fftBlockSize];
 		}

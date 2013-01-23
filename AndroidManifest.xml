@@ -16,7 +16,6 @@
 	<uses-permission android:name="android.permission.WRITE_SETTINGS" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<user-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
     <application
@@ -28,15 +27,15 @@
         >
         
         <service android:name="org.rfcx.src_state.ArduinoService" />
-        <service android:name="org.rfcx.src_state.CpuService" />
-        <service android:name="org.rfcx.src_audio.ServiceAudioCapture" />
+        <service android:name="org.rfcx.src_state.DeviceCpuService" />
+        <service android:name="org.rfcx.src_audio.AudioCaptureService" />
         
         <activity
-            android:name="org.rfcx.rfcx_src_android.ActivityPrefs"
+            android:name="org.rfcx.rfcx_src_android.PrefsActivity"
             android:label="@string/menuSettings" />
         
         <activity
-            android:name="org.rfcx.rfcx_src_android.ActivityMain"
+            android:name="org.rfcx.rfcx_src_android.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -44,7 +43,7 @@
             </intent-filter>
         </activity>
         
-        <receiver android:name="org.rfcx.rfcx_src_android.ReceiverBoot">
+        <receiver android:name="org.rfcx.rfcx_src_android.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>

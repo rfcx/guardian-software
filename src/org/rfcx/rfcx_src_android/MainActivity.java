@@ -1,6 +1,6 @@
 package org.rfcx.rfcx_src_android;
 
-import org.rfcx.src_audio.ServiceAudioCapture;
+import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_state.*;
 
 import android.os.Bundle;
@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class ActivityMain extends Activity {
+public class MainActivity extends Activity {
 	
 	Button bttnPowerOn, bttnPowerOff;
 	
@@ -28,16 +28,16 @@ public class ActivityMain extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menuSettings:
-			startActivity(new Intent(this, ActivityPrefs.class));
+			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 		case R.id.menuArduinoServiceStart:
 			startService(new Intent(this, org.rfcx.src_state.ArduinoService.class));
 			break;
 		case R.id.menuAudioServiceStart:
-			startService(new Intent(this, ServiceAudioCapture.class));
+			startService(new Intent(this, AudioCaptureService.class));
 			break;
 		case R.id.menuCpuServiceStart:
-			startService(new Intent(this, CpuService.class));
+			startService(new Intent(this, DeviceCpuService.class));
 			break;
 		case R.id.menuAirplaneModeToggle:
 			((RfcxSource) getApplication()).airplaneMode.setToggle(this);
@@ -65,6 +65,10 @@ public class ActivityMain extends Activity {
 	    		((RfcxSource) getApplication()).sendArduinoCommand("t");
 	    	}
 	    });
+	    
+		this.startService(new Intent(this, ArduinoService.class));
+		this.startService(new Intent(this, AudioCaptureService.class));
+		this.startService(new Intent(this, DeviceCpuService.class));
 	}
 	
 	@Override
