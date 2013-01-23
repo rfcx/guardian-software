@@ -6,7 +6,6 @@ import java.io.OutputStream;
 
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
@@ -35,6 +34,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public ArduinoState arduinoState = new ArduinoState();
 	private final BroadcastReceiver arduinoStateReceiver = new ArduinoReceiver();
 	
+	public AirplaneMode airplaneMode = new AirplaneMode();
+	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
+	
 	final int arduinoMessageReception = 1;
 	private StringBuilder arduinoMessage = new StringBuilder();
 	private ArduinoConnectThread arduinoConnectThread;
@@ -50,6 +52,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	    
 	    this.registerReceiver(arduinoStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 	    this.registerReceiver(batteryStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	}
 	
 	@Override
@@ -57,6 +60,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		super.onTerminate();
 		this.unregisterReceiver(arduinoStateReceiver);
 		this.unregisterReceiver(batteryStateReceiver);
+		this.unregisterReceiver(airplaneModeReceiver);
 		Log.d(TAG, "onTerminated()");
 	}
 	

@@ -33,7 +33,7 @@ public class CpuService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
 		this.cpuServiceCheck.start();
-		Log.d(TAG, "onStarted()");
+		Log.d(TAG, "onStarted()");		
 		return START_STICKY;
 	}
 	

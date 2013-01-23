@@ -1,7 +1,5 @@
 package org.rfcx.src_audio;
 
-import java.text.DecimalFormat;
-
 import android.util.Log;
 import ca.uol.aig.fftpack.RealDoubleFFT;
 
@@ -14,13 +12,20 @@ public class AudioState {
 	private RealDoubleFFT fftObj = new RealDoubleFFT(fftBlockSize);
 	private double[] audioSpectrum = new double[fftBlockSize];
 	private double[] audioSpectrumAvg = new double[fftBlockSize];
-	public double[] audioSpectrumFreq = setAudioSpectrumFreq();
-	
-	DecimalFormat decimalFormat = new DecimalFormat("#");
+	private double[] audioSpectrumFreq = new double[fftBlockSize];
 	
 	private double cntAvg = 10;
 	private double divAvg = 1;
 	private double repAvg = 0;
+	
+	public double getFrequencyByIndex(int index) {
+		if (audioSpectrumFreq[0] == 0) {
+			for (int i = 0; i < fftBlockSize; i++) {
+				audioSpectrumFreq[i] = (audioCaptureSampleRate / 2) * ((i+1) / (double) fftBlockSize);
+			}
+		}
+		return audioSpectrumFreq[index];
+	}
 	
 	public void addFrame(double[] audioFrame) {
 		this.audioSpectrum = audioFrame;
@@ -33,20 +38,13 @@ public class AudioState {
 		repAvg++;
 		divAvg = (repAvg == cntAvg) ? (cntAvg / fftBlockSize) : 1;
 		for (int i = 0; i < fftBlockSize; i++) {
-			audioSpectrumAvg[i] = ( audioSpectrumAvg[i] + audioSpectrum[i] ) / divAvg;
+			audioSpectrumAvg[i] = ( audioSpectrumAvg[i] + Math.abs(audioSpectrum[i]) ) / divAvg;
 		}
 		if (repAvg == cntAvg) {
 			repAvg = 0;
 			audioSpectrumAvg = new double[fftBlockSize];
 		}
 	}
-	
-	private double[] setAudioSpectrumFreq() {
-		double[] audioSpecFreq = new double[fftBlockSize];
-		for (int i = 0; i < fftBlockSize; i++) {
-			audioSpecFreq[i] = (audioCaptureSampleRate / 2) * ((i+1) / (double) fftBlockSize);
-		}
-		return audioSpecFreq;
-	}
+
 	
 }
