@@ -1,7 +1,7 @@
 package org.rfcx.src_state;
 
-import org.rfcx.rfcx_src_android.DbArduino;
 import org.rfcx.rfcx_src_android.RfcxSource;
+import org.rfcx.src_database.DbArduino;
 
 import android.app.Service;
 import android.content.Intent;

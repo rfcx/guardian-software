@@ -1,9 +1,8 @@
-package org.rfcx.rfcx_src_android;
+package org.rfcx.src_database;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,17 +10,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public class DbAudioCapture {
-
-	static final String TAG = "AudioCaptureDbHelper";
+public class DbArduino {
 	
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS", Locale.US);
+	static final String TAG = "ArduinoDbHelper";
 	
-	static final String DATABASE = "rfcx-src-audio.db";
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+	
+	static final String DATABASE = "rfcx-src-arduino.db";
 	static final int VERSION = 1;
-	static final String TABLE = "audio";
+	static final String TABLE = "arduino";
 	static final String C_CREATED_AT = "created_at";
-	static final String C_SPECTRUM = "body";
+	static final String C_TYPE = "type";
+	static final String C_MEASUREMENT = "measurement";
 	
 	class DbHelper extends SQLiteOpenHelper {
 		
@@ -33,7 +33,8 @@ public class DbAudioCapture {
 		public void onCreate(SQLiteDatabase db) {
 			String sql = "CREATE TABLE " + TABLE + " ("
 					+ C_CREATED_AT + " DATETIME, "
-					+ C_SPECTRUM + " TEXT "
+					+ C_TYPE + " TEXT, "
+					+ C_MEASUREMENT + " INT "
 					+ ")";
 			db.execSQL(sql);
 			Log.d(TAG, "onCreated() SQL: " + sql);
@@ -49,8 +50,8 @@ public class DbAudioCapture {
 	}
 	
 	final DbHelper dbHelper;
-
-	public DbAudioCapture(Context context) {
+	
+	public DbArduino(Context context) {
 		this.dbHelper = new DbHelper(context);
 		Log.i(TAG, "Initialized data");
 	}
@@ -62,7 +63,9 @@ public class DbAudioCapture {
 	public void insertOrIgnore(ContentValues values) {
 		
 		Date dateTime = new Date();
-		values.put(DbAudioCapture.C_CREATED_AT, dateFormat.format(dateTime));
+		values.put(DbArduino.C_CREATED_AT, dateFormat.format(dateTime));
+		
+		Log.d(TAG, "insertOrIgnore() on " + values);
 		
 		SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 		try {
@@ -71,4 +74,5 @@ public class DbAudioCapture {
 			db.close();
 		}
 	}
+
 }

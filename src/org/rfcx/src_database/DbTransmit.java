@@ -1,4 +1,4 @@
-package org.rfcx.rfcx_src_android;
+package org.rfcx.src_database;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -10,18 +10,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public class DbArduino {
-	
-	static final String TAG = "ArduinoDbHelper";
+public class DbTransmit {
+
+	static final String TAG = "TransmitDbHelper";
 	
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 	
-	static final String DATABASE = "rfcx-src-arduino.db";
+	static final String DATABASE = "rfcx-src-transmit.db";
 	static final int VERSION = 1;
-	static final String TABLE = "arduino";
+	static final String TABLE = "transmit";
 	static final String C_CREATED_AT = "created_at";
-	static final String C_TYPE = "type";
-	static final String C_MEASUREMENT = "measurement";
+	static final String C_SENT_AT = "sent_at";
+	static final String C_BODY = "body";
 	
 	class DbHelper extends SQLiteOpenHelper {
 		
@@ -33,8 +33,8 @@ public class DbArduino {
 		public void onCreate(SQLiteDatabase db) {
 			String sql = "CREATE TABLE " + TABLE + " ("
 					+ C_CREATED_AT + " DATETIME, "
-					+ C_TYPE + " TEXT, "
-					+ C_MEASUREMENT + " INT "
+					+ C_SENT_AT + " DATETIME, "
+					+ C_BODY + " TEXT "
 					+ ")";
 			db.execSQL(sql);
 			Log.d(TAG, "onCreated() SQL: " + sql);
@@ -50,8 +50,8 @@ public class DbArduino {
 	}
 	
 	final DbHelper dbHelper;
-	
-	public DbArduino(Context context) {
+
+	public DbTransmit(Context context) {
 		this.dbHelper = new DbHelper(context);
 		Log.i(TAG, "Initialized data");
 	}
@@ -63,7 +63,7 @@ public class DbArduino {
 	public void insertOrIgnore(ContentValues values) {
 		
 		Date dateTime = new Date();
-		values.put(DbArduino.C_CREATED_AT, dateFormat.format(dateTime));
+		values.put(DbTransmit.C_CREATED_AT, dateFormat.format(dateTime));
 		
 		Log.d(TAG, "insertOrIgnore() on " + values);
 		
@@ -74,5 +74,5 @@ public class DbArduino {
 			db.close();
 		}
 	}
-
+	
 }

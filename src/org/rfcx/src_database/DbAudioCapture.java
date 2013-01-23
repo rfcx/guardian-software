@@ -1,8 +1,9 @@
-package org.rfcx.rfcx_src_android;
+package org.rfcx.src_database;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,18 +11,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public class DbTransmit {
+public class DbAudioCapture {
 
-	static final String TAG = "TransmitDbHelper";
+	static final String TAG = "AudioCaptureDbHelper";
 	
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS", Locale.US);
 	
-	static final String DATABASE = "rfcx-src-transmit.db";
+	static final String DATABASE = "rfcx-src-audio.db";
 	static final int VERSION = 1;
-	static final String TABLE = "transmit";
+	static final String TABLE = "audio";
 	static final String C_CREATED_AT = "created_at";
-	static final String C_SENT_AT = "sent_at";
-	static final String C_BODY = "body";
+	static final String C_SPECTRUM = "body";
 	
 	class DbHelper extends SQLiteOpenHelper {
 		
@@ -33,8 +33,7 @@ public class DbTransmit {
 		public void onCreate(SQLiteDatabase db) {
 			String sql = "CREATE TABLE " + TABLE + " ("
 					+ C_CREATED_AT + " DATETIME, "
-					+ C_SENT_AT + " DATETIME, "
-					+ C_BODY + " TEXT "
+					+ C_SPECTRUM + " TEXT "
 					+ ")";
 			db.execSQL(sql);
 			Log.d(TAG, "onCreated() SQL: " + sql);
@@ -51,7 +50,7 @@ public class DbTransmit {
 	
 	final DbHelper dbHelper;
 
-	public DbTransmit(Context context) {
+	public DbAudioCapture(Context context) {
 		this.dbHelper = new DbHelper(context);
 		Log.i(TAG, "Initialized data");
 	}
@@ -63,9 +62,7 @@ public class DbTransmit {
 	public void insertOrIgnore(ContentValues values) {
 		
 		Date dateTime = new Date();
-		values.put(DbTransmit.C_CREATED_AT, dateFormat.format(dateTime));
-		
-		Log.d(TAG, "insertOrIgnore() on " + values);
+		values.put(DbAudioCapture.C_CREATED_AT, dateFormat.format(dateTime));
 		
 		SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 		try {
@@ -74,5 +71,4 @@ public class DbTransmit {
 			db.close();
 		}
 	}
-	
 }

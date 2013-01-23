@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.rfcx.src_database.*;
 import org.rfcx.src_state.*;
 import org.rfcx.src_util.*;
 
@@ -197,28 +198,28 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 			// battery charging
 			if (Integer.parseInt(results.substring(0,results.indexOf("/"))) == 1) {
 				values.clear();
-				values.put(DbArduino.C_TYPE, "b_c");
-				values.put(DbArduino.C_MEASUREMENT, 1 );
+				values.put("type", "b_c");
+				values.put("measurement", 1 );
 				arduinoDbHelper.insertOrIgnore(values);
 			}
 			// battery fully charged
 			if (Integer.parseInt(results.substring(1+results.indexOf("/"))) == 1) {
 				values.clear();
-				values.put(DbArduino.C_TYPE, "b_f");
-				values.put(DbArduino.C_MEASUREMENT, 1 );
+				values.put("type", "b_f");
+				values.put("measurement", 1 );
 				arduinoDbHelper.insertOrIgnore(values);
 			}
 			
 		} else if (command.contains("b")) {
 			// temperature
 			values.clear();
-			values.put(DbArduino.C_TYPE, "tmp");
-			values.put(DbArduino.C_MEASUREMENT, (int) Math.round(Double.parseDouble(results.substring(0,results.indexOf("/")))) );
+			values.put("type", "tmp");
+			values.put("measurement", (int) Math.round(Double.parseDouble(results.substring(0,results.indexOf("/")))) );
 			arduinoDbHelper.insertOrIgnore(values);
 			// humidity
 			values.clear();
-			values.put(DbArduino.C_TYPE, "hmd");
-			values.put(DbArduino.C_MEASUREMENT, (int) Math.round(Double.parseDouble(results.substring(1+results.indexOf("/")))) );
+			values.put("type", "hmd");
+			values.put("measurement", (int) Math.round(Double.parseDouble(results.substring(1+results.indexOf("/")))) );
 			arduinoDbHelper.insertOrIgnore(values);
 		}
 	}
