@@ -2,7 +2,6 @@ package org.rfcx.src_state;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiManager;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -12,9 +11,8 @@ public class AirplaneMode {
 	
 	private boolean isEnabled;
 	private boolean allowWifi = false;
-	private WifiManager wifiManager = null;
 	
-	private boolean isEnabled(Context context) {
+	public boolean isEnabled(Context context) {
 		isEnabled = Settings.System.getInt(context.getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) == 1;
 		return isEnabled;
 	}
@@ -30,7 +28,6 @@ public class AirplaneMode {
     	Log.d(TAG, "setOff()");
     	if (isEnabled(context)) {
     		set(context, 0);
-    		wifiManager.setWifiEnabled(allowWifi);
     	}
 	}
 	
@@ -49,7 +46,6 @@ public class AirplaneMode {
         	Intent intentAp = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
         	intentAp.putExtra("state", (value == 1) ? true : false);
         	context.sendBroadcast(intentAp);
-        	setWifiManager(context);
 		} catch (Exception e) {
 			Log.d(TAG, "Failed: "+e.getMessage());
 		}
@@ -59,10 +55,8 @@ public class AirplaneMode {
 		this.allowWifi = allowWifi;
 	}
 	
-	public void setWifiManager(Context context) {
-		if (wifiManager == null) {
-			wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-		}
+	public boolean getAllowWifi() {
+		return allowWifi;
 	}
 	
 }

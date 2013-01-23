@@ -1,4 +1,4 @@
-package org.rfcx.rfcx_src_android;
+package org.rfcx.src_audio;
 
 import android.app.Service;
 import android.content.Intent;
@@ -7,7 +7,6 @@ import android.util.Log;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import org.rfcx.src_audio.*;
 
 public class ServiceAudioCapture extends Service {
 
@@ -93,25 +92,6 @@ public class ServiceAudioCapture extends Service {
 				audioCaptureService.runFlag = false;
 			}
 		}
-
 	}
-
-//	private String concatValues(double[] values) {
-//		StringBuilder sbFFT = new StringBuilder();
-//		sbFFT.append(decimalFormat.format(java.lang.Math.abs(values[0]
-//				* fftSigFigMultiplier)));
-//		for (int i = 1; i < fftBlockSize; i++) {
-//			sbFFT.append(",").append(
-//					decimalFormat.format(java.lang.Math.abs(values[i]
-//							* fftSigFigMultiplier)));
-//		}
-//		return sbFFT.toString();
-//	}
-//
-//	private void saveSpectrum(String spectrum) {
-//		ContentValues values = new ContentValues();
-//		values.put(DbAudioCapture.C_SPECTRUM, spectrum);
-//		// audioCaptureDbHelper.insertOrIgnore(values);
-//	}
 
 }

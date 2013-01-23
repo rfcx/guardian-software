@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.rfcx.src_audio.*;
 import org.rfcx.src_state.*;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
@@ -42,6 +43,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	// for viewing and controlling airplane mode
 	public AirplaneMode airplaneMode = new AirplaneMode();
+	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
 	
 	@Override
 	public void onCreate() {
@@ -53,6 +55,10 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	    
 	    this.registerReceiver(arduinoStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 	    this.registerReceiver(batteryStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
+	    
+	    startService(new Intent(this, ArduinoService.class));
+	    startService(new Intent(this, ServiceAudioCapture.class));
 	}
 	
 	@Override

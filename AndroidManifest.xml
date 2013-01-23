@@ -16,6 +16,8 @@
 	<uses-permission android:name="android.permission.WRITE_SETTINGS" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<user-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
     <application
         android:allowBackup="true"
@@ -25,9 +27,9 @@
         android:name="org.rfcx.rfcx_src_android.RfcxSource"
         >
         
-        <service android:name="org.rfcx.rfcx_src_android.ArduinoService" />
-        <service android:name="org.rfcx.rfcx_src_android.ServiceAudioCapture" />
+        <service android:name="org.rfcx.src_state.ArduinoService" />
         <service android:name="org.rfcx.src_state.CpuService" />
+        <service android:name="org.rfcx.src_audio.ServiceAudioCapture" />
         
         <activity
             android:name="org.rfcx.rfcx_src_android.ActivityPrefs"

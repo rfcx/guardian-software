@@ -1,5 +1,6 @@
 package org.rfcx.rfcx_src_android;
 
+import org.rfcx.src_audio.ServiceAudioCapture;
 import org.rfcx.src_state.*;
 
 import android.os.Bundle;
@@ -30,7 +31,7 @@ public class ActivityMain extends Activity {
 			startActivity(new Intent(this, ActivityPrefs.class));
 			break;
 		case R.id.menuArduinoServiceStart:
-			startService(new Intent(this, ArduinoService.class));
+			startService(new Intent(this, org.rfcx.src_state.ArduinoService.class));
 			break;
 		case R.id.menuAudioServiceStart:
 			startService(new Intent(this, ServiceAudioCapture.class));
@@ -49,9 +50,6 @@ public class ActivityMain extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-
-	    startService(new Intent(this, ArduinoService.class));
-	    startService(new Intent(this, ServiceAudioCapture.class));
 
 		bttnPowerOn = (Button) findViewById(R.id.bttnPowerOn);
 		bttnPowerOff = (Button) findViewById(R.id.bttnPowerOff);
