@@ -1,7 +1,7 @@
 package org.rfcx.src_state;
 
 import org.rfcx.rfcx_src_android.RfcxSource;
-import org.rfcx.src_database.DbArduino;
+import org.rfcx.src_database.ArduinoDb;
 
 import android.app.Service;
 import android.content.Intent;
@@ -19,7 +19,7 @@ public class ArduinoService extends Service {
 	private boolean runFlag = false;
 	private ArduinoCommSvc arduinoCommSvc;
 	
-	DbArduino arduinoDbHelper = new DbArduino(this);
+	ArduinoDb arduinoDbHelper = new ArduinoDb(this);
 		
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -32,7 +32,7 @@ public class ArduinoService extends Service {
 		super.onCreate();
 		((RfcxSource) getApplication()).appResume();
 		this.arduinoCommSvc = new ArduinoCommSvc();
-		arduinoDbHelper = new DbArduino(this);
+		arduinoDbHelper = new ArduinoDb(this);
 		Log.d(TAG, "onCreated()");
 	}
 	

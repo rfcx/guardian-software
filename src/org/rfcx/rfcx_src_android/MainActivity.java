@@ -30,14 +30,14 @@ public class MainActivity extends Activity {
 		case R.id.menuSettings:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
-		case R.id.menuArduinoServiceStart:
-			startService(new Intent(this, org.rfcx.src_state.ArduinoService.class));
+		case R.id.menuArduinoServiceStop:
+			stopService(new Intent(this, org.rfcx.src_state.ArduinoService.class));
 			break;
-		case R.id.menuAudioServiceStart:
-			startService(new Intent(this, AudioCaptureService.class));
+		case R.id.menuAudioServiceStop:
+			stopService(new Intent(this, AudioCaptureService.class));
 			break;
-		case R.id.menuCpuServiceStart:
-			startService(new Intent(this, DeviceCpuService.class));
+		case R.id.menuCpuServiceStop:
+			stopService(new Intent(this, DeviceCpuService.class));
 			break;
 		case R.id.menuAirplaneModeToggle:
 			((RfcxSource) getApplication()).airplaneMode.setToggle(this);

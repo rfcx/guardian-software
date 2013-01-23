@@ -8,7 +8,6 @@ import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -28,7 +27,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private SharedPreferences sharedPreferences;
 	
 	Context context;
-	DbArduino arduinoDbHelper = new DbArduino(this);
+	ArduinoDb arduinoDb = new ArduinoDb(this);
 
 	// for reading battery charge state
 	public BatteryState batteryState = new BatteryState();
@@ -192,35 +191,38 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private void saveArduinoResult(String rtrn_init) {
 		String command = rtrn_init.substring(1+arduinoMessage.indexOf("^"));
 		String results = rtrn_init.substring(1,arduinoMessage.indexOf("^"));
-		ContentValues values = new ContentValues();
+//		ContentValues values = new ContentValues();
 		Log.d(TAG, "bt results: "+results);
 		if (command.contains("a")) {
-			// battery charging
-			if (Integer.parseInt(results.substring(0,results.indexOf("/"))) == 1) {
-				values.clear();
-				values.put("type", "b_c");
-				values.put("measurement", 1 );
-				arduinoDbHelper.insertOrIgnore(values);
-			}
-			// battery fully charged
-			if (Integer.parseInt(results.substring(1+results.indexOf("/"))) == 1) {
-				values.clear();
-				values.put("type", "b_f");
-				values.put("measurement", 1 );
-				arduinoDbHelper.insertOrIgnore(values);
-			}
+//			// battery charging
+//			if (Integer.parseInt(results.substring(0,results.indexOf("/"))) == 1) {
+//				values.clear();
+//				values.put("type", "b_c");
+//				values.put("measurement", 1 );
+//				arduinoDbHelper.insertOrIgnore(values);
+//			}
+//			// battery fully charged
+//			if (Integer.parseInt(results.substring(1+results.indexOf("/"))) == 1) {
+//				values.clear();
+//				values.put("type", "b_f");
+//				values.put("measurement", 1 );
+//				arduinoDbHelper.insertOrIgnore(values);
+//			}
 			
 		} else if (command.contains("b")) {
-			// temperature
-			values.clear();
-			values.put("type", "tmp");
-			values.put("measurement", (int) Math.round(Double.parseDouble(results.substring(0,results.indexOf("/")))) );
-			arduinoDbHelper.insertOrIgnore(values);
-			// humidity
-			values.clear();
-			values.put("type", "hmd");
-			values.put("measurement", (int) Math.round(Double.parseDouble(results.substring(1+results.indexOf("/")))) );
-			arduinoDbHelper.insertOrIgnore(values);
+			
+			arduinoDb.dbTemperature.insert((int) Math.round(Double.parseDouble(results.substring(0,results.indexOf("/")))));
+			arduinoDb.dbHumidity.insert((int) Math.round(Double.parseDouble(results.substring(1+results.indexOf("/")))));
+//			// temperature
+//			values.clear();
+//			values.put("type", "tmp");
+//			values.put("measurement", (int) Math.round(Double.parseDouble(results.substring(0,results.indexOf("/")))) );
+//			arduinoDbHelper.insertOrIgnore(values);
+//			// humidity
+//			values.clear();
+//			values.put("type", "hmd");
+//			values.put("measurement", (int) Math.round(Double.parseDouble(results.substring(1+results.indexOf("/")))) );
+//			arduinoDbHelper.insertOrIgnore(values);
 		}
 	}
 	
