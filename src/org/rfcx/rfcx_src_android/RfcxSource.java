@@ -106,6 +106,18 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", false));
 	}
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	// Arduino stuff below here
+	
 	public void connectToArduino() {
 		Log.d(TAG, "connectToArduino()");
 		arduinoState.preConnect();
@@ -195,38 +207,13 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private void saveArduinoResult(String rtrn_init) {
 		String command = rtrn_init.substring(1+arduinoMessage.indexOf("^"));
 		String results = rtrn_init.substring(1,arduinoMessage.indexOf("^"));
-//		ContentValues values = new ContentValues();
-		Log.d(TAG, "bt results: "+results);
 		if (command.contains("a")) {
-//			// battery charging
-//			if (Integer.parseInt(results.substring(0,results.indexOf("/"))) == 1) {
-//				values.clear();
-//				values.put("type", "b_c");
-//				values.put("measurement", 1 );
-//				arduinoDbHelper.insertOrIgnore(values);
-//			}
-//			// battery fully charged
-//			if (Integer.parseInt(results.substring(1+results.indexOf("/"))) == 1) {
-//				values.clear();
-//				values.put("type", "b_f");
-//				values.put("measurement", 1 );
-//				arduinoDbHelper.insertOrIgnore(values);
-//			}
-			
+			int charging = Integer.parseInt(results.substring(0,results.indexOf("/")));
+			int charged = Integer.parseInt(results.substring(1+results.indexOf("/")));
+			arduinoDb.dbCharge.insert( (charged == 1) ? 2 : charging );
 		} else if (command.contains("b")) {
-			
 			arduinoDb.dbTemperature.insert((int) Math.round(Double.parseDouble(results.substring(0,results.indexOf("/")))));
 			arduinoDb.dbHumidity.insert((int) Math.round(Double.parseDouble(results.substring(1+results.indexOf("/")))));
-//			// temperature
-//			values.clear();
-//			values.put("type", "tmp");
-//			values.put("measurement", (int) Math.round(Double.parseDouble(results.substring(0,results.indexOf("/")))) );
-//			arduinoDbHelper.insertOrIgnore(values);
-//			// humidity
-//			values.clear();
-//			values.put("type", "hmd");
-//			values.put("measurement", (int) Math.round(Double.parseDouble(results.substring(1+results.indexOf("/")))) );
-//			arduinoDbHelper.insertOrIgnore(values);
 		}
 	}
 	

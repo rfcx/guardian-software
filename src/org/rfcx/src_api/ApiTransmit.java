@@ -52,11 +52,11 @@ public class ApiTransmit {
 		RfcxSource app = (RfcxSource) context.getApplicationContext();
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		
-		int[] stats = app.arduinoDb.dbTemperature.getStatsSince(lastTransmitTime);
-		Log.d(TAG, stats[0]+"- "+stats[1]);
+		int[] statsTemp = app.arduinoDb.dbTemperature.getStatsSince(lastTransmitTime);
+		int[] statsHumi = app.arduinoDb.dbHumidity.getStatsSince(lastTransmitTime);
 		
-        nameValuePairs.add(new BasicNameValuePair("temp", Integer.toString(app.deviceCpuUsage.getCpuUsageAvg())));
-        nameValuePairs.add(new BasicNameValuePair("humi", Integer.toString(app.deviceCpuUsage.getCpuUsageAvg())));
+		if (statsTemp[0] > 0) { nameValuePairs.add(new BasicNameValuePair("temp", Integer.toString(statsTemp[1]))); }
+		if (statsHumi[0] > 0) { nameValuePairs.add(new BasicNameValuePair("humi", Integer.toString(statsHumi[1]))); }
         nameValuePairs.add(new BasicNameValuePair("dcpu", Integer.toString(app.deviceCpuUsage.getCpuUsageAvg())));
         
         return nameValuePairs;
@@ -75,6 +75,13 @@ public class ApiTransmit {
 			}
 		}
 		return null;
+	}
+	
+	private void cleanupArduinoDb(Context context) {
+		RfcxSource app = (RfcxSource) context.getApplicationContext();
+		app.arduinoDb.dbTemperature.clearStatsBefore(lastTransmitTime);
+		app.arduinoDb.dbHumidity.clearStatsBefore(lastTransmitTime);
+		
 	}
 	
 }

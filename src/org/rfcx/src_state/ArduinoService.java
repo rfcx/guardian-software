@@ -12,7 +12,7 @@ public class ArduinoService extends Service {
 
 	private static final String TAG = ArduinoService.class.getSimpleName();
 	
-	static final int DELAY = 40000;
+	static final int DELAY = 20000;
 	static final int DELAY_INNER = 2000;
 	String[] arduinoCommands = new String[] {"a","b"};
 	

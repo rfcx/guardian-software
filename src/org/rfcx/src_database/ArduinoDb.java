@@ -66,6 +66,19 @@ public class ArduinoDb {
 				db.close();
 			}
 		}
+		public int[] getStatsSince(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { Cursor cursor = db.query(TABLE, STATS, C_CREATED_AT+">=?",
+					new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, null);
+				try { return cursor.moveToNext() ? new int[] { cursor.getInt(0), cursor.getInt(1) } : null;
+				} finally { cursor.close(); }
+			} finally { db.close(); }
+		}
+		public void clearStatsBefore(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+(new DateTimeUtils()).getDateTime(date));
+			} finally { db.close(); }
+		}
 	}
 	public final DbHumidity dbHumidity;
 	
@@ -116,6 +129,11 @@ public class ArduinoDb {
 				} finally { cursor.close(); }
 			} finally { db.close(); }
 		}
+		public void clearStatsBefore(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+(new DateTimeUtils()).getDateTime(date));
+			} finally { db.close(); }
+		}
 	}
 	public final DbTemperature dbTemperature;
 	
@@ -157,6 +175,19 @@ public class ArduinoDb {
 			} finally {
 				db.close();
 			}
+		}
+		public int[] getStatsSince(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { Cursor cursor = db.query(TABLE, STATS, C_CREATED_AT+">=?",
+					new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, null);
+				try { return cursor.moveToNext() ? new int[] { cursor.getInt(0), cursor.getInt(1) } : null;
+				} finally { cursor.close(); }
+			} finally { db.close(); }
+		}
+		public void clearStatsBefore(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+(new DateTimeUtils()).getDateTime(date));
+			} finally { db.close(); }
 		}
 	}
 	public final DbCharge dbCharge;
