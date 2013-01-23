@@ -26,26 +26,20 @@ public class ActivityMain extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menuItemSettings:
+		case R.id.menuSettings:
 			startActivity(new Intent(this, ActivityPrefs.class));
 			break;
-		case R.id.menuItemArduinoServiceStart:
+		case R.id.menuArduinoServiceStart:
 			startService(new Intent(this, ArduinoService.class));
 			break;
-		case R.id.menuItemArduinoServiceStop:
-			stopService(new Intent(this, ArduinoService.class));
-			break;
-		case R.id.menuItemAudioServiceStart:
+		case R.id.menuAudioServiceStart:
 			startService(new Intent(this, ServiceAudioCapture.class));
 			break;
-		case R.id.menuItemAudioServiceStop:
-			stopService(new Intent(this, ServiceAudioCapture.class));
-			break;
-		case R.id.menuItemCpuServiceStart:
+		case R.id.menuCpuServiceStart:
 			startService(new Intent(this, CpuService.class));
 			break;
-		case R.id.menuItemCpuServiceStop:
-			stopService(new Intent(this, CpuService.class));
+		case R.id.menuAirplaneModeToggle:
+			((RfcxSource) getApplication()).airplaneMode.setToggle(this);
 			break;
 		}
 		return true;

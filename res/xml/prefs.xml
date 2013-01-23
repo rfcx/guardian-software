@@ -4,11 +4,19 @@
     <EditTextPreference
         android:title="@string/title_arduino_bt_mac_addr"
         android:key="arduino_bt_mac_addr"
+        android:summary="@string/desc_arduino_bt_mac_addr"
         />
     
 	<EditTextPreference
         android:title="@string/title_device_uuid"
         android:key="device_uuid"
+        android:summary="@string/desc_device_uuid"
         />
+	
+	<CheckBoxPreference
+	    android:key="allow_wifi"
+	    android:title="@string/title_allow_wifi"
+	    android:summary="@string/desc_allow_wifi"
+		/>
     
 </PreferenceScreen>

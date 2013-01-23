@@ -28,19 +28,20 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	Context context;
 	DbArduino arduinoDbHelper = new DbArduino(this);
 
+	// for reading battery charge state
 	public BatteryState batteryState = new BatteryState();
 	private final BroadcastReceiver batteryStateReceiver = new BatteryReceiver();
 	
+	// for viewing and controlling arduino microcontroller via bluetooth
 	public ArduinoState arduinoState = new ArduinoState();
 	private final BroadcastReceiver arduinoStateReceiver = new ArduinoReceiver();
-	
-	public AirplaneMode airplaneMode = new AirplaneMode();
-	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
-	
 	final int arduinoMessageReception = 1;
 	private StringBuilder arduinoMessage = new StringBuilder();
 	private ArduinoConnectThread arduinoConnectThread;
 	Handler arduinoHandler;
+	
+	// for viewing and controlling airplane mode
+	public AirplaneMode airplaneMode = new AirplaneMode();
 	
 	@Override
 	public void onCreate() {
@@ -52,16 +53,15 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	    
 	    this.registerReceiver(arduinoStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 	    this.registerReceiver(batteryStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	}
 	
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
+		Log.d(TAG, "onTerminated()");
+		
 		this.unregisterReceiver(arduinoStateReceiver);
 		this.unregisterReceiver(batteryStateReceiver);
-		this.unregisterReceiver(airplaneModeReceiver);
-		Log.d(TAG, "onTerminated()");
 	}
 	
 	public void appResume() {
@@ -88,6 +88,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		if (this.sharedPreferences.getString("arduino_bt_mac_addr", null) == null) {
 			Log.e(TAG, "No preference value set for 'arduino_bt_mac_addr'");
 		}
+		
+		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", false));
+		
 	}
 	
 	public void connectToArduino() {

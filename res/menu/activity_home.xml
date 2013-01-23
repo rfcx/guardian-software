@@ -1,48 +1,31 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/menuItemSettings"
+        android:id="@+id/menuSettings"
         android:orderInCategory="1"
-        android:title="@string/menuItemSettings"
-	    android:icon="@android:drawable/ic_menu_preferences"
+        android:title="@string/menuSettings"
         />
 	<item
-	    android:id="@+id/menuItemArduinoServiceStart"
+	    android:id="@+id/menuArduinoServiceStart"
+        android:orderInCategory="2"
+	    android:title="@string/menuArduinoService"
+	    />
+	<item
+	    android:id="@+id/menuAudioServiceStart"
         android:orderInCategory="3"
-	    android:title="@string/menuItemArduinoService"
-	    android:icon="@android:drawable/ic_media_play"
+	    android:title="@string/menuAudioService"
 	    />
-	<item 
-	    android:id="@+id/menuItemArduinoServiceStop"
+	<item
+	    android:id="@+id/menuCpuServiceStart"
         android:orderInCategory="4"
-	    android:title="@string/menuItemArduinoService"
-	    android:icon="@android:drawable/ic_media_pause"
+	    android:title="@string/menuCpuService"
 	    />
-	
 	<item
-	    android:id="@+id/menuItemAudioServiceStart"
+	    android:id="@+id/menuAirplaneModeToggle"
         android:orderInCategory="5"
-	    android:title="@string/menuItemAudioService"
-	    android:icon="@android:drawable/ic_media_play"
-	    />
-	<item 
-	    android:id="@+id/menuItemAudioServiceStop"
-        android:orderInCategory="6"
-	    android:title="@string/menuItemAudioService"
-	    android:icon="@android:drawable/ic_media_pause"
+	    android:title="@string/menuAirplaneMode"
 	    />
 	
-	<item
-	    android:id="@+id/menuItemCpuServiceStart"
-        android:orderInCategory="7"
-	    android:title="@string/menuItemCpuService"
-	    android:icon="@android:drawable/ic_media_play"
-	    />
-	<item 
-	    android:id="@+id/menuItemCpuServiceStop"
-        android:orderInCategory="8"
-	    android:title="@string/menuItemCpuService"
-	    android:icon="@android:drawable/ic_media_pause"
-	    />
+	
 	
 </menu>
