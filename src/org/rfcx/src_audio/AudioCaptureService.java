@@ -1,5 +1,7 @@
 package org.rfcx.src_audio;
 
+import org.rfcx.rfcx_src_android.RfcxSource;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -21,10 +23,9 @@ public class AudioCaptureService extends Service {
 	private int audioCaptureFrameSize = audioState.fftBlockSize;
 	private int audioCaptureChannelConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
 	private int audioCaptureEncoding = AudioFormat.ENCODING_PCM_16BIT;
-
+	
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -62,7 +63,7 @@ public class AudioCaptureService extends Service {
 		@Override
 		public void run() {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
-
+			RfcxSource rfcxSource = (RfcxSource) getApplicationContext();
 			try {
 				int bufferSize = 4 * AudioRecord.getMinBufferSize(
 						audioCaptureSampleRate, audioCaptureChannelConfig,
@@ -82,7 +83,7 @@ public class AudioCaptureService extends Service {
 						for (int i = 0; i < audioCaptureFrameSize && i < bufferReadResult; i++) {
 							audioFrame[i] = (double) buffer[i] / 32768.0;
 						}
-						audioState.addFrame(audioFrame);
+						audioState.addFrame(audioFrame, rfcxSource);
 					} catch (Exception e) {
 						audioCaptureService.runFlag = false;
 					}

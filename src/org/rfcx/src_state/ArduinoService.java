@@ -12,7 +12,7 @@ public class ArduinoService extends Service {
 
 	private static final String TAG = ArduinoService.class.getSimpleName();
 	
-	static final int DELAY = 20000;
+	static final int DELAY = 40000;
 	static final int DELAY_INNER = 2000;
 	String[] arduinoCommands = new String[] {"a","b"};
 	
@@ -23,7 +23,6 @@ public class ArduinoService extends Service {
 		
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -33,7 +32,7 @@ public class ArduinoService extends Service {
 		((RfcxSource) getApplication()).appResume();
 		this.arduinoCommSvc = new ArduinoCommSvc();
 		arduinoDbHelper = new ArduinoDb(this);
-		Log.d(TAG, "onCreated()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onCreated()"); }
 	}
 	
 	@Override
@@ -41,7 +40,7 @@ public class ArduinoService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
 		this.arduinoCommSvc.start();
-		Log.d(TAG, "onStarted()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onStarted()"); }
 		return START_STICKY;
 	}
 	
@@ -51,7 +50,7 @@ public class ArduinoService extends Service {
 		this.runFlag = false;
 		this.arduinoCommSvc.interrupt();
 		this.arduinoCommSvc = null;
-		Log.d(TAG, "onDestroyed()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onDestroyed()"); }
 	}
 	
 	
@@ -65,7 +64,7 @@ public class ArduinoService extends Service {
 		public void run() {
 			ArduinoService arduinoCommService = ArduinoService.this;
 			while (arduinoCommService.runFlag) {
-				Log.d(TAG, "ArduinoCommService running");
+				if (RfcxSource.verboseLog()) { Log.d(TAG, "ArduinoCommService running"); }
 				try {
 					for (int i = 0; i < arduinoCommands.length; i++) {
 						((RfcxSource) getApplication()).sendArduinoCommand(arduinoCommands[i]);

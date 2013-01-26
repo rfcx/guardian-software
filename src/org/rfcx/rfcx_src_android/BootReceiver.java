@@ -14,7 +14,7 @@ public class BootReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Log.d(TAG, "onReceive()");		
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onReceive()"); }	
 		context.startService(new Intent(context, ArduinoService.class));
 		context.startService(new Intent(context, AudioCaptureService.class));
 		context.startService(new Intent(context, DeviceCpuService.class));

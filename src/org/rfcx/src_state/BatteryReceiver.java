@@ -11,17 +11,20 @@ import android.util.Log;
 public class BatteryReceiver extends BroadcastReceiver {
 
 	private static final String TAG = BatteryReceiver.class.getSimpleName();
-		
+	
 	@Override
 	public void onReceive(Context context, Intent intent) {
         setBatteryState(context, intent);
-        Log.d(TAG,"onReceive()");
+        if (RfcxSource.verboseLog()) { Log.d(TAG,"onReceive()"); }
 	}
 	
 	private void setBatteryState(Context context, Intent intent) {
-		RfcxSource app = (RfcxSource) context.getApplicationContext();
-		app.batteryState.setLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
-		app.batteryState.setScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
-        Log.d(TAG,"battery percentage: "+app.batteryState.getPercent() + "%");
+		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
+		rfcxSource.batteryState.setLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
+		rfcxSource.batteryState.setScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
+		int batteryPct = rfcxSource.batteryState.getPercent();
+		rfcxSource.deviceStateDb.dbBattery.insert(batteryPct);
+		rfcxSource.batteryState.setPowerMode(rfcxSource, batteryPct);
 	}
+	
 }

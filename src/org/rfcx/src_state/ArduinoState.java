@@ -3,6 +3,8 @@ package org.rfcx.src_state;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.rfcx.rfcx_src_android.RfcxSource;
+
 import android.bluetooth.*;
 import android.util.Log;
 
@@ -94,15 +96,14 @@ public class ArduinoState {
 		return bluetoothSocket;
 	}
 	
-	
 	public void checkState() {
 		if (bluetoothAdapter == null) {
-			Log.d(TAG, "bluetooth not supported");
+			Log.e(TAG, "Bluetooth not supported");
 		} else {
 			if (bluetoothAdapter.isEnabled()) {
-				Log.d(TAG, "bluetooth enabled");
+				if (RfcxSource.verboseLog()) { Log.d(TAG, "Bluetooth enabled"); }
 			} else {
-				Log.d(TAG, "bluetooth not enabled... enabling now...");
+				if (RfcxSource.verboseLog()) { Log.d(TAG, "Bluetooth disabled: re-enabling"); }
 				bluetoothAdapter.enable();
 			}
 		}
@@ -113,7 +114,7 @@ public class ArduinoState {
 		try {
 			setBluetoothSocket(bluetoothDevice.createRfcommSocketToServiceRecord(getDeviceUUID()));
 		} catch (IOException e) {
-			Log.d(TAG, "connectToArduino() failed to create socket " + e.getMessage());
+			if (RfcxSource.verboseLog()) { Log.d(TAG, "connectToArduino() failed to create socket " + e.getMessage()); }
 		}
 		getBluetoothAdapter().cancelDiscovery();
 		try {
@@ -122,7 +123,7 @@ public class ArduinoState {
 			try {
 				getBluetoothSocket().close();
 			} catch (IOException e2) {
-				Log.d(TAG, "connectToArduino() failed to close socket " + e2.getMessage());
+				if (RfcxSource.verboseLog()) { Log.d(TAG, "connectToArduino() failed to close socket " + e2.getMessage()); }
 			}
 		}
 	}

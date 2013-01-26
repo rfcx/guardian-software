@@ -1,6 +1,5 @@
 package org.rfcx.src_api;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +9,6 @@ import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -30,22 +27,25 @@ public class ApiTransmit {
 	private Date currTransmitTime = new Date();
 	private Date lastTransmitTime = currTransmitTime;
 	private String protocol = "http";
-	private String domain = "10.0.0.23";
+	private String domain = null;
 	private String endpoint = "/lib/rfcx.php";
 	
 	private HttpClient httpClient = new DefaultHttpClient();
-	private HttpPost httpPost = new HttpPost(protocol+"://"+domain+endpoint);
+	private HttpPost httpPost = null;
 	
 	public void sendData(Context context) {
-	    try {
-	        httpPost.setEntity(new UrlEncodedFormEntity(preparePostData(context)));
-	        HttpResponse httpResponse = httpClient.execute(httpPost);
-	        Log.d(TAG, httpResponseString(httpResponse));
-	    } catch (ClientProtocolException e) {
-	    	Log.d(TAG, e.getMessage());
-	    } catch (IOException e) {
-	    	Log.d(TAG, e.getMessage());
-	    }
+		if (httpPost != null) {
+			try {
+				httpPost.setEntity(new UrlEncodedFormEntity(preparePostData(context)));
+				HttpResponse httpResponse = httpClient.execute(httpPost);
+	        	String strResponse = httpResponseString(httpResponse);
+				if (RfcxSource.verboseLog()) { Log.d(TAG, strResponse); }
+			} catch (Exception e) {
+				if (RfcxSource.verboseLog()) { Log.d(TAG, e.getMessage()); }
+			}
+		} else {
+			Log.e(TAG, "httpPost is not set");
+		}
 	}
 	
 	private List<NameValuePair> preparePostData(Context context) {
@@ -54,9 +54,11 @@ public class ApiTransmit {
 		
 		int[] statsTemp = app.arduinoDb.dbTemperature.getStatsSince(lastTransmitTime);
 		int[] statsHumi = app.arduinoDb.dbHumidity.getStatsSince(lastTransmitTime);
+		String[] currCharge = app.arduinoDb.dbCharge.getLast();
 		
-		if (statsTemp[0] > 0) { nameValuePairs.add(new BasicNameValuePair("temp", Integer.toString(statsTemp[1]))); }
-		if (statsHumi[0] > 0) { nameValuePairs.add(new BasicNameValuePair("humi", Integer.toString(statsHumi[1]))); }
+		if (statsTemp[0] > 0) { nameValuePairs.add(new BasicNameValuePair("atmp", Integer.toString(statsTemp[1]))); }
+		if (statsHumi[0] > 0) { nameValuePairs.add(new BasicNameValuePair("ahmd", Integer.toString(statsHumi[1]))); }
+		if (currCharge[1] != "0") { nameValuePairs.add(new BasicNameValuePair("achg", currCharge[1])); }
         nameValuePairs.add(new BasicNameValuePair("dcpu", Integer.toString(app.deviceCpuUsage.getCpuUsageAvg())));
         
         return nameValuePairs;
@@ -68,10 +70,8 @@ public class ApiTransmit {
 			currTransmitTime = new Date();
 			try {
 				return EntityUtils.toString(httpResponse.getEntity());
-			} catch (ParseException e) {
-				Log.d(TAG, e.getMessage());
-			} catch (IOException e) {
-				Log.d(TAG, e.getMessage());
+			} catch (Exception e) {
+				if (RfcxSource.verboseLog()) { Log.d(TAG, e.getMessage()); }
 			}
 		}
 		return null;
@@ -80,8 +80,16 @@ public class ApiTransmit {
 	private void cleanupArduinoDb(Context context) {
 		RfcxSource app = (RfcxSource) context.getApplicationContext();
 		app.arduinoDb.dbTemperature.clearStatsBefore(lastTransmitTime);
-		app.arduinoDb.dbHumidity.clearStatsBefore(lastTransmitTime);
-		
+		app.arduinoDb.dbHumidity.clearStatsBefore(lastTransmitTime);	
+	}
+	
+	public void setDomain(String domain) {
+		this.domain = domain;
+		setPostUri();
+	}
+	
+	private void setPostUri() {
+		httpPost = new HttpPost(protocol+"://"+domain+endpoint);
 	}
 	
 }

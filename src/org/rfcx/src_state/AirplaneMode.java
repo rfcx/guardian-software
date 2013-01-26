@@ -1,5 +1,7 @@
 package org.rfcx.src_state;
 
+import org.rfcx.rfcx_src_android.RfcxSource;
+
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
@@ -18,21 +20,21 @@ public class AirplaneMode {
 	}
 	
 	public void setOn(Context context) {
-    	Log.d(TAG, "setOn()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "setOn()"); }
     	if (!isEnabled(context)) {
     		set(context, 1);
     	}
 	}
 	
 	public void setOff(Context context) {
-    	Log.d(TAG, "setOff()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "setOff()"); }
     	if (isEnabled(context)) {
     		set(context, 0);
     	}
 	}
 	
 	public void setToggle(Context context) {
-    	Log.d(TAG, "setToggle()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "setToggle()"); }
     	if (isEnabled(context)) {
     		setOff(context);
     	} else {
@@ -47,7 +49,7 @@ public class AirplaneMode {
         	intentAp.putExtra("state", (value == 1) ? true : false);
         	context.sendBroadcast(intentAp);
 		} catch (Exception e) {
-			Log.d(TAG, "Failed: "+e.getMessage());
+			Log.e(TAG, "Failed: "+e.getMessage());
 		}
 	}
 	

@@ -17,33 +17,32 @@ public class DeviceCpuService extends Service {
 	
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onCreate()"); }
 		this.cpuServiceCheck = new CpuServiceCheck();
-		Log.d(TAG, "onCreate()");
 	}
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onStart()"); }
 		this.runFlag = true;
 		this.cpuServiceCheck.start();
-		Log.d(TAG, "onStart()");
 		return START_STICKY;
 	}
 	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onDestroy()"); }
 		this.runFlag = false;
 		this.cpuServiceCheck.interrupt();
 		this.cpuServiceCheck = null;
-		Log.d(TAG, "onDestroy()");
 	}
 	
 	private class CpuServiceCheck extends Thread {

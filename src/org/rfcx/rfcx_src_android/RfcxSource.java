@@ -25,10 +25,14 @@ import org.rfcx.src_api.*;
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
+	private static final boolean LOG_VERBOSE = true;
 	private SharedPreferences sharedPreferences;
-	
 	Context context;
+	
+	// database access helpers
 	public ArduinoDb arduinoDb = new ArduinoDb(this);
+	public DeviceStateDb deviceStateDb = new DeviceStateDb(this);
+	public AudioDb audioDb = new AudioDb(this);
 
 	// for reading battery charge state
 	public BatteryState batteryState = new BatteryState();
@@ -55,7 +59,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Log.d(TAG, "onCreate()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onCreate()"); }
 		
 		checkSetPreferences();
 		setupArduinoHandler();
@@ -68,7 +72,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
-		Log.d(TAG, "onTerminate()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onTerminate()"); }
 		
 		this.unregisterReceiver(arduinoStateReceiver);
 		this.unregisterReceiver(batteryStateReceiver);
@@ -76,17 +80,17 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	}
 	
 	public void appResume() {
-		Log.d(TAG, "appResume()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "appResume()"); }
 		checkSetPreferences();
 		connectToArduino();
 	}
 	
 	public void appPause() {
-	    Log.d(TAG, "appPause()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "appPause()"); }
 	}
 	
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		Log.d(TAG, "onSharedPreferenceChanged()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onSharedPreferenceChanged()"); }
 		checkSetPreferences();
 	}
 	
@@ -104,6 +108,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		}
 		
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", false));
+		apiTransmit.setDomain(this.sharedPreferences.getString("api_domain", "api.rfcx.org"));
 	}
 	
 	
@@ -119,7 +124,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	// Arduino stuff below here
 	
 	public void connectToArduino() {
-		Log.d(TAG, "connectToArduino()");
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "connectToArduino()"); }
 		arduinoState.preConnect();
 		arduinoConnectThread = new ArduinoConnectThread(arduinoState.getBluetoothSocket());
 		arduinoConnectThread.start();
@@ -156,7 +161,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	            tmpIn = socket.getInputStream();
 	            tmpOut = socket.getOutputStream();
 	        } catch (IOException e) {	        	
-	        	Log.d(TAG, e.toString());
+	        	if (RfcxSource.verboseLog()) { Log.d(TAG, e.toString()); }
 	        }
 	        mmInStream = tmpIn;
 	        mmOutStream = tmpOut;
@@ -180,7 +185,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	    	try {
 	            mmOutStream.write(msgBuffer);
 	        } catch (IOException e) {
-	        	Log.d(TAG, "Error Sending BT Command: " + e.getMessage());
+	        	if (RfcxSource.verboseLog()) { Log.d(TAG, "Error Sending Bluetooth Command: " + e.getMessage()); }
 	        	if (arduinoState.getBluetoothAdapter().isEnabled()) {
 	        		arduinoState.getBluetoothAdapter().disable();
 	    		}
@@ -205,17 +210,32 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 
 	
 	private void saveArduinoResult(String rtrn_init) {
-		String command = rtrn_init.substring(1+arduinoMessage.indexOf("^"));
-		String results = rtrn_init.substring(1,arduinoMessage.indexOf("^"));
-		if (command.contains("a")) {
-			int charging = Integer.parseInt(results.substring(0,results.indexOf("/")));
-			int charged = Integer.parseInt(results.substring(1+results.indexOf("/")));
+		String cmd = rtrn_init.substring(1+arduinoMessage.indexOf("^"));
+		String res = rtrn_init.substring(1,arduinoMessage.indexOf("^"));
+		if (cmd.contains("a")) {
+			int charging = Integer.parseInt(res.substring(0,res.indexOf("/")));
+			int charged = Integer.parseInt(res.substring(1+res.indexOf("/")));
 			arduinoDb.dbCharge.insert( (charged == 1) ? 2 : charging );
-		} else if (command.contains("b")) {
-			arduinoDb.dbTemperature.insert((int) Math.round(Double.parseDouble(results.substring(0,results.indexOf("/")))));
-			arduinoDb.dbHumidity.insert((int) Math.round(Double.parseDouble(results.substring(1+results.indexOf("/")))));
+		} else if (cmd.contains("b")) {
+			arduinoDb.dbTemperature.insert((int) Math.round(Double.parseDouble(res.substring(0,res.indexOf("/")))));
+			arduinoDb.dbHumidity.insert((int) Math.round(Double.parseDouble(res.substring(1+res.indexOf("/")))));
+		} else if (cmd.contains("s") || cmd.contains("t")) {
+			int lastState = Integer.parseInt(res.substring(0,res.indexOf("/")));
+			int currState = Integer.parseInt(res.substring(1+res.indexOf("/")));
+			Log.d(TAG,"Power: "+currState);
 		}
 	}
 	
+	public void toggleDevicePower(boolean onOff) {
+		if (onOff) {
+			sendArduinoCommand("s");
+		} else {
+			sendArduinoCommand("t");
+		}
+	}
+	
+	public static boolean verboseLog() {
+		return LOG_VERBOSE;
+	}
 		
 }

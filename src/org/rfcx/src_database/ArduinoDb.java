@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import org.rfcx.rfcx_src_android.RfcxSource;
 import org.rfcx.src_util.DateTimeUtils;
 
 public class ArduinoDb {
@@ -38,12 +39,12 @@ public class ArduinoDb {
 			public void onCreate(SQLiteDatabase db) {
 				String sqlCreate = "CREATE TABLE " + TABLE + CREATE_CLMNS;
 				db.execSQL(sqlCreate);
-				Log.d(TAG, "onCreate() " + sqlCreate);
+				if (RfcxSource.verboseLog()) { Log.d(TAG, "onCreate() " + sqlCreate); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				db.execSQL("DROP TABLE IF EXISTS " + TABLE);
-				Log.d(TAG, "onUpgrade()");
+				if (RfcxSource.verboseLog()) { Log.d(TAG, "onUpgrade()"); }
 				onCreate(db);
 			}
 		}
@@ -61,10 +62,17 @@ public class ArduinoDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-				Log.d(TAG, "insert: "+values);
+				if (RfcxSource.verboseLog()) { Log.d(TAG, "Insert: "+values); }
 			} finally {
 				db.close();
 			}
+		}
+		public String[] getLast() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { Cursor cursor = db.query(TABLE, new String[] {C_CREATED_AT, C_VALUE}, null, null, null, null, C_CREATED_AT+" DESC", "1");
+				try { return cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : null;
+				} finally { cursor.close(); }
+			} finally { db.close(); }
 		}
 		public int[] getStatsSince(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -93,12 +101,12 @@ public class ArduinoDb {
 			public void onCreate(SQLiteDatabase db) {
 				String sqlCreate = "CREATE TABLE " + TABLE + CREATE_CLMNS;
 				db.execSQL(sqlCreate);
-				Log.d(TAG, "onCreate() " + sqlCreate);
+				if (RfcxSource.verboseLog()) { Log.d(TAG, "onCreate() " + sqlCreate); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				db.execSQL("DROP TABLE IF EXISTS " + TABLE);
-				Log.d(TAG, "onUpgrade()");
+				if (RfcxSource.verboseLog()) { Log.d(TAG, "onUpgrade()"); }
 				onCreate(db);
 			}
 		}
@@ -116,10 +124,17 @@ public class ArduinoDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-				Log.d(TAG, "insert: "+values);
+				if (RfcxSource.verboseLog()) { Log.d(TAG, "Insert: "+values); }
 			} finally {
 				db.close();
 			}
+		}
+		public String[] getLast() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { Cursor cursor = db.query(TABLE, new String[] {C_CREATED_AT, C_VALUE}, null, null, null, null, C_CREATED_AT+" DESC", "1");
+				try { return cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : null;
+				} finally { cursor.close(); }
+			} finally { db.close(); }
 		}
 		public int[] getStatsSince(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -175,6 +190,13 @@ public class ArduinoDb {
 			} finally {
 				db.close();
 			}
+		}
+		public String[] getLast() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { Cursor cursor = db.query(TABLE, new String[] {C_CREATED_AT, C_VALUE}, null, null, null, null, C_CREATED_AT+" DESC", "1");
+				try { return cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : null;
+				} finally { cursor.close(); }
+			} finally { db.close(); }
 		}
 		public int[] getStatsSince(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
