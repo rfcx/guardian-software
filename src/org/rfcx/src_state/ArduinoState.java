@@ -12,6 +12,8 @@ public class ArduinoState {
 
 	private static final String TAG = ArduinoState.class.getSimpleName();
 	
+	private static final boolean ARDUINO_ENABLED = false;
+	
 	private boolean batteryCharging;
 	private boolean batteryCharged;
 	
@@ -126,6 +128,10 @@ public class ArduinoState {
 				if (RfcxSource.verboseLog()) { Log.d(TAG, "connectToArduino() failed to close socket " + e2.getMessage()); }
 			}
 		}
+	}
+	
+	public static boolean isArduinoEnabled() {
+		return ARDUINO_ENABLED;
 	}
 	
 }

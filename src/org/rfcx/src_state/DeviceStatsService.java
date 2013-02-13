@@ -8,9 +8,12 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class DeviceCpuService extends Service {
+public class DeviceStatsService extends Service {
 
-	private static final String TAG = DeviceCpuService.class.getSimpleName();
+	private static final String TAG = DeviceStatsService.class.getSimpleName();
+	
+	private static final boolean DEVICE_STATS_ENABLED = false;
+	
 	static final int DELAY = 500;
 	private boolean runFlag = false;
 	private CpuServiceCheck cpuServiceCheck;
@@ -53,7 +56,7 @@ public class DeviceCpuService extends Service {
 		
 		@Override
 		public void run() {
-			DeviceCpuService cpuService = DeviceCpuService.this;
+			DeviceStatsService cpuService = DeviceStatsService.this;
 			DeviceCpuUsage deviceCpuUsage = ((RfcxSource) getApplication()).deviceCpuUsage;
 			while (cpuService.runFlag) {
 				try {
@@ -66,4 +69,7 @@ public class DeviceCpuService extends Service {
 		}		
 	}
 
+	public static boolean areDeviceStatsEnabled() {
+		return DEVICE_STATS_ENABLED;
+	}
 }

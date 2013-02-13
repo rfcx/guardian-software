@@ -3,6 +3,7 @@ package org.rfcx.rfcx_src_android;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
@@ -28,6 +29,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private static final boolean LOG_VERBOSE = true;
 	private SharedPreferences sharedPreferences;
 	Context context;
+	
+	// device characteristics
+	private UUID deviceId = null;
 	
 	// database access helpers
 	public ArduinoDb arduinoDb = new ArduinoDb(this);
@@ -99,8 +103,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		this.sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 		
-		FactoryDeviceUuid uuidFactory = new FactoryDeviceUuid(context, this.sharedPreferences);
-		arduinoState.setDeviceUUID(uuidFactory.getDeviceUuid());
+		arduinoState.setDeviceUUID(getDeviceId());
 		
 		arduinoState.setBluetoothMAC(this.sharedPreferences.getString("arduino_bt_mac_addr", "00:00:00:00:00:00"));
 		if (this.sharedPreferences.getString("arduino_bt_mac_addr", null) == null) {
@@ -111,8 +114,13 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		apiTransmit.setDomain(this.sharedPreferences.getString("api_domain", "api.rfcx.org"));
 	}
 	
-	
-	
+	public UUID getDeviceId() {
+		if (deviceId == null) {
+			FactoryDeviceUuid uuidFactory = new FactoryDeviceUuid(context, this.sharedPreferences);
+			deviceId = uuidFactory.getDeviceUuid();
+		}
+		return deviceId;
+	}
 	
 	
 	

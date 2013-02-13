@@ -5,6 +5,7 @@ import org.rfcx.src_util.DateTimeUtils;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -67,13 +68,13 @@ public class AudioDb {
 				db.close();
 			}
 		}
-//		public String[] getLast() {
-//			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-//			try { Cursor cursor = db.query(TABLE, new String[] {C_CREATED_AT, C_VALUE}, null, null, null, null, C_CREATED_AT+" DESC", "1");
-//				try { return cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : null;
-//				} finally { cursor.close(); }
-//			} finally { db.close(); }
-//		}
+		public String[] getLast() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { Cursor cursor = db.query(TABLE, new String[] {C_CREATED_AT, C_POINTS}, null, null, null, null, C_CREATED_AT+" DESC", "1");
+				try { return cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : null;
+				} finally { cursor.close(); }
+			} finally { db.close(); }
+		}
 //		public int[] getStatsSince(Date date) {
 //			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 //			try { Cursor cursor = db.query(TABLE, STATS, C_CREATED_AT+">=?",
@@ -84,7 +85,7 @@ public class AudioDb {
 //		}
 //		public void clearStatsBefore(Date date) {
 //			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-//			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+(new DateTimeUtils()).getDateTime(date));
+//			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<'"+(new DateTimeUtils()).getDateTime(date)+"'");
 //			} finally { db.close(); }
 //		}
 	}

@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_state.ArduinoService;
-import org.rfcx.src_state.DeviceCpuService;
+import org.rfcx.src_state.DeviceStatsService;
 
 public class BootReceiver extends BroadcastReceiver {
 	
@@ -15,9 +15,19 @@ public class BootReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if (RfcxSource.verboseLog()) { Log.d(TAG, "onReceive()"); }	
-		context.startService(new Intent(context, ArduinoService.class));
-		context.startService(new Intent(context, AudioCaptureService.class));
-		context.startService(new Intent(context, DeviceCpuService.class));
+		
+		if (org.rfcx.src_state.ArduinoState.isArduinoEnabled()) {
+			context.startService(new Intent(context, ArduinoService.class));
+		}
+		
+		if (org.rfcx.src_audio.AudioState.isAudioEnabled()) {
+			context.startService(new Intent(context, AudioCaptureService.class));
+		}
+		
+		if (org.rfcx.src_state.DeviceStatsService.areDeviceStatsEnabled()) {
+			context.startService(new Intent(context, DeviceStatsService.class));
+		}
+
 	}
 
 }

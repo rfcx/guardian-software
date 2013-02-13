@@ -13,16 +13,11 @@ import android.media.MediaRecorder;
 public class AudioCaptureService extends Service {
 
 	private static final String TAG = AudioCaptureService.class.getSimpleName();
-
-	AudioState audioState = new AudioState();
+	
+	AudioStateAlt audioState = new AudioStateAlt();
 
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
-	
-	private int audioCaptureSampleRate = audioState.audioCaptureSampleRate;
-	private int audioCaptureFrameSize = audioState.fftBlockSize;
-	private int audioCaptureChannelConfig = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-	private int audioCaptureEncoding = AudioFormat.ENCODING_PCM_16BIT;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -65,25 +60,27 @@ public class AudioCaptureService extends Service {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
 			RfcxSource rfcxSource = (RfcxSource) getApplicationContext();
 			try {
-				int bufferSize = 4 * AudioRecord.getMinBufferSize(
-						audioCaptureSampleRate, audioCaptureChannelConfig,
-						audioCaptureEncoding);
+				int bufferSize = 2 * AudioRecord.getMinBufferSize(
+						AudioStateAlt.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO,
+						AudioFormat.ENCODING_PCM_16BIT);
 				AudioRecord audioRecord = new AudioRecord(
-						MediaRecorder.AudioSource.MIC, audioCaptureSampleRate,
-						audioCaptureChannelConfig, audioCaptureEncoding,
+						MediaRecorder.AudioSource.MIC, AudioStateAlt.CAPTURE_SAMPLE_RATE,
+						AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
 						bufferSize);
-				short[] buffer = new short[audioCaptureFrameSize];
-				double[] audioFrame = new double[audioCaptureFrameSize];
+				short[] buffer = new short[AudioStateAlt.FFT_RESOLUTION*2];
+				double[] samples = new double[AudioStateAlt.FFT_RESOLUTION];
+//				short[] samples = new short[AudioStateAlt.FFT_RESOLUTION*2];
 				audioRecord.startRecording();
 				Log.d(TAG, "AudioCaptureService started (buffer: "+bufferSize+")");
 				
 				while (audioCaptureService.runFlag) {
 					try {
-						int bufferReadResult = audioRecord.read(buffer, 0, audioCaptureFrameSize);
-						for (int i = 0; i < audioCaptureFrameSize && i < bufferReadResult; i++) {
-							audioFrame[i] = (double) buffer[i] / 32768.0;
+						int bufferReadResult = audioRecord.read(buffer, 0, AudioStateAlt.FFT_RESOLUTION*2);
+						for (int i = 0; i < AudioStateAlt.FFT_RESOLUTION*2 && i < bufferReadResult; i++) {
+							samples[i] = (double) buffer[i] / 32768.0;
+//							samples[i] = buffer[i];
 						}
-						audioState.addFrame(audioFrame, rfcxSource);
+						audioState.addFrame(samples, rfcxSource);
 					} catch (Exception e) {
 						audioCaptureService.runFlag = false;
 					}

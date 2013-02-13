@@ -1,5 +1,7 @@
 package org.rfcx.src_api;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +11,8 @@ import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
@@ -26,9 +30,11 @@ public class ApiTransmit {
 	
 	private Date currTransmitTime = new Date();
 	private Date lastTransmitTime = currTransmitTime;
+	private String deviceId = null;
 	private String protocol = "http";
 	private String domain = null;
-	private String endpoint = "/lib/rfcx.php";
+	private int port = 8080;
+	private String endpoint = "/freq";
 	
 	private HttpClient httpClient = new DefaultHttpClient();
 	private HttpPost httpPost = null;
@@ -39,10 +45,20 @@ public class ApiTransmit {
 				httpPost.setEntity(new UrlEncodedFormEntity(preparePostData(context)));
 				HttpResponse httpResponse = httpClient.execute(httpPost);
 	        	String strResponse = httpResponseString(httpResponse);
-				if (RfcxSource.verboseLog()) { Log.d(TAG, strResponse); }
-			} catch (Exception e) {
-				if (RfcxSource.verboseLog()) { Log.d(TAG, e.getMessage()); }
+	        	if (strResponse != null) {
+	        		cleanupArduinoDb(context);
+	        		if (RfcxSource.verboseLog()) { Log.d(TAG, strResponse); }
+	        	} else {
+	        		if (RfcxSource.verboseLog()) { Log.d(TAG, "null response from API"); }
+	        	}
+			} catch (UnsupportedEncodingException e) {
+				Log.e(TAG, e.getMessage());
+			} catch (ClientProtocolException e) {
+				Log.e(TAG, e.getMessage());
+			} catch (IOException e) {
+				Log.e(TAG, e.getMessage());
 			}
+
 		} else {
 			Log.e(TAG, "httpPost is not set");
 		}
@@ -55,11 +71,15 @@ public class ApiTransmit {
 		int[] statsTemp = app.arduinoDb.dbTemperature.getStatsSince(lastTransmitTime);
 		int[] statsHumi = app.arduinoDb.dbHumidity.getStatsSince(lastTransmitTime);
 		String[] currCharge = app.arduinoDb.dbCharge.getLast();
+		String[] spectrum = app.audioDb.dbSpectrum.getLast();
+		StringBuilder spectrumSend = (new StringBuilder()).append(spectrum[0]).append(";").append(spectrum[1]);
+		
+		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(app)));
 		
 		if (statsTemp[0] > 0) { nameValuePairs.add(new BasicNameValuePair("atmp", Integer.toString(statsTemp[1]))); }
 		if (statsHumi[0] > 0) { nameValuePairs.add(new BasicNameValuePair("ahmd", Integer.toString(statsHumi[1]))); }
 		if (currCharge[1] != "0") { nameValuePairs.add(new BasicNameValuePair("achg", currCharge[1])); }
-        nameValuePairs.add(new BasicNameValuePair("dcpu", Integer.toString(app.deviceCpuUsage.getCpuUsageAvg())));
+        nameValuePairs.add(new BasicNameValuePair("spec", spectrumSend.toString()));
         
         return nameValuePairs;
 	}
@@ -70,17 +90,23 @@ public class ApiTransmit {
 			currTransmitTime = new Date();
 			try {
 				return EntityUtils.toString(httpResponse.getEntity());
-			} catch (Exception e) {
-				if (RfcxSource.verboseLog()) { Log.d(TAG, e.getMessage()); }
+			} catch (ParseException e) {
+				Log.e(TAG, e.getMessage());
+			} catch (IOException e) {
+				Log.e(TAG, e.getMessage());
 			}
 		}
 		return null;
 	}
 	
 	private void cleanupArduinoDb(Context context) {
-		RfcxSource app = (RfcxSource) context.getApplicationContext();
-		app.arduinoDb.dbTemperature.clearStatsBefore(lastTransmitTime);
-		app.arduinoDb.dbHumidity.clearStatsBefore(lastTransmitTime);	
+		try {
+			RfcxSource app = (RfcxSource) context.getApplicationContext();
+			app.arduinoDb.dbTemperature.clearStatsBefore(lastTransmitTime);
+			app.arduinoDb.dbHumidity.clearStatsBefore(lastTransmitTime);
+		} catch (Exception e) {
+			if (RfcxSource.verboseLog()) { Log.d(TAG, e.getMessage()); }
+		}
 	}
 	
 	public void setDomain(String domain) {
@@ -89,7 +115,14 @@ public class ApiTransmit {
 	}
 	
 	private void setPostUri() {
-		httpPost = new HttpPost(protocol+"://"+domain+endpoint);
+		httpPost = new HttpPost(protocol+"://"+domain+":"+port+endpoint);
+	}
+	
+	public String getDeviceId(RfcxSource rfcxSource) {
+		if (deviceId == null) {
+			deviceId = rfcxSource.getDeviceId().toString();
+		}
+		return deviceId;
 	}
 	
 }
