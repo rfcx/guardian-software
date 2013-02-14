@@ -2,9 +2,9 @@ package org.rfcx.src_audio;
 
 import org.rfcx.rfcx_src_android.RfcxSource;
 
-import android.util.Log;
+import com.badlogic.gdx.audio.analysis.*;
 
-import ca.uol.aig.fftpack.RealDoubleFFT;
+import android.util.Log;
 
 public class AudioState {
 	
@@ -12,48 +12,87 @@ public class AudioState {
 	
 	private static final boolean AUDIO_ENABLED = true;
 	
-	public int audioCaptureSampleRate = 8000;
-	public static final int fftBlockSize = 256;
-	private RealDoubleFFT fftObj = new RealDoubleFFT(fftBlockSize);
-	private double[] fftSpectrum = new double[fftBlockSize];
-	private double[] audioSpectrumAvg = new double[fftBlockSize/2];
-	private double[] audioSpectrumFreq = new double[fftBlockSize/2];
+	public static final int CAPTURE_SAMPLE_RATE = 22050;
+	public static final int FFT_RESOLUTION = 4096;
+		
+//	private double[] fftSpectrumSingle = new double[BUFFER_LENGTH];
+	private double[] fftSpectrumSum = new double[BUFFER_LENGTH];
+	private int fftSpectrumSumIncrement = 0;
+	private static final int fftSpectrumSumLength = 100;
+	private static final int fftSpectrumRatio = 1/2000;
+	public static final int BUFFER_LENGTH = FFT_RESOLUTION*2;
 	
-	private double cntAvg = 10;
-	private double divAvg = 1;
-	private double repAvg = 0;
+	public void addSpectrum(short[] pcmData, RfcxSource rfcxSource) {
+		if (pcmData.length == BUFFER_LENGTH) {
+			addSpectrumSum(calcFFT(pcmData));
+		} else {
+			Log.d(TAG,"Skipping FFT, PCM data not correct length.");
+		}
+	}
 	
-	public double getFrequencyByIndex(int index) {
-		if (audioSpectrumFreq[0] == 0) {
-			for (int i = 0; i < fftBlockSize; i++) {
-				audioSpectrumFreq[i] = (audioCaptureSampleRate / 2) * ((i+1) / (double) fftBlockSize);
+	private void addSpectrumSum(double[] fftSpectrum) {
+		fftSpectrumSumIncrement++;
+		
+		for (int i = 0; i < fftSpectrum.length; i++) {
+			fftSpectrumSum[i] += fftSpectrum[i];
+		}
+		
+		if (fftSpectrumSumIncrement == fftSpectrumSumLength) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < fftSpectrumSum.length; i++) {
+				long lvl = Math.round(fftSpectrumRatio * fftSpectrumSum[i] / fftSpectrumSumLength);
+				sb.append("\t");
+				for (int j = 0; j < lvl; j++) {
+					sb.append("|");
+				}
+			}
+			Log.d(TAG, sb.toString());
+			fftSpectrumSum = new double[BUFFER_LENGTH];
+			fftSpectrumSumIncrement = 0;
+		}
+	}
+	
+	private double[] calcFFT(short[] array) {
+		
+		double[] real = new double[BUFFER_LENGTH];
+		double[] imag = new double[BUFFER_LENGTH];
+		double[] mag = new double[BUFFER_LENGTH];
+		float[] new_array = new float[BUFFER_LENGTH];
+
+		// For reconstruction
+//		float[] real_mod = new float[BUFFER_LENGTH];
+//		float[] imag_mod = new float[BUFFER_LENGTH];
+//		double[] phase = new double[BUFFER_LENGTH];
+//		float[] res = new float[BUFFER_LENGTH / 2];
+		
+		// Zero pad signal
+		for (int i = 0; i < BUFFER_LENGTH; i++) {
+			if (i < array.length) {
+				new_array[i] = (float) array[i];
+			} else {
+				new_array[i] = 0;
 			}
 		}
-		return audioSpectrumFreq[index];
+		 
+		FFT fft = new FFT(BUFFER_LENGTH, CAPTURE_SAMPLE_RATE);
+		fft.forward(new_array);
+		float[] fft_cpx = fft.getSpectrum();
+		float[] tmpi = fft.getImaginaryPart();
+		float[] tmpr = fft.getRealPart();
+		for (int i = 0; i < new_array.length; i++) {
+			real[i] = (double) tmpr[i];
+			imag[i] = (double) tmpi[i];
+			mag[i] = Math.sqrt((real[i] * real[i]) + (imag[i] * imag[i]));
+			/**** Reconstruction ****/
+//			phase[i] = Math.atan2(imag[i], real[i]);
+//			real_mod[i] = (float) (mag[i] * Math.cos(phase[i]));
+//			imag_mod[i] = (float) (mag[i] * Math.sin(phase[i]));
+		}
+//		fft.inverse(real_mod, imag_mod, res);
+		return mag;
 	}
 	
-	public void addFrame(double[] audioFrame, RfcxSource rfcxSource) {
-		this.fftSpectrum = audioFrame;
-		fftObj.ft(fftSpectrum);
-		repAvg++;
-		spectrumAverageIncrement(rfcxSource);
-	}
 	
-	private void spectrumAverageIncrement(RfcxSource rfcxSource) {
-		repAvg++;
-//		divAvg = (repAvg == cntAvg) ? (cntAvg / fftBlockSize) : 1;
-		
-//		for (int i = 0; i < fftBlockSize; i++) {
-//			audioSpectrumAvg[i] = ( audioSpectrumAvg[i] + Math.abs(audioSpectrum[i]) ) / divAvg;
-//		}
-//		if (repAvg == cntAvg) {
-//			Log.d(TAG, "spectrumAverageIncrement");
-//			rfcxSource.audioDb.dbSpectrum.insert(audioSpectrumAvg);
-//			repAvg = 0;
-//			audioSpectrumAvg = new double[fftBlockSize];
-//		}
-	}
-
 	public static boolean isAudioEnabled() {
 		return AUDIO_ENABLED;
 	}

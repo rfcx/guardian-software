@@ -14,7 +14,7 @@ public class AudioCaptureService extends Service {
 
 	private static final String TAG = AudioCaptureService.class.getSimpleName();
 	
-	AudioStateAlt audioState = new AudioStateAlt();
+	AudioState audioState = new AudioState();
 
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
@@ -61,19 +61,19 @@ public class AudioCaptureService extends Service {
 			RfcxSource rfcxSource = (RfcxSource) getApplicationContext();
 			try {
 				int bufferSize = 4 * AudioRecord.getMinBufferSize(
-						AudioStateAlt.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO,
+						AudioState.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO,
 						AudioFormat.ENCODING_PCM_16BIT);
 				AudioRecord audioRecord = new AudioRecord(
-						MediaRecorder.AudioSource.MIC, AudioStateAlt.CAPTURE_SAMPLE_RATE,
+						MediaRecorder.AudioSource.MIC, AudioState.CAPTURE_SAMPLE_RATE,
 						AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
 						bufferSize);
-				short[] buffer = new short[AudioStateAlt.BUFFER_LENGTH];
+				short[] buffer = new short[AudioState.BUFFER_LENGTH];
 				audioRecord.startRecording();
 				Log.d(TAG, "AudioCaptureService started (buffer: "+bufferSize+")");
 				
 				while (audioCaptureService.runFlag) {
 					try {
-						int bufferReadResult = audioRecord.read(buffer, 0, AudioStateAlt.BUFFER_LENGTH);
+						int bufferReadResult = audioRecord.read(buffer, 0, AudioState.BUFFER_LENGTH);
 //						for (int i = 0; i < AudioStateAlt.FFT_RESOLUTION*2 && i < bufferReadResult; i++) {
 //							samples[i] = (double) buffer[i] / 32768.0;
 //						}
