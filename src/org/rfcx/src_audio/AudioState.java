@@ -7,40 +7,41 @@ import com.badlogic.gdx.audio.analysis.*;
 import android.util.Log;
 
 public class AudioState {
-	
+
 	private static final String TAG = AudioState.class.getSimpleName();
-	
+
 	private static final boolean AUDIO_ENABLED = true;
-	
+
 	public static final int CAPTURE_SAMPLE_RATE = 22050;
 	public static final int FFT_RESOLUTION = 4096;
-		
-//	private double[] fftSpectrumSingle = new double[BUFFER_LENGTH];
+
+	// private double[] fftSpectrumSingle = new double[BUFFER_LENGTH];
 	private double[] fftSpectrumSum = new double[BUFFER_LENGTH];
 	private int fftSpectrumSumIncrement = 0;
-	private static final int fftSpectrumSumLength = 100;
-	private static final int fftSpectrumRatio = 1/2000;
-	public static final int BUFFER_LENGTH = FFT_RESOLUTION*2;
-	
+	private static final int fftSpectrumSumLength = 10;
+	private static final int fftSpectrumDivisor = 1000;
+	public static final int BUFFER_LENGTH = FFT_RESOLUTION * 2;
+
 	public void addSpectrum(short[] pcmData, RfcxSource rfcxSource) {
 		if (pcmData.length == BUFFER_LENGTH) {
 			addSpectrumSum(calcFFT(pcmData));
 		} else {
-			Log.d(TAG,"Skipping FFT, PCM data not correct length.");
+			Log.d(TAG, "Skipping FFT, PCM data not correct length.");
 		}
 	}
-	
+
 	private void addSpectrumSum(double[] fftSpectrum) {
 		fftSpectrumSumIncrement++;
-		
+
 		for (int i = 0; i < fftSpectrum.length; i++) {
-			fftSpectrumSum[i] += fftSpectrum[i];
+			fftSpectrumSum[i] = fftSpectrumSum[i] + fftSpectrum[i];
 		}
-		
+
 		if (fftSpectrumSumIncrement == fftSpectrumSumLength) {
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < fftSpectrumSum.length; i++) {
-				long lvl = Math.round(fftSpectrumRatio * fftSpectrumSum[i] / fftSpectrumSumLength);
+				long lvl = Math.round(fftSpectrumSum[i] / fftSpectrumSumLength
+						/ fftSpectrumDivisor);
 				sb.append("\t");
 				for (int j = 0; j < lvl; j++) {
 					sb.append("|");
@@ -51,20 +52,20 @@ public class AudioState {
 			fftSpectrumSumIncrement = 0;
 		}
 	}
-	
+
 	private double[] calcFFT(short[] array) {
-		
+
 		double[] real = new double[BUFFER_LENGTH];
 		double[] imag = new double[BUFFER_LENGTH];
 		double[] mag = new double[BUFFER_LENGTH];
 		float[] new_array = new float[BUFFER_LENGTH];
 
 		// For reconstruction
-//		float[] real_mod = new float[BUFFER_LENGTH];
-//		float[] imag_mod = new float[BUFFER_LENGTH];
-//		double[] phase = new double[BUFFER_LENGTH];
-//		float[] res = new float[BUFFER_LENGTH / 2];
-		
+		// float[] real_mod = new float[BUFFER_LENGTH];
+		// float[] imag_mod = new float[BUFFER_LENGTH];
+		// double[] phase = new double[BUFFER_LENGTH];
+		// float[] res = new float[BUFFER_LENGTH / 2];
+
 		// Zero pad signal
 		for (int i = 0; i < BUFFER_LENGTH; i++) {
 			if (i < array.length) {
@@ -73,7 +74,7 @@ public class AudioState {
 				new_array[i] = 0;
 			}
 		}
-		 
+
 		FFT fft = new FFT(BUFFER_LENGTH, CAPTURE_SAMPLE_RATE);
 		fft.forward(new_array);
 		float[] fft_cpx = fft.getSpectrum();
@@ -84,17 +85,16 @@ public class AudioState {
 			imag[i] = (double) tmpi[i];
 			mag[i] = Math.sqrt((real[i] * real[i]) + (imag[i] * imag[i]));
 			/**** Reconstruction ****/
-//			phase[i] = Math.atan2(imag[i], real[i]);
-//			real_mod[i] = (float) (mag[i] * Math.cos(phase[i]));
-//			imag_mod[i] = (float) (mag[i] * Math.sin(phase[i]));
+			// phase[i] = Math.atan2(imag[i], real[i]);
+			// real_mod[i] = (float) (mag[i] * Math.cos(phase[i]));
+			// imag_mod[i] = (float) (mag[i] * Math.sin(phase[i]));
 		}
-//		fft.inverse(real_mod, imag_mod, res);
+		// fft.inverse(real_mod, imag_mod, res);
 		return mag;
 	}
-	
-	
+
 	public static boolean isAudioEnabled() {
 		return AUDIO_ENABLED;
 	}
-	
+
 }
