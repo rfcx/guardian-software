@@ -77,7 +77,7 @@ public class AudioCaptureService extends Service {
 //						for (int i = 0; i < AudioStateAlt.FFT_RESOLUTION*2 && i < bufferReadResult; i++) {
 //							samples[i] = (double) buffer[i] / 32768.0;
 //						}
-						audioState.addFrame(buffer, rfcxSource);
+						audioState.addSpectrum(buffer, rfcxSource);
 					} catch (Exception e) {
 						audioCaptureService.runFlag = false;
 					}
