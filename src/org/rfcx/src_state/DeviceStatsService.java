@@ -12,7 +12,7 @@ public class DeviceStatsService extends Service {
 
 	private static final String TAG = DeviceStatsService.class.getSimpleName();
 	
-	private static final boolean DEVICE_STATS_ENABLED = false;
+	private static final boolean DEVICE_STATS_ENABLED = true;
 	
 	static final int DELAY = 500;
 	private boolean runFlag = false;

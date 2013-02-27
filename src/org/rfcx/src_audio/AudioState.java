@@ -21,6 +21,8 @@ public class AudioState {
 	private static final int fftSpectrumSumLength = 10;
 	private static final int fftSpectrumDivisor = 1000;
 	public static final int BUFFER_LENGTH = FFT_RESOLUTION * 2;
+	
+	private double[] fftWindowingCoeff = new double[BUFFER_LENGTH];
 
 	public void addSpectrum(short[] pcmData, RfcxSource rfcxSource) {
 		if (pcmData.length == BUFFER_LENGTH) {
@@ -38,16 +40,16 @@ public class AudioState {
 		}
 
 		if (fftSpectrumSumIncrement == fftSpectrumSumLength) {
-			StringBuilder sb = new StringBuilder();
+//			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < fftSpectrumSum.length; i++) {
 				long lvl = Math.round(fftSpectrumSum[i] / fftSpectrumSumLength
 						/ fftSpectrumDivisor);
-				sb.append("\t");
-				for (int j = 0; j < lvl; j++) {
-					sb.append("|");
-				}
+//				sb.append("\t");
+//				for (int j = 0; j < lvl; j++) {
+//					sb.append("|");
+//				}
 			}
-			Log.d(TAG, sb.toString());
+//			Log.d(TAG, sb.toString());
 			fftSpectrumSum = new double[BUFFER_LENGTH];
 			fftSpectrumSumIncrement = 0;
 		}
@@ -97,4 +99,9 @@ public class AudioState {
 		return AUDIO_ENABLED;
 	}
 
+	private void calcWindowing() {
+		for (int i = 0; i < BUFFER_LENGTH; i++) {
+			fftWindowingCoeff[i] = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (BUFFER_LENGTH - 1)));
+		}
+	}
 }
