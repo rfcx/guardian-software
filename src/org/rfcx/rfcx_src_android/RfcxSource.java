@@ -22,6 +22,7 @@ import org.rfcx.src_database.*;
 import org.rfcx.src_state.*;
 import org.rfcx.src_util.*;
 import org.rfcx.src_api.*;
+import org.rfcx.src_audio.AudioState;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
@@ -59,6 +60,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 
 	// for transmitting api data
 	public ApiTransmit apiTransmit = new ApiTransmit();
+	
+	// for analyzing captured audio
+	public AudioState audioState = new AudioState();
 	
 	@Override
 	public void onCreate() {

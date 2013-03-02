@@ -3,6 +3,8 @@ package org.rfcx.rfcx_src_android;
 import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_audio.AudioState;
 import org.rfcx.src_state.*;
+import org.rfcx.src_api.ApiTransmit;
+import org.rfcx.src_api.ApiCommService;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -79,6 +81,9 @@ public class MainActivity extends Activity {
 		}
 		if (DeviceStatsService.areDeviceStatsEnabled()) {
 			this.startService(new Intent(this, DeviceStatsService.class));
+		}
+		if (ApiTransmit.isApiTransmitEnabled()) {
+			this.startService(new Intent(this, ApiCommService.class));
 		}
 	}
 

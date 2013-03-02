@@ -25,6 +25,8 @@ import org.rfcx.src_util.DateTimeUtils;
 public class ApiTransmit {
 
 	private static final String TAG = ApiTransmit.class.getSimpleName();
+
+	private static final boolean API_TRANSMIT_ENABLED = true;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
@@ -123,6 +125,10 @@ public class ApiTransmit {
 			deviceId = rfcxSource.getDeviceId().toString();
 		}
 		return deviceId;
+	}
+	
+	public static boolean isApiTransmitEnabled() {
+		return API_TRANSMIT_ENABLED;
 	}
 	
 }

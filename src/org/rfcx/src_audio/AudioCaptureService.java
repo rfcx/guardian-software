@@ -13,8 +13,6 @@ import android.media.MediaRecorder;
 public class AudioCaptureService extends Service {
 
 	private static final String TAG = AudioCaptureService.class.getSimpleName();
-	
-	AudioState audioState = new AudioState();
 
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
@@ -74,7 +72,7 @@ public class AudioCaptureService extends Service {
 				while (audioCaptureService.runFlag) {
 					try {
 						int bufferReadResult = audioRecord.read(audioBuffer, 0, AudioState.BUFFER_LENGTH);
-						audioState.addSpectrum(audioBuffer, rfcxSource);
+						rfcxSource.audioState.addSpectrum(audioBuffer, rfcxSource);
 					} catch (Exception e) {
 						audioCaptureService.runFlag = false;
 					}
