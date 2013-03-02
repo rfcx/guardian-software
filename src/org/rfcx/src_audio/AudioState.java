@@ -21,14 +21,27 @@ public class AudioState {
 	private static final int fftSpectrumSumLength = 10;
 	private static final int fftSpectrumDivisor = 1000;
 	public static final int BUFFER_LENGTH = FFT_RESOLUTION * 2;
+
+	private short[] lastBuffer = new short[BUFFER_LENGTH];
+	private short[] doubleBuffer = new short[BUFFER_LENGTH * 2];
 	
-	private double[] fftWindowingCoeff = new double[BUFFER_LENGTH];
+	private float[] fftWindowingCoeff = calcWindowingCoeff();
 
 	public void addSpectrum(short[] pcmData, RfcxSource rfcxSource) {
 		if (pcmData.length == BUFFER_LENGTH) {
-			addSpectrumSum(calcFFT(pcmData));
+			// Build data set made of two buffers (the last one and the current one)
+			System.arraycopy(lastBuffer, 0, doubleBuffer, 0, BUFFER_LENGTH);
+			System.arraycopy(pcmData, 0, doubleBuffer, BUFFER_LENGTH, BUFFER_LENGTH);
+			lastBuffer = pcmData;
+			// make sure there is one full double buffer
+			if (doubleBuffer[0] != 0) {
+				// currently not using double buffer, only single
+				addSpectrumSum(calcFFT(pcmData,true));
+			}
 		} else {
 			Log.d(TAG, "Skipping FFT, PCM data not correct length.");
+			lastBuffer = new short[BUFFER_LENGTH];
+			doubleBuffer = new short[BUFFER_LENGTH * 2];
 		}
 	}
 
@@ -40,28 +53,22 @@ public class AudioState {
 		}
 
 		if (fftSpectrumSumIncrement == fftSpectrumSumLength) {
-//			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < fftSpectrumSum.length; i++) {
 				long lvl = Math.round(fftSpectrumSum[i] / fftSpectrumSumLength
 						/ fftSpectrumDivisor);
-//				sb.append("\t");
-//				for (int j = 0; j < lvl; j++) {
-//					sb.append("|");
-//				}
 			}
-//			Log.d(TAG, sb.toString());
 			fftSpectrumSum = new double[BUFFER_LENGTH];
 			fftSpectrumSumIncrement = 0;
 		}
 	}
 
-	private double[] calcFFT(short[] array) {
+	private double[] calcFFT(short[] array, boolean useWindowing) {
 
 		double[] real = new double[BUFFER_LENGTH];
 		double[] imag = new double[BUFFER_LENGTH];
 		double[] mag = new double[BUFFER_LENGTH];
 		float[] new_array = new float[BUFFER_LENGTH];
-
+		
 		// For reconstruction
 		// float[] real_mod = new float[BUFFER_LENGTH];
 		// float[] imag_mod = new float[BUFFER_LENGTH];
@@ -74,6 +81,12 @@ public class AudioState {
 				new_array[i] = (float) array[i];
 			} else {
 				new_array[i] = 0;
+			}
+		}
+		
+		if (useWindowing) {
+			for (int i = 0; i < BUFFER_LENGTH; i++) {
+				new_array[i] = new_array[i] * fftWindowingCoeff[i];
 			}
 		}
 
@@ -99,9 +112,13 @@ public class AudioState {
 		return AUDIO_ENABLED;
 	}
 
-	private void calcWindowing() {
+	private float[] calcWindowingCoeff() {
+		float[] windowingCoeff = new float[BUFFER_LENGTH];
 		for (int i = 0; i < BUFFER_LENGTH; i++) {
-			fftWindowingCoeff[i] = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (BUFFER_LENGTH - 1)));
+			double coeff = (0.5 * (1 - Math.cos((2 * Math.PI * i) / (BUFFER_LENGTH - 1))));
+			windowingCoeff[i] = (float) coeff;
 		}
+		return windowingCoeff;
 	}
+	
 }

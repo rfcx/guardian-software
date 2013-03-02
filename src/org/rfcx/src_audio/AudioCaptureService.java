@@ -60,24 +60,21 @@ public class AudioCaptureService extends Service {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
 			RfcxSource rfcxSource = (RfcxSource) getApplicationContext();
 			try {
-				int bufferSize = 4 * AudioRecord.getMinBufferSize(
+				int bufferSize = 8 * AudioRecord.getMinBufferSize(
 						AudioState.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO,
 						AudioFormat.ENCODING_PCM_16BIT);
 				AudioRecord audioRecord = new AudioRecord(
 						MediaRecorder.AudioSource.MIC, AudioState.CAPTURE_SAMPLE_RATE,
 						AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
 						bufferSize);
-				short[] buffer = new short[AudioState.BUFFER_LENGTH];
+				short[] audioBuffer = new short[AudioState.BUFFER_LENGTH];
 				audioRecord.startRecording();
 				Log.d(TAG, "AudioCaptureService started (buffer: "+bufferSize+")");
 				
 				while (audioCaptureService.runFlag) {
 					try {
-						int bufferReadResult = audioRecord.read(buffer, 0, AudioState.BUFFER_LENGTH);
-//						for (int i = 0; i < AudioStateAlt.FFT_RESOLUTION*2 && i < bufferReadResult; i++) {
-//							samples[i] = (double) buffer[i] / 32768.0;
-//						}
-						audioState.addSpectrum(buffer, rfcxSource);
+						int bufferReadResult = audioRecord.read(audioBuffer, 0, AudioState.BUFFER_LENGTH);
+						audioState.addSpectrum(audioBuffer, rfcxSource);
 					} catch (Exception e) {
 						audioCaptureService.runFlag = false;
 					}

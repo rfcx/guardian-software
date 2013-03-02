@@ -17,6 +17,9 @@ public class DeviceStatsService extends Service {
 	static final int DELAY = 500;
 	private boolean runFlag = false;
 	private CpuServiceCheck cpuServiceCheck;
+
+	private static final boolean RECORD_AVERAGE_TO_DATABASE = true;
+	private int recordingIncrement = 0;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -57,11 +60,18 @@ public class DeviceStatsService extends Service {
 		@Override
 		public void run() {
 			DeviceStatsService cpuService = DeviceStatsService.this;
-			DeviceCpuUsage deviceCpuUsage = ((RfcxSource) getApplication()).deviceCpuUsage;
+			RfcxSource rfcxSource = (RfcxSource) getApplication();
+			DeviceCpuUsage deviceCpuUsage = rfcxSource.deviceCpuUsage;
 			while (cpuService.runFlag) {
 				try {
 					deviceCpuUsage.updateCpuUsage();
-					Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"/"+deviceCpuUsage.getCpuUsageNow());
+					if (RECORD_AVERAGE_TO_DATABASE) {
+						recordingIncrement++;
+						if (recordingIncrement == DeviceCpuUsage.AVERAGE_LENGTH) {
+							rfcxSource.deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
+							recordingIncrement = 0;
+						}
+					}
 					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {
 					cpuService.runFlag = false;
