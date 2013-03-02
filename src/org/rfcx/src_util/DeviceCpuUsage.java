@@ -5,14 +5,31 @@ import java.io.RandomAccessFile;
 
 public class DeviceCpuUsage {
 	
-	private float cpuUsage = updateUsage();
+	private float cpuUsageNow = 0;
+	private float cpuUsageAvg = 0;
+	private float[] prevCpuUsage = {0,0,0,0,0,0,0,0,0,0};
+	
+	public int getCpuUsageNow() {
+		return Math.round(100*cpuUsageNow);
+	}
 	
 	public int getCpuUsageAvg() {
-		return Math.round(100*cpuUsage);
+		return Math.round(100*cpuUsageAvg);
 	}
 	
 	public void updateCpuUsage() {
-		this.cpuUsage = updateUsage();
+		this.cpuUsageNow = updateUsage();
+		incrementAvg();
+	}
+	
+	private void incrementAvg() {
+		float avgTotal = 0;
+		for (int i = 0; i < this.prevCpuUsage.length-1; i++) {
+			this.prevCpuUsage[i] = this.prevCpuUsage[i+1];
+			avgTotal = avgTotal + this.prevCpuUsage[i+1];
+		}
+		this.prevCpuUsage[this.prevCpuUsage.length-1] = this.cpuUsageNow;
+		this.cpuUsageAvg = (avgTotal + this.cpuUsageNow) / this.prevCpuUsage.length;
 	}
 	
 	private float updateUsage() {

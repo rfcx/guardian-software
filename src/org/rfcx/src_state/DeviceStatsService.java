@@ -61,6 +61,7 @@ public class DeviceStatsService extends Service {
 			while (cpuService.runFlag) {
 				try {
 					deviceCpuUsage.updateCpuUsage();
+					Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"/"+deviceCpuUsage.getCpuUsageNow());
 					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {
 					cpuService.runFlag = false;
