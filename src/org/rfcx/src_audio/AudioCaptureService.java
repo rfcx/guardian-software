@@ -71,7 +71,8 @@ public class AudioCaptureService extends Service {
 				
 				while (audioCaptureService.runFlag) {
 					try {
-						int bufferReadResult = audioRecord.read(audioBuffer, 0, AudioState.BUFFER_LENGTH);
+//						int bufferReadResult = 
+							audioRecord.read(audioBuffer, 0, AudioState.BUFFER_LENGTH);
 						rfcxSource.audioState.addSpectrum(audioBuffer, rfcxSource);
 					} catch (Exception e) {
 						audioCaptureService.runFlag = false;

@@ -15,11 +15,9 @@ public class AudioState {
 	public static final int CAPTURE_SAMPLE_RATE = 8000;
 	public static final int FFT_RESOLUTION = 4096;
 	
-	// private double[] fftSpectrumSingle = new double[BUFFER_LENGTH];
 	private double[] fftSpectrumSum = new double[BUFFER_LENGTH];
 	private int fftSpectrumSumIncrement = 0;
 	private static final int fftSpectrumSumLength = 10;
-	private static final int fftSpectrumDivisor = 1000;
 	public static final int BUFFER_LENGTH = FFT_RESOLUTION * 2;
 
 	private short[] lastBuffer = new short[BUFFER_LENGTH];
@@ -54,8 +52,7 @@ public class AudioState {
 
 		if (fftSpectrumSumIncrement == fftSpectrumSumLength) {
 			for (int i = 0; i < fftSpectrumSum.length; i++) {
-				long lvl = Math.round(fftSpectrumSum[i] / fftSpectrumSumLength
-						/ fftSpectrumDivisor);
+//				long lvl = Math.round(fftSpectrumSum[i] / fftSpectrumSumLength);
 			}
 			fftSpectrumSum = new double[BUFFER_LENGTH];
 			fftSpectrumSumIncrement = 0;
@@ -92,7 +89,7 @@ public class AudioState {
 
 		FFT fft = new FFT(BUFFER_LENGTH, CAPTURE_SAMPLE_RATE);
 		fft.forward(new_array);
-		float[] fft_cpx = fft.getSpectrum();
+//		float[] fft_cpx = fft.getSpectrum();
 		float[] tmpi = fft.getImaginaryPart();
 		float[] tmpr = fft.getRealPart();
 		for (int i = 0; i < new_array.length; i++) {

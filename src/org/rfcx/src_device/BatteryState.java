@@ -1,7 +1,5 @@
 package org.rfcx.src_device;
 
-import org.rfcx.rfcx_src_android.RfcxSource;
-
 public class BatteryState {
 	
 	private int level;
