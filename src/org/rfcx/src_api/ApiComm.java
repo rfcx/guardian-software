@@ -20,6 +20,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.rfcx.rfcx_src_android.RfcxSource;
+import org.rfcx.src_arduino.ArduinoState;
 import org.rfcx.src_util.DateTimeUtils;
 
 public class ApiComm {
@@ -27,7 +28,9 @@ public class ApiComm {
 	private static final String TAG = ApiComm.class.getSimpleName();
 
 	private static final boolean API_TRANSMIT_ENABLED = true;
-	private boolean CONNECTIVITY_ALLOWED = false;
+	private boolean networkConnectivity = false;
+	
+	private int connectivityInterval = 60000;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
@@ -68,21 +71,22 @@ public class ApiComm {
 	}
 	
 	private List<NameValuePair> preparePostData(Context context) {
-		RfcxSource app = (RfcxSource) context.getApplicationContext();
+		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(rfcxSource)));
 		
-		int[] statsTemp = app.arduinoDb.dbTemperature.getStatsSince(lastTransmitTime);
-		int[] statsHumi = app.arduinoDb.dbHumidity.getStatsSince(lastTransmitTime);
-		String[] currCharge = app.arduinoDb.dbCharge.getLast();
-		String[] spectrum = app.audioDb.dbSpectrum.getLast();
+		if (ArduinoState.isArduinoEnabled()) {
+			int[] statsTemp = rfcxSource.arduinoDb.dbTemperature.getStatsSince(lastTransmitTime);
+			int[] statsHumi = rfcxSource.arduinoDb.dbHumidity.getStatsSince(lastTransmitTime);
+			String[] currCharge = rfcxSource.arduinoDb.dbCharge.getLast();
+			if (statsTemp[0] > 0) { nameValuePairs.add(new BasicNameValuePair("atmp", Integer.toString(statsTemp[1]))); }
+			if (statsHumi[0] > 0) { nameValuePairs.add(new BasicNameValuePair("ahmd", Integer.toString(statsHumi[1]))); }
+			if (currCharge[1] != "0") { nameValuePairs.add(new BasicNameValuePair("achg", currCharge[1])); }
+		}
+
+		String[] spectrum = rfcxSource.audioDb.dbSpectrum.getLast();
 		StringBuilder spectrumSend = (new StringBuilder()).append(spectrum[0]).append(";").append(spectrum[1]);
-		
-		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(app)));
-		
-		if (statsTemp[0] > 0) { nameValuePairs.add(new BasicNameValuePair("atmp", Integer.toString(statsTemp[1]))); }
-		if (statsHumi[0] > 0) { nameValuePairs.add(new BasicNameValuePair("ahmd", Integer.toString(statsHumi[1]))); }
-		if (currCharge[1] != "0") { nameValuePairs.add(new BasicNameValuePair("achg", currCharge[1])); }
-        nameValuePairs.add(new BasicNameValuePair("spec", spectrumSend.toString()));
+		nameValuePairs.add(new BasicNameValuePair("spec", spectrumSend.toString()));
         
         return nameValuePairs;
 	}
@@ -128,16 +132,27 @@ public class ApiComm {
 		return deviceId;
 	}
 	
+	
+	// Getters & Setters
+	
 	public static boolean isApiCommEnabled() {
 		return API_TRANSMIT_ENABLED;
 	}
 	
-	public boolean isConnectivityAllowed() {
-		return CONNECTIVITY_ALLOWED;
+	public boolean isConnectivityPossible() {
+		return networkConnectivity;
 	}
 	
-	public void setConnectivityAllowed(boolean isAllowed) {
-		CONNECTIVITY_ALLOWED = isAllowed;
+	public void setConnectivity(boolean isConnected) {
+		networkConnectivity = isConnected;
+	}
+	
+	public int getConnectivityInterval() {
+		return connectivityInterval;
+	}
+	
+	public void setConnectivityInterval(int connectivityInterval) {
+		this.connectivityInterval = connectivityInterval;
 	}
 	
 }

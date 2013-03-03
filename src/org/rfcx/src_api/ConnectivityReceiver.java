@@ -15,10 +15,10 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "onReceive()"); }
+        RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
 		final boolean isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-		Log.d(TAG, "are we connected: "+ isConnected);
-
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "onReceive() - Connectivity: "+isConnected); }
+		rfcxSource.apiComm.setConnectivity(isConnected);
 	}
 
 }

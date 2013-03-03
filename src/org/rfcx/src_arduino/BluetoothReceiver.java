@@ -14,23 +14,22 @@ public class BluetoothReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-        final String action = intent.getAction();
-        RfcxSource app = (RfcxSource) context.getApplicationContext();
-        if ((app.arduinoState.getBluetoothAdapter() != null) && action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+        RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
+        if ((rfcxSource.arduinoState.getBluetoothAdapter() != null) && intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
         	final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
         	if (org.rfcx.src_arduino.ArduinoState.isArduinoEnabled()) {
 	        	switch (state) {
 	        		case BluetoothAdapter.STATE_OFF:
 	        			if (RfcxSource.verboseLog()) { Log.d(TAG,"Bluetooth disabled. Re-enabling."); }
-	        			app.arduinoState.getBluetoothAdapter().enable();
+	        			rfcxSource.arduinoState.getBluetoothAdapter().enable();
 	        			break;
 	        		case BluetoothAdapter.STATE_ON:
 	        			if (RfcxSource.verboseLog()) { Log.d(TAG,"Bluetooth enabled. Connecting to Arduino."); }
-	        			app.connectToArduino();
+	        			rfcxSource.connectToArduino();
 	        			break;
 	        	}
         	} else if (state == BluetoothAdapter.STATE_ON) {
-        		app.arduinoState.getBluetoothAdapter().disable();
+        		rfcxSource.arduinoState.getBluetoothAdapter().disable();
         	}
         }
 
