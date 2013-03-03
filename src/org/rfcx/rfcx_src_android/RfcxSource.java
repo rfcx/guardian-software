@@ -117,7 +117,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		this.sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 		
 		arduinoState.setDeviceUUID(getDeviceId());
-		
 		arduinoState.setBluetoothMAC(this.sharedPreferences.getString("arduino_bt_mac_addr", "00:00:00:00:00:00"));
 		if (this.sharedPreferences.getString("arduino_bt_mac_addr", null) == null) {
 			Log.e(TAG, "You must set preference value for 'arduino_bt_mac_addr'");
