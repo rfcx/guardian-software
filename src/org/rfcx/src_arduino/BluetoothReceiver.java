@@ -1,4 +1,4 @@
-package org.rfcx.src_state;
+package org.rfcx.src_arduino;
 
 import org.rfcx.rfcx_src_android.RfcxSource;
 
@@ -8,9 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class ArduinoReceiver extends BroadcastReceiver {
+public class BluetoothReceiver extends BroadcastReceiver {
 
-	private static final String TAG = ArduinoReceiver.class.getSimpleName();
+	private static final String TAG = BluetoothReceiver.class.getSimpleName();
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -18,7 +18,7 @@ public class ArduinoReceiver extends BroadcastReceiver {
         RfcxSource app = (RfcxSource) context.getApplicationContext();
         if ((app.arduinoState.getBluetoothAdapter() != null) && action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
         	final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-        	if (org.rfcx.src_state.ArduinoState.isArduinoEnabled()) {
+        	if (org.rfcx.src_arduino.ArduinoState.isArduinoEnabled()) {
 	        	switch (state) {
 	        		case BluetoothAdapter.STATE_OFF:
 	        			if (RfcxSource.verboseLog()) { Log.d(TAG,"Bluetooth disabled. Re-enabling."); }
@@ -29,6 +29,8 @@ public class ArduinoReceiver extends BroadcastReceiver {
 	        			app.connectToArduino();
 	        			break;
 	        	}
+        	} else if (state == BluetoothAdapter.STATE_ON) {
+        		app.arduinoState.getBluetoothAdapter().disable();
         	}
         }
 

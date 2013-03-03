@@ -2,9 +2,10 @@ package org.rfcx.rfcx_src_android;
 
 import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_audio.AudioState;
-import org.rfcx.src_state.*;
 import org.rfcx.src_api.ApiTransmit;
 import org.rfcx.src_api.ApiCommService;
+import org.rfcx.src_arduino.*;
+import org.rfcx.src_device.DeviceStatsService;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -35,7 +36,7 @@ public class MainActivity extends Activity {
 			break;
 		case R.id.menuArduinoServiceStop:
 			stopService(new Intent(this,
-					org.rfcx.src_state.ArduinoService.class));
+					org.rfcx.src_arduino.ArduinoService.class));
 			break;
 		case R.id.menuAudioServiceStop:
 			stopService(new Intent(this, AudioCaptureService.class));

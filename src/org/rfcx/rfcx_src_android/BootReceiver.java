@@ -5,9 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import org.rfcx.src_audio.AudioCaptureService;
-import org.rfcx.src_state.ArduinoService;
-import org.rfcx.src_state.DeviceStatsService;
 import org.rfcx.src_api.ApiCommService;
+import org.rfcx.src_arduino.ArduinoService;
+import org.rfcx.src_device.DeviceStatsService;
 
 public class BootReceiver extends BroadcastReceiver {
 	
@@ -18,7 +18,7 @@ public class BootReceiver extends BroadcastReceiver {
 		
 		if (RfcxSource.verboseLog()) { Log.d(TAG, "onReceive()"); }	
 		
-		if (org.rfcx.src_state.ArduinoState.isArduinoEnabled()) {
+		if (org.rfcx.src_arduino.ArduinoState.isArduinoEnabled()) {
 			context.startService(new Intent(context, ArduinoService.class));
 		}
 		
@@ -26,7 +26,7 @@ public class BootReceiver extends BroadcastReceiver {
 			context.startService(new Intent(context, AudioCaptureService.class));
 		}
 		
-		if (org.rfcx.src_state.DeviceStatsService.areDeviceStatsEnabled()) {
+		if (org.rfcx.src_device.DeviceStatsService.areDeviceStatsEnabled()) {
 			context.startService(new Intent(context, DeviceStatsService.class));
 		}
 		

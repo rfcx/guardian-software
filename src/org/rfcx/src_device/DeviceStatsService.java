@@ -1,4 +1,4 @@
-package org.rfcx.src_state;
+package org.rfcx.src_device;
 
 import org.rfcx.rfcx_src_android.RfcxSource;
 import org.rfcx.src_util.DeviceCpuUsage;

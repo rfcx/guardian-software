@@ -1,4 +1,4 @@
-package org.rfcx.src_state;
+package org.rfcx.src_arduino;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -112,6 +112,7 @@ public class ArduinoState {
 	}
 	
 	public void preConnect() {
+
 		setBluetoothDevice();
 		try {
 			setBluetoothSocket(bluetoothDevice.createRfcommSocketToServiceRecord(getDeviceUUID()));

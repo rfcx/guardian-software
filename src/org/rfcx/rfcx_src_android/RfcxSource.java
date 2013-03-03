@@ -14,14 +14,19 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.rfcx.src_database.*;
-import org.rfcx.src_state.*;
+import org.rfcx.src_device.AirplaneMode;
+import org.rfcx.src_device.AirplaneModeReceiver;
+import org.rfcx.src_device.BatteryReceiver;
+import org.rfcx.src_device.BatteryState;
 import org.rfcx.src_util.*;
 import org.rfcx.src_api.*;
+import org.rfcx.src_arduino.*;
 import org.rfcx.src_audio.AudioState;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
@@ -45,7 +50,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	// for viewing and controlling arduino microcontroller via bluetooth
 	public ArduinoState arduinoState = new ArduinoState();
-	private final BroadcastReceiver arduinoStateReceiver = new ArduinoReceiver();
+	private final BroadcastReceiver arduinoStateReceiver = new BluetoothReceiver();
 	final int arduinoMessageReception = 1;
 	private StringBuilder arduinoMessage = new StringBuilder();
 	private ArduinoConnectThread arduinoConnectThread;
@@ -55,11 +60,12 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public AirplaneMode airplaneMode = new AirplaneMode();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
 	
-	// for viewing cpu usage
+	// for monitoring cpu usage
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
 
 	// for transmitting api data
 	public ApiTransmit apiTransmit = new ApiTransmit();
+	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
 	// for analyzing captured audio
 	public AudioState audioState = new AudioState();
@@ -70,21 +76,24 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		if (RfcxSource.verboseLog()) { Log.d(TAG, "onCreate()"); }
 		
 		checkSetPreferences();
+
 		setupArduinoHandler();
-	    
-	    this.registerReceiver(arduinoStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+
+		this.registerReceiver(arduinoStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 	    this.registerReceiver(batteryStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
+	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 	
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
 		if (RfcxSource.verboseLog()) { Log.d(TAG, "onTerminate()"); }
-		
+
 		this.unregisterReceiver(arduinoStateReceiver);
 		this.unregisterReceiver(batteryStateReceiver);
 		this.unregisterReceiver(airplaneModeReceiver);
+		this.unregisterReceiver(connectivityReceiver);
 	}
 	
 	public void appResume() {
