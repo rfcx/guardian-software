@@ -11,7 +11,7 @@ public class ApiCommService extends Service {
 
 	private static final String TAG = ApiCommService.class.getSimpleName();
 
-	static final int DELAY = 300000;
+	static final int DELAY = 60000;
 	static final int INNER_DELAY = 60000;
 	
 	private boolean runFlag = false;

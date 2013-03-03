@@ -30,7 +30,7 @@ public class BootReceiver extends BroadcastReceiver {
 			context.startService(new Intent(context, DeviceStatsService.class));
 		}
 		
-		if (org.rfcx.src_api.ApiTransmit.isApiTransmitEnabled()) {
+		if (org.rfcx.src_api.ApiComm.isApiCommEnabled()) {
 			context.startService(new Intent(context, ApiCommService.class));
 		}
 		

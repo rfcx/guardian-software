@@ -2,7 +2,7 @@ package org.rfcx.rfcx_src_android;
 
 import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_audio.AudioState;
-import org.rfcx.src_api.ApiTransmit;
+import org.rfcx.src_api.ApiComm;
 import org.rfcx.src_api.ApiCommService;
 import org.rfcx.src_arduino.*;
 import org.rfcx.src_device.DeviceStatsService;
@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
 			((RfcxSource) getApplication()).airplaneMode.setToggle(this);
 			break;
 		case R.id.menuApiSendTest:
-			((RfcxSource) getApplication()).apiTransmit.sendData(this);
+			((RfcxSource) getApplication()).apiComm.sendData(this);
 			break;
 		}
 		return true;
@@ -83,7 +83,7 @@ public class MainActivity extends Activity {
 		if (DeviceStatsService.areDeviceStatsEnabled()) {
 			this.startService(new Intent(this, DeviceStatsService.class));
 		}
-		if (ApiTransmit.isApiTransmitEnabled()) {
+		if (ApiComm.isApiCommEnabled()) {
 			this.startService(new Intent(this, ApiCommService.class));
 		}
 	}

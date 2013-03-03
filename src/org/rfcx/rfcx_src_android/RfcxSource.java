@@ -64,7 +64,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
 
 	// for transmitting api data
-	public ApiTransmit apiTransmit = new ApiTransmit();
+	public ApiComm apiComm = new ApiComm();
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
 	// for analyzing captured audio
@@ -123,7 +123,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		}
 		
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", false));
-		apiTransmit.setDomain(this.sharedPreferences.getString("api_domain", "api.rfcx.org"));
+		apiComm.setDomain(this.sharedPreferences.getString("api_domain", "api.rfcx.org"));
 	}
 	
 	public UUID getDeviceId() {
