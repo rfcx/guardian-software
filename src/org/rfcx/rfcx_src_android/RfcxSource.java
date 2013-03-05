@@ -131,7 +131,20 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		return deviceId;
 	}
 	
-	
+	public void launchServices(Context context) {
+		if (ArduinoState.isArduinoEnabled()) {
+			context.startService(new Intent(context, ArduinoService.class));
+		}
+		if (AudioState.isAudioEnabled()) {
+			context.startService(new Intent(context, AudioCaptureService.class));
+		}
+		if (DeviceStatsService.areDeviceStatsEnabled()) {
+			context.startService(new Intent(context, DeviceStatsService.class));
+		}
+		if (ApiComm.isApiCommEnabled()) {
+			context.startService(new Intent(context, ApiCommService.class));
+		}
+	}
 	
 	
 	

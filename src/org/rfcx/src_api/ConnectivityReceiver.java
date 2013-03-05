@@ -2,7 +2,6 @@ package org.rfcx.src_api;
 
 import org.rfcx.rfcx_src_android.RfcxSource;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

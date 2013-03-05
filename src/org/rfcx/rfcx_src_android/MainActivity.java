@@ -1,10 +1,6 @@
 package org.rfcx.rfcx_src_android;
 
 import org.rfcx.src_audio.AudioCaptureService;
-import org.rfcx.src_audio.AudioState;
-import org.rfcx.src_api.ApiComm;
-import org.rfcx.src_api.ApiCommService;
-import org.rfcx.src_arduino.*;
 import org.rfcx.src_device.DeviceStatsService;
 
 import android.os.Bundle;
@@ -13,9 +9,6 @@ import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 
 public class MainActivity extends Activity {
 
@@ -56,26 +49,13 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-
-		if (ArduinoState.isArduinoEnabled()) {
-			this.startService(new Intent(this, ArduinoService.class));
-		}
-		if (AudioState.isAudioEnabled()) {
-			this.startService(new Intent(this, AudioCaptureService.class));
-		}
-		if (DeviceStatsService.areDeviceStatsEnabled()) {
-			this.startService(new Intent(this, DeviceStatsService.class));
-		}
-		if (ApiComm.isApiCommEnabled()) {
-			this.startService(new Intent(this, ApiCommService.class));
-		}
+		((RfcxSource) getApplication()).launchServices(this);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		((RfcxSource) getApplication()).appResume();
-
 	}
 
 	@Override
