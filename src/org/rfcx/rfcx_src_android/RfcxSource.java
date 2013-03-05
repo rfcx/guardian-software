@@ -5,6 +5,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import org.rfcx.src_api.*;
+import org.rfcx.src_arduino.*;
+import org.rfcx.src_audio.*;
+import org.rfcx.src_database.*;
+import org.rfcx.src_device.*;
+import org.rfcx.src_util.*;
+
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothSocket;
@@ -18,16 +25,6 @@ import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
-import org.rfcx.src_database.*;
-import org.rfcx.src_device.AirplaneMode;
-import org.rfcx.src_device.AirplaneModeReceiver;
-import org.rfcx.src_device.BatteryReceiver;
-import org.rfcx.src_device.BatteryState;
-import org.rfcx.src_util.*;
-import org.rfcx.src_api.*;
-import org.rfcx.src_arduino.*;
-import org.rfcx.src_audio.AudioState;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
@@ -257,5 +254,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public static boolean verboseLog() {
 		return LOG_VERBOSE;
 	}
+
 		
 }

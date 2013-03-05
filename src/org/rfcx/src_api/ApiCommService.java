@@ -57,12 +57,9 @@ public class ApiCommService extends Service {
 			while (apiCommService.runFlag) {
 				if (RfcxSource.verboseLog()) { Log.d(TAG, "ApiCommService running"); }
 				try {
-					
+					Thread.sleep(Math.round(0.25*rfcxSource.apiComm.getConnectivityInterval())*1000);
 					rfcxSource.airplaneMode.setOff(rfcxSource.getApplicationContext());
-					Thread.sleep(rfcxSource.apiComm.getConnectivityInterval());
-					
-					rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
-					Thread.sleep(rfcxSource.apiComm.getConnectivityInterval());
+					Thread.sleep(Math.round(0.75*rfcxSource.apiComm.getConnectivityInterval())*1000);
 					
 				} catch (InterruptedException e) {
 					apiCommService.runFlag = false;

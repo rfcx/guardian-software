@@ -5,10 +5,14 @@ import org.rfcx.src_util.DeviceCpuUsage;
 
 import android.app.Service;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.util.Log;
 
-public class DeviceStatsService extends Service {
+public class DeviceStatsService extends Service implements SensorEventListener {
 
 	private static final String TAG = DeviceStatsService.class.getSimpleName();
 	
@@ -21,6 +25,8 @@ public class DeviceStatsService extends Service {
 	private static final boolean RECORD_AVERAGE_TO_DATABASE = true;
 	private int recordingIncrement = 0;
 	
+	private SensorManager sensorManager;
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -31,6 +37,11 @@ public class DeviceStatsService extends Service {
 		super.onCreate();
 		if (RfcxSource.verboseLog()) { Log.d(TAG, "onCreate()"); }
 		this.cpuServiceCheck = new CpuServiceCheck();
+		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
+			Sensor sensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+			this.sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+		}
 	}
 	
 	@Override
@@ -49,6 +60,11 @@ public class DeviceStatsService extends Service {
 		this.runFlag = false;
 		this.cpuServiceCheck.interrupt();
 		this.cpuServiceCheck = null;
+		this.sensorManager.unregisterListener(this);
+	}
+	
+	public static boolean areDeviceStatsEnabled() {
+		return DEVICE_STATS_ENABLED;
 	}
 	
 	private class CpuServiceCheck extends Thread {
@@ -70,6 +86,7 @@ public class DeviceStatsService extends Service {
 						if (recordingIncrement == DeviceCpuUsage.AVERAGE_LENGTH) {
 							rfcxSource.deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
 							recordingIncrement = 0;
+							Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg());
 						}
 					}
 					Thread.sleep(DELAY);
@@ -80,7 +97,21 @@ public class DeviceStatsService extends Service {
 		}		
 	}
 
-	public static boolean areDeviceStatsEnabled() {
-		return DEVICE_STATS_ENABLED;
+	
+	// Sensor methods
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) {
+			return;
+		} else {
+			return;
+		}
+	}
+	
+	
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Auto-generated method stub
 	}
 }

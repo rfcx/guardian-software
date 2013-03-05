@@ -26,8 +26,8 @@
         android:name="org.rfcx.rfcx_src_android.RfcxSource"
         >
         
-        <service android:name="org.rfcx.src_state.ArduinoService" />
-        <service android:name="org.rfcx.src_state.DeviceStatsService" />
+        <service android:name="org.rfcx.src_arduino.ArduinoService" />
+        <service android:name="org.rfcx.src_device.DeviceStatsService" />
         <service android:name="org.rfcx.src_audio.AudioCaptureService" />
         <service android:name="org.rfcx.src_api.ApiCommService" />
         

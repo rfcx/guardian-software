@@ -19,8 +19,6 @@ import android.widget.Button;
 
 public class MainActivity extends Activity {
 
-	Button bttnPowerOn, bttnPowerOff;
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -58,21 +56,6 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-
-		bttnPowerOn = (Button) findViewById(R.id.bttnPowerOn);
-		bttnPowerOff = (Button) findViewById(R.id.bttnPowerOff);
-
-		bttnPowerOn.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				((RfcxSource) getApplication()).sendArduinoCommand("s");
-			}
-		});
-
-		bttnPowerOff.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				((RfcxSource) getApplication()).sendArduinoCommand("t");
-			}
-		});
 
 		if (ArduinoState.isArduinoEnabled()) {
 			this.startService(new Intent(this, ArduinoService.class));

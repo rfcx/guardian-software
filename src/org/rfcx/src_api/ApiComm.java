@@ -30,7 +30,7 @@ public class ApiComm {
 	private static final boolean API_TRANSMIT_ENABLED = true;
 	private boolean networkConnectivity = false;
 	
-	private int connectivityInterval = 60000;
+	private int connectivityInterval = 300;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
@@ -39,16 +39,17 @@ public class ApiComm {
 	private String deviceId = null;
 	private String protocol = "http";
 	private String domain = null;
-	private int port = 8080;
-	private String endpoint = "/freq";
+	private int port = 80;
+	private String endpoint = "/";
 	
 	private HttpClient httpClient = new DefaultHttpClient();
 	private HttpPost httpPost = null;
 	
 	public void sendData(Context context) {
 		if (httpPost != null) {
+			RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
 			try {
-				httpPost.setEntity(new UrlEncodedFormEntity(preparePostData(context)));
+				httpPost.setEntity(new UrlEncodedFormEntity(preparePostData(rfcxSource)));
 				HttpResponse httpResponse = httpClient.execute(httpPost);
 	        	String strResponse = httpResponseString(httpResponse);
 	        	if (strResponse != null) {
@@ -63,6 +64,8 @@ public class ApiComm {
 				Log.e(TAG, e.getMessage());
 			} catch (IOException e) {
 				Log.e(TAG, e.getMessage());
+			} finally {
+				rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
 			}
 
 		} else {
@@ -70,8 +73,7 @@ public class ApiComm {
 		}
 	}
 	
-	private List<NameValuePair> preparePostData(Context context) {
-		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
+	private List<NameValuePair> preparePostData(RfcxSource rfcxSource) {
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(rfcxSource)));
 		
@@ -84,9 +86,9 @@ public class ApiComm {
 			if (currCharge[1] != "0") { nameValuePairs.add(new BasicNameValuePair("achg", currCharge[1])); }
 		}
 
-		String[] spectrum = rfcxSource.audioDb.dbSpectrum.getLast();
-		StringBuilder spectrumSend = (new StringBuilder()).append(spectrum[0]).append(";").append(spectrum[1]);
-		nameValuePairs.add(new BasicNameValuePair("spec", spectrumSend.toString()));
+//		String[] spectrum = rfcxSource.audioDb.dbSpectrum.getLast();
+//		StringBuilder spectrumSend = (new StringBuilder()).append(spectrum[0]).append(";").append(spectrum[1]);
+//		nameValuePairs.add(new BasicNameValuePair("spec", spectrumSend.toString()));
         
         return nameValuePairs;
 	}
@@ -107,12 +109,14 @@ public class ApiComm {
 	}
 	
 	private void cleanupArduinoDb(Context context) {
-		try {
-			RfcxSource app = (RfcxSource) context.getApplicationContext();
-			app.arduinoDb.dbTemperature.clearStatsBefore(lastTransmitTime);
-			app.arduinoDb.dbHumidity.clearStatsBefore(lastTransmitTime);
-		} catch (Exception e) {
-			if (RfcxSource.verboseLog()) { Log.d(TAG, e.getMessage()); }
+		if (ArduinoState.isArduinoEnabled()) {
+			try {
+				RfcxSource app = (RfcxSource) context.getApplicationContext();
+				app.arduinoDb.dbTemperature.clearStatsBefore(lastTransmitTime);
+				app.arduinoDb.dbHumidity.clearStatsBefore(lastTransmitTime);
+			} catch (Exception e) {
+				if (RfcxSource.verboseLog()) { Log.d(TAG, e.getMessage()); }
+			}
 		}
 	}
 	
