@@ -10,6 +10,8 @@ public class DeviceCpuUsage {
 	private float cpuUsageAvg = 0;
 	private float[] prevCpuUsage = new float[AVERAGE_LENGTH];
 	
+	public static final int SAMPLE_LENGTH = 360;
+	
 	public int getCpuUsageNow() {
 		return Math.round(100*cpuUsageNow);
 	}
@@ -42,7 +44,7 @@ public class DeviceCpuUsage {
 	        long cpu1 = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[4])
 	              + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        try {
-	            Thread.sleep(360);
+	            Thread.sleep(SAMPLE_LENGTH);
 	        } catch (Exception e) {}
 	        reader.seek(0);
 	        load = reader.readLine();

@@ -1,7 +1,7 @@
 package org.rfcx.rfcx_src_android;
 
 import org.rfcx.src_audio.AudioCaptureService;
-import org.rfcx.src_device.DeviceStatsService;
+import org.rfcx.src_device.DeviceStateService;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
 			stopService(new Intent(this, AudioCaptureService.class));
 			break;
 		case R.id.menuCpuServiceStop:
-			stopService(new Intent(this, DeviceStatsService.class));
+			stopService(new Intent(this, DeviceStateService.class));
 			break;
 		case R.id.menuAirplaneModeToggle:
 			((RfcxSource) getApplication()).airplaneMode.setToggle(this);

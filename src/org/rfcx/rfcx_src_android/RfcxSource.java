@@ -140,8 +140,8 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		if (AudioState.isAudioEnabled()) {
 			context.startService(new Intent(context, AudioCaptureService.class));
 		}
-		if (DeviceStatsService.areDeviceStatsEnabled()) {
-			context.startService(new Intent(context, DeviceStatsService.class));
+		if (DeviceStateService.isDeviceStateEnabled()) {
+			context.startService(new Intent(context, DeviceStateService.class));
 		}
 		if (ApiComm.isApiCommEnabled()) {
 			context.startService(new Intent(context, ApiCommService.class));
