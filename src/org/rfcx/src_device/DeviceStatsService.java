@@ -39,8 +39,12 @@ public class DeviceStatsService extends Service implements SensorEventListener {
 		this.cpuServiceCheck = new CpuServiceCheck();
 		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
-			Sensor sensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-			this.sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+			Sensor accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+			this.sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
+		}
+		if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
+			Sensor lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
+			this.sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		}
 	}
 	
@@ -102,7 +106,10 @@ public class DeviceStatsService extends Service implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) {
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+			return;
+		} else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+			Log.d(TAG, "Light: "+event.values[0]);
 			return;
 		} else {
 			return;
