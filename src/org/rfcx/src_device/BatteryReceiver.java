@@ -20,10 +20,10 @@ public class BatteryReceiver extends BroadcastReceiver {
 	
 	private void setBatteryState(Context context, Intent intent) {
 		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
-		rfcxSource.batteryState.setLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
-		rfcxSource.batteryState.setScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
-		rfcxSource.batteryState.setTemperature(Math.round(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)/10));
-		int batteryPct = rfcxSource.batteryState.getPercent();
+		rfcxSource.deviceState.setBatteryLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
+		rfcxSource.deviceState.setBatteryScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
+		rfcxSource.deviceState.setBatteryTemperature(Math.round(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)/10));
+		int batteryPct = rfcxSource.deviceState.getBatteryPercent();
 		rfcxSource.deviceStateDb.dbBattery.insert(batteryPct);
 	}
 	

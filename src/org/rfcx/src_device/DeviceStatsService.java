@@ -18,7 +18,7 @@ public class DeviceStatsService extends Service implements SensorEventListener {
 	
 	private static final boolean DEVICE_STATS_ENABLED = true;
 	
-	static final int DELAY = 500;
+	static final int DELAY = 640;
 	private boolean runFlag = false;
 	private CpuServiceCheck cpuServiceCheck;
 
@@ -26,6 +26,10 @@ public class DeviceStatsService extends Service implements SensorEventListener {
 	private int recordingIncrement = 0;
 	
 	private SensorManager sensorManager;
+	Sensor accelSensor = null;
+	Sensor lightSensor = null;
+	
+	private RfcxSource rfcxSource = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -37,15 +41,7 @@ public class DeviceStatsService extends Service implements SensorEventListener {
 		super.onCreate();
 		if (RfcxSource.verboseLog()) { Log.d(TAG, "onCreate()"); }
 		this.cpuServiceCheck = new CpuServiceCheck();
-		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
-			Sensor accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-			this.sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		}
-		if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
-			Sensor lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
-			this.sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		}
+		registerSensorListeners();
 	}
 	
 	@Override
@@ -64,7 +60,7 @@ public class DeviceStatsService extends Service implements SensorEventListener {
 		this.runFlag = false;
 		this.cpuServiceCheck.interrupt();
 		this.cpuServiceCheck = null;
-		this.sensorManager.unregisterListener(this);
+		unRegisterSensorListeners();
 	}
 	
 	public static boolean areDeviceStatsEnabled() {
@@ -80,7 +76,7 @@ public class DeviceStatsService extends Service implements SensorEventListener {
 		@Override
 		public void run() {
 			DeviceStatsService cpuService = DeviceStatsService.this;
-			RfcxSource rfcxSource = (RfcxSource) getApplication();
+			rfcxSource = (RfcxSource) getApplication();
 			DeviceCpuUsage deviceCpuUsage = rfcxSource.deviceCpuUsage;
 			while (cpuService.runFlag) {
 				try {
@@ -106,13 +102,15 @@ public class DeviceStatsService extends Service implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-			return;
-		} else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
-			Log.d(TAG, "Light: "+event.values[0]);
-			return;
-		} else {
-			return;
+		if (rfcxSource != null) {
+			if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+				return;
+			} else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+				rfcxSource.deviceState.setLightLevel(Math.round(event.values[0]));
+				return;
+			} else {
+				return;
+			}
 		}
 	}
 	
@@ -120,5 +118,26 @@ public class DeviceStatsService extends Service implements SensorEventListener {
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
+	}
+	
+	private void registerSensorListeners() {
+		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
+			accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+			this.sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
+		}
+		if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
+			lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
+			this.sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+		}
+	}
+	
+	private void unRegisterSensorListeners() {
+		if (accelSensor != null) {
+			this.sensorManager.unregisterListener(this, accelSensor);
+		}
+		if (lightSensor != null) {
+			this.sensorManager.unregisterListener(this, lightSensor);
+		}
 	}
 }

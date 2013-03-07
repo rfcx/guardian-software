@@ -42,8 +42,10 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public AudioDb audioDb = new AudioDb(this);
 
 	// for reading battery charge state
-	public BatteryState batteryState = new BatteryState();
-	private final BroadcastReceiver batteryStateReceiver = new BatteryReceiver();
+	public DeviceState deviceState = new DeviceState();
+	private final BroadcastReceiver batteryDeviceStateReceiver = new BatteryReceiver();
+	
+	
 	
 	// for viewing and controlling arduino microcontroller via bluetooth
 	public ArduinoState arduinoState = new ArduinoState();
@@ -77,7 +79,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		setupArduinoHandler();
 
 		this.registerReceiver(arduinoStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-	    this.registerReceiver(batteryStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+	    this.registerReceiver(batteryDeviceStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	}
@@ -88,7 +90,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		if (RfcxSource.verboseLog()) { Log.d(TAG, "onTerminate()"); }
 
 		this.unregisterReceiver(arduinoStateReceiver);
-		this.unregisterReceiver(batteryStateReceiver);
+		this.unregisterReceiver(batteryDeviceStateReceiver);
 		this.unregisterReceiver(airplaneModeReceiver);
 		this.unregisterReceiver(connectivityReceiver);
 	}
