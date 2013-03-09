@@ -13,6 +13,8 @@ public class ApiCommService extends Service {
 	
 	private boolean runFlag = false;
 	private ApiComm apiComm;
+
+	private RfcxSource rfcxSource = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,6 +32,8 @@ public class ApiCommService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
+		rfcxSource = (RfcxSource) getApplication();
+		rfcxSource.isServiceRunning_ApiComm = true;
 		this.apiComm.start();
 		Log.d(TAG, "onStarted()");
 		return START_STICKY;
@@ -39,6 +43,7 @@ public class ApiCommService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
+		rfcxSource.isServiceRunning_ApiComm = false;
 		this.apiComm.interrupt();
 		this.apiComm = null;
 		Log.d(TAG, "onDestroyed()");
@@ -57,7 +62,7 @@ public class ApiCommService extends Service {
 		@Override
 		public void run() {
 			ApiCommService apiCommService = ApiCommService.this;
-			RfcxSource rfcxSource = (RfcxSource) getApplicationContext();
+			rfcxSource = (RfcxSource) getApplicationContext();
 			while (apiCommService.runFlag) {
 				if (RfcxSource.verboseLog()) { Log.d(TAG, "ApiCommService running"); }
 				try {
@@ -67,6 +72,7 @@ public class ApiCommService extends Service {
 					
 				} catch (InterruptedException e) {
 					apiCommService.runFlag = false;
+					rfcxSource.isServiceRunning_ApiComm = false;
 				}
 			}
 		}

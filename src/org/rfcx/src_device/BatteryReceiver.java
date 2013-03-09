@@ -16,7 +16,6 @@ public class BatteryReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
         setBatteryState(context, intent);
         allowOrDisAllowServices(context, intent);
-        if (RfcxSource.verboseLog()) { Log.d(TAG,"onReceive()"); }
 	}
 	
 	private void setBatteryState(Context context, Intent intent) {
@@ -24,16 +23,15 @@ public class BatteryReceiver extends BroadcastReceiver {
 		rfcxSource.deviceState.setBatteryLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
 		rfcxSource.deviceState.setBatteryScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
 		rfcxSource.deviceState.setBatteryTemperature(Math.round(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)/10));
-		int batteryPct = rfcxSource.deviceState.getBatteryPercent();
-		rfcxSource.deviceStateDb.dbBattery.insert(batteryPct);
+		rfcxSource.deviceStateDb.dbBattery.insert(rfcxSource.deviceState.getBatteryPercent());
 	}
 	
 	private void allowOrDisAllowServices(Context context, Intent intent) {
-		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
-		if (rfcxSource.deviceState.allowServices()) {
-			Log.d(TAG, "Services SHOULD be allowed to run...");
+		DeviceState deviceState = ((RfcxSource) context.getApplicationContext()).deviceState;
+		if (deviceState.allowServices()) {
+			Log.d(TAG, "Battery percentage: "+deviceState.getBatteryPercent()+"%, services SHOULD be allowed to run...");
 		} else {
-			Log.d(TAG, "Services should NOT be allowed to run...");
+			Log.d(TAG, "Battery percentage: "+deviceState.getBatteryPercent()+"%, services should NOT be allowed to run...");
 		}
 	}
 	

@@ -1,8 +1,6 @@
 package org.rfcx.src_audio;
 
 import org.rfcx.rfcx_src_android.RfcxSource;
-import org.rfcx.src_device.DeviceState;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -17,6 +15,8 @@ public class AudioCaptureService extends Service {
 
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
+
+	private RfcxSource rfcxSource = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -34,6 +34,8 @@ public class AudioCaptureService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
+		rfcxSource = (RfcxSource) getApplication();
+		rfcxSource.isServiceRunning_AudioCapture = true;
 		this.audioCapture.start();
 		Log.d(TAG, "onStarted()");
 		return START_STICKY;
@@ -43,13 +45,10 @@ public class AudioCaptureService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
+		rfcxSource.isServiceRunning_AudioCapture = false;
 		this.audioCapture.interrupt();
 		this.audioCapture = null;
 		Log.d(TAG, "onDestroyed()");
-	}
-	
-	public boolean isRunning() {
-		return runFlag;
 	}
 
 	private class AudioCapture extends Thread {
@@ -61,7 +60,7 @@ public class AudioCaptureService extends Service {
 		@Override
 		public void run() {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
-			RfcxSource rfcxSource = (RfcxSource) getApplicationContext();
+			rfcxSource = (RfcxSource) getApplicationContext();
 			AudioState audioState = rfcxSource.audioState;
 			try {
 				int bufferSize = 8 * AudioRecord.getMinBufferSize(
@@ -81,12 +80,14 @@ public class AudioCaptureService extends Service {
 						audioState.addSpectrum(audioBuffer, rfcxSource);
 					} catch (Exception e) {
 						audioCaptureService.runFlag = false;
+						rfcxSource.isServiceRunning_AudioCapture = false;
 					}
 				}
 				Log.d(TAG, "Stopping "+TAG);
 				audioRecord.stop();
 			} catch (Exception e) {
 				audioCaptureService.runFlag = false;
+				rfcxSource.isServiceRunning_AudioCapture = false;
 			}
 		}
 	}

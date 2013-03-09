@@ -20,7 +20,9 @@ public class ArduinoService extends Service {
 	private ArduinoCommSvc arduinoCommSvc;
 	
 	ArduinoDb arduinoDbHelper = new ArduinoDb(this);
-		
+
+	private RfcxSource rfcxSource = null;
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -39,6 +41,8 @@ public class ArduinoService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
+		rfcxSource = (RfcxSource) getApplication();
+		rfcxSource.isServiceRunning_ArduinoState = true;
 		this.arduinoCommSvc.start();
 		if (RfcxSource.verboseLog()) { Log.d(TAG, "onStarted()"); }
 		return START_STICKY;
@@ -48,6 +52,7 @@ public class ArduinoService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
+		rfcxSource.isServiceRunning_ArduinoState = false;
 		this.arduinoCommSvc.interrupt();
 		this.arduinoCommSvc = null;
 		if (RfcxSource.verboseLog()) { Log.d(TAG, "onDestroyed()"); }
@@ -66,16 +71,18 @@ public class ArduinoService extends Service {
 		@Override
 		public void run() {
 			ArduinoService arduinoCommService = ArduinoService.this;
+			rfcxSource = (RfcxSource) getApplication();
 			while (arduinoCommService.runFlag) {
 				if (RfcxSource.verboseLog()) { Log.d(TAG, "ArduinoCommService running"); }
 				try {
 					for (int i = 0; i < arduinoCommands.length; i++) {
-						((RfcxSource) getApplication()).sendArduinoCommand(arduinoCommands[i]);
+						rfcxSource.sendArduinoCommand(arduinoCommands[i]);
 						Thread.sleep(DELAY_INNER);
 					}
 					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {
 					arduinoCommService.runFlag = false;
+					rfcxSource.isServiceRunning_ArduinoState = false;
 				}
 			}
 		}		

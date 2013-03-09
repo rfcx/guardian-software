@@ -46,7 +46,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private final BroadcastReceiver batteryDeviceStateReceiver = new BatteryReceiver();
 	
 	
-	
 	// for viewing and controlling arduino microcontroller via bluetooth
 	public ArduinoState arduinoState = new ArduinoState();
 	private final BroadcastReceiver arduinoStateReceiver = new BluetoothReceiver();
@@ -68,6 +67,12 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	// for analyzing captured audio
 	public AudioState audioState = new AudioState();
+	
+	// android service running flags
+	public boolean isServiceRunning_DeviceState = false;
+	public boolean isServiceRunning_ArduinoState = false;
+	public boolean isServiceRunning_ApiComm = false;
+	public boolean isServiceRunning_AudioCapture = false;
 	
 	@Override
 	public void onCreate() {
@@ -135,23 +140,51 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	public void launchServices(Context context) {
 		
-//		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
-	
-		if (ArduinoState.isArduinoEnabled()) {
+		if (ArduinoState.isArduinoEnabled() && !isServiceRunning_ArduinoState) {
 			context.startService(new Intent(context, ArduinoService.class));
+		} else if (isServiceRunning_ArduinoState) {
+			Log.d(TAG, "ArduinoStateService already running. Not re-started...");
 		}
-		if (AudioState.isAudioEnabled()) {
+		if (AudioState.isAudioEnabled() && !isServiceRunning_AudioCapture) {
 			context.startService(new Intent(context, AudioCaptureService.class));
+		} else if (isServiceRunning_AudioCapture) {
+			Log.d(TAG, "AudioCaptureService already running. Not re-started...");
 		}
-		if (DeviceStateService.isDeviceStateEnabled()) {
+		if (DeviceStateService.isDeviceStateEnabled() && !isServiceRunning_DeviceState) {
 			context.startService(new Intent(context, DeviceStateService.class));
+		} else if (isServiceRunning_DeviceState) {
+			Log.d(TAG, "DeviceStateService already running. Not re-started...");
 		}
-		if (ApiComm.isApiCommEnabled()) {
+		if (ApiComm.isApiCommEnabled() && !isServiceRunning_ApiComm) {
 			context.startService(new Intent(context, ApiCommService.class));
+		} else if (isServiceRunning_ApiComm) {
+			Log.d(TAG, "ApiCommService already running. Not re-started...");
 		}
 	}
 	
-	
+	public void suspendExpensiveServices(Context context) {
+
+		if (ArduinoState.isArduinoEnabled() && isServiceRunning_ArduinoState) {
+			context.stopService(new Intent(context, ArduinoService.class));
+		} else if (!isServiceRunning_ArduinoState) {
+			Log.d(TAG, "ArduinoStateService not running. Not stopped...");
+		}
+		if (AudioState.isAudioEnabled() && isServiceRunning_AudioCapture) {
+			context.stopService(new Intent(context, AudioCaptureService.class));
+		} else if (!isServiceRunning_AudioCapture) {
+			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
+		}
+		if (DeviceStateService.isDeviceStateEnabled() && isServiceRunning_DeviceState) {
+			context.stopService(new Intent(context, DeviceStateService.class));
+		} else if (!isServiceRunning_DeviceState) {
+			Log.d(TAG, "DeviceStateService not running. Not stopped...");
+		}
+		if (ApiComm.isApiCommEnabled() && isServiceRunning_ApiComm) {
+			context.stopService(new Intent(context, ApiCommService.class));
+		} else if (!isServiceRunning_ApiComm) {
+			Log.d(TAG, "ApiCommService not running. Not stopped...");
+		}
+	}
 	
 	
 	
