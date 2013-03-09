@@ -1,6 +1,7 @@
 package org.rfcx.src_audio;
 
 import org.rfcx.rfcx_src_android.RfcxSource;
+import org.rfcx.src_device.DeviceState;
 
 import android.app.Service;
 import android.content.Intent;
@@ -46,6 +47,10 @@ public class AudioCaptureService extends Service {
 		this.audioCapture = null;
 		Log.d(TAG, "onDestroyed()");
 	}
+	
+	public boolean isRunning() {
+		return runFlag;
+	}
 
 	private class AudioCapture extends Thread {
 
@@ -57,6 +62,7 @@ public class AudioCaptureService extends Service {
 		public void run() {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
 			RfcxSource rfcxSource = (RfcxSource) getApplicationContext();
+			AudioState audioState = rfcxSource.audioState;
 			try {
 				int bufferSize = 8 * AudioRecord.getMinBufferSize(
 						AudioState.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO,
@@ -71,9 +77,8 @@ public class AudioCaptureService extends Service {
 				
 				while (audioCaptureService.runFlag) {
 					try {
-//						int bufferReadResult = 
-							audioRecord.read(audioBuffer, 0, AudioState.BUFFER_LENGTH);
-						rfcxSource.audioState.addSpectrum(audioBuffer, rfcxSource);
+						audioRecord.read(audioBuffer, 0, AudioState.BUFFER_LENGTH);
+						audioState.addSpectrum(audioBuffer, rfcxSource);
 					} catch (Exception e) {
 						audioCaptureService.runFlag = false;
 					}

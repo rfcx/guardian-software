@@ -44,6 +44,10 @@ public class ApiCommService extends Service {
 		Log.d(TAG, "onDestroyed()");
 	}
 	
+	public boolean isRunning() {
+		return runFlag;
+	}
+	
 	private class ApiComm extends Thread {
 
 		public ApiComm() {

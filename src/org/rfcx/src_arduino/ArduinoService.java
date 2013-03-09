@@ -53,6 +53,9 @@ public class ArduinoService extends Service {
 		if (RfcxSource.verboseLog()) { Log.d(TAG, "onDestroyed()"); }
 	}
 	
+	public boolean isRunning() {
+		return runFlag;
+	}
 	
 	private class ArduinoCommSvc extends Thread {
 		

@@ -134,6 +134,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	}
 	
 	public void launchServices(Context context) {
+		
+//		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
+	
 		if (ArduinoState.isArduinoEnabled()) {
 			context.startService(new Intent(context, ArduinoService.class));
 		}

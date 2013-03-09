@@ -6,6 +6,13 @@ public class DeviceState {
 	
 	private static final String TAG = DeviceState.class.getSimpleName();
 	
+	// Services
+	private static final int SERVICE_BATTERY_PERCENTAGE_THRESHOLD = 95;
+	
+	public boolean allowServices() {
+		return (getBatteryPercent() >= SERVICE_BATTERY_PERCENTAGE_THRESHOLD) ? true : false;
+	}
+	
 	// Battery
 	private int batteryLevel;
 	private int batteryScale;
