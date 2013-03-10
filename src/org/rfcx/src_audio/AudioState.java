@@ -34,7 +34,11 @@ public class AudioState {
 			// make sure there is one full double buffer
 			if (doubleBuffer[0] != 0) {
 				// currently not using double buffer, only single
-				addSpectrumSum(calcFFT(pcmData,true));
+				float[] windowedPcmData = new float[BUFFER_LENGTH];
+				for (int i = 0; i < pcmData.length; i++) {
+					windowedPcmData[i] = fftWindowingCoeff[i] * pcmData[i];
+				}
+				addSpectrumSum(calcFFT(windowedPcmData,true));
 			}
 		} else {
 			Log.d(TAG, "Skipping FFT, PCM data not correct length.");
@@ -59,7 +63,7 @@ public class AudioState {
 		}
 	}
 
-	private double[] calcFFT(short[] array, boolean useWindowing) {
+	private double[] calcFFT(float[] array, boolean useWindowing) {
 
 		double[] real = new double[BUFFER_LENGTH];
 		double[] imag = new double[BUFFER_LENGTH];
@@ -75,7 +79,7 @@ public class AudioState {
 		// Zero pad signal
 		for (int i = 0; i < BUFFER_LENGTH; i++) {
 			if (i < array.length) {
-				new_array[i] = (float) array[i];
+				new_array[i] = array[i];
 			} else {
 				new_array[i] = 0;
 			}
