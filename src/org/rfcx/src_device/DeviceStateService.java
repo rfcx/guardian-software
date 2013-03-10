@@ -39,7 +39,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "onCreate()"); }
 		this.cpuServiceCheck = new CpuServiceCheck();
 		registerSensorListeners();
 	}
@@ -47,7 +46,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "onStart()"); }
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "Starting service: "+TAG); }
 		this.runFlag = true;
 		rfcxSource = (RfcxSource) getApplication();
 		rfcxSource.isServiceRunning_DeviceState = true;
@@ -58,7 +57,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "onDestroy()"); }
 		this.runFlag = false;
 		rfcxSource.isServiceRunning_DeviceState = false;
 		this.cpuServiceCheck.interrupt();
@@ -89,7 +87,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 						if (recordingIncrement == DeviceCpuUsage.AVERAGE_LENGTH) {
 							rfcxSource.deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
 							recordingIncrement = 0;
-							if (RfcxSource.verboseLog()) { Log.d(TAG, "CPU Usage: "+deviceCpuUsage.getCpuUsageAvg()+"%"); }
+							if (RfcxSource.VERBOSE) { Log.d(TAG, "CPU Usage: "+deviceCpuUsage.getCpuUsageAvg()+"%"); }
 						}
 					}
 					Thread.sleep(DELAY);

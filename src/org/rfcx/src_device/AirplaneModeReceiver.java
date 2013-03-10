@@ -16,7 +16,7 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "onReceive()"); }
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "onReceive()"); }
 		setWifiIfAllowed(context);
 	}
 

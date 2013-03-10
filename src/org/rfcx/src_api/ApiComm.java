@@ -64,14 +64,14 @@ public class ApiComm {
 			} finally {
 				if ((strResponse == null) && (transmitAttempts <= 3)) {
 					sendData(context);
-					if (RfcxSource.verboseLog()) { Log.d(TAG, "Retransmitting... (attempt #"+transmitAttempts+")"); }
+					if (RfcxSource.VERBOSE) { Log.d(TAG, "Retransmitting... (attempt #"+transmitAttempts+")"); }
 				} else {
 					if (strResponse != null) {
-						if (RfcxSource.verboseLog()) { Log.d(TAG, "Response: "+strResponse); }
+						if (RfcxSource.VERBOSE) { Log.d(TAG, "Response: "+strResponse); }
 					}
 					transmitAttempts = 0;
 					rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
-					if (RfcxSource.verboseLog()) { Log.d(TAG, "Turning off antenna..."); }
+					if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning off antenna..."); }
 				}
 			}
 

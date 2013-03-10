@@ -28,17 +28,16 @@ public class AudioCaptureService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.audioCapture = new AudioCapture();
-		Log.d(TAG, "onCreated()");
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "Starting service: "+TAG); }
 		this.runFlag = true;
 		rfcxSource = (RfcxSource) getApplication();
 		rfcxSource.isServiceRunning_AudioCapture = true;
 		this.audioCapture.start();
-		Log.d(TAG, "onStarted()");
 		return START_STICKY;
 	}
 
@@ -49,7 +48,6 @@ public class AudioCaptureService extends Service {
 		rfcxSource.isServiceRunning_AudioCapture = false;
 		this.audioCapture.interrupt();
 		this.audioCapture = null;
-		Log.d(TAG, "onDestroyed()");
 	}
 
 	private class AudioCapture extends Thread {
@@ -73,7 +71,6 @@ public class AudioCaptureService extends Service {
 						bufferSize);
 				short[] audioBuffer = new short[AudioState.BUFFER_LENGTH];
 				audioRecord.startRecording();
-				Log.d(TAG, "AudioCaptureService started (buffer: "+bufferSize+")");
 				
 				while (audioCaptureService.runFlag) {
 					try {
@@ -84,7 +81,7 @@ public class AudioCaptureService extends Service {
 						rfcxSource.isServiceRunning_AudioCapture = false;
 					}
 				}
-				Log.d(TAG, "Stopping "+TAG);
+				if (RfcxSource.VERBOSE) { Log.d(TAG, "Stopping service: "+TAG); }
 				audioRecord.stop();
 			} catch (Exception e) {
 				audioCaptureService.runFlag = false;

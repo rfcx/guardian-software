@@ -31,7 +31,7 @@ import android.util.Log;
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
-	private static final boolean LOG_VERBOSE = true;
+	public static final boolean VERBOSE = true;
 	private SharedPreferences sharedPreferences;
 	Context context;
 	
@@ -64,7 +64,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "onCreate()"); }
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "onCreate()"); }
 		
 		checkSetPreferences();
 
@@ -76,7 +76,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "onTerminate()"); }
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "onTerminate()"); }
 
 		this.unregisterReceiver(batteryDeviceStateReceiver);
 		this.unregisterReceiver(airplaneModeReceiver);
@@ -84,16 +84,16 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	}
 	
 	public void appResume() {
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "appResume()"); }
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "appResume()"); }
 		checkSetPreferences();
 	}
 	
 	public void appPause() {
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "appPause()"); }
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "appPause()"); }
 	}
 	
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "onSharedPreferenceChanged()"); }
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "onSharedPreferenceChanged()"); }
 		checkSetPreferences();
 	}
 	
@@ -150,11 +150,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		} else if (!isServiceRunning_ApiComm) {
 			Log.d(TAG, "ApiCommService not running. Not stopped...");
 		}
-	}
-	
-	
-	public static boolean verboseLog() {
-		return LOG_VERBOSE;
 	}
 
 		
