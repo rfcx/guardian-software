@@ -7,6 +7,7 @@ public class DeviceState {
 	private static final String TAG = DeviceState.class.getSimpleName();
 	
 	// Services
+	public static final boolean SERVICE_ENABLED = true;
 	private static final int SERVICE_BATTERY_PERCENTAGE_THRESHOLD = 95;
 	
 	public boolean allowServices() {

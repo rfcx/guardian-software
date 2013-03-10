@@ -116,7 +116,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		} else if (isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
 			Log.d(TAG, "AudioCaptureService already running. Not re-started...");
 		}
-		if (DeviceStateService.isDeviceStateEnabled() && !isServiceRunning_DeviceState) {
+		if (DeviceState.SERVICE_ENABLED && !isServiceRunning_DeviceState) {
 			context.startService(new Intent(context, DeviceStateService.class));
 		} else if (isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
 			Log.d(TAG, "DeviceStateService already running. Not re-started...");
@@ -135,7 +135,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		} else if (!isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
 			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
 		}
-		if (DeviceStateService.isDeviceStateEnabled() && isServiceRunning_DeviceState) {
+		if (DeviceState.SERVICE_ENABLED && isServiceRunning_DeviceState) {
 			context.stopService(new Intent(context, DeviceStateService.class));
 		} else if (!isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
 			Log.d(TAG, "DeviceStateService not running. Not stopped...");
