@@ -25,10 +25,6 @@ public class MainActivity extends Activity {
 		case R.id.menuSettings:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
-		case R.id.menuArduinoServiceStop:
-			stopService(new Intent(this,
-					org.rfcx.src_arduino.ArduinoService.class));
-			break;
 		case R.id.menuAudioServiceStop:
 			stopService(new Intent(this, AudioCaptureService.class));
 			break;

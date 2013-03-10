@@ -7,7 +7,6 @@ import org.rfcx.src_api.ApiCommService;
 import org.rfcx.src_api.ConnectivityReceiver;
 import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_audio.AudioState;
-import org.rfcx.src_database.ArduinoDb;
 import org.rfcx.src_database.AudioDb;
 import org.rfcx.src_database.DeviceStateDb;
 import org.rfcx.src_device.AirplaneMode;
@@ -40,7 +39,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private UUID deviceId = null;
 	
 	// database access helpers
-	public ArduinoDb arduinoDb = new ArduinoDb(this);
 	public DeviceStateDb deviceStateDb = new DeviceStateDb(this);
 	public AudioDb audioDb = new AudioDb(this);
 

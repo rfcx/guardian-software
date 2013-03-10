@@ -5,13 +5,9 @@
     
     <string name="menuSettings">settings</string>
     <string name="menuAudioService">audio</string>
-	<string name="menuArduinoService">arduino</string>
 	<string name="menuCpuService">cpu</string>
 	<string name="menuAirplaneMode">network</string>
 	<string name="menuApiSendTest">http</string>
-    
-    <string name="title_arduino_bt_mac_addr">Arduino MAC</string>
-    <string name="desc_arduino_bt_mac_addr">Arduino Bluetooth MAC Address</string>
     
     <string name="title_device_uuid">Device UUID</string>
     <string name="desc_device_uuid">Device UUID (should be preset)</string>

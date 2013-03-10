@@ -2,12 +2,9 @@ package org.rfcx.src_api;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-
-import android.content.Context;
-import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -20,8 +17,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.rfcx.rfcx_src_android.RfcxSource;
-import org.rfcx.src_arduino.ArduinoState;
 import org.rfcx.src_util.DateTimeUtils;
+
+import android.content.Context;
+import android.util.Log;
 
 public class ApiComm {
 
@@ -53,7 +52,6 @@ public class ApiComm {
 				HttpResponse httpResponse = httpClient.execute(httpPost);
 	        	String strResponse = httpResponseString(httpResponse);
 	        	if (strResponse != null) {
-	        		cleanupArduinoDb(context);
 	        		if (RfcxSource.verboseLog()) { Log.d(TAG, strResponse); }
 	        	} else {
 	        		if (RfcxSource.verboseLog()) { Log.d(TAG, "null response from API"); }
@@ -76,15 +74,6 @@ public class ApiComm {
 	private List<NameValuePair> preparePostData(RfcxSource rfcxSource) {
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(rfcxSource)));
-		
-		if (ArduinoState.isArduinoEnabled()) {
-			int[] statsTemp = rfcxSource.arduinoDb.dbTemperature.getStatsSince(lastTransmitTime);
-			int[] statsHumi = rfcxSource.arduinoDb.dbHumidity.getStatsSince(lastTransmitTime);
-			String[] currCharge = rfcxSource.arduinoDb.dbCharge.getLast();
-			if (statsTemp[0] > 0) { nameValuePairs.add(new BasicNameValuePair("atmp", Integer.toString(statsTemp[1]))); }
-			if (statsHumi[0] > 0) { nameValuePairs.add(new BasicNameValuePair("ahmd", Integer.toString(statsHumi[1]))); }
-			if (currCharge[1] != "0") { nameValuePairs.add(new BasicNameValuePair("achg", currCharge[1])); }
-		}
 
 //		String[] spectrum = rfcxSource.audioDb.dbSpectrum.getLast();
 //		StringBuilder spectrumSend = (new StringBuilder()).append(spectrum[0]).append(";").append(spectrum[1]);
@@ -107,18 +96,7 @@ public class ApiComm {
 		}
 		return null;
 	}
-	
-	private void cleanupArduinoDb(Context context) {
-		if (ArduinoState.isArduinoEnabled()) {
-			try {
-				RfcxSource app = (RfcxSource) context.getApplicationContext();
-				app.arduinoDb.dbTemperature.clearStatsBefore(lastTransmitTime);
-				app.arduinoDb.dbHumidity.clearStatsBefore(lastTransmitTime);
-			} catch (Exception e) {
-				if (RfcxSource.verboseLog()) { Log.d(TAG, e.getMessage()); }
-			}
-		}
-	}
+
 	
 	public void setDomain(String domain) {
 		this.domain = domain;
