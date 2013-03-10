@@ -10,7 +10,7 @@ public class AudioState {
 
 	private static final String TAG = AudioState.class.getSimpleName();
 
-	private static final boolean AUDIO_ENABLED = true;
+	public static final boolean SERVICE_ENABLED = true;
 
 	public static final int CAPTURE_SAMPLE_RATE = 8000;
 	public static final int FFT_RESOLUTION = 4096;
@@ -99,10 +99,6 @@ public class AudioState {
 		}
 		// fft.inverse(real_mod, imag_mod, res);
 		return mag;
-	}
-
-	public static boolean isAudioEnabled() {
-		return AUDIO_ENABLED;
 	}
 
 	private float[] calcWindowingCoeff() {

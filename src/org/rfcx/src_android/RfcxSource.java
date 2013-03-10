@@ -111,7 +111,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	public void launchServices(Context context) {
 		
-		if (AudioState.isAudioEnabled() && !isServiceRunning_AudioCapture) {
+		if (AudioState.SERVICE_ENABLED && !isServiceRunning_AudioCapture) {
 			context.startService(new Intent(context, AudioCaptureService.class));
 		} else if (isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
 			Log.d(TAG, "AudioCaptureService already running. Not re-started...");
@@ -130,7 +130,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	public void suspendServices(Context context) {
 
-		if (AudioState.isAudioEnabled() && isServiceRunning_AudioCapture) {
+		if (AudioState.SERVICE_ENABLED && isServiceRunning_AudioCapture) {
 			context.stopService(new Intent(context, AudioCaptureService.class));
 		} else if (!isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
 			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
