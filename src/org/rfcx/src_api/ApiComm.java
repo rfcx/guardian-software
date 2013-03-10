@@ -29,7 +29,7 @@ public class ApiComm {
 	private static final boolean API_TRANSMIT_ENABLED = true;
 	private boolean networkConnectivity = false;
 	
-	private int connectivityInterval = 120;
+	private int connectivityInterval = 300;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	

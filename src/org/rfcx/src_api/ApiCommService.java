@@ -72,6 +72,7 @@ public class ApiCommService extends Service {
 					rfcxSource.isServiceRunning_ApiComm = false;
 				}
 			}
+			if (RfcxSource.VERBOSE) Log.d(TAG, "Stopping service: "+TAG);
 		}
 	}
 	

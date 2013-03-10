@@ -96,6 +96,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 					rfcxSource.isServiceRunning_DeviceState = true;
 				}
 			}
+			if (RfcxSource.VERBOSE) Log.d(TAG, "Stopping service: "+TAG);
 		}		
 	}
 

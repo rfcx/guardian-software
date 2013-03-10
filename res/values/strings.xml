@@ -3,8 +3,8 @@
 
     <string name="app_name">rfcx-src-android</string>
     
-    <string name="menuSettings">settings</string>
-    <string name="menuAudioService">audio</string>
+    <string name="menu_prefs">Preferences</string>
+    <string name="menu_services_toggle">Services</string>
 	<string name="menuCpuService">cpu</string>
 	<string name="menuAirplaneMode">network</string>
 	<string name="menuApiSendTest">http</string>

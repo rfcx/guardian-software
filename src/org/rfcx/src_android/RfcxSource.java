@@ -64,8 +64,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "onCreate()"); }
-		
 		checkSetPreferences();
 
 	    this.registerReceiver(batteryDeviceStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
@@ -76,7 +74,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "onTerminate()"); }
 
 		this.unregisterReceiver(batteryDeviceStateReceiver);
 		this.unregisterReceiver(airplaneModeReceiver);
@@ -84,26 +81,24 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	}
 	
 	public void appResume() {
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "appResume()"); }
 		checkSetPreferences();
 	}
 	
 	public void appPause() {
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "appPause()"); }
 	}
 	
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "onSharedPreferenceChanged()"); }
 		checkSetPreferences();
 	}
 	
 	private void checkSetPreferences() {
-		Log.d(TAG, "checkSetPreferences()");
 		this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		this.sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 		
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", false));
 		apiComm.setDomain(this.sharedPreferences.getString("api_domain", "api.rfcx.org"));
+		
+		if (RfcxSource.VERBOSE) Log.d(TAG, "Preferences saved.");
 	}
 	
 	public UUID getDeviceId() {
@@ -118,17 +113,17 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		
 		if (AudioState.isAudioEnabled() && !isServiceRunning_AudioCapture) {
 			context.startService(new Intent(context, AudioCaptureService.class));
-		} else if (isServiceRunning_AudioCapture) {
+		} else if (isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
 			Log.d(TAG, "AudioCaptureService already running. Not re-started...");
 		}
 		if (DeviceStateService.isDeviceStateEnabled() && !isServiceRunning_DeviceState) {
 			context.startService(new Intent(context, DeviceStateService.class));
-		} else if (isServiceRunning_DeviceState) {
+		} else if (isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
 			Log.d(TAG, "DeviceStateService already running. Not re-started...");
 		}
 		if (ApiComm.isApiCommEnabled() && !isServiceRunning_ApiComm) {
 			context.startService(new Intent(context, ApiCommService.class));
-		} else if (isServiceRunning_ApiComm) {
+		} else if (isServiceRunning_ApiComm && RfcxSource.VERBOSE) {
 			Log.d(TAG, "ApiCommService already running. Not re-started...");
 		}
 	}
@@ -137,17 +132,17 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 
 		if (AudioState.isAudioEnabled() && isServiceRunning_AudioCapture) {
 			context.stopService(new Intent(context, AudioCaptureService.class));
-		} else if (!isServiceRunning_AudioCapture) {
+		} else if (!isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
 			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
 		}
 		if (DeviceStateService.isDeviceStateEnabled() && isServiceRunning_DeviceState) {
 			context.stopService(new Intent(context, DeviceStateService.class));
-		} else if (!isServiceRunning_DeviceState) {
+		} else if (!isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
 			Log.d(TAG, "DeviceStateService not running. Not stopped...");
 		}
 		if (ApiComm.isApiCommEnabled() && isServiceRunning_ApiComm) {
 			context.stopService(new Intent(context, ApiCommService.class));
-		} else if (!isServiceRunning_ApiComm) {
+		} else if (!isServiceRunning_ApiComm && RfcxSource.VERBOSE) {
 			Log.d(TAG, "ApiCommService not running. Not stopped...");
 		}
 	}

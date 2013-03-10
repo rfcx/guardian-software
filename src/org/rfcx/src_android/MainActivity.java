@@ -1,12 +1,11 @@
 package org.rfcx.src_android;
 
 import org.rfcx.rfcx_src_android.R;
-import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_device.DeviceStateService;
 
-import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,12 +21,13 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		RfcxSource rfcxSource = (RfcxSource) getApplication();
 		switch (item.getItemId()) {
-		case R.id.menuSettings:
+		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
-		case R.id.menuAudioServiceStop:
-			stopService(new Intent(this, AudioCaptureService.class));
+		case R.id.menu_services_toggle:
+			rfcxSource.suspendServices(rfcxSource.getApplicationContext());
 			break;
 		case R.id.menuCpuServiceStop:
 			stopService(new Intent(this, DeviceStateService.class));

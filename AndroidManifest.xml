@@ -29,8 +29,8 @@
         <service android:name="org.rfcx.src_api.ApiCommService" />
         
         <activity
-            android:name="org.rfcx.rfcx_src_android.PrefsActivity"
-            android:label="@string/menuSettings" />
+            android:name="org.rfcx.src_android.PrefsActivity"
+            android:label="@string/menu_prefs" />
         
         <activity
             android:name="org.rfcx.src_android.MainActivity"

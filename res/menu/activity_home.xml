@@ -1,28 +1,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/menuSettings"
+        android:id="@+id/menu_prefs"
         android:orderInCategory="1"
-        android:title="@string/menuSettings"
+        android:title="@string/menu_prefs"
         />
 	<item
-	    android:id="@+id/menuAudioServiceStop"
-        android:orderInCategory="3"
-	    android:title="@string/menuAudioService"
+	    android:id="@+id/menu_services_toggle"
+        android:orderInCategory="2"
+	    android:title="@string/menu_services_toggle"
 	    />
 	<item
 	    android:id="@+id/menuCpuServiceStop"
-        android:orderInCategory="4"
+        android:orderInCategory="3"
 	    android:title="@string/menuCpuService"
 	    />
 	<item
 	    android:id="@+id/menuAirplaneModeToggle"
-        android:orderInCategory="5"
+        android:orderInCategory="4"
 	    android:title="@string/menuAirplaneMode"
 	    />
 	<item
 	    android:id="@+id/menuApiSendTest"
-        android:orderInCategory="6"
+        android:orderInCategory="5"
 	    android:title="@string/menuApiSendTest"
 	    />
 	
