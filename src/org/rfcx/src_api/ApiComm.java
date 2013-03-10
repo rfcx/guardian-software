@@ -29,7 +29,7 @@ public class ApiComm {
 	private static final boolean API_TRANSMIT_ENABLED = true;
 	private boolean networkConnectivity = false;
 	
-	private int connectivityInterval = 300;
+	private int connectivityInterval = 120;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
@@ -44,18 +44,17 @@ public class ApiComm {
 	private HttpClient httpClient = new DefaultHttpClient();
 	private HttpPost httpPost = null;
 	
+	private int transmitAttempts = 0;
+	
 	public void sendData(Context context) {
 		if (httpPost != null) {
 			RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
+			String strResponse = null;
 			try {
+				transmitAttempts++;
 				httpPost.setEntity(new UrlEncodedFormEntity(preparePostData(rfcxSource)));
 				HttpResponse httpResponse = httpClient.execute(httpPost);
-	        	String strResponse = httpResponseString(httpResponse);
-	        	if (strResponse != null) {
-	        		if (RfcxSource.verboseLog()) { Log.d(TAG, strResponse); }
-	        	} else {
-	        		if (RfcxSource.verboseLog()) { Log.d(TAG, "null response from API"); }
-	        	}
+	        	strResponse = httpResponseString(httpResponse);
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, e.getMessage());
 			} catch (ClientProtocolException e) {
@@ -63,7 +62,17 @@ public class ApiComm {
 			} catch (IOException e) {
 				Log.e(TAG, e.getMessage());
 			} finally {
-				rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+				if ((strResponse == null) && (transmitAttempts <= 3)) {
+					sendData(context);
+					if (RfcxSource.verboseLog()) { Log.d(TAG, "Retransmitting... (attempt #"+transmitAttempts+")"); }
+				} else {
+					if (strResponse != null) {
+						if (RfcxSource.verboseLog()) { Log.d(TAG, "Response: "+strResponse); }
+					}
+					transmitAttempts = 0;
+					rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+					if (RfcxSource.verboseLog()) { Log.d(TAG, "Turning off antenna..."); }
+				}
 			}
 
 		} else {

@@ -64,7 +64,6 @@ public class ApiCommService extends Service {
 			ApiCommService apiCommService = ApiCommService.this;
 			rfcxSource = (RfcxSource) getApplicationContext();
 			while (apiCommService.runFlag) {
-				if (RfcxSource.verboseLog()) { Log.d(TAG, "ApiCommService running"); }
 				try {
 					Thread.sleep(Math.round(0.25*rfcxSource.apiComm.getConnectivityInterval())*1000);
 					rfcxSource.airplaneMode.setOff(rfcxSource.getApplicationContext());

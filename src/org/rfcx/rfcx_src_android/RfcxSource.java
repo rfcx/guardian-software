@@ -35,24 +35,20 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private SharedPreferences sharedPreferences;
 	Context context;
 	
-	// device characteristics
-	private UUID deviceId = null;
-	
 	// database access helpers
 	public DeviceStateDb deviceStateDb = new DeviceStateDb(this);
 	public AudioDb audioDb = new AudioDb(this);
 
-	// for reading battery charge state
+	// for obtaining device stats and characteristics
+	private UUID deviceId = null;
 	public DeviceState deviceState = new DeviceState();
+	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
 	private final BroadcastReceiver batteryDeviceStateReceiver = new BatteryReceiver();
 	
 	// for viewing and controlling airplane mode
 	public AirplaneMode airplaneMode = new AirplaneMode();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
 	
-	// for monitoring cpu usage
-	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
-
 	// for transmitting api data
 	public ApiComm apiComm = new ApiComm();
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
