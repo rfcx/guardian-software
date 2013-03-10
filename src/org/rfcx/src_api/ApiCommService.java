@@ -25,17 +25,16 @@ public class ApiCommService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.apiComm = new ApiComm();
-		Log.d(TAG, "onCreated()");
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
+		if (RfcxSource.VERBOSE) Log.d(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
 		rfcxSource = (RfcxSource) getApplication();
 		rfcxSource.isServiceRunning_ApiComm = true;
 		this.apiComm.start();
-		Log.d(TAG, "onStarted()");
 		return START_STICKY;
 	}
 
@@ -46,7 +45,6 @@ public class ApiCommService extends Service {
 		rfcxSource.isServiceRunning_ApiComm = false;
 		this.apiComm.interrupt();
 		this.apiComm = null;
-		Log.d(TAG, "onDestroyed()");
 	}
 	
 	public boolean isRunning() {

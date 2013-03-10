@@ -20,7 +20,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	
 	static final int DELAY = 1000 - DeviceCpuUsage.SAMPLE_LENGTH;
 	private boolean runFlag = false;
-	private CpuServiceCheck cpuServiceCheck;
+	private DeviceState deviceState;
 
 	private static final boolean RECORD_AVERAGE_TO_DATABASE = true;
 	private int recordingIncrement = 0;
@@ -39,18 +39,18 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.cpuServiceCheck = new CpuServiceCheck();
+		this.deviceState = new DeviceState();
 		registerSensorListeners();
 	}
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "Starting service: "+TAG); }
+		if (RfcxSource.VERBOSE) Log.d(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
 		rfcxSource = (RfcxSource) getApplication();
 		rfcxSource.isServiceRunning_DeviceState = true;
-		this.cpuServiceCheck.start();
+		this.deviceState.start();
 		return START_STICKY;
 	}
 	
@@ -59,8 +59,8 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		super.onDestroy();
 		this.runFlag = false;
 		rfcxSource.isServiceRunning_DeviceState = false;
-		this.cpuServiceCheck.interrupt();
-		this.cpuServiceCheck = null;
+		this.deviceState.interrupt();
+		this.deviceState = null;
 		unRegisterSensorListeners();
 	}
 	
@@ -68,18 +68,18 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		return DEVICE_STATS_ENABLED;
 	}
 	
-	private class CpuServiceCheck extends Thread {
+	private class DeviceState extends Thread {
 		
-		public CpuServiceCheck() {
-			super("CpuServiceCheck-CpuService");
+		public DeviceState() {
+			super("DeviceStateService-DeviceState");
 		}
 		
 		@Override
 		public void run() {
-			DeviceStateService cpuService = DeviceStateService.this;
+			DeviceStateService deviceStateService = DeviceStateService.this;
 			rfcxSource = (RfcxSource) getApplication();
 			DeviceCpuUsage deviceCpuUsage = rfcxSource.deviceCpuUsage;
-			while (cpuService.runFlag) {
+			while (deviceStateService.runFlag) {
 				try {
 					deviceCpuUsage.updateCpuUsage();
 					if (RECORD_AVERAGE_TO_DATABASE) {
@@ -87,12 +87,12 @@ public class DeviceStateService extends Service implements SensorEventListener {
 						if (recordingIncrement == DeviceCpuUsage.AVERAGE_LENGTH) {
 							rfcxSource.deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
 							recordingIncrement = 0;
-							if (RfcxSource.VERBOSE) { Log.d(TAG, "CPU Usage: "+deviceCpuUsage.getCpuUsageAvg()+"%"); }
+							if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"%");
 						}
 					}
 					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {
-					cpuService.runFlag = false;
+					deviceStateService.runFlag = false;
 					rfcxSource.isServiceRunning_DeviceState = true;
 				}
 			}

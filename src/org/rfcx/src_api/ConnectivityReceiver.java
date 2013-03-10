@@ -17,7 +17,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
 		final boolean isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 		rfcxSource.apiComm.setConnectivity(isConnected);
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "Device Connectivity: "+isConnected); }
+		if (RfcxSource.VERBOSE) Log.d(TAG, "BroadcastReceiver: "+TAG+" - Connectivity: "+isConnected);
 		if (isConnected) {
 			rfcxSource.apiComm.sendData(context);
 		}

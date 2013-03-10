@@ -11,10 +11,8 @@ public class BootReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "onReceive()"); }	
+		if (RfcxSource.VERBOSE) Log.d(TAG, "BroadcastReceiver: "+TAG);
 		((RfcxSource) context.getApplicationContext()).launchServices(context);
-	
 	}
 
 }

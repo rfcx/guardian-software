@@ -14,6 +14,7 @@ public class BatteryReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		if (RfcxSource.VERBOSE) Log.d(TAG, "BroadcastReceiver: "+TAG);
         setBatteryState(context, intent);
         allowOrDisAllowServices(context, intent);
 	}
@@ -29,9 +30,9 @@ public class BatteryReceiver extends BroadcastReceiver {
 	private void allowOrDisAllowServices(Context context, Intent intent) {
 		DeviceState deviceState = ((RfcxSource) context.getApplicationContext()).deviceState;
 		if (deviceState.allowServices()) {
-			Log.d(TAG, "Battery percentage: "+deviceState.getBatteryPercent()+"%, services SHOULD be allowed to run...");
+			if (RfcxSource.VERBOSE) Log.d(TAG, "Battery: "+deviceState.getBatteryPercent()+"% - Services Allowed.");
 		} else {
-			Log.d(TAG, "Battery percentage: "+deviceState.getBatteryPercent()+"%, services should NOT be allowed to run...");
+			if (RfcxSource.VERBOSE) Log.d(TAG, "Battery: "+deviceState.getBatteryPercent()+"% - Services NOT Allowed.");
 		}
 	}
 	

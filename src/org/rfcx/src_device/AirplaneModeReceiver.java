@@ -16,17 +16,17 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "onReceive()"); }
+		if (RfcxSource.VERBOSE) Log.d(TAG, "BroadcastReceiver: "+TAG);
 		setWifiIfAllowed(context);
 	}
 
 	private void setWifiIfAllowed(Context context) {
-		RfcxSource app = (RfcxSource) context.getApplicationContext();
-		if (!app.airplaneMode.isEnabled(context)) {
+		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
+		if (!rfcxSource.airplaneMode.isEnabled(context)) {
 			if (wifiManager == null) {
 				wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 			}
-			wifiManager.setWifiEnabled(app.airplaneMode.getAllowWifi());
+			wifiManager.setWifiEnabled(rfcxSource.airplaneMode.getAllowWifi());
 		}
 	}
 	
