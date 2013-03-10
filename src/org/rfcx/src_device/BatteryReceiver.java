@@ -14,17 +14,18 @@ public class BatteryReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		if (RfcxSource.VERBOSE) Log.d(TAG, "BroadcastReceiver: "+TAG);
         setBatteryState(context, intent);
         allowOrDisAllowServices(context, intent);
 	}
 	
 	private void setBatteryState(Context context, Intent intent) {
 		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
-		rfcxSource.deviceState.setBatteryLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
-		rfcxSource.deviceState.setBatteryScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
-		rfcxSource.deviceState.setBatteryTemperature(Math.round(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)/10));
-		rfcxSource.deviceStateDb.dbBattery.insert(rfcxSource.deviceState.getBatteryPercent());
+		DeviceState deviceState = rfcxSource.deviceState;
+		deviceState.setBatteryLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
+		deviceState.setBatteryScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
+		deviceState.setBatteryTemperature(Math.round(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)/10));
+		rfcxSource.deviceStateDb.dbBattery.insert(deviceState.getBatteryPercent());
+		if (RfcxSource.VERBOSE) Log.d(TAG, "BroadcastReceiver: "+TAG+" - Level: "+deviceState.getBatteryPercent());
 	}
 	
 	private void allowOrDisAllowServices(Context context, Intent intent) {
