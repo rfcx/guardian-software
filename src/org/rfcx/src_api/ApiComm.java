@@ -26,7 +26,7 @@ public class ApiComm {
 
 	private static final String TAG = ApiComm.class.getSimpleName();
 
-	private static final boolean API_TRANSMIT_ENABLED = true;
+	public static final boolean SERVICE_ENABLED = true;
 	private boolean networkConnectivity = false;
 	
 	private int connectivityInterval = 300;
@@ -125,10 +125,6 @@ public class ApiComm {
 	
 	
 	// Getters & Setters
-	
-	public static boolean isApiCommEnabled() {
-		return API_TRANSMIT_ENABLED;
-	}
 	
 	public boolean isConnectivityPossible() {
 		return networkConnectivity;

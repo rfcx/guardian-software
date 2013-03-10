@@ -121,7 +121,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		} else if (isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
 			Log.d(TAG, "DeviceStateService already running. Not re-started...");
 		}
-		if (ApiComm.isApiCommEnabled() && !isServiceRunning_ApiComm) {
+		if (ApiComm.SERVICE_ENABLED && !isServiceRunning_ApiComm) {
 			context.startService(new Intent(context, ApiCommService.class));
 		} else if (isServiceRunning_ApiComm && RfcxSource.VERBOSE) {
 			Log.d(TAG, "ApiCommService already running. Not re-started...");
@@ -140,7 +140,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		} else if (!isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
 			Log.d(TAG, "DeviceStateService not running. Not stopped...");
 		}
-		if (ApiComm.isApiCommEnabled() && isServiceRunning_ApiComm) {
+		if (ApiComm.SERVICE_ENABLED && isServiceRunning_ApiComm) {
 			context.stopService(new Intent(context, ApiCommService.class));
 		} else if (!isServiceRunning_ApiComm && RfcxSource.VERBOSE) {
 			Log.d(TAG, "ApiCommService not running. Not stopped...");
