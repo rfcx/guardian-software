@@ -1,6 +1,6 @@
 package org.rfcx.src_api;
 
-import org.rfcx.rfcx_src_android.RfcxSource;
+import org.rfcx.src_android.RfcxSource;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,8 +16,8 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
         RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
 		final boolean isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-		if (RfcxSource.verboseLog()) { Log.d(TAG, "onReceive() - Connectivity: "+isConnected); }
 		rfcxSource.apiComm.setConnectivity(isConnected);
+		if (RfcxSource.verboseLog()) { Log.d(TAG, "Device Connectivity: "+isConnected); }
 		if (isConnected) {
 			rfcxSource.apiComm.sendData(context);
 		}

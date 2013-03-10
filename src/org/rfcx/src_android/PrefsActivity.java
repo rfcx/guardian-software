@@ -1,4 +1,6 @@
-package org.rfcx.rfcx_src_android;
+package org.rfcx.src_android;
+
+import org.rfcx.rfcx_src_android.R;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;

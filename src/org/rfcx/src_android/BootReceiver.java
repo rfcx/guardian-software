@@ -1,4 +1,4 @@
-package org.rfcx.rfcx_src_android;
+package org.rfcx.src_android;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

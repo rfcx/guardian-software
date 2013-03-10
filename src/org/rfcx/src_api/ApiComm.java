@@ -16,7 +16,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.rfcx.rfcx_src_android.RfcxSource;
+import org.rfcx.src_android.RfcxSource;
 import org.rfcx.src_util.DateTimeUtils;
 
 import android.content.Context;

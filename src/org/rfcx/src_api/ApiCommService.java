@@ -1,6 +1,6 @@
 package org.rfcx.src_api;
 
-import org.rfcx.rfcx_src_android.RfcxSource;
+import org.rfcx.src_android.RfcxSource;
 
 import android.app.Service;
 import android.content.Intent;

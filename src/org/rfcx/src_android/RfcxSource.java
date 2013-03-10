@@ -1,4 +1,4 @@
-package org.rfcx.rfcx_src_android;
+package org.rfcx.src_android;
 
 import java.util.UUID;
 

@@ -1,6 +1,6 @@
 package org.rfcx.src_database;
 
-import org.rfcx.rfcx_src_android.RfcxSource;
+import org.rfcx.src_android.RfcxSource;
 import org.rfcx.src_util.DateTimeUtils;
 
 import android.content.ContentValues;
