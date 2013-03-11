@@ -75,8 +75,10 @@ public class AudioCaptureService extends Service {
 				while (audioCaptureService.runFlag) {
 					try {
 						audioRecord.read(audioBuffer, 0, AudioState.BUFFER_LENGTH);
-						audioState.addSpectrum(audioBuffer, rfcxSource);
+						audioState.cachePcmBuffer(audioBuffer);
+//						audioState.addSpectrum(audioBuffer, rfcxSource);
 					} catch (Exception e) {
+						Log.e(TAG, e.getMessage());
 						audioCaptureService.runFlag = false;
 						rfcxSource.isServiceRunning_AudioCapture = false;
 					}
@@ -84,6 +86,7 @@ public class AudioCaptureService extends Service {
 				if (RfcxSource.VERBOSE) Log.d(TAG, "Stopping service: "+TAG);
 				audioRecord.stop();
 			} catch (Exception e) {
+				Log.e(TAG, e.getMessage());
 				audioCaptureService.runFlag = false;
 				rfcxSource.isServiceRunning_AudioCapture = false;
 			}

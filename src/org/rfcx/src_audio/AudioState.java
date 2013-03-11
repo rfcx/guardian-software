@@ -1,5 +1,7 @@
 package org.rfcx.src_audio;
 
+import java.util.ArrayList;
+
 import org.rfcx.src_android.RfcxSource;
 
 import com.badlogic.gdx.audio.analysis.*;
@@ -110,4 +112,31 @@ public class AudioState {
 		return windowingCoeff;
 	}
 	
+	
+	private ArrayList<short[]> pcmDataBuffer = new ArrayList<short[]>();
+	private static final int PCM_DATA_BUFFER_LIMIT = 100;
+	
+	private void incrementPcmDataBuffer(short[] pcmData) {
+		if (pcmData.length == BUFFER_LENGTH) {
+			short[] halfBuffer = new short[BUFFER_LENGTH/2];
+			System.arraycopy(pcmData, 0, halfBuffer, 0, BUFFER_LENGTH/2);
+			this.pcmDataBuffer.add(halfBuffer);
+			System.arraycopy(pcmData, BUFFER_LENGTH/2, halfBuffer, 0, BUFFER_LENGTH/2);
+			this.pcmDataBuffer.add(halfBuffer);
+		}
+	}
+	
+	private void checkResetPcmDataBuffer() {
+		if (this.pcmDataBuffer.size() >= PCM_DATA_BUFFER_LIMIT) {
+			this.pcmDataBuffer = new ArrayList<short[]>();
+			Log.d(TAG,"PCM Data Buffer at limit. Buffer cleared.");
+		} else {
+			Log.d(TAG,"Buffer length: "+pcmDataBuffer.size());
+		}
+	}
+	
+	public void cachePcmBuffer(short[] pcmData) {
+		incrementPcmDataBuffer(pcmData);
+		checkResetPcmDataBuffer();
+	}
 }
