@@ -16,7 +16,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 
 	private static final String TAG = DeviceStateService.class.getSimpleName();
 	
-	static final int DELAY = 1000 - DeviceCpuUsage.SAMPLE_LENGTH;
+	private static final int DELAY = 1000 - DeviceCpuUsage.SAMPLE_LENGTH;
 	private boolean runFlag = false;
 	private DeviceState deviceState;
 

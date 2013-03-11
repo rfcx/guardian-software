@@ -13,7 +13,9 @@ public class AudioProcessService extends Service {
 
 	private boolean runFlag = false;
 	private AudioProcess audioProcess;
-
+	
+	private static final int DELAY = 1000;
+	
 	private RfcxSource rfcxSource = null;
 	
 	@Override
@@ -61,7 +63,10 @@ public class AudioProcessService extends Service {
 			AudioState audioState = rfcxSource.audioState;
 			try {
 				while (audioProcessService.runFlag) {
-					
+					while (audioState.pcmDataBufferLength() > 2) {
+						audioState.addSpectrum();
+					}
+					Thread.sleep(DELAY);
 				}
 				if (RfcxSource.VERBOSE) Log.d(TAG, "Stopping service: "+TAG);
 			} catch (Exception e) {

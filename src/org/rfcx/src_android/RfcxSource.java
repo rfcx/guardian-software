@@ -6,6 +6,7 @@ import org.rfcx.src_api.ApiComm;
 import org.rfcx.src_api.ApiCommService;
 import org.rfcx.src_api.ConnectivityReceiver;
 import org.rfcx.src_audio.AudioCaptureService;
+import org.rfcx.src_audio.AudioProcessService;
 import org.rfcx.src_audio.AudioState;
 import org.rfcx.src_database.AudioDb;
 import org.rfcx.src_database.DeviceStateDb;
@@ -112,11 +113,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	public void launchServices(Context context) {
 		
-		if (AudioState.SERVICE_ENABLED && !isServiceRunning_AudioCapture) {
-			context.startService(new Intent(context, AudioCaptureService.class));
-		} else if (isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
-			Log.d(TAG, "AudioCaptureService already running. Not re-started...");
-		}
 		if (DeviceState.SERVICE_ENABLED && !isServiceRunning_DeviceState) {
 			context.startService(new Intent(context, DeviceStateService.class));
 		} else if (isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
@@ -127,15 +123,20 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		} else if (isServiceRunning_ApiComm && RfcxSource.VERBOSE) {
 			Log.d(TAG, "ApiCommService already running. Not re-started...");
 		}
+		if (AudioState.CAPTURE_SERVICE_ENABLED && !isServiceRunning_AudioCapture) {
+			context.startService(new Intent(context, AudioCaptureService.class));
+		} else if (isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
+			Log.d(TAG, "AudioCaptureService already running. Not re-started...");
+		}
+		if (AudioState.PROCESS_SERVICE_ENABLED && !isServiceRunning_AudioProcess) {
+			context.startService(new Intent(context, AudioProcessService.class));
+		} else if (isServiceRunning_AudioProcess && RfcxSource.VERBOSE) {
+			Log.d(TAG, "AudioProcessService already running. Not re-started...");
+		}
 	}
 	
 	public void suspendServices(Context context) {
 
-		if (AudioState.SERVICE_ENABLED && isServiceRunning_AudioCapture) {
-			context.stopService(new Intent(context, AudioCaptureService.class));
-		} else if (!isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
-			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
-		}
 		if (DeviceState.SERVICE_ENABLED && isServiceRunning_DeviceState) {
 			context.stopService(new Intent(context, DeviceStateService.class));
 		} else if (!isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
@@ -145,6 +146,16 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 			context.stopService(new Intent(context, ApiCommService.class));
 		} else if (!isServiceRunning_ApiComm && RfcxSource.VERBOSE) {
 			Log.d(TAG, "ApiCommService not running. Not stopped...");
+		}
+		if (AudioState.CAPTURE_SERVICE_ENABLED && isServiceRunning_AudioCapture) {
+			context.stopService(new Intent(context, AudioCaptureService.class));
+		} else if (!isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
+			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
+		}
+		if (AudioState.PROCESS_SERVICE_ENABLED && isServiceRunning_AudioProcess) {
+			context.stopService(new Intent(context, AudioProcessService.class));
+		} else if (!isServiceRunning_AudioProcess && RfcxSource.VERBOSE) {
+			Log.d(TAG, "AudioProcessService not running. Not stopped...");
 		}
 	}
 

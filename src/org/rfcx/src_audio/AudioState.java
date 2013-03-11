@@ -2,8 +2,6 @@ package org.rfcx.src_audio;
 
 import java.util.ArrayList;
 
-import org.rfcx.src_android.RfcxSource;
-
 import com.badlogic.gdx.audio.analysis.*;
 
 import android.util.Log;
@@ -12,7 +10,8 @@ public class AudioState {
 
 	private static final String TAG = AudioState.class.getSimpleName();
 
-	public static final boolean SERVICE_ENABLED = true;
+	public static final boolean CAPTURE_SERVICE_ENABLED = true;
+	public static final boolean PROCESS_SERVICE_ENABLED = true;
 
 	public static final int CAPTURE_SAMPLE_RATE = 8000;
 	public static final int FFT_RESOLUTION = 4096;
@@ -25,15 +24,18 @@ public class AudioState {
 	private float[] fftWindowingCoeff = calcWindowingCoeff();
 
 	private ArrayList<short[]> pcmDataBuffer = new ArrayList<short[]>();
-	private static final int PCM_DATA_BUFFER_LIMIT = 100;
+	private static final int PCM_DATA_BUFFER_LIMIT = 20;
 	
 	public void addSpectrum() {
-		
-		short[] pcmData = new short[BUFFER_LENGTH];
-		System.arraycopy(pcmDataBuffer.get(0), 0, pcmData, 0, BUFFER_LENGTH/2);
-		System.arraycopy(pcmDataBuffer.get(1), 0, pcmData, BUFFER_LENGTH/2, BUFFER_LENGTH/2);
-		addSpectrumSum(calcFFT(pcmData,true));
-		pcmDataBuffer.remove(0);
+		if (pcmDataBufferLength() > 2) {
+			short[] pcmData = new short[BUFFER_LENGTH];
+			System.arraycopy(pcmDataBuffer.get(0), 0, pcmData, 0, BUFFER_LENGTH/2);
+			System.arraycopy(pcmDataBuffer.get(1), 0, pcmData, BUFFER_LENGTH/2, BUFFER_LENGTH/2);
+			addSpectrumSum(calcFFT(pcmData));
+			pcmDataBuffer.remove(0);
+			pcmDataBuffer.remove(1);
+			checkResetPcmDataBuffer();
+		}
 	}
 
 	private void addSpectrumSum(double[] fftSpectrum) {
@@ -52,7 +54,7 @@ public class AudioState {
 		}
 	}
 
-	private double[] calcFFT(short[] array, boolean useWindowing) {
+	private double[] calcFFT(short[] array) {
 
 		double[] real = new double[BUFFER_LENGTH];
 		double[] imag = new double[BUFFER_LENGTH];
@@ -68,12 +70,6 @@ public class AudioState {
 		// Zero pad signal
 		for (int i = 0; i < BUFFER_LENGTH; i++) {
 			new_array[i] = (i < array.length) ? (fftWindowingCoeff[i]*array[i]) : 0;
-		}
-		
-		if (useWindowing) {
-			for (int i = 0; i < BUFFER_LENGTH; i++) {
-				new_array[i] = new_array[i] * fftWindowingCoeff[i];
-			}
 		}
 
 		FFT fft = new FFT(BUFFER_LENGTH, CAPTURE_SAMPLE_RATE);
@@ -103,8 +99,14 @@ public class AudioState {
 		return windowingCoeff;
 	}
 	
+	private void checkResetPcmDataBuffer() {
+		if (pcmDataBufferLength() >= PCM_DATA_BUFFER_LIMIT) {
+			this.pcmDataBuffer = new ArrayList<short[]>();
+			Log.d(TAG,"PCM Data Buffer at limit. Buffer cleared.");
+		}
+	}
 	
-	private void incrementPcmDataBuffer(short[] pcmData) {
+	public void cachePcmBuffer(short[] pcmData) {
 		if (pcmData.length == BUFFER_LENGTH) {
 			short[] halfBuffer = new short[BUFFER_LENGTH/2];
 			System.arraycopy(pcmData, 0, halfBuffer, 0, BUFFER_LENGTH/2);
@@ -114,17 +116,7 @@ public class AudioState {
 		}
 	}
 	
-	private void checkResetPcmDataBuffer() {
-		if (this.pcmDataBuffer.size() >= PCM_DATA_BUFFER_LIMIT) {
-			this.pcmDataBuffer = new ArrayList<short[]>();
-			Log.d(TAG,"PCM Data Buffer at limit. Buffer cleared.");
-		} else {
-			Log.d(TAG,"Buffer length: "+pcmDataBuffer.size());
-		}
-	}
-	
-	public void cachePcmBuffer(short[] pcmData) {
-		incrementPcmDataBuffer(pcmData);
-		checkResetPcmDataBuffer();
+	public int pcmDataBufferLength() {
+		return this.pcmDataBuffer.size();
 	}
 }
