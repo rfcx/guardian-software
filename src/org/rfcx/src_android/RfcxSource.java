@@ -60,6 +60,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public boolean isServiceRunning_DeviceState = false;
 	public boolean isServiceRunning_ApiComm = false;
 	public boolean isServiceRunning_AudioCapture = false;
+	public boolean isServiceRunning_AudioProcess = false;
 	
 	@Override
 	public void onCreate() {

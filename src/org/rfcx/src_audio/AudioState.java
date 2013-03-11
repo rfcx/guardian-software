@@ -21,28 +21,19 @@ public class AudioState {
 	private int fftSpectrumSumIncrement = 0;
 	private static final int fftSpectrumSumLength = 10;
 	public static final int BUFFER_LENGTH = FFT_RESOLUTION * 2;
-
-	private short[] lastBuffer = new short[BUFFER_LENGTH];
-	private short[] doubleBuffer = new short[BUFFER_LENGTH * 2];
 	
 	private float[] fftWindowingCoeff = calcWindowingCoeff();
 
-	public void addSpectrum(short[] pcmData, RfcxSource rfcxSource) {
-		if (pcmData.length == BUFFER_LENGTH) {
-			// Build data set made of two buffers (the last one and the current one)
-			System.arraycopy(lastBuffer, 0, doubleBuffer, 0, BUFFER_LENGTH);
-			System.arraycopy(pcmData, 0, doubleBuffer, BUFFER_LENGTH, BUFFER_LENGTH);
-			lastBuffer = pcmData;
-			// make sure there is one full double buffer
-			if (doubleBuffer[0] != 0) {
-				// currently not using double buffer, only single
-				addSpectrumSum(calcFFT(pcmData,true));
-			}
-		} else {
-			Log.d(TAG, "Skipping FFT, PCM data not correct length.");
-			lastBuffer = new short[BUFFER_LENGTH];
-			doubleBuffer = new short[BUFFER_LENGTH * 2];
-		}
+	private ArrayList<short[]> pcmDataBuffer = new ArrayList<short[]>();
+	private static final int PCM_DATA_BUFFER_LIMIT = 100;
+	
+	public void addSpectrum() {
+		
+		short[] pcmData = new short[BUFFER_LENGTH];
+		System.arraycopy(pcmDataBuffer.get(0), 0, pcmData, 0, BUFFER_LENGTH/2);
+		System.arraycopy(pcmDataBuffer.get(1), 0, pcmData, BUFFER_LENGTH/2, BUFFER_LENGTH/2);
+		addSpectrumSum(calcFFT(pcmData,true));
+		pcmDataBuffer.remove(0);
 	}
 
 	private void addSpectrumSum(double[] fftSpectrum) {
@@ -112,9 +103,6 @@ public class AudioState {
 		return windowingCoeff;
 	}
 	
-	
-	private ArrayList<short[]> pcmDataBuffer = new ArrayList<short[]>();
-	private static final int PCM_DATA_BUFFER_LIMIT = 100;
 	
 	private void incrementPcmDataBuffer(short[] pcmData) {
 		if (pcmData.length == BUFFER_LENGTH) {
