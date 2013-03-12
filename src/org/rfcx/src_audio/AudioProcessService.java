@@ -70,7 +70,7 @@ public class AudioProcessService extends Service {
 				}
 				if (RfcxSource.VERBOSE) Log.d(TAG, "Stopping service: "+TAG);
 			} catch (Exception e) {
-				Log.e(TAG, e.getMessage());
+				Log.e(TAG, "Exception");
 				audioProcessService.runFlag = false;
 				rfcxSource.isServiceRunning_AudioProcess = false;
 			}

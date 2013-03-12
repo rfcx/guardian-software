@@ -11,19 +11,14 @@
 	    android:title="@string/menu_services_toggle"
 	    />
 	<item
-	    android:id="@+id/menuCpuServiceStop"
+	    android:id="@+id/menu_services_audio"
         android:orderInCategory="3"
-	    android:title="@string/menuCpuService"
+	    android:title="@string/menu_services_audio"
 	    />
 	<item
-	    android:id="@+id/menuAirplaneModeToggle"
+	    android:id="@+id/menu_connectivity"
         android:orderInCategory="4"
-	    android:title="@string/menuAirplaneMode"
-	    />
-	<item
-	    android:id="@+id/menuApiSendTest"
-        android:orderInCategory="5"
-	    android:title="@string/menuApiSendTest"
+	    android:title="@string/menu_connectivity"
 	    />
 	
 	

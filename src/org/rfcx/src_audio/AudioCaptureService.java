@@ -76,7 +76,6 @@ public class AudioCaptureService extends Service {
 					try {
 						audioRecord.read(audioBuffer, 0, AudioState.BUFFER_LENGTH);
 						audioState.cachePcmBuffer(audioBuffer);
-//						audioState.addSpectrum(audioBuffer, rfcxSource);
 					} catch (Exception e) {
 						Log.e(TAG, e.getMessage());
 						audioCaptureService.runFlag = false;

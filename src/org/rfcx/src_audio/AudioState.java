@@ -24,17 +24,22 @@ public class AudioState {
 	private float[] fftWindowingCoeff = calcWindowingCoeff();
 
 	private ArrayList<short[]> pcmDataBuffer = new ArrayList<short[]>();
-	private static final int PCM_DATA_BUFFER_LIMIT = 20;
+	private static final int PCM_DATA_BUFFER_LIMIT = 100;
 	
 	public void addSpectrum() {
-		if (pcmDataBufferLength() > 2) {
-			short[] pcmData = new short[BUFFER_LENGTH];
-			System.arraycopy(pcmDataBuffer.get(0), 0, pcmData, 0, BUFFER_LENGTH/2);
-			System.arraycopy(pcmDataBuffer.get(1), 0, pcmData, BUFFER_LENGTH/2, BUFFER_LENGTH/2);
-			addSpectrumSum(calcFFT(pcmData));
+		if (pcmDataBufferLength() > 1) {
+//			short[] pcmData = new short[BUFFER_LENGTH];
+//			System.arraycopy(pcmDataBuffer.get(0), 0, pcmData, 0, BUFFER_LENGTH/2);
+//			System.arraycopy(pcmDataBuffer.get(1), 0, pcmData, BUFFER_LENGTH/2, BUFFER_LENGTH/2);
+//			addSpectrumSum(calcFFT(pcmData));
+//			pcmDataBuffer.remove(0);
+//			pcmDataBuffer.remove(1);
+			
+			addSpectrumSum(calcFFT(this.pcmDataBuffer.get(0)));
 			pcmDataBuffer.remove(0);
-			pcmDataBuffer.remove(1);
+			
 			checkResetPcmDataBuffer();
+//			Log.d(TAG, "Buffer: "+pcmDataBufferLength());
 		}
 	}
 
@@ -108,11 +113,13 @@ public class AudioState {
 	
 	public void cachePcmBuffer(short[] pcmData) {
 		if (pcmData.length == BUFFER_LENGTH) {
-			short[] halfBuffer = new short[BUFFER_LENGTH/2];
-			System.arraycopy(pcmData, 0, halfBuffer, 0, BUFFER_LENGTH/2);
-			this.pcmDataBuffer.add(halfBuffer);
-			System.arraycopy(pcmData, BUFFER_LENGTH/2, halfBuffer, 0, BUFFER_LENGTH/2);
-			this.pcmDataBuffer.add(halfBuffer);
+//			short[] halfBuffer = new short[BUFFER_LENGTH/2];
+//			System.arraycopy(pcmData, 0, halfBuffer, 0, BUFFER_LENGTH/2);
+//			this.pcmDataBuffer.add(halfBuffer);
+//			System.arraycopy(pcmData, BUFFER_LENGTH/2, halfBuffer, 0, BUFFER_LENGTH/2);
+//			this.pcmDataBuffer.add(halfBuffer);
+			
+			this.pcmDataBuffer.add(pcmData);
 		}
 	}
 	

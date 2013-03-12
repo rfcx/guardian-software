@@ -3,12 +3,14 @@ package org.rfcx.src_util;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.rfcx.src_android.RfcxSource;
+
 public class DeviceCpuUsage {
 	
-	public static final int AVERAGE_LENGTH = 60;
+	public static final int REPORTING_SAMPLE_COUNT = (RfcxSource.VERBOSE) ? 15 : 60;
 	private float cpuUsageNow = 0;
 	private float cpuUsageAvg = 0;
-	private float[] prevCpuUsage = new float[AVERAGE_LENGTH];
+	private float[] prevCpuUsage = new float[REPORTING_SAMPLE_COUNT];
 	
 	public static final int SAMPLE_LENGTH = 360;
 	
@@ -27,12 +29,12 @@ public class DeviceCpuUsage {
 	
 	private void incrementAvg() {
 		float avgTotal = 0;
-		for (int i = 0; i < AVERAGE_LENGTH-1; i++) {
+		for (int i = 0; i < REPORTING_SAMPLE_COUNT-1; i++) {
 			this.prevCpuUsage[i] = this.prevCpuUsage[i+1];
 			avgTotal = avgTotal + this.prevCpuUsage[i+1];
 		}
-		this.prevCpuUsage[AVERAGE_LENGTH-1] = this.cpuUsageNow;
-		this.cpuUsageAvg = (avgTotal + this.cpuUsageNow) / AVERAGE_LENGTH;
+		this.prevCpuUsage[REPORTING_SAMPLE_COUNT-1] = this.cpuUsageNow;
+		this.cpuUsageAvg = (avgTotal + this.cpuUsageNow) / REPORTING_SAMPLE_COUNT;
 	}
 	
 	private float updateUsage() {

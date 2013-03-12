@@ -1,5 +1,10 @@
 package org.rfcx.src_device;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+
 import org.rfcx.src_android.RfcxSource;
 import org.rfcx.src_util.DeviceCpuUsage;
 
@@ -26,8 +31,13 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	private SensorManager sensorManager;
 	Sensor accelSensor = null;
 	Sensor lightSensor = null;
+	Sensor tempSensor = null;
 	
 	private RfcxSource rfcxSource = null;
+	
+	
+	private File f = new File("/sys/class/power_supply/battery/batt_current");
+	
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -79,11 +89,14 @@ public class DeviceStateService extends Service implements SensorEventListener {
 					deviceCpuUsage.updateCpuUsage();
 					if (RECORD_AVERAGE_TO_DATABASE) {
 						recordingIncrement++;
-						if (recordingIncrement == DeviceCpuUsage.AVERAGE_LENGTH) {
+						if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
 							rfcxSource.deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
 							recordingIncrement = 0;
 							if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"%");
 						}
+//						if (f.exists()) {
+//							Log.d(TAG, "Current: "+(long) getCurrentValue(f, false));
+//						}
 					}
 					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {
@@ -104,7 +117,13 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 				return;
 			} else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
-				rfcxSource.deviceState.setLightLevel(Math.round(event.values[0]));
+				if (event.values[0] >= 0) {
+					rfcxSource.deviceState.setLightLevel(Math.round(event.values[0]));
+					rfcxSource.deviceStateDb.dbLight.insert(rfcxSource.deviceState.getLightLevel());
+				}
+				return;
+			} else if (event.sensor.getType() == Sensor.TYPE_TEMPERATURE) {
+				Log.d(TAG, "Temperature: "+event.values[0]);
 				return;
 			} else {
 				return;
@@ -128,6 +147,12 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
 			this.sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		}
+		if (this.sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE).size() != 0) {
+			tempSensor = sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE).get(0);
+			this.sensorManager.registerListener(this, tempSensor, SensorManager.SENSOR_DELAY_NORMAL);
+		} else {
+			Log.d(TAG, "No Temperature sensor");
+		}
 	}
 	
 	private void unRegisterSensorListeners() {
@@ -137,5 +162,56 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		if (lightSensor != null) {
 			this.sensorManager.unregisterListener(this, lightSensor);
 		}
+		if (tempSensor != null) {
+			this.sensorManager.unregisterListener(this, tempSensor);
+		}
 	}
+	
+	
+	
+	
+	
+	public static Long getCurrentValue(File _f, boolean _convertToMillis) {
+		
+		String text = null;
+		
+		try {
+			FileInputStream fs = new FileInputStream(_f);		
+			InputStreamReader sr = new InputStreamReader(fs);
+			BufferedReader br = new BufferedReader(sr);			
+		
+			text = br.readLine();
+			
+			br.close();
+			sr.close();
+			fs.close();				
+		}
+		catch (Exception ex) {
+			Log.e("CurrentWidget", ex.getMessage());
+			ex.printStackTrace();
+		}
+		
+		Long value = null;
+		
+		if (text != null)
+		{
+			try
+			{
+				value = Long.parseLong(text);
+			}
+			catch (NumberFormatException nfe)
+			{
+				Log.e("CurrentWidget", nfe.getMessage());
+				value = null;
+			}
+			
+			if (_convertToMillis && value != null)
+				value = value / 1000; // convert to milliampere
+
+		}
+		
+		return value;
+	}
+	
+	
 }

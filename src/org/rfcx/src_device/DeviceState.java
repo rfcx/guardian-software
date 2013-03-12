@@ -52,7 +52,6 @@ public class DeviceState {
 	
 	public void setLightLevel(int lightLevel) {
 		this.lightLevel = lightLevel;
-		Log.d(TAG, "Light level: "+lightLevel);
 	}
 	
 	public int getLightLevel() {
