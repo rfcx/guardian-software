@@ -7,6 +7,7 @@ import org.rfcx.src_util.DateTimeUtils;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -37,14 +38,13 @@ public class DeviceStateDb {
 			@Override
 			public void onCreate(SQLiteDatabase db) {
 				String sqlCreate = "CREATE TABLE " + TABLE + CREATE_CLMNS;
-				db.execSQL(sqlCreate);
-				Log.d(TAG, "onCreate() " + sqlCreate);
+				try { db.execSQL(sqlCreate);
+				} catch (SQLException e) { Log.e(TAG, e.getMessage()); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE);
-				Log.d(TAG, "onUpgrade()");
-				onCreate(db);
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { Log.e(TAG, e.getMessage()); }
 			}
 		}
 		final DbHelper dbHelper;
@@ -59,11 +59,9 @@ public class DeviceStateDb {
 			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
 			values.put(C_VALUE, value);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			try { db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} catch (Exception e) { Log.e(TAG, e.getMessage());
+			} finally { db.close(); }
 		}
 		public String[] getLast() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -83,6 +81,7 @@ public class DeviceStateDb {
 		public void clearStatsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+(new DateTimeUtils()).getDateTime(date));
+			} catch (SQLException e) { Log.e(TAG, e.getMessage());
 			} finally { db.close(); }
 		}
 	}
@@ -98,14 +97,13 @@ public class DeviceStateDb {
 			@Override
 			public void onCreate(SQLiteDatabase db) {
 				String sqlCreate = "CREATE TABLE " + TABLE + CREATE_CLMNS;
-				db.execSQL(sqlCreate);
-				Log.d(TAG, "onCreate() " + sqlCreate);
+				try { db.execSQL(sqlCreate);
+				} catch (SQLException e) { Log.e(TAG, e.getMessage()); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE);
-				Log.d(TAG, "onUpgrade()");
-				onCreate(db);
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { Log.e(TAG, e.getMessage()); }
 			}
 		}
 		final DbHelper dbHelper;
@@ -120,11 +118,9 @@ public class DeviceStateDb {
 			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
 			values.put(C_VALUE, value);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			try { db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} catch (Exception e) { Log.e(TAG, e.getMessage());
+			} finally { db.close(); }
 		}
 		public String[] getLast() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -144,6 +140,7 @@ public class DeviceStateDb {
 		public void clearStatsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+(new DateTimeUtils()).getDateTime(date));
+			} catch (SQLException e) { Log.e(TAG, e.getMessage());
 			} finally { db.close(); }
 		}
 	}
@@ -159,14 +156,13 @@ public class DeviceStateDb {
 			@Override
 			public void onCreate(SQLiteDatabase db) {
 				String sqlCreate = "CREATE TABLE " + TABLE + CREATE_CLMNS;
-				db.execSQL(sqlCreate);
-				Log.d(TAG, "onCreate() " + sqlCreate);
+				try { db.execSQL(sqlCreate);
+				} catch (SQLException e) { Log.e(TAG, e.getMessage()); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE);
-				Log.d(TAG, "onUpgrade()");
-				onCreate(db);
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { Log.e(TAG, e.getMessage()); }
 			}
 		}
 		final DbHelper dbHelper;
@@ -181,11 +177,9 @@ public class DeviceStateDb {
 			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
 			values.put(C_VALUE, value);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			try { db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} catch (Exception e) { Log.e(TAG, e.getMessage());
+			} finally { db.close(); }
 		}
 		public String[] getLast() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -205,6 +199,7 @@ public class DeviceStateDb {
 		public void clearStatsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+(new DateTimeUtils()).getDateTime(date));
+			} catch (SQLException e) { Log.e(TAG, e.getMessage());
 			} finally { db.close(); }
 		}
 	}
