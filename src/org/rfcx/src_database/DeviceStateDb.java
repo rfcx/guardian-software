@@ -37,8 +37,7 @@ public class DeviceStateDb {
 			}
 			@Override
 			public void onCreate(SQLiteDatabase db) {
-				String sqlCreate = "CREATE TABLE " + TABLE + CREATE_CLMNS;
-				try { db.execSQL(sqlCreate);
+				try { db.execSQL("CREATE TABLE " + TABLE + CREATE_CLMNS);
 				} catch (SQLException e) { Log.e(TAG, e.getMessage()); }
 			}
 			@Override
@@ -96,8 +95,7 @@ public class DeviceStateDb {
 			}
 			@Override
 			public void onCreate(SQLiteDatabase db) {
-				String sqlCreate = "CREATE TABLE " + TABLE + CREATE_CLMNS;
-				try { db.execSQL(sqlCreate);
+				try { db.execSQL("CREATE TABLE " + TABLE + CREATE_CLMNS);
 				} catch (SQLException e) { Log.e(TAG, e.getMessage()); }
 			}
 			@Override
@@ -155,8 +153,7 @@ public class DeviceStateDb {
 			}
 			@Override
 			public void onCreate(SQLiteDatabase db) {
-				String sqlCreate = "CREATE TABLE " + TABLE + CREATE_CLMNS;
-				try { db.execSQL(sqlCreate);
+				try { db.execSQL("CREATE TABLE " + TABLE + CREATE_CLMNS);
 				} catch (SQLException e) { Log.e(TAG, e.getMessage()); }
 			}
 			@Override
