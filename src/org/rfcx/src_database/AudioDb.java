@@ -46,9 +46,8 @@ public class AudioDb {
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				db.execSQL("DROP TABLE IF EXISTS " + TABLE);
-				if (RfcxSource.VERBOSE) { Log.d(TAG, "onUpgrade()"); }
-				onCreate(db);
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { Log.e(TAG, e.getMessage()); }
 			}
 		}
 		final DbHelper dbHelper;

@@ -11,9 +11,9 @@ public class AudioState {
 	private static final String TAG = AudioState.class.getSimpleName();
 
 	public static final boolean CAPTURE_SERVICE_ENABLED = true;
-	public static final boolean PROCESS_SERVICE_ENABLED = true;
+	public static final boolean PROCESS_SERVICE_ENABLED = false;
 
-	public static final int CAPTURE_SAMPLE_RATE = 8000;
+	public static final int CAPTURE_SAMPLE_RATE = 4000;
 	public static final int FFT_RESOLUTION = 4096;
 	
 	private double[] fftSpectrumSum = new double[BUFFER_LENGTH];
@@ -112,7 +112,7 @@ public class AudioState {
 	}
 	
 	public void cachePcmBuffer(short[] pcmData) {
-		if (pcmData.length == BUFFER_LENGTH) {
+		if ((pcmData.length == BUFFER_LENGTH) && (pcmDataBufferLength() < PCM_DATA_BUFFER_LIMIT)) {
 //			short[] halfBuffer = new short[BUFFER_LENGTH/2];
 //			System.arraycopy(pcmData, 0, halfBuffer, 0, BUFFER_LENGTH/2);
 //			this.pcmDataBuffer.add(halfBuffer);

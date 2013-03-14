@@ -32,7 +32,7 @@ import android.util.Log;
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
-	public static final boolean VERBOSE = true;
+	public static final boolean VERBOSE = false;
 	private SharedPreferences sharedPreferences;
 	Context context;
 	

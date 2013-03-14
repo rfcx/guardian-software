@@ -20,21 +20,21 @@ public class AirplaneMode {
 	}
 	
 	public void setOn(Context context) {
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "setOn()"); }
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning AirplaneMode ON"); }
     	if (!isEnabled(context)) {
     		set(context, 1);
     	}
 	}
 	
 	public void setOff(Context context) {
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "setOff()"); }
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning AirplaneMode OFF"); }
     	if (isEnabled(context)) {
     		set(context, 0);
     	}
 	}
 	
 	public void setToggle(Context context) {
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "setToggle()"); }
+		if (RfcxSource.VERBOSE) { Log.d(TAG, "Toggling AirplaneMode"); }
     	if (isEnabled(context)) {
     		setOff(context);
     	} else {
