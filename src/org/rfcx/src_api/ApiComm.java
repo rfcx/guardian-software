@@ -30,7 +30,7 @@ public class ApiComm {
 	private boolean networkConnectivity = false;
 	
 	public static final int CONNECTIVITY_INTERVAL = 300;
-	public static final int CONNECTIVITY_TIMEOUT = 120;
+	public static final int CONNECTIVITY_TIMEOUT = 180;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
@@ -84,7 +84,8 @@ public class ApiComm {
 	private List<NameValuePair> preparePostData(RfcxSource rfcxSource) {
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(rfcxSource)));
-
+		nameValuePairs.add(new BasicNameValuePair("batt", ""+rfcxSource.deviceState.getBatteryPercent()));
+		
 //		String[] spectrum = rfcxSource.audioDb.dbSpectrum.getLast();
 //		StringBuilder spectrumSend = (new StringBuilder()).append(spectrum[0]).append(";").append(spectrum[1]);
 //		nameValuePairs.add(new BasicNameValuePair("spec", spectrumSend.toString()));

@@ -1,5 +1,10 @@
 package org.rfcx.src_device;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+
 import android.util.Log;
 
 public class DeviceState {
@@ -56,6 +61,37 @@ public class DeviceState {
 	
 	public int getLightLevel() {
 		return lightLevel;
+	}
+	
+	// CPU Clock Speed
+
+	private int cpuClockSpeed;
+	
+	private void setCpuClockSpeed(int cpuClockSpeed) {
+		this.cpuClockSpeed = cpuClockSpeed;
+	}
+	
+	public int getCpuClockSpeed() {
+		return cpuClockSpeed;
+	}
+	
+	public void updateCpuClockSpeed() {
+		File scaling_cur_freq = new File("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq");
+		if (scaling_cur_freq.exists()) {
+			try {
+				FileInputStream fileInputStream = new FileInputStream(scaling_cur_freq);		
+				InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+				BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+				int clockSpeed = Integer.parseInt(bufferedReader.readLine());
+				bufferedReader.close();
+				inputStreamReader.close();
+				fileInputStream.close();
+				setCpuClockSpeed(clockSpeed);
+			}
+			catch (Exception e) {
+				Log.e(TAG, e.getMessage());
+			}
+		}
 	}
 	
 }

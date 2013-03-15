@@ -86,9 +86,10 @@ public class DeviceStateService extends Service implements SensorEventListener {
 					if (RECORD_AVERAGE_TO_DATABASE) {
 						recordingIncrement++;
 						if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
+							rfcxSource.deviceState.updateCpuClockSpeed();
 							rfcxSource.deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
 							recordingIncrement = 0;
-							if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"%");
+							if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+rfcxSource.deviceState.getCpuClockSpeed()+"Hz)");
 						}
 					}
 					Thread.sleep(DELAY);
@@ -158,52 +159,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 //		if (tempSensor != null) {
 //			this.sensorManager.unregisterListener(this, tempSensor);
 //		}
-	}
-	
-	
-	
-	
-	
-	public static Long getCurrentValue(File _f, boolean _convertToMillis) {
-		
-		String text = null;
-		
-		try {
-			FileInputStream fs = new FileInputStream(_f);		
-			InputStreamReader sr = new InputStreamReader(fs);
-			BufferedReader br = new BufferedReader(sr);			
-		
-			text = br.readLine();
-			
-			br.close();
-			sr.close();
-			fs.close();				
-		}
-		catch (Exception ex) {
-			Log.e("CurrentWidget", ex.getMessage());
-			ex.printStackTrace();
-		}
-		
-		Long value = null;
-		
-		if (text != null)
-		{
-			try
-			{
-				value = Long.parseLong(text);
-			}
-			catch (NumberFormatException nfe)
-			{
-				Log.e("CurrentWidget", nfe.getMessage());
-				value = null;
-			}
-			
-			if (_convertToMillis && value != null)
-				value = value / 1000; // convert to milliampere
-
-		}
-		
-		return value;
 	}
 	
 	
