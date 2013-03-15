@@ -31,71 +31,77 @@ public class DeviceStateDb {
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_VALUE };
 	static final String CREATE_CLMNS = "(" + C_CREATED_AT + " DATETIME, " + C_VALUE + " INT " + ")";
 	
+	// Prototype DbHelper methods
+	private void _onCreate(SQLiteDatabase db, String table) { try { db.execSQL("CREATE TABLE " + table + CREATE_CLMNS); } catch (SQLException e) { Log.e(TAG, e.getMessage()); } }
+	private void _onUpgrade(SQLiteDatabase db, String table, int oldVersion, int newVersion) { try { db.execSQL("DROP TABLE IF EXISTS " + table); _onCreate(db, table); } catch (SQLException e) { Log.e(TAG, e.getMessage()); } }
+	
+	private String[] _getLast(SQLiteDatabase db, String table) {
+		try { Cursor cursor = db.query(table, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
+			try { return cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : null;
+			} finally { cursor.close(); }
+		} finally { db.close(); }
+	}
+	
+	private List<String[]> _getStats(SQLiteDatabase db, String table) {
+		ArrayList<String[]> list = new ArrayList<String[]>();
+		try { Cursor cursor = db.query(table, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", null);
+			if (cursor.getCount() > 0) {
+				try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
+				} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+		} finally { db.close(); }
+		return list;
+	}
+	private String[] _getStatsSummary(SQLiteDatabase db, String table) {
+		String[] stats = new String[] { null, null, null, null };
+		try { Cursor cursor = db.query(table, STATS_COLUMNS, null, null, null, null, null, null);
+			try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
+			} while (cursor.moveToNext()); } } finally { cursor.close(); }
+		} finally { db.close(); }
+		return stats;
+	}
+	private List<String[]> _getStatsSince(SQLiteDatabase db, String table, Date date) {
+		ArrayList<String[]> list = new ArrayList<String[]>();
+		try { Cursor cursor = db.query(table, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null);
+		try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
+			} while (cursor.moveToNext()); } } finally { cursor.close(); }
+		} finally { db.close(); }
+		return list;
+	}
+	private void _clearStatsBefore(SQLiteDatabase db, String table, Date date) {
+		try { db.execSQL("DELETE FROM "+table+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+		} catch (SQLException e) { Log.e(TAG, e.getMessage());
+		} finally { db.close(); }
+	}
+	private void _insert(SQLiteDatabase db, String table, int value) {
+		ContentValues values = new ContentValues();
+		values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
+		values.put(C_VALUE, value);
+		try { db.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+		} catch (Exception e) { Log.e(TAG, e.getMessage());
+		} finally { db.close(); }
+	}
+	
 	// for saving battery charge values
 	public class DbBattery {
 		private String TABLE = "battery";
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) { super(context, DATABASE+"-"+TABLE+".db", null, VERSION); }
 			@Override
-			public void onCreate(SQLiteDatabase db) { try { db.execSQL("CREATE TABLE " + TABLE + CREATE_CLMNS); } catch (SQLException e) { Log.e(TAG, e.getMessage()); } }
+			public void onCreate(SQLiteDatabase db) { _onCreate(db, TABLE); }
 			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db); } catch (SQLException e) { Log.e(TAG, e.getMessage()); } }
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { _onUpgrade(db, TABLE, oldVersion, newVersion); }
 		}
 		final DbHelper dbHelper;
 		public void close() { this.dbHelper.close(); }
 		
 		public DbBattery(Context context) { this.dbHelper = new DbHelper(context); }
 		
-		public void insert(int value) {
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
-			values.put(C_VALUE, value);
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} catch (Exception e) { Log.e(TAG, e.getMessage());
-			} finally { db.close(); }
-		}
-		public String[] getLast() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
-				try { return cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : null;
-				} finally { cursor.close(); }
-			} finally { db.close(); }
-		}
-		public List<String[]> getStats() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} finally { db.close(); }
-			return list;
-		}
-		public String[] getStatsSummary() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null, null, null };
-			try { Cursor cursor = db.query(TABLE, STATS_COLUMNS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} finally { db.close(); }
-			return stats;
-		}
-		public List<String[]> getStatsSince(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null);
-			try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} finally { db.close(); }
-			return list;
-		}
-		public void clearStatsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
-			} catch (SQLException e) { Log.e(TAG, e.getMessage());
-			} finally { db.close(); }
-		}
+		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
 	}
 	public final DbBattery dbBattery;
 	
@@ -105,65 +111,21 @@ public class DeviceStateDb {
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) { super(context, DATABASE+"-"+TABLE+".db", null, VERSION); }
 			@Override
-			public void onCreate(SQLiteDatabase db) { try { db.execSQL("CREATE TABLE " + TABLE + CREATE_CLMNS); } catch (SQLException e) { Log.e(TAG, e.getMessage()); } }
+			public void onCreate(SQLiteDatabase db) { _onCreate(db, TABLE); }
 			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db); } catch (SQLException e) { Log.e(TAG, e.getMessage()); } }
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { _onUpgrade(db, TABLE, oldVersion, newVersion); }
 		}
 		final DbHelper dbHelper;
 		public void close() { this.dbHelper.close(); }
 		
 		public DbCpu(Context context) { this.dbHelper = new DbHelper(context); }
 		
-		public void insert(int value) {
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
-			values.put(C_VALUE, value);
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} catch (Exception e) { Log.e(TAG, e.getMessage());
-			} finally { db.close(); }
-		}
-		public String[] getLast() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
-				try { return cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : null;
-				} finally { cursor.close(); }
-			} finally { db.close(); }
-		}
-		public List<String[]> getStats() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} finally { db.close(); }
-			return list;
-		}
-		public String[] getStatsSummary() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null, null, null };
-			try { Cursor cursor = db.query(TABLE, STATS_COLUMNS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} finally { db.close(); }
-			return stats;
-		}
-		public List<String[]> getStatsSince(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null);
-			try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} finally { db.close(); }
-			return list;
-		}
-		public void clearStatsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
-			} catch (SQLException e) { Log.e(TAG, e.getMessage());
-			} finally { db.close(); }
-		}
+		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
 	}
 	public final DbCpu dbCpu;
 	
@@ -173,65 +135,21 @@ public class DeviceStateDb {
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) { super(context, DATABASE+"-"+TABLE+".db", null, VERSION); }
 			@Override
-			public void onCreate(SQLiteDatabase db) { try { db.execSQL("CREATE TABLE " + TABLE + CREATE_CLMNS); } catch (SQLException e) { Log.e(TAG, e.getMessage()); } }
+			public void onCreate(SQLiteDatabase db) { _onCreate(db, TABLE); }
 			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db); } catch (SQLException e) { Log.e(TAG, e.getMessage()); } }
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { _onUpgrade(db, TABLE, oldVersion, newVersion); }
 		}
 		final DbHelper dbHelper;
 		public void close() { this.dbHelper.close(); }
 		
 		public DbLight(Context context) { this.dbHelper = new DbHelper(context); }
 		
-		public void insert(int value) {
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
-			values.put(C_VALUE, value);
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} catch (Exception e) { Log.e(TAG, e.getMessage());
-			} finally { db.close(); }
-		}
-		public String[] getLast() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
-				try { return cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : null;
-				} finally { cursor.close(); }
-			} finally { db.close(); }
-		}
-		public List<String[]> getStats() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} finally { db.close(); }
-			return list;
-		}
-		public String[] getStatsSummary() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null, null, null };
-			try { Cursor cursor = db.query(TABLE, STATS_COLUMNS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} finally { db.close(); }
-			return stats;
-		}
-		public List<String[]> getStatsSince(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null);
-			try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} finally { db.close(); }
-			return list;
-		}
-		public void clearStatsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
-			} catch (SQLException e) { Log.e(TAG, e.getMessage());
-			} finally { db.close(); }
-		}
+		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
 	}
 	public final DbLight dbLight;
 }

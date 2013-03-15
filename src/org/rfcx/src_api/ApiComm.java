@@ -97,10 +97,10 @@ public class ApiComm {
 		String[] vCpu = deviceStateDb.dbCpu.getStatsSummary();
 		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
 		
-		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? "" : vBattery[1]) );
-		nameValuePairs.add(new BasicNameValuePair("cpu",  (vCpu[0]!="0") ? "" : vCpu[1]) );
-		nameValuePairs.add(new BasicNameValuePair("light",  (vLight[0]!="0") ? "" : vLight[1]) );
-		
+		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? vBattery[1] : "") );
+		nameValuePairs.add(new BasicNameValuePair("cpu",  (vCpu[0]!="0") ? vCpu[1] : "") );
+		nameValuePairs.add(new BasicNameValuePair("light",  (vLight[0]!="0") ? vLight[1] : "") );
+	    
         return nameValuePairs;
 	}
 	
