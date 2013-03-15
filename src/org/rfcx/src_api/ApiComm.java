@@ -30,8 +30,8 @@ public class ApiComm {
 	public static final boolean SERVICE_ENABLED = true;
 	private boolean networkConnectivity = false;
 	
-	public static final int CONNECTIVITY_INTERVAL = 300;
-	public static final int CONNECTIVITY_TIMEOUT = 180;
+	public static final int CONNECTIVITY_INTERVAL = 180;
+	public static final int CONNECTIVITY_TIMEOUT = 150;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
@@ -90,15 +90,16 @@ public class ApiComm {
 		
 		if (deviceStateDb == null) deviceStateDb = rfcxSource.deviceStateDb;
 		
-		List<String[]> valueBattery = deviceStateDb.dbBattery.getStats();
-		List<String[]> valueCpu = deviceStateDb.dbCpu.getStats();
-		List<String[]> valueLight = deviceStateDb.dbLight.getStats();
-		
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(4);
-		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(rfcxSource)));
-		nameValuePairs.add(new BasicNameValuePair("battery", (valueBattery.size() < 1) ? "" : valueBattery.get(0)[1]) );
-		nameValuePairs.add(new BasicNameValuePair("cpu",  (valueCpu.size() < 1) ? "" : valueCpu.get(0)[1]) );
-		nameValuePairs.add(new BasicNameValuePair("light",  (valueLight.size() < 1) ? "" : valueLight.get(0)[1]) );
+		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId()));
+		
+		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
+		String[] vCpu = deviceStateDb.dbCpu.getStatsSummary();
+		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
+		
+		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? "" : vBattery[1]) );
+		nameValuePairs.add(new BasicNameValuePair("cpu",  (vCpu[0]!="0") ? "" : vCpu[1]) );
+		nameValuePairs.add(new BasicNameValuePair("light",  (vLight[0]!="0") ? "" : vLight[1]) );
 		
         return nameValuePairs;
 	}
@@ -136,13 +137,10 @@ public class ApiComm {
 		httpPost = new HttpPost(protocol+"://"+domain+":"+port+endpoint);
 	}
 	
-	public String getDeviceId(RfcxSource rfcxSource) {
-		if (deviceId == null) {
-			deviceId = rfcxSource.getDeviceId().toString();
-		}
+	private String getDeviceId() {
+		if (deviceId == null) deviceId = rfcxSource.getDeviceId().toString();
 		return deviceId;
 	}
-	
 	
 	// Getters & Setters
 	

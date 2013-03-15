@@ -27,10 +27,10 @@ public class DeviceStateDb {
 	static final String DATABASE = "device";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_VALUE = "value";
-	private static final String[] STATS = { "COUNT("+C_VALUE+")", "AVG("+C_VALUE+")" };
+	private static final String[] STATS_COLUMNS = { "COUNT("+C_VALUE+")", "ROUND(AVG("+C_VALUE+"))", "MAX("+C_CREATED_AT+")", "MIN("+C_CREATED_AT+")" };
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_VALUE };
 	static final String CREATE_CLMNS = "(" + C_CREATED_AT + " DATETIME, " + C_VALUE + " INT " + ")";
-
+	
 	// for saving battery charge values
 	public class DbBattery {
 		private String TABLE = "battery";
@@ -66,18 +66,27 @@ public class DeviceStateDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", null);
-				if (cursor.getCount() > 0) { cursor.moveToFirst();
-					try { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-					} while (cursor.moveToNext()); } finally { cursor.close(); } }
+				if (cursor.getCount() > 0) {
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} finally { db.close(); }
 			return list;
+		}
+		public String[] getStatsSummary() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] stats = new String[] { null, null, null, null };
+			try { Cursor cursor = db.query(TABLE, STATS_COLUMNS, null, null, null, null, null, null);
+				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
+				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+			} finally { db.close(); }
+			return stats;
 		}
 		public List<String[]> getStatsSince(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null); cursor.moveToFirst();
-				try { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-				} while (cursor.moveToNext()); } finally { cursor.close(); }
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null);
+			try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
+				} while (cursor.moveToNext()); } } finally { cursor.close(); }
 			} finally { db.close(); }
 			return list;
 		}
@@ -125,18 +134,27 @@ public class DeviceStateDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", null);
-				if (cursor.getCount() > 0) { cursor.moveToFirst();
-					try { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-					} while (cursor.moveToNext()); } finally { cursor.close(); } }
+				if (cursor.getCount() > 0) {
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} finally { db.close(); }
 			return list;
+		}
+		public String[] getStatsSummary() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] stats = new String[] { null, null, null, null };
+			try { Cursor cursor = db.query(TABLE, STATS_COLUMNS, null, null, null, null, null, null);
+				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
+				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+			} finally { db.close(); }
+			return stats;
 		}
 		public List<String[]> getStatsSince(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null); cursor.moveToFirst();
-				try { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-				} while (cursor.moveToNext()); } finally { cursor.close(); }
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null);
+			try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
+				} while (cursor.moveToNext()); } } finally { cursor.close(); }
 			} finally { db.close(); }
 			return list;
 		}
@@ -184,27 +202,27 @@ public class DeviceStateDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", null);
-				if (cursor.getCount() > 0) { cursor.moveToFirst();
-					try { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-					} while (cursor.moveToNext()); } finally { cursor.close(); } }
+				if (cursor.getCount() > 0) {
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} finally { db.close(); }
 			return list;
 		}
-//		public String[] getStatsAverage() {
-//			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-//			String valueDate = (new DateTimeUtils()).getDateTime(); int valueSum = 0; int valueCount = 1;
-//			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", null); cursor.moveToFirst();
-//				try { do { valueDate = cursor.getString(0); valueSum = valueSum + cursor.getInt(1); valueCount++;
-//				} while (cursor.moveToNext()); } finally { valueCount = cursor.getCount(); cursor.close(); }
-//			} finally { db.close(); }
-//			return new String[] { valueDate, "" + Math.round(valueSum/valueCount) };
-//		}
+		public String[] getStatsSummary() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] stats = new String[] { null, null, null, null };
+			try { Cursor cursor = db.query(TABLE, STATS_COLUMNS, null, null, null, null, null, null);
+				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
+				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+			} finally { db.close(); }
+			return stats;
+		}
 		public List<String[]> getStatsSince(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null); cursor.moveToFirst();
-				try { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-				} while (cursor.moveToNext()); } finally { cursor.close(); }
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null);
+			try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
+				} while (cursor.moveToNext()); } } finally { cursor.close(); }
 			} finally { db.close(); }
 			return list;
 		}
