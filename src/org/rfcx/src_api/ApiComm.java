@@ -17,6 +17,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_database.DeviceStateDb;
 import org.rfcx.src_util.DateTimeUtils;
 
 import android.content.Context;
@@ -44,16 +45,19 @@ public class ApiComm {
 	
 	private HttpClient httpClient = new DefaultHttpClient();
 	private HttpPost httpPost = null;
+	private RfcxSource rfcxSource = null;
+	private DeviceStateDb deviceStateDb = null;
 	
 	private int transmitAttempts = 0;
 	
 	public void sendData(Context context) {
+		if (rfcxSource == null) rfcxSource = (RfcxSource) context.getApplicationContext();
 		if (httpPost != null) {
-			RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
 			String strResponse = null;
+			Date sendDateTime = new Date();
 			try {
 				transmitAttempts++;
-				httpPost.setEntity(new UrlEncodedFormEntity(preparePostData(rfcxSource)));
+				httpPost.setEntity(new UrlEncodedFormEntity(preparePostData()));
 				HttpResponse httpResponse = httpClient.execute(httpPost);
 	        	strResponse = httpResponseString(httpResponse);
 			} catch (UnsupportedEncodingException e) {
@@ -68,6 +72,7 @@ public class ApiComm {
 					if (RfcxSource.VERBOSE) { Log.d(TAG, "Retransmitting... (attempt #"+transmitAttempts+")"); }
 				} else {
 					if (strResponse != null) {
+						flushTransmittedData(sendDateTime);
 						if (RfcxSource.VERBOSE) { Log.d(TAG, "Response: "+strResponse); }
 					}
 					transmitAttempts = 0;
@@ -81,17 +86,29 @@ public class ApiComm {
 		}
 	}
 	
-	private List<NameValuePair> preparePostData(RfcxSource rfcxSource) {
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(rfcxSource)));
-		nameValuePairs.add(new BasicNameValuePair("batt", ""+rfcxSource.deviceStateDb.dbBattery.getLast()));
-		nameValuePairs.add(new BasicNameValuePair("cpu", ""+rfcxSource.deviceStateDb.dbCpu.getLast()));
+	private List<NameValuePair> preparePostData() {
 		
-//		String[] spectrum = rfcxSource.audioDb.dbSpectrum.getLast();
-//		StringBuilder spectrumSend = (new StringBuilder()).append(spectrum[0]).append(";").append(spectrum[1]);
-//		nameValuePairs.add(new BasicNameValuePair("spec", spectrumSend.toString()));
-        
+		if (deviceStateDb == null) deviceStateDb = rfcxSource.deviceStateDb;
+		
+		List<String[]> valueBattery = deviceStateDb.dbBattery.getStats();
+		List<String[]> valueCpu = deviceStateDb.dbCpu.getStats();
+		String valueLight = deviceStateDb.dbLight.getStatsAverage()[1];
+		
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(4);
+		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(rfcxSource)));
+		nameValuePairs.add(new BasicNameValuePair("battery", (valueBattery.size() < 1) ? "" : valueBattery.get(0)[1]) );
+		nameValuePairs.add(new BasicNameValuePair("cpu",  (valueCpu.size() < 1) ? "" : valueCpu.get(0)[1]) );
+		nameValuePairs.add(new BasicNameValuePair("light",  (valueLight == "0") ? "" : valueLight) );
+		
         return nameValuePairs;
+	}
+	
+	private void flushTransmittedData(Date sendDateTime) {
+		if (deviceStateDb != null) {
+			deviceStateDb.dbBattery.clearStatsBefore(sendDateTime);
+			deviceStateDb.dbCpu.clearStatsBefore(sendDateTime);
+			deviceStateDb.dbLight.clearStatsBefore(sendDateTime);
+		}
 	}
 	
 	private String httpResponseString(HttpResponse httpResponse) {
