@@ -29,7 +29,8 @@ public class ApiComm {
 	public static final boolean SERVICE_ENABLED = true;
 	private boolean networkConnectivity = false;
 	
-	private int connectivityInterval = 300;
+	public static final int CONNECTIVITY_INTERVAL = 300;
+	public static final int CONNECTIVITY_TIMEOUT = 120;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
@@ -134,12 +135,5 @@ public class ApiComm {
 		networkConnectivity = isConnected;
 	}
 	
-	public int getConnectivityInterval() {
-		return connectivityInterval;
-	}
-	
-	public void setConnectivityInterval(int connectivityInterval) {
-		this.connectivityInterval = connectivityInterval;
-	}
 	
 }

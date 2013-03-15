@@ -7,7 +7,7 @@ import org.rfcx.src_android.RfcxSource;
 
 public class DeviceCpuUsage {
 	
-	public static final int REPORTING_SAMPLE_COUNT = (RfcxSource.VERBOSE) ? 15 : 60;
+	public static final int REPORTING_SAMPLE_COUNT = (RfcxSource.VERBOSE) ? 10 : 60;
 	private float cpuUsageNow = 0;
 	private float cpuUsageAvg = 0;
 	private float[] prevCpuUsage = new float[REPORTING_SAMPLE_COUNT];

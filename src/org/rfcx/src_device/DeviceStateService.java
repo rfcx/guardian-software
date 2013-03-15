@@ -23,21 +23,17 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	
 	private static final int DELAY = 1000 - DeviceCpuUsage.SAMPLE_LENGTH;
 	private boolean runFlag = false;
-	private DeviceState deviceState;
+	private DeviceStateSvc deviceStateSvc;
 
 	private static final boolean RECORD_AVERAGE_TO_DATABASE = true;
 	private int recordingIncrement = 0;
 	
 	private SensorManager sensorManager;
-	Sensor accelSensor = null;
+//	Sensor accelSensor = null;
 	Sensor lightSensor = null;
-	Sensor tempSensor = null;
+//	Sensor tempSensor = null;
 	
 	private RfcxSource rfcxSource = null;
-	
-	
-	private File f = new File("/sys/class/power_supply/battery/batt_current");
-	
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -47,7 +43,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.deviceState = new DeviceState();
+		this.deviceStateSvc = new DeviceStateSvc();
 		registerSensorListeners();
 	}
 	
@@ -58,7 +54,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		this.runFlag = true;
 		rfcxSource = (RfcxSource) getApplication();
 		rfcxSource.isServiceRunning_DeviceState = true;
-		this.deviceState.start();
+		this.deviceStateSvc.start();
 		return START_STICKY;
 	}
 	
@@ -67,16 +63,16 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		super.onDestroy();
 		this.runFlag = false;
 		rfcxSource.isServiceRunning_DeviceState = false;
-		this.deviceState.interrupt();
-		this.deviceState = null;
+		this.deviceStateSvc.interrupt();
+		this.deviceStateSvc = null;
 		unRegisterSensorListeners();
 	}
 	
 	
-	private class DeviceState extends Thread {
+	private class DeviceStateSvc extends Thread {
 		
-		public DeviceState() {
-			super("DeviceStateService-DeviceState");
+		public DeviceStateSvc() {
+			super("DeviceStateService-DeviceStateSvc");
 		}
 		
 		@Override
@@ -94,9 +90,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 							recordingIncrement = 0;
 							if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"%");
 						}
-//						if (f.exists()) {
-//							Log.d(TAG, "Current: "+(long) getCurrentValue(f, false));
-//						}
 					}
 					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {
@@ -114,17 +107,17 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		if (rfcxSource != null) {
-			if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-				return;
-			} else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+			if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
 				if (event.values[0] >= 0) {
 					rfcxSource.deviceState.setLightLevel(Math.round(event.values[0]));
 					rfcxSource.deviceStateDb.dbLight.insert(rfcxSource.deviceState.getLightLevel());
 				}
 				return;
-			} else if (event.sensor.getType() == Sensor.TYPE_TEMPERATURE) {
-				Log.d(TAG, "Temperature: "+event.values[0]);
-				return;
+//			} else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+//				return;
+//			} else if (event.sensor.getType() == Sensor.TYPE_TEMPERATURE) {
+//				Log.d(TAG, "Temperature: "+event.values[0]);
+//				return;
 			} else {
 				return;
 			}
@@ -139,32 +132,32 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	
 	private void registerSensorListeners() {
 		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
-			accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-			this.sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		}
+//		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
+//			accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+//			this.sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
+//		}
 		if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
 			lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
 			this.sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		}
-		if (this.sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE).size() != 0) {
-			tempSensor = sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE).get(0);
-			this.sensorManager.registerListener(this, tempSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		} else {
-			Log.d(TAG, "No Temperature sensor");
-		}
+//		if (this.sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE).size() != 0) {
+//			tempSensor = sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE).get(0);
+//			this.sensorManager.registerListener(this, tempSensor, SensorManager.SENSOR_DELAY_NORMAL);
+//		} else {
+//			Log.d(TAG, "No Temperature sensor");
+//		}
 	}
 	
 	private void unRegisterSensorListeners() {
-		if (accelSensor != null) {
-			this.sensorManager.unregisterListener(this, accelSensor);
-		}
+//		if (accelSensor != null) {
+//			this.sensorManager.unregisterListener(this, accelSensor);
+//		}
 		if (lightSensor != null) {
 			this.sensorManager.unregisterListener(this, lightSensor);
 		}
-		if (tempSensor != null) {
-			this.sensorManager.unregisterListener(this, tempSensor);
-		}
+//		if (tempSensor != null) {
+//			this.sensorManager.unregisterListener(this, tempSensor);
+//		}
 	}
 	
 	

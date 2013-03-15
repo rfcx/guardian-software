@@ -12,7 +12,7 @@ public class ApiCommService extends Service {
 	private static final String TAG = ApiCommService.class.getSimpleName();
 	
 	private boolean runFlag = false;
-	private ApiComm apiComm;
+	private ApiCommSvc apiCommSvc;
 
 	private RfcxSource rfcxSource = null;
 	
@@ -24,7 +24,7 @@ public class ApiCommService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.apiComm = new ApiComm();
+		this.apiCommSvc = new ApiCommSvc();
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class ApiCommService extends Service {
 		this.runFlag = true;
 		rfcxSource = (RfcxSource) getApplication();
 		rfcxSource.isServiceRunning_ApiComm = true;
-		this.apiComm.start();
+		this.apiCommSvc.start();
 		return START_STICKY;
 	}
 
@@ -43,18 +43,18 @@ public class ApiCommService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		rfcxSource.isServiceRunning_ApiComm = false;
-		this.apiComm.interrupt();
-		this.apiComm = null;
+		this.apiCommSvc.interrupt();
+		this.apiCommSvc = null;
 	}
 	
 	public boolean isRunning() {
 		return runFlag;
 	}
 	
-	private class ApiComm extends Thread {
+	private class ApiCommSvc extends Thread {
 
-		public ApiComm() {
-			super("ApiCommService-ApiComm");
+		public ApiCommSvc() {
+			super("ApiCommService-ApiCommSvc");
 		}
 
 		@Override
@@ -64,9 +64,9 @@ public class ApiCommService extends Service {
 			while (apiCommService.runFlag) {
 				try {
 					if (!rfcxSource.airplaneMode.isEnabled(rfcxSource.getApplicationContext())) rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
-					Thread.sleep(Math.round(0.6*rfcxSource.apiComm.getConnectivityInterval())*1000);
+					Thread.sleep((ApiComm.CONNECTIVITY_INTERVAL-ApiComm.CONNECTIVITY_TIMEOUT)*1000);
 					rfcxSource.airplaneMode.setOff(rfcxSource.getApplicationContext());
-					Thread.sleep(Math.round(0.4*rfcxSource.apiComm.getConnectivityInterval())*1000);
+					Thread.sleep(ApiComm.CONNECTIVITY_TIMEOUT*1000);
 					
 				} catch (InterruptedException e) {
 					apiCommService.runFlag = false;

@@ -11,7 +11,7 @@ public class AudioState {
 	private static final String TAG = AudioState.class.getSimpleName();
 
 	public static final boolean CAPTURE_SERVICE_ENABLED = true;
-	public static final boolean PROCESS_SERVICE_ENABLED = false;
+	public static final boolean PROCESS_SERVICE_ENABLED = true;
 
 	public static final int CAPTURE_SAMPLE_RATE = 4000;
 	public static final int FFT_RESOLUTION = 4096;
