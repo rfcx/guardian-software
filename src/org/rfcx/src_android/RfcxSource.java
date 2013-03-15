@@ -63,6 +63,8 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public boolean isServiceRunning_AudioCapture = false;
 	public boolean isServiceRunning_AudioProcess = false;
 	
+	public boolean areServicesHalted_ExpensiveServices = false;
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -111,7 +113,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		return deviceId;
 	}
 	
-	public void launchServices(Context context) {
+	public void launchAllServices(Context context) {
 		
 		if (DeviceState.SERVICE_ENABLED && !isServiceRunning_DeviceState) {
 			context.startService(new Intent(context, DeviceStateService.class));
@@ -133,9 +135,10 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		} else if (isServiceRunning_AudioProcess && RfcxSource.VERBOSE) {
 			Log.d(TAG, "AudioProcessService already running. Not re-started...");
 		}
+		areServicesHalted_ExpensiveServices = false;
 	}
 	
-	public void suspendServices(Context context) {
+	public void suspendAllServices(Context context) {
 
 		if (DeviceState.SERVICE_ENABLED && isServiceRunning_DeviceState) {
 			context.stopService(new Intent(context, DeviceStateService.class));
@@ -157,6 +160,26 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		} else if (!isServiceRunning_AudioProcess && RfcxSource.VERBOSE) {
 			Log.d(TAG, "AudioProcessService not running. Not stopped...");
 		}
+	}
+	
+	public void suspendExpensiveServices(Context context) {
+		
+		if (ApiComm.SERVICE_ENABLED && isServiceRunning_ApiComm) {
+			context.stopService(new Intent(context, ApiCommService.class));
+		} else if (!isServiceRunning_ApiComm && RfcxSource.VERBOSE) {
+			Log.d(TAG, "ApiCommService not running. Not stopped...");
+		}
+		if (AudioState.CAPTURE_SERVICE_ENABLED && isServiceRunning_AudioCapture) {
+			context.stopService(new Intent(context, AudioCaptureService.class));
+		} else if (!isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
+			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
+		}
+		if (AudioState.PROCESS_SERVICE_ENABLED && isServiceRunning_AudioProcess) {
+			context.stopService(new Intent(context, AudioProcessService.class));
+		} else if (!isServiceRunning_AudioProcess && RfcxSource.VERBOSE) {
+			Log.d(TAG, "AudioProcessService not running. Not stopped...");
+		}
+		areServicesHalted_ExpensiveServices = true;
 	}
 
 		

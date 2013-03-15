@@ -16,7 +16,7 @@ public class DeviceState {
 	private static final int SERVICE_BATTERY_PERCENTAGE_THRESHOLD = 95;
 	
 	public boolean allowServices() {
-		return (getBatteryPercent() >= SERVICE_BATTERY_PERCENTAGE_THRESHOLD) ? true : false;
+		return (getBatteryPercent() > SERVICE_BATTERY_PERCENTAGE_THRESHOLD) ? true : false;
 	}
 	
 	// Battery

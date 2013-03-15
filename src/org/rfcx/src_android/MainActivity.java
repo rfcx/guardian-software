@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 		case R.id.menu_services_toggle:
-			rfcxSource.suspendServices(rfcxSource.getApplicationContext());
+			rfcxSource.suspendAllServices(rfcxSource.getApplicationContext());
 			break;
 		case R.id.menu_services_audio:
 			if (rfcxSource.isServiceRunning_AudioCapture) {
@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-		((RfcxSource) getApplication()).launchServices(this);
+		((RfcxSource) getApplication()).launchAllServices(this);
 	}
 
 	@Override

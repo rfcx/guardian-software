@@ -27,7 +27,7 @@ public class DeviceStateDb {
 	static final String DATABASE = "device";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_VALUE = "value";
-	private static final String[] STATS_COLUMNS = { "COUNT("+C_VALUE+")", "ROUND(AVG("+C_VALUE+"))", "MAX("+C_CREATED_AT+")", "MIN("+C_CREATED_AT+")" };
+	private static final String[] STATS_COLUMNS = { "COUNT("+C_VALUE+")", "ROUND(AVG("+C_VALUE+"))", "MAX("+C_CREATED_AT+")", "MIN("+C_CREATED_AT+")", "GROUP_CONCAT("+C_VALUE+")" };
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_VALUE };
 	static final String CREATE_CLMNS = "(" + C_CREATED_AT + " DATETIME, " + C_VALUE + " INT " + ")";
 	
@@ -52,7 +52,7 @@ public class DeviceStateDb {
 		return list;
 	}
 	private String[] _getStatsSummary(SQLiteDatabase db, String table) {
-		String[] stats = new String[] { null, null, null, null };
+		String[] stats = new String[] { null, null, null, null, null };
 		try { Cursor cursor = db.query(table, STATS_COLUMNS, null, null, null, null, null, null);
 			try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
 			} while (cursor.moveToNext()); } } finally { cursor.close(); }
