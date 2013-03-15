@@ -84,7 +84,8 @@ public class ApiComm {
 	private List<NameValuePair> preparePostData(RfcxSource rfcxSource) {
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(rfcxSource)));
-		nameValuePairs.add(new BasicNameValuePair("batt", ""+rfcxSource.deviceState.getBatteryPercent()));
+		nameValuePairs.add(new BasicNameValuePair("batt", ""+rfcxSource.deviceStateDb.dbBattery.getLast()));
+		nameValuePairs.add(new BasicNameValuePair("cpu", ""+rfcxSource.deviceStateDb.dbCpu.getLast()));
 		
 //		String[] spectrum = rfcxSource.audioDb.dbSpectrum.getLast();
 //		StringBuilder spectrumSend = (new StringBuilder()).append(spectrum[0]).append(";").append(spectrum[1]);
