@@ -62,7 +62,7 @@ public class AudioCaptureService extends Service {
 			rfcxSource = (RfcxSource) getApplicationContext();
 			AudioState audioState = rfcxSource.audioState;
 			try {
-				int bufferSize = 8 * AudioRecord.getMinBufferSize(
+				int bufferSize = 12 * AudioRecord.getMinBufferSize(
 						AudioState.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO,
 						AudioFormat.ENCODING_PCM_16BIT);
 				AudioRecord audioRecord = new AudioRecord(
@@ -71,6 +71,8 @@ public class AudioCaptureService extends Service {
 						bufferSize);
 				short[] audioBuffer = new short[AudioState.BUFFER_LENGTH];
 				audioRecord.startRecording();
+				
+				Thread.sleep(1000*AudioState.BUFFER_LENGTH/AudioState.CAPTURE_SAMPLE_RATE);
 				
 				while (audioCaptureService.runFlag) {
 					try {

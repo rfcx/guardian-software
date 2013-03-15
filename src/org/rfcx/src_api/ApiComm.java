@@ -92,13 +92,13 @@ public class ApiComm {
 		
 		List<String[]> valueBattery = deviceStateDb.dbBattery.getStats();
 		List<String[]> valueCpu = deviceStateDb.dbCpu.getStats();
-		String valueLight = deviceStateDb.dbLight.getStatsAverage()[1];
+		List<String[]> valueLight = deviceStateDb.dbLight.getStats();
 		
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(4);
 		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId(rfcxSource)));
 		nameValuePairs.add(new BasicNameValuePair("battery", (valueBattery.size() < 1) ? "" : valueBattery.get(0)[1]) );
 		nameValuePairs.add(new BasicNameValuePair("cpu",  (valueCpu.size() < 1) ? "" : valueCpu.get(0)[1]) );
-		nameValuePairs.add(new BasicNameValuePair("light",  (valueLight == "0") ? "" : valueLight) );
+		nameValuePairs.add(new BasicNameValuePair("light",  (valueLight.size() < 1) ? "" : valueLight.get(0)[1]) );
 		
         return nameValuePairs;
 	}
