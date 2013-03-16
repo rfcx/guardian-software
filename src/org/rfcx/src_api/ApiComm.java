@@ -22,6 +22,7 @@ import org.rfcx.src_device.DeviceState;
 import org.rfcx.src_util.DateTimeUtils;
 
 import android.content.Context;
+import android.os.SystemClock;
 import android.util.Log;
 
 public class ApiComm {
@@ -61,18 +62,18 @@ public class ApiComm {
 				HttpResponse httpResponse = httpClient.execute(httpPost);
 	        	strResponse = httpResponseString(httpResponse);
 			} catch (UnsupportedEncodingException e) {
-				Log.e(TAG, e.getMessage());
+				Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception");
 			} catch (ClientProtocolException e) {
-				Log.e(TAG, e.getMessage());
+				Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception");
 			} catch (IOException e) {
-				Log.e(TAG, e.getMessage());
+				Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception");
 			} finally {
 				if ((strResponse == null) && (transmitAttempts <= 3)) {
 					sendData(context);
 					if (RfcxSource.VERBOSE) { Log.d(TAG, "Retransmitting... (attempt #"+transmitAttempts+")"); }
 				} else {
 					if (strResponse != null) {
-						flushTransmittedData(sendDateTime);
+						cleanupAfterResponse(strResponse, sendDateTime);
 						if (RfcxSource.VERBOSE) { Log.d(TAG, "Response: "+strResponse); }
 					}
 					transmitAttempts = 0;
@@ -80,7 +81,6 @@ public class ApiComm {
 					if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning off antenna..."); }
 				}
 			}
-
 		} else {
 			Log.e(TAG, "httpPost is not set");
 		}
@@ -91,7 +91,7 @@ public class ApiComm {
 		if (deviceStateDb == null) deviceStateDb = rfcxSource.deviceStateDb;
 		if (deviceState == null) deviceState = rfcxSource.deviceState;
 		
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(5);
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
 		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId()));
 		
 		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
@@ -99,22 +99,33 @@ public class ApiComm {
 		String[] vCpuClock = deviceStateDb.dbCpuClock.getStatsSummary();
 		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
 		boolean vPower = !(rfcxSource.deviceState.isBatteryDisCharging());
+		boolean vPowerFull = rfcxSource.deviceState.isBatteryCharged();
 		
 		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? vBattery[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("cpu",  (vCpu[0]!="0") ? vCpu[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("cpuclock",  (vCpuClock[0]!="0") ? vCpuClock[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("light",  (vLight[0]!="0") ? vLight[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("power",  (vPower) ? "+" : "-") );
+		nameValuePairs.add(new BasicNameValuePair("full",  (vPowerFull) ? "+" : "-") );
 	    
         return nameValuePairs;
 	}
 	
-	private void flushTransmittedData(Date date) {
+	private void cleanupAfterResponse(String strResponse, Date sendDateTime) {
+		
 		if (deviceStateDb != null) {
-			deviceStateDb.dbBattery.clearStatsBefore(date);
-			deviceStateDb.dbCpu.clearStatsBefore(date);
-			deviceStateDb.dbCpuClock.clearStatsBefore(date);
-			deviceStateDb.dbLight.clearStatsBefore(date);
+			deviceStateDb.dbBattery.clearStatsBefore(sendDateTime);
+			deviceStateDb.dbCpu.clearStatsBefore(sendDateTime);
+			deviceStateDb.dbCpuClock.clearStatsBefore(sendDateTime);
+			deviceStateDb.dbLight.clearStatsBefore(sendDateTime);
+		}
+		
+		try {
+			long timeMillis = (long) Long.parseLong(strResponse);
+			SystemClock.setCurrentTimeMillis(timeMillis);
+			Log.d(TAG, "TIME: "+timeMillis);
+		} catch (NumberFormatException e) {
+			Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception");
 		}
 	}
 	
@@ -123,9 +134,9 @@ public class ApiComm {
 			try {
 				return EntityUtils.toString(httpResponse.getEntity());
 			} catch (ParseException e) {
-				Log.e(TAG, e.getMessage());
+				Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception");
 			} catch (IOException e) {
-				Log.e(TAG, e.getMessage());
+				Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception");
 			}
 		}
 		return null;

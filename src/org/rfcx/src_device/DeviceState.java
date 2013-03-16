@@ -20,6 +20,7 @@ public class DeviceState {
 	private int batteryScale;
 	private int batteryTemperature;
 	private boolean batteryDisCharging;
+	private boolean batteryCharged;
 	
 	private void setBatteryLevel(int batteryLevel) {
 		this.batteryLevel = batteryLevel;
@@ -34,7 +35,11 @@ public class DeviceState {
 	}
 	
 	private void setBatteryDisCharging(int batteryStatus) {
-		this.batteryDisCharging = (batteryStatus == BatteryManager.BATTERY_STATUS_DISCHARGING) ? true : false;
+		this.batteryDisCharging = (batteryStatus == BatteryManager.BATTERY_STATUS_DISCHARGING);
+	}
+	
+	private void setBatteryCharged(int batteryStatus) {
+		this.batteryCharged = (batteryStatus == BatteryManager.BATTERY_STATUS_FULL);
 	}
 	
 	public int getBatteryPercent() {
@@ -44,11 +49,16 @@ public class DeviceState {
 	public boolean isBatteryDisCharging() {
 		return this.batteryDisCharging;
 	}
+	
+	public boolean isBatteryCharged() {
+		return this.batteryCharged;
+	}
 
 	public void setBatteryState(Context context, Intent intent) {
 		setBatteryLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
 		setBatteryScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
 		setBatteryDisCharging(intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1));
+		setBatteryCharged(intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1));
 		setBatteryTemperature(Math.round(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)/10));
 		allowOrDisAllowServices(context);
 	}
@@ -56,13 +66,13 @@ public class DeviceState {
 	private void allowOrDisAllowServices(Context context) {
 		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
 		if (getBatteryPercent() > SERVICE_BATTERY_PERCENTAGE_THRESHOLD) {
-			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - Services Allowed.");
 			if (rfcxSource.areServicesHalted_ExpensiveServices) {
 				rfcxSource.launchAllServices(context);
+				Log.d(TAG, "Battery: "+getBatteryPercent()+"% - Services are being re-launched.");
 			}
 		} else {
-			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - Services NOT Allowed.");
 			rfcxSource.suspendExpensiveServices(context);
+			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - Services are being suspended.");
 		}
 	}
 	
