@@ -19,38 +19,36 @@ public class DeviceState {
 	private int batteryLevel;
 	private int batteryScale;
 	private int batteryTemperature;
+	private boolean batteryDisCharging;
 	
-	public void setBatteryLevel(int batteryLevel) {
+	private void setBatteryLevel(int batteryLevel) {
 		this.batteryLevel = batteryLevel;
 	}
 	
-	public void setBatteryScale(int batteryScale) {
+	private void setBatteryScale(int batteryScale) {
 		this.batteryScale = batteryScale;
 	}
 	
-	public int getBatteryLevel() {
-		return batteryLevel;
+	private void setBatteryTemperature(int batteryTemperature) {
+		this.batteryTemperature = batteryTemperature;
 	}
 	
-	public int getBatteryScale() {
-		return batteryScale;
+	private void setBatteryDisCharging(int batteryStatus) {
+		this.batteryDisCharging = (batteryStatus == BatteryManager.BATTERY_STATUS_DISCHARGING) ? true : false;
 	}
 	
 	public int getBatteryPercent() {
 		return Math.round(100 * this.batteryLevel / (float) this.batteryScale);
 	}
 	
-	public int getBatteryTemperature() {
-		return batteryTemperature;
+	public boolean isBatteryDisCharging() {
+		return this.batteryDisCharging;
 	}
-	
-	public void setBatteryTemperature(int batteryTemperature) {
-		this.batteryTemperature = batteryTemperature;
-	}
-	
+
 	public void setBatteryState(Context context, Intent intent) {
 		setBatteryLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
 		setBatteryScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
+		setBatteryDisCharging(intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1));
 		setBatteryTemperature(Math.round(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)/10));
 		allowOrDisAllowServices(context);
 	}

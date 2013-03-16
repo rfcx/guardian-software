@@ -18,6 +18,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.rfcx.src_android.RfcxSource;
 import org.rfcx.src_database.DeviceStateDb;
+import org.rfcx.src_device.DeviceState;
 import org.rfcx.src_util.DateTimeUtils;
 
 import android.content.Context;
@@ -44,6 +45,7 @@ public class ApiComm {
 	private HttpClient httpClient = new DefaultHttpClient();
 	private HttpPost httpPost = null;
 	private RfcxSource rfcxSource = null;
+	private DeviceState deviceState = null;
 	private DeviceStateDb deviceStateDb = null;
 	
 	private int transmitAttempts = 0;
@@ -87,19 +89,22 @@ public class ApiComm {
 	private List<NameValuePair> preparePostData() {
 		
 		if (deviceStateDb == null) deviceStateDb = rfcxSource.deviceStateDb;
+		if (deviceState == null) deviceState = rfcxSource.deviceState;
 		
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(4);
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(5);
 		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId()));
 		
 		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
 		String[] vCpu = deviceStateDb.dbCpu.getStatsSummary();
 		String[] vCpuClock = deviceStateDb.dbCpuClock.getStatsSummary();
 		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
+		boolean vPower = !(rfcxSource.deviceState.isBatteryDisCharging());
 		
 		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? vBattery[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("cpu",  (vCpu[0]!="0") ? vCpu[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("cpuclock",  (vCpuClock[0]!="0") ? vCpuClock[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("light",  (vLight[0]!="0") ? vLight[4] : "") );
+		nameValuePairs.add(new BasicNameValuePair("power",  (vPower) ? "+" : "-") );
 	    
         return nameValuePairs;
 	}
