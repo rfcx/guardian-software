@@ -1,10 +1,5 @@
 package org.rfcx.src_device;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-
 import org.rfcx.src_android.RfcxSource;
 import org.rfcx.src_util.DeviceCpuUsage;
 
@@ -86,10 +81,10 @@ public class DeviceStateService extends Service implements SensorEventListener {
 					if (RECORD_AVERAGE_TO_DATABASE) {
 						recordingIncrement++;
 						if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
-							rfcxSource.deviceState.updateCpuClockSpeed();
 							rfcxSource.deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
+							rfcxSource.deviceStateDb.dbCpuClock.insert(deviceCpuUsage.getCpuClockAvg());
 							recordingIncrement = 0;
-							if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+rfcxSource.deviceState.getCpuClockSpeed()+"Hz)");
+							if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"Hz)");
 						}
 					}
 					Thread.sleep(DELAY);

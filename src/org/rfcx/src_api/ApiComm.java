@@ -95,10 +95,12 @@ public class ApiComm {
 		
 		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
 		String[] vCpu = deviceStateDb.dbCpu.getStatsSummary();
+		String[] vCpuClock = deviceStateDb.dbCpuClock.getStatsSummary();
 		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
 		
 		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? vBattery[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("cpu",  (vCpu[0]!="0") ? vCpu[4] : "") );
+		nameValuePairs.add(new BasicNameValuePair("cpuclock",  (vCpuClock[0]!="0") ? vCpuClock[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("light",  (vLight[0]!="0") ? vLight[4] : "") );
 	    
         return nameValuePairs;
@@ -108,6 +110,7 @@ public class ApiComm {
 		if (deviceStateDb != null) {
 			deviceStateDb.dbBattery.clearStatsBefore(sendDateTime);
 			deviceStateDb.dbCpu.clearStatsBefore(sendDateTime);
+			deviceStateDb.dbCpuClock.clearStatsBefore(sendDateTime);
 			deviceStateDb.dbLight.clearStatsBefore(sendDateTime);
 		}
 	}

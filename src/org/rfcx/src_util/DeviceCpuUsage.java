@@ -8,36 +8,48 @@ import org.rfcx.src_android.RfcxSource;
 public class DeviceCpuUsage {
 	
 	public static final int REPORTING_SAMPLE_COUNT = (RfcxSource.VERBOSE) ? 10 : 60;
+	
 	private float cpuUsageNow = 0;
 	private float cpuUsageAvg = 0;
 	private float[] prevCpuUsage = new float[REPORTING_SAMPLE_COUNT];
 	
-	public static final int SAMPLE_LENGTH = 360;
+	private float cpuClockNow = 0;
+	private float cpuClockAvg = 0;
+	private float[] prevCpuClock = new float[REPORTING_SAMPLE_COUNT];
+	private boolean updateClockSpeed = false;
 	
-	public int getCpuUsageNow() {
-		return Math.round(100*cpuUsageNow);
-	}
+	public static final int SAMPLE_LENGTH = 360;
 	
 	public int getCpuUsageAvg() {
 		return Math.round(100*cpuUsageAvg);
 	}
 	
+	public int getCpuClockAvg() {
+		return Math.round(cpuClockAvg/1000);
+	}
+	
 	public void updateCpuUsage() {
-		this.cpuUsageNow = updateUsage();
+		updateUsage();
 		incrementAvg();
+		updateClockSpeed = !updateClockSpeed;
 	}
 	
 	private void incrementAvg() {
-		float avgTotal = 0;
+		float usageAvgTotal = 0;
+		float clockAvgTotal = 0;
 		for (int i = 0; i < REPORTING_SAMPLE_COUNT-1; i++) {
 			this.prevCpuUsage[i] = this.prevCpuUsage[i+1];
-			avgTotal = avgTotal + this.prevCpuUsage[i+1];
+			usageAvgTotal = usageAvgTotal + this.prevCpuUsage[i+1];
+			this.prevCpuClock[i] = this.prevCpuClock[i+1];
+			clockAvgTotal = clockAvgTotal + this.prevCpuClock[i+1];
 		}
 		this.prevCpuUsage[REPORTING_SAMPLE_COUNT-1] = this.cpuUsageNow;
-		this.cpuUsageAvg = (avgTotal + this.cpuUsageNow) / REPORTING_SAMPLE_COUNT;
+		this.cpuUsageAvg = (usageAvgTotal + this.cpuUsageNow) / REPORTING_SAMPLE_COUNT;
+		this.prevCpuClock[REPORTING_SAMPLE_COUNT-1] = this.cpuClockNow;
+		this.cpuClockAvg = (clockAvgTotal + this.cpuClockNow) / REPORTING_SAMPLE_COUNT;
 	}
 	
-	private float updateUsage() {
+	private void updateUsage() {
 		try {
 	        RandomAccessFile reader = new RandomAccessFile("/proc/stat", "r");
 	        String load = reader.readLine();
@@ -55,10 +67,20 @@ public class DeviceCpuUsage {
 	        long idle2 = Long.parseLong(toks[5]);
 	        long cpu2 = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[4])
 	            + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
-	        return (float)(cpu2 - cpu1) / ((cpu2 + idle2) - (cpu1 + idle1));
-	    } catch (IOException ex) {
-	        ex.printStackTrace();
+	        this.cpuUsageNow = (float)(cpu2 - cpu1) / ((cpu2 + idle2) - (cpu1 + idle1));
+	    } catch (IOException e) {
+	        e.printStackTrace();
 	    }
-		return 0;
+		
+		if (updateClockSpeed) {
+			try {
+				RandomAccessFile scaling_cur_freq = new RandomAccessFile("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq", "r");
+				this.cpuClockNow = Integer.parseInt(scaling_cur_freq.readLine());
+				scaling_cur_freq.close();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

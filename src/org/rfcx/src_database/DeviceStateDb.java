@@ -20,6 +20,7 @@ public class DeviceStateDb {
 		this.dbBattery = new DbBattery(context);
 		this.dbCpu = new DbCpu(context);
 		this.dbLight = new DbLight(context);
+		this.dbCpuClock = new DbCpuClock(context);
 	}
 	
 	private static final String TAG = DeviceStateDb.class.getSimpleName();
@@ -152,4 +153,28 @@ public class DeviceStateDb {
 		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
 	}
 	public final DbLight dbLight;
+	
+	// CPU Clockspeed
+	public class DbCpuClock {
+		private String TABLE = "cpuclock";
+		class DbHelper extends SQLiteOpenHelper {
+			public DbHelper(Context context) { super(context, DATABASE+"-"+TABLE+".db", null, VERSION); }
+			@Override
+			public void onCreate(SQLiteDatabase db) { _onCreate(db, TABLE); }
+			@Override
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { _onUpgrade(db, TABLE, oldVersion, newVersion); }
+		}
+		final DbHelper dbHelper;
+		public void close() { this.dbHelper.close(); }
+		
+		public DbCpuClock(Context context) { this.dbHelper = new DbHelper(context); }
+		
+		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
+	}
+	public final DbCpuClock dbCpuClock;
 }
