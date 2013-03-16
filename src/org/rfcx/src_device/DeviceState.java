@@ -1,7 +1,10 @@
 package org.rfcx.src_device;
 
-import java.io.RandomAccessFile;
+import org.rfcx.src_android.RfcxSource;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.BatteryManager;
 import android.util.Log;
 
 public class DeviceState {
@@ -11,10 +14,6 @@ public class DeviceState {
 	// Services
 	public static final boolean SERVICE_ENABLED = true;
 	private static final int SERVICE_BATTERY_PERCENTAGE_THRESHOLD = 95;
-	
-	public boolean allowServices() {
-		return (getBatteryPercent() > SERVICE_BATTERY_PERCENTAGE_THRESHOLD) ? true : false;
-	}
 	
 	// Battery
 	private int batteryLevel;
@@ -49,6 +48,27 @@ public class DeviceState {
 		this.batteryTemperature = batteryTemperature;
 	}
 	
+	public void setBatteryState(Context context, Intent intent) {
+		setBatteryLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
+		setBatteryScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
+		setBatteryTemperature(Math.round(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)/10));
+		allowOrDisAllowServices(context);
+	}
+	
+	private void allowOrDisAllowServices(Context context) {
+		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
+		if (getBatteryPercent() > SERVICE_BATTERY_PERCENTAGE_THRESHOLD) {
+			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - Services Allowed.");
+			if (rfcxSource.areServicesHalted_ExpensiveServices) {
+				rfcxSource.launchAllServices(context);
+			}
+		} else {
+			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - Services NOT Allowed.");
+			rfcxSource.suspendExpensiveServices(context);
+		}
+	}
+	
+	
 	// Light Sensor
 	private int lightLevel;
 	
@@ -59,5 +79,9 @@ public class DeviceState {
 	public int getLightLevel() {
 		return lightLevel;
 	}
+	
+	
+	
+	
 	
 }

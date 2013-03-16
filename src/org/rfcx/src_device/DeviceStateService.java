@@ -1,6 +1,7 @@
 package org.rfcx.src_device;
 
 import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_database.DeviceStateDb;
 import org.rfcx.src_util.DeviceCpuUsage;
 
 import android.app.Service;
@@ -20,7 +21,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	private boolean runFlag = false;
 	private DeviceStateSvc deviceStateSvc;
 
-	private static final boolean RECORD_AVERAGE_TO_DATABASE = true;
 	private int recordingIncrement = 0;
 	
 	private SensorManager sensorManager;
@@ -47,7 +47,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		super.onStartCommand(intent, flags, startId);
 		if (RfcxSource.VERBOSE) Log.d(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		rfcxSource = (RfcxSource) getApplication();
+		if (rfcxSource == null) rfcxSource = (RfcxSource) getApplication();
 		rfcxSource.isServiceRunning_DeviceState = true;
 		this.deviceStateSvc.start();
 		return START_STICKY;
@@ -73,19 +73,21 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		@Override
 		public void run() {
 			DeviceStateService deviceStateService = DeviceStateService.this;
-			rfcxSource = (RfcxSource) getApplication();
+			if (rfcxSource == null) rfcxSource = (RfcxSource) getApplication();
 			DeviceCpuUsage deviceCpuUsage = rfcxSource.deviceCpuUsage;
+			DeviceState deviceState = rfcxSource.deviceState;
+			DeviceStateDb deviceStateDb = rfcxSource.deviceStateDb;
 			while (deviceStateService.runFlag) {
 				try {
 					deviceCpuUsage.updateCpuUsage();
-					if (RECORD_AVERAGE_TO_DATABASE) {
-						recordingIncrement++;
-						if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
-							rfcxSource.deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
-							rfcxSource.deviceStateDb.dbCpuClock.insert(deviceCpuUsage.getCpuClockAvg());
-							recordingIncrement = 0;
-							if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"Hz)");
-						}
+					recordingIncrement++;
+					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
+//						deviceState.setBatteryState(rfcxSource.getApplicationContext(), serviceIntent);
+						deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
+						deviceStateDb.dbCpuClock.insert(deviceCpuUsage.getCpuClockAvg());
+						deviceStateDb.dbBattery.insert(deviceState.getBatteryPercent());
+						recordingIncrement = 0;
+						if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"Hz)");
 					}
 					Thread.sleep(DELAY);
 				} catch (InterruptedException e) {

@@ -30,13 +30,11 @@ public class ApiComm {
 	public static final boolean SERVICE_ENABLED = true;
 	private boolean networkConnectivity = false;
 	
-	public static final int CONNECTIVITY_INTERVAL = 180;
+	public static final int CONNECTIVITY_INTERVAL = 240;
 	public static final int CONNECTIVITY_TIMEOUT = 150;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
-	private Date currTransmitTime = new Date();
-	private Date lastTransmitTime = currTransmitTime;
 	private String deviceId = null;
 	private String protocol = "http";
 	private String domain = null;
@@ -106,19 +104,17 @@ public class ApiComm {
         return nameValuePairs;
 	}
 	
-	private void flushTransmittedData(Date sendDateTime) {
+	private void flushTransmittedData(Date date) {
 		if (deviceStateDb != null) {
-			deviceStateDb.dbBattery.clearStatsBefore(sendDateTime);
-			deviceStateDb.dbCpu.clearStatsBefore(sendDateTime);
-			deviceStateDb.dbCpuClock.clearStatsBefore(sendDateTime);
-			deviceStateDb.dbLight.clearStatsBefore(sendDateTime);
+			deviceStateDb.dbBattery.clearStatsBefore(date);
+			deviceStateDb.dbCpu.clearStatsBefore(date);
+			deviceStateDb.dbCpuClock.clearStatsBefore(date);
+			deviceStateDb.dbLight.clearStatsBefore(date);
 		}
 	}
 	
 	private String httpResponseString(HttpResponse httpResponse) {
 		if (httpResponse.getEntity() != null) {
-			lastTransmitTime = currTransmitTime;
-			currTransmitTime = new Date();
 			try {
 				return EntityUtils.toString(httpResponse.getEntity());
 			} catch (ParseException e) {
