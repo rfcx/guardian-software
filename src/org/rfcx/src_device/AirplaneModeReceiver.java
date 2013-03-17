@@ -1,5 +1,7 @@
 package org.rfcx.src_device;
 
+import java.util.Calendar;
+
 import org.rfcx.src_android.RfcxSource;
 
 import android.bluetooth.BluetoothAdapter;
@@ -29,6 +31,7 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 //		if (locationManager == null) locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		
 		if (!rfcxSource.airplaneMode.isEnabled(context)) {
+			rfcxSource.apiComm.setSignalSearchStart(Calendar.getInstance());
 			wifiManager.setWifiEnabled(rfcxSource.airplaneMode.getAllowWifi());
 			if (bluetoothAdapter.isEnabled()) bluetoothAdapter.disable();
 		}

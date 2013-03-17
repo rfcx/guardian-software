@@ -3,6 +3,7 @@ package org.rfcx.src_api;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -49,6 +50,9 @@ public class ApiComm {
 	private DeviceState deviceState = null;
 	private DeviceStateDb deviceStateDb = null;
 	
+	private long signalSearchStart = 0;
+	private long signalSearchEnd = 0;
+	
 	private int transmitAttempts = 0;
 	
 	public void sendData(Context context) {
@@ -91,7 +95,7 @@ public class ApiComm {
 		if (deviceStateDb == null) deviceStateDb = rfcxSource.deviceStateDb;
 		if (deviceState == null) deviceState = rfcxSource.deviceState;
 		
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(7);
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(8);
 		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId()));
 		
 		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
@@ -101,6 +105,7 @@ public class ApiComm {
 		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
 		boolean vPower = !(rfcxSource.deviceState.isBatteryDisCharging());
 		boolean vPowerFull = rfcxSource.deviceState.isBatteryCharged();
+		long vSearchTime = signalSearchEnd - signalSearchStart;
 		
 		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? vBattery[1] : "") );
 		nameValuePairs.add(new BasicNameValuePair("temp", (vBatteryTemp[0]!="0") ? vBatteryTemp[1] : "") );
@@ -109,6 +114,7 @@ public class ApiComm {
 		nameValuePairs.add(new BasicNameValuePair("light",  (vLight[0]!="0") ? vLight[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("power",  (vPower) ? "+" : "-") );
 		nameValuePairs.add(new BasicNameValuePair("full",  (vPowerFull) ? "+" : "-") );
+		nameValuePairs.add(new BasicNameValuePair("search",  ""+Math.round(vSearchTime/1000) ));
 	    
         return nameValuePairs;
 	}
@@ -169,5 +175,12 @@ public class ApiComm {
 		networkConnectivity = isConnected;
 	}
 	
+	public void setSignalSearchStart(Calendar calendar) {
+		this.signalSearchStart = calendar.getTimeInMillis();
+	}
+	
+	public void setSignalSearchEnd(Calendar calendar) {
+		this.signalSearchEnd = calendar.getTimeInMillis();
+	}
 	
 }
