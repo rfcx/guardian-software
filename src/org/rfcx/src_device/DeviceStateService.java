@@ -82,10 +82,10 @@ public class DeviceStateService extends Service implements SensorEventListener {
 					deviceCpuUsage.updateCpuUsage();
 					recordingIncrement++;
 					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
-//						deviceState.setBatteryState(rfcxSource.getApplicationContext(), serviceIntent);
 						deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
 						deviceStateDb.dbCpuClock.insert(deviceCpuUsage.getCpuClockAvg());
 						deviceStateDb.dbBattery.insert(deviceState.getBatteryPercent());
+						deviceStateDb.dbBatteryTemperature.insert(deviceState.getBatteryTemperature());
 						recordingIncrement = 0;
 						if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"Hz)");
 					}

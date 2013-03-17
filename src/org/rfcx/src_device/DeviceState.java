@@ -53,12 +53,16 @@ public class DeviceState {
 	public boolean isBatteryCharged() {
 		return this.batteryCharged;
 	}
+	
+	public int getBatteryTemperature() {
+		return batteryTemperature;
+	}
 
 	public void setBatteryState(Context context, Intent intent) {
 		setBatteryLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
 		setBatteryScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
 		setBatteryDisCharging(intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1));
-		setBatteryCharged(intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1));
+		setBatteryCharged  (intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1));
 		setBatteryTemperature(Math.round(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)/10));
 		allowOrDisAllowServices(context);
 	}

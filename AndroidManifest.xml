@@ -18,6 +18,7 @@
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 	<user-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<user-permission android:name="android.permission.SET_TIME" />
+	<user-permission android:name="android.permission.SET_TIME_ZONE" />
     
     <application
         android:allowBackup="true"

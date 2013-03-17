@@ -91,17 +91,19 @@ public class ApiComm {
 		if (deviceStateDb == null) deviceStateDb = rfcxSource.deviceStateDb;
 		if (deviceState == null) deviceState = rfcxSource.deviceState;
 		
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(6);
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(7);
 		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId()));
 		
 		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
+		String[] vBatteryTemp = deviceStateDb.dbBatteryTemperature.getStatsSummary();
 		String[] vCpu = deviceStateDb.dbCpu.getStatsSummary();
 		String[] vCpuClock = deviceStateDb.dbCpuClock.getStatsSummary();
 		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
 		boolean vPower = !(rfcxSource.deviceState.isBatteryDisCharging());
 		boolean vPowerFull = rfcxSource.deviceState.isBatteryCharged();
 		
-		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? vBattery[4] : "") );
+		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? vBattery[1] : "") );
+		nameValuePairs.add(new BasicNameValuePair("temp", (vBatteryTemp[0]!="0") ? vBatteryTemp[1] : "") );
 		nameValuePairs.add(new BasicNameValuePair("cpu",  (vCpu[0]!="0") ? vCpu[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("cpuclock",  (vCpuClock[0]!="0") ? vCpuClock[4] : "") );
 		nameValuePairs.add(new BasicNameValuePair("light",  (vLight[0]!="0") ? vLight[4] : "") );
