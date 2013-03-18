@@ -1,7 +1,5 @@
 package org.rfcx.src_api;
 
-import java.util.Calendar;
-
 import org.rfcx.src_android.RfcxSource;
 
 import android.content.BroadcastReceiver;
@@ -21,7 +19,6 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 		rfcxSource.apiComm.setConnectivity(isConnected);
 		if (RfcxSource.VERBOSE) Log.d(TAG, "BroadcastReceiver: "+TAG+" - Connectivity: "+isConnected);
 		if (isConnected) {
-			rfcxSource.apiComm.setSignalSearchEnd(Calendar.getInstance());
 			rfcxSource.apiComm.sendData(context);
 		}
 	}

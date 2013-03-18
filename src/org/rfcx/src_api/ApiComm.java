@@ -51,7 +51,6 @@ public class ApiComm {
 	private DeviceStateDb deviceStateDb = null;
 	
 	private long signalSearchStart = 0;
-	private long signalSearchEnd = 0;
 	
 	private int transmitAttempts = 0;
 	
@@ -105,7 +104,7 @@ public class ApiComm {
 		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
 		boolean vPower = !(rfcxSource.deviceState.isBatteryDisCharging());
 		boolean vPowerFull = rfcxSource.deviceState.isBatteryCharged();
-		long vSearchTime = signalSearchEnd - signalSearchStart;
+		long vSearchTime = Calendar.getInstance().getTimeInMillis() - signalSearchStart;
 		
 		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? vBattery[1] : "") );
 		nameValuePairs.add(new BasicNameValuePair("temp", (vBatteryTemp[0]!="0") ? vBatteryTemp[1] : "") );
@@ -177,10 +176,6 @@ public class ApiComm {
 	
 	public void setSignalSearchStart(Calendar calendar) {
 		this.signalSearchStart = calendar.getTimeInMillis();
-	}
-	
-	public void setSignalSearchEnd(Calendar calendar) {
-		this.signalSearchEnd = calendar.getTimeInMillis();
 	}
 	
 }
