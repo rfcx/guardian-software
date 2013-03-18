@@ -74,7 +74,7 @@ public class DeviceState {
 				rfcxSource.launchAllServices(context);
 				Log.d(TAG, "Battery: "+getBatteryPercent()+"% - Services are being re-launched.");
 			}
-		} else {
+		} else if (!rfcxSource.areServicesHalted_ExpensiveServices) {
 			rfcxSource.suspendExpensiveServices(context);
 			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - Services are being suspended.");
 		}
