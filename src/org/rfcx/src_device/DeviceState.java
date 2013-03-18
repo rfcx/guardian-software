@@ -4,6 +4,7 @@ import org.rfcx.src_android.RfcxSource;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.util.Log;
 
@@ -59,6 +60,9 @@ public class DeviceState {
 	}
 
 	public void setBatteryState(Context context, Intent intent) {
+		
+		if (intent == null) intent = context.getApplicationContext().registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+
 		setBatteryLevel(intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1));
 		setBatteryScale(intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1));
 		setBatteryDisCharging(intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1));

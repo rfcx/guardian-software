@@ -17,7 +17,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 
 	private static final String TAG = DeviceStateService.class.getSimpleName();
 	
-	private static final int DELAY = 1000 - DeviceCpuUsage.SAMPLE_LENGTH;
+	private static final int DELAY = (int) Math.round(1000/DeviceCpuUsage.SAMPLE_RATE_HZ) - DeviceCpuUsage.SAMPLE_LENGTH_MS;
 	private boolean runFlag = false;
 	private DeviceStateSvc deviceStateSvc;
 
@@ -27,8 +27,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 //	Sensor accelSensor = null;
 	Sensor lightSensor = null;
 //	Sensor tempSensor = null;
-	
-	private RfcxSource rfcxSource = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -47,8 +45,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		super.onStartCommand(intent, flags, startId);
 		if (RfcxSource.VERBOSE) Log.d(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		if (rfcxSource == null) rfcxSource = (RfcxSource) getApplication();
-		rfcxSource.isServiceRunning_DeviceState = true;
+		((RfcxSource) getApplication()).isServiceRunning_DeviceState = true;
 		this.deviceStateSvc.start();
 		return START_STICKY;
 	}
@@ -57,7 +54,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		rfcxSource.isServiceRunning_DeviceState = false;
+		((RfcxSource) getApplication()).isServiceRunning_DeviceState = false;
 		this.deviceStateSvc.interrupt();
 		this.deviceStateSvc = null;
 		unRegisterSensorListeners();
@@ -73,15 +70,17 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		@Override
 		public void run() {
 			DeviceStateService deviceStateService = DeviceStateService.this;
-			if (rfcxSource == null) rfcxSource = (RfcxSource) getApplication();
-			DeviceCpuUsage deviceCpuUsage = rfcxSource.deviceCpuUsage;
-			DeviceState deviceState = rfcxSource.deviceState;
-			DeviceStateDb deviceStateDb = rfcxSource.deviceStateDb;
+
 			while (deviceStateService.runFlag) {
+				RfcxSource rfcxSource = (RfcxSource) getApplication();
+				DeviceCpuUsage deviceCpuUsage = rfcxSource.deviceCpuUsage;
+				DeviceState deviceState = rfcxSource.deviceState;
+				DeviceStateDb deviceStateDb = rfcxSource.deviceStateDb;
 				try {
 					deviceCpuUsage.updateCpuUsage();
 					recordingIncrement++;
 					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
+						deviceState.setBatteryState(rfcxSource.getApplicationContext(), null);
 						deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
 						deviceStateDb.dbCpuClock.insert(deviceCpuUsage.getCpuClockAvg());
 						deviceStateDb.dbBattery.insert(deviceState.getBatteryPercent());
@@ -104,21 +103,20 @@ public class DeviceStateService extends Service implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		if (rfcxSource != null) {
-			if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
-				if (event.values[0] >= 0) {
-					rfcxSource.deviceState.setLightLevel(Math.round(event.values[0]));
-					rfcxSource.deviceStateDb.dbLight.insert(rfcxSource.deviceState.getLightLevel());
-				}
-				return;
+		RfcxSource rfcxSource = (RfcxSource) getApplication();
+		if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+			if (event.values[0] >= 0) {
+				rfcxSource.deviceState.setLightLevel(Math.round(event.values[0]));
+				rfcxSource.deviceStateDb.dbLight.insert(rfcxSource.deviceState.getLightLevel());
+			}
+			return;
 //			} else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 //				return;
 //			} else if (event.sensor.getType() == Sensor.TYPE_TEMPERATURE) {
 //				Log.d(TAG, "Temperature: "+event.values[0]);
 //				return;
-			} else {
-				return;
-			}
+		} else {
+			return;
 		}
 	}
 	

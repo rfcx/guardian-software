@@ -33,7 +33,7 @@ public class ApiComm {
 	public static final boolean SERVICE_ENABLED = true;
 	private boolean networkConnectivity = false;
 	
-	public static final int CONNECTIVITY_INTERVAL = 240;
+	public static final int CONNECTIVITY_INTERVAL = 300;
 	public static final int CONNECTIVITY_TIMEOUT = 150;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
@@ -125,6 +125,7 @@ public class ApiComm {
 			deviceStateDb.dbCpu.clearStatsBefore(sendDateTime);
 			deviceStateDb.dbCpuClock.clearStatsBefore(sendDateTime);
 			deviceStateDb.dbLight.clearStatsBefore(sendDateTime);
+			deviceStateDb.dbBatteryTemperature.clearStatsBefore(sendDateTime);
 		}
 		
 		try {

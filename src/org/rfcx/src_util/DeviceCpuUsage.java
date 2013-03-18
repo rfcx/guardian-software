@@ -18,7 +18,8 @@ public class DeviceCpuUsage {
 	private float[] prevCpuClock = new float[REPORTING_SAMPLE_COUNT];
 	private boolean updateClockSpeed = false;
 	
-	public static final int SAMPLE_LENGTH = 360;
+	public static final int SAMPLE_LENGTH_MS = 360;
+	public static final double SAMPLE_RATE_HZ = 1.0;
 	
 	public int getCpuUsageAvg() {
 		return Math.round(100*cpuUsageAvg);
@@ -58,7 +59,7 @@ public class DeviceCpuUsage {
 	        long cpu1 = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[4])
 	              + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        try {
-	            Thread.sleep(SAMPLE_LENGTH);
+	            Thread.sleep(SAMPLE_LENGTH_MS);
 	        } catch (Exception e) {}
 	        reader.seek(0);
 	        load = reader.readLine();
