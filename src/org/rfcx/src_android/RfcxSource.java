@@ -33,6 +33,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
 	public static final boolean VERBOSE = false;
+	
+	private boolean lowPowerMode = false;
+	
 	private SharedPreferences sharedPreferences;
 	Context context;
 	
@@ -69,7 +72,8 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public void onCreate() {
 		super.onCreate();
 		checkSetPreferences();
-
+		setLowPowerMode(lowPowerMode);
+		
 	    this.registerReceiver(batteryDeviceStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -164,11 +168,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	public void suspendExpensiveServices(Context context) {
 		
-		if (ApiComm.SERVICE_ENABLED && isServiceRunning_ApiComm) {
-			context.stopService(new Intent(context, ApiCommService.class));
-		} else if (!isServiceRunning_ApiComm && RfcxSource.VERBOSE) {
-			Log.d(TAG, "ApiCommService not running. Not stopped...");
-		}
 		if (AudioState.CAPTURE_SERVICE_ENABLED && isServiceRunning_AudioCapture) {
 			context.stopService(new Intent(context, AudioCaptureService.class));
 		} else if (!isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
@@ -181,6 +180,23 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		}
 		areServicesHalted_ExpensiveServices = true;
 	}
+	
+	public void setLowPowerMode(boolean lowPowerMode) {
+		this.lowPowerMode = lowPowerMode;
 
+		if (lowPowerMode) {
+			deviceState.serviceSampleRateHz = 0.2;
+			apiComm.connectivityInterval = 900;
+			if (!areServicesHalted_ExpensiveServices) suspendExpensiveServices(context);
+		} else {
+			deviceState.serviceSampleRateHz = 1.0;
+			apiComm.connectivityInterval = 300;
+			if (areServicesHalted_ExpensiveServices) launchAllServices(context);
+		}
+	}
+	
+	public boolean isInLowPowerMode() {
+		return lowPowerMode;
+	}
 		
 }

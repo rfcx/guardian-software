@@ -14,7 +14,9 @@ public class DeviceState {
 	
 	// Services
 	public static final boolean SERVICE_ENABLED = true;
-	private static final int SERVICE_BATTERY_PERCENTAGE_THRESHOLD = 95;
+	private static final int SERVICE_BATTERY_PERCENTAGE_THRESHOLD = 98;
+	
+	public double serviceSampleRateHz = 1.0;
 	
 	// Battery
 	private int batteryLevel;
@@ -74,13 +76,11 @@ public class DeviceState {
 	private void allowOrDisAllowServices(Context context) {
 		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
 		if (getBatteryPercent() > SERVICE_BATTERY_PERCENTAGE_THRESHOLD) {
-			if (rfcxSource.areServicesHalted_ExpensiveServices) {
-				rfcxSource.launchAllServices(context);
-				Log.d(TAG, "Battery: "+getBatteryPercent()+"% - Services are being re-launched.");
-			}
-		} else if (!rfcxSource.areServicesHalted_ExpensiveServices) {
-			rfcxSource.suspendExpensiveServices(context);
-			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - Services are being suspended.");
+			rfcxSource.setLowPowerMode(false);
+			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - System not in Low Power Mode.");
+		} else if (!rfcxSource.isInLowPowerMode()){
+			rfcxSource.setLowPowerMode(true);
+			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - System in Low Power Mode.");
 		}
 	}
 	

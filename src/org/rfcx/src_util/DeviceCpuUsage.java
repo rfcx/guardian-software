@@ -19,7 +19,6 @@ public class DeviceCpuUsage {
 	private boolean updateClockSpeed = false;
 	
 	public static final int SAMPLE_LENGTH_MS = 360;
-	public static final double SAMPLE_RATE_HZ = 1.0;
 	
 	public int getCpuUsageAvg() {
 		return Math.round(100*cpuUsageAvg);

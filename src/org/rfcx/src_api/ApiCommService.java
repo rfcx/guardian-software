@@ -64,7 +64,7 @@ public class ApiCommService extends Service {
 			while (apiCommService.runFlag) {
 				try {
 					if (!rfcxSource.airplaneMode.isEnabled(rfcxSource.getApplicationContext())) rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
-					Thread.sleep((ApiComm.CONNECTIVITY_INTERVAL-ApiComm.CONNECTIVITY_TIMEOUT)*1000);
+					Thread.sleep((rfcxSource.apiComm.connectivityInterval-ApiComm.CONNECTIVITY_TIMEOUT)*1000);
 					rfcxSource.airplaneMode.setOff(rfcxSource.getApplicationContext());
 					Thread.sleep(ApiComm.CONNECTIVITY_TIMEOUT*1000);
 					

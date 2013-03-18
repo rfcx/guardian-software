@@ -17,7 +17,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 
 	private static final String TAG = DeviceStateService.class.getSimpleName();
 	
-	private static final int DELAY = (int) Math.round(1000/DeviceCpuUsage.SAMPLE_RATE_HZ) - DeviceCpuUsage.SAMPLE_LENGTH_MS;
 	private boolean runFlag = false;
 	private DeviceStateSvc deviceStateSvc;
 
@@ -88,7 +87,8 @@ public class DeviceStateService extends Service implements SensorEventListener {
 						recordingIncrement = 0;
 						if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"Hz)");
 					}
-					Thread.sleep(DELAY);
+					int delayMs = (int) Math.round(1000/deviceState.serviceSampleRateHz) - DeviceCpuUsage.SAMPLE_LENGTH_MS;
+					Thread.sleep(delayMs);
 				} catch (InterruptedException e) {
 					deviceStateService.runFlag = false;
 					rfcxSource.isServiceRunning_DeviceState = true;

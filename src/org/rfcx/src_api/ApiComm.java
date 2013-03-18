@@ -33,8 +33,8 @@ public class ApiComm {
 	public static final boolean SERVICE_ENABLED = true;
 	private boolean networkConnectivity = false;
 	
-	public static final int CONNECTIVITY_INTERVAL = 300;
-	public static final int CONNECTIVITY_TIMEOUT = 150;
+	public int connectivityInterval = 300;
+	public static final int CONNECTIVITY_TIMEOUT = 120;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
