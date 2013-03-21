@@ -14,7 +14,7 @@ public class AudioState {
 	public static final boolean PROCESS_SERVICE_ENABLED = true;
 
 	public static final int CAPTURE_SAMPLE_RATE = 4000;
-	public static final int FFT_RESOLUTION = 4096;
+	public static final int FFT_RESOLUTION = 2048;
 	
 	private double[] fftSpectrumSum = new double[BUFFER_LENGTH];
 	private int fftSpectrumSumIncrement = 0;

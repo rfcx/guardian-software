@@ -32,7 +32,7 @@ import android.util.Log;
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
-	public static final boolean VERBOSE = false;
+	public static final boolean VERBOSE = true;
 	
 	private boolean lowPowerMode = false;
 	
@@ -185,11 +185,11 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		this.lowPowerMode = lowPowerMode;
 
 		if (lowPowerMode) {
-			deviceState.serviceSampleRateHz = 0.2;
+			deviceState.serviceSamplesPerMinute = 12;
 			apiComm.connectivityInterval = 900;
 			if (!areServicesHalted_ExpensiveServices) suspendExpensiveServices(context);
 		} else {
-			deviceState.serviceSampleRateHz = 1.0;
+			deviceState.serviceSamplesPerMinute = 60;
 			apiComm.connectivityInterval = 300;
 			if (areServicesHalted_ExpensiveServices) launchAllServices(context);
 		}

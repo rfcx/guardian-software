@@ -15,8 +15,8 @@ public class DeviceState {
 	// Services
 	public static final boolean SERVICE_ENABLED = true;
 	private static final int SERVICE_BATTERY_PERCENTAGE_THRESHOLD = 98;
-	
-	public double serviceSampleRateHz = 1.0;
+
+	public int serviceSamplesPerMinute = 60;
 	
 	// Battery
 	private int batteryLevel;
