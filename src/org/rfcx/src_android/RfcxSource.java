@@ -3,6 +3,7 @@ package org.rfcx.src_android;
 import java.util.UUID;
 
 import org.rfcx.src_api.ApiComm;
+import org.rfcx.src_api.ApiCommService;
 import org.rfcx.src_api.ConnectivityReceiver;
 import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_audio.AudioProcessService;
@@ -17,7 +18,9 @@ import org.rfcx.src_device.DeviceStateService;
 import org.rfcx.src_util.DeviceCpuUsage;
 import org.rfcx.src_util.FactoryDeviceUuid;
 
+import android.app.AlarmManager;
 import android.app.Application;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -187,4 +190,16 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		return lowPowerMode;
 	}
 		
+	
+	
+	
+	public void launchAllIntentServices(Context context) {
+
+		PendingIntent pendingIntent = PendingIntent.getService(context, -1, new Intent(context, ApiCommService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), 300000, pendingIntent);
+		
+	}
+	
+	
 }

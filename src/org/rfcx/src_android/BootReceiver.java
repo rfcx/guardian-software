@@ -14,15 +14,10 @@ public class BootReceiver extends BroadcastReceiver {
 	private static final String TAG = BootReceiver.class.getSimpleName();
 	
 	@Override
-	public void onReceive(Context context, Intent callingIntent) {
+	public void onReceive(Context context, Intent intent) {
 		if (RfcxSource.VERBOSE) Log.d(TAG, "BroadcastReceiver: "+TAG);
 		((RfcxSource) context.getApplicationContext()).launchAllServices(context);
-		
-		Intent intent = new Intent(context, ApiCommService.class);
-		PendingIntent pendingIntent = PendingIntent.getService(context, -1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		
-		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), 300000, pendingIntent);
+		((RfcxSource) context.getApplicationContext()).launchAllIntentServices(context);
 	}
 
 }
