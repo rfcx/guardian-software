@@ -3,7 +3,6 @@ package org.rfcx.src_android;
 import java.util.UUID;
 
 import org.rfcx.src_api.ApiComm;
-import org.rfcx.src_api.ApiCommService;
 import org.rfcx.src_api.ConnectivityReceiver;
 import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_audio.AudioProcessService;
@@ -62,7 +61,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	// android service running flags
 	public boolean isServiceRunning_DeviceState = false;
-	public boolean isServiceRunning_ApiComm = false;
 	public boolean isServiceRunning_AudioCapture = false;
 	public boolean isServiceRunning_AudioProcess = false;
 	
@@ -124,11 +122,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		} else if (isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
 			Log.d(TAG, "DeviceStateService already running. Not re-started...");
 		}
-		if (ApiComm.SERVICE_ENABLED && !isServiceRunning_ApiComm) {
-			context.startService(new Intent(context, ApiCommService.class));
-		} else if (isServiceRunning_ApiComm && RfcxSource.VERBOSE) {
-			Log.d(TAG, "ApiCommService already running. Not re-started...");
-		}
 		if (AudioState.CAPTURE_SERVICE_ENABLED && !isServiceRunning_AudioCapture) {
 			context.startService(new Intent(context, AudioCaptureService.class));
 		} else if (isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
@@ -148,11 +141,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 			context.stopService(new Intent(context, DeviceStateService.class));
 		} else if (!isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
 			Log.d(TAG, "DeviceStateService not running. Not stopped...");
-		}
-		if (ApiComm.SERVICE_ENABLED && isServiceRunning_ApiComm) {
-			context.stopService(new Intent(context, ApiCommService.class));
-		} else if (!isServiceRunning_ApiComm && RfcxSource.VERBOSE) {
-			Log.d(TAG, "ApiCommService not running. Not stopped...");
 		}
 		if (AudioState.CAPTURE_SERVICE_ENABLED && isServiceRunning_AudioCapture) {
 			context.stopService(new Intent(context, AudioCaptureService.class));

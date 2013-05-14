@@ -30,7 +30,7 @@ public class ApiComm {
 
 	private static final String TAG = ApiComm.class.getSimpleName();
 
-	public static final boolean SERVICE_ENABLED = true;
+	public static final boolean SERVICE_ENABLED = false;
 	private boolean networkConnectivity = false;
 	
 	public int connectivityInterval = 300;
