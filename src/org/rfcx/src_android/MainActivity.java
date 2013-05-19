@@ -2,8 +2,6 @@ package org.rfcx.src_android;
 
 import org.rfcx.rfcx_src_android.R;
 import org.rfcx.src_audio.AudioCaptureService;
-import org.rfcx.src_device.DeviceStateService;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -49,6 +47,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 		((RfcxSource) getApplication()).launchAllServices(this);
+		((RfcxSource) getApplication()).launchAllIntentServices(this);
 	}
 
 	@Override

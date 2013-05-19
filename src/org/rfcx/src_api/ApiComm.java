@@ -17,13 +17,16 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.json.simple.JSONObject;
 import org.rfcx.src_android.RfcxSource;
 import org.rfcx.src_database.DeviceStateDb;
 import org.rfcx.src_device.DeviceState;
 import org.rfcx.src_util.DateTimeUtils;
+import org.rfcx.src_util.DeflateUtils;
 
 import android.content.Context;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class ApiComm {
@@ -33,16 +36,16 @@ public class ApiComm {
 	public static final boolean SERVICE_ENABLED = false;
 	private boolean networkConnectivity = false;
 	
-	public int connectivityInterval = 300;
+	private int connectivityInterval = 300;
 	public static final int CONNECTIVITY_TIMEOUT = 120;
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
 	private String deviceId = null;
-	private String protocol = "http";
-	private String domain = null;
-	private int port = 80;
-	private String endpoint = "/";
+	private String apiProtocol = "http";
+	private String apiDomain;
+	private int apiPort;
+	private String apiEndpoint;
 	
 	private HttpClient httpClient = new DefaultHttpClient();
 	private HttpPost httpPost = null;
@@ -94,9 +97,6 @@ public class ApiComm {
 		if (deviceStateDb == null) deviceStateDb = rfcxSource.deviceStateDb;
 		if (deviceState == null) deviceState = rfcxSource.deviceState;
 		
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(8);
-		nameValuePairs.add(new BasicNameValuePair("id", getDeviceId()));
-		
 		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
 		String[] vBatteryTemp = deviceStateDb.dbBatteryTemperature.getStatsSummary();
 		String[] vCpu = deviceStateDb.dbCpu.getStatsSummary();
@@ -105,16 +105,29 @@ public class ApiComm {
 		boolean vPower = !(rfcxSource.deviceState.isBatteryDisCharging());
 		boolean vPowerFull = rfcxSource.deviceState.isBatteryCharged();
 		long vSearchTime = Calendar.getInstance().getTimeInMillis() - signalSearchStart;
+				
+		JSONObject json = new JSONObject();
+		try { json.put("batt", (vBattery[0]!="0") ? Integer.parseInt(vBattery[1]) : null ); } catch (NumberFormatException e) { json.put("batt",null); }
+		try { json.put("temp", (vBatteryTemp[0]!="0") ? Integer.parseInt(vBatteryTemp[1]) : null ); } catch (NumberFormatException e) { json.put("temp",null); }
+		try { json.put("srch", new Integer(Math.round(vSearchTime/1000)) ); } catch (NumberFormatException e) { json.put("srch",null); }
+		json.put("cpuP", (vCpu[0]!="0") ? vCpu[4] : null );
+		json.put("cpuC", (vCpuClock[0]!="0") ? vCpuClock[4] : null );
+		json.put("lumn", (vLight[0]!="0") ? vLight[4] : null );
+		json.put("powr", (vPower) ? new Boolean(true) : new Boolean(false) );
+		json.put("chrg", (vPowerFull) ? new Boolean(true) : new Boolean(false) );
 		
-		nameValuePairs.add(new BasicNameValuePair("battery", (vBattery[0]!="0") ? vBattery[1] : "") );
-		nameValuePairs.add(new BasicNameValuePair("temp", (vBatteryTemp[0]!="0") ? vBatteryTemp[1] : "") );
-		nameValuePairs.add(new BasicNameValuePair("cpu",  (vCpu[0]!="0") ? vCpu[4] : "") );
-		nameValuePairs.add(new BasicNameValuePair("cpuclock",  (vCpuClock[0]!="0") ? vCpuClock[4] : "") );
-		nameValuePairs.add(new BasicNameValuePair("light",  (vLight[0]!="0") ? vLight[4] : "") );
-		nameValuePairs.add(new BasicNameValuePair("power",  (vPower) ? "+" : "-") );
-		nameValuePairs.add(new BasicNameValuePair("full",  (vPowerFull) ? "+" : "-") );
-		nameValuePairs.add(new BasicNameValuePair("search",  ""+Math.round(vSearchTime/1000) ));
-	    
+		long[] specSend = rfcxSource.audioState.getFftSpecSend();
+		String[] specComp = new String[specSend.length];
+		for (int i = 0; i < specSend.length; i++) {
+			specComp[i] = formatAmplitude(specSend[i]);
+		}
+		json.put("spec", TextUtils.join(",", specComp));
+
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
+		nameValuePairs.add(new BasicNameValuePair("udid", getDeviceId()));
+		nameValuePairs.add(new BasicNameValuePair("blob",DeflateUtils.deflate(json.toJSONString())));
+		nameValuePairs.add(new BasicNameValuePair("json",json.toJSONString()));
+		
         return nameValuePairs;
 	}
 	
@@ -130,7 +143,7 @@ public class ApiComm {
 		
 		try {
 			long timeMillis = (long) Long.parseLong(strResponse);
-			SystemClock.setCurrentTimeMillis(timeMillis);
+//			SystemClock.setCurrentTimeMillis(timeMillis);
 			Log.d(TAG, "TIME: "+timeMillis);
 		} catch (NumberFormatException e) {
 			Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception");
@@ -149,15 +162,9 @@ public class ApiComm {
 		}
 		return null;
 	}
-
-	
-	public void setDomain(String domain) {
-		this.domain = domain;
-		setPostUri();
-	}
 	
 	private void setPostUri() {
-		httpPost = new HttpPost(protocol+"://"+domain+":"+port+endpoint);
+		httpPost = new HttpPost(apiProtocol+"://"+apiDomain+":"+apiPort+apiEndpoint);
 	}
 	
 	private String getDeviceId() {
@@ -178,5 +185,34 @@ public class ApiComm {
 	public void setSignalSearchStart(Calendar calendar) {
 		this.signalSearchStart = calendar.getTimeInMillis();
 	}
+	
+	private String formatAmplitude(double amplitude) {
+		return Integer.toHexString( (int) Math.round( amplitude * 512 ) );
+	}
+	
+	public void setConnectivityInterval(int connectivityInterval) {
+		this.connectivityInterval = connectivityInterval;
+	}
+	
+	public int getConnectivityInterval() {
+		return connectivityInterval;
+	}
+	
+	
+	public void setApiDomain(String apiDomain) {
+		this.apiDomain = apiDomain;
+		setPostUri();
+	}
+	
+	public void setApiPort(int apiPort) {
+		this.apiPort = apiPort;
+		setPostUri();
+	}
+	
+	public void setApiEndpoint(String apiEndpoint) {
+		this.apiEndpoint = apiEndpoint;
+		setPostUri();
+	}
+	
 	
 }

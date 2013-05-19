@@ -77,7 +77,7 @@ public class DeviceState {
 		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
 		if (getBatteryPercent() > SERVICE_BATTERY_PERCENTAGE_THRESHOLD) {
 			rfcxSource.setLowPowerMode(false);
-			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - System not in Low Power Mode.");
+			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - System in Normal Power Mode.");
 		} else if (!rfcxSource.isInLowPowerMode()){
 			rfcxSource.setLowPowerMode(true);
 			Log.d(TAG, "Battery: "+getBatteryPercent()+"% - System in Low Power Mode.");

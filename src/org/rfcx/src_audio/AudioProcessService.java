@@ -63,7 +63,7 @@ public class AudioProcessService extends Service {
 			AudioState audioState = rfcxSource.audioState;
 			try {
 				while (audioProcessService.runFlag) {
-					while (audioState.pcmDataBufferLength() > 2) {
+					while (audioState.pcmBufferLength() > 2) {
 						audioState.addSpectrum();
 					}
 					Thread.sleep(DELAY);

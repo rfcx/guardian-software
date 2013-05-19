@@ -14,20 +14,25 @@ public class AudioState {
 	public static final boolean PROCESS_SERVICE_ENABLED = true;
 
 	public static final int CAPTURE_SAMPLE_RATE = 4000;
+	private static final int PCM_DATA_BUFFER_LIMIT = 100;
 	public static final int FFT_RESOLUTION = 2048;
-	
-	private double[] fftSpectrumSum = new double[BUFFER_LENGTH];
-	private int fftSpectrumSumIncrement = 0;
-	private static final int fftSpectrumSumLength = 10;
 	public static final int BUFFER_LENGTH = FFT_RESOLUTION * 2;
+	private static final int FFT_SPEC_SUM_SAMPLES = 10;
+	
+	private int fftSpecSumIncr = 0;
+	private double[] fftSpecSum = new double[FFT_RESOLUTION];
+	private long[] fftSpecSend = new long[FFT_RESOLUTION];
 	
 	private float[] fftWindowingCoeff = calcWindowingCoeff();
 
 	private ArrayList<short[]> pcmDataBuffer = new ArrayList<short[]>();
-	private static final int PCM_DATA_BUFFER_LIMIT = 100;
+
+	public long[] getFftSpecSend() {
+		return fftSpecSend;
+	}
 	
 	public void addSpectrum() {
-		if (pcmDataBufferLength() > 1) {
+		if (pcmBufferLength() > 1) {
 //			short[] pcmData = new short[BUFFER_LENGTH];
 //			System.arraycopy(pcmDataBuffer.get(0), 0, pcmData, 0, BUFFER_LENGTH/2);
 //			System.arraycopy(pcmDataBuffer.get(1), 0, pcmData, BUFFER_LENGTH/2, BUFFER_LENGTH/2);
@@ -35,27 +40,29 @@ public class AudioState {
 //			pcmDataBuffer.remove(0);
 //			pcmDataBuffer.remove(1);
 			
-			addSpectrumSum(calcFFT(this.pcmDataBuffer.get(0)));
+			addSpecSum(calcFFT(this.pcmDataBuffer.get(0)));
 			pcmDataBuffer.remove(0);
 			
 			checkResetPcmDataBuffer();
 //			Log.d(TAG, "Buffer: "+pcmDataBufferLength());
 		}
 	}
-
-	private void addSpectrumSum(double[] fftSpectrum) {
-		fftSpectrumSumIncrement++;
-
-		for (int i = 0; i < fftSpectrum.length; i++) {
-			fftSpectrumSum[i] = fftSpectrumSum[i] + fftSpectrum[i];
+	
+	private void addSpecSum(double[] fftSpec) {
+		fftSpecSumIncr++;
+		
+		for (int i = 0; i < fftSpecSum.length; i++) {
+			fftSpecSum[i] = fftSpecSum[i] + fftSpec[i];
 		}
 
-		if (fftSpectrumSumIncrement == fftSpectrumSumLength) {
-			for (int i = 0; i < fftSpectrumSum.length; i++) {
-//				long lvl = Math.round(fftSpectrumSum[i] / fftSpectrumSumLength);
+		if (fftSpecSumIncr == FFT_SPEC_SUM_SAMPLES) {
+			long[] fftSpecTmp = new long[FFT_RESOLUTION];
+			for (int i = 0; i < fftSpecSum.length; i++) {
+				fftSpecTmp[i] = Math.round(fftSpecSum[i] / FFT_SPEC_SUM_SAMPLES);
 			}
-			fftSpectrumSum = new double[BUFFER_LENGTH];
-			fftSpectrumSumIncrement = 0;
+			fftSpecSend = fftSpecTmp;
+			fftSpecSum = new double[FFT_RESOLUTION];
+			fftSpecSumIncr = 0;
 		}
 	}
 
@@ -105,14 +112,14 @@ public class AudioState {
 	}
 	
 	private void checkResetPcmDataBuffer() {
-		if (pcmDataBufferLength() >= PCM_DATA_BUFFER_LIMIT) {
+		if (pcmBufferLength() >= PCM_DATA_BUFFER_LIMIT) {
 			this.pcmDataBuffer = new ArrayList<short[]>();
 			Log.d(TAG,"PCM Data Buffer at limit. Buffer cleared.");
 		}
 	}
 	
 	public void cachePcmBuffer(short[] pcmData) {
-		if ((pcmData.length == BUFFER_LENGTH) && (pcmDataBufferLength() < PCM_DATA_BUFFER_LIMIT)) {
+		if ((pcmData.length == BUFFER_LENGTH) && (pcmBufferLength() < PCM_DATA_BUFFER_LIMIT)) {
 //			short[] halfBuffer = new short[BUFFER_LENGTH/2];
 //			System.arraycopy(pcmData, 0, halfBuffer, 0, BUFFER_LENGTH/2);
 //			this.pcmDataBuffer.add(halfBuffer);
@@ -123,7 +130,7 @@ public class AudioState {
 		}
 	}
 	
-	public int pcmDataBufferLength() {
+	public int pcmBufferLength() {
 		return this.pcmDataBuffer.size();
 	}
 }

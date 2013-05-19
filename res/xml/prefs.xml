@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
-	<EditTextPreference
-        android:title="@string/title_device_uuid"
-        android:key="device_uuid"
-        android:summary="@string/desc_device_uuid"
-        />
 	
 	<CheckBoxPreference
 	    android:key="allow_wifi"
@@ -17,6 +11,24 @@
         android:title="@string/title_api_domain"
         android:key="api_domain"
         android:summary="@string/desc_api_domain"
+        />
+	
+	<EditTextPreference
+        android:title="@string/title_api_port"
+        android:key="api_port"
+        android:summary="@string/desc_api_port"
+        />
+	
+	<EditTextPreference
+        android:title="@string/title_api_endpoint"
+        android:key="api_endpoint"
+        android:summary="@string/desc_api_endpoint"
+        />	
+	
+	<EditTextPreference
+        android:title="@string/title_api_interval"
+        android:key="api_interval"
+        android:summary="@string/desc_api_interval"
         />
     
 </PreferenceScreen>

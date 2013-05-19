@@ -105,7 +105,10 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		this.sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 		
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", false));
-		apiComm.setDomain(this.sharedPreferences.getString("api_domain", "api.rfcx.org"));
+		apiComm.setApiDomain(this.sharedPreferences.getString("api_domain", "api.rfcx.org"));
+		apiComm.setConnectivityInterval(Integer.parseInt(this.sharedPreferences.getString("api_interval", "300")));
+		apiComm.setApiPort(Integer.parseInt(this.sharedPreferences.getString("api_port", "80")));
+		apiComm.setApiEndpoint(this.sharedPreferences.getString("api_endpoint", "/api/1/checkin"));
 		
 		if (RfcxSource.VERBOSE) Log.d(TAG, "Preferences saved.");
 	}
@@ -157,32 +160,12 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		}
 	}
 	
-	public void suspendExpensiveServices(Context context) {
-		
-		if (AudioState.CAPTURE_SERVICE_ENABLED && isServiceRunning_AudioCapture) {
-			context.stopService(new Intent(context, AudioCaptureService.class));
-		} else if (!isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
-			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
-		}
-		if (AudioState.PROCESS_SERVICE_ENABLED && isServiceRunning_AudioProcess) {
-			context.stopService(new Intent(context, AudioProcessService.class));
-		} else if (!isServiceRunning_AudioProcess && RfcxSource.VERBOSE) {
-			Log.d(TAG, "AudioProcessService not running. Not stopped...");
-		}
-		areServicesHalted_ExpensiveServices = true;
-	}
-	
 	public void setLowPowerMode(boolean lowPowerMode) {
 		this.lowPowerMode = lowPowerMode;
-
 		if (lowPowerMode) {
 			deviceState.serviceSamplesPerMinute = 12;
-			apiComm.connectivityInterval = 900;
-			if (!areServicesHalted_ExpensiveServices) suspendExpensiveServices(context);
 		} else {
 			deviceState.serviceSamplesPerMinute = 60;
-			apiComm.connectivityInterval = 300;
-			if (areServicesHalted_ExpensiveServices) launchAllServices(context);
 		}
 	}
 	
@@ -195,9 +178,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	public void launchAllIntentServices(Context context) {
 
-		PendingIntent pendingIntent = PendingIntent.getService(context, -1, new Intent(context, ApiCommService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiCommService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), 300000, pendingIntent);
+		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiComm.getConnectivityInterval()*1000, apiCommServiceIntent);
 		
 	}
 	
