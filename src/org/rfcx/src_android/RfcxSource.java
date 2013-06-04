@@ -105,7 +105,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		this.sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 		
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", false));
-		apiComm.setApiDomain(this.sharedPreferences.getString("api_domain", "api.rfcx.org"));
+		apiComm.setApiDomain(this.sharedPreferences.getString("api_domain", "rfcx.org"));
 		apiComm.setConnectivityInterval(Integer.parseInt(this.sharedPreferences.getString("api_interval", "300")));
 		apiComm.setApiPort(Integer.parseInt(this.sharedPreferences.getString("api_port", "80")));
 		apiComm.setApiEndpoint(this.sharedPreferences.getString("api_endpoint", "/api/1/checkin"));

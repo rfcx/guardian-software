@@ -22,6 +22,8 @@ public class AudioState {
 	private int fftSpecSumIncr = 0;
 	private double[] fftSpecSum = new double[FFT_RESOLUTION];
 	private long[] fftSpecSend = new long[FFT_RESOLUTION];
+	private float fftFreqRatio = (CAPTURE_SAMPLE_RATE / 2) / FFT_RESOLUTION;
+	private int[] fftSpecSendRange = { 60, 1900 };
 	
 	private float[] fftWindowingCoeff = calcWindowingCoeff();
 
