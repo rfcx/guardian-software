@@ -11,7 +11,7 @@ public class AudioState {
 	private static final String TAG = AudioState.class.getSimpleName();
 
 	public static final boolean CAPTURE_SERVICE_ENABLED = true;
-	public static final boolean PROCESS_SERVICE_ENABLED = false;
+	public static final boolean PROCESS_SERVICE_ENABLED = true;
 
 	public static final int CAPTURE_SAMPLE_RATE = 4000;
 	private static final int PCM_DATA_BUFFER_LIMIT = 1200;

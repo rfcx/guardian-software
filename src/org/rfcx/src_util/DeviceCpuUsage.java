@@ -5,6 +5,8 @@ import java.io.RandomAccessFile;
 
 import org.rfcx.src_android.RfcxSource;
 
+import android.util.Log;
+
 public class DeviceCpuUsage {
 	
 	public static final int REPORTING_SAMPLE_COUNT = 60;
@@ -32,6 +34,7 @@ public class DeviceCpuUsage {
 		updateUsage();
 		incrementAvg();
 		updateClockSpeed = !updateClockSpeed;
+		Log.d("CPUUsage","Pct: "+Math.round(this.cpuUsageNow*100)+" - Clock: "+Math.round(this.cpuClockNow));
 	}
 	
 	private void incrementAvg() {

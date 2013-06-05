@@ -179,9 +179,15 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public void launchAllIntentServices(Context context) {
 
 		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiCommService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+//		PendingIntent audioProcessServiceIntent = PendingIntent.getService(context, -1, new Intent(context, AudioProcessServiceInt.class), PendingIntent.FLAG_UPDATE_CURRENT);
+		
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		
+		// Launch APIComm IntentService
 		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiComm.getConnectivityInterval()*1000, apiCommServiceIntent);
 		
+		// Launch AudioProcessing IntentService
+//		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), 150*1000, audioProcessServiceIntent);
 	}
 	
 	
