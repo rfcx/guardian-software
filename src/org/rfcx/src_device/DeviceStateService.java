@@ -25,7 +25,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	private SensorManager sensorManager;
 //	Sensor accelSensor = null;
 	Sensor lightSensor = null;
-//	Sensor tempSensor = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -108,13 +107,10 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			if (event.values[0] >= 0) {
 				rfcxSource.deviceState.setLightLevel(Math.round(event.values[0]));
 				rfcxSource.deviceStateDb.dbLight.insert(rfcxSource.deviceState.getLightLevel());
-			}
-			return;
 //			} else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 //				return;
-//			} else if (event.sensor.getType() == Sensor.TYPE_TEMPERATURE) {
-//				Log.d(TAG, "Temperature: "+event.values[0]);
-//				return;
+			}
+			return;
 		} else {
 			return;
 		}
@@ -136,12 +132,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
 			this.sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		}
-//		if (this.sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE).size() != 0) {
-//			tempSensor = sensorManager.getSensorList(Sensor.TYPE_TEMPERATURE).get(0);
-//			this.sensorManager.registerListener(this, tempSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//		} else {
-//			Log.d(TAG, "No Temperature sensor");
-//		}
 	}
 	
 	private void unRegisterSensorListeners() {
@@ -151,9 +141,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		if (lightSensor != null) {
 			this.sensorManager.unregisterListener(this, lightSensor);
 		}
-//		if (tempSensor != null) {
-//			this.sensorManager.unregisterListener(this, tempSensor);
-//		}
 	}
 	
 	
