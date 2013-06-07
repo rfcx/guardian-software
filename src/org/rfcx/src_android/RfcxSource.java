@@ -28,6 +28,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -61,6 +62,10 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	// for analyzing captured audio
 	public AudioState audioState = new AudioState();
+	
+//	// device power management
+//	PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+//	PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RfcxWakeLock");
 	
 	// android service running flags
 	public boolean isServiceRunning_DeviceState = false;
