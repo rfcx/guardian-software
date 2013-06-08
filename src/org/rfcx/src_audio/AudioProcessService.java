@@ -65,7 +65,6 @@ public class AudioProcessService extends Service {
 				while (audioProcessService.runFlag) {
 					while (audioState.pcmBufferLength() > 2) {
 						audioState.addSpectrum();
-						Log.d(TAG, "going");
 					}
 					Thread.sleep(DELAY);
 				}

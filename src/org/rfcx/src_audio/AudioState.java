@@ -14,7 +14,6 @@ public class AudioState {
 	public static final boolean PROCESS_SERVICE_ENABLED = true;
 
 	public static final int CAPTURE_SAMPLE_RATE = 4000;
-	private static final int PCM_DATA_BUFFER_LIMIT = 1200;
 	public static final int FFT_RESOLUTION = 2048;
 	public static final int BUFFER_LENGTH = FFT_RESOLUTION * 2;
 	private static final int FFT_SPEC_SUM_SAMPLES = 10;
@@ -27,7 +26,12 @@ public class AudioState {
 	
 	private float[] fftWindowingCoeff = calcWindowingCoeff();
 
+	private static final int PCM_DATA_BUFFER_LIMIT = 1200;
 	private ArrayList<short[]> pcmDataBuffer = new ArrayList<short[]>();
+
+	private static final int FFT_SEND_BUFFER_LIMIT = 1200;
+	private ArrayList<double[]> fftSendBuffer = new ArrayList<double[]>();
+	
 
 	public long[] getFftSpecSend() {
 		return fftSpecSend;
@@ -42,32 +46,30 @@ public class AudioState {
 //			pcmDataBuffer.remove(0);
 //			pcmDataBuffer.remove(1);
 			
-			addSpecSum(calcFFT(this.pcmDataBuffer.get(0)));
+			cacheFFT(calcFFT(this.pcmDataBuffer.get(0)));
 			pcmDataBuffer.remove(0);
-			
 
 			checkResetPcmDataBuffer();
-//			Log.d(TAG, "Buffer: "+pcmDataBufferLength());
 		}
 	}
 	
-	private void addSpecSum(double[] fftSpec) {
-		fftSpecSumIncr++;
-		
-		for (int i = 0; i < fftSpecSum.length; i++) {
-			fftSpecSum[i] = fftSpecSum[i] + fftSpec[i];
-		}
-
-		if (fftSpecSumIncr == FFT_SPEC_SUM_SAMPLES) {
-			long[] fftSpecTmp = new long[FFT_RESOLUTION];
-			for (int i = 0; i < fftSpecSum.length; i++) {
-				fftSpecTmp[i] = Math.round(fftSpecSum[i] / FFT_SPEC_SUM_SAMPLES);
-			}
-			fftSpecSend = fftSpecTmp;
-			fftSpecSum = new double[FFT_RESOLUTION];
-			fftSpecSumIncr = 0;
-		}
-	}
+//	private void addSpecSum(double[] fftSpec) {
+//		fftSpecSumIncr++;
+//		
+//		for (int i = 0; i < fftSpecSum.length; i++) {
+//			fftSpecSum[i] = fftSpecSum[i] + fftSpec[i];
+//		}
+//
+//		if (fftSpecSumIncr == FFT_SPEC_SUM_SAMPLES) {
+//			long[] fftSpecTmp = new long[FFT_RESOLUTION];
+//			for (int i = 0; i < fftSpecSum.length; i++) {
+//				fftSpecTmp[i] = Math.round(fftSpecSum[i] / FFT_SPEC_SUM_SAMPLES);
+//			}
+//			fftSpecSend = fftSpecTmp;
+//			fftSpecSum = new double[FFT_RESOLUTION];
+//			fftSpecSumIncr = 0;
+//		}
+//	}
 
 	private double[] calcFFT(short[] array) {
 
@@ -125,6 +127,13 @@ public class AudioState {
 		}
 	}
 	
+	private void checkResetFFTSendBuffer() {
+		if (fftSendBufferLength() >= FFT_SEND_BUFFER_LIMIT) {
+			this.fftSendBuffer = new ArrayList<double[]>();
+			Log.d(TAG,"FFT Send Buffer at limit. Buffer cleared.");
+		}
+	}
+	
 	public void cachePcmBuffer(short[] pcmData) {
 		if ((pcmData.length == BUFFER_LENGTH) && (pcmBufferLength() < PCM_DATA_BUFFER_LIMIT)) {
 //			short[] halfBuffer = new short[BUFFER_LENGTH/2];
@@ -139,7 +148,19 @@ public class AudioState {
 		}
 	}
 	
+	public void cacheFFT(double[] fftSpec) {
+		if (fftSendBufferLength() < FFT_SEND_BUFFER_LIMIT) {
+			this.fftSendBuffer.add(fftSpec);
+		} else {
+			checkResetFFTSendBuffer();
+		}
+	}
+	
 	public int pcmBufferLength() {
 		return this.pcmDataBuffer.size();
+	}
+	
+	public int fftSendBufferLength() {
+		return this.fftSendBuffer.size();
 	}
 }

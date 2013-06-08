@@ -34,7 +34,6 @@ public class DeviceCpuUsage {
 		updateUsage();
 		incrementAvg();
 		updateClockSpeed = !updateClockSpeed;
-		Log.d("CPUUsage","Pct: "+Math.round(this.cpuUsageNow*100)+" - Clock: "+Math.round(this.cpuClockNow));
 	}
 	
 	private void incrementAvg() {

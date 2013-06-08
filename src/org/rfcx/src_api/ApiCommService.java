@@ -19,24 +19,25 @@ public class ApiCommService extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		Log.d(TAG, "ApiCommIntentService started");
 		RfcxSource rfcxSource = (RfcxSource) getApplication();
-
-		rfcxSource.airplaneMode.setOff(rfcxSource.getApplicationContext());
-		
-		Intent intent = new Intent(SRC_API_COMM);
-		sendBroadcast(intent, RECEIVE_API_COMM_NOTIFICATIONS);
-		
-		if (ApiComm.CONNECTIVITY_TIMEOUT > 0) {
-			try {
-				Thread.sleep(ApiComm.CONNECTIVITY_TIMEOUT*1000);
-				if (!rfcxSource.airplaneMode.isEnabled(rfcxSource.getApplicationContext())) {
-					Log.d(TAG, "Connectivity timeout/duration limit reached. Entering Airplane Mode.");
-					rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+		if (rfcxSource.isServiceRunning_ApiComm) {
+			rfcxSource.airplaneMode.setOff(rfcxSource.getApplicationContext());	
+			Intent intent = new Intent(SRC_API_COMM);
+			sendBroadcast(intent, RECEIVE_API_COMM_NOTIFICATIONS);
+			ApiComm apiComm = new ApiComm();
+			if (apiComm.getConnectivityTimeout() > 0) {
+				try {
+					Thread.sleep(apiComm.getConnectivityTimeout()*1000);
+					if (!rfcxSource.airplaneMode.isEnabled(rfcxSource.getApplicationContext())) {
+						Log.d(TAG, "Connectivity timeout/duration limit reached. Entering Airplane Mode.");
+						rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+					}
+				} catch (InterruptedException e) {
 				}
-			} catch (InterruptedException e) {
 			}
+		} else {
+			Log.d(TAG, "Skipping (first run)");
+			rfcxSource.isServiceRunning_ApiComm = true;
 		}
 	}
-
 }

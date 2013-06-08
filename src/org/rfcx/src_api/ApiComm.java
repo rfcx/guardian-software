@@ -33,11 +33,10 @@ public class ApiComm {
 
 	private static final String TAG = ApiComm.class.getSimpleName();
 
-	public static final boolean SERVICE_ENABLED = false;
 	private boolean networkConnectivity = false;
 	
-	private int connectivityInterval = 300;
-	public static final int CONNECTIVITY_TIMEOUT = 120;
+	private int connectivityInterval = 300; //change this value in preferences
+	private int connectivityTimeout = setConnectivityTimeout();
 	
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
@@ -49,6 +48,7 @@ public class ApiComm {
 	
 	private HttpClient httpClient = new DefaultHttpClient();
 	private HttpPost httpPost = null;
+	private String httpUri = "";
 	private RfcxSource rfcxSource = null;
 	private DeviceState deviceState = null;
 	private DeviceStateDb deviceStateDb = null;
@@ -74,21 +74,21 @@ public class ApiComm {
 			} catch (IOException e) {
 				Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception");
 			} finally {
-				if ((strResponse == null) && (transmitAttempts <= 3)) {
-					sendData(context);
-					if (RfcxSource.VERBOSE) { Log.d(TAG, "Retransmitting... (attempt #"+transmitAttempts+")"); }
-				} else {
-					if (strResponse != null) {
-						cleanupAfterResponse(strResponse, sendDateTime);
-						if (RfcxSource.VERBOSE) { Log.d(TAG, "Response: "+strResponse); }
+				if (!rfcxSource.airplaneMode.isEnabled(context)) {
+					if ((strResponse == null) && (transmitAttempts <= 3)) {
+						sendData(context);
+						if (RfcxSource.VERBOSE) { Log.d(TAG, "Retransmitting... (attempt #"+transmitAttempts+")"); }
+					} else {
+						if (strResponse != null) {
+							cleanupAfterResponse(strResponse, sendDateTime);
+						}
+						transmitAttempts = 0;
+						rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+						if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning off antenna..."); }
 					}
-					transmitAttempts = 0;
-					rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
-					if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning off antenna..."); }
 				}
 			}
 		} else {
-			Log.e(TAG, "httpPost is not set");
 		}
 	}
 	
@@ -115,6 +115,8 @@ public class ApiComm {
 		json.put("lumn", (vLight[0]!="0") ? vLight[4] : null );
 		json.put("powr", (vPower) ? new Boolean(true) : new Boolean(false) );
 		json.put("chrg", (vPowerFull) ? new Boolean(true) : new Boolean(false) );
+
+		Log.d(TAG, httpUri+" - "+ json.toJSONString());
 		
 		long[] specSend = rfcxSource.audioState.getFftSpecSend();
 		String[] specComp = new String[specSend.length];
@@ -127,6 +129,7 @@ public class ApiComm {
 		nameValuePairs.add(new BasicNameValuePair("udid", getDeviceId()));
 		nameValuePairs.add(new BasicNameValuePair("blob",DeflateUtils.deflate(json.toJSONString())));
 		nameValuePairs.add(new BasicNameValuePair("json",json.toJSONString()));
+		
 		
         return nameValuePairs;
 	}
@@ -142,9 +145,8 @@ public class ApiComm {
 		}
 		
 		try {
-			long timeMillis = (long) Long.parseLong(strResponse);
-//			SystemClock.setCurrentTimeMillis(timeMillis);
-			Log.d(TAG, "TIME: "+timeMillis);
+//			long timeMillis = (long) Long.parseLong(strResponse);
+			Log.d(TAG, "Response: "+strResponse);
 		} catch (NumberFormatException e) {
 			Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception");
 		}
@@ -164,7 +166,12 @@ public class ApiComm {
 	}
 	
 	private void setPostUri() {
-		httpPost = new HttpPost(apiProtocol+"://"+apiDomain+":"+apiPort+apiEndpoint);
+		this.httpUri = apiProtocol+"://"+apiDomain+":"+apiPort+apiEndpoint;
+	}
+	
+	private void setPostRequest() {
+		setPostUri();
+		this.httpPost = new HttpPost(this.httpUri);	
 	}
 	
 	private String getDeviceId() {
@@ -192,26 +199,35 @@ public class ApiComm {
 	
 	public void setConnectivityInterval(int connectivityInterval) {
 		this.connectivityInterval = connectivityInterval;
+		this.connectivityTimeout = setConnectivityTimeout();
 	}
 	
 	public int getConnectivityInterval() {
-		return connectivityInterval;
+		return this.connectivityInterval;
 	}
 	
+	public int getConnectivityTimeout() {
+		return this.connectivityTimeout;
+	}
+	
+	private int setConnectivityTimeout() {
+		double divisor = (this.connectivityInterval > 120) ? 0.4 : 0.8;
+		return (int) Math.round(divisor*this.connectivityInterval);
+	}
 	
 	public void setApiDomain(String apiDomain) {
 		this.apiDomain = apiDomain;
-		setPostUri();
+		setPostRequest();
 	}
 	
 	public void setApiPort(int apiPort) {
 		this.apiPort = apiPort;
-		setPostUri();
+		setPostRequest();
 	}
 	
 	public void setApiEndpoint(String apiEndpoint) {
 		this.apiEndpoint = apiEndpoint;
-		setPostUri();
+		setPostRequest();
 	}
 	
 	
