@@ -1,6 +1,7 @@
 package org.rfcx.src_audio;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import com.badlogic.gdx.audio.analysis.FFT;
 
@@ -30,7 +31,8 @@ public class AudioState {
 	private ArrayList<short[]> pcmDataBuffer = new ArrayList<short[]>();
 
 	private static final int FFT_SEND_BUFFER_LIMIT = 200;
-	private ArrayList<double[]> fftSendBuffer = new ArrayList<double[]>();
+	private ArrayList<String[]> fftSendBuffer = new ArrayList<String[]>();
+	private ArrayList<Calendar> fftSendBufferTimestamps = new ArrayList<Calendar>();
 	
 	
 	public void addSpectrum() {
@@ -126,7 +128,7 @@ public class AudioState {
 	
 	private void checkResetFFTSendBuffer() {
 		if (fftSendBufferLength() >= FFT_SEND_BUFFER_LIMIT) {
-			this.fftSendBuffer = new ArrayList<double[]>();
+			this.fftSendBuffer = new ArrayList<String[]>();
 			Log.d(TAG,"FFT Send Buffer at limit. Buffer cleared.");
 		}
 	}
@@ -147,7 +149,12 @@ public class AudioState {
 	
 	public void cacheFFT(double[] fftSpec) {
 		if (fftSendBufferLength() < FFT_SEND_BUFFER_LIMIT) {
-			this.fftSendBuffer.add(fftSpec);
+			String[] specHex = new String[fftSpec.length];
+			for (int i = 0; i < fftSpec.length; i++) {
+				specHex[i] = Long.toHexString(Math.round(fftSpec[i]));
+			}
+			this.fftSendBuffer.add(specHex);
+			this.fftSendBufferTimestamps.add(Calendar.getInstance());
 		} else {
 			checkResetFFTSendBuffer();
 		}
@@ -161,11 +168,23 @@ public class AudioState {
 		return this.fftSendBuffer.size();
 	}
 	
-	public ArrayList<double[]> getFftSendBufferUpTo(int getUpTo) {
-		ArrayList<double[]> returnArray = new ArrayList<double[]>();
+	public ArrayList<String[]> getFftSendBufferUpTo(int getUpTo) {
+		ArrayList<String[]> returnArray = new ArrayList<String[]>();
 		for (int i = 0; i < getUpTo; i++) {
 			try {
 				returnArray.add(fftSendBuffer.get(i));
+			} catch (IndexOutOfBoundsException e) {
+				Log.e(TAG, e.getMessage());
+			}
+		}
+		return returnArray;
+	}
+	
+	public ArrayList<Calendar> getFftSendBufferTimestampsUpTo(int getUpTo) {
+		ArrayList<Calendar> returnArray = new ArrayList<Calendar>();
+		for (int i = 0; i < getUpTo; i++) {
+			try {
+				returnArray.add(fftSendBufferTimestamps.get(i));
 			} catch (IndexOutOfBoundsException e) {
 				Log.e(TAG, e.getMessage());
 			}
@@ -177,6 +196,7 @@ public class AudioState {
 		for (int i = 0; i < clearUpTo; i++) {
 			try {
 				this.fftSendBuffer.remove(0);
+				this.fftSendBufferTimestamps.remove(0);
 			} catch (IndexOutOfBoundsException e) {
 				Log.e(TAG, e.getMessage());
 			}

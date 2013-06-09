@@ -29,8 +29,17 @@ public class ApiCommService extends IntentService {
 				try {
 					Thread.sleep(apiComm.getConnectivityTimeout()*1000);
 					if (!rfcxSource.airplaneMode.isEnabled(rfcxSource.getApplicationContext())) {
-						Log.d(TAG, "Connectivity timeout/duration limit reached. Entering Airplane Mode.");
-						rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+						if (!rfcxSource.apiComm.isTransmitting) {
+							Log.d(TAG, "Connectivity timeout reached. Entering Airplane Mode.");
+							rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+						} else {
+							Log.d(TAG, "Connectivity timeout reached, but transmission is in progress. Delaying timeout.");
+							Thread.sleep(60*1000);
+							if (!rfcxSource.airplaneMode.isEnabled(rfcxSource.getApplicationContext())) {
+								Log.d(TAG, "2nd timeout reached. Entering Airplane Mode.");
+								rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+							}
+						}
 					}
 				} catch (InterruptedException e) {
 				}
