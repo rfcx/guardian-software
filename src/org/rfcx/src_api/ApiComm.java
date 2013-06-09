@@ -46,6 +46,9 @@ public class ApiComm {
 	private int apiPort;
 	private String apiEndpoint;
 	
+	private int specCount = 0;
+	private int specLength = 0;
+	
 	private HttpClient httpClient = new DefaultHttpClient();
 	private HttpPost httpPost = null;
 	private String httpUri = "";
@@ -59,7 +62,7 @@ public class ApiComm {
 	
 	public void sendData(Context context) {
 		if (rfcxSource == null) rfcxSource = (RfcxSource) context.getApplicationContext();
-		if (httpPost != null) {
+		if (httpPost != null && !rfcxSource.airplaneMode.isEnabled(context)) {
 			String strResponse = null;
 			Date sendDateTime = new Date();
 			try {
@@ -74,18 +77,14 @@ public class ApiComm {
 			} catch (IOException e) {
 				Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception");
 			} finally {
-				if (!rfcxSource.airplaneMode.isEnabled(context)) {
-					if ((strResponse == null) && (transmitAttempts <= 3)) {
-						sendData(context);
-						if (RfcxSource.VERBOSE) { Log.d(TAG, "Retransmitting... (attempt #"+transmitAttempts+")"); }
-					} else {
-						if (strResponse != null) {
-							cleanupAfterResponse(strResponse, sendDateTime);
-						}
-						transmitAttempts = 0;
-						rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
-						if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning off antenna..."); }
-					}
+				if (strResponse == null) {
+					if (transmitAttempts < 3) { sendData(context); }
+					if (RfcxSource.VERBOSE) { Log.d(TAG, "Retransmitting... (attempt #"+transmitAttempts+")"); }
+				} else {
+					cleanupAfterResponse(strResponse, sendDateTime);
+					transmitAttempts = 0;
+					rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+					if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning off antenna..."); }
 				}
 			}
 		} else {
@@ -118,18 +117,30 @@ public class ApiComm {
 
 		Log.d(TAG, httpUri+" - "+ json.toJSONString());
 		
-		long[] specSend = rfcxSource.audioState.getFftSpecSend();
-		String[] specComp = new String[specSend.length];
-		for (int i = 0; i < specSend.length; i++) {
-			specComp[i] = formatAmplitude(specSend[i]);
+		specCount = rfcxSource.audioState.fftSendBufferLength();
+		ArrayList<double[]> specSend = rfcxSource.audioState.getFftSendBufferUpTo(specCount);
+		if (specSend.size() > 0) {
+			specLength = specSend.get(0).length;
+			Log.d(TAG, "FFT Spectra to send: "+specCount);
+			StringBuilder specGroup = new StringBuilder();
+			for (int i = 0; i < specCount; i++) {
+				double[] currentSpec = specSend.get(i);
+				if (i > 0) { specGroup.append("*"); }
+				specGroup.append(Integer.toHexString((int) Math.round(currentSpec[0])));
+				for (int j = 1; j < specLength; j++) {
+					specGroup.append(",").append(Integer.toHexString((int) Math.round(currentSpec[j])));
+				}
+			}
+			json.put("spec", specGroup.toString());
+		} else {
+			Log.e(TAG, "Spectra buffer at zero length");
+			json.put("spec", "");
 		}
-		json.put("spec", TextUtils.join(",", specComp));
-
+		
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
 		nameValuePairs.add(new BasicNameValuePair("udid", getDeviceId()));
-		nameValuePairs.add(new BasicNameValuePair("blob",DeflateUtils.deflate(json.toJSONString())));
+		nameValuePairs.add(new BasicNameValuePair("blob",""/*DeflateUtils.deflate(json.toJSONString())*/));
 		nameValuePairs.add(new BasicNameValuePair("json",json.toJSONString()));
-		
 		
         return nameValuePairs;
 	}
@@ -142,6 +153,10 @@ public class ApiComm {
 			deviceStateDb.dbCpuClock.clearStatsBefore(sendDateTime);
 			deviceStateDb.dbLight.clearStatsBefore(sendDateTime);
 			deviceStateDb.dbBatteryTemperature.clearStatsBefore(sendDateTime);
+		}
+		
+		if (specCount > 0) {
+			rfcxSource.audioState.clearFFTSendBufferUpTo(specCount);
 		}
 		
 		try {
@@ -193,8 +208,9 @@ public class ApiComm {
 		this.signalSearchStart = calendar.getTimeInMillis();
 	}
 	
-	private String formatAmplitude(double amplitude) {
-		return Integer.toHexString( (int) Math.round( amplitude * 512 ) );
+	private String formatAmplitude(long amplitude) {
+		return ""+amplitude;
+//		return Integer.toHexString( (int) Math.round( amplitude * 512 ) );
 	}
 	
 	public void setConnectivityInterval(int connectivityInterval) {
