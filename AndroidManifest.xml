@@ -33,6 +33,7 @@
         
         <service android:name="org.rfcx.src_audio.AudioProcessService" />
         <service android:name="org.rfcx.src_api.ApiCommService" />
+        <service android:name="org.rfcx.src_api.SleepMonitorService" />
         
         <activity
             android:name="org.rfcx.src_android.PrefsActivity"

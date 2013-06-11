@@ -15,6 +15,8 @@ import org.rfcx.src_device.AirplaneModeReceiver;
 import org.rfcx.src_device.BatteryReceiver;
 import org.rfcx.src_device.DeviceState;
 import org.rfcx.src_device.DeviceStateService;
+import org.rfcx.src_sleep.SleepMonitorService;
+import org.rfcx.src_sleep.SleepState;
 import org.rfcx.src_util.DeviceCpuUsage;
 import org.rfcx.src_util.FactoryDeviceUuid;
 
@@ -35,7 +37,7 @@ import android.util.Log;
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
-	public static final boolean VERBOSE = true;
+	public static final boolean VERBOSE = false;
 	
 	private boolean lowPowerMode = false;
 	
@@ -63,6 +65,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	// for analyzing captured audio
 	public AudioState audioState = new AudioState();
 	
+	// for setting/unsetting sleep mode
+	public SleepState sleepState = new SleepState();
+	
 //	// device power management
 //	PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 //	PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RfcxWakeLock");
@@ -73,6 +78,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public boolean isServiceRunning_AudioProcess = false;
 	
 	public boolean isServiceRunning_ApiComm = false;
+	public boolean isServiceRunning_SleepTrigger = false;
 	
 	public boolean areServicesHalted_ExpensiveServices = false;
 	
@@ -186,11 +192,10 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public void launchAllIntentServices(Context context) {
 
 		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiCommService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-//		PendingIntent audioProcessServiceIntent = PendingIntent.getService(context, -1, new Intent(context, AudioProcessServiceInt.class), PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent sleepMonitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, SleepMonitorService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
-		// Launch APIComm IntentService
 		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiComm.getConnectivityInterval()*1000, apiCommServiceIntent);
 		
 		// Launch AudioProcessing IntentService

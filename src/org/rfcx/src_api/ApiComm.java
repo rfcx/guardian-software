@@ -1,11 +1,14 @@
 package org.rfcx.src_api;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -14,6 +17,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -22,7 +28,6 @@ import org.rfcx.src_android.RfcxSource;
 import org.rfcx.src_database.DeviceStateDb;
 import org.rfcx.src_device.DeviceState;
 import org.rfcx.src_util.DateTimeUtils;
-import org.rfcx.src_util.DeflateUtils;
 
 import android.content.Context;
 import android.os.SystemClock;
@@ -62,6 +67,7 @@ public class ApiComm {
 
 	public boolean isTransmitting = false;
 
+	
 	public void sendData(Context context) {
 		if (rfcxSource == null)
 			rfcxSource = (RfcxSource) context.getApplicationContext();
@@ -71,7 +77,7 @@ public class ApiComm {
 			Date sendDateTime = new Date();
 			try {
 				transmitAttempts++;
-				httpPost.setEntity(new UrlEncodedFormEntity(preparePostData()));
+				preparePostData();
 				HttpResponse httpResponse = httpClient.execute(httpPost);
 				strResponse = httpResponseString(httpResponse);
 			} catch (UnsupportedEncodingException e) {
@@ -103,7 +109,7 @@ public class ApiComm {
 		}
 	}
 
-	private List<NameValuePair> preparePostData() {
+	private void preparePostData() {
 
 		if (deviceStateDb == null)
 			deviceStateDb = rfcxSource.deviceStateDb;
@@ -177,24 +183,41 @@ public class ApiComm {
 		}
 
 		String jsonString = json.toJSONString();
-		String deflatedJson = DeflateUtils.deflate(jsonString);
 
-		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(3);
-		nameValuePairs.add(new BasicNameValuePair("udid", getDeviceId()));
-		nameValuePairs.add(new BasicNameValuePair("blob", deflatedJson));
-		nameValuePairs.add(new BasicNameValuePair("json", jsonString));
-
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		GZIPOutputStream gZIPOutputStream = null;
+		try {
+			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+			gZIPOutputStream.write(jsonString.getBytes("UTF-8"));
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage());
+		} finally { if (gZIPOutputStream != null) {
+			try { gZIPOutputStream.close();
+			} catch (IOException e) { };
+		} }
+		byte[] jsonZipped = byteArrayOutputStream.toByteArray();
+		
+		try {
+			MultipartEntity multipartEntity = new MultipartEntity();
+			multipartEntity.addPart("udid", new StringBody(getDeviceId()));
+			multipartEntity.addPart("blob",  new InputStreamBody(new ByteArrayInputStream(jsonZipped),calendar.getTime().toGMTString()+".json.gz"));
+			httpPost.setEntity(multipartEntity);
+		} catch (UnsupportedEncodingException e) {
+			Log.e(TAG, e.getMessage());
+		} 
+//		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
+//		nameValuePairs.add(new BasicNameValuePair("udid", getDeviceId()));
+//		nameValuePairs.add(new BasicNameValuePair("json", jsonString));
+		
 		if (RfcxSource.VERBOSE) {
 			Log.d(TAG,
 					"Spectra: " + specCount
 					+ " - "
 					+ "JSON: " + Math.round(jsonString.length() / 1024) + "kB"
-					+ " - "
-					+"Deflated: " + Math.round(deflatedJson.length() / 1024) + "kB"
+//					+ " - "
+//					+"Deflated: " + Math.round(deflatedJson.length() / 1024) + "kB"
 					);
 		}
-
-		return nameValuePairs;
 	}
 
 	private void cleanupAfterResponse(String strResponse, Date sendDateTime) {
