@@ -182,13 +182,11 @@ public class ApiComm {
 			json.put("specT", "");
 		}
 
-		String jsonString = json.toJSONString();
-
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		GZIPOutputStream gZIPOutputStream = null;
 		try {
 			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
-			gZIPOutputStream.write(jsonString.getBytes("UTF-8"));
+			gZIPOutputStream.write(json.toJSONString().getBytes("UTF-8"));
 		} catch (IOException e) {
 			Log.e(TAG, e.getMessage());
 		} finally { if (gZIPOutputStream != null) {
@@ -204,18 +202,12 @@ public class ApiComm {
 			httpPost.setEntity(multipartEntity);
 		} catch (UnsupportedEncodingException e) {
 			Log.e(TAG, e.getMessage());
-		} 
-//		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-//		nameValuePairs.add(new BasicNameValuePair("udid", getDeviceId()));
-//		nameValuePairs.add(new BasicNameValuePair("json", jsonString));
+		}
 		
 		if (RfcxSource.VERBOSE) {
 			Log.d(TAG,
 					"Spectra: " + specCount
-					+ " - "
-					+ "JSON: " + Math.round(jsonString.length() / 1024) + "kB"
-//					+ " - "
-//					+"Deflated: " + Math.round(deflatedJson.length() / 1024) + "kB"
+					+ " - GZipped JSON: " + Math.round(jsonZipped.length / 1024) + "kB"
 					);
 		}
 	}

@@ -30,11 +30,12 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
+	
+	public static final String VERSION = "0.1.0";
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
 	public static final boolean VERBOSE = false;
