@@ -30,7 +30,7 @@ public class AudioState {
 	private static final int PCM_DATA_BUFFER_LIMIT = 1200;
 	private ArrayList<short[]> pcmDataBuffer = new ArrayList<short[]>();
 
-	private static final int FFT_SEND_BUFFER_LIMIT = 200;
+	private static final int FFT_SEND_BUFFER_LIMIT = 120;
 	private ArrayList<String[]> fftSendBuffer = new ArrayList<String[]>();
 	private ArrayList<Calendar> fftSendBufferTimestamps = new ArrayList<Calendar>();
 	

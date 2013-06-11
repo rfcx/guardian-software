@@ -24,11 +24,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.rfcx.src_android.RfcxSource;
 import org.rfcx.src_database.DeviceStateDb;
 import org.rfcx.src_device.DeviceState;
 import org.rfcx.src_util.DateTimeUtils;
 
+import android.app.AlarmManager;
 import android.content.Context;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -59,6 +61,8 @@ public class ApiComm {
 	private RfcxSource rfcxSource = null;
 	private DeviceState deviceState = null;
 	private DeviceStateDb deviceStateDb = null;
+	private byte[] jsonZipped = null;
+	private Calendar transmitTime = Calendar.getInstance();
 
 	private long signalSearchStart = 0;
 
@@ -72,48 +76,47 @@ public class ApiComm {
 			rfcxSource = (RfcxSource) context.getApplicationContext();
 		if (httpPost != null && !rfcxSource.airplaneMode.isEnabled(context)) {
 			isTransmitting = true;
-			String strResponse = null;
-			Date sendDateTime = new Date();
-			try {
-				transmitAttempts++;
-				preparePostData();
-				HttpResponse httpResponse = httpClient.execute(httpPost);
-				strResponse = httpResponseString(httpResponse);
-			} catch (UnsupportedEncodingException e) {
-				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
-			} catch (ClientProtocolException e) {
-				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
-			} catch (IOException e) {
-				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
-			} finally {
-				if (strResponse == null) {
-					if (transmitAttempts < 3) {
-						sendData(context);
-					}
-					if (RfcxSource.VERBOSE) {
-						Log.d(TAG, "Retransmitting... (attempt #"
-								+ transmitAttempts + ")");
-					}
-				} else {
-					cleanupAfterResponse(strResponse, sendDateTime);
-					transmitAttempts = 0;
-					rfcxSource.airplaneMode.setOn(rfcxSource
-							.getApplicationContext());
-					if (RfcxSource.VERBOSE) {
-						Log.d(TAG, "Turning off antenna...");
-					}
-				}
+			transmitAttempts++;
+			if (jsonZipped == null) { preparePost(); }
+			String httpResponseString = executePost();
+			
+			if ((httpResponseString == null) && (specCount > 0)) {
+				if (transmitAttempts < 3) { sendData(context); }
+			} else {
+				cleanupAfterResponse(httpResponseString);
+				transmitAttempts = 0;
+				rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+				if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning off antenna..."); }
 			}
-		} else {
+			
 		}
 	}
 
-	private void preparePostData() {
+	private String executePost() {
+		String httpResponseString = null;
+		if (specCount > 0) {
+			MultipartEntity multipartEntity = new MultipartEntity();
+			multipartEntity.addPart("blob",  new InputStreamBody(new ByteArrayInputStream(jsonZipped),transmitTime.getTime()+".json"));
+			httpPost.setEntity(multipartEntity);
+			try {
+				httpResponseString = httpResponseString(httpClient.execute(httpPost));
+			} catch (ClientProtocolException e) {
+				Log.e(TAG, e.getMessage());
+			} catch (IOException e) {
+				Log.e(TAG, e.getMessage());
+			}
+		} else {
+			Log.d(TAG, "No spectra to send.");
+		}
+		return httpResponseString;
+	}
+	
+	private void preparePost() {
 
-		if (deviceStateDb == null)
-			deviceStateDb = rfcxSource.deviceStateDb;
-		if (deviceState == null)
-			deviceState = rfcxSource.deviceState;
+		transmitTime = Calendar.getInstance();
+		
+		if (deviceStateDb == null) deviceStateDb = rfcxSource.deviceStateDb;
+		if (deviceState == null) deviceState = rfcxSource.deviceState;
 
 		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
 		String[] vBatteryTemp = deviceStateDb.dbBatteryTemperature
@@ -148,9 +151,7 @@ public class ApiComm {
 		json.put("powr", (vPower) ? new Boolean(true) : new Boolean(false));
 		json.put("chrg", (vPowerFull) ? new Boolean(true) : new Boolean(false));
 
-		Calendar calendar = Calendar.getInstance();
-		json.put("sent", calendar.getTime().toGMTString());
-		
+		json.put("sent", transmitTime.getTime().toGMTString());
 		json.put("udid", getDeviceId());
 		json.put("appV", rfcxSource.VERSION);
 		
@@ -166,63 +167,64 @@ public class ApiComm {
 		if (specV.size() > 0) {
 			String[] specV_grp = new String[specCount];
 			for (int i = 0; i < specCount; i++) {
-				specT_str[i] = Long.toHexString(Math.round((calendar.getTimeInMillis()-specT_raw.get(i).getTimeInMillis())/1000));
+				specT_str[i] = Long.toHexString(Math.round((transmitTime.getTimeInMillis()-specT_raw.get(i).getTimeInMillis())/1000));
 				specV_grp[i] = TextUtils.join(",", specV.get(i));
 			}
 			json.put("specV", TextUtils.join("*", specV_grp));
 			json.put("specT",TextUtils.join(",", specT_str));
-		} else {
-			Log.e(TAG, "Spectra buffer at zero length");
-			json.put("specV", "");
-			json.put("specT", "");
+
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			GZIPOutputStream gZIPOutputStream = null;
+			try {
+				gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+				gZIPOutputStream.write(json.toJSONString().getBytes("UTF-8"));
+			} catch (IOException e) {
+				Log.e(TAG, e.getMessage());
+			} finally { if (gZIPOutputStream != null) {
+				try { gZIPOutputStream.close();
+				} catch (IOException e) { };
+			} }
+			jsonZipped = byteArrayOutputStream.toByteArray();
+					
+			if (RfcxSource.VERBOSE) {
+				Log.d(TAG, "Spectra: "+specCount+" - GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB");
+			}
 		}
 
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		GZIPOutputStream gZIPOutputStream = null;
-		try {
-			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
-			gZIPOutputStream.write(json.toJSONString().getBytes("UTF-8"));
-		} catch (IOException e) {
-			Log.e(TAG, e.getMessage());
-		} finally { if (gZIPOutputStream != null) {
-			try { gZIPOutputStream.close();
-			} catch (IOException e) { };
-		} }
-		byte[] jsonZipped = byteArrayOutputStream.toByteArray();
-		
-		MultipartEntity multipartEntity = new MultipartEntity();
-		multipartEntity.addPart("blob",  new InputStreamBody(new ByteArrayInputStream(jsonZipped),calendar.getTime()+".json"));
-		httpPost.setEntity(multipartEntity);
-		
-		if (RfcxSource.VERBOSE) {
-			Log.d(TAG,
-					"Spectra: " + specCount
-					+ " - GZipped JSON: " + Math.round(jsonZipped.length / 1024) + "kB"
-					);
-		}
+
 	}
 
-	private void cleanupAfterResponse(String strResponse, Date sendDateTime) {
-
+	private void cleanupAfterResponse(String httpResponseString) {
+		
 		isTransmitting = false;
+		jsonZipped = null;
 
 		if (deviceStateDb != null) {
-			deviceStateDb.dbBattery.clearStatsBefore(sendDateTime);
-			deviceStateDb.dbCpu.clearStatsBefore(sendDateTime);
-			deviceStateDb.dbCpuClock.clearStatsBefore(sendDateTime);
-			deviceStateDb.dbLight.clearStatsBefore(sendDateTime);
-			deviceStateDb.dbBatteryTemperature.clearStatsBefore(sendDateTime);
+			deviceStateDb.dbBattery.clearStatsBefore(transmitTime.getTime());
+			deviceStateDb.dbCpu.clearStatsBefore(transmitTime.getTime());
+			deviceStateDb.dbCpuClock.clearStatsBefore(transmitTime.getTime());
+			deviceStateDb.dbLight.clearStatsBefore(transmitTime.getTime());
+			deviceStateDb.dbBatteryTemperature.clearStatsBefore(transmitTime.getTime());
 		}
 
-		if (specCount > 0) {
-			rfcxSource.audioState.clearFFTSendBufferUpTo(specCount);
-		}
-
+		if (specCount > 0) { rfcxSource.audioState.clearFFTSendBufferUpTo(specCount); }
+		
 		try {
-			// long timeMillis = (long) Long.parseLong(strResponse);
-			Log.d(TAG, "Response: " + strResponse);
+			JSONObject JSON = (JSONObject) (new JSONParser()).parse(httpResponseString);
+			long serverUnixTime = (long) Long.parseLong(JSON.get("time").toString()+"000");
+			long deviceUnixTime = Calendar.getInstance().getTimeInMillis();
+			if (Math.abs(serverUnixTime - deviceUnixTime) > 3600*1000) {
+				Log.d(TAG, "Setting System Clock");
+				SystemClock.setCurrentTimeMillis(serverUnixTime);
+			}
 		} catch (NumberFormatException e) {
 			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+		} catch (org.json.simple.parser.ParseException e) {
+			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+		} catch (NullPointerException e) {
+			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+		} finally {
+			Log.d(TAG, "Response: " + httpResponseString);
 		}
 	}
 

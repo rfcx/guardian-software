@@ -186,8 +186,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public boolean isInLowPowerMode() {
 		return lowPowerMode;
 	}
-		
-	
 	
 	
 	public void launchAllIntentServices(Context context) {
@@ -202,6 +200,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		// Launch AudioProcessing IntentService
 //		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), 150*1000, audioProcessServiceIntent);
 	}
-	
+
 	
 }
