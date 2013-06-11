@@ -52,7 +52,6 @@ public class ApiComm {
 	private String apiEndpoint;
 
 	private int specCount = 0;
-	private int specLength = 0;
 
 	private HttpClient httpClient = new DefaultHttpClient();
 	private HttpPost httpPost = null;
@@ -129,16 +128,12 @@ public class ApiComm {
 
 		JSONObject json = new JSONObject();
 		try {
-			json.put("batt",
-					(vBattery[0] != "0") ? Integer.parseInt(vBattery[1]) : null);
+			json.put("batt",(vBattery[0] != "0") ? Integer.parseInt(vBattery[1]) : null);
 		} catch (NumberFormatException e) {
 			json.put("batt", null);
 		}
 		try {
-			json.put(
-					"temp",
-					(vBatteryTemp[0] != "0") ? Integer
-							.parseInt(vBatteryTemp[1]) : null);
+			json.put("temp",(vBatteryTemp[0] != "0") ? Integer.parseInt(vBatteryTemp[1]) : null);
 		} catch (NumberFormatException e) {
 			json.put("temp", null);
 		}
@@ -156,9 +151,10 @@ public class ApiComm {
 		Calendar calendar = Calendar.getInstance();
 		json.put("sent", calendar.getTime().toGMTString());
 		
-		if (RfcxSource.VERBOSE) {
-			Log.d(TAG, httpUri + " - " + json.toJSONString());
-		}
+		json.put("udid", getDeviceId());
+		json.put("appV", rfcxSource.VERSION);
+		
+		if (RfcxSource.VERBOSE) Log.d(TAG, httpUri + " - " + json.toJSONString());
 		
 		specCount = rfcxSource.audioState.fftSendBufferLength();
 		Log.d(TAG, "Compiling Spectra ("+specCount+")...");
@@ -168,7 +164,6 @@ public class ApiComm {
 		ArrayList<String[]> specV = rfcxSource.audioState.getFftSendBufferUpTo(specCount);
 		
 		if (specV.size() > 0) {
-			specLength = specV.get(0).length;
 			String[] specV_grp = new String[specCount];
 			for (int i = 0; i < specCount; i++) {
 				specT_str[i] = Long.toHexString(Math.round((calendar.getTimeInMillis()-specT_raw.get(i).getTimeInMillis())/1000));
@@ -195,14 +190,9 @@ public class ApiComm {
 		} }
 		byte[] jsonZipped = byteArrayOutputStream.toByteArray();
 		
-		try {
-			MultipartEntity multipartEntity = new MultipartEntity();
-			multipartEntity.addPart("udid", new StringBody(getDeviceId()));
-			multipartEntity.addPart("blob",  new InputStreamBody(new ByteArrayInputStream(jsonZipped),calendar.getTime().toGMTString()+".json.gz"));
-			httpPost.setEntity(multipartEntity);
-		} catch (UnsupportedEncodingException e) {
-			Log.e(TAG, e.getMessage());
-		}
+		MultipartEntity multipartEntity = new MultipartEntity();
+		multipartEntity.addPart("blob",  new InputStreamBody(new ByteArrayInputStream(jsonZipped),calendar.getTime()+".json"));
+		httpPost.setEntity(multipartEntity);
 		
 		if (RfcxSource.VERBOSE) {
 			Log.d(TAG,
