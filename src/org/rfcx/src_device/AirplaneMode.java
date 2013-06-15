@@ -14,27 +14,32 @@ public class AirplaneMode {
 	private boolean isEnabled;
 	private boolean allowWifi = false;
 	
+	private RfcxSource rfcxSource = null;
+	
 	public boolean isEnabled(Context context) {
 		isEnabled = Settings.System.getInt(context.getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) == 1;
 		return isEnabled;
 	}
 	
 	public void setOn(Context context) {
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning AirplaneMode ON"); }
+		if (rfcxSource == null) { rfcxSource = (RfcxSource) context.getApplicationContext(); }
+		if (rfcxSource.verboseLogging) { Log.d(TAG, "Turning AirplaneMode ON"); }
     	if (!isEnabled(context)) {
     		set(context, 1);
     	}
 	}
 	
 	public void setOff(Context context) {
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning AirplaneMode OFF"); }
+		if (rfcxSource == null) { rfcxSource = (RfcxSource) context.getApplicationContext(); }
+		if (rfcxSource.verboseLogging) { Log.d(TAG, "Turning AirplaneMode OFF"); }
     	if (isEnabled(context)) {
     		set(context, 0);
     	}
 	}
 	
 	public void setToggle(Context context) {
-		if (RfcxSource.VERBOSE) { Log.d(TAG, "Toggling AirplaneMode"); }
+		if (rfcxSource == null) { rfcxSource = (RfcxSource) context.getApplicationContext(); }
+		if (rfcxSource.verboseLogging) { Log.d(TAG, "Toggling AirplaneMode"); }
     	if (isEnabled(context)) {
     		setOff(context);
     	} else {

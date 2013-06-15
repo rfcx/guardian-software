@@ -3,20 +3,18 @@ package org.rfcx.src_android;
 import java.util.UUID;
 
 import org.rfcx.src_api.ApiComm;
-import org.rfcx.src_api.ApiCommService;
-import org.rfcx.src_api.ConnectivityReceiver;
+import org.rfcx.src_api.ApiCommIntentService;
 import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_audio.AudioProcessService;
 import org.rfcx.src_audio.AudioState;
-import org.rfcx.src_database.AudioDb;
 import org.rfcx.src_database.DeviceStateDb;
+import org.rfcx.src_database.SmsDb;
 import org.rfcx.src_device.AirplaneMode;
-import org.rfcx.src_device.AirplaneModeReceiver;
-import org.rfcx.src_device.BatteryReceiver;
 import org.rfcx.src_device.DeviceState;
 import org.rfcx.src_device.DeviceStateService;
-import org.rfcx.src_sleep.SleepMonitorService;
-import org.rfcx.src_sleep.SleepState;
+import org.rfcx.src_monitor.MonitorIntentService;
+import org.rfcx.src_receiver.AirplaneModeReceiver;
+import org.rfcx.src_receiver.ConnectivityReceiver;
 import org.rfcx.src_util.DeviceCpuUsage;
 import org.rfcx.src_util.FactoryDeviceUuid;
 
@@ -35,10 +33,10 @@ import android.util.Log;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
-	public static final String VERSION = "0.1.0";
+	public static final String VERSION = "0.1.3";
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
-	public static final boolean VERBOSE = false;
+	public boolean verboseLogging = false;
 	
 	private boolean lowPowerMode = false;
 	
@@ -47,13 +45,12 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	// database access helpers
 	public DeviceStateDb deviceStateDb = new DeviceStateDb(this);
-	public AudioDb audioDb = new AudioDb(this);
+	public SmsDb smsDb = new SmsDb(this);
 
 	// for obtaining device stats and characteristics
 	private UUID deviceId = null;
 	public DeviceState deviceState = new DeviceState();
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
-	private final BroadcastReceiver batteryDeviceStateReceiver = new BatteryReceiver();
 	
 	// for viewing and controlling airplane mode
 	public AirplaneMode airplaneMode = new AirplaneMode();
@@ -65,40 +62,45 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	// for analyzing captured audio
 	public AudioState audioState = new AudioState();
-	
-	// for setting/unsetting sleep mode
-	public SleepState sleepState = new SleepState();
-	
-//	// device power management
-//	PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-//	PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RfcxWakeLock");
-	
+		
 	// android service running flags
 	public boolean isServiceRunning_DeviceState = false;
+	public boolean isServiceEnabled_DeviceState = true;
+	
 	public boolean isServiceRunning_AudioCapture = false;
+	public boolean isServiceEnabled_AudioCapture = true;
+	
 	public boolean isServiceRunning_AudioProcess = false;
+	public boolean isServiceEnabled_AudioProcess = true;
 	
 	public boolean isServiceRunning_ApiComm = false;
-	public boolean isServiceRunning_SleepTrigger = false;
+	public boolean isServiceEnabled_ApiComm = true;
 	
-	public boolean areServicesHalted_ExpensiveServices = false;
+	public boolean isServiceRunning_ServiceMonitor = false;
+	
+	public boolean ignoreOffHours = false;
+	public int monitorIntentServiceInterval = 120;
+	
+	public int dayBeginsAt = 6;
+	public int dayEndsAt = 19;
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		airplaneMode.setOn(getApplicationContext());
 		checkSetPreferences();
 		setLowPowerMode(lowPowerMode);
 		
-	    this.registerReceiver(batteryDeviceStateReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+		
+		launchAllIntentServices(getApplicationContext());
 	}
 	
 	@Override
 	public void onTerminate() {
 		super.onTerminate();
 
-		this.unregisterReceiver(batteryDeviceStateReceiver);
 		this.unregisterReceiver(airplaneModeReceiver);
 		this.unregisterReceiver(connectivityReceiver);
 	}
@@ -117,14 +119,25 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private void checkSetPreferences() {
 		this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		this.sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-		
+
+		this.verboseLogging = this.sharedPreferences.getBoolean("verbose_logging", false);
+		this.ignoreOffHours = this.sharedPreferences.getBoolean("ignore_off_hours", false);
+		this.monitorIntentServiceInterval = Integer.parseInt(this.sharedPreferences.getString("monitor_intentservice_interval", "120"));
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", false));
 		apiComm.setApiDomain(this.sharedPreferences.getString("api_domain", "rfcx.org"));
 		apiComm.setConnectivityInterval(Integer.parseInt(this.sharedPreferences.getString("api_interval", "300")));
 		apiComm.setApiPort(Integer.parseInt(this.sharedPreferences.getString("api_port", "80")));
 		apiComm.setApiEndpoint(this.sharedPreferences.getString("api_endpoint", "/api/1/checkin"));
 		
-		if (RfcxSource.VERBOSE) Log.d(TAG, "Preferences saved.");
+		this.isServiceEnabled_AudioCapture = this.sharedPreferences.getBoolean("enable_service_audiocapture", true);
+		this.isServiceEnabled_AudioProcess = this.sharedPreferences.getBoolean("enable_service_audioprocess", true);
+		this.isServiceEnabled_DeviceState = this.sharedPreferences.getBoolean("enable_service_devicestate", true);
+		this.isServiceEnabled_ApiComm = this.sharedPreferences.getBoolean("enable_service_apicomm", true);
+		
+//		this.dayBeginsAt = Integer.parseInt(this.sharedPreferences.getString("hour_day_begins", "6"));
+//		this.dayEndsAt = Integer.parseInt(this.sharedPreferences.getString("hour_day_ends", "19"));
+		
+		if (this.verboseLogging) Log.d(TAG, "Preferences saved.");
 	}
 	
 	public UUID getDeviceId() {
@@ -137,39 +150,38 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	public void launchAllServices(Context context) {
 		
-		if (DeviceState.SERVICE_ENABLED && !isServiceRunning_DeviceState) {
+		if (isServiceEnabled_DeviceState && !isServiceRunning_DeviceState) {
 			context.startService(new Intent(context, DeviceStateService.class));
-		} else if (isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
+		} else if (isServiceRunning_DeviceState && this.verboseLogging) {
 			Log.d(TAG, "DeviceStateService already running. Not re-started...");
 		}
-		if (AudioState.CAPTURE_SERVICE_ENABLED && !isServiceRunning_AudioCapture) {
+		if (isServiceEnabled_AudioCapture && !isServiceRunning_AudioCapture) {
 			context.startService(new Intent(context, AudioCaptureService.class));
-		} else if (isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
+		} else if (isServiceRunning_AudioCapture && this.verboseLogging) {
 			Log.d(TAG, "AudioCaptureService already running. Not re-started...");
 		}
-		if (AudioState.PROCESS_SERVICE_ENABLED && !isServiceRunning_AudioProcess) {
+		if (isServiceEnabled_AudioProcess && !isServiceRunning_AudioProcess) {
 			context.startService(new Intent(context, AudioProcessService.class));
-		} else if (isServiceRunning_AudioProcess && RfcxSource.VERBOSE) {
+		} else if (isServiceRunning_AudioProcess && this.verboseLogging) {
 			Log.d(TAG, "AudioProcessService already running. Not re-started...");
 		}
-		areServicesHalted_ExpensiveServices = false;
 	}
 	
 	public void suspendAllServices(Context context) {
 
-		if (DeviceState.SERVICE_ENABLED && isServiceRunning_DeviceState) {
+		if (isServiceEnabled_DeviceState && isServiceRunning_DeviceState) {
 			context.stopService(new Intent(context, DeviceStateService.class));
-		} else if (!isServiceRunning_DeviceState && RfcxSource.VERBOSE) {
+		} else if (!isServiceRunning_DeviceState && this.verboseLogging) {
 			Log.d(TAG, "DeviceStateService not running. Not stopped...");
 		}
-		if (AudioState.CAPTURE_SERVICE_ENABLED && isServiceRunning_AudioCapture) {
+		if (isServiceEnabled_AudioCapture && isServiceRunning_AudioCapture) {
 			context.stopService(new Intent(context, AudioCaptureService.class));
-		} else if (!isServiceRunning_AudioCapture && RfcxSource.VERBOSE) {
+		} else if (!isServiceRunning_AudioCapture && this.verboseLogging) {
 			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
 		}
-		if (AudioState.PROCESS_SERVICE_ENABLED && isServiceRunning_AudioProcess) {
+		if (isServiceEnabled_AudioProcess && isServiceRunning_AudioProcess) {
 			context.stopService(new Intent(context, AudioProcessService.class));
-		} else if (!isServiceRunning_AudioProcess && RfcxSource.VERBOSE) {
+		} else if (!isServiceRunning_AudioProcess && this.verboseLogging) {
 			Log.d(TAG, "AudioProcessService not running. Not stopped...");
 		}
 	}
@@ -190,15 +202,13 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	public void launchAllIntentServices(Context context) {
 
-		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiCommService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-		PendingIntent sleepMonitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, SleepMonitorService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-		
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
+		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiCommIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiComm.getConnectivityInterval()*1000, apiCommServiceIntent);
 		
-		// Launch AudioProcessing IntentService
-//		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), 150*1000, audioProcessServiceIntent);
+		PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, MonitorIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), monitorIntentServiceInterval*1000, monitorServiceIntent);
 	}
 
 	

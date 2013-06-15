@@ -10,15 +10,14 @@
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.RECORD_AUDIO" />
 	<uses-permission android:name="android.permission.WRITE_SETTINGS" />
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-	<uses-permission android:name="android.permission.BLUETOOTH" />
-	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.SET_TIME_ZONE" />
-	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+	<uses-permission android:name="android.permission.RECEIVE_SMS" />
+	<uses-permission android:name="android.permission.RECORD_AUDIO" />
     
     <application
         android:allowBackup="true"
@@ -30,10 +29,9 @@
         
         <service android:name="org.rfcx.src_device.DeviceStateService" />
         <service android:name="org.rfcx.src_audio.AudioCaptureService" />
-        
         <service android:name="org.rfcx.src_audio.AudioProcessService" />
-        <service android:name="org.rfcx.src_api.ApiCommService" />
-        <service android:name="org.rfcx.src_api.SleepMonitorService" />
+        <service android:name="org.rfcx.src_api.ApiCommIntentService" />
+        <service android:name="org.rfcx.src_monitor.MonitorIntentService" />
         
         <activity
             android:name="org.rfcx.src_android.PrefsActivity"
@@ -48,10 +46,16 @@
             </intent-filter>
         </activity>
         
-        <receiver android:name="org.rfcx.src_android.BootReceiver">
+        <receiver android:name="org.rfcx.src_receiver.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>
+		</receiver>
+		
+        <receiver android:name="org.rfcx.src_receiver.SmsReceiver">
+    		<intent-filter>
+        		<action android:name="android.provider.Telephony.SMS_RECEIVED" />
+   			</intent-filter>
 		</receiver>
 
     </application>

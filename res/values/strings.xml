@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">rfcx-src-android</string>
-    
+        
     <string name="menu_prefs">Preferences</string>
     <string name="menu_services_toggle">Stop Services</string>
 	<string name="menu_services_audio">Toggle Audio</string>
@@ -24,6 +24,15 @@
     <string name="desc_api_endpoint">API Check-In Endpoint</string>
 
     <string name="title_api_interval">API Check Interval</string>
-    <string name="desc_api_interval">How often to check-in to API (seconds)</string>    
+    <string name="desc_api_interval">How often to check-in to API (seconds)</string> 
+    
+    <string name="title_ignore_off_hours">Ignore Off Hours</string>
+    <string name="desc_ignore_off_hours">Run the services all day and night</string>
+    
+    <string name="title_verbose_logging">Verbose Logging</string>
+    <string name="desc_verbose_logging">Verbose Logging</string>
+    
+    <string name="title_monitor_intentservice_interval">Service Check Interval</string>
+    <string name="desc_monitor_intentservice_interval">How often should we check if services are running?</string>
     
 </resources>

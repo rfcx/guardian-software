@@ -1,34 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-	
+
+    <CheckBoxPreference
+	    android:key="ignore_off_hours"
+	    android:title="@string/title_ignore_off_hours"
+	    android:summary="@string/desc_ignore_off_hours"
+		android:enabled="true" android:defaultValue="false"/>
+
+     <CheckBoxPreference
+	    android:key="verbose_logging"
+	    android:title="@string/title_verbose_logging"
+	    android:summary="@string/desc_verbose_logging"
+		android:enabled="true" android:defaultValue="false"/>
+    	
 	<CheckBoxPreference
 	    android:key="allow_wifi"
 	    android:title="@string/title_allow_wifi"
 	    android:summary="@string/desc_allow_wifi"
-		/>
+		android:enabled="true" android:defaultValue="false"/>
 
 	<EditTextPreference
         android:title="@string/title_api_domain"
         android:key="api_domain"
         android:summary="@string/desc_api_domain"
-        />
+        android:enabled="true" android:defaultValue="rfcx.org"/>
 	
 	<EditTextPreference
         android:title="@string/title_api_port"
         android:key="api_port"
         android:summary="@string/desc_api_port"
-        />
+        android:enabled="true" android:defaultValue="80"/>
 	
 	<EditTextPreference
         android:title="@string/title_api_endpoint"
         android:key="api_endpoint"
         android:summary="@string/desc_api_endpoint"
-        />	
+        android:enabled="true" android:defaultValue="/api/1/checkin"/>	
 	
 	<EditTextPreference
         android:title="@string/title_api_interval"
         android:key="api_interval"
         android:summary="@string/desc_api_interval"
-        />
+        android:enabled="true" android:defaultValue="300"/>
+	
+	<EditTextPreference
+        android:title="@string/title_monitor_intentservice_interval"
+        android:key="monitor_intentservice_interval"
+        android:summary="@string/desc_monitor_intentservice_interval"
+        android:enabled="true" android:defaultValue="120"/>
     
+	<CheckBoxPreference
+	    android:key="enable_service_audiocapture"
+	    android:title="Audio Capture"
+	    android:summary="Enable/Disable Service"
+		android:enabled="true" android:defaultValue="true"/>
+	
+	<CheckBoxPreference
+	    android:key="enable_service_audioprocess"
+	    android:title="Audio Processing"
+	    android:summary="Enable/Disable Service"
+		android:enabled="true" android:defaultValue="true"/>
+	
+	<CheckBoxPreference
+	    android:key="enable_service_devicestate"
+	    android:title="Device Stats"
+	    android:summary="Enable/Disable Service"
+		android:enabled="true" android:defaultValue="true"/>
+
+	<CheckBoxPreference
+	    android:key="enable_service_apicomm"
+	    android:title="API Check-In"
+	    android:summary="Enable/Disable Service"
+		android:enabled="true" android:defaultValue="true"/>
+	
+<!-- 	<EditTextPreference
+	    android:key="hour_day_begins"
+	    android:title="Day Begins at (hour)"
+	    android:summary="When service switch occurs"
+		android:enabled="true" android:defaultValue="6"/>
+	
+	<EditTextPreference
+	    android:key="hour_day_ends"
+	    android:title="Night Begins at (hour)"
+	    android:summary="When service switch occurs"
+		android:enabled="true" android:defaultValue="19"/> -->
+	
 </PreferenceScreen>

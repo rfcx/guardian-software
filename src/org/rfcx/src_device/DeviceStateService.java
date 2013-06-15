@@ -26,6 +26,8 @@ public class DeviceStateService extends Service implements SensorEventListener {
 //	Sensor accelSensor = null;
 	Sensor lightSensor = null;
 	
+	RfcxSource rfcxSource = null;
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -41,7 +43,8 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		if (RfcxSource.VERBOSE) Log.d(TAG, "Starting service: "+TAG);
+		if (rfcxSource == null) { rfcxSource = (RfcxSource) getApplication(); }
+		if (rfcxSource.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
 		((RfcxSource) getApplication()).isServiceRunning_DeviceState = true;
 		this.deviceStateSvc.start();
@@ -52,7 +55,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		((RfcxSource) getApplication()).isServiceRunning_DeviceState = false;
+		rfcxSource.isServiceRunning_DeviceState = false;
 		this.deviceStateSvc.interrupt();
 		this.deviceStateSvc = null;
 		unRegisterSensorListeners();
@@ -68,9 +71,8 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		@Override
 		public void run() {
 			DeviceStateService deviceStateService = DeviceStateService.this;
-
+			if (rfcxSource == null) { rfcxSource = (RfcxSource) getApplication(); }
 			while (deviceStateService.runFlag) {
-				RfcxSource rfcxSource = (RfcxSource) getApplication();
 				DeviceCpuUsage deviceCpuUsage = rfcxSource.deviceCpuUsage;
 				DeviceState deviceState = rfcxSource.deviceState;
 				DeviceStateDb deviceStateDb = rfcxSource.deviceStateDb;
@@ -84,7 +86,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 						deviceStateDb.dbBattery.insert(deviceState.getBatteryPercent());
 						deviceStateDb.dbBatteryTemperature.insert(deviceState.getBatteryTemperature());
 						recordingIncrement = 0;
-						if (RfcxSource.VERBOSE) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"MHz)");
+						if (rfcxSource.verboseLogging) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"MHz)");
 					}
 											
 					int delayMs = (int) Math.round(60000/deviceState.serviceSamplesPerMinute) - DeviceCpuUsage.SAMPLE_LENGTH_MS;
@@ -94,7 +96,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 					rfcxSource.isServiceRunning_DeviceState = true;
 				}
 			}
-			if (RfcxSource.VERBOSE) Log.d(TAG, "Stopping service: "+TAG);
+			if (rfcxSource.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
 		}		
 	}
 

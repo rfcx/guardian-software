@@ -33,9 +33,9 @@ public class AudioProcessService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		if (RfcxSource.VERBOSE) Log.d(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
 		rfcxSource = (RfcxSource) getApplication();
+		if (rfcxSource.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
 		rfcxSource.isServiceRunning_AudioProcess = true;
 		this.audioProcess.start();
 		return START_STICKY;
@@ -68,7 +68,7 @@ public class AudioProcessService extends Service {
 					}
 					Thread.sleep(DELAY);
 				}
-				if (RfcxSource.VERBOSE) Log.d(TAG, "Stopping service: "+TAG);
+				if (rfcxSource.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
 			} catch (Exception e) {
 				Log.e(TAG, "Exception");
 				audioProcessService.runFlag = false;

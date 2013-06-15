@@ -3,25 +3,18 @@ package org.rfcx.src_api;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -30,7 +23,6 @@ import org.rfcx.src_database.DeviceStateDb;
 import org.rfcx.src_device.DeviceState;
 import org.rfcx.src_util.DateTimeUtils;
 
-import android.app.AlarmManager;
 import android.content.Context;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -65,11 +57,8 @@ public class ApiComm {
 	private Calendar transmitTime = Calendar.getInstance();
 
 	private long signalSearchStart = 0;
-
 	private int transmitAttempts = 0;
-
 	public boolean isTransmitting = false;
-
 	
 	public void sendData(Context context) {
 		if (rfcxSource == null)
@@ -86,7 +75,7 @@ public class ApiComm {
 				cleanupAfterResponse(httpResponseString);
 				transmitAttempts = 0;
 				rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
-				if (RfcxSource.VERBOSE) { Log.d(TAG, "Turning off antenna..."); }
+				if (rfcxSource.verboseLogging) { Log.d(TAG, "Turning off antenna..."); }
 			}
 			
 		}
@@ -119,8 +108,7 @@ public class ApiComm {
 		if (deviceState == null) deviceState = rfcxSource.deviceState;
 
 		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
-		String[] vBatteryTemp = deviceStateDb.dbBatteryTemperature
-				.getStatsSummary();
+		String[] vBatteryTemp = deviceStateDb.dbBatteryTemperature.getStatsSummary();
 		String[] vCpu = deviceStateDb.dbCpu.getStatsSummary();
 		String[] vCpuClock = deviceStateDb.dbCpuClock.getStatsSummary();
 		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
@@ -155,7 +143,7 @@ public class ApiComm {
 		json.put("udid", getDeviceId());
 		json.put("appV", rfcxSource.VERSION);
 		
-		if (RfcxSource.VERBOSE) Log.d(TAG, httpUri + " - " + json.toJSONString());
+		if (rfcxSource.verboseLogging) Log.d(TAG, httpUri + " - " + json.toJSONString());
 		
 		specCount = rfcxSource.audioState.fftSendBufferLength();
 		Log.d(TAG, "Compiling Spectra ("+specCount+")...");
@@ -185,19 +173,15 @@ public class ApiComm {
 				} catch (IOException e) { };
 			} }
 			jsonZipped = byteArrayOutputStream.toByteArray();
-					
-			if (RfcxSource.VERBOSE) {
+			if (rfcxSource.verboseLogging) {
 				Log.d(TAG, "Spectra: "+specCount+" - GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB");
 			}
 		}
-
-
 	}
 
 	private void cleanupAfterResponse(String httpResponseString) {
 		
-		isTransmitting = false;
-		jsonZipped = null;
+		resetTransmissionState();
 
 		if (deviceStateDb != null) {
 			deviceStateDb.dbBattery.clearStatsBefore(transmitTime.getTime());
@@ -209,22 +193,26 @@ public class ApiComm {
 
 		if (specCount > 0) { rfcxSource.audioState.clearFFTSendBufferUpTo(specCount); }
 		
+		
 		try {
-			JSONObject JSON = (JSONObject) (new JSONParser()).parse(httpResponseString);
-			long serverUnixTime = (long) Long.parseLong(JSON.get("time").toString()+"000");
-			long deviceUnixTime = Calendar.getInstance().getTimeInMillis();
-			if (Math.abs(serverUnixTime - deviceUnixTime) > 3600*1000) {
-				Log.d(TAG, "Setting System Clock");
-				SystemClock.setCurrentTimeMillis(serverUnixTime);
+			if (httpResponseString != null) {
+				JSONObject JSON = (JSONObject) (new JSONParser()).parse(httpResponseString);
+				long serverUnixTime = (long) Long.parseLong(JSON.get("time").toString()+"000");
+				long deviceUnixTime = Calendar.getInstance().getTimeInMillis();
+				if (Math.abs(serverUnixTime - deviceUnixTime) > 3600*1000) {
+					Log.d(TAG, "Setting System Clock");
+					SystemClock.setCurrentTimeMillis(serverUnixTime);
+				}
 			}
 		} catch (NumberFormatException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+			Log.e(TAG, e.getMessage());
 		} catch (org.json.simple.parser.ParseException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+			Log.e(TAG, e.getMessage());
 		} catch (NullPointerException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+			Log.e(TAG, e.getMessage());
 		} finally {
-			Log.d(TAG, "Response: " + httpResponseString);
+			if (rfcxSource.verboseLogging) Log.d(TAG, "API Response: " + httpResponseString);
+			rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
 		}
 	}
 
@@ -239,6 +227,11 @@ public class ApiComm {
 			}
 		}
 		return null;
+	}
+	
+	public void resetTransmissionState() {
+		isTransmitting = false;
+		jsonZipped = null;
 	}
 
 	private void setPostUri() {

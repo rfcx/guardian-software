@@ -25,16 +25,6 @@ public class MainActivity extends Activity {
 		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
-		case R.id.menu_services_toggle:
-			rfcxSource.suspendAllServices(rfcxSource.getApplicationContext());
-			break;
-		case R.id.menu_services_audio:
-			if (rfcxSource.isServiceRunning_AudioCapture) {
-				stopService(new Intent(this, AudioCaptureService.class));
-			} else {
-				startService(new Intent(this, AudioCaptureService.class));
-			}
-			break;
 		case R.id.menu_connectivity:
 			((RfcxSource) getApplication()).airplaneMode.setOff(this);
 			break;

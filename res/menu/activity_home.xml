@@ -6,22 +6,10 @@
         android:title="@string/menu_prefs"
         />
 	<item
-	    android:id="@+id/menu_services_toggle"
-        android:orderInCategory="2"
-	    android:title="@string/menu_services_toggle"
-	    />
-	<item
-	    android:id="@+id/menu_services_audio"
-        android:orderInCategory="3"
-	    android:title="@string/menu_services_audio"
-	    />
-	<item
 	    android:id="@+id/menu_connectivity"
-        android:orderInCategory="4"
+        android:orderInCategory="2"
 	    android:title="@string/menu_connectivity"
 	    />
-	
-	
 	
 	
 </menu>
