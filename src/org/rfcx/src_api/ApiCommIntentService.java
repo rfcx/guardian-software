@@ -1,8 +1,10 @@
 package org.rfcx.src_api;
 
 import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_monitor.TimeOfDay;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
@@ -20,7 +22,9 @@ public class ApiCommIntentService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
 		RfcxSource rfcxSource = (RfcxSource) getApplication();
-		if (rfcxSource.isServiceRunning_ApiComm) {
+		Context context = rfcxSource.getApplicationContext();
+		TimeOfDay timeOfDay = new TimeOfDay();
+		if (rfcxSource.isServiceRunning_ApiComm && timeOfDay.isDataGenerationEnabled(context)) {
 			rfcxSource.airplaneMode.setOff(rfcxSource.getApplicationContext());	
 			Intent intent = new Intent(SRC_API_COMM);
 			sendBroadcast(intent, RECEIVE_API_COMM_NOTIFICATIONS);
@@ -49,6 +53,9 @@ public class ApiCommIntentService extends IntentService {
 		} else {
 			Log.d(TAG, "Skipping (first run)");
 			rfcxSource.isServiceRunning_ApiComm = true;
+			if (timeOfDay.isDataGenerationEnabled(context)) {
+				rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+			}
 		}
 	}
 }

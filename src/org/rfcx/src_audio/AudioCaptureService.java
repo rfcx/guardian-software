@@ -86,8 +86,12 @@ public class AudioCaptureService extends Service {
 				}
 				if (rfcxSource.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
 				audioRecord.stop();
+			} catch (InterruptedException e) {
+				Log.e(TAG, "InterruptedException");
+				audioCaptureService.runFlag = false;
+				rfcxSource.isServiceRunning_AudioCapture = false;
 			} catch (Exception e) {
-				Log.e(TAG, e.getMessage());
+				e.printStackTrace();
 				audioCaptureService.runFlag = false;
 				rfcxSource.isServiceRunning_AudioCapture = false;
 			}

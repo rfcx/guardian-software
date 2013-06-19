@@ -69,6 +69,10 @@ public class AudioProcessService extends Service {
 					Thread.sleep(DELAY);
 				}
 				if (rfcxSource.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
+			} catch (InterruptedException e) {
+				Log.e(TAG, "InterruptedException");
+				audioProcessService.runFlag = false;
+				rfcxSource.isServiceRunning_AudioProcess = false;
 			} catch (Exception e) {
 				Log.e(TAG, "Exception");
 				audioProcessService.runFlag = false;

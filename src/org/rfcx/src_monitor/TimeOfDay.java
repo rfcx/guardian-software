@@ -5,7 +5,6 @@ import java.util.Calendar;
 import org.rfcx.src_android.RfcxSource;
 
 import android.content.Context;
-import android.util.Log;
 
 public class TimeOfDay {
 
@@ -35,7 +34,7 @@ public class TimeOfDay {
 		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
 		setStartEnd(rfcxSource.dayBeginsAt, rfcxSource.dayEndsAt);
 		long msNow = Calendar.getInstance().getTimeInMillis();
-		return ((msNow < msEnd) || (msNow > msStart));
+		return ((msNow < msEnd) && (msNow > msStart));
 	}
 	
 }

@@ -16,7 +16,7 @@ import org.rfcx.src_monitor.MonitorIntentService;
 import org.rfcx.src_receiver.AirplaneModeReceiver;
 import org.rfcx.src_receiver.ConnectivityReceiver;
 import org.rfcx.src_util.DeviceCpuUsage;
-import org.rfcx.src_util.FactoryDeviceUuid;
+import org.rfcx.src_util.DeviceUuid;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -33,12 +33,10 @@ import android.util.Log;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
-	public static final String VERSION = "0.1.3";
+	public static final String VERSION = "0.3.3";
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
 	public boolean verboseLogging = false;
-	
-	private boolean lowPowerMode = false;
 	
 	private SharedPreferences sharedPreferences;
 	Context context;
@@ -89,7 +87,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		super.onCreate();
 		airplaneMode.setOn(getApplicationContext());
 		checkSetPreferences();
-		setLowPowerMode(lowPowerMode);
+		setDeviceId();
 		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -134,18 +132,19 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		this.isServiceEnabled_DeviceState = this.sharedPreferences.getBoolean("enable_service_devicestate", true);
 		this.isServiceEnabled_ApiComm = this.sharedPreferences.getBoolean("enable_service_apicomm", true);
 		
-//		this.dayBeginsAt = Integer.parseInt(this.sharedPreferences.getString("hour_day_begins", "6"));
-//		this.dayEndsAt = Integer.parseInt(this.sharedPreferences.getString("hour_day_ends", "19"));
+		this.dayBeginsAt = Integer.parseInt(this.sharedPreferences.getString("day_begins_at_hour", "6"));
+		this.dayEndsAt = Integer.parseInt(this.sharedPreferences.getString("day_ends_at_hour", "19"));
 		
 		if (this.verboseLogging) Log.d(TAG, "Preferences saved.");
 	}
 	
 	public UUID getDeviceId() {
-		if (deviceId == null) {
-			FactoryDeviceUuid uuidFactory = new FactoryDeviceUuid(context, this.sharedPreferences);
-			deviceId = uuidFactory.getDeviceUuid();
-		}
-		return deviceId;
+		if (this.deviceId == null) setDeviceId();
+		return this.deviceId;
+	}
+	
+	private void setDeviceId() {
+		this.deviceId = new DeviceUuid(getApplicationContext(), this.sharedPreferences).getDeviceUuid();
 	}
 	
 	public void launchAllServices(Context context) {
@@ -184,19 +183,6 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		} else if (!isServiceRunning_AudioProcess && this.verboseLogging) {
 			Log.d(TAG, "AudioProcessService not running. Not stopped...");
 		}
-	}
-	
-	public void setLowPowerMode(boolean lowPowerMode) {
-		this.lowPowerMode = lowPowerMode;
-		if (lowPowerMode) {
-			deviceState.serviceSamplesPerMinute = 12;
-		} else {
-			deviceState.serviceSamplesPerMinute = 60;
-		}
-	}
-	
-	public boolean isInLowPowerMode() {
-		return lowPowerMode;
 	}
 	
 	

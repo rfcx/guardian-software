@@ -73,16 +73,22 @@
 	    android:summary="Enable/Disable Service"
 		android:enabled="true" android:defaultValue="true"/>
 	
-<!-- 	<EditTextPreference
-	    android:key="hour_day_begins"
+	<EditTextPreference
+        android:key="day_begins_at_hour"
 	    android:title="Day Begins at (hour)"
 	    android:summary="When service switch occurs"
 		android:enabled="true" android:defaultValue="6"/>
+
+	<EditTextPreference
+        android:key="day_ends_at_hour"
+	    android:title="Day Ends at (hour)"
+	    android:summary="When service switch occurs"
+		android:enabled="true" android:defaultValue="19"/>
 	
 	<EditTextPreference
-	    android:key="hour_day_ends"
-	    android:title="Night Begins at (hour)"
-	    android:summary="When service switch occurs"
-		android:enabled="true" android:defaultValue="19"/> -->
+        android:key="device_uuid"
+	    android:title="Device UUID"
+	    android:summary="Unique ID of Source (randomized)"
+		android:enabled="true" android:defaultValue=""/>	
 	
 </PreferenceScreen>

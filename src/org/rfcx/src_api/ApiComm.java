@@ -90,9 +90,9 @@ public class ApiComm {
 			try {
 				httpResponseString = httpResponseString(httpClient.execute(httpPost));
 			} catch (ClientProtocolException e) {
-				Log.e(TAG, e.getMessage());
+				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
 			} catch (IOException e) {
-				Log.e(TAG, e.getMessage());
+				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
 			}
 		} else {
 			Log.d(TAG, "No spectra to send.");
@@ -167,7 +167,7 @@ public class ApiComm {
 				gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
 				gZIPOutputStream.write(json.toJSONString().getBytes("UTF-8"));
 			} catch (IOException e) {
-				Log.e(TAG, e.getMessage());
+				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
 			} finally { if (gZIPOutputStream != null) {
 				try { gZIPOutputStream.close();
 				} catch (IOException e) { };
@@ -205,11 +205,11 @@ public class ApiComm {
 				}
 			}
 		} catch (NumberFormatException e) {
-			Log.e(TAG, e.getMessage());
+			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
 		} catch (org.json.simple.parser.ParseException e) {
-			Log.e(TAG, e.getMessage());
+			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
 		} catch (NullPointerException e) {
-			Log.e(TAG, e.getMessage());
+			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
 		} finally {
 			if (rfcxSource.verboseLogging) Log.d(TAG, "API Response: " + httpResponseString);
 			rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());

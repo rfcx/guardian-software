@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 		case R.id.menu_connectivity:
+			((RfcxSource) getApplication()).airplaneMode.setOn(this);
 			((RfcxSource) getApplication()).airplaneMode.setOff(this);
 			break;
 		}

@@ -3,10 +3,6 @@ package org.rfcx.src_util;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.rfcx.src_android.RfcxSource;
-
-import android.util.Log;
-
 public class DeviceCpuUsage {
 	
 	public static final int REPORTING_SAMPLE_COUNT = 60;
