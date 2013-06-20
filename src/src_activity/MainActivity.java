@@ -1,7 +1,11 @@
-package org.rfcx.src_android;
+package src_activity;
 
-import org.rfcx.rfcx_src_android.R;
-import org.rfcx.src_audio.AudioCaptureService;
+import org.rfcx.src_android.R;
+import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.R.id;
+import org.rfcx.src_android.R.layout;
+import org.rfcx.src_android.R.menu;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,14 +24,14 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		RfcxSource rfcxSource = (RfcxSource) getApplication();
 		switch (item.getItemId()) {
 		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 		case R.id.menu_connectivity:
-			((RfcxSource) getApplication()).airplaneMode.setOn(this);
-			((RfcxSource) getApplication()).airplaneMode.setOff(this);
+			RfcxSource app = (RfcxSource) getApplication();
+			app.airplaneMode.setOn(this);
+			app.airplaneMode.setOff(this);
 			break;
 		}
 		return true;

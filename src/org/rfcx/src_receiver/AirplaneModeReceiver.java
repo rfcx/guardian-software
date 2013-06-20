@@ -3,6 +3,7 @@ package org.rfcx.src_receiver;
 import java.util.Calendar;
 
 import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_monitor.TimeOfDay;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,22 +16,29 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 
 	private static final String TAG = AirplaneModeReceiver.class.getSimpleName();
 	
-	private RfcxSource rfcxSource = null;
+	private RfcxSource app = null;
 	private WifiManager wifiManager = null;
 	private LocationManager locationManager = null;
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		
-		if (rfcxSource == null) rfcxSource = (RfcxSource) context.getApplicationContext();
+		if (app == null) app = (RfcxSource) context.getApplicationContext();
 		if (wifiManager == null) wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		if (locationManager == null) locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+		TimeOfDay timeOfDay = new TimeOfDay();
 
-		if (rfcxSource.verboseLogging) Log.d(TAG, "BroadcastReceiver: "+TAG+" - Enabled");
+		if (app.verboseLogging) Log.d(TAG,
+				"(RfcxSource) AirplaneMode " + ( app.airplaneMode.isEnabled(context) ? "Enabled" : "Disabled" )
+				+ " at "+(Calendar.getInstance()).getTime().toLocaleString());
 		
-		if (!rfcxSource.airplaneMode.isEnabled(context)) {
-			rfcxSource.apiComm.setSignalSearchStart(Calendar.getInstance());
-			wifiManager.setWifiEnabled(rfcxSource.airplaneMode.getAllowWifi());
+		if (!app.airplaneMode.isEnabled(context)) {
+			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {
+				app.apiComm.setSignalSearchStart(Calendar.getInstance());
+				wifiManager.setWifiEnabled(app.airplaneMode.getAllowWifi());	
+			} else {
+				if (app.verboseLogging) Log.d(TAG, "API Check-In not allowed right now");
+			}
 		}
 	}
 }

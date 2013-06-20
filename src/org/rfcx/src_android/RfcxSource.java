@@ -3,7 +3,6 @@ package org.rfcx.src_android;
 import java.util.UUID;
 
 import org.rfcx.src_api.ApiComm;
-import org.rfcx.src_api.ApiCommIntentService;
 import org.rfcx.src_audio.AudioCaptureService;
 import org.rfcx.src_audio.AudioProcessService;
 import org.rfcx.src_audio.AudioState;
@@ -33,7 +32,7 @@ import android.util.Log;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
-	public static final String VERSION = "0.3.3";
+	public static final String VERSION = "0.4.0";
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
 	public boolean verboseLogging = false;
@@ -85,6 +84,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Log.d(TAG, "Launching org.rfcx.src_android (v"+VERSION+")");
 		airplaneMode.setOn(getApplicationContext());
 		checkSetPreferences();
 		setDeviceId();
@@ -190,8 +190,8 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
-		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiCommIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiComm.getConnectivityInterval()*1000, apiCommServiceIntent);
+//		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiCommIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+//		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiComm.getConnectivityInterval()*1000, apiCommServiceIntent);
 		
 		PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, MonitorIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), monitorIntentServiceInterval*1000, monitorServiceIntent);

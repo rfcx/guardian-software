@@ -1,5 +1,7 @@
 package org.rfcx.src_device;
 
+import java.util.Calendar;
+
 import org.rfcx.src_android.RfcxSource;
 import org.rfcx.src_database.DeviceStateDb;
 import org.rfcx.src_util.DeviceCpuUsage;
@@ -86,7 +88,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 						deviceStateDb.dbBattery.insert(deviceState.getBatteryPercent());
 						deviceStateDb.dbBatteryTemperature.insert(deviceState.getBatteryTemperature());
 						recordingIncrement = 0;
-						if (rfcxSource.verboseLogging) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"MHz)");
+						if (rfcxSource.verboseLogging) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"MHz - )"+(Calendar.getInstance()).getTime().toLocaleString());
 					}
 											
 					int delayMs = (int) Math.round(60000/deviceState.serviceSamplesPerMinute) - DeviceCpuUsage.SAMPLE_LENGTH_MS;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.rfcx.rfcx_src_android"
+    package="org.rfcx.src_android"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -34,11 +34,11 @@
         <service android:name="org.rfcx.src_monitor.MonitorIntentService" />
         
         <activity
-            android:name="org.rfcx.src_android.PrefsActivity"
+            android:name="src_activity.PrefsActivity"
             android:label="@string/menu_prefs" />
         
         <activity
-            android:name="org.rfcx.src_android.MainActivity"
+            android:name="src_activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
