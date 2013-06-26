@@ -15,7 +15,7 @@ public class AudioState {
 	public static final int FFT_RESOLUTION = 2048;
 	public static final int BUFFER_LENGTH = FFT_RESOLUTION * 2;
 
-	private static final int FFT_SPEC_SUM_SAMPLES = 10;
+	private static final int FFT_SPEC_SUM_SAMPLES = 30;
 	private int fftSpecSumIncr = 0;
 	private double[] fftSpecSum = new double[FFT_RESOLUTION];
 	

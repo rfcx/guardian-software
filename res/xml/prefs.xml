@@ -41,13 +41,13 @@
         android:title="@string/title_api_interval"
         android:key="api_interval"
         android:summary="@string/desc_api_interval"
-        android:enabled="true" android:defaultValue="300"/>
+        android:enabled="true" android:defaultValue="900"/>
 	
 	<EditTextPreference
         android:title="@string/title_monitor_intentservice_interval"
         android:key="monitor_intentservice_interval"
         android:summary="@string/desc_monitor_intentservice_interval"
-        android:enabled="true" android:defaultValue="120"/>
+        android:enabled="true" android:defaultValue="180"/>
     
 	<CheckBoxPreference
 	    android:key="enable_service_audiocapture"
@@ -77,13 +77,13 @@
         android:key="day_begins_at_hour"
 	    android:title="Day Begins at (hour)"
 	    android:summary="When service switch occurs"
-		android:enabled="true" android:defaultValue="6"/>
+		android:enabled="true" android:defaultValue="9"/>
 
 	<EditTextPreference
         android:key="day_ends_at_hour"
 	    android:title="Day Ends at (hour)"
 	    android:summary="When service switch occurs"
-		android:enabled="true" android:defaultValue="19"/>
+		android:enabled="true" android:defaultValue="17"/>
 	
 	<EditTextPreference
         android:key="device_uuid"

@@ -34,7 +34,7 @@ public class ApiComm {
 
 	private boolean networkConnectivity = false;
 
-	private int connectivityInterval = 300; // change this value in preferences
+	private int connectivityInterval = 600; // change this value in preferences
 	private int connectivityTimeout = setConnectivityTimeout();
 
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
@@ -57,6 +57,9 @@ public class ApiComm {
 	private Calendar transmitTime = Calendar.getInstance();
 
 	private long signalSearchStart = 0;
+	private long requestSendStart = 0;
+	private String lastCheckInId = null;
+	private long lastCheckInDuration = 0;
 	private int transmitAttempts = 0;
 	public boolean isTransmitting = false;
 	
@@ -64,16 +67,17 @@ public class ApiComm {
 		if (rfcxSource == null)
 			rfcxSource = (RfcxSource) context.getApplicationContext();
 		if (httpPost != null && !rfcxSource.airplaneMode.isEnabled(context)) {
-			isTransmitting = true;
-			transmitAttempts++;
+			this.isTransmitting = true;
+			this.transmitAttempts++;
 			if (jsonZipped == null) { preparePost(); }
+			this.requestSendStart = Calendar.getInstance().getTimeInMillis();
 			String httpResponseString = executePost();
 			
 			if ((httpResponseString == null) && (specCount > 0)) {
-				if (transmitAttempts < 3) { sendData(context); }
+				if (this.transmitAttempts < 3) { sendData(context); }
 			} else {
 				cleanupAfterResponse(httpResponseString);
-				transmitAttempts = 0;
+				this.transmitAttempts = 0;
 				rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
 				if (rfcxSource.verboseLogging) { Log.d(TAG, "Turning off antenna..."); }
 			}
@@ -114,8 +118,7 @@ public class ApiComm {
 		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
 		boolean vPower = !(rfcxSource.deviceState.isBatteryDisCharging());
 		boolean vPowerFull = rfcxSource.deviceState.isBatteryCharged();
-		long vSearchTime = Calendar.getInstance().getTimeInMillis()
-				- signalSearchStart;
+		long vSearchTime = Calendar.getInstance().getTimeInMillis() - signalSearchStart;
 
 		JSONObject json = new JSONObject();
 		try {
@@ -129,7 +132,7 @@ public class ApiComm {
 			json.put("temp", null);
 		}
 		try {
-			json.put("srch", new Integer(Math.round(vSearchTime / 1000)));
+			json.put("srch", new Long(vSearchTime));
 		} catch (NumberFormatException e) {
 			json.put("srch", null);
 		}
@@ -143,6 +146,10 @@ public class ApiComm {
 		json.put("udid", getDeviceId());
 		json.put("appV", rfcxSource.VERSION);
 		
+		if (this.lastCheckInId != null) {
+			json.put("lastId", this.lastCheckInId);
+			json.put("lastLen", new Long(this.lastCheckInDuration));
+		}
 		if (rfcxSource.verboseLogging) Log.d(TAG, httpUri + " - " + json.toJSONString());
 		
 		specCount = rfcxSource.audioState.fftSendBufferLength();
@@ -203,6 +210,8 @@ public class ApiComm {
 					Log.d(TAG, "Setting System Clock");
 					SystemClock.setCurrentTimeMillis(serverUnixTime);
 				}
+				this.lastCheckInId = JSON.get("checkInId").toString();
+				this.lastCheckInDuration = Calendar.getInstance().getTimeInMillis() - this.requestSendStart;
 			}
 		} catch (NumberFormatException e) {
 			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");

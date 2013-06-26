@@ -17,7 +17,7 @@ public class AudioCaptureService extends Service {
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
 
-	private RfcxSource rfcxSource = null;
+	private RfcxSource app = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -34,9 +34,9 @@ public class AudioCaptureService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
-		rfcxSource = (RfcxSource) getApplication();
-		if (rfcxSource.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
-		rfcxSource.isServiceRunning_AudioCapture = true;
+		app = (RfcxSource) getApplication();
+		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
+		app.isServiceRunning_AudioCapture = true;
 		this.audioCapture.start();
 		return START_STICKY;
 	}
@@ -45,7 +45,7 @@ public class AudioCaptureService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		rfcxSource.isServiceRunning_AudioCapture = false;
+		app.isServiceRunning_AudioCapture = false;
 		this.audioCapture.interrupt();
 		this.audioCapture = null;
 	}
@@ -59,16 +59,14 @@ public class AudioCaptureService extends Service {
 		@Override
 		public void run() {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
-			rfcxSource = (RfcxSource) getApplicationContext();
-			AudioState audioState = rfcxSource.audioState;
+			app = (RfcxSource) getApplicationContext();
+			AudioState audioState = app.audioState;
 			try {
 				int bufferSize = 12 * AudioRecord.getMinBufferSize(
-						AudioState.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO,
-						AudioFormat.ENCODING_PCM_16BIT);
+					AudioState.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
 				AudioRecord audioRecord = new AudioRecord(
-						MediaRecorder.AudioSource.MIC, AudioState.CAPTURE_SAMPLE_RATE,
-						AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT,
-						bufferSize);
+					MediaRecorder.AudioSource.MIC, AudioState.CAPTURE_SAMPLE_RATE,
+					AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
 				short[] audioBuffer = new short[AudioState.BUFFER_LENGTH];
 				audioRecord.startRecording();
 				
@@ -81,19 +79,19 @@ public class AudioCaptureService extends Service {
 					} catch (Exception e) {
 						Log.e(TAG, e.getMessage());
 						audioCaptureService.runFlag = false;
-						rfcxSource.isServiceRunning_AudioCapture = false;
+						app.isServiceRunning_AudioCapture = false;
 					}
 				}
-				if (rfcxSource.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
+				if (app.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
 				audioRecord.stop();
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException");
 				audioCaptureService.runFlag = false;
-				rfcxSource.isServiceRunning_AudioCapture = false;
+				app.isServiceRunning_AudioCapture = false;
 			} catch (Exception e) {
 				e.printStackTrace();
 				audioCaptureService.runFlag = false;
-				rfcxSource.isServiceRunning_AudioCapture = false;
+				app.isServiceRunning_AudioCapture = false;
 			}
 		}
 	}
