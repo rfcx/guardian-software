@@ -1,4 +1,4 @@
-package org.rfcx.src_api;
+package api;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,9 +19,11 @@ import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.rfcx.src_android.RfcxSource;
-import org.rfcx.src_database.DeviceStateDb;
-import org.rfcx.src_device.DeviceState;
-import org.rfcx.src_util.DateTimeUtils;
+
+import utility.DateTimeUtils;
+
+import database.DeviceStateDb;
+import device.DeviceState;
 
 import android.content.Context;
 import android.os.SystemClock;

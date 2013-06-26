@@ -1,4 +1,4 @@
-package org.rfcx.src_device;
+package device;
 
 import org.rfcx.src_android.RfcxSource;
 
@@ -14,7 +14,7 @@ public class AirplaneMode {
 	private boolean isEnabled;
 	private boolean allowWifi = false;
 	
-	private RfcxSource rfcxSource = null;
+	private RfcxSource app = null;
 	
 	public boolean isEnabled(Context context) {
 		isEnabled = Settings.System.getInt(context.getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) == 1;
@@ -22,24 +22,24 @@ public class AirplaneMode {
 	}
 	
 	public void setOn(Context context) {
-		if (rfcxSource == null) { rfcxSource = (RfcxSource) context.getApplicationContext(); }
-		if (rfcxSource.verboseLogging) { Log.d(TAG, "Turning AirplaneMode ON"); }
+		if (app == null) { app = (RfcxSource) context.getApplicationContext(); }
+		if (app.verboseLogging) { Log.d(TAG, "Turning AirplaneMode ON"); }
     	if (!isEnabled(context)) {
     		set(context, 1);
     	}
 	}
 	
 	public void setOff(Context context) {
-		if (rfcxSource == null) { rfcxSource = (RfcxSource) context.getApplicationContext(); }
-		if (rfcxSource.verboseLogging) { Log.d(TAG, "Turning AirplaneMode OFF"); }
+		if (app == null) { app = (RfcxSource) context.getApplicationContext(); }
+		if (app.verboseLogging) { Log.d(TAG, "Turning AirplaneMode OFF"); }
     	if (isEnabled(context)) {
     		set(context, 0);
     	}
 	}
 	
 	public void setToggle(Context context) {
-		if (rfcxSource == null) { rfcxSource = (RfcxSource) context.getApplicationContext(); }
-		if (rfcxSource.verboseLogging) { Log.d(TAG, "Toggling AirplaneMode"); }
+		if (app == null) { app = (RfcxSource) context.getApplicationContext(); }
+		if (app.verboseLogging) { Log.d(TAG, "Toggling AirplaneMode"); }
     	if (isEnabled(context)) {
     		setOff(context);
     	} else {

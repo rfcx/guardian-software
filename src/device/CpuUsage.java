@@ -1,9 +1,9 @@
-package org.rfcx.src_util;
+package device;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class DeviceCpuUsage {
+public class CpuUsage {
 	
 	public static final int REPORTING_SAMPLE_COUNT = 60;
 	

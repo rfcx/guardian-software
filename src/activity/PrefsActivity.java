@@ -1,4 +1,4 @@
-package src_activity;
+package activity;
 
 import org.rfcx.src_android.R;
 import org.rfcx.src_android.R.xml;

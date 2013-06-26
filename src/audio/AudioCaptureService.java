@@ -1,4 +1,4 @@
-package org.rfcx.src_audio;
+package audio;
 
 import org.rfcx.src_android.RfcxSource;
 

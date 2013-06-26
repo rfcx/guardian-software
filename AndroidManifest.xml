@@ -27,18 +27,18 @@
         android:name="org.rfcx.src_android.RfcxSource"
         >
         
-        <service android:name="org.rfcx.src_device.DeviceStateService" />
-        <service android:name="org.rfcx.src_audio.AudioCaptureService" />
-        <service android:name="org.rfcx.src_audio.AudioProcessService" />
-        <service android:name="org.rfcx.src_api.ApiCommIntentService" />
-        <service android:name="org.rfcx.src_monitor.MonitorIntentService" />
+        <service android:name="device.DeviceStateService" />
+        <service android:name="audio.AudioCaptureService" />
+        <service android:name="audio.AudioProcessService" />
+        <service android:name="api.ApiCommIntentService" />
+        <service android:name="service.MonitorIntentService" />
         
         <activity
-            android:name="src_activity.PrefsActivity"
+            android:name="activity.PrefsActivity"
             android:label="@string/menu_prefs" />
         
         <activity
-            android:name="src_activity.MainActivity"
+            android:name="activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,13 +46,13 @@
             </intent-filter>
         </activity>
         
-        <receiver android:name="org.rfcx.src_receiver.BootReceiver">
+        <receiver android:name="receiver.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>
 		</receiver>
 		
-        <receiver android:name="org.rfcx.src_receiver.SmsReceiver">
+        <receiver android:name="receiver.SmsReceiver">
     		<intent-filter>
         		<action android:name="android.provider.Telephony.SMS_RECEIVED" />
    			</intent-filter>

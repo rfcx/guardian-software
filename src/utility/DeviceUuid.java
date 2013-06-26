@@ -1,4 +1,4 @@
-package org.rfcx.src_util;
+package utility;
 
 import android.content.Context;
 import android.content.SharedPreferences;

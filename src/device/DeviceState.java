@@ -1,4 +1,4 @@
-package org.rfcx.src_device;
+package device;
 
 import android.content.Context;
 import android.content.Intent;

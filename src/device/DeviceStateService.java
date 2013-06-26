@@ -1,10 +1,11 @@
-package org.rfcx.src_device;
+package device;
 
 import java.util.Calendar;
 
 import org.rfcx.src_android.RfcxSource;
-import org.rfcx.src_database.DeviceStateDb;
-import org.rfcx.src_util.DeviceCpuUsage;
+
+
+import database.DeviceStateDb;
 
 import android.app.Service;
 import android.content.Intent;
@@ -28,7 +29,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 //	Sensor accelSensor = null;
 	Sensor lightSensor = null;
 	
-	RfcxSource rfcxSource = null;
+	RfcxSource app = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -45,8 +46,8 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		if (rfcxSource == null) { rfcxSource = (RfcxSource) getApplication(); }
-		if (rfcxSource.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
+		if (app == null) { app = (RfcxSource) getApplication(); }
+		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
 		((RfcxSource) getApplication()).isServiceRunning_DeviceState = true;
 		this.deviceStateSvc.start();
@@ -57,7 +58,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		rfcxSource.isServiceRunning_DeviceState = false;
+		app.isServiceRunning_DeviceState = false;
 		this.deviceStateSvc.interrupt();
 		this.deviceStateSvc = null;
 		unRegisterSensorListeners();
@@ -73,32 +74,32 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		@Override
 		public void run() {
 			DeviceStateService deviceStateService = DeviceStateService.this;
-			if (rfcxSource == null) { rfcxSource = (RfcxSource) getApplication(); }
+			if (app == null) { app = (RfcxSource) getApplication(); }
 			while (deviceStateService.runFlag) {
-				DeviceCpuUsage deviceCpuUsage = rfcxSource.deviceCpuUsage;
-				DeviceState deviceState = rfcxSource.deviceState;
-				DeviceStateDb deviceStateDb = rfcxSource.deviceStateDb;
+				CpuUsage deviceCpuUsage = app.deviceCpuUsage;
+				DeviceState deviceState = app.deviceState;
+				DeviceStateDb deviceStateDb = app.deviceStateDb;
 				try {
 					deviceCpuUsage.updateCpuUsage();
 					recordingIncrement++;
-					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
-						deviceState.setBatteryState(rfcxSource.getApplicationContext(), null);
+					if (recordingIncrement == CpuUsage.REPORTING_SAMPLE_COUNT) {
+						deviceState.setBatteryState(app.getApplicationContext(), null);
 						deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
 						deviceStateDb.dbCpuClock.insert(deviceCpuUsage.getCpuClockAvg());
 						deviceStateDb.dbBattery.insert(deviceState.getBatteryPercent());
 						deviceStateDb.dbBatteryTemperature.insert(deviceState.getBatteryTemperature());
 						recordingIncrement = 0;
-						if (rfcxSource.verboseLogging) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"MHz - )"+(Calendar.getInstance()).getTime().toLocaleString());
+						if (app.verboseLogging) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"MHz - )"+(Calendar.getInstance()).getTime().toLocaleString());
 					}
 											
-					int delayMs = (int) Math.round(60000/deviceState.serviceSamplesPerMinute) - DeviceCpuUsage.SAMPLE_LENGTH_MS;
+					int delayMs = (int) Math.round(60000/deviceState.serviceSamplesPerMinute) - CpuUsage.SAMPLE_LENGTH_MS;
 					Thread.sleep(delayMs);
 				} catch (InterruptedException e) {
 					deviceStateService.runFlag = false;
-					rfcxSource.isServiceRunning_DeviceState = true;
+					app.isServiceRunning_DeviceState = true;
 				}
 			}
-			if (rfcxSource.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
+			if (app.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
 		}		
 	}
 

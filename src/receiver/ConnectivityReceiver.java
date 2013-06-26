@@ -1,7 +1,8 @@
-package org.rfcx.src_receiver;
+package receiver;
 
 import org.rfcx.src_android.RfcxSource;
-import org.rfcx.src_monitor.TimeOfDay;
+
+import utility.TimeOfDay;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

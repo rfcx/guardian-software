@@ -6,7 +6,7 @@
     <string name="menu_prefs">Preferences</string>
     <string name="menu_services_toggle">Stop Services</string>
 	<string name="menu_services_audio">Toggle Audio</string>
-	<string name="menu_connectivity">Connect</string>
+	<string name="menu_connectivity">(Re) Connect</string>
     
     <string name="title_device_uuid">Device UUID</string>
     <string name="desc_device_uuid">Device UUID (should be preset)</string>

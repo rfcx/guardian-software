@@ -1,4 +1,4 @@
-package org.rfcx.src_receiver;
+package receiver;
 
 import org.rfcx.src_android.RfcxSource;
 

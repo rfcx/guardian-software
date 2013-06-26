@@ -1,7 +1,8 @@
-package org.rfcx.src_api;
+package api;
 
 import org.rfcx.src_android.RfcxSource;
-import org.rfcx.src_monitor.TimeOfDay;
+
+import utility.TimeOfDay;
 
 import android.app.IntentService;
 import android.content.Context;

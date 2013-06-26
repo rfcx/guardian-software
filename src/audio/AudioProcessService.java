@@ -1,4 +1,4 @@
-package org.rfcx.src_audio;
+package audio;
 
 import org.rfcx.src_android.RfcxSource;
 
@@ -16,7 +16,7 @@ public class AudioProcessService extends Service {
 	
 	private static final int DELAY = 1000;
 	
-	private RfcxSource rfcxSource = null;
+	private RfcxSource app = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -34,9 +34,9 @@ public class AudioProcessService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
-		rfcxSource = (RfcxSource) getApplication();
-		if (rfcxSource.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
-		rfcxSource.isServiceRunning_AudioProcess = true;
+		app = (RfcxSource) getApplication();
+		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
+		app.isServiceRunning_AudioProcess = true;
 		this.audioProcess.start();
 		return START_STICKY;
 	}
@@ -45,7 +45,7 @@ public class AudioProcessService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		rfcxSource.isServiceRunning_AudioProcess = false;
+		app.isServiceRunning_AudioProcess = false;
 		this.audioProcess.interrupt();
 		this.audioProcess = null;
 	}	
@@ -59,8 +59,8 @@ public class AudioProcessService extends Service {
 		@Override
 		public void run() {
 			AudioProcessService audioProcessService = AudioProcessService.this;
-			rfcxSource = (RfcxSource) getApplicationContext();
-			AudioState audioState = rfcxSource.audioState;
+			app = (RfcxSource) getApplicationContext();
+			AudioState audioState = app.audioState;
 			try {
 				while (audioProcessService.runFlag) {
 					while (audioState.pcmBufferLength() > 2) {
@@ -68,15 +68,15 @@ public class AudioProcessService extends Service {
 					}
 					Thread.sleep(DELAY);
 				}
-				if (rfcxSource.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
+				if (app.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException");
 				audioProcessService.runFlag = false;
-				rfcxSource.isServiceRunning_AudioProcess = false;
+				app.isServiceRunning_AudioProcess = false;
 			} catch (Exception e) {
 				Log.e(TAG, "Exception");
 				audioProcessService.runFlag = false;
-				rfcxSource.isServiceRunning_AudioProcess = false;
+				app.isServiceRunning_AudioProcess = false;
 			}
 		}
 		

@@ -3,21 +3,18 @@ package org.rfcx.src_android;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import org.rfcx.src_api.ApiComm;
-import org.rfcx.src_api.ApiCommIntentService;
-import org.rfcx.src_audio.AudioCaptureService;
-import org.rfcx.src_audio.AudioProcessService;
-import org.rfcx.src_audio.AudioState;
-import org.rfcx.src_database.DeviceStateDb;
-import org.rfcx.src_database.SmsDb;
-import org.rfcx.src_device.AirplaneMode;
-import org.rfcx.src_device.DeviceState;
-import org.rfcx.src_device.DeviceStateService;
-import org.rfcx.src_monitor.MonitorIntentService;
-import org.rfcx.src_receiver.AirplaneModeReceiver;
-import org.rfcx.src_receiver.ConnectivityReceiver;
-import org.rfcx.src_util.DeviceCpuUsage;
-import org.rfcx.src_util.DeviceUuid;
+
+import receiver.AirplaneModeReceiver;
+import receiver.ConnectivityReceiver;
+import service.MonitorIntentService;
+import utility.DeviceUuid;
+
+import database.DeviceStateDb;
+import database.SmsDb;
+import device.AirplaneMode;
+import device.CpuUsage;
+import device.DeviceState;
+import device.DeviceStateService;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -32,10 +29,15 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import api.ApiComm;
+import api.ApiCommIntentService;
+import audio.AudioCaptureService;
+import audio.AudioProcessService;
+import audio.AudioState;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
-	public static final String VERSION = "0.4.4";
+	public static final String VERSION = "0.4.6";
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
 	private SharedPreferences sharedPreferences;
@@ -60,7 +62,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	// for obtaining device stats and characteristics
 	private UUID deviceId = null;
 	public DeviceState deviceState = new DeviceState();
-	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
+	public CpuUsage deviceCpuUsage = new CpuUsage();
 	
 	// for viewing and controlling airplane mode
 	public AirplaneMode airplaneMode = new AirplaneMode();

@@ -1,11 +1,12 @@
-package org.rfcx.src_database;
+package database;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.rfcx.src_android.RfcxSource;
-import org.rfcx.src_util.DateTimeUtils;
+
+import utility.DateTimeUtils;
 
 import android.content.ContentValues;
 import android.content.Context;
