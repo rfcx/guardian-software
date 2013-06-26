@@ -50,7 +50,7 @@ public class ApiComm {
 	private HttpClient httpClient = new DefaultHttpClient();
 	private HttpPost httpPost = null;
 	private String httpUri = "";
-	private RfcxSource rfcxSource = null;
+	private RfcxSource app = null;
 	private DeviceState deviceState = null;
 	private DeviceStateDb deviceStateDb = null;
 	private byte[] jsonZipped = null;
@@ -64,9 +64,9 @@ public class ApiComm {
 	public boolean isTransmitting = false;
 	
 	public void sendData(Context context) {
-		if (rfcxSource == null)
-			rfcxSource = (RfcxSource) context.getApplicationContext();
-		if (httpPost != null && !rfcxSource.airplaneMode.isEnabled(context)) {
+		if (app == null)
+			app = (RfcxSource) context.getApplicationContext();
+		if (httpPost != null && !app.airplaneMode.isEnabled(context)) {
 			this.isTransmitting = true;
 			this.transmitAttempts++;
 			if (jsonZipped == null) { preparePost(); }
@@ -78,8 +78,8 @@ public class ApiComm {
 			} else {
 				cleanupAfterResponse(httpResponseString);
 				this.transmitAttempts = 0;
-				rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
-				if (rfcxSource.verboseLogging) { Log.d(TAG, "Turning off antenna..."); }
+				app.airplaneMode.setOn(app.getApplicationContext());
+				if (app.verboseLogging) { Log.d(TAG, "Turning off antenna..."); }
 			}
 			
 		}
@@ -108,17 +108,14 @@ public class ApiComm {
 
 		transmitTime = Calendar.getInstance();
 		
-		if (deviceStateDb == null) deviceStateDb = rfcxSource.deviceStateDb;
-		if (deviceState == null) deviceState = rfcxSource.deviceState;
+		if (deviceStateDb == null) deviceStateDb = app.deviceStateDb;
+		if (deviceState == null) deviceState = app.deviceState;
 
 		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
 		String[] vBatteryTemp = deviceStateDb.dbBatteryTemperature.getStatsSummary();
 		String[] vCpu = deviceStateDb.dbCpu.getStatsSummary();
 		String[] vCpuClock = deviceStateDb.dbCpuClock.getStatsSummary();
 		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
-		boolean vPower = !(rfcxSource.deviceState.isBatteryDisCharging());
-		boolean vPowerFull = rfcxSource.deviceState.isBatteryCharged();
-		long vSearchTime = Calendar.getInstance().getTimeInMillis() - signalSearchStart;
 
 		JSONObject json = new JSONObject();
 		try {
@@ -132,32 +129,32 @@ public class ApiComm {
 			json.put("temp", null);
 		}
 		try {
-			json.put("srch", new Long(vSearchTime));
+			json.put("srch", new Long(Calendar.getInstance().getTimeInMillis()-signalSearchStart));
 		} catch (NumberFormatException e) {
 			json.put("srch", null);
 		}
 		json.put("cpuP", (vCpu[0] != "0") ? vCpu[4] : null);
 		json.put("cpuC", (vCpuClock[0] != "0") ? vCpuClock[4] : null);
 		json.put("lumn", (vLight[0] != "0") ? vLight[4] : null);
-		json.put("powr", (vPower) ? new Boolean(true) : new Boolean(false));
-		json.put("chrg", (vPowerFull) ? new Boolean(true) : new Boolean(false));
+		json.put("powr", (!app.deviceState.isBatteryDisCharging()) ? new Boolean(true) : new Boolean(false));
+		json.put("chrg", (app.deviceState.isBatteryCharged()) ? new Boolean(true) : new Boolean(false));
 
 		json.put("sent", transmitTime.getTime().toGMTString());
-		json.put("udid", getDeviceId());
-		json.put("appV", rfcxSource.VERSION);
+		json.put("uuid", getDeviceId());
+		json.put("appV", app.VERSION);
 		
 		if (this.lastCheckInId != null) {
 			json.put("lastId", this.lastCheckInId);
 			json.put("lastLen", new Long(this.lastCheckInDuration));
 		}
-		if (rfcxSource.verboseLogging) Log.d(TAG, httpUri + " - " + json.toJSONString());
+		if (app.verboseLogging) Log.d(TAG, httpUri + " - " + json.toJSONString());
 		
-		specCount = rfcxSource.audioState.fftSendBufferLength();
+		specCount = app.audioState.fftSendBufferLength();
 		Log.d(TAG, "Compiling Spectra ("+specCount+")...");
 		
-		ArrayList<Calendar> specT_raw = rfcxSource.audioState.getFftSendBufferTimestampsUpTo(specCount);
+		ArrayList<Calendar> specT_raw = app.audioState.getFftSendBufferTimestampsUpTo(specCount);
 		String[] specT_str = new String[specCount];
-		ArrayList<String[]> specV = rfcxSource.audioState.getFftSendBufferUpTo(specCount);
+		ArrayList<String[]> specV = app.audioState.getFftSendBufferUpTo(specCount);
 		
 		if (specV.size() > 0) {
 			String[] specV_grp = new String[specCount];
@@ -180,7 +177,7 @@ public class ApiComm {
 				} catch (IOException e) { };
 			} }
 			jsonZipped = byteArrayOutputStream.toByteArray();
-			if (rfcxSource.verboseLogging) {
+			if (app.verboseLogging) {
 				Log.d(TAG, "Spectra: "+specCount+" - GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB");
 			}
 		}
@@ -198,7 +195,7 @@ public class ApiComm {
 			deviceStateDb.dbBatteryTemperature.clearStatsBefore(transmitTime.getTime());
 		}
 
-		if (specCount > 0) { rfcxSource.audioState.clearFFTSendBufferUpTo(specCount); }
+		if (specCount > 0) { app.audioState.clearFFTSendBufferUpTo(specCount); }
 		
 		
 		try {
@@ -220,8 +217,8 @@ public class ApiComm {
 		} catch (NullPointerException e) {
 			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
 		} finally {
-			if (rfcxSource.verboseLogging) Log.d(TAG, "API Response: " + httpResponseString);
-			rfcxSource.airplaneMode.setOn(rfcxSource.getApplicationContext());
+			if (app.verboseLogging) Log.d(TAG, "API Response: " + httpResponseString);
+			app.airplaneMode.setOn(app.getApplicationContext());
 		}
 	}
 
@@ -255,7 +252,7 @@ public class ApiComm {
 
 	private String getDeviceId() {
 		if (deviceId == null)
-			deviceId = rfcxSource.getDeviceId().toString();
+			deviceId = app.getDeviceId().toString();
 		return deviceId;
 	}
 
