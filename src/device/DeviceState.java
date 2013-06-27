@@ -6,8 +6,6 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 
 public class DeviceState {
-		
-//	public static final boolean SERVICE_ENABLED = true;
 
 	public int serviceSamplesPerMinute = 60;
 	

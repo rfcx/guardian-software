@@ -12,34 +12,27 @@ import android.util.Log;
 public class SmsReceiver extends BroadcastReceiver {
 
 	private static final String TAG = SmsReceiver.class.getSimpleName();
-
+	private RfcxSource app = null;
+	
     @Override
     public void onReceive(Context context, Intent intent) {
+    	if (app == null) app = (RfcxSource) context.getApplicationContext();
     	if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
-    		Log.d(TAG, "Sms onReceive");
-    		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
     		Bundle bundle = intent.getExtras();
-    		SmsMessage[] msgs = null;
-            String origin;
+    		SmsMessage[] smsMessages = null;
             if (bundle != null) {
             	try {
             		Object[] pdus = (Object[]) bundle.get("pdus");
-            		msgs = new SmsMessage[pdus.length];
-                    for (int i = 0; i < msgs.length; i++) {
-                        msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
-                        origin = msgs[i].getOriginatingAddress();
-                        String message = msgs[i].getMessageBody();
-                        Log.d(TAG, "SMS from "+origin+": "+message);
-                        rfcxSource.smsDb.dbSms.insert(origin, message);
+            		smsMessages = new SmsMessage[pdus.length];
+                    for (int i = 0; i < smsMessages.length; i++) {
+                    	smsMessages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);;
+                        app.smsDb.dbSms.insert(smsMessages[i].getOriginatingAddress(), smsMessages[i].getMessageBody());
+                        if (app.verboseLogging) Log.d(TAG, "Saved SMS from '"+smsMessages[i].getOriginatingAddress()+"': "+smsMessages[i].getMessageBody());
                     }
                 } catch (Exception e) {
-                	Log.e(TAG, e.getMessage());
+                	Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
                 }
             }
         }
     }
 }
-
-
-//rfcxSource.deviceState.setLightLevel(Math.round(event.values[0]));
-//rfcxSource.deviceStateDb.dbLight.insert(rfcxSource.deviceState.getLightLevel());

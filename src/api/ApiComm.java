@@ -3,8 +3,12 @@ package api;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.http.HttpResponse;
@@ -14,6 +18,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
@@ -23,6 +28,7 @@ import org.rfcx.src_android.RfcxSource;
 import utility.DateTimeUtils;
 
 import database.DeviceStateDb;
+import database.SmsDb;
 import device.DeviceState;
 
 import android.content.Context;
@@ -45,16 +51,24 @@ public class ApiComm {
 	private String apiProtocol = "http";
 	private String apiDomain;
 	private int apiPort;
-	private String apiEndpoint;
+	private String httpUriBase = "";
+	
+	private String apiEndpointCheckIn;
+	private String apiEndpointAlert;
 
 	private int specCount = 0;
 
-	private HttpClient httpClient = new DefaultHttpClient();
-	private HttpPost httpPost = null;
-	private String httpUri = "";
+	private HttpClient httpClientCheckIn = new DefaultHttpClient();
+	private HttpClient httpClientAlert = new DefaultHttpClient();
+	
+	private HttpPost httpPostCheckIn = null;
+	private HttpPost httpPostAlert = null;
+	
+	
 	private RfcxSource app = null;
 	private DeviceState deviceState = null;
 	private DeviceStateDb deviceStateDb = null;
+	private SmsDb smsDb = null;
 	private byte[] jsonZipped = null;
 	private Calendar transmitTime = Calendar.getInstance();
 
@@ -65,20 +79,19 @@ public class ApiComm {
 	private int transmitAttempts = 0;
 	public boolean isTransmitting = false;
 	
-	public void sendData(Context context) {
-		if (app == null)
-			app = (RfcxSource) context.getApplicationContext();
-		if (httpPost != null && !app.airplaneMode.isEnabled(context)) {
+	public void sendCheckIn(Context context) {
+		if (app == null) app = (RfcxSource) context.getApplicationContext();
+		if (httpPostCheckIn != null && !app.airplaneMode.isEnabled(context)) {
 			this.isTransmitting = true;
 			this.transmitAttempts++;
-			if (jsonZipped == null) { preparePost(); }
+			if (jsonZipped == null) { preparePostCheckIn(); }
 			this.requestSendStart = Calendar.getInstance().getTimeInMillis();
-			String httpResponseString = executePost();
+			String httpResponseString = executePostCheckIn();
 			
 			if ((httpResponseString == null) && (specCount > 0)) {
-				if (this.transmitAttempts < 3) { sendData(context); }
+				if (this.transmitAttempts < 3) { sendCheckIn(context); }
 			} else {
-				cleanupAfterResponse(httpResponseString);
+				cleanupAfterResponseCheckIn(httpResponseString);
 				this.transmitAttempts = 0;
 				app.airplaneMode.setOn(app.getApplicationContext());
 				if (app.verboseLogging) { Log.d(TAG, "Turning off antenna..."); }
@@ -87,14 +100,14 @@ public class ApiComm {
 		}
 	}
 
-	private String executePost() {
+	private String executePostCheckIn() {
 		String httpResponseString = null;
 		if (specCount > 0) {
 			MultipartEntity multipartEntity = new MultipartEntity();
 			multipartEntity.addPart("blob",  new InputStreamBody(new ByteArrayInputStream(jsonZipped),transmitTime.getTime()+".json"));
-			httpPost.setEntity(multipartEntity);
+			httpPostCheckIn.setEntity(multipartEntity);
 			try {
-				httpResponseString = httpResponseString(httpClient.execute(httpPost));
+				httpResponseString = httpResponseStringCheckIn(this.httpClientCheckIn.execute(this.httpPostCheckIn));
 			} catch (ClientProtocolException e) {
 				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
 			} catch (IOException e) {
@@ -106,11 +119,12 @@ public class ApiComm {
 		return httpResponseString;
 	}
 	
-	private void preparePost() {
+	private void preparePostCheckIn() {
 
 		transmitTime = Calendar.getInstance();
 		
 		if (deviceStateDb == null) deviceStateDb = app.deviceStateDb;
+		if (smsDb == null) smsDb = app.smsDb;
 		if (deviceState == null) deviceState = app.deviceState;
 
 		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
@@ -144,12 +158,14 @@ public class ApiComm {
 		json.put("sent", transmitTime.getTime().toGMTString());
 		json.put("uuid", getDeviceId());
 		json.put("appV", app.VERSION);
+		json.put("sms", smsDb.dbSms.getSerializedSmsAll());
 		
 		if (this.lastCheckInId != null) {
 			json.put("lastId", this.lastCheckInId);
 			json.put("lastLen", new Long(this.lastCheckInDuration));
 		}
-		if (app.verboseLogging) Log.d(TAG, httpUri + " - " + json.toJSONString());
+				
+		if (app.verboseLogging) Log.d(TAG, this.httpUriBase + this.apiEndpointCheckIn + " : " + json.toJSONString());
 		
 		specCount = app.audioState.fftSendBufferLength();
 		Log.d(TAG, "Compiling Spectra ("+specCount+")...");
@@ -185,20 +201,21 @@ public class ApiComm {
 		}
 	}
 
-	private void cleanupAfterResponse(String httpResponseString) {
+	private void cleanupAfterResponseCheckIn(String httpResponseString) {
 		
 		resetTransmissionState();
-
-		if (deviceStateDb != null) {
-			deviceStateDb.dbBattery.clearStatsBefore(transmitTime.getTime());
-			deviceStateDb.dbCpu.clearStatsBefore(transmitTime.getTime());
-			deviceStateDb.dbCpuClock.clearStatsBefore(transmitTime.getTime());
-			deviceStateDb.dbLight.clearStatsBefore(transmitTime.getTime());
-			deviceStateDb.dbBatteryTemperature.clearStatsBefore(transmitTime.getTime());
-		}
-
-		if (specCount > 0) { app.audioState.clearFFTSendBufferUpTo(specCount); }
 		
+		Date lastTransmitTime = transmitTime.getTime();
+		if (deviceStateDb != null) {
+			deviceStateDb.dbBattery.clearStatsBefore(lastTransmitTime);
+			deviceStateDb.dbCpu.clearStatsBefore(lastTransmitTime);
+			deviceStateDb.dbCpuClock.clearStatsBefore(lastTransmitTime);
+			deviceStateDb.dbLight.clearStatsBefore(lastTransmitTime);
+			deviceStateDb.dbBatteryTemperature.clearStatsBefore(lastTransmitTime);
+		}
+		if (smsDb != null) smsDb.dbSms.clearSmsBefore(lastTransmitTime);
+		
+		if (specCount > 0) { app.audioState.clearFFTSendBufferUpTo(specCount); }
 		
 		try {
 			if (httpResponseString != null) {
@@ -224,7 +241,7 @@ public class ApiComm {
 		}
 	}
 
-	private String httpResponseString(HttpResponse httpResponse) {
+	private String httpResponseStringCheckIn(HttpResponse httpResponse) {
 		if (httpResponse.getEntity() != null) {
 			try {
 				return EntityUtils.toString(httpResponse.getEntity());
@@ -240,16 +257,6 @@ public class ApiComm {
 	public void resetTransmissionState() {
 		isTransmitting = false;
 		jsonZipped = null;
-	}
-
-	private void setPostUri() {
-		this.httpUri = apiProtocol + "://" + apiDomain + ":" + apiPort
-				+ apiEndpoint;
-	}
-
-	private void setPostRequest() {
-		setPostUri();
-		this.httpPost = new HttpPost(this.httpUri);
 	}
 
 	private String getDeviceId() {
@@ -300,9 +307,56 @@ public class ApiComm {
 		setPostRequest();
 	}
 
-	public void setApiEndpoint(String apiEndpoint) {
-		this.apiEndpoint = apiEndpoint;
+	public void setApiEndpointCheckIn(String apiEndpointCheckIn) {
+		this.apiEndpointCheckIn = apiEndpointCheckIn;
 		setPostRequest();
+	}
+	
+	public void setApiEndpointAlert(String apiEndpointAlert) {
+		this.apiEndpointAlert = apiEndpointAlert;
+		setPostRequest();
+	}
+	
+	private void setPostUriBase() {
+		this.httpUriBase = apiProtocol + "://" + apiDomain + ":" + apiPort;
+	}
+
+	private void setPostRequest() {
+		setPostUriBase();
+		this.httpPostCheckIn = new HttpPost(this.httpUriBase + this.apiEndpointCheckIn);
+		this.httpPostAlert = new HttpPost(this.httpUriBase + this.apiEndpointAlert);
+	}
+	
+	public boolean sendAnyAlerts(Context context) {
+		if (app == null) app = (RfcxSource) context.getApplicationContext();
+		String serializedAlerts = app.alertDb.dbAlert.getSerializedAlerts();
+		if (!serializedAlerts.equals("")) {
+			try {
+				MultipartEntity multipartEntity = new MultipartEntity();
+				multipartEntity.addPart("uuid",  new StringBody(getDeviceId()));
+				multipartEntity.addPart("alerts",  new StringBody(serializedAlerts));
+				this.httpPostAlert.setEntity(multipartEntity);
+				String httpResponseAlert = httpResponseStringCheckIn(this.httpClientAlert.execute(this.httpPostAlert));
+				Log.d(TAG, httpResponseAlert);
+				JSONObject JSON = (JSONObject) (new JSONParser()).parse(httpResponseAlert);
+				String apiServerTime = JSON.get("time").toString();
+				return true;
+			} catch (UnsupportedEncodingException e) {
+				Log.e(TAG, e.getMessage());
+			} catch (ClientProtocolException e) {
+				Log.e(TAG, e.getMessage());
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (UnknownHostException e) {
+				Log.e(TAG, e.getMessage());
+			} catch (org.json.simple.parser.ParseException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+			}
+		}
+		return false;
 	}
 
 }

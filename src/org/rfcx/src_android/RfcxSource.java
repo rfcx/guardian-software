@@ -9,6 +9,7 @@ import receiver.ConnectivityReceiver;
 import service.MonitorIntentService;
 import utility.DeviceUuid;
 
+import database.AlertDb;
 import database.DeviceStateDb;
 import database.SmsDb;
 import device.AirplaneMode;
@@ -37,7 +38,7 @@ import audio.AudioState;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
-	public static final String VERSION = "0.4.6";
+	public static final String VERSION = "0.4.7";
 	
 	private static final String TAG = RfcxSource.class.getSimpleName();
 	private SharedPreferences sharedPreferences;
@@ -58,6 +59,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	// database access helpers
 	public DeviceStateDb deviceStateDb = new DeviceStateDb(this);
 	public SmsDb smsDb = new SmsDb(this);
+	public AlertDb alertDb = new AlertDb(this);
 
 	// for obtaining device stats and characteristics
 	private UUID deviceId = null;
@@ -141,7 +143,8 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", airplaneMode.getAllowWifi()));
 		apiComm.setApiDomain(this.sharedPreferences.getString("api_domain", "rfcx.org"));
 		apiComm.setApiPort(Integer.parseInt(this.sharedPreferences.getString("api_port", "80")));
-		apiComm.setApiEndpoint(this.sharedPreferences.getString("api_endpoint", "/api/1/checkin"));
+		apiComm.setApiEndpointCheckIn(this.sharedPreferences.getString("api_endpoint_checkin", "/api/1/checkin"));
+		apiComm.setApiEndpointAlert(this.sharedPreferences.getString("api_endpoint_alert", "/api/1/source/alert"));
 		
 		this.isServiceEnabled_AudioCapture = this.sharedPreferences.getBoolean("enable_service_audiocapture", this.isServiceEnabled_AudioCapture);
 		this.isServiceEnabled_AudioProcess = this.sharedPreferences.getBoolean("enable_service_audioprocess", this.isServiceEnabled_AudioProcess);

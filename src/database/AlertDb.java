@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import utility.DateTimeUtils;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -15,30 +14,31 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class SmsDb {
-
-	public SmsDb(Context context) {
-		this.dbSms = new DbSms(context);
+public class AlertDb {
+	
+	public AlertDb(Context context) {
+		this.dbAlert = new DbAlert(context);
 	}
 	
-	private static final String TAG = SmsDb.class.getSimpleName();
+	private static final String TAG = AlertDb.class.getSimpleName();
 	static final int VERSION = 1;
-	static final String DATABASE = "sms";
+	static final String DATABASE = "alert";
 	static final String C_CREATED_AT = "created_at";
-	static final String C_ORIGIN = "origin";
+	static final String C_VALUE = "value";
 	static final String C_MESSAGE = "message";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_ORIGIN, C_MESSAGE };
-
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_VALUE, C_MESSAGE };
+	
+	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
-		sbOut.append(", "+C_ORIGIN+" TEXT");
+		sbOut.append(", "+C_VALUE+" TEXT");
 		sbOut.append(", "+C_MESSAGE+" TEXT");
 		return sbOut.append(")").toString();
 	}
 	
-	public class DbSms {
-		private String TABLE = "sms";
+	public class DbAlert {
+		private String TABLE = "alert";
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) {
 				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
@@ -58,16 +58,16 @@ public class SmsDb {
 			}
 		}
 		final DbHelper dbHelper;
-		public DbSms(Context context) {
+		public DbAlert(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String origin, String message) {
+		public void insert(String value, String message) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
-			values.put(C_ORIGIN, origin);
+			values.put(C_VALUE, value);
 			values.put(C_MESSAGE, message);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
@@ -76,7 +76,7 @@ public class SmsDb {
 				db.close();
 			}
 		}
-		public List<String[]> getSmsAll() {
+		public List<String[]> getAllAlerts() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
@@ -86,20 +86,20 @@ public class SmsDb {
 			} catch (Exception e) { Log.e(TAG, (e!=null) ? e.getMessage() : "Null Exception"); } finally { db.close(); }
 			return list;
 		}
-		public void clearSmsBefore(Date date) {
+		public void clearAlertsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<'"+(new DateTimeUtils()).getDateTime(date)+"'");
 			} finally { db.close(); }
 		}
-		public String getSerializedSmsAll() {
-			List<String[]> smsList = getSmsAll();
-			String[] smsArray = new String[smsList.size()];
-			for (int i = 0; i < smsList.size(); i++) {
-				smsArray[i] = TextUtils.join("|", smsList.get(i));
+		
+		public String getSerializedAlerts() {
+			List<String[]> alertList = getAllAlerts();
+			String[] alertArray = new String[alertList.size()];
+			for (int i = 0; i < alertList.size(); i++) {
+				alertArray[i] = TextUtils.join("|", alertList.get(i));
 			}
-			return (smsList.size() > 0) ? TextUtils.join("$", smsArray) : "";
+			return (alertList.size() > 0) ? TextUtils.join("$", alertArray) : "";
 		}
 	}
-	public final DbSms dbSms;
-
+	public final DbAlert dbAlert;
 }

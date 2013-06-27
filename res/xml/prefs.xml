@@ -32,10 +32,16 @@
         android:enabled="true" android:defaultValue="80"/>
 	
 	<EditTextPreference
-        android:title="@string/title_api_endpoint"
-        android:key="api_endpoint"
-        android:summary="@string/desc_api_endpoint"
+        android:key="api_endpoint_checkin"
+        android:title="API Check-In Endpoint"
+        android:summary="API Check-In Endpoint"
         android:enabled="true" android:defaultValue="/api/1/checkin"/>	
+        
+	<EditTextPreference
+        android:key="api_endpoint_alert"
+        android:title="API Alert Endpoint"
+        android:summary="API Alert Endpoint"
+        android:enabled="true" android:defaultValue="/api/1/source/alert"/>	
 	
 	<EditTextPreference
         android:title="@string/title_api_interval"
