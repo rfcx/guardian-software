@@ -60,22 +60,22 @@ public class AudioCaptureService extends Service {
 		public void run() {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
 			app = (RfcxSource) getApplicationContext();
-			AudioState audioState = app.audioState;
+			AudioCore audioCore = app.audioCore;
 			try {
 				int bufferSize = 12 * AudioRecord.getMinBufferSize(
-					AudioState.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
+					AudioCore.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
 				AudioRecord audioRecord = new AudioRecord(
-					MediaRecorder.AudioSource.MIC, AudioState.CAPTURE_SAMPLE_RATE,
+					MediaRecorder.AudioSource.MIC, AudioCore.CAPTURE_SAMPLE_RATE,
 					AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
-				short[] audioBuffer = new short[AudioState.BUFFER_LENGTH];
+				short[] audioBuffer = new short[AudioCore.BUFFER_LENGTH];
 				audioRecord.startRecording();
 				
-				Thread.sleep(1000*AudioState.BUFFER_LENGTH/AudioState.CAPTURE_SAMPLE_RATE);
+				Thread.sleep(1000*AudioCore.BUFFER_LENGTH/AudioCore.CAPTURE_SAMPLE_RATE);
 				
 				while (audioCaptureService.runFlag) {
 					try {
-						audioRecord.read(audioBuffer, 0, AudioState.BUFFER_LENGTH);
-						audioState.cachePcmBuffer(audioBuffer);
+						audioRecord.read(audioBuffer, 0, AudioCore.BUFFER_LENGTH);
+						audioCore.cachePcmBuffer(audioBuffer);
 					} catch (Exception e) {
 						Log.e(TAG, e.getMessage());
 						audioCaptureService.runFlag = false;

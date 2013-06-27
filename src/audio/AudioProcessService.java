@@ -60,11 +60,11 @@ public class AudioProcessService extends Service {
 		public void run() {
 			AudioProcessService audioProcessService = AudioProcessService.this;
 			app = (RfcxSource) getApplicationContext();
-			AudioState audioState = app.audioState;
+			AudioCore audioCore = app.audioCore;
 			try {
 				while (audioProcessService.runFlag) {
-					while (audioState.pcmBufferLength() > 2) {
-						audioState.addSpectrum();
+					while (audioCore.pcmBufferLength() > 2) {
+						audioCore.addSpectrum();
 					}
 					Thread.sleep(DELAY);
 				}

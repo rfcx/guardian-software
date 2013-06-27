@@ -167,12 +167,12 @@ public class ApiComm {
 				
 		if (app.verboseLogging) Log.d(TAG, this.httpUriBase + this.apiEndpointCheckIn + " : " + json.toJSONString());
 		
-		specCount = app.audioState.fftSendBufferLength();
+		specCount = app.audioCore.fftSendBufferLength();
 		Log.d(TAG, "Compiling Spectra ("+specCount+")...");
 		
-		ArrayList<Calendar> specT_raw = app.audioState.getFftSendBufferTimestampsUpTo(specCount);
+		ArrayList<Calendar> specT_raw = app.audioCore.getFftSendBufferTimestampsUpTo(specCount);
 		String[] specT_str = new String[specCount];
-		ArrayList<String[]> specV = app.audioState.getFftSendBufferUpTo(specCount);
+		ArrayList<String[]> specV = app.audioCore.getFftSendBufferUpTo(specCount);
 		
 		if (specV.size() > 0) {
 			String[] specV_grp = new String[specCount];
@@ -215,7 +215,7 @@ public class ApiComm {
 		}
 		if (smsDb != null) smsDb.dbSms.clearSmsBefore(lastTransmitTime);
 		
-		if (specCount > 0) { app.audioState.clearFFTSendBufferUpTo(specCount); }
+		if (specCount > 0) { app.audioCore.clearFFTSendBufferUpTo(specCount); }
 		
 		try {
 			if (httpResponseString != null) {

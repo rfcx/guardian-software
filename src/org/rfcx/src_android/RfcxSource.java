@@ -34,7 +34,7 @@ import api.ApiComm;
 import api.ApiCommIntentService;
 import audio.AudioCaptureService;
 import audio.AudioProcessService;
-import audio.AudioState;
+import audio.AudioCore;
 
 public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
 	
@@ -75,7 +75,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
 	// for analyzing captured audio
-	public AudioState audioState = new AudioState();
+	public AudioCore audioCore = new AudioCore();
 		
 	// android service running flags
 	public boolean isServiceRunning_DeviceState = false;

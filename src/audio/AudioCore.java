@@ -7,9 +7,9 @@ import com.badlogic.gdx.audio.analysis.FFT;
 
 import android.util.Log;
 
-public class AudioState {
+public class AudioCore {
 
-	private static final String TAG = AudioState.class.getSimpleName();
+	private static final String TAG = AudioCore.class.getSimpleName();
 
 	public static final int CAPTURE_SAMPLE_RATE = 4000;
 	public static final int FFT_RESOLUTION = 2048;
