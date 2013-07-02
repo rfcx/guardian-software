@@ -22,22 +22,26 @@ public class MonitorIntentService extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		RfcxSource rfcxSource = (RfcxSource) getApplication();
-		if (rfcxSource.isServiceRunning_ServiceMonitor) {
-			Intent intent = new Intent(INTENT_TAG);
-			sendBroadcast(intent, NOTIFICATION_TAG);
-			if (rfcxSource.verboseLogging) Log.d(TAG, "Running Service Monitor...");
+		RfcxSource app = (RfcxSource) getApplication();
+		Context context = app.getApplicationContext();
+		Intent intent = new Intent(INTENT_TAG);
+		sendBroadcast(intent, NOTIFICATION_TAG);
+		if (app.verboseLogging) Log.d(TAG, "Running Service Monitor...");
+		
+		if (app.isCrisisModeEnabled) {
+			if (app.verboseLogging) Log.d(TAG, "Crisis mode enabled! Making sure services are disabled...");
+			app.suspendAllServices(context);
+		} else if (app.isServiceRunning_ServiceMonitor) {
 			TimeOfDay timeOfDay = new TimeOfDay();
-			Context context = rfcxSource.getApplicationContext();
-			if (timeOfDay.isDataGenerationEnabled(context) || rfcxSource.ignoreOffHours) {
-				if (rfcxSource.verboseLogging) Log.d(TAG, "Services should be running.");
-				rfcxSource.launchAllServices(context);
+			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {
+				if (app.verboseLogging) Log.d(TAG, "Services should be running.");
+				app.launchAllServices(context);
 			} else {
-				if (rfcxSource.verboseLogging) Log.d(TAG, "Services should be suspended.");
-				rfcxSource.suspendAllServices(context);
+				if (app.verboseLogging) Log.d(TAG, "Services should be suspended.");
+				app.suspendAllServices(context);
 			}
 		} else {
-			rfcxSource.isServiceRunning_ServiceMonitor = true;
+			app.isServiceRunning_ServiceMonitor = true;
 		}
 	}
 	

@@ -50,8 +50,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 //		addPrefOverride("monitor_intentservice_interval","180","string");
 //		addPrefOverride("day_begins_at_hour","9","string");
 //		addPrefOverride("day_ends_at_hour","17","string");
-//		addPrefOverride("api_interval","1800","string");
+		addPrefOverride("api_interval","3600","string");
 		runPrefsOverride();
+		this.isCrisisModeEnabled = true;
 	}
 	
 	public boolean verboseLogging = false;
@@ -76,6 +77,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	// for analyzing captured audio
 	public AudioCore audioCore = new AudioCore();
+	
+	// should services be disabled as if in a power emergency...
+	public boolean isCrisisModeEnabled = false;
 		
 	// android service running flags
 	public boolean isServiceRunning_DeviceState = false;
@@ -86,6 +90,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	
 	public boolean isServiceRunning_AudioProcess = false;
 	public boolean isServiceEnabled_AudioProcess = true;
+	
+	public boolean isServiceRunning_AudioEncode = false;
+	public boolean isServiceEnabled_AudioEncode = true;
 	
 	public boolean isServiceRunning_ApiComm = false;
 	public boolean isServiceEnabled_ApiComm = true;
