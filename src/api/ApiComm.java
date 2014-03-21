@@ -102,7 +102,7 @@ public class ApiComm {
 
 	private String executePostCheckIn() {
 		String httpResponseString = null;
-		if (specCount > 0) {
+//		if (specCount > 0) {
 			MultipartEntity multipartEntity = new MultipartEntity();
 			multipartEntity.addPart("blob",  new InputStreamBody(new ByteArrayInputStream(jsonZipped),transmitTime.getTime()+".json"));
 			httpPostCheckIn.setEntity(multipartEntity);
@@ -113,9 +113,9 @@ public class ApiComm {
 			} catch (IOException e) {
 				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
 			}
-		} else {
-			Log.d(TAG, "No spectra to send.");
-		}
+//		} else {
+//			Log.d(TAG, "No spectra to send.");
+//		}
 		return httpResponseString;
 	}
 	
@@ -182,22 +182,22 @@ public class ApiComm {
 			}
 			json.put("specV", TextUtils.join("*", specV_grp));
 			json.put("specT",TextUtils.join(",", specT_str));
-
-			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-			GZIPOutputStream gZIPOutputStream = null;
-			try {
-				gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
-				gZIPOutputStream.write(json.toJSONString().getBytes("UTF-8"));
-			} catch (IOException e) {
-				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
-			} finally { if (gZIPOutputStream != null) {
-				try { gZIPOutputStream.close();
-				} catch (IOException e) { };
-			} }
-			jsonZipped = byteArrayOutputStream.toByteArray();
-			if (app.verboseLogging) {
-				Log.d(TAG, "Spectra: "+specCount+" - GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB");
-			}
+		}
+		
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		GZIPOutputStream gZIPOutputStream = null;
+		try {
+			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+			gZIPOutputStream.write(json.toJSONString().getBytes("UTF-8"));
+		} catch (IOException e) {
+			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+		} finally { if (gZIPOutputStream != null) {
+			try { gZIPOutputStream.close();
+			} catch (IOException e) { };
+		} }
+		jsonZipped = byteArrayOutputStream.toByteArray();
+		if (app.verboseLogging) {
+			Log.d(TAG, "Spectra: "+specCount+" - GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB");
 		}
 	}
 

@@ -41,8 +41,9 @@ public class AudioCaptureService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
 		app = (RfcxSource) getApplication();
-		if (app.audioCore.cacheDir == null) { 
-			app.audioCore.cacheDir = app.getApplicationContext().getFilesDir().getPath()+"/audio";
+		if (app.audioCore.cacheDir == null) {
+			app.audioCore.wavDir = app.getApplicationContext().getFilesDir().getPath()+"/wav";
+			app.audioCore.cacheDir = app.audioCore.wavDir+"/cache";
 			(new File(app.audioCore.cacheDir)).mkdirs();
 		}
 		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
@@ -72,53 +73,19 @@ public class AudioCaptureService extends Service {
 			app = (RfcxSource) getApplicationContext();
 			AudioCore audioCore = app.audioCore;
 			try {
-//				int bufferSize = 12 * AudioRecord.getMinBufferSize(
-//					AudioCore.CAPTURE_SAMPLE_RATE, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
-//				AudioRecord audioRecord = new AudioRecord(
-//					MediaRecorder.AudioSource.MIC, AudioCore.CAPTURE_SAMPLE_RATE,
-//					AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
-			
-//				short[] audioBuffer = new short[AudioCore.BUFFER_LENGTH];
-				
-				
-//				StreamConfiguration streamConfiguration = new StreamConfiguration();
-//		        streamConfiguration.setSampleRate(AudioCore.CAPTURE_SAMPLE_RATE);
-//		        streamConfiguration.setBitsPerSample(16);
-//		        streamConfiguration.setChannelCount(1);
-//
-//				ByteBuffer byteBuffer = ByteBuffer.allocateDirect(AudioCore.BUFFER_LENGTH*10);
-//				
-//				audioRecord.startRecording();
-				
-//				Thread.sleep(15000);
-				
 				
 				while (audioCaptureService.runFlag) {
 					try {
 						
 						audioRecorder = ExtAudioRecorderModified.getInstance();
-				        audioRecorder.setOutputFile(app.audioCore.cacheDir+"/"+Calendar.getInstance().getTimeInMillis()+".wav");
+						String fileName = Calendar.getInstance().getTimeInMillis()+".wav";
+				        audioRecorder.setOutputFile(app.audioCore.cacheDir+"/"+fileName);
 				        audioRecorder.prepare();
 				        audioRecorder.start();
 						Thread.sleep(60000);
 						audioRecorder.stop();
 						audioRecorder.release();
-						
-//						audioRecord.read(byteBuffer, AudioCore.BUFFER_LENGTH*10);
-//						byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-//						File outputFile = new File(fileDir,Calendar.getInstance().getTimeInMillis()+".flac");
-//				        FLACFileOutputStream flacOutputStream = new FLACFileOutputStream(outputFile);
-//				        FLACEncoder flacEncoder = new FLACEncoder();
-//				        flacEncoder.setStreamConfiguration(streamConfiguration);
-//				        flacEncoder.setOutputStream(flacOutputStream);
-//						flacEncoder.openFLACStream();
-//						int[] asInt = new int[byteBuffer.asIntBuffer().remaining()];
-//						byteBuffer.asIntBuffer().get(asInt);
-//						flacEncoder.addSamples(asInt, asInt.length);
-//			   //         flacEncoder.encodeSamples(asInt.length, false);
-//			            flacEncoder.encodeSamples(flacEncoder.samplesAvailableToEncode(), true);
-//			            flacOutputStream.close();
-////						audioCore.cachePcmBuffer(audioBuffer);
+						(new File(app.audioCore.cacheDir+"/"+fileName)).renameTo(new File(app.audioCore.wavDir+"/"+fileName));
 						
 					} catch (Exception e) {
 						e.printStackTrace();

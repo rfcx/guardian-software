@@ -52,7 +52,7 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 //		addPrefOverride("day_ends_at_hour","17","string");
 		addPrefOverride("api_interval","3600","string");
 		runPrefsOverride();
-		this.isCrisisModeEnabled = true;
+//		this.isCrisisModeEnabled = true;
 	}
 	
 	public boolean verboseLogging = false;

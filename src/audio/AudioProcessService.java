@@ -1,5 +1,10 @@
 package audio;
 
+import java.io.File;
+import java.util.Calendar;
+
+import javaFlacEncoder.FLAC_FileEncoder;
+
 import org.rfcx.src_android.RfcxSource;
 
 import android.app.Service;
@@ -35,6 +40,10 @@ public class AudioProcessService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
 		app = (RfcxSource) getApplication();
+		if (app.audioCore.flacDir == null) { 
+			app.audioCore.flacDir = app.getApplicationContext().getFilesDir().getPath()+"/flac";
+			(new File(app.audioCore.flacDir)).mkdirs();
+		}
 		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
 		app.isServiceRunning_AudioProcess = true;
 		this.audioProcess.start();
@@ -60,12 +69,22 @@ public class AudioProcessService extends Service {
 		public void run() {
 			AudioProcessService audioProcessService = AudioProcessService.this;
 			app = (RfcxSource) getApplicationContext();
-			AudioCore audioCore = app.audioCore;
+		//	AudioCore audioCore = app.audioCore;
 			try {
 				while (audioProcessService.runFlag) {
-					while (audioCore.pcmBufferLength() > 2) {
-						audioCore.addSpectrum();
+					File[] wavFiles = (new File(app.audioCore.wavDir)).listFiles();
+					for (File wavFile : wavFiles) {
+						if (app.verboseLogging) { Log.d(TAG,wavFile.getAbsolutePath()); }
+						if (!wavFile.isDirectory()) {
+							String wavPath = wavFile.getAbsolutePath().toString();
+							String timeCode = wavPath.substring(1+wavPath.lastIndexOf("/"),wavPath.lastIndexOf("."));
+							if (app.verboseLogging) { Log.d(TAG,"Processing Audio: "+timeCode); }
+							FLAC_FileEncoder ffe = new FLAC_FileEncoder();								
+							ffe.encode(wavFile, new File(app.audioCore.flacDir+"/"+timeCode+".flac"));
+							wavFile.delete();
+						}
 					}
+					
 					Thread.sleep(DELAY);
 				}
 				if (app.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);

@@ -12,6 +12,8 @@ public class AudioCore {
 	private static final String TAG = AudioCore.class.getSimpleName();
 
 	public String cacheDir = null;
+	public String wavDir = null;
+	public String flacDir = null;
 	
 	public static final int CAPTURE_SAMPLE_RATE = 4000;
 	public static final int FFT_RESOLUTION = 2048;
