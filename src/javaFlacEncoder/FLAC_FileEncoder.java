@@ -93,18 +93,13 @@ public class FLAC_FileEncoder {
     public void useThreads(boolean val) {
         useThreads = val;
     }
-
-    private void adjustConfigurations(){//(AudioFormat format) {
-        int sampleRate = 16000;//(int)format.getSampleRate();
-        int sampleSize = 16; //(int)format.getSampleSizeInBits();
-        int channels =1;// (int)format.getChannels();
-        //int blockSize = sc.getMaxBlockSize();
-        /*sc = new StreamConfiguration(channels, blockSize, blockSize,
-                sampleRate, sampleSize);*/
-        sc.setSampleRate(sampleRate);
+    
+    public void adjustAudioConfig(int sampleRate, int sampleSize, int channels) {
+    	sc.setSampleRate(sampleRate);
         sc.setBitsPerSample(sampleSize);
         sc.setChannelCount(channels);
     }
+
 
     /**
      * Set the stream configuration for this encoder to use. Note that the audio
@@ -193,9 +188,6 @@ public class FLAC_FileEncoder {
 
 
         try {
-//            format = sin.getFormat();
-            //sanitize and optimize configurations
-             adjustConfigurations();  //adjustConfigurations(format);
             //open stream
             openStream();
             int frameSize = 2;//format.getFrameSize();

@@ -42,7 +42,7 @@ public class ApiComm {
 
 	private boolean networkConnectivity = false;
 
-	private int connectivityInterval = 600; // change this value in preferences
+	private int connectivityInterval = 300; // change this value in preferences
 	private int connectivityTimeout = setConnectivityTimeout();
 
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();

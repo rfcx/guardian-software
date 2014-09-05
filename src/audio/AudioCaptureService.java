@@ -41,11 +41,25 @@ public class AudioCaptureService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
 		app = (RfcxSource) getApplication();
+		
 		if (app.audioCore.cacheDir == null) {
 			app.audioCore.wavDir = app.getApplicationContext().getFilesDir().getPath()+"/wav";
 			app.audioCore.cacheDir = app.audioCore.wavDir+"/cache";
 			(new File(app.audioCore.cacheDir)).mkdirs();
+			app.audioCore.preEncodeWavDir = app.audioCore.wavDir+"/pre_encode";
+			(new File(app.audioCore.preEncodeWavDir)).mkdirs();
+			app.audioCore.postEncodeWavDir = app.audioCore.wavDir+"/post_encode";
+			(new File(app.audioCore.postEncodeWavDir)).mkdirs();
 		}
+		
+		File[] oldWavFiles;
+		oldWavFiles = (new File(app.audioCore.cacheDir)).listFiles();
+		for (File oldWavFile : oldWavFiles) { try { oldWavFile.delete(); } catch (Exception e) { Log.e(TAG,e.toString()); } }
+		oldWavFiles = (new File(app.audioCore.preEncodeWavDir)).listFiles();
+		for (File oldWavFile : oldWavFiles) { try { oldWavFile.delete(); } catch (Exception e) { Log.e(TAG,e.toString()); } }
+		oldWavFiles = (new File(app.audioCore.postEncodeWavDir)).listFiles();
+		for (File oldWavFile : oldWavFiles) { try { oldWavFile.delete(); } catch (Exception e) { Log.e(TAG,e.toString()); } }
+		
 		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
 		app.isServiceRunning_AudioCapture = true;
 		this.audioCapture.start();
@@ -85,7 +99,7 @@ public class AudioCaptureService extends Service {
 						Thread.sleep(60000);
 						audioRecorder.stop();
 						audioRecorder.release();
-						(new File(app.audioCore.cacheDir+"/"+fileName)).renameTo(new File(app.audioCore.wavDir+"/"+fileName));
+						(new File(app.audioCore.cacheDir+"/"+fileName)).renameTo(new File(app.audioCore.preEncodeWavDir+"/"+fileName));
 						
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -96,10 +110,7 @@ public class AudioCaptureService extends Service {
 				if (app.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
 				audioRecorder.stop();
 				audioRecorder.release();
-//			} catch (InterruptedException e) {
-//				Log.e(TAG, "InterruptedException");
-//				audioCaptureService.runFlag = false;
-//				app.isServiceRunning_AudioCapture = false;
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 				audioCaptureService.runFlag = false;
