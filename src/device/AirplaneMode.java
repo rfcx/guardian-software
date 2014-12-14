@@ -1,6 +1,6 @@
 package device;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +14,7 @@ public class AirplaneMode {
 	private boolean isEnabled;
 	private boolean allowWifi = false;
 	
-	private RfcxSource app = null;
+	private RfcxGuardian app = null;
 	
 	public boolean isEnabled(Context context) {
 		isEnabled = Settings.System.getInt(context.getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) == 1;
@@ -22,7 +22,7 @@ public class AirplaneMode {
 	}
 	
 	public void setOn(Context context) {
-		if (app == null) { app = (RfcxSource) context.getApplicationContext(); }
+		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
 		if (app.verboseLogging) { Log.d(TAG, "Turning AirplaneMode ON"); }
     	if (!isEnabled(context)) {
     		set(context, 1);
@@ -30,7 +30,7 @@ public class AirplaneMode {
 	}
 	
 	public void setOff(Context context) {
-		if (app == null) { app = (RfcxSource) context.getApplicationContext(); }
+		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
 		if (app.verboseLogging) { Log.d(TAG, "Turning AirplaneMode OFF"); }
     	if (isEnabled(context)) {
     		set(context, 0);
@@ -38,7 +38,7 @@ public class AirplaneMode {
 	}
 	
 	public void setToggle(Context context) {
-		if (app == null) { app = (RfcxSource) context.getApplicationContext(); }
+		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
 		if (app.verboseLogging) { Log.d(TAG, "Toggling AirplaneMode"); }
     	if (isEnabled(context)) {
     		setOff(context);

@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Calendar;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import utility.ExtAudioRecorderModified;
 
@@ -22,7 +22,7 @@ public class AudioCaptureService extends Service {
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
 
-	private RfcxSource app = null;
+	private RfcxGuardian app = null;
     ExtAudioRecorderModified audioRecorder = null;
 	
 	@Override
@@ -40,7 +40,7 @@ public class AudioCaptureService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
-		app = (RfcxSource) getApplication();
+		app = (RfcxGuardian) getApplication();
 		
 		if (app.audioCore.cacheDir == null) {
 			app.audioCore.wavDir = app.getApplicationContext().getFilesDir().getPath()+"/wav";
@@ -84,7 +84,7 @@ public class AudioCaptureService extends Service {
 		@Override
 		public void run() {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
-			app = (RfcxSource) getApplicationContext();
+			app = (RfcxGuardian) getApplicationContext();
 			AudioCore audioCore = app.audioCore;
 			try {
 				

@@ -23,7 +23,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import utility.DateTimeUtils;
 
@@ -65,7 +65,7 @@ public class ApiComm {
 	private HttpPost httpPostAlert = null;
 	
 	
-	private RfcxSource app = null;
+	private RfcxGuardian app = null;
 	private DeviceState deviceState = null;
 	private DeviceStateDb deviceStateDb = null;
 	private SmsDb smsDb = null;
@@ -80,7 +80,7 @@ public class ApiComm {
 	public boolean isTransmitting = false;
 	
 	public void sendCheckIn(Context context) {
-		if (app == null) app = (RfcxSource) context.getApplicationContext();
+		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
 		if (httpPostCheckIn != null && !app.airplaneMode.isEnabled(context)) {
 			this.isTransmitting = true;
 			this.transmitAttempts++;
@@ -309,7 +309,7 @@ public class ApiComm {
 	}
 	
 	public boolean sendAnyAlerts(Context context) {
-		if (app == null) app = (RfcxSource) context.getApplicationContext();
+		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
 		String serializedAlerts = app.alertDb.dbAlert.getSerializedAlerts();
 		if (!serializedAlerts.equals("")) {
 			try {

@@ -2,7 +2,7 @@ package receiver;
 
 import java.util.Calendar;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import utility.TimeOfDay;
 
@@ -17,14 +17,14 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 
 	private static final String TAG = AirplaneModeReceiver.class.getSimpleName();
 	
-	private RfcxSource app = null;
+	private RfcxGuardian app = null;
 	private WifiManager wifiManager = null;
 	private LocationManager locationManager = null;
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		
-		if (app == null) app = (RfcxSource) context.getApplicationContext();
+		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
 		if (wifiManager == null) wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		if (locationManager == null) locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 		TimeOfDay timeOfDay = new TimeOfDay();

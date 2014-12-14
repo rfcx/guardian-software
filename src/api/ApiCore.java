@@ -15,7 +15,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -46,7 +46,7 @@ public class ApiCore {
 	private String requestEndpoint = "/";
 	private URL requestUri;
 
-	private RfcxSource app = null;
+	private RfcxGuardian app = null;
 	private DeviceState deviceState = null;
 	private DeviceStateDb deviceStateDb = null;
 	private SmsDb smsDb = null;
@@ -276,7 +276,7 @@ public class ApiCore {
 		this.signalSearchStart = signalSearchStart;
 	}
 	
-	public void setApp(RfcxSource app) {
+	public void setApp(RfcxGuardian app) {
 		this.app = app;
 	}
 

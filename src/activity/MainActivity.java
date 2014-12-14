@@ -1,7 +1,7 @@
 package activity;
 
 import org.rfcx.src_android.R;
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 		case R.id.menu_connectivity:
-			RfcxSource app = (RfcxSource) getApplication();
+			RfcxGuardian app = (RfcxGuardian) getApplication();
 			app.apiCheckIn.sendCheckIn(getApplicationContext());
 			app.airplaneMode.setOn(this);
 			app.airplaneMode.setOff(this);
@@ -87,8 +87,8 @@ protected void call(String phoneNumber) {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-		((RfcxSource) getApplication()).launchAllServices(this);
-		((RfcxSource) getApplication()).launchAllIntentServices(this);
+		((RfcxGuardian) getApplication()).launchAllServices(this);
+		((RfcxGuardian) getApplication()).launchAllIntentServices(this);
 		
 //        String encodedHash = Uri.encode("#");
 //        this.view = new TextView(this);
@@ -102,13 +102,13 @@ protected void call(String phoneNumber) {
 	@Override
 	public void onResume() {
 		super.onResume();
-		((RfcxSource) getApplication()).appResume();
+		((RfcxGuardian) getApplication()).appResume();
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		((RfcxSource) getApplication()).appPause();
+		((RfcxGuardian) getApplication()).appPause();
 	}
 
 }

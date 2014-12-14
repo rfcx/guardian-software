@@ -4,7 +4,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import android.content.Context;
 import android.util.Log;
@@ -15,11 +15,11 @@ public class ApiCheckIn {
 
 	private int transmitAttempts = 0;
 	
-	private RfcxSource app = null;
+	private RfcxGuardian app = null;
 	
 	public void sendCheckIn(Context context) {
 		if (app == null) {
-			app = (RfcxSource) context.getApplicationContext();
+			app = (RfcxGuardian) context.getApplicationContext();
 			app.apiCore.setApp(app);
 		}
 	//	if (httpPostCheckIn != null && !app.airplaneMode.isEnabled(context)) {

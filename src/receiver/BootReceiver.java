@@ -1,6 +1,6 @@
 package receiver;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,7 +14,7 @@ public class BootReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Log.d(TAG, "BootReceiver Launching Intent Services");
-		((RfcxSource) context.getApplicationContext()).launchAllIntentServices(context);
+		((RfcxGuardian) context.getApplicationContext()).launchAllIntentServices(context);
 	}
 
 }

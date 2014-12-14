@@ -2,7 +2,7 @@ package utility;
 
 import java.util.Calendar;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import android.content.Context;
 
@@ -31,7 +31,7 @@ public class TimeOfDay {
 	}
 	
 	public boolean isDataGenerationEnabled(Context context) {
-		RfcxSource rfcxSource = (RfcxSource) context.getApplicationContext();
+		RfcxGuardian rfcxSource = (RfcxGuardian) context.getApplicationContext();
 		setStartEnd(rfcxSource.dayBeginsAt, rfcxSource.dayEndsAt);
 		long msNow = Calendar.getInstance().getTimeInMillis();
 		return ((msNow < msEnd) && (msNow > msStart));

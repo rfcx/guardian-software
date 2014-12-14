@@ -1,6 +1,6 @@
 package receiver;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import utility.TimeOfDay;
 
@@ -16,7 +16,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-        RfcxSource app = (RfcxSource) context.getApplicationContext();
+        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         TimeOfDay timeOfDay = new TimeOfDay();
         final boolean isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 		app.apiCore.setConnectivity(isConnected);

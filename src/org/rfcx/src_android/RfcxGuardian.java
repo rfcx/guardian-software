@@ -38,11 +38,11 @@ import audio.AudioCaptureService;
 import audio.AudioProcessService;
 import audio.AudioCore;
 
-public class RfcxSource extends Application implements OnSharedPreferenceChangeListener {
+public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 	
 	public static final String VERSION = "0.4.7";
 	
-	private static final String TAG = RfcxSource.class.getSimpleName();
+	private static final String TAG = RfcxGuardian.class.getSimpleName();
 	private SharedPreferences sharedPreferences;
 	Context context;
 

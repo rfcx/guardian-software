@@ -1,6 +1,6 @@
 package receiver;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,11 +12,11 @@ import android.util.Log;
 public class SmsReceiver extends BroadcastReceiver {
 
 	private static final String TAG = SmsReceiver.class.getSimpleName();
-	private RfcxSource app = null;
+	private RfcxGuardian app = null;
 	
     @Override
     public void onReceive(Context context, Intent intent) {
-    	if (app == null) app = (RfcxSource) context.getApplicationContext();
+    	if (app == null) app = (RfcxGuardian) context.getApplicationContext();
     	if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
     		Bundle bundle = intent.getExtras();
     		SmsMessage[] smsMessages = null;

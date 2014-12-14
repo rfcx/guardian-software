@@ -6,7 +6,7 @@ import java.util.Calendar;
 import javaFlacEncoder.EncodingConfiguration;
 import javaFlacEncoder.FLAC_FileEncoder;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import android.app.Service;
 import android.content.Intent;
@@ -22,7 +22,7 @@ public class AudioProcessService extends Service {
 
 	private static final int LOOP_DELAY = 1000;
 
-	private RfcxSource app = null;
+	private RfcxGuardian app = null;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -40,7 +40,7 @@ public class AudioProcessService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		this.runFlag = true;
-		app = (RfcxSource) getApplication();
+		app = (RfcxGuardian) getApplication();
 		if (app.audioCore.flacDir == null) {
 			app.audioCore.flacDir = app.getApplicationContext().getFilesDir()
 					.getPath()
@@ -72,7 +72,7 @@ public class AudioProcessService extends Service {
 		@Override
 		public void run() {
 			AudioProcessService audioProcessService = AudioProcessService.this;
-			app = (RfcxSource) getApplicationContext();
+			app = (RfcxGuardian) getApplicationContext();
 			try {
 				while (audioProcessService.runFlag) {
 					File[] wavFiles = (new File(app.audioCore.preEncodeWavDir)).listFiles();

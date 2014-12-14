@@ -1,6 +1,6 @@
 package service;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 import utility.TimeOfDay;
 
@@ -22,7 +22,7 @@ public class MonitorIntentService extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		RfcxSource app = (RfcxSource) getApplication();
+		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
 		Intent intent = new Intent(INTENT_TAG);
 		sendBroadcast(intent, NOTIFICATION_TAG);

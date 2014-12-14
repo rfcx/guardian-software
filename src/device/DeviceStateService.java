@@ -2,7 +2,7 @@ package device;
 
 import java.util.Calendar;
 
-import org.rfcx.src_android.RfcxSource;
+import org.rfcx.src_android.RfcxGuardian;
 
 
 import database.DeviceStateDb;
@@ -29,7 +29,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 //	Sensor accelSensor = null;
 	Sensor lightSensor = null;
 	
-	RfcxSource app = null;
+	RfcxGuardian app = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -46,10 +46,10 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		if (app == null) { app = (RfcxSource) getApplication(); }
+		if (app == null) { app = (RfcxGuardian) getApplication(); }
 		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		((RfcxSource) getApplication()).isServiceRunning_DeviceState = true;
+		((RfcxGuardian) getApplication()).isServiceRunning_DeviceState = true;
 		this.deviceStateSvc.start();
 		return START_STICKY;
 	}
@@ -74,7 +74,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		@Override
 		public void run() {
 			DeviceStateService deviceStateService = DeviceStateService.this;
-			if (app == null) { app = (RfcxSource) getApplication(); }
+			if (app == null) { app = (RfcxGuardian) getApplication(); }
 			while (deviceStateService.runFlag) {
 				CpuUsage deviceCpuUsage = app.deviceCpuUsage;
 				DeviceState deviceState = app.deviceState;
@@ -108,7 +108,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		RfcxSource rfcxSource = (RfcxSource) getApplication();
+		RfcxGuardian rfcxSource = (RfcxGuardian) getApplication();
 		if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
 			if (event.values[0] >= 0) {
 				rfcxSource.deviceState.setLightLevel(Math.round(event.values[0]));
