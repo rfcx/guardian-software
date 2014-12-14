@@ -28,18 +28,18 @@
         android:name="org.rfcx.guardian.RfcxGuardian"
         >
         
-        <service android:name="device.DeviceStateService" />
-        <service android:name="audio.AudioCaptureService" />
-        <service android:name="audio.AudioProcessService" />
-        <service android:name="api.ApiConnectIntentService" />
-        <service android:name="service.MonitorIntentService" />
+        <service android:name="org.rfcx.guardian.device.DeviceStateService" />
+        <service android:name="org.rfcx.guardian.audio.AudioCaptureService" />
+        <service android:name="org.rfcx.guardian.audio.AudioProcessService" />
+        <service android:name="org.rfcx.guardian.api.ApiConnectIntentService" />
+        <service android:name="org.rfcx.guardian.service.MonitorIntentService" />
         
         <activity
-            android:name="activity.PrefsActivity"
+            android:name="org.rfcx.guardian.activity.PrefsActivity"
             android:label="@string/menu_prefs" />
         
         <activity
-            android:name="activity.MainActivity"
+            android:name="org.rfcx.guardian.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,13 +47,13 @@
             </intent-filter>
         </activity>
         
-        <receiver android:name="receiver.BootReceiver">
+        <receiver android:name="org.rfcx.guardian.receiver.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>
 		</receiver>
 		
-        <receiver android:name="receiver.SmsReceiver">
+        <receiver android:name="org.rfcx.guardian.receiver.SmsReceiver">
     		<intent-filter>
         		<action android:name="android.provider.Telephony.SMS_RECEIVED" />
    			</intent-filter>

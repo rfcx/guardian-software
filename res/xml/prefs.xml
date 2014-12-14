@@ -20,28 +20,10 @@
 		android:enabled="true" android:defaultValue="false"/>
 
 	<EditTextPreference
-        android:title="@string/title_api_domain"
-        android:key="api_domain"
-        android:summary="@string/desc_api_domain"
-        android:enabled="true" android:defaultValue="rfcx.org"/>
-	
-	<EditTextPreference
-        android:title="@string/title_api_port"
-        android:key="api_port"
-        android:summary="@string/desc_api_port"
-        android:enabled="true" android:defaultValue="80"/>
-	
-	<EditTextPreference
-        android:key="api_endpoint_checkin"
-        android:title="API Check-In Endpoint"
-        android:summary="API Check-In Endpoint"
-        android:enabled="true" android:defaultValue="/api/1/checkin"/>	
-        
-	<EditTextPreference
-        android:key="api_endpoint_alert"
-        android:title="API Alert Endpoint"
-        android:summary="API Alert Endpoint"
-        android:enabled="true" android:defaultValue="/api/1/source/alert"/>	
+        android:title="@string/title_api_base_url"
+        android:key="api_base_url"
+        android:summary="@string/desc_api_base_url"
+        android:enabled="true" android:defaultValue="https://api.rfcx.org:443/v1"/>
 	
 	<EditTextPreference
         android:title="@string/title_api_interval"

@@ -3,19 +3,27 @@ package org.rfcx.guardian;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import org.rfcx.guardian.api.ApiCheckIn;
+import org.rfcx.guardian.api.ApiComm;
+import org.rfcx.guardian.api.ApiConnectIntentService;
+import org.rfcx.guardian.api.ApiCore;
+import org.rfcx.guardian.audio.AudioCaptureService;
+import org.rfcx.guardian.audio.AudioCore;
+import org.rfcx.guardian.audio.AudioProcessService;
+import org.rfcx.guardian.database.AlertDb;
+import org.rfcx.guardian.database.DeviceStateDb;
+import org.rfcx.guardian.database.SmsDb;
+import org.rfcx.guardian.device.AirplaneMode;
+import org.rfcx.guardian.device.CpuUsage;
+import org.rfcx.guardian.device.DeviceState;
+import org.rfcx.guardian.device.DeviceStateService;
+import org.rfcx.guardian.receiver.AirplaneModeReceiver;
+import org.rfcx.guardian.receiver.ConnectivityReceiver;
+import org.rfcx.guardian.service.MonitorIntentService;
+import org.rfcx.guardian.utility.DeviceUuid;
 
-import receiver.AirplaneModeReceiver;
-import receiver.ConnectivityReceiver;
-import service.MonitorIntentService;
-import utility.DeviceUuid;
 
-import database.AlertDb;
-import database.DeviceStateDb;
-import database.SmsDb;
-import device.AirplaneMode;
-import device.CpuUsage;
-import device.DeviceState;
-import device.DeviceStateService;
+
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -30,13 +38,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import api.ApiCheckIn;
-import api.ApiComm;
-import api.ApiConnectIntentService;
-import api.ApiCore;
-import audio.AudioCaptureService;
-import audio.AudioProcessService;
-import audio.AudioCore;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 	
@@ -152,10 +153,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.monitorIntentServiceInterval = Integer.parseInt(this.sharedPreferences.getString("monitor_intentservice_interval", ""+this.monitorIntentServiceInterval));
 		apiCore.setConnectivityInterval(Integer.parseInt(this.sharedPreferences.getString("api_interval", ""+apiCore.getConnectivityInterval())));
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", airplaneMode.getAllowWifi()));
-		apiCore.setApiDomain(this.sharedPreferences.getString("api_domain", "rfcx.org"));
-		apiCore.setApiPort(Integer.parseInt(this.sharedPreferences.getString("api_port", "80")));
-		apiCheckIn.setApiEndpointCheckIn(this.sharedPreferences.getString("api_endpoint_checkin", "/api/1/checkin"));
-//		apiCore.setApiEndpointAlert(this.sharedPreferences.getString("api_endpoint_alert", "/api/1/source/alert"));
+		apiCore.setApiDomain(this.sharedPreferences.getString("api_base_url", "https://api.rfcx.org:443/v1"));
 		
 		this.isServiceEnabled_AudioCapture = this.sharedPreferences.getBoolean("enable_service_audiocapture", this.isServiceEnabled_AudioCapture);
 		this.isServiceEnabled_AudioProcess = this.sharedPreferences.getBoolean("enable_service_audioprocess", this.isServiceEnabled_AudioProcess);
@@ -215,7 +213,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			Log.d(TAG, "AudioProcessService not running. Not stopped...");
 		}
 	}
-	
 	
 	public void launchAllIntentServices(Context context) {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

@@ -14,12 +14,9 @@
     <string name="title_allow_wifi">Allow WiFi</string>
     <string name="desc_allow_wifi">Allow WiFi to be enabled</string>
     
-    <string name="title_api_domain">API Domain</string>
-    <string name="desc_api_domain">API Domain or IP Address</string>
+    <string name="title_api_base_url">API Base URL</string>
+    <string name="desc_api_base_url">(include protocol, port and version namespace)</string>
     
-    <string name="title_api_port">API Port</string>
-    <string name="desc_api_port">Protocol/Port of API</string>
-
     <string name="title_api_interval">API Check Interval</string>
     <string name="desc_api_interval">How often to check-in to API (seconds)</string> 
     
