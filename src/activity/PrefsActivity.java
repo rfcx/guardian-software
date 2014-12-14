@@ -1,7 +1,8 @@
 package activity;
 
-import org.rfcx.src_android.R;
-import org.rfcx.src_android.R.xml;
+
+
+import org.rfcx.guardian.R;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
