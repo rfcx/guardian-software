@@ -30,8 +30,10 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import api.ApiCheckIn;
 import api.ApiComm;
-import api.ApiCommIntentService;
+import api.ApiConnectIntentService;
+import api.ApiCore;
 import audio.AudioCaptureService;
 import audio.AudioProcessService;
 import audio.AudioCore;
@@ -72,7 +74,9 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
 	
 	// for transmitting api data
-	public ApiComm apiComm = new ApiComm();
+//	public ApiComm apiComm = new ApiComm();
+	public ApiCore apiCore = new ApiCore();
+	public ApiCheckIn apiCheckIn = new ApiCheckIn();
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
 	// for analyzing captured audio
@@ -146,12 +150,12 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 		this.verboseLogging = this.sharedPreferences.getBoolean("verbose_logging", this.verboseLogging);
 		this.ignoreOffHours = this.sharedPreferences.getBoolean("ignore_off_hours", this.ignoreOffHours);
 		this.monitorIntentServiceInterval = Integer.parseInt(this.sharedPreferences.getString("monitor_intentservice_interval", ""+this.monitorIntentServiceInterval));
-		apiComm.setConnectivityInterval(Integer.parseInt(this.sharedPreferences.getString("api_interval", ""+apiComm.getConnectivityInterval())));
+		apiCore.setConnectivityInterval(Integer.parseInt(this.sharedPreferences.getString("api_interval", ""+apiCore.getConnectivityInterval())));
 		airplaneMode.setAllowWifi(this.sharedPreferences.getBoolean("allow_wifi", airplaneMode.getAllowWifi()));
-		apiComm.setApiDomain(this.sharedPreferences.getString("api_domain", "rfcx.org"));
-		apiComm.setApiPort(Integer.parseInt(this.sharedPreferences.getString("api_port", "80")));
-		apiComm.setApiEndpointCheckIn(this.sharedPreferences.getString("api_endpoint_checkin", "/api/1/checkin"));
-		apiComm.setApiEndpointAlert(this.sharedPreferences.getString("api_endpoint_alert", "/api/1/source/alert"));
+		apiCore.setApiDomain(this.sharedPreferences.getString("api_domain", "rfcx.org"));
+		apiCore.setApiPort(Integer.parseInt(this.sharedPreferences.getString("api_port", "80")));
+		apiCheckIn.setApiEndpointCheckIn(this.sharedPreferences.getString("api_endpoint_checkin", "/api/1/checkin"));
+//		apiCore.setApiEndpointAlert(this.sharedPreferences.getString("api_endpoint_alert", "/api/1/source/alert"));
 		
 		this.isServiceEnabled_AudioCapture = this.sharedPreferences.getBoolean("enable_service_audiocapture", this.isServiceEnabled_AudioCapture);
 		this.isServiceEnabled_AudioProcess = this.sharedPreferences.getBoolean("enable_service_audioprocess", this.isServiceEnabled_AudioProcess);
@@ -216,10 +220,10 @@ public class RfcxSource extends Application implements OnSharedPreferenceChangeL
 	public void launchAllIntentServices(Context context) {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
-		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiCommIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiConnectIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, MonitorIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		
-		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiComm.getConnectivityInterval()*1000, apiCommServiceIntent);
+		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiCore.getConnectivityInterval()*1000, apiCommServiceIntent);
 		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), monitorIntentServiceInterval*1000, monitorServiceIntent);
 	}
 	

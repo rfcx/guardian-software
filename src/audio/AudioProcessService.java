@@ -20,7 +20,7 @@ public class AudioProcessService extends Service {
 	private boolean runFlag = false;
 	private AudioProcess audioProcess;
 
-	private static final int DELAY = 1000;
+	private static final int LOOP_DELAY = 1000;
 
 	private RfcxSource app = null;
 
@@ -73,7 +73,6 @@ public class AudioProcessService extends Service {
 		public void run() {
 			AudioProcessService audioProcessService = AudioProcessService.this;
 			app = (RfcxSource) getApplicationContext();
-			// AudioCore audioCore = app.audioCore;
 			try {
 				while (audioProcessService.runFlag) {
 					File[] wavFiles = (new File(app.audioCore.preEncodeWavDir)).listFiles();
@@ -106,7 +105,7 @@ public class AudioProcessService extends Service {
 						}
 					}
 
-					Thread.sleep(DELAY);
+					Thread.sleep(LOOP_DELAY);
 				}
 				if (app.verboseLogging) Log.d(TAG, "Service complete: " + TAG);
 				audioProcessService.runFlag = false;
@@ -121,7 +120,5 @@ public class AudioProcessService extends Service {
 				app.isServiceRunning_AudioProcess = false;
 			}
 		}
-
 	}
-
 }

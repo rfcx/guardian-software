@@ -1,44 +1,35 @@
 package api;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.UnknownHostException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.InputStreamBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.rfcx.src_android.RfcxSource;
 
-import utility.DateTimeUtils;
+import android.os.SystemClock;
+import android.text.TextUtils;
+import android.util.Log;
 
 import database.DeviceStateDb;
 import database.SmsDb;
 import device.DeviceState;
 
-import android.content.Context;
-import android.os.SystemClock;
-import android.text.TextUtils;
-import android.util.Log;
+import utility.DateTimeUtils;
 
-public class ApiComm {
+public class ApiCore {
 
-	private static final String TAG = ApiComm.class.getSimpleName();
+	private static final String TAG = ApiCore.class.getSimpleName();
 
 	private boolean networkConnectivity = false;
 
@@ -46,80 +37,34 @@ public class ApiComm {
 	private int connectivityTimeout = setConnectivityTimeout();
 
 	DateTimeUtils dateTimeUtils = new DateTimeUtils();
-
+	
 	private String deviceId = null;
 	private String apiProtocol = "http";
 	private String apiDomain;
 	private int apiPort;
-	private String httpUriBase = "";
 	
-	private String apiEndpointCheckIn;
-	private String apiEndpointAlert;
+	private String requestEndpoint = "/";
+	private URL requestUri;
 
-	private int specCount = 0;
-
-	private HttpClient httpClientCheckIn = new DefaultHttpClient();
-	private HttpClient httpClientAlert = new DefaultHttpClient();
-	
-	private HttpPost httpPostCheckIn = null;
-	private HttpPost httpPostAlert = null;
-	
-	
 	private RfcxSource app = null;
 	private DeviceState deviceState = null;
 	private DeviceStateDb deviceStateDb = null;
 	private SmsDb smsDb = null;
+	
+	private String jsonRaw = null;
 	private byte[] jsonZipped = null;
-	private Calendar transmitTime = Calendar.getInstance();
 
+	private Calendar transmitTime = Calendar.getInstance();
 	private long signalSearchStart = 0;
 	private long requestSendStart = 0;
+	
 	private String lastCheckInId = null;
 	private long lastCheckInDuration = 0;
-	private int transmitAttempts = 0;
 	public boolean isTransmitting = false;
 	
-	public void sendCheckIn(Context context) {
-		if (app == null) app = (RfcxSource) context.getApplicationContext();
-		if (httpPostCheckIn != null && !app.airplaneMode.isEnabled(context)) {
-			this.isTransmitting = true;
-			this.transmitAttempts++;
-			if (jsonZipped == null) { preparePostCheckIn(); }
-			this.requestSendStart = Calendar.getInstance().getTimeInMillis();
-			String httpResponseString = executePostCheckIn();
-			
-			if ((httpResponseString == null) && (specCount > 0)) {
-				if (this.transmitAttempts < 3) { sendCheckIn(context); }
-			} else {
-				cleanupAfterResponseCheckIn(httpResponseString);
-				this.transmitAttempts = 0;
-				app.airplaneMode.setOn(app.getApplicationContext());
-				if (app.verboseLogging) { Log.d(TAG, "Turning off antenna..."); }
-			}
-			
-		}
-	}
-
-	private String executePostCheckIn() {
-		String httpResponseString = null;
-//		if (specCount > 0) {
-			MultipartEntity multipartEntity = new MultipartEntity();
-			multipartEntity.addPart("blob",  new InputStreamBody(new ByteArrayInputStream(jsonZipped),transmitTime.getTime()+".json"));
-			httpPostCheckIn.setEntity(multipartEntity);
-			try {
-				httpResponseString = httpResponseStringCheckIn(this.httpClientCheckIn.execute(this.httpPostCheckIn));
-			} catch (ClientProtocolException e) {
-				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
-			} catch (IOException e) {
-				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
-			}
-//		} else {
-//			Log.d(TAG, "No spectra to send.");
-//		}
-		return httpResponseString;
-	}
 	
-	private void preparePostCheckIn() {
+
+	public void prepareDiagnostics() {
 
 		transmitTime = Calendar.getInstance();
 		
@@ -164,27 +109,32 @@ public class ApiComm {
 			json.put("lastId", this.lastCheckInId);
 			json.put("lastLen", new Long(this.lastCheckInDuration));
 		}
-				
-		if (app.verboseLogging) Log.d(TAG, this.httpUriBase + this.apiEndpointCheckIn + " : " + json.toJSONString());
-				
+		
+		jsonRaw = json.toJSONString();
+		if (app.verboseLogging) Log.d(TAG, "Diagnostics : " + jsonRaw);
+		
+		jsonZipped = gZipString(jsonRaw);
+		if (app.verboseLogging) { Log.d(TAG,"GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB"); }
+	}
+	
+	private byte[] gZipString(String s) {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		GZIPOutputStream gZIPOutputStream = null;
 		try {
 			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
-			gZIPOutputStream.write(json.toJSONString().getBytes("UTF-8"));
+			gZIPOutputStream.write(s.getBytes("UTF-8"));
 		} catch (IOException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+			Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
 		} finally { if (gZIPOutputStream != null) {
 			try { gZIPOutputStream.close();
-			} catch (IOException e) { };
+			} catch (IOException e) {
+				Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
+			};
 		} }
-		jsonZipped = byteArrayOutputStream.toByteArray();
-		if (app.verboseLogging) {
-			Log.d(TAG, "Spectra: "+specCount+" - GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB");
-		}
+		return byteArrayOutputStream.toByteArray();
 	}
-
-	private void cleanupAfterResponseCheckIn(String httpResponseString) {
+	
+	private void cleanupAfterRequest(String httpResponseString) {
 		
 		resetTransmissionState();
 		
@@ -211,29 +161,17 @@ public class ApiComm {
 				this.lastCheckInDuration = Calendar.getInstance().getTimeInMillis() - this.requestSendStart;
 			}
 		} catch (NumberFormatException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+			Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
 		} catch (org.json.simple.parser.ParseException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+			Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
 		} catch (NullPointerException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+			Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
 		} finally {
 			if (app.verboseLogging) Log.d(TAG, "API Response: " + httpResponseString);
-			app.airplaneMode.setOn(app.getApplicationContext());
+//			app.airplaneMode.setOn(app.getApplicationContext());
 		}
-	}
+	}	
 
-	private String httpResponseStringCheckIn(HttpResponse httpResponse) {
-		if (httpResponse.getEntity() != null) {
-			try {
-				return EntityUtils.toString(httpResponse.getEntity());
-			} catch (ParseException e) {
-				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
-			} catch (IOException e) {
-				Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
-			}
-		}
-		return null;
-	}
 	
 	public void resetTransmissionState() {
 		isTransmitting = false;
@@ -280,64 +218,67 @@ public class ApiComm {
 
 	public void setApiDomain(String apiDomain) {
 		this.apiDomain = apiDomain;
-		setPostRequest();
+		setRequestUri();
 	}
 
 	public void setApiPort(int apiPort) {
 		this.apiPort = apiPort;
-		setPostRequest();
+		setRequestUri();
 	}
 
-	public void setApiEndpointCheckIn(String apiEndpointCheckIn) {
-		this.apiEndpointCheckIn = apiEndpointCheckIn;
-		setPostRequest();
-	}
-	
-	public void setApiEndpointAlert(String apiEndpointAlert) {
-		this.apiEndpointAlert = apiEndpointAlert;
-		setPostRequest();
-	}
-	
-	private void setPostUriBase() {
-		this.httpUriBase = apiProtocol + "://" + apiDomain + ":" + apiPort;
-	}
+//	public void setApiEndpointCheckIn(String apiEndpointCheckIn) {
+//		this.apiEndpointCheckIn = apiEndpointCheckIn;
+//		setRequestUri();
+//	}
 
-	private void setPostRequest() {
-		setPostUriBase();
-		this.httpPostCheckIn = new HttpPost(this.httpUriBase + this.apiEndpointCheckIn);
-		this.httpPostAlert = new HttpPost(this.httpUriBase + this.apiEndpointAlert);
+	public void setRequestEndpoint(String requestEndpoint) {
+		this.requestEndpoint = requestEndpoint;
+		setRequestUri();
 	}
 	
-	public boolean sendAnyAlerts(Context context) {
-		if (app == null) app = (RfcxSource) context.getApplicationContext();
-		String serializedAlerts = app.alertDb.dbAlert.getSerializedAlerts();
-		if (!serializedAlerts.equals("")) {
-			try {
-				MultipartEntity multipartEntity = new MultipartEntity();
-				multipartEntity.addPart("uuid",  new StringBody(getDeviceId()));
-				multipartEntity.addPart("alerts",  new StringBody(serializedAlerts));
-				this.httpPostAlert.setEntity(multipartEntity);
-				String httpResponseAlert = httpResponseStringCheckIn(this.httpClientAlert.execute(this.httpPostAlert));
-				Log.d(TAG, httpResponseAlert);
-				JSONObject JSON = (JSONObject) (new JSONParser()).parse(httpResponseAlert);
-				String apiServerTime = JSON.get("time").toString();
-				return true;
-			} catch (UnsupportedEncodingException e) {
-				Log.e(TAG, e.getMessage());
-			} catch (ClientProtocolException e) {
-				Log.e(TAG, e.getMessage());
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (UnknownHostException e) {
-				Log.e(TAG, e.getMessage());
-			} catch (org.json.simple.parser.ParseException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-			}
+	private void setRequestUri() {
+		try {
+			this.requestUri = new URL(this.apiProtocol + "://" + this.apiDomain + ":" + this.apiPort + this.requestEndpoint);
+		} catch (MalformedURLException e) {
+			Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
 		}
-		return false;
 	}
 
+	public String getJsonRaw() {
+		return jsonRaw;
+	}
+	
+	public byte[] getJsonZipped() {
+		return jsonZipped;
+	}
+	
+	public boolean isTransmitting() {
+		return isTransmitting;
+	}
+
+	public void setTransmitting(boolean isTransmitting) {
+		this.isTransmitting = isTransmitting;
+	}
+	
+	public long getRequestSendStart() {
+		return requestSendStart;
+	}
+
+	public void setRequestSendStart(long requestSendStart) {
+		this.requestSendStart = requestSendStart;
+	}
+
+	public long getSignalSearchStart() {
+		return signalSearchStart;
+	}
+
+	public void setSignalSearchStart(long signalSearchStart) {
+		this.signalSearchStart = signalSearchStart;
+	}
+	
+	public void setApp(RfcxSource app) {
+		this.app = app;
+	}
+
+	
 }

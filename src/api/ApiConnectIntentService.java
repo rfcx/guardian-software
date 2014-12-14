@@ -9,14 +9,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class ApiCommIntentService extends IntentService {
+public class ApiConnectIntentService extends IntentService {
 
-	private static final String TAG = ApiCommIntentService.class.getSimpleName();
+	private static final String TAG = ApiConnectIntentService.class.getSimpleName();
 	
 	public static final String SRC_API_COMM = "org.rfcx.src_android.SRC_API_COMM";
 	public static final String RECEIVE_API_COMM_NOTIFICATIONS = "org.rfcx.src_android.RECEIVE_API_COMM_NOTIFICATIONS";
 	
-	public ApiCommIntentService() {
+	public ApiConnectIntentService() {
 		super(TAG);
 	}
 	
@@ -32,21 +32,21 @@ public class ApiCommIntentService extends IntentService {
 			app.airplaneMode.setOff(context);	
 			Intent intent = new Intent(SRC_API_COMM);
 			sendBroadcast(intent, RECEIVE_API_COMM_NOTIFICATIONS);
-			ApiComm apiComm = new ApiComm();
-			if (apiComm.getConnectivityTimeout() > 0) {
+			ApiCore apiCore = new ApiCore();
+			if (apiCore.getConnectivityTimeout() > 0) {
 				try {
-					Thread.sleep(apiComm.getConnectivityTimeout()*1000);
+					Thread.sleep(apiCore.getConnectivityTimeout()*1000);
 					if (!app.airplaneMode.isEnabled(context)) {
-						if (!app.apiComm.isTransmitting) {
+						if (!app.apiCore.isTransmitting) {
 							Log.d(TAG, "Connectivity timeout reached. Entering Airplane Mode.");
-							apiComm.resetTransmissionState();
+							apiCore.resetTransmissionState();
 							app.airplaneMode.setOn(context);
 						} else {
 							Log.d(TAG, "Connectivity timeout reached, but transmission is in progress. Delaying timeout.");
 							Thread.sleep(60*1000);
 							if (!app.airplaneMode.isEnabled(context)) {
 								Log.d(TAG, "2nd timeout reached. Entering Airplane Mode.");
-								apiComm.resetTransmissionState();
+								apiCore.resetTransmissionState();
 								app.airplaneMode.setOn(context);
 							}
 						}

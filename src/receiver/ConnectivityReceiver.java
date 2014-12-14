@@ -19,13 +19,13 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         RfcxSource app = (RfcxSource) context.getApplicationContext();
         TimeOfDay timeOfDay = new TimeOfDay();
         final boolean isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-		app.apiComm.setConnectivity(isConnected);
+		app.apiCore.setConnectivity(isConnected);
 		if (app.verboseLogging) Log.d(TAG, "Connectivity Detected... (RfcxSource)");
 		if (isConnected) {
-			app.apiComm.sendAnyAlerts(context);
+//			app.apiComm.sendAnyAlerts(context);
 			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {
 				if (app.verboseLogging) Log.d(TAG, "Check-in request allowed. Doing it.");
-				app.apiComm.sendCheckIn(context);
+				app.apiCheckIn.sendCheckIn(context);
 			} else {
 				if (app.verboseLogging) Log.d(TAG, "Check-in not allowed right now.");
 			}

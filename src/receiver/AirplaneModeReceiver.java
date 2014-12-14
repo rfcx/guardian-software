@@ -35,7 +35,7 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 		
 		if (!app.airplaneMode.isEnabled(context)) {
 			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {
-				app.apiComm.setSignalSearchStart(Calendar.getInstance());
+				app.apiCore.setSignalSearchStart(Calendar.getInstance());
 				wifiManager.setWifiEnabled(app.airplaneMode.getAllowWifi());	
 			} else {
 				if (app.verboseLogging) Log.d(TAG, "API Check-In not allowed right now");
