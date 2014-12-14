@@ -1,6 +1,6 @@
 package service;
 
-import org.rfcx.src_android.RfcxGuardian;
+import org.rfcx.guardian.RfcxGuardian;
 
 import utility.TimeOfDay;
 

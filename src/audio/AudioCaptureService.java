@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Calendar;
 
-import org.rfcx.src_android.RfcxGuardian;
+import org.rfcx.guardian.RfcxGuardian;
 
 import utility.ExtAudioRecorderModified;
 

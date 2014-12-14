@@ -1,7 +1,7 @@
 package activity;
 
+import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.src_android.R;
-import org.rfcx.src_android.RfcxGuardian;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

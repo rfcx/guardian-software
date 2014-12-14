@@ -15,7 +15,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.rfcx.src_android.RfcxGuardian;
+import org.rfcx.guardian.RfcxGuardian;
 
 import android.os.SystemClock;
 import android.text.TextUtils;

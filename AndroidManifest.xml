@@ -25,7 +25,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:name="org.rfcx.src_android.RfcxGuardian"
+        android:name="org.rfcx.guardian.RfcxGuardian"
         >
         
         <service android:name="device.DeviceStateService" />

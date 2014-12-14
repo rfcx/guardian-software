@@ -23,7 +23,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.rfcx.src_android.RfcxGuardian;
+import org.rfcx.guardian.RfcxGuardian;
 
 import utility.DateTimeUtils;
 
