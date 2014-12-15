@@ -3,11 +3,15 @@
 
     <string name="app_name">rfcx-guardian</string>
         
+    <!-- MainActivity Menu Options -->
+    
     <string name="menu_prefs">Preferences</string>
     <string name="menu_services_toggle">Stop Services</string>
 	<string name="menu_services_audio">Toggle Audio</string>
 	<string name="menu_connectivity">(Re) Connect</string>
     
+	<!-- Preferences Options -->
+	
     <string name="title_device_uuid">Device UUID</string>
     <string name="desc_device_uuid">Device UUID (should be preset)</string>
     
@@ -28,5 +32,13 @@
     
     <string name="title_monitor_intentservice_interval">Service Check Interval</string>
     <string name="desc_monitor_intentservice_interval">How often should we check if services are running?</string>
+
+    <string name="title_api_protocol">API Protocol</string>
+    <string name="desc_api_protocol">Connect to API over HTTP or HTTPS</string>
+    <string-array name="api_protocols">
+        <item>https (443)</item>
+        <item>http (80)</item>
+        <item>http (8080)</item>
+    </string-array>
     
 </resources>

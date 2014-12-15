@@ -20,18 +20,28 @@
 		android:enabled="true" android:defaultValue="false"/>
 
 	<EditTextPreference
+        android:title="@string/title_api_protocol"
+        android:key="api_protocol"
+        android:summary="@string/desc_api_protocol"
+        android:enabled="true"
+        android:dialogLayout="@layout/spinner"
+        android:defaultValue="https"/>
+	
+	<EditTextPreference
         android:title="@string/title_api_base_url"
         android:key="api_base_url"
         android:summary="@string/desc_api_base_url"
         android:enabled="true" android:defaultValue="https://api.rfcx.org:443/v1"/>
 	
 	<EditTextPreference
+	    android:inputType="number"
         android:title="@string/title_api_interval"
         android:key="api_interval"
         android:summary="@string/desc_api_interval"
         android:enabled="true" android:defaultValue="900"/>
 	
 	<EditTextPreference
+	    android:inputType="number"
         android:title="@string/title_monitor_intentservice_interval"
         android:key="monitor_intentservice_interval"
         android:summary="@string/desc_monitor_intentservice_interval"
@@ -62,12 +72,14 @@
 		android:enabled="true" android:defaultValue="true"/>
 	
 	<EditTextPreference
+	    android:inputType="number"
         android:key="day_begins_at_hour"
 	    android:title="Day Begins at (hour)"
 	    android:summary="When service switch occurs"
 		android:enabled="true" android:defaultValue="9"/>
 
-	<EditTextPreference
+ 	<EditTextPreference
+	    android:inputType="number"
         android:key="day_ends_at_hour"
 	    android:title="Day Ends at (hour)"
 	    android:summary="When service switch occurs"
