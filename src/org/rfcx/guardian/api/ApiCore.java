@@ -102,7 +102,7 @@ public class ApiCore {
 
 		json.put("sent", transmitTime.getTime().toGMTString());
 		json.put("uuid", getDeviceId());
-		json.put("appV", app.VERSION);
+		json.put("appV", app.version);
 		json.put("sms", smsDb.dbSms.getSerializedSmsAll());
 		
 		if (this.lastCheckInId != null) {
@@ -224,6 +224,12 @@ public class ApiCore {
 	public void setApiPort(int apiPort) {
 		this.apiPort = apiPort;
 		setRequestUri();
+	}
+	
+	public void setApiProtocol(String apiProtocolPrefs) {
+		String[] apiProtocolParts = apiProtocolPrefs.split(":");
+		this.apiProtocol = apiProtocolParts[0].trim().toLowerCase();
+		this.apiPort = Integer.parseInt(apiProtocolParts[1].trim().toLowerCase());
 	}
 
 //	public void setApiEndpointCheckIn(String apiEndpointCheckIn) {

@@ -2,41 +2,55 @@ package org.rfcx.guardian.utility;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import javax.net.ssl.HttpsURLConnection;
+import java.net.URLEncoder;
 
+import javax.net.ssl.HttpsURLConnection;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.rfcx.guardian.RfcxGuardian;
 
+import android.content.Context;
 import android.util.Log;
 
 public class HttpHttpsPostMultiPart {
 
 	private static final String TAG = HttpHttpsPostMultiPart.class.getSimpleName();
 	
-	
- //   Bitmap bitmap = ...;
-    String attachmentFileName = "filename.png";
-    ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-//    bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteStream);
-    ContentBody contentPart = new ByteArrayBody(byteStream.toByteArray(), attachmentFileName);
-
-    MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-
-//    reqEntity.addPart("picture", contentPart);
-    String reqResponse = postMultiPart("http://server.com", reqEntity);
+	public void executePostMultiPart(Context context) {
+		Log.d(TAG, "Doing it");
+		String filePath = context.getFilesDir().getPath()+"/flac/1418600660225.flac";
+		File fileObj = new File(filePath);
+		ContentBody contentBody = new FileBody(fileObj, "1418600660225.flac", "application/x-flac", null);
+		
+		String json = "{'guid':'123123123','name':'topher'}";
+		MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+		reqEntity.addPart("flac", contentBody);
+		try {
+			reqEntity.addPart("user", new StringBody(URLEncoder.encode(json)));
+		} catch (UnsupportedEncodingException e) {
+			Log.e(TAG, e.getMessage());
+		}
+		Log.d(TAG, postMultiPart("http://192.168.43.15:8080/v1/mapping/register", reqEntity));
+	}
+    
     
 	
 	private static String postMultiPart(String reqEndpoint, MultipartEntity reqEntity) {
 	    try {
 	        URL reqUrl = new URL(reqEndpoint);
-	        HttpsURLConnection reqConn = (HttpsURLConnection) reqUrl.openConnection();
+	        HttpURLConnection reqConn = (HttpURLConnection) reqUrl.openConnection();
+//	        HttpsURLConnection reqConn = (HttpsURLConnection) reqUrl.openConnection();
 //	        conn.setReadTimeout(10000);
 //	        conn.setConnectTimeout(15000);
 	        reqConn.setRequestMethod("POST");
@@ -50,18 +64,19 @@ public class HttpHttpsPostMultiPart {
 	        reqConn.addRequestProperty(reqEntity.getContentType().getName(), reqEntity.getContentType().getValue());
 
 	        OutputStream outputStream = reqConn.getOutputStream();
-	        reqEntity.writeTo(reqConn.getOutputStream());
+	        reqEntity.writeTo(outputStream);
 	        outputStream.close();
 	        reqConn.connect();
 
-	        if (reqConn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+	        //if (reqConn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+		    if (reqConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 	            return readResponseStream(reqConn.getInputStream());
 	        }
 
 	    } catch (Exception e) {
 	        Log.e(TAG, "multipart post error " + e + "(" + reqEndpoint + ")");
 	    }
-	    return null;        
+	    return "no http return";        
 	}
 
 	private static String readResponseStream(InputStream in) {

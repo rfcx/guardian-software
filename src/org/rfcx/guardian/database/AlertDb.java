@@ -22,6 +22,7 @@ public class AlertDb {
 	}
 	
 	private static final String TAG = AlertDb.class.getSimpleName();
+	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	static final int VERSION = 1;
 	static final String DATABASE = "alert";
 	static final String C_CREATED_AT = "created_at";
@@ -89,7 +90,7 @@ public class AlertDb {
 		}
 		public void clearAlertsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<'"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
 			} finally { db.close(); }
 		}
 		

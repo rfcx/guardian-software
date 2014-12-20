@@ -17,8 +17,11 @@ public class ExtAudioRecorderModified {
 	public static ExtAudioRecorderModified getInstance() {
 		ExtAudioRecorderModified result = null;
 		do {
-			result = new ExtAudioRecorderModified(true, AudioSource.MIC,
-					AudioCore.CAPTURE_SAMPLE_RATE_HZ, AudioFormat.CHANNEL_CONFIGURATION_MONO,
+			result = new ExtAudioRecorderModified(
+					true,
+					AudioSource.MIC,
+					AudioCore.CAPTURE_SAMPLE_RATE_HZ,
+					AudioFormat.CHANNEL_CONFIGURATION_MONO,
 					AudioFormat.ENCODING_PCM_16BIT);
 		} while (!(result.getState() == ExtAudioRecorderModified.State.INITIALIZING));
 		return result;

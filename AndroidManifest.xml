@@ -29,10 +29,10 @@
         >
         
         <service android:name="org.rfcx.guardian.device.DeviceStateService" />
-        <service android:name="org.rfcx.guardian.audio.AudioCaptureService" />
-        <service android:name="org.rfcx.guardian.audio.AudioProcessService" />
         <service android:name="org.rfcx.guardian.api.ApiConnectIntentService" />
         <service android:name="org.rfcx.guardian.service.MonitorIntentService" />
+        <service android:name="org.rfcx.guardian.audio.AudioCaptureService" />
+        <service android:name="org.rfcx.guardian.audio.AudioEncodeIntentService" />
         
         <activity
             android:name="org.rfcx.guardian.activity.PrefsActivity"

@@ -26,6 +26,7 @@ public class DeviceStateDb {
 	}
 	
 	private static final String TAG = DeviceStateDb.class.getSimpleName();
+	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	static final int VERSION = 1;
 	static final String DATABASE = "device";
 	static final String C_CREATED_AT = "created_at";

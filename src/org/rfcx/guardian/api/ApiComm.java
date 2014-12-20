@@ -157,7 +157,7 @@ public class ApiComm {
 
 		json.put("sent", transmitTime.getTime().toGMTString());
 		json.put("uuid", getDeviceId());
-		json.put("appV", app.VERSION);
+		json.put("appV", app.version);
 		json.put("sms", smsDb.dbSms.getSerializedSmsAll());
 		
 		if (this.lastCheckInId != null) {

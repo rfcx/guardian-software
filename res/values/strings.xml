@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">rfcx-guardian</string>
+    <string name="app_name">rfcx guardian</string>
         
     <!-- MainActivity Menu Options -->
     
@@ -18,8 +18,8 @@
     <string name="title_allow_wifi">Allow WiFi</string>
     <string name="desc_allow_wifi">Allow WiFi to be enabled</string>
     
-    <string name="title_api_base_url">API Base URL</string>
-    <string name="desc_api_base_url">(include protocol, port and version namespace)</string>
+    <string name="title_api_domain">API Domain</string>
+    <string name="desc_api_domain">Choose which API environment to use</string>
     
     <string name="title_api_interval">API Check Interval</string>
     <string name="desc_api_interval">How often to check-in to API (seconds)</string> 
@@ -36,9 +36,13 @@
     <string name="title_api_protocol">API Protocol</string>
     <string name="desc_api_protocol">Connect to API over HTTP or HTTPS</string>
     <string-array name="api_protocols">
-        <item>https (443)</item>
-        <item>http (80)</item>
-        <item>http (8080)</item>
+        <item>HTTPS : 443</item>
+        <item>HTTP  : 80</item>
+        <item>HTTP  : 8080</item>
     </string-array>
+
+    <string name="title_capture_as_aac">Capture as AAC</string>
+    <string name="desc_capture_as_aac">Record audio in lossy AAC format</string>
+    
     
 </resources>
