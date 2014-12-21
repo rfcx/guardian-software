@@ -81,12 +81,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public boolean isServiceRunning_AudioCapture = false;
 	public boolean isServiceEnabled_AudioCapture = true;
 	
-	public boolean isServiceRunning_AudioProcess = false;
-	public boolean isServiceEnabled_AudioProcess = true;
-	
-	public boolean isServiceRunning_AudioEncode = false;
-	public boolean isServiceEnabled_AudioEncode = true;
-	
 	public boolean isServiceRunning_ApiComm = false;
 	public boolean isServiceEnabled_ApiComm = true;
 	
@@ -112,7 +106,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		Log.d(TAG, "Launching org.rfcx.guardian (v"+version+")");
 		airplaneMode.setOn(getApplicationContext());
 		rfcxGuardianPrefs.initializePrefs();
-		rfcxGuardianPrefs.checkAndSet();
+		rfcxGuardianPrefs.checkAndSet(this);
 		rfcxGuardianPrefs.loadPrefsOverride();
 		setFilesDir();
 		
@@ -130,14 +124,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void appResume() {
-		rfcxGuardianPrefs.checkAndSet();
+		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
 	public void appPause() {
 	}
 	
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		rfcxGuardianPrefs.checkAndSet();
+		if (this.verboseLogging) { Log.d(TAG, "Preference changed: "+key); }
+		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
 	public UUID getDeviceId() {

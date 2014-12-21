@@ -26,30 +26,33 @@ import android.text.TextUtils;
 import android.util.Log;
 
 
-
 public class ApiCore {
 
 	private static final String TAG = ApiCore.class.getSimpleName();
-
-	private boolean networkConnectivity = false;
-
-	private int connectivityInterval = 300; // change this value in preferences
-	private int connectivityTimeout = setConnectivityTimeout();
-
-	DateTimeUtils dateTimeUtils = new DateTimeUtils();
-	
-	private String deviceId = null;
-	private String apiProtocol = "http";
-	private String apiDomain;
-	private int apiPort;
-	
-	private String requestEndpoint = "/";
-	private URL requestUri;
 
 	private RfcxGuardian app = null;
 	private DeviceState deviceState = null;
 	private DeviceStateDb deviceStateDb = null;
 	private SmsDb smsDb = null;
+
+	DateTimeUtils dateTimeUtils = new DateTimeUtils();
+	
+	private boolean networkConnectivity = false;
+
+	private int connectivityInterval = 300; // change this value in preferences
+	private int connectivityTimeout = setConnectivityTimeout();
+
+	
+	private String deviceId = null;
+	
+	private String apiProtocol = "https";
+	private int apiPort = 443;
+	private String apiDomain = "api.rfcx.org";
+	
+	private String requestEndpoint = "/";
+	private URL requestUri;
+
+
 	
 	private String jsonRaw = null;
 	private byte[] jsonZipped = null;
@@ -230,6 +233,11 @@ public class ApiCore {
 		String[] apiProtocolParts = apiProtocolPrefs.split(":");
 		this.apiProtocol = apiProtocolParts[0].trim().toLowerCase();
 		this.apiPort = Integer.parseInt(apiProtocolParts[1].trim().toLowerCase());
+		Log.d(TAG, "set "+ this.apiProtocol+" - "+this.apiPort);
+	}
+	
+	public String getApiProtocol() {
+		return this.apiProtocol+":"+this.apiPort;
 	}
 
 //	public void setApiEndpointCheckIn(String apiEndpointCheckIn) {

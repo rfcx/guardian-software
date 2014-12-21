@@ -16,7 +16,7 @@ public class RfcxGuardianPrefs {
 	private RfcxGuardian app = null;
 	
 	public SharedPreferences createPrefs(RfcxGuardian rfcxApp) {
-		this.app = rfcxApp;
+		app = rfcxApp;
 		SharedPreferences sharedPreferences = null;
 		return sharedPreferences;
 	}
@@ -36,21 +36,23 @@ public class RfcxGuardianPrefs {
 		return editor.commit();
 	}
 	
-	public void checkAndSet() {
+	public void checkAndSet(RfcxGuardian rfcxApp) {
+		
+		app = rfcxApp;
+		
 		app.verboseLogging = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLogging);
 		app.ignoreOffHours = app.sharedPrefs.getBoolean("ignore_off_hours", app.ignoreOffHours);
 		app.monitorIntentServiceInterval = Integer.parseInt(app.sharedPrefs.getString("monitor_intentservice_interval", ""+app.monitorIntentServiceInterval));
 		app.apiCore.setConnectivityInterval(Integer.parseInt(app.sharedPrefs.getString("api_interval", ""+app.apiCore.getConnectivityInterval())));
 		app.airplaneMode.setAllowWifi(app.sharedPrefs.getBoolean("allow_wifi", app.airplaneMode.getAllowWifi()));
-		app.apiCore.setApiProtocol(app.sharedPrefs.getString("api_protocol", "HTTPS : 443"));
+		app.apiCore.setApiProtocol(app.sharedPrefs.getString("api_protocol", app.apiCore.getApiProtocol()));
 		app.apiCore.setApiDomain(app.sharedPrefs.getString("api_domain", "api.rfcx.org"));
 		
 		app.isServiceEnabled_AudioCapture = app.sharedPrefs.getBoolean("enable_service_audiocapture", app.isServiceEnabled_AudioCapture);
-		app.isServiceEnabled_AudioProcess = app.sharedPrefs.getBoolean("enable_service_audioprocess", app.isServiceEnabled_AudioProcess);
 		app.isServiceEnabled_DeviceState = app.sharedPrefs.getBoolean("enable_service_devicestate", app.isServiceEnabled_DeviceState);
 		app.isServiceEnabled_ApiComm = app.sharedPrefs.getBoolean("enable_service_apicomm", app.isServiceEnabled_ApiComm);
 		
-		app.audioCore.encodeLossyOnCapture = app.sharedPrefs.getBoolean("capture_as_aac", app.audioCore.encodeLossyOnCapture);
+		app.audioCore.setEncodeOnCapture(app.sharedPrefs.getBoolean("capture_as_aac", app.audioCore.mayEncodeOnCapture()));
 		
 		app.dayBeginsAt = Integer.parseInt(app.sharedPrefs.getString("day_begins_at_hour", ""+app.dayBeginsAt));
 		app.dayEndsAt = Integer.parseInt(app.sharedPrefs.getString("day_ends_at_hour", ""+app.dayEndsAt));

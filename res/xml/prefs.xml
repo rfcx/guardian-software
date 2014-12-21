@@ -61,13 +61,6 @@
 		android:defaultValue="true"/>
 	
 	<CheckBoxPreference
-	    android:key="enable_service_audioprocess"
-        android:enabled="true"
-	    android:title="Audio Processing"
-	    android:summary="Enable/Disable Service"
-		android:defaultValue="true"/>
-	
-	<CheckBoxPreference
 	    android:key="enable_service_devicestate"
         android:enabled="true"
 	    android:title="Device Stats"

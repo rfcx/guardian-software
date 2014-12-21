@@ -13,8 +13,8 @@ public class ApiConnectIntentService extends IntentService {
 
 	private static final String TAG = ApiConnectIntentService.class.getSimpleName();
 	
-	public static final String SRC_API_COMM = "org.rfcx.src_android.SRC_API_COMM";
-	public static final String RECEIVE_API_COMM_NOTIFICATIONS = "org.rfcx.src_android.RECEIVE_API_COMM_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian.API_CONNECT";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_API_CONNECT_NOTIFICATIONS";
 	
 	public ApiConnectIntentService() {
 		super(TAG);
@@ -30,8 +30,8 @@ public class ApiConnectIntentService extends IntentService {
 			app.airplaneMode.setOn(context);	
 		} else if (app.isServiceRunning_ApiComm && timeOfDay.isDataGenerationEnabled(context)) {
 			app.airplaneMode.setOff(context);	
-			Intent intent = new Intent(SRC_API_COMM);
-			sendBroadcast(intent, RECEIVE_API_COMM_NOTIFICATIONS);
+			Intent intent = new Intent(INTENT_TAG);
+			sendBroadcast(intent, NOTIFICATION_TAG);
 			ApiCore apiCore = new ApiCore();
 			if (apiCore.getConnectivityTimeout() > 0) {
 				try {

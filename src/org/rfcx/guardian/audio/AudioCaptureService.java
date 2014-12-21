@@ -86,7 +86,7 @@ public class AudioCaptureService extends Service {
 			AudioCore audioCore = app.audioCore;
 			captureSampleRate = audioCore.CAPTURE_SAMPLE_RATE_HZ;
 			encodingBitRate = audioCore.aacEncodingBitRate;
-			fileExtension = (app.audioCore.encodeLossyOnCapture) ? "m4a" : "wav";
+			fileExtension = (app.audioCore.mayEncodeOnCapture()) ? "m4a" : "wav";
 			try {
 				while (audioCaptureService.runFlag) {
 					try {
@@ -114,7 +114,7 @@ public class AudioCaptureService extends Service {
 	private void captureLoopStart() throws IllegalStateException, IOException {
 		long timeStamp = Calendar.getInstance().getTimeInMillis();
 		String filePath = app.audioCore.captureDir+"/"+timeStamp+"."+fileExtension;
-		if (app.audioCore.encodeLossyOnCapture) {
+		if (app.audioCore.mayEncodeOnCapture()) {
 			mediaRecorder = setAacCaptureRecorder();
 			mediaRecorder.setOutputFile(filePath);
 	        mediaRecorder.prepare();
@@ -130,7 +130,7 @@ public class AudioCaptureService extends Service {
 	}
 	
 	private void captureLoopEnd() {
-		if (app.audioCore.encodeLossyOnCapture) {
+		if (app.audioCore.mayEncodeOnCapture()) {
 			mediaRecorder.stop();
 			mediaRecorder.release();
 		} else {
@@ -154,7 +154,7 @@ public class AudioCaptureService extends Service {
 		File completedCapture = new File(app.audioCore.captureDir+"/"+captureTimeStamps[0]+"."+fileExtension);
 		if (completedCapture.exists()) {
 			completedCapture.renameTo(new File(
-					((app.audioCore.encodeLossyOnCapture) ? app.audioCore.aacDir : app.audioCore.wavDir)
+					((app.audioCore.mayEncodeOnCapture()) ? app.audioCore.aacDir : app.audioCore.wavDir)
 					+"/"+captureTimeStamps[0]+"."+fileExtension));
 	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", fileExtension);
 			if (app.verboseLogging) Log.d(TAG, "Capture file created ("+app.audioCore.CAPTURE_LOOP_PERIOD_SECS+"s): "+captureTimeStamps[0]+"."+fileExtension);

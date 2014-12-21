@@ -36,9 +36,9 @@
     <string name="title_api_protocol">API Protocol</string>
     <string name="desc_api_protocol">Connect to API over HTTP or HTTPS</string>
     <string-array name="api_protocols">
-        <item>HTTPS : 443</item>
-        <item>HTTP  : 80</item>
-        <item>HTTP  : 8080</item>
+        <item>https:443</item>
+        <item>http:80</item>
+        <item>http:8080</item>
     </string-array>
 
     <string name="title_capture_as_aac">Capture as AAC</string>

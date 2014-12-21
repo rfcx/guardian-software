@@ -25,7 +25,9 @@ public class AudioCore {
 	public String wavDir = null;
 	private String[] audioDirectories = new String[] {null, null, null, null};
 	
-	public boolean encodeLossyOnCapture = true;
+	// encode straight to AAC/M4A (lossy, constant bitrate)...
+	// ...or don't, and encode asynchronously after (may eventually support many formats for post-encoding)
+	private boolean encodeOnCapture = true;
 	
 	public boolean purgeAudioAssetsOnStart = true;
 	
@@ -87,4 +89,11 @@ public class AudioCore {
 		alarmManager.set(AlarmManager.RTC, System.currentTimeMillis(), audioEncodeIntentService);
 	}
 	
+	public boolean mayEncodeOnCapture() {
+		return this.encodeOnCapture;
+	}
+	
+	public void setEncodeOnCapture(boolean trueFalse) {
+		this.encodeOnCapture = trueFalse;
+	}
 }
