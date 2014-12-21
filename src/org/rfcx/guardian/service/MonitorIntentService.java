@@ -31,7 +31,7 @@ public class MonitorIntentService extends IntentService {
 		if (app.isCrisisModeEnabled) {
 			if (app.verboseLogging) Log.d(TAG, "Crisis mode enabled! Making sure services are disabled...");
 			app.suspendAllServices(context);
-		} else if (app.isServiceRunning_ServiceMonitor) {
+		} else if (app.isRunning_ServiceMonitor) {
 			TimeOfDay timeOfDay = new TimeOfDay();
 			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {
 				if (app.verboseLogging) Log.d(TAG, "Services should be running.");
@@ -41,7 +41,7 @@ public class MonitorIntentService extends IntentService {
 				app.suspendAllServices(context);
 			}
 		} else {
-			app.isServiceRunning_ServiceMonitor = true;
+			app.isRunning_ServiceMonitor = true;
 		}
 	}
 	

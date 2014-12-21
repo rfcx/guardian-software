@@ -6,7 +6,7 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 
 public class DeviceState {
-
+	
 	public int serviceSamplesPerMinute = 60;
 	
 	// Battery

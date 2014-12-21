@@ -2,48 +2,30 @@ package org.rfcx.guardian.api;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.database.DeviceStateDb;
-import org.rfcx.guardian.database.SmsDb;
-import org.rfcx.guardian.device.DeviceState;
-import org.rfcx.guardian.utility.DateTimeUtils;
 
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.util.Log;
-
 
 public class ApiCore {
 
 	private static final String TAG = ApiCore.class.getSimpleName();
+	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
 
 	private RfcxGuardian app = null;
-	private DeviceState deviceState = null;
-	private DeviceStateDb deviceStateDb = null;
-	private SmsDb smsDb = null;
-
-	DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
 	private boolean networkConnectivity = false;
 
 	private int connectivityInterval = 300; // change this value in preferences
 	private int connectivityTimeout = setConnectivityTimeout();
-
-	
-	private String deviceId = null;
 	
 	private String apiProtocol = "https";
 	private int apiPort = 443;
@@ -70,31 +52,30 @@ public class ApiCore {
 	public void prepareDiagnostics() {
 
 		transmitTime = Calendar.getInstance();
-		
-		if (deviceStateDb == null) deviceStateDb = app.deviceStateDb;
-		if (smsDb == null) smsDb = app.smsDb;
-		if (deviceState == null) deviceState = app.deviceState;
 
-		String[] vBattery = deviceStateDb.dbBattery.getStatsSummary();
-		String[] vBatteryTemp = deviceStateDb.dbBatteryTemperature.getStatsSummary();
-		String[] vCpu = deviceStateDb.dbCpu.getStatsSummary();
-		String[] vCpuClock = deviceStateDb.dbCpuClock.getStatsSummary();
-		String[] vLight = deviceStateDb.dbLight.getStatsSummary();
+		String[] vBattery = app.deviceStateDb.dbBattery.getStatsSummary();
+		String[] vBatteryTemp = app.deviceStateDb.dbBatteryTemperature.getStatsSummary();
+		String[] vCpu = app.deviceStateDb.dbCpu.getStatsSummary();
+		String[] vCpuClock = app.deviceStateDb.dbCpuClock.getStatsSummary();
+		String[] vLight = app.deviceStateDb.dbLight.getStatsSummary();
 
 		JSONObject json = new JSONObject();
 		try {
 			json.put("batt",(vBattery[0] != "0") ? Integer.parseInt(vBattery[1]) : null);
 		} catch (NumberFormatException e) {
+			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 			json.put("batt", null);
 		}
 		try {
 			json.put("temp",(vBatteryTemp[0] != "0") ? Integer.parseInt(vBatteryTemp[1]) : null);
 		} catch (NumberFormatException e) {
+			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 			json.put("temp", null);
 		}
 		try {
 			json.put("srch", new Long(Calendar.getInstance().getTimeInMillis()-signalSearchStart));
 		} catch (NumberFormatException e) {
+			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 			json.put("srch", null);
 		}
 		json.put("cpuP", (vCpu[0] != "0") ? vCpu[4] : null);
@@ -104,9 +85,9 @@ public class ApiCore {
 		json.put("chrg", (app.deviceState.isBatteryCharged()) ? new Boolean(true) : new Boolean(false));
 
 		json.put("sent", transmitTime.getTime().toGMTString());
-		json.put("uuid", getDeviceId());
+		json.put("guid", app.getDeviceId());
 		json.put("appV", app.version);
-		json.put("sms", smsDb.dbSms.getSerializedSmsAll());
+		json.put("sms", app.smsDb.dbSms.getSerializedSmsAll());
 		
 		if (this.lastCheckInId != null) {
 			json.put("lastId", this.lastCheckInId);
@@ -127,11 +108,11 @@ public class ApiCore {
 			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
 			gZIPOutputStream.write(s.getBytes("UTF-8"));
 		} catch (IOException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
+			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 		} finally { if (gZIPOutputStream != null) {
 			try { gZIPOutputStream.close();
 			} catch (IOException e) {
-				Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
+				Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 			};
 		} }
 		return byteArrayOutputStream.toByteArray();
@@ -142,14 +123,14 @@ public class ApiCore {
 		resetTransmissionState();
 		
 		Date lastTransmitTime = transmitTime.getTime();
-		if (deviceStateDb != null) {
-			deviceStateDb.dbBattery.clearStatsBefore(lastTransmitTime);
-			deviceStateDb.dbCpu.clearStatsBefore(lastTransmitTime);
-			deviceStateDb.dbCpuClock.clearStatsBefore(lastTransmitTime);
-			deviceStateDb.dbLight.clearStatsBefore(lastTransmitTime);
-			deviceStateDb.dbBatteryTemperature.clearStatsBefore(lastTransmitTime);
-		}
-		if (smsDb != null) smsDb.dbSms.clearSmsBefore(lastTransmitTime);
+
+		app.deviceStateDb.dbBattery.clearStatsBefore(lastTransmitTime);
+		app.deviceStateDb.dbCpu.clearStatsBefore(lastTransmitTime);
+		app.deviceStateDb.dbCpuClock.clearStatsBefore(lastTransmitTime);
+		app.deviceStateDb.dbLight.clearStatsBefore(lastTransmitTime);
+		app.deviceStateDb.dbBatteryTemperature.clearStatsBefore(lastTransmitTime);
+
+		app.smsDb.dbSms.clearSmsBefore(lastTransmitTime);
 		
 		try {
 			if (httpResponseString != null) {
@@ -164,11 +145,11 @@ public class ApiCore {
 				this.lastCheckInDuration = Calendar.getInstance().getTimeInMillis() - this.requestSendStart;
 			}
 		} catch (NumberFormatException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
+			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 		} catch (org.json.simple.parser.ParseException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
+			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 		} catch (NullPointerException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
+			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 		} finally {
 			if (app.verboseLogging) Log.d(TAG, "API Response: " + httpResponseString);
 //			app.airplaneMode.setOn(app.getApplicationContext());
@@ -179,12 +160,6 @@ public class ApiCore {
 	public void resetTransmissionState() {
 		isTransmitting = false;
 		jsonZipped = null;
-	}
-
-	private String getDeviceId() {
-		if (deviceId == null)
-			deviceId = app.getDeviceId().toString();
-		return deviceId;
 	}
 
 	// Getters & Setters
@@ -254,7 +229,7 @@ public class ApiCore {
 		try {
 			this.requestUri = new URL(this.apiProtocol + "://" + this.apiDomain + ":" + this.apiPort + this.requestEndpoint);
 		} catch (MalformedURLException e) {
-			Log.e(TAG, (e != null) ? e.getMessage() : "Exception is Null");
+			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 		}
 	}
 

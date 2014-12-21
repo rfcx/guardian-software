@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Calendar;
 
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.database.AudioDb;
 import org.rfcx.guardian.utility.ExtAudioRecorderModified;
 
 import android.app.Service;
@@ -18,6 +17,7 @@ import android.util.Log;
 public class AudioCaptureService extends Service {
 
 	private static final String TAG = AudioCaptureService.class.getSimpleName();
+	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
 
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
@@ -59,7 +59,7 @@ public class AudioCaptureService extends Service {
 		
 		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
 		
-		app.isServiceRunning_AudioCapture = true;
+		app.isRunning_AudioCapture = true;
 		this.audioCapture.start();
 		return START_STICKY;
 	}
@@ -68,7 +68,7 @@ public class AudioCaptureService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.isServiceRunning_AudioCapture = false;
+		app.isRunning_AudioCapture = false;
 		this.audioCapture.interrupt();
 		this.audioCapture = null;
 	}
@@ -95,18 +95,18 @@ public class AudioCaptureService extends Service {
 				        Thread.sleep(audioCore.CAPTURE_LOOP_PERIOD_SECS*1000);
 						captureLoopEnd();					
 					} catch (Exception e) {
-						e.printStackTrace();
+						Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 						audioCaptureService.runFlag = false;
-						app.isServiceRunning_AudioCapture = false;
+						app.isRunning_AudioCapture = false;
 					}
 				}
 				if (app.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
 				captureLoopEnd();
 				
 			} catch (Exception e) {
-				e.printStackTrace();
+				Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 				audioCaptureService.runFlag = false;
-				app.isServiceRunning_AudioCapture = false;
+				app.isRunning_AudioCapture = false;
 			}
 		}
 	}

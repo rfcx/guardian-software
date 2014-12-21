@@ -88,7 +88,7 @@ protected void call(String phoneNumber) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
 		((RfcxGuardian) getApplication()).launchAllServices(this);
-		((RfcxGuardian) getApplication()).launchAllIntentServices(this);
+		((RfcxGuardian) getApplication()).launchIntentServices(this);
 		
 //        String encodedHash = Uri.encode("#");
 //        this.view = new TextView(this);

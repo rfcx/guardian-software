@@ -3,7 +3,11 @@ package org.rfcx.guardian.device;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import android.util.Log;
+
 public class CpuUsage {
+
+	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
 	
 	public static final int REPORTING_SAMPLE_COUNT = 60;
 	
@@ -57,7 +61,7 @@ public class CpuUsage {
 	              + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        try {
 	            Thread.sleep(SAMPLE_LENGTH_MS);
-	        } catch (Exception e) {}
+	        } catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); }
 	        reader.seek(0);
 	        load = reader.readLine();
 	        reader.close();
@@ -67,7 +71,7 @@ public class CpuUsage {
 	            + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        this.cpuUsageNow = (float)(cpu2 - cpu1) / ((cpu2 + idle2) - (cpu1 + idle1));
 	    } catch (IOException e) {
-	        e.printStackTrace();
+	    	Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 	    }
 		
 		if (updateClockSpeed) {
@@ -77,7 +81,7 @@ public class CpuUsage {
 				scaling_cur_freq.close();
 			}
 			catch (Exception e) {
-				e.printStackTrace();
+				Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 			}
 		}
 	}

@@ -18,6 +18,7 @@ import android.util.Log;
 public class AudioCore {
 
 	private static final String TAG = AudioCore.class.getSimpleName();
+	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
 
 	public String captureDir = null;
 	public String flacDir = null;
@@ -45,7 +46,7 @@ public class AudioCore {
 				ffe.encode(wavFile, encodedFile);
 			}
 		} catch(Exception e) {
-			Log.e(TAG, e.getMessage());
+			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 		} finally {
 			if (wavFile.exists()) {
 				wavFile.delete();
@@ -68,7 +69,7 @@ public class AudioCore {
 	
 	public void cleanupCaptureDirectory() {
 		for (File file : (new File(this.captureDir)).listFiles()) {
-			try { file.delete(); } catch (Exception e) { Log.e(TAG, e.getMessage()); }
+			try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); }
 		}
 	}
 	
@@ -76,7 +77,7 @@ public class AudioCore {
 		Log.d(TAG, "Purging all existing audio assets...");
 		for (String audioDir : this.audioDirectories) {
 			for (File file : (new File(audioDir)).listFiles()) {
-				try { file.delete(); } catch (Exception e) { Log.e(TAG,e.getMessage()); }
+				try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); }
 			}
 		}
 		audioDb.dbCaptured.clearCapturedBefore(new Date());

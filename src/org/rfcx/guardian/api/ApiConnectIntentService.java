@@ -12,6 +12,7 @@ import android.util.Log;
 public class ApiConnectIntentService extends IntentService {
 
 	private static final String TAG = ApiConnectIntentService.class.getSimpleName();
+	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.API_CONNECT";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_API_CONNECT_NOTIFICATIONS";
@@ -28,7 +29,7 @@ public class ApiConnectIntentService extends IntentService {
 		if (app.isCrisisModeEnabled) {
 			if (app.verboseLogging) Log.d(TAG, "Crisis mode enabled! Not contacting API...");
 			app.airplaneMode.setOn(context);	
-		} else if (app.isServiceRunning_ApiComm && timeOfDay.isDataGenerationEnabled(context)) {
+		} else if (app.isRunning_ApiComm && timeOfDay.isDataGenerationEnabled(context)) {
 			app.airplaneMode.setOff(context);	
 			Intent intent = new Intent(INTENT_TAG);
 			sendBroadcast(intent, NOTIFICATION_TAG);
@@ -52,14 +53,15 @@ public class ApiConnectIntentService extends IntentService {
 						}
 					}
 				} catch (InterruptedException e) {
+					Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 				}
 			}
 		} else {
-			if (app.verboseLogging) Log.d(TAG, app.isServiceRunning_ApiComm ? "Skipping (off hours)" : "Skipping (first run)");
+			if (app.verboseLogging) Log.d(TAG, app.isRunning_ApiComm ? "Skipping (off hours)" : "Skipping (first run)");
 			if (timeOfDay.isDataGenerationEnabled(context)) {
 				app.airplaneMode.setOn(context);
 			}
-			app.isServiceRunning_ApiComm = true;
+			app.isRunning_ApiComm = true;
 		}
 	}
 }

@@ -30,7 +30,7 @@ public class SmsReceiver extends BroadcastReceiver {
                         if (app.verboseLogging) Log.d(TAG, "Saved SMS from '"+smsMessages[i].getOriginatingAddress()+"': "+smsMessages[i].getMessageBody());
                     }
                 } catch (Exception e) {
-                	Log.e(TAG, (e != null) ? e.getMessage() : "Null Exception");
+                	Log.e(TAG, (e != null) ? e.getMessage() : "Exception thrown, but exception itself is null.");
                 }
             }
         }

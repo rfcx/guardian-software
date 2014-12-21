@@ -2,8 +2,6 @@ package org.rfcx.guardian;
 
 import java.util.ArrayList;
 
-import org.rfcx.guardian.api.ApiComm;
-
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
@@ -48,9 +46,9 @@ public class RfcxGuardianPrefs {
 		app.apiCore.setApiProtocol(app.sharedPrefs.getString("api_protocol", app.apiCore.getApiProtocol()));
 		app.apiCore.setApiDomain(app.sharedPrefs.getString("api_domain", "api.rfcx.org"));
 		
-		app.isServiceEnabled_AudioCapture = app.sharedPrefs.getBoolean("enable_service_audiocapture", app.isServiceEnabled_AudioCapture);
-		app.isServiceEnabled_DeviceState = app.sharedPrefs.getBoolean("enable_service_devicestate", app.isServiceEnabled_DeviceState);
-		app.isServiceEnabled_ApiComm = app.sharedPrefs.getBoolean("enable_service_apicomm", app.isServiceEnabled_ApiComm);
+		app.isEnabled_AudioCapture = app.sharedPrefs.getBoolean("enable_service_audiocapture", app.isEnabled_AudioCapture);
+		app.isEnabled_DeviceState = app.sharedPrefs.getBoolean("enable_service_devicestate", app.isEnabled_DeviceState);
+		app.isEnabled_ApiComm = app.sharedPrefs.getBoolean("enable_service_apicomm", app.isEnabled_ApiComm);
 		
 		app.audioCore.setEncodeOnCapture(app.sharedPrefs.getBoolean("capture_as_aac", app.audioCore.mayEncodeOnCapture()));
 		

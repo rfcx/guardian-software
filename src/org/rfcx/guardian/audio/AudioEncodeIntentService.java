@@ -26,7 +26,7 @@ public class AudioEncodeIntentService extends IntentService {
 		if (app.verboseLogging) Log.d(TAG, "Running AudioEncodeIntentService...");
 		
 		for (String[] capturedRow : app.audioDb.dbCaptured.getAllCaptured()) {
-			if (app.verboseLogging) { Log.d(TAG, "'"+capturedRow[0]+"' * '"+capturedRow[1]+"' * '"+capturedRow[2]+"'"); }
+			if (app.verboseLogging) { Log.d(TAG, "Encoding: '"+capturedRow[0]+"','"+capturedRow[1]+"','"+capturedRow[2]+"'"); }
 			if (capturedRow[2].equals("wav")) {
 				app.audioCore.encodeCaptureAudio(capturedRow[1], "flac", capturedRow[0], app.audioDb);
 			} else {

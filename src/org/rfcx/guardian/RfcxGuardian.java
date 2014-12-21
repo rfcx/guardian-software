@@ -18,7 +18,6 @@ import org.rfcx.guardian.device.DeviceStateService;
 import org.rfcx.guardian.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.service.MonitorIntentService;
-import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.DeviceUuid;
 import org.rfcx.guardian.utility.HttpHttpsPostMultiPart;
 
@@ -38,6 +37,7 @@ import android.util.Log;
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 	
 	private static final String TAG = RfcxGuardian.class.getSimpleName();
+	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
 	public String version;
 	Context context;
 	public boolean verboseLogging = false;
@@ -75,16 +75,16 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public boolean isCrisisModeEnabled = false;
 		
 	// android service running flags
-	public boolean isServiceRunning_DeviceState = false;
-	public boolean isServiceEnabled_DeviceState = true;
+	public boolean isRunning_DeviceState = false;
+	public boolean isEnabled_DeviceState = true;
 	
-	public boolean isServiceRunning_AudioCapture = false;
-	public boolean isServiceEnabled_AudioCapture = true;
+	public boolean isRunning_AudioCapture = false;
+	public boolean isEnabled_AudioCapture = true;
 	
-	public boolean isServiceRunning_ApiComm = false;
-	public boolean isServiceEnabled_ApiComm = true;
+	public boolean isRunning_ApiComm = false;
+	public boolean isEnabled_ApiComm = true;
 	
-	public boolean isServiceRunning_ServiceMonitor = false;
+	public boolean isRunning_ServiceMonitor = false;
 	
 	public boolean ignoreOffHours = false;
 	public int monitorIntentServiceInterval = 180;
@@ -113,7 +113,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
-		launchAllIntentServices(getApplicationContext());
+		launchIntentServices(getApplicationContext());
 	}
 	
 	@Override
@@ -147,32 +147,32 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 
 	public void launchAllServices(Context context) {
-		if (isServiceEnabled_DeviceState && !isServiceRunning_DeviceState) {
+		if (isEnabled_DeviceState && !isRunning_DeviceState) {
 			context.startService(new Intent(context, DeviceStateService.class));
-		} else if (isServiceRunning_DeviceState && this.verboseLogging) {
+		} else if (isRunning_DeviceState && this.verboseLogging) {
 			Log.d(TAG, "DeviceStateService already running. Not re-started...");
 		}
-		if (isServiceEnabled_AudioCapture && !isServiceRunning_AudioCapture) {
+		if (isEnabled_AudioCapture && !isRunning_AudioCapture) {
 			context.startService(new Intent(context, AudioCaptureService.class));
-		} else if (isServiceRunning_AudioCapture && this.verboseLogging) {
+		} else if (isRunning_AudioCapture && this.verboseLogging) {
 			Log.d(TAG, "AudioCaptureService already running. Not re-started...");
 		}
 	}
 	
 	public void suspendAllServices(Context context) {
-		if (isServiceEnabled_DeviceState && isServiceRunning_DeviceState) {
+		if (isEnabled_DeviceState && isRunning_DeviceState) {
 			context.stopService(new Intent(context, DeviceStateService.class));
-		} else if (!isServiceRunning_DeviceState && this.verboseLogging) {
+		} else if (!isRunning_DeviceState && this.verboseLogging) {
 			Log.d(TAG, "DeviceStateService not running. Not stopped...");
 		}
-		if (isServiceEnabled_AudioCapture && isServiceRunning_AudioCapture) {
+		if (isEnabled_AudioCapture && isRunning_AudioCapture) {
 			context.stopService(new Intent(context, AudioCaptureService.class));
-		} else if (!isServiceRunning_AudioCapture && this.verboseLogging) {
+		} else if (!isRunning_AudioCapture && this.verboseLogging) {
 			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
 		}
 	}
 	
-	public void launchAllIntentServices(Context context) {
+	public void launchIntentServices(Context context) {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
 		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiConnectIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
@@ -183,11 +183,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	private void setAppVersion() {
-		try {
-			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-		} catch (NameNotFoundException e) {
-			Log.e(TAG, "Failed to retrieve app version.");
-			this.version = "0.0.0";
+		this.version = "0.0.0";
+		try { this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+		} catch (NameNotFoundException e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
 		}
 	}
 	
