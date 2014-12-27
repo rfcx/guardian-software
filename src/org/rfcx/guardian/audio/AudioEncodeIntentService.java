@@ -1,5 +1,7 @@
 package org.rfcx.guardian.audio;
 
+import java.util.List;
+
 import org.rfcx.guardian.RfcxGuardian;
 
 import android.app.IntentService;
@@ -11,7 +13,7 @@ public class AudioEncodeIntentService extends IntentService {
 	private static final String TAG = AudioEncodeIntentService.class.getSimpleName();
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.AUDIO_ENCODE";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_AUDIO_ENCODE_NOTIFICATIONS";
+	public static final String NULL_EXC = "org.rfcx.guardian.RECEIVE_AUDIO_ENCODE_NOTIFICATIONS";
 	
 	public AudioEncodeIntentService() {
 		super(TAG);
@@ -21,11 +23,11 @@ public class AudioEncodeIntentService extends IntentService {
 	protected void onHandleIntent(Intent inputIntent) {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Intent intent = new Intent(INTENT_TAG);
-		sendBroadcast(intent, NOTIFICATION_TAG);
+		sendBroadcast(intent, NULL_EXC);
 		
-		if (app.verboseLogging) Log.d(TAG, "Running AudioEncodeIntentService...");
-		
-		for (String[] capturedRow : app.audioDb.dbCaptured.getAllCaptured()) {
+		List<String[]> capturedRows = app.audioDb.dbCaptured.getAllCaptured();
+		if (app.verboseLogging) { Log.d(TAG, "Running AudioEncodeIntentService... "+capturedRows.size()+" files to encode."); }
+		for (String[] capturedRow : capturedRows) {
 			if (app.verboseLogging) { Log.d(TAG, "Encoding: '"+capturedRow[0]+"','"+capturedRow[1]+"','"+capturedRow[2]+"'"); }
 			if (capturedRow[2].equals("wav")) {
 				app.audioCore.encodeCaptureAudio(capturedRow[1], "flac", capturedRow[0], app.audioDb);

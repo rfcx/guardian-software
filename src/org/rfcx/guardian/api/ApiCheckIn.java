@@ -20,15 +20,15 @@ public class ApiCheckIn {
 	public void sendCheckIn(Context context) {
 		if (app == null) {
 			app = (RfcxGuardian) context.getApplicationContext();
-			app.apiCore.setApp(app);
+//			app.apiCore.setApp(app);
 		}
-	//	if (httpPostCheckIn != null && !app.airplaneMode.isEnabled(context)) {
-			app.apiCore.setTransmitting(true);
-			this.transmitAttempts++;
-			if (app.apiCore.getJsonZipped() == null) { app.apiCore.prepareDiagnostics(); }
-			app.apiCore.setRequestSendStart(Calendar.getInstance().getTimeInMillis());
-			
-			app.apiCore.setRequestEndpoint(apiEndpointCheckIn);
+//	//	if (httpPostCheckIn != null && !app.airplaneMode.isEnabled(context)) {
+//			app.apiCore.setTransmitting(true);
+//			this.transmitAttempts++;
+//			if (app.apiCore.getJsonZipped() == null) { app.apiCore.prepareDiagnostics(); }
+//			app.apiCore.setRequestSendStart(Calendar.getInstance().getTimeInMillis());
+//			
+//			app.apiCore.setRequestEndpoint(apiEndpointCheckIn);
 			
 			
 //			String httpResponseString = executePostCheckIn();

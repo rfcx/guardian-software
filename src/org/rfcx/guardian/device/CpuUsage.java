@@ -3,11 +3,13 @@ package org.rfcx.guardian.device;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 public class CpuUsage {
 
-	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
+	private static final String TAG = CpuUsage.class.getSimpleName();
+	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public static final int REPORTING_SAMPLE_COUNT = 60;
 	
@@ -61,7 +63,7 @@ public class CpuUsage {
 	              + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        try {
 	            Thread.sleep(SAMPLE_LENGTH_MS);
-	        } catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); }
+	        } catch (Exception e) { Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC); }
 	        reader.seek(0);
 	        load = reader.readLine();
 	        reader.close();
@@ -71,7 +73,7 @@ public class CpuUsage {
 	            + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        this.cpuUsageNow = (float)(cpu2 - cpu1) / ((cpu2 + idle2) - (cpu1 + idle1));
 	    } catch (IOException e) {
-	    	Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
+	    	Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
 	    }
 		
 		if (updateClockSpeed) {
@@ -81,7 +83,7 @@ public class CpuUsage {
 				scaling_cur_freq.close();
 			}
 			catch (Exception e) {
-				Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
+				Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
 			}
 		}
 	}

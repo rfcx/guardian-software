@@ -18,8 +18,8 @@ import org.rfcx.guardian.device.DeviceStateService;
 import org.rfcx.guardian.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.service.MonitorIntentService;
-import org.rfcx.guardian.utility.DeviceUuid;
-import org.rfcx.guardian.utility.HttpHttpsPostMultiPart;
+import org.rfcx.guardian.utility.DeviceGuid;
+import org.rfcx.guardian.utility.HttpPostMultipart;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -37,7 +37,7 @@ import android.util.Log;
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 	
 	private static final String TAG = RfcxGuardian.class.getSimpleName();
-	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
+	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	public String version;
 	Context context;
 	public boolean verboseLogging = false;
@@ -54,7 +54,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public AudioDb audioDb = new AudioDb(this);
 
 	// for obtaining device stats and characteristics
-	private UUID deviceId = null;
+	private String deviceId = null;
 	public DeviceState deviceState = new DeviceState();
 	public CpuUsage deviceCpuUsage = new CpuUsage();
 	
@@ -92,19 +92,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public int dayBeginsAt = 9;
 	public int dayEndsAt = 17;
 	
-	public HttpHttpsPostMultiPart httpPostMultiPart = new HttpHttpsPostMultiPart();
-	
-	public void testThePost() {
-		Log.d(TAG, "not testing http multipart post");
-//		httpPostMultiPart.executePostMultiPart(getApplicationContext());
-	}
-	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		setAppVersion();
 		Log.d(TAG, "Launching org.rfcx.guardian (v"+version+")");
-		airplaneMode.setOn(getApplicationContext());
+//		airplaneMode.setOn(getApplicationContext());
 		rfcxGuardianPrefs.initializePrefs();
 		rfcxGuardianPrefs.checkAndSet(this);
 		rfcxGuardianPrefs.loadPrefsOverride();
@@ -135,9 +128,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
-	public UUID getDeviceId() {
+	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = new DeviceUuid(getApplicationContext(), this.sharedPrefs).getDeviceUuid();
+			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
 		}
 		return this.deviceId;
 	}
@@ -175,17 +168,17 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void launchIntentServices(Context context) {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
-		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiConnectIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+//		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiConnectIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, MonitorIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		
-		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiCore.getConnectivityInterval()*1000, apiCommServiceIntent);
+//		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiCore.getConnectivityInterval()*1000, apiCommServiceIntent);
 		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), monitorIntentServiceInterval*1000, monitorServiceIntent);
 	}
 	
 	private void setAppVersion() {
 		this.version = "0.0.0";
 		try { this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-		} catch (NameNotFoundException e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
+		} catch (NameNotFoundException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
 		}
 	}
 	

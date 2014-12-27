@@ -49,7 +49,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		if (app == null) { app = (RfcxGuardian) getApplication(); }
 		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		((RfcxGuardian) getApplication()).isServiceRunning_DeviceState = true;
+		((RfcxGuardian) getApplication()).isRunning_DeviceState = true;
 		this.deviceStateSvc.start();
 		return START_STICKY;
 	}
@@ -58,7 +58,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.isServiceRunning_DeviceState = false;
+		app.isRunning_DeviceState = false;
 		this.deviceStateSvc.interrupt();
 		this.deviceStateSvc = null;
 		unRegisterSensorListeners();
@@ -96,7 +96,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 					Thread.sleep(delayMs);
 				} catch (InterruptedException e) {
 					deviceStateService.runFlag = false;
-					app.isServiceRunning_DeviceState = true;
+					app.isRunning_DeviceState = true;
 				}
 			}
 			if (app.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);

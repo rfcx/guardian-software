@@ -13,8 +13,8 @@ public class MonitorIntentService extends IntentService {
 	
 	private static final String TAG = MonitorIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian.SRC_SLEEP_MONITOR";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_SLEEP_MONITOR_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian.SERVICE_MONITOR";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
 	
 	public MonitorIntentService() {
 		super(TAG);

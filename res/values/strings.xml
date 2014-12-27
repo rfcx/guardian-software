@@ -6,9 +6,9 @@
     <!-- MainActivity Menu Options -->
     
     <string name="menu_prefs">Preferences</string>
-    <string name="menu_services_toggle">Stop Services</string>
-	<string name="menu_services_audio">Toggle Audio</string>
+	<string name="menu_purge_audio">Purge Audio Assets</string>
 	<string name="menu_connectivity">(Re) Connect</string>
+	<string name="menu_send_checkin">Send CheckIn</string>
     
 	<!-- Preferences Options -->
 	

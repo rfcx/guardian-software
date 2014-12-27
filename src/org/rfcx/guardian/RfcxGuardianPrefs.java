@@ -41,10 +41,10 @@ public class RfcxGuardianPrefs {
 		app.verboseLogging = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLogging);
 		app.ignoreOffHours = app.sharedPrefs.getBoolean("ignore_off_hours", app.ignoreOffHours);
 		app.monitorIntentServiceInterval = Integer.parseInt(app.sharedPrefs.getString("monitor_intentservice_interval", ""+app.monitorIntentServiceInterval));
-		app.apiCore.setConnectivityInterval(Integer.parseInt(app.sharedPrefs.getString("api_interval", ""+app.apiCore.getConnectivityInterval())));
+//		app.apiCore.setConnectivityInterval(Integer.parseInt(app.sharedPrefs.getString("api_interval", ""+app.apiCore.getConnectivityInterval())));
 		app.airplaneMode.setAllowWifi(app.sharedPrefs.getBoolean("allow_wifi", app.airplaneMode.getAllowWifi()));
-		app.apiCore.setApiProtocol(app.sharedPrefs.getString("api_protocol", app.apiCore.getApiProtocol()));
-		app.apiCore.setApiDomain(app.sharedPrefs.getString("api_domain", "api.rfcx.org"));
+//		app.apiCore.setApiProtocol(app.sharedPrefs.getString("api_protocol", app.apiCore.getApiProtocol()));
+//		app.apiCore.setApiDomain(app.sharedPrefs.getString("api_domain", "api.rfcx.org"));
 		
 		app.isEnabled_AudioCapture = app.sharedPrefs.getBoolean("enable_service_audiocapture", app.isEnabled_AudioCapture);
 		app.isEnabled_DeviceState = app.sharedPrefs.getBoolean("enable_service_devicestate", app.isEnabled_DeviceState);

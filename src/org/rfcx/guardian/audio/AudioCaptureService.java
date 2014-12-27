@@ -12,12 +12,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaRecorder;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class AudioCaptureService extends Service {
 
 	private static final String TAG = AudioCaptureService.class.getSimpleName();
-	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
+	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private boolean runFlag = false;
 	private AudioCapture audioCapture;
@@ -54,13 +55,15 @@ public class AudioCaptureService extends Service {
 		context = app.getApplicationContext();
 		
 		app.audioCore.initializeAudioDirectories(app);
-		app.audioCore.cleanupCaptureDirectory();
-		if (app.audioCore.purgeAudioAssetsOnStart) { app.audioCore.purgeAudioAssets(app.audioDb); }
 		
 		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
 		
 		app.isRunning_AudioCapture = true;
-		this.audioCapture.start();
+		try {
+			this.audioCapture.start();
+		} catch (IllegalThreadStateException e) {
+			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+		}
 		return START_STICKY;
 	}
 
@@ -84,9 +87,11 @@ public class AudioCaptureService extends Service {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
 			app = (RfcxGuardian) getApplication();
 			AudioCore audioCore = app.audioCore;
+			app.audioCore.cleanupCaptureDirectory();
 			captureSampleRate = audioCore.CAPTURE_SAMPLE_RATE_HZ;
 			encodingBitRate = audioCore.aacEncodingBitRate;
 			fileExtension = (app.audioCore.mayEncodeOnCapture()) ? "m4a" : "wav";
+//			if (app.audioCore.purgeAudioAssetsOnStart) { app.audioCore.purgeAudioAssets(app.audioDb); }
 			try {
 				while (audioCaptureService.runFlag) {
 					try {
@@ -95,7 +100,7 @@ public class AudioCaptureService extends Service {
 				        Thread.sleep(audioCore.CAPTURE_LOOP_PERIOD_SECS*1000);
 						captureLoopEnd();					
 					} catch (Exception e) {
-						Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
+						Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
 						audioCaptureService.runFlag = false;
 						app.isRunning_AudioCapture = false;
 					}
@@ -104,7 +109,7 @@ public class AudioCaptureService extends Service {
 				captureLoopEnd();
 				
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
+				Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
 				audioCaptureService.runFlag = false;
 				app.isRunning_AudioCapture = false;
 			}

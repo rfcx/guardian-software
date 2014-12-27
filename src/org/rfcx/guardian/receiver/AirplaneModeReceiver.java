@@ -27,19 +27,20 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
 		if (wifiManager == null) wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		if (locationManager == null) locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+		app.apiCore.resetSignalSearchClock();
 		TimeOfDay timeOfDay = new TimeOfDay();
 
 		if (app.verboseLogging) Log.d(TAG,
 				"(RfcxSource) AirplaneMode " + ( app.airplaneMode.isEnabled(context) ? "Enabled" : "Disabled" )
 				+ " at "+(Calendar.getInstance()).getTime().toLocaleString());
 		
-		if (!app.airplaneMode.isEnabled(context)) {
-			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {
-				app.apiCore.setSignalSearchStart(Calendar.getInstance());
-				wifiManager.setWifiEnabled(app.airplaneMode.getAllowWifi());	
-			} else {
-				if (app.verboseLogging) Log.d(TAG, "API Check-In not allowed right now");
-			}
-		}
+//		if (!app.airplaneMode.isEnabled(context)) {
+//			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {
+//				app.apiCore.setSignalSearchStart(Calendar.getInstance());
+//				wifiManager.setWifiEnabled(app.airplaneMode.getAllowWifi());	
+//			} else {
+//				if (app.verboseLogging) Log.d(TAG, "API Check-In not allowed right now");
+//			}
+//		}
 	}
 }

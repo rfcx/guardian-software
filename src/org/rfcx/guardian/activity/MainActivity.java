@@ -20,16 +20,23 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		RfcxGuardian app = (RfcxGuardian) getApplication();
 		switch (item.getItemId()) {
 		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 		case R.id.menu_connectivity:
-			RfcxGuardian app = (RfcxGuardian) getApplication();
 			app.apiCheckIn.sendCheckIn(getApplicationContext());
-			app.airplaneMode.setOn(this);
+	//		app.airplaneMode.setOn(this);
 			app.airplaneMode.setOff(this);
 			break;
+		case R.id.menu_purge_audio:
+			app.audioCore.purgeAudioAssets(app.audioDb);
+			break;
+		case R.id.menu_send_checkin:
+			app.apiCore.sendCheckIn(app);
+			break;
+		
 		}
 		return true;
 	}

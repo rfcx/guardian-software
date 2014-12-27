@@ -12,13 +12,14 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.util.Log;
 
 
 public class AudioCore {
 
 	private static final String TAG = AudioCore.class.getSimpleName();
-	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
+	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	public String captureDir = null;
 	public String flacDir = null;
@@ -30,15 +31,15 @@ public class AudioCore {
 	// ...or don't, and encode asynchronously after (may eventually support many formats for post-encoding)
 	private boolean encodeOnCapture = true;
 	
-	public boolean purgeAudioAssetsOnStart = true;
+	public boolean purgeAudioAssetsOnStart = false;
 	
 	public final static int CAPTURE_SAMPLE_RATE_HZ = 8000;
-	public final int CAPTURE_LOOP_PERIOD_SECS = 60;
+	public final int CAPTURE_LOOP_PERIOD_SECS = 150;
 	public final int aacEncodingBitRate = 16384;
 	
 	public void encodeCaptureAudio(String fileName, String encodedFormat, String dbRowEntryDate, AudioDb audioDb) {
 		File wavFile = new File(wavDir+"/"+fileName+".wav");
-		File encodedFile = new File(wavDir+"/../"+encodedFormat+"/"+fileName+"."+encodedFormat);
+		File encodedFile = new File(wavDir.substring(0,wavDir.lastIndexOf("/"))+"/"+encodedFormat+"/"+fileName+"."+encodedFormat);
 		try {
 			if (encodedFormat == "flac") {
 				FLAC_FileEncoder ffe = new FLAC_FileEncoder();
@@ -46,7 +47,7 @@ public class AudioCore {
 				ffe.encode(wavFile, encodedFile);
 			}
 		} catch(Exception e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
+			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
 		} finally {
 			if (wavFile.exists()) {
 				wavFile.delete();
@@ -69,15 +70,17 @@ public class AudioCore {
 	
 	public void cleanupCaptureDirectory() {
 		for (File file : (new File(this.captureDir)).listFiles()) {
-			try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); }
+			try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC); }
 		}
 	}
 	
 	public void purgeAudioAssets(AudioDb audioDb) {
 		Log.d(TAG, "Purging all existing audio assets...");
 		for (String audioDir : this.audioDirectories) {
-			for (File file : (new File(audioDir)).listFiles()) {
-				try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); }
+			if (!audioDir.equals(captureDir)) { //with this, we can purge audio assets on-the-fly, even during capture
+				for (File file : (new File(audioDir)).listFiles()) {
+					try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC); }
+				}
 			}
 		}
 		audioDb.dbCaptured.clearCapturedBefore(new Date());

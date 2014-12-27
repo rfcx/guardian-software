@@ -17,7 +17,7 @@ import android.util.Log;
 
 public class DeviceStateDb {
 	
-	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
+	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public DeviceStateDb(Context context) {
 		this.dbBattery = new DbBattery(context);
@@ -38,15 +38,15 @@ public class DeviceStateDb {
 	static final String CREATE_CLMNS = "(" + C_CREATED_AT + " DATETIME, " + C_VALUE + " INT " + ")";
 	
 	// Prototype DbHelper methods
-	private void _onCreate(SQLiteDatabase db, String table) { try { db.execSQL("CREATE TABLE " + table + CREATE_CLMNS); } catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); } }
-	private void _onUpgrade(SQLiteDatabase db, String table, int oldVersion, int newVersion) { try { db.execSQL("DROP TABLE IF EXISTS " + table); _onCreate(db, table); } catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); } }
+	private void _onCreate(SQLiteDatabase db, String table) { try { db.execSQL("CREATE TABLE " + table + CREATE_CLMNS); } catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } }
+	private void _onUpgrade(SQLiteDatabase db, String table, int oldVersion, int newVersion) { try { db.execSQL("DROP TABLE IF EXISTS " + table); _onCreate(db, table); } catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } }
 	
 	private String[] _getLast(SQLiteDatabase db, String table) {
 		String[] last = new String[] {};
 		try { Cursor cursor = db.query(table, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
 			try { last = cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : new String[] {};
 			} finally { cursor.close(); }
-		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); } finally { db.close(); }
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
 		return last;
 	}
 	
@@ -56,7 +56,7 @@ public class DeviceStateDb {
 			if (cursor.getCount() > 0) {
 				try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
 				} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); } finally { db.close(); }
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
 		return list;
 	}
 	private String[] _getStatsSummary(SQLiteDatabase db, String table) {
@@ -64,7 +64,7 @@ public class DeviceStateDb {
 		try { Cursor cursor = db.query(table, STATS_COLUMNS, null, null, null, null, null, null);
 			try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
 			} while (cursor.moveToNext()); } } finally { cursor.close(); }
-		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); } finally { db.close(); }
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
 		return stats;
 	}
 	private List<String[]> _getStatsSince(SQLiteDatabase db, String table, Date date) {
@@ -72,20 +72,20 @@ public class DeviceStateDb {
 		try { Cursor cursor = db.query(table, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null);
 		try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
 			} while (cursor.moveToNext()); } } finally { cursor.close(); }
-		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); } finally { db.close(); }
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
 		return list;
 	}
 	private void _clearStatsBefore(SQLiteDatabase db, String table, Date date) {
 		try { db.execSQL("DELETE FROM "+table+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
-		} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
-		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); } finally { db.close(); }
+		} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
 	}
 	private void _insert(SQLiteDatabase db, String table, int value) {
 		ContentValues values = new ContentValues();
 		values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
 		values.put(C_VALUE, value);
 		try { db.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK); } finally { db.close(); }
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
 	}
 	
 	// for saving battery charge values

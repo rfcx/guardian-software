@@ -10,7 +10,7 @@ import android.util.Log;
 public class AirplaneMode {
 
 	private static final String TAG = AirplaneMode.class.getSimpleName();
-	private static final String EXCEPTION_FALLBACK = "Exception thrown, but exception itself is null.";
+	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	private boolean isEnabled;
 	private boolean allowWifi = false;
@@ -55,7 +55,7 @@ public class AirplaneMode {
         	intentAp.putExtra("state", (value == 1) ? true : false);
         	context.sendBroadcast(intentAp);
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : EXCEPTION_FALLBACK);
+			Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
 		}
 	}
 	
