@@ -43,7 +43,7 @@ public class DeviceGuid {
         return deviceGuid;
     }
     
-    private String getExistingGuidFromUpdaterApp(Context context) {
+    private static String getExistingGuidFromUpdaterApp(Context context) {
     	try {
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
     		File guidFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files"))+"_updater/files","guid.txt");

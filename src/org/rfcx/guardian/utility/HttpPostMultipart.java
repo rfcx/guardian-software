@@ -58,9 +58,9 @@ public class HttpPostMultipart {
 		try {
 	    	String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
 			if (inferredProtocol.equals("http")) {
-				return doPostAsHttp((new URL(fullUrl)), requestEntity);
+				return sendInsecurePostRequest((new URL(fullUrl)), requestEntity);
 			} else if (inferredProtocol.equals("https")) {
-				return doPostAsHttps((new URL(fullUrl)), requestEntity);
+				return sendSecurePostRequest((new URL(fullUrl)), requestEntity);
 			} else {
 				return "Inferred protocol was neither HTTP nor HTTPS.";
 			}
@@ -70,7 +70,7 @@ public class HttpPostMultipart {
 		}
 	}
 	
-	private static String doPostAsHttp(URL url, MultipartEntity entity) {
+	private static String sendInsecurePostRequest(URL url, MultipartEntity entity) {
 	    try {
 	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	        conn.setReadTimeout(requestReadTimeout);
@@ -96,7 +96,7 @@ public class HttpPostMultipart {
 	    return "The request returned an error.";        
 	}
 	
-	private static String doPostAsHttps(URL url, MultipartEntity entity) {
+	private static String sendSecurePostRequest(URL url, MultipartEntity entity) {
 	    try {
 	        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 	        conn.setReadTimeout(requestReadTimeout);
@@ -122,27 +122,27 @@ public class HttpPostMultipart {
 	    return "The request returned an error.";        
 	}
 
-	private static String readResponseStream(InputStream in) {
-	    BufferedReader br = null;
-	    StringBuilder sb = new StringBuilder();
+	private static String readResponseStream(InputStream inputStream) {
+	    BufferedReader bufferedReader = null;
+	    StringBuilder stringBuilder = new StringBuilder();
 	    try {
-	        br = new BufferedReader(new InputStreamReader(in));
-	        String line = "";
-	        while ((line = br.readLine()) != null) {
-	            sb.append(line);
+	        bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+	        String currentLine = "";
+	        while ((currentLine = bufferedReader.readLine()) != null) {
+	            stringBuilder.append(currentLine);
 	        }
 	    } catch (IOException e) {
 	    	Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
 	    } finally {
-	        if (br != null) {
+	        if (bufferedReader != null) {
 	            try {
-	                br.close();
+	                bufferedReader.close();
 	            } catch (IOException e) {
 	            	Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
 	            }
 	        }
 	    }
-	    return sb.toString();
+	    return stringBuilder.toString();
 	} 
 	
 }
