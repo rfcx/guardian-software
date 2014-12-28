@@ -20,6 +20,8 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -32,6 +34,7 @@ public class HttpPostMultipart {
     // need to make these longer...
 	private static int requestReadTimeout = 10000;
 	private static int requestConnectTimeout = 30000;
+	private static boolean useCaches = false;
 	
 	public static String doMultipartPost(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments) {
 		MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
@@ -44,12 +47,12 @@ public class HttpPostMultipart {
 				requestEntity.addPart(keyFilepathMime[0], contentBody);
 			}
 			for (String[] keyValue : keyValueParameters) {
-				requestEntity.addPart(keyValue[0], new StringBody(URLEncoder.encode(keyValue[1])));
+				requestEntity.addPart(keyValue[0], new StringBody(URLEncoder.encode(keyValue[1], "UTF-8")));
 			}
 		} catch (UnsupportedEncodingException e) {
-			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
 		return executeMultipartPost(fullUrl, requestEntity);
 	}
@@ -65,7 +68,7 @@ public class HttpPostMultipart {
 				return "Inferred protocol was neither HTTP nor HTTPS.";
 			}
 		} catch (MalformedURLException e) {
-			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			return "Bad URL";
 		}
 	}
@@ -76,7 +79,7 @@ public class HttpPostMultipart {
 	        conn.setReadTimeout(requestReadTimeout);
 	        conn.setConnectTimeout(requestConnectTimeout);
 	        conn.setRequestMethod("POST");
-	        conn.setUseCaches(false);
+	        conn.setUseCaches(useCaches);
 	        conn.setDoInput(true);
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
@@ -91,7 +94,7 @@ public class HttpPostMultipart {
 	            return readResponseStream(conn.getInputStream());
 	        }
 	    } catch (Exception e) {
-	    	Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    }
 	    return "The request returned an error.";        
 	}
@@ -102,7 +105,7 @@ public class HttpPostMultipart {
 	        conn.setReadTimeout(requestReadTimeout);
 	        conn.setConnectTimeout(requestConnectTimeout);
 	        conn.setRequestMethod("POST");
-	        conn.setUseCaches(false);
+	        conn.setUseCaches(useCaches);
 	        conn.setDoInput(true);
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
@@ -117,7 +120,7 @@ public class HttpPostMultipart {
 	            return readResponseStream(conn.getInputStream());
 	        }
 	    } catch (Exception e) {
-	    	Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    }
 	    return "The request returned an error.";        
 	}
@@ -132,13 +135,13 @@ public class HttpPostMultipart {
 	            stringBuilder.append(currentLine);
 	        }
 	    } catch (IOException e) {
-	    	Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    } finally {
 	        if (bufferedReader != null) {
 	            try {
 	                bufferedReader.close();
 	            } catch (IOException e) {
-	            	Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+	            	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	            }
 	        }
 	    }

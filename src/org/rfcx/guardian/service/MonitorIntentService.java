@@ -22,10 +22,11 @@ public class MonitorIntentService extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		RfcxGuardian app = (RfcxGuardian) getApplication();
-		Context context = app.getApplicationContext();
 		Intent intent = new Intent(INTENT_TAG);
 		sendBroadcast(intent, NOTIFICATION_TAG);
+		
+		RfcxGuardian app = (RfcxGuardian) getApplication();
+		Context context = app.getApplicationContext();
 		if (app.verboseLogging) Log.d(TAG, "Running Service Monitor...");
 		
 		if (app.isCrisisModeEnabled) {

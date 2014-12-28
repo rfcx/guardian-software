@@ -63,13 +63,13 @@ public class ApiCore {
 		JSONObject json = new JSONObject();
 		
 		try { json.put("batt",(vBattery[0] != "0") ? Integer.parseInt(vBattery[1]) : null);
-		} catch (NumberFormatException e) { json.put("batt", null); Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC); }
+		} catch (NumberFormatException e) { json.put("batt", null); Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
 		
 		try { json.put("temp",(vBatteryTemp[0] != "0") ? Integer.parseInt(vBatteryTemp[1]) : null);
-		} catch (NumberFormatException e) { json.put("temp", null); Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC); }
+		} catch (NumberFormatException e) { json.put("temp", null); Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
 		
 		try { json.put("srch", new Long(Calendar.getInstance().getTimeInMillis()-this.signalSearchStartTime));
-		} catch (NumberFormatException e) { json.put("srch", null); Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC); }
+		} catch (NumberFormatException e) { json.put("srch", null); Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
 		
 		json.put("cpuP", (vCpu[0] != "0") ? vCpu[4] : null);
 		json.put("cpuC", (vCpuClock[0] != "0") ? vCpuClock[4] : null);
@@ -103,11 +103,11 @@ public class ApiCore {
 			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
 			gZIPOutputStream.write(s.getBytes("UTF-8"));
 		} catch (IOException e) {
-			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} finally { if (gZIPOutputStream != null) {
 			try { gZIPOutputStream.close();
 			} catch (IOException e) {
-				Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+				Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			};
 		} }
 		return byteArrayOutputStream.toByteArray();
@@ -140,11 +140,11 @@ public class ApiCore {
 				this.lastCheckInDuration = Calendar.getInstance().getTimeInMillis() - this.requestSendStart;
 			}
 		} catch (NumberFormatException e) {
-			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} catch (org.json.simple.parser.ParseException e) {
-			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} catch (NullPointerException e) {
-			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} finally {
 			if (app.verboseLogging) Log.d(TAG, "API Response: " + httpResponseString);
 //			app.airplaneMode.setOn(app.getApplicationContext());

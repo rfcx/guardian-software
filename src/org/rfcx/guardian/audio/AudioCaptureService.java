@@ -62,7 +62,7 @@ public class AudioCaptureService extends Service {
 		try {
 			this.audioCapture.start();
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
 		return START_STICKY;
 	}
@@ -100,7 +100,7 @@ public class AudioCaptureService extends Service {
 				        Thread.sleep(audioCore.CAPTURE_LOOP_PERIOD_SECS*1000);
 						captureLoopEnd();					
 					} catch (Exception e) {
-						Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+						Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 						audioCaptureService.runFlag = false;
 						app.isRunning_AudioCapture = false;
 					}
@@ -109,7 +109,7 @@ public class AudioCaptureService extends Service {
 				captureLoopEnd();
 				
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+				Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 				audioCaptureService.runFlag = false;
 				app.isRunning_AudioCapture = false;
 			}

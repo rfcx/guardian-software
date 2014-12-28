@@ -47,7 +47,7 @@ public class AudioCore {
 				ffe.encode(wavFile, encodedFile);
 			}
 		} catch(Exception e) {
-			Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} finally {
 			if (wavFile.exists()) {
 				wavFile.delete();
@@ -70,7 +70,7 @@ public class AudioCore {
 	
 	public void cleanupCaptureDirectory() {
 		for (File file : (new File(this.captureDir)).listFiles()) {
-			try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC); }
+			try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
 		}
 	}
 	
@@ -79,7 +79,7 @@ public class AudioCore {
 		for (String audioDir : this.audioDirectories) {
 			if (!audioDir.equals(captureDir)) { //with this, we can purge audio assets on-the-fly, even during capture
 				for (File file : (new File(audioDir)).listFiles()) {
-					try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? TextUtils.join(" | ", e.getStackTrace()) : NULL_EXC); }
+					try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
 				}
 			}
 		}
