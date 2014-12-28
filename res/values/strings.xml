@@ -12,8 +12,8 @@
     
 	<!-- Preferences Options -->
 	
-    <string name="title_device_uuid">Device UUID</string>
-    <string name="desc_device_uuid">Device UUID (should be preset)</string>
+    <string name="title_device_guid">Device GUID</string>
+    <string name="desc_device_guid">Device GUID (should be preset)</string>
     
     <string name="title_allow_wifi">Allow WiFi</string>
     <string name="desc_allow_wifi">Allow WiFi to be enabled</string>

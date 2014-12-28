@@ -98,10 +98,10 @@
 		android:defaultValue="17"/>
 	
 	<EditTextPreference
-        android:key="device_uuid"
+        android:key="device_guid"
         android:enabled="true"
-	    android:title="Device UUID"
-	    android:summary="Unique ID of Source (randomized)"
+	    android:title="Device GUID"
+	    android:summary="Unique ID of Guardian"
 		android:defaultValue=""/>	
 	
 </PreferenceScreen>

@@ -15,7 +15,7 @@ public class DeviceGuid {
 	
 	private static final String TAG = DeviceGuid.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
-	protected static final String PREFS_DEVICE_GUID = "device_uuid";
+	protected static final String PREFS_DEVICE_GUID = "device_guid";
     protected static String deviceGuid;
 
     public DeviceGuid(Context context, SharedPreferences prefs) {

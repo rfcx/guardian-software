@@ -1,9 +1,6 @@
 package org.rfcx.guardian;
 
-import java.util.UUID;
-
 import org.rfcx.guardian.api.ApiCheckIn;
-import org.rfcx.guardian.api.ApiConnectIntentService;
 import org.rfcx.guardian.api.ApiCore;
 import org.rfcx.guardian.audio.AudioCaptureService;
 import org.rfcx.guardian.audio.AudioCore;
@@ -19,7 +16,6 @@ import org.rfcx.guardian.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.service.MonitorIntentService;
 import org.rfcx.guardian.utility.DeviceGuid;
-import org.rfcx.guardian.utility.HttpPostMultipart;
 
 import android.app.AlarmManager;
 import android.app.Application;

@@ -5,8 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import org.rfcx.guardian.service.MonitorIntentService;
-
 import android.util.Log;
 
 public class DateTimeUtils {
