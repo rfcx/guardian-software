@@ -27,7 +27,7 @@ public class SmsReceiver extends BroadcastReceiver {
                     for (int i = 0; i < smsMessages.length; i++) {
                     	smsMessages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);;
                         app.smsDb.dbSms.insert(smsMessages[i].getOriginatingAddress(), smsMessages[i].getMessageBody());
-                        if (app.verboseLogging) Log.d(TAG, "Saved SMS from '"+smsMessages[i].getOriginatingAddress()+"': "+smsMessages[i].getMessageBody());
+                        if (app.verboseLog) Log.d(TAG, "Saved SMS from '"+smsMessages[i].getOriginatingAddress()+"': "+smsMessages[i].getMessageBody());
                     }
                 } catch (Exception e) {
                 	Log.e(TAG, (e != null) ? e.getMessage() : "Exception thrown, but exception itself is null.");

@@ -36,7 +36,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	public String version;
 	Context context;
-	public boolean verboseLogging = false;
+	public boolean verboseLog = false;
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
@@ -118,9 +118,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void appPause() {
 	}
-	
+
+	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (this.verboseLogging) { Log.d(TAG, "Preference changed: "+key); }
+		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
 		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
@@ -131,6 +132,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.deviceId;
 	}
 	
+	public void setDeviceId(String deviceId) {
+		this.deviceId = deviceId;
+		rfcxGuardianPrefs.writeGuidToFile(deviceId);
+	}
+	
 	private void setFilesDir() {
 		this.filesDir = getApplicationContext().getFilesDir().getPath();
 	}
@@ -138,12 +144,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void launchAllServices(Context context) {
 		if (isEnabled_DeviceState && !isRunning_DeviceState) {
 			context.startService(new Intent(context, DeviceStateService.class));
-		} else if (isRunning_DeviceState && this.verboseLogging) {
+		} else if (isRunning_DeviceState && this.verboseLog) {
 			Log.d(TAG, "DeviceStateService already running. Not re-started...");
 		}
 		if (isEnabled_AudioCapture && !isRunning_AudioCapture) {
 			context.startService(new Intent(context, AudioCaptureService.class));
-		} else if (isRunning_AudioCapture && this.verboseLogging) {
+		} else if (isRunning_AudioCapture && this.verboseLog) {
 			Log.d(TAG, "AudioCaptureService already running. Not re-started...");
 		}
 	}
@@ -151,12 +157,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void suspendAllServices(Context context) {
 		if (isEnabled_DeviceState && isRunning_DeviceState) {
 			context.stopService(new Intent(context, DeviceStateService.class));
-		} else if (!isRunning_DeviceState && this.verboseLogging) {
+		} else if (!isRunning_DeviceState && this.verboseLog) {
 			Log.d(TAG, "DeviceStateService not running. Not stopped...");
 		}
 		if (isEnabled_AudioCapture && isRunning_AudioCapture) {
 			context.stopService(new Intent(context, AudioCaptureService.class));
-		} else if (!isRunning_AudioCapture && this.verboseLogging) {
+		} else if (!isRunning_AudioCapture && this.verboseLog) {
 			Log.d(TAG, "AudioCaptureService not running. Not stopped...");
 		}
 	}

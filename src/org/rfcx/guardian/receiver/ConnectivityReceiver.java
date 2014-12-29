@@ -21,7 +21,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         final boolean isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
         app.apiCore.networkConnectivity = isConnected;
 		
-		if (app.verboseLogging) Log.d(TAG, "Connectivity Detected... (RfcxSource)");
+		if (app.verboseLog) Log.d(TAG, "Connectivity Detected... (RfcxSource)");
 		if (isConnected) {
 ////			app.apiComm.sendAnyAlerts(context);
 //			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {

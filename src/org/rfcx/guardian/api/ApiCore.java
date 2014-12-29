@@ -89,11 +89,11 @@ public class ApiCore {
 //		}
 		
 		jsonRaw = json.toJSONString();
-		if (app.verboseLogging) Log.d(TAG, "Diagnostics : " + jsonRaw);
+		if (app.verboseLog) Log.d(TAG, "Diagnostics : " + jsonRaw);
 		
 		jsonZipped = gZipString(jsonRaw);
-		if (app.verboseLogging) { Log.d(TAG,"Unzipped JSON: "+Math.round(jsonRaw.toCharArray().length/1024)+"kB"); }
-		if (app.verboseLogging) { Log.d(TAG,"GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB"); }
+		if (app.verboseLog) { Log.d(TAG,"Unzipped JSON: "+Math.round(jsonRaw.toCharArray().length/1024)+"kB"); }
+		if (app.verboseLog) { Log.d(TAG,"GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB"); }
 	}
 	
 	private byte[] gZipString(String s) {
@@ -146,7 +146,7 @@ public class ApiCore {
 		} catch (NullPointerException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} finally {
-			if (app.verboseLogging) Log.d(TAG, "API Response: " + httpResponseString);
+			if (app.verboseLog) Log.d(TAG, "API Response: " + httpResponseString);
 //			app.airplaneMode.setOn(app.getApplicationContext());
 		}
 	}	

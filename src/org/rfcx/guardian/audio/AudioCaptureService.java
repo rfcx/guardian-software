@@ -56,7 +56,7 @@ public class AudioCaptureService extends Service {
 		
 		app.audioCore.initializeAudioDirectories(app);
 		
-		if (app.verboseLogging) Log.d(TAG, "Starting service: "+TAG);
+		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
 		
 		app.isRunning_AudioCapture = true;
 		try {
@@ -105,7 +105,7 @@ public class AudioCaptureService extends Service {
 						app.isRunning_AudioCapture = false;
 					}
 				}
-				if (app.verboseLogging) Log.d(TAG, "Stopping service: "+TAG);
+				if (app.verboseLog) Log.d(TAG, "Stopping service: "+TAG);
 				captureLoopEnd();
 				
 			} catch (Exception e) {
@@ -162,7 +162,7 @@ public class AudioCaptureService extends Service {
 					((app.audioCore.mayEncodeOnCapture()) ? app.audioCore.aacDir : app.audioCore.wavDir)
 					+"/"+captureTimeStamps[0]+"."+fileExtension));
 	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", fileExtension);
-			if (app.verboseLogging) Log.d(TAG, "Capture file created ("+app.audioCore.CAPTURE_LOOP_PERIOD_SECS+"s): "+captureTimeStamps[0]+"."+fileExtension);
+			if (app.verboseLog) Log.d(TAG, "Capture file created ("+app.audioCore.CAPTURE_LOOP_PERIOD_SECS+"s): "+captureTimeStamps[0]+"."+fileExtension);
 	        app.audioCore.queueAudioCaptureFollowUp(context);
 		}
 	}

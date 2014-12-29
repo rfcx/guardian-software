@@ -30,7 +30,7 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 		app.apiCore.resetSignalSearchClock();
 		TimeOfDay timeOfDay = new TimeOfDay();
 
-		if (app.verboseLogging) Log.d(TAG,
+		if (app.verboseLog) Log.d(TAG,
 				"(RfcxSource) AirplaneMode " + ( app.airplaneMode.isEnabled(context) ? "Enabled" : "Disabled" )
 				+ " at "+(Calendar.getInstance()).getTime().toLocaleString());
 		

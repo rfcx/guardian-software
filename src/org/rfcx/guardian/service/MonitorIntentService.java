@@ -27,18 +27,18 @@ public class MonitorIntentService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
-		if (app.verboseLogging) Log.d(TAG, "Running Service Monitor...");
+		if (app.verboseLog) Log.d(TAG, "Running Service Monitor...");
 		
 		if (app.isCrisisModeEnabled) {
-			if (app.verboseLogging) Log.d(TAG, "Crisis mode enabled! Making sure services are disabled...");
+			if (app.verboseLog) Log.d(TAG, "Crisis mode enabled! Making sure services are disabled...");
 			app.suspendAllServices(context);
 		} else if (app.isRunning_ServiceMonitor) {
 			TimeOfDay timeOfDay = new TimeOfDay();
 			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {
-				if (app.verboseLogging) Log.d(TAG, "Services should be running.");
+				if (app.verboseLog) Log.d(TAG, "Services should be running.");
 				app.launchAllServices(context);
 			} else {
-				if (app.verboseLogging) Log.d(TAG, "Services should be suspended.");
+				if (app.verboseLog) Log.d(TAG, "Services should be suspended.");
 				app.suspendAllServices(context);
 			}
 		} else {

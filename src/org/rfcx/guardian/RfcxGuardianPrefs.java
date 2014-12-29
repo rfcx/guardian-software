@@ -1,15 +1,21 @@
 package org.rfcx.guardian;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class RfcxGuardianPrefs {
 
 	private static final String TAG = RfcxGuardianPrefs.class.getSimpleName();
+	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	private RfcxGuardian app = null;
 	
@@ -38,7 +44,9 @@ public class RfcxGuardianPrefs {
 		
 		app = rfcxApp;
 		
-		app.verboseLogging = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLogging);
+		app.verboseLog = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLog);
+		app.setDeviceId(app.sharedPrefs.getString("device_guid", app.getDeviceId()));
+		
 		app.ignoreOffHours = app.sharedPrefs.getBoolean("ignore_off_hours", app.ignoreOffHours);
 		app.monitorIntentServiceInterval = Integer.parseInt(app.sharedPrefs.getString("monitor_intentservice_interval", ""+app.monitorIntentServiceInterval));
 //		app.apiCore.setConnectivityInterval(Integer.parseInt(app.sharedPrefs.getString("api_interval", ""+app.apiCore.getConnectivityInterval())));
@@ -55,7 +63,7 @@ public class RfcxGuardianPrefs {
 		app.dayBeginsAt = Integer.parseInt(app.sharedPrefs.getString("day_begins_at_hour", ""+app.dayBeginsAt));
 		app.dayEndsAt = Integer.parseInt(app.sharedPrefs.getString("day_ends_at_hour", ""+app.dayEndsAt));
 		
-		if (app.verboseLogging) Log.d(TAG, "Preferences saved.");
+		if (app.verboseLog) Log.d(TAG, "Preferences saved.");
 	}
 	
 	
@@ -71,5 +79,20 @@ public class RfcxGuardianPrefs {
 //		Log.d(TAG, "Overriding Pref: "+thisPref[0]+" > "+thisPref[1]+" > "+ (setPreference(thisPref[0],thisPref[1],thisPref[2]) ? "Success" : "Failure" ));
 	}
 	
+	public void writeGuidToFile(String deviceId) {
+		if (app != null) {
+	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/device_guid.txt";
+	    	File fileObj = new File(filePath);
+	    	Log.d(TAG,filePath);
+	    	if (fileObj.exists()) { fileObj.delete(); }
+	        try {
+	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
+	        	outFile.write(deviceId);
+	        	outFile.close();
+	        } catch (IOException e) {
+	        	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	        }
+		}
+	}
 	
 }
