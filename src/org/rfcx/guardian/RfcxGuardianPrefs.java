@@ -83,7 +83,6 @@ public class RfcxGuardianPrefs {
 		if (app != null) {
 	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/device_guid.txt";
 	    	File fileObj = new File(filePath);
-	    	Log.d(TAG,filePath);
 	    	if (fileObj.exists()) { fileObj.delete(); }
 	        try {
 	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));

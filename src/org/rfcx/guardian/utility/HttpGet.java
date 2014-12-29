@@ -44,7 +44,7 @@ public class HttpGet {
 	}
 	
 	public JSONObject getAsJson(String fullUrl) throws ParseException {
-		return (JSONObject) (new JSONParser()).parse(doGetString(fullUrl,(new ArrayList<String[]>())));
+		return getAsJson(fullUrl, (new ArrayList<String[]>()));
 	}
 	
 	public String getAsString(String fullUrl, List<String[]> keyValueParameters) {
@@ -55,7 +55,7 @@ public class HttpGet {
 	}
 	
 	public String getAsString(String fullUrl) {
-		return doGetString(fullUrl,(new ArrayList<String[]>()));
+		return getAsString(fullUrl,(new ArrayList<String[]>()));
 	}
 	
 	public boolean getAsFile(String fullUrl, List<String[]> keyValueParameters, String outputFileName, Context context) throws MalformedURLException, FileNotFoundException, IOException {
