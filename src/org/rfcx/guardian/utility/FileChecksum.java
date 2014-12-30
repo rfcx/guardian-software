@@ -31,11 +31,11 @@ public class FileChecksum {
 		    }
 			return stringBuilder.toString();
 		} catch (NoSuchAlgorithmException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} catch (FileNotFoundException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} catch (IOException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
 		return null;
 	}

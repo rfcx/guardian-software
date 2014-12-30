@@ -89,7 +89,7 @@ public class RfcxGuardianPrefs {
 	        	outFile.write(deviceId);
 	        	outFile.close();
 	        } catch (IOException e) {
-	        	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	        }
 		}
 	}

@@ -50,9 +50,9 @@ public class HttpPostMultipart {
 				requestEntity.addPart(keyValue[0], new StringBody(URLEncoder.encode(keyValue[1], "UTF-8")));
 			}
 		} catch (UnsupportedEncodingException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
 		return executeMultipartPost(fullUrl, requestEntity);
 	}
@@ -68,7 +68,7 @@ public class HttpPostMultipart {
 				return "Inferred protocol was neither HTTP nor HTTPS.";
 			}
 		} catch (MalformedURLException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			return "Bad URL";
 		}
 	}
@@ -94,7 +94,7 @@ public class HttpPostMultipart {
 	            return readResponseStream(conn.getInputStream());
 	        }
 	    } catch (Exception e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    }
 	    return "The request returned an error.";        
 	}
@@ -120,7 +120,7 @@ public class HttpPostMultipart {
 	            return readResponseStream(conn.getInputStream());
 	        }
 	    } catch (Exception e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    }
 	    return "The request returned an error.";        
 	}
@@ -135,13 +135,13 @@ public class HttpPostMultipart {
 	            stringBuilder.append(currentLine);
 	        }
 	    } catch (IOException e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    } finally {
 	        if (bufferedReader != null) {
 	            try {
 	                bufferedReader.close();
 	            } catch (IOException e) {
-	            	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	            	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	            }
 	        }
 	    }

@@ -63,7 +63,7 @@ public class CpuUsage {
 	              + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        try {
 	            Thread.sleep(SAMPLE_LENGTH_MS);
-	        } catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
+	        } catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
 	        reader.seek(0);
 	        load = reader.readLine();
 	        reader.close();
@@ -73,7 +73,7 @@ public class CpuUsage {
 	            + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        this.cpuUsageNow = (float)(cpu2 - cpu1) / ((cpu2 + idle2) - (cpu1 + idle1));
 	    } catch (IOException e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    }
 		
 		if (updateClockSpeed) {
@@ -83,7 +83,7 @@ public class CpuUsage {
 				scaling_cur_freq.close();
 			}
 			catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			}
 		}
 	}

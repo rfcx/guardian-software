@@ -62,9 +62,9 @@ public class DeviceGuid {
     			Log.e(TAG, "No previous GUID saved by RfcxGuardianUpdater...");
     		}
     	} catch (FileNotFoundException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
     	} catch (IOException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() + TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
     	return null;
     }
