@@ -18,6 +18,7 @@ import org.rfcx.guardian.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.service.ApiCheckInService;
 import org.rfcx.guardian.service.AudioCaptureService;
+import org.rfcx.guardian.service.CarrierUssdService;
 import org.rfcx.guardian.service.DeviceStateService;
 import org.rfcx.guardian.utility.DeviceGuid;
 
@@ -81,6 +82,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public boolean isRunning_DeviceState = false;
 	public boolean isRunning_AudioCapture = false;
 	public boolean isRunning_ApiCheckIn = false;
+	public boolean isRunning_CarrierUssd = false;
 	
 	// Repeating IntentServices
 	public boolean isRunning_ServiceMonitor = false;
@@ -195,6 +197,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, ApiCheckInService.class));
 			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
 			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
+		} else if (serviceName.equals("CarrierUssd")) {
+			if (!this.isRunning_CarrierUssd || forceReTrigger) {
+				context.stopService(new Intent(context, CarrierUssdService.class));
+				if (serviceAllowedInPrefs) context.startService(new Intent(context, CarrierUssdService.class));
+			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}
@@ -208,6 +216,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			context.stopService(new Intent(context, DeviceStateService.class));
 		} else if (serviceName.equals("ApiCheckIn")) {
 			context.stopService(new Intent(context, ApiCheckInService.class));
+		} else if (serviceName.equals("CarrierUssd")) {
+			context.stopService(new Intent(context, CarrierUssdService.class));
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}

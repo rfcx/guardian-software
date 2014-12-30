@@ -32,6 +32,7 @@
         <service android:name="org.rfcx.guardian.service.DeviceStateService" />
         <service android:name="org.rfcx.guardian.service.AudioCaptureService" />
         <service android:name="org.rfcx.guardian.service.ApiCheckInService" />
+        <service android:name="org.rfcx.guardian.service.CarrierUssdService" />
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.intentservice.ApiCheckInTriggerIntentService" />
         <service android:name="org.rfcx.guardian.intentservice.AudioEncodeIntentService" />

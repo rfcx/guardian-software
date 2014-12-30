@@ -26,8 +26,11 @@ public class ApiCheckInTriggerIntentService extends IntentService {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
 		
-		Log.d(TAG, "Running ApiCheckInTrigger");
+		if (app.verboseLog) Log.d(TAG, "Running ApiCheckInTrigger");
+		
 		if (app.isRunning_ApiCheckInTrigger) {
+			
+			app.triggerService("ApiCheckIn", true);
 			
 		} else {
 			// the Monitor logic won't run the first time the intent service is fired

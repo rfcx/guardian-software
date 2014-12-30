@@ -25,10 +25,6 @@ public class MainActivity extends Activity {
 		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
-		case R.id.menu_connectivity:
-			app.airplaneMode.setOn(this);
-			app.airplaneMode.setOff(this);
-			break;
 		case R.id.menu_purge_audio:
 			app.audioCore.purgeAudioAssets(app.audioDb);
 			break;

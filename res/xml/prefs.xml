@@ -67,6 +67,13 @@
 		android:defaultValue="true"/>
 
 	<CheckBoxPreference
+	    android:key="enable_service_carrierussd"
+	    android:title="Carrier USSD Interaction"
+	    android:summary="Enable/Disable Service"
+        android:enabled="true"
+		android:defaultValue="true"/>
+
+	<CheckBoxPreference
 	    android:key="capture_as_aac"
 	    android:title="Capture as AAC"
 	    android:summary="Record audio in lossy AAC format"
@@ -94,6 +101,22 @@
 	    android:title="Device GUID"
 	    android:summary="Unique ID of Guardian"
         android:enabled="true"
-		android:defaultValue=""/>	
+		android:defaultValue=""/>
+	
+	<EditTextPreference
+        android:key="carrierussd_code_topup"
+	    android:title="USSD Code: Top-Up"
+	    android:summary="Carrier code to top up credit"
+	    android:inputType="number"
+        android:enabled="true"
+		android:defaultValue="#145*2*3*1#"/>
+
+	<EditTextPreference
+        android:key="carrierussd_code_balance"
+	    android:title="USSD Code: Balance"
+	    android:summary="Carrier code to retrieve balance"
+	    android:inputType="number"
+        android:enabled="true"
+		android:defaultValue="#123#"/>
 	
 </PreferenceScreen>

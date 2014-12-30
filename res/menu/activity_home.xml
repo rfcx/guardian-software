@@ -6,18 +6,13 @@
         android:title="@string/menu_prefs"
         />
 	<item
-	    android:id="@+id/menu_connectivity"
-        android:orderInCategory="2"
-	    android:title="@string/menu_connectivity"
-	    />
-	<item
 	    android:id="@+id/menu_purge_audio"
-        android:orderInCategory="3"
+        android:orderInCategory="2"
 	    android:title="@string/menu_purge_audio"
 	    />
 	<item
 	    android:id="@+id/menu_send_checkin"
-        android:orderInCategory="4"
+        android:orderInCategory="3"
 	    android:title="@string/menu_send_checkin"
 	    />
 	
