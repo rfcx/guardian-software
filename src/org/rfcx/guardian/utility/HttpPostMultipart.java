@@ -20,8 +20,6 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 import android.text.TextUtils;
 import android.util.Log;

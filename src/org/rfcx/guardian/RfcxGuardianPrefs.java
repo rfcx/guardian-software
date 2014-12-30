@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.rfcx.guardian.utility.FileUtils;
+
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
@@ -88,6 +90,7 @@ public class RfcxGuardianPrefs {
 	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
 	        	outFile.write(deviceId);
 	        	outFile.close();
+	        	(new FileUtils()).chmod(new File(filePath), 0755);
 	        } catch (IOException e) {
 	        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	        }

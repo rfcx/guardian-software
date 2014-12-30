@@ -46,6 +46,7 @@ public class DeviceGuid {
     private static String getExistingGuidFromUpdaterApp(Context context) {
     	try {
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
+    		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files"))+".updater/files/device_guid.txt;");
     		File guidFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files"))+".updater/files","device_guid.txt");
     		if (guidFile.exists()) {
 				FileInputStream input = new FileInputStream(guidFile);
