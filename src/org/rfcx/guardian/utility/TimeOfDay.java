@@ -30,11 +30,11 @@ public class TimeOfDay {
 		msEnd = calEnd.getTimeInMillis();
 	}
 	
-	public boolean isDataGenerationEnabled(Context context) {
-		RfcxGuardian rfcxSource = (RfcxGuardian) context.getApplicationContext();
-		setStartEnd(rfcxSource.dayBeginsAt, rfcxSource.dayEndsAt);
-		long msNow = Calendar.getInstance().getTimeInMillis();
-		return ((msNow < msEnd) && (msNow > msStart));
-	}
+//	public boolean isDataGenerationEnabled(Context context) {
+//		RfcxGuardian rfcxSource = (RfcxGuardian) context.getApplicationContext();
+//		setStartEnd(rfcxSource.dayBeginsAt, rfcxSource.dayEndsAt);
+//		long msNow = Calendar.getInstance().getTimeInMillis();
+//		return ((msNow < msEnd) && (msNow > msStart));
+//	}
 	
 }

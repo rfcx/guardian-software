@@ -10,39 +10,5 @@
 	<string name="menu_connectivity">(Re) Connect</string>
 	<string name="menu_send_checkin">Send CheckIn</string>
     
-	<!-- Preferences Options -->
-	
-    <string name="title_device_guid">Device GUID</string>
-    <string name="desc_device_guid">Device GUID (should be preset)</string>
-    
-    <string name="title_allow_wifi">Allow WiFi</string>
-    <string name="desc_allow_wifi">Allow WiFi to be enabled</string>
-    
-    <string name="title_api_domain">API Domain</string>
-    <string name="desc_api_domain">Choose which API environment to use</string>
-    
-    <string name="title_api_interval">API Check Interval</string>
-    <string name="desc_api_interval">How often to check-in to API (seconds)</string> 
-    
-    <string name="title_ignore_off_hours">Ignore Off Hours</string>
-    <string name="desc_ignore_off_hours">Run the services all day and night</string>
-    
-    <string name="title_verbose_logging">Verbose Logging</string>
-    <string name="desc_verbose_logging">Verbose Logging</string>
-    
-    <string name="title_monitor_intentservice_interval">Service Check Interval</string>
-    <string name="desc_monitor_intentservice_interval">How often should we check if services are running?</string>
-
-    <string name="title_api_protocol">API Protocol</string>
-    <string name="desc_api_protocol">Connect to API over HTTP or HTTPS</string>
-    <string-array name="api_protocols">
-        <item>https:443</item>
-        <item>http:80</item>
-        <item>http:8080</item>
-    </string-array>
-
-    <string name="title_capture_as_aac">Capture as AAC</string>
-    <string name="desc_capture_as_aac">Record audio in lossy AAC format</string>
-    
     
 </resources>

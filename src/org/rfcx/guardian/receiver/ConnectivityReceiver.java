@@ -16,10 +16,12 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-        TimeOfDay timeOfDay = new TimeOfDay();
         final boolean isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-        app.apiCore.networkConnectivity = isConnected;
+        
+//        TimeOfDay timeOfDay = new TimeOfDay();
+//        app.apiCore.networkConnectivity = isConnected;
 		
 		if (app.verboseLog) Log.d(TAG, "Connectivity Detected... (RfcxSource)");
 		if (isConnected) {

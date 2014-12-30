@@ -31,14 +31,15 @@ public class AudioDb {
 	static final String C_CREATED_AT = "created_at";
 	static final String C_TIMESTAMP = "timestamp";
 	static final String C_FORMAT = "format";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT };
-	
+	static final String C_DIGEST = "digest";
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST };
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
 		sbOut.append(", "+C_TIMESTAMP+" TEXT");
 		sbOut.append(", "+C_FORMAT+" TEXT");
+		sbOut.append(", "+C_DIGEST+" TEXT");
 		return sbOut.append(")").toString();
 	}
 	
@@ -67,11 +68,12 @@ public class AudioDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String value, String format) {
+		public void insert(String value, String format, String digest) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
 			values.put(C_TIMESTAMP, value);
 			values.put(C_FORMAT, format);
+			values.put(C_DIGEST, digest);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -132,11 +134,12 @@ public class AudioDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String value, String format) {
+		public void insert(String value, String format, String digest) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
 			values.put(C_TIMESTAMP, value);
 			values.put(C_FORMAT, format);
+			values.put(C_DIGEST, digest);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);

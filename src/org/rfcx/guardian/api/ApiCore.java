@@ -21,19 +21,19 @@ public class ApiCore {
 
 	private RfcxGuardian app = null;
 	
-	public boolean networkConnectivity = false;
+//	public boolean networkConnectivity = false;
 
-	private int connectivityInterval = 300; // change this value in preferences
+//	private int connectivityInterval = 300; // change this value in preferences
 //	private int connectivityTimeout = setConnectivityTimeout();
 	
 //	private String apiProtocol = "https";
 //	private int apiPort = 443;
 //	private String apiDomain = "api.rfcx.org";
-	private String apiProtocol = "http";
-	private int apiPort = 8080;
-	private String apiDomain = "192.168.0.70";
+//	private String apiProtocol = "http";
+//	private int apiPort = 8080;
+//	private String apiDomain = "192.168.0.70";
 	
-	private String requestEndpoint = "/";
+//	private String requestEndpoint = "/";
 
 	private String jsonRaw = null;
 	private byte[] jsonZipped = null;

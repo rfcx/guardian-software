@@ -46,24 +46,21 @@ public class RfcxGuardianPrefs {
 		app = rfcxApp;
 		
 		app.verboseLog = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLog);
-		app.setDeviceId(app.sharedPrefs.getString("device_guid", app.getDeviceId()));
+		app.audioCore.setEncodeOnCapture(app.sharedPrefs.getBoolean("capture_as_aac", app.audioCore.mayEncodeOnCapture()));
+		app.airplaneMode.setAllowWifi(app.sharedPrefs.getBoolean("allow_wifi", app.airplaneMode.getAllowWifi()));
 		
 //		app.ignoreOffHours = app.sharedPrefs.getBoolean("ignore_off_hours", app.ignoreOffHours);
 //		app.monitorIntentServiceInterval = Integer.parseInt(app.sharedPrefs.getString("monitor_intentservice_interval", ""+app.monitorIntentServiceInterval));
 //		app.apiCore.setConnectivityInterval(Integer.parseInt(app.sharedPrefs.getString("api_interval", ""+app.apiCore.getConnectivityInterval())));
-		app.airplaneMode.setAllowWifi(app.sharedPrefs.getBoolean("allow_wifi", app.airplaneMode.getAllowWifi()));
 //		app.apiCore.setApiDomain(app.sharedPrefs.getString("api_domain", "api.rfcx.org"));
 		
-		app.isEnabled_AudioCapture = app.sharedPrefs.getBoolean("enable_service_audiocapture", app.isEnabled_AudioCapture);
-		app.isEnabled_DeviceState = app.sharedPrefs.getBoolean("enable_service_devicestate", app.isEnabled_DeviceState);
+//		app.isEnabled_AudioCapture = app.sharedPrefs.getBoolean("enable_service_audiocapture", app.isEnabled_AudioCapture);
+//		app.isEnabled_DeviceState = app.sharedPrefs.getBoolean("enable_service_devicestate", app.isEnabled_DeviceState);
 //		app.isEnabled_ApiComm = app.sharedPrefs.getBoolean("enable_service_apicomm", app.isEnabled_ApiComm);
 		
-		app.audioCore.setEncodeOnCapture(app.sharedPrefs.getBoolean("capture_as_aac", app.audioCore.mayEncodeOnCapture()));
 		
-		app.dayBeginsAt = Integer.parseInt(app.sharedPrefs.getString("day_begins_at_hour", ""+app.dayBeginsAt));
-		app.dayEndsAt = Integer.parseInt(app.sharedPrefs.getString("day_ends_at_hour", ""+app.dayEndsAt));
-		
-		if (app.verboseLog) Log.d(TAG, "Preferences saved.");
+//		app.dayBeginsAt = Integer.parseInt(app.sharedPrefs.getString("day_begins_at_hour", ""+app.dayBeginsAt));
+//		app.dayEndsAt = Integer.parseInt(app.sharedPrefs.getString("day_ends_at_hour", ""+app.dayEndsAt));
 	}
 	
 	

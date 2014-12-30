@@ -91,7 +91,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 						deviceStateDb.dbBattery.insert(deviceState.getBatteryPercent());
 						deviceStateDb.dbBatteryTemperature.insert(deviceState.getBatteryTemperature());
 						recordingIncrement = 0;
-						if (app.verboseLog) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% - @"+deviceCpuUsage.getCpuClockAvg()+"MHz - )"+(Calendar.getInstance()).getTime().toLocaleString());
+						if (app.verboseLog) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% @"+deviceCpuUsage.getCpuClockAvg()+"MHz "+(Calendar.getInstance()).getTime().toGMTString());
 					}
 											
 					int delayMs = (int) Math.round(60000/deviceState.serviceSamplesPerMinute) - CpuUsage.SAMPLE_LENGTH_MS;

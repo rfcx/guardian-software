@@ -9,15 +9,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class ApiCheckInIntentService extends IntentService {
+public class ApiCheckInTriggerIntentService extends IntentService {
 
-	private static final String TAG = ApiCheckInIntentService.class.getSimpleName();
+	private static final String TAG = ApiCheckInTriggerIntentService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian.API_CHECKIN";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_API_CHECKIN_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian.API_CHECKIN_TRIGGER";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_API_CHECKIN_TRIGGER_NOTIFICATIONS";
 	
-	public ApiCheckInIntentService() {
+	public ApiCheckInTriggerIntentService() {
 		super(TAG);
 	}
 	
@@ -25,7 +25,17 @@ public class ApiCheckInIntentService extends IntentService {
 	protected void onHandleIntent(Intent inputIntent) {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
-		TimeOfDay timeOfDay = new TimeOfDay();
+		
+		Log.d(TAG, "Running ApiCheckInTrigger");
+		if (app.isRunning_ApiCheckInTrigger) {
+			
+		} else {
+			// the Monitor logic won't run the first time the intent service is fired
+			app.isRunning_ApiCheckInTrigger = true;
+		}
+		
+		
+		//		TimeOfDay timeOfDay = new TimeOfDay();
 //		if (app.isCrisisModeEnabled) {
 //			if (app.verboseLogging) Log.d(TAG, "Crisis mode enabled! Not contacting API...");
 //			app.airplaneMode.setOn(context);	

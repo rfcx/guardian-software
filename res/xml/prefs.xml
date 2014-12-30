@@ -2,98 +2,98 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <CheckBoxPreference
-	    android:key="ignore_off_hours"
-        android:enabled="true"
-	    android:title="@string/title_ignore_off_hours"
-	    android:summary="@string/desc_ignore_off_hours"
-		android:defaultValue="false"/>
-
-     <CheckBoxPreference
 	    android:key="verbose_logging"
-        android:enabled="true"
-	    android:title="@string/title_verbose_logging"
-	    android:summary="@string/desc_verbose_logging"
+	    android:title="Verbose Logging"
+	    android:summary="Verbose Logging"
+		android:enabled="true"
 		android:defaultValue="false"/>
+    
+<!--     <CheckBoxPreference
+	    android:key="ignore_off_hours"
+	    android:title="Ignore Off Hours"
+	    android:summary="Run the services all day and night"
+        android:enabled="true"
+		android:defaultValue="false"/> -->
     	
 	<CheckBoxPreference
 	    android:key="allow_wifi"
+	    android:title="Allow WiFi"
+	    android:summary="Allow WiFi to be enabled"
         android:enabled="true"
-	    android:title="@string/title_allow_wifi"
-	    android:summary="@string/desc_allow_wifi"
 		android:defaultValue="false"/>
 	
-	<EditTextPreference
+ 	<EditTextPreference
         android:key="api_domain"
+        android:title="API Protocol/Address"
+        android:summary="Domain/Protocol for API calls"
         android:enabled="true"
-        android:title="@string/title_api_domain"
-        android:summary="@string/desc_api_domain"
-        android:defaultValue="api.rfcx.org"/>
+        android:defaultValue="https://api.rfcx.org" />
 	
 	<EditTextPreference
-        android:key="api_interval"
-        android:enabled="true"
+        android:key="api_checkin_interval"
+        android:title="API CheckIn Interval"
+        android:summary="How often to check-in to API (minutes)"
 	    android:inputType="number"
-        android:title="@string/title_api_interval"
-        android:summary="@string/desc_api_interval"
-        android:defaultValue="900"/>
+        android:enabled="true"
+        android:defaultValue="5"/>
 	
 	<EditTextPreference
-        android:key="monitor_intentservice_interval"
-        android:enabled="true"
+        android:key="service_monitor_interval"
+        android:title="Service Monitor Interval"
+        android:summary="How often should we check if services are running?"
 	    android:inputType="number"
-        android:title="@string/title_monitor_intentservice_interval"
-        android:summary="@string/desc_monitor_intentservice_interval"
-        android:defaultValue="180"/>
-    
+        android:enabled="true"
+        android:defaultValue="15"/>
+	
 	<CheckBoxPreference
 	    android:key="enable_service_audiocapture"
-        android:enabled="true"
 	    android:title="Audio Capture"
 	    android:summary="Enable/Disable Service"
+        android:enabled="true"
 		android:defaultValue="true"/>
 	
 	<CheckBoxPreference
 	    android:key="enable_service_devicestate"
-        android:enabled="true"
 	    android:title="Device Stats"
 	    android:summary="Enable/Disable Service"
+        android:enabled="true"
 		android:defaultValue="true"/>
 
 	<CheckBoxPreference
-	    android:key="enable_service_apicomm"
-        android:enabled="true"
+	    android:key="enable_service_apicheckin"
 	    android:title="API Check-In"
 	    android:summary="Enable/Disable Service"
+        android:enabled="true"
 		android:defaultValue="true"/>
 
 	<CheckBoxPreference
 	    android:key="capture_as_aac"
+	    android:title="Capture as AAC"
+	    android:summary="Record audio in lossy AAC format"
         android:enabled="true"
-	    android:title="@string/title_capture_as_aac"
-	    android:summary="@string/desc_capture_as_aac"
 		android:defaultValue="true"/>
 	
-	<EditTextPreference
+<!-- 	<EditTextPreference
         android:key="day_begins_at_hour"
-        android:enabled="true"
-	    android:inputType="number"
 	    android:title="Day Begins at (hour)"
 	    android:summary="When service switch occurs"
+	    android:inputType="number"
+        android:enabled="true"
 		android:defaultValue="9"/>
 
  	<EditTextPreference
         android:key="day_ends_at_hour"
-        android:enabled="true"
-	    android:inputType="number"
 	    android:title="Day Ends at (hour)"
 	    android:summary="When service switch occurs"
-		android:defaultValue="17"/>
+	    android:inputType="number"
+        android:enabled="true"
+		android:defaultValue="17"/> -->
 	
 	<EditTextPreference
         android:key="device_guid"
-        android:enabled="true"
 	    android:title="Device GUID"
 	    android:summary="Unique ID of Guardian"
+        android:enabled="true"
 		android:defaultValue=""/>	
 	
 </PreferenceScreen>

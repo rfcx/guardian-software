@@ -12,9 +12,11 @@ import org.rfcx.guardian.database.SmsDb;
 import org.rfcx.guardian.device.AirplaneMode;
 import org.rfcx.guardian.device.CpuUsage;
 import org.rfcx.guardian.device.DeviceState;
+import org.rfcx.guardian.intentservice.ApiCheckInTriggerIntentService;
 import org.rfcx.guardian.intentservice.ServiceMonitorIntentService;
 import org.rfcx.guardian.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.receiver.ConnectivityReceiver;
+import org.rfcx.guardian.service.ApiCheckInService;
 import org.rfcx.guardian.service.AudioCaptureService;
 import org.rfcx.guardian.service.DeviceStateService;
 import org.rfcx.guardian.utility.DeviceGuid;
@@ -30,6 +32,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
@@ -68,25 +71,20 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public AudioCore audioCore = new AudioCore();
 	
 	// should services be disabled as if in a power emergency...
-	public boolean isCrisisModeEnabled = false;
-		
-	// android service running flags
-	public boolean isRunning_DeviceState = false;
-	public boolean isEnabled_DeviceState = true;
-	
-	public boolean isRunning_AudioCapture = false;
-	public boolean isEnabled_AudioCapture = true;
-	
-//	public boolean isRunning_ApiComm = false;
-//	public boolean isEnabled_ApiComm = true;
-	
-	public boolean isRunning_ServiceMonitor = false;
-	
+//	public boolean isCrisisModeEnabled = false;
 //	public boolean ignoreOffHours = false;
 //	public int monitorIntentServiceInterval = 180;
+//	public int dayBeginsAt = 9;
+//	public int dayEndsAt = 17;
+		
+	// Background Services
+	public boolean isRunning_DeviceState = false;
+	public boolean isRunning_AudioCapture = false;
+	public boolean isRunning_ApiCheckIn = false;
 	
-	public int dayBeginsAt = 9;
-	public int dayEndsAt = 17;
+	// Repeating IntentServices
+	public boolean isRunning_ServiceMonitor = false;
+	public boolean isRunning_ApiCheckInTrigger = false;
 	
 	@Override
 	public void onCreate() {
@@ -100,8 +98,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
-		launchIntentServices(getApplicationContext());
-		Log.d(TAG, "Launching org.rfcx.guardian (v"+version+")");
+	    onBootServiceTrigger();
 	}
 	
 	@Override
@@ -133,13 +130,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String getDeviceId() {
 		if (this.deviceId == null) {
 			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
+			if (this.verboseLog) { Log.d(TAG,"Device GUID: "+this.deviceId); }
+			rfcxGuardianPrefs.writeGuidToFile(deviceId);
 		}
 		return this.deviceId;
-	}
-	
-	public void setDeviceId(String deviceId) {
-		this.deviceId = deviceId;
-		rfcxGuardianPrefs.writeGuidToFile(deviceId);
 	}
 
 	public String getPref(String prefName) {
@@ -150,50 +144,57 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
 	}
 	
-	public void launchIntentServices(Context context) {
-		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		
-//		PendingIntent apiCommServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ApiConnectIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-//		PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, MonitorIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-		
-//		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiCore.getConnectivityInterval()*1000, apiCommServiceIntent);
-//		alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), monitorIntentServiceInterval*1000, monitorServiceIntent);
+	public void onBootServiceTrigger() {
+		triggerIntentService("ServiceMonitor", getPref("service_monitor_interval"));
+		triggerIntentService("ApiCheckInTrigger", getPref("api_checkin_interval"));
+		triggerService("DeviceState", true);
+		triggerService("AudioCapture", true);
 	}
 	
-	public void triggerIntentService(String intentServiceName, int repeatIntervalMinutes) {
+	public void triggerIntentService(String intentServiceName, String repeatIntervalMinutes) {
 		Context context = getApplicationContext();
+		int reCastRepeatInterval = 5;
+		try { reCastRepeatInterval = (int) Integer.parseInt(repeatIntervalMinutes); } catch (Exception e) { e.printStackTrace(); }
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
 		if (intentServiceName.equals("ServiceMonitor")) {
 			if (!this.isRunning_ServiceMonitor) {
 				PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ServiceMonitorIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), repeatIntervalMinutes*60*1000, monitorServiceIntent);
-			} else {
-				if (this.verboseLog) { Log.d(TAG, "Service ServiceMonitor is already running..."); }
-			}
+				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), reCastRepeatInterval*60*1000, monitorServiceIntent);
+			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ServiceMonitor' is already running..."); }
+		} else if (intentServiceName.equals("ApiCheckInTrigger")) {
+			if (!this.isRunning_ApiCheckInTrigger) {
+				PendingIntent apiCheckInTrigger = PendingIntent.getService(context, -1, new Intent(context, ApiCheckInTriggerIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), reCastRepeatInterval*60*1000, apiCheckInTrigger);
+			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ApiCheckInTrigger' is already running..."); }
+			
 		} else {
-			Log.e(TAG, "There is no intent service named '"+intentServiceName+"'.");
+			Log.e(TAG, "No IntentService named '"+intentServiceName+"'.");
 		}
 	}
 	
 	
 	public void triggerService(String serviceName, boolean forceReTrigger) {
 		Context context = getApplicationContext();
-		
+		boolean serviceAllowedInPrefs = this.sharedPrefs.getBoolean("enable_service_"+serviceName.toLowerCase(), false);
 		if (serviceName.equals("AudioCapture")) {
 			if (!this.isRunning_AudioCapture || forceReTrigger) {
 				context.stopService(new Intent(context, AudioCaptureService.class));
-				context.startService(new Intent(context, AudioCaptureService.class));
-			} else {
-				if (this.verboseLog) { Log.d(TAG, "Service AudioCaptureService is already running..."); }
-			}
+				if (serviceAllowedInPrefs) context.startService(new Intent(context, AudioCaptureService.class));
+			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("DeviceState")) {
 			if (!this.isRunning_DeviceState || forceReTrigger) {
 				context.stopService(new Intent(context, DeviceStateService.class));
-				context.startService(new Intent(context, DeviceStateService.class));
-			} else {
-				if (this.verboseLog) { Log.d(TAG, "Service DeviceState is already running..."); }
-			}
+				if (serviceAllowedInPrefs) context.startService(new Intent(context, DeviceStateService.class));
+			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
+		} else if (serviceName.equals("ApiCheckIn")) {
+			if (!this.isRunning_ApiCheckIn || forceReTrigger) {
+				context.stopService(new Intent(context, ApiCheckInService.class));
+				if (serviceAllowedInPrefs) context.startService(new Intent(context, ApiCheckInService.class));
+			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}
@@ -205,6 +206,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			context.stopService(new Intent(context, AudioCaptureService.class));
 		} else if (serviceName.equals("DeviceState")) {
 			context.stopService(new Intent(context, DeviceStateService.class));
+		} else if (serviceName.equals("ApiCheckIn")) {
+			context.stopService(new Intent(context, ApiCheckInService.class));
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}

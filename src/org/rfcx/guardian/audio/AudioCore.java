@@ -8,6 +8,7 @@ import net.sourceforge.javaFlacEncoder.FLAC_FileEncoder;
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.database.AudioDb;
 import org.rfcx.guardian.intentservice.AudioEncodeIntentService;
+import org.rfcx.guardian.utility.FileUtils;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -40,7 +41,8 @@ public class AudioCore {
 	
 	public void encodeCaptureAudio(String fileName, String encodedFormat, String dbRowEntryDate, AudioDb audioDb) {
 		File wavFile = new File(wavDir+"/"+fileName+".wav");
-		File encodedFile = new File(wavDir.substring(0,wavDir.lastIndexOf("/"))+"/"+encodedFormat+"/"+fileName+"."+encodedFormat);
+		String encodedFilePath = wavDir.substring(0,wavDir.lastIndexOf("/"))+"/"+encodedFormat+"/"+fileName+"."+encodedFormat;
+		File encodedFile = new File(encodedFilePath);
 		try {
 			if (encodedFormat == "flac") {
 				FLAC_FileEncoder ffe = new FLAC_FileEncoder();
@@ -55,7 +57,8 @@ public class AudioCore {
 				audioDb.dbCaptured.clearCapturedBefore(audioDb.dateTimeUtils.getDateFromString(dbRowEntryDate));
 			}
 			if (encodedFile.exists()) {
-				audioDb.dbEncoded.insert(fileName, encodedFormat);
+				String digest = (new FileUtils()).getSha1FileChecksum(encodedFilePath);
+				audioDb.dbEncoded.insert(fileName, encodedFormat, digest);
 			}
 		}
 	}

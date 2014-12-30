@@ -1,8 +1,10 @@
 package org.rfcx.guardian.intentservice;
 
+import java.io.File;
 import java.util.List;
 
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.FileUtils;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -34,7 +36,8 @@ public class AudioEncodeIntentService extends IntentService {
 			} else {
 				Log.d(TAG, "Captured file does not need to be re-encoded...");
 				app.audioDb.dbCaptured.clearCapturedBefore(app.audioDb.dateTimeUtils.getDateFromString(capturedRow[0]));
-				app.audioDb.dbEncoded.insert(capturedRow[1], capturedRow[2]);
+				String digest = (new FileUtils()).getSha1FileChecksum(app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+capturedRow[2]+"/"+capturedRow[1]+"."+capturedRow[2]);
+				app.audioDb.dbEncoded.insert(capturedRow[1], capturedRow[2],digest);
 			}
 		}
 	}
