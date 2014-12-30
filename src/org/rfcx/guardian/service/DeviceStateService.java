@@ -1,9 +1,11 @@
-package org.rfcx.guardian.device;
+package org.rfcx.guardian.service;
 
 import java.util.Calendar;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.database.DeviceStateDb;
+import org.rfcx.guardian.device.CpuUsage;
+import org.rfcx.guardian.device.DeviceState;
 
 
 

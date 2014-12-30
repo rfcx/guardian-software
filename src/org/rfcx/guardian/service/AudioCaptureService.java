@@ -1,10 +1,11 @@
-package org.rfcx.guardian.audio;
+package org.rfcx.guardian.service;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.audio.AudioCore;
 import org.rfcx.guardian.utility.ExtAudioRecorderModified;
 
 import android.app.Service;

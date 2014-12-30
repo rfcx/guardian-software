@@ -26,8 +26,7 @@ public class MainActivity extends Activity {
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 		case R.id.menu_connectivity:
-			app.apiCheckIn.sendCheckIn(getApplicationContext());
-	//		app.airplaneMode.setOn(this);
+			app.airplaneMode.setOn(this);
 			app.airplaneMode.setOff(this);
 			break;
 		case R.id.menu_purge_audio:
@@ -94,8 +93,6 @@ protected void call(String phoneNumber) {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-		((RfcxGuardian) getApplication()).launchAllServices(this);
-		((RfcxGuardian) getApplication()).launchIntentServices(this);
 		
 //        String encodedHash = Uri.encode("#");
 //        this.view = new TextView(this);

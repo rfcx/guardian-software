@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian"
-    android:versionCode="10"
-    android:versionName="0.5.0" >
+    android:versionCode="0"
+    android:versionName="0.4.11" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -28,11 +28,11 @@
         android:name="org.rfcx.guardian.RfcxGuardian"
         >
         
-        <service android:name="org.rfcx.guardian.device.DeviceStateService" />
-        <service android:name="org.rfcx.guardian.api.ApiConnectIntentService" />
-        <service android:name="org.rfcx.guardian.service.MonitorIntentService" />
-        <service android:name="org.rfcx.guardian.audio.AudioCaptureService" />
-        <service android:name="org.rfcx.guardian.audio.AudioEncodeIntentService" />
+        <service android:name="org.rfcx.guardian.service.DeviceStateService" />
+        <service android:name="org.rfcx.guardian.intentservice.ApiCheckInIntentService" />
+        <service android:name="org.rfcx.guardian.intentservice.ServiceMonitorIntentService" />
+        <service android:name="org.rfcx.guardian.service.AudioCaptureService" />
+        <service android:name="org.rfcx.guardian.intentservice.AudioEncodeIntentService" />
         
         <activity
             android:name="org.rfcx.guardian.activity.PrefsActivity"

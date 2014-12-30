@@ -1,4 +1,4 @@
-package org.rfcx.guardian.api;
+package org.rfcx.guardian.intentservice;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.TimeOfDay;
@@ -9,15 +9,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class ApiConnectIntentService extends IntentService {
+public class ApiCheckInIntentService extends IntentService {
 
-	private static final String TAG = ApiConnectIntentService.class.getSimpleName();
+	private static final String TAG = ApiCheckInIntentService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian.API_CONNECT";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_API_CONNECT_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian.API_CHECKIN";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_API_CHECKIN_NOTIFICATIONS";
 	
-	public ApiConnectIntentService() {
+	public ApiCheckInIntentService() {
 		super(TAG);
 	}
 	

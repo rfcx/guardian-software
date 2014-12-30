@@ -21,14 +21,6 @@
 	    android:title="@string/title_allow_wifi"
 	    android:summary="@string/desc_allow_wifi"
 		android:defaultValue="false"/>
-
-	<EditTextPreference
-        android:key="api_protocol"
-        android:enabled="true"
-        android:title="@string/title_api_protocol"
-        android:summary="@string/desc_api_protocol"
-        android:dialogLayout="@layout/spinner"
-        android:defaultValue="https:443"/>
 	
 	<EditTextPreference
         android:key="api_domain"

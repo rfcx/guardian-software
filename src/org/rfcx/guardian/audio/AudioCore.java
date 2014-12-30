@@ -7,6 +7,7 @@ import net.sourceforge.javaFlacEncoder.FLAC_FileEncoder;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.database.AudioDb;
+import org.rfcx.guardian.intentservice.AudioEncodeIntentService;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -60,10 +61,11 @@ public class AudioCore {
 	}
 	
 	public void initializeAudioDirectories(RfcxGuardian app) {
-		this.captureDir = app.filesDir+"/capture"; this.audioDirectories[0] = this.captureDir;
-		this.wavDir = app.filesDir+"/wav"; this.audioDirectories[1] = this.wavDir;
-		this.flacDir = app.filesDir+"/flac"; this.audioDirectories[2] = this.flacDir;
-		this.aacDir = app.filesDir+"/m4a"; this.audioDirectories[3] = this.aacDir;
+		String filesDir = app.getApplicationContext().getFilesDir().toString();
+		this.captureDir = filesDir+"/capture"; this.audioDirectories[0] = this.captureDir;
+		this.wavDir = filesDir+"/wav"; this.audioDirectories[1] = this.wavDir;
+		this.flacDir = filesDir+"/flac"; this.audioDirectories[2] = this.flacDir;
+		this.aacDir = filesDir+"/m4a"; this.audioDirectories[3] = this.aacDir;
 		
 		for (String audioDir : this.audioDirectories) { (new File(audioDir)).mkdirs(); }
 	}
