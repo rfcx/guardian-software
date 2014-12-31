@@ -1,6 +1,7 @@
 package org.rfcx.guardian.service;
 
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.telecom.CarrierInteraction;
 
 import android.app.Service;
 import android.content.Context;
@@ -9,12 +10,12 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class CarrierUssdService extends Service {
+public class CarrierCodeService extends Service {
 
-	private static final String TAG = CarrierUssdService.class.getSimpleName();
+	private static final String TAG = CarrierCodeService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
-	private CarrierUssd carrierUssd;
+	private CarrierCode carrierCode;
 
 	private RfcxGuardian app = null;
 	private Context context = null;
@@ -27,7 +28,7 @@ public class CarrierUssdService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.carrierUssd = new CarrierUssd();
+		this.carrierCode = new CarrierCode();
 	}
 
 	@Override
@@ -37,9 +38,9 @@ public class CarrierUssdService extends Service {
 		app = (RfcxGuardian) getApplication();
 		if (context == null) context = app.getApplicationContext();
 		
-		app.isRunning_CarrierUssd = true;
+		app.isRunning_CarrierCode = true;
 		try {
-			this.carrierUssd.start();
+			this.carrierCode.start();
 			if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
@@ -50,24 +51,26 @@ public class CarrierUssdService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		app.isRunning_CarrierUssd = false;
-		this.carrierUssd.interrupt();
-		this.carrierUssd = null;
+		app.isRunning_CarrierCode = false;
+		this.carrierCode.interrupt();
+		this.carrierCode = null;
 	}
 	
-	private class CarrierUssd extends Thread {
+	private class CarrierCode extends Thread {
 
-		public CarrierUssd() {
-			super("CarrierUssdService-CarrierUssd");
+		public CarrierCode() {
+			super("CarrierCodeService-CarrierCode");
 		}
 
 		@Override
 		public void run() {
-			CarrierUssdService carrierUssdService = CarrierUssdService.this;
+			CarrierCodeService carrierCodeService = CarrierCodeService.this;
+			
+			CarrierInteraction carrierInteraction = new CarrierInteraction();
 		//	HttpGet httpGet = new HttpGet();
 			try {
 				
-				Log.d(TAG, "Running the service!!!!");
+				carrierInteraction.submitCode(context, app.getPref("carriercode_balance"));
 				
 				// DO SOMETHING
 				
@@ -87,8 +90,8 @@ public class CarrierUssdService extends Service {
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			} finally {
-				app.isRunning_CarrierUssd = false;
-				app.stopService("CarrierUssd");
+				app.isRunning_CarrierCode = false;
+				app.stopService("CarrierCode");
 			}
 		}
 	}

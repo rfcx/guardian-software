@@ -67,8 +67,8 @@
 		android:defaultValue="true"/>
 
 	<CheckBoxPreference
-	    android:key="enable_service_carrierussd"
-	    android:title="Carrier USSD Interaction"
+	    android:key="enable_service_carriercode"
+	    android:title="Carrier Interaction (USSD)"
 	    android:summary="Enable/Disable Service"
         android:enabled="true"
 		android:defaultValue="true"/>
@@ -104,17 +104,17 @@
 		android:defaultValue=""/>
 	
 	<EditTextPreference
-        android:key="carrierussd_code_topup"
-	    android:title="USSD Code: Top-Up"
-	    android:summary="Carrier code to top up credit"
+        android:key="carriercode_topup"
+	    android:title="Carrier Code: Top-Up"
+	    android:summary="Code (USSD) to top up credit"
 	    android:inputType="number"
         android:enabled="true"
 		android:defaultValue="#145*2*3*1#"/>
 
 	<EditTextPreference
-        android:key="carrierussd_code_balance"
-	    android:title="USSD Code: Balance"
-	    android:summary="Carrier code to retrieve balance"
+        android:key="carriercode_balance"
+	    android:title="Carrier Code: Balance"
+	    android:summary="Code (USSD) to retrieve balance"
 	    android:inputType="number"
         android:enabled="true"
 		android:defaultValue="#123#"/>

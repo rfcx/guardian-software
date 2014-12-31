@@ -15,6 +15,11 @@
         android:orderInCategory="3"
 	    android:title="@string/menu_send_checkin"
 	    />
+	<item
+	    android:id="@+id/menu_carrier_topup"
+        android:orderInCategory="3"
+	    android:title="@string/menu_carrier_topup"
+	    />
 	
 	
 </menu>

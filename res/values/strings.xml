@@ -7,8 +7,9 @@
     
     <string name="menu_prefs">Preferences</string>
 	<string name="menu_purge_audio">Purge Audio Assets</string>
-	<string name="menu_connectivity">(Re) Connect</string>
 	<string name="menu_send_checkin">Send CheckIn</string>
+	<string name="menu_carrier_topup">Carrier Top-Up</string>
     
+	
     
 </resources>

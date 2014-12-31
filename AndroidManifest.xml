@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian"
     android:versionCode="0"
-    android:versionName="0.4.11" >
+    android:versionName="0.4.11"
+    >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -32,7 +33,7 @@
         <service android:name="org.rfcx.guardian.service.DeviceStateService" />
         <service android:name="org.rfcx.guardian.service.AudioCaptureService" />
         <service android:name="org.rfcx.guardian.service.ApiCheckInService" />
-        <service android:name="org.rfcx.guardian.service.CarrierUssdService" />
+        <service android:name="org.rfcx.guardian.service.CarrierCodeService" />
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.intentservice.ApiCheckInTriggerIntentService" />
         <service android:name="org.rfcx.guardian.intentservice.AudioEncodeIntentService" />

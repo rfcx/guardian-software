@@ -31,72 +31,18 @@ public class MainActivity extends Activity {
 		case R.id.menu_send_checkin:
 			app.apiCore.sendCheckIn(app);
 			break;
+		case R.id.menu_carrier_topup:
+			app.triggerService("CarrierCode", true);
+			break;
 		
 		}
 		return true;
 	}
-	
-//
-	/*
-    private TextView view;
-    
-    protected void call(String phoneNumber) {
-        this.view.append("\n"+phoneNumber);
-        try {
-               startActivityForResult(
-                		new Intent("android.intent.action.CALL",Uri.parse("tel:" + phoneNumber))
-                		, 1);
-        } catch (Exception eExcept) { this.view.append("\n\n\n"+eExcept.toString()); }
-    }
-    
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode,Intent data) {
-    	
-    	this.view.append("\nUSSD: " + requestCode + " " + resultCode + "" + data+"\n");
-    }
-    */
-//
-    /*
- @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        String encodedHash = Uri.encode("#");
-        this.view = new TextView(this);
-        setContentView(this.view);  
-        
-       call("*123*" + encodedHash); //send *123*#
-    }
-
-protected void call(String phoneNumber) {
-        this.view.append("\n"+phoneNumber);
-        try {
-                startActivityForResult(new Intent("android.intent.action.CALL",Uri.parse("tel:" + phoneNumber)), 1);
-        } catch (Exception eExcept) { this.view.append("\n\n\n"+eExcept.toString()); }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode,Intent data) {
-    	
-    	this.view.append("\nUSSD: " + requestCode + " " + resultCode + "" + data+"\n");
-    	USSD ussd=new USSD(4000,4000); //read the log 4 s before the call of this app and 4s after
-    	if (ussd.IsFound()) this.view.append("\n Msg String:\n"+ussd.getMsg());
-    	else this.view.append("No USSD msg received");
-}
-
-	 */
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-		
-//        String encodedHash = Uri.encode("#");
-//        this.view = new TextView(this);
-//        setContentView(this.view);  
-//        
-//       call("*123"+encodedHash); 
-//       call("*147*1"+encodedHash); 
-		
 	}
 
 	@Override
