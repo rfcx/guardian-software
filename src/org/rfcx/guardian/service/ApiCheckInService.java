@@ -1,10 +1,6 @@
 package org.rfcx.guardian.service;
 
-import java.util.Calendar;
-
-import org.json.simple.JSONObject;
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.HttpGet;
 
 import android.app.Service;
 import android.content.Context;

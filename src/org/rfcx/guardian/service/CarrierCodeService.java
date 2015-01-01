@@ -65,28 +65,11 @@ public class CarrierCodeService extends Service {
 		@Override
 		public void run() {
 			CarrierCodeService carrierCodeService = CarrierCodeService.this;
-			
 			CarrierInteraction carrierInteraction = new CarrierInteraction();
-		//	HttpGet httpGet = new HttpGet();
 			try {
 				
 				carrierInteraction.submitCode(context, app.getPref("carriercode_balance"));
 				
-				// DO SOMETHING
-				
-				//				if (app.apiCore.apiCheckVersionEndpoint != null) {
-//					String getUrl =	(((app.getPref("api_domain")!=null) ? app.getPref("api_domain") : "https://api.rfcx.org")
-//									+ app.apiCore.apiCheckVersionEndpoint
-//									+ "?nocache="+Calendar.getInstance().getTimeInMillis());
-//					
-//					JSONObject jsonResponse = httpGet.getAsJson(getUrl);
-//					if (app.verboseLog) { 
-//						Log.d(TAG, jsonResponse.toJSONString());
-//					}
-//					app.apiCore.apiCheckVersionFollowUp(app,jsonResponse);
-//				} else {
-//					Log.d(TAG, "Cancelled because apiCheckVersionEndpoint is null...");
-//				}
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			} finally {

@@ -1,9 +1,5 @@
 package org.rfcx.guardian.telecom;
 
-import org.rfcx.guardian.intentservice.AudioEncodeIntentService;
-
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
