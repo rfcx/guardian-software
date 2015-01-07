@@ -26,7 +26,7 @@ public class MainActivity extends Activity {
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 		case R.id.menu_purge_audio:
-			app.audioCore.purgeAudioAssets(app.audioDb);
+			app.audioCore.purgeAllAudioAssets(app.audioDb);
 			break;
 		case R.id.menu_send_checkin:
 			app.apiCore.sendCheckIn(app);

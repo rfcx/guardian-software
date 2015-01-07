@@ -1,7 +1,9 @@
 package org.rfcx.guardian.audio;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import net.sourceforge.javaFlacEncoder.FLAC_FileEncoder;
 
@@ -30,13 +32,14 @@ public class AudioCore {
 	private String[] audioDirectories = new String[] {null, null, null, null};
 	
 	// encode straight to AAC/M4A (lossy, constant bitrate)...
-	// ...or don't, and encode asynchronously after (may eventually support many formats for post-encoding)
+	// ...or don't, and encode asynchronously after
+	// (*may* eventually support various lossy formats for post-encoding)
 	private boolean encodeOnCapture = true;
 	
-	public boolean purgeAudioAssetsOnStart = false;
+	public boolean purgeAudioAssetsOnStart = true;
 	
 	public final static int CAPTURE_SAMPLE_RATE_HZ = 8000;
-	public final int CAPTURE_LOOP_PERIOD_SECS = 150;
+	public final int CAPTURE_LOOP_PERIOD_SECS = 300;
 	public final int aacEncodingBitRate = 16384;
 	
 	public void encodeCaptureAudio(String fileName, String encodedFormat, String dbRowEntryDate, AudioDb audioDb) {
@@ -63,7 +66,14 @@ public class AudioCore {
 		}
 	}
 	
-	public void initializeAudioDirectories(RfcxGuardian app) {
+	public void initializeAudioCapture(RfcxGuardian app) {
+		initializeAudioDirectories(app);
+		if (app.audioCore.purgeAudioAssetsOnStart) {
+			app.audioCore.purgeAllAudioAssets(app.audioDb);
+		}
+	}
+	
+	private void initializeAudioDirectories(RfcxGuardian app) {
 		String filesDir = app.getApplicationContext().getFilesDir().toString();
 		this.captureDir = filesDir+"/capture"; this.audioDirectories[0] = this.captureDir;
 		this.wavDir = filesDir+"/wav"; this.audioDirectories[1] = this.wavDir;
@@ -79,7 +89,20 @@ public class AudioCore {
 		}
 	}
 	
-	public void purgeAudioAssets(AudioDb audioDb) {
+	public void purgeEncodedAssetsUpTo(AudioDb audioDb, Date purgeUpTo) {		
+		List<String[]> encodedAudioEntries = audioDb.dbEncoded.getAllEncoded();
+		for (String[] encodedAudioEntry : encodedAudioEntries) {
+			try {
+				(new File(this.wavDir.substring(0,this.wavDir.lastIndexOf("/"))+"/"+encodedAudioEntry[2]+"/"+encodedAudioEntry[1]+"."+encodedAudioEntry[2])).delete();
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
+		}
+		audioDb.dbCaptured.clearCapturedBefore(purgeUpTo);
+		audioDb.dbEncoded.clearEncodedBefore(purgeUpTo);
+	}
+	
+	public void purgeAllAudioAssets(AudioDb audioDb) {
 		Log.d(TAG, "Purging all existing audio assets...");
 		for (String audioDir : this.audioDirectories) {
 			if (!audioDir.equals(captureDir)) { //with this, we can purge audio assets on-the-fly, even during capture

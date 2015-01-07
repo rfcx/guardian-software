@@ -1,5 +1,7 @@
 package org.rfcx.guardian.receiver;
 
+import java.util.Calendar;
+
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.TimeOfDay;
 
@@ -18,20 +20,21 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-        final boolean isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
+        long timeStamp = Calendar.getInstance().getTimeInMillis();
         
-//        TimeOfDay timeOfDay = new TimeOfDay();
-//        app.apiCore.networkConnectivity = isConnected;
-		
-		if (app.verboseLog) Log.d(TAG, "Connectivity Detected... (RfcxSource)");
+        final boolean isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
+        app.isConnected = isConnected;
+        
 		if (isConnected) {
-////			app.apiComm.sendAnyAlerts(context);
-//			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {
-//				if (app.verboseLogging) Log.d(TAG, "Check-in request allowed. Doing it.");
-//				//app.apiCheckIn.sendCheckIn(context);
-//			} else {
-//				if (app.verboseLogging) Log.d(TAG, "Check-in not allowed right now.");
-//			}
+			app.lastConnectedAt = timeStamp;
+			int disconnectedFor = (int) (timeStamp - app.lastDisconnectedAt);
+			if (app.verboseLog) { Log.d(TAG, "Disconnected for: "+disconnectedFor+"ms"); }
+		// 1000ms is an arbitrarily chosen cut-off. We might want to revisit this choice at some point.
+			if (disconnectedFor > 1000) {
+				app.deviceStateDb.dbNetworkSearch.insert(disconnectedFor);
+			}
+		} else {
+			app.lastDisconnectedAt = timeStamp;
 		}
 	}
 

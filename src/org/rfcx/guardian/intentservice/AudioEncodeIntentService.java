@@ -40,6 +40,9 @@ public class AudioEncodeIntentService extends IntentService {
 				app.audioDb.dbEncoded.insert(capturedRow[1], capturedRow[2],digest);
 			}
 		}
+		
+		// Trigger CheckIn ???
+		app.apiCore.sendCheckIn(app);
 	}
 
 }

@@ -24,14 +24,15 @@ public class ApiCheckInTriggerIntentService extends IntentService {
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
-		Context context = app.getApplicationContext();
 		
 		if (app.verboseLog) Log.d(TAG, "Running ApiCheckInTrigger");
 		
 		if (app.isRunning_ApiCheckInTrigger) {
-			
-			app.triggerService("ApiCheckIn", true);
-			
+			if (app.isConnected) {
+				app.triggerService("ApiCheckIn", true);
+			} else {
+				Log.d(TAG,"Skipping CheckIn attempt, because we're not connected");
+			}
 		} else {
 			// the Monitor logic won't run the first time the intent service is fired
 			app.isRunning_ApiCheckInTrigger = true;

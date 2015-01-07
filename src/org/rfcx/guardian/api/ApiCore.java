@@ -1,14 +1,19 @@
 package org.rfcx.guardian.api;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.FileUtils;
 
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -21,84 +26,136 @@ public class ApiCore {
 
 	private RfcxGuardian app = null;
 	
-//	private String jsonRaw = null;
-	
-	private long signalSearchStartTime = 0;
-	private long requestSendStart = 0;
+	//public long signalSearchStartTime = 0;
+	private DateTimeUtils dateTimeUtils = new DateTimeUtils();
+	private Calendar requestSendStart = Calendar.getInstance();
 	
 	private String lastCheckInId = null;
 	private long lastCheckInDuration = 0;
 	
 	public void sendCheckIn(RfcxGuardian rfcxApp) {
 		this.app = rfcxApp;
-		Log.d(TAG,jsonDiagnostics());
+		if (app.isConnected) {
+			app.triggerService("ApiCheckIn", true);
+		} else {
+			Log.d(TAG,"No connectivity... Skipping CheckIn attempt");
+		}
 	}
 	
-	private String jsonDiagnostics() {
-
+	public String getCheckInUrl() {
+		return app.getPref("api_domain")+"/v1/guardians/"+app.getDeviceId()+"/checkins";
+	}
+	
+	public String getCheckInJson() {
+		
 		String[] vBattery = app.deviceStateDb.dbBattery.getStatsSummary();
 		String[] vBatteryTemp = app.deviceStateDb.dbBatteryTemperature.getStatsSummary();
 		String[] vCpu = app.deviceStateDb.dbCpu.getStatsSummary();
 		String[] vCpuClock = app.deviceStateDb.dbCpuClock.getStatsSummary();
 		String[] vLight = app.deviceStateDb.dbLight.getStatsSummary();
+		String[] vNetworkSearch = app.deviceStateDb.dbNetworkSearch.getStatsSummary();
 
 		JSONObject json = new JSONObject();
 		
-		try { json.put("batt",(vBattery[0] != "0") ? Integer.parseInt(vBattery[1]) : null);
-		} catch (NumberFormatException e) { json.put("batt", null); Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
+		json.put("battery_percent", (vBattery[0] != "0") ? vBattery[4] : null);
+		json.put("battery_temperature", (vBatteryTemp[0] != "0") ? vBatteryTemp[4] : null);
+		json.put("cpu_percent", (vCpu[0] != "0") ? vCpu[4] : null);
+		json.put("cpu_clock", (vCpuClock[0] != "0") ? vCpuClock[4] : null);
+		json.put("internal_luminosity", (vLight[0] != "0") ? vLight[4] : null);
+		json.put("network_search_time", (vNetworkSearch[0] != "0") ? vNetworkSearch[4] : null);
+		json.put("has_power", (!app.deviceState.isBatteryDisCharging()) ? new Boolean(true) : new Boolean(false));
+		json.put("is_charged", (app.deviceState.isBatteryCharged()) ? new Boolean(true) : new Boolean(false));
+		json.put("measured_at", dateTimeUtils.getDateTime(Calendar.getInstance().getTime()));
+		json.put("software_version", app.version);
+		json.put("messages", app.smsDb.dbSms.getSerializedSmsAll());
 		
-		try { json.put("temp",(vBatteryTemp[0] != "0") ? Integer.parseInt(vBatteryTemp[1]) : null);
-		} catch (NumberFormatException e) { json.put("temp", null); Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
+		json.put("last_checkin_id", (this.lastCheckInId != null) ? this.lastCheckInId : null);
+		json.put("last_checkin_duration", (this.lastCheckInId != null) ? new Long(this.lastCheckInDuration) : null);
 		
-		try { json.put("srch", new Long(Calendar.getInstance().getTimeInMillis()-this.signalSearchStartTime));
-		} catch (NumberFormatException e) { json.put("srch", null); Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
-		
-		json.put("cpuP", (vCpu[0] != "0") ? vCpu[4] : null);
-		json.put("cpuC", (vCpuClock[0] != "0") ? vCpuClock[4] : null);
-		json.put("lumn", (vLight[0] != "0") ? vLight[4] : null);
-		json.put("powr", (!app.deviceState.isBatteryDisCharging()) ? new Boolean(true) : new Boolean(false));
-		json.put("chrg", (app.deviceState.isBatteryCharged()) ? new Boolean(true) : new Boolean(false));
-
-		json.put("time", Calendar.getInstance().getTime().toGMTString());
-		
-		json.put("vers", app.version);
-		json.put("msgs", app.smsDb.dbSms.getSerializedSmsAll());
-		
-		if (this.lastCheckInId != null) {
-			json.put("lastCheckInId", this.lastCheckInId);
-			json.put("lastCheckInDuration", new Long(this.lastCheckInDuration));
+		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
+		List<String> audioFiles = new ArrayList<String>();
+		for (String[] audioEntry : encodedAudio) {			
+			String filePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioEntry[2]+"/"+audioEntry[1]+"."+audioEntry[2];
+			try {
+				if ((new File(filePath)).exists()) {
+					audioFiles.add(TextUtils.join("*", audioEntry));
+				} else if (app.verboseLog) {
+					Log.d(TAG, "Audio didn't exist: "+audioEntry[1]+"."+audioEntry[2]);
+				}
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
 		}
+		json.put("audio", TextUtils.join("|", audioFiles));
+		
+		this.requestSendStart = Calendar.getInstance();
+		
+		if (app.verboseLog) { Log.d(TAG, json.toJSONString()); }
 		
 		return json.toJSONString();
-		
-//		jsonZipped = gZipString(jsonRaw);
-//		if (app.verboseLog) { Log.d(TAG,"Unzipped JSON: "+Math.round(jsonRaw.toCharArray().length/1024)+"kB"); }
-//		if (app.verboseLog) { Log.d(TAG,"GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB"); }
 	}
+	
+	public List<String[]> getCheckInFiles() {
+		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
+		List<String[]> checkInFiles = new ArrayList<String[]>();
+		for (String[] audioEntry : encodedAudio) {
+			String filePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioEntry[2]+"/"+audioEntry[1]+"."+audioEntry[2];
+			try {
+				if ((new File(filePath)).exists()) {
+					checkInFiles.add(new String[] {"audio", filePath, "audio/"+audioEntry[2]});
+					if (app.verboseLog) { Log.d(TAG, "Audio added: "+audioEntry[1]+"."+audioEntry[2]); }
+				} else if (app.verboseLog) {
+					Log.d(TAG, "Audio didn't exist: "+audioEntry[1]+"."+audioEntry[2]);
+				}
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
+		}
+		return checkInFiles;
+	}
+	
+	
+	
+	public void cleanupAfterRequest(String jsonHttpResponse) {
+	
+		//	resetTransmissionState();
+		
+		Date clearDataBefore = this.requestSendStart.getTime();
+	
+		app.deviceStateDb.dbBattery.clearStatsBefore(clearDataBefore);
+		app.deviceStateDb.dbCpu.clearStatsBefore(clearDataBefore);
+		app.deviceStateDb.dbCpuClock.clearStatsBefore(clearDataBefore);
+		app.deviceStateDb.dbLight.clearStatsBefore(clearDataBefore);
+		app.deviceStateDb.dbBatteryTemperature.clearStatsBefore(clearDataBefore);
+		app.deviceStateDb.dbNetworkSearch.clearStatsBefore(clearDataBefore);
+		
+		app.smsDb.dbSms.clearSmsBefore(clearDataBefore);
+		app.audioCore.purgeEncodedAssetsUpTo(app.audioDb, clearDataBefore);
+	
+		try {
+			if (jsonHttpResponse != null) {
+				JSONObject JSON = (JSONObject) (new JSONParser()).parse(jsonHttpResponse);
+				this.lastCheckInId = JSON.get("checkin_id").toString();
+				this.lastCheckInDuration = Calendar.getInstance().getTimeInMillis() - this.requestSendStart.getTimeInMillis();
+			}
+		} catch (org.json.simple.parser.ParseException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+		} catch (Exception e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+		} finally {
+			if (app.verboseLog) Log.d(TAG, "API Response: " + jsonHttpResponse);
+		}
+	}			
+	
 	
 //	public boolean networkConnectivity = false;
 
 //	private int connectivityInterval = 300; // change this value in preferences
 //	private int connectivityTimeout = setConnectivityTimeout();
-	
-//	private String apiProtocol = "https";
-//	private int apiPort = 443;
-//	private String apiDomain = "api.rfcx.org";
-//	private String apiProtocol = "http";
-//	private int apiPort = 8080;
-//	private String apiDomain = "192.168.0.70";
-	
-//	private String requestEndpoint = "/";
-
-//	private String jsonRaw = null;
-//	private byte[] jsonZipped = null;
-//
 //	private Calendar transmitTime = Calendar.getInstance();
 //	private long signalSearchStartTime = 0;
 //	private long requestSendStart = 0;
-//	
-//	private String lastCheckInId = null;
-//	private long lastCheckInDuration = 0;
+
 //	public boolean isTransmitting = false;
 
 	
@@ -121,43 +178,7 @@ public class ApiCore {
 //		return byteArrayOutputStream.toByteArray();
 //	}
 //	
-//	private void cleanupAfterRequest(String httpResponseString) {
-//		
-//		resetTransmissionState();
-//		
-//		Date lastTransmitTime = transmitTime.getTime();
-//
-//		app.deviceStateDb.dbBattery.clearStatsBefore(lastTransmitTime);
-//		app.deviceStateDb.dbCpu.clearStatsBefore(lastTransmitTime);
-//		app.deviceStateDb.dbCpuClock.clearStatsBefore(lastTransmitTime);
-//		app.deviceStateDb.dbLight.clearStatsBefore(lastTransmitTime);
-//		app.deviceStateDb.dbBatteryTemperature.clearStatsBefore(lastTransmitTime);
-//
-//		app.smsDb.dbSms.clearSmsBefore(lastTransmitTime);
-//		
-//		try {
-//			if (httpResponseString != null) {
-//				JSONObject JSON = (JSONObject) (new JSONParser()).parse(httpResponseString);
-//				long serverUnixTime = (long) Long.parseLong(JSON.get("time").toString()+"000");
-//				long deviceUnixTime = Calendar.getInstance().getTimeInMillis();
-//				if (Math.abs(serverUnixTime - deviceUnixTime) > 3600*1000) {
-//					Log.d(TAG, "Setting System Clock");
-//					SystemClock.setCurrentTimeMillis(serverUnixTime);
-//				}
-//				this.lastCheckInId = JSON.get("checkInId").toString();
-//				this.lastCheckInDuration = Calendar.getInstance().getTimeInMillis() - this.requestSendStart;
-//			}
-//		} catch (NumberFormatException e) {
-//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-//		} catch (org.json.simple.parser.ParseException e) {
-//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-//		} catch (NullPointerException e) {
-//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-//		} finally {
-//			if (app.verboseLog) Log.d(TAG, "API Response: " + httpResponseString);
-////			app.airplaneMode.setOn(app.getApplicationContext());
-//		}
-//	}	
+
 //
 //	
 //	public void resetTransmissionState() {

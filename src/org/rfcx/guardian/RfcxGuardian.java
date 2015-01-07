@@ -44,6 +44,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
 	private String deviceId = null;
+	Context context;
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
@@ -99,6 +100,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
 	    onBootServiceTrigger();
+	    
+
 	}
 	
 	@Override
@@ -175,7 +178,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	
 	public void triggerService(String serviceName, boolean forceReTrigger) {
-		Context context = getApplicationContext();
+		context = getApplicationContext();
 		boolean serviceAllowedInPrefs = this.sharedPrefs.getBoolean("enable_service_"+serviceName.toLowerCase(), false);
 		if (serviceName.equals("AudioCapture")) {
 			if (!this.isRunning_AudioCapture || forceReTrigger) {
@@ -207,7 +210,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void stopService(String serviceName) {
-		Context context = getApplicationContext();		
+		context = getApplicationContext();		
 		if (serviceName.equals("AudioCapture")) {
 			context.stopService(new Intent(context, AudioCaptureService.class));
 		} else if (serviceName.equals("DeviceState")) {
@@ -220,4 +223,5 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}
 	}
+	
 }

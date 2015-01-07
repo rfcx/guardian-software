@@ -30,8 +30,8 @@ public class HttpPostMultipart {
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
     // need to make these longer...
-	private static int requestReadTimeout = 10000;
-	private static int requestConnectTimeout = 30000;
+	private static int requestReadTimeout = 300000;
+	private static int requestConnectTimeout = 300000;
 	private static boolean useCaches = false;
 	
 	public static String doMultipartPost(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments) {

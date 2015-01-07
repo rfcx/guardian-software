@@ -55,7 +55,7 @@ public class AudioCaptureService extends Service {
 		app = (RfcxGuardian) getApplication();
 		context = app.getApplicationContext();
 		
-		app.audioCore.initializeAudioDirectories(app);
+		app.audioCore.initializeAudioCapture(app);
 		
 		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
 		
@@ -92,14 +92,14 @@ public class AudioCaptureService extends Service {
 			captureSampleRate = audioCore.CAPTURE_SAMPLE_RATE_HZ;
 			encodingBitRate = audioCore.aacEncodingBitRate;
 			fileExtension = (app.audioCore.mayEncodeOnCapture()) ? "m4a" : "wav";
-//			if (app.audioCore.purgeAudioAssetsOnStart) { app.audioCore.purgeAudioAssets(app.audioDb); }
 			try {
 				while (audioCaptureService.runFlag) {
 					try {
 						captureLoopStart();
 				        processCompletedCaptureFile();
 				        Thread.sleep(audioCore.CAPTURE_LOOP_PERIOD_SECS*1000);
-						captureLoopEnd();					
+						captureLoopEnd();
+						Log.d(TAG,"End: "+Calendar.getInstance().getTimeInMillis());
 					} catch (Exception e) {
 						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 						audioCaptureService.runFlag = false;
