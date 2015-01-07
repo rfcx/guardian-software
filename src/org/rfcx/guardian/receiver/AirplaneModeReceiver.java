@@ -27,8 +27,13 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
 		if (wifiManager == null) wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 		if (locationManager == null) locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		app.apiCore.resetSignalSearchClock();
-		TimeOfDay timeOfDay = new TimeOfDay();
+
+		/*
+		 * THIS WOULD BE A GREAT THING TO ADD TO THE DB DIAGNOSTICS
+		 *	app.apiCore.resetSignalSearchClock();
+		 */
+		
+		 TimeOfDay timeOfDay = new TimeOfDay();
 
 		if (app.verboseLog) Log.d(TAG,
 				"(RfcxSource) AirplaneMode " + ( app.airplaneMode.isEnabled(context) ? "Enabled" : "Disabled" )

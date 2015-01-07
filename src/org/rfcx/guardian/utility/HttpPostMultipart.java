@@ -35,6 +35,12 @@ public class HttpPostMultipart {
 	private static boolean useCaches = false;
 	
 	public static String doMultipartPost(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments) {
+		
+		/* fullUrl: url as a string
+		 * keyValueParameters: List of arrays of strings, with the indices: [fieldname, fieldvalue]
+		 * keyFilepathMimeAttachments: List of arrays of string, with indices [fieldname, filepath, file-mime]
+		 */
+		
 		MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		try {
 			for (String[] keyFilepathMime : keyFilepathMimeAttachments) {

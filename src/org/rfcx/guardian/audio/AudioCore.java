@@ -57,7 +57,7 @@ public class AudioCore {
 				audioDb.dbCaptured.clearCapturedBefore(audioDb.dateTimeUtils.getDateFromString(dbRowEntryDate));
 			}
 			if (encodedFile.exists()) {
-				String digest = (new FileUtils()).getSha1FileChecksum(encodedFilePath);
+				String digest = (new FileUtils()).sha1Hash(encodedFilePath);
 				audioDb.dbEncoded.insert(fileName, encodedFormat, digest);
 			}
 		}

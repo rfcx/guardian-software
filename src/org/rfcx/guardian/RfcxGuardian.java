@@ -2,7 +2,6 @@ package org.rfcx.guardian;
 
 import java.util.Calendar;
 
-import org.rfcx.guardian.api.ApiCheckIn;
 import org.rfcx.guardian.api.ApiCore;
 import org.rfcx.guardian.audio.AudioCore;
 import org.rfcx.guardian.database.AlertDb;
@@ -33,7 +32,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {

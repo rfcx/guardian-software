@@ -12,10 +12,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -53,6 +55,29 @@ public class HttpGet {
 	
 	public JSONObject getAsJson(String fullUrl) {
 		return getAsJson(fullUrl, (new ArrayList<String[]>()));
+	}
+	
+	public List<JSONObject> getAsJsonArray(String fullUrl, List<String[]> keyValueParameters) {
+		long startTime = Calendar.getInstance().getTimeInMillis();
+		String str = doGetString(fullUrl,keyValueParameters);
+		if (verboseLogging) { Log.d(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms"); }
+		try {
+			List<JSONObject> jsonArray = new ArrayList<JSONObject>();
+			JSONArray jsonAll = (JSONArray) (new JSONParser()).parse(str);
+			Iterator jsonIterator = jsonAll.iterator();
+			while (jsonIterator.hasNext()) {
+				jsonArray.add((JSONObject) jsonIterator.next());
+			}
+			return jsonArray;
+
+		} catch (ParseException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+		}
+		return null;
+	}
+	
+	public List<JSONObject> getAsJsonArray(String fullUrl) {
+		return getAsJsonArray(fullUrl, (new ArrayList<String[]>()));
 	}
 	
 	public String getAsString(String fullUrl, List<String[]> keyValueParameters) {

@@ -21,38 +21,20 @@ public class ApiCore {
 
 	private RfcxGuardian app = null;
 	
-//	public boolean networkConnectivity = false;
-
-//	private int connectivityInterval = 300; // change this value in preferences
-//	private int connectivityTimeout = setConnectivityTimeout();
+//	private String jsonRaw = null;
 	
-//	private String apiProtocol = "https";
-//	private int apiPort = 443;
-//	private String apiDomain = "api.rfcx.org";
-//	private String apiProtocol = "http";
-//	private int apiPort = 8080;
-//	private String apiDomain = "192.168.0.70";
-	
-//	private String requestEndpoint = "/";
-
-	private String jsonRaw = null;
-	private byte[] jsonZipped = null;
-
-	private Calendar transmitTime = Calendar.getInstance();
 	private long signalSearchStartTime = 0;
 	private long requestSendStart = 0;
 	
 	private String lastCheckInId = null;
 	private long lastCheckInDuration = 0;
-	public boolean isTransmitting = false;
-	
 	
 	public void sendCheckIn(RfcxGuardian rfcxApp) {
-		app = rfcxApp;
-		packageDiagnostics();
+		this.app = rfcxApp;
+		Log.d(TAG,jsonDiagnostics());
 	}
-
-	public void packageDiagnostics() {
+	
+	private String jsonDiagnostics() {
 
 		String[] vBattery = app.deviceStateDb.dbBattery.getStatsSummary();
 		String[] vBatteryTemp = app.deviceStateDb.dbBatteryTemperature.getStatsSummary();
@@ -77,90 +59,116 @@ public class ApiCore {
 		json.put("powr", (!app.deviceState.isBatteryDisCharging()) ? new Boolean(true) : new Boolean(false));
 		json.put("chrg", (app.deviceState.isBatteryCharged()) ? new Boolean(true) : new Boolean(false));
 
-		json.put("dttm", Calendar.getInstance().getTime().toGMTString());
-		json.put("guid", app.getDeviceId());
+		json.put("time", Calendar.getInstance().getTime().toGMTString());
 		
 		json.put("vers", app.version);
 		json.put("msgs", app.smsDb.dbSms.getSerializedSmsAll());
 		
-//		if (this.lastCheckInId != null) {
-//			json.put("lastId", this.lastCheckInId);
-//			json.put("lastLen", new Long(this.lastCheckInDuration));
-//		}
-		
-		jsonRaw = json.toJSONString();
-		if (app.verboseLog) Log.d(TAG, "Diagnostics : " + jsonRaw);
-		
-		jsonZipped = gZipString(jsonRaw);
-		if (app.verboseLog) { Log.d(TAG,"Unzipped JSON: "+Math.round(jsonRaw.toCharArray().length/1024)+"kB"); }
-		if (app.verboseLog) { Log.d(TAG,"GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB"); }
-	}
-	
-	private byte[] gZipString(String s) {
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		GZIPOutputStream gZIPOutputStream = null;
-		try {
-			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
-			gZIPOutputStream.write(s.getBytes("UTF-8"));
-		} catch (IOException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		} finally { if (gZIPOutputStream != null) {
-			try { gZIPOutputStream.close();
-			} catch (IOException e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-			};
-		} }
-		return byteArrayOutputStream.toByteArray();
-	}
-	
-	private void cleanupAfterRequest(String httpResponseString) {
-		
-		resetTransmissionState();
-		
-		Date lastTransmitTime = transmitTime.getTime();
-
-		app.deviceStateDb.dbBattery.clearStatsBefore(lastTransmitTime);
-		app.deviceStateDb.dbCpu.clearStatsBefore(lastTransmitTime);
-		app.deviceStateDb.dbCpuClock.clearStatsBefore(lastTransmitTime);
-		app.deviceStateDb.dbLight.clearStatsBefore(lastTransmitTime);
-		app.deviceStateDb.dbBatteryTemperature.clearStatsBefore(lastTransmitTime);
-
-		app.smsDb.dbSms.clearSmsBefore(lastTransmitTime);
-		
-		try {
-			if (httpResponseString != null) {
-				JSONObject JSON = (JSONObject) (new JSONParser()).parse(httpResponseString);
-				long serverUnixTime = (long) Long.parseLong(JSON.get("time").toString()+"000");
-				long deviceUnixTime = Calendar.getInstance().getTimeInMillis();
-				if (Math.abs(serverUnixTime - deviceUnixTime) > 3600*1000) {
-					Log.d(TAG, "Setting System Clock");
-					SystemClock.setCurrentTimeMillis(serverUnixTime);
-				}
-				this.lastCheckInId = JSON.get("checkInId").toString();
-				this.lastCheckInDuration = Calendar.getInstance().getTimeInMillis() - this.requestSendStart;
-			}
-		} catch (NumberFormatException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		} catch (org.json.simple.parser.ParseException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		} catch (NullPointerException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		} finally {
-			if (app.verboseLog) Log.d(TAG, "API Response: " + httpResponseString);
-//			app.airplaneMode.setOn(app.getApplicationContext());
+		if (this.lastCheckInId != null) {
+			json.put("lastCheckInId", this.lastCheckInId);
+			json.put("lastCheckInDuration", new Long(this.lastCheckInDuration));
 		}
-	}	
-
-	
-	public void resetTransmissionState() {
-		isTransmitting = false;
-		jsonZipped = null;
-	}
-
-	public void resetSignalSearchClock() {
-		this.signalSearchStartTime = Calendar.getInstance().getTimeInMillis();
+		
+		return json.toJSONString();
+		
+//		jsonZipped = gZipString(jsonRaw);
+//		if (app.verboseLog) { Log.d(TAG,"Unzipped JSON: "+Math.round(jsonRaw.toCharArray().length/1024)+"kB"); }
+//		if (app.verboseLog) { Log.d(TAG,"GZipped JSON: "+Math.round(jsonZipped.length/1024)+"kB"); }
 	}
 	
+//	public boolean networkConnectivity = false;
+
+//	private int connectivityInterval = 300; // change this value in preferences
+//	private int connectivityTimeout = setConnectivityTimeout();
+	
+//	private String apiProtocol = "https";
+//	private int apiPort = 443;
+//	private String apiDomain = "api.rfcx.org";
+//	private String apiProtocol = "http";
+//	private int apiPort = 8080;
+//	private String apiDomain = "192.168.0.70";
+	
+//	private String requestEndpoint = "/";
+
+//	private String jsonRaw = null;
+//	private byte[] jsonZipped = null;
+//
+//	private Calendar transmitTime = Calendar.getInstance();
+//	private long signalSearchStartTime = 0;
+//	private long requestSendStart = 0;
+//	
+//	private String lastCheckInId = null;
+//	private long lastCheckInDuration = 0;
+//	public boolean isTransmitting = false;
+
+	
+//	
+//	
+//	private byte[] gZipString(String s) {
+//		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//		GZIPOutputStream gZIPOutputStream = null;
+//		try {
+//			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+//			gZIPOutputStream.write(s.getBytes("UTF-8"));
+//		} catch (IOException e) {
+//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+//		} finally { if (gZIPOutputStream != null) {
+//			try { gZIPOutputStream.close();
+//			} catch (IOException e) {
+//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+//			};
+//		} }
+//		return byteArrayOutputStream.toByteArray();
+//	}
+//	
+//	private void cleanupAfterRequest(String httpResponseString) {
+//		
+//		resetTransmissionState();
+//		
+//		Date lastTransmitTime = transmitTime.getTime();
+//
+//		app.deviceStateDb.dbBattery.clearStatsBefore(lastTransmitTime);
+//		app.deviceStateDb.dbCpu.clearStatsBefore(lastTransmitTime);
+//		app.deviceStateDb.dbCpuClock.clearStatsBefore(lastTransmitTime);
+//		app.deviceStateDb.dbLight.clearStatsBefore(lastTransmitTime);
+//		app.deviceStateDb.dbBatteryTemperature.clearStatsBefore(lastTransmitTime);
+//
+//		app.smsDb.dbSms.clearSmsBefore(lastTransmitTime);
+//		
+//		try {
+//			if (httpResponseString != null) {
+//				JSONObject JSON = (JSONObject) (new JSONParser()).parse(httpResponseString);
+//				long serverUnixTime = (long) Long.parseLong(JSON.get("time").toString()+"000");
+//				long deviceUnixTime = Calendar.getInstance().getTimeInMillis();
+//				if (Math.abs(serverUnixTime - deviceUnixTime) > 3600*1000) {
+//					Log.d(TAG, "Setting System Clock");
+//					SystemClock.setCurrentTimeMillis(serverUnixTime);
+//				}
+//				this.lastCheckInId = JSON.get("checkInId").toString();
+//				this.lastCheckInDuration = Calendar.getInstance().getTimeInMillis() - this.requestSendStart;
+//			}
+//		} catch (NumberFormatException e) {
+//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+//		} catch (org.json.simple.parser.ParseException e) {
+//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+//		} catch (NullPointerException e) {
+//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+//		} finally {
+//			if (app.verboseLog) Log.d(TAG, "API Response: " + httpResponseString);
+////			app.airplaneMode.setOn(app.getApplicationContext());
+//		}
+//	}	
+//
+//	
+//	public void resetTransmissionState() {
+//		isTransmitting = false;
+//		jsonZipped = null;
+//	}
+//
+//	public void resetSignalSearchClock() {
+//		this.signalSearchStartTime = Calendar.getInstance().getTimeInMillis();
+//	}
+//	
 
 	
 }

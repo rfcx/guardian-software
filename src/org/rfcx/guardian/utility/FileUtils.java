@@ -18,7 +18,7 @@ public class FileUtils {
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	
-	public String getSha1FileChecksum(String filePath) {
+	public String sha1Hash(String filePath) {
 		try {
 			MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
 		    FileInputStream fileInputStream = new FileInputStream(filePath);
