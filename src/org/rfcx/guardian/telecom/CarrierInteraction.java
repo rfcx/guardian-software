@@ -1,5 +1,9 @@
 package org.rfcx.guardian.telecom;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -24,6 +28,18 @@ public class CarrierInteraction {
         }	
 	}
 	
+	public void closeResponseDialog(String[] commandSequence) {
+		List<String> cmdSeq = new ArrayList<String>();
+		for (String command : commandSequence) {
+			cmdSeq.add("input keyevent "+command.replaceAll("up","19").replaceAll("down","20").replaceAll("right","23").replaceAll("left","21").replaceAll("enter","23"));
+		}
+		Log.d(TAG, TextUtils.join(" && ", cmdSeq));
+		try {
+			Runtime.getRuntime().exec(new String[] {TextUtils.join(" && ", cmdSeq)});
+		} catch (IOException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+		}
+	}
 
 	
 	

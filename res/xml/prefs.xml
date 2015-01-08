@@ -105,7 +105,7 @@
 	
 	<EditTextPreference
         android:key="carriercode_topup"
-	    android:title="Carrier Code: Top-Up"
+	    android:title="CarrierCode Top-Up: Code"
 	    android:summary="Code (USSD) to top up credit"
 	    android:inputType="number"
         android:enabled="true"
@@ -113,10 +113,24 @@
 
 	<EditTextPreference
         android:key="carriercode_balance"
-	    android:title="Carrier Code: Balance"
+	    android:title="CarrierCode Balance: Code"
 	    android:summary="Code (USSD) to retrieve balance"
 	    android:inputType="number"
         android:enabled="true"
 		android:defaultValue="#123#"/>
+	
+	<EditTextPreference
+        android:key="carriercode_topup_close"
+	    android:title="CarrierCode Top-Up: Close"
+	    android:summary="Comma-separated sequence of keys"
+        android:enabled="true"
+		android:defaultValue="down,down,right,enter,enter"/>
+
+	<EditTextPreference
+        android:key="carriercode_balance_close"
+	    android:title="CarrierCode Balance: Close"
+	    android:summary="Comma-separated sequence of keys"
+        android:enabled="true"
+		android:defaultValue="down,down,right,enter,enter"/>
 	
 </PreferenceScreen>
