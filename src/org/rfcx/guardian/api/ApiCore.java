@@ -33,6 +33,9 @@ public class ApiCore {
 	private String lastCheckInId = null;
 	private long lastCheckInDuration = 0;
 	
+	private static final int MAX_FAILED_CHECKINS = 3;
+	private int recentFailedCheckins = 0;
+	
 	public void sendCheckIn(RfcxGuardian rfcxApp) {
 		this.app = rfcxApp;
 		if (app.isConnected) {
@@ -95,6 +98,38 @@ public class ApiCore {
 		return json.toJSONString();
 	}
 	
+	public void processCheckIn(String checkInResponse) {
+	
+		//	resetTransmissionState();
+		Date clearDataBefore = this.requestSendStart.getTime();
+	
+		app.deviceStateDb.dbBattery.clearStatsBefore(clearDataBefore);
+		app.deviceStateDb.dbCpu.clearStatsBefore(clearDataBefore);
+		app.deviceStateDb.dbCpuClock.clearStatsBefore(clearDataBefore);
+		app.deviceStateDb.dbLight.clearStatsBefore(clearDataBefore);
+		app.deviceStateDb.dbBatteryTemperature.clearStatsBefore(clearDataBefore);
+		app.deviceStateDb.dbNetworkSearch.clearStatsBefore(clearDataBefore);
+		
+		app.smsDb.dbSms.clearSmsBefore(clearDataBefore);
+		app.audioCore.purgeEncodedAssetsUpTo(app.audioDb, clearDataBefore);
+
+		if ((checkInResponse != null) && !checkInResponse.isEmpty()) {
+			try {
+				JSONObject responseJson = (JSONObject) (new JSONParser()).parse(checkInResponse);
+				Log.d(TAG,responseJson.toJSONString());
+				this.lastCheckInId = responseJson.get("checkin_id").toString();
+				this.lastCheckInDuration = Calendar.getInstance().getTimeInMillis() - this.requestSendStart.getTimeInMillis();
+			} catch (org.json.simple.parser.ParseException e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			} finally {
+				if (app.verboseLog) Log.d(TAG, "API Response: " + checkInResponse);
+			}
+		}
+	}			
+	
+
 	public List<String[]> getCheckInFiles() {
 		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
 		List<String[]> checkInFiles = new ArrayList<String[]>();
@@ -115,52 +150,6 @@ public class ApiCore {
 	}
 	
 	
-	
-	public void cleanupAfterRequest(String jsonHttpResponse) {
-	
-		//	resetTransmissionState();
-		
-		Date clearDataBefore = this.requestSendStart.getTime();
-	
-		app.deviceStateDb.dbBattery.clearStatsBefore(clearDataBefore);
-		app.deviceStateDb.dbCpu.clearStatsBefore(clearDataBefore);
-		app.deviceStateDb.dbCpuClock.clearStatsBefore(clearDataBefore);
-		app.deviceStateDb.dbLight.clearStatsBefore(clearDataBefore);
-		app.deviceStateDb.dbBatteryTemperature.clearStatsBefore(clearDataBefore);
-		app.deviceStateDb.dbNetworkSearch.clearStatsBefore(clearDataBefore);
-		
-		app.smsDb.dbSms.clearSmsBefore(clearDataBefore);
-		app.audioCore.purgeEncodedAssetsUpTo(app.audioDb, clearDataBefore);
-	
-		try {
-			if (jsonHttpResponse != null) {
-				JSONObject JSON = (JSONObject) (new JSONParser()).parse(jsonHttpResponse);
-				this.lastCheckInId = JSON.get("checkin_id").toString();
-				this.lastCheckInDuration = Calendar.getInstance().getTimeInMillis() - this.requestSendStart.getTimeInMillis();
-			}
-		} catch (org.json.simple.parser.ParseException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		} finally {
-			if (app.verboseLog) Log.d(TAG, "API Response: " + jsonHttpResponse);
-		}
-	}			
-	
-	
-//	public boolean networkConnectivity = false;
-
-//	private int connectivityInterval = 300; // change this value in preferences
-//	private int connectivityTimeout = setConnectivityTimeout();
-//	private Calendar transmitTime = Calendar.getInstance();
-//	private long signalSearchStartTime = 0;
-//	private long requestSendStart = 0;
-
-//	public boolean isTransmitting = false;
-
-	
-//	
-//	
 //	private byte[] gZipString(String s) {
 //		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 //		GZIPOutputStream gZIPOutputStream = null;
@@ -176,18 +165,6 @@ public class ApiCore {
 //			};
 //		} }
 //		return byteArrayOutputStream.toByteArray();
-//	}
-//	
-
-//
-//	
-//	public void resetTransmissionState() {
-//		isTransmitting = false;
-//		jsonZipped = null;
-//	}
-//
-//	public void resetSignalSearchClock() {
-//		this.signalSearchStartTime = Calendar.getInstance().getTimeInMillis();
 //	}
 //	
 

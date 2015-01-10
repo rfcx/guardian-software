@@ -74,9 +74,16 @@
 		android:defaultValue="true"/>
 
 	<CheckBoxPreference
+	    android:key="transcode_as_aac"
+	    android:title="Encode as AAC (vs. FLAC)"
+	    android:summary="Record audio, then transcode to lossy AAC"
+        android:enabled="true"
+		android:defaultValue="false"/>	
+	
+	<CheckBoxPreference
 	    android:key="capture_as_aac"
 	    android:title="Capture as AAC"
-	    android:summary="Record audio in lossy AAC format"
+	    android:summary="Record audio directly to lossy AAC"
         android:enabled="true"
 		android:defaultValue="true"/>
 	

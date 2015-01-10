@@ -149,7 +149,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void onBootServiceTrigger() {
 		triggerIntentService("ServiceMonitor", getPref("service_monitor_interval"));
-		triggerIntentService("ApiCheckInTrigger", getPref("api_checkin_interval"));
+//		triggerIntentService("ApiCheckInTrigger", getPref("api_checkin_interval"));
 		triggerService("DeviceState", true);
 		triggerService("AudioCapture", true);
 	}

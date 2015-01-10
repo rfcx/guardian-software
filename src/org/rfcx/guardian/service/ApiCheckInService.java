@@ -75,7 +75,7 @@ public class ApiCheckInService extends Service {
 				stringParameters.add(new String[] { "json", app.apiCore.getCheckInJson() });
 				
 				app.apiCore
-					.cleanupAfterRequest(
+					.processCheckIn(
 						httpPostMultipart.doMultipartPost(
 							app.apiCore.getCheckInUrl(),
 							stringParameters, 

@@ -29,7 +29,7 @@ public class HttpPostMultipart {
 	private static final String TAG = HttpPostMultipart.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
-    // need to make these longer...
+    // need to make these longer and/or dynamic...
 	private static int requestReadTimeout = 300000;
 	private static int requestConnectTimeout = 300000;
 	private static boolean useCaches = false;
@@ -69,11 +69,13 @@ public class HttpPostMultipart {
 			} else if (inferredProtocol.equals("https")) {
 				return sendSecurePostRequest((new URL(fullUrl)), requestEntity);
 			} else {
-				return "Inferred protocol was neither HTTP nor HTTPS.";
+				Log.e(TAG,"Inferred protocol was neither HTTP nor HTTPS.");
+				return "";
 			}
 		} catch (MalformedURLException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-			return "Bad URL";
+			Log.e(TAG,"Malformed URL");
+			return "";
 		}
 	}
 	
@@ -95,12 +97,13 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	            return readResponseStream(conn.getInputStream());
+	            Log.d(TAG, "Success");
 	        }
+		    return readResponseStream(conn.getInputStream());
 	    } catch (Exception e) {
 	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    }
-	    return "The request returned an error.";        
+	    return "";        
 	}
 	
 	private static String sendSecurePostRequest(URL url, MultipartEntity entity) {
@@ -121,12 +124,13 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-	            return readResponseStream(conn.getInputStream());
-	        }
+	            Log.d(TAG, "Success");
+		    }
+	        return readResponseStream(conn.getInputStream());
 	    } catch (Exception e) {
 	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    }
-	    return "The request returned an error.";        
+	    return "";        
 	}
 
 	private static String readResponseStream(InputStream inputStream) {

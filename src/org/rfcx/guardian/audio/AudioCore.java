@@ -104,12 +104,14 @@ public class AudioCore {
 	
 	public void purgeAllAudioAssets(AudioDb audioDb) {
 		Log.d(TAG, "Purging all existing audio assets...");
-		for (String audioDir : this.audioDirectories) {
-			if (!audioDir.equals(captureDir)) { //with this, we can purge audio assets on-the-fly, even during capture
-				for (File file : (new File(audioDir)).listFiles()) {
-					try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
+		try {
+			for (String audioDir : this.audioDirectories) {
+				if (!audioDir.equals(captureDir)) { //with this, we can purge audio assets on-the-fly, even during capture
+					for (File file : (new File(audioDir)).listFiles()) { file.delete(); }
 				}
 			}
+		} catch (Exception e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
 		audioDb.dbCaptured.clearCapturedBefore(new Date());
 		audioDb.dbEncoded.clearEncodedBefore(new Date());
