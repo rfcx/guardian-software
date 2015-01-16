@@ -16,6 +16,19 @@ public class CarrierInteraction {
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	private static final String HASH = Uri.encode("#");
+
+	public void takeScreenshot() {	
+	    // grab a screenshot of the USSD menu that follows with the balance displayed
+	    try {
+	        Thread.sleep(7000); // pause thread execution to allow time for the menu to load. 
+	        ProcessBuilder pb = new ProcessBuilder("su", "-c", "/data/local/fb2png /data/local/img.png");
+	        Process pc = pb.start();
+	        pc.waitFor();
+	    }
+	    catch (Exception e) {
+	        Log.e(TAG, "Failed to take a screenshot");
+	    }  
+	}
 	
 	public void submitCode(Context context, String code) {
         try {
@@ -23,6 +36,9 @@ public class CarrierInteraction {
         	callIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         	callIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         	context.startActivity(callIntent);
+        	if (code == "#123#") {
+        		takeScreenshot();
+        	}
         } catch (Exception e) {
         	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
         }	
@@ -39,8 +55,5 @@ public class CarrierInteraction {
 		} catch (IOException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
-	}
-
-	
-	
+	}	
 }
