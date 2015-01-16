@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.rfcx.guardian.RfcxGuardian;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -14,7 +16,6 @@ public class CarrierInteraction {
 
 	private static final String TAG = CarrierInteraction.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
-	
 	private static final String HASH = Uri.encode("#");
 
 	public void takeScreenshot() {	
@@ -51,8 +52,11 @@ public class CarrierInteraction {
 		}
 		Log.d(TAG, TextUtils.join(" && ", cmdSeq));
 		try {
-			Runtime.getRuntime().exec(new String[] {TextUtils.join(" && ", cmdSeq)});
+	        Process process = (new ProcessBuilder("su", "-c", TextUtils.join(" && ", cmdSeq))).start();
+	        process.waitFor();
 		} catch (IOException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+		} catch (InterruptedException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
 	}	

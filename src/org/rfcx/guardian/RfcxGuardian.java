@@ -149,28 +149,27 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void onBootServiceTrigger() {
-		triggerIntentService("ServiceMonitor", getPrefString("service_monitor_interval"));
+		triggerIntentService("ServiceMonitor", 600);
 //		triggerIntentService("ApiCheckInTrigger", getPref("api_checkin_interval"));
 		triggerService("DeviceState", true);
 		triggerService("AudioCapture", true);
 	}
 	
-	public void triggerIntentService(String intentServiceName, String repeatIntervalMinutes) {
+	public void triggerIntentService(String intentServiceName, int repeatIntervalSeconds) {
 		Context context = getApplicationContext();
-		long reCastRepeatInterval = 300000;
-		try { reCastRepeatInterval = Math.round(Double.parseDouble(repeatIntervalMinutes)*60)*1000; } catch (Exception e) { e.printStackTrace(); }
-//		try { reCastRepeatInterval = (int) Integer.parseInt(repeatIntervalMinutes); } catch (Exception e) { e.printStackTrace(); }
+		long repeatInterval = 300000;
+		try { repeatInterval = repeatIntervalSeconds*1000; } catch (Exception e) { e.printStackTrace(); }
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
 		if (intentServiceName.equals("ServiceMonitor")) {
 			if (!this.isRunning_ServiceMonitor) {
 				PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ServiceMonitorIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), reCastRepeatInterval, monitorServiceIntent);
+				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), repeatInterval, monitorServiceIntent);
 			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ServiceMonitor' is already running..."); }
 		} else if (intentServiceName.equals("ApiCheckInTrigger")) {
 			if (!this.isRunning_ApiCheckInTrigger) {
 				PendingIntent apiCheckInTrigger = PendingIntent.getService(context, -1, new Intent(context, ApiCheckInTriggerIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), reCastRepeatInterval*60*1000, apiCheckInTrigger);
+				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), repeatInterval, apiCheckInTrigger);
 			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ApiCheckInTrigger' is already running..."); }
 			
 		} else {

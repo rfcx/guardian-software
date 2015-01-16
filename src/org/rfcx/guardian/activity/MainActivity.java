@@ -33,13 +33,8 @@ public class MainActivity extends Activity {
 		case R.id.menu_send_checkin:
 			app.apiCore.sendCheckIn(app);
 			break;
-//		case R.id.menu_carrier_topup:
-//			app.triggerService("CarrierCode", true);
-//			break;
 		case R.id.menu_carrier_topup:
-			ShellCommands shellCommands = new ShellCommands();
-			shellCommands.grabScreenShot(app.getApplicationContext());
-//			app.triggerService("CarrierCode", true);
+			app.triggerService("CarrierCode", true);
 			break;
 		
 		}

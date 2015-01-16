@@ -57,7 +57,6 @@ public class AudioCaptureService extends Service {
 		context = app.getApplicationContext();
 
 		app.audioCore.initializeAudioCapture(app);
-		setCaptureLoopPeriod(app.getPrefInt("api_checkin_interval"));
 		
 		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
 		
@@ -95,7 +94,6 @@ public class AudioCaptureService extends Service {
 			encodingBitRate = audioCore.aacEncodingBitRate;
 			fileExtension = (app.audioCore.mayEncodeOnCapture()) ? "m4a" : "wav";
 			try {
-				setCaptureLoopPeriod(app.getPrefInt("api_checkin_interval"));
 				Log.d(TAG, "Capture Loop Period: "+ captureLoopPeriod +"ms");
 				while (audioCaptureService.runFlag) {
 					try {
@@ -171,9 +169,6 @@ public class AudioCaptureService extends Service {
 	        app.audioCore.queueAudioCaptureFollowUp(context);
 		}
 	}
-	
-	private void setCaptureLoopPeriod(int captureLoopPeriodSeconds) {
-	//	this.captureLoopPeriod = captureLoopPeriodSeconds*1000;
-	}
+
 	
 }
