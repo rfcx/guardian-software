@@ -32,10 +32,10 @@
 	<EditTextPreference
         android:key="api_checkin_interval"
         android:title="API CheckIn Interval"
-        android:summary="How often to check-in to API (minutes)"
+        android:summary="How often to check-in to API (seconds)"
 	    android:inputType="number"
         android:enabled="true"
-        android:defaultValue="5"/>
+        android:defaultValue="150"/>
 	
 	<EditTextPreference
         android:key="service_monitor_interval"

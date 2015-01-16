@@ -39,7 +39,7 @@ public class AudioCore {
 	public boolean purgeAudioAssetsOnStart = true;
 	
 	public final static int CAPTURE_SAMPLE_RATE_HZ = 8000;
-	public final int CAPTURE_LOOP_PERIOD_SECS = 300;
+//	public final int CAPTURE_LOOP_PERIOD_SECS = 300;
 	public final int aacEncodingBitRate = 16384;
 	
 	public void encodeCaptureAudio(String fileName, String encodedFormat, String dbRowEntryDate, AudioDb audioDb) {

@@ -98,10 +98,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-		
-	    onBootServiceTrigger();
 	    
-
+	    onBootServiceTrigger();
 	}
 	
 	@Override
@@ -139,8 +137,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.deviceId;
 	}
 
-	public String getPref(String prefName) {
+	public String getPrefString(String prefName) {
 		return this.sharedPrefs.getString(prefName, null);
+	}
+	public int getPrefInt(String prefName) {
+		return this.sharedPrefs.getInt(prefName, 0);
 	}
 	
 	public boolean setPref(String prefName, String prefValue) {
@@ -148,7 +149,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void onBootServiceTrigger() {
-		triggerIntentService("ServiceMonitor", getPref("service_monitor_interval"));
+		triggerIntentService("ServiceMonitor", getPrefString("service_monitor_interval"));
 //		triggerIntentService("ApiCheckInTrigger", getPref("api_checkin_interval"));
 		triggerService("DeviceState", true);
 		triggerService("AudioCapture", true);
@@ -156,14 +157,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void triggerIntentService(String intentServiceName, String repeatIntervalMinutes) {
 		Context context = getApplicationContext();
-		int reCastRepeatInterval = 5;
-		try { reCastRepeatInterval = (int) Integer.parseInt(repeatIntervalMinutes); } catch (Exception e) { e.printStackTrace(); }
+		long reCastRepeatInterval = 300000;
+		try { reCastRepeatInterval = Math.round(Double.parseDouble(repeatIntervalMinutes)*60)*1000; } catch (Exception e) { e.printStackTrace(); }
+//		try { reCastRepeatInterval = (int) Integer.parseInt(repeatIntervalMinutes); } catch (Exception e) { e.printStackTrace(); }
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
 		if (intentServiceName.equals("ServiceMonitor")) {
 			if (!this.isRunning_ServiceMonitor) {
 				PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ServiceMonitorIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), reCastRepeatInterval*60*1000, monitorServiceIntent);
+				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), reCastRepeatInterval, monitorServiceIntent);
 			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ServiceMonitor' is already running..."); }
 		} else if (intentServiceName.equals("ApiCheckInTrigger")) {
 			if (!this.isRunning_ApiCheckInTrigger) {
@@ -179,7 +181,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void triggerService(String serviceName, boolean forceReTrigger) {
 		context = getApplicationContext();
-		boolean serviceAllowedInPrefs = this.sharedPrefs.getBoolean("enable_service_"+serviceName.toLowerCase(), false);
+		boolean serviceAllowedInPrefs = this.sharedPrefs.getBoolean("enable_service_"+serviceName.toLowerCase(), true);
 		if (serviceName.equals("AudioCapture")) {
 			if (!this.isRunning_AudioCapture || forceReTrigger) {
 				context.stopService(new Intent(context, AudioCaptureService.class));

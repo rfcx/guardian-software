@@ -30,6 +30,7 @@ public class AudioCaptureService extends Service {
     ExtAudioRecorderModified audioRecorder = null;
 	
 	private int captureSampleRate;
+	private long captureLoopPeriod = 360000;
 	
 	private int encodingBitRate;
 	private String fileExtension;
@@ -54,8 +55,9 @@ public class AudioCaptureService extends Service {
 		
 		app = (RfcxGuardian) getApplication();
 		context = app.getApplicationContext();
-		
+
 		app.audioCore.initializeAudioCapture(app);
+		setCaptureLoopPeriod(app.getPrefInt("api_checkin_interval"));
 		
 		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
 		
@@ -93,11 +95,13 @@ public class AudioCaptureService extends Service {
 			encodingBitRate = audioCore.aacEncodingBitRate;
 			fileExtension = (app.audioCore.mayEncodeOnCapture()) ? "m4a" : "wav";
 			try {
+				setCaptureLoopPeriod(app.getPrefInt("api_checkin_interval"));
+				Log.d(TAG, "Capture Loop Period: "+ captureLoopPeriod +"ms");
 				while (audioCaptureService.runFlag) {
 					try {
 						captureLoopStart();
 				        processCompletedCaptureFile();
-				        Thread.sleep(audioCore.CAPTURE_LOOP_PERIOD_SECS*1000);
+				        Thread.sleep(captureLoopPeriod);
 						captureLoopEnd();
 						Log.d(TAG,"End: "+Calendar.getInstance().getTimeInMillis());
 					} catch (Exception e) {
@@ -163,9 +167,13 @@ public class AudioCaptureService extends Service {
 					((app.audioCore.mayEncodeOnCapture()) ? app.audioCore.aacDir : app.audioCore.wavDir)
 					+"/"+captureTimeStamps[0]+"."+fileExtension));
 	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", fileExtension, "-");
-			if (app.verboseLog) Log.d(TAG, "Capture file created ("+app.audioCore.CAPTURE_LOOP_PERIOD_SECS+"s): "+captureTimeStamps[0]+"."+fileExtension);
+			if (app.verboseLog) Log.d(TAG, "Capture file created ("+this.captureLoopPeriod+"ms): "+captureTimeStamps[0]+"."+fileExtension);
 	        app.audioCore.queueAudioCaptureFollowUp(context);
 		}
 	}
-
+	
+	private void setCaptureLoopPeriod(int captureLoopPeriodSeconds) {
+	//	this.captureLoopPeriod = captureLoopPeriodSeconds*1000;
+	}
+	
 }

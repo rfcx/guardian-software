@@ -2,6 +2,8 @@ package org.rfcx.guardian.activity;
 
 import org.rfcx.guardian.R;
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.ShellCommands;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -31,8 +33,13 @@ public class MainActivity extends Activity {
 		case R.id.menu_send_checkin:
 			app.apiCore.sendCheckIn(app);
 			break;
+//		case R.id.menu_carrier_topup:
+//			app.triggerService("CarrierCode", true);
+//			break;
 		case R.id.menu_carrier_topup:
-			app.triggerService("CarrierCode", true);
+			ShellCommands shellCommands = new ShellCommands();
+			shellCommands.grabScreenShot(app.getApplicationContext());
+//			app.triggerService("CarrierCode", true);
 			break;
 		
 		}

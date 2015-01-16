@@ -68,10 +68,10 @@ public class CarrierCodeService extends Service {
 			CarrierInteraction carrierInteraction = new CarrierInteraction();
 			try {
 				if (app.verboseLog) { Log.d(TAG, "Executing USSD Code"); }
-				carrierInteraction.submitCode(context, app.getPref("carriercode_balance"));
+				carrierInteraction.submitCode(context, app.getPrefString("carriercode_balance"));
 				Thread.sleep(30000);
 				if (app.verboseLog) { Log.d(TAG, "Closing USSD Code Feedback"); }
-				carrierInteraction.closeResponseDialog(app.getPref("carriercode_balance_close").split(","));
+				carrierInteraction.closeResponseDialog(app.getPrefString("carriercode_balance_close").split(","));
 				
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);

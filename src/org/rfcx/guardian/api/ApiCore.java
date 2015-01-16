@@ -46,7 +46,7 @@ public class ApiCore {
 	}
 	
 	public String getCheckInUrl() {
-		return app.getPref("api_domain")+"/v1/guardians/"+app.getDeviceId()+"/checkins";
+		return app.getPrefString("api_domain")+"/v1/guardians/"+app.getDeviceId()+"/checkins";
 	}
 	
 	public String getCheckInJson() {
