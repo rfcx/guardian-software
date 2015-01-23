@@ -25,20 +25,25 @@ public class ShellCommands {
 		}
 	}
 	
-	public void grabScreenShot(Context context) {
+	public File createScreenShot() {
+		String savePath = "/data/local/img.png";
 		try {
-			Process sh = Runtime.getRuntime().exec("su", null, null);
-			OutputStream os = sh.getOutputStream();
-			os.write(("/system/bin/screencap -p " + context.getFilesDir().getPath() + "/img.png").getBytes("ASCII"));
-			Log.d(TAG,os.toString());
-			os.flush();
-			os.close();
-			sh.waitFor();
+			Log.d(TAG, "Taking screenshot.");
+			(new File(savePath)).delete();
+	        ProcessBuilder pb = new ProcessBuilder("su", "-c", "/data/local/fb2png "+savePath);
+	        Process pc = pb.start();
+	        pc.waitFor();
+	        File imgFile = new File(savePath);
+	        if (imgFile.exists()) {
+	        	Log.d(TAG, ""+imgFile.lastModified());
+	        }
+	        return imgFile;
 		} catch (IOException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		} catch (InterruptedException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
+		return null;
 	}
 	
 	public boolean installUpdatedApp(Context context) {

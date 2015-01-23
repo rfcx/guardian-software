@@ -28,6 +28,7 @@ public class RfcxGuardianPrefs {
 	}
 
 	public void initializePrefs() {
+		PreferenceManager.setDefaultValues(app, R.xml.prefs, false);
 		app.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(app);
 		app.sharedPrefs.registerOnSharedPreferenceChangeListener(app);
 	}
@@ -42,9 +43,9 @@ public class RfcxGuardianPrefs {
 		return editor.commit();
 	}
 
-	public void checkAndSet(RfcxGuardian rfcxApp) {
-		app = rfcxApp;
-
+	public void checkAndSet(RfcxGuardian rfcxApp) {	
+		if (app == null) { app = rfcxApp; }
+		
 		app.verboseLog = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLog);
 		app.audioCore.setEncodeOnCapture(app.sharedPrefs.getBoolean("capture_as_aac", app.audioCore.mayEncodeOnCapture()));
 		app.airplaneMode.setAllowWifi(app.sharedPrefs.getBoolean("allow_wifi", app.airplaneMode.getAllowWifi()));
@@ -78,20 +79,42 @@ public class RfcxGuardianPrefs {
 
 	public void writeGuidToFile(String deviceId) {
 		if (app != null) {
-	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/device_guid.txt";
+			FileUtils fileUtils = new FileUtils();
+	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/txt/guid.txt";
 	    	File fileObj = new File(filePath);
+	    	fileObj.mkdirs();
+	    	fileUtils.chmod(new File(app.getApplicationContext().getFilesDir().toString()+"/txt"), 0755);
 	    	if (fileObj.exists()) { fileObj.delete(); }
 	        try {
 	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
 	        	outFile.write(deviceId);
 	        	outFile.close();
-	        	(new FileUtils()).chmod(new File(filePath), 0755);
+	        	fileUtils.chmod(new File(filePath), 0755);
 	        } catch (IOException e) {
 	        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	        }
 		}
 	}
 
+	public void writeVersionToFile(String versionName) {
+		if (app != null) {
+			FileUtils fileUtils = new FileUtils();
+	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/txt/version.txt";
+	    	File fileObj = new File(filePath);
+	    	fileObj.mkdirs();
+	    	fileUtils.chmod(new File(app.getApplicationContext().getFilesDir().toString()+"/txt"), 0755);
+	    	if (fileObj.exists()) { fileObj.delete(); }
+	        try {
+	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
+	        	outFile.write(versionName);
+	        	outFile.close();
+	        	fileUtils.chmod(new File(filePath), 0755);
+	        } catch (IOException e) {
+	        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	        }
+		}
+	}
+	
 	public void writeShellCmdToFile(String shellCmd) {
 		if (app != null) {
 	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/device_shell_cmd.sh";

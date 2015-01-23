@@ -97,8 +97,10 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	            Log.d(TAG, "Success");
-	        }
+	            Log.d(TAG, "Success ("+conn.getResponseCode()+"): "+url.toString());
+		    } else {
+	            Log.e(TAG, "Failure: ("+conn.getResponseCode()+"):"+url.toString());
+		    }
 		    return readResponseStream(conn.getInputStream());
 	    } catch (Exception e) {
 	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
@@ -124,7 +126,9 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-	            Log.d(TAG, "Success");
+	            Log.d(TAG, "Success ("+conn.getResponseCode()+"): "+url.toString());
+		    } else {
+	            Log.e(TAG, "Failure: ("+conn.getResponseCode()+"):"+url.toString());
 		    }
 	        return readResponseStream(conn.getInputStream());
 	    } catch (Exception e) {

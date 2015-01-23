@@ -1,7 +1,5 @@
 package org.rfcx.guardian.activity;
 
-
-
 import org.rfcx.guardian.R;
 
 import android.os.Bundle;

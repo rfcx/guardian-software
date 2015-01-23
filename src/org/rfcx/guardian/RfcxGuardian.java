@@ -19,7 +19,9 @@ import org.rfcx.guardian.service.ApiCheckInService;
 import org.rfcx.guardian.service.AudioCaptureService;
 import org.rfcx.guardian.service.CarrierCodeService;
 import org.rfcx.guardian.service.DeviceStateService;
+import org.rfcx.guardian.telecom.CarrierInteraction;
 import org.rfcx.guardian.utility.DeviceGuid;
+import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -96,6 +98,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		rfcxGuardianPrefs.loadPrefsOverride();
 		Log.d(TAG, "Device GUID: "+getDeviceId());
 		
+		ShellCommands shellCommands = new ShellCommands();
+		shellCommands.createScreenShot();
+		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	    
@@ -123,8 +128,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	private void setAppVersion() {
-		try { this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-		} catch (NameNotFoundException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
+		try {
+			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
+			rfcxGuardianPrefs.writeVersionToFile(this.version);
+		} catch (NameNotFoundException e) {
+			Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
 		}
 	}
 	

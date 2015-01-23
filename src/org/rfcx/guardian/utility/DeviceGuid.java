@@ -25,7 +25,7 @@ public class DeviceGuid {
                 	final String prefsDeviceGuid = prefs.getString(PREFS_DEVICE_GUID,null);
                     if ((prefsDeviceGuid != null) && (prefsDeviceGuid.length() > 10)) {
                         deviceGuid = prefsDeviceGuid;
-                    } else{
+                    } else {
                     	deviceGuid = getExistingGuidFromUpdaterApp(context);
                     	if (deviceGuid == null) { 
                     		String randomUuid = (UUID.randomUUID()).toString();
@@ -46,8 +46,8 @@ public class DeviceGuid {
     private static String getExistingGuidFromUpdaterApp(Context context) {
     	try {
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
-    		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files"))+".updater/files/device_guid.txt;");
-    		File guidFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files"))+".updater/files","device_guid.txt");
+    		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files"))+".updater/files/txt/guid.txt");
+    		File guidFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files"))+".updater/files/txt","guid.txt");
     		if (guidFile.exists()) {
 				FileInputStream input = new FileInputStream(guidFile);
 				StringBuffer fileContent = new StringBuffer("");
