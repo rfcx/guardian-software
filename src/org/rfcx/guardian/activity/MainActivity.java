@@ -2,7 +2,7 @@ package org.rfcx.guardian.activity;
 
 import org.rfcx.guardian.R;
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.ScreenShot;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -35,6 +35,9 @@ public class MainActivity extends Activity {
 			break;
 		case R.id.menu_carrier_topup:
 			app.triggerService("CarrierCode", true);
+			break;
+		case R.id.menu_save_screenshot:
+			(new ScreenShot()).saveScreenShot(app.getApplicationContext());
 			break;
 		
 		}

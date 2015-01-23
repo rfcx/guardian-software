@@ -6,102 +6,96 @@ import java.util.List;
 
 import org.rfcx.guardian.utility.DateTimeUtils;
 
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.TextUtils;
 import android.util.Log;
 
-public class ScreenshotDb {
-
+public class ScreenShotDb {
+	
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	public ScreenshotDb(Context context) {
-		this.dbScreenshot = new dbScreenshot(context);
+	public ScreenShotDb(Context context) {
+		this.dbScreenShot = new DbScreenShot(context);
 	}
 	
-	private static final String TAG = ScreenshotDb.class.getSimpleName();
+	private static final String TAG = ScreenShotDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	static final int VERSION = 1;
 	static final String DATABASE = "screenshot";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_TIMESTAMP = "timestamp";
-	static final String C_FORMAT = "format";
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP };
+	static final String CREATE_CLMNS = "(" + C_CREATED_AT + " DATETIME, " + C_TIMESTAMP + " INT " + ")";
 	
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT};
+	// Prototype DbHelper methods
+	private void _onCreate(SQLiteDatabase db, String table) { try { db.execSQL("CREATE TABLE " + table + CREATE_CLMNS); } catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } }
+	private void _onUpgrade(SQLiteDatabase db, String table, int oldVersion, int newVersion) { try { db.execSQL("DROP TABLE IF EXISTS " + table); _onCreate(db, table); } catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } }
 	
-	private String createColumnString(String tableName) {
-		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
-		sbOut.append(", "+C_TIMESTAMP+" TEXT");
-		sbOut.append(", "+C_FORMAT+" TEXT");
-		return sbOut.append(")").toString();
+	private String[] _getLast(SQLiteDatabase db, String table) {
+		String[] last = new String[] {};
+		try { Cursor cursor = db.query(table, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
+			try { last = cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : new String[] {};
+			} finally { cursor.close(); }
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+		return last;
 	}
 	
-	public class dbScreenshot {
-		private String TABLE = "screenshot";
+	private List<String[]> _getStats(SQLiteDatabase db, String table) {
+		ArrayList<String[]> list = new ArrayList<String[]>();
+		try { Cursor cursor = db.query(table, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", null);
+			if (cursor.getCount() > 0) {
+				try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
+				} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+		return list;
+	}
+	private List<String[]> _getStatsSince(SQLiteDatabase db, String table, Date date) {
+		ArrayList<String[]> list = new ArrayList<String[]>();
+		try { Cursor cursor = db.query(table, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null);
+		try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
+			} while (cursor.moveToNext()); } } finally { cursor.close(); }
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+		return list;
+	}
+	private void _clearStatsBefore(SQLiteDatabase db, String table, Date date) {
+		try { db.execSQL("DELETE FROM "+table+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+		} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+	}
+	private void _insert(SQLiteDatabase db, String table, long timestamp) {
+		ContentValues values = new ContentValues();
+		values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
+		values.put(C_TIMESTAMP, timestamp);
+		try { db.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+	}
+	
+	public class DbScreenShot {
+		private String TABLE = "captured";
 		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
+			public DbHelper(Context context) { super(context, DATABASE+"-"+TABLE+".db", null, VERSION); }
 			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
-			}
+			public void onCreate(SQLiteDatabase db) { _onCreate(db, TABLE); }
 			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
-			}
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) { _onUpgrade(db, TABLE, oldVersion, newVersion); }
 		}
 		final DbHelper dbHelper;
-		public dbScreenshot(Context context) {
-			this.dbHelper = new DbHelper(context);
-		}
-		public void close() {
-			this.dbHelper.close();
-		}
-		public void insert(String value, String format, String digest) {
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
-			values.put(C_TIMESTAMP, value);
-			values.put(C_FORMAT, format);
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
-		}
-		public List<String[]> getAllCaptured() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
-			return list;
-		}
-		public void clearCapturedBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
-			} finally { db.close(); }
-		}
+		public void close() { this.dbHelper.close(); }
 		
-		public String getSerializedCaptured() {
-			List<String[]> capturedList = getAllCaptured();
-			String[] capturedArray = new String[capturedList.size()];
-			for (int i = 0; i < capturedList.size(); i++) {
-				capturedArray[i] = TextUtils.join("|", capturedList.get(i));
-			}
-			return (capturedList.size() > 0) ? TextUtils.join("$", capturedArray) : "";
-		}
+		public DbScreenShot(Context context) { this.dbHelper = new DbHelper(context); }
+		
+		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void insert(long timestamp) { _insert(this.dbHelper.getWritableDatabase(), TABLE, timestamp); }
 	}
-	public final dbScreenshot dbScreenshot;	
+	public final DbScreenShot dbScreenShot;
+
+	
 }

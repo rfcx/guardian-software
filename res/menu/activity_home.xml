@@ -17,8 +17,13 @@
 	    />
 	<item
 	    android:id="@+id/menu_carrier_topup"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
 	    android:title="@string/menu_carrier_topup"
+	    />
+	<item
+	    android:id="@+id/menu_save_screenshot"
+        android:orderInCategory="5"
+	    android:title="@string/menu_save_screenshot"
 	    />
 	
 	

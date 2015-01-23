@@ -7,6 +7,7 @@ import org.rfcx.guardian.audio.AudioCore;
 import org.rfcx.guardian.database.AlertDb;
 import org.rfcx.guardian.database.AudioDb;
 import org.rfcx.guardian.database.DeviceStateDb;
+import org.rfcx.guardian.database.ScreenShotDb;
 import org.rfcx.guardian.database.SmsDb;
 import org.rfcx.guardian.device.AirplaneMode;
 import org.rfcx.guardian.device.CpuUsage;
@@ -21,7 +22,7 @@ import org.rfcx.guardian.service.CarrierCodeService;
 import org.rfcx.guardian.service.DeviceStateService;
 import org.rfcx.guardian.telecom.CarrierInteraction;
 import org.rfcx.guardian.utility.DeviceGuid;
-import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.ScreenShot;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -56,6 +57,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public SmsDb smsDb = new SmsDb(this);
 	public AlertDb alertDb = new AlertDb(this);
 	public AudioDb audioDb = new AudioDb(this);
+	public ScreenShotDb screenShotDb = new ScreenShotDb(this);
 
 	// for obtaining device stats and characteristics
 	public DeviceState deviceState = new DeviceState();
@@ -98,8 +100,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		rfcxGuardianPrefs.loadPrefsOverride();
 		Log.d(TAG, "Device GUID: "+getDeviceId());
 		
-		ShellCommands shellCommands = new ShellCommands();
-		shellCommands.createScreenShot();
+		(new ScreenShot()).saveScreenShot(getApplicationContext());
 		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
