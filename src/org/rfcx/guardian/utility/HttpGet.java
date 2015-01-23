@@ -243,7 +243,7 @@ public class HttpGet {
 	private static InputStream httpGetFileInputStream(String fullUrl) {
     	String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
     	try {
-			if (inferredProtocol.equals("http")) {
+			if (inferredProtocol.equals("https")) {
 				HttpsURLConnection conn = (HttpsURLConnection) (new URL(fullUrl)).openConnection();
 		        conn.setReadTimeout(requestReadTimeout);
 		        conn.setConnectTimeout(requestConnectTimeout);
@@ -254,11 +254,12 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-		        	return conn.getInputStream();
-		        } else {
-		        	Log.e(TAG, "HTTP Code: "+conn.getResponseCode());
-		        }
-			} else if (inferredProtocol.equals("https")) {
+		            Log.d(TAG, "Success ("+conn.getResponseCode()+"): "+fullUrl);
+			    } else {
+		            Log.e(TAG, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
+			    }
+		        return conn.getInputStream();
+			} else if (inferredProtocol.equals("http")) {
 				HttpURLConnection conn = (HttpURLConnection) (new URL(fullUrl)).openConnection();
 		        conn.setReadTimeout(requestReadTimeout);
 		        conn.setConnectTimeout(requestConnectTimeout);
@@ -269,12 +270,14 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-		        	return conn.getInputStream();
-		        } else {
-		        	Log.e(TAG, "HTTP Code: "+conn.getResponseCode());
-		        }
+		            Log.d(TAG, "Success ("+conn.getResponseCode()+"): "+fullUrl);
+			    } else {
+		            Log.e(TAG, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
+			    }
+		        return conn.getInputStream();
 			} else {
 				Log.e(TAG,"Inferred protocol was neither HTTP nor HTTPS.");
+				return null;
 			}
     	} catch (MalformedURLException e) {
     		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);

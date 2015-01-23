@@ -43,7 +43,7 @@ public class RfcxGuardianPrefs {
 	}
 	
 	public void checkAndSet(RfcxGuardian rfcxApp) {	
-		app = rfcxApp;
+		if (app == null) { app = rfcxApp; }
 		
 		app.verboseLog = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLog);
 		app.audioCore.setEncodeOnCapture(app.sharedPrefs.getBoolean("capture_as_aac", app.audioCore.mayEncodeOnCapture()));
@@ -78,8 +78,9 @@ public class RfcxGuardianPrefs {
 	
 	public void writeGuidToFile(String deviceId) {
 		if (app != null) {
-	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/device_guid.txt";
+	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/txt/device_guid.txt";
 	    	File fileObj = new File(filePath);
+	    	fileObj.mkdirs();
 	    	if (fileObj.exists()) { fileObj.delete(); }
 	        try {
 	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));

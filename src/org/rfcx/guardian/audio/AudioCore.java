@@ -91,28 +91,28 @@ public class AudioCore {
 	
 	public void purgeEncodedAssetsUpTo(AudioDb audioDb, Date purgeUpTo) {		
 		List<String[]> encodedAudioEntries = audioDb.dbEncoded.getAllEncoded();
-		for (String[] encodedAudioEntry : encodedAudioEntries) {
-			try {
-				(new File(this.wavDir.substring(0,this.wavDir.lastIndexOf("/"))+"/"+encodedAudioEntry[2]+"/"+encodedAudioEntry[1]+"."+encodedAudioEntry[2])).delete();
-			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-			}
-		}
+//		for (String[] encodedAudioEntry : encodedAudioEntries) {
+//			try {
+//				(new File(this.wavDir.substring(0,this.wavDir.lastIndexOf("/"))+"/"+encodedAudioEntry[2]+"/"+encodedAudioEntry[1]+"."+encodedAudioEntry[2])).delete();
+//			} catch (Exception e) {
+//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+//			}
+//		}
 		audioDb.dbCaptured.clearCapturedBefore(purgeUpTo);
 		audioDb.dbEncoded.clearEncodedBefore(purgeUpTo);
 	}
 	
 	public void purgeAllAudioAssets(AudioDb audioDb) {
 		Log.d(TAG, "Purging all existing audio assets...");
-		try {
-			for (String audioDir : this.audioDirectories) {
-				if (!audioDir.equals(captureDir)) { //with this, we can purge audio assets on-the-fly, even during capture
-					for (File file : (new File(audioDir)).listFiles()) { file.delete(); }
-				}
-			}
-		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		}
+//		try {
+//			for (String audioDir : this.audioDirectories) {
+//				if (!audioDir.equals(captureDir)) { //with this, we can purge audio assets on-the-fly, even during capture
+//					for (File file : (new File(audioDir)).listFiles()) { file.delete(); }
+//				}
+//			}
+//		} catch (Exception e) {
+//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+//		}
 		audioDb.dbCaptured.clearCapturedBefore(new Date());
 		audioDb.dbEncoded.clearEncodedBefore(new Date());
 	}

@@ -2,6 +2,7 @@ package org.rfcx.guardian.service;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.telecom.CarrierInteraction;
+import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Service;
 import android.content.Context;
@@ -66,15 +67,17 @@ public class CarrierCodeService extends Service {
 		public void run() {
 			CarrierCodeService carrierCodeService = CarrierCodeService.this;
 			CarrierInteraction carrierInteraction = new CarrierInteraction();
+			ShellCommands shellCommands = new ShellCommands();
 			try {
-
+				String action = "balance";
 				if (app.verboseLog) { Log.d(TAG, "Pre-approving prompt close code."); }
-				carrierInteraction.closeResponseDialog(app.getPrefString("carriercode_topup_close").split(","));
+				carrierInteraction.closeResponseDialog(app.getPrefString("carriercode_"+action+"_close").split(","));
 				if (app.verboseLog) { Log.d(TAG, "Executing USSD Code"); }
-				carrierInteraction.submitCode(context, app.getPrefString("carriercode_topup"));
+				carrierInteraction.submitCode(context, app.getPrefString("carriercode_"+action));
 				Thread.sleep(15000);
+				shellCommands.createScreenShot();
 				if (app.verboseLog) { Log.d(TAG, "Closing USSD Code Feedback"); }
-				carrierInteraction.closeResponseDialog(app.getPrefString("carriercode_topup_close").split(","));
+				carrierInteraction.closeResponseDialog(app.getPrefString("carriercode_"+action+"_close").split(","));
 	
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);

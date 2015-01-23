@@ -74,7 +74,7 @@ public class ApiCore {
 		
 		json.put("last_checkin_id", (this.lastCheckInId != null) ? this.lastCheckInId : null);
 		json.put("last_checkin_duration", (this.lastCheckInId != null) ? new Long(this.lastCheckInDuration) : null);
-		
+
 		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
 		List<String> audioFiles = new ArrayList<String>();
 		for (String[] audioEntry : encodedAudio) {			
@@ -111,7 +111,8 @@ public class ApiCore {
 		app.deviceStateDb.dbNetworkSearch.clearStatsBefore(clearDataBefore);
 		
 		app.smsDb.dbSms.clearSmsBefore(clearDataBefore);
-		app.audioCore.purgeEncodedAssetsUpTo(app.audioDb, clearDataBefore);
+		//turning off for deployment on jan 21, 2015. will reactivate for later
+		//		app.audioCore.purgeEncodedAssetsUpTo(app.audioDb, clearDataBefore);
 
 		if ((checkInResponse != null) && !checkInResponse.isEmpty()) {
 			try {
