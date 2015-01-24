@@ -22,7 +22,7 @@ import org.rfcx.guardian.service.CarrierCodeService;
 import org.rfcx.guardian.service.DeviceStateService;
 import org.rfcx.guardian.telecom.CarrierInteraction;
 import org.rfcx.guardian.utility.DeviceGuid;
-import org.rfcx.guardian.utility.ScreenShot;
+import org.rfcx.guardian.utility.DeviceScreenShot;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -100,7 +100,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		rfcxGuardianPrefs.loadPrefsOverride();
 		Log.d(TAG, "Device GUID: "+getDeviceId());
 		
-		(new ScreenShot()).saveScreenShot(getApplicationContext());
+		(new DeviceScreenShot()).saveScreenShot(getApplicationContext());
 		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));

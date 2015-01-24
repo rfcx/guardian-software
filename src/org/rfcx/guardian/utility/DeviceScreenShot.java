@@ -13,9 +13,9 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class ScreenShot {
+public class DeviceScreenShot {
 
-	private static final String TAG = ScreenShot.class.getSimpleName();
+	private static final String TAG = DeviceScreenShot.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public String saveScreenShot(Context context) {
