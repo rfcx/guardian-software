@@ -36,7 +36,7 @@ public class ScreenShotDb {
 	private void _onCreate(SQLiteDatabase db, String table) { try { db.execSQL("CREATE TABLE " + table + CREATE_CLMNS); } catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } }
 	private void _onUpgrade(SQLiteDatabase db, String table, int oldVersion, int newVersion) { try { db.execSQL("DROP TABLE IF EXISTS " + table); _onCreate(db, table); } catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } }
 	
-	private String[] _getLast(SQLiteDatabase db, String table) {
+	private String[] _getLastScreenShot(SQLiteDatabase db, String table) {
 		String[] last = new String[] {};
 		try { Cursor cursor = db.query(table, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
 			try { last = cursor.moveToNext() ? new String[] { cursor.getString(0), cursor.getString(1) } : new String[] {};
@@ -45,7 +45,7 @@ public class ScreenShotDb {
 		return last;
 	}
 	
-	private List<String[]> _getStats(SQLiteDatabase db, String table) {
+	private List<String[]> _getScreenShots(SQLiteDatabase db, String table) {
 		ArrayList<String[]> list = new ArrayList<String[]>();
 		try { Cursor cursor = db.query(table, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", null);
 			if (cursor.getCount() > 0) {
@@ -54,7 +54,7 @@ public class ScreenShotDb {
 		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
 		return list;
 	}
-	private List<String[]> _getStatsSince(SQLiteDatabase db, String table, Date date) {
+	private List<String[]> _getScreenShotsSince(SQLiteDatabase db, String table, Date date) {
 		ArrayList<String[]> list = new ArrayList<String[]>();
 		try { Cursor cursor = db.query(table, ALL_COLUMNS, C_CREATED_AT+">=?", new String[] { (new DateTimeUtils()).getDateTime(date) }, null, null, C_CREATED_AT+" ASC", null);
 		try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
@@ -62,7 +62,7 @@ public class ScreenShotDb {
 		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
 		return list;
 	}
-	private void _clearStatsBefore(SQLiteDatabase db, String table, Date date) {
+	private void _clearScreenShotsBefore(SQLiteDatabase db, String table, Date date) {
 		try { db.execSQL("DELETE FROM "+table+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
 		} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
 		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
@@ -89,10 +89,10 @@ public class ScreenShotDb {
 		
 		public DbScreenShot(Context context) { this.dbHelper = new DbHelper(context); }
 		
-		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
-		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
-		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
-		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public String[] getLastScreenShot() { return _getLastScreenShot(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getScreenShots() { return _getScreenShots(this.dbHelper.getWritableDatabase(), TABLE); }
+		public List<String[]> getScreenShotsSince(Date date) { return _getScreenShotsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
+		public void clearScreenShotsBefore(Date date) { _clearScreenShotsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void insert(long timestamp) { _insert(this.dbHelper.getWritableDatabase(), TABLE, timestamp); }
 	}
 	public final DbScreenShot dbScreenShot;

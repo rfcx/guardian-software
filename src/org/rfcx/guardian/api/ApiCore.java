@@ -132,8 +132,11 @@ public class ApiCore {
 	
 
 	public List<String[]> getCheckInFiles() {
-		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
+
 		List<String[]> checkInFiles = new ArrayList<String[]>();
+		
+		// attach audio files
+		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
 		for (String[] audioEntry : encodedAudio) {
 			String filePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioEntry[2]+"/"+audioEntry[1]+"."+audioEntry[2];
 			try {
@@ -147,6 +150,23 @@ public class ApiCore {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			}
 		}
+		
+		// attach screenshot images
+		List<String[]> screenShots = app.screenShotDb.dbScreenShot.getScreenShots();
+		for (String[] screenShotEntry : screenShots) {
+			String filePath = app.getApplicationContext().getFilesDir().toString()+"/img/"+screenShotEntry[1]+".png";
+			try {
+				if ((new File(filePath)).exists()) {
+					checkInFiles.add(new String[] {"screenshot", filePath, "image/png"});
+					if (app.verboseLog) { Log.d(TAG, "Screenshot added: "+screenShotEntry[1]+".png"); }
+				} else if (app.verboseLog) {
+					Log.d(TAG, "Screenshot didn't exist: "+screenShotEntry[1]+".png");
+				}
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
+		}
+		
 		return checkInFiles;
 	}
 	
