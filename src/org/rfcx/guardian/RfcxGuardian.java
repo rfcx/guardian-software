@@ -100,6 +100,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		rfcxGuardianPrefs.loadPrefsOverride();
 		Log.d(TAG, "Device GUID: "+getDeviceId());
 		
+		(new DeviceScreenShot()).checkModuleInstalled(getApplicationContext());
 		(new DeviceScreenShot()).saveScreenShot(getApplicationContext());
 		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
