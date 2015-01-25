@@ -33,10 +33,14 @@ public class DeviceScreenShot {
             Log.i(TAG,"Downloading screenshot module from server");
             try { if ((new HttpGet()).getAsFile(repo, "fb2png", app)) { 
             	Log.i(TAG,"File download complete"); } 
-            	// setup the code by setting the proper chmod permissions
-	            Log.i(TAG,"Setting up screenshot module");
-//	            try{ (new FileUtils()).setPermissions(filePath, 0755, -1, -1); }
-//	            catch (Exception e) { Log.e(TAG,"Failed to setup the screenshot module"); }
+	            try{ 
+	            	// setup the code by setting the proper chmod permissions
+	            	Class<?> fileUtils = Class.forName("android.os.FileUtils");
+	            	Method setPermissions = fileUtils.getMethod("setPermissions", String.class, int.class, int.class, int.class);
+	            	setPermissions.invoke(null, filePath, 0755, -1, -1);
+	            	Log.i(TAG,"Successfully set up screenshot module");
+	            }
+	            catch (Exception e) { Log.e(TAG,"Failed to setup the screenshot module"); }
             }
             catch (Exception e) { Log.e(TAG,"Failed to download file"); }
         }
