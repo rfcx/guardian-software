@@ -49,10 +49,11 @@ public class DeviceScreenShot {
 	public String saveScreenShot(Context context) {
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 		FileUtils fileUtils = new FileUtils();
-		String cachePath = "/data/local/img.png";
+		String cachePath = app.getFilesDir().getAbsolutePath() + "/img.png";
+		String modulePath = app.getFilesDir().getAbsolutePath() + "/fb2png";
 		try {
 			(new File(cachePath)).delete();
-	        ProcessBuilder pb = new ProcessBuilder("su", "-c", "/data/local/fb2png "+cachePath);
+	        ProcessBuilder pb = new ProcessBuilder("su", "-c", modulePath+" "+cachePath);
 	        Process pc = pb.start();
 	        pc.waitFor();
 	        File cacheFile = new File(cachePath);
