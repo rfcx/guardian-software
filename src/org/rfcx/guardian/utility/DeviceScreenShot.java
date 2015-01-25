@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 
 import org.rfcx.guardian.RfcxGuardian;
 
@@ -14,59 +15,36 @@ import android.text.TextUtils;
 import android.util.Log;
 
 public class DeviceScreenShot {
-	/* 	
-	 	Holds all methods relating to checking if screenshot module
-    	is setup, downloading/installing the module, and taking a picture.
-    */
-	private RfcxGuardian app = null;
-	
+	// Holds all methods relating to checking if screenshot module is setup, downloading/installing the module, and taking a picture.
 	private static final String TAG = DeviceScreenShot.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-    public void checkModuleInstalled() {
+    public void checkModuleInstalled(Context context) {
         // setup variables
-    	HttpGet httpGet = new HttpGet();
-    	Context context = app.getApplicationContext();
-//    	String fileName = context.getFilesDir().getAbsolutePath();
-    	String fileName = "/data/data/org.rfcx.guardian/files/fb2png";
+    	RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+     	String filePath = app.getFilesDir().getAbsolutePath() + "/fb2png";
         String repo = "https://android-fb2png.googlecode.com/files/fb2png";
-        String serverSha1 = "b6084874174209b544dd2dadcb668e71584f8bf4";
 
         // check that module is not already installed before starting
         Log.i(TAG, "Checking for existance of screenshot module");
-        if ((new File(fileName)).exists()) {
-            Log.i(TAG, "Screenshot module already installed.");
-        }
+        if ((new File(filePath)).exists()) { Log.i(TAG, "Screenshot module already installed."); }
         else {
-            // attempt to download until max attempts reached
-            do {
-            	// downloads and screenshot code if not found at install time.
-                Log.i(TAG,"Downloading screenshot module from server");
-                try {
-                	if (httpGet.getAsFile(repo, fileName, context)) { 
-                		Log.i(TAG,"File download complete");
-                	}
-                }
-                catch (Exception e) {
-                    Log.e(TAG,"Failed to download file");
-                }
-            } while (serverSha1 != (new FileUtils()).sha1Hash(fileName));
-            
-            // setup the code by setting the proper chmod permissions
-            Log.i(TAG,"Setting up screenshot module");
-            try {
-                ProcessBuilder pb = new ProcessBuilder("chmod", "755", fileName);
-                pb.start();
-                Log.i(TAG, "Screenshot module installed successfully.");
+        	// downloads and screenshot code if not found at install time.
+            Log.i(TAG,"Downloading screenshot module from server");
+            try { if ((new HttpGet()).getAsFile(repo, "fb2png", app)) { 
+            	Log.i(TAG,"File download complete"); } 
+            	// setup the code by setting the proper chmod permissions
+	            Log.i(TAG,"Setting up screenshot module");
+//	            try{ (new FileUtils()).setPermissions(filePath, 0755, -1, -1); }
+//	            catch (Exception e) { Log.e(TAG,"Failed to setup the screenshot module"); }
             }
-            catch (Exception e) {
-                Log.e(TAG,"Failed to setup the screenshot module");
-            }
+            catch (Exception e) { Log.e(TAG,"Failed to download file"); }
         }
     }
     
 	public String saveScreenShot(Context context) {
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		FileUtils fileUtils = new FileUtils();
 		String cachePath = "/data/local/img.png";
 		try {
 			(new File(cachePath)).delete();
