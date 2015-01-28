@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class AudioCaptureService extends Service {
 
-	private static final String TAG = AudioCaptureService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+AudioCaptureService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private boolean runFlag = false;
@@ -122,28 +122,36 @@ public class AudioCaptureService extends Service {
 	private void captureLoopStart() throws IllegalStateException, IOException {
 		long timeStamp = Calendar.getInstance().getTimeInMillis();
 		String filePath = app.audioCore.captureDir+"/"+timeStamp+"."+fileExtension;
-		if (app.audioCore.mayEncodeOnCapture()) {
-			mediaRecorder = setAacCaptureRecorder();
-			mediaRecorder.setOutputFile(filePath);
-	        mediaRecorder.prepare();
-	        mediaRecorder.start();
-		} else {
-			audioRecorder = ExtAudioRecorderModified.getInstance();
-			audioRecorder.setOutputFile(filePath);
-	        audioRecorder.prepare();
-	        audioRecorder.start();
+		try {
+			if (app.audioCore.mayEncodeOnCapture()) {
+				mediaRecorder = setAacCaptureRecorder();
+				mediaRecorder.setOutputFile(filePath);
+		        mediaRecorder.prepare();
+		        mediaRecorder.start();
+			} else {
+				audioRecorder = ExtAudioRecorderModified.getInstance();
+				audioRecorder.setOutputFile(filePath);
+		        audioRecorder.prepare();
+		        audioRecorder.start();
+			}
+		} catch (IllegalThreadStateException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
         captureTimeStamps[0] = captureTimeStamps[1];
         captureTimeStamps[1] = timeStamp;
 	}
 	
 	private void captureLoopEnd() {
-		if (app.audioCore.mayEncodeOnCapture()) {
-			mediaRecorder.stop();
-			mediaRecorder.release();
-		} else {
-			audioRecorder.stop();
-			audioRecorder.release();
+		try {
+			if (app.audioCore.mayEncodeOnCapture()) {
+				mediaRecorder.stop();
+				mediaRecorder.release();
+			} else {
+				audioRecorder.stop();
+				audioRecorder.release();
+			}
+		} catch (IllegalThreadStateException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
 	}
 	

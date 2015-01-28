@@ -24,7 +24,7 @@ public class AudioDb {
 		this.dbEncoded = new DbEncoded(context);
 	}
 	
-	private static final String TAG = AudioDb.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+AudioDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	static final int VERSION = 1;
 	static final String DATABASE = "audio";

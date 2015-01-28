@@ -8,7 +8,7 @@ import android.content.Context;
 
 public class TimeOfDay {
 
-	private static final String TAG = TimeOfDay.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+TimeOfDay.class.getSimpleName();
 	
 	private Calendar calStart = null;
 	private Calendar calEnd = null;

@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class SmsReceiver extends BroadcastReceiver {
 
-	private static final String TAG = SmsReceiver.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+SmsReceiver.class.getSimpleName();
 	private RfcxGuardian app = null;
 	
     @Override

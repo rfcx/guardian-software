@@ -23,7 +23,7 @@ public class ScreenShotDb {
 		this.dbScreenShot = new DbScreenShot(context);
 	}
 	
-	private static final String TAG = ScreenShotDb.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+ScreenShotDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	static final int VERSION = 1;
 	static final String DATABASE = "screenshot";

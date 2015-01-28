@@ -23,7 +23,7 @@ public class AlertDb {
 		this.dbAlert = new DbAlert(context);
 	}
 	
-	private static final String TAG = AlertDb.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+AlertDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	static final int VERSION = 1;
 	static final String DATABASE = "alert";

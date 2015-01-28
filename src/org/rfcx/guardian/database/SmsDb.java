@@ -24,7 +24,7 @@ public class SmsDb {
 		this.dbSms = new DbSms(context);
 	}
 	
-	private static final String TAG = SmsDb.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+SmsDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	static final int VERSION = 1;
 	static final String DATABASE = "sms";

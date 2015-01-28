@@ -4,12 +4,12 @@ import java.util.Calendar;
 
 import org.rfcx.guardian.api.ApiCore;
 import org.rfcx.guardian.audio.AudioCore;
+import org.rfcx.guardian.carrier.CarrierInteraction;
 import org.rfcx.guardian.database.AlertDb;
 import org.rfcx.guardian.database.AudioDb;
 import org.rfcx.guardian.database.DeviceStateDb;
 import org.rfcx.guardian.database.ScreenShotDb;
 import org.rfcx.guardian.database.SmsDb;
-import org.rfcx.guardian.device.AirplaneMode;
 import org.rfcx.guardian.device.CpuUsage;
 import org.rfcx.guardian.device.DeviceState;
 import org.rfcx.guardian.intentservice.ApiCheckInTriggerIntentService;
@@ -20,9 +20,8 @@ import org.rfcx.guardian.service.ApiCheckInService;
 import org.rfcx.guardian.service.AudioCaptureService;
 import org.rfcx.guardian.service.CarrierCodeService;
 import org.rfcx.guardian.service.DeviceStateService;
-import org.rfcx.guardian.telecom.CarrierInteraction;
+import org.rfcx.guardian.utility.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.DeviceGuid;
-import org.rfcx.guardian.utility.DeviceScreenShot;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -39,7 +38,7 @@ import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 	
-	private static final String TAG = RfcxGuardian.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+RfcxGuardian.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	public String version = "0.0.0";
 	public boolean verboseLog = false;
@@ -64,7 +63,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public CpuUsage deviceCpuUsage = new CpuUsage();
 	
 	// for viewing and controlling airplane mode
-	public AirplaneMode airplaneMode = new AirplaneMode();
+	public DeviceAirplaneMode airplaneMode = new DeviceAirplaneMode();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
@@ -73,6 +72,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	// for handling captured audio
 	public AudioCore audioCore = new AudioCore();
+	
+	// for interacting with telecom carriers
+	public CarrierInteraction carrierInteraction = new CarrierInteraction();
 	
 	// should services be disabled as if in a power emergency...
 //	public boolean isCrisisModeEnabled = false;
@@ -100,8 +102,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		rfcxGuardianPrefs.loadPrefsOverride();
 		Log.d(TAG, "Device GUID: "+getDeviceId());
 		
-		(new DeviceScreenShot()).checkModuleInstalled(getApplicationContext());
-		(new DeviceScreenShot()).saveScreenShot(getApplicationContext());
+//		(new DeviceScreenShot()).checkModuleInstalled(getApplicationContext());
+//		(new DeviceScreenShot()).saveScreenShot(getApplicationContext());
 		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -147,7 +149,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.deviceId;
 	}
 
-	public String getPrefString(String prefName) {
+	public String getPref(String prefName) {
 		return this.sharedPrefs.getString(prefName, null);
 	}
 	public int getPrefInt(String prefName) {
@@ -159,7 +161,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void onBootServiceTrigger() {
-		triggerIntentService("ServiceMonitor", 600);
+		triggerIntentService("ServiceMonitor",60*((int) Integer.parseInt(getPref("service_monitor_interval"))));
 //		triggerIntentService("ApiCheckInTrigger", getPref("api_checkin_interval"));
 		triggerService("DeviceState", true);
 		triggerService("AudioCapture", true);

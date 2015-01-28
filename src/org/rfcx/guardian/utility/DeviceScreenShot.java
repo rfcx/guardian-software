@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class DeviceScreenShot {
 	// Holds all methods relating to checking if screenshot module is setup, downloading/installing the module, and taking a picture.
-	private static final String TAG = DeviceScreenShot.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+DeviceScreenShot.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
     public void checkModuleInstalled(Context context) {

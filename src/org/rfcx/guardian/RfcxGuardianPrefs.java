@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class RfcxGuardianPrefs {
 
-	private static final String TAG = RfcxGuardianPrefs.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+RfcxGuardianPrefs.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private RfcxGuardian app = null;
@@ -48,16 +48,11 @@ public class RfcxGuardianPrefs {
 		
 		app.verboseLog = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLog);
 		app.audioCore.setEncodeOnCapture(app.sharedPrefs.getBoolean("capture_as_aac", app.audioCore.mayEncodeOnCapture()));
-		app.airplaneMode.setAllowWifi(app.sharedPrefs.getBoolean("allow_wifi", app.airplaneMode.getAllowWifi()));
-
+		
 //		app.ignoreOffHours = app.sharedPrefs.getBoolean("ignore_off_hours", app.ignoreOffHours);
 //		app.monitorIntentServiceInterval = Integer.parseInt(app.sharedPrefs.getString("monitor_intentservice_interval", ""+app.monitorIntentServiceInterval));
 //		app.apiCore.setConnectivityInterval(Integer.parseInt(app.sharedPrefs.getString("api_interval", ""+app.apiCore.getConnectivityInterval())));
 //		app.apiCore.setApiDomain(app.sharedPrefs.getString("api_domain", "api.rfcx.org"));
-
-//		app.isEnabled_AudioCapture = app.sharedPrefs.getBoolean("enable_service_audiocapture", app.isEnabled_AudioCapture);
-//		app.isEnabled_DeviceState = app.sharedPrefs.getBoolean("enable_service_devicestate", app.isEnabled_DeviceState);
-//		app.isEnabled_ApiComm = app.sharedPrefs.getBoolean("enable_service_apicomm", app.isEnabled_ApiComm);
 
 
 //		app.dayBeginsAt = Integer.parseInt(app.sharedPrefs.getString("day_begins_at_hour", ""+app.dayBeginsAt));
@@ -77,17 +72,17 @@ public class RfcxGuardianPrefs {
 //		Log.d(TAG, "Overriding Pref: "+thisPref[0]+" > "+thisPref[1]+" > "+ (setPreference(thisPref[0],thisPref[1],thisPref[2]) ? "Success" : "Failure" ));
 	}
 
-	public void writeGuidToFile(String deviceId) {
+	private void writeToGuardianTxtFile(String fileNameNoExt, String stringContents) {
 		if (app != null) {
 			FileUtils fileUtils = new FileUtils();
-	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/txt/guid.txt";
+	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
 	    	File fileObj = new File(filePath);
 	    	fileObj.mkdirs();
 	    	fileUtils.chmod(new File(app.getApplicationContext().getFilesDir().toString()+"/txt"), 0755);
 	    	if (fileObj.exists()) { fileObj.delete(); }
 	        try {
 	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
-	        	outFile.write(deviceId);
+	        	outFile.write(stringContents);
 	        	outFile.close();
 	        	fileUtils.chmod(new File(filePath), 0755);
 	        } catch (IOException e) {
@@ -95,24 +90,17 @@ public class RfcxGuardianPrefs {
 	        }
 		}
 	}
+	
+	public void writeGuidToFile(String deviceId) {
+		writeToGuardianTxtFile("guid",deviceId);
+	}
 
 	public void writeVersionToFile(String versionName) {
-		if (app != null) {
-			FileUtils fileUtils = new FileUtils();
-	    	String filePath = app.getApplicationContext().getFilesDir().toString()+"/txt/version.txt";
-	    	File fileObj = new File(filePath);
-	    	fileObj.mkdirs();
-	    	fileUtils.chmod(new File(app.getApplicationContext().getFilesDir().toString()+"/txt"), 0755);
-	    	if (fileObj.exists()) { fileObj.delete(); }
-	        try {
-	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
-	        	outFile.write(versionName);
-	        	outFile.close();
-	        	fileUtils.chmod(new File(filePath), 0755);
-	        } catch (IOException e) {
-	        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-	        }
-		}
+		writeToGuardianTxtFile("version",versionName);
+	}
+
+	public void writeScheduleToFile(String scheduleString) {
+		writeToGuardianTxtFile("schedule",scheduleString);
 	}
 	
 	public void writeShellCmdToFile(String shellCmd) {

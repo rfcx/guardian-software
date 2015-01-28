@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class ServiceMonitorIntentService extends IntentService {
 	
-	private static final String TAG = ServiceMonitorIntentService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+ServiceMonitorIntentService.class.getSimpleName();
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.SERVICE_MONITOR";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";

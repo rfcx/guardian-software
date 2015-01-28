@@ -1,7 +1,7 @@
 package org.rfcx.guardian.service;
 
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.telecom.CarrierInteraction;
+import org.rfcx.guardian.carrier.CarrierInteraction;
 import org.rfcx.guardian.utility.DeviceScreenShot;
 
 import android.app.Service;
@@ -13,7 +13,7 @@ import android.util.Log;
 
 public class CarrierCodeService extends Service {
 
-	private static final String TAG = CarrierCodeService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+CarrierCodeService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private CarrierCode carrierCode;
@@ -66,20 +66,25 @@ public class CarrierCodeService extends Service {
 		@Override
 		public void run() {
 			CarrierCodeService carrierCodeService = CarrierCodeService.this;
-			CarrierInteraction carrierInteraction = new CarrierInteraction();
 			try {
-				String action = "balance";
-
-				if (app.verboseLog) { Log.d(TAG, "Executing USSD Code"); }
-				carrierInteraction.submitCode(context, app.getPrefString("carriercode_"+action));
-				Thread.sleep(15000);
-				(new DeviceScreenShot()).saveScreenShot(app.getApplicationContext());
-				if (app.verboseLog) { Log.d(TAG, "Closing USSD Code Feedback"); }
-				carrierInteraction.closeResponseDialog(app.getPrefString("carriercode_"+action+"_close").split(","));
-	
+				String ussdAction = app.carrierInteraction.currentlyRunningCode;
+				if (ussdAction != null) {
+					
+					String ussdCode = app.getPref("carriercode_"+ussdAction);
+					if (app.verboseLog) { Log.d(TAG, "Running USSD Code: "+ussdAction+" ("+ussdCode+")"); }
+					app.carrierInteraction.submitCode(context, ussdCode);
+					
+					Thread.sleep(20000);
+					(new DeviceScreenShot()).saveScreenShot(app.getApplicationContext());
+					
+					String ussdClose = app.getPref("carriercode_"+ussdAction+"_close");
+					if (app.verboseLog) { Log.d(TAG, "Closing USSD Code Response: "+ussdAction+" ("+ussdClose+")"); }
+					app.carrierInteraction.closeResponseDialog(app.getPref("carriercode_"+ussdAction+"_close").split(","));
+				}
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			} finally {
+				app.carrierInteraction.currentlyRunningCode = null;
 				app.isRunning_CarrierCode = false;
 				app.stopService("CarrierCode");
 			}

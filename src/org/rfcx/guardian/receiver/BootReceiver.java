@@ -9,7 +9,7 @@ import android.util.Log;
 
 public class BootReceiver extends BroadcastReceiver {
 	
-	private static final String TAG = BootReceiver.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+BootReceiver.class.getSimpleName();
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {

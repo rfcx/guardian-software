@@ -26,7 +26,7 @@ import android.util.Log;
 
 public class HttpPostMultipart {
 
-	private static final String TAG = HttpPostMultipart.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+HttpPostMultipart.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
     // need to make these longer and/or dynamic...

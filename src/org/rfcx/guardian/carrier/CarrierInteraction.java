@@ -1,4 +1,4 @@
-package org.rfcx.guardian.telecom;
+package org.rfcx.guardian.carrier;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,9 +14,11 @@ import android.util.Log;
 
 public class CarrierInteraction {
 
-	private static final String TAG = CarrierInteraction.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+CarrierInteraction.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	private static final String HASH = Uri.encode("#");
+	
+	public String currentlyRunningCode = null;
 	
 	public void submitCode(Context context, String code) {
         try {

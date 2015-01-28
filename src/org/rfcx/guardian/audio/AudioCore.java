@@ -22,7 +22,7 @@ import android.util.Log;
 
 public class AudioCore {
 
-	private static final String TAG = AudioCore.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+AudioCore.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	public String captureDir = null;
@@ -38,9 +38,8 @@ public class AudioCore {
 	
 	public boolean purgeAudioAssetsOnStart = true;
 	
-	public final static int CAPTURE_SAMPLE_RATE_HZ = 8000;
-//	public final int CAPTURE_LOOP_PERIOD_SECS = 300;
-	public final int aacEncodingBitRate = 16384;
+	public final static int CAPTURE_SAMPLE_RATE_HZ = 4000;
+	public final int aacEncodingBitRate = 8192;
 	
 	public void encodeCaptureAudio(String fileName, String encodedFormat, String dbRowEntryDate, AudioDb audioDb) {
 		File wavFile = new File(wavDir+"/"+fileName+".wav");

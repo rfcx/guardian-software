@@ -28,7 +28,7 @@ public class DeviceStateDb {
 		this.dbNetworkSearch = new DbNetworkSearch(context);
 	}
 	
-	private static final String TAG = DeviceStateDb.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+DeviceStateDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	static final int VERSION = 1;
 	static final String DATABASE = "device";

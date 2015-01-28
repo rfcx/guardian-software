@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class ApiCheckInService extends Service {
 
-	private static final String TAG = ApiCheckInService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+ApiCheckInService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private ApiCheckIn apiCheckIn;

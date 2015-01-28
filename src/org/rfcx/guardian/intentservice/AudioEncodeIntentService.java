@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class AudioEncodeIntentService extends IntentService {
 	
-	private static final String TAG = AudioEncodeIntentService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+AudioEncodeIntentService.class.getSimpleName();
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.AUDIO_ENCODE";
 	public static final String NULL_EXC = "org.rfcx.guardian.RECEIVE_AUDIO_ENCODE_NOTIFICATIONS";

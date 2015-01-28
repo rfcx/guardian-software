@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class ApiCheckInTriggerIntentService extends IntentService {
 
-	private static final String TAG = ApiCheckInTriggerIntentService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+ApiCheckInTriggerIntentService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.API_CHECKIN_TRIGGER";

@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class FileUtils {
 	
-	private static final String TAG = FileUtils.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+FileUtils.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	

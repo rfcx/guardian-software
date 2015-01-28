@@ -21,7 +21,7 @@ import android.util.Log;
 
 public class ApiCore {
 
-	private static final String TAG = ApiCore.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+ApiCore.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private RfcxGuardian app = null;
@@ -41,12 +41,12 @@ public class ApiCore {
 		if (app.isConnected) {
 			app.triggerService("ApiCheckIn", true);
 		} else {
-			Log.d(TAG,"No connectivity... Skipping CheckIn attempt");
+			Log.d(TAG,"No connectivity... Skipping Check In attempt");
 		}
 	}
 	
 	public String getCheckInUrl() {
-		return app.getPrefString("api_domain")+"/v1/guardians/"+app.getDeviceId()+"/checkins";
+		return app.getPref("api_domain")+"/v1/guardians/"+app.getDeviceId()+"/checkins";
 	}
 	
 	public String getCheckInJson() {
@@ -126,6 +126,7 @@ public class ApiCore {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			} finally {
 				if (app.verboseLog) Log.d(TAG, "API Response: " + checkInResponse);
+				app.airplaneMode.setOn(app.getApplicationContext());
 			}
 		}
 	}			
@@ -136,36 +137,36 @@ public class ApiCore {
 		List<String[]> checkInFiles = new ArrayList<String[]>();
 		
 		// attach audio files
-		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
-		for (String[] audioEntry : encodedAudio) {
-			String filePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioEntry[2]+"/"+audioEntry[1]+"."+audioEntry[2];
-			try {
-				if ((new File(filePath)).exists()) {
-					checkInFiles.add(new String[] {"audio", filePath, "audio/"+audioEntry[2]});
-					if (app.verboseLog) { Log.d(TAG, "Audio added: "+audioEntry[1]+"."+audioEntry[2]); }
-				} else if (app.verboseLog) {
-					Log.d(TAG, "Audio didn't exist: "+audioEntry[1]+"."+audioEntry[2]);
-				}
-			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-			}
-		}
+//		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
+//		for (String[] audioEntry : encodedAudio) {
+//			String filePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioEntry[2]+"/"+audioEntry[1]+"."+audioEntry[2];
+//			try {
+//				if ((new File(filePath)).exists()) {
+//					checkInFiles.add(new String[] {"audio", filePath, "audio/"+audioEntry[2]});
+//					if (app.verboseLog) { Log.d(TAG, "Audio added: "+audioEntry[1]+"."+audioEntry[2]); }
+//				} else if (app.verboseLog) {
+//					Log.d(TAG, "Audio didn't exist: "+audioEntry[1]+"."+audioEntry[2]);
+//				}
+//			} catch (Exception e) {
+//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+//			}
+//		}
 		
 		// attach screenshot images
-		List<String[]> screenShots = app.screenShotDb.dbScreenShot.getScreenShots();
-		for (String[] screenShotEntry : screenShots) {
-			String filePath = app.getApplicationContext().getFilesDir().toString()+"/img/"+screenShotEntry[1]+".png";
-			try {
-				if ((new File(filePath)).exists()) {
-					checkInFiles.add(new String[] {"screenshot", filePath, "image/png"});
-					if (app.verboseLog) { Log.d(TAG, "Screenshot added: "+screenShotEntry[1]+".png"); }
-				} else if (app.verboseLog) {
-					Log.d(TAG, "Screenshot didn't exist: "+screenShotEntry[1]+".png");
-				}
-			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-			}
-		}
+//		List<String[]> screenShots = app.screenShotDb.dbScreenShot.getScreenShots();
+//		for (String[] screenShotEntry : screenShots) {
+//			String filePath = app.getApplicationContext().getFilesDir().toString()+"/img/"+screenShotEntry[1]+".png";
+//			try {
+//				if ((new File(filePath)).exists()) {
+//					checkInFiles.add(new String[] {"screenshot", filePath, "image/png"});
+//					if (app.verboseLog) { Log.d(TAG, "Screenshot added: "+screenShotEntry[1]+".png"); }
+//				} else if (app.verboseLog) {
+//					Log.d(TAG, "Screenshot didn't exist: "+screenShotEntry[1]+".png");
+//				}
+//			} catch (Exception e) {
+//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+//			}
+//		}
 		
 		return checkInFiles;
 	}

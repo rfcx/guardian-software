@@ -11,7 +11,14 @@
 	<CheckBoxPreference
 	    android:key="allow_wifi"
 	    android:title="Allow WiFi"
-	    android:summary="Allow WiFi to be enabled"
+	    android:summary="Enable WiFi in/out of AirplaneMode"
+        android:enabled="true"
+		android:defaultValue="false"/>
+
+	<CheckBoxPreference
+	    android:key="allow_bluetooth"
+	    android:title="Allow Bluetooth"
+	    android:summary="Enable Bluetooth in/out of AirplaneMode"
         android:enabled="true"
 		android:defaultValue="false"/>
 	
@@ -36,35 +43,9 @@
         android:summary="How often should we check if services are running?"
 	    android:inputType="number"
         android:enabled="true"
-        android:defaultValue="15"/>
+        android:defaultValue="5"/>
 	
-	<CheckBoxPreference
-	    android:key="enable_service_audiocapture"
-	    android:title="Audio Capture"
-	    android:summary="Enable/Disable Service"
-        android:enabled="true"
-		android:defaultValue="true"/>
-	
-	<CheckBoxPreference
-	    android:key="enable_service_devicestate"
-	    android:title="Device Stats"
-	    android:summary="Enable/Disable Service"
-        android:enabled="true"
-		android:defaultValue="true"/>
 
-	<CheckBoxPreference
-	    android:key="enable_service_apicheckin"
-	    android:title="API Check-In"
-	    android:summary="Enable/Disable Service"
-        android:enabled="true"
-		android:defaultValue="true"/>
-
-	<CheckBoxPreference
-	    android:key="enable_service_carriercode"
-	    android:title="Carrier Interaction (USSD)"
-	    android:summary="Enable/Disable Service"
-        android:enabled="true"
-		android:defaultValue="true"/>
 
 	<CheckBoxPreference
 	    android:key="transcode_as_aac"
@@ -105,7 +86,7 @@
 	
 	<EditTextPreference
         android:key="carriercode_topup"
-	    android:title="CarrierCode Top-Up: Code"
+	    android:title="CarrierCode: Top-Up"
 	    android:summary="Code (USSD) to top up credit"
 	    android:inputType="number"
         android:enabled="true"
@@ -113,7 +94,7 @@
 
 	<EditTextPreference
         android:key="carriercode_balance"
-	    android:title="CarrierCode Balance: Code"
+	    android:title="CarrierCode: Balance"
 	    android:summary="Code (USSD) to retrieve balance"
 	    android:inputType="number"
         android:enabled="true"
@@ -121,14 +102,14 @@
 	
 	<EditTextPreference
         android:key="carriercode_topup_close"
-	    android:title="CarrierCode Top-Up: Close"
+	    android:title="CarrierCode: Close Top-Up"
 	    android:summary="Comma-separated sequence of keys"
         android:enabled="true"
 		android:defaultValue="down,down,right,enter,enter"/>
 
 	<EditTextPreference
         android:key="carriercode_balance_close"
-	    android:title="CarrierCode Balance: Close"
+	    android:title="CarrierCode: Close Balance"
 	    android:summary="Comma-separated sequence of keys"
         android:enabled="true"
 		android:defaultValue="down,down,right,enter,enter"/>
@@ -139,5 +120,33 @@
 	    android:summary="Unique ID of Guardian"
         android:enabled="true"
 		android:defaultValue=""/>
+
+	<CheckBoxPreference
+	    android:key="enable_service_audiocapture"
+	    android:title="Audio Capture"
+	    android:summary="Enable/Disable Service"
+        android:enabled="true"
+		android:defaultValue="true"/>
+	
+	<CheckBoxPreference
+	    android:key="enable_service_devicestate"
+	    android:title="Device Stats"
+	    android:summary="Enable/Disable Service"
+        android:enabled="true"
+		android:defaultValue="true"/>
+
+	<CheckBoxPreference
+	    android:key="enable_service_apicheckin"
+	    android:title="API Check-In"
+	    android:summary="Enable/Disable Service"
+        android:enabled="true"
+		android:defaultValue="true"/>
+
+	<CheckBoxPreference
+	    android:key="enable_service_carriercode"
+	    android:title="Carrier Interaction (USSD)"
+	    android:summary="Enable/Disable Service"
+        android:enabled="true"
+		android:defaultValue="true"/>
 	
 </PreferenceScreen>

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.device;
+package org.rfcx.guardian.utility;
 
 import org.rfcx.guardian.RfcxGuardian;
 
@@ -7,13 +7,12 @@ import android.content.Intent;
 import android.provider.Settings;
 import android.util.Log;
 
-public class AirplaneMode {
+public class DeviceAirplaneMode {
 
-	private static final String TAG = AirplaneMode.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+DeviceAirplaneMode.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	private boolean isEnabled;
-	private boolean allowWifi = false;
 	
 	private RfcxGuardian app = null;
 	
@@ -33,19 +32,14 @@ public class AirplaneMode {
 	public void setOff(Context context) {
 		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
 		if (app.verboseLog) { Log.d(TAG, "Turning AirplaneMode OFF"); }
-    	if (isEnabled(context)) {
+    	if (!isEnabled(context)) {
+    		set(context, 1);
+    		set(context, 0);
+    	} else {
     		set(context, 0);
     	}
-	}
-	
-	public void setToggle(Context context) {
-		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
-		if (app.verboseLog) { Log.d(TAG, "Toggling AirplaneMode"); }
-    	if (isEnabled(context)) {
-    		setOff(context);
-    	} else {
-    		setOn(context);
-    	}
+    	Log.d(TAG, "Allow WiFi: "+app.sharedPrefs.getBoolean("allow_wifi", false)+"");
+    	Log.d(TAG, "Allow Bluetooth: "+app.sharedPrefs.getBoolean("allow_bluetooth", false)+"");
 	}
 	
 	private void set(Context context, int value) {
@@ -59,12 +53,14 @@ public class AirplaneMode {
 		}
 	}
 	
-	public void setAllowWifi(boolean allowWifi) {
-		this.allowWifi = allowWifi;
+	public boolean allowWifi(Context context) {
+		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
+		return app.sharedPrefs.getBoolean("allow_wifi", false);
 	}
 	
-	public boolean getAllowWifi() {
-		return allowWifi;
+	public boolean allowBluetooth(Context context) {
+		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
+		return app.sharedPrefs.getBoolean("allow_bluetooth", false);
 	}
 	
 }
