@@ -38,8 +38,8 @@ public class AudioCore {
 	
 	public boolean purgeAudioAssetsOnStart = true;
 	
-	public final static int CAPTURE_SAMPLE_RATE_HZ = 4000;
-	public final int aacEncodingBitRate = 8192;
+	public final static int CAPTURE_SAMPLE_RATE_HZ = 8000;
+	public final int aacEncodingBitRate = 16384;
 	
 	public void encodeCaptureAudio(String fileName, String encodedFormat, String dbRowEntryDate, AudioDb audioDb) {
 		File wavFile = new File(wavDir+"/"+fileName+".wav");
