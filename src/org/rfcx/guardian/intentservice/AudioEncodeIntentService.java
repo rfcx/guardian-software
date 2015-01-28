@@ -1,6 +1,5 @@
 package org.rfcx.guardian.intentservice;
 
-import java.io.File;
 import java.util.List;
 
 import org.rfcx.guardian.RfcxGuardian;
@@ -42,7 +41,8 @@ public class AudioEncodeIntentService extends IntentService {
 		}
 		
 		// Trigger CheckIn ???
-		app.apiCore.sendCheckIn(app);
+//		app.apiCore.sendCheckIn(app);
+		app.airplaneMode.setOff(app.getApplicationContext());
 	}
 
 }

@@ -1,21 +1,16 @@
 package org.rfcx.guardian.api;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
-import org.rfcx.guardian.utility.FileUtils;
 
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 

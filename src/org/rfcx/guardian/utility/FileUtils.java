@@ -16,7 +16,10 @@ public class FileUtils {
 	
 	private static final String TAG = "RfcxGuardian-"+FileUtils.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
-
+	
+	public long getFreeDiskSpace() {
+		return 0;
+	}
 	
 	public String sha1Hash(String filePath) {
 		try {

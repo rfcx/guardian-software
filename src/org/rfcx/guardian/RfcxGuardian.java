@@ -92,6 +92,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// Repeating IntentServices
 	public boolean isRunning_ServiceMonitor = false;
 	public boolean isRunning_ApiCheckInTrigger = false;
+	public boolean isRunning_CarrierCodeTrigger = false;
 	
 	@Override
 	public void onCreate() {

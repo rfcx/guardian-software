@@ -78,4 +78,5 @@ public class ApiCheckInTriggerIntentService extends IntentService {
 //			app.isRunning_ApiComm = true;
 //		}
 	}
+	
 }

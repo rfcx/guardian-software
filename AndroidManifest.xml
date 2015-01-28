@@ -40,6 +40,7 @@
         <service android:name="org.rfcx.guardian.intentservice.ApiCheckInTriggerIntentService" />
         <service android:name="org.rfcx.guardian.intentservice.AudioEncodeIntentService" />
         <service android:name="org.rfcx.guardian.intentservice.ServiceMonitorIntentService" />
+        <service android:name="org.rfcx.guardian.intentservice.CarrierCodeTriggerIntentService" />
         
         <activity
             android:name="org.rfcx.guardian.activity.PrefsActivity"
