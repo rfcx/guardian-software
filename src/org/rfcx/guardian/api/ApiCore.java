@@ -10,6 +10,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.HttpPostMultipart;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -20,6 +21,7 @@ public class ApiCore {
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private RfcxGuardian app = null;
+	HttpPostMultipart httpPostMultipart = new HttpPostMultipart();
 	
 	//public long signalSearchStartTime = 0;
 	private DateTimeUtils dateTimeUtils = new DateTimeUtils();
@@ -31,7 +33,7 @@ public class ApiCore {
 	private static final int MAX_FAILED_CHECKINS = 3;
 	private int recentFailedCheckins = 0;
 	
-	public void sendCheckIn(RfcxGuardian rfcxApp) {
+	public void triggerCheckIn(RfcxGuardian rfcxApp) {
 		this.app = rfcxApp;
 		if (app.isConnected) {
 			app.triggerService("ApiCheckIn", true);
@@ -42,6 +44,16 @@ public class ApiCore {
 	
 	public String getCheckInUrl() {
 		return app.getPref("api_domain")+"/v1/guardians/"+app.getDeviceId()+"/checkins";
+	}
+	
+	public void queueCheckIn(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments, boolean allowAttachments) {
+		Log.d(TAG, keyValueParameters.toString());
+		if (!allowAttachments) keyFilepathMimeAttachments = new ArrayList<String[]>();
+		if (app.isConnected) {
+			processCheckInResponse(httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments));
+		} else {
+			Log.d(TAG,"CheckIn Cancelled due to no connectivity");
+		}
 	}
 	
 	public String getCheckInJson() {
@@ -93,7 +105,7 @@ public class ApiCore {
 		return json.toJSONString();
 	}
 	
-	public void processCheckIn(String checkInResponse) {
+	public void processCheckInResponse(String checkInResponse) {
 	
 		//	resetTransmissionState();
 		Date clearDataBefore = this.requestSendStart.getTime();
@@ -132,36 +144,36 @@ public class ApiCore {
 		List<String[]> checkInFiles = new ArrayList<String[]>();
 		
 		// attach audio files
-//		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
-//		for (String[] audioEntry : encodedAudio) {
-//			String filePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioEntry[2]+"/"+audioEntry[1]+"."+audioEntry[2];
-//			try {
-//				if ((new File(filePath)).exists()) {
-//					checkInFiles.add(new String[] {"audio", filePath, "audio/"+audioEntry[2]});
-//					if (app.verboseLog) { Log.d(TAG, "Audio added: "+audioEntry[1]+"."+audioEntry[2]); }
-//				} else if (app.verboseLog) {
-//					Log.d(TAG, "Audio didn't exist: "+audioEntry[1]+"."+audioEntry[2]);
-//				}
-//			} catch (Exception e) {
-//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-//			}
-//		}
+		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
+		for (String[] audioEntry : encodedAudio) {
+			String filePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioEntry[2]+"/"+audioEntry[1]+"."+audioEntry[2];
+			try {
+				if ((new File(filePath)).exists()) {
+					checkInFiles.add(new String[] {"audio", filePath, "audio/"+audioEntry[2]});
+					if (app.verboseLog) { Log.d(TAG, "Audio added: "+audioEntry[1]+"."+audioEntry[2]); }
+				} else if (app.verboseLog) {
+					Log.d(TAG, "Audio didn't exist: "+audioEntry[1]+"."+audioEntry[2]);
+				}
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
+		}
 		
 		// attach screenshot images
-//		List<String[]> screenShots = app.screenShotDb.dbScreenShot.getScreenShots();
-//		for (String[] screenShotEntry : screenShots) {
-//			String filePath = app.getApplicationContext().getFilesDir().toString()+"/img/"+screenShotEntry[1]+".png";
-//			try {
-//				if ((new File(filePath)).exists()) {
-//					checkInFiles.add(new String[] {"screenshot", filePath, "image/png"});
-//					if (app.verboseLog) { Log.d(TAG, "Screenshot added: "+screenShotEntry[1]+".png"); }
-//				} else if (app.verboseLog) {
-//					Log.d(TAG, "Screenshot didn't exist: "+screenShotEntry[1]+".png");
-//				}
-//			} catch (Exception e) {
-//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-//			}
-//		}
+		List<String[]> screenShots = app.screenShotDb.dbScreenShot.getScreenShots();
+		for (String[] screenShotEntry : screenShots) {
+			String filePath = app.getApplicationContext().getFilesDir().toString()+"/img/"+screenShotEntry[1]+".png";
+			try {
+				if ((new File(filePath)).exists()) {
+					checkInFiles.add(new String[] {"screenshot", filePath, "image/png"});
+					if (app.verboseLog) { Log.d(TAG, "Screenshot added: "+screenShotEntry[1]+".png"); }
+				} else if (app.verboseLog) {
+					Log.d(TAG, "Screenshot didn't exist: "+screenShotEntry[1]+".png");
+				}
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
+		}
 		
 		return checkInFiles;
 	}

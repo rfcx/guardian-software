@@ -7,19 +7,23 @@ import org.rfcx.guardian.audio.AudioCore;
 import org.rfcx.guardian.carrier.CarrierInteraction;
 import org.rfcx.guardian.database.AlertDb;
 import org.rfcx.guardian.database.AudioDb;
+import org.rfcx.guardian.database.CheckInDb;
 import org.rfcx.guardian.database.DeviceStateDb;
 import org.rfcx.guardian.database.ScreenShotDb;
 import org.rfcx.guardian.database.SmsDb;
 import org.rfcx.guardian.device.CpuUsage;
 import org.rfcx.guardian.device.DeviceState;
-import org.rfcx.guardian.intentservice.ApiCheckInTriggerIntentService;
-import org.rfcx.guardian.intentservice.ServiceMonitorIntentService;
+import org.rfcx.guardian.intentservice.ApiCheckInTrigger;
+import org.rfcx.guardian.intentservice.CarrierCodeTriggerBalance;
+import org.rfcx.guardian.intentservice.CarrierCodeTriggerTopUp;
+import org.rfcx.guardian.intentservice.ServiceMonitor;
 import org.rfcx.guardian.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.service.ApiCheckInService;
 import org.rfcx.guardian.service.AudioCaptureService;
 import org.rfcx.guardian.service.CarrierCodeService;
 import org.rfcx.guardian.service.DeviceStateService;
+import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.DeviceGuid;
 
@@ -57,6 +61,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public AlertDb alertDb = new AlertDb(this);
 	public AudioDb audioDb = new AudioDb(this);
 	public ScreenShotDb screenShotDb = new ScreenShotDb(this);
+	public CheckInDb checkInDb = new CheckInDb(this);
 
 	// for obtaining device stats and characteristics
 	public DeviceState deviceState = new DeviceState();
@@ -92,7 +97,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// Repeating IntentServices
 	public boolean isRunning_ServiceMonitor = false;
 	public boolean isRunning_ApiCheckInTrigger = false;
-	public boolean isRunning_CarrierCodeTrigger = false;
+	public boolean isRunning_CarrierCodeTriggerTopUp = false;
+	public boolean isRunning_CarrierCodeTriggerBalance = false;
 	
 	@Override
 	public void onCreate() {
@@ -163,6 +169,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void onBootServiceTrigger() {
 		triggerIntentService("ServiceMonitor",60*((int) Integer.parseInt(getPref("service_monitor_interval"))));
+		triggerIntentService("CarrierCodeTrigger-Balance",60*10);
 //		triggerIntentService("ApiCheckInTrigger", getPref("api_checkin_interval"));
 		triggerService("DeviceState", true);
 		triggerService("AudioCapture", true);
@@ -176,14 +183,26 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		if (intentServiceName.equals("ServiceMonitor")) {
 			if (!this.isRunning_ServiceMonitor) {
-				PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ServiceMonitorIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+				PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ServiceMonitor.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), repeatInterval, monitorServiceIntent);
 			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ServiceMonitor' is already running..."); }
 		} else if (intentServiceName.equals("ApiCheckInTrigger")) {
 			if (!this.isRunning_ApiCheckInTrigger) {
-				PendingIntent apiCheckInTrigger = PendingIntent.getService(context, -1, new Intent(context, ApiCheckInTriggerIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+				PendingIntent apiCheckInTrigger = PendingIntent.getService(context, -1, new Intent(context, ApiCheckInTrigger.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), repeatInterval, apiCheckInTrigger);
 			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ApiCheckInTrigger' is already running..."); }
+			
+		} else if (intentServiceName.equals("CarrierCodeTrigger-TopUp")) {
+			if (!this.isRunning_CarrierCodeTriggerTopUp) {
+				PendingIntent carrierCodeTrigger = PendingIntent.getService(context, -1, new Intent(context, CarrierCodeTriggerTopUp.class), PendingIntent.FLAG_UPDATE_CURRENT);
+				alarmManager.setInexactRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(0,0,30).getTimeInMillis(), repeatInterval, carrierCodeTrigger);
+			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'CarrierCodeTrigger-TopUp' is already running..."); }
+			
+		} else if (intentServiceName.equals("CarrierCodeTrigger-Balance")) {
+			if (!this.isRunning_CarrierCodeTriggerTopUp) {
+				PendingIntent carrierCodeTrigger = PendingIntent.getService(context, -1, new Intent(context, CarrierCodeTriggerBalance.class), PendingIntent.FLAG_UPDATE_CURRENT);
+				alarmManager.setInexactRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(16,43,0).getTimeInMillis(), repeatInterval, carrierCodeTrigger);
+			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'CarrierCodeTrigger-TopUp' is already running..."); }
 			
 		} else {
 			Log.e(TAG, "No IntentService named '"+intentServiceName+"'.");

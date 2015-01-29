@@ -9,15 +9,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class ApiCheckInTriggerIntentService extends IntentService {
+public class ApiCheckInTrigger extends IntentService {
 
-	private static final String TAG = "RfcxGuardian-"+ApiCheckInTriggerIntentService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+ApiCheckInTrigger.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.API_CHECKIN_TRIGGER";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_API_CHECKIN_TRIGGER_NOTIFICATIONS";
 	
-	public ApiCheckInTriggerIntentService() {
+	public ApiCheckInTrigger() {
 		super(TAG);
 	}
 	

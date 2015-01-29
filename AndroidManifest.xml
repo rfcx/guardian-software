@@ -37,10 +37,11 @@
         <service android:name="org.rfcx.guardian.service.ApiCheckInService" />
         <service android:name="org.rfcx.guardian.service.CarrierCodeService" />
         <!-- IntentServices -->
-        <service android:name="org.rfcx.guardian.intentservice.ApiCheckInTriggerIntentService" />
-        <service android:name="org.rfcx.guardian.intentservice.AudioEncodeIntentService" />
-        <service android:name="org.rfcx.guardian.intentservice.ServiceMonitorIntentService" />
-        <service android:name="org.rfcx.guardian.intentservice.CarrierCodeTriggerIntentService" />
+        <service android:name="org.rfcx.guardian.intentservice.ApiCheckInTrigger" />
+        <service android:name="org.rfcx.guardian.intentservice.AudioEncode" />
+        <service android:name="org.rfcx.guardian.intentservice.ServiceMonitor" />
+        <service android:name="org.rfcx.guardian.intentservice.CarrierCodeTriggerTopUp" />
+        <service android:name="org.rfcx.guardian.intentservice.CarrierCodeTriggerBalance" />
         
         <activity
             android:name="org.rfcx.guardian.activity.PrefsActivity"

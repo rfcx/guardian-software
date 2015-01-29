@@ -2,6 +2,7 @@ package org.rfcx.guardian.utility;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -28,6 +29,18 @@ public class DateTimeUtils {
 			Log.e(TAG, e.getMessage());
 			return new Date();
 		}
+	}
+	
+	public Calendar nextOccurenceOf(int hour, int minute, int second) {
+		Calendar rightNow = Calendar.getInstance();
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, hour);
+		calendar.set(Calendar.MINUTE, minute);
+		calendar.set(Calendar.SECOND, second);
+		if (rightNow.getTimeInMillis() >= calendar.getTimeInMillis()) {
+			calendar.set(Calendar.DAY_OF_YEAR, rightNow.get(Calendar.DAY_OF_YEAR)+1);
+		}
+		return calendar;
 	}
 	
 }

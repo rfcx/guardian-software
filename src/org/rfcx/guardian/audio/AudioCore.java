@@ -1,7 +1,6 @@
 package org.rfcx.guardian.audio;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -9,7 +8,7 @@ import net.sourceforge.javaFlacEncoder.FLAC_FileEncoder;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.database.AudioDb;
-import org.rfcx.guardian.intentservice.AudioEncodeIntentService;
+import org.rfcx.guardian.intentservice.AudioEncode;
 import org.rfcx.guardian.utility.FileUtils;
 
 import android.app.AlarmManager;
@@ -18,7 +17,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
-
 
 public class AudioCore {
 
@@ -118,7 +116,7 @@ public class AudioCore {
 	
 	public void queueAudioCaptureFollowUp(Context context) {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		PendingIntent audioEncodeIntentService = PendingIntent.getService(context, -1, new Intent(context, AudioEncodeIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent audioEncodeIntentService = PendingIntent.getService(context, -1, new Intent(context, AudioEncode.class), PendingIntent.FLAG_UPDATE_CURRENT);
 		alarmManager.set(AlarmManager.RTC, System.currentTimeMillis(), audioEncodeIntentService);
 	}
 	

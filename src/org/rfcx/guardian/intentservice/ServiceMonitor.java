@@ -9,14 +9,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public class ServiceMonitorIntentService extends IntentService {
+public class ServiceMonitor extends IntentService {
 	
-	private static final String TAG = "RfcxGuardian-"+ServiceMonitorIntentService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+ServiceMonitor.class.getSimpleName();
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.SERVICE_MONITOR";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
 	
-	public ServiceMonitorIntentService() {
+	public ServiceMonitor() {
 		super(TAG);
 	}
 	

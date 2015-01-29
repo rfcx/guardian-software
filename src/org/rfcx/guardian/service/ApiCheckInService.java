@@ -68,21 +68,18 @@ public class ApiCheckInService extends Service {
 		@Override
 		public void run() {
 			ApiCheckInService apiCheckInService = ApiCheckInService.this;
-			HttpPostMultipart httpPostMultipart = new HttpPostMultipart();
 			try {
 				
 				List<String[]> stringParameters = new ArrayList<String[]>();
 				stringParameters.add(new String[] { "json", app.apiCore.getCheckInJson() });
-				
-				app.apiCore
-					.processCheckIn(
-						httpPostMultipart.doMultipartPost(
-							app.apiCore.getCheckInUrl(),
-							stringParameters, 
-							app.apiCore.getCheckInFiles()
-						)
-					);
-				
+			
+				app.apiCore.queueCheckIn(
+					app.apiCore.getCheckInUrl(),
+					stringParameters, 
+					app.apiCore.getCheckInFiles(),
+					true // allow (or block) file attachments (audio/screenshots)
+				);
+					
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			} finally {
