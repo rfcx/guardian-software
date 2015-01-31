@@ -169,7 +169,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void onBootServiceTrigger() {
 		triggerIntentService("ServiceMonitor",60*((int) Integer.parseInt(getPref("service_monitor_interval"))));
-		triggerIntentService("CarrierCodeTrigger-Balance",60*10);
+		triggerIntentService("CarrierCodeTrigger-Balance",60*60*6);
 //		triggerIntentService("ApiCheckInTrigger", getPref("api_checkin_interval"));
 		triggerService("DeviceState", true);
 		triggerService("AudioCapture", true);
@@ -201,7 +201,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		} else if (intentServiceName.equals("CarrierCodeTrigger-Balance")) {
 			if (!this.isRunning_CarrierCodeTriggerTopUp) {
 				PendingIntent carrierCodeTrigger = PendingIntent.getService(context, -1, new Intent(context, CarrierCodeTriggerBalance.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				alarmManager.setInexactRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(16,43,0).getTimeInMillis(), repeatInterval, carrierCodeTrigger);
+				alarmManager.setInexactRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(19,45,0).getTimeInMillis(), repeatInterval, carrierCodeTrigger);
 			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'CarrierCodeTrigger-TopUp' is already running..."); }
 			
 		} else {

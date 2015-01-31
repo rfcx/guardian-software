@@ -2,6 +2,7 @@ package org.rfcx.guardian.service;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.carrier.CarrierInteraction;
+import org.rfcx.guardian.utility.DeviceScreenLock;
 import org.rfcx.guardian.utility.DeviceScreenShot;
 
 import android.app.Service;
@@ -69,6 +70,8 @@ public class CarrierCodeService extends Service {
 			try {
 				String ussdAction = app.carrierInteraction.currentlyRunningCode;
 				if (ussdAction != null) {
+					
+					(new DeviceScreenLock()).unLockScreen(context);
 					
 					String ussdCode = app.getPref("carriercode_"+ussdAction);
 					if (app.verboseLog) { Log.d(TAG, "Running USSD Code: "+ussdAction+" ("+ussdCode+")"); }
