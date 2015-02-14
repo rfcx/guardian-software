@@ -168,15 +168,17 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void onBootServiceTrigger() {
-		triggerIntentService("ServiceMonitor",60*((int) Integer.parseInt(getPref("service_monitor_interval"))));
-		triggerIntentService("CarrierCodeTrigger-Balance",60*60*6);
+		triggerIntentService("ServiceMonitor", System.currentTimeMillis(), 60*((int) Integer.parseInt(getPref("service_monitor_interval"))));
+		triggerIntentService("CarrierCodeTrigger-Balance", (new DateTimeUtils()).nextOccurenceOf(19,45,0).getTimeInMillis(), 60*60*5); // runs every 5 hours
+		triggerIntentService("CarrierCodeTrigger-TopUp", (new DateTimeUtils()).nextOccurenceOf(0,0,30).getTimeInMillis(), 60*60*12); // runs every 12 hours
 //		triggerIntentService("ApiCheckInTrigger", getPref("api_checkin_interval"));
 		triggerService("DeviceState", true);
 		triggerService("AudioCapture", true);
 	}
 	
-	public void triggerIntentService(String intentServiceName, int repeatIntervalSeconds) {
+	public void triggerIntentService(String intentServiceName, long startTimeMillis, int repeatIntervalSeconds) {
 		Context context = getApplicationContext();
+		if (startTimeMillis == 0) { startTimeMillis = System.currentTimeMillis(); }
 		long repeatInterval = 300000;
 		try { repeatInterval = repeatIntervalSeconds*1000; } catch (Exception e) { e.printStackTrace(); }
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -184,25 +186,25 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		if (intentServiceName.equals("ServiceMonitor")) {
 			if (!this.isRunning_ServiceMonitor) {
 				PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ServiceMonitor.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), repeatInterval, monitorServiceIntent);
+				if (repeatIntervalSeconds == 0) { alarmManager.set(AlarmManager.RTC, startTimeMillis, monitorServiceIntent);
+				} else { alarmManager.setInexactRepeating(AlarmManager.RTC, startTimeMillis, repeatInterval, monitorServiceIntent); }
 			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ServiceMonitor' is already running..."); }
 		} else if (intentServiceName.equals("ApiCheckInTrigger")) {
 			if (!this.isRunning_ApiCheckInTrigger) {
 				PendingIntent apiCheckInTrigger = PendingIntent.getService(context, -1, new Intent(context, ApiCheckInTrigger.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				alarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), repeatInterval, apiCheckInTrigger);
+				if (repeatIntervalSeconds == 0) { alarmManager.set(AlarmManager.RTC, startTimeMillis, apiCheckInTrigger);
+				} else { alarmManager.setInexactRepeating(AlarmManager.RTC, startTimeMillis, repeatInterval, apiCheckInTrigger); }
 			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ApiCheckInTrigger' is already running..."); }
 			
 		} else if (intentServiceName.equals("CarrierCodeTrigger-TopUp")) {
-			if (!this.isRunning_CarrierCodeTriggerTopUp) {
 				PendingIntent carrierCodeTrigger = PendingIntent.getService(context, -1, new Intent(context, CarrierCodeTriggerTopUp.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				alarmManager.setInexactRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(0,0,30).getTimeInMillis(), repeatInterval, carrierCodeTrigger);
-			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'CarrierCodeTrigger-TopUp' is already running..."); }
+				if (repeatIntervalSeconds == 0) { alarmManager.set(AlarmManager.RTC, startTimeMillis, carrierCodeTrigger);
+				} else { alarmManager.setInexactRepeating(AlarmManager.RTC, startTimeMillis, repeatInterval, carrierCodeTrigger); }
 			
 		} else if (intentServiceName.equals("CarrierCodeTrigger-Balance")) {
-			if (!this.isRunning_CarrierCodeTriggerTopUp) {
 				PendingIntent carrierCodeTrigger = PendingIntent.getService(context, -1, new Intent(context, CarrierCodeTriggerBalance.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				alarmManager.setInexactRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(19,45,0).getTimeInMillis(), repeatInterval, carrierCodeTrigger);
-			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'CarrierCodeTrigger-TopUp' is already running..."); }
+				if (repeatIntervalSeconds == 0) { alarmManager.set(AlarmManager.RTC, startTimeMillis, carrierCodeTrigger);
+				} else { alarmManager.setInexactRepeating(AlarmManager.RTC, startTimeMillis, repeatInterval, carrierCodeTrigger); }
 			
 		} else {
 			Log.e(TAG, "No IntentService named '"+intentServiceName+"'.");

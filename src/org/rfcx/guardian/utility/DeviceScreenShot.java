@@ -48,14 +48,11 @@ public class DeviceScreenShot {
     
 	public String saveScreenShot(Context context) {
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-		FileUtils fileUtils = new FileUtils();
 		String cachePath = app.getFilesDir().getAbsolutePath() + "/img.png";
 		String modulePath = app.getFilesDir().getAbsolutePath() + "/fb2png";
 		try {
 			(new File(cachePath)).delete();
-	        ProcessBuilder pb = new ProcessBuilder("su", "-c", modulePath+" "+cachePath);
-	        Process pc = pb.start();
-	        pc.waitFor();
+			(new ShellCommands()).executeCommandAsRoot(modulePath+" "+cachePath, null, context);
 	        File cacheFile = new File(cachePath);
 	        if (cacheFile.exists()) {
 	        	long timestamp = cacheFile.lastModified();
@@ -80,8 +77,6 @@ public class DeviceScreenShot {
 		    	}
 	        }
 		} catch (IOException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		} catch (InterruptedException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
 		return null;

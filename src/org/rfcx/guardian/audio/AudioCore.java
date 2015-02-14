@@ -15,6 +15,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -34,7 +35,7 @@ public class AudioCore {
 	// (*may* eventually support various lossy formats for post-encoding)
 	private boolean encodeOnCapture = true;
 	
-	public boolean purgeAudioAssetsOnStart = true;
+	public boolean purgeAudioAssetsOnStart = false;
 	
 	public final static int CAPTURE_SAMPLE_RATE_HZ = 8000;
 	public final int aacEncodingBitRate = 16384;
@@ -72,10 +73,16 @@ public class AudioCore {
 	
 	private void initializeAudioDirectories(RfcxGuardian app) {
 		String filesDir = app.getApplicationContext().getFilesDir().toString();
+		String encodedFilesDir = filesDir;
+		
+		String sdCardFilesDir = Environment.getExternalStorageDirectory().toString()+"/rfcx";
+		(new File(sdCardFilesDir)).mkdirs();
+		if ((new File(sdCardFilesDir)).isDirectory()) { encodedFilesDir = sdCardFilesDir; }
+				
 		this.captureDir = filesDir+"/capture"; this.audioDirectories[0] = this.captureDir;
-		this.wavDir = filesDir+"/wav"; this.audioDirectories[1] = this.wavDir;
-		this.flacDir = filesDir+"/flac"; this.audioDirectories[2] = this.flacDir;
-		this.aacDir = filesDir+"/m4a"; this.audioDirectories[3] = this.aacDir;
+		this.wavDir = encodedFilesDir+"/wav"; this.audioDirectories[1] = this.wavDir;
+		this.flacDir = encodedFilesDir+"/flac"; this.audioDirectories[2] = this.flacDir;
+		this.aacDir = encodedFilesDir+"/m4a"; this.audioDirectories[3] = this.aacDir;
 		
 		for (String audioDir : this.audioDirectories) { (new File(audioDir)).mkdirs(); }
 	}
@@ -88,28 +95,28 @@ public class AudioCore {
 	
 	public void purgeEncodedAssetsUpTo(AudioDb audioDb, Date purgeUpTo) {		
 		List<String[]> encodedAudioEntries = audioDb.dbEncoded.getAllEncoded();
-//		for (String[] encodedAudioEntry : encodedAudioEntries) {
-//			try {
-//				(new File(this.wavDir.substring(0,this.wavDir.lastIndexOf("/"))+"/"+encodedAudioEntry[2]+"/"+encodedAudioEntry[1]+"."+encodedAudioEntry[2])).delete();
-//			} catch (Exception e) {
-//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-//			}
-//		}
+		for (String[] encodedAudioEntry : encodedAudioEntries) {
+			try {
+				(new File(this.wavDir.substring(0,this.wavDir.lastIndexOf("/"))+"/"+encodedAudioEntry[2]+"/"+encodedAudioEntry[1]+"."+encodedAudioEntry[2])).delete();
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
+		}
 		audioDb.dbCaptured.clearCapturedBefore(purgeUpTo);
 		audioDb.dbEncoded.clearEncodedBefore(purgeUpTo);
 	}
 	
 	public void purgeAllAudioAssets(AudioDb audioDb) {
 		Log.d(TAG, "Purging all existing audio assets...");
-//		try {
-//			for (String audioDir : this.audioDirectories) {
-//				if (!audioDir.equals(captureDir)) { //with this, we can purge audio assets on-the-fly, even during capture
-//					for (File file : (new File(audioDir)).listFiles()) { file.delete(); }
-//				}
-//			}
-//		} catch (Exception e) {
-//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-//		}
+		try {
+			for (String audioDir : this.audioDirectories) {
+				if (!audioDir.equals(captureDir)) { //with this, we can purge audio assets on-the-fly, even during capture
+					for (File file : (new File(audioDir)).listFiles()) { file.delete(); }
+				}
+			}
+		} catch (Exception e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+		}
 		audioDb.dbCaptured.clearCapturedBefore(new Date());
 		audioDb.dbEncoded.clearEncodedBefore(new Date());
 	}

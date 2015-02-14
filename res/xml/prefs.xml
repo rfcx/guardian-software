@@ -20,7 +20,7 @@
 	    android:title="Allow Bluetooth"
 	    android:summary="Enable Bluetooth in/out of AirplaneMode"
         android:enabled="true"
-		android:defaultValue="false"/>
+		android:defaultValue="true"/>
 	
  	<EditTextPreference
         android:key="api_domain"

@@ -34,7 +34,7 @@ public class MainActivity extends Activity {
 			app.apiCore.triggerCheckIn(app);
 			break;
 		case R.id.menu_carrier_topup:
-			app.triggerService("CarrierCode", true);
+			app.triggerIntentService("CarrierCodeTrigger-TopUp",0,0);
 			break;
 		case R.id.menu_save_screenshot:
 			(new DeviceScreenShot()).saveScreenShot(app.getApplicationContext());

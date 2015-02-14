@@ -7,6 +7,7 @@ import java.util.Calendar;
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.audio.AudioCore;
 import org.rfcx.guardian.utility.ExtAudioRecorderModified;
+import org.rfcx.guardian.utility.FileUtils;
 
 import android.app.Service;
 import android.content.Context;
@@ -28,6 +29,7 @@ public class AudioCaptureService extends Service {
 	private Context context = null;
 	MediaRecorder mediaRecorder = null;
     ExtAudioRecorderModified audioRecorder = null;
+    FileUtils fileUtils = new FileUtils();
 	
 	private int captureSampleRate;
 	private long captureLoopPeriod = 360000;
@@ -169,9 +171,16 @@ public class AudioCaptureService extends Service {
 	private void processCompletedCaptureFile() {
 		File completedCapture = new File(app.audioCore.captureDir+"/"+captureTimeStamps[0]+"."+fileExtension);
 		if (completedCapture.exists()) {
-			completedCapture.renameTo(new File(
-					((app.audioCore.mayEncodeOnCapture()) ? app.audioCore.aacDir : app.audioCore.wavDir)
-					+"/"+captureTimeStamps[0]+"."+fileExtension));
+			try {
+				String newPath = ((app.audioCore.mayEncodeOnCapture()) ? app.audioCore.aacDir : app.audioCore.wavDir)
+						+"/"+captureTimeStamps[0]+"."+fileExtension;
+				fileUtils.copy(completedCapture, new File(newPath));
+				if ((new File(newPath)).exists()) {
+					completedCapture.delete();
+				}
+			} catch (IOException e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
 	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", fileExtension, "-");
 			if (app.verboseLog) Log.d(TAG, "Capture file created ("+this.captureLoopPeriod+"ms): "+captureTimeStamps[0]+"."+fileExtension);
 	        app.audioCore.queueAudioCaptureFollowUp(context);
