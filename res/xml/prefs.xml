@@ -14,13 +14,6 @@
 	    android:summary="Enable WiFi in/out of AirplaneMode"
         android:enabled="true"
 		android:defaultValue="false"/>
-
-	<CheckBoxPreference
-	    android:key="allow_bluetooth"
-	    android:title="Allow Bluetooth"
-	    android:summary="Enable Bluetooth in/out of AirplaneMode"
-        android:enabled="true"
-		android:defaultValue="true"/>
 	
  	<EditTextPreference
         android:key="api_domain"

@@ -23,26 +23,19 @@ public class DeviceScreenShot {
         // setup variables
     	RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
      	String filePath = app.getFilesDir().getAbsolutePath() + "/fb2png";
-        String repo = "https://android-fb2png.googlecode.com/files/fb2png";
+        String repoUrl = "http://rfcx-install.s3.amazonaws.com/fb2png/fb2png";
 
         // check that module is not already installed before starting
         Log.i(TAG, "Checking for existance of screenshot module");
-        if ((new File(filePath)).exists()) { Log.i(TAG, "Screenshot module already installed."); }
-        else {
-        	// downloads and screenshot code if not found at install time.
+        if ((new File(filePath)).exists()) {
+        	Log.i(TAG, "Screenshot module already installed.");
+        } else {
+        	// downloads screenshot code if not found at install time.
             Log.i(TAG,"Downloading screenshot module from server");
-            try { if ((new HttpGet()).getAsFile(repo, "fb2png", app)) { 
-            	Log.i(TAG,"File download complete"); } 
-	            try{ 
-	            	// setup the code by setting the proper chmod permissions
-	            	Class<?> fileUtils = Class.forName("android.os.FileUtils");
-	            	Method setPermissions = fileUtils.getMethod("setPermissions", String.class, int.class, int.class, int.class);
-	            	setPermissions.invoke(null, filePath, 0755, -1, -1);
-	            	Log.i(TAG,"Successfully set up screenshot module");
-	            }
-	            catch (Exception e) { Log.e(TAG,"Failed to setup the screenshot module"); }
-            }
-            catch (Exception e) { Log.e(TAG,"Failed to download file"); }
+        	if ((new HttpGet()).getAsFile(repoUrl, "fb2png", app)) { 
+        		Log.i(TAG,"File download complete");
+            	(new FileUtils()).chmod(new File(filePath), 0755);
+        	}
         }
     }
     
