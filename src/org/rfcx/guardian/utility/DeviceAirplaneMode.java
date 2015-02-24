@@ -51,9 +51,4 @@ public class DeviceAirplaneMode {
 		}
 	}
 	
-	public boolean allowWifi(Context context) {
-		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
-		return app.sharedPrefs.getBoolean("allow_wifi", false);
-	}
-	
 }

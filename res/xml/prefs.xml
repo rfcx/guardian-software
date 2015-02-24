@@ -7,13 +7,6 @@
 	    android:summary="Verbose Logging"
 		android:enabled="true"
 		android:defaultValue="false"/>
-    	
-	<CheckBoxPreference
-	    android:key="allow_wifi"
-	    android:title="Allow WiFi"
-	    android:summary="Enable WiFi in/out of AirplaneMode"
-        android:enabled="true"
-		android:defaultValue="false"/>
 	
  	<EditTextPreference
         android:key="api_domain"
