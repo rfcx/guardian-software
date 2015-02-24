@@ -40,6 +40,7 @@ public class DateTimeUtils {
 		if (rightNow.getTimeInMillis() >= calendar.getTimeInMillis()) {
 			calendar.set(Calendar.DAY_OF_YEAR, rightNow.get(Calendar.DAY_OF_YEAR)+1);
 		}
+		Log.i(TAG,"nextOccurence will be at "+calendar.getTimeInMillis());
 		return calendar;
 	}
 	

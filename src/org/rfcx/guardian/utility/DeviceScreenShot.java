@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 
 import org.rfcx.guardian.RfcxGuardian;
 
@@ -19,22 +18,26 @@ public class DeviceScreenShot {
 	private static final String TAG = "RfcxGuardian-"+DeviceScreenShot.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
+	private static final String fb2pngSha1 = "b6084874174209b544dd2dadcb668e71584f8bf4";
+	
     public void checkModuleInstalled(Context context) {
+    	
         // setup variables
     	RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-     	String filePath = app.getFilesDir().getAbsolutePath() + "/fb2png";
+    	FileUtils fileUtils = new FileUtils();
+     	String fb2pngFilePath = app.getFilesDir().getAbsolutePath() + "/fb2png";
+     	File fb2pngFile = new File(fb2pngFilePath);
         String repoUrl = "http://rfcx-install.s3.amazonaws.com/fb2png/fb2png";
 
         // check that module is not already installed before starting
-        Log.i(TAG, "Checking for existance of screenshot module");
-        if ((new File(filePath)).exists()) {
-        	Log.i(TAG, "Screenshot module already installed.");
-        } else {
+        if (!fb2pngFile.exists()) {
         	// downloads screenshot code if not found at install time.
             Log.i(TAG,"Downloading screenshot module from server");
-        	if ((new HttpGet()).getAsFile(repoUrl, "fb2png", app)) { 
-        		Log.i(TAG,"File download complete");
-            	(new FileUtils()).chmod(new File(filePath), 0755);
+        	if ((new HttpGet()).getAsFile(repoUrl, fb2pngFilePath, app) && fileUtils.sha1Hash(fb2pngFilePath).equals(fb2pngSha1)) { 
+        		Log.i(TAG,"File download complete and checksum verified.");
+            	(new FileUtils()).chmod(fb2pngFile, 0755);
+        	} else {
+        		fb2pngFile.delete();
         	}
         }
     }
@@ -43,6 +46,7 @@ public class DeviceScreenShot {
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 		String cachePath = app.getFilesDir().getAbsolutePath() + "/img.png";
 		String modulePath = app.getFilesDir().getAbsolutePath() + "/fb2png";
+		checkModuleInstalled(context);
 		try {
 			(new File(cachePath)).delete();
 			(new ShellCommands()).executeCommandAsRoot(modulePath+" "+cachePath, null, context);

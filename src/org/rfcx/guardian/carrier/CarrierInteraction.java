@@ -1,10 +1,9 @@
 package org.rfcx.guardian.carrier;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +30,7 @@ public class CarrierInteraction {
         }	
 	}
 	
-	public void closeResponseDialog(String[] commandSequence) {
+	public void closeResponseDialog(Context context, String[] commandSequence) {
 		List<String> cmdSeq = new ArrayList<String>();
 		for (String command : commandSequence) {
 			cmdSeq.add("input keyevent "+command.replaceAll("up","19").replaceAll("down","20").replaceAll("right","22").replaceAll("left","21").replaceAll("enter","23"));
@@ -42,13 +41,6 @@ public class CarrierInteraction {
 		cmdSeq.add("input keyevent 23");
 		
 		Log.d(TAG, TextUtils.join(" && ", cmdSeq));
-		try {
-	        Process process = (new ProcessBuilder("su", "-c", TextUtils.join(" && ", cmdSeq))).start();
-	        process.waitFor();
-		} catch (IOException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		} catch (InterruptedException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		}
+		(new ShellCommands()).executeCommandAsRoot(TextUtils.join(" && ", cmdSeq),null,context);
 	}	
 }

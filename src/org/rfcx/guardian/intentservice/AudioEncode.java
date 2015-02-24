@@ -41,7 +41,8 @@ public class AudioEncode extends IntentService {
 		}
 		
 		// Trigger CheckIn (if that's what we wanted... turns out we don't at the moment, since sending and recording simultaneously causes a lot of GSM interference)
-//		app.apiCore.sendCheckIn(app);
+		// app.apiCore.triggerCheckIn(app);
+	
 	}
 
 }

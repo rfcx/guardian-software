@@ -1,8 +1,6 @@
 package org.rfcx.guardian.service;
 
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.carrier.CarrierInteraction;
-import org.rfcx.guardian.utility.DeviceScreenLock;
 import org.rfcx.guardian.utility.DeviceScreenShot;
 
 import android.app.Service;
@@ -71,24 +69,25 @@ public class CarrierCodeService extends Service {
 				String ussdAction = app.carrierInteraction.currentlyRunningCode;
 				if (ussdAction != null) {
 					
-					(new DeviceScreenLock()).unLockScreen(context);
+					app.deviceScreenLock.unLockScreen(context);
 					
 					String ussdCode = app.getPref("carriercode_"+ussdAction);
 					if (app.verboseLog) { Log.d(TAG, "Running USSD Code: "+ussdAction+" ("+ussdCode+")"); }
 					app.carrierInteraction.submitCode(context, ussdCode);
 					
 					Thread.sleep(20000);
-					(new DeviceScreenShot()).saveScreenShot(app.getApplicationContext());
+					(new DeviceScreenShot()).saveScreenShot(context);
 					
 					String ussdClose = app.getPref("carriercode_"+ussdAction+"_close");
 					if (app.verboseLog) { Log.d(TAG, "Closing USSD Code Response: "+ussdAction+" ("+ussdClose+")"); }
-					app.carrierInteraction.closeResponseDialog(app.getPref("carriercode_"+ussdAction+"_close").split(","));
+					app.carrierInteraction.closeResponseDialog(context,app.getPref("carriercode_"+ussdAction+"_close").split(","));
 				}
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			} finally {
 				app.carrierInteraction.currentlyRunningCode = null;
 				app.isRunning_CarrierCode = false;
+				app.deviceScreenLock.releaseWakeLock();
 				app.stopService("CarrierCode");
 			}
 		}

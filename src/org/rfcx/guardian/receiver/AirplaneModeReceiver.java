@@ -42,15 +42,6 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 				"AirplaneMode " + ( app.airplaneMode.isEnabled(context) ? "Enabled" : "Disabled" )
 				+ " at "+(Calendar.getInstance()).getTime().toLocaleString());
 		
-		if (!app.airplaneMode.isEnabled(context)) {			
-//			if (timeOfDay.isDataGenerationEnabled(context) || app.ignoreOffHours) {
-//				app.apiCore.setSignalSearchStart(Calendar.getInstance());
-//				wifiManager.setWifiEnabled(app.airplaneMode.getAllowWifi());	
-//			} else {
-//				if (app.verboseLogging) Log.d(TAG, "API Check-In not allowed right now");
-//			}
-		}
-		
 		// finally... location/bluetooth/wifi
 		
 		// disable location services
@@ -59,8 +50,6 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 		// disable/enable wifi
 		wifiManager.setWifiEnabled(app.airplaneMode.allowWifi(context));
 		
-		// enable/disable bluetooth
-		if (app.airplaneMode.allowBluetooth(context)) { bluetoothAdapter.enable(); } else { bluetoothAdapter.disable(); }
 	}
 
 }

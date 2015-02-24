@@ -84,18 +84,18 @@ public class ApiCore {
 
 		List<String[]> encodedAudio = app.audioDb.dbEncoded.getAllEncoded();
 		List<String> audioFiles = new ArrayList<String>();
-		for (String[] audioEntry : encodedAudio) {			
-			String filePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioEntry[2]+"/"+audioEntry[1]+"."+audioEntry[2];
-			try {
-				if ((new File(filePath)).exists()) {
-					audioFiles.add(TextUtils.join("*", audioEntry));
-				} else if (app.verboseLog) {
-					Log.d(TAG, "Audio didn't exist: "+audioEntry[1]+"."+audioEntry[2]);
-				}
-			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-			}
-		}
+//		for (String[] audioEntry : encodedAudio) {			
+//			String filePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioEntry[2]+"/"+audioEntry[1]+"."+audioEntry[2];
+//			try {
+//				if ((new File(filePath)).exists()) {
+//					audioFiles.add(TextUtils.join("*", audioEntry));
+//				} else if (app.verboseLog) {
+//					Log.d(TAG, "Audio didn't exist: "+audioEntry[1]+"."+audioEntry[2]);
+//				}
+//			} catch (Exception e) {
+//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+//			}
+//		}
 		json.put("audio", TextUtils.join("|", audioFiles));
 		
 		this.requestSendStart = Calendar.getInstance();

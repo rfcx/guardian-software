@@ -38,8 +38,6 @@ public class DeviceAirplaneMode {
     	} else {
     		set(context, 0);
     	}
-    	Log.d(TAG, "Allow WiFi: "+app.sharedPrefs.getBoolean("allow_wifi", false)+"");
-    	Log.d(TAG, "Allow Bluetooth: "+app.sharedPrefs.getBoolean("allow_bluetooth", false)+"");
 	}
 	
 	private void set(Context context, int value) {
@@ -56,11 +54,6 @@ public class DeviceAirplaneMode {
 	public boolean allowWifi(Context context) {
 		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
 		return app.sharedPrefs.getBoolean("allow_wifi", false);
-	}
-	
-	public boolean allowBluetooth(Context context) {
-		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
-		return app.sharedPrefs.getBoolean("allow_bluetooth", false);
 	}
 	
 }
