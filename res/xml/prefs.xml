@@ -13,26 +13,24 @@
         android:title="API Protocol/Address"
         android:summary="Domain/Protocol for API calls"
         android:enabled="true"
-        android:defaultValue="https://api.rfcx.org" />
+        android:defaultValue="http://api.rfcx.org" />
 	
 	<EditTextPreference
         android:key="api_checkin_interval"
         android:title="API CheckIn Interval"
-        android:summary="How often to check-in to API (seconds)"
+        android:summary="How often to check-in to API (minutes)"
 	    android:inputType="number"
         android:enabled="true"
-        android:defaultValue="150"/>
+        android:defaultValue="10"/>
 	
 	<EditTextPreference
         android:key="service_monitor_interval"
         android:title="Service Monitor Interval"
-        android:summary="How often should we check if services are running?"
+        android:summary="How often to check if services are running? (minutes)"
 	    android:inputType="number"
         android:enabled="true"
         android:defaultValue="5"/>
 	
-
-
 	<CheckBoxPreference
 	    android:key="transcode_as_aac"
 	    android:title="Encode as AAC (vs. FLAC)"

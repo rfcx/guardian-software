@@ -28,18 +28,14 @@ public class CheckInDb {
 	static final int VERSION = 1;
 	static final String DATABASE = "checkin";
 	static final String C_CREATED_AT = "created_at";
-	static final String C_TIMESTAMP = "timestamp";
 	static final String C_AUDIO = "audio";
-	static final String C_SCREENSHOT = "screenshot";
 	static final String C_JSON = "json";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_AUDIO, C_SCREENSHOT, C_JSON };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON };
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
-		sbOut.append(", "+C_TIMESTAMP+" TEXT");
 		sbOut.append(", "+C_AUDIO+" TEXT");
-		sbOut.append(", "+C_SCREENSHOT+" TEXT");
 		sbOut.append(", "+C_JSON+" TEXT");
 		return sbOut.append(")").toString();
 	}
@@ -69,12 +65,10 @@ public class CheckInDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String value, String audio, String screenshot, String json) {
+		public void insert(String audio, String json) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
-			values.put(C_TIMESTAMP, value);
 			values.put(C_AUDIO, audio);
-			values.put(C_SCREENSHOT, screenshot);
 			values.put(C_JSON, json);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
@@ -88,25 +82,37 @@ public class CheckInDb {
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
 				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) });
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
 			return list;
 		}
+		public String[] getLatestRow() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] row = new String[] {null,null,null};
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
+				if (cursor.getCount() > 0) {
+					try {
+						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) };
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
+			return row;
+		}
+		
+		public void deleteSingleRow(String audioFile) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_AUDIO+"='"+audioFile+"'");
+			} finally { db.close(); }
+		}
+		
 		public void clearQueuedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
 			} finally { db.close(); }
 		}
 		
-		public String getSerializedQueued() {
-			List<String[]> queuedList = getAllQueued();
-			String[] queuedArray = new String[queuedList.size()];
-			for (int i = 0; i < queuedList.size(); i++) {
-				queuedArray[i] = TextUtils.join("|", queuedList.get(i));
-			}
-			return (queuedList.size() > 0) ? TextUtils.join("$", queuedArray) : "";
-		}
+
 	}
 	public final DbQueued dbQueued;
 	

@@ -70,13 +70,15 @@ public class ApiCheckInService extends Service {
 			ApiCheckInService apiCheckInService = ApiCheckInService.this;
 			try {
 				
+				String[] currentCheckIn = app.checkInDb.dbQueued.getLatestRow();
+				
 				List<String[]> stringParameters = new ArrayList<String[]>();
-				stringParameters.add(new String[] { "json", app.apiCore.getCheckInJson() });
+				stringParameters.add(new String[] { "json", currentCheckIn[2] });
 			
-				app.apiCore.queueCheckIn(
+				app.apiCore.sendCheckIn(
 					app.apiCore.getCheckInUrl(),
 					stringParameters, 
-					app.apiCore.getCheckInFiles(),
+					app.apiCore.loadCheckInFiles(currentCheckIn[1]),
 					true // allow (or block) file attachments (audio/screenshots)
 				);
 					
@@ -85,6 +87,8 @@ public class ApiCheckInService extends Service {
 			} finally {
 				app.isRunning_ApiCheckIn = false;
 				app.stopService("ApiCheckIn");
+				//questionable whether this next line is a good idea...
+				app.apiCore.triggerCheckIn(false);
 			}
 		}
 	}

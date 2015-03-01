@@ -157,9 +157,27 @@ public class AudioDb {
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
 			return list;
 		}
+		public String[] getLatestRow() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] row = new String[] {null,null,null};
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
+				if (cursor.getCount() > 0) {
+					try {
+						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) };
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
+			return row;
+		}
 		public void clearEncodedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			} finally { db.close(); }
+		}
+		
+		public void deleteSingleEncoded(String timestamp) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
 			} finally { db.close(); }
 		}
 		

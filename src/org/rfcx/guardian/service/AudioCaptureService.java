@@ -32,7 +32,7 @@ public class AudioCaptureService extends Service {
     FileUtils fileUtils = new FileUtils();
 	
 	private int captureSampleRate;
-	private long captureLoopPeriod = 360000;
+	private long captureLoopPeriod = 90000;
 	
 	private int encodingBitRate;
 	private String fileExtension;
@@ -178,6 +178,10 @@ public class AudioCaptureService extends Service {
 				if ((new File(newPath)).exists()) {
 					completedCapture.delete();
 				}
+				
+				File storageDirectory = new File(newPath.substring(0, newPath.lastIndexOf("/")));
+				// check for free space?
+				
 			} catch (IOException e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			}

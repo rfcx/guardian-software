@@ -121,6 +121,24 @@ public class AudioCore {
 		audioDb.dbEncoded.clearEncodedBefore(new Date());
 	}
 	
+	public void purgeSingleAudioAsset(AudioDb audioDb, String audioTimestamp) {
+		Log.d(TAG, "Purging single audio asset: "+audioTimestamp);
+
+		List<String[]> encodedAudioEntries = audioDb.dbEncoded.getAllEncoded();
+		for (String[] encodedAudioEntry : encodedAudioEntries) {
+			if (encodedAudioEntry[1].equals(audioTimestamp)) {
+				try {
+					(new File(this.wavDir.substring(0,this.wavDir.lastIndexOf("/"))+"/"+encodedAudioEntry[2]+"/"+encodedAudioEntry[1]+"."+encodedAudioEntry[2])).delete();
+					Log.d(TAG, audioTimestamp+" has been deleted...");
+				} catch (Exception e) {
+					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+				}
+			}
+		}
+
+		audioDb.dbEncoded.deleteSingleEncoded(audioTimestamp);
+	}
+	
 	public void queueAudioCaptureFollowUp(Context context) {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		PendingIntent audioEncodeIntentService = PendingIntent.getService(context, -1, new Intent(context, AudioEncode.class), PendingIntent.FLAG_UPDATE_CURRENT);

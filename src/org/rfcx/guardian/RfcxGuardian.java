@@ -84,6 +84,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// for interacting with telecom carriers
 	public CarrierInteraction carrierInteraction = new CarrierInteraction();
 	public DeviceScreenLock deviceScreenLock = new DeviceScreenLock();
+	public DeviceScreenShot deviceScreenShot = new DeviceScreenShot();
 	
 	// should services be disabled as if in a power emergency...
 //	public boolean isCrisisModeEnabled = false;
@@ -108,16 +109,18 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void onCreate() {
 		super.onCreate();
 		
+		Context context = getApplicationContext();
+		
 		setAppVersion();
 		
 		rfcxGuardianPrefs.initializePrefs();
-		rfcxGuardianPrefs.checkAndSet(this);
 		rfcxGuardianPrefs.loadPrefsOverride();
-
-		(new ShellCommands()).executeCommandAsRoot("pm list features",null,getApplicationContext());		
-		(new DeviceScreenShot()).checkModuleInstalled(getApplicationContext());
+		rfcxGuardianPrefs.checkAndSet(this);
 		
-		airplaneMode.setOn(getApplicationContext());
+		apiCore.init(this);
+
+		(new ShellCommands()).executeCommandAsRoot("pm list features",null,context);		
+		deviceScreenShot.checkModuleInstalled(context);
 		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -176,10 +179,26 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void onBootServiceTrigger() {
 		if (!hasRun_OnBootServiceTrigger) {
-			triggerIntentService("ServiceMonitor", System.currentTimeMillis(), 60*((int) Integer.parseInt(getPref("service_monitor_interval"))));
-			triggerIntentService("CarrierCodeTrigger-Balance", System.currentTimeMillis()+( 2 *(60*1000)), ( 6 * 3600)); // starting 2 minutes after app launch, runs repeatedly every 6 hours
-			triggerIntentService("CarrierCodeTrigger-TopUp", (new DateTimeUtils()).nextOccurenceOf(0,0,30).getTimeInMillis(), ( 12 *3600)); // starting at the next instance of 30 seconds after midnight, repeating every 12 hours
-	//		triggerIntentService("ApiCheckInTrigger", getPref("api_checkin_interval"));
+			// Service Monitor
+			triggerIntentService("ServiceMonitor", 
+					System.currentTimeMillis(),
+					60*((int) Integer.parseInt(getPref("service_monitor_interval")))
+					);
+			// CarrierCodeTrigger-Balance, starting 2 minutes after app launch, runs repeatedly every 3 hours
+			triggerIntentService("CarrierCodeTrigger-Balance", 
+					System.currentTimeMillis()+( 2 *(60*1000)), 
+					( 3 * 3600)
+					);
+			// CarrierCodeTrigger-TopUp, starting at the next instance of 30 seconds after midnight, repeating every 12 hours
+			triggerIntentService("CarrierCodeTrigger-TopUp", 
+					(new DateTimeUtils()).nextOccurenceOf(0,0,30).getTimeInMillis(), 
+					( 12 *3600)
+					);
+			// ApiCheckInTrigger
+			triggerIntentService("ApiCheckInTrigger", 
+					System.currentTimeMillis()/*+(60*1000*((int) Integer.parseInt(getPref("api_checkin_interval"))))*/, 
+					20//60*((int) Integer.parseInt(getPref("api_checkin_interval")))
+					);
 			triggerService("DeviceState", true);
 			triggerService("AudioCapture", true);
 			hasRun_OnBootServiceTrigger = true;
@@ -246,7 +265,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			if (!this.isRunning_ApiCheckIn || forceReTrigger) {
 				context.stopService(new Intent(context, ApiCheckInService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, ApiCheckInService.class));
-			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			}// else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
 			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("CarrierCode")) {
 			if (!this.isRunning_CarrierCode || forceReTrigger) {

@@ -69,6 +69,10 @@ public class RfcxGuardianPrefs {
 //		for ( ... ) {
 //			prefProfileArray.add((String[] { nameFromJson, valueFromJson, typeFromJson });
 //		}
+		setPref("api_domain","http://api.rfcx.org","string");
+		setPref("verbose_logging","true","boolean");
+		setPref("api_checkin_interval","10","int");
+		
 //		Log.d(TAG, "Overriding Pref: "+thisPref[0]+" > "+thisPref[1]+" > "+ (setPreference(thisPref[0],thisPref[1],thisPref[2]) ? "Success" : "Failure" ));
 	}
 

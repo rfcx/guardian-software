@@ -23,7 +23,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 			if (app.verboseLog) Log.d(TAG, "Connectivity: YES");
 			int disconnectedFor = (int) (app.lastConnectedAt - app.lastDisconnectedAt);
 			if (disconnectedFor > 1000) app.deviceStateDb.dbNetworkSearch.insert(disconnectedFor);
-			app.triggerService("ApiCheckIn", true);
+	//		app.apiCore.triggerCheckIn(app);
 		} else {
 			app.lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
 			if (app.verboseLog) Log.d(TAG, "Connectivity: NO");

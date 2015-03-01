@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
 			app.audioCore.purgeAllAudioAssets(app.audioDb);
 			break;
 		case R.id.menu_send_checkin:
-			app.apiCore.triggerCheckIn(app);
+			app.apiCore.triggerCheckIn(true);
 			break;
 		case R.id.menu_carrier_topup:
 			app.triggerIntentService("CarrierCodeTrigger-TopUp",0,0);

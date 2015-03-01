@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian"
     android:versionCode="0"
-    android:versionName="0.4.42"
+    android:versionName="0.4.45"
     >
 
     <uses-sdk

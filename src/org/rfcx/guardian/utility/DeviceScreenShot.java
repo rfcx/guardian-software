@@ -6,8 +6,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
+import java.util.List;
 
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.database.AudioDb;
+import org.rfcx.guardian.database.ScreenShotDb;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -19,21 +23,22 @@ public class DeviceScreenShot {
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	private static final String fb2pngSha1 = "b6084874174209b544dd2dadcb668e71584f8bf4";
+	RfcxGuardian app = null;
 	
     public void checkModuleInstalled(Context context) {
     	
         // setup variables
-    	RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+    	this.app = (RfcxGuardian) context.getApplicationContext();
     	FileUtils fileUtils = new FileUtils();
-     	String fb2pngFilePath = app.getFilesDir().getAbsolutePath() + "/fb2png";
-     	File fb2pngFile = new File(fb2pngFilePath);
+     	String fb2pngLocation = app.getFilesDir().getPath();
+     	File fb2pngFile = new File(fb2pngLocation,"fb2png");
         String repoUrl = "http://rfcx-install.s3.amazonaws.com/fb2png/fb2png";
 
         // check that module is not already installed before starting
         if (!fb2pngFile.exists()) {
         	// downloads screenshot code if not found at install time.
             Log.i(TAG,"Downloading screenshot module from server");
-        	if ((new HttpGet()).getAsFile(repoUrl, fb2pngFilePath, app) && fileUtils.sha1Hash(fb2pngFilePath).equals(fb2pngSha1)) { 
+        	if ((new HttpGet()).getAsFile(repoUrl, fb2pngLocation+"/fb2png", app) && fileUtils.sha1Hash(fb2pngLocation).equals(fb2pngSha1)) { 
         		Log.i(TAG,"File download complete and checksum verified.");
             	(new FileUtils()).chmod(fb2pngFile, 0755);
         	} else {
@@ -43,7 +48,7 @@ public class DeviceScreenShot {
     }
     
 	public String saveScreenShot(Context context) {
-		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		this.app = (RfcxGuardian) context.getApplicationContext();
 		String cachePath = app.getFilesDir().getAbsolutePath() + "/img.png";
 		String modulePath = app.getFilesDir().getAbsolutePath() + "/fb2png";
 		checkModuleInstalled(context);
@@ -77,6 +82,20 @@ public class DeviceScreenShot {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
 		return null;
+	}
+	
+	public void purgeAllScreenShots(ScreenShotDb screenShotDb) {
+		Log.d(TAG, "Purging all existing screenshots...");
+		if (this.app != null) {
+			try {
+				String screenShotDir = this.app.getApplicationContext().getFilesDir().toString()+"/img";
+				for (File file : (new File(screenShotDir)).listFiles()) { file.delete(); }
+		
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
+		}
+		screenShotDb.dbScreenShot.clearScreenShotsBefore(new Date());
 	}
 	
 }
