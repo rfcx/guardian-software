@@ -11,6 +11,7 @@ import org.json.simple.parser.JSONParser;
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.HttpPostMultipart;
+import org.rfcx.guardian.utility.ShellCommands;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -26,42 +27,44 @@ public class ApiCore {
 	//public long signalSearchStartTime = 0;
 	private DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private Date requestSendStart = new Date();
+	public Date requestSendReturned = new Date();
+	
+	public Date lastSuccessfulCheckIn = new Date();
 	
 	private String lastCheckInId = null;
 	private long lastCheckInDuration = 0;
 	
-	private long lastCheckInTriggered = 0;
+	public long apiCheckInTriggerPeriod = 15000;
 	
-	private int checkInCountTotal = 0;
-	private int checkInCountSuccess = 0;
-	private int checkInCountConsecutiveFailures = 0;
+//	private int[] connectivityToggleThresholds = new int[] { 15, 30, 45, 60 };
+	private int[] connectivityToggleThresholds = new int[] { 10, 20, 30, 40 };
+	private boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 	
-	private static final int MAX_FAILED_CHECKINS = 3;
 	
 	public void init(RfcxGuardian app) {
 		this.app = app;
+		this.httpPostMultipart.setTimeOuts(90000);
 	}
 	
-	public void triggerCheckIn(boolean forceStart) {
-		if (app.isConnected) {
-	//		if ((System.currentTimeMillis() - lastCheckInTriggered) > 1000) {
-				lastCheckInTriggered = System.currentTimeMillis();
-				app.triggerService("ApiCheckIn", forceStart);
-		//	} else {
-		//		Log.d(TAG,"Skipping attempt to double check-in");
-		//	}
-		} else {
-			Log.d(TAG,"No connectivity... Toggling AirplaneMode");
-			app.airplaneMode.setOff(app.getApplicationContext());
-		}
-	}
+//	public void triggerCheckIn(boolean forceStart) {
+//		if (app.isConnected) {
+//	//		if ((System.currentTimeMillis() - lastCheckInTriggered) > 1000) {
+//				lastCheckInTriggered = System.currentTimeMillis();
+//				app.triggerService("ApiCheckIn", forceStart);
+//		//	} else {
+//		//		Log.d(TAG,"Skipping attempt to double check-in");
+//		//	}
+//		} else {
+//			Log.d(TAG,"No connectivity... Toggling AirplaneMode");
+//	//		app.airplaneMode.setOff(app.getApplicationContext());
+//		}
+//	}
 	
 	public String getCheckInUrl() {
 		return app.getPref("api_domain")+"/v1/guardians/"+app.getDeviceId()+"/checkins";
 	}
 	
 	public void sendCheckIn(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments, boolean allowAttachments) {
-		//Log.d(TAG, keyValueParameters.toString());
 		if (!allowAttachments) keyFilepathMimeAttachments = new ArrayList<String[]>();
 		if (app.isConnected) {
 			this.requestSendStart = new Date();
@@ -131,24 +134,22 @@ public class ApiCore {
 			
 			try {
 				JSONObject responseJson = (JSONObject) (new JSONParser()).parse(checkInResponse);
-				this.lastCheckInId = responseJson.get("checkin_id").toString();
-				this.lastCheckInDuration = System.currentTimeMillis() - this.requestSendStart.getTime();
-				
-				if (app.verboseLog) Log.d(TAG,"CheckIn request time: "+(this.lastCheckInDuration/1000)+" seconds");
 				String audioJsonString = responseJson.get("audio").toString();
 				JSONObject audioJson = (JSONObject) (new JSONParser()).parse(audioJsonString.substring(audioJsonString.indexOf("[")+1, audioJsonString.lastIndexOf("]")));
+				
+				this.lastCheckInId = responseJson.get("checkin_id").toString();
+				this.lastCheckInDuration = System.currentTimeMillis() - this.requestSendStart.getTime();
+				this.requestSendReturned = new Date();
+				if (app.verboseLog) Log.d(TAG,"CheckIn request time: "+(this.lastCheckInDuration/1000)+" seconds");
+				
 				app.audioCore.purgeSingleAudioAsset(app.audioDb, audioJson.get("id").toString());
 				app.checkInDb.dbQueued.deleteSingleRow(audioJson.get("id").toString()+".m4a");
 				
-			} catch (org.json.simple.parser.ParseException e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			} finally {
 				if (app.verboseLog) Log.d(TAG, "API Response: " + checkInResponse);
 			}
-		} else {
-			Log.e(TAG,"No CheckIn Response (or null). Trying again.");
 		}
 	}			
 	
@@ -164,9 +165,9 @@ public class ApiCore {
 		try {
 			if ((new File(audioFilePath)).exists()) {
 				checkInFiles.add(new String[] {"audio", audioFilePath, "audio/"+audioFormat});
-				if (app.verboseLog) { Log.d(TAG, "Audio added: "+audioId+"."+audioFormat); }
+				if (app.verboseLog) { Log.d(TAG, "Audio attached: "+audioId+"."+audioFormat); }
 			} else if (app.verboseLog) {
-				Log.d(TAG, "Audio didn't exist: "+audioId+"."+audioFormat);
+				Log.e(TAG, "Audio attachment file doesn't exist: "+audioId+"."+audioFormat);
 			}
 		} catch (Exception e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
@@ -180,9 +181,9 @@ public class ApiCore {
 			try {
 				if ((new File(imgFilePath)).exists()) {
 					checkInFiles.add(new String[] {"screenshot", imgFilePath, "image/png"});
-					if (app.verboseLog) { Log.d(TAG, "Screenshot added: "+screenShotEntry[1]+".png"); }
+					if (app.verboseLog) { Log.d(TAG, "Screenshot attached: "+screenShotEntry[1]+".png"); }
 				} else if (app.verboseLog) {
-					Log.d(TAG, "Screenshot didn't exist: "+screenShotEntry[1]+".png");
+					Log.d(TAG, "Screenshot attachment file doesn't exist: "+screenShotEntry[1]+".png");
 				}
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
@@ -192,6 +193,29 @@ public class ApiCore {
 		return checkInFiles;
 	}
 	
+	
+	public void connectivityToggleCheck() {
+		
+		int secsSinceSuccess = (int) ((new Date()).getTime() - this.requestSendReturned.getTime()) / 1000;
+		if ((secsSinceSuccess/60) < this.connectivityToggleThresholds[0]) {
+			this.connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };	
+		} else {
+			int thresholdIndex = 0;
+			for (int toggleThreshold : this.connectivityToggleThresholds) {
+				if (((secsSinceSuccess/60) >= toggleThreshold) && !this.connectivityToggleThresholdsReached[thresholdIndex]) {
+					this.connectivityToggleThresholdsReached[thresholdIndex] = true;
+					Log.d(TAG,"ToggleCheck: AirplaneMode ("+toggleThreshold+" minutes since last successful CheckIn)");
+					app.airplaneMode.setOff(app.getApplicationContext());
+					if (toggleThreshold == this.connectivityToggleThresholds[this.connectivityToggleThresholds.length-1]) {
+						//last index, force reboot
+						Log.d(TAG,"ToggleCheck: ForcedReboot ("+toggleThreshold+" minutes since last successful CheckIn)");
+						(new ShellCommands()).executeCommandAsRoot("reboot",null,app.getApplicationContext());
+					}
+				}
+				thresholdIndex++;
+			}
+		}
+	}
 	
 //	private byte[] gZipString(String s) {
 //		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

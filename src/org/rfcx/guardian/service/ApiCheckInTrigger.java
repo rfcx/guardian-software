@@ -1,11 +1,6 @@
 package org.rfcx.guardian.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.api.ApiCore;
-import org.rfcx.guardian.utility.HttpPostMultipart;
 
 import android.app.Service;
 import android.content.Context;
@@ -14,28 +9,28 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class ApiCheckInService extends Service {
+public class ApiCheckInTrigger extends Service {
 
-	private static final String TAG = "RfcxGuardian-"+ApiCheckInService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+ApiCheckInTrigger.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
-
+	
 	private boolean runFlag = false;
-	private ApiCheckIn apiCheckIn;
-
+	private ApiCheckIn apiCheckInTrigger;
+	
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
 	@Override
-	public IBinder onBind(Intent arg0) {
+	public IBinder onBind(Intent intent) {
 		return null;
 	}
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.apiCheckIn = new ApiCheckIn();
+		this.apiCheckInTrigger = new ApiCheckIn();
 	}
-
+	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
@@ -43,69 +38,61 @@ public class ApiCheckInService extends Service {
 		
 		app = (RfcxGuardian) getApplication();
 		context = app.getApplicationContext();
-
+		
 		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
 		
-		app.isRunning_ApiCheckIn = true;
+		app.isRunning_ApiCheckInTrigger = true;
 		try {
-			this.apiCheckIn.start();
+			this.apiCheckInTrigger.start();
 		} catch (IllegalThreadStateException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
 		return START_STICKY;
 	}
-
+	
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.isRunning_ApiCheckIn = false;
-		this.apiCheckIn.interrupt();
-		this.apiCheckIn = null;
+		app.isRunning_ApiCheckInTrigger = false;
+		this.apiCheckInTrigger.interrupt();
+		this.apiCheckInTrigger = null;
 	}
 	
+	
 	private class ApiCheckIn extends Thread {
-
+		
 		public ApiCheckIn() {
-			super("ApiCheckInService-ApiCheckIn");
+			super("ApiCheckInTrigger-ApiCheckIn");
 		}
-
+		
 		@Override
 		public void run() {
-			ApiCheckInService apiCheckInService = ApiCheckInService.this;
+			ApiCheckInTrigger apiCheckInTrigger = ApiCheckInTrigger.this;
 			app = (RfcxGuardian) getApplication();
-			
 			try {
-				while (apiCheckInService.runFlag) {
-					String[] currentCheckIn = new String[] {null,null,null};
+				Log.d(TAG, "ApiCheckTrigger Period: "+ app.apiCore.apiCheckInTriggerPeriod +"ms");
+				while (apiCheckInTrigger.runFlag) {
 					try {
-						currentCheckIn = app.checkInDb.dbQueued.getLatestRow();
-						List<String[]> stringParameters = new ArrayList<String[]>();
-						stringParameters.add(new String[] { "json", currentCheckIn[2] });
-						if ((currentCheckIn[0] != null) && app.isConnected) { 
-							app.apiCore.sendCheckIn(
-								app.apiCore.getCheckInUrl(),
-								stringParameters, 
-								app.apiCore.loadCheckInFiles(currentCheckIn[1]),
-								true // allow (or block) file attachments (audio/screenshots)
-							);
-						} else {
-							Thread.sleep(5000);
-						}
+						app.triggerService("ApiCheckIn", false);
+						app.apiCore.connectivityToggleCheck();
+				        Thread.sleep(app.apiCore.apiCheckInTriggerPeriod);
+
 					} catch (Exception e) {
 						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-						apiCheckInService.runFlag = false;
-						app.isRunning_ApiCheckIn = false;
+						apiCheckInTrigger.runFlag = false;
+						app.isRunning_ApiCheckInTrigger = false;
 					}
-				}					
+				}
+				if (app.verboseLog) Log.d(TAG, "Stopping service: "+TAG);
+				
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-				apiCheckInService.runFlag = false;
-				app.isRunning_ApiCheckIn = false;
-			} finally {
-				app.isRunning_ApiCheckIn = false;
+				apiCheckInTrigger.runFlag = false;
+				app.isRunning_ApiCheckInTrigger = false;
 			}
 		}
 	}
 
+	
 }

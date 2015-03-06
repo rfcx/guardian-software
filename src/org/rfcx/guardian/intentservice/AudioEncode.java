@@ -41,6 +41,11 @@ public class AudioEncode extends IntentService {
 				app.audioDb.dbEncoded.insert(capturedRow[1], capturedRow[2],digest);
 				app.apiCore.createCheckIn();
 			}
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
 		}
 	
 	}

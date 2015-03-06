@@ -13,13 +13,13 @@ import org.rfcx.guardian.database.ScreenShotDb;
 import org.rfcx.guardian.database.SmsDb;
 import org.rfcx.guardian.device.CpuUsage;
 import org.rfcx.guardian.device.DeviceState;
-import org.rfcx.guardian.intentservice.ApiCheckInTrigger;
 import org.rfcx.guardian.intentservice.CarrierCodeBalance;
 import org.rfcx.guardian.intentservice.CarrierCodeTopUp;
 import org.rfcx.guardian.intentservice.ServiceMonitor;
 import org.rfcx.guardian.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.service.ApiCheckInService;
+import org.rfcx.guardian.service.ApiCheckInTrigger;
 import org.rfcx.guardian.service.AudioCaptureService;
 import org.rfcx.guardian.service.CarrierCodeService;
 import org.rfcx.guardian.service.DeviceStateService;
@@ -86,6 +86,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DeviceScreenLock deviceScreenLock = new DeviceScreenLock();
 	public DeviceScreenShot deviceScreenShot = new DeviceScreenShot();
 	
+	
+	
 	// should services be disabled as if in a power emergency...
 //	public boolean isCrisisModeEnabled = false;
 //	public boolean ignoreOffHours = false;
@@ -97,11 +99,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public boolean isRunning_DeviceState = false;
 	public boolean isRunning_AudioCapture = false;
 	public boolean isRunning_ApiCheckIn = false;
+	public boolean isRunning_ApiCheckInTrigger = false;
 	public boolean isRunning_CarrierCode = false;
 	
 	// Repeating IntentServices
 	public boolean isRunning_ServiceMonitor = false;
-	public boolean isRunning_ApiCheckInTrigger = false;
 	
 	private boolean hasRun_OnBootServiceTrigger = false;
 	
@@ -122,10 +124,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		(new ShellCommands()).executeCommandAsRoot("pm list features",null,context);		
 		deviceScreenShot.checkModuleInstalled(context);
 		
+//		airplaneMode.setOn(context);
+		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	    
-	    onBootServiceTrigger();
+	    onLaunchServiceTrigger();
 	}
 	
 	@Override
@@ -177,7 +181,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
 	}
 	
-	public void onBootServiceTrigger() {
+	public void onLaunchServiceTrigger() {
 		if (!hasRun_OnBootServiceTrigger) {
 			// Service Monitor
 			triggerIntentService("ServiceMonitor", 
@@ -187,20 +191,21 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			// CarrierCodeTrigger-Balance, starting 2 minutes after app launch, runs repeatedly every 3 hours
 			triggerIntentService("CarrierCodeTrigger-Balance", 
 					System.currentTimeMillis()+( 2 *(60*1000)), 
-					( 3 * 3600)
+					( 6 * 3600)
 					);
 			// CarrierCodeTrigger-TopUp, starting at the next instance of 30 seconds after midnight, repeating every 12 hours
 			triggerIntentService("CarrierCodeTrigger-TopUp", 
 					(new DateTimeUtils()).nextOccurenceOf(0,0,30).getTimeInMillis(), 
 					( 12 *3600)
 					);
-			// ApiCheckInTrigger
-			triggerIntentService("ApiCheckInTrigger", 
-					System.currentTimeMillis()/*+(60*1000*((int) Integer.parseInt(getPref("api_checkin_interval"))))*/, 
-					20//60*((int) Integer.parseInt(getPref("api_checkin_interval")))
-					);
+//			// ApiCheckInTrigger
+//			triggerIntentService("ApiCheckInTrigger", 
+//					System.currentTimeMillis()/*+(60*1000*((int) Integer.parseInt(getPref("api_checkin_interval"))))*/, 
+//					15//apiCore.intentServiceTriggerPeriod//60*((int) Integer.parseInt(getPref("api_checkin_interval")))
+//					);
 			triggerService("DeviceState", true);
 			triggerService("AudioCapture", true);
+//			triggerService("ApiCheckInTrigger", true);
 			hasRun_OnBootServiceTrigger = true;
 		}
 	}
@@ -218,13 +223,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				if (repeatIntervalSeconds == 0) { alarmManager.set(AlarmManager.RTC, startTimeMillis, monitorServiceIntent);
 				} else { alarmManager.setInexactRepeating(AlarmManager.RTC, startTimeMillis, repeatInterval, monitorServiceIntent); }
 			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ServiceMonitor' is already running..."); }
-		} else if (intentServiceName.equals("ApiCheckInTrigger")) {
-			if (!this.isRunning_ApiCheckInTrigger) {
-				PendingIntent apiCheckInTrigger = PendingIntent.getService(context, -1, new Intent(context, ApiCheckInTrigger.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				if (repeatIntervalSeconds == 0) { alarmManager.set(AlarmManager.RTC, startTimeMillis, apiCheckInTrigger);
-				} else { alarmManager.setInexactRepeating(AlarmManager.RTC, startTimeMillis, repeatInterval, apiCheckInTrigger); }
-			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ApiCheckInTrigger' is already running..."); }
-			
 		} else if (intentServiceName.equals("CarrierCodeTrigger-Balance")) {
 				PendingIntent carrierCodeTrigger = PendingIntent.getService(context, -1, new Intent(context, CarrierCodeBalance.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				String logMsg = "CarrierCodeTrigger-Balance will be launched at "+startTimeMillis;
@@ -267,6 +265,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, ApiCheckInService.class));
 			}// else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
 			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
+		} else if (serviceName.equals("ApiCheckInTrigger")) {
+			if (!this.isRunning_ApiCheckInTrigger || forceReTrigger) {
+				context.stopService(new Intent(context, ApiCheckInTrigger.class));
+				if (serviceAllowedInPrefs) context.startService(new Intent(context, ApiCheckInTrigger.class));
+			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("CarrierCode")) {
 			if (!this.isRunning_CarrierCode || forceReTrigger) {
 				context.stopService(new Intent(context, CarrierCodeService.class));
@@ -286,6 +290,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			context.stopService(new Intent(context, DeviceStateService.class));
 		} else if (serviceName.equals("ApiCheckIn")) {
 			context.stopService(new Intent(context, ApiCheckInService.class));
+		} else if (serviceName.equals("ApiCheckInTrigger")) {
+			context.stopService(new Intent(context, ApiCheckInTrigger.class));
 		} else if (serviceName.equals("CarrierCode")) {
 			context.stopService(new Intent(context, CarrierCodeService.class));
 		} else {

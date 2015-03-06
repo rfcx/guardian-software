@@ -14,7 +14,7 @@ public class BootReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		Log.d(TAG, "BootReceiver Launching Intent Services");
-		((RfcxGuardian) context.getApplicationContext()).onBootServiceTrigger();
+		((RfcxGuardian) context.getApplicationContext()).onLaunchServiceTrigger();
 	}
 
 }

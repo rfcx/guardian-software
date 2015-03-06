@@ -30,11 +30,16 @@ public class HttpPostMultipart {
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
     // need to make these longer and/or dynamic...
-	private static int requestReadTimeout = 300000;
-	private static int requestConnectTimeout = 300000;
+	private int requestReadTimeout = 300000;
+	private int requestConnectTimeout = 300000;
 	private static boolean useCaches = false;
 	
-	public static String doMultipartPost(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments) {
+	public void setTimeOuts(int timeOutMs) {
+		this.requestConnectTimeout = timeOutMs;
+		this.requestReadTimeout = timeOutMs;
+	}
+	
+	public String doMultipartPost(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments) {
 		
 		/* fullUrl: url as a string
 		 * keyValueParameters: List of arrays of strings, with the indices: [fieldname, fieldvalue]
@@ -61,7 +66,7 @@ public class HttpPostMultipart {
 		return executeMultipartPost(fullUrl, requestEntity);
 	}
     
-	private static String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) {
+	private String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) {
 		try {
 	    	String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
 			if (inferredProtocol.equals("http")) {
@@ -79,7 +84,7 @@ public class HttpPostMultipart {
 		}
 	}
 	
-	private static String sendInsecurePostRequest(URL url, MultipartEntity entity) {
+	private String sendInsecurePostRequest(URL url, MultipartEntity entity) {
 	    try {
 	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	        conn.setReadTimeout(requestReadTimeout);
@@ -108,7 +113,7 @@ public class HttpPostMultipart {
 	    return "";        
 	}
 	
-	private static String sendSecurePostRequest(URL url, MultipartEntity entity) {
+	private String sendSecurePostRequest(URL url, MultipartEntity entity) {
 	    try {
 	        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 	        conn.setReadTimeout(requestReadTimeout);

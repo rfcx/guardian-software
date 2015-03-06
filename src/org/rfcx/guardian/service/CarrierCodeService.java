@@ -75,7 +75,7 @@ public class CarrierCodeService extends Service {
 					if (app.verboseLog) { Log.d(TAG, "Running USSD Code: "+ussdAction+" ("+ussdCode+")"); }
 					app.carrierInteraction.submitCode(context, ussdCode);
 					
-					Thread.sleep(20000);
+					Thread.sleep(30000);
 					(new DeviceScreenShot()).saveScreenShot(context);
 					
 					String ussdClose = app.getPref("carriercode_"+ussdAction+"_close");

@@ -30,9 +30,9 @@ public class AudioCaptureService extends Service {
 	MediaRecorder mediaRecorder = null;
     ExtAudioRecorderModified audioRecorder = null;
     FileUtils fileUtils = new FileUtils();
-	
+    
+	private long captureLoopPeriod;
 	private int captureSampleRate;
-	private long captureLoopPeriod = 90000;
 	
 	private int encodingBitRate;
 	private String fileExtension;
@@ -92,6 +92,7 @@ public class AudioCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			AudioCore audioCore = app.audioCore;
 			app.audioCore.cleanupCaptureDirectory();
+			captureLoopPeriod = audioCore.CAPTURE_LOOP_PERIOD_MS;
 			captureSampleRate = audioCore.CAPTURE_SAMPLE_RATE_HZ;
 			encodingBitRate = audioCore.aacEncodingBitRate;
 			fileExtension = (app.audioCore.mayEncodeOnCapture()) ? "m4a" : "wav";

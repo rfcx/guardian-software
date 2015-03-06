@@ -33,6 +33,7 @@ public class ServiceMonitor extends IntentService {
 			
 			// logic about whether services should be allowed (and/or which ones...)
 			app.triggerService("AudioCapture", false);
+//			app.triggerService("ApiCheckInTrigger", false);
 			
 		} else {
 			// the Monitor logic won't run the first time the intent service is fired
