@@ -40,7 +40,7 @@ public class DeviceScreenShot {
         if (!fb2pngFile.exists()) {
         	// downloads screenshot code if not found at install time.
             Log.i(TAG,"Downloading screenshot module from server");
-        	if ((new HttpGet()).getAsFile(fb2pngDownloadUrl, fb2pngLocation, app) && fileUtils.sha1Hash(fb2pngLocation).equals(fb2pngSha1)) { 
+        	if ((new HttpGet()).getAsFile(fb2pngDownloadUrl, fb2pngLocation, context) && fileUtils.sha1Hash(fb2pngLocation).equals(fb2pngSha1)) { 
         		Log.i(TAG,"File download complete and checksum verified.");
             	(new FileUtils()).chmod(fb2pngFile, 0755);
             	return true;

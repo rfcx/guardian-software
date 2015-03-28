@@ -127,7 +127,7 @@ public class ApiCore {
 	}
 	
 	public void processCheckInResponse(String checkInResponse) {
-		
+		Log.d(TAG, "DEBUG: Running processCheckInResponse...");
 		if ((checkInResponse != null) && !checkInResponse.isEmpty()) {
 			app.smsDb.dbSms.clearSmsBefore(this.requestSendStart);
 			app.deviceScreenShot.purgeAllScreenShots(app.screenShotDb);

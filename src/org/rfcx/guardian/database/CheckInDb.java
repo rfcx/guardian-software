@@ -30,13 +30,15 @@ public class CheckInDb {
 	static final String C_CREATED_AT = "created_at";
 	static final String C_AUDIO = "audio";
 	static final String C_JSON = "json";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON };
+	static final String C_ATTEMPTS = "attempts";
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON, C_ATTEMPTS };
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
 		sbOut.append(", "+C_AUDIO+" TEXT");
 		sbOut.append(", "+C_JSON+" TEXT");
+		sbOut.append(", "+C_ATTEMPTS+" TEXT");
 		return sbOut.append(")").toString();
 	}
 	
@@ -67,9 +69,10 @@ public class CheckInDb {
 		}
 		public void insert(String audio, String json) {
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
+			values.put(C_CREATED_AT, dateTimeUtils.getDateTime());
 			values.put(C_AUDIO, audio);
 			values.put(C_JSON, json);
+			values.put(C_ATTEMPTS, "0");
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -82,7 +85,7 @@ public class CheckInDb {
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
 				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
 			return list;
@@ -94,7 +97,7 @@ public class CheckInDb {
 				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
 				if (cursor.getCount() > 0) {
 					try {
-						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) };
+						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) };
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
 			return row;
@@ -108,10 +111,15 @@ public class CheckInDb {
 		
 		public void clearQueuedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+dateTimeUtils.getDateTime(date)+"'");
 			} finally { db.close(); }
 		}
 		
+		public void incrementSingleRowAttempts(String audioFile) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+C_AUDIO+"='"+audioFile+"'");
+			} finally { db.close(); }
+		}
 
 	}
 	public final DbQueued dbQueued;

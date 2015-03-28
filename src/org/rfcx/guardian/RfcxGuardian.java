@@ -28,6 +28,7 @@ import org.rfcx.guardian.utility.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceScreenLock;
 import org.rfcx.guardian.utility.DeviceScreenShot;
+import org.rfcx.guardian.utility.ExtCPUTuner;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.AlarmManager;
@@ -121,7 +122,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		apiCore.init(this);
 
-		(new ShellCommands()).executeCommandAsRoot("pm list features",null,context);		
+		(new ShellCommands()).executeCommandAsRoot("pm list features",null,context);
+		(new ExtCPUTuner()).resetPrefsXml(context);
 		deviceScreenShot.findOrCreateBin(context);
 		
 //		airplaneMode.setOn(context);
@@ -198,14 +200,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 					(new DateTimeUtils()).nextOccurenceOf(0,0,30).getTimeInMillis(), 
 					( 12 *3600)
 					);
-//			// ApiCheckInTrigger
-//			triggerIntentService("ApiCheckInTrigger", 
-//					System.currentTimeMillis()/*+(60*1000*((int) Integer.parseInt(getPref("api_checkin_interval"))))*/, 
-//					15//apiCore.intentServiceTriggerPeriod//60*((int) Integer.parseInt(getPref("api_checkin_interval")))
-//					);
 			triggerService("DeviceState", true);
 			triggerService("AudioCapture", true);
-//			triggerService("ApiCheckInTrigger", true);
+			triggerService("ApiCheckInTrigger", true);
 			hasRun_OnBootServiceTrigger = true;
 		}
 	}
