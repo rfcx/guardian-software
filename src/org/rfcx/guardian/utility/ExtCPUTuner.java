@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.rfcx.guardian.RfcxGuardian;
-
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,11 +13,21 @@ public class ExtCPUTuner {
 
 	private static final String TAG = "RfcxGuardian-"+ExtCPUTuner.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+
+	private static final int frequencyMin = 30720;
+	private static final int frequencyMax = 122880;
+	private static final int wifiState = 2;
+	private static final int gpsState = 0;
+	private static final int bluetoothState = 1;
+	private static final int mobiledataState = 1;
+	private static final int governorThresholdUp = 98;
+	private static final int governorThresholdDown = 90;
+	private static final int backgroundSyncState = 2;
+	private static final int virtualGovernor = 3;
+	private static final int mobiledataConnectionState = 0;
+	private static final int powersaveBias = 1000;
+	private static final int AIRPLANEMODE = 0;
 	
-	private ShellCommands shellCommands = new ShellCommands();
-	private FileUtils fileUtils = new FileUtils();
-	
-	private static final String prefsPath = "/data/data/ch.amana.android.cputuner/shared_prefs/ch.amana.android.cputuner_preferences.xml";
 	
 	private static final String prefsXml = 
 		"<?xml version='1.0' encoding='utf-8' standalone='yes' ?>"
@@ -33,36 +41,63 @@ public class ExtCPUTuner {
 			+"\n<boolean name=\"prefKeySaveConfigOnSwitch\" value=\"false\" />"
 			+"\n<string name=\"prefKeyStatusbarAddToChoice\">0</string>"
 			+"\n<boolean name=\"prefKeyUserLevelSet\" value=\"true\" />"
-			+"\n<int name=\"prefKeyMinFreqDefault\" value=\"30720\" />"
-			+"\n<string name=\"prefKeyMinFreq\">30720</string>"
-			+"\n<int name=\"prefKeyMaxFreqDefault\" value=\"122880\" />"
-			+"\n<string name=\"prefKeyMaxFreq\">122880</string>"
+			+"\n<int name=\"prefKeyMinFreqDefault\" value=\""+frequencyMin+"\" />"
+			+"\n<string name=\"prefKeyMinFreq\">"+frequencyMin+"</string>"
+			+"\n<int name=\"prefKeyMaxFreqDefault\" value=\""+frequencyMax+"\" />"
+			+"\n<string name=\"prefKeyMaxFreq\">"+frequencyMax+"</string>"
 		+"\n</map>"
 		+"\n";
 
-	public void resetPrefsXml(Context context) {
-		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-		if ((new File(prefsPath.substring(0, prefsPath.lastIndexOf("/")))).exists()) {
-			String tmpPrefsFilePath = app.getApplicationContext().getFilesDir().getAbsolutePath().toString()+"/txt/cpuTuner.xml";
-			File tmpPrefsFile = new File(tmpPrefsFilePath);			
-	        if (tmpPrefsFile.exists()) { tmpPrefsFile.delete(); }
-	        try {
-	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(tmpPrefsFile));
-	        	outFile.write(prefsXml);
-	        	outFile.close();
-	        	fileUtils.chmod(tmpPrefsFile, 0755);
-	        	if (tmpPrefsFile.exists()) { 
-	        		Log.d(TAG,"TRYING: cp "+tmpPrefsFilePath+" "+prefsPath);
-	        		shellCommands.executeCommandAsRoot("cp "+tmpPrefsFilePath+" "+prefsPath,null,context);
-	        	}
-	        } catch (IOException e) {
-	        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-	        }
-			
+	private static final String prefsPath = "/data/data/ch.amana.android.cputuner/shared_prefs/ch.amana.android.cputuner_preferences.xml";
+	private static final String dbPath = "/data/data/ch.amana.android.cputuner/databases/cputuner";
+	
+	public void set(Context context) {
+		if (isInstalled()) {
+			createOrUpdateDbProfile(context);
+			overWritePrefsXml(context);
 		} else {
 			Log.e(TAG,"cpuTuner is NOT installed");
 		}
-		
 	}
+	
+	private static void overWritePrefsXml(Context context) {
+		String tmpPrefsFilePath = context.getFilesDir().getAbsolutePath().toString()+"/txt/cpuTuner.xml";
+		File tmpPrefsFile = new File(tmpPrefsFilePath);			
+        if (tmpPrefsFile.exists()) { tmpPrefsFile.delete(); }
+        try {
+        	BufferedWriter outFile = new BufferedWriter(new FileWriter(tmpPrefsFile));
+        	outFile.write(prefsXml);
+        	outFile.close();
+        	(new FileUtils()).chmod(tmpPrefsFile, 0755);
+        	if (tmpPrefsFile.exists()) {
+        		(new ShellCommands()).executeCommandAsRoot("cp "+tmpPrefsFilePath+" "+prefsPath,null,context);
+        	}
+        } catch (IOException e) {
+        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+        }	
+	}
+	
+	private static void createOrUpdateDbProfile(Context context) {
+		ShellCommands sh = new ShellCommands();
+		String pre = "sqlite3 "+dbPath+" ";
+//		"cpuProfiles (_id integer primary key, profileName text, governor text,frequencyMax int,frequencyMin int,wifiState int,gpsState int,bluetoothState int,mobiledataState int,governorThresholdUp int DEFAULT 0,governorThresholdDown int DEFAULT 0,backgroundSyncState int, virtualGovernor int default -1,mobiledataConnectionState int, script text, powersaveBias int,AIRPLANEMODE int,useNumberOfCpus int);"
+//		"SELECT COUNT(*) FROM cpuProfiles WHERE profileName='RFCx';"
+//		"SELECT _id FROM cpuProfiles WHERE profileName='RFCx';"
+//		"INSERT INTO cpuProfiles VALUES (7, 'RFCx', 'conservative', "+frequencyMax+", "+frequencyMin+", "+wifiState+", "+gpsState+", "+bluetoothState+", "+mobiledataState+", "+governorThresholdUp+", "+governorThresholdDown+", "+backgroundSyncState+", "+virtualGovernor+", "+mobiledataConnectionState+", '', "+powersaveBias+", "+AIRPLANEMODE+", 0);"
+		if (sh.executeCommandAsRoot(pre+"\"SELECT COUNT(*) FROM cpuProfiles WHERE profileName='RFCx' AND _id=7;\"","0",context)) {
+			Log.d(TAG, "Inserting RFCx profile into database for the first time.");
+			sh.executeCommandAsRoot(pre+"\"DELETE FROM cpuProfiles WHERE profileName='RFCx';\"", null, context);
+			sh.executeCommandAsRoot(pre+"\"INSERT INTO cpuProfiles VALUES (7, 'RFCx', 'conservative', "+frequencyMax+", "+frequencyMin+", "+wifiState+", "+gpsState+", "+bluetoothState+", "+mobiledataState+", "+governorThresholdUp+", "+governorThresholdDown+", "+backgroundSyncState+", "+virtualGovernor+", "+mobiledataConnectionState+", '', "+powersaveBias+", "+AIRPLANEMODE+", 0);\"", null, context);
+		} else {
+			sh.executeCommandAsRoot(pre+"\"UPDATE cpuProfiles SET frequencyMax="+frequencyMax+", frequencyMin="+frequencyMin+", wifiState="+wifiState+", gpsState="+gpsState+", bluetoothState="+bluetoothState+", mobiledataState="+mobiledataState+", governorThresholdUp="+governorThresholdUp+", governorThresholdDown="+governorThresholdDown+", backgroundSyncState="+backgroundSyncState+", virtualGovernor="+virtualGovernor+", mobiledataConnectionState="+mobiledataConnectionState+", powersaveBias="+powersaveBias+", AIRPLANEMODE="+AIRPLANEMODE+" WHERE profileName='RFCx';\"", null, context);
+		}
+		
+		sh.executeCommandAsRoot(pre+"\"UPDATE triggers SET screenOffProfileId=7, batteryProfileId=7, powerProfileId=7, callInProgressProfileId=7, screenLockedProfileId=7;\"", null, context);
+	}
+	
+	private static boolean isInstalled() {
+		return (new File(prefsPath.substring(0, prefsPath.lastIndexOf("/")))).exists();
+	}
+	
 	
 }
