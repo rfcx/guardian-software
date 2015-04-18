@@ -79,19 +79,27 @@ public class ApiCheckInService extends Service {
 				while (apiCheckInService.runFlag) {
 					String[] currentCheckIn = new String[] {null,null,null};
 					try {
-						currentCheckIn = app.checkInDb.dbQueued.getLatestRow();
+						currentCheckIn = app.checkInDb.dbQueued.getLatestRow();	
 						List<String[]> stringParameters = new ArrayList<String[]>();
 						stringParameters.add(new String[] { "json", currentCheckIn[2] });
-						if ((currentCheckIn[0] != null) && app.isConnected) { 
-							app.apiCore.sendCheckIn(
-								app.apiCore.getCheckInUrl(),
-								stringParameters, 
-								app.apiCore.loadCheckInFiles(currentCheckIn[1]),
-								true // allow (or block) file attachments (audio/screenshots)
-							);
+						if ((currentCheckIn[0] != null) && app.isConnected) {
+							if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiCore.MAX_CHECKIN_ATTEMPTS) {
+								Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiCore.MAX_CHECKIN_ATTEMPTS+" failed attempts");
+								app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3]);
+								app.checkInDb.dbQueued.deleteSingleRow(currentCheckIn[1]);
+							} else {
+								app.apiCore.sendCheckIn(
+									app.apiCore.getCheckInUrl(),
+									stringParameters, 
+									app.apiCore.loadCheckInFiles(currentCheckIn[1]),
+									true, // allow (or block) file attachments (audio/screenshots)
+									currentCheckIn[1]
+								);
+							}
 						} else {
 							Thread.sleep(5000);
 						}
+							
 					} catch (Exception e) {
 						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 						apiCheckInService.runFlag = false;

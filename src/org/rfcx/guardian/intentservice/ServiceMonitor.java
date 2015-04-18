@@ -1,6 +1,7 @@
 package org.rfcx.guardian.intentservice;
 
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.ExtCPUTuner;
 import org.rfcx.guardian.utility.TimeOfDay;
 
 
@@ -34,6 +35,9 @@ public class ServiceMonitor extends IntentService {
 			// logic about whether services should be allowed (and/or which ones...)
 			app.triggerService("AudioCapture", false);
 			app.triggerService("ApiCheckInTrigger", false);
+			
+			// [re]set CPUTuner
+			(new ExtCPUTuner()).set(context);
 			
 		} else {
 			// the Monitor logic won't run the first time the intent service is fired

@@ -7,6 +7,8 @@ import org.rfcx.guardian.database.DeviceStateDb;
 import org.rfcx.guardian.device.CpuUsage;
 import org.rfcx.guardian.device.DeviceState;
 
+
+
 import android.app.Service;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -14,15 +16,11 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
-import android.telephony.PhoneStateListener;
-import android.telephony.ServiceState;
-import android.telephony.SignalStrength;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
-public class DeviceStateService extends Service implements SensorEventListener {
+public class SignalStrengthService extends Service implements SensorEventListener {
 
-	private static final String TAG = "RfcxGuardian-"+DeviceStateService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+SignalStrengthService.class.getSimpleName();
 	
 	private boolean runFlag = false;
 	private DeviceStateSvc deviceStateSvc;
@@ -32,8 +30,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	private SensorManager sensorManager;
 //	Sensor accelSensor = null;
 	Sensor lightSensor = null;
-	
-    private static TelephonyManager telephonyManager;
 	
 	RfcxGuardian app = null;
 	
@@ -79,7 +75,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		
 		@Override
 		public void run() {
-			DeviceStateService deviceStateService = DeviceStateService.this;
+			SignalStrengthService deviceStateService = SignalStrengthService.this;
 			if (app == null) { app = (RfcxGuardian) getApplication(); }
 			while (deviceStateService.runFlag) {
 				CpuUsage deviceCpuUsage = app.deviceCpuUsage;
@@ -114,11 +110,11 @@ public class DeviceStateService extends Service implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		if (this.app == null) this.app = (RfcxGuardian) getApplication();
+		RfcxGuardian rfcxSource = (RfcxGuardian) getApplication();
 		if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
 			if (event.values[0] >= 0) {
-				this.app.deviceState.setLightLevel(Math.round(event.values[0]));
-				this.app.deviceStateDb.dbLight.insert(this.app.deviceState.getLightLevel());
+				rfcxSource.deviceState.setLightLevel(Math.round(event.values[0]));
+				rfcxSource.deviceStateDb.dbLight.insert(rfcxSource.deviceState.getLightLevel());
 //			} else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 //				return;
 			}
@@ -154,22 +150,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			this.sensorManager.unregisterListener(this, lightSensor);
 		}
 	}
-	
-	
-	private class DevicePhoneStateListener extends PhoneStateListener {
-
-        @Override
-        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
-            super.onSignalStrengthsChanged(signalStrength);
-            sendSignalStrengthChanged(signalStrength);
-        }
-
-        @Override
-        public void onServiceStateChanged (ServiceState serviceState) {
-            super.onServiceStateChanged(serviceState);
-            sendStateChanged(serviceState);
-        }
-    }
 	
 	
 }

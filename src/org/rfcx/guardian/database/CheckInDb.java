@@ -21,6 +21,7 @@ public class CheckInDb {
 	
 	public CheckInDb(Context context) {
 		this.dbQueued = new DbQueued(context);
+		this.dbSkipped = new DbSkipped(context);
 	}
 	
 	private static final String TAG = "RfcxGuardian-"+CheckInDb.class.getSimpleName();
@@ -67,12 +68,12 @@ public class CheckInDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String audio, String json) {
+		public void insert(String audio, String json, String attempts) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, dateTimeUtils.getDateTime());
 			values.put(C_AUDIO, audio);
 			values.put(C_JSON, json);
-			values.put(C_ATTEMPTS, "0");
+			values.put(C_ATTEMPTS, attempts);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -123,5 +124,81 @@ public class CheckInDb {
 
 	}
 	public final DbQueued dbQueued;
+	
+	public class DbSkipped {
+		private String TABLE = "skipped";
+		class DbHelper extends SQLiteOpenHelper {
+			public DbHelper(Context context) {
+				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
+			}
+			@Override
+			public void onCreate(SQLiteDatabase db) {
+				try {
+					db.execSQL(createColumnString(TABLE));
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
+			}
+			@Override
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); }
+			}
+		}
+		final DbHelper dbHelper;
+		public DbSkipped(Context context) {
+			this.dbHelper = new DbHelper(context);
+		}
+		public void close() {
+			this.dbHelper.close();
+		}
+		public void insert(String created_at, String audio, String json, String attempts) {
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, created_at);
+			values.put(C_AUDIO, audio);
+			values.put(C_JSON, json);
+			values.put(C_ATTEMPTS, attempts);
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} finally {
+				db.close();
+			}
+		}
+		public List<String[]> getAllSkipped() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			ArrayList<String[]> list = new ArrayList<String[]>();
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if (cursor.getCount() > 0) {
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) });
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
+			return list;
+		}
+		public String[] getLatestRow() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] row = new String[] {null,null,null};
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
+				if (cursor.getCount() > 0) {
+					try {
+						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) };
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
+			return row;
+		}
+		
+		public void deleteSingleRow(String audioFile) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_AUDIO+"='"+audioFile+"'");
+			} finally { db.close(); }
+		}
+		
+		public void clearSkippedBefore(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+dateTimeUtils.getDateTime(date)+"'");
+			} finally { db.close(); }
+		}
+
+	}
+	public final DbSkipped dbSkipped;
 	
 }

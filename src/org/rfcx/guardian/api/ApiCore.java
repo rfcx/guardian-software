@@ -24,15 +24,10 @@ public class ApiCore {
 	private RfcxGuardian app = null;
 	HttpPostMultipart httpPostMultipart = new HttpPostMultipart();
 	
-	//public long signalSearchStartTime = 0;
-	private DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private Date requestSendStart = new Date();
 	public Date requestSendReturned = new Date();
 	
-	public Date lastSuccessfulCheckIn = new Date();
-	
-	private String lastCheckInId = null;
-	private long lastCheckInDuration = 0;
+	private List<String> previousCheckIns = new ArrayList<String>();
 	
 	public long apiCheckInTriggerPeriod = 15000;
 	
@@ -40,36 +35,24 @@ public class ApiCore {
 	private int[] connectivityToggleThresholds = new int[] { 10, 20, 30, 40 };
 	private boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 	
+	public static final int MAX_CHECKIN_ATTEMPTS = 5;
 	
 	public void init(RfcxGuardian app) {
 		this.app = app;
 		this.httpPostMultipart.setTimeOuts(90000);
 	}
 	
-//	public void triggerCheckIn(boolean forceStart) {
-//		if (app.isConnected) {
-//	//		if ((System.currentTimeMillis() - lastCheckInTriggered) > 1000) {
-//				lastCheckInTriggered = System.currentTimeMillis();
-//				app.triggerService("ApiCheckIn", forceStart);
-//		//	} else {
-//		//		Log.d(TAG,"Skipping attempt to double check-in");
-//		//	}
-//		} else {
-//			Log.d(TAG,"No connectivity... Toggling AirplaneMode");
-//	//		app.airplaneMode.setOff(app.getApplicationContext());
-//		}
-//	}
-	
 	public String getCheckInUrl() {
 		return app.getPref("api_domain")+"/v1/guardians/"+app.getDeviceId()+"/checkins";
 	}
 	
-	public void sendCheckIn(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments, boolean allowAttachments) {
+	public void sendCheckIn(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments, boolean allowAttachments, String checkInAudioReference) {
 		if (!allowAttachments) keyFilepathMimeAttachments = new ArrayList<String[]>();
 		if (app.isConnected) {
 			this.requestSendStart = new Date();
 			if (app.verboseLog) Log.i(TAG,"CheckIn sent at: "+requestSendStart.toGMTString());
 			processCheckInResponse(httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments));
+			app.checkInDb.dbQueued.incrementSingleRowAttempts(checkInAudioReference);
 		} else {
 			Log.d(TAG,"No connectivity... Can't send CheckIn");
 		}
@@ -78,7 +61,7 @@ public class ApiCore {
 	public void createCheckIn() {
 		
 		String[] audioInfo = app.audioDb.dbEncoded.getLatestRow();
-		app.checkInDb.dbQueued.insert(audioInfo[1]+"."+audioInfo[2], getCheckInJson(audioInfo));
+		app.checkInDb.dbQueued.insert(audioInfo[1]+"."+audioInfo[2], getCheckInJson(audioInfo), "0");
 		
 		Date statsSnapshot = new Date();
 		app.deviceStateDb.dbBattery.clearStatsBefore(statsSnapshot);
@@ -91,6 +74,7 @@ public class ApiCore {
 		Log.d(TAG,"CheckIn created: "+audioInfo[1]);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public String getCheckInJson(String[] audioFileInfo) {
 		
 		String[] vBattery = app.deviceStateDb.dbBattery.getStatsSummary();
@@ -108,14 +92,14 @@ public class ApiCore {
 		json.put("cpu_clock", (vCpuClock[0] != "0") ? vCpuClock[4] : null);
 		json.put("internal_luminosity", (vLight[0] != "0") ? vLight[4] : null);
 		json.put("network_search_time", (vNetworkSearch[0] != "0") ? vNetworkSearch[4] : null);
-		json.put("has_power", (!app.deviceState.isBatteryDisCharging()) ? new Boolean(true) : new Boolean(false));
-		json.put("is_charged", (app.deviceState.isBatteryCharged()) ? new Boolean(true) : new Boolean(false));
-		json.put("measured_at", dateTimeUtils.getDateTime(Calendar.getInstance().getTime()));
+		json.put("has_power", (!app.deviceState.isBatteryDisCharging()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
+		json.put("is_charged", (app.deviceState.isBatteryCharged()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
+		json.put("measured_at", (new DateTimeUtils()).getDateTime(Calendar.getInstance().getTime()));
 		json.put("software_version", app.version);
 		json.put("messages", app.smsDb.dbSms.getSerializedSmsAll());
 		
-		json.put("last_checkin_id", (this.lastCheckInId != null) ? this.lastCheckInId : null);
-		json.put("last_checkin_duration", (this.lastCheckInId != null) ? new Long(this.lastCheckInDuration) : null);
+		json.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
+		this.previousCheckIns = new ArrayList<String>();
 
 		List<String> audioFiles = new ArrayList<String>();
 		audioFiles.add(TextUtils.join("*", audioFileInfo));
@@ -127,7 +111,6 @@ public class ApiCore {
 	}
 	
 	public void processCheckInResponse(String checkInResponse) {
-		Log.d(TAG, "DEBUG: Running processCheckInResponse...");
 		if ((checkInResponse != null) && !checkInResponse.isEmpty()) {
 			app.smsDb.dbSms.clearSmsBefore(this.requestSendStart);
 			app.deviceScreenShot.purgeAllScreenShots(app.screenShotDb);
@@ -137,10 +120,11 @@ public class ApiCore {
 				String audioJsonString = responseJson.get("audio").toString();
 				JSONObject audioJson = (JSONObject) (new JSONParser()).parse(audioJsonString.substring(audioJsonString.indexOf("[")+1, audioJsonString.lastIndexOf("]")));
 				
-				this.lastCheckInId = responseJson.get("checkin_id").toString();
-				this.lastCheckInDuration = System.currentTimeMillis() - this.requestSendStart.getTime();
+				long checkInDuration = System.currentTimeMillis() - this.requestSendStart.getTime();
+				
+				this.previousCheckIns.add(responseJson.get("checkin_id").toString()+"*"+checkInDuration);
 				this.requestSendReturned = new Date();
-				if (app.verboseLog) Log.d(TAG,"CheckIn request time: "+(this.lastCheckInDuration/1000)+" seconds");
+				if (app.verboseLog) Log.d(TAG,"CheckIn request time: "+(checkInDuration/1000)+" seconds");
 				
 				app.audioCore.purgeSingleAudioAsset(app.audioDb, audioJson.get("id").toString());
 				app.checkInDb.dbQueued.deleteSingleRow(audioJson.get("id").toString()+".m4a");

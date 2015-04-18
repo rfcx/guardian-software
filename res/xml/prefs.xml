@@ -45,29 +45,6 @@
         android:enabled="true"
 		android:defaultValue="true"/>
 	
-<!-- 	<EditTextPreference
-        android:key="day_begins_at_hour"
-	    android:title="Day Begins at (hour)"
-	    android:summary="When service switch occurs"
-	    android:inputType="number"
-        android:enabled="true"
-		android:defaultValue="9"/>
-
- 	<EditTextPreference
-        android:key="day_ends_at_hour"
-	    android:title="Day Ends at (hour)"
-	    android:summary="When service switch occurs"
-	    android:inputType="number"
-        android:enabled="true"
-		android:defaultValue="17"/> -->
-	
-	<!-- <CheckBoxPreference
-	    android:key="ignore_off_hours"
-	    android:title="Ignore Off Hours"
-	    android:summary="Run the services all day and night"
-        android:enabled="true"
-		android:defaultValue="false"/> -->
-	
 	<EditTextPreference
         android:key="carriercode_topup"
 	    android:title="CarrierCode: Top-Up"
