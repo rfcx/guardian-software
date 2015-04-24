@@ -71,7 +71,7 @@ public class RfcxGuardianPrefs {
 //		}
 		setPref("api_domain","http://api.rfcx.org","string");
 		setPref("verbose_logging","true","boolean");
-		setPref("api_checkin_interval","10","int");
+		setPref("audio_capture_interval","90","int");
 
 		setPref("carriercode_topup","#145*2*3*3*1#","string");
 		

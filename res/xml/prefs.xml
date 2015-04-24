@@ -16,12 +16,12 @@
         android:defaultValue="http://api.rfcx.org" />
 	
 	<EditTextPreference
-        android:key="api_checkin_interval"
-        android:title="API CheckIn Interval"
-        android:summary="How often to check-in to API (minutes)"
+        android:key="audio_capture_interval"
+        android:title="Audio Capture Interval"
+        android:summary="How long should each audio chunk be? (seconds)"
 	    android:inputType="number"
         android:enabled="true"
-        android:defaultValue="10"/>
+        android:defaultValue="60"/>
 	
 	<EditTextPreference
         android:key="service_monitor_interval"

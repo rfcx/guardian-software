@@ -28,14 +28,13 @@ public class AudioEncode extends IntentService {
 		sendBroadcast(intent, NULL_EXC);
 		
 		List<String[]> capturedRows = app.audioDb.dbCaptured.getAllCaptured();
-		if (app.verboseLog) { Log.d(TAG, "Running AudioEncodeIntentService... "+capturedRows.size()+" files to encode."); }
+		if (app.verboseLog) { Log.d(TAG, "Running AudioEncodeIntentService... "+capturedRows.size()+" file(s) to encode."); }
 		for (String[] capturedRow : capturedRows) {
 			if (app.verboseLog) { Log.d(TAG, "Encoding: '"+capturedRow[0]+"','"+capturedRow[1]+"','"+capturedRow[2]+"'"); }
 			if (capturedRow[2].equals("wav")) {
 				app.audioCore.encodeCaptureAudio(capturedRow[1], "flac", capturedRow[0], app.audioDb);
 				app.apiCore.createCheckIn();
 			} else {
-				Log.d(TAG, "Captured file does not need to be re-encoded...");
 				app.audioDb.dbCaptured.clearCapturedBefore(app.audioDb.dateTimeUtils.getDateFromString(capturedRow[0]));
 				String digest = (new FileUtils()).sha1Hash(app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+capturedRow[2]+"/"+capturedRow[1]+"."+capturedRow[2]);
 				app.audioDb.dbEncoded.insert(capturedRow[1], capturedRow[2],digest);

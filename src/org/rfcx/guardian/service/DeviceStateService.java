@@ -156,20 +156,20 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	}
 	
 	
-	private class DevicePhoneStateListener extends PhoneStateListener {
-
-        @Override
-        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
-            super.onSignalStrengthsChanged(signalStrength);
-            sendSignalStrengthChanged(signalStrength);
-        }
-
-        @Override
-        public void onServiceStateChanged (ServiceState serviceState) {
-            super.onServiceStateChanged(serviceState);
-            sendStateChanged(serviceState);
-        }
-    }
+//	private class DevicePhoneStateListener extends PhoneStateListener {
+//
+//        @Override
+//        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+//            super.onSignalStrengthsChanged(signalStrength);
+//            sendSignalStrengthChanged(signalStrength);
+//        }
+//
+//        @Override
+//        public void onServiceStateChanged (ServiceState serviceState) {
+//            super.onServiceStateChanged(serviceState);
+//            sendStateChanged(serviceState);
+//        }
+//    }
 	
 	
 }

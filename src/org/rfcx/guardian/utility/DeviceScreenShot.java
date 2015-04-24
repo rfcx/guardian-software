@@ -29,28 +29,37 @@ public class DeviceScreenShot {
 	
     public boolean findOrCreateBin(Context context) {
     	
-        // setup variables
-    	this.app = (RfcxGuardian) context.getApplicationContext();
-    	FileUtils fileUtils = new FileUtils();
-     	String fb2pngLocation = app.getFilesDir().toString()+"/bin/fb2png";
-     	File fb2pngFile = new File(fb2pngLocation);
-     	fb2pngFile.mkdirs();
-
-        // check that module is not already installed before starting
-        if (!fb2pngFile.exists()) {
-        	// downloads screenshot code if not found at install time.
-            Log.i(TAG,"Downloading screenshot module from server");
-        	if ((new HttpGet()).getAsFile(fb2pngDownloadUrl, fb2pngLocation, context) && fileUtils.sha1Hash(fb2pngLocation).equals(fb2pngSha1)) { 
-        		Log.i(TAG,"File download complete and checksum verified.");
-            	(new FileUtils()).chmod(fb2pngFile, 0755);
-            	return true;
-        	} else {
-        		fb2pngFile.delete();
-            	return false;
-        	}
-        } else {
-        	return true;
-        }
+    	try {
+	        // setup variables
+	    	this.app = (RfcxGuardian) context.getApplicationContext();
+	    	FileUtils fileUtils = new FileUtils();
+	    	String filesDir = app.getFilesDir().toString();
+	     	File fb2pngFile = new File(filesDir+"/bin/fb2png");
+	     	(new File(filesDir+"/bin")).mkdirs();
+	     	if ((new File(filesDir+"/fb2png")).exists()) { (new File(filesDir+"/fb2png")).delete(); }
+	     	
+	        // check that module is not already installed before starting
+	        if (!fb2pngFile.exists()) {
+	        	// downloads screenshot code if not found at install time.
+	            Log.i(TAG,"Downloading screenshot binary from server");
+	        	if (	(new HttpGet()).getAsFile(fb2pngDownloadUrl, "fb2png", context)
+	        		&& 	fileUtils.sha1Hash(filesDir+"/fb2png").equals(fb2pngSha1)
+	        		&& 	(new File(filesDir+"/fb2png")).renameTo(new File(filesDir+"/bin/fb2png"))
+	        		) { 
+	        		Log.i(TAG,"File download complete and checksum verified.");
+	            	(new FileUtils()).chmod(fb2pngFile, 0755);
+	            	return true;
+	        	} else {
+	        		fb2pngFile.delete();
+	            	return false;
+	        	}
+	        } else {
+	        	return true;
+	        }
+    	} catch (Exception e) {
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+    		return false;
+    	}
     }
     
 	public String saveScreenShot(Context context) {
