@@ -26,25 +26,33 @@ public class DeviceScreenShot {
 	private static final String fb2pngSha1 = "b6084874174209b544dd2dadcb668e71584f8bf4";
 	
 	private RfcxGuardian app = null;
+	private String appDir = null;
+	private String imgDir = null;
+	private String cachePath = null;
+	private String binPath = null;
+
+	private void setupScreenShot(Context context) {
+		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
+		if (appDir == null) appDir = app.getFilesDir().getAbsolutePath();
+		if (imgDir == null) imgDir = appDir+"/img";
+		if (cachePath == null) cachePath = appDir+"/screenshot.png";
+		if (binPath == null) binPath = appDir+"/bin/fb2png";
+		(new File(appDir+"/bin")).mkdirs();
+	}
 	
-    public boolean findOrCreateBin(Context context) {
-    	
+    private boolean findOrCreateBin(Context context) {
     	try {
-	        // setup variables
-	    	this.app = (RfcxGuardian) context.getApplicationContext();
 	    	FileUtils fileUtils = new FileUtils();
-	    	String filesDir = app.getFilesDir().toString();
-	     	File fb2pngFile = new File(filesDir+"/bin/fb2png");
-	     	(new File(filesDir+"/bin")).mkdirs();
-	     	if ((new File(filesDir+"/fb2png")).exists()) { (new File(filesDir+"/fb2png")).delete(); }
+	     	File fb2pngFile = new File(binPath);
+	     	if ((new File(appDir+"/fb2png")).exists()) { (new File(appDir+"/fb2png")).delete(); }
 	     	
 	        // check that module is not already installed before starting
 	        if (!fb2pngFile.exists()) {
 	        	// downloads screenshot code if not found at install time.
 	            Log.i(TAG,"Downloading screenshot binary from server");
 	        	if (	(new HttpGet()).getAsFile(fb2pngDownloadUrl, "fb2png", context)
-	        		&& 	fileUtils.sha1Hash(filesDir+"/fb2png").equals(fb2pngSha1)
-	        		&& 	(new File(filesDir+"/fb2png")).renameTo(new File(filesDir+"/bin/fb2png"))
+	        		&& 	fileUtils.sha1Hash(appDir+"/fb2png").equals(fb2pngSha1)
+	        		&& 	(new File(appDir+"/fb2png")).renameTo(new File(appDir+"/bin/fb2png"))
 	        		) { 
 	        		Log.i(TAG,"File download complete and checksum verified.");
 	            	(new FileUtils()).chmod(fb2pngFile, 0755);
@@ -63,9 +71,9 @@ public class DeviceScreenShot {
     }
     
 	public String saveScreenShot(Context context) {
-		this.app = (RfcxGuardian) context.getApplicationContext();
-		String cachePath = app.getFilesDir().getAbsolutePath() + "/img.png";
-		String binPath = app.getFilesDir().getAbsolutePath() + "/bin/fb2png";
+		
+		setupScreenShot(context);
+		
 		if (findOrCreateBin(context)) {
 			try {
 				(new File(cachePath)).delete();
@@ -73,10 +81,9 @@ public class DeviceScreenShot {
 		        File cacheFile = new File(cachePath);
 		        if (cacheFile.exists()) {
 		        	long timestamp = cacheFile.lastModified();
-		        	String imgDir = app.getApplicationContext().getFilesDir().toString()+"/img";
 			    	(new File(imgDir)).mkdirs();
 			    	String imgPath = imgDir+"/"+timestamp+".png";
-			    	Log.d(TAG,"Screenshot saved: "+imgPath);
+			    	if (app.verboseLog) Log.d(TAG,"Screenshot saved: "+imgPath);
 			    	File imgFile = new File(imgPath);
 			    	
 		    		InputStream cacheFileInputStream = new FileInputStream(cacheFile);
@@ -103,7 +110,7 @@ public class DeviceScreenShot {
 	}
 	
 	public void purgeAllScreenShots(ScreenShotDb screenShotDb) {
-		Log.d(TAG, "Purging all existing screenshots...");
+		if (app.verboseLog) Log.d(TAG, "Purging all existing screenshots...");
 		if (this.app != null) {
 			try {
 				String screenShotDir = this.app.getApplicationContext().getFilesDir().toString()+"/img";
