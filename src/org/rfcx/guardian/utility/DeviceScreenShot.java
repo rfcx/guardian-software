@@ -31,13 +31,14 @@ public class DeviceScreenShot {
 	private String cachePath = null;
 	private String binPath = null;
 
-	private void setupScreenShot(Context context) {
+	public void setupScreenShot(Context context) {
 		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
 		if (appDir == null) appDir = app.getFilesDir().getAbsolutePath();
 		if (imgDir == null) imgDir = appDir+"/img";
 		if (cachePath == null) cachePath = appDir+"/screenshot.png";
 		if (binPath == null) binPath = appDir+"/bin/fb2png";
 		(new File(appDir+"/bin")).mkdirs();
+		findOrCreateBin(context);
 	}
 	
     private boolean findOrCreateBin(Context context) {

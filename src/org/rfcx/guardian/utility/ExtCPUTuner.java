@@ -85,10 +85,11 @@ public class ExtCPUTuner {
 //		"SELECT _id FROM cpuProfiles WHERE profileName='RFCx';"
 //		"INSERT INTO cpuProfiles VALUES (7, 'RFCx', 'conservative', "+frequencyMax+", "+frequencyMin+", "+wifiState+", "+gpsState+", "+bluetoothState+", "+mobiledataState+", "+governorThresholdUp+", "+governorThresholdDown+", "+backgroundSyncState+", "+virtualGovernor+", "+mobiledataConnectionState+", '', "+powersaveBias+", "+AIRPLANEMODE+", 0);"
 		if (sh.executeCommandAsRoot(pre+"\"SELECT COUNT(*) FROM cpuProfiles WHERE profileName='RFCx' AND _id=7;\"","0",context)) {
-			Log.d(TAG, "Inserting RFCx profile into database for the first time.");
+			Log.d(TAG, "Inserting RFCx profile into CPUTuner database for the first time.");
 			sh.executeCommandAsRoot(pre+"\"DELETE FROM cpuProfiles WHERE profileName='RFCx';\"", null, context);
 			sh.executeCommandAsRoot(pre+"\"INSERT INTO cpuProfiles VALUES (7, 'RFCx', 'conservative', "+frequencyMax+", "+frequencyMin+", "+wifiState+", "+gpsState+", "+bluetoothState+", "+mobiledataState+", "+governorThresholdUp+", "+governorThresholdDown+", "+backgroundSyncState+", "+virtualGovernor+", "+mobiledataConnectionState+", '', "+powersaveBias+", "+AIRPLANEMODE+", 0);\"", null, context);
 		} else {
+			Log.d(TAG, "Updating RFCx profile into CPUTuner database.");
 			sh.executeCommandAsRoot(pre+"\"UPDATE cpuProfiles SET frequencyMax="+frequencyMax+", frequencyMin="+frequencyMin+", wifiState="+wifiState+", gpsState="+gpsState+", bluetoothState="+bluetoothState+", mobiledataState="+mobiledataState+", governorThresholdUp="+governorThresholdUp+", governorThresholdDown="+governorThresholdDown+", backgroundSyncState="+backgroundSyncState+", virtualGovernor="+virtualGovernor+", mobiledataConnectionState="+mobiledataConnectionState+", powersaveBias="+powersaveBias+", AIRPLANEMODE="+AIRPLANEMODE+" WHERE profileName='RFCx';\"", null, context);
 		}
 		
