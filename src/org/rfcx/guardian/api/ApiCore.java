@@ -1,6 +1,7 @@
 package org.rfcx.guardian.api;
 
 import java.io.File;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -39,7 +40,10 @@ public class ApiCore {
 	
 	public void init(RfcxGuardian app) {
 		this.app = app;
-		this.httpPostMultipart.setTimeOuts(90000);
+		// setting http post timeouts to the same as the audio capture interval.
+		// this may not be a good idea... we'll see
+		int audioCaptureInterval = 1000*((int) Integer.parseInt(app.getPref("audio_capture_interval")));
+		this.httpPostMultipart.setTimeOuts(audioCaptureInterval, audioCaptureInterval);
 	}
 	
 	public String getCheckInUrl() {
@@ -51,8 +55,13 @@ public class ApiCore {
 		if (app.isConnected) {
 			this.requestSendStart = new Date();
 			if (app.verboseLog) Log.i(TAG,"CheckIn sent at: "+requestSendStart.toGMTString());
-			processCheckInResponse(httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments));
-			app.checkInDb.dbQueued.incrementSingleRowAttempts(checkInAudioReference);
+			try {
+				processCheckInResponse(httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments));
+				app.checkInDb.dbQueued.incrementSingleRowAttempts(checkInAudioReference);
+			} catch (Exception e) {
+				Log.e(TAG, "####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####");
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
 		} else {
 			Log.d(TAG,"No connectivity... Can't send CheckIn");
 		}

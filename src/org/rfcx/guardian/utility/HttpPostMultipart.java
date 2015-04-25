@@ -9,8 +9,10 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -29,14 +31,15 @@ public class HttpPostMultipart {
 	private static final String TAG = "RfcxGuardian-"+HttpPostMultipart.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
-    // need to make these longer and/or dynamic...
+	// These hard coded timeout values are just defaults.
+	// They may be customized through the setTimeOuts method.
 	private int requestReadTimeout = 300000;
 	private int requestConnectTimeout = 300000;
 	private static boolean useCaches = false;
 	
-	public void setTimeOuts(int timeOutMs) {
-		this.requestConnectTimeout = timeOutMs;
-		this.requestReadTimeout = timeOutMs;
+	public void setTimeOuts(int connectTimeOutMs, int readTimeOutMs) {
+		this.requestConnectTimeout = connectTimeOutMs;
+		this.requestReadTimeout = readTimeOutMs;
 	}
 	
 	public String doMultipartPost(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments) {
@@ -86,7 +89,8 @@ public class HttpPostMultipart {
 	
 	private String sendInsecurePostRequest(URL url, MultipartEntity entity) {
 	    try {
-	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+	        HttpURLConnection conn;
+			conn = (HttpURLConnection) url.openConnection();
 	        conn.setReadTimeout(requestReadTimeout);
 	        conn.setConnectTimeout(requestConnectTimeout);
 	        conn.setRequestMethod("POST");
@@ -95,21 +99,25 @@ public class HttpPostMultipart {
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
 	        conn.setFixedLengthStreamingMode((int) entity.getContentLength());
-//	        reqConn.addRequestProperty("Content-length", reqEntity.getContentLength()+"");
 	        conn.addRequestProperty(entity.getContentType().getName(), entity.getContentType().getValue());
 	        OutputStream outputStream = conn.getOutputStream();
 	        entity.writeTo(outputStream);
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	            Log.d(TAG, "Success ("+conn.getResponseCode()+"): "+url.toString());
+	            Log.d(TAG, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
 		    } else {
-	            Log.e(TAG, "Failure: ("+conn.getResponseCode()+"):"+url.toString());
+	            Log.e(TAG, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
 		    }
 		    return readResponseStream(conn.getInputStream());
-	    } catch (Exception e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-	    }
+	    } catch (UnknownHostException e) {
+				Log.e(TAG, "####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####");
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    } catch (ProtocolException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    } catch (IOException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+		}
 	    return "";        
 	}
 	
@@ -124,21 +132,25 @@ public class HttpPostMultipart {
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
 	        conn.setFixedLengthStreamingMode((int) entity.getContentLength());
-//	        reqConn.addRequestProperty("Content-length", reqEntity.getContentLength()+"");
 	        conn.addRequestProperty(entity.getContentType().getName(), entity.getContentType().getValue());
 	        OutputStream outputStream = conn.getOutputStream();
 	        entity.writeTo(outputStream);
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-	            Log.d(TAG, "Success ("+conn.getResponseCode()+"): "+url.toString());
+	            Log.d(TAG, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
 		    } else {
-	            Log.e(TAG, "Failure: ("+conn.getResponseCode()+"):"+url.toString());
+	            Log.e(TAG, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
 		    }
 	        return readResponseStream(conn.getInputStream());
-	    } catch (Exception e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-	    }
+	    } catch (UnknownHostException e) {
+				Log.e(TAG, "####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####");
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    } catch (ProtocolException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    } catch (IOException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+		}
 	    return "";        
 	}
 
