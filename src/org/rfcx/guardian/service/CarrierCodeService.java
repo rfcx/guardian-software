@@ -67,7 +67,9 @@ public class CarrierCodeService extends Service {
 			CarrierCodeService carrierCodeService = CarrierCodeService.this;
 			try {
 				String ussdAction = app.carrierInteraction.currentlyRunningCode;
-				if (ussdAction != null) {
+				
+				// if code is set, and carrier codes are enabled in prefs, then run the code sequence
+				if ( (ussdAction != null) && (app.sharedPrefs.getBoolean("use_carriercodes",true))) {
 					
 					app.deviceScreenLock.unLockScreen(context);
 					
@@ -81,6 +83,7 @@ public class CarrierCodeService extends Service {
 					String ussdClose = app.getPref("carriercode_"+ussdAction+"_close");
 					if (app.verboseLog) { Log.d(TAG, "Closing USSD Code Response: "+ussdAction+" ("+ussdClose+")"); }
 					app.carrierInteraction.closeResponseDialog(context,app.getPref("carriercode_"+ussdAction+"_close").split(","));
+					
 				}
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
