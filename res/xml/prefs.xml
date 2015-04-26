@@ -48,7 +48,7 @@
 	<CheckBoxPreference
 	    android:key="run_carriercodes"
 	    android:title="Should we run USSD codes?"
-	    android:summary="This applies to both TopUp & Balance codes"
+	    android:summary="This applies to both TopUp+Balance codes"
         android:enabled="true"
 		android:defaultValue="true"/>
 	

@@ -111,8 +111,8 @@ public class HttpPostMultipart {
 		    }
 		    return readResponseStream(conn.getInputStream());
 	    } catch (UnknownHostException e) {
-				Log.e(TAG, "####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####");
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+				return TAG+"-UnknownHostException";
 	    } catch (ProtocolException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    } catch (IOException e) {
@@ -144,8 +144,8 @@ public class HttpPostMultipart {
 		    }
 	        return readResponseStream(conn.getInputStream());
 	    } catch (UnknownHostException e) {
-				Log.e(TAG, "####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####");
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+				return TAG+"-UnknownHostException";
 	    } catch (ProtocolException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 	    } catch (IOException e) {

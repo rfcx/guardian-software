@@ -55,12 +55,12 @@ public class ApiCore {
 		if (app.isConnected) {
 			this.requestSendStart = new Date();
 			if (app.verboseLog) Log.i(TAG,"CheckIn sent at: "+requestSendStart.toGMTString());
-			try {
-				processCheckInResponse(httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments));
+			String checkInResponse = httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments);
+			processCheckInResponse(checkInResponse);
+			if (checkInResponse.equals("RfcxGuardian-HttpPostMultipart-UnknownHostException")) {
+				Log.e(TAG,"NOT INCREMENTING CHECK-IN ATTEMPTS");
+			} else {
 				app.checkInDb.dbQueued.incrementSingleRowAttempts(checkInAudioReference);
-			} catch (Exception e) {
-				Log.e(TAG, "####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####UnknownHostException####");
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			}
 		} else {
 			Log.d(TAG,"No connectivity... Can't send CheckIn");
