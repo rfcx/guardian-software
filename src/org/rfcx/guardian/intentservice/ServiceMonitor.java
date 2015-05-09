@@ -32,16 +32,19 @@ public class ServiceMonitor extends IntentService {
 		
 		if (app.isRunning_ServiceMonitor) {
 			
-			// logic about whether services should be allowed (and/or which ones...)
 			app.triggerService("AudioCapture", false);
-			app.triggerService("ApiCheckInTrigger", false);
+			
+			app.triggerService("ApiCheckInTrigger",
+				// if a check-in hasn't been triggered for as long as the first connectivity threshold,
+				// then assume that the CheckInTrigger service is actually not running, and force restart it
+				(System.currentTimeMillis() > (app.apiCore.requestSendStart.getTime() + app.apiCore.connectivityToggleThresholds[0]*60*1000))
+				);
 			
 		} else {
 			// the Monitor logic won't run the first time the intent service is fired
 			app.isRunning_ServiceMonitor = true;
-		
-			// [re]set CPUTuner will run the first time the intent service is fired
-			app.triggerService("CPUTuner", true);
+			
+			(new DeviceCPUTuner()).set(context);
 		}
 //		if (app.isCrisisModeEnabled) {
 //			if (app.verboseLog) Log.d(TAG, "Crisis mode enabled! Making sure services are disabled...");

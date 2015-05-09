@@ -127,8 +127,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		(new DeviceCPUTuner()).set(context);
 		deviceScreenShot.setupScreenShot(context);
 		
-//		airplaneMode.setOn(context);
-		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	    
@@ -257,6 +255,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void triggerService(String serviceName, boolean forceReTrigger) {
 		context = getApplicationContext();
 		boolean serviceAllowedInPrefs = this.sharedPrefs.getBoolean("enable_service_"+serviceName.toLowerCase(), true);
+		if (forceReTrigger) Log.w(TAG,"Forcing [re]trigger of service "+serviceName);
 		if (serviceName.equals("AudioCapture")) {
 			if (!this.isRunning_AudioCapture || forceReTrigger) {
 				context.stopService(new Intent(context, AudioCaptureService.class));

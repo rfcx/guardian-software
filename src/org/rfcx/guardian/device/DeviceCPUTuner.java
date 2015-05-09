@@ -20,15 +20,15 @@ public class DeviceCPUTuner {
 
 	private static final int frequencyMin = 30720;
 	private static final int frequencyMax = 122880;//61440;
-	private static final int wifiState = 2;
+	private static final int wifiState = 0;
 	private static final int gpsState = 0;
 	private static final int bluetoothState = 1;
-	private static final int mobiledataState = 1;
+	private static final int mobiledataState = 2;
 	private static final int governorThresholdUp = 98;
 	private static final int governorThresholdDown = 90;
 	private static final int backgroundSyncState = 2;
 	private static final int virtualGovernor = 3;
-	private static final int mobiledataConnectionState = 0;
+	private static final int mobiledataConnectionState = 1;
 	private static final int powersaveBias = 1000;
 	private static final int AIRPLANEMODE = 0;
 	

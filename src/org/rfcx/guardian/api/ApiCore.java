@@ -30,7 +30,7 @@ public class ApiCore {
 	private RfcxGuardian app = null;
 	HttpPostMultipart httpPostMultipart = new HttpPostMultipart();
 	
-	private Date requestSendStart = new Date();
+	public Date requestSendStart = new Date();
 	public Date requestSendReturned = new Date();
 	
 	private List<String> previousCheckIns = new ArrayList<String>();
@@ -39,9 +39,8 @@ public class ApiCore {
 	
 	public long apiCheckInTriggerPeriod = 15000;
 	
-//	private int[] connectivityToggleThresholds = new int[] { 15, 30, 45, 60 };
-	private int[] connectivityToggleThresholds = new int[] { 10, 20, 30, 40 };
-	private boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
+	public int[] connectivityToggleThresholds = new int[] { 10, 20, 30, 40 };
+	public boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 	
 	public static final int MAX_CHECKIN_ATTEMPTS = 5;
 	

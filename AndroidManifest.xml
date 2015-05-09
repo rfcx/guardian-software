@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian"
     android:versionCode="0"
-    android:versionName="0.4.84"
+    android:versionName="0.4.86"
     >
 
     <uses-sdk
@@ -19,6 +19,7 @@
 	<uses-permission android:name="android.permission.SET_TIME_ZONE" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 	<uses-permission android:name="android.permission.RECEIVE_SMS" />
+	<uses-permission android:name="android.permission.WRITE_SMS"/>
 	<uses-permission android:name="android.permission.RECORD_AUDIO" />
 	<uses-permission android:name="android.permission.BLUETOOTH" />
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
