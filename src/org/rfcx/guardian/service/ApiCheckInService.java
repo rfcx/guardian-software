@@ -75,47 +75,44 @@ public class ApiCheckInService extends Service {
 			ApiCheckInService apiCheckInService = ApiCheckInService.this;
 			app = (RfcxGuardian) getApplication();
 			
-			try {
-				while (apiCheckInService.runFlag) {
-					String[] currentCheckIn = new String[] {null,null,null};
-					try {
-						currentCheckIn = app.checkInDb.dbQueued.getLatestRow();	
+			while (apiCheckInService.runFlag) {
+				String[] currentCheckIn = new String[] {null,null,null};
+				try {
+					currentCheckIn = app.checkInDb.dbQueued.getLatestRow();	
+					
+					if ((currentCheckIn[0] != null) && app.isConnected) {
 						
 						List<String[]> stringParameters = new ArrayList<String[]>();
 						stringParameters.add(new String[] { "json", currentCheckIn[2] });
 						stringParameters.add(new String[] { "messages", app.apiCore.getMessagesAsJson() });
 						
-						if ((currentCheckIn[0] != null) && app.isConnected) {
-							if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiCore.MAX_CHECKIN_ATTEMPTS) {
-								Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiCore.MAX_CHECKIN_ATTEMPTS+" failed attempts");
-								app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3]);
-								app.checkInDb.dbQueued.deleteSingleRow(currentCheckIn[1]);
-							} else {
-								app.apiCore.sendCheckIn(
-									app.apiCore.getCheckInUrl(),
-									stringParameters, 
-									app.apiCore.loadCheckInFiles(currentCheckIn[1]),
-									true, // allow (or, if false, block) file attachments (audio/screenshots)
-									currentCheckIn[1]
-								);
-							}
+						if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiCore.MAX_CHECKIN_ATTEMPTS) {
+							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiCore.MAX_CHECKIN_ATTEMPTS+" failed attempts");
+							app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3]);
+							app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(currentCheckIn[1]);
 						} else {
-							Thread.sleep(5000);
+							app.apiCore.sendCheckIn(
+								app.apiCore.getCheckInUrl(),
+								stringParameters, 
+								app.apiCore.loadCheckInFiles(currentCheckIn[1]),
+								true, // allow (or, if false, block) file attachments (audio/screenshots)
+								currentCheckIn[1]
+							);
 						}
-							
-					} catch (Exception e) {
-						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-						apiCheckInService.runFlag = false;
-						app.isRunning_ApiCheckIn = false;
+					} else {
+						Thread.sleep(5000);
 					}
-				}					
-			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-				apiCheckInService.runFlag = false;
-				app.isRunning_ApiCheckIn = false;
-			} finally {
-				app.isRunning_ApiCheckIn = false;
+						
+				} catch (Exception e) {
+					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+					apiCheckInService.runFlag = false;
+					app.isRunning_ApiCheckIn = false;
+				}
 			}
+			
+			apiCheckInService.runFlag = false;
+			app.isRunning_ApiCheckIn = false;
+
 		}
 	}
 

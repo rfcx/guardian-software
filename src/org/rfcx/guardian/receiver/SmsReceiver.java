@@ -26,6 +26,11 @@ public class SmsReceiver extends BroadcastReceiver {
     		Bundle bundle = intent.getExtras();
     		SmsMessage[] smsMessages = null;
             if (bundle != null) {
+            	
+            	// this line ensures that the messages don't
+            	// actually show up in the real Android Inbox
+            	abortBroadcast();
+            	
             	try {
             		Object[] pdus = (Object[]) bundle.get("pdus");
             		smsMessages = new SmsMessage[pdus.length];

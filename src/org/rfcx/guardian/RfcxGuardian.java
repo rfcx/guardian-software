@@ -5,7 +5,6 @@ import java.util.Calendar;
 import org.rfcx.guardian.api.ApiCore;
 import org.rfcx.guardian.audio.AudioCore;
 import org.rfcx.guardian.carrier.CarrierInteraction;
-import org.rfcx.guardian.database.OutboxDb;
 import org.rfcx.guardian.database.AudioDb;
 import org.rfcx.guardian.database.CheckInDb;
 import org.rfcx.guardian.database.DeviceStateDb;
@@ -43,6 +42,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
@@ -60,12 +60,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
 	
 	// database access helpers
-	public DeviceStateDb deviceStateDb = new DeviceStateDb(this);
-	public SmsDb smsDb = new SmsDb(this);
-	public OutboxDb alertDb = new OutboxDb(this);
-	public AudioDb audioDb = new AudioDb(this);
-	public ScreenShotDb screenShotDb = new ScreenShotDb(this);
-	public CheckInDb checkInDb = new CheckInDb(this);
+	public DeviceStateDb deviceStateDb = null;
+	public SmsDb smsDb = null;
+	public AudioDb audioDb = null;
+	public ScreenShotDb screenShotDb = null;
+	public CheckInDb checkInDb = null;
 
 	// for obtaining device stats and characteristics
 	public DeviceState deviceState = new DeviceState();
@@ -116,6 +115,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		Context context = getApplicationContext();
 		
 		setAppVersion();
+		setDbHandlers();
 		
 		rfcxGuardianPrefs.initializePrefs();
 		rfcxGuardianPrefs.loadPrefsOverride();
@@ -162,6 +162,18 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		} catch (NameNotFoundException e) {
 			Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
 		}
+	}
+	
+	public int getAppVersionValue(String versionName) {
+		try {
+			int majorVersion = (int) Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
+			int subVersion = (int) Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
+			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
+			return 1000*majorVersion+100*subVersion+updateVersion;
+		} catch (Exception e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+		}
+		return 0;
 	}
 	
 	public String getDeviceId() {
@@ -250,37 +262,37 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				context.stopService(new Intent(context, AudioCaptureService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, AudioCaptureService.class));
 			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
+			if (!serviceAllowedInPrefs) Log.w(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("DeviceState")) {
 			if (!this.isRunning_DeviceState || forceReTrigger) {
 				context.stopService(new Intent(context, DeviceStateService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, DeviceStateService.class));
 			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
+			if (!serviceAllowedInPrefs) Log.w(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("ApiCheckIn")) {
 			if (!this.isRunning_ApiCheckIn || forceReTrigger) {
 				context.stopService(new Intent(context, ApiCheckInService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, ApiCheckInService.class));
 			}// else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
+			if (!serviceAllowedInPrefs) Log.w(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("ApiCheckInTrigger")) {
 			if (!this.isRunning_ApiCheckInTrigger || forceReTrigger) {
 				context.stopService(new Intent(context, ApiCheckInTrigger.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, ApiCheckInTrigger.class));
 			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
+			if (!serviceAllowedInPrefs) Log.w(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("CarrierCode")) {
 			if (!this.isRunning_CarrierCode || forceReTrigger) {
 				context.stopService(new Intent(context, CarrierCodeService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, CarrierCodeService.class));
 			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
+			if (!serviceAllowedInPrefs) Log.w(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("CPUTuner")) {
 			if (!this.isRunning_CPUTuner || forceReTrigger) {
 				context.stopService(new Intent(context, DeviceCPUTunerService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, DeviceCPUTunerService.class));
 			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
+			if (!serviceAllowedInPrefs) Log.w(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else {
 			Log.w(TAG, "There is no service named '"+serviceName+"'.");
 		}
@@ -303,6 +315,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}
+	}
+	
+	private void setDbHandlers() {
+		int versionNumber = getAppVersionValue(this.version);
+		this.deviceStateDb = new DeviceStateDb(this,versionNumber);
+		this.smsDb = new SmsDb(this,versionNumber);
+		this.audioDb = new AudioDb(this,versionNumber);
+		this.screenShotDb = new ScreenShotDb(this,versionNumber);
+		this.checkInDb = new CheckInDb(this,versionNumber);
 	}
 	
 }

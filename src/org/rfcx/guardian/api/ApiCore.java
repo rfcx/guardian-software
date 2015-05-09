@@ -11,8 +11,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.HttpPostMultipart;
@@ -89,7 +90,7 @@ public class ApiCore {
 		Log.d(TAG,"CheckIn created: "+audioInfo[1]);
 	}
 	
-	@SuppressWarnings("unchecked")
+	
 	public String getCheckInJson(String[] audioFileInfo) {
 		
 		String[] vBattery = app.deviceStateDb.dbBattery.getStatsSummary();
@@ -101,53 +102,77 @@ public class ApiCore {
 		
 		String timeZoneOffset = timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime());
 
-		JSONObject json = new JSONObject();
-		
-		json.put("battery_percent", (vBattery[0] != "0") ? vBattery[5] : null);
-		json.put("battery_temperature", (vBatteryTemp[0] != "0") ? vBatteryTemp[5] : null);
-		json.put("cpu_percent", (vCpu[0] != "0") ? vCpu[5] : null);
-		json.put("cpu_clock", (vCpuClock[0] != "0") ? vCpuClock[5] : null);
-		json.put("internal_luminosity", (vLight[0] != "0") ? vLight[5] : null);
-		json.put("network_search_time", (vNetworkSearch[0] != "0") ? vNetworkSearch[5] : null);
-		json.put("has_power", (!app.deviceState.isBatteryDisCharging()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
-		json.put("is_charged", (app.deviceState.isBatteryCharged()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
-		json.put("measured_at", (new DateTimeUtils()).getDateTime(Calendar.getInstance().getTime()));
-		json.put("software_version", app.version);
-		json.put("timezone_offset", timeZoneOffset);
-		
-		json.put("queued_checkins", app.checkInDb.dbQueued.getCount());
-		json.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
-		
-		json.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
-		this.previousCheckIns = new ArrayList<String>();
+		try {
 
-		List<String> audioFiles = new ArrayList<String>();
-		audioFiles.add(TextUtils.join("*", audioFileInfo));
-		json.put("audio", TextUtils.join("|", audioFiles));
+			JSONObject json = new JSONObject();
 		
-		Log.i(TAG, "CheckIn: "+json.toJSONString());
-		
-		return json.toJSONString();
+			json.put("battery_percent", (vBattery[0] != "0") ? vBattery[5] : null);
+			json.put("battery_temperature", (vBatteryTemp[0] != "0") ? vBatteryTemp[5] : null);
+			json.put("cpu_percent", (vCpu[0] != "0") ? vCpu[5] : null);
+			json.put("cpu_clock", (vCpuClock[0] != "0") ? vCpuClock[5] : null);
+			json.put("internal_luminosity", (vLight[0] != "0") ? vLight[5] : null);
+			json.put("network_search_time", (vNetworkSearch[0] != "0") ? vNetworkSearch[5] : null);
+			json.put("has_power", (!app.deviceState.isBatteryDisCharging()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
+			json.put("is_charged", (app.deviceState.isBatteryCharged()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
+			json.put("measured_at", (new DateTimeUtils()).getDateTime(Calendar.getInstance().getTime()));
+			json.put("software_version", app.version);
+			json.put("timezone_offset", timeZoneOffset);
+			
+			json.put("queued_checkins", app.checkInDb.dbQueued.getCount());
+			json.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
+			
+			json.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
+			this.previousCheckIns = new ArrayList<String>();
+	
+			List<String> audioFiles = new ArrayList<String>();
+			audioFiles.add(TextUtils.join("*", audioFileInfo));
+			json.put("audio", TextUtils.join("|", audioFiles));
+			
+			Log.i(TAG, "CheckIn: "+json.toString());
+			
+			return json.toString();
+			
+		} catch (JSONException e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			return "{}";
+		}
 	}
 	
 	public void processCheckInResponse(String checkInResponse) {
 		if ((checkInResponse != null) && !checkInResponse.isEmpty()) {
-			app.smsDb.dbReceived.clearMessageBefore(this.requestSendStart);
-			app.deviceScreenShot.purgeAllScreenShots(app.screenShotDb);
 			
 			try {
-				JSONObject responseJson = (JSONObject) (new JSONParser()).parse(checkInResponse);
-				String audioJsonString = responseJson.get("audio").toString();
-				JSONObject audioJson = (JSONObject) (new JSONParser()).parse(audioJsonString.substring(audioJsonString.indexOf("[")+1, audioJsonString.lastIndexOf("]")));
+				// parse response json
+				JSONObject responseJson = new JSONObject(checkInResponse);
 				
+				// reset/record request latency
 				long checkInDuration = System.currentTimeMillis() - this.requestSendStart.getTime();
-				
-				this.previousCheckIns.add(responseJson.get("checkin_id").toString()+"*"+checkInDuration);
+				this.previousCheckIns.add(responseJson.getString("checkin_id")+"*"+checkInDuration);
 				this.requestSendReturned = new Date();
 				Log.i(TAG,"CheckIn request time: "+(checkInDuration/1000)+" seconds");
 				
-				app.audioCore.purgeSingleAudioAsset(app.audioDb, audioJson.get("id").toString());
-				app.checkInDb.dbQueued.deleteSingleRow(audioJson.get("id").toString()+".m4a");
+				// parse audio info and use it to purge the data locally
+			    JSONArray audioJsonArray = new JSONArray(responseJson.getString("audio"));
+			    for (int i = 0; i < audioJsonArray.length(); i++) {
+			    	JSONObject audioJson = audioJsonArray.getJSONObject(i);
+					app.audioCore.purgeSingleAudioAsset(app.audioDb, audioJson.getString("id"));
+					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioJson.getString("id")+".m4a");
+			    }
+				
+				// parse the screenshot info and use it to purge the data locally
+			    JSONArray screenShotJsonArray = new JSONArray(responseJson.getString("screenshots"));
+			    for (int i = 0; i < screenShotJsonArray.length(); i++) {
+			    	JSONObject screenShotJson = screenShotJsonArray.getJSONObject(i);
+					app.deviceScreenShot.purgeSingleScreenShot(screenShotJson.getString("id"));
+					app.screenShotDb.dbScreenShot.deleteSingleScreenShot(screenShotJson.getString("id"));
+			    }
+				
+				// parse the message info and use it to purge the data locally
+			    JSONArray messageJsonArray = new JSONArray(responseJson.getString("messages"));
+			    for (int i = 0; i < messageJsonArray.length(); i++) {
+			    	JSONObject messageJson = messageJsonArray.getJSONObject(i);
+					app.smsDb.dbReceived.deleteSingleMessage(messageJson.getString("digest"));
+			    }
 				
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
@@ -157,18 +182,21 @@ public class ApiCore {
 		}
 	}			
 	
-	@SuppressWarnings("unchecked")
+	
 	public String getMessagesAsJson() {
-		
 		List<String[]> msgList = app.smsDb.dbReceived.getAllMessages();
 		List<String> jsonList = new ArrayList<String>();
-		
 		for (String[] msg : msgList) {
-			JSONObject msgJson = new JSONObject();
-			msgJson.put("received_at", msg[0]);
-			msgJson.put("origin", msg[1]);
-			msgJson.put("message", msg[2]);
-			jsonList.add(msgJson.toJSONString());
+			try {
+				JSONObject msgJson = new JSONObject();
+				msgJson.put("received_at", msg[0]);
+				msgJson.put("number", msg[1]);
+				msgJson.put("body", msg[2]);
+				msgJson.put("digest", msg[3]);
+				jsonList.add(msgJson.toString());
+			} catch (JSONException e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
 		}
 		
 		if (jsonList.size() > 0) {
@@ -185,7 +213,7 @@ public class ApiCore {
 
 		List<String[]> checkInFiles = new ArrayList<String[]>();
 		
-		// attach audio file - we only attach one at a time
+		// attach audio file - we only attach one per check-in
 		String audioId = audioFile.substring(0, audioFile.lastIndexOf("."));
 		String audioFormat = audioFile.substring(1+audioFile.lastIndexOf("."));
 		String audioFilePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioFormat+"/"+audioId+"."+audioFormat;
@@ -201,16 +229,16 @@ public class ApiCore {
 		}
 		
 		
-		// attach screenshot images
-		List<String[]> screenShots = app.screenShotDb.dbScreenShot.getScreenShots();
-		for (String[] screenShotEntry : screenShots) {
-			String imgFilePath = app.getApplicationContext().getFilesDir().toString()+"/img/"+screenShotEntry[1]+".png";
+		// attach screenshot images - we only attach one per check-in (the latest screenshot)
+		String[] screenShot = app.screenShotDb.dbScreenShot.getLastScreenShot();
+		if (screenShot.length > 0) {
+			String imgFilePath = app.getApplicationContext().getFilesDir().toString()+"/img/"+screenShot[1]+".png";
 			try {
 				if ((new File(imgFilePath)).exists()) {
 					checkInFiles.add(new String[] {"screenshot", imgFilePath, "image/png"});
-					Log.d(TAG, "Screenshot attached: "+screenShotEntry[1]+".png");
+					Log.d(TAG, "Screenshot attached: "+screenShot[1]+".png");
 				} else {
-					Log.e(TAG, "Screenshot attachment file doesn't exist: "+screenShotEntry[1]+".png");
+					Log.e(TAG, "Screenshot attachment file doesn't exist: "+screenShot[1]+".png");
 				}
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);

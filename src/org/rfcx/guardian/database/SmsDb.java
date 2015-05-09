@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 
 
@@ -19,26 +20,27 @@ public class SmsDb {
 
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	public SmsDb(Context context) {
+	public SmsDb(Context context, int appVersion) {
+		this.VERSION = appVersion;
 		this.dbReceived = new DbReceived(context);
 		this.dbQueued = new DbQueued(context);
 	}
-	
+
 	private static final String TAG = "RfcxGuardian-"+SmsDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
-	static final int VERSION = 1;
+	private int VERSION = 1;
 	static final String DATABASE = "sms";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_NUMBER = "number";
-	static final String C_MESSAGE = "message";
+	static final String C_BODY = "body";
 	static final String C_DIGEST = "digest";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_NUMBER, C_MESSAGE, C_DIGEST };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_NUMBER, C_BODY, C_DIGEST };
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
 		sbOut.append(", "+C_NUMBER+" TEXT");
-		sbOut.append(", "+C_MESSAGE+" TEXT");
+		sbOut.append(", "+C_BODY+" TEXT");
 		sbOut.append(", "+C_DIGEST+" TEXT");
 		return sbOut.append(")").toString();
 	}
@@ -68,11 +70,11 @@ public class SmsDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String created_at, String number, String message, String digest) {
+		public void insert(String created_at, String number, String body, String digest) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, created_at);
 			values.put(C_NUMBER, number);
-			values.put(C_MESSAGE, message);
+			values.put(C_BODY, body);
 			values.put(C_DIGEST, digest);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
@@ -129,11 +131,11 @@ public class SmsDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String created_at, String number, String message, String digest) {
+		public void insert(String created_at, String number, String body, String digest) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, created_at);
 			values.put(C_NUMBER, number);
-			values.put(C_MESSAGE, message);
+			values.put(C_BODY, body);
 			values.put(C_DIGEST, digest);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {

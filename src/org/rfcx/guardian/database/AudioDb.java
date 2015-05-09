@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 
 import android.content.ContentValues;
@@ -19,14 +20,15 @@ public class AudioDb {
 
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	public AudioDb(Context context) {
+	public AudioDb(Context context, int appVersion) {
+		this.VERSION = appVersion;
 		this.dbCaptured = new DbCaptured(context);
 		this.dbEncoded = new DbEncoded(context);
 	}
-	
+
 	private static final String TAG = "RfcxGuardian-"+AudioDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
-	static final int VERSION = 1;
+	private int VERSION = 1;
 	static final String DATABASE = "audio";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_TIMESTAMP = "timestamp";

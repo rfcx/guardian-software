@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 
 
@@ -19,13 +20,14 @@ public class ScreenShotDb {
 	
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	public ScreenShotDb(Context context) {
+	public ScreenShotDb(Context context, int appVersion) {
+		this.VERSION = appVersion;
 		this.dbScreenShot = new DbScreenShot(context);
 	}
-	
+
 	private static final String TAG = "RfcxGuardian-"+ScreenShotDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
-	static final int VERSION = 1;
+	private int VERSION = 1;
 	static final String DATABASE = "screenshot";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_TIMESTAMP = "timestamp";
@@ -94,6 +96,13 @@ public class ScreenShotDb {
 		public List<String[]> getScreenShotsSince(Date date) { return _getScreenShotsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void clearScreenShotsBefore(Date date) { _clearScreenShotsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void insert(long timestamp) { _insert(this.dbHelper.getWritableDatabase(), TABLE, timestamp); }
+	
+		public void deleteSingleScreenShot(String timestamp) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
+			} finally { db.close(); }
+		}
+	
 	}
 	public final DbScreenShot dbScreenShot;
 

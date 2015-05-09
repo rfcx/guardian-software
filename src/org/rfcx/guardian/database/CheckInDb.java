@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 
 import android.content.ContentValues;
@@ -19,14 +20,15 @@ public class CheckInDb {
 
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	public CheckInDb(Context context) {
+	public CheckInDb(Context context, int appVersion) {
+		this.VERSION = appVersion;
 		this.dbQueued = new DbQueued(context);
 		this.dbSkipped = new DbSkipped(context);
 	}
 	
 	private static final String TAG = "RfcxGuardian-"+CheckInDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
-	static final int VERSION = 1;
+	private int VERSION = 1;
 	static final String DATABASE = "checkin";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_AUDIO = "audio";
@@ -104,7 +106,7 @@ public class CheckInDb {
 			return row;
 		}
 		
-		public void deleteSingleRow(String audioFile) {
+		public void deleteSingleRowByAudioAttachment(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_AUDIO+"='"+audioFile+"'");
 			} finally { db.close(); }
@@ -200,7 +202,7 @@ public class CheckInDb {
 			return row;
 		}
 		
-		public void deleteSingleRow(String audioFile) {
+		public void deleteSingleRowByAudioAttachment(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_AUDIO+"='"+audioFile+"'");
 			} finally { db.close(); }

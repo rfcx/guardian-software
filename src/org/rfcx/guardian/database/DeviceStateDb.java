@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 
 
@@ -19,7 +20,8 @@ public class DeviceStateDb {
 	
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	public DeviceStateDb(Context context) {
+	public DeviceStateDb(Context context, int appVersion) {
+		this.VERSION = appVersion;
 		this.dbBattery = new DbBattery(context);
 		this.dbCpu = new DbCpu(context);
 		this.dbLight = new DbLight(context);
@@ -28,10 +30,10 @@ public class DeviceStateDb {
 		this.dbNetworkSearch = new DbNetworkSearch(context);
 		this.dbNetworkStrength = new DbNetworkStrength(context);
 	}
-	
+
 	private static final String TAG = "RfcxGuardian-"+DeviceStateDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
-	static final int VERSION = 1;
+	private int VERSION = 1;
 	static final String DATABASE = "device";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_VALUE = "value";

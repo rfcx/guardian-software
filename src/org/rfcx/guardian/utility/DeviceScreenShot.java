@@ -110,6 +110,17 @@ public class DeviceScreenShot {
 		return null;
 	}
 	
+	public void purgeSingleScreenShot(String screenShotTimeStamp) {
+		Log.v(TAG, "Purging single screenshot: "+screenShotTimeStamp);
+		if (this.app != null) {
+			try {
+				File screenShotFile = new File(this.app.getApplicationContext().getFilesDir().toString()+"/img",screenShotTimeStamp+".png");
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			}
+		}
+	}
+	
 	public void purgeAllScreenShots(ScreenShotDb screenShotDb) {
 		Log.v(TAG, "Purging all existing screenshots...");
 		if (this.app != null) {
