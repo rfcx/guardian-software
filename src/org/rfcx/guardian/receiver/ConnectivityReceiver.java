@@ -20,13 +20,13 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         app.isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 		if (app.isConnected) {
 			app.lastConnectedAt = Calendar.getInstance().getTimeInMillis();
-			if (app.verboseLog) Log.d(TAG, "Connectivity: YES");
+			Log.d(TAG, "Connectivity: YES");
 			int disconnectedFor = (int) (app.lastConnectedAt - app.lastDisconnectedAt);
 			if (disconnectedFor > 1000) app.deviceStateDb.dbNetworkSearch.insert(disconnectedFor);
 	//		app.apiCore.triggerCheckIn(app);
 		} else {
 			app.lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
-			if (app.verboseLog) Log.d(TAG, "Connectivity: NO");
+			Log.d(TAG, "Connectivity: NO");
 		}
         
 	}

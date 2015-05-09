@@ -28,11 +28,9 @@ import android.util.Log;
 
 public class HttpGet {
 
-	private static final String TAG = "RfcxGuardian-"+HttpGet.class.getSimpleName();
+	private static final String TAG = "RfcxGuardianUpdater-"+HttpGet.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	private static final String DOWNLOAD_TIME_LABEL = "Download time: ";
-	
-	private boolean verboseLogging = false;
 	
     // need to make these longer and/or dynamic
 	// (dynamic is better but methods that reference them can't be static...)
@@ -40,11 +38,10 @@ public class HttpGet {
 	private static int requestConnectTimeout = 30000;
 	private static boolean useCaches = false;
 	
-	
 	public JSONObject getAsJson(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = Calendar.getInstance().getTimeInMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		if (verboseLogging) { Log.d(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms"); }
+		Log.v(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms");
 		try {
 			return (JSONObject) (new JSONParser()).parse(str);
 		} catch (ParseException e) {
@@ -60,7 +57,7 @@ public class HttpGet {
 	public List<JSONObject> getAsJsonArray(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = Calendar.getInstance().getTimeInMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		if (verboseLogging) { Log.d(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms"); }
+		Log.v(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms");
 		try {
 			List<JSONObject> jsonArray = new ArrayList<JSONObject>();
 			JSONArray jsonAll = (JSONArray) (new JSONParser()).parse(str);
@@ -83,7 +80,7 @@ public class HttpGet {
 	public String getAsString(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = Calendar.getInstance().getTimeInMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		if (verboseLogging) { Log.d(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms"); }
+		Log.v(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms");
 		return str;
 	}
 	
@@ -98,13 +95,13 @@ public class HttpGet {
 		for (String[] keyValue : keyValueParameters) {
 			url.append(keyValue[0]).append("=").append(keyValue[1]).append("&");
 		}
-		if (verboseLogging) { Log.d(TAG,"HTTP GET: "+url.toString()); }
+		Log.v(TAG,"HTTP GET: "+url.toString());
 		FileOutputStream fileOutputStream = httpGetFileOutputStream(outputFileName,context);
 		InputStream inputStream = httpGetFileInputStream(url.toString());
 		if ((inputStream != null) && (fileOutputStream != null)) {
 			writeFileResponseStream(inputStream,fileOutputStream);
 			closeInputOutputStreams(inputStream,fileOutputStream);
-			if (verboseLogging) { Log.d(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms"); }
+			Log.v(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms");
 			return (new File(context.getFilesDir(), outputFileName)).exists();
 		}
 		return false;
@@ -120,7 +117,7 @@ public class HttpGet {
 		for (String[] keyValue : keyValueParameters) {
 			url.append(keyValue[0]).append("=").append(keyValue[1]).append("&");
 		}
-		Log.d(TAG,"HTTP GET: "+url.toString());
+		Log.v(TAG,"HTTP GET: "+url.toString());
 		return executeGet(url.toString());
 	}
     
@@ -254,9 +251,9 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-		            Log.d(TAG, "Success ("+conn.getResponseCode()+"): "+fullUrl);
+		            Log.i(TAG, "Success ("+conn.getResponseCode()+"): "+fullUrl);
 			    } else {
-		            Log.e(TAG, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
+		            Log.i(TAG, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
 			    }
 		        return conn.getInputStream();
 			} else if (inferredProtocol.equals("http")) {
@@ -270,9 +267,9 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-		            Log.d(TAG, "Success ("+conn.getResponseCode()+"): "+fullUrl);
+		            Log.i(TAG, "Success ("+conn.getResponseCode()+"): "+fullUrl);
 			    } else {
-		            Log.e(TAG, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
+		            Log.i(TAG, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
 			    }
 		        return conn.getInputStream();
 			} else {
@@ -285,10 +282,6 @@ public class HttpGet {
     		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
     	}
 		return null;
-	}
-
-	public void useVerboseLogging(boolean yesNo) {
-		this.verboseLogging = yesNo;
 	}
 	
 }

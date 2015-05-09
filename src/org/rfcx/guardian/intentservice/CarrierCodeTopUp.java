@@ -22,7 +22,7 @@ public class CarrierCodeTopUp extends IntentService {
 	protected void onHandleIntent(Intent inputIntent) {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		if (app.verboseLog) Log.d(TAG, "Running CarrierCodeTriggerDing");
+		Log.v(TAG, "Running CarrierCodeTriggerDing");
 		
 		if (app.isConnected) {
 			app.carrierInteraction.currentlyRunningCode = "topup";

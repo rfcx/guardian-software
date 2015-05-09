@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <CheckBoxPreference
-	    android:key="verbose_logging"
-	    android:title="Verbose Logging"
-	    android:summary="Verbose Logging"
-		android:enabled="true"
-		android:defaultValue="false"/>
-	
  	<EditTextPreference
         android:key="api_domain"
         android:title="API Protocol/Address"

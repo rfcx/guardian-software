@@ -28,7 +28,7 @@ public class ServiceMonitor extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
-		if (app.verboseLog) Log.d(TAG, "Running Service Monitor...");
+		Log.v(TAG, "Running Service Monitor...");
 		
 		if (app.isRunning_ServiceMonitor) {
 			

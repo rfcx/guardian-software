@@ -23,7 +23,7 @@ public class DeviceAirplaneMode {
 	
 	public void setOn(Context context) {
 		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
-		if (app.verboseLog) { Log.d(TAG, "Turning AirplaneMode ON"); }
+		Log.v(TAG, "Turning AirplaneMode ON");
     	if (!isEnabled(context)) {
     		set(context, 1);
     	}
@@ -31,7 +31,7 @@ public class DeviceAirplaneMode {
 	
 	public void setOff(Context context) {
 		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
-		if (app.verboseLog) { Log.d(TAG, "Turning AirplaneMode OFF"); }
+		Log.v(TAG, "Turning AirplaneMode OFF");
     	if (!isEnabled(context)) {
     		set(context, 1);
     		set(context, 0);

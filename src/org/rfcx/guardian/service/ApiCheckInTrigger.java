@@ -39,7 +39,7 @@ public class ApiCheckInTrigger extends Service {
 		app = (RfcxGuardian) getApplication();
 		context = app.getApplicationContext();
 		
-		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
+		Log.v(TAG, "Starting service: "+TAG);
 		
 		app.isRunning_ApiCheckInTrigger = true;
 		try {
@@ -84,7 +84,7 @@ public class ApiCheckInTrigger extends Service {
 						app.isRunning_ApiCheckInTrigger = false;
 					}
 				}
-				if (app.verboseLog) Log.d(TAG, "Stopping service: "+TAG);
+				Log.v(TAG, "Stopping service: "+TAG);
 				
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);

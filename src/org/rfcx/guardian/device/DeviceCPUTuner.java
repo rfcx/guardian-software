@@ -90,7 +90,7 @@ public class DeviceCPUTuner {
 			sh.executeCommandAsRoot(pre+"\"DELETE FROM cpuProfiles WHERE profileName='RFCx';\"", null, context);
 			sh.executeCommandAsRoot(pre+"\"INSERT INTO cpuProfiles VALUES (7, 'RFCx', 'conservative', "+frequencyMax+", "+frequencyMin+", "+wifiState+", "+gpsState+", "+bluetoothState+", "+mobiledataState+", "+governorThresholdUp+", "+governorThresholdDown+", "+backgroundSyncState+", "+virtualGovernor+", "+mobiledataConnectionState+", '', "+powersaveBias+", "+AIRPLANEMODE+", 0);\"", null, context);
 		} else {
-			if (app.verboseLog) Log.d(TAG, "Updating RFCx profile in CPUTuner database.");
+			Log.v(TAG, "Updating RFCx profile in CPUTuner database.");
 			sh.executeCommandAsRoot(pre+"\"UPDATE cpuProfiles SET frequencyMax="+frequencyMax+", frequencyMin="+frequencyMin+", wifiState="+wifiState+", gpsState="+gpsState+", bluetoothState="+bluetoothState+", mobiledataState="+mobiledataState+", governorThresholdUp="+governorThresholdUp+", governorThresholdDown="+governorThresholdDown+", backgroundSyncState="+backgroundSyncState+", virtualGovernor="+virtualGovernor+", mobiledataConnectionState="+mobiledataConnectionState+", powersaveBias="+powersaveBias+", AIRPLANEMODE="+AIRPLANEMODE+" WHERE profileName='RFCx';\"", null, context);
 		}
 		

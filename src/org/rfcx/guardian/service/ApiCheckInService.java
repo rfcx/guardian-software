@@ -44,7 +44,7 @@ public class ApiCheckInService extends Service {
 		app = (RfcxGuardian) getApplication();
 		context = app.getApplicationContext();
 
-		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
+		Log.v(TAG, "Starting service: "+TAG);
 		
 		app.isRunning_ApiCheckIn = true;
 		try {

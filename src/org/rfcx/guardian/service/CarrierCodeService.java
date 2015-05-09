@@ -41,7 +41,7 @@ public class CarrierCodeService extends Service {
 		app.isRunning_CarrierCode = true;
 		try {
 			this.carrierCode.start();
-			if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
+			Log.v(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
@@ -74,14 +74,14 @@ public class CarrierCodeService extends Service {
 					app.deviceScreenLock.unLockScreen(context);
 					
 					String ussdCode = app.getPref("carriercode_"+ussdAction);
-					if (app.verboseLog) { Log.d(TAG, "Running USSD Code: "+ussdAction+" ("+ussdCode+")"); }
+					Log.i(TAG, "Running USSD Code: "+ussdAction+" ("+ussdCode+")");
 					app.carrierInteraction.submitCode(context, ussdCode);
 					
 					Thread.sleep(30000);
 					(new DeviceScreenShot()).saveScreenShot(context);
 					
 					String ussdClose = app.getPref("carriercode_"+ussdAction+"_close");
-					if (app.verboseLog) { Log.d(TAG, "Closing USSD Code Response: "+ussdAction+" ("+ussdClose+")"); }
+					Log.i(TAG, "Closing USSD Code Response: "+ussdAction+" ("+ussdClose+")");
 					app.carrierInteraction.closeResponseDialog(context,app.getPref("carriercode_"+ussdAction+"_close").split(","));
 					
 				}

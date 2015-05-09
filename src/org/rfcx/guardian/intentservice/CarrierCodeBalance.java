@@ -22,7 +22,7 @@ public class CarrierCodeBalance extends IntentService {
 	protected void onHandleIntent(Intent inputIntent) {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		if (app.verboseLog) Log.d(TAG, "Running CarrierCodeTriggerBalance");
+		Log.v(TAG, "Running CarrierCodeTriggerBalance");
 		
 		if (app.isConnected) {
 			app.carrierInteraction.currentlyRunningCode = "balance";

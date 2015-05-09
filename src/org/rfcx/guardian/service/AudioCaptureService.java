@@ -60,7 +60,7 @@ public class AudioCaptureService extends Service {
 
 		app.audioCore.initializeAudioCapture(app);
 		
-		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
+		Log.v(TAG, "Starting service: "+TAG);
 		
 		app.isRunning_AudioCapture = true;
 		try {
@@ -111,7 +111,7 @@ public class AudioCaptureService extends Service {
 						app.isRunning_AudioCapture = false;
 					}
 				}
-				if (app.verboseLog) Log.d(TAG, "Stopping service: "+TAG);
+				Log.v(TAG, "Stopping service: "+TAG);
 				captureLoopEnd();
 				
 			} catch (Exception e) {
@@ -187,7 +187,7 @@ public class AudioCaptureService extends Service {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			}
 	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", fileExtension, "-");
-			if (app.verboseLog) Log.d(TAG, "Capture file created ("+this.captureLoopPeriod+"ms): "+captureTimeStamps[0]+"."+fileExtension);
+			Log.i(TAG, "Capture file created ("+this.captureLoopPeriod+"ms): "+captureTimeStamps[0]+"."+fileExtension);
 	        app.audioCore.queueAudioCaptureFollowUp(context);
 		}
 	}

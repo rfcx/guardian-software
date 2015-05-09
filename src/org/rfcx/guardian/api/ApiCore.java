@@ -60,7 +60,7 @@ public class ApiCore {
 		if (!allowAttachments) keyFilepathMimeAttachments = new ArrayList<String[]>();
 		if (app.isConnected) {
 			this.requestSendStart = new Date();
-			if (app.verboseLog) Log.i(TAG,"CheckIn sent at: "+requestSendStart.toGMTString());
+			Log.i(TAG,"CheckIn sent at: "+requestSendStart.toGMTString());
 			String checkInResponse = httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments);
 			processCheckInResponse(checkInResponse);
 			if (checkInResponse.equals("RfcxGuardian-HttpPostMultipart-UnknownHostException")) {
@@ -125,7 +125,7 @@ public class ApiCore {
 		audioFiles.add(TextUtils.join("*", audioFileInfo));
 		json.put("audio", TextUtils.join("|", audioFiles));
 		
-		if (app.verboseLog) { Log.d(TAG, "JSON: "+json.toJSONString()); }
+		Log.i(TAG, "JSON: "+json.toJSONString());
 		
 		return json.toJSONString();
 	}
@@ -144,7 +144,7 @@ public class ApiCore {
 				
 				this.previousCheckIns.add(responseJson.get("checkin_id").toString()+"*"+checkInDuration);
 				this.requestSendReturned = new Date();
-				if (app.verboseLog) Log.d(TAG,"CheckIn request time: "+(checkInDuration/1000)+" seconds");
+				Log.i(TAG,"CheckIn request time: "+(checkInDuration/1000)+" seconds");
 				
 				app.audioCore.purgeSingleAudioAsset(app.audioDb, audioJson.get("id").toString());
 				app.checkInDb.dbQueued.deleteSingleRow(audioJson.get("id").toString()+".m4a");
@@ -152,7 +152,7 @@ public class ApiCore {
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			} finally {
-				if (app.verboseLog) Log.d(TAG, "API Response: " + checkInResponse);
+				Log.i(TAG, "API Response: " + checkInResponse);
 			}
 		}
 	}			
@@ -169,8 +169,8 @@ public class ApiCore {
 		try {
 			if ((new File(audioFilePath)).exists()) {
 				checkInFiles.add(new String[] {"audio", audioFilePath, "audio/"+audioFormat});
-				if (app.verboseLog) { Log.d(TAG, "Audio attached: "+audioId+"."+audioFormat); }
-			} else if (app.verboseLog) {
+				Log.d(TAG, "Audio attached: "+audioId+"."+audioFormat);
+			} else {
 				Log.e(TAG, "Audio attachment file doesn't exist: "+audioId+"."+audioFormat);
 			}
 		} catch (Exception e) {
@@ -185,9 +185,9 @@ public class ApiCore {
 			try {
 				if ((new File(imgFilePath)).exists()) {
 					checkInFiles.add(new String[] {"screenshot", imgFilePath, "image/png"});
-					if (app.verboseLog) { Log.d(TAG, "Screenshot attached: "+screenShotEntry[1]+".png"); }
-				} else if (app.verboseLog) {
-					Log.d(TAG, "Screenshot attachment file doesn't exist: "+screenShotEntry[1]+".png");
+					Log.d(TAG, "Screenshot attached: "+screenShotEntry[1]+".png");
+				} else {
+					Log.e(TAG, "Screenshot attachment file doesn't exist: "+screenShotEntry[1]+".png");
 				}
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);

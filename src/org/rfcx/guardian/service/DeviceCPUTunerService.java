@@ -42,7 +42,7 @@ public class DeviceCPUTunerService extends Service {
 		app.isRunning_CPUTuner = true;
 		try {
 			this.deviceCPUTunerSvc.start();
-			if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
+			Log.v(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}

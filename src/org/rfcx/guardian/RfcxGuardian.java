@@ -50,7 +50,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private static final String TAG = "RfcxGuardian-"+RfcxGuardian.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	public String version = "0.0.0";
-	public boolean verboseLog = false;
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
@@ -152,7 +151,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
+		Log.i(TAG, "Preference changed: "+key);
 		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
@@ -168,7 +167,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String getDeviceId() {
 		if (this.deviceId == null) {
 			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
-			if (this.verboseLog) { Log.d(TAG,"Device GUID: "+this.deviceId); }
+			Log.i(TAG,"Device GUID: "+this.deviceId);
 			rfcxGuardianPrefs.writeGuidToFile(deviceId);
 		}
 		return this.deviceId;
@@ -221,14 +220,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ServiceMonitor.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				if (repeatIntervalSeconds == 0) { alarmManager.set(AlarmManager.RTC, startTimeMillis, monitorServiceIntent);
 				} else { alarmManager.setInexactRepeating(AlarmManager.RTC, startTimeMillis, repeatInterval, monitorServiceIntent); }
-			} else if (this.verboseLog) { Log.d(TAG, "Repeating IntentService 'ServiceMonitor' is already running..."); }
+			} else { Log.w(TAG, "Repeating IntentService 'ServiceMonitor' is already running..."); }
 		} else if (intentServiceName.equals("CarrierCodeTrigger-Balance")) {
 				PendingIntent carrierCodeTrigger = PendingIntent.getService(context, -1, new Intent(context, CarrierCodeBalance.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				String logMsg = "CarrierCodeTrigger-Balance will be launched at "+startTimeMillis;
 				if (repeatIntervalSeconds == 0) { alarmManager.set(AlarmManager.RTC, startTimeMillis, carrierCodeTrigger);
 				} else { alarmManager.setInexactRepeating(AlarmManager.RTC, startTimeMillis, repeatInterval, carrierCodeTrigger);
 				logMsg += " and repeat every "+(repeatIntervalSeconds/3600)+" hours"; }
-				if (this.verboseLog) { Log.d(TAG, logMsg); }
+				Log.i(TAG, logMsg);
 		} else if (intentServiceName.equals("CarrierCodeTrigger-TopUp")) {
 				PendingIntent carrierCodeTrigger = PendingIntent.getService(context, -1, new Intent(context, CarrierCodeTopUp.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				String logMsg = "CarrierCodeTrigger-TopUp will be launched at "+startTimeMillis;
@@ -236,9 +235,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				} else { alarmManager.setRepeating(AlarmManager.RTC, startTimeMillis, repeatInterval, carrierCodeTrigger);
 				// In this case we use setRepeating so that we can more precisely set the timing of the TopUp.
 				logMsg += " and repeat every "+(repeatIntervalSeconds/3600)+" hours"; }
-				if (this.verboseLog) { Log.d(TAG, logMsg); }
+				Log.i(TAG, logMsg);
 		} else {
-			Log.e(TAG, "No IntentService named '"+intentServiceName+"'.");
+			Log.w(TAG, "No IntentService named '"+intentServiceName+"'.");
 		}
 	}
 	
@@ -250,40 +249,40 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			if (!this.isRunning_AudioCapture || forceReTrigger) {
 				context.stopService(new Intent(context, AudioCaptureService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, AudioCaptureService.class));
-			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
 			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("DeviceState")) {
 			if (!this.isRunning_DeviceState || forceReTrigger) {
 				context.stopService(new Intent(context, DeviceStateService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, DeviceStateService.class));
-			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
 			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("ApiCheckIn")) {
 			if (!this.isRunning_ApiCheckIn || forceReTrigger) {
 				context.stopService(new Intent(context, ApiCheckInService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, ApiCheckInService.class));
-			}// else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			}// else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
 			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("ApiCheckInTrigger")) {
 			if (!this.isRunning_ApiCheckInTrigger || forceReTrigger) {
 				context.stopService(new Intent(context, ApiCheckInTrigger.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, ApiCheckInTrigger.class));
-			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
 			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("CarrierCode")) {
 			if (!this.isRunning_CarrierCode || forceReTrigger) {
 				context.stopService(new Intent(context, CarrierCodeService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, CarrierCodeService.class));
-			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
 			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("CPUTuner")) {
 			if (!this.isRunning_CPUTuner || forceReTrigger) {
 				context.stopService(new Intent(context, DeviceCPUTunerService.class));
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, DeviceCPUTunerService.class));
-			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
 			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else {
-			Log.e(TAG, "There is no service named '"+serviceName+"'.");
+			Log.w(TAG, "There is no service named '"+serviceName+"'.");
 		}
 	}
 	

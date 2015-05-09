@@ -84,7 +84,7 @@ public class DeviceScreenShot {
 		        	long timestamp = cacheFile.lastModified();
 			    	(new File(imgDir)).mkdirs();
 			    	String imgPath = imgDir+"/"+timestamp+".png";
-			    	if (app.verboseLog) Log.d(TAG,"Screenshot saved: "+imgPath);
+			    	Log.i(TAG,"Screenshot saved: "+imgPath);
 			    	File imgFile = new File(imgPath);
 			    	
 		    		InputStream cacheFileInputStream = new FileInputStream(cacheFile);
@@ -111,7 +111,7 @@ public class DeviceScreenShot {
 	}
 	
 	public void purgeAllScreenShots(ScreenShotDb screenShotDb) {
-		if (app.verboseLog) Log.d(TAG, "Purging all existing screenshots...");
+		Log.v(TAG, "Purging all existing screenshots...");
 		if (this.app != null) {
 			try {
 				String screenShotDir = this.app.getApplicationContext().getFilesDir().toString()+"/img";

@@ -22,7 +22,7 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 		
 		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
 
-		if (app.verboseLog) Log.d(TAG,
+		Log.v(TAG,
 				"AirplaneMode " + ( app.airplaneMode.isEnabled(context) ? "Enabled" : "Disabled" )
 				+ " at "+(Calendar.getInstance()).getTime().toLocaleString());
 		
