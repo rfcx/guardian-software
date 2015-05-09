@@ -1,7 +1,7 @@
 package org.rfcx.guardian.intentservice;
 
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.ExtCPUTuner;
+import org.rfcx.guardian.device.DeviceCPUTuner;
 import org.rfcx.guardian.utility.TimeOfDay;
 
 
@@ -36,12 +36,12 @@ public class ServiceMonitor extends IntentService {
 			app.triggerService("AudioCapture", false);
 			app.triggerService("ApiCheckInTrigger", false);
 			
-			// [re]set CPUTuner
-			(new ExtCPUTuner()).set(context);
-			
 		} else {
 			// the Monitor logic won't run the first time the intent service is fired
 			app.isRunning_ServiceMonitor = true;
+		
+			// [re]set CPUTuner will run the first time the intent service is fired
+			app.triggerService("CPUTuner", true);
 		}
 //		if (app.isCrisisModeEnabled) {
 //			if (app.verboseLog) Log.d(TAG, "Crisis mode enabled! Making sure services are disabled...");

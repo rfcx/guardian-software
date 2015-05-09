@@ -11,7 +11,8 @@ import org.rfcx.guardian.database.CheckInDb;
 import org.rfcx.guardian.database.DeviceStateDb;
 import org.rfcx.guardian.database.ScreenShotDb;
 import org.rfcx.guardian.database.SmsDb;
-import org.rfcx.guardian.device.CpuUsage;
+import org.rfcx.guardian.device.DeviceCPUTuner;
+import org.rfcx.guardian.device.DeviceCpuUsage;
 import org.rfcx.guardian.device.DeviceState;
 import org.rfcx.guardian.intentservice.CarrierCodeBalance;
 import org.rfcx.guardian.intentservice.CarrierCodeTopUp;
@@ -22,13 +23,13 @@ import org.rfcx.guardian.service.ApiCheckInService;
 import org.rfcx.guardian.service.ApiCheckInTrigger;
 import org.rfcx.guardian.service.AudioCaptureService;
 import org.rfcx.guardian.service.CarrierCodeService;
+import org.rfcx.guardian.service.DeviceCPUTunerService;
 import org.rfcx.guardian.service.DeviceStateService;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceScreenLock;
 import org.rfcx.guardian.utility.DeviceScreenShot;
-import org.rfcx.guardian.utility.ExtCPUTuner;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.AlarmManager;
@@ -69,7 +70,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	// for obtaining device stats and characteristics
 	public DeviceState deviceState = new DeviceState();
-	public CpuUsage deviceCpuUsage = new CpuUsage();
+	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
 	
 	// for viewing and controlling airplane mode
 	public DeviceAirplaneMode airplaneMode = new DeviceAirplaneMode();
@@ -102,6 +103,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public boolean isRunning_ApiCheckIn = false;
 	public boolean isRunning_ApiCheckInTrigger = false;
 	public boolean isRunning_CarrierCode = false;
+	public boolean isRunning_CPUTuner = false;
 	
 	// Repeating IntentServices
 	public boolean isRunning_ServiceMonitor = false;
@@ -123,7 +125,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		apiCore.init(this);
 
 		(new ShellCommands()).executeCommandAsRoot("pm list features",null,context);
-		(new ExtCPUTuner()).set(context);
+		(new DeviceCPUTuner()).set(context);
 		deviceScreenShot.setupScreenShot(context);
 		
 //		airplaneMode.setOn(context);
@@ -274,6 +276,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				if (serviceAllowedInPrefs) context.startService(new Intent(context, CarrierCodeService.class));
 			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
 			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
+		} else if (serviceName.equals("CPUTuner")) {
+			if (!this.isRunning_CPUTuner || forceReTrigger) {
+				context.stopService(new Intent(context, DeviceCPUTunerService.class));
+				if (serviceAllowedInPrefs) context.startService(new Intent(context, DeviceCPUTunerService.class));
+			} else if (this.verboseLog) { Log.d(TAG, "Service '"+serviceName+"' is already running..."); }
+			if (!serviceAllowedInPrefs) Log.e(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}
@@ -291,6 +299,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			context.stopService(new Intent(context, ApiCheckInTrigger.class));
 		} else if (serviceName.equals("CarrierCode")) {
 			context.stopService(new Intent(context, CarrierCodeService.class));
+		} else if (serviceName.equals("CPUTuner")) {
+			context.stopService(new Intent(context, DeviceCPUTunerService.class));
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}

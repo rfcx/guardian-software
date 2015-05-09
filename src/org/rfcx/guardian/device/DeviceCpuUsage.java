@@ -6,9 +6,9 @@ import java.io.RandomAccessFile;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class CpuUsage {
+public class DeviceCpuUsage {
 
-	private static final String TAG = "RfcxGuardian-"+CpuUsage.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+DeviceCpuUsage.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public static final int REPORTING_SAMPLE_COUNT = 60;

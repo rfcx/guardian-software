@@ -116,5 +116,12 @@
 	    android:summary="Enable/Disable Service"
         android:enabled="true"
 		android:defaultValue="true"/>
+
+	<CheckBoxPreference
+	    android:key="enable_service_cputuner"
+	    android:title="CPUTuner Set"
+	    android:summary="Enable/Disable Service"
+        android:enabled="true"
+		android:defaultValue="true"/>
 	
 </PreferenceScreen>

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility;
+package org.rfcx.guardian.device;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -6,18 +6,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.FileUtils;
+import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class ExtCPUTuner {
+public class DeviceCPUTuner {
 
-	private static final String TAG = "RfcxGuardian-"+ExtCPUTuner.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+DeviceCPUTuner.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private static final int frequencyMin = 30720;
-	private static final int frequencyMax = 61440;
+	private static final int frequencyMax = 122880;//61440;
 	private static final int wifiState = 2;
 	private static final int gpsState = 0;
 	private static final int bluetoothState = 1;

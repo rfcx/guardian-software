@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.database.DeviceStateDb;
-import org.rfcx.guardian.device.CpuUsage;
+import org.rfcx.guardian.device.DeviceCpuUsage;
 import org.rfcx.guardian.device.DeviceState;
 
 import android.app.Service;
@@ -82,13 +82,13 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			DeviceStateService deviceStateService = DeviceStateService.this;
 			if (app == null) { app = (RfcxGuardian) getApplication(); }
 			while (deviceStateService.runFlag) {
-				CpuUsage deviceCpuUsage = app.deviceCpuUsage;
+				DeviceCpuUsage deviceCpuUsage = app.deviceCpuUsage;
 				DeviceState deviceState = app.deviceState;
 				DeviceStateDb deviceStateDb = app.deviceStateDb;
 				try {
 					deviceCpuUsage.updateCpuUsage();
 					recordingIncrement++;
-					if (recordingIncrement == CpuUsage.REPORTING_SAMPLE_COUNT) {
+					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
 						deviceState.setBatteryState(app.getApplicationContext(), null);
 						deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
 						deviceStateDb.dbCpuClock.insert(deviceCpuUsage.getCpuClockAvg());
@@ -98,7 +98,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 						if (app.verboseLog) Log.d(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% @"+deviceCpuUsage.getCpuClockAvg()+"MHz "+(Calendar.getInstance()).getTime().toGMTString());
 					}
 											
-					int delayMs = (int) Math.round(60000/deviceState.serviceSamplesPerMinute) - CpuUsage.SAMPLE_LENGTH_MS;
+					int delayMs = (int) Math.round(60000/deviceState.serviceSamplesPerMinute) - DeviceCpuUsage.SAMPLE_LENGTH_MS;
 					Thread.sleep(delayMs);
 				} catch (InterruptedException e) {
 					deviceStateService.runFlag = false;

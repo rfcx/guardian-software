@@ -92,7 +92,7 @@ public class ApiCheckInService extends Service {
 									app.apiCore.getCheckInUrl(),
 									stringParameters, 
 									app.apiCore.loadCheckInFiles(currentCheckIn[1]),
-									true, // allow (or block) file attachments (audio/screenshots)
+									true, // allow (or, if false, block) file attachments (audio/screenshots)
 									currentCheckIn[1]
 								);
 							}

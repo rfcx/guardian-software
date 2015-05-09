@@ -2,10 +2,14 @@ package org.rfcx.guardian.api;
 
 import java.io.File;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -29,6 +33,8 @@ public class ApiCore {
 	public Date requestSendReturned = new Date();
 	
 	private List<String> previousCheckIns = new ArrayList<String>();
+	
+	private DateFormat timeZoneOffsetDateFormat = new SimpleDateFormat("Z");
 	
 	public long apiCheckInTriggerPeriod = 15000;
 	
@@ -92,19 +98,24 @@ public class ApiCore {
 		String[] vCpuClock = app.deviceStateDb.dbCpuClock.getStatsSummary();
 		String[] vLight = app.deviceStateDb.dbLight.getStatsSummary();
 		String[] vNetworkSearch = app.deviceStateDb.dbNetworkSearch.getStatsSummary();
+		
+		String timeZoneOffset = timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime());
 
 		JSONObject json = new JSONObject();
 		
-		json.put("battery_percent", (vBattery[0] != "0") ? vBattery[4] : null);
-		json.put("battery_temperature", (vBatteryTemp[0] != "0") ? vBatteryTemp[4] : null);
-		json.put("cpu_percent", (vCpu[0] != "0") ? vCpu[4] : null);
-		json.put("cpu_clock", (vCpuClock[0] != "0") ? vCpuClock[4] : null);
-		json.put("internal_luminosity", (vLight[0] != "0") ? vLight[4] : null);
-		json.put("network_search_time", (vNetworkSearch[0] != "0") ? vNetworkSearch[4] : null);
+		json.put("battery_percent", (vBattery[0] != "0") ? vBattery[5] : null);
+		json.put("battery_temperature", (vBatteryTemp[0] != "0") ? vBatteryTemp[5] : null);
+		json.put("cpu_percent", (vCpu[0] != "0") ? vCpu[5] : null);
+		json.put("cpu_clock", (vCpuClock[0] != "0") ? vCpuClock[5] : null);
+		json.put("internal_luminosity", (vLight[0] != "0") ? vLight[5] : null);
+		json.put("network_search_time", (vNetworkSearch[0] != "0") ? vNetworkSearch[5] : null);
 		json.put("has_power", (!app.deviceState.isBatteryDisCharging()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
 		json.put("is_charged", (app.deviceState.isBatteryCharged()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
 		json.put("measured_at", (new DateTimeUtils()).getDateTime(Calendar.getInstance().getTime()));
 		json.put("software_version", app.version);
+		json.put("timezone_offset", timeZoneOffset);
+		
+		// should break this out into an "at-send-time" option, like with screen shots
 		json.put("messages", app.smsDb.dbSms.getSerializedSmsAll());
 		
 		json.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
