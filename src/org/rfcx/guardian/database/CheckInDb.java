@@ -121,6 +121,20 @@ public class CheckInDb {
 			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+C_AUDIO+"='"+audioFile+"'");
 			} finally { db.close(); }
 		}
+		
+		public String getCount() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] QUERY = new String[] { "COUNT(*)" };
+			String[] countReturn = new String[] { "0" };
+			try { 
+				Cursor cursor = db.query(TABLE, QUERY, null, null, null, null, null, null);
+				if (cursor.getCount() > 0) {
+					try {
+						if (cursor.moveToFirst()) { do { countReturn = new String[] { cursor.getString(0) };
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
+			return countReturn[0];
+		}
 
 	}
 	public final DbQueued dbQueued;
@@ -196,6 +210,20 @@ public class CheckInDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+dateTimeUtils.getDateTime(date)+"'");
 			} finally { db.close(); }
+		}
+		
+		public String getCount() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] QUERY = new String[] { "COUNT(*)" };
+			String[] countReturn = new String[] { "0" };
+			try { 
+				Cursor cursor = db.query(TABLE, QUERY, null, null, null, null, null, null);
+				if (cursor.getCount() > 0) {
+					try {
+						if (cursor.moveToFirst()) { do { countReturn = new String[] { cursor.getString(0) };
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC); } finally { db.close(); }
+			return countReturn[0];
 		}
 
 	}

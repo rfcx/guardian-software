@@ -80,8 +80,11 @@ public class ApiCheckInService extends Service {
 					String[] currentCheckIn = new String[] {null,null,null};
 					try {
 						currentCheckIn = app.checkInDb.dbQueued.getLatestRow();	
+						
 						List<String[]> stringParameters = new ArrayList<String[]>();
 						stringParameters.add(new String[] { "json", currentCheckIn[2] });
+						stringParameters.add(new String[] { "messages", app.apiCore.getMessagesAsJson() });
+						
 						if ((currentCheckIn[0] != null) && app.isConnected) {
 							if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiCore.MAX_CHECKIN_ATTEMPTS) {
 								Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiCore.MAX_CHECKIN_ATTEMPTS+" failed attempts");

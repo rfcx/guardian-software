@@ -70,6 +70,8 @@ public class RfcxGuardianPrefs {
 //		}
 		setPref("api_domain","http://api.rfcx.org","string");
 		setPref("audio_capture_interval","90","int");
+		
+		setPref("enable_service_carriercode","false","boolean");
 
 		setPref("carriercode_topup","#145*2*3*3*1#","string");
 		

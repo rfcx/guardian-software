@@ -5,7 +5,7 @@ import java.util.Calendar;
 import org.rfcx.guardian.api.ApiCore;
 import org.rfcx.guardian.audio.AudioCore;
 import org.rfcx.guardian.carrier.CarrierInteraction;
-import org.rfcx.guardian.database.AlertDb;
+import org.rfcx.guardian.database.OutboxDb;
 import org.rfcx.guardian.database.AudioDb;
 import org.rfcx.guardian.database.CheckInDb;
 import org.rfcx.guardian.database.DeviceStateDb;
@@ -62,7 +62,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// database access helpers
 	public DeviceStateDb deviceStateDb = new DeviceStateDb(this);
 	public SmsDb smsDb = new SmsDb(this);
-	public AlertDb alertDb = new AlertDb(this);
+	public OutboxDb alertDb = new OutboxDb(this);
 	public AudioDb audioDb = new AudioDb(this);
 	public ScreenShotDb screenShotDb = new ScreenShotDb(this);
 	public CheckInDb checkInDb = new CheckInDb(this);

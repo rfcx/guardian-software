@@ -115,8 +115,8 @@ public class ApiCore {
 		json.put("software_version", app.version);
 		json.put("timezone_offset", timeZoneOffset);
 		
-		// should break this out into an "at-send-time" option, like with screen shots
-		json.put("messages", app.smsDb.dbSms.getSerializedSmsAll());
+		json.put("queued_checkins", app.checkInDb.dbQueued.getCount());
+		json.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
 		
 		json.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
 		this.previousCheckIns = new ArrayList<String>();
@@ -125,14 +125,14 @@ public class ApiCore {
 		audioFiles.add(TextUtils.join("*", audioFileInfo));
 		json.put("audio", TextUtils.join("|", audioFiles));
 		
-		Log.i(TAG, "JSON: "+json.toJSONString());
+		Log.i(TAG, "CheckIn: "+json.toJSONString());
 		
 		return json.toJSONString();
 	}
 	
 	public void processCheckInResponse(String checkInResponse) {
 		if ((checkInResponse != null) && !checkInResponse.isEmpty()) {
-			app.smsDb.dbSms.clearSmsBefore(this.requestSendStart);
+			app.smsDb.dbReceived.clearMessageBefore(this.requestSendStart);
 			app.deviceScreenShot.purgeAllScreenShots(app.screenShotDb);
 			
 			try {
@@ -157,6 +157,29 @@ public class ApiCore {
 		}
 	}			
 	
+	@SuppressWarnings("unchecked")
+	public String getMessagesAsJson() {
+		
+		List<String[]> msgList = app.smsDb.dbReceived.getAllMessages();
+		List<String> jsonList = new ArrayList<String>();
+		
+		for (String[] msg : msgList) {
+			JSONObject msgJson = new JSONObject();
+			msgJson.put("received_at", msg[0]);
+			msgJson.put("origin", msg[1]);
+			msgJson.put("message", msg[2]);
+			jsonList.add(msgJson.toJSONString());
+		}
+		
+		if (jsonList.size() > 0) {
+			String jsonArray = "["+TextUtils.join(",", jsonList)+"]";
+			Log.v(TAG,"Messages: "+jsonArray);
+			return jsonArray;
+		} else {
+			return "[]";
+		}
+		
+	}
 
 	public List<String[]> loadCheckInFiles(String audioFile) {
 
