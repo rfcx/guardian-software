@@ -85,8 +85,6 @@ public class ApiCore {
 		app.deviceStateDb.dbLight.clearStatsBefore(statsSnapshot);
 		app.deviceStateDb.dbBatteryTemperature.clearStatsBefore(statsSnapshot);
 		app.deviceStateDb.dbNetworkSearch.clearStatsBefore(statsSnapshot);
-		
-		Log.d(TAG,"CheckIn created: "+audioInfo[1]);
 	}
 	
 	
@@ -116,6 +114,9 @@ public class ApiCore {
 			json.put("measured_at", (new DateTimeUtils()).getDateTime(Calendar.getInstance().getTime()));
 			json.put("software_version", app.version);
 			json.put("timezone_offset", timeZoneOffset);
+			
+			// to populate with real data
+			json.put("data_transfer", "0|0");
 			
 			json.put("queued_checkins", app.checkInDb.dbQueued.getCount());
 			json.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());

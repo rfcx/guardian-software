@@ -130,7 +130,6 @@ public class AudioCore {
 			if (encodedAudioEntry[1].equals(audioTimestamp)) {
 				try {
 					(new File(this.wavDir.substring(0,this.wavDir.lastIndexOf("/"))+"/"+encodedAudioEntry[2]+"/"+encodedAudioEntry[1]+"."+encodedAudioEntry[2])).delete();
-					Log.d(TAG, audioTimestamp+" has been deleted...");
 				} catch (Exception e) {
 					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 				}

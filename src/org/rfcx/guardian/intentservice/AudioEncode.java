@@ -28,7 +28,6 @@ public class AudioEncode extends IntentService {
 		sendBroadcast(intent, NULL_EXC);
 		
 		List<String[]> capturedRows = app.audioDb.dbCaptured.getAllCaptured();
-		Log.v(TAG, "Running AudioEncodeIntentService... "+capturedRows.size()+" file(s) to encode.");
 		for (String[] capturedRow : capturedRows) {
 			Log.i(TAG, "Encoding: '"+capturedRow[0]+"','"+capturedRow[1]+"','"+capturedRow[2]+"'");
 			if (capturedRow[2].equals("wav")) {

@@ -68,7 +68,7 @@ public class RfcxGuardianPrefs {
 //		for ( ... ) {
 //			prefProfileArray.add((String[] { nameFromJson, valueFromJson, typeFromJson });
 //		}
-		setPref("api_domain","http://api.rfcx.org","string");
+		setPref("api_domain","https://api.rfcx.org","string");
 		setPref("audio_capture_interval","90","int");
 		
 		setPref("enable_service_carriercode","false","boolean");
