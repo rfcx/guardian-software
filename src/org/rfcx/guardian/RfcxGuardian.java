@@ -202,11 +202,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 					60*((int) Integer.parseInt(getPref("service_monitor_interval")))
 					);
 			// CarrierCodeTrigger-Balance, starting 2 minutes after app launch, runs repeatedly every 3 hours
+			// TODO: this should be configurable in prefs, and also probably made more generic
 			triggerIntentService("CarrierCodeTrigger-Balance", 
 					System.currentTimeMillis()+( 2 *(60*1000)), 
 					( 6 * 3600)
 					);
 			// CarrierCodeTrigger-TopUp, starting at the next instance of 30 seconds after midnight, repeating every 12 hours
+			// TODO: this should be configurable in prefs, and also probably made to be more generic
 			triggerIntentService("CarrierCodeTrigger-TopUp", 
 					(new DateTimeUtils()).nextOccurenceOf(0,0,30).getTimeInMillis(), 
 					( 12 *3600)

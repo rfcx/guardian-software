@@ -8,6 +8,7 @@ import org.rfcx.guardian.device.DeviceCpuUsage;
 import org.rfcx.guardian.device.DeviceState;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -24,6 +25,8 @@ public class DeviceStateService extends Service implements SensorEventListener {
 
 	private static final String TAG = "RfcxGuardian-"+DeviceStateService.class.getSimpleName();
 	
+	RfcxGuardian app;
+	
 	private boolean runFlag = false;
 	private DeviceStateSvc deviceStateSvc;
 
@@ -33,9 +36,8 @@ public class DeviceStateService extends Service implements SensorEventListener {
 //	Sensor accelSensor = null;
 	Sensor lightSensor = null;
 	
-    private static TelephonyManager telephonyManager;
+	SignalStrengthListener signalStrengthListener;
 	
-	RfcxGuardian app = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -46,7 +48,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	public void onCreate() {
 		super.onCreate();
 		this.deviceStateSvc = new DeviceStateSvc();
-		registerSensorListeners();
+		registerListeners();
 	}
 	
 	@Override
@@ -67,7 +69,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		app.isRunning_DeviceState = false;
 		this.deviceStateSvc.interrupt();
 		this.deviceStateSvc = null;
-		unRegisterSensorListeners();
+		unRegisterListeners();
 	}
 	
 	
@@ -134,7 +136,8 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		// TODO Auto-generated method stub
 	}
 	
-	private void registerSensorListeners() {
+	private void registerListeners() {
+		
 		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 //		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
 //			accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
@@ -144,32 +147,58 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
 			this.sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		}
+		
+		signalStrengthListener = new SignalStrengthListener();
+		TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+//		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTH);
+//		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTH|PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+		
+		
 	}
 	
-	private void unRegisterSensorListeners() {
+	private void unRegisterListeners() {
 //		if (accelSensor != null) {
 //			this.sensorManager.unregisterListener(this, accelSensor);
 //		}
 		if (lightSensor != null) {
 			this.sensorManager.unregisterListener(this, lightSensor);
 		}
+		
+		TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_NONE);	// LISTEN_NONE : Stop listening for updates.
 	}
 	
 	
-//	private class DevicePhoneStateListener extends PhoneStateListener {
-//
-//        @Override
-//        public void onSignalStrengthsChanged(SignalStrength signalStrength) {
-//            super.onSignalStrengthsChanged(signalStrength);
-//            sendSignalStrengthChanged(signalStrength);
-//        }
-//
-//        @Override
-//        public void onServiceStateChanged (ServiceState serviceState) {
-//            super.onServiceStateChanged(serviceState);
-//            sendStateChanged(serviceState);
-//        }
-//    }
+
+	
+	public class SignalStrengthListener extends PhoneStateListener {
+
+		@Override
+		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+			super.onSignalStrengthsChanged(signalStrength);
+
+			boolean	isGsmActive = signalStrength.isGsm();
+	//		int	cdmaRssi = signalStrength.getCdmaDbm(); // CDMA RSSI value in dBm
+	//		int	cdmaEcIo = signalStrength.getCdmaEcio(); //CDMA Ec/Io value in dB*10
+	//		int	evdoRssi = signalStrength.getEvdoDbm(); //EVDO RSSI value in dBm
+	//		int	evdoEcIo = signalStrength.getEvdoEcio(); //EVDO Ec/Io value in dB*10
+	//		int	evdoSnr = signalStrength.getEvdoSnr(); //signal to noise ratio. Valid values are 0-8. 8 is the highest.
+	//		int	gsmBitErrorRate = signalStrength.getGsmBitErrorRate(); // GSM bit error rate (0-7, 99) as defined in TS 27.007 8.5
+			int	gsmSignalStrength = signalStrength.getGsmSignalStrength(); //GSM Signal Strength, valid values are (0-31, 99) as defined in TS 27.007 8.5
+			
+			int dBmGsmSignalStrength = (-113+2*gsmSignalStrength);
+			if (dBmGsmSignalStrength > 0) {
+				dBmGsmSignalStrength = 0;
+				Log.w(TAG,"No GSM signal found."); 
+			} else { 
+				Log.w(TAG,dBmGsmSignalStrength+"dBm"); 
+			}
+			app.deviceStateDb.dbNetworkStrength.insert(dBmGsmSignalStrength);
+			
+		}
+	}
+	
 	
 	
 }
