@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 
 
@@ -38,6 +37,7 @@ public class DeviceStateDb {
 	static final String C_CREATED_AT = "created_at";
 	static final String C_VALUE = "value";
 	private static final String[] STATS_COLUMNS = { "COUNT("+C_VALUE+")", "ROUND(AVG("+C_VALUE+"))", "MAX("+C_CREATED_AT+")", "MIN("+C_CREATED_AT+")", "GROUP_CONCAT("+C_VALUE+")", "GROUP_CONCAT( "+C_CREATED_AT+" || '*' || "+C_VALUE+", '|')" };
+	private static final String[] CONCAT_ROWS = { "COUNT("+C_VALUE+")", "GROUP_CONCAT( "+C_CREATED_AT+" || '*' || "+C_VALUE+", '|')" };
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_VALUE };
 	static final String CREATE_CLMNS = "(" + C_CREATED_AT + " DATETIME, " + C_VALUE + " INT " + ")";
 	
@@ -66,6 +66,14 @@ public class DeviceStateDb {
 	private String[] _getStatsSummary(SQLiteDatabase db, String table) {
 		String[] stats = new String[] { null, null, null, null, null, null };
 		try { Cursor cursor = db.query(table, STATS_COLUMNS, null, null, null, null, null, null);
+			try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
+			} while (cursor.moveToNext()); } } finally { cursor.close(); }
+		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+		return stats;
+	}
+	private String[] _getConcatRows(SQLiteDatabase db, String table) {
+		String[] stats = new String[] { null, null };
+		try { Cursor cursor = db.query(table, CONCAT_ROWS, null, null, null, null, null, null);
 			try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
 			} while (cursor.moveToNext()); } } finally { cursor.close(); }
 		} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
@@ -110,6 +118,7 @@ public class DeviceStateDb {
 		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
 		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getConcatRows() { return _getConcatRows(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
@@ -134,6 +143,7 @@ public class DeviceStateDb {
 		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
 		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getConcatRows() { return _getConcatRows(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
@@ -158,6 +168,7 @@ public class DeviceStateDb {
 		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
 		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getConcatRows() { return _getConcatRows(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
@@ -182,6 +193,7 @@ public class DeviceStateDb {
 		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
 		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getConcatRows() { return _getConcatRows(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
@@ -206,6 +218,7 @@ public class DeviceStateDb {
 		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
 		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getConcatRows() { return _getConcatRows(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
@@ -230,6 +243,7 @@ public class DeviceStateDb {
 		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
 		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getConcatRows() { return _getConcatRows(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
@@ -254,6 +268,7 @@ public class DeviceStateDb {
 		public String[] getLast() { return _getLast(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStats() { return _getStats(this.dbHelper.getWritableDatabase(), TABLE); }
 		public String[] getStatsSummary() { return _getStatsSummary(this.dbHelper.getWritableDatabase(), TABLE); }
+		public String[] getConcatRows() { return _getConcatRows(this.dbHelper.getWritableDatabase(), TABLE); }
 		public List<String[]> getStatsSince(Date date) { return _getStatsSince(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void clearStatsBefore(Date date) { _clearStatsBefore(this.dbHelper.getWritableDatabase(), TABLE, date); }
 		public void insert(int value) { _insert(this.dbHelper.getWritableDatabase(), TABLE, value); }
