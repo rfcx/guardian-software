@@ -1,9 +1,12 @@
 package org.rfcx.guardian.service;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.database.DataTransferDb;
 import org.rfcx.guardian.database.DeviceStateDb;
+import org.rfcx.guardian.database.HardwareDb;
 import org.rfcx.guardian.device.DeviceCpuUsage;
 import org.rfcx.guardian.device.DeviceState;
 
@@ -14,6 +17,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.TrafficStats;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.ServiceState;
@@ -86,16 +90,21 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			while (deviceStateService.runFlag) {
 				DeviceCpuUsage deviceCpuUsage = app.deviceCpuUsage;
 				DeviceState deviceState = app.deviceState;
-				DeviceStateDb deviceStateDb = app.deviceStateDb;
+				HardwareDb hardwareDb = app.hardwareDb;
+				DataTransferDb dataTransferDb = app.dataTransferDb;
 				try {
 					deviceCpuUsage.updateCpuUsage();
 					recordingIncrement++;
 					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
+						
 						deviceState.setBatteryState(app.getApplicationContext(), null);
-						deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
-						deviceStateDb.dbCpuClock.insert(deviceCpuUsage.getCpuClockAvg());
-						deviceStateDb.dbBattery.insert(deviceState.getBatteryPercent());
-						deviceStateDb.dbBatteryTemperature.insert(deviceState.getBatteryTemperature());
+						hardwareDb.dbCPU.insert(new Date(), deviceCpuUsage.getCpuUsageAvg(), deviceCpuUsage.getCpuClockAvg());
+						hardwareDb.dbBattery.insert(new Date(), deviceState.getBatteryPercent(), deviceState.getBatteryTemperature());
+	
+						long[] trafficStats = deviceState.updateTrafficStats();
+						dataTransferDb.dbTransferred.insert(new Date(), new Date(trafficStats[0]), new Date(trafficStats[1]), trafficStats[2], trafficStats[3], trafficStats[4], trafficStats[5]);
+						Log.i(TAG, "TrafficStats: Received ("+trafficStats[2]/1024+"kB/"+trafficStats[4]/1024+"kB) | Sent ("+trafficStats[3]/1024+"kB/"+trafficStats[5]/1024+"kB)");
+						
 						recordingIncrement = 0;
 						Log.i(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% @"+deviceCpuUsage.getCpuClockAvg()+"MHz "+(Calendar.getInstance()).getTime().toGMTString());
 					}

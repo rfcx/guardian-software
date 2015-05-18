@@ -1,8 +1,13 @@
 package org.rfcx.guardian.device;
 
+import java.util.Date;
+
+import org.rfcx.guardian.utility.DateTimeUtils;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.TrafficStats;
 import android.os.BatteryManager;
 
 public class DeviceState {
@@ -15,6 +20,15 @@ public class DeviceState {
 	private int batteryTemperature;
 	private boolean batteryDisCharging;
 	private boolean batteryCharged;
+	
+	private Date trafficStatsStart = new Date();
+	private Date trafficStatsEnd = new Date();
+	private long trafficStatsReceived = 0;
+	private long trafficStatsSent = 0;
+	private long trafficStatsReceivedTotal = 0;
+	private long trafficStatsSentTotal = 0;
+
+	private DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	
 	private void setBatteryLevel(int batteryLevel) {
 		this.batteryLevel = batteryLevel;
@@ -73,6 +87,20 @@ public class DeviceState {
 		return lightLevel;
 	}
 	
+	public long[] updateTrafficStats() {
+		
+		long mobileRxBytes = TrafficStats.getMobileRxBytes();
+		long mobileTxBytes = TrafficStats.getMobileTxBytes();
+		
+		this.trafficStatsStart = this.trafficStatsEnd;
+		this.trafficStatsEnd = new Date();
+		this.trafficStatsReceived = mobileRxBytes - this.trafficStatsReceivedTotal;
+		this.trafficStatsSent = mobileTxBytes - this.trafficStatsSentTotal;
+		this.trafficStatsReceivedTotal = mobileRxBytes;
+		this.trafficStatsSentTotal = mobileTxBytes;
+				
+		return new long[] { this.trafficStatsStart.getTime(), this.trafficStatsEnd.getTime(), this.trafficStatsReceived, this.trafficStatsSent, this.trafficStatsReceivedTotal, this.trafficStatsSentTotal };
+	}
 	
 	
 	

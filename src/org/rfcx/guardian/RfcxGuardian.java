@@ -7,7 +7,9 @@ import org.rfcx.guardian.audio.AudioCore;
 import org.rfcx.guardian.carrier.CarrierInteraction;
 import org.rfcx.guardian.database.AudioDb;
 import org.rfcx.guardian.database.CheckInDb;
+import org.rfcx.guardian.database.DataTransferDb;
 import org.rfcx.guardian.database.DeviceStateDb;
+import org.rfcx.guardian.database.HardwareDb;
 import org.rfcx.guardian.database.ScreenShotDb;
 import org.rfcx.guardian.database.SmsDb;
 import org.rfcx.guardian.device.DeviceCPUTuner;
@@ -61,10 +63,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	// database access helpers
 	public DeviceStateDb deviceStateDb = null;
+	public HardwareDb hardwareDb = null;
 	public SmsDb smsDb = null;
 	public AudioDb audioDb = null;
 	public ScreenShotDb screenShotDb = null;
 	public CheckInDb checkInDb = null;
+	public DataTransferDb dataTransferDb = null;
 
 	// for obtaining device stats and characteristics
 	public DeviceState deviceState = new DeviceState();
@@ -321,10 +325,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private void setDbHandlers() {
 		int versionNumber = getAppVersionValue(this.version);
 		this.deviceStateDb = new DeviceStateDb(this,versionNumber);
+		this.hardwareDb = new HardwareDb(this,versionNumber);
 		this.smsDb = new SmsDb(this,versionNumber);
 		this.audioDb = new AudioDb(this,versionNumber);
 		this.screenShotDb = new ScreenShotDb(this,versionNumber);
 		this.checkInDb = new CheckInDb(this,versionNumber);
+		this.dataTransferDb = new DataTransferDb(this,versionNumber);
 	}
 	
 }

@@ -79,25 +79,23 @@ public class ApiCore {
 		app.checkInDb.dbQueued.insert(audioInfo[1]+"."+audioInfo[2], getCheckInJson(audioInfo), "0");
 		
 		Date statsSnapshot = new Date();
-		app.deviceStateDb.dbBattery.clearStatsBefore(statsSnapshot);
-		app.deviceStateDb.dbCpu.clearStatsBefore(statsSnapshot);
-		app.deviceStateDb.dbCpuClock.clearStatsBefore(statsSnapshot);
 		app.deviceStateDb.dbLight.clearStatsBefore(statsSnapshot);
-		app.deviceStateDb.dbBatteryTemperature.clearStatsBefore(statsSnapshot);
 		app.deviceStateDb.dbNetworkSearch.clearStatsBefore(statsSnapshot);
 		app.deviceStateDb.dbNetworkStrength.clearStatsBefore(statsSnapshot);
+		app.dataTransferDb.dbTransferred.clearRowsBefore(statsSnapshot);
+		app.hardwareDb.dbBattery.clearRowsBefore(statsSnapshot);
+		app.hardwareDb.dbCPU.clearRowsBefore(statsSnapshot);
 	}
 	
 	
 	public String getCheckInJson(String[] audioFileInfo) {
 		
-		String[] vBattery = app.deviceStateDb.dbBattery.getConcatRows();
-		String[] vBatteryTemp = app.deviceStateDb.dbBatteryTemperature.getConcatRows();
-		String[] vCpu = app.deviceStateDb.dbCpu.getConcatRows();
-		String[] vCpuClock = app.deviceStateDb.dbCpuClock.getConcatRows();
+		String[] vBattery = app.hardwareDb.dbBattery.getConcatRows();
+		String[] vCpu = app.hardwareDb.dbCPU.getConcatRows();
 		String[] vLight = app.deviceStateDb.dbLight.getConcatRows();
 		String[] vNetworkSearch = app.deviceStateDb.dbNetworkSearch.getConcatRows();
 		String[] vNetworkStrength = app.deviceStateDb.dbNetworkStrength.getConcatRows();
+		String[] vDataTransferred = app.dataTransferDb.dbTransferred.getConcatRows();
 		
 		String timeZoneOffset = timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime());
 		
@@ -105,21 +103,20 @@ public class ApiCore {
 
 			JSONObject json = new JSONObject();
 		
-			json.put("battery_percent", (vBattery[0] != "0") ? vBattery[1] : null);
-			json.put("battery_temperature", (vBatteryTemp[0] != "0") ? vBatteryTemp[1] : null);
-			json.put("cpu_percent", (vCpu[0] != "0") ? vCpu[1] : null);
-			json.put("cpu_clock", (vCpuClock[0] != "0") ? vCpuClock[1] : null);
+			json.put("battery", (vBattery[0] != "0") ? vBattery[1] : null);
+			json.put("cpu", (vCpu[0] != "0") ? vCpu[1] : null);
 			json.put("internal_luminosity", (vLight[0] != "0") ? vLight[1] : null);
 			json.put("network_search_time", (vNetworkSearch[0] != "0") ? vNetworkSearch[1] : null);
 			json.put("network_strength",  (vNetworkStrength[0] != "0") ? vNetworkStrength[1] : null);
-			json.put("has_power", (!app.deviceState.isBatteryDisCharging()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
-			json.put("is_charged", (app.deviceState.isBatteryCharged()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
 			json.put("measured_at", (new DateTimeUtils()).getDateTime(Calendar.getInstance().getTime()));
 			json.put("software_version", app.version);
 			json.put("timezone_offset", timeZoneOffset);
 			
-			// to populate with real data
-			json.put("data_transfer", "0|0");
+			// TODO: put these together, using the dbHardware table
+			json.put("has_power", (!app.deviceState.isBatteryDisCharging()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
+			json.put("is_charged", (app.deviceState.isBatteryCharged()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
+			
+			json.put("data_transfer",  (vDataTransferred[0] != "0") ? vDataTransferred[1] : null);
 			
 			json.put("queued_checkins", app.checkInDb.dbQueued.getCount());
 			json.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());

@@ -86,7 +86,7 @@ public class SignalStrengthService extends Service implements SensorEventListene
 					recordingIncrement++;
 					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
 						deviceState.setBatteryState(app.getApplicationContext(), null);
-						deviceStateDb.dbCpu.insert(deviceCpuUsage.getCpuUsageAvg());
+						deviceStateDb.dbCpuPct.insert(deviceCpuUsage.getCpuUsageAvg());
 						deviceStateDb.dbCpuClock.insert(deviceCpuUsage.getCpuClockAvg());
 						deviceStateDb.dbBattery.insert(deviceState.getBatteryPercent());
 						deviceStateDb.dbBatteryTemperature.insert(deviceState.getBatteryTemperature());

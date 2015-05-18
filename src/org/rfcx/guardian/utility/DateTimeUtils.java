@@ -5,13 +5,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import android.util.Log;
 
 public class DateTimeUtils {
 	
 	private static final String TAG = "RfcxGuardian-"+DateTimeUtils.class.getSimpleName();
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
 	
 	public String getDateTime() {
 		Date date = new Date();
