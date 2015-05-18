@@ -79,24 +79,24 @@ public class ApiCore {
 		app.checkInDb.dbQueued.insert(audioInfo[1]+"."+audioInfo[2], getCheckInJson(audioInfo), "0");
 		
 		Date statsSnapshot = new Date();
-		app.hardwareDb.dbBattery.clearRowsBefore(statsSnapshot);
-		app.hardwareDb.dbCPU.clearRowsBefore(statsSnapshot);
-		app.hardwareDb.dbPower.clearRowsBefore(statsSnapshot);
-		app.hardwareDb.dbNetwork.clearRowsBefore(statsSnapshot);
-		app.hardwareDb.dbOffline.clearRowsBefore(statsSnapshot);
-		app.hardwareDb.dbLightMeter.clearRowsBefore(statsSnapshot);
+		app.deviceStateDb.dbBattery.clearRowsBefore(statsSnapshot);
+		app.deviceStateDb.dbCPU.clearRowsBefore(statsSnapshot);
+		app.deviceStateDb.dbPower.clearRowsBefore(statsSnapshot);
+		app.deviceStateDb.dbNetwork.clearRowsBefore(statsSnapshot);
+		app.deviceStateDb.dbOffline.clearRowsBefore(statsSnapshot);
+		app.deviceStateDb.dbLightMeter.clearRowsBefore(statsSnapshot);
 		app.dataTransferDb.dbTransferred.clearRowsBefore(statsSnapshot);
 	}
 	
 	
 	public String getCheckInJson(String[] audioFileInfo) {
 		
-		String[] vBattery = app.hardwareDb.dbBattery.getConcatRows();
-		String[] vCpu = app.hardwareDb.dbCPU.getConcatRows();
-		String[] vPower = app.hardwareDb.dbPower.getConcatRows();
-		String[] vNetwork = app.hardwareDb.dbNetwork.getConcatRows();
-		String[] vOffline = app.hardwareDb.dbOffline.getConcatRows();
-		String[] vLightMeter = app.hardwareDb.dbLightMeter.getConcatRows();
+		String[] vBattery = app.deviceStateDb.dbBattery.getConcatRows();
+		String[] vCpu = app.deviceStateDb.dbCPU.getConcatRows();
+		String[] vPower = app.deviceStateDb.dbPower.getConcatRows();
+		String[] vNetwork = app.deviceStateDb.dbNetwork.getConcatRows();
+		String[] vOffline = app.deviceStateDb.dbOffline.getConcatRows();
+		String[] vLightMeter = app.deviceStateDb.dbLightMeter.getConcatRows();
 		String[] vDataTransferred = app.dataTransferDb.dbTransferred.getConcatRows();
 		
 		String timeZoneOffset = timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime());

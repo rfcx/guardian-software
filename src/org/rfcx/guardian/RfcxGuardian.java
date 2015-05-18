@@ -8,7 +8,7 @@ import org.rfcx.guardian.carrier.CarrierInteraction;
 import org.rfcx.guardian.database.AudioDb;
 import org.rfcx.guardian.database.CheckInDb;
 import org.rfcx.guardian.database.DataTransferDb;
-import org.rfcx.guardian.database.HardwareDb;
+import org.rfcx.guardian.database.DeviceStateDb;
 import org.rfcx.guardian.database.ScreenShotDb;
 import org.rfcx.guardian.database.SmsDb;
 import org.rfcx.guardian.device.DeviceCPUTuner;
@@ -61,7 +61,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
 	
 	// database access helpers
-	public HardwareDb hardwareDb = null;
+	public DeviceStateDb deviceStateDb = null;
 	public SmsDb smsDb = null;
 	public AudioDb audioDb = null;
 	public ScreenShotDb screenShotDb = null;
@@ -322,7 +322,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	private void setDbHandlers() {
 		int versionNumber = getAppVersionValue(this.version);
-		this.hardwareDb = new HardwareDb(this,versionNumber);
+		this.deviceStateDb = new DeviceStateDb(this,versionNumber);
 		this.smsDb = new SmsDb(this,versionNumber);
 		this.audioDb = new AudioDb(this,versionNumber);
 		this.screenShotDb = new ScreenShotDb(this,versionNumber);

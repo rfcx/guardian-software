@@ -15,11 +15,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-public class HardwareDb {
+public class DeviceStateDb {
 
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	public HardwareDb(Context context, int appVersion) {
+	public DeviceStateDb(Context context, int appVersion) {
 		this.VERSION = appVersion;
 		this.dbCPU = new DbCPU(context);
 		this.dbBattery = new DbBattery(context);
@@ -29,10 +29,10 @@ public class HardwareDb {
 		this.dbLightMeter = new DbLightMeter(context);
 	}
 
-	private static final String TAG = "RfcxGuardian-"+HardwareDb.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+DeviceStateDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
-	static final String DATABASE = "hardware";
+	static final String DATABASE = "device";
 	static final String C_MEASURED_AT = "measured_at";
 	static final String C_VALUE_1 = "value_1";
 	static final String C_VALUE_2 = "value_2";

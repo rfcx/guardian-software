@@ -5,7 +5,7 @@ import java.util.Date;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.database.DataTransferDb;
-import org.rfcx.guardian.database.HardwareDb;
+import org.rfcx.guardian.database.DeviceStateDb;
 import org.rfcx.guardian.device.DeviceCpuUsage;
 import org.rfcx.guardian.device.DeviceState;
 
@@ -85,30 +85,27 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			DeviceStateService deviceStateService = DeviceStateService.this;
 			if (app == null) { app = (RfcxGuardian) getApplication(); }
 			while (deviceStateService.runFlag) {
-				DeviceCpuUsage deviceCpuUsage = app.deviceCpuUsage;
-				DeviceState deviceState = app.deviceState;
-				HardwareDb hardwareDb = app.hardwareDb;
-				DataTransferDb dataTransferDb = app.dataTransferDb;
+		//		DeviceCpuUsage deviceCpuUsage = app.deviceCpuUsage;
+		//		DeviceState deviceState = app.deviceState;
+		//		DataTransferDb dataTransferDb = app.dataTransferDb;
 				try {
-					deviceCpuUsage.updateCpuUsage();
+					app.deviceCpuUsage.updateCpuUsage();
 					recordingIncrement++;
 					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
 						
-						deviceState.setBatteryState(app.getApplicationContext(), null);
+						app.deviceState.setBatteryState(app.getApplicationContext(), null);
 						
-						hardwareDb.dbCPU.insert(new Date(), deviceCpuUsage.getCpuUsageAvg(), deviceCpuUsage.getCpuClockAvg());
-						hardwareDb.dbBattery.insert(new Date(), deviceState.getBatteryPercent(), deviceState.getBatteryTemperature());
-						hardwareDb.dbPower.insert(new Date(), !deviceState.isBatteryDisCharging(), deviceState.isBatteryCharged());
+						app.deviceStateDb.dbCPU.insert(new Date(), app.deviceCpuUsage.getCpuUsageAvg(), app.deviceCpuUsage.getCpuClockAvg());
+						app.deviceStateDb.dbBattery.insert(new Date(), app.deviceState.getBatteryPercent(), app.deviceState.getBatteryTemperature());
+						app.deviceStateDb.dbPower.insert(new Date(), !app.deviceState.isBatteryDisCharging(), app.deviceState.isBatteryCharged());
 						
-						long[] trafficStats = deviceState.updateDataTransferStats();
-						dataTransferDb.dbTransferred.insert(new Date(), new Date(trafficStats[0]), new Date(trafficStats[1]), trafficStats[2], trafficStats[3], trafficStats[4], trafficStats[5]);
-						Log.i(TAG, "TrafficStats: Received ("+trafficStats[2]/1024+"kB/"+trafficStats[4]/1024+"kB) | Sent ("+trafficStats[3]/1024+"kB/"+trafficStats[5]/1024+"kB)");
+						long[] trafficStats = app.deviceState.updateDataTransferStats();
+						app.dataTransferDb.dbTransferred.insert(new Date(), new Date(trafficStats[0]), new Date(trafficStats[1]), trafficStats[2], trafficStats[3], trafficStats[4], trafficStats[5]);
 						
 						recordingIncrement = 0;
-						Log.i(TAG, "CPU: "+deviceCpuUsage.getCpuUsageAvg()+"% @"+deviceCpuUsage.getCpuClockAvg()+"MHz "+(Calendar.getInstance()).getTime().toGMTString());
 					}
 											
-					int delayMs = (int) Math.round(60000/deviceState.serviceSamplesPerMinute) - DeviceCpuUsage.SAMPLE_LENGTH_MS;
+					int delayMs = (int) Math.round(60000/app.deviceState.serviceSamplesPerMinute) - DeviceCpuUsage.SAMPLE_LENGTH_MS;
 					Thread.sleep(delayMs);
 				} catch (InterruptedException e) {
 					deviceStateService.runFlag = false;
@@ -127,7 +124,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		if (this.app == null) this.app = (RfcxGuardian) getApplication();
 		if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
 			if (event.values[0] >= 0) {
-				this.app.hardwareDb.dbLightMeter.insert(new Date(), Math.round(event.values[0]), "");
+				this.app.deviceStateDb.dbLightMeter.insert(new Date(), Math.round(event.values[0]), "");
 //			} else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 //				return;
 			}
@@ -202,7 +199,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			//	carrierName = telephonyManager.getNetworkOperatorName();
 				Log.w(TAG,dBmGsmSignalStrength+"dBm"); 
 			}
-			app.hardwareDb.dbNetwork.insert(new Date(), dBmGsmSignalStrength, carrierName);
+			app.deviceStateDb.dbNetwork.insert(new Date(), dBmGsmSignalStrength, carrierName);
 			
 		}
 	}

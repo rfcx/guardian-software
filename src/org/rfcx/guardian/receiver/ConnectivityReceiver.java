@@ -23,7 +23,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 			app.lastConnectedAt = Calendar.getInstance().getTimeInMillis();
 			Log.d(TAG, "Connectivity: YES");
 			int disconnectedFor = (int) (app.lastConnectedAt - app.lastDisconnectedAt);
-			if (disconnectedFor > 1000) app.hardwareDb.dbOffline.insert(new Date(), disconnectedFor, "");
+			if (disconnectedFor > 1000) app.deviceStateDb.dbOffline.insert(new Date(), disconnectedFor, "");
 		} else {
 			app.lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
 			Log.d(TAG, "Connectivity: NO");
