@@ -85,6 +85,7 @@ public class ApiCore {
 		app.dataTransferDb.dbTransferred.clearRowsBefore(statsSnapshot);
 		app.hardwareDb.dbBattery.clearRowsBefore(statsSnapshot);
 		app.hardwareDb.dbCPU.clearRowsBefore(statsSnapshot);
+		app.hardwareDb.dbPower.clearRowsBefore(statsSnapshot);
 	}
 	
 	
@@ -92,6 +93,7 @@ public class ApiCore {
 		
 		String[] vBattery = app.hardwareDb.dbBattery.getConcatRows();
 		String[] vCpu = app.hardwareDb.dbCPU.getConcatRows();
+		String[] vPower = app.hardwareDb.dbPower.getConcatRows();
 		String[] vLight = app.deviceStateDb.dbLight.getConcatRows();
 		String[] vNetworkSearch = app.deviceStateDb.dbNetworkSearch.getConcatRows();
 		String[] vNetworkStrength = app.deviceStateDb.dbNetworkStrength.getConcatRows();
@@ -105,16 +107,14 @@ public class ApiCore {
 		
 			json.put("battery", (vBattery[0] != "0") ? vBattery[1] : null);
 			json.put("cpu", (vCpu[0] != "0") ? vCpu[1] : null);
+			json.put("power", (vPower[0] != "0") ? vPower[1] : null);
+			
 			json.put("internal_luminosity", (vLight[0] != "0") ? vLight[1] : null);
 			json.put("network_search_time", (vNetworkSearch[0] != "0") ? vNetworkSearch[1] : null);
 			json.put("network_strength",  (vNetworkStrength[0] != "0") ? vNetworkStrength[1] : null);
 			json.put("measured_at", (new DateTimeUtils()).getDateTime(Calendar.getInstance().getTime()));
 			json.put("software_version", app.version);
 			json.put("timezone_offset", timeZoneOffset);
-			
-			// TODO: put these together, using the dbHardware table
-			json.put("has_power", (!app.deviceState.isBatteryDisCharging()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
-			json.put("is_charged", (app.deviceState.isBatteryCharged()) ? Boolean.valueOf(true) : Boolean.valueOf(false));
 			
 			json.put("data_transfer",  (vDataTransferred[0] != "0") ? vDataTransferred[1] : null);
 			

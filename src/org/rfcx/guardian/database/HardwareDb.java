@@ -23,7 +23,7 @@ public class HardwareDb {
 		this.VERSION = appVersion;
 		this.dbCPU = new DbCPU(context);
 		this.dbBattery = new DbBattery(context);
-		this.dbCharger = new DbCharger(context);
+		this.dbPower = new DbPower(context);
 	}
 
 	private static final String TAG = "RfcxGuardian-"+HardwareDb.class.getSimpleName();
@@ -173,8 +173,8 @@ public class HardwareDb {
 	}
 	public final DbBattery dbBattery;
 	
-	public class DbCharger {
-		private String TABLE = "charger";
+	public class DbPower {
+		private String TABLE = "power";
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) {
 				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
@@ -192,17 +192,17 @@ public class HardwareDb {
 			}
 		}
 		final DbHelper dbHelper;
-		public DbCharger(Context context) {
+		public DbPower(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(Date measured_at, int battery_percent, int battery_temperature) {
+		public void insert(Date measured_at, boolean is_powered, boolean is_charged) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
-			values.put(C_VALUE_1, battery_percent);
-			values.put(C_VALUE_2, battery_temperature);
+			values.put(C_VALUE_1, is_powered);
+			values.put(C_VALUE_2, is_charged);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -235,6 +235,6 @@ public class HardwareDb {
 			return stats;
 		}
 	}
-	public final DbCharger dbCharger;
+	public final DbPower dbPower;
 
 }

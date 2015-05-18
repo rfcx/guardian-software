@@ -98,9 +98,11 @@ public class DeviceStateService extends Service implements SensorEventListener {
 					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
 						
 						deviceState.setBatteryState(app.getApplicationContext(), null);
+						
 						hardwareDb.dbCPU.insert(new Date(), deviceCpuUsage.getCpuUsageAvg(), deviceCpuUsage.getCpuClockAvg());
 						hardwareDb.dbBattery.insert(new Date(), deviceState.getBatteryPercent(), deviceState.getBatteryTemperature());
-	
+						hardwareDb.dbPower.insert(new Date(), !deviceState.isBatteryDisCharging(), deviceState.isBatteryCharged());
+						
 						long[] trafficStats = deviceState.updateTrafficStats();
 						dataTransferDb.dbTransferred.insert(new Date(), new Date(trafficStats[0]), new Date(trafficStats[1]), trafficStats[2], trafficStats[3], trafficStats[4], trafficStats[5]);
 						Log.i(TAG, "TrafficStats: Received ("+trafficStats[2]/1024+"kB/"+trafficStats[4]/1024+"kB) | Sent ("+trafficStats[3]/1024+"kB/"+trafficStats[5]/1024+"kB)");
