@@ -85,9 +85,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			DeviceStateService deviceStateService = DeviceStateService.this;
 			if (app == null) { app = (RfcxGuardian) getApplication(); }
 			while (deviceStateService.runFlag) {
-		//		DeviceCpuUsage deviceCpuUsage = app.deviceCpuUsage;
-		//		DeviceState deviceState = app.deviceState;
-		//		DataTransferDb dataTransferDb = app.dataTransferDb;
 				try {
 					app.deviceCpuUsage.updateCpuUsage();
 					recordingIncrement++;
