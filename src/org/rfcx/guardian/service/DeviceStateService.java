@@ -5,7 +5,6 @@ import java.util.Date;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.database.DataTransferDb;
-import org.rfcx.guardian.database.DeviceStateDb;
 import org.rfcx.guardian.database.HardwareDb;
 import org.rfcx.guardian.device.DeviceCpuUsage;
 import org.rfcx.guardian.device.DeviceState;
@@ -17,10 +16,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.TrafficStats;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
-import android.telephony.ServiceState;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -41,7 +38,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	Sensor lightSensor = null;
 	
 	SignalStrengthListener signalStrengthListener;
-	
+	TelephonyManager telephonyManager;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -103,7 +100,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 						hardwareDb.dbBattery.insert(new Date(), deviceState.getBatteryPercent(), deviceState.getBatteryTemperature());
 						hardwareDb.dbPower.insert(new Date(), !deviceState.isBatteryDisCharging(), deviceState.isBatteryCharged());
 						
-						long[] trafficStats = deviceState.updateTrafficStats();
+						long[] trafficStats = deviceState.updateDataTransferStats();
 						dataTransferDb.dbTransferred.insert(new Date(), new Date(trafficStats[0]), new Date(trafficStats[1]), trafficStats[2], trafficStats[3], trafficStats[4], trafficStats[5]);
 						Log.i(TAG, "TrafficStats: Received ("+trafficStats[2]/1024+"kB/"+trafficStats[4]/1024+"kB) | Sent ("+trafficStats[3]/1024+"kB/"+trafficStats[5]/1024+"kB)");
 						
@@ -130,8 +127,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		if (this.app == null) this.app = (RfcxGuardian) getApplication();
 		if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
 			if (event.values[0] >= 0) {
-				this.app.deviceState.setLightLevel(Math.round(event.values[0]));
-				this.app.deviceStateDb.dbLight.insert(this.app.deviceState.getLightLevel());
+				this.app.hardwareDb.dbLightMeter.insert(new Date(), Math.round(event.values[0]), "");
 //			} else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 //				return;
 			}
@@ -160,9 +156,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		}
 		
 		signalStrengthListener = new SignalStrengthListener();
-		TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-//		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTH);
-//		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTH|PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 		
 		
@@ -176,7 +170,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			this.sensorManager.unregisterListener(this, lightSensor);
 		}
 		
-		TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_NONE);	// LISTEN_NONE : Stop listening for updates.
 	}
 	
@@ -184,7 +178,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 
 	
 	public class SignalStrengthListener extends PhoneStateListener {
-
+		
 		@Override
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			super.onSignalStrengthsChanged(signalStrength);
@@ -199,13 +193,16 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			int	gsmSignalStrength = signalStrength.getGsmSignalStrength(); //GSM Signal Strength, valid values are (0-31, 99) as defined in TS 27.007 8.5
 			
 			int dBmGsmSignalStrength = (-113+2*gsmSignalStrength);
+			String carrierName = "";
+			
 			if (dBmGsmSignalStrength > 0) {
 				dBmGsmSignalStrength = 0;
 				Log.w(TAG,"No GSM signal found."); 
 			} else { 
+			//	carrierName = telephonyManager.getNetworkOperatorName();
 				Log.w(TAG,dBmGsmSignalStrength+"dBm"); 
 			}
-			app.deviceStateDb.dbNetworkStrength.insert(dBmGsmSignalStrength);
+			app.hardwareDb.dbNetwork.insert(new Date(), dBmGsmSignalStrength, carrierName);
 			
 		}
 	}

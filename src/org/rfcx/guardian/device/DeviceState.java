@@ -76,18 +76,7 @@ public class DeviceState {
 	}
 		
 	
-	// Light Sensor
-	private int lightLevel;
-	
-	public void setLightLevel(int lightLevel) {
-		this.lightLevel = lightLevel;
-	}
-	
-	public int getLightLevel() {
-		return lightLevel;
-	}
-	
-	public long[] updateTrafficStats() {
+	public long[] updateDataTransferStats() {
 		
 		long mobileRxBytes = TrafficStats.getMobileRxBytes();
 		long mobileTxBytes = TrafficStats.getMobileTxBytes();

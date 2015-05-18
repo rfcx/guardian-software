@@ -24,6 +24,9 @@ public class HardwareDb {
 		this.dbCPU = new DbCPU(context);
 		this.dbBattery = new DbBattery(context);
 		this.dbPower = new DbPower(context);
+		this.dbNetwork = new DbNetwork(context);
+		this.dbOffline = new DbOffline(context);
+		this.dbLightMeter = new DbLightMeter(context);
 	}
 
 	private static final String TAG = "RfcxGuardian-"+HardwareDb.class.getSimpleName();
@@ -236,5 +239,197 @@ public class HardwareDb {
 		}
 	}
 	public final DbPower dbPower;
+	
+	public class DbNetwork {
+		private String TABLE = "network";
+		class DbHelper extends SQLiteOpenHelper {
+			public DbHelper(Context context) {
+				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
+			}
+			@Override
+			public void onCreate(SQLiteDatabase db) {
+				try {
+					db.execSQL(createColumnString(TABLE));
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); }
+			}
+			@Override
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); }
+			}
+		}
+		final DbHelper dbHelper;
+		public DbNetwork(Context context) {
+			this.dbHelper = new DbHelper(context);
+		}
+		public void close() {
+			this.dbHelper.close();
+		}
+		public void insert(Date measured_at, int signal_strength, String carrier_name) {
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
+			values.put(C_VALUE_1, signal_strength);
+			values.put(C_VALUE_2, carrier_name);
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} finally {
+				db.close();
+			}
+		}
+		public List<String[]> getAllRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			ArrayList<String[]> list = new ArrayList<String[]>();
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if (cursor.getCount() > 0) {
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+			return list;
+		}
+		public void clearRowsBefore(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			} finally { db.close(); }
+		}
+		public String[] getConcatRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] stats = new String[] { null, null };
+			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
+				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
+				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+			return stats;
+		}
+	}
+	public final DbNetwork dbNetwork;
 
+	public class DbOffline {
+		private String TABLE = "offline";
+		class DbHelper extends SQLiteOpenHelper {
+			public DbHelper(Context context) {
+				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
+			}
+			@Override
+			public void onCreate(SQLiteDatabase db) {
+				try {
+					db.execSQL(createColumnString(TABLE));
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); }
+			}
+			@Override
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); }
+			}
+		}
+		final DbHelper dbHelper;
+		public DbOffline(Context context) {
+			this.dbHelper = new DbHelper(context);
+		}
+		public void close() {
+			this.dbHelper.close();
+		}
+		public void insert(Date measured_at, long offline_period, String carrier_name) {
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
+			values.put(C_VALUE_1, offline_period);
+			values.put(C_VALUE_2, carrier_name);
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} finally {
+				db.close();
+			}
+		}
+		public List<String[]> getAllRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			ArrayList<String[]> list = new ArrayList<String[]>();
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if (cursor.getCount() > 0) {
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+			return list;
+		}
+		public void clearRowsBefore(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			} finally { db.close(); }
+		}
+		public String[] getConcatRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] stats = new String[] { null, null };
+			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
+				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
+				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+			return stats;
+		}
+	}
+	public final DbOffline dbOffline;
+	
+	public class DbLightMeter {
+		private String TABLE = "lightmeter";
+		class DbHelper extends SQLiteOpenHelper {
+			public DbHelper(Context context) {
+				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
+			}
+			@Override
+			public void onCreate(SQLiteDatabase db) {
+				try {
+					db.execSQL(createColumnString(TABLE));
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); }
+			}
+			@Override
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); }
+			}
+		}
+		final DbHelper dbHelper;
+		public DbLightMeter(Context context) {
+			this.dbHelper = new DbHelper(context);
+		}
+		public void close() {
+			this.dbHelper.close();
+		}
+		public void insert(Date measured_at, long luminosity, String value_2) {
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
+			values.put(C_VALUE_1, luminosity);
+			values.put(C_VALUE_2, value_2);
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} finally {
+				db.close();
+			}
+		}
+		public List<String[]> getAllRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			ArrayList<String[]> list = new ArrayList<String[]>();
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if (cursor.getCount() > 0) {
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+			return list;
+		}
+		public void clearRowsBefore(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			} finally { db.close(); }
+		}
+		public String[] getConcatRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] stats = new String[] { null, null };
+			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
+				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
+				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC); } finally { db.close(); }
+			return stats;
+		}
+	}
+	public final DbLightMeter dbLightMeter;
+	
 }

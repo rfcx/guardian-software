@@ -79,13 +79,13 @@ public class ApiCore {
 		app.checkInDb.dbQueued.insert(audioInfo[1]+"."+audioInfo[2], getCheckInJson(audioInfo), "0");
 		
 		Date statsSnapshot = new Date();
-		app.deviceStateDb.dbLight.clearStatsBefore(statsSnapshot);
-		app.deviceStateDb.dbNetworkSearch.clearStatsBefore(statsSnapshot);
-		app.deviceStateDb.dbNetworkStrength.clearStatsBefore(statsSnapshot);
-		app.dataTransferDb.dbTransferred.clearRowsBefore(statsSnapshot);
 		app.hardwareDb.dbBattery.clearRowsBefore(statsSnapshot);
 		app.hardwareDb.dbCPU.clearRowsBefore(statsSnapshot);
 		app.hardwareDb.dbPower.clearRowsBefore(statsSnapshot);
+		app.hardwareDb.dbNetwork.clearRowsBefore(statsSnapshot);
+		app.hardwareDb.dbOffline.clearRowsBefore(statsSnapshot);
+		app.hardwareDb.dbLightMeter.clearRowsBefore(statsSnapshot);
+		app.dataTransferDb.dbTransferred.clearRowsBefore(statsSnapshot);
 	}
 	
 	
@@ -94,9 +94,9 @@ public class ApiCore {
 		String[] vBattery = app.hardwareDb.dbBattery.getConcatRows();
 		String[] vCpu = app.hardwareDb.dbCPU.getConcatRows();
 		String[] vPower = app.hardwareDb.dbPower.getConcatRows();
-		String[] vLight = app.deviceStateDb.dbLight.getConcatRows();
-		String[] vNetworkSearch = app.deviceStateDb.dbNetworkSearch.getConcatRows();
-		String[] vNetworkStrength = app.deviceStateDb.dbNetworkStrength.getConcatRows();
+		String[] vNetwork = app.hardwareDb.dbNetwork.getConcatRows();
+		String[] vOffline = app.hardwareDb.dbOffline.getConcatRows();
+		String[] vLightMeter = app.hardwareDb.dbLightMeter.getConcatRows();
 		String[] vDataTransferred = app.dataTransferDb.dbTransferred.getConcatRows();
 		
 		String timeZoneOffset = timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime());
@@ -108,10 +108,10 @@ public class ApiCore {
 			json.put("battery", (vBattery[0] != "0") ? vBattery[1] : null);
 			json.put("cpu", (vCpu[0] != "0") ? vCpu[1] : null);
 			json.put("power", (vPower[0] != "0") ? vPower[1] : null);
+			json.put("network", (vNetwork[0] != "0") ? vNetwork[1] : null);
+			json.put("offline", (vOffline[0] != "0") ? vOffline[1] : null);
+			json.put("lightmeter", (vLightMeter[0] != "0") ? vLightMeter[1] : null);
 			
-			json.put("internal_luminosity", (vLight[0] != "0") ? vLight[1] : null);
-			json.put("network_search_time", (vNetworkSearch[0] != "0") ? vNetworkSearch[1] : null);
-			json.put("network_strength",  (vNetworkStrength[0] != "0") ? vNetworkStrength[1] : null);
 			json.put("measured_at", (new DateTimeUtils()).getDateTime(Calendar.getInstance().getTime()));
 			json.put("software_version", app.version);
 			json.put("timezone_offset", timeZoneOffset);
