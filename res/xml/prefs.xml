@@ -6,7 +6,7 @@
         android:title="API Protocol/Address"
         android:summary="Domain/Protocol for API calls"
         android:enabled="true"
-        android:defaultValue="http://api.rfcx.org" />
+        android:defaultValue="https://api.rfcx.org" />
 	
 	<EditTextPreference
         android:key="audio_capture_interval"
@@ -14,7 +14,7 @@
         android:summary="How long should each audio chunk be? (seconds)"
 	    android:inputType="number"
         android:enabled="true"
-        android:defaultValue="60"/>
+        android:defaultValue="90"/>
 	
 	<EditTextPreference
         android:key="service_monitor_interval"
