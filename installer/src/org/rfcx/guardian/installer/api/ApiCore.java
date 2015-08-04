@@ -3,8 +3,6 @@ package org.rfcx.guardian.installer.api;
 import java.util.Calendar;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.installer.RfcxGuardianInstaller;
 
@@ -21,6 +19,7 @@ public class ApiCore {
 	private long lastCheckInTriggered = 0;
 	
 	public String apiCheckVersionEndpoint = null;
+	public String targetAppRoleApiEndpoint = "all";
 
 	public String latestRole = null;
 	public String latestVersion = null;
@@ -50,7 +49,7 @@ public class ApiCore {
 				}
 			}
 		
-			String currentGuardianVersion = app.getCurrentGuardianUpdaterVersion();
+			String currentGuardianVersion = app.getCurrentGuardianTargetRoleVersion();
 			int currentGuardianVersionValue = calculateVersionValue(currentGuardianVersion);
 			
 			if (	(	(this.latestVersion != null) && (currentGuardianVersion == null))
@@ -75,7 +74,7 @@ public class ApiCore {
 	}
 	
 	public void setApiCheckVersionEndpoint(String guardianId) {
-		this.apiCheckVersionEndpoint = "/v1/guardians/"+guardianId+"/software/updater/latest";
+		this.apiCheckVersionEndpoint = "/v1/guardians/"+guardianId+"/software/"+this.targetAppRoleApiEndpoint+"/latest";
 	}
 	
 	private static int calculateVersionValue(String versionName) {

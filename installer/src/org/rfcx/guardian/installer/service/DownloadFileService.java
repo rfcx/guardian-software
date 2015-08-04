@@ -71,7 +71,7 @@ public class DownloadFileService extends Service {
 			DownloadFileService downloadFileService = DownloadFileService.this;
 			HttpGet httpGet = new HttpGet();
 			try {
-				String fileName = app.apiCore.installVersion+".apk";
+				String fileName = app.apiCore.installRole+"-"+app.apiCore.installVersion+".apk";
 				String url = app.apiCore.installVersionUrl;
 				String sha1 = app.apiCore.installVersionSha1;
 				Context context = app.getApplicationContext();

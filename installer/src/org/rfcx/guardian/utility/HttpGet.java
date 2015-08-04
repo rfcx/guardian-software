@@ -26,7 +26,7 @@ import android.util.Log;
 
 public class HttpGet {
 
-	private static final String TAG = "RfcxGuardianUpdater-"+HttpGet.class.getSimpleName();
+	private static final String TAG = "RfcxGuardianInstaller-"+HttpGet.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	private static final String DOWNLOAD_TIME_LABEL = "Download time: ";
 	

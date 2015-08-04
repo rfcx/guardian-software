@@ -11,9 +11,7 @@ import org.rfcx.guardian.installer.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.installer.service.ApiCheckVersionService;
 import org.rfcx.guardian.installer.service.DownloadFileService;
 import org.rfcx.guardian.installer.service.InstallAppService;
-import org.rfcx.guardian.installer.service.RebootIntentService;
 import org.rfcx.guardian.installer.service.InstallerIntentService;
-import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -47,7 +45,10 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 	private String deviceId = null;
 	private String deviceToken = null;
 	
+	public String thisAppRole = "installer";
+	
 	public String targetAppRole = "updater";
+	public String targetAppRoleApiEndpoint = "updater";
 	
 	private RfcxGuardianInstallerPrefs rfcxGuardianInstallerPrefs = new RfcxGuardianInstallerPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianInstallerPrefs.createPrefs(this);
@@ -65,13 +66,15 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		(new ShellCommands()).executeCommandAsRoot("pm list features",null,getApplicationContext());
+		
 		rfcxGuardianInstallerPrefs.initializePrefs();
 		rfcxGuardianInstallerPrefs.checkAndSet(this);
 		
 		setAppVersion();
 		
-		Log.d(TAG, "RfcxGuardianUpdater Version: "+getCurrentGuardianUpdaterVersion());
+		Log.d(TAG, "org.rfcx.guardian."+this.targetAppRole+" version: "+getCurrentGuardianTargetRoleVersion());
+
+		(new ShellCommands()).executeCommandAsRoot("pm list features",null,getApplicationContext());
 		
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
@@ -145,9 +148,9 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 			if (verboseLog) { Log.d(TAG, "ApiCheckVersion will run every "+getPref("apicheckversion_interval")+" minute(s)..."); }
 			
 			// reboots system at 5 minutes before midnight every day
-			PendingIntent rebootIntentService = PendingIntent.getService(context, -1, new Intent(context, RebootIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-			AlarmManager rebootAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
-			rebootAlarmManager.setRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(23,55,0).getTimeInMillis(), 24*60*60*1000, rebootIntentService);
+//			PendingIntent rebootIntentService = PendingIntent.getService(context, -1, new Intent(context, RebootIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+//			AlarmManager rebootAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
+//			rebootAlarmManager.setRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(23,55,0).getTimeInMillis(), 24*60*60*1000, rebootIntentService);
 			
 		} catch (Exception e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
@@ -204,12 +207,12 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 		}	
 	}
 	
-	private String getValueFromGuardianUpdaterTxtFile(String fileNameNoExt) {
+	private String getValueFromGuardianTargetRoleTxtFile(String fileNameNoExt) {
     	context = getApplicationContext();
     	try {
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
-    		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(".installer".length()))+".updater/files/txt/"+fileNameNoExt+".txt");
-    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(".installer".length()))+".updater/files/txt",fileNameNoExt+".txt");
+    		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.thisAppRole).length()))+"."+this.targetAppRole+"/files/txt/"+fileNameNoExt+".txt");
+    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.thisAppRole).length()))+"."+this.targetAppRole+"/files/txt",fileNameNoExt+".txt");
     		if (txtFile.exists()) {
 				FileInputStream input = new FileInputStream(txtFile);
 				StringBuffer fileContent = new StringBuffer("");
@@ -219,10 +222,10 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 				}
 	    		String txtFileContents = fileContent.toString().trim();
 	    		input.close();
-	    		Log.d(TAG, "Fetched '"+fileNameNoExt+"' from RfcxGuardianUpdater: "+txtFileContents);
+	    		Log.d(TAG, "Fetched '"+fileNameNoExt+"' from org.rfcx.guardian."+this.targetAppRole+": "+txtFileContents);
 	    		return txtFileContents;
     		} else {
-    			Log.e(TAG, "No file '"+fileNameNoExt+"' saved by RfcxGuardianUpdater...");
+    			Log.e(TAG, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+this.targetAppRole+"...");
     		}
     	} catch (FileNotFoundException e) {
     		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
@@ -232,8 +235,8 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
     	return null;
 	}
 	
-    public String getCurrentGuardianUpdaterVersion() {
-    	return getValueFromGuardianUpdaterTxtFile("version");
+    public String getCurrentGuardianTargetRoleVersion() {
+    	return getValueFromGuardianTargetRoleTxtFile("version");
     }
     
 }

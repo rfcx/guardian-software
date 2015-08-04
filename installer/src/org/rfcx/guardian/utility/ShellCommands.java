@@ -18,9 +18,10 @@ public class ShellCommands {
 	private static final String TAG = "RfcxGuardianInstaller-"+ShellCommands.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	public void killProcessByName(Context context, String searchTerm) {
+	public void killProcessByName(Context context, String searchTerm, String excludeTerm) {
 		Log.i(TAG, "Attempting to kill process associated with search term '"+searchTerm+"'.");
-		executeCommandAsRoot("kill $(ps | grep -v .updater | grep "+searchTerm+" | cut -d \" \" -f 5)",null,context);
+		String grepExclude = (excludeTerm != null) ? " grep -v "+excludeTerm+" |" : "";
+		executeCommandAsRoot("kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)",null,context);
 	}
 	
 	public boolean executeCommandAsRoot(String commandContents, String outputSearchString, Context context) {

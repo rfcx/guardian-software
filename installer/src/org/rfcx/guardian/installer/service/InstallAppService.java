@@ -74,7 +74,7 @@ public class InstallAppService extends Service {
 			ShellCommands shellCommands = new ShellCommands();
 			boolean successfullyInstalled = false;
 			try {
-				shellCommands.killProcessByName(context,"org.rfcx.guardian.updater");
+				shellCommands.killProcessByName(context,"org.rfcx.guardian."+app.targetAppRole,"."+app.thisAppRole);
 				successfullyInstalled = installApk(context,false);
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);

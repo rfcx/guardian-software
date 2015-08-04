@@ -3,7 +3,6 @@ package org.rfcx.guardian.installer.service;
 import java.util.Calendar;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.installer.RfcxGuardianInstaller;
 import org.rfcx.guardian.utility.HttpGet;
