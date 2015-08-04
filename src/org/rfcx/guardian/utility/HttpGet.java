@@ -30,11 +30,30 @@ public class HttpGet {
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	private static final String DOWNLOAD_TIME_LABEL = "Download time: ";
 	
-    // need to make these longer and/or dynamic
-	// (dynamic is better but methods that reference them can't be static...)
-	private static int requestReadTimeout = 600000;
-	private static int requestConnectTimeout = 30000;
-	private static boolean useCaches = false;
+	// These hard coded timeout values are just defaults.
+	// They may be customized through the setTimeOuts method.
+	private int requestReadTimeout = 600000;
+	private int requestConnectTimeout = 30000;
+	private boolean useCaches = false;
+	
+	private List<String[]> customHttpHeaders = new ArrayList<String[]>();
+	
+	public void setTimeOuts(int connectTimeOutMs, int readTimeOutMs) {
+		this.requestConnectTimeout = connectTimeOutMs;
+		this.requestReadTimeout = readTimeOutMs;
+	}
+	
+	public void setCustomHttpHeaders(List<String[]> keyValueHeaders) {
+		List<String[]> newCustomHttpHeaders = new ArrayList<String[]>();
+		for (String[] keyValueHeader : keyValueHeaders) {
+			newCustomHttpHeaders.add(keyValueHeader);
+		}
+		this.customHttpHeaders = newCustomHttpHeaders;
+	}
+	
+	public List<String[]> getCustomHttpHeaders() {
+		return this.customHttpHeaders;
+	}
 	
 	public JSONObject getAsJson(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = Calendar.getInstance().getTimeInMillis();
@@ -107,7 +126,7 @@ public class HttpGet {
 		return getAsFile(fullUrl, (new ArrayList<String[]>()), outputFileName, context);
 	}	
 	
-	private static String doGetString(String fullUrl, List<String[]> keyValueParameters) {
+	private String doGetString(String fullUrl, List<String[]> keyValueParameters) {
 		StringBuilder url = (new StringBuilder()).append(fullUrl);
 		if (keyValueParameters.size() > 0) url.append("?");
 		for (String[] keyValue : keyValueParameters) {
@@ -117,7 +136,7 @@ public class HttpGet {
 		return executeGet(url.toString());
 	}
     
-	private static String executeGet(String fullUrl) {
+	private String executeGet(String fullUrl) {
 		try {
 	    	String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
 			if (inferredProtocol.equals("http")) {
@@ -133,7 +152,7 @@ public class HttpGet {
 		return null;
 	}
 	
-	private static String sendInsecureGetRequest(URL url) {
+	private String sendInsecureGetRequest(URL url) {
 	    try {
 	        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	        conn.setReadTimeout(requestReadTimeout);
@@ -143,6 +162,7 @@ public class HttpGet {
 	        conn.setDoInput(true);
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
+			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 	            return readResponseStream(conn.getInputStream());
@@ -155,7 +175,7 @@ public class HttpGet {
 	    return null;        
 	}
 	
-	private static String sendSecureGetRequest(URL url) {
+	private String sendSecureGetRequest(URL url) {
 	    try {
 	        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 	        conn.setReadTimeout(requestReadTimeout);
@@ -165,6 +185,7 @@ public class HttpGet {
 	        conn.setDoInput(true);
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
+			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
 	            return readResponseStream(conn.getInputStream());
@@ -233,15 +254,15 @@ public class HttpGet {
 		return null;
 	}
 	
-	private static InputStream httpGetFileInputStream(String fullUrl) {
+	private InputStream httpGetFileInputStream(String fullUrl) {
     	String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
     	try {
 			if (inferredProtocol.equals("https")) {
 				HttpsURLConnection conn = (HttpsURLConnection) (new URL(fullUrl)).openConnection();
-		        conn.setReadTimeout(requestReadTimeout);
-		        conn.setConnectTimeout(requestConnectTimeout);
+		        conn.setReadTimeout(this.requestReadTimeout);
+		        conn.setConnectTimeout(this.requestConnectTimeout);
 		        conn.setRequestMethod("GET");
-		        conn.setUseCaches(useCaches);
+		        conn.setUseCaches(this.useCaches);
 		        conn.setDoInput(true);
 		        conn.setDoOutput(true);
 		        conn.setRequestProperty("Connection", "Keep-Alive");
@@ -254,10 +275,10 @@ public class HttpGet {
 		        return conn.getInputStream();
 			} else if (inferredProtocol.equals("http")) {
 				HttpURLConnection conn = (HttpURLConnection) (new URL(fullUrl)).openConnection();
-		        conn.setReadTimeout(requestReadTimeout);
-		        conn.setConnectTimeout(requestConnectTimeout);
+		        conn.setReadTimeout(this.requestReadTimeout);
+		        conn.setConnectTimeout(this.requestConnectTimeout);
 		        conn.setRequestMethod("GET");
-		        conn.setUseCaches(useCaches);
+		        conn.setUseCaches(this.useCaches);
 		        conn.setDoInput(true);
 		        conn.setDoOutput(true);
 		        conn.setRequestProperty("Connection", "Keep-Alive");

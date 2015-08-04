@@ -84,6 +84,7 @@ public class ApiCheckInService extends Service {
 						
 						List<String[]> stringParameters = new ArrayList<String[]>();
 						stringParameters.add(new String[] { "json", currentCheckIn[2] });
+						stringParameters.add(new String[] { "audio", "" });
 						stringParameters.add(new String[] { "messages", app.apiCore.getMessagesAsJson() });
 						
 						if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiCore.MAX_CHECKIN_ATTEMPTS) {

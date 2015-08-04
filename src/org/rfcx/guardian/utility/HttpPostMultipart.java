@@ -13,6 +13,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -37,9 +38,23 @@ public class HttpPostMultipart {
 	private int requestConnectTimeout = 300000;
 	private static boolean useCaches = false;
 	
+	private List<String[]> customHttpHeaders = new ArrayList<String[]>();
+	
 	public void setTimeOuts(int connectTimeOutMs, int readTimeOutMs) {
 		this.requestConnectTimeout = connectTimeOutMs;
 		this.requestReadTimeout = readTimeOutMs;
+	}
+	
+	public void setCustomHttpHeaders(List<String[]> keyValueHeaders) {
+		List<String[]> newCustomHttpHeaders = new ArrayList<String[]>();
+		for (String[] keyValueHeader : keyValueHeaders) {
+			newCustomHttpHeaders.add(keyValueHeader);
+		}
+		this.customHttpHeaders = newCustomHttpHeaders;
+	}
+	
+	public List<String[]> getCustomHttpHeaders() {
+		return this.customHttpHeaders;
 	}
 	
 	public String doMultipartPost(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments) {
@@ -98,6 +113,7 @@ public class HttpPostMultipart {
 	        conn.setDoInput(true);
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
+			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.setFixedLengthStreamingMode((int) entity.getContentLength());
 	        conn.addRequestProperty(entity.getContentType().getName(), entity.getContentType().getValue());
 	        OutputStream outputStream = conn.getOutputStream();
@@ -131,6 +147,7 @@ public class HttpPostMultipart {
 	        conn.setDoInput(true);
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
+			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.setFixedLengthStreamingMode((int) entity.getContentLength());
 	        conn.addRequestProperty(entity.getContentType().getName(), entity.getContentType().getValue());
 	        OutputStream outputStream = conn.getOutputStream();

@@ -2,6 +2,7 @@ package org.rfcx.guardian.api;
 
 import java.io.File;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import org.rfcx.guardian.utility.ShellCommands;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.telephony.TelephonyManager;
 
 public class ApiCore {
 
@@ -50,6 +52,11 @@ public class ApiCore {
 		// this may not be a good idea... we'll see
 		int audioCaptureInterval = 1000*((int) Integer.parseInt(app.getPref("audio_capture_interval")));
 		this.httpPostMultipart.setTimeOuts(audioCaptureInterval, audioCaptureInterval);
+		// setting customized rfcx authentication headers (necessary for API access)
+		List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
+		rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.getDeviceId() });
+		rfcxAuthHeaders.add(new String[] { "x-auth-token", app.getDeviceToken() });
+		this.httpPostMultipart.setCustomHttpHeaders(rfcxAuthHeaders);
 	}
 	
 	public String getCheckInUrl() {
@@ -271,6 +278,7 @@ public class ApiCore {
 			}
 		}
 	}
+	
 	
 //	private byte[] gZipString(String s) {
 //		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

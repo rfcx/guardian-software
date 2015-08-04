@@ -24,6 +24,7 @@ public class AudioCore {
 	private static final String TAG = "RfcxGuardian-"+AudioCore.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
+	public String sdCardFilesDir = Environment.getExternalStorageDirectory().toString()+"/rfcx";
 	public String captureDir = null;
 	public String flacDir = null;
 	public String aacDir = null;

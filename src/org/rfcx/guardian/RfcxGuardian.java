@@ -1,6 +1,8 @@
 package org.rfcx.guardian;
 
+import java.security.MessageDigest;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.rfcx.guardian.api.ApiCore;
 import org.rfcx.guardian.audio.AudioCore;
@@ -11,7 +13,6 @@ import org.rfcx.guardian.database.DataTransferDb;
 import org.rfcx.guardian.database.DeviceStateDb;
 import org.rfcx.guardian.database.ScreenShotDb;
 import org.rfcx.guardian.database.SmsDb;
-import org.rfcx.guardian.device.DeviceCPUTuner;
 import org.rfcx.guardian.device.DeviceCpuUsage;
 import org.rfcx.guardian.device.DeviceState;
 import org.rfcx.guardian.intentservice.CarrierCodeBalance;
@@ -30,6 +31,8 @@ import org.rfcx.guardian.utility.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceScreenLock;
 import org.rfcx.guardian.utility.DeviceScreenShot;
+import org.rfcx.guardian.utility.DeviceToken;
+import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.AlarmManager;
@@ -43,6 +46,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -55,6 +59,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
 	private String deviceId = null;
+	private String deviceToken = null;
 	Context context;
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
@@ -119,6 +124,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		setAppVersion();
 		setDbHandlers();
 		
+		//purgeAllData();
+		
 		rfcxGuardianPrefs.initializePrefs();
 		rfcxGuardianPrefs.loadPrefsOverride();
 		rfcxGuardianPrefs.checkAndSet(this);
@@ -126,13 +133,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		apiCore.init(this);
 
 		(new ShellCommands()).executeCommandAsRoot("pm list features",null,context);
-		(new DeviceCPUTuner()).set(context);
 		deviceScreenShot.setupScreenShot(context);
 		
 	    this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	    
 	    onLaunchServiceTrigger();
+	    
 	}
 	
 	@Override
@@ -184,6 +191,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		}
 		return this.deviceId;
 	}
+	
+	public String getDeviceToken() {
+		if (this.deviceToken == null) {
+			this.deviceToken = (new DeviceToken(getApplicationContext(), this.sharedPrefs)).getDeviceToken();
+			rfcxGuardianPrefs.writeTokenToFile(deviceToken);
+		}
+		return this.deviceToken;
+	}
 
 	public String getPref(String prefName) {
 		return this.sharedPrefs.getString(prefName, null);
@@ -198,23 +213,29 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void onLaunchServiceTrigger() {
 		if (!hasRun_OnBootServiceTrigger) {
+			
+			triggerService("CPUTuner", true);
+			
 			// Service Monitor
 			triggerIntentService("ServiceMonitor", 
 					System.currentTimeMillis(),
 					60*((int) Integer.parseInt(getPref("service_monitor_interval")))
 					);
+			
 			// CarrierCodeTrigger-Balance, starting 2 minutes after app launch, runs repeatedly every 3 hours
 			// TODO: this should be configurable in prefs, and also probably made more generic
 			triggerIntentService("CarrierCodeTrigger-Balance", 
 					System.currentTimeMillis()+( 2 *(60*1000)), 
 					( 6 * 3600)
 					);
+			
 			// CarrierCodeTrigger-TopUp, starting at the next instance of 30 seconds after midnight, repeating every 12 hours
 			// TODO: this should be configurable in prefs, and also probably made to be more generic
 			triggerIntentService("CarrierCodeTrigger-TopUp", 
 					(new DateTimeUtils()).nextOccurenceOf(0,0,30).getTimeInMillis(), 
 					( 12 *3600)
 					);
+			
 			triggerService("DeviceState", true);
 			triggerService("AudioCapture", true);
 			triggerService("ApiCheckInTrigger", true);
@@ -330,4 +351,27 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.dataTransferDb = new DataTransferDb(this,versionNumber);
 	}
 	
+	private void purgeAllData() {
+		Date now = new Date();
+		this.checkInDb.dbQueued.clearQueuedBefore(now);
+		this.checkInDb.dbSkipped.clearSkippedBefore(now);
+		this.audioDb.dbCaptured.clearCapturedBefore(now);
+		this.audioDb.dbEncoded.clearEncodedBefore(now);
+
+//		this.smsDb.dbQueued.clearMessagesBefore(now);
+//		this.smsDb.dbReceived.clearMessageBefore(now);
+		this.deviceStateDb.dbBattery.clearRowsBefore(now);
+		this.deviceStateDb.dbCPU.clearRowsBefore(now);
+		this.deviceStateDb.dbLightMeter.clearRowsBefore(now);
+		this.deviceStateDb.dbNetwork.clearRowsBefore(now);
+		this.deviceStateDb.dbOffline.clearRowsBefore(now);
+		this.deviceStateDb.dbPower.clearRowsBefore(now);
+		
+		this.screenShotDb.dbScreenShot.clearScreenShotsBefore(now);
+		this.dataTransferDb.dbTransferred.clearRowsBefore(now);
+		
+		(new FileUtils()).delete(this.audioCore.sdCardFilesDir,true);
+		
+	}
+
 }

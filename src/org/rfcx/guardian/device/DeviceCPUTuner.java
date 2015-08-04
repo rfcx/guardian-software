@@ -19,7 +19,7 @@ public class DeviceCPUTuner {
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private static final int frequencyMin = 30720;
-	private static final int frequencyMax = 61440;//122880;
+	private static final int frequencyMax = /*61440;*/122880;
 	private static final int wifiState = 0;
 	private static final int gpsState = 0;
 	private static final int bluetoothState = 1;

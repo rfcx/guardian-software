@@ -82,6 +82,13 @@
         android:enabled="true"
 		android:defaultValue=""/>
 
+	<EditTextPreference
+        android:key="device_token"
+	    android:title="Device Token"
+	    android:summary="Unique Token of Guardian"
+        android:enabled="true"
+		android:defaultValue=""/>
+
 	<CheckBoxPreference
 	    android:key="enable_service_audiocapture"
 	    android:title="Audio Capture"

@@ -44,7 +44,6 @@ public class ServiceMonitor extends IntentService {
 			// the Monitor logic won't run the first time the intent service is fired
 			app.isRunning_ServiceMonitor = true;
 			
-			(new DeviceCPUTuner()).set(context);
 		}
 //		if (app.isCrisisModeEnabled) {
 //			if (app.verboseLog) Log.d(TAG, "Crisis mode enabled! Making sure services are disabled...");
