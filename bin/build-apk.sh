@@ -5,8 +5,14 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 export ROLE=$1;
 export KEY_PSWD=$2;
 
-cd $SCRIPT_DIR/../rfcx-guardian-$ROLE/;
+cd $SCRIPT_DIR/../;
 
+if [ ! -d tmp ]; then
+  echo "creating tmp directory";
+  mkdir tmp;
+fi
+
+cd rfcx-guardian-$ROLE;
 rm local.properties build.xml proguard-project.txt;
 
 echo "generating build configuration...";
