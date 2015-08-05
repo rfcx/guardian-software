@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.rfcx.guardian.installer.RfcxGuardianInstaller;
+import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.HttpGet;
 
 import android.app.Service;
@@ -16,12 +16,12 @@ import android.util.Log;
 
 public class ApiCheckVersionService extends Service {
 
-	private static final String TAG = "RfcxGuardianInstaller-"+ApiCheckVersionService.class.getSimpleName();
+	private static final String TAG = "Rfcx-Installer-"+ApiCheckVersionService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private ApiCheckVersion apiCheckVersion;
 
-	private RfcxGuardianInstaller app = null;
+	private RfcxGuardian app = null;
 	private Context context = null;
 	
 	@Override
@@ -39,7 +39,7 @@ public class ApiCheckVersionService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		
-		app = (RfcxGuardianInstaller) getApplication();
+		app = (RfcxGuardian) getApplication();
 		if (context == null) context = app.getApplicationContext();
 		
 		app.isRunning_ApiCheckVersion = true;

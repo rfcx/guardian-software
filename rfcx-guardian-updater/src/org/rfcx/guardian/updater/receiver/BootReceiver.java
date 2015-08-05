@@ -1,6 +1,6 @@
 package org.rfcx.guardian.updater.receiver;
 
-import org.rfcx.guardian.updater.RfcxGuardianUpdater;
+import org.rfcx.guardian.updater.RfcxGuardian;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,7 +10,7 @@ public class BootReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		((RfcxGuardianUpdater) context.getApplicationContext()).initializeRoleIntentServices(context);
+		((RfcxGuardian) context.getApplicationContext()).initializeRoleIntentServices(context);
 	}
 
 }

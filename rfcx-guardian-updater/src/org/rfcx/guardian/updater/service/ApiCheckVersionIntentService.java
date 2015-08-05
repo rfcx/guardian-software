@@ -1,6 +1,6 @@
 package org.rfcx.guardian.updater.service;
 
-import org.rfcx.guardian.updater.RfcxGuardianUpdater;
+import org.rfcx.guardian.updater.RfcxGuardian;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -8,7 +8,7 @@ import android.util.Log;
 
 public class ApiCheckVersionIntentService extends IntentService {
 
-	private static final String TAG = "RfcxGuardianUpdater-"+ApiCheckVersionIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-Updater-"+ApiCheckVersionIntentService.class.getSimpleName();
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.updater.INSTALLER_SERVICE";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.updater.RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
@@ -24,7 +24,7 @@ public class ApiCheckVersionIntentService extends IntentService {
 		Intent intent = new Intent(INTENT_TAG);
 		sendBroadcast(intent, NOTIFICATION_TAG);
 		
-		RfcxGuardianUpdater app = (RfcxGuardianUpdater) getApplication();
+		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
 		if (app.isConnected) {
 			app.triggerService("ApiCheckVersion", true);

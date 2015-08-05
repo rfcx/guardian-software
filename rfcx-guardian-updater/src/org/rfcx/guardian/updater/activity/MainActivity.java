@@ -1,7 +1,7 @@
 package org.rfcx.guardian.updater.activity;
 
 import org.rfcx.guardian.updater.R;
-import org.rfcx.guardian.updater.RfcxGuardianUpdater;
+import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Activity;
@@ -20,7 +20,7 @@ public class MainActivity extends Activity {
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		RfcxGuardianUpdater app = (RfcxGuardianUpdater) getApplication();
+		RfcxGuardian app = (RfcxGuardian) getApplication();
 		switch (item.getItemId()) {
 		
 		case R.id.menu_prefs:
@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onPause() {
 		super.onPause();
-		((RfcxGuardianUpdater) getApplication()).appPause();
+		((RfcxGuardian) getApplication()).appPause();
 	}
 	
 }

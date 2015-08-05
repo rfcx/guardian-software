@@ -17,9 +17,9 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class RfcxGuardianCycle extends Application implements OnSharedPreferenceChangeListener {
+public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
-	private static final String TAG = "RfcxGuardianCycle-"+RfcxGuardianCycle.class.getSimpleName();
+	private static final String TAG = "Rfcx-Cycle-"+RfcxGuardian.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	public String version;
 	Context context;
@@ -29,17 +29,16 @@ public class RfcxGuardianCycle extends Application implements OnSharedPreference
 	private String deviceToken = null;
 	
 	public static final String thisAppRole = "cycle";
-	public String targetAppRole = "updater";
 	
-	private RfcxGuardianCyclePrefs rfcxGuardianCyclePrefs = new RfcxGuardianCyclePrefs();
-	public SharedPreferences sharedPrefs = rfcxGuardianCyclePrefs.createPrefs(this);
+	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
+	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		
-		rfcxGuardianCyclePrefs.initializePrefs();
-		rfcxGuardianCyclePrefs.checkAndSet(this);
+		rfcxGuardianPrefs.initializePrefs();
+		rfcxGuardianPrefs.checkAndSet(this);
 		
 		setAppVersion();
 		
@@ -53,7 +52,7 @@ public class RfcxGuardianCycle extends Application implements OnSharedPreference
 	}
 	
 	public void appResume() {
-		rfcxGuardianCyclePrefs.checkAndSet(this);
+		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
 	public void appPause() {
@@ -62,13 +61,13 @@ public class RfcxGuardianCycle extends Application implements OnSharedPreference
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
-		rfcxGuardianCyclePrefs.checkAndSet(this);
+		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
 	private void setAppVersion() {
 		try {
 			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
-			rfcxGuardianCyclePrefs.writeVersionToFile(this.version);
+			rfcxGuardianPrefs.writeVersionToFile(this.version);
 		} catch (NameNotFoundException e) {
 			Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
 		}
@@ -78,7 +77,7 @@ public class RfcxGuardianCycle extends Application implements OnSharedPreference
 		if (this.deviceId == null) {
 			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
 			if (this.verboseLog) { Log.d(TAG,"Device GUID: "+this.deviceId); }
-			rfcxGuardianCyclePrefs.writeGuidToFile(deviceId);
+			rfcxGuardianPrefs.writeGuidToFile(deviceId);
 		}
 		return this.deviceId;
 	}
@@ -86,7 +85,7 @@ public class RfcxGuardianCycle extends Application implements OnSharedPreference
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
 			this.deviceToken = (new DeviceToken(getApplicationContext(), this.sharedPrefs)).getDeviceToken();
-			rfcxGuardianCyclePrefs.writeTokenToFile(deviceToken);
+			rfcxGuardianPrefs.writeTokenToFile(deviceToken);
 		}
 		return this.deviceToken;
 	}

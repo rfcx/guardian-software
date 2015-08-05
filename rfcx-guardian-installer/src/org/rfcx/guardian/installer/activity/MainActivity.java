@@ -1,6 +1,6 @@
 package org.rfcx.guardian.installer.activity;
 
-import org.rfcx.guardian.installer.RfcxGuardianInstaller;
+import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.installer.R;
 import org.rfcx.guardian.utility.ShellCommands;
 
@@ -20,7 +20,7 @@ public class MainActivity extends Activity {
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		RfcxGuardianInstaller app = (RfcxGuardianInstaller) getApplication();
+		RfcxGuardian app = (RfcxGuardian) getApplication();
 		switch (item.getItemId()) {
 		
 		case R.id.menu_prefs:
@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onPause() {
 		super.onPause();
-		((RfcxGuardianInstaller) getApplication()).appPause();
+		((RfcxGuardian) getApplication()).appPause();
 	}
 	
 }

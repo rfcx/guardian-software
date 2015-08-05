@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.rfcx.guardian.updater.RfcxGuardianUpdater;
+import org.rfcx.guardian.updater.RfcxGuardian;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class ShellCommands {
 
-	private static final String TAG = "RfcxGuardianUpdater-"+ShellCommands.class.getSimpleName();
+	private static final String TAG = "Rfcx-Updater-"+ShellCommands.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public void killProcessByName(Context context, String searchTerm, String excludeTerm) {
@@ -25,7 +25,7 @@ public class ShellCommands {
 	}
 	
 	public boolean executeCommandAsRoot(String commandContents, String outputSearchString, Context context) {
-		RfcxGuardianUpdater app = (RfcxGuardianUpdater) context.getApplicationContext();
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 		FileUtils fileUtils = new FileUtils();
 	    String filePath = app.getApplicationContext().getFilesDir().toString()+"/txt/script.sh";
 	    File fileObj = new File(filePath);

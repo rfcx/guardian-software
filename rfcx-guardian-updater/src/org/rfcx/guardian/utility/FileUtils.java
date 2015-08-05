@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class FileUtils {
 	
-	private static final String TAG = "RfcxGuardianUpdater-"+FileUtils.class.getSimpleName();
+	private static final String TAG = "Rfcx-Updater-"+FileUtils.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	public String sha1Hash(String filePath) {

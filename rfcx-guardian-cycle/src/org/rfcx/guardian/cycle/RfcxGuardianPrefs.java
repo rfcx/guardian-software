@@ -14,14 +14,14 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class RfcxGuardianCyclePrefs {
+public class RfcxGuardianPrefs {
 
-	private static final String TAG = "RfcxGuardianCycle-"+RfcxGuardianCyclePrefs.class.getSimpleName();
+	private static final String TAG = "Rfcx-Cycle-"+RfcxGuardianPrefs.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	private RfcxGuardianCycle app = null;
+	private RfcxGuardian app = null;
 	
-	public SharedPreferences createPrefs(RfcxGuardianCycle rfcxApp) {
+	public SharedPreferences createPrefs(RfcxGuardian rfcxApp) {
 		app = rfcxApp;
 		SharedPreferences sharedPreferences = null;
 		return sharedPreferences;
@@ -43,7 +43,7 @@ public class RfcxGuardianCyclePrefs {
 		return editor.commit();
 	}
 	
-	public void checkAndSet(RfcxGuardianCycle rfcxApp) {
+	public void checkAndSet(RfcxGuardian rfcxApp) {
 		app = rfcxApp;
 		app.verboseLog = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLog);
 	}

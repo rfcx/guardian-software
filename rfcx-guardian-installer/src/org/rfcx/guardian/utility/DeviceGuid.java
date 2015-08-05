@@ -13,11 +13,11 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.UUID;
 
-import org.rfcx.guardian.installer.RfcxGuardianInstaller;
+import org.rfcx.guardian.installer.RfcxGuardian;
 
 public class DeviceGuid {
 	
-	private static final String TAG = "RfcxGuardianInstaller-"+DeviceGuid.class.getSimpleName();
+	private static final String TAG = "Rfcx-Installer-"+DeviceGuid.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	protected static final String PREFS_DEVICE_GUID = "device_guid";
     protected static String deviceGuid;
@@ -62,7 +62,7 @@ public class DeviceGuid {
     
     private static String getExistingGuidFromGuardianApp(Context context) {
     	try {
-    		RfcxGuardianInstaller app = (RfcxGuardianInstaller) context.getApplicationContext();
+    		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
     		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+app.thisAppRole).length()))+"."+app.targetAppRole+"/files/txt/guid.txt");
     		File guidFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+app.thisAppRole).length()))+"."+app.targetAppRole+"/files/txt","guid.txt");

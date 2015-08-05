@@ -2,7 +2,7 @@ package org.rfcx.guardian.updater.service;
 
 import java.io.File;
 
-import org.rfcx.guardian.updater.RfcxGuardianUpdater;
+import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.HttpGet;
 
@@ -15,12 +15,12 @@ import android.util.Log;
 
 public class DownloadFileService extends Service {
 
-	private static final String TAG = "RfcxGuardianUpdater-"+DownloadFileService.class.getSimpleName();
+	private static final String TAG = "Rfcx-Updater-"+DownloadFileService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private DownloadFile downloadFile;
 
-	private RfcxGuardianUpdater app = null;
+	private RfcxGuardian app = null;
 	private Context context = null;
 	
 	@Override
@@ -38,7 +38,7 @@ public class DownloadFileService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		
-		app = (RfcxGuardianUpdater) getApplication();
+		app = (RfcxGuardian) getApplication();
 		if (context == null) context = app.getApplicationContext();
 		
 		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);

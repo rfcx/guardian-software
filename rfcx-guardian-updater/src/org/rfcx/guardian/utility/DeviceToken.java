@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class DeviceToken {
 	
-	private static final String TAG = "RfcxGuardianUpdater-"+DeviceToken.class.getSimpleName();
+	private static final String TAG = "Rfcx-Updater-"+DeviceToken.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	protected static final String PREFS_DEVICE_TOKEN = "device_token";
     protected static String deviceToken;

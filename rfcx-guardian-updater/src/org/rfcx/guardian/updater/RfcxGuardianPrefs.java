@@ -1,10 +1,11 @@
-package org.rfcx.guardian.installer;
+package org.rfcx.guardian.updater;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.utility.FileUtils;
 
 import android.content.SharedPreferences;
@@ -13,14 +14,14 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class RfcxGuardianInstallerPrefs {
+public class RfcxGuardianPrefs {
 
-	private static final String TAG = "RfcxGuardianInstaller-"+RfcxGuardianInstallerPrefs.class.getSimpleName();
+	private static final String TAG = "Rfcx-Updater-"+RfcxGuardianPrefs.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
-	private RfcxGuardianInstaller app = null;
+	private RfcxGuardian app = null;
 	
-	public SharedPreferences createPrefs(RfcxGuardianInstaller rfcxApp) {
+	public SharedPreferences createPrefs(RfcxGuardian rfcxApp) {
 		app = rfcxApp;
 		SharedPreferences sharedPreferences = null;
 		return sharedPreferences;
@@ -42,7 +43,7 @@ public class RfcxGuardianInstallerPrefs {
 		return editor.commit();
 	}
 	
-	public void checkAndSet(RfcxGuardianInstaller rfcxApp) {
+	public void checkAndSet(RfcxGuardian rfcxApp) {
 		app = rfcxApp;
 		app.verboseLog = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLog);
 		app.apiCore.targetAppRoleApiEndpoint = app.targetAppRoleApiEndpoint;

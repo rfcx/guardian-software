@@ -4,14 +4,14 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.rfcx.guardian.updater.RfcxGuardianUpdater;
+import org.rfcx.guardian.updater.RfcxGuardian;
 
 import android.text.TextUtils;
 import android.util.Log;
 
 public class ApiCore {
 
-	private static final String TAG = "RfcxGuardianUpdater-"+ApiCore.class.getSimpleName();
+	private static final String TAG = "Rfcx-Updater-"+ApiCore.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	public long lastCheckInTime = Calendar.getInstance().getTimeInMillis();
@@ -33,7 +33,7 @@ public class ApiCore {
 	public String installVersionSha1 = null;
 	private int installVersionValue = 0;
 	
-	public boolean apiCheckVersionFollowUp(RfcxGuardianUpdater app, String targetRole, List<JSONObject> jsonList) {
+	public boolean apiCheckVersionFollowUp(RfcxGuardian app, String targetRole, List<JSONObject> jsonList) {
 		
 		this.lastCheckInTime = Calendar.getInstance().getTimeInMillis();
 		

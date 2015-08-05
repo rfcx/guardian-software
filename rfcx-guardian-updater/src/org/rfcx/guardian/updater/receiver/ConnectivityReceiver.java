@@ -2,7 +2,7 @@ package org.rfcx.guardian.updater.receiver;
 
 import java.util.Calendar;
 
-import org.rfcx.guardian.updater.RfcxGuardianUpdater;
+import org.rfcx.guardian.updater.RfcxGuardian;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,11 +11,11 @@ import android.net.ConnectivityManager;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "RfcxGuardianUpdater-"+ConnectivityReceiver.class.getSimpleName();
+	private static final String TAG = "Rfcx-Updater-"+ConnectivityReceiver.class.getSimpleName();
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-        RfcxGuardianUpdater app = (RfcxGuardianUpdater) context.getApplicationContext();
+        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 		app.isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 		if (app.isConnected) {
 			app.lastConnectedAt = Calendar.getInstance().getTimeInMillis();

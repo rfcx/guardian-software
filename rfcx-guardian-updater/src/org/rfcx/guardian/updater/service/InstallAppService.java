@@ -2,7 +2,7 @@ package org.rfcx.guardian.updater.service;
 
 import java.io.File;
 
-import org.rfcx.guardian.updater.RfcxGuardianUpdater;
+import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.ShellCommands;
 
@@ -15,12 +15,12 @@ import android.util.Log;
 
 public class InstallAppService extends Service {
 
-	private static final String TAG = "RfcxGuardianUpdater-"+InstallAppService.class.getSimpleName();
+	private static final String TAG = "Rfcx-Updater-"+InstallAppService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private InstallApp installApp;
 
-	private RfcxGuardianUpdater app = null;
+	private RfcxGuardian app = null;
 	private Context context = null;
 	
 	private int installLoopCounter = 0;
@@ -40,7 +40,7 @@ public class InstallAppService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		
-		app = (RfcxGuardianUpdater) getApplication();
+		app = (RfcxGuardian) getApplication();
 		if (context == null) context = app.getApplicationContext();
 		
 		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
@@ -106,7 +106,7 @@ public class InstallAppService extends Service {
 	}
 	
 	private boolean installApk(Context context, String apkFileName, boolean forceReInstallFlag) {
-		RfcxGuardianUpdater app = (RfcxGuardianUpdater) context.getApplicationContext();
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 		ShellCommands shellCommands = new ShellCommands();
 		File apkFile = new File(context.getFilesDir().getPath(), apkFileName);
 		String apkFilePath = apkFile.getAbsolutePath();

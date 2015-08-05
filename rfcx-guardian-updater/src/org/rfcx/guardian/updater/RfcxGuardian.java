@@ -1,4 +1,4 @@
-package org.rfcx.guardian.installer;
+package org.rfcx.guardian.updater;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,12 +6,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
 
-import org.rfcx.guardian.installer.api.ApiCore;
-import org.rfcx.guardian.installer.receiver.ConnectivityReceiver;
-import org.rfcx.guardian.installer.service.ApiCheckVersionService;
-import org.rfcx.guardian.installer.service.DownloadFileService;
-import org.rfcx.guardian.installer.service.InstallAppService;
-import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
+import org.rfcx.guardian.updater.api.ApiCore;
+import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
+import org.rfcx.guardian.updater.service.ApiCheckVersionService;
+import org.rfcx.guardian.updater.service.DownloadFileService;
+import org.rfcx.guardian.updater.service.InstallAppService;
+import org.rfcx.guardian.updater.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -30,9 +30,9 @@ import android.net.ConnectivityManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class RfcxGuardianInstaller extends Application implements OnSharedPreferenceChangeListener {
+public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
-	private static final String TAG = "RfcxGuardianInstaller-"+RfcxGuardianInstaller.class.getSimpleName();
+	private static final String TAG = "Rfcx-Updater-"+RfcxGuardian.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	public String version;
 	Context context;
@@ -45,12 +45,12 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 	private String deviceId = null;
 	private String deviceToken = null;
 	
-	public static final String thisAppRole = "installer";
-	public static final String targetAppRoleApiEndpoint = "updater";
-	public String targetAppRole = "updater";
+	public static final String thisAppRole = "updater";
+	public static final String targetAppRoleApiEndpoint = "all";
+	public String targetAppRole = "";
 	
-	private RfcxGuardianInstallerPrefs rfcxGuardianInstallerPrefs = new RfcxGuardianInstallerPrefs();
-	public SharedPreferences sharedPrefs = rfcxGuardianInstallerPrefs.createPrefs(this);
+	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
+	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
 		
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
@@ -66,8 +66,8 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 	public void onCreate() {
 		super.onCreate();
 		
-		rfcxGuardianInstallerPrefs.initializePrefs();
-		rfcxGuardianInstallerPrefs.checkAndSet(this);
+		rfcxGuardianPrefs.initializePrefs();
+		rfcxGuardianPrefs.checkAndSet(this);
 		
 		setAppVersion();
 		
@@ -87,7 +87,7 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 	}
 	
 	public void appResume() {
-		rfcxGuardianInstallerPrefs.checkAndSet(this);
+		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
 	public void appPause() {
@@ -96,13 +96,13 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
-		rfcxGuardianInstallerPrefs.checkAndSet(this);
+		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
 	private void setAppVersion() {
 		try {
 			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
-			rfcxGuardianInstallerPrefs.writeVersionToFile(this.version);
+			rfcxGuardianPrefs.writeVersionToFile(this.version);
 		} catch (NameNotFoundException e) {
 			Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
 		}
@@ -124,7 +124,7 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 		if (this.deviceId == null) {
 			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
 			if (this.verboseLog) { Log.d(TAG,"Device GUID: "+this.deviceId); }
-			rfcxGuardianInstallerPrefs.writeGuidToFile(deviceId);
+			rfcxGuardianPrefs.writeGuidToFile(deviceId);
 		}
 		return this.deviceId;
 	}
@@ -132,7 +132,7 @@ public class RfcxGuardianInstaller extends Application implements OnSharedPrefer
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
 			this.deviceToken = (new DeviceToken(getApplicationContext(), this.sharedPrefs)).getDeviceToken();
-			rfcxGuardianInstallerPrefs.writeTokenToFile(deviceToken);
+			rfcxGuardianPrefs.writeTokenToFile(deviceToken);
 		}
 		return this.deviceToken;
 	}
