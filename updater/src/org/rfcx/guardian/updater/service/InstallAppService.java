@@ -1,8 +1,8 @@
-package org.rfcx.guardian.installer.service;
+package org.rfcx.guardian.updater.service;
 
 import java.io.File;
 
-import org.rfcx.guardian.installer.RfcxGuardianInstaller;
+import org.rfcx.guardian.updater.RfcxGuardianUpdater;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.ShellCommands;
 
@@ -15,12 +15,12 @@ import android.util.Log;
 
 public class InstallAppService extends Service {
 
-	private static final String TAG = "RfcxGuardianInstaller-"+InstallAppService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardianUpdater-"+InstallAppService.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	private InstallApp installApp;
 
-	private RfcxGuardianInstaller app = null;
+	private RfcxGuardianUpdater app = null;
 	private Context context = null;
 	
 	private int installLoopCounter = 0;
@@ -40,7 +40,7 @@ public class InstallAppService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
 		
-		app = (RfcxGuardianInstaller) getApplication();
+		app = (RfcxGuardianUpdater) getApplication();
 		if (context == null) context = app.getApplicationContext();
 		
 		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
@@ -80,7 +80,7 @@ public class InstallAppService extends Service {
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 			} finally {
-				
+
 				String apkFilePath = context.getFilesDir().getAbsolutePath()+"/"+apkFileName;
 				File apkFile = (new File(apkFilePath));
 				String apkSha1Hash = (new FileUtils()).sha1Hash(apkFilePath);
@@ -106,7 +106,7 @@ public class InstallAppService extends Service {
 	}
 	
 	private boolean installApk(Context context, String apkFileName, boolean forceReInstallFlag) {
-		RfcxGuardianInstaller app = (RfcxGuardianInstaller) context.getApplicationContext();
+		RfcxGuardianUpdater app = (RfcxGuardianUpdater) context.getApplicationContext();
 		ShellCommands shellCommands = new ShellCommands();
 		File apkFile = new File(context.getFilesDir().getPath(), apkFileName);
 		String apkFilePath = apkFile.getAbsolutePath();

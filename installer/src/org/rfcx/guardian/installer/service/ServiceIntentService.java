@@ -6,16 +6,16 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-public class InstallerIntentService extends IntentService {
+public class ServiceIntentService extends IntentService {
 
-	private static final String TAG = "RfcxGuardianInstaller-"+InstallerIntentService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardianInstaller-"+ServiceIntentService.class.getSimpleName();
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.installer.INSTALLER_SERVICE";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.installer.RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
 
 	private final long toggleAirplaneModeIfDisconnectedForLongerThan = 15;
 	
-	public InstallerIntentService() {
+	public ServiceIntentService() {
 		super(TAG);
 	}
 
