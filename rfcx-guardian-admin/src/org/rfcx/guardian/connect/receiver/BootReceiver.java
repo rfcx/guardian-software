@@ -1,6 +1,6 @@
-package org.rfcx.guardian.admin.receiver;
+package org.rfcx.guardian.connect.receiver;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.connect.RfcxGuardian;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

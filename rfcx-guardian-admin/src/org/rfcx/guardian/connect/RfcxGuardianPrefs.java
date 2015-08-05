@@ -1,11 +1,11 @@
-package org.rfcx.guardian.admin;
+package org.rfcx.guardian.connect;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import org.rfcx.guardian.admin.R;
+import org.rfcx.guardian.connect.R;
 import org.rfcx.guardian.utility.FileUtils;
 
 import android.content.SharedPreferences;
@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class RfcxGuardianPrefs {
 
-	private static final String TAG = "Rfcx-Admin-"+RfcxGuardianPrefs.class.getSimpleName();
+	private static final String TAG = "Rfcx-Connect-"+RfcxGuardianPrefs.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	private RfcxGuardian app = null;

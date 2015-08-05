@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin;
+package org.rfcx.guardian.connect;
 
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.DeviceGuid;
@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
-	private static final String TAG = "Rfcx-Admin-"+RfcxGuardian.class.getSimpleName();
+	private static final String TAG = "Rfcx-Connect-"+RfcxGuardian.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	public String version;
 	Context context;
@@ -27,7 +27,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private String deviceId = null;
 	private String deviceToken = null;
 	
-	public static final String thisAppRole = "admin";
+	public static final String thisAppRole = "connect";
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);

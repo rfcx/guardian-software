@@ -1,6 +1,6 @@
-package org.rfcx.guardian.admin.receiver;
+package org.rfcx.guardian.connect.receiver;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.connect.RfcxGuardian;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -9,7 +9,7 @@ import android.content.Intent;
 
 public class BluetoothStateReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "Rfcx-Admin-"+BluetoothStateReceiver.class.getSimpleName();
+	private static final String TAG = "Rfcx-Connect-"+BluetoothStateReceiver.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 	private BluetoothAdapter bluetoothAdapter = null;

@@ -1,7 +1,7 @@
-package org.rfcx.guardian.admin.activity;
+package org.rfcx.guardian.connect.activity;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.R;
+import org.rfcx.guardian.connect.R;
+import org.rfcx.guardian.connect.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Activity;

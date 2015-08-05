@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.connect.RfcxGuardian;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class ShellCommands {
 
-	private static final String TAG = "Rfcx-Cycle-"+ShellCommands.class.getSimpleName();
+	private static final String TAG = "Rfcx-Connect-"+ShellCommands.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public void killProcessByName(Context context, String searchTerm, String excludeTerm) {

@@ -1,6 +1,6 @@
-package org.rfcx.guardian.admin.activity;
+package org.rfcx.guardian.connect.activity;
 
-import org.rfcx.guardian.admin.R;
+import org.rfcx.guardian.connect.R;
 
 import android.preference.PreferenceActivity;
 import android.os.Bundle;
