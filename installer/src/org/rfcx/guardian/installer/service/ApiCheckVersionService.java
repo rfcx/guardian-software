@@ -86,7 +86,15 @@ public class ApiCheckVersionService extends Service {
 								Log.d(TAG, json.toString());
 							}
 						}
-						app.apiCore.apiCheckVersionFollowUp(app,app.targetAppRole,jsonResponse);
+						for (JSONObject jsonResponseItem : jsonResponse) {
+							String appRole = jsonResponseItem.getString("role").toLowerCase();
+							if (!appRole.equals(app.thisAppRole)) {
+								app.targetAppRole = appRole;
+								if (app.apiCore.apiCheckVersionFollowUp(app,appRole,jsonResponse)) {
+									break;
+								}
+							}
+						}
 					} else {
 						Log.d(TAG, "Cancelled because apiCheckVersionEndpoint is null...");
 					}

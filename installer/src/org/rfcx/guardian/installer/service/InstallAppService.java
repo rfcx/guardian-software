@@ -117,11 +117,11 @@ public class InstallAppService extends Service {
 			boolean isInstalled = shellCommands.executeCommandAsRoot(
 					"pm install"+reInstallFlag+" "+apkFilePath,
 					"Success",context);
-			apkFile.delete();
+			if (apkFile.exists()) { apkFile.delete(); }
 			return isInstalled;
 		} catch (Exception e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-			apkFile.delete();
+			if (apkFile.exists()) { apkFile.delete(); }
 		} finally {
 		}
 		return false;

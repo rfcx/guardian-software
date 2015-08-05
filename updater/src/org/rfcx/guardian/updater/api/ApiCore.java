@@ -33,7 +33,7 @@ public class ApiCore {
 	public String installVersionSha1 = null;
 	private int installVersionValue = 0;
 	
-	public void apiCheckVersionFollowUp(RfcxGuardianUpdater app, String targetRole, List<JSONObject> jsonList) {
+	public boolean apiCheckVersionFollowUp(RfcxGuardianUpdater app, String targetRole, List<JSONObject> jsonList) {
 		
 		this.lastCheckInTime = Calendar.getInstance().getTimeInMillis();
 		
@@ -62,15 +62,16 @@ public class ApiCore {
 				this.installVersionValue = this.latestVersionValue;
 				Log.d(TAG, "Latest version detected and download triggered: "+this.installVersion+" ("+this.installVersionValue+")");	
 				app.triggerService("DownloadFile", true);
-				
+				return true;
 			} else if (!currentGuardianVersion.equals(this.latestVersion) && (currentGuardianVersionValue > this.latestVersionValue)) { 
-				Log.d(TAG,"Guardian App is newer than API version: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
+				Log.d(TAG,"org.rfcx.guardian."+this.latestRole+" is newer than the api version: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
 			} else {
-				Log.d(TAG,"Guardian App is already up-to-date: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
+				Log.d(TAG,"org.rfcx.guardian."+this.latestRole+" is already up-to-date: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
 			}
 		} catch (Exception e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
 		}
+		return false;
 	}
 	
 	public void setApiCheckVersionEndpoint(String guardianId) {
