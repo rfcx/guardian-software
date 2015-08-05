@@ -24,6 +24,8 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
+		String thisAppPath = app.getApplicationContext().getFilesDir().getAbsolutePath();
+		
 		switch (item.getItemId()) {
 		
 		case R.id.menu_prefs:
@@ -31,7 +33,6 @@ public class MainActivity extends Activity {
 			break;
 			
 		case R.id.menu_cputuner_install:
-			String thisAppPath = app.getApplicationContext().getFilesDir().getAbsolutePath();
 			String cpuTunerPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner";
 			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner")).isDirectory()) {
 				Log.d("Rfcx-Installer","CPUTuner will now be downloaded and installed...");
@@ -40,6 +41,18 @@ public class MainActivity extends Activity {
 				app.triggerService("ApiCheckVersion",true);
 			} else {
 				Log.d("Rfcx-Installer","CPUTuner is already installed...");
+			}
+			break;
+			
+		case R.id.menu_spectrogram_install:
+			String spectrogramPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/radonsoft.net.spectralviewpro";
+			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/radonsoft.net.spectralviewpro")).isDirectory()) {
+				Log.d("Rfcx-Installer","SpectralViewPro will now be downloaded and installed...");
+				app.apiCore.targetAppRoleApiEndpoint = "spectrogram";
+				app.apiCore.setApiCheckVersionEndpoint(app.getDeviceId());
+				app.triggerService("ApiCheckVersion",true);
+			} else {
+				Log.d("Rfcx-Installer","SpectralViewPro is already installed...");
 			}
 			break;
 			
