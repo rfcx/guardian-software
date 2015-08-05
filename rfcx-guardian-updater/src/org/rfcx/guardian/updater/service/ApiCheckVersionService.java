@@ -1,5 +1,6 @@
 package org.rfcx.guardian.updater.service;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -69,7 +70,14 @@ public class ApiCheckVersionService extends Service {
 		@Override
 		public void run() {
 			ApiCheckVersionService apiCheckVersionService = ApiCheckVersionService.this;
+
 			HttpGet httpGet = new HttpGet();
+			// setting customized rfcx authentication headers (necessary for API access)
+			List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
+			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.getDeviceId() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.getDeviceToken() });
+			httpGet.setCustomHttpHeaders(rfcxAuthHeaders);
+
 			try {
 				if (app.isConnected) {
 					if (app.apiCore.apiCheckVersionEndpoint != null) {
