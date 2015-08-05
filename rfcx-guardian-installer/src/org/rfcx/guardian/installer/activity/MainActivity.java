@@ -1,5 +1,7 @@
 package org.rfcx.guardian.installer.activity;
 
+import java.io.File;
+
 import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.installer.R;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -7,6 +9,7 @@ import org.rfcx.guardian.utility.ShellCommands;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -26,7 +29,20 @@ public class MainActivity extends Activity {
 		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
-		
+			
+		case R.id.menu_cputuner_install:
+			String thisAppPath = app.getApplicationContext().getFilesDir().getAbsolutePath();
+			String cpuTunerPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner";
+			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner")).isDirectory()) {
+				Log.d("Rfcx-Installer","CPUTuner will now be downloaded and installed...");
+				app.apiCore.targetAppRoleApiEndpoint = "cputuner";
+				app.apiCore.setApiCheckVersionEndpoint(app.getDeviceId());
+				app.triggerService("ApiCheckVersion",true);
+			} else {
+				Log.d("Rfcx-Installer","CPUTuner is already installed...");
+			}
+			break;
+			
 		case R.id.menu_check_version:
 			app.triggerService("ApiCheckVersion",true);
 			break;

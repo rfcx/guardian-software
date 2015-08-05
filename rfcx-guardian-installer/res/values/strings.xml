@@ -4,6 +4,7 @@
     <string name="app_name">rfcx installer</string>
 
     <string name="menu_prefs">prefs</string>
+	<string name="menu_cputuner_install">install cputuner</string>
 	<string name="menu_check_version">api check</string>
 	<string name="menu_root_command">root command</string>
 	
