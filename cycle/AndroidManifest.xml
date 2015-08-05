@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.rfcx.guardian.updater"
+    package="org.rfcx.guardian.cycle"
     android:versionCode="1"
-    android:versionName="0.3.2" >
+    android:versionName="0.1.0" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -27,21 +27,17 @@
         android:icon="@drawable/icon_guardian"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:name="org.rfcx.guardian.updater.RfcxGuardianUpdater"
+        android:name="org.rfcx.guardian.cycle.RfcxGuardianCycle"
         >
 
-        <service android:name="org.rfcx.guardian.updater.service.ApiCheckVersionIntentService" />
-        <service android:name="org.rfcx.guardian.updater.service.RebootIntentService" />
-        <service android:name="org.rfcx.guardian.updater.service.DownloadFileService" />
-        <service android:name="org.rfcx.guardian.updater.service.ApiCheckVersionService" />
-        <service android:name="org.rfcx.guardian.updater.service.InstallAppService" />
+        <service android:name="org.rfcx.guardian.cycle.service.RebootIntentService" />
 
         <activity
-            android:name="org.rfcx.guardian.updater.activity.PrefsActivity"
+            android:name="org.rfcx.guardian.cycle.activity.PrefsActivity"
             android:label="@string/menu_prefs" />
 
         <activity
-            android:name="org.rfcx.guardian.updater.activity.MainActivity"
+            android:name="org.rfcx.guardian.cycle.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,7 +45,7 @@
             </intent-filter>
         </activity>
 
-         <receiver android:name="org.rfcx.guardian.updater.receiver.BootReceiver">
+         <receiver android:name="org.rfcx.guardian.cycle.receiver.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>

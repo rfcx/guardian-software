@@ -1,21 +1,21 @@
-package org.rfcx.guardian.installer.service;
+package org.rfcx.guardian.updater.service;
 
-import org.rfcx.guardian.installer.RfcxGuardianInstaller;
+import org.rfcx.guardian.updater.RfcxGuardianUpdater;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-public class ServiceIntentService extends IntentService {
+public class ApiCheckVersionIntentService extends IntentService {
 
-	private static final String TAG = "RfcxGuardianInstaller-"+ServiceIntentService.class.getSimpleName();
+	private static final String TAG = "RfcxGuardianUpdater-"+ApiCheckVersionIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian.installer.INSTALLER_SERVICE";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.installer.RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian.updater.INSTALLER_SERVICE";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.updater.RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
 
 	private final long toggleAirplaneModeIfDisconnectedForLongerThan = 15;
 	
-	public ServiceIntentService() {
+	public ApiCheckVersionIntentService() {
 		super(TAG);
 	}
 
@@ -24,7 +24,7 @@ public class ServiceIntentService extends IntentService {
 		Intent intent = new Intent(INTENT_TAG);
 		sendBroadcast(intent, NOTIFICATION_TAG);
 		
-		RfcxGuardianInstaller app = (RfcxGuardianInstaller) getApplication();
+		RfcxGuardianUpdater app = (RfcxGuardianUpdater) getApplication();
 		
 		if (app.isConnected) {
 			app.triggerService("ApiCheckVersion", true);

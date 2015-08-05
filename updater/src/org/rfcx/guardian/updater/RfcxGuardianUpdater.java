@@ -11,7 +11,7 @@ import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.updater.service.ApiCheckVersionService;
 import org.rfcx.guardian.updater.service.DownloadFileService;
 import org.rfcx.guardian.updater.service.InstallAppService;
-import org.rfcx.guardian.updater.service.ServiceIntentService;
+import org.rfcx.guardian.updater.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -141,7 +141,7 @@ public class RfcxGuardianUpdater extends Application implements OnSharedPreferen
 		try {
 
 			long apiCheckVersionInterval = ((getPref("apicheckversion_interval")!=null) ? Integer.parseInt(getPref("apicheckversion_interval")) : 180)*60*1000;
-			PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ServiceIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+			PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ApiCheckVersionIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 			AlarmManager updaterAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
 			updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiCheckVersionInterval, updaterIntentService);
 			if (verboseLog) { Log.d(TAG, "ApiCheckVersion will run every "+getPref("apicheckversion_interval")+" minute(s)..."); }

@@ -30,7 +30,7 @@
         android:name="org.rfcx.guardian.installer.RfcxGuardianInstaller"
         >
 
-        <service android:name="org.rfcx.guardian.installer.service.ServiceIntentService" />
+        <service android:name="org.rfcx.guardian.installer.service.ApiCheckVersionIntentService" />
         <service android:name="org.rfcx.guardian.installer.service.RebootIntentService" />
         <service android:name="org.rfcx.guardian.installer.service.DownloadFileService" />
         <service android:name="org.rfcx.guardian.installer.service.ApiCheckVersionService" />
