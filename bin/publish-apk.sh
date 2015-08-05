@@ -15,4 +15,5 @@ echo "";
 echo "INSERT INTO GuardianSoftware SET role='$ROLE', number='$APK_VERSION', sha1_checksum='$SHA1', url='http://static.rfcx.org/dl/guardian-android-$ROLE/$ROLE-$APK_VERSION.apk', is_available=1, release_date=NOW(), created_at=NOW(), updated_at=NOW();";
 echo "";
 
+rm -rf $SCRIPT_DIR/../tmp;
 cd $SCRIPT_DIR/../;
