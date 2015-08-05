@@ -5,7 +5,7 @@ cd $SCRIPT_DIR/../;
 
 if [ ! -d tmp ]; then
   echo "creating tmp directory";
-  mkdir scripts/tmp;
+  mkdir tmp;
 fi
 
 #cd ~/Downloads/;

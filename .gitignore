@@ -24,3 +24,4 @@ local.properties
 
 # Repo-specific items to ignore
 !/bin/
+/tmp/
