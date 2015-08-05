@@ -4,7 +4,7 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 cd $SCRIPT_DIR/../;
 
 if [ ! -d tmp ]; then
-  echo "creating tmp directories";
+  echo "creating tmp directory";
   mkdir scripts/tmp;
 fi
 
