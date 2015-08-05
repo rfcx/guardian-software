@@ -20,7 +20,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 		if (app.isConnected) {
 			app.lastConnectedAt = Calendar.getInstance().getTimeInMillis();
 			// added to ensure that multiple checkins don't occur at each connectivity reception
-			if (app.lastApiCheckTriggeredAt < (app.lastConnectedAt-500)) {
+			if (app.lastApiCheckTriggeredAt < (app.lastConnectedAt-2000)) {
 				if (app.apiCore.allowTriggerCheckIn()) {
 					app.triggerService("ApiCheckVersion",true);
 				}
