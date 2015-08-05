@@ -1,4 +1,6 @@
-rfcx-src-android
+rfcx-guardian-android
 ================
 
-Android service for autonomous RfCx data sources
+A collection of inter-dependent Android applications which, together, operate as autonomous Rainforest Connection guardians.
+
+More background info coming soon...
