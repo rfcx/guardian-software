@@ -21,3 +21,6 @@ local.properties
 # Eclipse project files
 .classpath
 .project
+
+# Repo-specific items to ignore
+scripts/tmp
