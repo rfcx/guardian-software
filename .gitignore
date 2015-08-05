@@ -23,4 +23,4 @@ local.properties
 .project
 
 # Repo-specific items to ignore
-scripts/tmp
+!/bin/
