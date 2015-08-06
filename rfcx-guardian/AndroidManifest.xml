@@ -37,11 +37,11 @@
         
         <!-- Services -->
         <service android:name="org.rfcx.guardian.service.DeviceStateService" />
+        <service android:name="org.rfcx.guardian.service.DeviceCPUTunerService" />
         <service android:name="org.rfcx.guardian.service.AudioCaptureService" />
         <service android:name="org.rfcx.guardian.service.ApiCheckInService" />
         <service android:name="org.rfcx.guardian.service.ApiCheckInTrigger" />
         <service android:name="org.rfcx.guardian.service.CarrierCodeService" />
-        <service android:name="org.rfcx.guardian.service.DeviceCPUTunerService" />
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.intentservice.AudioEncode" />
         <service android:name="org.rfcx.guardian.intentservice.ServiceMonitor" />

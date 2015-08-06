@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.system"
     android:versionCode="1"
-    android:versionName="0.1.0" >
+    android:versionName="0.1.1" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -30,6 +30,12 @@
         android:name="org.rfcx.guardian.system.RfcxGuardian"
         >
 
+        <!-- Services -->
+        <service android:name="org.rfcx.guardian.service.DeviceStateService" />
+        <service android:name="org.rfcx.guardian.service.DeviceCPUTunerService" />
+        <!-- IntentServices -->
+        <service android:name="org.rfcx.guardian.intentservice.ServiceMonitor" />
+        
         <activity
             android:name="org.rfcx.guardian.system.activity.PrefsActivity"
             android:label="@string/menu_prefs" />
