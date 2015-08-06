@@ -34,7 +34,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private String deviceId = null;
 	private String deviceToken = null;
 	
-	public static final String thisAppRole = "connect";
+	public static final String thisAppRole = "system";
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
@@ -181,20 +181,17 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void triggerService(String serviceName, boolean forceReTrigger) {
 		context = getApplicationContext();
-		boolean serviceAllowedInPrefs = this.sharedPrefs.getBoolean("enable_service_"+serviceName.toLowerCase(), true);
 		if (forceReTrigger) Log.w(TAG,"Forcing [re]trigger of service "+serviceName);
 		if (serviceName.equals("DeviceState")) {
 			if (!this.isRunning_DeviceState || forceReTrigger) {
 				context.stopService(new Intent(context, DeviceStateService.class));
-				if (serviceAllowedInPrefs) context.startService(new Intent(context, DeviceStateService.class));
+				context.startService(new Intent(context, DeviceStateService.class));
 			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-			if (!serviceAllowedInPrefs) Log.w(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else if (serviceName.equals("CPUTuner")) {
 			if (!this.isRunning_CPUTuner || forceReTrigger) {
 				context.stopService(new Intent(context, DeviceCPUTunerService.class));
-				if (serviceAllowedInPrefs) context.startService(new Intent(context, DeviceCPUTunerService.class));
+				context.startService(new Intent(context, DeviceCPUTunerService.class));
 			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-			if (!serviceAllowedInPrefs) Log.w(TAG, "Service '"+serviceName+"' is disabled in preferences, and cannot be triggered.");
 		} else {
 			Log.w(TAG, "There is no service named '"+serviceName+"'.");
 		}

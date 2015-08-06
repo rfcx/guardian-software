@@ -21,5 +21,13 @@
 	    android:summary="Unique Token of Guardian"
         android:enabled="true"
 		android:defaultValue=""/>
+	
+	<EditTextPreference
+        android:key="service_monitor_interval"
+        android:title="Service Monitor Interval"
+        android:summary="How often to check if services are running? (minutes)"
+	    android:inputType="number"
+        android:enabled="true"
+        android:defaultValue="5"/>
     
 </PreferenceScreen>
