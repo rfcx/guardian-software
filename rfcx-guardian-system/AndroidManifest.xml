@@ -31,10 +31,11 @@
         >
 
         <!-- Services -->
-        <service android:name="org.rfcx.guardian.service.DeviceStateService" />
-        <service android:name="org.rfcx.guardian.service.DeviceCPUTunerService" />
+        <service android:name="org.rfcx.guardian.system.service.DeviceStateService" />
+        <service android:name="org.rfcx.guardian.system.service.DeviceCPUTunerService" />
+        
         <!-- IntentServices -->
-        <service android:name="org.rfcx.guardian.intentservice.ServiceMonitor" />
+        <service android:name="org.rfcx.guardian.system.service.ServiceMonitor" />
         
         <activity
             android:name="org.rfcx.guardian.system.activity.PrefsActivity"

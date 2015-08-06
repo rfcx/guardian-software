@@ -68,7 +68,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		(new ShellCommands()).executeCommandAsRoot("pm list features",null,getApplicationContext());
 		
-		initializeRoleIntentServices(getApplicationContext());
+		onLaunchServiceTrigger();
 	}
 	
 	public void onTerminate() {
@@ -126,15 +126,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.deviceToken;
 	}
 	
-	public void initializeRoleIntentServices(Context context) {
-		try {
-			
-			
-		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
-		}
-	}
-	
 	public String getPref(String prefName) {
 		return this.sharedPrefs.getString(prefName, null);
 	}
@@ -146,13 +137,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void onLaunchServiceTrigger() {
 		if (!hasRun_OnBootServiceTrigger) {
 			
-			triggerService("CPUTuner", true);
-			
-			// Service Monitor
-			triggerIntentService("ServiceMonitor", 
-					System.currentTimeMillis(),
-					60*((int) Integer.parseInt(getPref("service_monitor_interval")))
-					);
+//			triggerService("CPUTuner", true);
+//			
+//			// Service Monitor
+//			triggerIntentService("ServiceMonitor", 
+//					System.currentTimeMillis(),
+//					60*((int) Integer.parseInt(getPref("service_monitor_interval")))
+//					);
 			
 			triggerService("DeviceState", true);
 			
