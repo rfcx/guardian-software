@@ -4,6 +4,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.json.JSONObject;
+import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
 
 import android.text.TextUtils;
@@ -11,8 +12,7 @@ import android.util.Log;
 
 public class ApiCore {
 
-	private static final String TAG = "Rfcx-Updater-"+ApiCore.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+ApiCore.class.getSimpleName();
 
 	public long lastCheckInTime = Calendar.getInstance().getTimeInMillis();
 
@@ -69,7 +69,7 @@ public class ApiCore {
 				Log.d(TAG,"org.rfcx.guardian."+this.latestRole+" is already up-to-date: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
 			}
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 		return false;
 	}
@@ -85,7 +85,7 @@ public class ApiCore {
 			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
 			return 1000*majorVersion+100*subVersion+updateVersion;
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 		return 0;
 	}

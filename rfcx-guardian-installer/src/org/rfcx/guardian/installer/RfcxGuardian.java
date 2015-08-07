@@ -32,8 +32,7 @@ import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
-	private static final String TAG = "Rfcx-Installer-"+RfcxGuardian.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+RfcxGuardian.class.getSimpleName();
 	public String version;
 	Context context;
 	public boolean verboseLog = true;
@@ -73,7 +72,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		Log.d(TAG, "org.rfcx.guardian."+this.targetAppRole+" version: "+getCurrentGuardianTargetRoleVersion());
 
-		(new ShellCommands()).executeCommandAsRoot("pm list features",null,getApplicationContext());
+		(new ShellCommands()).executeCommand("pm list features",null,true,getApplicationContext());
 		
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
@@ -104,7 +103,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
 			rfcxGuardianPrefs.writeVersionToFile(this.version);
 		} catch (NameNotFoundException e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
+			Log.e(TAG,(e!=null) ? e.getMessage() : ""+R.string.null_exc);
 		}
 	}
 	
@@ -115,7 +114,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
 			return 1000*majorVersion+100*subVersion+updateVersion;
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 		return 0;
 	}
@@ -147,7 +146,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			if (verboseLog) { Log.d(TAG, "ApiCheckVersion will run every "+getPref("apicheckversion_interval")+" minute(s)..."); }
 						
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 	}
 	
@@ -222,9 +221,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     			Log.e(TAG, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+this.targetAppRole+"...");
     		}
     	} catch (FileNotFoundException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
     	} catch (IOException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
     	return null;
 	}

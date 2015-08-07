@@ -1,5 +1,6 @@
 package org.rfcx.guardian.installer.service;
 
+import org.rfcx.guardian.installer.R;
 import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
 
@@ -10,7 +11,7 @@ import android.util.Log;
 
 public class RebootIntentService extends IntentService {
 
-	private static final String TAG = "Rfcx-Installer-"+RebootIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+RebootIntentService.class.getSimpleName();
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.installer.REBOOT";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.installer.RECEIVE_REBOOT_NOTIFICATIONS";
@@ -26,7 +27,7 @@ public class RebootIntentService extends IntentService {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
 		if (app.verboseLog) Log.d(TAG, "Running RebootIntentService");
-		(new ShellCommands()).executeCommandAsRoot("reboot",null,context);
+		(new ShellCommands()).executeCommand("reboot",null,false,context);
 	}
 
 }

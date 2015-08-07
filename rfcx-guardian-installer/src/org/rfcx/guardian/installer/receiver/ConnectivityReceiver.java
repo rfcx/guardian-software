@@ -2,6 +2,7 @@ package org.rfcx.guardian.installer.receiver;
 
 import java.util.Calendar;
 
+import org.rfcx.guardian.installer.R;
 import org.rfcx.guardian.installer.RfcxGuardian;
 
 import android.content.BroadcastReceiver;
@@ -11,7 +12,7 @@ import android.net.ConnectivityManager;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "Rfcx-Installer-"+ConnectivityReceiver.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+ConnectivityReceiver.class.getSimpleName();
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {

@@ -1,5 +1,6 @@
 package org.rfcx.guardian.updater.service;
 
+import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
 
 import android.app.IntentService;
@@ -8,7 +9,7 @@ import android.util.Log;
 
 public class ApiCheckVersionIntentService extends IntentService {
 
-	private static final String TAG = "Rfcx-Updater-"+ApiCheckVersionIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+ApiCheckVersionIntentService.class.getSimpleName();
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.updater.INSTALLER_SERVICE";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.updater.RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";

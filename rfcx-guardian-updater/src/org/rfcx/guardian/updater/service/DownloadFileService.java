@@ -2,6 +2,7 @@ package org.rfcx.guardian.updater.service;
 
 import java.io.File;
 
+import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.HttpGet;
@@ -15,8 +16,7 @@ import android.util.Log;
 
 public class DownloadFileService extends Service {
 
-	private static final String TAG = "Rfcx-Updater-"+DownloadFileService.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+DownloadFileService.class.getSimpleName();
 
 	private DownloadFile downloadFile;
 
@@ -47,7 +47,7 @@ public class DownloadFileService extends Service {
 		try {
 			this.downloadFile.start();
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 		return START_STICKY;
 	}
@@ -94,7 +94,7 @@ public class DownloadFileService extends Service {
 					Log.e(TAG, "Download failed");
 				}
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 			} finally {
 				app.isRunning_DownloadFile = false;
 				app.stopService("DownloadFile");

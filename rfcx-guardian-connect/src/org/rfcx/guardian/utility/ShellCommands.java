@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.rfcx.guardian.connect.RfcxGuardian;
+import org.rfcx.guardian.connect.R;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -15,8 +16,7 @@ import android.util.Log;
 
 public class ShellCommands {
 
-	private static final String TAG = "Rfcx-Connect-"+ShellCommands.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+ShellCommands.class.getSimpleName();
 	
 	public void killProcessByName(Context context, String searchTerm, String excludeTerm) {
 		Log.i(TAG, "Attempting to kill process associated with search term '"+searchTerm+"'.");
@@ -60,9 +60,9 @@ public class ShellCommands {
 		    	Log.e(TAG,"Shell script could not be located for execution");
 		    }
 	    } catch (IOException e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 	    } catch (InterruptedException e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 	    return commandSuccess;
 	}

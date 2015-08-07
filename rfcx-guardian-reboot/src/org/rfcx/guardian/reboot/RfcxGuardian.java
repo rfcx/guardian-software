@@ -19,7 +19,7 @@ import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
-	private static final String TAG = "Rfcx-Reboot-"+RfcxGuardian.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+RfcxGuardian.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	public String version;
 	Context context;

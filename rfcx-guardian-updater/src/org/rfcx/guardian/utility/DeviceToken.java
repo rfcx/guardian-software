@@ -3,6 +3,8 @@ package org.rfcx.guardian.utility;
 import java.security.MessageDigest;
 import java.util.UUID;
 
+import org.rfcx.guardian.updater.R;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.telephony.TelephonyManager;
@@ -11,8 +13,7 @@ import android.util.Log;
 
 public class DeviceToken {
 	
-	private static final String TAG = "Rfcx-Updater-"+DeviceToken.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+DeviceToken.class.getSimpleName();
 	protected static final String PREFS_DEVICE_TOKEN = "device_token";
     protected static String deviceToken;
 
@@ -35,7 +36,7 @@ public class DeviceToken {
                 		    }
                 		    deviceToken = telephonyIdDigestStringBuilder.toString();
                 		} catch (Exception e) {
-                			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+                			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
                 			deviceToken = ((UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()).replaceAll("-","").substring(0,40);
                 		}
                 		Log.d(TAG,deviceToken);

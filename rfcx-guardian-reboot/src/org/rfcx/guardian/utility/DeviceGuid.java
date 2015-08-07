@@ -13,11 +13,12 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.UUID;
 
+import org.rfcx.guardian.reboot.R;
 import org.rfcx.guardian.reboot.RfcxGuardian;
 
 public class DeviceGuid {
 	
-	private static final String TAG = "Rfcx-Reboot-"+DeviceGuid.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+DeviceGuid.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	protected static final String PREFS_DEVICE_GUID = "device_guid";
     protected static String deviceGuid;

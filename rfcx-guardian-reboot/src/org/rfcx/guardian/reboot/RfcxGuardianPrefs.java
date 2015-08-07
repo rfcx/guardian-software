@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class RfcxGuardianPrefs {
 
-	private static final String TAG = "Rfcx-Reboot-"+RfcxGuardianPrefs.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+RfcxGuardianPrefs.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	private RfcxGuardian app = null;

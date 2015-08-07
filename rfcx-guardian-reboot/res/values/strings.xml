@@ -2,8 +2,11 @@
 <resources>
 
     <string name="app_name">rfcx reboot</string>
-
+    <string name="log_name">Reboot</string>	
+    
     <string name="menu_prefs">prefs</string>
 	<string name="menu_reboot">reboot</string>
+	
+    <string name="null_exc">Exception thrown, but exception itself is null.</string>
 	
 </resources>

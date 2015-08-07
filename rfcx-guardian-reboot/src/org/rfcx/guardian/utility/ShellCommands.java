@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.rfcx.guardian.reboot.R;
 import org.rfcx.guardian.reboot.RfcxGuardian;
 
 import android.content.Context;
@@ -15,7 +16,7 @@ import android.util.Log;
 
 public class ShellCommands {
 
-	private static final String TAG = "Rfcx-Reboot-"+ShellCommands.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+ShellCommands.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public void killProcessByName(Context context, String searchTerm, String excludeTerm) {

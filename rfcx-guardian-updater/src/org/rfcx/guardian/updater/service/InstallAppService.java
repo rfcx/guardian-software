@@ -2,6 +2,7 @@ package org.rfcx.guardian.updater.service;
 
 import java.io.File;
 
+import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -15,9 +16,8 @@ import android.util.Log;
 
 public class InstallAppService extends Service {
 
-	private static final String TAG = "Rfcx-Updater-"+InstallAppService.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
-
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+InstallAppService.class.getSimpleName();
+	
 	private InstallApp installApp;
 
 	private RfcxGuardian app = null;
@@ -49,7 +49,7 @@ public class InstallAppService extends Service {
 		try {
 			this.installApp.start();
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 		return START_STICKY;
 	}
@@ -78,7 +78,7 @@ public class InstallAppService extends Service {
 				shellCommands.killProcessByName(context,"org.rfcx.guardian."+app.targetAppRole,"."+app.thisAppRole);
 				successfullyInstalled = installApk(context,apkFileName,false);
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 			} finally {
 
 				String apkFilePath = context.getFilesDir().getAbsolutePath()+"/"+apkFileName;
@@ -89,7 +89,7 @@ public class InstallAppService extends Service {
 					Log.d(TAG, "Installation successful ("+app.apiCore.installVersion+"). Deleting APK and rebooting...");
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
-					shellCommands.executeCommandAsRoot("reboot",null,context);
+					shellCommands.executeCommand("reboot",null,false,context);
 				} else if ((installLoopCounter < 1) && apkSha1Hash.equals(app.apiCore.installVersionSha1)) {
 					installLoopCounter++;
 					app.triggerService("InstallApp", true);
@@ -114,13 +114,13 @@ public class InstallAppService extends Service {
 		if (forceReInstallFlag) reInstallFlag = " -r";
 		Log.d(TAG, "Installing "+apkFilePath);
 		try {
-			boolean isInstalled = shellCommands.executeCommandAsRoot(
+			boolean isInstalled = shellCommands.executeCommand(
 					"pm install"+reInstallFlag+" "+apkFilePath,
-					"Success",context);
+					"Success",true,context);
 			if (apkFile.exists()) { apkFile.delete(); }
 			return isInstalled;
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 			if (apkFile.exists()) { apkFile.delete(); }
 		} finally {
 		}

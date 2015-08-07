@@ -19,6 +19,7 @@ import javax.net.ssl.HttpsURLConnection;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.rfcx.guardian.installer.R;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -26,8 +27,7 @@ import android.util.Log;
 
 public class HttpGet {
 
-	private static final String TAG = "Rfcx-Installer-"+HttpGet.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+HttpGet.class.getSimpleName();
 	private static final String DOWNLOAD_TIME_LABEL = "Download time: ";
 	
 	// These hard coded timeout values are just defaults.
@@ -62,7 +62,7 @@ public class HttpGet {
 		try {
 			return new JSONObject(str);
 		} catch (JSONException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 		return null;
 	}
@@ -83,7 +83,7 @@ public class HttpGet {
 			}
 			return jsonArray;
 		} catch (JSONException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 		return null;
 	}
@@ -147,7 +147,7 @@ public class HttpGet {
 				Log.e(TAG, "Inferred protocol was neither HTTP nor HTTPS.");
 			}
 		} catch (MalformedURLException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 		return null;
 	}
@@ -170,7 +170,7 @@ public class HttpGet {
 	        	Log.e(TAG, "HTTP Code: "+conn.getResponseCode());
 	        }
 	    } catch (Exception e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 	    }
 	    return null;        
 	}
@@ -193,7 +193,7 @@ public class HttpGet {
 	        	Log.e(TAG, "HTTP Code: "+conn.getResponseCode());
 	        }
 	    } catch (Exception e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 	    }
 	    return null;    
 	}
@@ -208,13 +208,13 @@ public class HttpGet {
 	            stringBuilder.append(currentLine);
 	        }
 	    } catch (IOException e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 	    } finally {
 	        if (bufferedReader != null) {
 	            try {
 	                bufferedReader.close();
 	            } catch (IOException e) {
-	            	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	            	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 	            }
 	        }
 	    }
@@ -229,7 +229,7 @@ public class HttpGet {
 				fileOutputStream.write(buffer, 0, bufferLength);
 			}
 		} catch (IOException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 	}
 	
@@ -239,7 +239,7 @@ public class HttpGet {
 			fileOutputStream.flush();
 			fileOutputStream.close();
 		} catch (IOException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 	}
 	
@@ -249,7 +249,7 @@ public class HttpGet {
 		try {
 			return context.openFileOutput(fileName, Context.MODE_WORLD_READABLE|Context.MODE_WORLD_WRITEABLE);
 		} catch (FileNotFoundException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
 		return null;
 	}
@@ -294,9 +294,9 @@ public class HttpGet {
 				return null;
 			}
     	} catch (MalformedURLException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
     	} catch (IOException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
     	}
 		return null;
 	}

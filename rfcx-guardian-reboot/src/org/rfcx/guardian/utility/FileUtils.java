@@ -9,12 +9,14 @@ import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.rfcx.guardian.reboot.R;
+
 import android.text.TextUtils;
 import android.util.Log;
 
 public class FileUtils {
 	
-	private static final String TAG = "Rfcx-Reboot-"+FileUtils.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+FileUtils.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 
 	public String sha1Hash(String filePath) {
