@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <string name="app_name">rfcx cycle</string>
-
-    <string name="menu_prefs">prefs</string>
-	<string name="menu_root_command">root command</string>
-	
-</resources>
