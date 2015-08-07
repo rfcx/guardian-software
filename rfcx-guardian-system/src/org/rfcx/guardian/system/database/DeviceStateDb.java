@@ -28,7 +28,7 @@ public class DeviceStateDb {
 		this.dbOffline = new DbOffline(context);
 		this.dbLightMeter = new DbLightMeter(context);
 	}
-
+	
 	private static final String TAG = "Rfcx-System-"+DeviceStateDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;

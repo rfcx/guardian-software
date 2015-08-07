@@ -60,6 +60,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void onCreate() {
 		super.onCreate();
 		
+		Log.d(TAG, RfcxGuardian.class.getPackage().getName().replaceAll("org.rfcx.guardian.", ""));
+		
 		rfcxGuardianPrefs.initializePrefs();
 		rfcxGuardianPrefs.checkAndSet(this);
 		
@@ -137,13 +139,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void onLaunchServiceTrigger() {
 		if (!hasRun_OnBootServiceTrigger) {
 			
-//			triggerService("CPUTuner", true);
-//			
-//			// Service Monitor
-//			triggerIntentService("ServiceMonitor", 
-//					System.currentTimeMillis(),
-//					60*((int) Integer.parseInt(getPref("service_monitor_interval")))
-//					);
+			triggerService("CPUTuner", true);
+			
+			// Service Monitor
+			triggerIntentService("ServiceMonitor", 
+					System.currentTimeMillis(),
+					60*((int) Integer.parseInt(getPref("service_monitor_interval")))
+					);
 			
 			triggerService("DeviceState", true);
 			

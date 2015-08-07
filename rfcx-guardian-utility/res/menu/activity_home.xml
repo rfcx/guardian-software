@@ -6,9 +6,9 @@
         android:title="@string/menu_prefs"
         />
     <item
-	    android:id="@+id/menu_reboot"
+	    android:id="@+id/menu_root_command"
         android:orderInCategory="2"
-	    android:title="@string/menu_reboot"
+	    android:title="@string/menu_root_command"
 	    />
     
 </menu>

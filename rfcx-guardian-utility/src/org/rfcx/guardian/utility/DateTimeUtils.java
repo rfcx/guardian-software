@@ -10,7 +10,7 @@ import android.util.Log;
 
 public class DateTimeUtils {
 	
-	private static final String TAG = "Rfcx-Reboot-"+DateTimeUtils.class.getSimpleName();
+	private static final String TAG = "Rfcx-Cycle-"+DateTimeUtils.class.getSimpleName();
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 	
 	public String getDateTime() {

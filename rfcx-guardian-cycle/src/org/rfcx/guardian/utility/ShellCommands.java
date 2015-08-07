@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.rfcx.guardian.cycle.RfcxGuardian;
+import org.rfcx.guardian.reboot.RfcxGuardian;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -15,16 +15,16 @@ import android.util.Log;
 
 public class ShellCommands {
 
-	private static final String TAG = "Rfcx-Cycle-"+ShellCommands.class.getSimpleName();
+	private static final String TAG = "Rfcx-Reboot-"+ShellCommands.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public void killProcessByName(Context context, String searchTerm, String excludeTerm) {
 		Log.i(TAG, "Attempting to kill process associated with search term '"+searchTerm+"'.");
 		String grepExclude = (excludeTerm != null) ? " grep -v "+excludeTerm+" |" : "";
-		executeCommandAsRoot("kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)",null,context);
+		executeCommand("kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)", null, true, context);
 	}
 	
-	public boolean executeCommandAsRoot(String commandContents, String outputSearchString, Context context) {
+	public boolean executeCommand(String commandContents, String outputSearchString, boolean asRoot, Context context) {
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 		FileUtils fileUtils = new FileUtils();
 	    String filePath = app.getApplicationContext().getFilesDir().toString()+"/txt/script.sh";
@@ -44,13 +44,15 @@ public class ShellCommands {
 	        fileUtils.chmod(new File(filePath), 0755);
 		    if ((new File(filePath)).exists()) {
 		    	if (outputSearchString != null) {
-			    	commandProcess = Runtime.getRuntime().exec(new String[] {"su", "-c", filePath});
+		    		if (asRoot) { commandProcess = Runtime.getRuntime().exec(new String[] { "su", "-c", filePath }); }
+		    		else { commandProcess = Runtime.getRuntime().exec(new String[] { filePath }); }
 					BufferedReader reader = new BufferedReader (new InputStreamReader(commandProcess.getInputStream()));
 					String eachLine; while ((eachLine = reader.readLine()) != null) {
 						if (eachLine.equals(outputSearchString)) { commandSuccess = true; }
 					}
 		    	} else {
-		    		commandProcess = (new ProcessBuilder("su", "-c", filePath)).start();
+		    		if (asRoot) { commandProcess = (new ProcessBuilder("su", "-c", filePath)).start(); }
+		    		else { commandProcess = (new ProcessBuilder(filePath)).start(); } 
 		    		commandProcess.waitFor();
 		    		commandSuccess = true;
 		    	}
