@@ -64,6 +64,10 @@ public class MainActivity extends Activity {
 			(new ShellCommands()).executeCommand("pm list features",null,true,getApplicationContext());
 			break;
 			
+		case R.id.menu_set_defaults:
+			app.setExtremeDevelopmentSystemDefaults();
+			break;
+			
 		}
 		return true;
 	}

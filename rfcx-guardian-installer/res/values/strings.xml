@@ -9,6 +9,7 @@
 	<string name="menu_spectrogram_install">install spectrogram</string>
 	<string name="menu_check_version">update guardian</string>
 	<string name="menu_root_command">root command</string>
+	<string name="menu_set_defaults">set defaults</string>
 	
     <string name="null_exc">Exception thrown, but exception itself is null.</string>
 	

@@ -1,5 +1,7 @@
 package org.rfcx.guardian.system;
 
+import java.util.Calendar;
+
 import org.rfcx.guardian.system.database.DataTransferDb;
 import org.rfcx.guardian.system.database.DeviceStateDb;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
@@ -35,9 +37,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private String deviceToken = null;
 	
 	public static final String thisAppRole = "system";
+	public final String targetAppRole = "updater";
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
+
+	public boolean isConnected = false;
+	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
+	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
 	
 	// database access helpers
 	public DeviceStateDb deviceStateDb = null;
@@ -68,7 +75,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		setAppVersion();
 		setDbHandlers();
 		
-		(new ShellCommands()).executeCommandAsRoot("pm list features",null,getApplicationContext());
+		(new ShellCommands()).executeCommand("pm list features",null,true,getApplicationContext());
 		
 		onLaunchServiceTrigger();
 	}

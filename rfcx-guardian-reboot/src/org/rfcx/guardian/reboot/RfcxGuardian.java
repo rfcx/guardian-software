@@ -29,6 +29,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private String deviceToken = null;
 	
 	public static final String thisAppRole = "reboot";
+	public final String targetAppRole = "updater";
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);

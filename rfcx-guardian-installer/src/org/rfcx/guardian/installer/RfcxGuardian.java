@@ -232,4 +232,27 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     	return getValueFromGuardianTargetRoleTxtFile("version");
     }
     
+    public void setExtremeDevelopmentSystemDefaults(){
+    	
+    	ShellCommands shellCommands = new ShellCommands();
+    	context = getApplicationContext();
+    	
+    	String[] buildDotPropSettings = new String[] {
+    			"service.adb.tcp.port=5555", // permanently turns on network adb access (for bluetooth)
+    			"ro.com.android.dataroaming=true", // turns on data roaming
+    			"ro.com.android.dateformat=yyyy-MM-dd", // sets the date format
+    			"net.bt.name=rfcx-"+getDeviceId().substring(0,4) // sets the default bluetooth device name to ii
+    		};
+    	
+    	shellCommands.executeCommand("mount -o rw,remount /dev/block/mmcblk0p1 /system", null, true, context);
+    	
+    	String writeToBuildDotProp = "";
+    	for (int i = 0; i < buildDotPropSettings.length; i++) {
+    		writeToBuildDotProp += " echo "+buildDotPropSettings[i]+" >> /system/build.prop; ";
+    	}
+    	
+    	shellCommands.executeCommand(writeToBuildDotProp, null, true, context);
+    	
+    }
+    
 }

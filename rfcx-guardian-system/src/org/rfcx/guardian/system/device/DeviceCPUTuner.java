@@ -74,7 +74,7 @@ public class DeviceCPUTuner {
         	outFile.close();
         	(new FileUtils()).chmod(tmpPrefsFile, 0755);
         	if (tmpPrefsFile.exists()) {
-        		(new ShellCommands()).executeCommandAsRoot("cp "+tmpPrefsFilePath+" "+prefsPath,null,context);
+        		(new ShellCommands()).executeCommand("cp "+tmpPrefsFilePath+" "+prefsPath,null,true,context);
         	}
         } catch (IOException e) {
         	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
@@ -85,16 +85,16 @@ public class DeviceCPUTuner {
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 		ShellCommands sh = new ShellCommands();
 		String pre = "sqlite3 "+dbPath+" ";
-		if (sh.executeCommandAsRoot(pre+"\"SELECT COUNT(*) FROM cpuProfiles WHERE profileName='RFCx' AND _id=7;\"","0",context)) {
+		if (sh.executeCommand(pre+"\"SELECT COUNT(*) FROM cpuProfiles WHERE profileName='RFCx' AND _id=7;\"","0",true,context)) {
 			Log.d(TAG, "Inserting RFCx profile into CPUTuner database for the first time.");
-			sh.executeCommandAsRoot(pre+"\"DELETE FROM cpuProfiles WHERE profileName='RFCx';\"", null, context);
-			sh.executeCommandAsRoot(pre+"\"INSERT INTO cpuProfiles VALUES (7, 'RFCx', 'conservative', "+frequencyMax+", "+frequencyMin+", "+wifiState+", "+gpsState+", "+bluetoothState+", "+mobiledataState+", "+governorThresholdUp+", "+governorThresholdDown+", "+backgroundSyncState+", "+virtualGovernor+", "+mobiledataConnectionState+", '', "+powersaveBias+", "+AIRPLANEMODE+", 0);\"", null, context);
+			sh.executeCommand(pre+"\"DELETE FROM cpuProfiles WHERE profileName='RFCx';\"", null, true, context);
+			sh.executeCommand(pre+"\"INSERT INTO cpuProfiles VALUES (7, 'RFCx', 'conservative', "+frequencyMax+", "+frequencyMin+", "+wifiState+", "+gpsState+", "+bluetoothState+", "+mobiledataState+", "+governorThresholdUp+", "+governorThresholdDown+", "+backgroundSyncState+", "+virtualGovernor+", "+mobiledataConnectionState+", '', "+powersaveBias+", "+AIRPLANEMODE+", 0);\"", null, true, context);
 		} else {
 			Log.v(TAG, "Updating RFCx profile in CPUTuner database.");
-			sh.executeCommandAsRoot(pre+"\"UPDATE cpuProfiles SET frequencyMax="+frequencyMax+", frequencyMin="+frequencyMin+", wifiState="+wifiState+", gpsState="+gpsState+", bluetoothState="+bluetoothState+", mobiledataState="+mobiledataState+", governorThresholdUp="+governorThresholdUp+", governorThresholdDown="+governorThresholdDown+", backgroundSyncState="+backgroundSyncState+", virtualGovernor="+virtualGovernor+", mobiledataConnectionState="+mobiledataConnectionState+", powersaveBias="+powersaveBias+", AIRPLANEMODE="+AIRPLANEMODE+" WHERE profileName='RFCx';\"", null, context);
+			sh.executeCommand(pre+"\"UPDATE cpuProfiles SET frequencyMax="+frequencyMax+", frequencyMin="+frequencyMin+", wifiState="+wifiState+", gpsState="+gpsState+", bluetoothState="+bluetoothState+", mobiledataState="+mobiledataState+", governorThresholdUp="+governorThresholdUp+", governorThresholdDown="+governorThresholdDown+", backgroundSyncState="+backgroundSyncState+", virtualGovernor="+virtualGovernor+", mobiledataConnectionState="+mobiledataConnectionState+", powersaveBias="+powersaveBias+", AIRPLANEMODE="+AIRPLANEMODE+" WHERE profileName='RFCx';\"", null, true, context);
 		}
 		
-		sh.executeCommandAsRoot(pre+"\"UPDATE triggers SET screenOffProfileId=7, batteryProfileId=7, powerProfileId=7, callInProgressProfileId=7, screenLockedProfileId=7;\"", null, context);
+		sh.executeCommand(pre+"\"UPDATE triggers SET screenOffProfileId=7, batteryProfileId=7, powerProfileId=7, callInProgressProfileId=7, screenLockedProfileId=7;\"", null, true, context);
 	}
 	
 	private static boolean isInstalled() {

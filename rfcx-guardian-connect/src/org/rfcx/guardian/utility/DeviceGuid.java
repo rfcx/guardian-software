@@ -14,11 +14,11 @@ import java.security.MessageDigest;
 import java.util.UUID;
 
 import org.rfcx.guardian.connect.RfcxGuardian;
+import org.rfcx.guardian.connect.R;
 
 public class DeviceGuid {
 	
-	private static final String TAG = "Rfcx-Connect-"+DeviceGuid.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+DeviceGuid.class.getSimpleName();
 	protected static final String PREFS_DEVICE_GUID = "device_guid";
     protected static String deviceGuid;
 
@@ -42,7 +42,7 @@ public class DeviceGuid {
                     		    }
                     		    deviceGuid = stringBuilder.toString().substring(0,12);
                     		} catch (Exception e) {
-                    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+                    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
                     			String randomGuid = (UUID.randomUUID()).toString();
                         		deviceGuid = randomGuid.substring(1+randomGuid.lastIndexOf("-"));
                     		}
@@ -64,8 +64,8 @@ public class DeviceGuid {
     	try {
     		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
-    		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+app.thisAppRole).length()))+".installer/files/txt/guid.txt");
-    		File guidFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+app.thisAppRole).length()))+".installer/files/txt","guid.txt");
+    		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+app.thisAppRole).length()))+"."+app.targetAppRole+"/files/txt/guid.txt");
+    		File guidFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+app.thisAppRole).length()))+"."+app.targetAppRole+"/files/txt","guid.txt");
     		if (guidFile.exists()) {
 				FileInputStream input = new FileInputStream(guidFile);
 				StringBuffer fileContent = new StringBuffer("");
@@ -75,15 +75,15 @@ public class DeviceGuid {
 				}
 	    		String guidString = fileContent.toString();
 	    		input.close();
-	    		Log.d(TAG, "Fetched GUID from org.rfcx.guardian.installer: "+guidString);
+	    		Log.d(TAG, "Fetched GUID from org.rfcx.guardian."+app.targetAppRole+": "+guidString);
 	    		return guidString;
     		} else {
-    			Log.e(TAG, "No previous GUID saved by org.rfcx.guardian.installer...");
+    			Log.e(TAG, "No previous GUID saved by org.rfcx.guardian."+app.targetAppRole+"...");
     		}
     	} catch (FileNotFoundException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
     	} catch (IOException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
 		}
     	return null;
     }
