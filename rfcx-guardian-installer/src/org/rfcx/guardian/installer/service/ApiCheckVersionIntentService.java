@@ -11,8 +11,8 @@ public class ApiCheckVersionIntentService extends IntentService {
 
 	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+ApiCheckVersionIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian.installer.INSTALLER_SERVICE";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.installer.RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase()+".INSTALLER_SERVICE";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase()+".RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
 
 	private final long toggleAirplaneModeIfDisconnectedForLongerThan = 15;
 	

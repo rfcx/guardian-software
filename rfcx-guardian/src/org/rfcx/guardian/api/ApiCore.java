@@ -22,7 +22,6 @@ import org.rfcx.guardian.utility.ShellCommands;
 
 import android.text.TextUtils;
 import android.util.Log;
-import android.telephony.TelephonyManager;
 
 public class ApiCore {
 

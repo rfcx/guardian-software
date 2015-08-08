@@ -1,5 +1,7 @@
 package org.rfcx.guardian.system.content;
 
+import org.rfcx.guardian.system.RfcxGuardian;
+
 import android.content.ContentResolver;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -7,7 +9,7 @@ import android.provider.BaseColumns;
 public final class SystemContentContract {
 
 	public static final String AUTHORITY = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase();
-
+	
 	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
 	public static final class Meta implements CommonColumns {
