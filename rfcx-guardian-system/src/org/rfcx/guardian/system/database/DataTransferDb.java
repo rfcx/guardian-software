@@ -6,14 +6,12 @@ import java.util.List;
 
 import org.rfcx.guardian.utility.DateTimeUtils;
 
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 public class DataTransferDb {
@@ -23,11 +21,10 @@ public class DataTransferDb {
 		this.dbTransferred = new DbTransferred(context);
 	}
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DataTransferDb.class.getSimpleName();
+	private static final String TAG = "RfcxGuardian-"+DataTransferDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
 	static final String DATABASE = "data";
-	static final String C_ID = BaseColumns._ID;
 	static final String C_CREATED_AT = "created_at";
 	static final String C_START_TIME = "start_time";
 	static final String C_END_TIME = "end_time";
@@ -36,13 +33,11 @@ public class DataTransferDb {
 	static final String C_BYTES_RECEIVED_TOTAL = "bytes_received_total";
 	static final String C_BYTES_SENT_TOTAL = "bytes_sent_total";
 	private static final String[] CONCAT_ROWS = { "COUNT("+C_CREATED_AT+")", "GROUP_CONCAT( "+C_START_TIME+" || '*' || "+C_END_TIME+" || '*' || "+C_BYTES_RECEIVED_CURRENT+" || '*' || "+C_BYTES_SENT_CURRENT+" || '*' || "+C_BYTES_RECEIVED_TOTAL+" || '*' || "+C_BYTES_SENT_TOTAL+", '|')" };
-	private static final String[] ALL_COLUMNS = new String[] { C_ID, C_CREATED_AT, C_START_TIME, C_END_TIME, C_BYTES_RECEIVED_CURRENT, C_BYTES_SENT_CURRENT, C_BYTES_RECEIVED_TOTAL, C_BYTES_SENT_TOTAL };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_START_TIME, C_END_TIME, C_BYTES_RECEIVED_CURRENT, C_BYTES_SENT_CURRENT, C_BYTES_RECEIVED_TOTAL, C_BYTES_SENT_TOTAL };
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName).append("(");
-		sbOut.append(C_ID).append(" INTEGER PRIMARY KEY AUTOINCREMENT");
-		sbOut.append(", "+C_CREATED_AT).append(" DATETIME");
+		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
 		sbOut.append(", "+C_START_TIME+" DATETIME");
 		sbOut.append(", "+C_END_TIME+" DATETIME");
 		sbOut.append(", "+C_BYTES_RECEIVED_CURRENT+" TEXT");
@@ -98,14 +93,10 @@ public class DataTransferDb {
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
 				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7) });
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
 			return list;
-		}
-		public Cursor getAllRowsAsCursor() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
 		}
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
