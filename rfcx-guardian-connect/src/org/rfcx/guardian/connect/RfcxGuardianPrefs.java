@@ -16,8 +16,7 @@ import android.util.Log;
 
 public class RfcxGuardianPrefs {
 
-	private static final String TAG = "Rfcx-Connect-"+RfcxGuardianPrefs.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+RfcxGuardianPrefs.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 	
@@ -62,7 +61,7 @@ public class RfcxGuardianPrefs {
 	        	outFile.close();
 	        	fileUtils.chmod(new File(filePath), 0755);
 	        } catch (IOException e) {
-	        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+	        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
 	        }
 		}
 	}

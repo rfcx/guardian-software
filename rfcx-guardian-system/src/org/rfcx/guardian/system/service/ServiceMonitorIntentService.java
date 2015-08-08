@@ -10,10 +10,10 @@ import android.util.Log;
 
 public class ServiceMonitorIntentService extends IntentService {
 	
-	private static final String TAG = "Rfcx-System-"+ServiceMonitorIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+ServiceMonitorIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian.system.SERVICE_MONITOR";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.system.RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase()+".SERVICE_MONITOR";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase()+".RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
 	
 	public ServiceMonitorIntentService() {
 		super(TAG);

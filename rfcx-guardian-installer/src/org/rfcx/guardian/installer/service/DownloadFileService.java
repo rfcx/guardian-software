@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class DownloadFileService extends Service {
 
-	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+DownloadFileService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DownloadFileService.class.getSimpleName();
 	
 	private DownloadFile downloadFile;
 
@@ -47,7 +47,7 @@ public class DownloadFileService extends Service {
 		try {
 			this.downloadFile.start();
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
 		}
 		return START_STICKY;
 	}
@@ -94,7 +94,7 @@ public class DownloadFileService extends Service {
 					Log.e(TAG, "Download failed");
 				}
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
 			} finally {
 				app.isRunning_DownloadFile = false;
 				app.stopService("DownloadFile");

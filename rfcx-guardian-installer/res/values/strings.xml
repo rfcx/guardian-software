@@ -2,7 +2,6 @@
 <resources>
 
     <string name="app_name">rfcx installer</string>
-    <string name="log_name">Installer</string>	
 
     <string name="menu_prefs">prefs</string>
 	<string name="menu_cputuner_install">install cputuner</string>
@@ -10,7 +9,5 @@
 	<string name="menu_check_version">update guardian</string>
 	<string name="menu_root_command">root command</string>
 	<string name="menu_set_defaults">set defaults</string>
-	
-    <string name="null_exc">Exception thrown, but exception itself is null.</string>
 	
 </resources>

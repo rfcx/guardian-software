@@ -1,11 +1,5 @@
 package org.rfcx.guardian.utility;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
-import android.util.Log;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,12 +7,17 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.UUID;
 
-import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.telephony.TelephonyManager;
+import android.text.TextUtils;
+import android.util.Log;
 
 public class DeviceGuid {
 	
-	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+DeviceGuid.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DeviceGuid.class.getSimpleName();
 	protected static final String PREFS_DEVICE_GUID = "device_guid";
     protected static String deviceGuid;
 
@@ -42,7 +41,7 @@ public class DeviceGuid {
                     		    }
                     		    deviceGuid = stringBuilder.toString().substring(0,12);
                     		} catch (Exception e) {
-                    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
+                    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
                     			String randomGuid = (UUID.randomUUID()).toString();
                         		deviceGuid = randomGuid.substring(1+randomGuid.lastIndexOf("-"));
                     		}
@@ -81,9 +80,9 @@ public class DeviceGuid {
     			Log.e(TAG, "No previous GUID saved by org.rfcx.guardian."+app.targetAppRole+"...");
     		}
     	} catch (FileNotFoundException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
     	} catch (IOException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
 		}
     	return null;
     }

@@ -9,7 +9,6 @@ import org.rfcx.guardian.system.device.DeviceState;
 import org.rfcx.guardian.system.service.DeviceCPUTunerService;
 import org.rfcx.guardian.system.service.DeviceStateService;
 import org.rfcx.guardian.system.service.ServiceMonitorIntentService;
-import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -27,8 +26,8 @@ import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
-	private static final String TAG = "Rfcx-System-"+RfcxGuardian.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
+
 	public String version;
 	Context context;
 	public boolean verboseLog = true;
@@ -102,7 +101,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
 			rfcxGuardianPrefs.writeVersionToFile(this.version);
 		} catch (NameNotFoundException e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : NULL_EXC);
+			Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC);
 		}
 	}
 	
@@ -113,7 +112,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
 			return 1000*majorVersion+100*subVersion+updateVersion;
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
 		}
 		return 0;
 	}

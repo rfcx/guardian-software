@@ -9,7 +9,7 @@ import android.content.Intent;
 
 public class BluetoothStateReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "Rfcx-Connect-"+BluetoothStateReceiver.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+BluetoothStateReceiver.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 	private BluetoothAdapter bluetoothAdapter = null;

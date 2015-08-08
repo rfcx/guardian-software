@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class RfcxGuardianPrefs {
 
-	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+RfcxGuardianPrefs.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+RfcxGuardianPrefs.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 	
@@ -62,7 +62,7 @@ public class RfcxGuardianPrefs {
 	        	outFile.close();
 	        	fileUtils.chmod(new File(filePath), 0755);
 	        } catch (IOException e) {
-	        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
+	        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
 	        }
 		}
 	}

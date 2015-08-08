@@ -15,8 +15,7 @@ import android.util.Log;
 
 public class DeviceCPUTuner {
 
-	private static final String TAG = "Rfcx-System-"+DeviceCPUTuner.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DeviceCPUTuner.class.getSimpleName();
 
 	private static final int frequencyMin = 30720;
 	private static final int frequencyMax = /*61440;*/122880;
@@ -77,7 +76,7 @@ public class DeviceCPUTuner {
         		(new ShellCommands()).executeCommand("cp "+tmpPrefsFilePath+" "+prefsPath,null,true,context);
         	}
         } catch (IOException e) {
-        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
         }	
 	}
 	

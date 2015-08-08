@@ -6,13 +6,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.rfcx.guardian.updater.R;
-
 import android.util.Log;
 
 public class DateTimeUtils {
 	
-	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+DateTimeUtils.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DateTimeUtils.class.getSimpleName();
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 	
 	public String getDateTime() {

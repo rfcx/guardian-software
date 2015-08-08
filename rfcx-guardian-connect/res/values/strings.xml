@@ -2,10 +2,7 @@
 <resources>
 
     <string name="app_name">rfcx connect</string>
-    <string name="log_name">Connect</string>	
 
     <string name="menu_prefs">prefs</string>
-	
-    <string name="null_exc">Exception thrown, but exception itself is null.</string>
 	
 </resources>

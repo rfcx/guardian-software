@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class RebootIntentService extends IntentService {
 
-	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+RebootIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+RebootIntentService.class.getSimpleName();
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.installer.REBOOT";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.installer.RECEIVE_REBOOT_NOTIFICATIONS";

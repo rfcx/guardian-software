@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class InstallAppService extends Service {
 
-	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+InstallAppService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+InstallAppService.class.getSimpleName();
 
 	private InstallApp installApp;
 
@@ -49,7 +49,7 @@ public class InstallAppService extends Service {
 		try {
 			this.installApp.start();
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
 		}
 		return START_STICKY;
 	}
@@ -78,7 +78,7 @@ public class InstallAppService extends Service {
 				shellCommands.killProcessByName(context,"org.rfcx.guardian."+app.targetAppRole,"."+app.thisAppRole);
 				successfullyInstalled = installApk(context,apkFileName,false);
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
 			} finally {
 				
 				String apkFilePath = context.getFilesDir().getAbsolutePath()+"/"+apkFileName;
@@ -120,7 +120,7 @@ public class InstallAppService extends Service {
 			if (apkFile.exists()) { apkFile.delete(); }
 			return isInstalled;
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : ""+R.string.null_exc);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
 			if (apkFile.exists()) { apkFile.delete(); }
 		} finally {
 		}

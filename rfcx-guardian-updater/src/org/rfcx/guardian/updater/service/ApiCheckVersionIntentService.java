@@ -9,7 +9,7 @@ import android.util.Log;
 
 public class ApiCheckVersionIntentService extends IntentService {
 
-	private static final String TAG = "Rfcx-"+R.string.log_name+"-"+ApiCheckVersionIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+ApiCheckVersionIntentService.class.getSimpleName();
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian.updater.INSTALLER_SERVICE";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian.updater.RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
