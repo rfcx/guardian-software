@@ -2,13 +2,17 @@ package org.rfcx.guardian.connect;
 
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
-import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.BaseColumns;
+import android.provider.UserDictionary;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -101,4 +105,33 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
 	}
     
+	public void testContentResolver() {
+		
+		
+		
+		
+		
+		
+		
+		ContentResolver resolver = getContentResolver();
+		
+		String[] projection = new String[]{BaseColumns._ID, "meta_json"};
+		Cursor cursor =
+		      resolver.query(Uri.parse("content://org.rfcx.guardian.system/meta"),//UserDictionary.Words.CONTENT_URI,
+		            projection,
+		            null,
+		            null,
+		            null);
+		if (cursor.moveToFirst()) {
+		   do {
+		      long id = cursor.getLong(0);
+		      String meta = cursor.getString(1);
+		      
+		      Log.d(TAG, "Meta: "+meta);
+		      
+		   } while (cursor.moveToNext());
+		}
+		
+	}
+	
 }

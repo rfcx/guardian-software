@@ -27,6 +27,10 @@ public class MainActivity extends Activity {
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 			
+		case R.id.menu_test_content:
+			app.testContentResolver();
+			break;
+			
 		}
 		return true;
 	}
