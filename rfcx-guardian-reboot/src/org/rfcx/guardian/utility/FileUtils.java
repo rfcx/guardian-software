@@ -3,7 +3,10 @@ package org.rfcx.guardian.utility;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.MessageDigest;
@@ -63,6 +66,35 @@ public class FileUtils {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 		return 0;
+	}
+	
+	public void copy(File srcFile, File dstFile) throws IOException {
+	    InputStream inputStream = new FileInputStream(srcFile);
+	    OutputStream outputStream = new FileOutputStream(dstFile);
+
+	    // Transfer bytes from in to out
+	    byte[] buf = new byte[1024];
+	    int len;
+	    while ((len = inputStream.read(buf)) > 0) {
+	        outputStream.write(buf, 0, len);
+	    }
+	    inputStream.close();
+	    outputStream.close();
+	}
+	
+	
+	public static boolean delete(String filePath, boolean recursive) {
+		File file = new File(filePath);
+		
+		if (!file.exists()) { return true; }
+		if (!recursive || !file.isDirectory()) { return file.delete(); }
+
+		String[] list = file.list();
+		for (int i = 0; i < list.length; i++) {
+			if (!delete(filePath + File.separator + list[i], true))
+				return false;
+		}
+		return file.delete();
 	}
 	
 }

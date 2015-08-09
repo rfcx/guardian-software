@@ -30,6 +30,34 @@ public class RfcxConstants {
 			public static final String URI = "content://"+AUTHORITY+"/"+ENDPOINT;
 		}
 		
+		public static final class api {
+			public static final String[] PROJECTION = { "checkin_id" };
+			public static final String AUTHORITY = "org.rfcx.guardian.api";
+			public static final String ENDPOINT = "checkins";
+			public static final String URI = "content://"+AUTHORITY+"/"+ENDPOINT;
+		}
+		
+		public static final class audio {
+			public static final String[] PROJECTION = { "audio_id" };
+			public static final String AUTHORITY = "org.rfcx.guardian.audio";
+			public static final String ENDPOINT = "audio";
+			public static final String URI = "content://"+AUTHORITY+"/"+ENDPOINT;
+		}
+		
+		public static final class installer {
+			public static final String[] PROJECTION = { "current_time" };
+			public static final String AUTHORITY = "org.rfcx.guardian.installer";
+			public static final String ENDPOINT = "events";
+			public static final String URI = "content://"+AUTHORITY+"/"+ENDPOINT;
+		}
+		
+		public static final class updater {
+			public static final String[] PROJECTION = { "current_time" };
+			public static final String AUTHORITY = "org.rfcx.guardian.updater";
+			public static final String ENDPOINT = "events";
+			public static final String URI = "content://"+AUTHORITY+"/"+ENDPOINT;
+		}
+		
 	}
 
 	

@@ -22,7 +22,7 @@ public class DataTransferDb {
 		this.dbTransferred = new DbTransferred(context);
 	}
 
-	private static final String TAG = "RfcxGuardian-"+DataTransferDb.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DataTransferDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
 	static final String DATABASE = "data";

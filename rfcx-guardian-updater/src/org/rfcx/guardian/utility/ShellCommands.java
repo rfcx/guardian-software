@@ -66,4 +66,8 @@ public class ShellCommands {
 	    return commandSuccess;
 	}
 	
+	public void triggerNeedForRootAccess(Context context) {
+		executeCommand("pm list features",null,true,context);
+	}
+	
 }

@@ -22,7 +22,7 @@ echo "RFCx $ROLE ($APK_VERSION)";
 echo "generating build configuration...";
 export BUILD_CONFIG=`android update project -p . -n rfcx-guardian-$ROLE`;
 
-echo "key.store=$SCRIPT_DIR/rfcx-guardian.jks" >> local.properties;
+echo "key.store=$SCRIPT_DIR/private/rfcx-guardian.jks" >> local.properties;
 echo "key.alias=rfcx-guardian-android-$ROLE" >> local.properties;
 echo "key.store.password=$KEY_PSWD" >> local.properties;
 echo "key.alias.password=$KEY_PSWD" >> local.properties;

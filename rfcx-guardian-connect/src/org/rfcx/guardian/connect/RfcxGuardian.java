@@ -42,7 +42,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		setAppVersion();
 		
-		initializeRoleIntentServices(getApplicationContext());
+		initializeRoleServices(getApplicationContext());
 	}
 	
 	public void onTerminate() {
@@ -88,7 +88,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.deviceToken;
 	}
 	
-	public void initializeRoleIntentServices(Context context) {
+	public void initializeRoleServices(Context context) {
 		if (!this.hasRun_OnLaunchServiceTrigger) {
 			try {
 				

@@ -67,17 +67,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void onCreate() {
 		super.onCreate();
 		
-		Log.d(TAG, RfcxGuardian.class.getPackage().getName().replaceAll("org.rfcx.guardian.", ""));
-		
 		rfcxGuardianPrefs.initializePrefs();
 		rfcxGuardianPrefs.checkAndSet(this);
 		
 		setAppVersion();
 		setDbHandlers();
 		
-		(new ShellCommands()).executeCommand("pm list features",null,true,getApplicationContext());
+		(new ShellCommands()).triggerNeedForRootAccess(getApplicationContext());
 		
-		onLaunchServiceTrigger();
+		initializeRoleServices(getApplicationContext());
 	}
 	
 	public void onTerminate() {
@@ -143,20 +141,21 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
 	}
 	
-	public void onLaunchServiceTrigger() {
-		if (!hasRun_OnLaunchServiceTrigger) {
-			
-			triggerService("CPUTuner", true);
-			
-			// Service Monitor
-			triggerIntentService("ServiceMonitor", 
-					System.currentTimeMillis(),
-					60*((int) Integer.parseInt(getPref("service_monitor_interval")))
-					);
-			
-			triggerService("DeviceState", true);
-			
-			hasRun_OnLaunchServiceTrigger = true;
+	public void initializeRoleServices(Context context) {
+		if (!this.hasRun_OnLaunchServiceTrigger) {
+			try {
+				// force CPUTuner Config (requires root access)
+				triggerService("CPUTuner", true);
+				// Service Monitor
+				triggerIntentService("ServiceMonitor", 
+						System.currentTimeMillis(),
+						60*((int) Integer.parseInt(getPref("service_monitor_interval"))) );
+				// background service for gather system stats
+				triggerService("DeviceState", true);
+				hasRun_OnLaunchServiceTrigger = true;
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			}
 		}
 	}
 	

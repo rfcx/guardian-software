@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.rfcx.guardian.connect.RfcxGuardian;
-import org.rfcx.guardian.connect.R;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -65,6 +64,10 @@ public class ShellCommands {
 	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 	    return commandSuccess;
+	}
+	
+	public void triggerNeedForRootAccess(Context context) {
+		executeCommand("pm list features",null,true,context);
 	}
 	
 }

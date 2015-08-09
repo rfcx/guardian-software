@@ -49,6 +49,8 @@ public class RebootContentProvider extends ContentProvider {
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
+		checkSetApplicationContext();
+		
 		return 0;
 	}
 	
@@ -64,16 +66,22 @@ public class RebootContentProvider extends ContentProvider {
 	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+		checkSetApplicationContext();
+		
 		return 0;
 	}
 	
 	@Override
 	public String getType(Uri uri) {
+		checkSetApplicationContext();
+		
 		return null;
 	}
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
+		checkSetApplicationContext();
+		
 		return null;
 	}
 	
