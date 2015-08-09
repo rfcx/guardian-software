@@ -1,5 +1,7 @@
 package org.rfcx.guardian.connect;
 
+import java.util.Calendar;
+
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 
@@ -106,31 +108,28 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
     
 	public void testContentResolver() {
+				
+//		Cursor cursor = getContentResolver().query(
+//					org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.URI,
+//		    		org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.PROJECTION,
+//		            null,
+//		            null,
+//		            null);
+//		if (cursor.moveToFirst()) {
+//		   do {
+//			  for (int i = 0; i < org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.PROJECTION.length; i++) {
+//				  Log.d(TAG, cursor.getColumnName(i)+": "+cursor.getString(i));
+//			  }
+//		      
+//		   } while (cursor.moveToNext());
+//		}
 		
+		long timeStamp = Calendar.getInstance().getTimeInMillis();
 		
-		
-		
-		
-		
-		
-		ContentResolver resolver = getContentResolver();
-		
-		String[] projection = new String[]{BaseColumns._ID, "meta_json"};
-		Cursor cursor =
-		      resolver.query(Uri.parse("content://org.rfcx.guardian.system/meta"),//UserDictionary.Words.CONTENT_URI,
-		            projection,
-		            null,
-		            null,
-		            null);
-		if (cursor.moveToFirst()) {
-		   do {
-		      long id = cursor.getLong(0);
-		      String meta = cursor.getString(1);
-		      
-		      Log.d(TAG, "Meta: "+meta);
-		      
-		   } while (cursor.moveToNext());
-		}
+		int del = getContentResolver().delete(
+				Uri.parse(org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.URI+"/"+timeStamp),
+	            null,
+	            null);
 		
 	}
 	
