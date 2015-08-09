@@ -110,7 +110,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void testContentResolver() {
 				
 		Cursor cursor = getContentResolver().query(
-					org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.URI,
+					Uri.parse(org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.URI),
 		    		org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.PROJECTION,
 		            null,
 		            null,

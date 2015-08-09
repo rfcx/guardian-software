@@ -267,7 +267,7 @@ public class DeviceStateDb {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
 			values.put(C_VALUE_1, signal_strength);
-			values.put(C_VALUE_2, carrier_name);
+			values.put(C_VALUE_2, carrier_name.replaceAll("*", "-").replaceAll("|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -331,7 +331,7 @@ public class DeviceStateDb {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
 			values.put(C_VALUE_1, offline_period);
-			values.put(C_VALUE_2, carrier_name);
+			values.put(C_VALUE_2, carrier_name.replaceAll("*", "-").replaceAll("|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -395,7 +395,7 @@ public class DeviceStateDb {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
 			values.put(C_VALUE_1, luminosity);
-			values.put(C_VALUE_2, value_2);
+			values.put(C_VALUE_2, value_2.replaceAll("*", "-").replaceAll("|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);

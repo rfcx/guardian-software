@@ -189,7 +189,8 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			if (dBmGsmSignalStrength > 0) {
 				dBmGsmSignalStrength = 0;
 			} else { 
-			//	carrierName = telephonyManager.getNetworkOperatorName();
+				carrierName = telephonyManager.getNetworkOperatorName();
+				Log.d(TAG, ""+carrierName);
 			}
 			app.deviceStateDb.dbNetwork.insert(new Date(), dBmGsmSignalStrength, carrierName);
 			
