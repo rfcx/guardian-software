@@ -110,14 +110,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void testContentResolver() {
 				
 		Cursor cursor = getContentResolver().query(
-					Uri.parse(RfcxConstants.RfcxContentProvider.reboot.URI),
-		    		RfcxConstants.RfcxContentProvider.reboot.PROJECTION,
+					Uri.parse(RfcxConstants.RfcxContentProvider.connect.URI),
+		    		RfcxConstants.RfcxContentProvider.connect.PROJECTION,
 		            null,
 		            null,
 		            null);
 		if (cursor.moveToFirst()) {
 		   do {
-			  for (int i = 0; i < RfcxConstants.RfcxContentProvider.reboot.PROJECTION.length; i++) {
+			  for (int i = 0; i < RfcxConstants.RfcxContentProvider.connect.PROJECTION.length; i++) {
 				  Log.d(TAG, cursor.getColumnName(i)+": "+cursor.getString(i));
 			  }
 		      

@@ -59,6 +59,13 @@
         		<action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
    			</intent-filter>
 		</receiver>
+		
+		<provider 
+		    android:name="org.rfcx.guardian.connect.api.ConnectContentProvider"
+			android:authorities="org.rfcx.guardian.connect"
+        	android:readPermission="org.rfcx.guardian.READ"
+        	android:writePermission="org.rfcx.guardian.WRITE"
+        	android:exported="true" />
 
     </application>
 

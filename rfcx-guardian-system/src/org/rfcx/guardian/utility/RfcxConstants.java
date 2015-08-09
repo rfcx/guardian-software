@@ -23,6 +23,13 @@ public class RfcxConstants {
 			public static final String URI = "content://"+AUTHORITY+"/"+ENDPOINT;
 		}
 		
+		public static final class connect {
+			public static final String[] PROJECTION = { "last_connected_at" };
+			public static final String AUTHORITY = "org.rfcx.guardian.connect";
+			public static final String ENDPOINT = "events";
+			public static final String URI = "content://"+AUTHORITY+"/"+ENDPOINT;
+		}
+		
 	}
 
 	
