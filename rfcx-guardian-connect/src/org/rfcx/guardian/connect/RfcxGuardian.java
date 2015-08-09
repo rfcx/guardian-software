@@ -109,27 +109,27 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     
 	public void testContentResolver() {
 				
-//		Cursor cursor = getContentResolver().query(
-//					org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.URI,
-//		    		org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.PROJECTION,
-//		            null,
-//		            null,
-//		            null);
-//		if (cursor.moveToFirst()) {
-//		   do {
-//			  for (int i = 0; i < org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.PROJECTION.length; i++) {
-//				  Log.d(TAG, cursor.getColumnName(i)+": "+cursor.getString(i));
-//			  }
-//		      
-//		   } while (cursor.moveToNext());
-//		}
+		Cursor cursor = getContentResolver().query(
+					org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.URI,
+		    		org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.PROJECTION,
+		            null,
+		            null,
+		            null);
+		if (cursor.moveToFirst()) {
+		   do {
+			  for (int i = 0; i < org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.PROJECTION.length; i++) {
+				  Log.d(TAG, cursor.getColumnName(i)+": "+cursor.getString(i));
+			  }
+		      
+		   } while (cursor.moveToNext());
+		}
 		
-		long timeStamp = Calendar.getInstance().getTimeInMillis();
-		
-		int del = getContentResolver().delete(
-				Uri.parse(org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.URI+"/"+timeStamp),
-	            null,
-	            null);
+//		long timeStamp = Calendar.getInstance().getTimeInMillis();
+//		
+//		int del = getContentResolver().delete(
+//				Uri.parse(org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.URI+"/"+timeStamp),
+//	            null,
+//	            null);
 		
 	}
 	
