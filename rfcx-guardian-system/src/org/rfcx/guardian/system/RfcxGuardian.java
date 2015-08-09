@@ -61,7 +61,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// Repeating IntentServices
 	public boolean isRunning_ServiceMonitor = false;
 	
-	private boolean hasRun_OnBootServiceTrigger = false;
+	private boolean hasRun_OnLaunchServiceTrigger = false;
 	
 	@Override
 	public void onCreate() {
@@ -144,7 +144,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void onLaunchServiceTrigger() {
-		if (!hasRun_OnBootServiceTrigger) {
+		if (!hasRun_OnLaunchServiceTrigger) {
 			
 			triggerService("CPUTuner", true);
 			
@@ -156,7 +156,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			
 			triggerService("DeviceState", true);
 			
-			hasRun_OnBootServiceTrigger = true;
+			hasRun_OnLaunchServiceTrigger = true;
 		}
 	}
 	

@@ -63,7 +63,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public boolean isRunning_UpdaterService = false;
 	
-	private boolean isInitialized_RoleIntentServices = false;
+	private boolean hasRun_OnLaunchServiceTrigger = false;
 	
 	@Override
 	public void onCreate() {
@@ -142,7 +142,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void initializeRoleIntentServices(Context context) {
-		if (!this.isInitialized_RoleIntentServices) {
+		if (!this.hasRun_OnLaunchServiceTrigger) {
 			try {
 				int delayAfterAppLaunchInMinutes = 2;
 				long apiCheckVersionInterval = ((getPref("apicheckversion_interval")!=null) ? Integer.parseInt(getPref("apicheckversion_interval")) : 180)*60*1000;
@@ -150,7 +150,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				AlarmManager updaterAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
 				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, (System.currentTimeMillis()+delayAfterAppLaunchInMinutes*60*1000), apiCheckVersionInterval, updaterIntentService);
 				if (verboseLog) { Log.d(TAG, "ApiCheckVersion will run every "+getPref("apicheckversion_interval")+" minute(s), starting at "+(new Date((System.currentTimeMillis()+delayAfterAppLaunchInMinutes*60*1000))).toLocaleString()); }
-				this.isInitialized_RoleIntentServices = true;	
+				this.hasRun_OnLaunchServiceTrigger = true;	
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			}

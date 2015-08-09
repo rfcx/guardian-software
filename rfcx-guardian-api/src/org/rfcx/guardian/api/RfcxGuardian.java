@@ -1,4 +1,4 @@
-package org.rfcx.guardian.connect;
+package org.rfcx.guardian.api;
 
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
@@ -9,15 +9,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.database.Cursor;
-import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
-
+	
 	public String version;
 	Context context;
 	public boolean verboseLog = true;
@@ -25,7 +23,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private String deviceId = null;
 	private String deviceToken = null;
 	
-	public static final String thisAppRole = "connect";
+	public static final String thisAppRole = "api";
 	public final String targetAppRole = "updater";
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
@@ -43,6 +41,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		setAppVersion();
 		
 		initializeRoleIntentServices(getApplicationContext());
+		
+		Log.d(TAG,"Launched");
 	}
 	
 	public void onTerminate() {
@@ -91,7 +91,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void initializeRoleIntentServices(Context context) {
 		if (!this.hasRun_OnLaunchServiceTrigger) {
 			try {
-				
+	
 				this.hasRun_OnLaunchServiceTrigger = true;
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
@@ -107,30 +107,4 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
 	}
     
-	public void testContentResolver() {
-				
-		Cursor cursor = getContentResolver().query(
-					Uri.parse(RfcxConstants.RfcxContentProvider.connect.URI),
-		    		RfcxConstants.RfcxContentProvider.connect.PROJECTION,
-		            null,
-		            null,
-		            null);
-		if (cursor.moveToFirst()) {
-		   do {
-			  for (int i = 0; i < RfcxConstants.RfcxContentProvider.connect.PROJECTION.length; i++) {
-				  Log.d(TAG, cursor.getColumnName(i)+": "+cursor.getString(i));
-			  }
-		      
-		   } while (cursor.moveToNext());
-		}
-		
-//		long timeStamp = Calendar.getInstance().getTimeInMillis();
-//		
-//		int del = getContentResolver().delete(
-//				Uri.parse(org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.URI+"/"+timeStamp),
-//	            null,
-//	            null);
-		
-	}
-	
 }

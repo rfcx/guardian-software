@@ -35,7 +35,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
 	
-	private boolean isInitialized_RoleIntentServices = false;
+	private boolean hasRun_OnLaunchServiceTrigger = false;
 	
 	@Override
 	public void onCreate() {
@@ -93,13 +93,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void initializeRoleIntentServices(Context context) {
-		if (!this.isInitialized_RoleIntentServices) {
+		if (!this.hasRun_OnLaunchServiceTrigger) {
 			try {
 				// reboots system at 5 minutes before midnight every day
 				PendingIntent rebootIntentService = PendingIntent.getService(context, -1, new Intent(context, RebootIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				AlarmManager rebootAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
 				rebootAlarmManager.setRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(23,55,0).getTimeInMillis(), 24*60*60*1000, rebootIntentService);
-				this.isInitialized_RoleIntentServices = true;
+				this.hasRun_OnLaunchServiceTrigger = true;
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			}
