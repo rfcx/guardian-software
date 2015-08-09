@@ -1,26 +1,22 @@
 package org.rfcx.guardian.connect;
 
-import java.util.Calendar;
-
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Application;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.BaseColumns;
-import android.provider.UserDictionary;
 import android.text.TextUtils;
 import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
 
 	public String version;
 	Context context;
@@ -34,6 +30,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
+	
+	private boolean isInitialized_RoleIntentServices = false;
 	
 	@Override
 	public void onCreate() {
@@ -69,7 +67,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
 			rfcxGuardianPrefs.writeVersionToFile(this.version);
 		} catch (NameNotFoundException e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC);
+			Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC);
 		}
 	}
 
@@ -91,11 +89,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void initializeRoleIntentServices(Context context) {
-		try {
-			
-			
-		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+		if (!this.isInitialized_RoleIntentServices) {
+			try {
+				
+				this.isInitialized_RoleIntentServices = true;
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			}
 		}
 	}
 	
@@ -110,14 +110,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void testContentResolver() {
 				
 		Cursor cursor = getContentResolver().query(
-					Uri.parse(org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.URI),
-		    		org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.PROJECTION,
+					Uri.parse(RfcxConstants.RfcxContentProvider.reboot.URI),
+		    		RfcxConstants.RfcxContentProvider.reboot.PROJECTION,
 		            null,
 		            null,
 		            null);
 		if (cursor.moveToFirst()) {
 		   do {
-			  for (int i = 0; i < org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.PROJECTION.length; i++) {
+			  for (int i = 0; i < RfcxConstants.RfcxContentProvider.reboot.PROJECTION.length; i++) {
 				  Log.d(TAG, cursor.getColumnName(i)+": "+cursor.getString(i));
 			  }
 		      

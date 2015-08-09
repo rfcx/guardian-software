@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class ShellCommands {
 
-	private static final String TAG = "RfcxGuardian-"+ShellCommands.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ShellCommands.class.getSimpleName();
 	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public void killProcessByName(Context context, String searchTerm) {

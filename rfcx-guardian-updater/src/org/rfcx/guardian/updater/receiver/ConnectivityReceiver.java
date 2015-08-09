@@ -2,8 +2,8 @@ package org.rfcx.guardian.updater.receiver;
 
 import java.util.Calendar;
 
-import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,7 +12,7 @@ import android.net.ConnectivityManager;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+ConnectivityReceiver.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ConnectivityReceiver.class.getSimpleName();
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {

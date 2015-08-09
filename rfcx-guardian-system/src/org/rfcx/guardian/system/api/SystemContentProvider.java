@@ -1,9 +1,10 @@
-package org.rfcx.guardian.system.content;
+package org.rfcx.guardian.system.api;
 
 import java.util.Calendar;
 import java.util.Date;
 
 import org.rfcx.guardian.system.RfcxGuardian;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -12,17 +13,16 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.util.Log;
 
 public class SystemContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+SystemContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+SystemContentProvider.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.AUTHORITY;
-	private static final String ENDPOINT = org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.ENDPOINT;
+	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.system.AUTHORITY;
+	private static final String ENDPOINT = RfcxConstants.RfcxContentProvider.system.ENDPOINT;
 	
 	private static final int ENDPOINT_LIST = 1;
 	private static final int ENDPOINT_ID = 2;
@@ -47,7 +47,7 @@ public class SystemContentProvider extends ContentProvider {
 		String[] vLightMeter = app.deviceStateDb.dbLightMeter.getConcatRows();
 		String[] vDataTransferred = app.dataTransferDb.dbTransferred.getConcatRows();
 		
-		MatrixCursor cursor = new MatrixCursor(org.rfcx.guardian.utility.Constants.RfcxContentProvider.system.PROJECTION);
+		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.system.PROJECTION);
 		
 		cursor.addRow(new Object[] { 
 				Calendar.getInstance().getTimeInMillis(),

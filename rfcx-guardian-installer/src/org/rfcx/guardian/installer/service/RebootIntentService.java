@@ -1,8 +1,8 @@
 package org.rfcx.guardian.installer.service;
 
-import org.rfcx.guardian.installer.R;
 import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -11,10 +11,10 @@ import android.util.Log;
 
 public class RebootIntentService extends IntentService {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+RebootIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RebootIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase()+".REBOOT";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase()+".RECEIVE_REBOOT_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".REBOOT";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".RECEIVE_REBOOT_NOTIFICATIONS";
 	
 	public RebootIntentService() {
 		super(TAG);

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 
 import android.content.ContentValues;
@@ -27,7 +28,7 @@ public class DeviceStateDb {
 		this.dbLightMeter = new DbLightMeter(context);
 	}
 	
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DeviceStateDb.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceStateDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
 	static final String DATABASE = "device";
@@ -55,12 +56,12 @@ public class DeviceStateDb {
 			public void onCreate(SQLiteDatabase db) {
 				try {
 					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 		}
 		final DbHelper dbHelper;
@@ -89,7 +90,7 @@ public class DeviceStateDb {
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;
 		}
 		public void clearRowsBefore(Date date) {
@@ -103,7 +104,7 @@ public class DeviceStateDb {
 			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
 				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
 				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return stats;
 		}
 	}
@@ -120,12 +121,12 @@ public class DeviceStateDb {
 			public void onCreate(SQLiteDatabase db) {
 				try {
 					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 		}
 		final DbHelper dbHelper;
@@ -154,7 +155,7 @@ public class DeviceStateDb {
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;
 		}
 		public void clearRowsBefore(Date date) {
@@ -168,7 +169,7 @@ public class DeviceStateDb {
 			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
 				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
 				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return stats;
 		}
 	}
@@ -184,12 +185,12 @@ public class DeviceStateDb {
 			public void onCreate(SQLiteDatabase db) {
 				try {
 					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 		}
 		final DbHelper dbHelper;
@@ -218,7 +219,7 @@ public class DeviceStateDb {
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;
 		}
 		public void clearRowsBefore(Date date) {
@@ -232,7 +233,7 @@ public class DeviceStateDb {
 			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
 				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
 				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return stats;
 		}
 	}
@@ -248,12 +249,12 @@ public class DeviceStateDb {
 			public void onCreate(SQLiteDatabase db) {
 				try {
 					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 		}
 		final DbHelper dbHelper;
@@ -267,7 +268,7 @@ public class DeviceStateDb {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
 			values.put(C_VALUE_1, signal_strength);
-			values.put(C_VALUE_2, carrier_name.replaceAll("\\*", "-").replaceAll("|","-"));
+			values.put(C_VALUE_2, carrier_name.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -282,7 +283,7 @@ public class DeviceStateDb {
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;
 		}
 		public void clearRowsBefore(Date date) {
@@ -296,7 +297,7 @@ public class DeviceStateDb {
 			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
 				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
 				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return stats;
 		}
 	}
@@ -312,12 +313,12 @@ public class DeviceStateDb {
 			public void onCreate(SQLiteDatabase db) {
 				try {
 					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 		}
 		final DbHelper dbHelper;
@@ -331,7 +332,7 @@ public class DeviceStateDb {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
 			values.put(C_VALUE_1, offline_period);
-			values.put(C_VALUE_2, carrier_name.replaceAll("\\*", "-").replaceAll("|","-"));
+			values.put(C_VALUE_2, carrier_name.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -346,7 +347,7 @@ public class DeviceStateDb {
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;
 		}
 		public void clearRowsBefore(Date date) {
@@ -360,7 +361,7 @@ public class DeviceStateDb {
 			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
 				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
 				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return stats;
 		}
 	}
@@ -376,12 +377,12 @@ public class DeviceStateDb {
 			public void onCreate(SQLiteDatabase db) {
 				try {
 					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 		}
 		final DbHelper dbHelper;
@@ -395,7 +396,7 @@ public class DeviceStateDb {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
 			values.put(C_VALUE_1, luminosity);
-			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("|","-"));
+			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -410,7 +411,7 @@ public class DeviceStateDb {
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;
 		}
 		public void clearRowsBefore(Date date) {
@@ -424,7 +425,7 @@ public class DeviceStateDb {
 			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
 				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
 				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return stats;
 		}
 	}

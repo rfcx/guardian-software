@@ -1,9 +1,8 @@
 package org.rfcx.guardian.utility;
 
-
-public class Constants {
+public class RfcxConstants {
 	
-	public static final String ROLE_NAME = "Connect";
+	public static final String ROLE_NAME = "Reboot";
 	public static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public static final class RfcxContentProvider {
@@ -13,7 +12,13 @@ public class Constants {
 			public static final String AUTHORITY = "org.rfcx.guardian.system";
 			public static final String ENDPOINT = "meta";
 			public static final String URI = "content://"+AUTHORITY+"/"+ENDPOINT;
+		}
 		
+		public static final class reboot {
+			public static final String[] PROJECTION = { "last_rebooted_at" };
+			public static final String AUTHORITY = "org.rfcx.guardian.reboot";
+			public static final String ENDPOINT = "events";
+			public static final String URI = "content://"+AUTHORITY+"/"+ENDPOINT;
 		}
 		
 	}

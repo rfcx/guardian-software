@@ -1,7 +1,7 @@
 package org.rfcx.guardian.updater.service;
 
-import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -9,10 +9,10 @@ import android.util.Log;
 
 public class ApiCheckVersionIntentService extends IntentService {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+ApiCheckVersionIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCheckVersionIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase()+".INSTALLER_SERVICE";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase()+".RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".INSTALLER_SERVICE";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
 
 	private final long toggleAirplaneModeIfDisconnectedForLongerThan = 15;
 	

@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class DeviceToken {
 	
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DeviceToken.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceToken.class.getSimpleName();
 	protected static final String PREFS_DEVICE_TOKEN = "device_token";
     protected static String deviceToken;
 
@@ -34,7 +34,7 @@ public class DeviceToken {
                 		    }
                 		    deviceToken = telephonyIdDigestStringBuilder.toString();
                 		} catch (Exception e) {
-                			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+                			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
                 			deviceToken = ((UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()).replaceAll("-","").substring(0,40);
                 		}
                 		Log.d(TAG,deviceToken);

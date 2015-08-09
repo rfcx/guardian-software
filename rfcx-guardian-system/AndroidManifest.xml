@@ -62,7 +62,7 @@
 		</receiver>
 		
 		<provider 
-		    android:name="org.rfcx.guardian.system.content.SystemContentProvider"
+		    android:name="org.rfcx.guardian.system.api.SystemContentProvider"
 			android:authorities="org.rfcx.guardian.system"
         	android:readPermission="org.rfcx.guardian.READ"
         	android:writePermission="org.rfcx.guardian.WRITE"

@@ -1,10 +1,10 @@
 package org.rfcx.guardian.system.service;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;
@@ -21,7 +21,7 @@ import android.util.Log;
 
 public class DeviceStateService extends Service implements SensorEventListener {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DeviceStateService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceStateService.class.getSimpleName();
 	
 	RfcxGuardian app;
 	
@@ -190,7 +190,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 				dBmGsmSignalStrength = 0;
 			} else { 
 				carrierName = telephonyManager.getNetworkOperatorName();
-				Log.d(TAG, ""+carrierName);
 			}
 			app.deviceStateDb.dbNetwork.insert(new Date(), dBmGsmSignalStrength, carrierName);
 			

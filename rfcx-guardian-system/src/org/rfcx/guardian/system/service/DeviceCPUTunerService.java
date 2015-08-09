@@ -2,6 +2,7 @@ package org.rfcx.guardian.system.service;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceCPUTuner;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;
@@ -12,7 +13,7 @@ import android.util.Log;
 
 public class DeviceCPUTunerService extends Service {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DeviceCPUTunerService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceCPUTunerService.class.getSimpleName();
 
 	private DeviceCPUTunerSvc deviceCPUTunerSvc;
 
@@ -42,7 +43,7 @@ public class DeviceCPUTunerService extends Service {
 			this.deviceCPUTunerSvc.start();
 			Log.v(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 		return START_STICKY;
 	}
@@ -69,7 +70,7 @@ public class DeviceCPUTunerService extends Service {
 				(new DeviceCPUTuner()).set(context);
 				
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			} finally {
 				app.isRunning_CPUTuner = false;
 				app.stopService("CPUTuner");

@@ -18,7 +18,7 @@ import org.rfcx.guardian.reboot.RfcxGuardian;
 
 public class DeviceGuid {
 	
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DeviceGuid.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceGuid.class.getSimpleName();
 	protected static final String PREFS_DEVICE_GUID = "device_guid";
     protected static String deviceGuid;
 
@@ -42,7 +42,7 @@ public class DeviceGuid {
                     		    }
                     		    deviceGuid = stringBuilder.toString().substring(0,12);
                     		} catch (Exception e) {
-                    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+                    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
                     			String randomGuid = (UUID.randomUUID()).toString();
                         		deviceGuid = randomGuid.substring(1+randomGuid.lastIndexOf("-"));
                     		}
@@ -81,9 +81,9 @@ public class DeviceGuid {
     			Log.e(TAG, "No previous GUID saved by org.rfcx.guardian."+app.targetAppRole+"...");
     		}
     	} catch (FileNotFoundException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
     	} catch (IOException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
     	return null;
     }

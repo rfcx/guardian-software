@@ -1,6 +1,7 @@
 package org.rfcx.guardian.connect.receiver;
 
 import org.rfcx.guardian.connect.RfcxGuardian;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -9,7 +10,7 @@ import android.content.Intent;
 
 public class BluetoothStateReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+BluetoothStateReceiver.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+BluetoothStateReceiver.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 	private BluetoothAdapter bluetoothAdapter = null;

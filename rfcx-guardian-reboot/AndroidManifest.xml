@@ -55,6 +55,13 @@
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>
 		</receiver>
+		
+		<provider 
+		    android:name="org.rfcx.guardian.reboot.api.RebootContentProvider"
+			android:authorities="org.rfcx.guardian.reboot"
+        	android:readPermission="org.rfcx.guardian.READ"
+        	android:writePermission="org.rfcx.guardian.WRITE"
+        	android:exported="true" />
 
     </application>
 

@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
+import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;
@@ -15,7 +16,7 @@ import android.util.Log;
 
 public class DeviceCPUTuner {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+DeviceCPUTuner.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceCPUTuner.class.getSimpleName();
 
 	private static final int frequencyMin = 30720;
 	private static final int frequencyMax = /*61440;*/122880;
@@ -76,7 +77,7 @@ public class DeviceCPUTuner {
         		(new ShellCommands()).executeCommand("cp "+tmpPrefsFilePath+" "+prefsPath,null,true,context);
         	}
         } catch (IOException e) {
-        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
         }	
 	}
 	

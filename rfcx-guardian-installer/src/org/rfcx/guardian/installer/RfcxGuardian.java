@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.rfcx.guardian.installer.api.ApiCore;
 import org.rfcx.guardian.installer.receiver.ConnectivityReceiver;
@@ -15,6 +16,7 @@ import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -32,7 +34,7 @@ import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
 	
 	public String version;
 	Context context;
@@ -61,6 +63,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public boolean isRunning_InstallApp = false;
 	
 	public boolean isRunning_UpdaterService = false;
+	
+	private boolean isInitialized_RoleIntentServices = false;
 	
 	@Override
 	public void onCreate() {
@@ -104,7 +108,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
 			rfcxGuardianPrefs.writeVersionToFile(this.version);
 		} catch (NameNotFoundException e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC);
+			Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC);
 		}
 	}
 	
@@ -115,7 +119,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
 			return 1000*majorVersion+100*subVersion+updateVersion;
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 		return 0;
 	}
@@ -138,16 +142,18 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void initializeRoleIntentServices(Context context) {
-		try {
-			
-			long apiCheckVersionInterval = ((getPref("apicheckversion_interval")!=null) ? Integer.parseInt(getPref("apicheckversion_interval")) : 180)*60*1000;
-			PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ApiCheckVersionIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-			AlarmManager updaterAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
-			updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis(), apiCheckVersionInterval, updaterIntentService);
-			if (verboseLog) { Log.d(TAG, "ApiCheckVersion will run every "+getPref("apicheckversion_interval")+" minute(s)..."); }
-						
-		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+		if (!this.isInitialized_RoleIntentServices) {
+			try {
+				int delayAfterAppLaunchInMinutes = 4;
+				long apiCheckVersionInterval = ((getPref("apicheckversion_interval")!=null) ? Integer.parseInt(getPref("apicheckversion_interval")) : 180)*60*1000;
+				PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ApiCheckVersionIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+				AlarmManager updaterAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
+				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, (System.currentTimeMillis()+delayAfterAppLaunchInMinutes*60*1000), apiCheckVersionInterval, updaterIntentService);
+				if (verboseLog) { Log.d(TAG, "ApiCheckVersion will run every "+getPref("apicheckversion_interval")+" minute(s), starting at "+(new Date((System.currentTimeMillis()+delayAfterAppLaunchInMinutes*60*1000))).toLocaleString()); }
+				this.isInitialized_RoleIntentServices = true;	
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			}
 		}
 	}
 	
@@ -222,9 +228,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     			Log.e(TAG, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+this.targetAppRole+"...");
     		}
     	} catch (FileNotFoundException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
     	} catch (IOException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
     	return null;
 	}

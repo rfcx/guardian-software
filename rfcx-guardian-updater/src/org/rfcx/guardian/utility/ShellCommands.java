@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class ShellCommands {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+ShellCommands.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ShellCommands.class.getSimpleName();
 	
 	public void killProcessByName(Context context, String searchTerm, String excludeTerm) {
 		Log.i(TAG, "Attempting to kill process associated with search term '"+searchTerm+"'.");
@@ -59,9 +59,9 @@ public class ShellCommands {
 		    	Log.e(TAG,"Shell script could not be located for execution");
 		    }
 	    } catch (IOException e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 	    } catch (InterruptedException e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 	    return commandSuccess;
 	}

@@ -2,6 +2,7 @@ package org.rfcx.guardian.system.service;
 
 
 import org.rfcx.guardian.system.RfcxGuardian;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -10,10 +11,10 @@ import android.util.Log;
 
 public class ServiceMonitorIntentService extends IntentService {
 	
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+ServiceMonitorIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ServiceMonitorIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase()+".SERVICE_MONITOR";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+org.rfcx.guardian.utility.Constants.ROLE_NAME.toLowerCase()+".RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".SERVICE_MONITOR";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
 	
 	public ServiceMonitorIntentService() {
 		super(TAG);
@@ -25,7 +26,7 @@ public class ServiceMonitorIntentService extends IntentService {
 		sendBroadcast(intent, NOTIFICATION_TAG);
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
-		Context context = app.getApplicationContext();
+
 		Log.v(TAG, "Running Service Monitor...");
 		
 		if (app.isRunning_ServiceMonitor) {

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -57,12 +58,12 @@ public class DataTransferDb {
 			public void onCreate(SQLiteDatabase db) {
 				try {
 					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); }
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
 			}
 		}
 		final DbHelper dbHelper;
@@ -95,7 +96,7 @@ public class DataTransferDb {
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;
 		}
 		public void clearRowsBefore(Date date) {
@@ -109,7 +110,7 @@ public class DataTransferDb {
 			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
 				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
 				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return stats;
 		}
 	}

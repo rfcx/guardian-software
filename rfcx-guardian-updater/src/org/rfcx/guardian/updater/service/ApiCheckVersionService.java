@@ -5,9 +5,9 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.HttpGet;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;
@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class ApiCheckVersionService extends Service {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+ApiCheckVersionService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCheckVersionService.class.getSimpleName();
 
 	private ApiCheckVersion apiCheckVersion;
 
@@ -48,7 +48,7 @@ public class ApiCheckVersionService extends Service {
 			this.apiCheckVersion.start();
 			if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 		return START_STICKY;
 	}
@@ -110,7 +110,7 @@ public class ApiCheckVersionService extends Service {
 					Log.d(TAG, "Cancelled because there is no internet connectivity...");
 				}
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			} finally {
 				app.isRunning_ApiCheckVersion = false;
 				app.stopService("ApiCheckVersion");

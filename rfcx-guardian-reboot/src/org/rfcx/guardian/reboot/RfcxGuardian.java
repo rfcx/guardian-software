@@ -5,6 +5,7 @@ import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -19,7 +20,7 @@ import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
 	
 	public String version;
 	Context context;
@@ -33,6 +34,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
+	
+	private boolean isInitialized_RoleIntentServices = false;
 	
 	@Override
 	public void onCreate() {
@@ -68,7 +71,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
 			rfcxGuardianPrefs.writeVersionToFile(this.version);
 		} catch (NameNotFoundException e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : org.rfcx.guardian.utility.Constants.NULL_EXC);
+			Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC);
 		}
 	}
 
@@ -90,15 +93,16 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void initializeRoleIntentServices(Context context) {
-		try {
-			
-			// reboots system at 5 minutes before midnight every day
-			PendingIntent rebootIntentService = PendingIntent.getService(context, -1, new Intent(context, RebootIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-			AlarmManager rebootAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
-			rebootAlarmManager.setRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(23,55,0).getTimeInMillis(), 24*60*60*1000, rebootIntentService);
-			
-		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+		if (!this.isInitialized_RoleIntentServices) {
+			try {
+				// reboots system at 5 minutes before midnight every day
+				PendingIntent rebootIntentService = PendingIntent.getService(context, -1, new Intent(context, RebootIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+				AlarmManager rebootAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
+				rebootAlarmManager.setRepeating(AlarmManager.RTC, (new DateTimeUtils()).nextOccurenceOf(23,55,0).getTimeInMillis(), 24*60*60*1000, rebootIntentService);
+				this.isInitialized_RoleIntentServices = true;
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			}
 		}
 	}
 	

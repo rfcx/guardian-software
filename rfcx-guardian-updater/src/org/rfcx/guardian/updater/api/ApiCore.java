@@ -6,13 +6,14 @@ import java.util.List;
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.text.TextUtils;
 import android.util.Log;
 
 public class ApiCore {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.Constants.ROLE_NAME+"-"+ApiCore.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCore.class.getSimpleName();
 
 	public long lastCheckInTime = Calendar.getInstance().getTimeInMillis();
 
@@ -69,7 +70,7 @@ public class ApiCore {
 				Log.d(TAG,"org.rfcx.guardian."+this.latestRole+" is already up-to-date: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
 			}
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 		return false;
 	}
@@ -85,7 +86,7 @@ public class ApiCore {
 			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
 			return 1000*majorVersion+100*subVersion+updateVersion;
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : org.rfcx.guardian.utility.Constants.NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 		return 0;
 	}
