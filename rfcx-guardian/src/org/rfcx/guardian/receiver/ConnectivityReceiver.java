@@ -26,7 +26,6 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 			if (disconnectedFor > 1000) app.deviceStateDb.dbOffline.insert(new Date(), disconnectedFor, "");
 		} else {
 			app.lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
-			Log.d(TAG, "Connectivity: NO");
 		}
         
 	}

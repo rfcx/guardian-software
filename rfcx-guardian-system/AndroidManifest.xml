@@ -41,7 +41,7 @@
         <service android:name="org.rfcx.guardian.system.service.DeviceCPUTunerService" />
         
         <!-- IntentServices -->
-        <service android:name="org.rfcx.guardian.system.service.ServiceMonitor" />
+        <service android:name="org.rfcx.guardian.system.service.ServiceMonitorIntentService" />
         
         <activity
             android:name="org.rfcx.guardian.system.activity.PrefsActivity"

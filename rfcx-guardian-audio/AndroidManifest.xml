@@ -40,7 +40,7 @@
         <service android:name="org.rfcx.guardian.audio.service.AudioCaptureService" />
         
         <!-- IntentServices -->
-        <service android:name="org.rfcx.guardian.audio.service.ServiceMonitor" />
+        <service android:name="org.rfcx.guardian.audio.service.ServiceMonitorIntentService" />
         <service android:name="org.rfcx.guardian.audio.service.AudioEncodeIntentService" />
         <service android:name="org.rfcx.guardian.audio.service.CheckInTriggerIntentService" />
         

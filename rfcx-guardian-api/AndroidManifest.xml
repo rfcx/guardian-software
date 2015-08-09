@@ -36,7 +36,12 @@
         android:name="org.rfcx.guardian.api.RfcxGuardian"
         >
 
-        <service android:name="org.rfcx.guardian.api.service.RebootIntentService" />
+        <!-- Services -->
+        <service android:name="org.rfcx.guardian.api.service.ApiCheckInService" />
+        <service android:name="org.rfcx.guardian.api.service.ApiCheckInTrigger" />
+        
+        <!-- IntentServices -->
+        <service android:name="org.rfcx.guardian.audio.service.ServiceMonitorIntentService" />
 
         <activity
             android:name="org.rfcx.guardian.api.activity.PrefsActivity"

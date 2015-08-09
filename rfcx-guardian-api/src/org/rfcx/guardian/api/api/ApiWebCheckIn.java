@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.HttpPostMultipart;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
 
