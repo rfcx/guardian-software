@@ -3,9 +3,9 @@ package org.rfcx.guardian.api.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.api.ApiCore;
+import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.HttpPostMultipart;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;
@@ -16,8 +16,7 @@ import android.util.Log;
 
 public class ApiCheckInService extends Service {
 
-	private static final String TAG = "RfcxGuardian-"+ApiCheckInService.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCheckInService.class.getSimpleName();
 
 	private boolean runFlag = false;
 	private ApiCheckIn apiCheckIn;
@@ -50,7 +49,7 @@ public class ApiCheckInService extends Service {
 		try {
 			this.apiCheckIn.start();
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 		return START_STICKY;
 	}
@@ -85,17 +84,18 @@ public class ApiCheckInService extends Service {
 						List<String[]> stringParameters = new ArrayList<String[]>();
 						stringParameters.add(new String[] { "json", currentCheckIn[2] });
 						stringParameters.add(new String[] { "audio", "" });
-						stringParameters.add(new String[] { "messages", app.apiCore.getMessagesAsJson() });
+						stringParameters.add(new String[] { "screenshots", "" });
+						stringParameters.add(new String[] { "messages", app.apiWebCheckIn.getMessagesAsJson() });
 						
-						if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiCore.MAX_CHECKIN_ATTEMPTS) {
-							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiCore.MAX_CHECKIN_ATTEMPTS+" failed attempts");
-							app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3]);
+						if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiWebCheckIn.MAX_CHECKIN_ATTEMPTS) {
+							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiWebCheckIn.MAX_CHECKIN_ATTEMPTS+" failed attempts");
+							app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3], currentCheckIn[4]);
 							app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(currentCheckIn[1]);
 						} else {
-							app.apiCore.sendCheckIn(
-								app.apiCore.getCheckInUrl(),
+							app.apiWebCheckIn.sendCheckIn(
+								app.apiWebCheckIn.getCheckInUrl(),
 								stringParameters, 
-								app.apiCore.loadCheckInFiles(currentCheckIn[1]),
+								app.apiWebCheckIn.loadCheckInFiles(currentCheckIn[4]),
 								true, // allow (or, if false, block) file attachments (audio/screenshots)
 								currentCheckIn[1]
 							);
@@ -105,7 +105,7 @@ public class ApiCheckInService extends Service {
 					}
 						
 				} catch (Exception e) {
-					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 					apiCheckInService.runFlag = false;
 					app.isRunning_ApiCheckIn = false;
 				}

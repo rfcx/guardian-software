@@ -2,10 +2,14 @@ package org.rfcx.guardian.api;
 
 import java.util.Calendar;
 
+import org.rfcx.guardian.api.api.ApiWebCheckIn;
 import org.rfcx.guardian.api.database.CheckInDb;
 import org.rfcx.guardian.api.device.DeviceAirplaneMode;
 import org.rfcx.guardian.api.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.api.receiver.ConnectivityReceiver;
+import org.rfcx.guardian.api.service.ApiCheckInService;
+import org.rfcx.guardian.api.service.ApiCheckInTrigger;
+import org.rfcx.guardian.api.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
@@ -52,7 +56,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DeviceAirplaneMode airplaneMode = new DeviceAirplaneMode();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
-	
+
+	// for transmitting api data
+	public ApiWebCheckIn apiWebCheckIn = new ApiWebCheckIn();
 
 	public boolean isRunning_ApiCheckIn = false;
 	public boolean isRunning_ApiCheckInTrigger = false;
@@ -70,6 +76,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		setAppVersion();
 		setDbHandlers();
+		
+		apiWebCheckIn.init(this);
 		
 		this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 	    this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -143,8 +151,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void initializeRoleServices(Context context) {
 		if (!this.hasRun_OnLaunchServiceTrigger) {
 			try {
-				// captures and saves audio stream
-				triggerService("AudioCapture", true);
+				
+				// start the api triggers
+				triggerService("ApiCheckInTrigger", true);
+				// Service Monitor
+				triggerIntentService("ServiceMonitor", 
+						System.currentTimeMillis(),
+						60*((int) Integer.parseInt(getPref("service_monitor_interval"))) );
 
 				hasRun_OnLaunchServiceTrigger = true;
 			} catch (Exception e) {
@@ -175,10 +188,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void triggerService(String serviceName, boolean forceReTrigger) {
 		context = getApplicationContext();
 		if (forceReTrigger) Log.w(TAG,"Forcing [re]trigger of service "+serviceName);
-		if (serviceName.equals("AudioCapture")) {
-			if (!this.isRunning_AudioCapture || forceReTrigger) {
-				context.stopService(new Intent(context, AudioCaptureService.class));
-				context.startService(new Intent(context, AudioCaptureService.class));
+		if (serviceName.equals("ApiCheckIn")) {
+			if (!this.isRunning_ApiCheckIn || forceReTrigger) {
+				context.stopService(new Intent(context, ApiCheckInService.class));
+				context.startService(new Intent(context, ApiCheckInService.class));
+			}
+		} else if (serviceName.equals("ApiCheckInTrigger")) {
+			if (!this.isRunning_ApiCheckInTrigger || forceReTrigger) {
+				context.stopService(new Intent(context, ApiCheckInTrigger.class));
+				context.startService(new Intent(context, ApiCheckInTrigger.class));
 			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
 		} else {
 			Log.w(TAG, "There is no service named '"+serviceName+"'.");
@@ -187,8 +205,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void stopService(String serviceName) {
 		context = getApplicationContext();		
-		if (serviceName.equals("AudioCapture")) {
-			context.stopService(new Intent(context, AudioCaptureService.class));
+		if (serviceName.equals("ApiCheckIn")) {
+			context.stopService(new Intent(context, ApiCheckInService.class));
+		} else if (serviceName.equals("ApiCheckInTrigger")) {
+			context.stopService(new Intent(context, ApiCheckInTrigger.class));
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}

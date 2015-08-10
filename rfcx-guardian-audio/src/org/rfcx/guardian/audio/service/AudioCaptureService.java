@@ -2,11 +2,15 @@ package org.rfcx.guardian.audio.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.capture.AudioCapture;
 import org.rfcx.guardian.audio.capture.ExtAudioRecorderModified;
+import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
@@ -58,7 +62,7 @@ public class AudioCaptureService extends Service {
 		app = (RfcxGuardian) getApplication();
 		context = app.getApplicationContext();
 
-		app.audioCapture.initializeAudioCapture(app);
+		app.audioCapture.initializeAudioDirectories(app);
 		
 		Log.v(TAG, "Starting service: "+TAG);
 		
@@ -90,12 +94,13 @@ public class AudioCaptureService extends Service {
 		public void run() {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
 			app = (RfcxGuardian) getApplication();
-			AudioCapture audioCore = app.audioCapture;
+			AudioCapture audioCapture = app.audioCapture;
+			AudioEncode audioEncode = app.audioEncode;
 			app.audioCapture.cleanupCaptureDirectory();
 			captureLoopPeriod = 1000*((int) Integer.parseInt(app.getPref("audio_capture_interval")));
-			captureSampleRate = audioCore.CAPTURE_SAMPLE_RATE_HZ;
-			encodingBitRate = audioCore.aacEncodingBitRate;
-			fileExtension = (app.audioCapture.mayEncodeOnCapture()) ? "m4a" : "wav";
+			captureSampleRate = audioCapture.CAPTURE_SAMPLE_RATE_HZ;
+			encodingBitRate = audioEncode.AAC_ENCODING_BIT_RATE;
+			fileExtension = (app.audioCapture.ENCODE_ON_CAPTURE) ? "m4a" : "wav";
 			try {
 				Log.d(TAG, "Capture Loop Period: "+ captureLoopPeriod +"ms");
 				while (audioCaptureService.runFlag) {
@@ -126,7 +131,7 @@ public class AudioCaptureService extends Service {
 		long timeStamp = Calendar.getInstance().getTimeInMillis();
 		String filePath = app.audioCapture.captureDir+"/"+timeStamp+"."+fileExtension;
 		try {
-			if (app.audioCapture.mayEncodeOnCapture()) {
+			if (app.audioCapture.ENCODE_ON_CAPTURE) {
 				mediaRecorder = setAacCaptureRecorder();
 				mediaRecorder.setOutputFile(filePath);
 		        mediaRecorder.prepare();
@@ -146,7 +151,7 @@ public class AudioCaptureService extends Service {
 	
 	private void captureLoopEnd() {
 		try {
-			if (app.audioCapture.mayEncodeOnCapture()) {
+			if (app.audioCapture.ENCODE_ON_CAPTURE) {
 				mediaRecorder.stop();
 				mediaRecorder.release();
 			} else {
@@ -173,16 +178,9 @@ public class AudioCaptureService extends Service {
 		File completedCapture = new File(app.audioCapture.captureDir+"/"+captureTimeStamps[0]+"."+fileExtension);
 		if (completedCapture.exists()) {
 			try {
-				String newPath = ((app.audioCapture.mayEncodeOnCapture()) ? app.audioCapture.aacDir : app.audioCapture.wavDir)
-						+"/"+captureTimeStamps[0]+"."+fileExtension;
-				fileUtils.copy(completedCapture, new File(newPath));
-				if ((new File(newPath)).exists()) {
-					completedCapture.delete();
-				}
-				
-				File storageDirectory = new File(newPath.substring(0, newPath.lastIndexOf("/")));
-				// check for free space?
-				
+				File preEncodeFile = new File(app.audioEncode.getAudioFileLocation_PreEncode(captureTimeStamps[0],fileExtension));
+				fileUtils.copy(completedCapture, preEncodeFile);
+				if (preEncodeFile.exists()) { completedCapture.delete(); }				
 			} catch (IOException e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			}
@@ -191,6 +189,5 @@ public class AudioCaptureService extends Service {
 	        app.audioEncode.triggerAudioEncodeAfterCapture(context);
 		}
 	}
-
 	
 }

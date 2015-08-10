@@ -133,6 +133,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			try {
 				// captures and saves audio stream
 				triggerService("AudioCapture", true);
+				// Service Monitor
+				triggerIntentService("ServiceMonitor", 
+						System.currentTimeMillis(),
+						60*((int) Integer.parseInt(getPref("service_monitor_interval"))) );
 
 				hasRun_OnLaunchServiceTrigger = true;
 			} catch (Exception e) {

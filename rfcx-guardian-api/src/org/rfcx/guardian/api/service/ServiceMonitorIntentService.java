@@ -1,7 +1,7 @@
 package org.rfcx.guardian.api.service;
 
 
-import org.rfcx.guardian.audio.RfcxGuardian;
+import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.IntentService;
@@ -31,7 +31,7 @@ public class ServiceMonitorIntentService extends IntentService {
 		
 		if (app.isRunning_ServiceMonitor) {
 			
-			app.triggerService("DeviceState", false);
+			app.triggerService("ApiCheckInTrigger", false);
 			
 		} else {
 			// the Monitor logic won't run the first time the intent service is fired

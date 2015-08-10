@@ -32,7 +32,8 @@ public class CheckInDb {
 	static final String C_AUDIO = "audio";
 	static final String C_JSON = "json";
 	static final String C_ATTEMPTS = "attempts";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON, C_ATTEMPTS };
+	static final String C_FILEPATH = "filepath";
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON, C_ATTEMPTS, C_FILEPATH };
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -40,6 +41,7 @@ public class CheckInDb {
 		sbOut.append(", "+C_AUDIO+" TEXT");
 		sbOut.append(", "+C_JSON+" TEXT");
 		sbOut.append(", "+C_ATTEMPTS+" TEXT");
+		sbOut.append(", "+C_FILEPATH+" TEXT");
 		return sbOut.append(")").toString();
 	}
 	
@@ -68,12 +70,13 @@ public class CheckInDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String audio, String json, String attempts) {
+		public void insert(String audio, String json, String attempts, String filepath) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, dateTimeUtils.getDateTime());
 			values.put(C_AUDIO, audio);
 			values.put(C_JSON, json);
 			values.put(C_ATTEMPTS, attempts);
+			values.put(C_FILEPATH, filepath);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -86,7 +89,7 @@ public class CheckInDb {
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
 				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) });
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;
@@ -98,7 +101,7 @@ public class CheckInDb {
 				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
 				if (cursor.getCount() > 0) {
 					try {
-						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) };
+						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return row;
@@ -164,12 +167,13 @@ public class CheckInDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String created_at, String audio, String json, String attempts) {
+		public void insert(String created_at, String audio, String json, String attempts, String filepath) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, created_at);
 			values.put(C_AUDIO, audio);
 			values.put(C_JSON, json);
 			values.put(C_ATTEMPTS, attempts);
+			values.put(C_FILEPATH, filepath);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -182,7 +186,7 @@ public class CheckInDb {
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
 				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) });
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;
@@ -194,7 +198,7 @@ public class CheckInDb {
 				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
 				if (cursor.getCount() > 0) {
 					try {
-						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) };
+						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return row;

@@ -50,7 +50,6 @@ public class SystemContentProvider extends ContentProvider {
 		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.system.PROJECTION);
 		
 		cursor.addRow(new Object[] { 
-				Calendar.getInstance().getTimeInMillis(),
 				(vBattery[0] != "0") ? vBattery[1] : null, 	// battery
 				(vCpu[0] != "0") ? vCpu[1] : null, 			// cpu
 				(vPower[0] != "0") ? vPower[1] : null, 		// power
@@ -78,12 +77,9 @@ public class SystemContentProvider extends ContentProvider {
 			app.deviceStateDb.dbLightMeter.clearRowsBefore(deleteBefore);
 			app.dataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
 			
-			return 0;
-		} else {
-			return 0;
+			return 1;
 		}
-		
-		
+		return 0;
 	}
 	
 	private void checkSetApplicationContext() {

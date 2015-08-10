@@ -1,6 +1,7 @@
 package org.rfcx.guardian.api.service;
 
-import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.api.RfcxGuardian;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;
@@ -11,8 +12,7 @@ import android.util.Log;
 
 public class ApiCheckInTrigger extends Service {
 
-	private static final String TAG = "RfcxGuardian-"+ApiCheckInTrigger.class.getSimpleName();
-	private static final String NULL_EXC = "Exception thrown, but exception itself is null.";
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCheckInTrigger.class.getSimpleName();
 	
 	private boolean runFlag = false;
 	private ApiCheckIn apiCheckInTrigger;
@@ -45,7 +45,7 @@ public class ApiCheckInTrigger extends Service {
 		try {
 			this.apiCheckInTrigger.start();
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 		return START_STICKY;
 	}
@@ -71,15 +71,15 @@ public class ApiCheckInTrigger extends Service {
 			ApiCheckInTrigger apiCheckInTrigger = ApiCheckInTrigger.this;
 			app = (RfcxGuardian) getApplication();
 			try {
-				Log.d(TAG, "ApiCheckTrigger Period: "+ app.apiCore.apiCheckInTriggerPeriod +"ms");
+				Log.d(TAG, "ApiCheckTrigger Period: "+ app.apiWebCheckIn.apiCheckInTriggerPeriod +"ms");
 				while (apiCheckInTrigger.runFlag) {
 					try {
 						app.triggerService("ApiCheckIn", false);
-						app.apiCore.connectivityToggleCheck();
-				        Thread.sleep(app.apiCore.apiCheckInTriggerPeriod);
+						app.apiWebCheckIn.connectivityToggleCheck();
+				        Thread.sleep(app.apiWebCheckIn.apiCheckInTriggerPeriod);
 
 					} catch (Exception e) {
-						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 						apiCheckInTrigger.runFlag = false;
 						app.isRunning_ApiCheckInTrigger = false;
 					}
@@ -87,7 +87,7 @@ public class ApiCheckInTrigger extends Service {
 				Log.v(TAG, "Stopping service: "+TAG);
 				
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : NULL_EXC);
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 				apiCheckInTrigger.runFlag = false;
 				app.isRunning_ApiCheckInTrigger = false;
 			}

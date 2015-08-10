@@ -21,6 +21,8 @@ import org.rfcx.guardian.utility.HttpPostMultipart;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
 
+import android.database.Cursor;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -79,51 +81,38 @@ public class ApiWebCheckIn {
 		}
 	}
 	
-	public void createCheckIn() {
+	public boolean createCheckIn(String[] audioInfo, String filepath) {
 		
-		String[] audioInfo = app.audioDb.dbEncoded.getLatestRow();
-		app.checkInDb.dbQueued.insert(audioInfo[1]+"."+audioInfo[2], getCheckInJson(audioInfo), "0");
+		app.checkInDb.dbQueued.insert(audioInfo[1]+"."+audioInfo[2], generateCheckInJson(audioInfo), "0", filepath);
 		
-		Date statsSnapshot = new Date();
-		app.deviceStateDb.dbBattery.clearRowsBefore(statsSnapshot);
-		app.deviceStateDb.dbCPU.clearRowsBefore(statsSnapshot);
-		app.deviceStateDb.dbPower.clearRowsBefore(statsSnapshot);
-		app.deviceStateDb.dbNetwork.clearRowsBefore(statsSnapshot);
-		app.deviceStateDb.dbOffline.clearRowsBefore(statsSnapshot);
-		app.deviceStateDb.dbLightMeter.clearRowsBefore(statsSnapshot);
-		app.dataTransferDb.dbTransferred.clearRowsBefore(statsSnapshot);
+		return true;
 	}
 	
 	
-	public String getCheckInJson(String[] audioFileInfo) {
-		
-		String[] vBattery = app.deviceStateDb.dbBattery.getConcatRows();
-		String[] vCpu = app.deviceStateDb.dbCPU.getConcatRows();
-		String[] vPower = app.deviceStateDb.dbPower.getConcatRows();
-		String[] vNetwork = app.deviceStateDb.dbNetwork.getConcatRows();
-		String[] vOffline = app.deviceStateDb.dbOffline.getConcatRows();
-		String[] vLightMeter = app.deviceStateDb.dbLightMeter.getConcatRows();
-		String[] vDataTransferred = app.dataTransferDb.dbTransferred.getConcatRows();
-		
-		String timeZoneOffset = timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime());
+	public String generateCheckInJson(String[] audioFileInfo) {
 		
 		try {
 
 			JSONObject json = new JSONObject();
+			
+			Date clearStatsBefore = new Date();
+			Cursor cursor = app.getContentResolver().query(
+				Uri.parse(RfcxConstants.RfcxContentProvider.system.URI),
+	    		RfcxConstants.RfcxContentProvider.system.PROJECTION,
+	            null, null, null);
+			if (cursor.moveToFirst()) { do {
+				for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION.length; i++) {
+					json.put(cursor.getColumnName(i), (cursor.getString(i) != null) ? cursor.getString(i) : null);
+				}
+			 } while (cursor.moveToNext()); }
+			int clearStats = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI+"/"+clearStatsBefore.getTime()), null, null);
+			
+			
+			json.put("measured_at", (new DateTimeUtils()).getDateTime(clearStatsBefore));
+			json.put("timezone_offset", timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime()));
+
+			json.put("software_version", "api:"+app.version);
 		
-			json.put("battery", (vBattery[0] != "0") ? vBattery[1] : null);
-			json.put("cpu", (vCpu[0] != "0") ? vCpu[1] : null);
-			json.put("power", (vPower[0] != "0") ? vPower[1] : null);
-			json.put("network", (vNetwork[0] != "0") ? vNetwork[1] : null);
-			json.put("offline", (vOffline[0] != "0") ? vOffline[1] : null);
-			json.put("lightmeter", (vLightMeter[0] != "0") ? vLightMeter[1] : null);
-			
-			json.put("measured_at", (new DateTimeUtils()).getDateTime(Calendar.getInstance().getTime()));
-			json.put("software_version", app.version);
-			json.put("timezone_offset", timeZoneOffset);
-			
-			json.put("data_transfer",  (vDataTransferred[0] != "0") ? vDataTransferred[1] : null);
-			
 			json.put("queued_checkins", app.checkInDb.dbQueued.getCount());
 			json.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
 			
@@ -161,24 +150,24 @@ public class ApiWebCheckIn {
 			    JSONArray audioJsonArray = new JSONArray(responseJson.getString("audio"));
 			    for (int i = 0; i < audioJsonArray.length(); i++) {
 			    	JSONObject audioJson = audioJsonArray.getJSONObject(i);
-					app.audioCore.purgeSingleAudioAsset(app.audioDb, audioJson.getString("id"));
 					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioJson.getString("id")+".m4a");
+					int deleteAudio = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI+"/"+audioJson.getString("id")), null, null);
 			    }
-				
-				// parse the screenshot info and use it to purge the data locally
-			    JSONArray screenShotJsonArray = new JSONArray(responseJson.getString("screenshots"));
-			    for (int i = 0; i < screenShotJsonArray.length(); i++) {
-			    	JSONObject screenShotJson = screenShotJsonArray.getJSONObject(i);
-					app.deviceScreenShot.purgeSingleScreenShot(screenShotJson.getString("id"));
-					app.screenShotDb.dbScreenShot.deleteSingleScreenShot(screenShotJson.getString("id"));
-			    }
-				
-				// parse the message info and use it to purge the data locally
-			    JSONArray messageJsonArray = new JSONArray(responseJson.getString("messages"));
-			    for (int i = 0; i < messageJsonArray.length(); i++) {
-			    	JSONObject messageJson = messageJsonArray.getJSONObject(i);
-					app.smsDb.dbReceived.deleteSingleMessage(messageJson.getString("digest"));
-			    }
+//				
+//				// parse the screenshot info and use it to purge the data locally
+//			    JSONArray screenShotJsonArray = new JSONArray(responseJson.getString("screenshots"));
+//			    for (int i = 0; i < screenShotJsonArray.length(); i++) {
+//			    	JSONObject screenShotJson = screenShotJsonArray.getJSONObject(i);
+//					app.deviceScreenShot.purgeSingleScreenShot(screenShotJson.getString("id"));
+//					app.screenShotDb.dbScreenShot.deleteSingleScreenShot(screenShotJson.getString("id"));
+//			    }
+//				
+//				// parse the message info and use it to purge the data locally
+//			    JSONArray messageJsonArray = new JSONArray(responseJson.getString("messages"));
+//			    for (int i = 0; i < messageJsonArray.length(); i++) {
+//			    	JSONObject messageJson = messageJsonArray.getJSONObject(i);
+//					app.smsDb.dbReceived.deleteSingleMessage(messageJson.getString("digest"));
+//			    }
 				
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
@@ -190,39 +179,39 @@ public class ApiWebCheckIn {
 	
 	
 	public String getMessagesAsJson() {
-		List<String[]> msgList = app.smsDb.dbReceived.getAllMessages();
-		List<String> jsonList = new ArrayList<String>();
-		for (String[] msg : msgList) {
-			try {
-				JSONObject msgJson = new JSONObject();
-				msgJson.put("received_at", msg[0]);
-				msgJson.put("number", msg[1]);
-				msgJson.put("body", msg[2]);
-				msgJson.put("digest", msg[3]);
-				jsonList.add(msgJson.toString());
-			} catch (JSONException e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-			}
-		}
-		
-		if (jsonList.size() > 0) {
-			String jsonArray = "["+TextUtils.join(",", jsonList)+"]";
-			Log.v(TAG,"Messages: "+jsonArray);
-			return jsonArray;
-		} else {
+//		List<String[]> msgList = app.smsDb.dbReceived.getAllMessages();
+//		List<String> jsonList = new ArrayList<String>();
+//		for (String[] msg : msgList) {
+//			try {
+//				JSONObject msgJson = new JSONObject();
+//				msgJson.put("received_at", msg[0]);
+//				msgJson.put("number", msg[1]);
+//				msgJson.put("body", msg[2]);
+//				msgJson.put("digest", msg[3]);
+//				jsonList.add(msgJson.toString());
+//			} catch (JSONException e) {
+//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+//			}
+//		}
+//		
+//		if (jsonList.size() > 0) {
+//			String jsonArray = "["+TextUtils.join(",", jsonList)+"]";
+//			Log.v(TAG,"Messages: "+jsonArray);
+//			return jsonArray;
+//		} else {
 			return "[]";
-		}
+//		}
 		
 	}
 
-	public List<String[]> loadCheckInFiles(String audioFile) {
+	public List<String[]> loadCheckInFiles(String audioFilePath) {
 
 		List<String[]> checkInFiles = new ArrayList<String[]>();
 		
 		// attach audio file - we only attach one per check-in
-		String audioId = audioFile.substring(0, audioFile.lastIndexOf("."));
-		String audioFormat = audioFile.substring(1+audioFile.lastIndexOf("."));
-		String audioFilePath = app.audioCore.wavDir.substring(0,app.audioCore.wavDir.lastIndexOf("/"))+"/"+audioFormat+"/"+audioId+"."+audioFormat;
+		String audioFileName = audioFilePath.substring(1+audioFilePath.lastIndexOf("/"));
+		String audioId = audioFileName.substring(0, audioFileName.lastIndexOf("."));
+		String audioFormat = audioFileName.substring(1+audioFileName.lastIndexOf("."));
 		try {
 			if ((new File(audioFilePath)).exists()) {
 				checkInFiles.add(new String[] {"audio", audioFilePath, "audio/"+audioFormat});
@@ -233,23 +222,23 @@ public class ApiWebCheckIn {
 		} catch (Exception e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
-		
-		
-		// attach screenshot images - we only attach one per check-in (the latest screenshot)
-		String[] screenShot = app.screenShotDb.dbScreenShot.getLastScreenShot();
-		if (screenShot.length > 0) {
-			String imgFilePath = app.getApplicationContext().getFilesDir().toString()+"/img/"+screenShot[1]+".png";
-			try {
-				if ((new File(imgFilePath)).exists()) {
-					checkInFiles.add(new String[] {"screenshot", imgFilePath, "image/png"});
-					Log.d(TAG, "Screenshot attached: "+screenShot[1]+".png");
-				} else {
-					Log.e(TAG, "Screenshot attachment file doesn't exist: "+screenShot[1]+".png");
-				}
-			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-			}
-		}
+//		
+//		
+//		// attach screenshot images - we only attach one per check-in (the latest screenshot)
+//		String[] screenShot = app.screenShotDb.dbScreenShot.getLastScreenShot();
+//		if (screenShot.length > 0) {
+//			String imgFilePath = app.getApplicationContext().getFilesDir().toString()+"/img/"+screenShot[1]+".png";
+//			try {
+//				if ((new File(imgFilePath)).exists()) {
+//					checkInFiles.add(new String[] {"screenshot", imgFilePath, "image/png"});
+//					Log.d(TAG, "Screenshot attached: "+screenShot[1]+".png");
+//				} else {
+//					Log.e(TAG, "Screenshot attachment file doesn't exist: "+screenShot[1]+".png");
+//				}
+//			} catch (Exception e) {
+//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+//			}
+//		}
 		
 		return checkInFiles;
 	}
@@ -270,7 +259,7 @@ public class ApiWebCheckIn {
 					if (toggleThreshold == this.connectivityToggleThresholds[this.connectivityToggleThresholds.length-1]) {
 						//last index, force reboot
 						Log.d(TAG,"ToggleCheck: ForcedReboot ("+toggleThreshold+" minutes since last successful CheckIn)");
-						(new ShellCommands()).executeCommandAsRoot("reboot",null,app.getApplicationContext());
+	//					(new ShellCommands()).executeCommandAsRoot("reboot",null,app.getApplicationContext());
 					}
 				}
 				thresholdIndex++;

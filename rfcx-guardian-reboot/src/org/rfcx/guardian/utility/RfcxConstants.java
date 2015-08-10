@@ -8,7 +8,7 @@ public class RfcxConstants {
 	public static final class RfcxContentProvider {
 		
 		public static final class system {
-			public static final String[] PROJECTION = { "measured_at", "battery", "cpu", "power", "network", "offline", "lightmeter", "data_transfer" };
+			public static final String[] PROJECTION = { "battery", "cpu", "power", "network", "offline", "lightmeter", "data_transfer" };
 			public static final String AUTHORITY = "org.rfcx.guardian.system";
 			public static final String ENDPOINT = "meta";
 			public static final String URI = "content://"+AUTHORITY+"/"+ENDPOINT;

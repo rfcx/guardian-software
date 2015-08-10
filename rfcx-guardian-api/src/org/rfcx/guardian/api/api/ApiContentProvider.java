@@ -12,6 +12,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.util.Log;
 
 public class ApiContentProvider extends ContentProvider {
 	
@@ -81,8 +82,17 @@ public class ApiContentProvider extends ContentProvider {
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
 		checkSetApplicationContext();
-		
-		return null;
+		String[] audioInfo = new String[] {
+				values.getAsString("created_at"),
+				values.getAsString("timestamp"),
+				values.getAsString("format"),
+				values.getAsString("digest")
+		};
+		if (app.apiWebCheckIn.createCheckIn(audioInfo,values.getAsString("filepath"))) {
+			return Uri.parse(RfcxConstants.RfcxContentProvider.api.URI+"/"+values.getAsString("timestamp"));
+		} else {
+			return null;
+		}
 	}
 	
 }
