@@ -264,10 +264,13 @@ public class DeviceStateDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(Date measured_at, int signal_strength, String carrier_name) {
+		public void insert(Date measured_at, int signal_strength, String network_type, String carrier_name) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
-			values.put(C_VALUE_1, signal_strength);
+			// this is obviously a hack...
+			// ...to concat two values into a single column.
+			// may want to change/consider later
+			values.put(C_VALUE_1, signal_strength+"*"+network_type);
 			values.put(C_VALUE_2, carrier_name.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {

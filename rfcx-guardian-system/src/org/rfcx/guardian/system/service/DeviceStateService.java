@@ -184,18 +184,66 @@ public class DeviceStateService extends Service implements SensorEventListener {
 			int	gsmSignalStrength = signalStrength.getGsmSignalStrength(); //GSM Signal Strength, valid values are (0-31, 99) as defined in TS 27.007 8.5
 			
 			int dBmGsmSignalStrength = (-113+2*gsmSignalStrength);
+			String networkType = "";
 			String carrierName = "";
 			
 			if (dBmGsmSignalStrength > 0) {
 				dBmGsmSignalStrength = 0;
 			} else { 
 				carrierName = telephonyManager.getNetworkOperatorName();
+				networkType = getNetworkTypeCategory(telephonyManager.getNetworkType());
 			}
-			app.deviceStateDb.dbNetwork.insert(new Date(), dBmGsmSignalStrength, carrierName);
+			app.deviceStateDb.dbNetwork.insert(new Date(), dBmGsmSignalStrength, networkType, carrierName);
 			
 		}
 	}
 	
-	
+	private static String getNetworkTypeCategory(int getNetworkType) {
+		String networkTypeCategory = null;
+	    switch (getNetworkType) {
+	        case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+	        	networkTypeCategory = "unknown";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_IDEN:
+	        	networkTypeCategory = "iden";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_GPRS:
+	        	networkTypeCategory = "gprs";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_EDGE:
+	        	networkTypeCategory = "edge";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_UMTS:
+	        	networkTypeCategory = "umts";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_CDMA:
+	        	networkTypeCategory = "cdma";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_1xRTT:
+	        	networkTypeCategory = "1xrtt";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_EVDO_0:
+	        	networkTypeCategory = "evdo0";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_EVDO_A:
+	        	networkTypeCategory = "evdoA";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_EVDO_B:
+	        	networkTypeCategory = "evdoB";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_HSDPA:
+	        	networkTypeCategory = "hsdpa";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_HSUPA:
+	        	networkTypeCategory = "hsupa";
+	            break;
+	        case TelephonyManager.NETWORK_TYPE_HSPA:
+	        	networkTypeCategory = "hspa";
+	            break;
+	        default:
+	        	networkTypeCategory = null;
+	    }
+	    return networkTypeCategory;
+	}
 	
 }
