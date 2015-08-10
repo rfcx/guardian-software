@@ -50,7 +50,6 @@ public class ApiWebCheckIn {
 	public void init(RfcxGuardian app) {
 		this.app = app;
 		// setting http post timeouts to the same as the audio capture interval.
-		// this may not be a good idea... we'll see
 		int audioCaptureInterval = 1000*((int) Integer.parseInt(app.getPref("audio_capture_interval")));
 		this.httpPostMultipart.setTimeOuts(audioCaptureInterval, audioCaptureInterval);
 		// setting customized rfcx authentication headers (necessary for API access)
@@ -68,10 +67,10 @@ public class ApiWebCheckIn {
 		if (!allowAttachments) keyFilepathMimeAttachments = new ArrayList<String[]>();
 		if (app.isConnected) {
 			this.requestSendStart = new Date();
-			Log.i(TAG,"CheckIn sent at: "+requestSendStart.toGMTString());
+			Log.i(TAG,"CheckIn sent at: "+requestSendStart.toLocaleString());
 			String checkInResponse = httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments);
 			processCheckInResponse(checkInResponse);
-			if (checkInResponse.equals("RfcxGuardian-HttpPostMultipart-UnknownHostException")) {
+			if (checkInResponse.equals("Rfcx-"+RfcxConstants.ROLE_NAME+"-HttpPostMultipart-UnknownHostException")) {
 				Log.e(TAG,"NOT INCREMENTING CHECK-IN ATTEMPTS");
 			} else {
 				app.checkInDb.dbQueued.incrementSingleRowAttempts(checkInAudioReference);
@@ -259,7 +258,7 @@ public class ApiWebCheckIn {
 					if (toggleThreshold == this.connectivityToggleThresholds[this.connectivityToggleThresholds.length-1]) {
 						//last index, force reboot
 						Log.d(TAG,"ToggleCheck: ForcedReboot ("+toggleThreshold+" minutes since last successful CheckIn)");
-	//					(new ShellCommands()).executeCommandAsRoot("reboot",null,app.getApplicationContext());
+						(new ShellCommands()).executeCommand("reboot", null, false, app.getApplicationContext());
 					}
 				}
 				thresholdIndex++;
