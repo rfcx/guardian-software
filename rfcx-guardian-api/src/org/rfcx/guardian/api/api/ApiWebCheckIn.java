@@ -1,8 +1,6 @@
 package org.rfcx.guardian.api.api;
 
 import java.io.File;
-import java.net.UnknownHostException;
-import java.security.MessageDigest;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,6 +15,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.HttpPostMultipart;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -24,6 +23,7 @@ import org.rfcx.guardian.utility.ShellCommands;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 public class ApiWebCheckIn {
@@ -101,7 +101,9 @@ public class ApiWebCheckIn {
 	            null, null, null);
 			if (cursor.moveToFirst()) { do {
 				for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION.length; i++) {
-					json.put(cursor.getColumnName(i), (cursor.getString(i) != null) ? cursor.getString(i) : null);
+					json.put(	RfcxConstants.RfcxContentProvider.system.PROJECTION[i],
+								(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION[i])) != null) ? cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION[i])) : null
+							);
 				}
 			 } while (cursor.moveToNext()); }
 			int clearStats = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI+"/"+clearStatsBefore.getTime()), null, null);
@@ -109,14 +111,16 @@ public class ApiWebCheckIn {
 			
 			json.put("measured_at", (new DateTimeUtils()).getDateTime(clearStatsBefore));
 			json.put("timezone_offset", timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime()));
-
-			json.put("software_version", "api:"+app.version);
 		
 			json.put("queued_checkins", app.checkInDb.dbQueued.getCount());
 			json.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
 			
 			json.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
 			this.previousCheckIns = new ArrayList<String>();
+			
+			List<String> softwareVersions = new ArrayList<String>();
+			softwareVersions.add("api"+"*"+app.version);
+			json.put("software_version", TextUtils.join("|", softwareVersions));
 	
 			List<String> audioFiles = new ArrayList<String>();
 			audioFiles.add(TextUtils.join("*", audioFileInfo));
@@ -265,25 +269,5 @@ public class ApiWebCheckIn {
 			}
 		}
 	}
-	
-	
-//	private byte[] gZipString(String s) {
-//		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//		GZIPOutputStream gZIPOutputStream = null;
-//		try {
-//			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
-//			gZIPOutputStream.write(s.getBytes("UTF-8"));
-//		} catch (IOException e) {
-//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-//		} finally { if (gZIPOutputStream != null) {
-//			try { gZIPOutputStream.close();
-//			} catch (IOException e) {
-//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-//			};
-//		} }
-//		return byteArrayOutputStream.toByteArray();
-//	}
-//	
 
-	
 }

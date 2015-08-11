@@ -53,7 +53,7 @@ public class AudioContentProvider extends ContentProvider {
 						encodedEntry[1], // timestamp
 						encodedEntry[2], // extension
 						encodedEntry[3], // digest
-						app.audioEncode.getAudioFileLocation_PostEncode((long) Long.parseLong(encodedEntry[1]), encodedEntry[2])
+						app.audioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(encodedEntry[1]), encodedEntry[2])
 					});
 			}
 		}

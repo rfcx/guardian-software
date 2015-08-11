@@ -83,14 +83,13 @@ public class InstallAppService extends Service {
 
 				String apkFilePath = context.getFilesDir().getAbsolutePath()+"/"+apkFileName;
 				File apkFile = (new File(apkFilePath));
-				String apkSha1Hash = (new FileUtils()).sha1Hash(apkFilePath);
 				
 				if (successfullyInstalled) {
 					Log.d(TAG, "Installation successful ("+app.apiCore.installVersion+"). Deleting APK and rebooting...");
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
 					shellCommands.executeCommand("reboot",null,false,context);
-				} else if ((installLoopCounter < 1) && apkSha1Hash.equals(app.apiCore.installVersionSha1)) {
+				} else if ((installLoopCounter < 1) && (new FileUtils()).sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
 					installLoopCounter++;
 					app.triggerService("InstallApp", true);
 				} else {

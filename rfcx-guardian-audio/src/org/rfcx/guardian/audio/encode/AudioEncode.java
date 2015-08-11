@@ -31,15 +31,17 @@ public class AudioEncode {
 	
 	public final static int AAC_ENCODING_BIT_RATE = 16384;
 	
-	
-	public String getAudioFileLocation_PostEncode(long timestamp, String fileExtension) {
-		return this.aacDir+"/"+dateFormat.format(new Date(timestamp))+"/"+timestamp+"."+fileExtension;
-	}
-	
 	public String getAudioFileLocation_PreEncode(long timestamp, String fileExtension) {
 		return this.encodeDir+"/"+timestamp+"."+fileExtension;
 	}
 	
+	public String getAudioFileLocation_PostEncode(long timestamp, String fileExtension) {
+		return this.encodeDir+"/_"+timestamp+"."+fileExtension;
+	}
+
+	public String getAudioFileLocation_Complete_PostZip(long timestamp, String fileExtension) {
+		return this.aacDir+"/"+dateFormat.format(new Date(timestamp))+"/"+timestamp+"."+fileExtension+".gz";
+	}
 	
 	public void triggerAudioEncodeAfterCapture(Context context) {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -60,7 +62,7 @@ public class AudioEncode {
 		for (String[] encodedAudioEntry : encodedAudioEntries) {
 			if (encodedAudioEntry[1].equals(audioTimestamp)) {
 				try {
-					(new File(getAudioFileLocation_PostEncode((long) Long.parseLong(encodedAudioEntry[1]),encodedAudioEntry[2]))).delete();
+					(new File(getAudioFileLocation_Complete_PostZip((long) Long.parseLong(encodedAudioEntry[1]),encodedAudioEntry[2]))).delete();
 				} catch (Exception e) {
 					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 				}

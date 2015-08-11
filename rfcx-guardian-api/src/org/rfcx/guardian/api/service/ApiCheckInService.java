@@ -1,10 +1,12 @@
 package org.rfcx.guardian.api.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.rfcx.guardian.api.RfcxGuardian;
-import org.rfcx.guardian.utility.HttpPostMultipart;
+import org.rfcx.guardian.utility.FileUtils;
+import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Service;
@@ -12,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 
 public class ApiCheckInService extends Service {
@@ -23,6 +26,8 @@ public class ApiCheckInService extends Service {
 
 	private RfcxGuardian app = null;
 	private Context context = null;
+	
+	GZipUtils gZipUtils = new GZipUtils();
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -68,7 +73,7 @@ public class ApiCheckInService extends Service {
 		public ApiCheckIn() {
 			super("ApiCheckInService-ApiCheckIn");
 		}
-
+		
 		@Override
 		public void run() {
 			ApiCheckInService apiCheckInService = ApiCheckInService.this;
@@ -82,8 +87,7 @@ public class ApiCheckInService extends Service {
 					if ((currentCheckIn[0] != null) && app.isConnected) {
 						
 						List<String[]> stringParameters = new ArrayList<String[]>();
-						stringParameters.add(new String[] { "json", currentCheckIn[2] });
-						stringParameters.add(new String[] { "audio", "" });
+						stringParameters.add(new String[] { "meta", gZipUtils.gZipStringToBase64(currentCheckIn[2]) });
 						stringParameters.add(new String[] { "screenshots", "" });
 						stringParameters.add(new String[] { "messages", app.apiWebCheckIn.getMessagesAsJson() });
 						

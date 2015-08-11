@@ -6,6 +6,7 @@ import java.util.List;
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.FileUtils;
+import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.IntentService;
@@ -21,6 +22,7 @@ public class AudioEncodeIntentService extends IntentService {
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".RECEIVE_AUDIO_ENCODE_NOTIFICATIONS";
 
     private FileUtils fileUtils = new FileUtils();
+    private GZipUtils gZipUtils = new GZipUtils();
     private DateTimeUtils dateTimeUtils = new DateTimeUtils();
     
 	public AudioEncodeIntentService() {
@@ -40,16 +42,21 @@ public class AudioEncodeIntentService extends IntentService {
 			
 			File preEncodeFile = new File(app.audioEncode.getAudioFileLocation_PreEncode((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
 			File postEncodeFile = new File(app.audioEncode.getAudioFileLocation_PostEncode((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
+			File gZippedFile = new File(app.audioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
 			try {
 				
 				// This is where the actual encoding would take place...
 				// for now (since we're already in AAC) we just copy the file to the final location
 				fileUtils.copy(preEncodeFile, postEncodeFile);
-				if (preEncodeFile.exists()) { preEncodeFile.delete(); }
+				if (preEncodeFile.exists() && postEncodeFile.exists()) { preEncodeFile.delete(); }
+				
+				String digest = fileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
+				gZipUtils.gZipFile(postEncodeFile, gZippedFile);
+				if (postEncodeFile.exists() && gZippedFile.exists()) { postEncodeFile.delete(); }
 				
 				app.audioDb.dbCaptured.clearCapturedBefore(dateTimeUtils.getDateFromString(capturedRow[0]));
-				String digest = fileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
 				app.audioDb.dbEncoded.insert(capturedRow[1], capturedRow[2],digest);
+				
 				//make sure the previous step(s) are synchronous or else the checkin will occur before the encode...
 				app.audioEncode.triggerCheckInAfterEncode(app.getApplicationContext());
 				
