@@ -16,6 +16,8 @@ import android.util.Log;
 public class ShellCommands {
 
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ShellCommands.class.getSimpleName();
+
+	FileUtils fileUtils = new FileUtils();
 	
 	public void killProcessByName(Context context, String searchTerm, String excludeTerm) {
 		Log.i(TAG, "Attempting to kill process associated with search term '"+searchTerm+"'.");
@@ -25,11 +27,9 @@ public class ShellCommands {
 	
 	public boolean executeCommand(String commandContents, String outputSearchString, boolean asRoot, Context context) {
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-		FileUtils fileUtils = new FileUtils();
 	    String filePath = app.getApplicationContext().getFilesDir().toString()+"/txt/script.sh";
+	    (new File(filePath.substring(0,filePath.lastIndexOf("/")))).mkdirs();
 	    File fileObj = new File(filePath);
-	    fileObj.mkdirs();
-	    fileUtils.chmod(new File(app.getApplicationContext().getFilesDir().toString()+"/txt"), 0755);
 	    if (fileObj.exists()) { fileObj.delete(); }
 	    boolean commandSuccess = false;
 	    Process commandProcess = null;
@@ -40,8 +40,8 @@ public class ShellCommands {
 	        		+"\n"+commandContents
 	        		+"\n");
 	        outFile.close();
-	        fileUtils.chmod(new File(filePath), 0755);
-		    if ((new File(filePath)).exists()) {
+	        fileUtils.chmod(fileObj, 0755);
+		    if (fileObj.exists()) {
 		    	if (outputSearchString != null) {
 		    		if (asRoot) { commandProcess = Runtime.getRuntime().exec(new String[] { "su", "-c", filePath }); }
 		    		else { commandProcess = Runtime.getRuntime().exec(new String[] { filePath }); }
@@ -69,5 +69,7 @@ public class ShellCommands {
 	public void triggerNeedForRootAccess(Context context) {
 		executeCommand("pm list features",null,true,context);
 	}
+	
+}
 	
 }
