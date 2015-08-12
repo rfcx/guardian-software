@@ -96,17 +96,17 @@ public class ApiWebCheckIn {
 			
 			Date clearStatsBefore = new Date();
 			Cursor cursor = app.getContentResolver().query(
-				Uri.parse(RfcxConstants.RfcxContentProvider.system.URI),
-	    		RfcxConstants.RfcxContentProvider.system.PROJECTION,
+				Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_1),
+	    		RfcxConstants.RfcxContentProvider.system.PROJECTION_1,
 	            null, null, null);
 			if (cursor.moveToFirst()) { do {
-				for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION.length; i++) {
-					json.put(	RfcxConstants.RfcxContentProvider.system.PROJECTION[i],
-								(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION[i])) != null) ? cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION[i])) : null
+				for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION_1.length; i++) {
+					json.put(	RfcxConstants.RfcxContentProvider.system.PROJECTION_1[i],
+								(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_1[i])) != null) ? cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_1[i])) : null
 							);
 				}
 			 } while (cursor.moveToNext()); }
-			int clearStats = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI+"/"+clearStatsBefore.getTime()), null, null);
+			int clearStats = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_1+"/"+clearStatsBefore.getTime()), null, null);
 			
 			
 			json.put("measured_at", (new DateTimeUtils()).getDateTime(clearStatsBefore));
@@ -154,7 +154,7 @@ public class ApiWebCheckIn {
 			    for (int i = 0; i < audioJsonArray.length(); i++) {
 			    	JSONObject audioJson = audioJsonArray.getJSONObject(i);
 					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioJson.getString("id")+".m4a");
-					int deleteAudio = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI+"/"+audioJson.getString("id")), null, null);
+					int deleteAudio = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1+"/"+audioJson.getString("id")), null, null);
 			    }
 //				
 //				// parse the screenshot info and use it to purge the data locally
@@ -181,9 +181,9 @@ public class ApiWebCheckIn {
 	}			
 	
 	
-	public String getMessagesAsJson() {
+	public String getMessagesAsJsonString() {
+		JSONArray msgJsonArray = new JSONArray();
 //		List<String[]> msgList = app.smsDb.dbReceived.getAllMessages();
-//		List<String> jsonList = new ArrayList<String>();
 //		for (String[] msg : msgList) {
 //			try {
 //				JSONObject msgJson = new JSONObject();
@@ -191,20 +191,12 @@ public class ApiWebCheckIn {
 //				msgJson.put("number", msg[1]);
 //				msgJson.put("body", msg[2]);
 //				msgJson.put("digest", msg[3]);
-//				jsonList.add(msgJson.toString());
+//				msgJsonArray.put(msgJson);
 //			} catch (JSONException e) {
 //				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 //			}
 //		}
-//		
-//		if (jsonList.size() > 0) {
-//			String jsonArray = "["+TextUtils.join(",", jsonList)+"]";
-//			Log.v(TAG,"Messages: "+jsonArray);
-//			return jsonArray;
-//		} else {
-			return "[]";
-//		}
-		
+		return msgJsonArray.toString();
 	}
 
 	public List<String[]> loadCheckInFiles(String audioFilePath) {

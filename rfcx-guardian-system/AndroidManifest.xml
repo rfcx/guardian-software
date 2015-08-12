@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.system"
     android:versionCode="1"
-    android:versionName="0.1.7" >
+    android:versionName="0.1.8" >
    
     <uses-sdk
         android:minSdkVersion="10"
@@ -39,6 +39,7 @@
         <!-- Services -->
         <service android:name="org.rfcx.guardian.system.service.DeviceStateService" />
         <service android:name="org.rfcx.guardian.system.service.DeviceCPUTunerService" />
+        <service android:name="org.rfcx.guardian.system.service.DeviceScreenShotService" />
         
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.system.service.ServiceMonitorIntentService" />

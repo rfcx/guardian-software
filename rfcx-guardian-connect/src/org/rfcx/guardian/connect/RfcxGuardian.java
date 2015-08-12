@@ -110,14 +110,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void testContentResolver() {
 				
 		Cursor cursor = this.getContentResolver().query(
-					Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI),
-		    		RfcxConstants.RfcxContentProvider.audio.PROJECTION,
+					Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_2),
+		    		RfcxConstants.RfcxContentProvider.system.PROJECTION_2,
 		            null,
 		            null,
 		            null);
 		if (cursor.moveToFirst()) {
 		   do {
-			  for (int i = 0; i < RfcxConstants.RfcxContentProvider.audio.PROJECTION.length; i++) {
+			  for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION_2.length; i++) {
 				  Log.d(TAG, cursor.getColumnName(i)+": "+cursor.getString(i));
 			  }
 		      
@@ -127,7 +127,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 //		long timeStamp = Calendar.getInstance().getTimeInMillis();
 //		
 //		int del = getContentResolver().delete(
-//				Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI+"/"+"1439170966827"),
+//				Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1+"/"+"1439170966827"),
 //	            null,
 //	            null);
 		

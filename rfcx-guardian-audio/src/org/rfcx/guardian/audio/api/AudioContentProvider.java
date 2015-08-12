@@ -23,30 +23,30 @@ public class AudioContentProvider extends ContentProvider {
 	private Context context = null;
 	
 	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.audio.AUTHORITY;
-	private static final String ENDPOINT = RfcxConstants.RfcxContentProvider.audio.ENDPOINT;
+	private static final String ENDPOINT_1 = RfcxConstants.RfcxContentProvider.audio.ENDPOINT_1;
 	
-	private static final int ENDPOINT_LIST = 1;
-	private static final int ENDPOINT_ID = 2;
+	private static final int ENDPOINT_1_LIST = 1;
+	private static final int ENDPOINT_1_ID = 2;
 
 	private static final UriMatcher URI_MATCHER;
 
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
-		URI_MATCHER.addURI(AUTHORITY, ENDPOINT, ENDPOINT_LIST);
-		URI_MATCHER.addURI(AUTHORITY, ENDPOINT+"/#", ENDPOINT_ID);
+		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_1, ENDPOINT_1_LIST);
+		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_1+"/#", ENDPOINT_1_ID);
 	}
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.audio.PROJECTION);
+		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.audio.PROJECTION_1);
 		List<String[]> encodedEntries = app.audioDb.dbEncoded.getAllEncoded();
 		for (String[] encodedEntry : encodedEntries) {
 					// if it's asking for list, we return all rows...
-			if (	(URI_MATCHER.match(uri) == ENDPOINT_LIST)
+			if (	(URI_MATCHER.match(uri) == ENDPOINT_1_LIST)
 					// or if it's asking for one item, we check if each row matches, and return one
-				|| 	((URI_MATCHER.match(uri) == ENDPOINT_ID) && encodedEntry[1].equals(uri.getLastPathSegment()))
+				|| 	((URI_MATCHER.match(uri) == ENDPOINT_1_ID) && encodedEntry[1].equals(uri.getLastPathSegment()))
 				) {
 				cursor.addRow(new Object[] { 
 						encodedEntry[0], // created_at
@@ -64,7 +64,7 @@ public class AudioContentProvider extends ContentProvider {
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		checkSetApplicationContext();
 		
-		if (URI_MATCHER.match(uri) == ENDPOINT_ID) {
+		if (URI_MATCHER.match(uri) == ENDPOINT_1_ID) {
 			app.audioEncode.purgeSingleAudioAsset(app.audioDb, uri.getLastPathSegment());
 			return 1;
 		}

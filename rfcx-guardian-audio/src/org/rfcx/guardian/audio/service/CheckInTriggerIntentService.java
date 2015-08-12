@@ -40,7 +40,7 @@ public class CheckInTriggerIntentService extends IntentService {
 		lastAudioValues.put("filepath", app.audioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(lastAudio[1]), lastAudio[2]));
 		
 		Uri createdCheckInUri = getContentResolver().insert(
-				Uri.parse(RfcxConstants.RfcxContentProvider.api.URI),
+				Uri.parse(RfcxConstants.RfcxContentProvider.api.URI_1),
 				lastAudioValues);
 		if (createdCheckInUri == null) {
 			Log.e(TAG,"Error triggering CheckIn via ContentProvider in 'api' role...");

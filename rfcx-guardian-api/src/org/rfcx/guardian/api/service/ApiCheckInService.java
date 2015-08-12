@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
 import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.GZipUtils;
@@ -86,10 +87,13 @@ public class ApiCheckInService extends Service {
 					
 					if ((currentCheckIn[0] != null) && app.isConnected) {
 						
+						// Adding messages to JSON blob
+						JSONObject metaJson = new JSONObject(currentCheckIn[2]);
+						metaJson.put("messages", app.apiWebCheckIn.getMessagesAsJsonString());
+						metaJson.put("screenshots", "[]");
+						
 						List<String[]> stringParameters = new ArrayList<String[]>();
-						stringParameters.add(new String[] { "meta", gZipUtils.gZipStringToBase64(currentCheckIn[2]) });
-						stringParameters.add(new String[] { "screenshots", "" });
-						stringParameters.add(new String[] { "messages", app.apiWebCheckIn.getMessagesAsJson() });
+						stringParameters.add(new String[] { "meta", gZipUtils.gZipStringToBase64(metaJson.toString()) });
 						
 						if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiWebCheckIn.MAX_CHECKIN_ATTEMPTS) {
 							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiWebCheckIn.MAX_CHECKIN_ATTEMPTS+" failed attempts");

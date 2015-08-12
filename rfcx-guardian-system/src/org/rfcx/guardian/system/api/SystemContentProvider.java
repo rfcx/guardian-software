@@ -1,6 +1,5 @@
 package org.rfcx.guardian.system.api;
 
-import java.util.Calendar;
 import java.util.Date;
 
 import org.rfcx.guardian.system.RfcxGuardian;
@@ -22,51 +21,71 @@ public class SystemContentProvider extends ContentProvider {
 	private Context context = null;
 	
 	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.system.AUTHORITY;
-	private static final String ENDPOINT = RfcxConstants.RfcxContentProvider.system.ENDPOINT;
+	private static final String ENDPOINT_1 = RfcxConstants.RfcxContentProvider.system.ENDPOINT_1;
+	private static final String ENDPOINT_2 = RfcxConstants.RfcxContentProvider.system.ENDPOINT_2;
 	
-	private static final int ENDPOINT_LIST = 1;
-	private static final int ENDPOINT_ID = 2;
+	private static final int ENDPOINT_1_LIST = 1;
+	private static final int ENDPOINT_1_ID = 2;
+	private static final int ENDPOINT_2_LIST = 3;
+	private static final int ENDPOINT_2_ID = 4;
 
 	private static final UriMatcher URI_MATCHER;
 
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
-		URI_MATCHER.addURI(AUTHORITY, ENDPOINT, ENDPOINT_LIST);
-		URI_MATCHER.addURI(AUTHORITY, ENDPOINT+"/#", ENDPOINT_ID);
+		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_1, ENDPOINT_1_LIST);
+		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_1+"/#", ENDPOINT_1_ID);
+		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_2, ENDPOINT_2_LIST);
+		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_2+"/#", ENDPOINT_2_ID);
 	}
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
-		
-		String[] vBattery = app.deviceStateDb.dbBattery.getConcatRows();
-		String[] vCpu = app.deviceStateDb.dbCPU.getConcatRows();
-		String[] vPower = app.deviceStateDb.dbPower.getConcatRows();
-		String[] vNetwork = app.deviceStateDb.dbNetwork.getConcatRows();
-		String[] vOffline = app.deviceStateDb.dbOffline.getConcatRows();
-		String[] vLightMeter = app.deviceStateDb.dbLightMeter.getConcatRows();
-		String[] vDataTransferred = app.dataTransferDb.dbTransferred.getConcatRows();
-		
-		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.system.PROJECTION);
-		
-		cursor.addRow(new Object[] { 
-				(vBattery[0] != "0") ? vBattery[1] : null, 	// battery
-				(vCpu[0] != "0") ? vCpu[1] : null, 			// cpu
-				(vPower[0] != "0") ? vPower[1] : null, 		// power
-				(vNetwork[0] != "0") ? vNetwork[1] : null,	// network
-				(vOffline[0] != "0") ? vOffline[1] : null, 	// offline
-				(vLightMeter[0] != "0") ? vLightMeter[1] : null, // lightmeter
-				(vDataTransferred[0] != "0") ? vDataTransferred[1] : null  // data_transfer
+
+		if (URI_MATCHER.match(uri) == ENDPOINT_1_LIST) {
+			
+			MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.system.PROJECTION_1);
+			String[] vBattery = app.deviceStateDb.dbBattery.getConcatRows();
+			String[] vCpu = app.deviceStateDb.dbCPU.getConcatRows();
+			String[] vPower = app.deviceStateDb.dbPower.getConcatRows();
+			String[] vNetwork = app.deviceStateDb.dbNetwork.getConcatRows();
+			String[] vOffline = app.deviceStateDb.dbOffline.getConcatRows();
+			String[] vLightMeter = app.deviceStateDb.dbLightMeter.getConcatRows();
+			String[] vDataTransferred = app.dataTransferDb.dbTransferred.getConcatRows();
+			
+			cursor.addRow(new Object[] { 
+					(vBattery[0] != "0") ? vBattery[1] : null, 	// battery
+					(vCpu[0] != "0") ? vCpu[1] : null, 			// cpu
+					(vPower[0] != "0") ? vPower[1] : null, 		// power
+					(vNetwork[0] != "0") ? vNetwork[1] : null,	// network
+					(vOffline[0] != "0") ? vOffline[1] : null, 	// offline
+					(vLightMeter[0] != "0") ? vLightMeter[1] : null, // lightmeter
+					(vDataTransferred[0] != "0") ? vDataTransferred[1] : null  // data_transfer
+				});
+			return cursor;
+			
+		} else if (URI_MATCHER.match(uri) == ENDPOINT_2_LIST) {
+			
+			MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.system.PROJECTION_2);
+			
+			cursor.addRow(new Object[] { 
+					"created_at",
+					"timestamp",
+					"format", 
+					"digest", 
+					"filepath"
 			});
-		
-		return cursor;
+			return cursor;
+		}
+		return null;
 	}
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		checkSetApplicationContext();
 		
-		if (URI_MATCHER.match(uri) == ENDPOINT_ID) {
+		if (URI_MATCHER.match(uri) == ENDPOINT_1_ID) {
 			Date deleteBefore = new Date(Long.parseLong(uri.getLastPathSegment()));
 			
 			app.deviceStateDb.dbBattery.clearRowsBefore(deleteBefore);

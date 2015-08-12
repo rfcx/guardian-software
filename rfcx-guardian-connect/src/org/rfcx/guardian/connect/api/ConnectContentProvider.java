@@ -22,24 +22,24 @@ public class ConnectContentProvider extends ContentProvider {
 	private Context context = null;
 	
 	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.connect.AUTHORITY;
-	private static final String ENDPOINT = RfcxConstants.RfcxContentProvider.connect.ENDPOINT;
+	private static final String ENDPOINT_1 = RfcxConstants.RfcxContentProvider.connect.ENDPOINT_1;
 	
-	private static final int ENDPOINT_LIST = 1;
-	private static final int ENDPOINT_ID = 2;
+	private static final int ENDPOINT_1_LIST = 1;
+	private static final int ENDPOINT_1_ID = 2;
 
 	private static final UriMatcher URI_MATCHER;
 
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
-		URI_MATCHER.addURI(AUTHORITY, ENDPOINT, ENDPOINT_LIST);
-		URI_MATCHER.addURI(AUTHORITY, ENDPOINT+"/#", ENDPOINT_ID);
+		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_1, ENDPOINT_1_LIST);
+		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_1+"/#", ENDPOINT_1_ID);
 	}
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.connect.PROJECTION);
+		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.connect.PROJECTION_1);
 		
 		cursor.addRow(new Object[] { 
 				Calendar.getInstance().getTimeInMillis()
