@@ -75,10 +75,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		setAppVersion();
 		
-		Log.d(TAG, "org.rfcx.guardian."+this.targetAppRole+" version: "+getCurrentGuardianTargetRoleVersion());
-
-		(new ShellCommands()).triggerNeedForRootAccess(getApplicationContext());
-		
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
 		apiCore.setApiCheckVersionEndpoint(getDeviceId());

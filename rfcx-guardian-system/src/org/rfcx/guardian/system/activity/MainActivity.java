@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
 			break;
 
 		case R.id.menu_root_command:
-			(new ShellCommands()).executeCommand("pm list features",null,true,getApplicationContext());
+			(new ShellCommands()).triggerNeedForRootAccess(getApplicationContext());
 			break;
 			
 		}

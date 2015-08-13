@@ -31,3 +31,4 @@ proguard-project.txt
 !/bin/
 /tmp/
 publish-db-entry.sh
+/bin/private/

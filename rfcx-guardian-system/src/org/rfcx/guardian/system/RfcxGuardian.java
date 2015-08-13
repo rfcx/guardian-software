@@ -82,12 +82,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		setAppVersion();
 		setDbHandlers();
-		
-		(new ShellCommands()).triggerNeedForRootAccess(getApplicationContext());
-		
+				
 		initializeRoleServices(getApplicationContext());
-		
-		
 		
 	}
 	
