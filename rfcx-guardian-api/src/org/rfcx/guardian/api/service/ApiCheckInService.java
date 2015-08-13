@@ -90,11 +90,13 @@ public class ApiCheckInService extends Service {
 						JSONObject metaJson = new JSONObject(currentCheckIn[2]);
 						
 						// Adding messages to JSON blob
-						metaJson.put("messages", app.apiWebCheckIn.getMessagesAsJsonString());
+						metaJson.put("messages", app.apiWebCheckIn.getSmsMessagesAsJson());
 						
 						// Adding screenshot meta to JSON blob
 						String[] latestScreenShot = app.apiWebCheckIn.getLatestScreenShotMeta();
 						metaJson.put("screenshots", (latestScreenShot != null) ? TextUtils.join("*",latestScreenShot) : null);
+						
+						Log.d(TAG,metaJson.toString());
 						
 						List<String[]> stringParameters = new ArrayList<String[]>();
 						stringParameters.add(new String[] { "meta", gZipUtils.gZipStringToBase64(metaJson.toString()) });

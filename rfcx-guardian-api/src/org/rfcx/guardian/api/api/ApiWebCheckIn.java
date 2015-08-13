@@ -168,13 +168,14 @@ public class ApiWebCheckIn {
 			    	JSONObject screenShotJson = screenShotJsonArray.getJSONObject(i);
 			    	int deleteScreenShot = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_SCREENSHOT+"/"+screenShotJson.getString("id")), null, null);
 			    }
-//				
-//				// parse the message info and use it to purge the data locally
-//			    JSONArray messageJsonArray = new JSONArray(responseJson.getString("messages"));
-//			    for (int i = 0; i < messageJsonArray.length(); i++) {
-//			    	JSONObject messageJson = messageJsonArray.getJSONObject(i);
-//					app.smsDb.dbReceived.deleteSingleMessage(messageJson.getString("digest"));
-//			    }
+				
+				// parse the message info and use it to purge the data locally
+			    JSONArray msgJsonArray = new JSONArray(responseJson.getString("messages"));
+			    for (int i = 0; i < msgJsonArray.length(); i++) {
+			    	JSONObject msgJson = msgJsonArray.getJSONObject(i);
+			    	int deleteMsg = app.getContentResolver().delete(Uri.parse("content://sms/"+msgJson.getString("id")), null, null);
+			    	if (deleteMsg == 1) Log.i(TAG, "deleted sms message with id "+msgJson.getString("id"));
+			    }
 				
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
@@ -185,22 +186,24 @@ public class ApiWebCheckIn {
 	}			
 	
 	
-	public JSONArray getMessagesAsJsonString() {
+	public JSONArray getSmsMessagesAsJson() {
 		JSONArray msgJsonArray = new JSONArray();
-//		List<String[]> msgList = app.smsDb.dbReceived.getAllMessages();
-//		for (String[] msg : msgList) {
-//			try {
-//				JSONObject msgJson = new JSONObject();
-//				msgJson.put("received_at", msg[0]);
-//				msgJson.put("number", msg[1]);
-//				msgJson.put("body", msg[2]);
-//				msgJson.put("digest", msg[3]);
-//				msgJsonArray.put(msgJson);
-//			} catch (JSONException e) {
-//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-//			}
-//		}
-		return msgJsonArray;
+		Cursor cursor = app.getContentResolver().query(Uri.parse("content://sms/"), null, null, null, null);
+		if (cursor.moveToFirst()) {
+	    	do {
+				try {
+					JSONObject msgJson = new JSONObject();
+					msgJson.put("android_id", cursor.getString(cursor.getColumnIndex("_id")));
+					msgJson.put("received_at", (new DateTimeUtils()).getDateTime(new Date(cursor.getLong(cursor.getColumnIndex("date")))));
+					msgJson.put("address", cursor.getString(cursor.getColumnIndex("address")));
+					msgJson.put("body", cursor.getString(cursor.getColumnIndex("body")));
+					msgJsonArray.put(msgJson);
+				} catch (Exception e) {
+					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				}
+			} while (cursor.moveToNext());
+		}
+	    return msgJsonArray;
 	}
 
 	public String[] getLatestScreenShotMeta() {

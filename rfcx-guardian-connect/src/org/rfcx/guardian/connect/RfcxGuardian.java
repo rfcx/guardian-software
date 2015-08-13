@@ -12,6 +12,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -114,24 +115,31 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 //		            null,
 //		            null,
 //		            null);
+		
+//		
+//		Cursor cursor = getContentResolver().query(Uri.parse("content://sms/"), null, null, null, null);
 //		if (cursor.moveToFirst()) {
 //		   do {
-//			  for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION_SCREENSHOT.length; i++) {
+//			  for (int i = 0; i < cursor.getColumnCount(); i++) {
 //				  Log.d(TAG, cursor.getColumnName(i)+": "+cursor.getString(i));
 //			  }
-//		      
+//			  Log.d(TAG,"---------------------------");
 //		   } while (cursor.moveToNext());
 //		}
+		
+		SmsManager smsManager = SmsManager.getDefault();
+		smsManager.sendTextMessage("+14153359205", null, "sms message", null, null);
+		
 		
 //		long timeStamp = Calendar.getInstance().getTimeInMillis();
 //		
 //		int del = getContentResolver().delete(
-//				Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1+"/"+"1439170966827"),
+//				Uri.parse("content://sms/"+"12"),
 //	            null,
 //	            null);
-		ContentValues contentValues = new ContentValues();
-		Uri insertSomething=
-				getContentResolver().insert(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_SCREENSHOT), contentValues);
+//		ContentValues contentValues = new ContentValues();
+//		Uri insertSomething=
+//				getContentResolver().insert(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_SCREENSHOT), contentValues);
 		
 	}
 	
