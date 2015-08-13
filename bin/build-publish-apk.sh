@@ -19,18 +19,3 @@ export DB_URI=`cat $SCRIPT_DIR/private/rfcx-guardian-api-db-uri.txt;`;
 ssh rfcx-proxy "mysql -h$DB_URI -uebroot -p ebdb -e \"INSERT INTO GuardianSoftware SET role='$ROLE', number='$APK_VERSION', sha1_checksum='$SHA1', url='http://static.rfcx.org/dl/guardian-android-$ROLE/$ROLE-$APK_VERSION.apk', is_available=1, release_date=NOW(), created_at=NOW(), updated_at=NOW();\";"
 
 cd $SCRIPT_DIR/../;
-
-
-
-
-
-echo "transferring apk to device...";
-adb push $SCRIPT_DIR/../tmp/$ROLE-$APK_VERSION.apk /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
-
-echo "performing installation...";
-adb shell pm install -r /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
-
-echo "deleting apk...";
-adb shell rm /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
-
-cd $SCRIPT_DIR/../;
