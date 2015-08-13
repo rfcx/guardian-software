@@ -11,12 +11,12 @@ public class RfcxConstants {
 		
 		public static final class system {
 			public static final String AUTHORITY = "org.rfcx.guardian.system";
-			public static final String[] PROJECTION_1 = { "battery", "cpu", "power", "network", "offline", "lightmeter", "data_transfer" };
-			public static final String ENDPOINT_1 = "meta";
-			public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
-			public static final String[] PROJECTION_2 = { "created_at", "timestamp", "format", "digest", "filepath" };
-			public static final String ENDPOINT_2 = "screenshots";
-			public static final String URI_2 = "content://"+AUTHORITY+"/"+ENDPOINT_2;
+			public static final String[] PROJECTION_META = { "battery", "cpu", "power", "network", "offline", "lightmeter", "data_transfer" };
+			public static final String ENDPOINT_META = "meta";
+			public static final String URI_META = "content://"+AUTHORITY+"/"+ENDPOINT_META;
+			public static final String[] PROJECTION_SCREENSHOT = { "created_at", "timestamp", "format", "digest", "filepath" };
+			public static final String ENDPOINT_SCREENSHOT = "screenshots";
+			public static final String URI_SCREENSHOT = "content://"+AUTHORITY+"/"+ENDPOINT_SCREENSHOT;
 		}
 		
 		public static final class reboot {

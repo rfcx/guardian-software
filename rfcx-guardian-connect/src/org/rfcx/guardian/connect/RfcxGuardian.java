@@ -5,6 +5,7 @@ import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Application;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -74,7 +75,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String getDeviceId() {
 		if (this.deviceId == null) {
 			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
-			if (this.verboseLog) { Log.d(TAG,"Device GUID: "+this.deviceId); }
 			rfcxGuardianPrefs.writeGuidToFile(deviceId);
 		}
 		return this.deviceId;
@@ -83,7 +83,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
 			this.deviceToken = (new DeviceToken(getApplicationContext(), this.sharedPrefs)).getDeviceToken();
-			rfcxGuardianPrefs.writeTokenToFile(deviceToken);
 		}
 		return this.deviceToken;
 	}
@@ -109,20 +108,20 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     
 	public void testContentResolver() {
 				
-		Cursor cursor = this.getContentResolver().query(
-					Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_2),
-		    		RfcxConstants.RfcxContentProvider.system.PROJECTION_2,
-		            null,
-		            null,
-		            null);
-		if (cursor.moveToFirst()) {
-		   do {
-			  for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION_2.length; i++) {
-				  Log.d(TAG, cursor.getColumnName(i)+": "+cursor.getString(i));
-			  }
-		      
-		   } while (cursor.moveToNext());
-		}
+//		Cursor cursor = this.getContentResolver().query(
+//					Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_SCREENSHOT),
+//		    		RfcxConstants.RfcxContentProvider.system.PROJECTION_SCREENSHOT,
+//		            null,
+//		            null,
+//		            null);
+//		if (cursor.moveToFirst()) {
+//		   do {
+//			  for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION_SCREENSHOT.length; i++) {
+//				  Log.d(TAG, cursor.getColumnName(i)+": "+cursor.getString(i));
+//			  }
+//		      
+//		   } while (cursor.moveToNext());
+//		}
 		
 //		long timeStamp = Calendar.getInstance().getTimeInMillis();
 //		
@@ -130,6 +129,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 //				Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1+"/"+"1439170966827"),
 //	            null,
 //	            null);
+		ContentValues contentValues = new ContentValues();
+		Uri insertSomething=
+				getContentResolver().insert(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_SCREENSHOT), contentValues);
 		
 	}
 	

@@ -127,7 +127,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String getDeviceId() {
 		if (this.deviceId == null) {
 			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
-			if (this.verboseLog) { Log.d(TAG,"Device GUID: "+this.deviceId); }
 			rfcxGuardianPrefs.writeGuidToFile(deviceId);
 		}
 		return this.deviceId;
@@ -136,7 +135,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
 			this.deviceToken = (new DeviceToken(getApplicationContext(), this.sharedPrefs)).getDeviceToken();
-			rfcxGuardianPrefs.writeTokenToFile(deviceToken);
 		}
 		return this.deviceToken;
 	}

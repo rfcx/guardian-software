@@ -13,43 +13,47 @@ import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
 public class DeviceScreenShot {
 
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceScreenShot.class.getSimpleName();
-
-	FileUtils fileUtils = new FileUtils();
-	GZipUtils gZipUtils = new GZipUtils();
-	ShellCommands shellCommands = new ShellCommands();
 	
 	private RfcxGuardian app = null;
 	private String filesDir = null;
+	private String sdCardFilesDir = Environment.getExternalStorageDirectory().toString()+"/rfcx";
+	private String binDir = null;
+	private String imgDir = null;
 
 	public void setupScreenShot(Context context) {
 		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
 		if (filesDir == null) filesDir = app.getFilesDir().getAbsolutePath();
-		(new File(filesDir+"/bin")).mkdirs();
-		(new File(filesDir+"/img")).mkdirs();
+
+		if (binDir == null) binDir = app.getFilesDir().getAbsolutePath()+"/bin";
+		(new File(binDir)).mkdirs();
+		
+		imgDir = filesDir+"/img";
+		if ((new File(sdCardFilesDir)).isDirectory()) { imgDir = sdCardFilesDir+"/img"; }
+		(new File(imgDir)).mkdirs();
 	}
     
 	public String saveScreenShot(Context context) {
 		setupScreenShot(context);
 		if (findOrCreateBin()) {
-			long timestamp = System.currentTimeMillis();
-			String imgPath = filesDir+"/img/"+timestamp+".png";
-			shellCommands.executeCommand(filesDir+"/bin/fb2png "+imgPath, null, false, context);
-			File imgFile = new File(imgPath);
-	        if (imgFile.exists()) {
-//			    app.screenShotDb.dbScreenShot.insert(timestamp);
-	        	File gzImgFile = new File(imgPath+".gz");
-		    	gZipUtils.gZipFile(imgFile, gzImgFile);
-		    	if (gzImgFile.exists()) {
-		    		imgFile.delete();
-		    		return ""+timestamp;
-		    	}
-		    }
+			try {
+				String timestamp = ""+System.currentTimeMillis();
+				String imgPath = imgDir+"/"+timestamp+".png";
+				(new ShellCommands()).executeCommand(binDir+"/fb2png "+imgPath, null, false, context);
+		        if ((new File(imgPath)).exists()) {
+		        	app.screenShotDb.dbCaptured.insert(timestamp, "png", (new FileUtils()).sha1Hash(imgPath));
+		        	// GZipping PNGs doesn't really do anything, so we just leave it as PNG
+		        	return timestamp;
+			    }
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			}
 		} else {
 			Log.e(TAG, "Failed to find and/or install fb2png. Cannot produce screenshot");
 		}
@@ -83,19 +87,19 @@ public class DeviceScreenShot {
 	
     private boolean findOrCreateBin() {
     	try {
-	     	File fb2pngFile = new File(filesDir+"/bin/fb2png");
+	     	File fb2pngFile = new File(binDir+"/fb2png");
 	     	
 	        // check that module is not already installed before starting
 	        if (!fb2pngFile.exists()) {
 	    		try {
 	    			InputStream inputStream = app.getAssets().open("bin/fb2png");
-	    		    OutputStream outputStream = new FileOutputStream(filesDir+"/bin/fb2png");
+	    		    OutputStream outputStream = new FileOutputStream(binDir+"/fb2png");
 	    		    byte[] buf = new byte[1024];
 	    		    int len;
 	    		    while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
 	    		    inputStream.close();
 	    		    outputStream.close();
-	    		    fileUtils.chmod(fb2pngFile, 0755);
+	    		    (new FileUtils()).chmod(fb2pngFile, 0755);
 	    		    return fb2pngFile.exists();
 	    		} catch (IOException e) {
 	    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
@@ -110,4 +114,11 @@ public class DeviceScreenShot {
     	}
     }
 	
+    public String getScreenShotDirectory(Context context) {
+		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
+		if (filesDir == null) filesDir = app.getFilesDir().getAbsolutePath();
+		imgDir = filesDir+"/img";
+		if ((new File(sdCardFilesDir)).isDirectory()) { imgDir = sdCardFilesDir+"/img"; }
+		return imgDir;
+    }
 }

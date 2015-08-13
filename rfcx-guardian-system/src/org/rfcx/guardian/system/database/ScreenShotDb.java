@@ -67,10 +67,10 @@ public class ScreenShotDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String value, String format, String digest) {
+		public void insert(String timestamp, String format, String digest) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
-			values.put(C_TIMESTAMP, value);
+			values.put(C_TIMESTAMP, timestamp);
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -83,7 +83,7 @@ public class ScreenShotDb {
 		public List<String[]> getAllCaptured() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null,  C_CREATED_AT+" DESC", null);
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
@@ -104,6 +104,13 @@ public class ScreenShotDb {
 			}
 			return (capturedList.size() > 0) ? TextUtils.join("$", capturedArray) : "";
 		}
+		
+		public void deleteSingleRowByTimestamp(String timestamp) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
+			} finally { db.close(); }
+		}
+
 	}
 	public final DbCaptured dbCaptured;
 	

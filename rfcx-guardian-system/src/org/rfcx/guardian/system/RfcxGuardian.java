@@ -9,6 +9,7 @@ import java.util.Calendar;
 
 import org.rfcx.guardian.system.database.DataTransferDb;
 import org.rfcx.guardian.system.database.DeviceStateDb;
+import org.rfcx.guardian.system.database.ScreenShotDb;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
 import org.rfcx.guardian.system.device.DeviceState;
@@ -56,6 +57,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// database access helpers
 	public DeviceStateDb deviceStateDb = null;
 	public DataTransferDb dataTransferDb = null;
+	public ScreenShotDb screenShotDb = null;
 
 	// for obtaining device stats and characteristics
 	public DeviceState deviceState = new DeviceState();
@@ -130,7 +132,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String getDeviceId() {
 		if (this.deviceId == null) {
 			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
-			if (this.verboseLog) { Log.d(TAG,"Device GUID: "+this.deviceId); }
 			rfcxGuardianPrefs.writeGuidToFile(deviceId);
 		}
 		return this.deviceId;
@@ -139,7 +140,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
 			this.deviceToken = (new DeviceToken(getApplicationContext(), this.sharedPrefs)).getDeviceToken();
-			rfcxGuardianPrefs.writeTokenToFile(deviceToken);
 		}
 		return this.deviceToken;
 	}
@@ -233,6 +233,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		int versionNumber = getAppVersionValue(this.version);
 		this.deviceStateDb = new DeviceStateDb(this,versionNumber);
 		this.dataTransferDb = new DataTransferDb(this,versionNumber);
+		this.screenShotDb = new ScreenShotDb(this,versionNumber);
 	}
  
 	

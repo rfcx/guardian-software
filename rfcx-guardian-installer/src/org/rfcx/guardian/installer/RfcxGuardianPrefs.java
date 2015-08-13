@@ -71,10 +71,6 @@ public class RfcxGuardianPrefs {
 	public void writeGuidToFile(String deviceId) {
 		writeToGuardianTxtFile("guid",deviceId);
 	}
-
-	public void writeTokenToFile(String deviceToken) {
-		writeToGuardianTxtFile("token",deviceToken);
-	}
 	
 	public void writeVersionToFile(String versionName) {
 		writeToGuardianTxtFile("version",versionName);

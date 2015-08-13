@@ -37,7 +37,6 @@ public class DeviceToken {
                 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
                 			deviceToken = ((UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()).replaceAll("-","").substring(0,40);
                 		}
-                		Log.d(TAG,deviceToken);
                     	prefs.edit().putString(PREFS_DEVICE_TOKEN, deviceToken).commit();
                     }
                 }

@@ -12,6 +12,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class ApiContentProvider extends ContentProvider {
@@ -39,13 +40,19 @@ public class ApiContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.api.PROJECTION_1);
-		
-		cursor.addRow(new Object[] { 
-				Calendar.getInstance().getTimeInMillis()
-			});
-		
-		return cursor;
+		try {
+			MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.api.PROJECTION_1);
+			
+			cursor.addRow(new Object[] { 
+					Calendar.getInstance().getTimeInMillis()
+				});
+			
+			return cursor;
+			
+		} catch (Exception e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+		}
+		return null;
 	}
 
 	@Override
@@ -82,17 +89,28 @@ public class ApiContentProvider extends ContentProvider {
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
 		checkSetApplicationContext();
-		String[] audioInfo = new String[] {
-				values.getAsString("created_at"),
-				values.getAsString("timestamp"),
-				values.getAsString("format"),
-				values.getAsString("digest")
-		};
-		if (app.apiWebCheckIn.createCheckIn(audioInfo,values.getAsString("filepath"))) {
-			return Uri.parse(RfcxConstants.RfcxContentProvider.api.URI_1+"/"+values.getAsString("timestamp"));
-		} else {
-			return null;
+		
+		if (URI_MATCHER.match(uri) == ENDPOINT_1_LIST) {
+			try {
+				
+				String[] audioInfo = new String[] {
+						values.getAsString("created_at"),
+						values.getAsString("timestamp"),
+						values.getAsString("format"),
+						values.getAsString("digest")
+				};
+				
+				if (app.apiWebCheckIn.createCheckIn(audioInfo, values.getAsString("filepath"))) {
+					return Uri.parse(
+							RfcxConstants.RfcxContentProvider.api.URI_1
+								+"/"+values.getAsString("timestamp")
+							);
+				}
+			} catch (Exception e) {
+				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			}
 		}
+		return null;
 	}
 	
 }
