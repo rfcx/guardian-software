@@ -85,7 +85,7 @@ public class InstallAppService extends Service {
 				File apkFile = (new File(apkFilePath));
 				
 				if (successfullyInstalled) {
-					Log.d(TAG, "Installation successful ("+app.apiCore.installVersion+"). Deleting APK and rebooting...");
+					Log.d(TAG, "installation successful ("+app.targetAppRole+", "+app.apiCore.installVersion+"). deleting apk and rebooting...");
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
 					shellCommands.executeCommand("reboot",null,false,context);
@@ -93,7 +93,7 @@ public class InstallAppService extends Service {
 					installLoopCounter++;
 					app.triggerService("InstallApp", true);
 				} else {
-					Log.d(TAG, "Installation failed ("+app.apiCore.installVersion+").  Deleting APK...");
+					Log.d(TAG, "installation failed ("+app.targetAppRole+", "+app.apiCore.installVersion+").  deleting apk...");
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
 				}
@@ -111,11 +111,11 @@ public class InstallAppService extends Service {
 		String apkFilePath = apkFile.getAbsolutePath();
 		String reInstallFlag = (app.apiCore.installVersion == null) ? "" : " -r";
 		if (forceReInstallFlag) reInstallFlag = " -r";
-		Log.d(TAG, "Installing "+apkFilePath);
+		Log.d(TAG, "installing "+apkFilePath);
 		try {
 			boolean isInstalled = shellCommands.executeCommand(
 					"pm install"+reInstallFlag+" "+apkFilePath,
-					"Success",true,context);
+					"success",true,context);
 			if (apkFile.exists()) { apkFile.delete(); }
 			return isInstalled;
 		} catch (Exception e) {
