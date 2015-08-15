@@ -22,6 +22,7 @@ import org.rfcx.guardian.utility.ShellCommands;
 
 import android.database.Cursor;
 import android.net.Uri;
+import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -92,7 +93,6 @@ public class ApiWebCheckIn {
 		return true;
 	}
 	
-	
 	public String generateCheckInJson(String[] audioFileInfo) {
 		
 		try {
@@ -141,6 +141,21 @@ public class ApiWebCheckIn {
 		}
 	}
 	
+	public String packagePreFlightCheckInJson(String checkInJsonString) throws JSONException {
+
+			JSONObject metaJson = new JSONObject(checkInJsonString);
+		
+			// Adding messages to JSON blob
+			metaJson.put("messages", getSmsMessagesAsJson());
+
+			// Adding screenshot meta to JSON blob
+			String[] latestScreenShot = getLatestScreenShotMeta();
+			metaJson.put("screenshots", (latestScreenShot != null) ? TextUtils.join("*",latestScreenShot) : null);
+			
+			// Stringify JSON, gzip the output and convert to base 64 string for sending
+			return (new GZipUtils()).gZipStringToBase64(metaJson.toString());
+	}
+	
 	public void processCheckInResponse(String checkInResponse) {
 		if ((checkInResponse != null) && !checkInResponse.isEmpty()) {
 			
@@ -175,6 +190,20 @@ public class ApiWebCheckIn {
 			    	JSONObject msgJson = msgJsonArray.getJSONObject(i);
 			    	int deleteMsg = app.getContentResolver().delete(Uri.parse("content://sms/"+msgJson.getString("id")), null, null);
 			    	if (deleteMsg == 1) Log.i(TAG, "deleted sms message with id "+msgJson.getString("id"));
+			    }
+			    
+				// parse the instructions section
+			    JSONObject instructionsJson = responseJson.getJSONObject("instructions");
+			    
+			    // handle prefs instuctions
+			    JSONObject prefsJson = instructionsJson.getJSONObject("prefs");
+			    
+			    // handle messages instructions
+			    JSONArray msgsJsonArr = instructionsJson.getJSONArray("messages");
+			    for (int i = 0; i < msgsJsonArr.length(); i++) {
+			    	JSONObject msgJson = msgsJsonArr.getJSONObject(i);
+					SmsManager smsManager = SmsManager.getDefault();
+					smsManager.sendTextMessage(msgJson.getString("address"), null, msgJson.getString("body"), null, null);
 			    }
 				
 			} catch (Exception e) {

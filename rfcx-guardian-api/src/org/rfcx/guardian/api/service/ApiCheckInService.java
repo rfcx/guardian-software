@@ -87,19 +87,11 @@ public class ApiCheckInService extends Service {
 					
 					if ((currentCheckIn[0] != null) && app.isConnected) {
 						
-						JSONObject metaJson = new JSONObject(currentCheckIn[2]);
-						
-						// Adding messages to JSON blob
-						metaJson.put("messages", app.apiWebCheckIn.getSmsMessagesAsJson());
-						
-						// Adding screenshot meta to JSON blob
-						String[] latestScreenShot = app.apiWebCheckIn.getLatestScreenShotMeta();
-						metaJson.put("screenshots", (latestScreenShot != null) ? TextUtils.join("*",latestScreenShot) : null);
-						
-						Log.d(TAG,metaJson.toString());
-						
 						List<String[]> stringParameters = new ArrayList<String[]>();
-						stringParameters.add(new String[] { "meta", gZipUtils.gZipStringToBase64(metaJson.toString()) });
+						stringParameters.add(new String[] { 
+								"meta", 
+								app.apiWebCheckIn.packagePreFlightCheckInJson(currentCheckIn[2]) 
+							});
 						
 						if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiWebCheckIn.MAX_CHECKIN_ATTEMPTS) {
 							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiWebCheckIn.MAX_CHECKIN_ATTEMPTS+" failed attempts");
