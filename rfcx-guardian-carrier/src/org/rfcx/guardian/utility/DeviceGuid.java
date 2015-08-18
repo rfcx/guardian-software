@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.UUID;
 
-import org.rfcx.guardian.reboot.RfcxGuardian;
+import org.rfcx.guardian.carrier.RfcxGuardian;
 
 public class DeviceGuid {
 	

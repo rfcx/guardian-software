@@ -1,10 +1,8 @@
 package org.rfcx.guardian.utility;
 
-
-
 public class RfcxConstants {
 	
-	public static final String ROLE_NAME = "Audio";
+	public static final String ROLE_NAME = "Carrier";
 	public static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
 	public static final class RfcxContentProvider {
@@ -69,6 +67,5 @@ public class RfcxConstants {
 		}
 		
 	}
-
 	
 }
