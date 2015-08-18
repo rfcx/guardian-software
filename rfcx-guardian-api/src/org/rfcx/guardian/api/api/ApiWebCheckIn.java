@@ -120,6 +120,11 @@ public class ApiWebCheckIn {
 			json.put("queued_checkins", app.checkInDb.dbQueued.getCount());
 			json.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
 			
+			JSONArray latLng = new JSONArray();
+			latLng.put(3.6141375); // latitude... fake, obviously
+			latLng.put(14.2108033); // longitude... fake, obviously
+			json.put("location", latLng);
+			
 			json.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
 			this.previousCheckIns = new ArrayList<String>();
 			
