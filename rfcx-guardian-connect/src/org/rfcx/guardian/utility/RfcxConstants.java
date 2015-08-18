@@ -67,6 +67,13 @@ public class RfcxConstants {
 			public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
 		}
 		
+		public static final class sentinel {
+			public static final String AUTHORITY = "org.rfcx.guardian.sentinel";
+			public static final String[] PROJECTION_1 = { "current_time" };
+			public static final String ENDPOINT_1 = "meta";
+			public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
+		}
+		
 	}
 	
 }
