@@ -1,5 +1,6 @@
 package org.rfcx.guardian.carrier;
 
+import org.rfcx.guardian.carrier.ui.DeviceScreenLock;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
@@ -33,6 +34,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
+	
+	// handler for unlocking/locking the screen before/after carrier interaction
+	public DeviceScreenLock deviceScreenLock = new DeviceScreenLock();
 	
 	private boolean hasRun_OnLaunchServiceTrigger = false;
 	

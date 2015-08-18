@@ -2,6 +2,7 @@ package org.rfcx.guardian.carrier.activity;
 
 import org.rfcx.guardian.carrier.R;
 import org.rfcx.guardian.carrier.RfcxGuardian;
+import org.rfcx.guardian.carrier.ui.DeviceKeyEntry;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -24,6 +25,11 @@ public class MainActivity extends Activity {
 		
 		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
+			break;
+			
+		case R.id.menu_test_key_entry:
+			(new DeviceKeyEntry()).executeKeyEntrySequence(
+					"left,right,up,down,enter", ",", app.getApplicationContext());
 			break;
 			
 		}
