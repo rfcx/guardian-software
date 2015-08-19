@@ -138,7 +138,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void initializeRoleServices(Context context) {
 		if (!this.hasRun_OnLaunchServiceTrigger) {
 			try {
-				int delayAfterAppLaunchInMinutes = 4;
+				int delayAfterAppLaunchInMinutes = 2;
 				long apiCheckVersionInterval = ((getPref("apicheckversion_interval")!=null) ? Integer.parseInt(getPref("apicheckversion_interval")) : 180)*60*1000;
 				PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ApiCheckVersionIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				AlarmManager updaterAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
