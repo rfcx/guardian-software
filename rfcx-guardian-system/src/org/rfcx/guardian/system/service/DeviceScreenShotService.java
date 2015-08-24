@@ -1,7 +1,6 @@
 package org.rfcx.guardian.system.service;
 
 import org.rfcx.guardian.system.RfcxGuardian;
-import org.rfcx.guardian.system.device.DeviceCPUTuner;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
 import org.rfcx.guardian.utility.RfcxConstants;
 

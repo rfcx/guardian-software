@@ -13,6 +13,7 @@ import org.rfcx.guardian.installer.service.ApiCheckVersionService;
 import org.rfcx.guardian.installer.service.DownloadFileService;
 import org.rfcx.guardian.installer.service.InstallAppService;
 import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
+import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -61,6 +62,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public boolean isRunning_ApiCheckVersion = false;
 	public boolean isRunning_DownloadFile = false;
 	public boolean isRunning_InstallApp = false;
+	public boolean isRunning_CPUTuner = false;
 	
 	public boolean isRunning_UpdaterService = false;
 	
@@ -138,6 +140,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void initializeRoleServices(Context context) {
 		if (!this.hasRun_OnLaunchServiceTrigger) {
 			try {
+
+				// force CPUTuner Config (requires root access)
+				triggerService("CPUTuner", true);
+				
 				int delayAfterAppLaunchInMinutes = 2;
 				long apiCheckVersionInterval = ((getPref("apicheckversion_interval")!=null) ? Integer.parseInt(getPref("apicheckversion_interval")) : 180)*60*1000;
 				PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ApiCheckVersionIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
@@ -166,23 +172,22 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			if (!this.isRunning_ApiCheckVersion || forceReTrigger) {
 				context.stopService(new Intent(context, ApiCheckVersionService.class));
 				context.startService(new Intent(context, ApiCheckVersionService.class));
-			} else {
-				if (this.verboseLog) { Log.d(TAG, "Service ApiCheckVersion is already running..."); }
-			}
+			} else {Log.d(TAG, "Service ApiCheckVersion is already running..."); }
 		} else if (serviceName.equals("DownloadFile")) {
 			if (!this.isRunning_DownloadFile || forceReTrigger) {
 				context.stopService(new Intent(context, DownloadFileService.class));
 				context.startService(new Intent(context, DownloadFileService.class));
-			} else {
-				if (this.verboseLog) { Log.d(TAG, "Service DownloadFile is already running..."); }
-			}
+			} else {Log.d(TAG, "Service DownloadFile is already running..."); }
 		} else if (serviceName.equals("InstallApp")) {
 			if (!this.isRunning_InstallApp || forceReTrigger) {
 				context.stopService(new Intent(context, InstallAppService.class));
 				context.startService(new Intent(context, InstallAppService.class));
-			} else {
-				if (this.verboseLog) { Log.d(TAG, "Service InstallApp is already running..."); }
-			}
+			} else { Log.d(TAG, "Service InstallApp is already running..."); }
+		} else if (serviceName.equals("CPUTuner")) {
+			if (!this.isRunning_CPUTuner || forceReTrigger) {
+				context.stopService(new Intent(context, DeviceCPUTunerService.class));
+				context.startService(new Intent(context, DeviceCPUTunerService.class));
+			} else { Log.d(TAG, "Service CPUTuner is already running..."); }
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}
@@ -196,6 +201,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			context.stopService(new Intent(context, DownloadFileService.class));
 		} else if (serviceName.equals("InstallApp")) {
 			context.stopService(new Intent(context, InstallAppService.class));
+		} else if (serviceName.equals("CPUTuner")) {
+			context.stopService(new Intent(context, DeviceCPUTunerService.class));
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}	

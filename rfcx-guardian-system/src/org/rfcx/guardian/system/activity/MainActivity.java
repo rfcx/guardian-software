@@ -26,10 +26,6 @@ public class MainActivity extends Activity {
 		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
-
-		case R.id.menu_root_command:
-			(new ShellCommands()).triggerNeedForRootAccess(getApplicationContext());
-			break;
 			
 		}
 		return true;

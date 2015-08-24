@@ -1,26 +1,18 @@
 package org.rfcx.guardian.system;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Calendar;
 
 import org.rfcx.guardian.system.database.DataTransferDb;
 import org.rfcx.guardian.system.database.DeviceStateDb;
 import org.rfcx.guardian.system.database.ScreenShotDb;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
-import org.rfcx.guardian.system.device.DeviceScreenShot;
 import org.rfcx.guardian.system.device.DeviceState;
-import org.rfcx.guardian.system.service.DeviceCPUTunerService;
 import org.rfcx.guardian.system.service.DeviceScreenShotService;
 import org.rfcx.guardian.system.service.DeviceStateService;
 import org.rfcx.guardian.system.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
-import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -65,7 +57,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	// Background Services
 	public boolean isRunning_DeviceState = false;
-	public boolean isRunning_CPUTuner = false;
 	public boolean isRunning_DeviceScreenShot = false;
 	
 	// Repeating IntentServices
@@ -152,8 +143,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		if (!this.hasRun_OnLaunchServiceTrigger) {
 			try {
 				
-				// force CPUTuner Config (requires root access)
-				triggerService("CPUTuner", true);
 				// Service Monitor
 				triggerIntentService("ServiceMonitor", 
 						System.currentTimeMillis(),
@@ -197,11 +186,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				context.stopService(new Intent(context, DeviceStateService.class));
 				context.startService(new Intent(context, DeviceStateService.class));
 			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-		} else if (serviceName.equals("CPUTuner")) {
-			if (!this.isRunning_CPUTuner || forceReTrigger) {
-				context.stopService(new Intent(context, DeviceCPUTunerService.class));
-				context.startService(new Intent(context, DeviceCPUTunerService.class));
-			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
 		} else if (serviceName.equals("ScreenShot")) {
 			if (!this.isRunning_DeviceScreenShot || forceReTrigger) {
 				context.stopService(new Intent(context, DeviceScreenShotService.class));
@@ -216,8 +200,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		context = getApplicationContext();		
 		if (serviceName.equals("DeviceState")) {
 			context.stopService(new Intent(context, DeviceStateService.class));
-		} else if (serviceName.equals("CPUTuner")) {
-			context.stopService(new Intent(context, DeviceCPUTunerService.class));
 		} else if (serviceName.equals("ScreenShot")) {
 			context.stopService(new Intent(context, DeviceScreenShotService.class));
 		} else {
