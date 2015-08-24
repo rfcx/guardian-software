@@ -75,7 +75,7 @@ public class ApiCore {
 	}
 	
 	public void setApiCheckVersionEndpoint(String guardianId) {
-		this.apiCheckVersionEndpoint = "/v1/guardians/"+guardianId+"/software/"+this.targetAppRoleApiEndpoint+"/latest?role=installer&version=0.0.0";
+		this.apiCheckVersionEndpoint = "/v1/guardians/"+guardianId+"/software/"+this.targetAppRoleApiEndpoint+"/latest";
 	}
 	
 	private static int calculateVersionValue(String versionName) {

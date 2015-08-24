@@ -56,6 +56,18 @@ public class MainActivity extends Activity {
 			}
 			break;
 			
+		case R.id.menu_moduleloader_install:
+			String moduleLoaderPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/com.d4.moduleLoader";
+			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/com.d4.moduleLoader")).isDirectory()) {
+				Log.d("Rfcx-Installer","ModuleLoader will now be downloaded and installed...");
+				app.apiCore.targetAppRoleApiEndpoint = "moduleloader";
+				app.apiCore.setApiCheckVersionEndpoint(app.getDeviceId());
+				app.triggerService("ApiCheckVersion",true);
+			} else {
+				Log.d("Rfcx-Installer","ModuleLoader is already installed...");
+			}
+			break;
+			
 		case R.id.menu_check_version:
 			app.triggerService("ApiCheckVersion",true);
 			break;

@@ -89,7 +89,7 @@ public class InstallAppService extends Service {
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
 					shellCommands.executeCommand("reboot",null,false,context);
-				} else if ((installLoopCounter < 1) && (new FileUtils()).sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
+				} else if (	(installLoopCounter < 1) && (new FileUtils()).sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
 					installLoopCounter++;
 					app.triggerService("InstallApp", true);
 				} else {
@@ -115,7 +115,7 @@ public class InstallAppService extends Service {
 		try {
 			boolean isInstalled = shellCommands.executeCommand(
 					"pm install"+reInstallFlag+" "+apkFilePath,
-					"success",true,context);
+					"Success",true,context);
 			if (apkFile.exists()) { apkFile.delete(); }
 			return isInstalled;
 		} catch (Exception e) {

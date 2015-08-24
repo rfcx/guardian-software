@@ -84,7 +84,9 @@ public class ApiCheckVersionService extends Service {
 						app.lastApiCheckTriggeredAt = Calendar.getInstance().getTimeInMillis();
 						String getUrl =	(((app.getPref("api_domain")!=null) ? app.getPref("api_domain") : "https://api.rfcx.org")
 										+ app.apiCore.apiCheckVersionEndpoint
-										+ "?nocache="+Calendar.getInstance().getTimeInMillis());
+										+ "?role="+app.thisAppRole
+										+ "&version="+app.version
+										+ "&nocache="+Calendar.getInstance().getTimeInMillis());
 						
 						long sinceLastCheckIn = (Calendar.getInstance().getTimeInMillis() - app.apiCore.lastCheckInTime) / 1000;
 						Log.d(TAG, "Since last checkin: "+sinceLastCheckIn);
