@@ -1,0 +1,38 @@
+#!/system/bin/sh
+
+CACHE_DIR=/data/data/org.rfcx.guardian.system/files/txt
+LOGCAT_CACHE=$CACHE_DIR/logcat.log
+DEST_DIR=/mnt/sdcard/rfcx/txt
+
+if [[ ! -d $DEST_DIR ]]
+then
+  DEST_DIR=$CACHE_DIR
+fi
+
+if [[ -d $CACHE_DIR ]]
+then
+
+  if [[ -f $LOGCAT_CACHE ]]
+  then
+    TIMESTAMP=$(date +"%s")
+    cp $LOGCAT_CACHE $DEST_DIR/logcat_$TIMESTAMP.log
+    rm $LOGCAT_DUMP
+  fi
+
+  while true; do
+
+    touch $LOGCAT_CACHE
+    logcat -v time > $LOGCAT_CACHE&
+    PID=$!
+
+    sleep 1800
+
+    TIMESTAMP=$(date +"%s")
+    cp $LOGCAT_CACHE $DEST_DIR/logcat_$TIMESTAMP.log
+    KILL=`kill -9 $PID`
+    rm $LOGCAT_DUMP
+    logcat -c
+
+  done
+
+fi
