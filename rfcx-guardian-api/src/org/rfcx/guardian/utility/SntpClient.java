@@ -1,4 +1,4 @@
-package org.rfcx.guardian.installer.device;
+package org.rfcx.guardian.utility;
 
 /*
  * Copyright (C) 2008 The Android Open Source Project
@@ -28,7 +28,7 @@ import org.rfcx.guardian.utility.RfcxConstants;
 /**
  * {@hide}
  *
- * Simple SNTP client class for retrieving network time.
+ * Simple NTP client class for retrieving network time.
  *
  * Sample usage:
  * <pre>SntpClient client = new SntpClient();
