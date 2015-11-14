@@ -246,10 +246,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     	context = getApplicationContext();
     	
     	String[] buildDotPropSettings = new String[] {
-    			"service.adb.tcp.port=5555", // permanently turns on network adb access (for bluetooth)
+    			"service.adb.tcp.port=5555", // permanently turns on network adb access (for bluetooth/wifi administration)
     			"ro.com.android.dataroaming=true", // turns on data roaming
     			"ro.com.android.dateformat=yyyy-MM-dd", // sets the date format
-    			"net.bt.name=rfcx-"+getDeviceId().substring(0,4) // sets the default bluetooth device name to ii
+    			"net.bt.name=rfcx-"+getDeviceId().substring(0,4) // sets the default bluetooth device name to 
     		};
     	
     	shellCommands.executeCommand("mount -o rw,remount /dev/block/mmcblk0p1 /system", null, true, context);
