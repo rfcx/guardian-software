@@ -105,7 +105,7 @@ public class ApiWebCheckIn {
 			JSONObject queueJson = new JSONObject();
 			
 			// Recording the moment the check in was queued
-			queueJson.put("queued_at", (new DateTimeUtils()).getDateTime(new Date()));
+			queueJson.put("queued_at", (new Date()).getTime());
 			
 			// Adding audio file metadata
 			List<String> audioFiles = new ArrayList<String>();
@@ -119,7 +119,26 @@ public class ApiWebCheckIn {
 			return "{}";
 		}
 	}
-	
+
+	private List<String> getInstalledSoftwareVersions() {
+		
+		List<String> softwareVersions = new ArrayList<String>();
+		
+		Cursor cursor = app.getContentResolver().query(
+				Uri.parse(RfcxConstants.RfcxContentProvider.updater.URI_1),
+	    		RfcxConstants.RfcxContentProvider.updater.PROJECTION_1,
+	            null, null, null);
+			if (cursor.moveToFirst()) { do {
+				softwareVersions.add(
+					cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.updater.PROJECTION_1[0]))
+					+"*"
+					+cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.updater.PROJECTION_1[1]))
+				);
+			 } while (cursor.moveToNext()); }
+			
+		return softwareVersions;
+	}	
+
 	private JSONObject getSystemMetaDataAsJson(JSONObject metaDataJsonObj) throws JSONException {
 
 		this.checkInPreFlightTimestamp = new Date();
@@ -145,13 +164,14 @@ public class ApiWebCheckIn {
 			JSONObject checkInMetaJson = getSystemMetaDataAsJson(new JSONObject(checkInJsonString));
 				
 			// Adding timestamp of metadata (JSON) snapshot
-			checkInMetaJson.put("measured_at", (new DateTimeUtils()).getDateTime(checkInPreFlightTimestamp));
+			checkInMetaJson.put("measured_at", checkInPreFlightTimestamp.getTime());
 			
 			// Adding GeoCoordinates
-			JSONArray latLng = new JSONArray();
-			latLng.put(3.6141375); // latitude... fake, obviously
-			latLng.put(14.2108033); // longitude... fake, obviously
-			checkInMetaJson.put("location", latLng);
+			JSONArray geoLocation = new JSONArray();
+			geoLocation.put(3.6141375); // latitude... fake, obviously
+			geoLocation.put(14.2108033); // longitude... fake, obviously
+			geoLocation.put(1.000001); // precision... fake, obviously
+			checkInMetaJson.put("location", geoLocation);
 			
 			// Adding latency data from previous checkins
 			checkInMetaJson.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
@@ -160,11 +180,8 @@ public class ApiWebCheckIn {
 			checkInMetaJson.put("queued_checkins", app.checkInDb.dbQueued.getCount());
 			checkInMetaJson.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
 			
-			// Adding softare role versions
-			List<String> softwareVersions = new ArrayList<String>();
-			// TO-DO add all roles...
-			softwareVersions.add("api"+"*"+app.version);
-			checkInMetaJson.put("software_version", TextUtils.join("|", softwareVersions));
+			// Adding software role versions
+			checkInMetaJson.put("software_version", TextUtils.join("|", getInstalledSoftwareVersions()));
 			
 			// Adding device location timezone offset
 			checkInMetaJson.put("timezone_offset", timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime()));

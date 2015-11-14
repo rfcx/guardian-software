@@ -150,7 +150,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 		
-		
 	}
 	
 	private void unRegisterListeners() {

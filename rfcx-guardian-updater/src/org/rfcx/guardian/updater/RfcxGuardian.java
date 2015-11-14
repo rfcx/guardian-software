@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.rfcx.guardian.updater.api.ApiCore;
 import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
@@ -201,12 +203,30 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		}	
 	}
 	
-	private String getValueFromGuardianTargetRoleTxtFile(String fileNameNoExt) {
+	public List<String> listInstalledGuardianRoles() {
+
+		List<String> installedRoles =  new ArrayList<String>();
+		
+		try {
+    		String mainAppPath = getApplicationContext().getFilesDir().getAbsolutePath();
+    		for ( File appDataDir : (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian.")))).listFiles() ) {
+    			if (appDataDir.getName().indexOf("org.rfcx.guardian.") > -1) {
+    				installedRoles.add(appDataDir.getName().substring("org.rfcx.guardian.".length()));
+    			}
+    		}
+    	} catch (Exception e) {
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+    	}
+		
+		return installedRoles;
+	}
+
+	private String getValueFromGuardianTxtFile(String appRole, String fileNameNoExt) {
     	context = getApplicationContext();
     	try {
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
-    		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.thisAppRole).length()))+"."+this.targetAppRole+"/files/txt/"+fileNameNoExt+".txt");
-    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.thisAppRole).length()))+"."+this.targetAppRole+"/files/txt",fileNameNoExt+".txt");
+    		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.thisAppRole).length()))+"."+appRole+"/files/txt/"+fileNameNoExt+".txt");
+    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.thisAppRole).length()))+"."+appRole+"/files/txt",fileNameNoExt+".txt");
     		if (txtFile.exists()) {
 				FileInputStream input = new FileInputStream(txtFile);
 				StringBuffer fileContent = new StringBuffer("");
@@ -216,10 +236,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				}
 	    		String txtFileContents = fileContent.toString().trim();
 	    		input.close();
-	    		Log.d(TAG, "Fetched '"+fileNameNoExt+"' from org.rfcx.guardian."+this.targetAppRole+": "+txtFileContents);
 	    		return txtFileContents;
     		} else {
-    			Log.e(TAG, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+this.targetAppRole+"...");
+    			Log.e(TAG, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+appRole+"...");
     		}
     	} catch (FileNotFoundException e) {
     		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
@@ -229,8 +248,16 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     	return null;
 	}
 	
+	private String getValueFromGuardianTargetRoleTxtFile(String fileNameNoExt) {
+		return getValueFromGuardianTxtFile(this.targetAppRole, fileNameNoExt);
+	}
+	
     public String getCurrentGuardianTargetRoleVersion() {
     	return getValueFromGuardianTargetRoleTxtFile("version");
+    }
+    
+    public String getCurrentGuardianRoleVersion(String appRole) {
+    	return getValueFromGuardianTxtFile(appRole, "version");
     }
     
 }
