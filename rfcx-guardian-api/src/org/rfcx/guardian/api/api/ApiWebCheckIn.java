@@ -48,7 +48,7 @@ public class ApiWebCheckIn {
 	public boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 	
 	public int maximumCheckInAttemptsBeforeSkip = 5;
-	public int pauseCheckInsWhenBatteryPercentageDropsBelow = 90;
+	public int pauseCheckInsIfBatteryPercentageIsBelow = 90;
 	
 	public void init(RfcxGuardian app) {
 		this.app = app;

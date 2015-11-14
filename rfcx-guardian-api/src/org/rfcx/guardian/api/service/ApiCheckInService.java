@@ -92,7 +92,7 @@ public class ApiCheckInService extends Service {
 							// 2) there is an active network connection
 						&& 	app.isConnected
 							// 3) the device internal battery percentage is at or above the minimum charge threshold
-						&&	(app.deviceBattery.getBatteryChargePercentage(context, null) >= app.apiWebCheckIn.pauseCheckInsWhenBatteryPercentageDropsBelow)
+						&&	(app.deviceBattery.getBatteryChargePercentage(context, null) >= app.apiWebCheckIn.pauseCheckInsIfBatteryPercentageIsBelow)
 						) {
 						
 						List<String[]> stringParameters = new ArrayList<String[]>();
