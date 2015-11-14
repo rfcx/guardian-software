@@ -83,9 +83,17 @@ public class ApiCheckInService extends Service {
 			while (apiCheckInService.runFlag) {
 				String[] currentCheckIn = new String[] {null,null,null};
 				try {
+					
 					currentCheckIn = app.checkInDb.dbQueued.getLatestRow();	
 					
-					if ((currentCheckIn[0] != null) && app.isConnected) {
+					// only proceed with check in process if:
+					if (	// 1) there is a pending check in in the database
+							(currentCheckIn[0] != null)
+							// 2) there is an active network connection
+						&& 	app.isConnected
+							// 3) the device internal battery percentage is at or above the minimum charge threshold
+						&&	(app.deviceBattery.getBatteryChargePercentage(context, null) >= app.apiWebCheckIn.pauseCheckInsWhenBatteryPercentageDropsBelow)
+						) {
 						
 						List<String[]> stringParameters = new ArrayList<String[]>();
 						stringParameters.add(new String[] { 
@@ -93,8 +101,8 @@ public class ApiCheckInService extends Service {
 								app.apiWebCheckIn.packagePreFlightCheckInJson(currentCheckIn[2]) 
 							});
 						
-						if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiWebCheckIn.MAX_CHECKIN_ATTEMPTS) {
-							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiWebCheckIn.MAX_CHECKIN_ATTEMPTS+" failed attempts");
+						if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiWebCheckIn.maximumCheckInAttemptsBeforeSkip) {
+							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiWebCheckIn.maximumCheckInAttemptsBeforeSkip+" failed attempts");
 							app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3], currentCheckIn[4]);
 							app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(currentCheckIn[1]);
 						} else {

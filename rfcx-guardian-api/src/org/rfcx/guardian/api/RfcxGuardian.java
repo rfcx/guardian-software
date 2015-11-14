@@ -5,6 +5,7 @@ import java.util.Calendar;
 import org.rfcx.guardian.api.api.ApiWebCheckIn;
 import org.rfcx.guardian.api.database.CheckInDb;
 import org.rfcx.guardian.api.device.DeviceAirplaneMode;
+import org.rfcx.guardian.api.device.DeviceBattery;
 import org.rfcx.guardian.api.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.api.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.api.service.ApiCheckInService;
@@ -59,6 +60,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	// for transmitting api data
 	public ApiWebCheckIn apiWebCheckIn = new ApiWebCheckIn();
+	
+	// for checking battery level
+	public DeviceBattery deviceBattery = new DeviceBattery();
 
 	public boolean isRunning_ApiCheckIn = false;
 	public boolean isRunning_ApiCheckInTrigger = false;

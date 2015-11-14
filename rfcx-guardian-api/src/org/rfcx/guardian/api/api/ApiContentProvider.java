@@ -100,7 +100,7 @@ public class ApiContentProvider extends ContentProvider {
 						values.getAsString("digest")
 				};
 				
-				if (app.apiWebCheckIn.createCheckIn(audioInfo, values.getAsString("filepath"))) {
+				if (app.apiWebCheckIn.addCheckInToQueue(audioInfo, values.getAsString("filepath"))) {
 					return Uri.parse(
 							RfcxConstants.RfcxContentProvider.api.URI_1
 								+"/"+values.getAsString("timestamp")

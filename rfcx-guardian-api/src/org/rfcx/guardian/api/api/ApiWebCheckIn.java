@@ -38,6 +38,7 @@ public class ApiWebCheckIn {
 	public Date requestSendReturned = new Date();
 	
 	private List<String> previousCheckIns = new ArrayList<String>();
+	private Date checkInPreFlightTimestamp = new Date();
 	
 	private DateFormat timeZoneOffsetDateFormat = new SimpleDateFormat("Z");
 	
@@ -46,7 +47,8 @@ public class ApiWebCheckIn {
 	public int[] connectivityToggleThresholds = new int[] { 10, 20, 30, 40 };
 	public boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 	
-	public static final int MAX_CHECKIN_ATTEMPTS = 5;
+	public int maximumCheckInAttemptsBeforeSkip = 5;
+	public int pauseCheckInsWhenBatteryPercentageDropsBelow = 90;
 	
 	public void init(RfcxGuardian app) {
 		this.app = app;
@@ -81,64 +83,36 @@ public class ApiWebCheckIn {
 		}
 	}
 	
-	public boolean createCheckIn(String[] audioInfo, String filepath) {
+	public boolean addCheckInToQueue(String[] audioInfo, String filepath) {
+		
+		String queueJson = generateCheckInQueueJson(audioInfo);
 		
 		app.checkInDb.dbQueued.insert(
 				audioInfo[1]+"."+audioInfo[2], 
-				generateCheckInJson(audioInfo), 
+				queueJson, 
 				"0", 
 				filepath
 			);
 		
+		Log.i(TAG, "CheckIn Queued: "+queueJson);
+		
 		return true;
 	}
 	
-	public String generateCheckInJson(String[] audioFileInfo) {
+	private String generateCheckInQueueJson(String[] audioFileInfo) {
 		
 		try {
-
-			JSONObject json = new JSONObject();
+			JSONObject queueJson = new JSONObject();
 			
-			Date clearStatsBefore = new Date();
-			Cursor cursor = app.getContentResolver().query(
-				Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_META),
-	    		RfcxConstants.RfcxContentProvider.system.PROJECTION_META,
-	            null, null, null);
-			if (cursor.moveToFirst()) { do {
-				for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION_META.length; i++) {
-					json.put(	RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i],
-								(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i])) != null) ? cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i])) : null
-							);
-				}
-			 } while (cursor.moveToNext()); }
-			int clearStats = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_META+"/"+clearStatsBefore.getTime()), null, null);
+			// Recording the moment the check in was queued
+			queueJson.put("queued_at", (new DateTimeUtils()).getDateTime(new Date()));
 			
-			
-			json.put("measured_at", (new DateTimeUtils()).getDateTime(clearStatsBefore));
-			json.put("timezone_offset", timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime()));
-		
-			json.put("queued_checkins", app.checkInDb.dbQueued.getCount());
-			json.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
-			
-			JSONArray latLng = new JSONArray();
-			latLng.put(3.6141375); // latitude... fake, obviously
-			latLng.put(14.2108033); // longitude... fake, obviously
-			json.put("location", latLng);
-			
-			json.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
-			this.previousCheckIns = new ArrayList<String>();
-			
-			List<String> softwareVersions = new ArrayList<String>();
-			softwareVersions.add("api"+"*"+app.version);
-			json.put("software_version", TextUtils.join("|", softwareVersions));
-	
+			// Adding audio file metadata
 			List<String> audioFiles = new ArrayList<String>();
 			audioFiles.add(TextUtils.join("*", audioFileInfo));
-			json.put("audio", TextUtils.join("|", audioFiles));
+			queueJson.put("audio", TextUtils.join("|", audioFiles));
 			
-			Log.i(TAG, "CheckIn: "+json.toString());
-			
-			return json.toString();
+			return queueJson.toString();
 			
 		} catch (JSONException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
@@ -146,20 +120,66 @@ public class ApiWebCheckIn {
 		}
 	}
 	
-	public String packagePreFlightCheckInJson(String checkInJsonString) throws JSONException {
+	private JSONObject getSystemMetaDataAsJson(JSONObject metaDataJsonObj) throws JSONException {
 
-			JSONObject metaJson = new JSONObject(checkInJsonString);
+		this.checkInPreFlightTimestamp = new Date();
 		
+		Cursor cursor = app.getContentResolver().query(
+				Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_META),
+	    		RfcxConstants.RfcxContentProvider.system.PROJECTION_META,
+	            null, null, null);
+			if (cursor.moveToFirst()) { do {
+				for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION_META.length; i++) {
+					metaDataJsonObj.put(	
+						RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i],
+						(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i])) != null) ? cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i])) : null
+					);
+				}
+			 } while (cursor.moveToNext()); }
+			
+		return metaDataJsonObj;
+	}
+	
+	public String packagePreFlightCheckInJson(String checkInJsonString) throws JSONException {
+			
+			JSONObject checkInMetaJson = getSystemMetaDataAsJson(new JSONObject(checkInJsonString));
+				
+			// Adding timestamp of metadata (JSON) snapshot
+			checkInMetaJson.put("measured_at", (new DateTimeUtils()).getDateTime(checkInPreFlightTimestamp));
+			
+			// Adding GeoCoordinates
+			JSONArray latLng = new JSONArray();
+			latLng.put(3.6141375); // latitude... fake, obviously
+			latLng.put(14.2108033); // longitude... fake, obviously
+			checkInMetaJson.put("location", latLng);
+			
+			// Adding latency data from previous checkins
+			checkInMetaJson.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
+
+			// Recording number of currently queued/skipped checkins
+			checkInMetaJson.put("queued_checkins", app.checkInDb.dbQueued.getCount());
+			checkInMetaJson.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
+			
+			// Adding softare role versions
+			List<String> softwareVersions = new ArrayList<String>();
+			// TO-DO add all roles...
+			softwareVersions.add("api"+"*"+app.version);
+			checkInMetaJson.put("software_version", TextUtils.join("|", softwareVersions));
+			
+			// Adding device location timezone offset
+			checkInMetaJson.put("timezone_offset", timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime()));
+
 			// Adding messages to JSON blob
-			metaJson.put("messages", getSmsMessagesAsJson());
+			checkInMetaJson.put("messages", getSmsMessagesAsJson());
 
 			// Adding screenshot meta to JSON blob
 			String[] latestScreenShot = getLatestScreenShotMeta();
-			metaJson.put("screenshots", (latestScreenShot != null) ? TextUtils.join("*",latestScreenShot) : null);
+			checkInMetaJson.put("screenshots", (latestScreenShot != null) ? TextUtils.join("*",latestScreenShot) : null);
 			
 			// Stringify JSON, gzip the output and convert to base 64 string for sending
-			return (new GZipUtils()).gZipStringToBase64(metaJson.toString());
+			return (new GZipUtils()).gZipStringToBase64(checkInMetaJson.toString());
 	}
+	
 	
 	public void processCheckInResponse(String checkInResponse) {
 		if ((checkInResponse != null) && !checkInResponse.isEmpty()) {
@@ -170,10 +190,17 @@ public class ApiWebCheckIn {
 				
 				// reset/record request latency
 				long checkInDuration = System.currentTimeMillis() - this.requestSendStart.getTime();
+				this.previousCheckIns = new ArrayList<String>();
 				this.previousCheckIns.add(responseJson.getString("checkin_id")+"*"+checkInDuration);
 				this.requestSendReturned = new Date();
 				Log.i(TAG,"CheckIn request time: "+(checkInDuration/1000)+" seconds");
 				
+				// clear system metadata included in successful checkin preflight
+				int clearPreFlightSystemMetaData = app.getContentResolver().delete(
+						Uri.parse(
+							RfcxConstants.RfcxContentProvider.system.URI_META+"/"+checkInPreFlightTimestamp.getTime()
+						), null, null);
+
 				// parse audio info and use it to purge the data locally
 			    JSONArray audioJsonArray = new JSONArray(responseJson.getString("audio"));
 			    for (int i = 0; i < audioJsonArray.length(); i++) {
@@ -296,6 +323,7 @@ public class ApiWebCheckIn {
 					Log.d(TAG, "Screenshot attached: "+imgId+".png");
 				} else {
 					Log.e(TAG, "Screenshot attachment file doesn't exist: "+imgFilePath);
+					int deleteScreenShot = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_SCREENSHOT+"/"+imgId), null, null);
 				}
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
