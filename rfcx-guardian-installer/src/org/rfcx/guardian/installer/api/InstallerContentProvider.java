@@ -1,6 +1,8 @@
-package org.rfcx.guardian.updater.api;
+package org.rfcx.guardian.installer.api;
 
-import org.rfcx.guardian.updater.RfcxGuardian;
+import java.util.Calendar;
+
+import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.ContentProvider;
@@ -13,15 +15,15 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class UpdaterContentProvider extends ContentProvider {
+public class InstallerContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+UpdaterContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+InstallerContentProvider.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.updater.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxConstants.RfcxContentProvider.updater.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.installer.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxConstants.RfcxContentProvider.installer.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -39,17 +41,13 @@ public class UpdaterContentProvider extends ContentProvider {
 		checkSetApplicationContext();
 		
 		try {
-			MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.updater.PROJECTION_1);
+			MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.installer.PROJECTION_1);
 			
-			for (String softwareRole : app.listInstalledGuardianRoles()) {
-				cursor.addRow(new Object[] { 
-						softwareRole,
-						app.getCurrentGuardianRoleVersion(softwareRole)
-					});
-			}
+			cursor.addRow(new Object[] { 
+					Calendar.getInstance().getTimeInMillis()
+				});
 			
 			return cursor;
-			
 		} catch (Exception e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}

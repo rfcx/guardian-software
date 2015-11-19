@@ -64,6 +64,13 @@
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>
 		</receiver>
+		
+		<provider 
+		    android:name="org.rfcx.guardian.installer.api.InstallerContentProvider"
+			android:authorities="org.rfcx.guardian.installer"
+        	android:readPermission="org.rfcx.guardian.READ"
+        	android:writePermission="org.rfcx.guardian.WRITE"
+        	android:exported="true" />
 
     </application>
 
