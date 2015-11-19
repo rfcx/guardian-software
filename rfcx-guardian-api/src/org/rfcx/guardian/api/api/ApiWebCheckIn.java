@@ -124,7 +124,7 @@ public class ApiWebCheckIn {
 		List<String> softwareVersions = new ArrayList<String>();
 		
 		try {
-		Cursor cursor = app.getContentResolver().query(
+			Cursor cursor = app.getContentResolver().query(
 				Uri.parse(RfcxConstants.RfcxContentProvider.updater.URI_1),
 	    		RfcxConstants.RfcxContentProvider.updater.PROJECTION_1,
 	            null, null, null);
@@ -146,7 +146,8 @@ public class ApiWebCheckIn {
 
 		this.checkInPreFlightTimestamp = new Date();
 		
-		Cursor cursor = app.getContentResolver().query(
+		try {
+			Cursor cursor = app.getContentResolver().query(
 				Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_META),
 	    		RfcxConstants.RfcxContentProvider.system.PROJECTION_META,
 	            null, null, null);
@@ -158,6 +159,9 @@ public class ApiWebCheckIn {
 					);
 				}
 			 } while (cursor.moveToNext()); }
+		} catch (Exception e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+		}
 			
 		return metaDataJsonObj;
 	}
@@ -195,9 +199,13 @@ public class ApiWebCheckIn {
 			// Adding screenshot meta to JSON blob
 			String[] latestScreenShot = getLatestScreenShotMeta();
 			checkInMetaJson.put("screenshots", (latestScreenShot != null) ? TextUtils.join("*",latestScreenShot) : null);
-			
+
 			// Stringify JSON, gzip the output and convert to base 64 string for sending
-			return (new GZipUtils()).gZipStringToBase64(checkInMetaJson.toString());
+			String jsonFinal = checkInMetaJson.toString();
+			String jsonFinalGZipped = (new GZipUtils()).gZipStringToBase64(jsonFinal);
+			Log.d(TAG, "JSON Compressed: "+(100*Math.round(1-jsonFinalGZipped.length()/jsonFinal.length()))+"% reduced");
+			
+			return jsonFinalGZipped;
 	}
 	
 	
