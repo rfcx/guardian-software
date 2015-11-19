@@ -85,14 +85,14 @@ public class ApiCheckInService extends Service {
 				try {
 					
 					currentCheckIn = app.checkInDb.dbQueued.getLatestRow();	
-					
+										
 					// only proceed with check in process if:
 					if (	// 1) there is a pending check in in the database
 							(currentCheckIn[0] != null)
 							// 2) there is an active network connection
 						&& 	app.isConnected
 							// 3) the device internal battery percentage is at or above the minimum charge threshold
-						&&	(app.deviceBattery.getBatteryChargePercentage(context, null) >= app.apiWebCheckIn.pauseCheckInsIfBatteryPercentageIsBelow)
+						&&	app.apiWebCheckIn.isBatteryChargeSufficientForCheckIn()
 						) {
 						
 						List<String[]> stringParameters = new ArrayList<String[]>();
@@ -115,7 +115,16 @@ public class ApiCheckInService extends Service {
 							);
 						}
 					} else {
+						// wait 5 seconds before trying to check in again
 						Thread.sleep(5000);
+						
+						if (!app.apiWebCheckIn.isBatteryChargeSufficientForCheckIn()) {
+							long extendCheckInLoopBy = 120000;
+							Log.i(TAG, "CheckIns are currently blocked due to low battery level"
+									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+app.apiWebCheckIn.pauseCheckInsIfBatteryPercentageIsBelow+"%)."
+									+" Waiting "+(Math.round(extendCheckInLoopBy)/1000)+" seconds before next CheckIn attempt.");
+							Thread.sleep(extendCheckInLoopBy);
+						}
 					}
 						
 				} catch (Exception e) {

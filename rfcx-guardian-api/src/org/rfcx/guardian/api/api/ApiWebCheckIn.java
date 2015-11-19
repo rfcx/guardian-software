@@ -24,7 +24,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 
 public class ApiWebCheckIn {
@@ -48,7 +47,7 @@ public class ApiWebCheckIn {
 	public boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 	
 	public int maximumCheckInAttemptsBeforeSkip = 5;
-	public int pauseCheckInsIfBatteryPercentageIsBelow = 90;
+	public int pauseCheckInsIfBatteryPercentageIsBelow = 37; // 90;
 	
 	public void init(RfcxGuardian app) {
 		this.app = app;
@@ -124,6 +123,7 @@ public class ApiWebCheckIn {
 		
 		List<String> softwareVersions = new ArrayList<String>();
 		
+		try {
 		Cursor cursor = app.getContentResolver().query(
 				Uri.parse(RfcxConstants.RfcxContentProvider.updater.URI_1),
 	    		RfcxConstants.RfcxContentProvider.updater.PROJECTION_1,
@@ -135,6 +135,9 @@ public class ApiWebCheckIn {
 					+cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.updater.PROJECTION_1[1]))
 				);
 			 } while (cursor.moveToNext()); }
+		} catch (Exception e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+		}
 			
 		return softwareVersions;
 	}	
@@ -355,6 +358,10 @@ public class ApiWebCheckIn {
 		
 		int secsSinceSuccess = (int) ((new Date()).getTime() - this.requestSendReturned.getTime()) / 1000;
 		if ((secsSinceSuccess/60) < this.connectivityToggleThresholds[0]) {
+			// everything is going fine and we haven't even reached the first threshold of bad connectivity
+			this.connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };	
+		} else if (!isBatteryChargeSufficientForCheckIn()) {
+			// checkins are paused due to low battery level, so we are resetting the connectivity problem thesholds
 			this.connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };	
 		} else {
 			int thresholdIndex = 0;
@@ -373,5 +380,10 @@ public class ApiWebCheckIn {
 			}
 		}
 	}
-
+	
+	public boolean isBatteryChargeSufficientForCheckIn() {
+		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
+		return (batteryCharge >= this.pauseCheckInsIfBatteryPercentageIsBelow);
+	}
+	
 }
