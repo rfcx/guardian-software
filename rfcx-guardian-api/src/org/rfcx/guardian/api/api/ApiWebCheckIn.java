@@ -203,7 +203,7 @@ public class ApiWebCheckIn {
 			// Stringify JSON, gzip the output and convert to base 64 string for sending
 			String jsonFinal = checkInMetaJson.toString();
 			String jsonFinalGZipped = (new GZipUtils()).gZipStringToBase64(jsonFinal);
-			Log.d(TAG, "JSON Compressed: "+(100*Math.round(1-jsonFinalGZipped.length()/jsonFinal.length()))+"% reduced");
+			Log.d(TAG, "JSON Compressed: "+Math.round(100*(1-jsonFinalGZipped.length()/jsonFinal.length()))+"% reduced");
 			
 			return jsonFinalGZipped;
 	}
