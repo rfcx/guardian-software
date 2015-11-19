@@ -29,7 +29,7 @@ public class DeviceStateDb {
 	}
 	
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceStateDb.class.getSimpleName();
-	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
+	//public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
 	static final String DATABASE = "device";
 	static final String C_MEASURED_AT = "measured_at";
@@ -40,9 +40,10 @@ public class DeviceStateDb {
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_MEASURED_AT).append(" DATETIME");
-		sbOut.append(", "+C_VALUE_1+" TEXT");
-		sbOut.append(", "+C_VALUE_2+" TEXT");
+		sbOut.append("CREATE TABLE ").append(tableName);
+		sbOut.append("(").append(C_MEASURED_AT).append(" INTEGER");
+		sbOut.append(", ").append(C_VALUE_1).append(" TEXT");
+		sbOut.append(", ").append(C_VALUE_2).append(" TEXT");
 		return sbOut.append(")").toString();
 	}
 	
@@ -73,7 +74,7 @@ public class DeviceStateDb {
 		}
 		public void insert(Date measured_at, int cpu_percent, int cpu_clock) {
 			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
+			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VALUE_1, cpu_percent);
 			values.put(C_VALUE_2, cpu_clock);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -95,7 +96,7 @@ public class DeviceStateDb {
 		}
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
 		public String[] getConcatRows() {
@@ -138,7 +139,7 @@ public class DeviceStateDb {
 		}
 		public void insert(Date measured_at, int battery_percent, int battery_temperature) {
 			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
+			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VALUE_1, battery_percent);
 			values.put(C_VALUE_2, battery_temperature);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -160,7 +161,7 @@ public class DeviceStateDb {
 		}
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
 		public String[] getConcatRows() {
@@ -202,7 +203,7 @@ public class DeviceStateDb {
 		}
 		public void insert(Date measured_at, boolean is_powered, boolean is_charged) {
 			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
+			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VALUE_1, is_powered);
 			values.put(C_VALUE_2, is_charged);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -224,7 +225,7 @@ public class DeviceStateDb {
 		}
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
 		public String[] getConcatRows() {
@@ -266,7 +267,7 @@ public class DeviceStateDb {
 		}
 		public void insert(Date measured_at, int signal_strength, String network_type, String carrier_name) {
 			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
+			values.put(C_MEASURED_AT, measured_at.getTime());
 			// this is obviously a hack...
 			// ...to concat two values into a single column.
 			// may want to change/consider later
@@ -291,7 +292,7 @@ public class DeviceStateDb {
 		}
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
 		public String[] getConcatRows() {
@@ -333,7 +334,7 @@ public class DeviceStateDb {
 		}
 		public void insert(Date measured_at, long offline_period, String carrier_name) {
 			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
+			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VALUE_1, offline_period);
 			values.put(C_VALUE_2, carrier_name.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -355,7 +356,7 @@ public class DeviceStateDb {
 		}
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
 		public String[] getConcatRows() {
@@ -397,7 +398,7 @@ public class DeviceStateDb {
 		}
 		public void insert(Date measured_at, long luminosity, String value_2) {
 			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, dateTimeUtils.getDateTime(measured_at));
+			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VALUE_1, luminosity);
 			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
@@ -419,7 +420,7 @@ public class DeviceStateDb {
 		}
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
 		public String[] getConcatRows() {
