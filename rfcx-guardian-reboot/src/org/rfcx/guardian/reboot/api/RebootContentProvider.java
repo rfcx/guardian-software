@@ -12,6 +12,8 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Log;
 
 public class RebootContentProvider extends ContentProvider {
 	
@@ -38,13 +40,18 @@ public class RebootContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.reboot.PROJECTION_1);
-		
-		cursor.addRow(new Object[] { 
-				Calendar.getInstance().getTimeInMillis()
-			});
-		
-		return cursor;
+		try {
+			MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.reboot.PROJECTION_1);
+			
+			cursor.addRow(new Object[] { 
+					Calendar.getInstance().getTimeInMillis()
+				});
+			
+			return cursor;
+		} catch (Exception e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+		}
+		return null;
 	}
 
 	@Override
