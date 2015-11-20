@@ -41,11 +41,11 @@ public class UpdaterContentProvider extends ContentProvider {
 		try {
 			MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.updater.PROJECTION_1);
 			
-			for (String softwareRole : app.listInstalledGuardianRoles()) {
+			for (String softwareRole : RfcxConstants.ALL_ROLES) {
 				cursor.addRow(new Object[] { 
-						softwareRole,
-						app.getCurrentGuardianRoleVersion(softwareRole)
-					});
+					softwareRole,
+					(app.isRoleInstalled(softwareRole)) ? app.getCurrentGuardianRoleVersion(softwareRole) : null
+				});
 			}
 			
 			return cursor;

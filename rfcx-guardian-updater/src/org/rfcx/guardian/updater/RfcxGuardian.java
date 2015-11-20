@@ -203,22 +203,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		}	
 	}
 	
-	public List<String> listInstalledGuardianRoles() {
-
-		List<String> installedRoles =  new ArrayList<String>();
-		
-		try {
-    		String mainAppPath = getApplicationContext().getFilesDir().getAbsolutePath();
-    		for ( File appDataDir : (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian.")))).listFiles() ) {
-    			if (appDataDir.getName().indexOf("org.rfcx.guardian.") > -1) {
-    				installedRoles.add(appDataDir.getName().substring("org.rfcx.guardian.".length()));
-    			}
-    		}
-    	} catch (Exception e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-    	}
-		
-		return installedRoles;
+	public boolean isRoleInstalled(String appRole) {
+		String mainAppPath = getApplicationContext().getFilesDir().getAbsolutePath();
+		return (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian."))+"/org.rfcx.guardian."+appRole)).exists();
 	}
 
 	private String getValueFromGuardianTxtFile(String appRole, String fileNameNoExt) {

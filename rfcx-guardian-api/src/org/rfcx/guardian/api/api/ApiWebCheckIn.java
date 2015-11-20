@@ -188,7 +188,7 @@ public class ApiWebCheckIn {
 			checkInMetaJson.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
 			
 			// Adding software role versions
-			checkInMetaJson.put("software_version", TextUtils.join("|", getInstalledSoftwareVersions()));
+			checkInMetaJson.put("software", TextUtils.join("|", getInstalledSoftwareVersions()));
 			
 			// Adding device location timezone offset
 			checkInMetaJson.put("timezone_offset", timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime()));
@@ -203,7 +203,9 @@ public class ApiWebCheckIn {
 			// Stringify JSON, gzip the output and convert to base 64 string for sending
 			String jsonFinal = checkInMetaJson.toString();
 			String jsonFinalGZipped = (new GZipUtils()).gZipStringToBase64(jsonFinal);
-			Log.d(TAG, "JSON Compressed: "+Math.round(100*(1-jsonFinalGZipped.length()/jsonFinal.length()))+"% reduced");
+			
+			int pct = Math.round(100*(1-((float) jsonFinalGZipped.length())/((float) jsonFinal.length())));
+			Log.d(TAG, "JSON MetaData Packaged: "+pct+"% reduced");
 			
 			return jsonFinalGZipped;
 	}

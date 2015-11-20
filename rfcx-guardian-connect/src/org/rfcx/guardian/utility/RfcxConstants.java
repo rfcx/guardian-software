@@ -6,6 +6,8 @@ public class RfcxConstants {
 	public static final String ROLE_NAME = "Connect";
 	public static final String NULL_EXC = "Exception thrown, but exception itself is null.";
 	
+	public static final String[] ALL_ROLES= new String[] { "api", "audio", "carrier", "connect", "installer", "reboot", "sentinel", "system", "updater" };
+	
 	public static final class RfcxContentProvider {
 		
 		public static final class system {
