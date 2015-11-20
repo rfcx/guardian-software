@@ -212,7 +212,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     	context = getApplicationContext();
     	try {
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
-    		Log.d(TAG,mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.thisAppRole).length()))+"."+this.targetAppRole+"/files/txt/"+fileNameNoExt+".txt");
     		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.thisAppRole).length()))+"."+this.targetAppRole+"/files/txt",fileNameNoExt+".txt");
     		if (txtFile.exists()) {
 				FileInputStream input = new FileInputStream(txtFile);
