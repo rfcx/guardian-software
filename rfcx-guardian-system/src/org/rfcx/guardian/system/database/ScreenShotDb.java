@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.ContentValues;
@@ -24,7 +23,6 @@ public class ScreenShotDb {
 	}
 
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ScreenShotDb.class.getSimpleName();
-	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
 	static final String DATABASE = "screenshots";
 	static final String C_CREATED_AT = "created_at";
@@ -35,7 +33,8 @@ public class ScreenShotDb {
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
+		sbOut.append("CREATE TABLE ").append(tableName);
+		sbOut.append("(").append(C_CREATED_AT).append(" INTEGER");
 		sbOut.append(", "+C_TIMESTAMP+" TEXT");
 		sbOut.append(", "+C_FORMAT+" TEXT");
 		sbOut.append(", "+C_DIGEST+" TEXT");
@@ -69,7 +68,7 @@ public class ScreenShotDb {
 		}
 		public void insert(String timestamp, String format, String digest) {
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
+			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_TIMESTAMP, timestamp);
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
@@ -92,17 +91,8 @@ public class ScreenShotDb {
 		}
 		public void clearCapturedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
 			} finally { db.close(); }
-		}
-		
-		public String getSerializedCaptured() {
-			List<String[]> capturedList = getAllCaptured();
-			String[] capturedArray = new String[capturedList.size()];
-			for (int i = 0; i < capturedList.size(); i++) {
-				capturedArray[i] = TextUtils.join("|", capturedList.get(i));
-			}
-			return (capturedList.size() > 0) ? TextUtils.join("$", capturedArray) : "";
 		}
 		
 		public void deleteSingleRowByTimestamp(String timestamp) {

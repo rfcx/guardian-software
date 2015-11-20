@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.ContentValues;
@@ -23,7 +22,6 @@ public class DataTransferDb {
 	}
 
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DataTransferDb.class.getSimpleName();
-	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
 	static final String DATABASE = "data";
 	static final String C_CREATED_AT = "created_at";
@@ -38,13 +36,14 @@ public class DataTransferDb {
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
-		sbOut.append(", "+C_START_TIME+" DATETIME");
-		sbOut.append(", "+C_END_TIME+" DATETIME");
-		sbOut.append(", "+C_BYTES_RECEIVED_CURRENT+" TEXT");
-		sbOut.append(", "+C_BYTES_SENT_CURRENT+" TEXT");
-		sbOut.append(", "+C_BYTES_RECEIVED_TOTAL+" TEXT");
-		sbOut.append(", "+C_BYTES_SENT_TOTAL+" TEXT");
+		sbOut.append("CREATE TABLE ").append(tableName);
+		sbOut.append("(").append(C_CREATED_AT).append(" INTEGER");
+		sbOut.append(", "+C_START_TIME+" INTEGER");
+		sbOut.append(", "+C_END_TIME+" INTEGER");
+		sbOut.append(", "+C_BYTES_RECEIVED_CURRENT+" INTEGER");
+		sbOut.append(", "+C_BYTES_SENT_CURRENT+" INTEGER");
+		sbOut.append(", "+C_BYTES_RECEIVED_TOTAL+" INTEGER");
+		sbOut.append(", "+C_BYTES_SENT_TOTAL+" INTEGER");
 		return sbOut.append(")").toString();
 	}
 	
@@ -75,9 +74,9 @@ public class DataTransferDb {
 		}
 		public void insert(Date created_at, Date start_time, Date end_time, long bytes_rx_current, long bytes_tx_current, long bytes_rx_total, long bytes_tx_total) {
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, dateTimeUtils.getDateTime(created_at));
-			values.put(C_START_TIME, dateTimeUtils.getDateTime(start_time));
-			values.put(C_END_TIME, dateTimeUtils.getDateTime(end_time));
+			values.put(C_CREATED_AT, created_at.getTime());
+			values.put(C_START_TIME, start_time.getTime());
+			values.put(C_END_TIME, end_time.getTime());
 			values.put(C_BYTES_RECEIVED_CURRENT, bytes_rx_current);
 			values.put(C_BYTES_SENT_CURRENT, bytes_tx_current);
 			values.put(C_BYTES_RECEIVED_TOTAL, bytes_rx_total);
@@ -101,7 +100,7 @@ public class DataTransferDb {
 		}
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
 		public String[] getConcatRows() {

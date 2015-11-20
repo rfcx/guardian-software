@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.ContentValues;
@@ -25,7 +24,6 @@ public class AudioDb {
 	}
 
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+AudioDb.class.getSimpleName();
-	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
 	static final String DATABASE = "audio";
 	static final String C_CREATED_AT = "created_at";
@@ -36,7 +34,8 @@ public class AudioDb {
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
+		sbOut.append("CREATE TABLE ").append(tableName);
+		sbOut.append("(").append(C_CREATED_AT).append(" INTEGER");
 		sbOut.append(", "+C_TIMESTAMP+" TEXT");
 		sbOut.append(", "+C_FORMAT+" TEXT");
 		sbOut.append(", "+C_DIGEST+" TEXT");
@@ -70,7 +69,7 @@ public class AudioDb {
 		}
 		public void insert(String value, String format, String digest) {
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
+			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_TIMESTAMP, value);
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
@@ -93,7 +92,7 @@ public class AudioDb {
 		}
 		public void clearCapturedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
 		
@@ -136,7 +135,7 @@ public class AudioDb {
 		}
 		public void insert(String value, String format, String digest) {
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new DateTimeUtils()).getDateTime());
+			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_TIMESTAMP, value);
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
@@ -161,7 +160,7 @@ public class AudioDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			String[] row = new String[] {null,null,null};
 			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_TIMESTAMP+" DESC", "1");
 				if (cursor.getCount() > 0) {
 					try {
 						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) };
@@ -171,7 +170,7 @@ public class AudioDb {
 		}
 		public void clearEncodedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+(new DateTimeUtils()).getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
 		
@@ -181,14 +180,6 @@ public class AudioDb {
 			} finally { db.close(); }
 		}
 		
-		public String getSerializedEncoded() {
-			List<String[]> encodedList = getAllEncoded();
-			String[] encodedArray = new String[encodedList.size()];
-			for (int i = 0; i < encodedList.size(); i++) {
-				encodedArray[i] = TextUtils.join("|", encodedList.get(i));
-			}
-			return (encodedList.size() > 0) ? TextUtils.join("$", encodedArray) : "";
-		}
 	}
 	public final DbEncoded dbEncoded;
 	

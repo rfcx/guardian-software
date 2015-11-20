@@ -1,6 +1,7 @@
 package org.rfcx.guardian.audio.service;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
@@ -54,8 +55,8 @@ public class AudioEncodeIntentService extends IntentService {
 				gZipUtils.gZipFile(postEncodeFile, gZippedFile);
 				if (postEncodeFile.exists() && gZippedFile.exists()) { postEncodeFile.delete(); }
 				
-				app.audioDb.dbCaptured.clearCapturedBefore(dateTimeUtils.getDateFromString(capturedRow[0]));
-				app.audioDb.dbEncoded.insert(capturedRow[1], capturedRow[2],digest);
+				app.audioDb.dbCaptured.clearCapturedBefore(new Date((long) Long.parseLong(capturedRow[0])));
+				app.audioDb.dbEncoded.insert(capturedRow[1], capturedRow[2], digest);
 				
 				//make sure the previous step(s) are synchronous or else the checkin will occur before the encode...
 				app.audioEncode.triggerCheckInAfterEncode(app.getApplicationContext());

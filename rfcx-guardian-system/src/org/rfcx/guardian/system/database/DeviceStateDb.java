@@ -29,7 +29,6 @@ public class DeviceStateDb {
 	}
 	
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceStateDb.class.getSimpleName();
-	//public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
 	static final String DATABASE = "device";
 	static final String C_MEASURED_AT = "measured_at";

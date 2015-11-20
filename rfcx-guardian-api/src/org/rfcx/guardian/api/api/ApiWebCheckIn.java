@@ -333,6 +333,9 @@ public class ApiWebCheckIn {
 				Log.d(TAG, "Audio attached: "+audioId+"."+audioFormat);
 			} else {
 				Log.e(TAG, "Audio attachment file doesn't exist: "+audioId+"."+audioFormat);
+				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioId+"."+audioFormat);
+				int deleteAudio = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1+"/"+audioId), null, null);
+
 			}
 		} catch (Exception e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
