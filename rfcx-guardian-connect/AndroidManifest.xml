@@ -25,11 +25,22 @@
 	<uses-permission android:name="android.permission.BLUETOOTH" />
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-permission android:name="android.permission.CAMERA" />
+	<uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+	<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+	<uses-permission android:name="android.permission.READ_LOGS" />
+	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.WRITE_SETTINGS" />
+	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
 
 	<uses-permission android:name="org.rfcx.guardian.READ" />
 	<uses-permission android:name="org.rfcx.guardian.WRITE" />
-	<permission android:name="org.rfcx.guardian.READ" android:protectionLevel="normal" />
-	<permission android:name="org.rfcx.guardian.WRITE" android:protectionLevel="normal" />
+	<permission android:name="org.rfcx.guardian.READ" android:protectionLevel="signature" />
+	<permission android:name="org.rfcx.guardian.WRITE" android:protectionLevel="signature" />
 	
     <application
         android:allowBackup="true"
