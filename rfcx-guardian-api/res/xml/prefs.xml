@@ -36,13 +36,5 @@
 	    android:inputType="number"
         android:enabled="true"
         android:defaultValue="5"/>
-	
-	<EditTextPreference
-        android:key="audio_capture_interval"
-        android:title="Audio Capture Interval"
-        android:summary="How long should each audio chunk be? (seconds)"
-	    android:inputType="number"
-        android:enabled="true"
-        android:defaultValue="90"/>
     
 </PreferenceScreen>

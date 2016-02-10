@@ -46,15 +46,16 @@ public class ApiWebCheckIn {
 	public int[] connectivityToggleThresholds = new int[] { 10, 20, 30, 40 };
 	public boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 	
+	// TO DO: These need to be made dynamic, ideally tied to prefs (cross role)
 	public int maximumCheckInAttemptsBeforeSkip = 5;
-	public int pauseCheckInsIfBatteryPercentageIsBelow = 37; // 90;
+	public int pauseCheckInsIfBatteryPercentageIsBelow = 90;
+	public int audioCaptureInterval = 90000;
 	
 	public void init(RfcxGuardian app) {
 		this.app = app;
 		// setting http post timeouts to the same as the audio capture interval.
-		int audioCaptureInterval = 1000*((int) Integer.parseInt(app.getPref("audio_capture_interval")));
 		this.httpPostMultipart.setTimeOuts(audioCaptureInterval, audioCaptureInterval);
-		// setting customized rfcx authentication headers (necessary for API access)
+		// defining customized RFCx authentication headers (necessary for API access)
 		List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
 		rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.getDeviceId() });
 		rfcxAuthHeaders.add(new String[] { "x-auth-token", app.getDeviceToken() });
@@ -175,9 +176,9 @@ public class ApiWebCheckIn {
 			
 			// Adding GeoCoordinates
 			JSONArray geoLocation = new JSONArray();
-			geoLocation.put(3.6141375); // latitude... fake, obviously
-			geoLocation.put(14.2108033); // longitude... fake, obviously
-			geoLocation.put(1.000001); // precision... fake, obviously
+			geoLocation.put(3.6141375); // latitude... currently this is fake, obviously
+			geoLocation.put(14.2108033); // longitude... currently this is fake, obviously
+			geoLocation.put(1.000001); // precision... currently this is fake, obviously
 			checkInMetaJson.put("location", geoLocation);
 			
 			// Adding latency data from previous checkins
@@ -235,7 +236,7 @@ public class ApiWebCheckIn {
 			    JSONArray audioJsonArray = new JSONArray(responseJson.getString("audio"));
 			    for (int i = 0; i < audioJsonArray.length(); i++) {
 			    	JSONObject audioJson = audioJsonArray.getJSONObject(i);
-					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioJson.getString("id")+".m4a");
+					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioJson.getString("id"));
 					int deleteAudio = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1+"/"+audioJson.getString("id")), null, null);
 			    }
 				
@@ -285,7 +286,7 @@ public class ApiWebCheckIn {
 				try {
 					JSONObject msgJson = new JSONObject();
 					msgJson.put("android_id", cursor.getString(cursor.getColumnIndex("_id")));
-					msgJson.put("received_at", (new DateTimeUtils()).getDateTime(new Date(cursor.getLong(cursor.getColumnIndex("date")))));
+					msgJson.put("received_at", cursor.getLong(cursor.getColumnIndex("date")));
 					msgJson.put("address", cursor.getString(cursor.getColumnIndex("address")));
 					msgJson.put("body", cursor.getString(cursor.getColumnIndex("body")));
 					msgJsonArray.put(msgJson);

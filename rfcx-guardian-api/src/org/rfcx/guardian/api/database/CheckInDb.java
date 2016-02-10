@@ -109,7 +109,7 @@ public class CheckInDb {
 		
 		public void deleteSingleRowByAudioAttachment(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_AUDIO+"='"+audioFile+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioFile+"'");
 			} finally { db.close(); }
 		}
 		
@@ -121,7 +121,7 @@ public class CheckInDb {
 		
 		public void incrementSingleRowAttempts(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+C_AUDIO+"='"+audioFile+"'");
+			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_AUDIO+",0,14)='"+audioFile+"'");
 			} finally { db.close(); }
 		}
 		
@@ -206,7 +206,7 @@ public class CheckInDb {
 		
 		public void deleteSingleRowByAudioAttachment(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_AUDIO+"='"+audioFile+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioFile+"'");
 			} finally { db.close(); }
 		}
 		
