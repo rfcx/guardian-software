@@ -34,7 +34,7 @@ public class AudioCapture {
 				
 		this.captureDir = appFilesDir+"/capture"; (new File(this.captureDir)).mkdirs();
 		app.audioEncode.encodeDir = appFilesDir+"/encode"; (new File(app.audioEncode.encodeDir)).mkdirs();
-		app.audioEncode.aacDir = finalFilesDir+"/m4a"; (new File(app.audioEncode.aacDir)).mkdirs();
+		app.audioEncode.preEncodeDir = finalFilesDir+"/m4a"; (new File(app.audioEncode.preEncodeDir)).mkdirs();
 		
 	}
 	

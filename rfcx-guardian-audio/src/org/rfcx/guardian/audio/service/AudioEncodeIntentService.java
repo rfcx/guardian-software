@@ -51,12 +51,12 @@ public class AudioEncodeIntentService extends IntentService {
 				fileUtils.copy(preEncodeFile, postEncodeFile);
 				if (preEncodeFile.exists() && postEncodeFile.exists()) { preEncodeFile.delete(); }
 				
-				String digest = fileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
+				String preZipDigest = fileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
 				gZipUtils.gZipFile(postEncodeFile, gZippedFile);
 				if (postEncodeFile.exists() && gZippedFile.exists()) { postEncodeFile.delete(); }
 				
 				app.audioDb.dbCaptured.clearCapturedBefore(new Date((long) Long.parseLong(capturedRow[0])));
-				app.audioDb.dbEncoded.insert(capturedRow[1], capturedRow[2], digest);
+				app.audioDb.dbEncoded.insert(capturedRow[1], capturedRow[2], preZipDigest, (int) Integer.parseInt(capturedRow[4]), app.audioEncode.ENCODING_BIT_RATE, app.audioEncode.ENCODING_CODEC);
 				
 				//make sure the previous step(s) are synchronous or else the checkin will occur before the encode...
 				app.audioEncode.triggerCheckInAfterEncode(app.getApplicationContext());

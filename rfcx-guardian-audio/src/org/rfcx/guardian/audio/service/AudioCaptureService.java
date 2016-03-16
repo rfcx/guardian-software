@@ -40,6 +40,7 @@ public class AudioCaptureService extends Service {
 	
 	private int encodingBitRate;
 	private String fileExtension;
+	private String captureCodec;
 	
 	private long[] captureTimeStamps = {0,0};
 	
@@ -99,8 +100,10 @@ public class AudioCaptureService extends Service {
 			app.audioCapture.cleanupCaptureDirectory();
 			captureLoopPeriod = 1000*((int) Integer.parseInt(app.getPref("audio_capture_interval")));
 			captureSampleRate = audioCapture.CAPTURE_SAMPLE_RATE_HZ;
-			encodingBitRate = audioEncode.AAC_ENCODING_BIT_RATE;
+			encodingBitRate = audioEncode.ENCODING_BIT_RATE;
 			fileExtension = (app.audioCapture.ENCODE_ON_CAPTURE) ? "m4a" : "wav";
+			captureCodec = (app.audioCapture.ENCODE_ON_CAPTURE) ? "aac" : "pcm";
+			
 			try {
 				Log.d(TAG, "Capture Loop Period: "+ captureLoopPeriod +"ms");
 				while (audioCaptureService.runFlag) {
@@ -184,7 +187,7 @@ public class AudioCaptureService extends Service {
 			} catch (IOException e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			}
-	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", fileExtension, "-");
+	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", fileExtension, "-", captureSampleRate, 0, captureCodec);
 			Log.i(TAG, "Capture file created ("+this.captureLoopPeriod+"ms): "+captureTimeStamps[0]+"."+fileExtension);
 	        app.audioEncode.triggerAudioEncodeAfterCapture(context);
 		}

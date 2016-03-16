@@ -26,10 +26,11 @@ public class AudioEncode {
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
 
 	public String sdCardFilesDir = Environment.getExternalStorageDirectory().toString()+"/rfcx";
-	public String aacDir = null;
+	public String preEncodeDir = null;
 	public String encodeDir = null;
 	
-	public final static int AAC_ENCODING_BIT_RATE = 16384;
+	public final static int ENCODING_BIT_RATE = 16384;
+	public final static String ENCODING_CODEC = "aac";
 	
 	public String getAudioFileLocation_PreEncode(long timestamp, String fileExtension) {
 		return this.encodeDir+"/"+timestamp+"."+fileExtension;
@@ -40,7 +41,7 @@ public class AudioEncode {
 	}
 
 	public String getAudioFileLocation_Complete_PostZip(long timestamp, String fileExtension) {
-		return this.aacDir+"/"+dateFormat.format(new Date(timestamp))+"/"+timestamp+"."+fileExtension+".gz";
+		return this.preEncodeDir+"/"+dateFormat.format(new Date(timestamp))+"/"+timestamp+"."+fileExtension+".gz";
 	}
 	
 	public void triggerAudioEncodeAfterCapture(Context context) {
