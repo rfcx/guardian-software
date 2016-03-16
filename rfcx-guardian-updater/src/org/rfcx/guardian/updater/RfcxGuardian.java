@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.updater.api.ApiCore;
+import org.rfcx.guardian.updater.device.DeviceBattery;
 import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.updater.service.ApiCheckVersionService;
 import org.rfcx.guardian.updater.service.DownloadFileService;
@@ -58,6 +59,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
 	public ApiCore apiCore = new ApiCore();
+	
+	// for checking battery level
+	public DeviceBattery deviceBattery = new DeviceBattery();
 	
 	public boolean isRunning_ApiCheckVersion = false;
 	public boolean isRunning_DownloadFile = false;
