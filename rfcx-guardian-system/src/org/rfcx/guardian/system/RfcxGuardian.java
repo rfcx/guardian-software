@@ -1,5 +1,10 @@
 package org.rfcx.guardian.system;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Calendar;
 
 import org.rfcx.guardian.system.database.DataTransferDb;
@@ -12,6 +17,7 @@ import org.rfcx.guardian.system.service.DeviceStateService;
 import org.rfcx.guardian.system.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
+import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.AlarmManager;
@@ -214,5 +220,33 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.screenShotDb = new ScreenShotDb(this,versionNumber);
 	}
  
+    public boolean findOrCreateLogcatCaptureScript() {
+    	try {
+	     	File logcatCaptureScript = new File(this.getFilesDir().getAbsolutePath()+"/bin/logcat_capture");
+	     	
+	        if (!logcatCaptureScript.exists()) {
+	    		try {
+	    			InputStream inputStream = this.getAssets().open("logcat_capture");
+	    		    OutputStream outputStream = new FileOutputStream(this.getFilesDir().getAbsolutePath()+"/bin/logcat_capture");
+	    		    byte[] buf = new byte[1024];
+	    		    int len;
+	    		    while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
+	    		    inputStream.close();
+	    		    outputStream.close();
+	    		    (new FileUtils()).chmod(logcatCaptureScript, 0755);
+	    		    return logcatCaptureScript.exists();
+	    		} catch (IOException e) {
+	    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+	    			return false;
+	    		}
+	        } else {
+	        	return true;
+	        }
+    	} catch (Exception e) {
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+    		return false;
+    	}
+    }
+	
 	
 }

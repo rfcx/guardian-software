@@ -16,57 +16,57 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class DeviceScreenShot {
+public class DeviceLogcat {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceScreenShot.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceLogcat.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 	private String filesDir = null;
 	private String sdCardFilesDir = Environment.getExternalStorageDirectory().toString()+"/rfcx";
 	private String binDir = null;
-	private String imgDir = null;
+	private String logDir = null;
 
-	public void setupScreenShot(Context context) {
+	public void setupLogcatCapture(Context context) {
 		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
 		if (filesDir == null) filesDir = app.getFilesDir().getAbsolutePath();
 
 		if (binDir == null) binDir = app.getFilesDir().getAbsolutePath()+"/bin";
 		(new File(binDir)).mkdirs();
 		
-		imgDir = filesDir+"/img";
-		if ((new File(sdCardFilesDir)).isDirectory()) { imgDir = sdCardFilesDir+"/img"; }
-		(new File(imgDir)).mkdirs();
+		logDir = filesDir+"/log";
+		if ((new File(sdCardFilesDir)).isDirectory()) { logDir = sdCardFilesDir+"/log"; }
+		(new File(logDir)).mkdirs();
 	}
     
-	public String saveScreenShot(Context context) {
-		setupScreenShot(context);
+	public String launchLogcatCapture(Context context) {
+		setupLogcatCapture(context);
 		if (findOrCreateBin()) {
-			try {
-				String timestamp = ""+System.currentTimeMillis();
-				String imgPath = imgDir+"/"+timestamp+".png";
-				(new ShellCommands()).executeCommand(binDir+"/fb2png "+imgPath, null, false, context);
-		        if ((new File(imgPath)).exists()) {
-		        	app.screenShotDb.dbCaptured.insert(timestamp, "png", (new FileUtils()).sha1Hash(imgPath));
-		        	// GZipping PNGs doesn't really do anything, so we just leave it as PNG
-		        	return timestamp;
-			    }
-			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-			}
+			
+//			if ((new File("adsfasdf")).lastModified()) {
+//			try {
+//				(new ShellCommands()).executeCommand(binDir+"/logcat_capture ", null, false, context);
+//		        if ((new File("adsfasdf")).exists()) {
+//		        	app.screenShotDb.dbCaptured.insert(timestamp, "png", (new FileUtils()).sha1Hash(logPath));
+//		        	// GZipping PNGs doesn't really do anything, so we just leave it as PNG
+//		        	return timestamp;
+//			    }
+//			} catch (Exception e) {
+//				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+//			}
 		} else {
-			Log.e(TAG, "Failed to find and/or install fb2png. Cannot produce screenshot");
+			Log.e(TAG, "Failed to find and/or install logcat_capture. Cannot launch logcat capture.");
 		}
 		return null;
 	}
 	
-    private boolean findOrCreateBin() {
+	private boolean findOrCreateBin() {
     	try {
-	     	File binFile = new File(binDir+"/fb2png");
+	     	File binFile = new File(binDir+"/logcat_capture");
 	     	
 	        if (!binFile.exists()) {
 	    		try {
-	    			InputStream inputStream = app.getAssets().open("fb2png");
-	    		    OutputStream outputStream = new FileOutputStream(binDir+"/fb2png");
+	    			InputStream inputStream = app.getAssets().open("logcat_capture");
+	    		    OutputStream outputStream = new FileOutputStream(binDir+"/logcat_capture");
 	    		    byte[] buf = new byte[1024];
 	    		    int len;
 	    		    while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
@@ -87,11 +87,11 @@ public class DeviceScreenShot {
     	}
     }
 	
-    public String getScreenShotDirectory(Context context) {
+    public String getLogDirectory(Context context) {
 		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
 		if (filesDir == null) filesDir = app.getFilesDir().getAbsolutePath();
-		imgDir = filesDir+"/img";
-		if ((new File(sdCardFilesDir)).isDirectory()) { imgDir = sdCardFilesDir+"/img"; }
-		return imgDir;
+		logDir = filesDir+"/img";
+		if ((new File(sdCardFilesDir)).isDirectory()) { logDir = sdCardFilesDir+"/img"; }
+		return logDir;
     }
 }

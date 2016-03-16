@@ -26,8 +26,17 @@ public class MainActivity extends Activity {
 		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
+	
+		case R.id.menu_test:
 			
-		}
+			if (app.findOrCreateLogcatCaptureScript()) {
+				(new ShellCommands()).executeCommand("/data/data/org.rfcx.guardian.system/files/txt/logcat_capture&", null, false, app.getApplicationContext());
+			}
+			
+			break;
+			
+		}		
+		
 		return true;
 	}
 
