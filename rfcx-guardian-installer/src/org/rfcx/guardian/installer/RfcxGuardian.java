@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.rfcx.guardian.installer.api.ApiCore;
+import org.rfcx.guardian.installer.device.DeviceBattery;
 import org.rfcx.guardian.installer.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.installer.service.ApiCheckVersionService;
 import org.rfcx.guardian.installer.service.DownloadFileService;
@@ -58,6 +59,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
 	public ApiCore apiCore = new ApiCore();
+	
+	// for checking battery level
+	public DeviceBattery deviceBattery = new DeviceBattery();
 	
 	public boolean isRunning_ApiCheckVersion = false;
 	public boolean isRunning_DownloadFile = false;
@@ -260,6 +264,26 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     	
     	shellCommands.executeCommand(writeToBuildDotProp, null, true, context);
     	
+    }
+    
+    public void deleteExtraCyanogenModApps() {
+            
+            ShellCommands shellCommands = new ShellCommands();
+        	context = getApplicationContext();
+        	
+        	String[] appsToDelete = new String[] {
+        			"Camera", "Calculator", "Browser", "Pacman", "Email", "FM", 
+        			"Calendar", "Gallery", "Music", "QuickSearchBox", "VoiceDialer", "RomManager"
+        		};
+        	
+        	shellCommands.executeCommand("mount -o rw,remount /dev/block/mmcblk0p1 /system", null, true, context);
+        	
+        	String executeAppDeletion = "";
+        	for (int i = 0; i < appsToDelete.length; i++) {
+        		executeAppDeletion += " rm -f /system/app/"+appsToDelete[i]+".apk; ";
+        	}
+        	
+        	shellCommands.executeCommand(executeAppDeletion, null, true, context);
     }
     
 }

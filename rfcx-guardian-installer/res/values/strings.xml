@@ -10,5 +10,6 @@
 	<string name="menu_check_version">update guardian</string>
 	<string name="menu_root_command">root command</string>
 	<string name="menu_set_defaults">set defaults</string>
+	<string name="menu_delete_apps">delete apps</string>
 	
 </resources>

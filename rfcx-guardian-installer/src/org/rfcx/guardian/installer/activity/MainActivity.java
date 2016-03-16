@@ -80,6 +80,10 @@ public class MainActivity extends Activity {
 			app.setExtremeDevelopmentSystemDefaults();
 			break;
 			
+		case R.id.menu_delete_apps:
+			app.deleteExtraCyanogenModApps();
+			break;
+			
 		}
 		return true;
 	}
