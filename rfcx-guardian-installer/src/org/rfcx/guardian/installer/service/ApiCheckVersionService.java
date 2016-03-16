@@ -86,7 +86,8 @@ public class ApiCheckVersionService extends Service {
 										+ app.apiCore.apiCheckVersionEndpoint
 										+ "?role="+app.thisAppRole
 										+ "&version="+app.version
-										+ "&nocache="+Calendar.getInstance().getTimeInMillis()
+										+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
+										+ "&timestamp="+Calendar.getInstance().getTimeInMillis()
 										);
 						
 						long sinceLastCheckIn = (Calendar.getInstance().getTimeInMillis() - app.apiCore.lastCheckInTime) / 1000;
