@@ -6,6 +6,11 @@ import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.RfcxConstants;
 
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialPort;
+import com.hoho.android.usbserial.driver.UsbSerialProber;
+import com.hoho.android.usbserial.util.SerialInputOutputManager;
+
 import android.app.AlarmManager;
 import android.app.Application;
 import android.app.PendingIntent;
@@ -109,6 +114,30 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public boolean setPref(String prefName, String prefValue) {
 		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
+	}
+	
+	
+	// Get UsbManager from Android.
+	UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+
+	// Find the first available driver.
+	UsbSerialDriver driver = UsbSerialProber.acquire(manager);
+
+	public void checkSerial() {
+		if (driver != null) {
+		  driver.open();
+		  try {
+		    driver.setBaudRate(115200);
+	
+		    byte buffer[] = new byte[16];
+		    int numBytesRead = driver.read(buffer, 1000);
+		    Log.d(TAG, "Read " + numBytesRead + " bytes.");
+		  } catch (IOException e) {
+		    // Deal with error.
+		  } finally {
+		    driver.close();
+		  } 
+		}
 	}
     
 }
