@@ -50,6 +50,9 @@ public class ApiWebCheckIn {
 	public int maximumCheckInAttemptsBeforeSkip = 5;
 	public int pauseCheckInsIfBatteryPercentageIsBelow = 90;
 	public int audioCaptureInterval = 90000;
+	// TO DO: These need to be made dynamic, ideally tied to prefs (cross role)
+	public int checkInStashGroupSize = 500;
+	public int checkInStashTheshold = 500;
 	
 	public void init(RfcxGuardian app) {
 		this.app = app;
@@ -93,6 +96,9 @@ public class ApiWebCheckIn {
 				"0", 
 				filepath
 			);
+		
+		int checkInDbCount = (int) Integer.parseInt(app.checkInDb.dbQueued.getCount());
+		Log.d(TAG, "CheckIns in database: "+checkInDbCount);
 		
 		Log.i(TAG, "CheckIn Queued: "+queueJson);
 		
