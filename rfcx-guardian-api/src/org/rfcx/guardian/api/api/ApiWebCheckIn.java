@@ -339,7 +339,7 @@ public class ApiWebCheckIn {
 				checkInFiles.add(new String[] {"audio", audioFilePath, "audio/"+audioFormat});
 				Log.d(TAG, "Audio attached: "+audioId+"."+audioFormat);
 			} else {
-				Log.e(TAG, "Audio attachment file doesn't exist: "+audioId+"."+audioFormat);
+				Log.e(TAG, "Audio attachment file doesn't exist: ("+audioId+"."+audioFormat+") "+audioFilePath);
 				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioId+"."+audioFormat);
 				int deleteAudio = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1+"/"+audioId), null, null);
 

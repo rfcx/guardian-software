@@ -27,7 +27,7 @@ public class AudioCapture {
 	
 	public void initializeAudioDirectories(RfcxGuardian app) {
 		String appFilesDir = app.getApplicationContext().getFilesDir().toString();
-		String finalFilesDir = appFilesDir;
+		String finalFilesDir = "/cache/download/rfcx";
 		(new File(app.audioEncode.sdCardFilesDir)).mkdirs();
 		
 		if ((new File(app.audioEncode.sdCardFilesDir)).isDirectory()) { finalFilesDir = app.audioEncode.sdCardFilesDir; }
