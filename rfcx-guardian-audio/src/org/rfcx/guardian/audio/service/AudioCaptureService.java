@@ -187,7 +187,7 @@ public class AudioCaptureService extends Service {
 			} catch (IOException e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			}
-	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", fileExtension, "-", captureSampleRate, 0, captureCodec);
+	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", fileExtension, "-", captureSampleRate, 0, captureCodec, captureLoopPeriod);
 			Log.i(TAG, "Capture file created ("+this.captureLoopPeriod+"ms): "+captureTimeStamps[0]+"."+fileExtension);
 	        app.audioEncode.triggerAudioEncodeAfterCapture(context);
 		}
