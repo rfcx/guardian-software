@@ -101,6 +101,7 @@ public class ApiContentProvider extends ContentProvider {
 						values.getAsString("samplerate"),
 						values.getAsString("bitrate"),
 						values.getAsString("codec"),
+						values.getAsString("duration")
 				};
 				
 				if (app.apiWebCheckIn.addCheckInToQueue(audioInfo, values.getAsString("filepath"))) {
