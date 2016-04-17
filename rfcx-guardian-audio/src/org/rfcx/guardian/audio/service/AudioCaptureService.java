@@ -115,11 +115,10 @@ public class AudioCaptureService extends Service {
 							captureLoopEnd();
 							Log.d(TAG,"End: "+Calendar.getInstance().getTimeInMillis());
 						} else {
-							Thread.sleep(captureLoopPeriod);
-							Log.i(TAG, "AudioCapture is currently blocked due to low battery level ("
-									+"current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, "
-									+"required: "+app.audioCapture.pauseCaptureIfBatteryPercentageIsBelow+"%"
-									+").");
+							Thread.sleep(2*captureLoopPeriod);
+							Log.i(TAG, "AudioCapture disabled due to low battery level"
+									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+app.audioCapture.pauseCaptureIfBatteryPercentageIsBelow+"%)."
+									+" Waiting "+(Math.round(2*captureLoopPeriod/1000))+" seconds before next attempt.");
 						}
 					} catch (Exception e) {
 						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
