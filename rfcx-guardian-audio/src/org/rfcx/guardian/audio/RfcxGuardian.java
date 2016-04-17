@@ -2,6 +2,7 @@ package org.rfcx.guardian.audio;
 
 import org.rfcx.guardian.audio.capture.AudioCapture;
 import org.rfcx.guardian.audio.database.AudioDb;
+import org.rfcx.guardian.audio.device.DeviceBattery;
 import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.audio.service.AudioCaptureService;
 import org.rfcx.guardian.audio.service.ServiceMonitorIntentService;
@@ -43,6 +44,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// for handling captured audio
 	public AudioCapture audioCapture = new AudioCapture();
 	public AudioEncode audioEncode = new AudioEncode();
+	
+	public DeviceBattery deviceBattery = new DeviceBattery();
 	
 	// Background Services
 	public boolean isRunning_AudioCapture = false;

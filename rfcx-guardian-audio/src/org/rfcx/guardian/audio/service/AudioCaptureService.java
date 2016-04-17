@@ -108,11 +108,19 @@ public class AudioCaptureService extends Service {
 				Log.d(TAG, "Capture Loop Period: "+ captureLoopPeriod +"ms");
 				while (audioCaptureService.runFlag) {
 					try {
-						captureLoopStart();
-				        processCompletedCaptureFile();
-				        Thread.sleep(captureLoopPeriod);
-						captureLoopEnd();
-						Log.d(TAG,"End: "+Calendar.getInstance().getTimeInMillis());
+						if (app.audioCapture.isBatteryChargeSufficientForCapture()) {
+							captureLoopStart();
+					        processCompletedCaptureFile();
+					        Thread.sleep(captureLoopPeriod);
+							captureLoopEnd();
+							Log.d(TAG,"End: "+Calendar.getInstance().getTimeInMillis());
+						} else {
+							Thread.sleep(captureLoopPeriod);
+							Log.i(TAG, "AudioCapture is currently blocked due to low battery level ("
+									+"current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, "
+									+"required: "+app.audioCapture.pauseCaptureIfBatteryPercentageIsBelow+"%"
+									+").");
+						}
 					} catch (Exception e) {
 						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 						audioCaptureService.runFlag = false;
