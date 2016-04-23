@@ -3,10 +3,8 @@ package org.rfcx.guardian.audio.encode;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
-import org.rfcx.guardian.audio.database.AudioDb;
 import org.rfcx.guardian.audio.service.AudioEncodeIntentService;
 import org.rfcx.guardian.audio.service.CheckInTriggerIntentService;
 import org.rfcx.guardian.utility.RfcxConstants;
@@ -65,21 +63,14 @@ public class AudioEncode {
 		alarmManager.set(AlarmManager.RTC, System.currentTimeMillis(), checkInTriggerIntentService);
 	}
 	
-	public void purgeSingleAudioAsset(AudioDb audioDb, String audioTimestamp) {
-		Log.d(TAG, "Purging single audio asset: "+audioTimestamp);
-
-		List<String[]> encodedAudioEntries = audioDb.dbEncoded.getAllEncoded();
-		for (String[] encodedAudioEntry : encodedAudioEntries) {
-			if (encodedAudioEntry[1].equals(audioTimestamp)) {
-				try {
-					(new File(getAudioFileLocation_Complete_PostZip((long) Long.parseLong(encodedAudioEntry[1]),encodedAudioEntry[2]))).delete();
-				} catch (Exception e) {
-					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-				}
-			}
+	public void purgeSingleAudioAssetFromDisk(String audioTimestamp, String audioFileExtension) {
+		try {
+			(new File(getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();
+			Log.d(TAG, "Purging single audio asset: "+audioTimestamp+"."+audioFileExtension);
+		} catch (Exception e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
-
-		audioDb.dbEncoded.deleteSingleEncoded(audioTimestamp);
 	}
+
 	
 }

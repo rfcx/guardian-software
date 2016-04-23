@@ -39,6 +39,8 @@ public class AudioEncodeIntentService extends IntentService {
 		List<String[]> capturedRows = app.audioDb.dbCaptured.getAllCaptured();
 		for (String[] capturedRow : capturedRows) {
 			
+			Date encodeStartTime = new Date();
+			
 			Log.i(TAG, "Encoding: '"+capturedRow[0]+"','"+capturedRow[1]+"','"+capturedRow[2]+"'");
 			
 			File preEncodeFile = new File(app.audioEncode.getAudioFileLocation_PreEncode((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
@@ -64,7 +66,9 @@ public class AudioEncodeIntentService extends IntentService {
 						(int) Integer.parseInt(capturedRow[4]), 
 						app.audioEncode.ENCODING_BIT_RATE, 
 						app.audioEncode.ENCODING_CODEC, 
-						(long) Long.parseLong(capturedRow[7]));
+						(long) Long.parseLong(capturedRow[7]),
+						(System.currentTimeMillis() - encodeStartTime.getTime())
+						);
 				
 				//make sure the previous step(s) are synchronous or else the checkin will occur before the encode...
 				app.audioEncode.triggerCheckInAfterEncode(app.getApplicationContext());

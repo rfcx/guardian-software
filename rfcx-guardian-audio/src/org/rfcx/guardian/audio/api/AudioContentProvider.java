@@ -28,6 +28,7 @@ public class AudioContentProvider extends ContentProvider {
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
+	private static final int ENDPOINT_1_FILENAME = 3;
 
 	private static final UriMatcher URI_MATCHER;
 
@@ -35,6 +36,7 @@ public class AudioContentProvider extends ContentProvider {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_1, ENDPOINT_1_LIST);
 		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_1+"/#", ENDPOINT_1_ID);
+		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_1+"/*", ENDPOINT_1_FILENAME);
 	}
 
 	@Override
@@ -65,8 +67,16 @@ public class AudioContentProvider extends ContentProvider {
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		checkSetApplicationContext();
 		
+		String urlValue = uri.getLastPathSegment();
+		
 		if (URI_MATCHER.match(uri) == ENDPOINT_1_ID) {
-			app.audioEncode.purgeSingleAudioAsset(app.audioDb, uri.getLastPathSegment());
+			app.audioDb.dbEncoded.deleteSingleEncoded(urlValue);
+			return 1;
+		} else if (URI_MATCHER.match(uri) == ENDPOINT_1_FILENAME) {
+			String audioId = urlValue.substring(0,urlValue.lastIndexOf("."));
+			String audioExt = urlValue.substring(1+urlValue.lastIndexOf("."));
+			app.audioEncode.purgeSingleAudioAssetFromDisk(audioId, audioExt);
+			app.audioDb.dbEncoded.deleteSingleEncoded(audioId);
 			return 1;
 		}
 		return 0;

@@ -104,7 +104,7 @@ public class ApiCheckInService extends Service {
 						if (((int) Integer.parseInt(currentCheckIn[3])) > app.apiWebCheckIn.maximumCheckInAttemptsBeforeSkip) {
 							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.apiWebCheckIn.maximumCheckInAttemptsBeforeSkip+" failed attempts");
 							app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3], currentCheckIn[4]);
-							app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(currentCheckIn[1]);
+							app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(currentCheckIn[1]);
 						} else {
 							app.apiWebCheckIn.sendCheckIn(
 								app.apiWebCheckIn.getCheckInUrl(),

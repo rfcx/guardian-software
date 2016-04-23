@@ -42,6 +42,7 @@ public class CheckInTriggerIntentService extends IntentService {
 		lastAudioValues.put("bitrate", lastAudio[5]);
 		lastAudioValues.put("codec", lastAudio[6]);
 		lastAudioValues.put("duration", lastAudio[7]);
+		lastAudioValues.put("encode_duration", lastAudio[8]);
 		
 		Uri createdCheckInUri = getContentResolver().insert(
 				Uri.parse(RfcxConstants.RfcxContentProvider.api.URI_1),

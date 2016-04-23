@@ -53,8 +53,8 @@ public class ApiWebCheckIn {
 	
 	// TO DO: These need to be made dynamic, ideally tied to prefs (cross role)
 	
-	private int checkInQueue_StashTheshold = 3 * Math.round( 3600000 / audioCaptureInterval ); // about 3 hours of data, calculated using the capture interval
-	private int checkInStash_ArchiveThreshold = 1000;
+	private int checkInQueue_StashTheshold = 5;//3 * Math.round( 3600000 / audioCaptureInterval ); // about 3 hours of data, calculated using the capture interval
+	private int checkInStash_ArchiveThreshold = 20;
 
 	public void init(RfcxGuardian app) {
 		this.app = app;
@@ -101,12 +101,16 @@ public class ApiWebCheckIn {
 					"0", 
 					filepath
 				);
-
+		
 		// get the count of actively queued checkins
 		int checkInDbCount = (int) Integer.parseInt(app.checkInDb.dbQueued.getCount());
 
 		Log.i(TAG, "CheckIn Queued ("+checkInDbCount+" in database): " + queueJson);
 		
+		// once queued, remove database reference from audio role
+		int purgeAudioFromDb = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1 + "/" + audioInfo[1]), null, null);
+		
+		// if the queued table has grown beyond the maximum threshold, stash the oldest checkins 
 		moveCheckInToStashList();
 		
 		return true;
@@ -116,13 +120,25 @@ public class ApiWebCheckIn {
 		
 		List<String[]> checkInsBeyondStashThreshold = app.checkInDb.dbQueued.getQueuedWithOffset(this.checkInQueue_StashTheshold, this.checkInStash_ArchiveThreshold);
 		
-		for (String[] checkInsToStash : checkInsBeyondStashThreshold) {
-			app.checkInDb.dbStashed.insert( checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], checkInsToStash[4]);
-			app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(checkInsToStash[1].substring(0,checkInsToStash[1].lastIndexOf(".")));
+		if (checkInsBeyondStashThreshold.size() > 0) {
+			
+			// string list for reporting stashed checkins to the log
+			List<String> stashList = new ArrayList<String>();
+			
+			//cycle through stashable checkins and move them to the new table/database
+			for (String[] checkInsToStash : checkInsBeyondStashThreshold) {
+				app.checkInDb.dbStashed.insert( checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], checkInsToStash[4]);
+				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInsToStash[1].substring(0,checkInsToStash[1].lastIndexOf(".")));
+				stashList.add(checkInsToStash[1]);
+			}
+			
+			//report in the logs
+			Log.i(TAG, "Stashed CheckIns ("+app.checkInDb.dbStashed.getCount()+" total in database): "+TextUtils.join(" ", stashList));
 		}
 		
-		Log.i(TAG, "STASH LENGTH: "+app.checkInDb.dbStashed.getCount());	
-		
+		if (((int) Integer.parseInt(app.checkInDb.dbStashed.getCount())) >= this.checkInStash_ArchiveThreshold) {
+			Log.i(TAG, "TODO: STASHED CHECKINS SHOULD BE ARCHIVED HERE...");
+		}
 	}
 
 	private String generateCheckInQueueJson(String[] audioFileInfo) {
@@ -238,8 +254,7 @@ public class ApiWebCheckIn {
 		String[] latestScreenShot = getLatestScreenShotMeta();
 		checkInMetaJson.put( "screenshots", (latestScreenShot != null) ? TextUtils.join("*", latestScreenShot) : null);
 
-		// Stringify JSON, gzip the output and convert to base 64 string for
-		// sending
+		// Stringify JSON, gzip the output and convert to base 64 string for sending
 		String jsonFinal = checkInMetaJson.toString();
 		String jsonFinalGZipped = (new GZipUtils()).gZipStringToBase64(jsonFinal);
 
@@ -263,8 +278,7 @@ public class ApiWebCheckIn {
 				this.requestSendReturned = new Date();
 				Log.i(TAG, "CheckIn request time: " + (checkInDuration / 1000) + " seconds");
 
-				// clear system metadata included in successful checkin
-				// preflight
+				// clear system metadata included in successful checkin preflight
 				int clearPreFlightSystemMetaData = app
 						.getContentResolver()
 						.delete(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_META
@@ -275,16 +289,12 @@ public class ApiWebCheckIn {
 				JSONArray audioJsonArray = new JSONArray(responseJson.getString("audio"));
 				for (int i = 0; i < audioJsonArray.length(); i++) {
 					JSONObject audioJson = audioJsonArray.getJSONObject(i);
-					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioJson.getString("id"));
-					int deleteAudio = app
-							.getContentResolver()
-							.delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1
-									+ "/" + audioJson.getString("id")), null,
-									null);
+					String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioJson.getString("id"))[1];
+					int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1+"/"+audioFileNameInDb), null, null);
+					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioJson.getString("id"));
 				}
 
-				// parse the screenshot info and use it to purge the data
-				// locally
+				// parse the screenshot info and use it to purge the data locally
 				JSONArray screenShotJsonArray = new JSONArray(
 						responseJson.getString("screenshots"));
 				for (int i = 0; i < screenShotJsonArray.length(); i++) {
@@ -399,9 +409,9 @@ public class ApiWebCheckIn {
 				Log.d(TAG, "Audio attached: " + audioId + "." + audioFormat);
 			} else {
 				Log.e(TAG, "Audio attachment file doesn't exist: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
-				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioId);
-				int deleteAudio = app.getContentResolver().delete(
-						Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1 + "/" + audioId), null, null);
+				String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId)[1];
+				int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1 + "/" + audioFileNameInDb), null, null);
+				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
 
 			}
 		} catch (Exception e) {

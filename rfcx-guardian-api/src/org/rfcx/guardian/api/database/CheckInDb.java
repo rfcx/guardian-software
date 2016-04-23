@@ -118,10 +118,23 @@ public class CheckInDb {
 			return row;
 		}
 		
-		public void deleteSingleRowByAudioAttachment(String audioFile) {
+		public void deleteSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioFile+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioId+"'");
 			} finally { db.close(); }
+		}
+		
+		public String[] getSingleRowByAudioAttachmentId(String audioId) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] row = new String[] {null,null,null};
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, " substr("+C_AUDIO+",0,14) = ?", new String[] { audioId }, null, null, C_CREATED_AT+" DESC", "1");
+				if (cursor.getCount() > 0) {
+					try {
+						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
+			return row;
 		}
 		
 		public void clearQueuedBefore(Date date) {
