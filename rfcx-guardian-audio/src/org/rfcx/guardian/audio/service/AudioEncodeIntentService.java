@@ -36,8 +36,7 @@ public class AudioEncodeIntentService extends IntentService {
 		Intent intent = new Intent(INTENT_TAG);
 		sendBroadcast(intent, NOTIFICATION_TAG);
 		
-		List<String[]> capturedRows = app.audioDb.dbCaptured.getAllCaptured();
-		for (String[] capturedRow : capturedRows) {
+		for (String[] capturedRow : app.audioDb.dbCaptured.getAllCaptured()) {
 			
 			Date encodeStartTime = new Date();
 			
@@ -46,21 +45,29 @@ public class AudioEncodeIntentService extends IntentService {
 			File preEncodeFile = new File(app.audioEncode.getAudioFileLocation_PreEncode((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
 			File postEncodeFile = new File(app.audioEncode.getAudioFileLocation_PostEncode((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
 			File gZippedFile = new File(app.audioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
+			
 			try {
 				
 				// This is where the actual encoding would take place...
 				// for now (since we're already in AAC) we just copy the file to the final location
 				fileUtils.copy(preEncodeFile, postEncodeFile);
+				
+				// delete pre-encode file
 				if (preEncodeFile.exists() && postEncodeFile.exists()) { preEncodeFile.delete(); }
 				
+				// generate file checksum of encoded file
 				String preZipDigest = fileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
+				
+				// GZIP encoded file into final filepath
 				gZipUtils.gZipFile(postEncodeFile, gZippedFile);
+				
+				// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
 				if (gZippedFile.exists()) {
 					fileUtils.chmod(gZippedFile, 0755);
 					if (postEncodeFile.exists()) { postEncodeFile.delete(); }
 				}
 				
-				app.audioDb.dbCaptured.clearCapturedBefore(new Date((long) Long.parseLong(capturedRow[0])));
+				// add encoded audio entry to database
 				app.audioDb.dbEncoded.insert(
 						capturedRow[1], capturedRow[2], preZipDigest,
 						(int) Integer.parseInt(capturedRow[4]), 
@@ -69,6 +76,9 @@ public class AudioEncodeIntentService extends IntentService {
 						(long) Long.parseLong(capturedRow[7]),
 						(System.currentTimeMillis() - encodeStartTime.getTime())
 						);
+
+				// remove capture file entry from database
+				app.audioDb.dbCaptured.clearCapturedBefore(new Date((long) Long.parseLong(capturedRow[0])));
 				
 				//make sure the previous step(s) are synchronous or else the checkin will occur before the encode...
 				app.audioEncode.triggerCheckInAfterEncode(app.getApplicationContext());

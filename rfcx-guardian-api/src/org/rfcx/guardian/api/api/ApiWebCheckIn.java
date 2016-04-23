@@ -111,12 +111,12 @@ public class ApiWebCheckIn {
 		int purgeAudioFromDb = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1 + "/" + audioInfo[1]), null, null);
 		
 		// if the queued table has grown beyond the maximum threshold, stash the oldest checkins 
-		moveCheckInToStashList();
+		stashOldestCheckIns();
 		
 		return true;
 	}
 	
-	private void moveCheckInToStashList() {
+	private void stashOldestCheckIns() {
 		
 		List<String[]> checkInsBeyondStashThreshold = app.checkInDb.dbQueued.getQueuedWithOffset(this.checkInQueue_StashTheshold, this.checkInStash_ArchiveThreshold);
 		
