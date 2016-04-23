@@ -34,6 +34,8 @@ public class ApiCore {
 	public String installVersionSha1 = null;
 	private int installVersionValue = 0;
 	
+	private int disableDownloadAndInstallIfBatteryPercentageIsBelow = 30;
+	
 	public boolean apiCheckVersionFollowUp(RfcxGuardian app, String targetRole, List<JSONObject> jsonList) {
 		
 		this.lastCheckInTime = Calendar.getInstance().getTimeInMillis();
@@ -61,8 +63,15 @@ public class ApiCore {
 				this.installVersionUrl = this.latestVersionUrl;
 				this.installVersionSha1 = this.latestVersionSha1;
 				this.installVersionValue = this.latestVersionValue;
-				Log.d(TAG, "Latest version detected and download triggered: "+this.installVersion+" ("+this.installVersionValue+")");	
-				app.triggerService("DownloadFile", true);
+				
+				if (isBatteryChargeSufficientForDownloadAndInstall(app)) {
+					Log.d(TAG, "Latest version detected and download triggered: "+this.installVersion+" ("+this.installVersionValue+")");	
+					app.triggerService("DownloadFile", true);
+				} else {
+					Log.i(TAG, "Download & Installation disabled due to low battery level"
+							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+this.disableDownloadAndInstallIfBatteryPercentageIsBelow+"%)."
+							);
+				}
 				return true;
 			} else if (!currentGuardianVersion.equals(this.latestVersion) && (currentGuardianVersionValue > this.latestVersionValue)) { 
 				Log.d(TAG,"org.rfcx.guardian."+this.latestRole+" is newer than the api version: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
@@ -100,4 +109,10 @@ public class ApiCore {
 			return false;
 		}
 	}
+	
+	private boolean isBatteryChargeSufficientForDownloadAndInstall(RfcxGuardian app) {
+		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
+		return (batteryCharge >= this.disableDownloadAndInstallIfBatteryPercentageIsBelow);
+	}
+	
 }
