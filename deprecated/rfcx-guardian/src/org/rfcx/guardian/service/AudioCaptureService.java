@@ -92,6 +92,7 @@ public class AudioCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			AudioCore audioCore = app.audioCore;
 			app.audioCore.cleanupCaptureDirectory();
+			
 			captureLoopPeriod = 1000*((int) Integer.parseInt(app.getPref("audio_capture_interval")));
 			captureSampleRate = audioCore.CAPTURE_SAMPLE_RATE_HZ;
 			encodingBitRate = audioCore.aacEncodingBitRate;

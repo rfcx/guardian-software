@@ -22,6 +22,7 @@ public class CheckInDb {
 		this.VERSION = appVersion;
 		this.dbQueued = new DbQueued(context);
 		this.dbSkipped = new DbSkipped(context);
+		this.dbStashed = new DbStashed(context);
 	}
 	
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+CheckInDb.class.getSimpleName();
@@ -88,6 +89,16 @@ public class CheckInDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if (cursor.getCount() > 0) {
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
+			return list;
+		}
+		public List<String[]> getQueuedWithOffset(int rowOffset, int rowLimit) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			ArrayList<String[]> list = new ArrayList<String[]>();
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", ""+(rowOffset+rowLimit));
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
@@ -232,5 +243,62 @@ public class CheckInDb {
 
 	}
 	public final DbSkipped dbSkipped;
+	
+	public class DbStashed {
+		private String TABLE = "stashed";
+		class DbHelper extends SQLiteOpenHelper {
+			public DbHelper(Context context) {
+				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
+			}
+			@Override
+			public void onCreate(SQLiteDatabase db) {
+				try {
+					db.execSQL(createColumnString(TABLE));
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); }
+			}
+			@Override
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); }
+			}
+		}
+		final DbHelper dbHelper;
+		public DbStashed(Context context) {
+			this.dbHelper = new DbHelper(context);
+		}
+		public void close() {
+			this.dbHelper.close();
+		}
+		public void insert(String audio, String json, String attempts, String filepath) {
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, dateTimeUtils.getDateTime());
+			values.put(C_AUDIO, audio);
+			values.put(C_JSON, json);
+			values.put(C_ATTEMPTS, attempts);
+			values.put(C_FILEPATH, filepath);
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} finally {
+				db.close();
+			}
+		}
+		
+		public String getCount() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] QUERY = new String[] { "COUNT(*)" };
+			String[] countReturn = new String[] { "0" };
+			try { 
+				Cursor cursor = db.query(TABLE, QUERY, null, null, null, null, null, null);
+				if (cursor.getCount() > 0) {
+					try {
+						if (cursor.moveToFirst()) { do { countReturn = new String[] { cursor.getString(0) };
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
+			return countReturn[0];
+		}
+
+	}
+	public final DbStashed dbStashed;
 	
 }

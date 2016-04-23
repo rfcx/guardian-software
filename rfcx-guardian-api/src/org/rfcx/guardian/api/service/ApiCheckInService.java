@@ -116,13 +116,14 @@ public class ApiCheckInService extends Service {
 						}
 					} else {
 						// wait 5 seconds before trying to check in again
-						Thread.sleep(5000);
+						long checkInLoopDelay = 5000;
+						Thread.sleep(checkInLoopDelay);
 						
 						if (!app.apiWebCheckIn.isBatteryChargeSufficientForCheckIn()) {
-							long extendCheckInLoopBy = 2*app.apiWebCheckIn.audioCaptureInterval-5000;
+							long extendCheckInLoopBy = 2*app.apiWebCheckIn.audioCaptureInterval-checkInLoopDelay;
 							Log.i(TAG, "CheckIns disabled due to low battery level"
 									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+app.apiWebCheckIn.pauseCheckInsIfBatteryPercentageIsBelow+"%)."
-									+" Waiting "+(Math.round(extendCheckInLoopBy)/1000)+" seconds before next attempt.");
+									+" Waiting "+(Math.round((extendCheckInLoopBy+checkInLoopDelay)/1000))+" seconds before next attempt.");
 							Thread.sleep(extendCheckInLoopBy);
 						}
 					}
