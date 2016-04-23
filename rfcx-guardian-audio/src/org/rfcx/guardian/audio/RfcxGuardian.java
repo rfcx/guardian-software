@@ -27,7 +27,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	public String version;
 	Context context;
-	public boolean verboseLog = true;
 	
 	private String deviceId = null;
 	private String deviceToken = null;
@@ -41,9 +40,16 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// database access helpers
 	public AudioDb audioDb = null;
 
-	// for handling captured audio
+	// capturing and encoding audio
+	public final static int AUDIO_SAMPLE_RATE = 8000;
 	public AudioCapture audioCapture = new AudioCapture();
 	public AudioEncode audioEncode = new AudioEncode();
+	
+	// prefs (WILL BE SET DYNAMICALLY)
+	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
+	public String AUDIO_CODEC = "aac".toLowerCase();
+	public int AUDIO_BITRATE = (int) Integer.parseInt(   "16384"   );
+	public int AUDIO_BATTERY_CUTOFF = (int) Integer.parseInt(   "60"   );
 	
 	public DeviceBattery deviceBattery = new DeviceBattery();
 	
@@ -81,7 +87,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
+		Log.d(TAG, "Preference changed: "+key);
 		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
@@ -137,7 +143,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				// Service Monitor
 				triggerIntentService("ServiceMonitor", 
 						System.currentTimeMillis(),
-						60*((int) Integer.parseInt(getPref("service_monitor_interval"))) );
+						3 * Math.round( AUDIO_CYCLE_DURATION / 1000 )
+						);
 
 				hasRun_OnLaunchServiceTrigger = true;
 			} catch (Exception e) {

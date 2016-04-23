@@ -20,16 +20,6 @@ public class AudioCapture {
 	
 	public String captureDir = null;
 	
-	// encode straight to AAC (lossy, constant bitrate)...
-	// ...or don't, and encode asynchronously after
-	// (*may* eventually support various lossy formats for post-encoding)
-//	public static final boolean ENCODE_ON_CAPTURE = true;
-	
-	public final static int CAPTURE_SAMPLE_RATE_HZ = 8000;
-	
-	// TO DO: These need to be made dynamic, ideally tied to prefs (cross role)
-	public int pauseCaptureIfBatteryPercentageIsBelow = 60;
-	
 	public void initializeAudioDirectories(RfcxGuardian app) {
 		
 		this.app = app;
@@ -55,7 +45,7 @@ public class AudioCapture {
 
 	public boolean isBatteryChargeSufficientForCapture() {
 		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= this.pauseCaptureIfBatteryPercentageIsBelow);
+		return (batteryCharge >= this.app.AUDIO_BATTERY_CUTOFF);
 	}
 
 }

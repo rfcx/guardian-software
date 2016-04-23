@@ -35,7 +35,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public String version;
 	Context context;
-	public boolean verboseLog = true;
 	
 	private String deviceId = null;
 	private String deviceToken = null;
@@ -48,6 +47,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	// database access helpers
 	public CheckInDb checkInDb = null;
+
+	// prefs (WILL BE SET DYNAMICALLY)
+	public String API_URL_BASE = "https://api.rfcx.org";
+	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
+	public int CHECKIN_CYCLE_PAUSE = (int) Integer.parseInt(   "5000"   );
+	public int CHECKIN_BATTERY_CUTOFF = (int) Integer.parseInt(   "90"   );
+	public int CHECKIN_SKIP_THRESHOLD = (int) Integer.parseInt(   "5"   );
+	public int CHECKIN_STASH_THRESHOLD = (int) Integer.parseInt(   "10"   ); // should be higher...
+	public int CHECKIN_ARCHIVE_THRESHOLD = (int) Integer.parseInt(   "20"   ); // should be higher...
 	
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
@@ -102,7 +110,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
+		Log.d(TAG, "Preference changed: "+key);
 		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
@@ -159,7 +167,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				// Service Monitor
 				triggerIntentService("ServiceMonitor", 
 						System.currentTimeMillis(),
-						60*((int) Integer.parseInt(getPref("service_monitor_interval"))) );
+						3 * Math.round( AUDIO_CYCLE_DURATION / 1000 )
+						);
 
 				hasRun_OnLaunchServiceTrigger = true;
 			} catch (Exception e) {

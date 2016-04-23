@@ -1,17 +1,12 @@
 package org.rfcx.guardian.audio.service;
 
-import java.util.List;
-
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.IntentService;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class CheckInTriggerIntentService extends IntentService {

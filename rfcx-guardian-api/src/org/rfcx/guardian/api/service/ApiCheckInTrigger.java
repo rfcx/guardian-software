@@ -18,7 +18,6 @@ public class ApiCheckInTrigger extends Service {
 	private ApiCheckIn apiCheckInTrigger;
 	
 	private RfcxGuardian app = null;
-	private Context context = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -71,12 +70,12 @@ public class ApiCheckInTrigger extends Service {
 			ApiCheckInTrigger apiCheckInTrigger = ApiCheckInTrigger.this;
 			app = (RfcxGuardian) getApplication();
 			try {
-				Log.d(TAG, "ApiCheckTrigger Period: "+ app.apiWebCheckIn.apiCheckInTriggerPeriod +"ms");
+				Log.d(TAG, "ApiCheckTrigger Period: "+ ( 3 * app.CHECKIN_CYCLE_PAUSE ) +"ms");
 				while (apiCheckInTrigger.runFlag) {
 					try {
 						app.triggerService("ApiCheckIn", false);
 						app.apiWebCheckIn.connectivityToggleCheck();
-				        Thread.sleep(app.apiWebCheckIn.apiCheckInTriggerPeriod);
+				        Thread.sleep( 3 * app.CHECKIN_CYCLE_PAUSE );
 
 					} catch (Exception e) {
 						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);

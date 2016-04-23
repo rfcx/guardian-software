@@ -4,9 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.rfcx.guardian.audio.RfcxGuardian;
+
 import android.media.AudioFormat;
 import android.media.AudioRecord;
-import android.media.MediaRecorder;
 import android.media.MediaRecorder.AudioSource;
 import android.util.Log;
 
@@ -18,7 +19,7 @@ public class ExtAudioRecorderModified {
 			result = new ExtAudioRecorderModified(
 					true,
 					AudioSource.MIC,
-					AudioCapture.CAPTURE_SAMPLE_RATE_HZ,
+					RfcxGuardian.AUDIO_SAMPLE_RATE,
 					AudioFormat.CHANNEL_CONFIGURATION_MONO,
 					AudioFormat.ENCODING_PCM_16BIT);
 		} while (!(result.getState() == ExtAudioRecorderModified.State.INITIALIZING));

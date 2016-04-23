@@ -5,11 +5,9 @@ import java.util.Calendar;
 import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.util.Log;
 
 public class AirplaneModeReceiver extends BroadcastReceiver {

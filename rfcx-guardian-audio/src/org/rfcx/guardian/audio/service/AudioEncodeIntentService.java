@@ -2,10 +2,8 @@ package org.rfcx.guardian.audio.service;
 
 import java.io.File;
 import java.util.Date;
-import java.util.List;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
@@ -24,7 +22,6 @@ public class AudioEncodeIntentService extends IntentService {
 
     private FileUtils fileUtils = new FileUtils();
     private GZipUtils gZipUtils = new GZipUtils();
-    private DateTimeUtils dateTimeUtils = new DateTimeUtils();
     
 	public AudioEncodeIntentService() {
 		super(TAG);
@@ -71,8 +68,8 @@ public class AudioEncodeIntentService extends IntentService {
 				app.audioDb.dbEncoded.insert(
 						capturedRow[1], capturedRow[2], preZipDigest,
 						(int) Integer.parseInt(capturedRow[4]), 
-						app.audioEncode.ENCODING_BIT_RATE, 
-						app.audioEncode.ENCODING_CODEC, 
+						app.AUDIO_BITRATE, 
+						app.AUDIO_CODEC, 
 						(long) Long.parseLong(capturedRow[7]),
 						(System.currentTimeMillis() - encodeStartTime.getTime())
 						);

@@ -27,11 +27,6 @@ public class AudioEncode {
 	public String finalFilesDir = Environment.getDownloadCacheDirectory().toString()+"/rfcx";
 	public String postZipDir = null;
 	public String encodeDir = null;
-
-	public static final boolean ENCODE_ON_CAPTURE = true;
-
-	public final static int ENCODING_BIT_RATE = 16384;
-	public final static String ENCODING_CODEC = "aac";
 	
 	public String getAudioFileLocation_PreEncode(long timestamp, String fileExtension) {
 		return this.encodeDir+"/"+timestamp+"."+fileExtension;
@@ -66,7 +61,7 @@ public class AudioEncode {
 	public void purgeSingleAudioAssetFromDisk(String audioTimestamp, String audioFileExtension) {
 		try {
 			(new File(getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();
-			Log.d(TAG, "Purging single audio asset: "+audioTimestamp+"."+audioFileExtension);
+			Log.d(TAG, "Purging audio asset: "+audioTimestamp+"."+audioFileExtension);
 		} catch (Exception e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
