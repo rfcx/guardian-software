@@ -18,4 +18,8 @@ adb shell pm install -r /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
 echo "deleting apk...";
 adb shell rm /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
 
+echo "force relaunch of app role";
+adb shell 'kill $(ps | grep org.rfcx.guardian.$ROLE | cut -d " " -f 5);';
+adb shell am start -n org.rfcx.guardian.$ROLE/org.rfcx.guardian.$ROLE.activity.MainActivity;
+
 cd $SCRIPT_DIR/../;
