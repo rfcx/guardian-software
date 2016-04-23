@@ -98,9 +98,9 @@ public class CheckInDb {
 		public List<String[]> getQueuedWithOffset(int rowOffset, int rowLimit) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" ASC", ""+(rowOffset+rowLimit));
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", ""+(rowOffset+rowLimit));
+				if (cursor.getCount() > rowOffset) {
+					try { if (cursor.moveToPosition(rowOffset)) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;

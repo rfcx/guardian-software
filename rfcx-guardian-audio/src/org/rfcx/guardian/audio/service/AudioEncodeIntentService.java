@@ -62,7 +62,8 @@ public class AudioEncodeIntentService extends IntentService {
 				app.audioDb.dbEncoded.insert(
 						capturedRow[1], capturedRow[2], preZipDigest,
 						(int) Integer.parseInt(capturedRow[4]), 
-						app.audioEncode.ENCODING_BIT_RATE, app.audioEncode.ENCODING_CODEC, 
+						app.audioEncode.ENCODING_BIT_RATE, 
+						app.audioEncode.ENCODING_CODEC, 
 						(long) Long.parseLong(capturedRow[7]));
 				
 				//make sure the previous step(s) are synchronous or else the checkin will occur before the encode...

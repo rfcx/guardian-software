@@ -20,29 +20,30 @@ public class AudioCapture {
 	
 	public String captureDir = null;
 	
-	// encode straight to AAC/M4A (lossy, constant bitrate)...
+	// encode straight to AAC (lossy, constant bitrate)...
 	// ...or don't, and encode asynchronously after
 	// (*may* eventually support various lossy formats for post-encoding)
-	public static final boolean ENCODE_ON_CAPTURE = true;
+//	public static final boolean ENCODE_ON_CAPTURE = true;
 	
 	public final static int CAPTURE_SAMPLE_RATE_HZ = 8000;
 	
 	// TO DO: These need to be made dynamic, ideally tied to prefs (cross role)
-	public int pauseCaptureIfBatteryPercentageIsBelow = 50;
+	public int pauseCaptureIfBatteryPercentageIsBelow = 60;
 	
 	public void initializeAudioDirectories(RfcxGuardian app) {
 		
 		this.app = app;
 		
 		String appFilesDir = app.getApplicationContext().getFilesDir().toString();
-		String finalFilesDir = "/cache/download/rfcx";
+
 		(new File(app.audioEncode.sdCardFilesDir)).mkdirs();
+		(new File(app.audioEncode.finalFilesDir)).mkdirs();
 		
-		if ((new File(app.audioEncode.sdCardFilesDir)).isDirectory()) { finalFilesDir = app.audioEncode.sdCardFilesDir; }
+		if ((new File(app.audioEncode.sdCardFilesDir)).isDirectory()) { app.audioEncode.finalFilesDir = app.audioEncode.sdCardFilesDir; }
 				
 		this.captureDir = appFilesDir+"/capture"; (new File(this.captureDir)).mkdirs();
 		app.audioEncode.encodeDir = appFilesDir+"/encode"; (new File(app.audioEncode.encodeDir)).mkdirs();
-		app.audioEncode.preEncodeDir = finalFilesDir+"/m4a"; (new File(app.audioEncode.preEncodeDir)).mkdirs();
+		app.audioEncode.postZipDir = app.audioEncode.finalFilesDir+"/audio"; (new File(app.audioEncode.postZipDir)).mkdirs();
 		
 	}
 	

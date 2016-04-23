@@ -31,8 +31,13 @@ public class AudioCaptureService extends Service {
 
 	private RfcxGuardian app = null;
 	private Context context = null;
+	
 	MediaRecorder mediaRecorder = null;
     ExtAudioRecorderModified audioRecorder = null;
+
+	private MediaRecorder[] mediaRecorderArray = {null,null};
+	private ExtAudioRecorderModified[] audioRecorderArray = {null,null};;
+    
     FileUtils fileUtils = new FileUtils();
     
 	private long captureLoopPeriod;
@@ -95,14 +100,19 @@ public class AudioCaptureService extends Service {
 		public void run() {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
 			app = (RfcxGuardian) getApplication();
+			
 			AudioCapture audioCapture = app.audioCapture;
 			AudioEncode audioEncode = app.audioEncode;
+			
+			// cleanup directories of old or broken audio files
 			app.audioCapture.cleanupCaptureDirectory();
+			app.audioEncode.cleanupEncodeDirectory();
+			
 			captureLoopPeriod = 1000*((int) Integer.parseInt(app.getPref("audio_capture_interval")));
 			captureSampleRate = audioCapture.CAPTURE_SAMPLE_RATE_HZ;
 			encodingBitRate = audioEncode.ENCODING_BIT_RATE;
-			fileExtension = (app.audioCapture.ENCODE_ON_CAPTURE) ? "m4a" : "wav";
-			captureCodec = (app.audioCapture.ENCODE_ON_CAPTURE) ? "aac" : "pcm";
+			fileExtension = (app.audioEncode.ENCODE_ON_CAPTURE) ? "m4a" : "wav";
+			captureCodec = (app.audioEncode.ENCODE_ON_CAPTURE) ? "aac" : "pcm";
 			
 			try {
 				Log.d(TAG, "Capture Loop Period: "+ captureLoopPeriod +"ms");
@@ -113,7 +123,6 @@ public class AudioCaptureService extends Service {
 					        processCompletedCaptureFile();
 					        Thread.sleep(captureLoopPeriod);
 							captureLoopEnd();
-							Log.d(TAG,"End: "+Calendar.getInstance().getTimeInMillis());
 						} else {
 							Thread.sleep(2*captureLoopPeriod);
 							Log.i(TAG, "AudioCapture disabled due to low battery level"
@@ -138,10 +147,10 @@ public class AudioCaptureService extends Service {
 	}
 	
 	private void captureLoopStart() throws IllegalStateException, IOException {
-		long timeStamp = Calendar.getInstance().getTimeInMillis();
+		long timeStamp = Calendar.getInstance().getTimeInMillis();; 
 		String filePath = app.audioCapture.captureDir+"/"+timeStamp+"."+fileExtension;
 		try {
-			if (app.audioCapture.ENCODE_ON_CAPTURE) {
+			if (app.audioEncode.ENCODE_ON_CAPTURE) {
 				mediaRecorder = setAacCaptureRecorder();
 				mediaRecorder.setOutputFile(filePath);
 		        mediaRecorder.prepare();
@@ -161,7 +170,7 @@ public class AudioCaptureService extends Service {
 	
 	private void captureLoopEnd() {
 		try {
-			if (app.audioCapture.ENCODE_ON_CAPTURE) {
+			if (app.audioEncode.ENCODE_ON_CAPTURE) {
 				mediaRecorder.stop();
 				mediaRecorder.release();
 			} else {
@@ -199,5 +208,47 @@ public class AudioCaptureService extends Service {
 	        app.audioEncode.triggerAudioEncodeAfterCapture(context);
 		}
 	}
+	
+	
+	
+	
+//	private void captureLoopStart() throws IllegalStateException, IOException {
+//		long timeStamp = Calendar.getInstance().getTimeInMillis();; 
+//		String filePath = app.audioCapture.captureDir+"/"+timeStamp+"."+fileExtension;
+//		try {
+//			if (app.audioEncode.ENCODE_ON_CAPTURE) {
+//				mediaRecorder = setAacCaptureRecorder();
+//				mediaRecorder.setOutputFile(filePath);
+//		        mediaRecorder.prepare();
+//		        mediaRecorder.start();
+//			} else {
+//				audioRecorder = ExtAudioRecorderModified.getInstance();
+//				audioRecorder.setOutputFile(filePath);
+//		        audioRecorder.prepare();
+//		        audioRecorder.start();
+//			}
+//		} catch (IllegalThreadStateException e) {
+//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+//		}
+//        captureTimeStamps[0] = captureTimeStamps[1];
+//        captureTimeStamps[1] = timeStamp;
+//	}
+//	
+//	private void captureLoopEnd() {
+//		try {
+//			if (app.audioEncode.ENCODE_ON_CAPTURE) {
+//				mediaRecorder.stop();
+//				mediaRecorder.release();
+//			} else {
+//				audioRecorder.stop();
+//				audioRecorder.release();
+//			}
+//		} catch (IllegalThreadStateException e) {
+//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+//		}
+//	}
+	
+	
+	
 	
 }

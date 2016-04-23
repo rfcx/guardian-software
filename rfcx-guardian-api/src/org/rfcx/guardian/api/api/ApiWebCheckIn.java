@@ -50,8 +50,10 @@ public class ApiWebCheckIn {
 	public int maximumCheckInAttemptsBeforeSkip = 5;
 	public int pauseCheckInsIfBatteryPercentageIsBelow = 90;
 	public int audioCaptureInterval = 90000;
+	
 	// TO DO: These need to be made dynamic, ideally tied to prefs (cross role)
-	private int checkInQueue_StashTheshold = 15;
+	
+	private int checkInQueue_StashTheshold = 3 * Math.round( 3600000 / audioCaptureInterval ); // about 3 hours of data, calculated using the capture interval
 	private int checkInStash_ArchiveThreshold = 1000;
 
 	public void init(RfcxGuardian app) {
@@ -105,11 +107,22 @@ public class ApiWebCheckIn {
 
 		Log.i(TAG, "CheckIn Queued ("+checkInDbCount+" in database): " + queueJson);
 		
-		List<String[]> checkInsBeyondStashThreshold = app.checkInDb.dbQueued.getQueuedWithOffset(this.checkInQueue_StashTheshold, this.checkInStash_ArchiveThreshold);
-		
-		Log.i(TAG, "TO STASH: "+checkInsBeyondStashThreshold.size());
+		moveCheckInToStashList();
 		
 		return true;
+	}
+	
+	private void moveCheckInToStashList() {
+		
+		List<String[]> checkInsBeyondStashThreshold = app.checkInDb.dbQueued.getQueuedWithOffset(this.checkInQueue_StashTheshold, this.checkInStash_ArchiveThreshold);
+		
+		for (String[] checkInsToStash : checkInsBeyondStashThreshold) {
+			app.checkInDb.dbStashed.insert( checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], checkInsToStash[4]);
+			app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(checkInsToStash[1].substring(0,checkInsToStash[1].lastIndexOf(".")));
+		}
+		
+		Log.i(TAG, "STASH LENGTH: "+app.checkInDb.dbStashed.getCount());	
+		
 	}
 
 	private String generateCheckInQueueJson(String[] audioFileInfo) {
@@ -190,64 +203,47 @@ public class ApiWebCheckIn {
 		return metaDataJsonObj;
 	}
 
-	public String packagePreFlightCheckInJson(String checkInJsonString)
-			throws JSONException {
+	public String packagePreFlightCheckInJson(String checkInJsonString) throws JSONException {
 
-		JSONObject checkInMetaJson = getSystemMetaDataAsJson(new JSONObject(
-				checkInJsonString));
+		JSONObject checkInMetaJson = getSystemMetaDataAsJson(new JSONObject(checkInJsonString));
 
 		// Adding timestamp of metadata (JSON) snapshot
 		checkInMetaJson.put("measured_at", checkInPreFlightTimestamp.getTime());
 
 		// Adding GeoCoordinates
 		JSONArray geoLocation = new JSONArray();
-		geoLocation.put(3.6141375); // latitude... currently this is fake,
-									// obviously
-		geoLocation.put(14.2108033); // longitude... currently this is fake,
-										// obviously
-		geoLocation.put(1.000001); // precision... currently this is fake,
-									// obviously
+		geoLocation.put(3.6141375); // latitude... currently this is fake, obviously
+		geoLocation.put(14.2108033); // longitude... currently this is fake, obviously
+		geoLocation.put(1.000001); // precision... currently this is fake, obviously
 		checkInMetaJson.put("location", geoLocation);
 
 		// Adding latency data from previous checkins
-		checkInMetaJson.put("previous_checkins",
-				TextUtils.join("|", this.previousCheckIns));
+		checkInMetaJson.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
 
 		// Recording number of currently queued/skipped checkins
-		checkInMetaJson.put("queued_checkins",
-				app.checkInDb.dbQueued.getCount());
-		checkInMetaJson.put("skipped_checkins",
-				app.checkInDb.dbSkipped.getCount());
-		checkInMetaJson.put("stashed_checkins",
-				app.checkInDb.dbStashed.getCount());
+		checkInMetaJson.put("queued_checkins", app.checkInDb.dbQueued.getCount());
+		checkInMetaJson.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
+		checkInMetaJson.put("stashed_checkins", app.checkInDb.dbStashed.getCount());
 
 		// Adding software role versions
-		checkInMetaJson.put("software",
-				TextUtils.join("|", getInstalledSoftwareVersions()));
+		checkInMetaJson.put("software", TextUtils.join("|", getInstalledSoftwareVersions()));
 
 		// Adding device location timezone offset
-		checkInMetaJson.put("timezone_offset", timeZoneOffsetDateFormat
-				.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"),
-						Locale.getDefault()).getTime()));
+		checkInMetaJson.put("timezone_offset", timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime()));
 
 		// Adding messages to JSON blob
 		checkInMetaJson.put("messages", getSmsMessagesAsJson());
 
 		// Adding screenshot meta to JSON blob
 		String[] latestScreenShot = getLatestScreenShotMeta();
-		checkInMetaJson.put(
-				"screenshots",
-				(latestScreenShot != null) ? TextUtils.join("*",
-						latestScreenShot) : null);
+		checkInMetaJson.put( "screenshots", (latestScreenShot != null) ? TextUtils.join("*", latestScreenShot) : null);
 
 		// Stringify JSON, gzip the output and convert to base 64 string for
 		// sending
 		String jsonFinal = checkInMetaJson.toString();
-		String jsonFinalGZipped = (new GZipUtils())
-				.gZipStringToBase64(jsonFinal);
+		String jsonFinalGZipped = (new GZipUtils()).gZipStringToBase64(jsonFinal);
 
-		int pct = Math.round(100 * (1 - ((float) jsonFinalGZipped.length())
-				/ ((float) jsonFinal.length())));
+		int pct = Math.round(100 * (1 - ((float) jsonFinalGZipped.length()) / ((float) jsonFinal.length())));
 		Log.d(TAG, "JSON MetaData Packaged: " + pct + "% reduced");
 
 		return jsonFinalGZipped;
@@ -261,14 +257,11 @@ public class ApiWebCheckIn {
 				JSONObject responseJson = new JSONObject(checkInResponse);
 
 				// reset/record request latency
-				long checkInDuration = System.currentTimeMillis()
-						- this.requestSendStart.getTime();
+				long checkInDuration = System.currentTimeMillis() - this.requestSendStart.getTime();
 				this.previousCheckIns = new ArrayList<String>();
-				this.previousCheckIns.add(responseJson.getString("checkin_id")
-						+ "*" + checkInDuration);
+				this.previousCheckIns.add(responseJson.getString("checkin_id") + "*" + checkInDuration);
 				this.requestSendReturned = new Date();
-				Log.i(TAG, "CheckIn request time: " + (checkInDuration / 1000)
-						+ " seconds");
+				Log.i(TAG, "CheckIn request time: " + (checkInDuration / 1000) + " seconds");
 
 				// clear system metadata included in successful checkin
 				// preflight
@@ -279,13 +272,10 @@ public class ApiWebCheckIn {
 								null, null);
 
 				// parse audio info and use it to purge the data locally
-				JSONArray audioJsonArray = new JSONArray(
-						responseJson.getString("audio"));
+				JSONArray audioJsonArray = new JSONArray(responseJson.getString("audio"));
 				for (int i = 0; i < audioJsonArray.length(); i++) {
 					JSONObject audioJson = audioJsonArray.getJSONObject(i);
-					app.checkInDb.dbQueued
-							.deleteSingleRowByAudioAttachment(audioJson
-									.getString("id"));
+					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioJson.getString("id"));
 					int deleteAudio = app
 							.getContentResolver()
 							.delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1
@@ -409,7 +399,7 @@ public class ApiWebCheckIn {
 				Log.d(TAG, "Audio attached: " + audioId + "." + audioFormat);
 			} else {
 				Log.e(TAG, "Audio attachment file doesn't exist: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
-				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioId + "." + audioFormat);
+				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachment(audioId);
 				int deleteAudio = app.getContentResolver().delete(
 						Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1 + "/" + audioId), null, null);
 
