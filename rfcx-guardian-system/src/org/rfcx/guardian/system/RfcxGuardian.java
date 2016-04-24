@@ -59,6 +59,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	// prefs (WILL BE SET DYNAMICALLY)
 	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
+	public int SCREENSHOT_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
 
 	// for obtaining device stats and characteristics
 	public DeviceState deviceState = new DeviceState();

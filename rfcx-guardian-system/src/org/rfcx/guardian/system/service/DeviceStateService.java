@@ -99,7 +99,7 @@ public class DeviceStateService extends Service implements SensorEventListener {
 						recordingIncrement = 0;
 					}
 											
-					int delayMs = (int) Math.round(60000/app.deviceState.serviceSamplesPerMinute) - DeviceCpuUsage.SAMPLE_LENGTH_MS;
+					long delayMs = (long) (Math.round(60000/app.deviceState.serviceSamplesPerMinute) - DeviceCpuUsage.SAMPLE_LENGTH_MS);
 					Thread.sleep(delayMs);
 				} catch (InterruptedException e) {
 					deviceStateService.runFlag = false;

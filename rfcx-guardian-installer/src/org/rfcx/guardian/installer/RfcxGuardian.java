@@ -59,9 +59,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public int INSTALL_CYCLE_DURATION = (int) Integer.parseInt(   "3600000"   );
 	public int INSTALL_OFFLINE_TOGGLE_THRESHOLD = (int) Integer.parseInt(   "900000"   );
 	public int CPUTUNER_FREQ_MIN = (int) Integer.parseInt(   "30720"   );
-	public int CPUTUNER_FREQ_MAX = (int) Integer.parseInt(   /*61440;*//*"122880";*/ "480000"   );
+	public int CPUTUNER_FREQ_MAX = (int) Integer.parseInt(   "600000"   );
 	public int CPUTUNER_GOVERNOR_UP = (int) Integer.parseInt(   "98"   );
-	public int CPUTUNER_GOVERNOR_DOWN = (int) Integer.parseInt(   "90"   );
+	public int CPUTUNER_GOVERNOR_DOWN = (int) Integer.parseInt(   "95"   );
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);

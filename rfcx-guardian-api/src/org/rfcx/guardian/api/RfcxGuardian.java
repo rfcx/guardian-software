@@ -54,8 +54,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public int CHECKIN_CYCLE_PAUSE = (int) Integer.parseInt(   "5000"   );
 	public int CHECKIN_BATTERY_CUTOFF = (int) Integer.parseInt(   "90"   );
 	public int CHECKIN_SKIP_THRESHOLD = (int) Integer.parseInt(   "5"   );
-	public int CHECKIN_STASH_THRESHOLD = (int) Integer.parseInt(   "10"   ); // should be higher...
-	public int CHECKIN_ARCHIVE_THRESHOLD = (int) Integer.parseInt(   "20"   ); // should be higher...
+	public int CHECKIN_STASH_THRESHOLD = (int) Integer.parseInt(   "120"   );
+	public int CHECKIN_ARCHIVE_THRESHOLD = (int) Integer.parseInt(   "1000"   );
 	
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();

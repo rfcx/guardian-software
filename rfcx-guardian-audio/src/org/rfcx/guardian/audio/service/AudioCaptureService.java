@@ -102,7 +102,7 @@ public class AudioCaptureService extends Service {
 			app.audioCapture.cleanupCaptureDirectory();
 			app.audioEncode.cleanupEncodeDirectory();
 			
-			captureLoopPeriod = app.AUDIO_CYCLE_DURATION;
+			captureLoopPeriod = (long) app.AUDIO_CYCLE_DURATION;
 			captureSampleRate = app.AUDIO_SAMPLE_RATE;
 			encodingBitRate = app.AUDIO_BITRATE;
 			captureCodec = (app.AUDIO_CODEC.equals("aac")) ? "aac" : "pcm";
