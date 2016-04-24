@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
 
@@ -33,8 +32,6 @@ public class ApiCore {
 	public String installVersionUrl = null;
 	public String installVersionSha1 = null;
 	private int installVersionValue = 0;
-	
-	private int disableDownloadAndInstallIfBatteryPercentageIsBelow = 30;
 	
 	public boolean apiCheckVersionFollowUp(RfcxGuardian app, String targetRole, List<JSONObject> jsonList) {
 		
@@ -69,7 +66,7 @@ public class ApiCore {
 					app.triggerService("DownloadFile", true);
 				} else {
 					Log.i(TAG, "Download & Installation disabled due to low battery level"
-							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+this.disableDownloadAndInstallIfBatteryPercentageIsBelow+"%)."
+							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.INSTALL_BATTERY_CUTOFF+"%)."
 							);
 				}
 				return true;
@@ -112,7 +109,7 @@ public class ApiCore {
 	
 	private boolean isBatteryChargeSufficientForDownloadAndInstall(RfcxGuardian app) {
 		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= this.disableDownloadAndInstallIfBatteryPercentageIsBelow);
+		return (batteryCharge >= app.INSTALL_BATTERY_CUTOFF);
 	}
 	
 }

@@ -45,7 +45,6 @@ public class RfcxGuardianPrefs {
 	
 	public void checkAndSet(RfcxGuardian rfcxApp) {
 		app = rfcxApp;
-		app.verboseLog = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLog);
 		app.apiCore.targetAppRoleApiEndpoint = app.targetAppRoleApiEndpoint;
 		app.apiCore.setApiCheckVersionEndpoint(app.getDeviceId());
 	}

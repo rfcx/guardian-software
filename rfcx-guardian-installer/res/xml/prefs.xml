@@ -17,8 +17,8 @@
         android:defaultValue="60"/>
     
  	<EditTextPreference
-        android:title="API Protocol/Address"
         android:key="api_domain"
+        android:title="API Protocol/Address"
         android:summary="Domain/Protocol for API calls"
         android:enabled="true"
         android:defaultValue="https://api.rfcx.org" />
@@ -36,5 +36,21 @@
 	    android:summary="Unique Token of Guardian"
         android:enabled="true"
 		android:defaultValue=""/>
+	
+	<EditTextPreference
+        android:key="service_monitor_interval"
+        android:title="Service Monitor Interval"
+        android:summary="How often to check if services are running? (minutes)"
+	    android:inputType="number"
+        android:enabled="true"
+        android:defaultValue="5"/>
+	
+	<EditTextPreference
+        android:key="audio_capture_interval"
+        android:title="Audio Capture Interval"
+        android:summary="How long should each audio chunk be? (seconds)"
+	    android:inputType="number"
+        android:enabled="true"
+        android:defaultValue="90"/>
     
 </PreferenceScreen>

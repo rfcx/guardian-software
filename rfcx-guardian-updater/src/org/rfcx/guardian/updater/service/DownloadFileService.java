@@ -41,7 +41,7 @@ public class DownloadFileService extends Service {
 		app = (RfcxGuardian) getApplication();
 		if (context == null) context = app.getApplicationContext();
 		
-		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
+		Log.d(TAG, "Starting service: "+TAG);
 		
 		app.isRunning_DownloadFile = true;
 		try {
@@ -77,13 +77,13 @@ public class DownloadFileService extends Service {
 				Context context = app.getApplicationContext();
 				
 				if (httpGet.getAsFile(url, fileName, context)) {
-					if (app.verboseLog) Log.d(TAG, "Download Complete. Verifying Checksum...");
+					
+					Log.d(TAG, "Download Complete. Verifying Checksum...");
 					String filePath = context.getFilesDir().toString()+"/"+fileName;
 					String fileSha1 = (new FileUtils()).sha1Hash(filePath);
-					if (app.verboseLog) {
-						Log.d(TAG, "sha1 (apicheck): "+sha1);
-						Log.d(TAG, "sha1 (download): "+fileSha1);
-					}
+					Log.d(TAG, "sha1 (apicheck): "+sha1);
+					Log.d(TAG, "sha1 (download): "+fileSha1);
+					
 					if (fileSha1.equals(sha1)) {
 						app.triggerService("InstallApp", false);
 					} else {

@@ -76,9 +76,7 @@ public class SystemContentProvider extends ContentProvider {
 				
 				for (String[] screenShotRow : app.screenShotDb.dbCaptured.getAllCaptured()) {
 					cursor.addRow(new Object[] { 
-							screenShotRow[0], screenShotRow[1], screenShotRow[2], screenShotRow[3],
-							(new DeviceScreenShot()).getScreenShotDirectory(app.getApplicationContext())+"/"+screenShotRow[1]+".png"
-					});
+							screenShotRow[0], screenShotRow[1], screenShotRow[2], screenShotRow[3], screenShotRow[4]});
 				}
 				return cursor;
 			}
@@ -109,9 +107,10 @@ public class SystemContentProvider extends ContentProvider {
 				
 			} else if (URI_MATCHER.match(uri) == ENDPOINT_SCREENSHOT_ID) {
 				
-				long deleteScreenShot = Long.parseLong(uri.getLastPathSegment());
-				app.screenShotDb.dbCaptured.deleteSingleRowByTimestamp(""+deleteScreenShot);
-				(new File((new DeviceScreenShot()).getScreenShotDirectory(app.getApplicationContext())+"/"+deleteScreenShot+".png")).delete();
+				long screenShotTimestamp = Long.parseLong(uri.getLastPathSegment());
+				String[] screenShotInfo = app.screenShotDb.dbCaptured.getSingleRowByTimestamp(""+screenShotTimestamp);
+				app.screenShotDb.dbCaptured.deleteSingleRowByTimestamp(screenShotInfo[1]);
+				(new File(screenShotInfo[4])).delete();
 		
 				return 1;
 			}

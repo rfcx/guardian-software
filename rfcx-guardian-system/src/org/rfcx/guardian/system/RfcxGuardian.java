@@ -11,6 +11,7 @@ import org.rfcx.guardian.system.database.DataTransferDb;
 import org.rfcx.guardian.system.database.DeviceStateDb;
 import org.rfcx.guardian.system.database.ScreenShotDb;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
+import org.rfcx.guardian.system.device.DeviceScreenLock;
 import org.rfcx.guardian.system.device.DeviceState;
 import org.rfcx.guardian.system.service.DeviceScreenShotService;
 import org.rfcx.guardian.system.service.DeviceStateService;
@@ -37,7 +38,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	public String version;
 	Context context;
-	public boolean verboseLog = true;
 	
 	private String deviceId = null;
 	private String deviceToken = null;
@@ -57,9 +57,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DataTransferDb dataTransferDb = null;
 	public ScreenShotDb screenShotDb = null;
 
+	// prefs (WILL BE SET DYNAMICALLY)
+	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
+
 	// for obtaining device stats and characteristics
 	public DeviceState deviceState = new DeviceState();
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
+	public DeviceScreenLock deviceScreenLock = new DeviceScreenLock();
 	
 	// Background Services
 	public boolean isRunning_DeviceState = false;
@@ -97,7 +101,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
+		Log.d(TAG, "Preference changed: "+key);
 		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
@@ -152,7 +156,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				// Service Monitor
 				triggerIntentService("ServiceMonitor", 
 						System.currentTimeMillis(),
-						60*((int) Integer.parseInt(getPref("service_monitor_interval"))) );
+						3 * Math.round( AUDIO_CYCLE_DURATION / 1000 )
+						);
 				// background service for gather system stats
 				triggerService("DeviceState", true);
 				// background service for taking screenshots

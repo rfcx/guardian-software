@@ -39,12 +39,12 @@ public class RfcxGuardianPrefs {
 		else if (type.equals("float")) editor.putString(name, ""+value); // still not saving floats as floats 
 		else if (type.equals("long")) editor.putString(name, ""+value);  // still not saving longs as longs 
 		else editor.putString(name, value);
+		writePrefToFile(name, value);
 		return editor.commit();
 	}
 	
 	public void checkAndSet(RfcxGuardian rfcxApp) {
 		app = rfcxApp;
-		app.verboseLog = app.sharedPrefs.getBoolean("verbose_logging", app.verboseLog);
 		app.apiCore.targetAppRoleApiEndpoint = app.targetAppRoleApiEndpoint;
 		app.apiCore.setApiCheckVersionEndpoint(app.getDeviceId());
 	}
@@ -74,6 +74,10 @@ public class RfcxGuardianPrefs {
 	
 	public void writeVersionToFile(String versionName) {
 		writeToGuardianTxtFile("version",versionName);
+	}
+	
+	private void writePrefToFile(String prefKey, String prefValue) {
+		writeToGuardianTxtFile("pref_"+prefKey, prefValue);
 	}
 	
 }

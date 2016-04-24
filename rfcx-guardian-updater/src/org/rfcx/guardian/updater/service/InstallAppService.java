@@ -43,7 +43,7 @@ public class InstallAppService extends Service {
 		app = (RfcxGuardian) getApplication();
 		if (context == null) context = app.getApplicationContext();
 		
-		if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
+		Log.d(TAG, "Starting service: "+TAG);
 		
 		app.isRunning_InstallApp = true;
 		try {

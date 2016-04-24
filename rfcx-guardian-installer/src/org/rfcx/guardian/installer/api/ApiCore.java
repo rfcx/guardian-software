@@ -6,13 +6,14 @@ import java.util.List;
 import org.json.JSONObject;
 import org.rfcx.guardian.installer.R;
 import org.rfcx.guardian.installer.RfcxGuardian;
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.text.TextUtils;
 import android.util.Log;
 
 public class ApiCore {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.RfcxConstants.ROLE_NAME+"-"+ApiCore.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCore.class.getSimpleName();
 
 	public long lastCheckInTime = Calendar.getInstance().getTimeInMillis();
 
@@ -60,8 +61,15 @@ public class ApiCore {
 				this.installVersionUrl = this.latestVersionUrl;
 				this.installVersionSha1 = this.latestVersionSha1;
 				this.installVersionValue = this.latestVersionValue;
-				Log.d(TAG, "Latest version detected and download triggered: "+this.installVersion+" ("+this.installVersionValue+")");	
-				app.triggerService("DownloadFile", true);
+				
+				if (isBatteryChargeSufficientForDownloadAndInstall(app)) {
+					Log.d(TAG, "Latest version detected and download triggered: "+this.installVersion+" ("+this.installVersionValue+")");	
+					app.triggerService("DownloadFile", true);
+				} else {
+					Log.i(TAG, "Download & Installation disabled due to low battery level"
+							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.INSTALL_BATTERY_CUTOFF+"%)."
+							);
+				}
 				return true;
 			} else if (!currentGuardianVersion.equals(this.latestVersion) && (currentGuardianVersionValue > this.latestVersionValue)) { 
 				Log.d(TAG,"org.rfcx.guardian."+this.latestRole+" is newer than the api version: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
@@ -99,4 +107,10 @@ public class ApiCore {
 			return false;
 		}
 	}
+	
+	private boolean isBatteryChargeSufficientForDownloadAndInstall(RfcxGuardian app) {
+		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
+		return (batteryCharge >= app.INSTALL_BATTERY_CUTOFF);
+	}
+	
 }

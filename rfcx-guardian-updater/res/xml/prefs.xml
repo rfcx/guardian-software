@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
-    <CheckBoxPreference
-	    android:key="verbose_logging"
-	    android:title="Verbose Logging"
-	    android:summary="Verbose Logging"
-		android:enabled="true"
-		android:defaultValue="true"/>
-
-    <EditTextPreference
-        android:key="apicheckversion_interval"
-        android:enabled="true"
-	    android:inputType="number"
-        android:title="ApiCheckVersion Interval"
-        android:summary="How often to check the API (minutes)"
-        android:defaultValue="60"/>
-    
- 	<EditTextPreference
-        android:title="API Protocol/Address"
-        android:key="api_domain"
-        android:summary="Domain/Protocol for API calls"
-        android:enabled="true"
-        android:defaultValue="https://api.rfcx.org" />
 
 	<EditTextPreference
         android:key="device_guid"

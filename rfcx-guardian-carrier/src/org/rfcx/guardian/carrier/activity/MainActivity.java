@@ -2,7 +2,7 @@ package org.rfcx.guardian.carrier.activity;
 
 import org.rfcx.guardian.carrier.R;
 import org.rfcx.guardian.carrier.RfcxGuardian;
-import org.rfcx.guardian.carrier.ui.DeviceKeyEntry;
+import org.rfcx.guardian.carrier.device.DeviceKeyEntry;
 
 import android.app.Activity;
 import android.content.Intent;

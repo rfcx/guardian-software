@@ -1,4 +1,4 @@
-package org.rfcx.guardian.carrier.ui;
+package org.rfcx.guardian.carrier.device;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -68,15 +68,20 @@ public class DeviceScreenShotService extends Service {
 		public void run() {
 			DeviceScreenShotService deviceCPUTunerService = DeviceScreenShotService.this;
 			try {
+				// activate screen and set wake lock
+				app.deviceScreenLock.unLockScreen(context);
+				Thread.sleep(3000);
+				
 				String screenShotTimeStamp = deviceScreenShot.saveScreenShot(context);
-				if (screenShotTimeStamp != null) {
-					Log.i(TAG, "Screenshot saved: "+screenShotTimeStamp);
-				}
+				if (screenShotTimeStamp != null) Log.i(TAG, "Screenshot saved: "+screenShotTimeStamp);
+				Thread.sleep(3000);
+
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			} finally {
 				app.isRunning_DeviceScreenShot = false;
 				app.stopService("ScreenShot");
+				app.deviceScreenLock.releaseWakeLock();
 			}
 		}
 	}

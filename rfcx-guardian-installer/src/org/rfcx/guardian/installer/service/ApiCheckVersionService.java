@@ -46,7 +46,7 @@ public class ApiCheckVersionService extends Service {
 		app.isRunning_ApiCheckVersion = true;
 		try {
 			this.apiCheckVersion.start();
-			if (app.verboseLog) Log.d(TAG, "Starting service: "+TAG);
+			Log.d(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
@@ -93,10 +93,8 @@ public class ApiCheckVersionService extends Service {
 						long sinceLastCheckIn = (Calendar.getInstance().getTimeInMillis() - app.apiCore.lastCheckInTime) / 1000;
 						Log.d(TAG, "Since last checkin: "+sinceLastCheckIn);
 						List<JSONObject> jsonResponse = httpGet.getAsJsonList(getUrl);
-						if (app.verboseLog) { 
-							for (JSONObject json : jsonResponse) {
-								Log.d(TAG, json.toString());
-							}
+						for (JSONObject json : jsonResponse) {
+							Log.d(TAG, json.toString());
 						}
 						for (JSONObject jsonResponseItem : jsonResponse) {
 							String appRole = jsonResponseItem.getString("role").toLowerCase();

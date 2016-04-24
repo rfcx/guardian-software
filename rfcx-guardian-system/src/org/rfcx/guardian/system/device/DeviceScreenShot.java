@@ -21,20 +21,22 @@ public class DeviceScreenShot {
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceScreenShot.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
-	private String filesDir = null;
-	private String sdCardFilesDir = Environment.getExternalStorageDirectory().toString()+"/rfcx";
+
+	private String sdCardFilesDir = Environment.getExternalStorageDirectory().getAbsolutePath()+"/rfcx";
+	private String nonSdCardFilesDir = Environment.getDownloadCacheDirectory().getAbsolutePath()+"/rfcx";
+	
 	private String binDir = null;
 	private String imgDir = null;
 
 	public void setupScreenShot(Context context) {
+		
 		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
-		if (filesDir == null) filesDir = app.getFilesDir().getAbsolutePath();
 
 		if (binDir == null) binDir = app.getFilesDir().getAbsolutePath()+"/bin";
 		(new File(binDir)).mkdirs();
 		
-		imgDir = filesDir+"/img";
-		if ((new File(sdCardFilesDir)).isDirectory()) { imgDir = sdCardFilesDir+"/img"; }
+		imgDir = nonSdCardFilesDir+"/img";
+		if ((new File(sdCardFilesDir)).exists()) { imgDir = sdCardFilesDir+"/img"; }
 		(new File(imgDir)).mkdirs();
 	}
     
@@ -42,12 +44,16 @@ public class DeviceScreenShot {
 		setupScreenShot(context);
 		if (findOrCreateBin()) {
 			try {
+				
 				String timestamp = ""+System.currentTimeMillis();
-				String imgPath = imgDir+"/"+timestamp+".png";
-				(new ShellCommands()).executeCommand(binDir+"/fb2png "+imgPath, null, false, context);
-		        if ((new File(imgPath)).exists()) {
-		        	app.screenShotDb.dbCaptured.insert(timestamp, "png", (new FileUtils()).sha1Hash(imgPath));
-		        	// GZipping PNGs doesn't really do anything, so we just leave it as PNG
+				String imgFilePath = imgDir+"/"+timestamp+".png";
+				
+				// run framebuffer binary to save screenshot to file
+				(new ShellCommands()).executeCommand(binDir+"/fb2png "+imgFilePath, null, false, context);
+				
+		        if ((new File(imgFilePath)).exists()) {
+		        	app.screenShotDb.dbCaptured.insert(timestamp, "png", (new FileUtils()).sha1Hash(imgFilePath), imgFilePath);
+		        	// PNG images are already GZipped
 		        	return timestamp;
 			    }
 			} catch (Exception e) {
@@ -87,11 +93,11 @@ public class DeviceScreenShot {
     	}
     }
 	
-    public String getScreenShotDirectory(Context context) {
-		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
-		if (filesDir == null) filesDir = app.getFilesDir().getAbsolutePath();
-		imgDir = filesDir+"/img";
-		if ((new File(sdCardFilesDir)).isDirectory()) { imgDir = sdCardFilesDir+"/img"; }
-		return imgDir;
-    }
+//    public String getScreenShotDirectory(Context context) {
+//		if (app == null) app = (RfcxGuardian) context.getApplicationContext();
+//		if (filesDir == null) filesDir = app.getFilesDir().getAbsolutePath();
+//		imgDir = filesDir+"/img";
+//		if ((new File(sdCardFilesDir)).isDirectory()) { imgDir = sdCardFilesDir+"/img"; }
+//		return imgDir;
+//    }
 }

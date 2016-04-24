@@ -40,7 +40,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public String version;
 	Context context;
-	public boolean verboseLog = true;
+
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
@@ -52,6 +52,16 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public static final String thisAppRole = "installer";
 	public static final String targetAppRoleApiEndpoint = "updater";
 	public String targetAppRole = "updater";
+
+	// prefs (WILL BE SET DYNAMICALLY)
+	public String API_URL_BASE = "https://api.rfcx.org";
+	public int INSTALL_BATTERY_CUTOFF = (int) Integer.parseInt(   "30"   );
+	public int INSTALL_CYCLE_DURATION = (int) Integer.parseInt(   "3600000"   );
+	public int INSTALL_OFFLINE_TOGGLE_THRESHOLD = (int) Integer.parseInt(   "900000"   );
+	public int CPUTUNER_FREQ_MIN = (int) Integer.parseInt(   "30720"   );
+	public int CPUTUNER_FREQ_MAX = (int) Integer.parseInt(   /*61440;*//*"122880";*/ "480000"   );
+	public int CPUTUNER_GOVERNOR_UP = (int) Integer.parseInt(   "98"   );
+	public int CPUTUNER_GOVERNOR_DOWN = (int) Integer.parseInt(   "90"   );
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
@@ -101,7 +111,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
+		Log.d(TAG, "Preference changed: "+key);
 		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
@@ -149,11 +159,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				triggerService("CPUTuner", true);
 				
 				int delayAfterAppLaunchInMinutes = 2;
-				long apiCheckVersionInterval = ((getPref("apicheckversion_interval")!=null) ? Integer.parseInt(getPref("apicheckversion_interval")) : 180)*60*1000;
 				PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ApiCheckVersionIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				AlarmManager updaterAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
-				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, (System.currentTimeMillis()+delayAfterAppLaunchInMinutes*60*1000), apiCheckVersionInterval, updaterIntentService);
-				if (verboseLog) { Log.d(TAG, "ApiCheckVersion will run every "+getPref("apicheckversion_interval")+" minute(s), starting at "+(new Date((System.currentTimeMillis()+delayAfterAppLaunchInMinutes*60*1000))).toLocaleString()); }
+				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, ( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ), INSTALL_CYCLE_DURATION, updaterIntentService);
+				Log.d(TAG, "ApiCheckVersion will run every " + Math.round( INSTALL_CYCLE_DURATION / (60*1000) ) + " minute(s), starting at "+(new Date(( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ))).toLocaleString());
 				this.hasRun_OnLaunchServiceTrigger = true;	
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);

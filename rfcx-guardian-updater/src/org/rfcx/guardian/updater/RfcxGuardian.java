@@ -38,9 +38,10 @@ import android.util.Log;
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
 	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
+	
 	public String version;
 	Context context;
-	public boolean verboseLog = true;
+
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
@@ -52,6 +53,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public static final String thisAppRole = "updater";
 	public static final String targetAppRoleApiEndpoint = "all";
 	public String targetAppRole = "";
+
+	// prefs (WILL BE SET DYNAMICALLY)
+	public String API_URL_BASE = "https://api.rfcx.org";
+	public int INSTALL_BATTERY_CUTOFF = (int) Integer.parseInt(   "30"   );
+	public int INSTALL_CYCLE_DURATION = (int) Integer.parseInt(   "3600000"   );
+	public int INSTALL_OFFLINE_TOGGLE_THRESHOLD = (int) Integer.parseInt(   "900000"   );
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
@@ -101,7 +108,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
+		Log.d(TAG, "Preference changed: "+key);
 		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
@@ -145,11 +152,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		if (!this.hasRun_OnLaunchServiceTrigger) {
 			try {
 				int delayAfterAppLaunchInMinutes = 5;
-				long apiCheckVersionInterval = ((getPref("apicheckversion_interval")!=null) ? Integer.parseInt(getPref("apicheckversion_interval")) : 180)*60*1000;
 				PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ApiCheckVersionIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				AlarmManager updaterAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
-				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, (System.currentTimeMillis()+delayAfterAppLaunchInMinutes*60*1000), apiCheckVersionInterval, updaterIntentService);
-				if (verboseLog) { Log.d(TAG, "ApiCheckVersion will run every "+getPref("apicheckversion_interval")+" minute(s), starting at "+(new Date((System.currentTimeMillis()+delayAfterAppLaunchInMinutes*60*1000))).toLocaleString()); }
+				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, ( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ), INSTALL_CYCLE_DURATION, updaterIntentService);
+				Log.d(TAG, "ApiCheckVersion will run every " + Math.round( INSTALL_CYCLE_DURATION / (60*1000) ) + " minute(s), starting at "+(new Date(( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ))).toLocaleString());
 				this.hasRun_OnLaunchServiceTrigger = true;	
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
@@ -172,22 +178,16 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			if (!this.isRunning_ApiCheckVersion || forceReTrigger) {
 				context.stopService(new Intent(context, ApiCheckVersionService.class));
 				context.startService(new Intent(context, ApiCheckVersionService.class));
-			} else {
-				if (this.verboseLog) { Log.d(TAG, "Service ApiCheckVersion is already running..."); }
 			}
 		} else if (serviceName.equals("DownloadFile")) {
 			if (!this.isRunning_DownloadFile || forceReTrigger) {
 				context.stopService(new Intent(context, DownloadFileService.class));
 				context.startService(new Intent(context, DownloadFileService.class));
-			} else {
-				if (this.verboseLog) { Log.d(TAG, "Service DownloadFile is already running..."); }
 			}
 		} else if (serviceName.equals("InstallApp")) {
 			if (!this.isRunning_InstallApp || forceReTrigger) {
 				context.stopService(new Intent(context, InstallAppService.class));
 				context.startService(new Intent(context, InstallAppService.class));
-			} else {
-				if (this.verboseLog) { Log.d(TAG, "Service InstallApp is already running..."); }
 			}
 		} else {
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");

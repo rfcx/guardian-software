@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
-    <CheckBoxPreference
-	    android:key="verbose_logging"
-	    android:title="Verbose Logging"
-	    android:summary="Verbose Logging"
-		android:enabled="true"
-		android:defaultValue="true"/>
 
 	<EditTextPreference
         android:key="device_guid"
@@ -14,20 +7,5 @@
 	    android:title="Device GUID"
 	    android:summary="Unique ID of Guardian"
 		android:defaultValue=""/>
-
-	<EditTextPreference
-        android:key="device_token"
-	    android:title="Device Token"
-	    android:summary="Unique Token of Guardian"
-        android:enabled="true"
-		android:defaultValue=""/>
-	
-	<EditTextPreference
-        android:key="service_monitor_interval"
-        android:title="Service Monitor Interval"
-        android:summary="How often to check if services are running? (minutes)"
-	    android:inputType="number"
-        android:enabled="true"
-        android:defaultValue="5"/>
     
 </PreferenceScreen>

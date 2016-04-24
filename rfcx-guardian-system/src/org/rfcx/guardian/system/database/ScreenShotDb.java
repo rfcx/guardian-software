@@ -29,7 +29,8 @@ public class ScreenShotDb {
 	static final String C_TIMESTAMP = "timestamp";
 	static final String C_FORMAT = "format";
 	static final String C_DIGEST = "digest";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST };
+	static final String C_FILEPATH = "filepath";
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_FILEPATH };
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -38,6 +39,7 @@ public class ScreenShotDb {
 		sbOut.append(", "+C_TIMESTAMP+" TEXT");
 		sbOut.append(", "+C_FORMAT+" TEXT");
 		sbOut.append(", "+C_DIGEST+" TEXT");
+		sbOut.append(", "+C_FILEPATH+" TEXT");
 		return sbOut.append(")").toString();
 	}
 	
@@ -66,12 +68,13 @@ public class ScreenShotDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(String timestamp, String format, String digest) {
+		public void insert(String timestamp, String format, String digest, String filepath) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_TIMESTAMP, timestamp);
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
+			values.put(C_FILEPATH, filepath);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -84,7 +87,7 @@ public class ScreenShotDb {
 			ArrayList<String[]> list = new ArrayList<String[]>();
 			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null,  C_CREATED_AT+" DESC", null);
 				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3) });
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
 			return list;
@@ -99,6 +102,19 @@ public class ScreenShotDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
 			} finally { db.close(); }
+		}
+		
+		public String[] getSingleRowByTimestamp(String timestamp) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] row = new String[] {null,null,null};
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, " "+C_TIMESTAMP+" = ?", new String[] { timestamp }, null, null, C_CREATED_AT+" DESC", "1");
+				if (cursor.getCount() > 0) {
+					try {
+						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
+			return row;
 		}
 
 	}

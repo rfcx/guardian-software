@@ -22,7 +22,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	public String version;
 	Context context;
-	public boolean verboseLog = true;
 	
 	private String deviceId = null;
 	private String deviceToken = null;
@@ -60,7 +59,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
+		Log.d(TAG, "Preference changed: "+key);
 		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	

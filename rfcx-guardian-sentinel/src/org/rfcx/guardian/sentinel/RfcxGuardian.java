@@ -28,7 +28,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public String version;
 	Context context;
-	public boolean verboseLog = true;
 	
 	private String deviceId = null;
 	private String deviceToken = null;
@@ -66,7 +65,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (this.verboseLog) { Log.d(TAG, "Preference changed: "+key); }
+		Log.d(TAG, "Preference changed: "+key);
 		rfcxGuardianPrefs.checkAndSet(this);
 	}
 	
@@ -116,28 +115,28 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
 	}
 	
-	
-	// Get UsbManager from Android.
-	UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
-
-	// Find the first available driver.
-	UsbSerialDriver driver = UsbSerialProber.acquire(manager);
-
-	public void checkSerial() {
-		if (driver != null) {
-		  driver.open();
-		  try {
-		    driver.setBaudRate(115200);
-	
-		    byte buffer[] = new byte[16];
-		    int numBytesRead = driver.read(buffer, 1000);
-		    Log.d(TAG, "Read " + numBytesRead + " bytes.");
-		  } catch (IOException e) {
-		    // Deal with error.
-		  } finally {
-		    driver.close();
-		  } 
-		}
-	}
+//	
+//	// Get UsbManager from Android.
+//	UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+//
+//	// Find the first available driver.
+//	UsbSerialDriver driver = UsbSerialProber.acquire(manager);
+//
+//	public void checkSerial() {
+//		if (driver != null) {
+//		  driver.open();
+//		  try {
+//		    driver.setBaudRate(115200);
+//	
+//		    byte buffer[] = new byte[16];
+//		    int numBytesRead = driver.read(buffer, 1000);
+//		    Log.d(TAG, "Read " + numBytesRead + " bytes.");
+//		  } catch (IOException e) {
+//		    // Deal with error.
+//		  } finally {
+//		    driver.close();
+//		  } 
+//		}
+//	}
     
 }
