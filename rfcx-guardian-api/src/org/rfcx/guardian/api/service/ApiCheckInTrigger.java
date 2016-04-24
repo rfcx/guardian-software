@@ -18,6 +18,7 @@ public class ApiCheckInTrigger extends Service {
 	private ApiCheckIn apiCheckInTrigger;
 	
 	private RfcxGuardian app = null;
+	private Context context = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
