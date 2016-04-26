@@ -12,7 +12,7 @@ import android.net.ConnectivityManager;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "Rfcx-"+org.rfcx.guardian.utility.RfcxConstants.ROLE_NAME+"-"+ConnectivityReceiver.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ConnectivityReceiver.class.getSimpleName();
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {

@@ -14,6 +14,7 @@ import org.rfcx.guardian.api.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.RfcxPrefs;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -22,16 +23,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
-
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
+public class RfcxGuardian extends Application {
 	
 	public String version;
 	Context context;
@@ -39,11 +36,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private String deviceId = null;
 	private String deviceToken = null;
 	
-	public static final String thisAppRole = "api";
-	public final String targetAppRole = "updater";
-	
-	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
-	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
+	public static final String APP_ROLE = "Api";
+
+	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
+
+	public RfcxPrefs rfcxPrefs = null;
 	
 	// database access helpers
 	public CheckInDb checkInDb = null;
@@ -81,10 +78,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	@Override
 	public void onCreate() {
+		
 		super.onCreate();
 		
-		rfcxGuardianPrefs.initializePrefs();
-		rfcxGuardianPrefs.checkAndSet(this);
+		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), this.APP_ROLE);
+		
+		// test
+		this.rfcxPrefs.writePrefToFile("api_url_base", this.API_URL_BASE);
 		
 		setAppVersion();
 		setDbHandlers();
@@ -102,22 +102,18 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void appResume() {
-		rfcxGuardianPrefs.checkAndSet(this);
+		Log.v(TAG, "Resuming application.");
 	}
 	
 	public void appPause() {
+		Log.v(TAG, "Pausing application.");
 	}
 	
-	@Override
-	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		Log.d(TAG, "Preference changed: "+key);
-		rfcxGuardianPrefs.checkAndSet(this);
-	}
 	
 	private void setAppVersion() {
 		try {
 			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
-			rfcxGuardianPrefs.writeVersionToFile(this.version);
+			rfcxPrefs.writeVersionToFile(this.version);
 		} catch (NameNotFoundException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
@@ -137,25 +133,25 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
-			rfcxGuardianPrefs.writeGuidToFile(deviceId);
+			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "installer")).getDeviceId();
+			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;
 	}
 	
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
-			this.deviceToken = (new DeviceToken(getApplicationContext(), this.sharedPrefs)).getDeviceToken();
+			this.deviceToken = (new DeviceToken(getApplicationContext())).getDeviceToken();
 		}
 		return this.deviceToken;
 	}
 	
-	public String getPref(String prefName) {
-		return this.sharedPrefs.getString(prefName, null);
+	public String getPref(String prefKey) {
+		return this.rfcxPrefs.readPrefFromFile(this.APP_ROLE, prefKey);
 	}
 	
-	public boolean setPref(String prefName, String prefValue) {
-		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
+	public void setPref(String prefKey, String prefValue) {
+		this.rfcxPrefs.writePrefToFile(prefKey, prefValue);
 	}
 	
 	public void initializeRoleServices(Context context) {
@@ -229,5 +225,4 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		int versionNumber = getAppVersionValue(this.version);
 		this.checkInDb = new CheckInDb(this,versionNumber);
 	}
-    
 }

@@ -13,7 +13,7 @@ import android.util.Log;
 
 public class DeviceCPUTunerService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceCPUTunerService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceCPUTunerService.class.getSimpleName();
 
 	private DeviceCPUTunerSvc deviceCPUTunerSvc;
 

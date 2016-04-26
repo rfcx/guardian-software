@@ -11,10 +11,10 @@ import android.util.Log;
 
 public class RebootIntentService extends IntentService {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RebootIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+RebootIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".REBOOT";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".RECEIVE_REBOOT_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".REBOOT";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_REBOOT_NOTIFICATIONS";
 	
 	public RebootIntentService() {
 		super(TAG);

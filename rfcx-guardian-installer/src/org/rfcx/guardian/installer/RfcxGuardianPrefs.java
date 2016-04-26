@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class RfcxGuardianPrefs {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RfcxGuardianPrefs.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+RfcxGuardianPrefs.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 	

@@ -17,7 +17,7 @@ import android.util.Log;
 
 public class InstallerContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+InstallerContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+InstallerContentProvider.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	private Context context = null;

@@ -10,7 +10,7 @@ import android.util.Log;
 
 public class DeviceAirplaneMode {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceAirplaneMode.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceAirplaneMode.class.getSimpleName();
 	
 	private boolean isEnabled;
 	

@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class AirplaneModeReceiver extends BroadcastReceiver {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+AirplaneModeReceiver.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AirplaneModeReceiver.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 	

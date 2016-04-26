@@ -17,8 +17,8 @@ import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
-import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -35,23 +35,18 @@ import android.text.TextUtils;
 import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
-
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
 	
 	public String version;
 	Context context;
-
-	public boolean isConnected = false;
-	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
-	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
-	public long lastApiCheckTriggeredAt = Calendar.getInstance().getTimeInMillis();
 	
 	private String deviceId = null;
 	private String deviceToken = null;
 	
-	public static final String thisAppRole = "installer";
+	public static final String APP_ROLE = "Installer";
 	public static final String targetAppRoleApiEndpoint = "updater";
 	public String targetAppRole = "updater";
+
+	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
 
 	// prefs (WILL BE SET DYNAMICALLY)
 	public String API_URL_BASE = "https://api.rfcx.org";
@@ -65,7 +60,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
 	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
-		
+
+	public boolean isConnected = false;
+	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
+	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
+	public long lastApiCheckTriggeredAt = Calendar.getInstance().getTimeInMillis();
+	
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
 	public ApiCore apiCore = new ApiCore();
@@ -138,7 +138,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
+			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "updater")).getDeviceId();
 			rfcxGuardianPrefs.writeGuidToFile(deviceId);
 		}
 		return this.deviceId;
@@ -146,7 +146,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
-			this.deviceToken = (new DeviceToken(getApplicationContext(), this.sharedPrefs)).getDeviceToken();
+			this.deviceToken = (new DeviceToken(getApplicationContext())).getDeviceToken();
 		}
 		return this.deviceToken;
 	}
@@ -225,7 +225,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     	context = getApplicationContext();
     	try {
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
-    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.thisAppRole).length()))+"."+this.targetAppRole+"/files/txt",fileNameNoExt+".txt");
+    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.APP_ROLE).length()))+"."+this.targetAppRole+"/files/txt",fileNameNoExt+".txt");
     		if (txtFile.exists()) {
 				FileInputStream input = new FileInputStream(txtFile);
 				StringBuffer fileContent = new StringBuffer("");

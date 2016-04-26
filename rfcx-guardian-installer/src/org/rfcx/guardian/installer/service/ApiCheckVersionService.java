@@ -9,6 +9,7 @@ import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.HttpGet;
 import org.rfcx.guardian.utility.RfcxConstants;
 
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +19,7 @@ import android.util.Log;
 
 public class ApiCheckVersionService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCheckVersionService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckVersionService.class.getSimpleName();
 
 	private ApiCheckVersion apiCheckVersion;
 
@@ -84,7 +85,7 @@ public class ApiCheckVersionService extends Service {
 						app.lastApiCheckTriggeredAt = Calendar.getInstance().getTimeInMillis();
 						String getUrl =	(((app.getPref("api_domain")!=null) ? app.getPref("api_domain") : "https://api.rfcx.org")
 										+ app.apiCore.apiCheckVersionEndpoint
-										+ "?role="+app.thisAppRole
+										+ "?role="+app.APP_ROLE
 										+ "&version="+app.version
 										+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
 										+ "&timestamp="+Calendar.getInstance().getTimeInMillis()
@@ -98,7 +99,7 @@ public class ApiCheckVersionService extends Service {
 						}
 						for (JSONObject jsonResponseItem : jsonResponse) {
 							String appRole = jsonResponseItem.getString("role").toLowerCase();
-							if (!appRole.equals(app.thisAppRole)) {
+							if (!appRole.equals(app.APP_ROLE)) {
 								app.targetAppRole = appRole;
 								if (app.apiCore.apiCheckVersionFollowUp(app,appRole,jsonResponse)) {
 									break;

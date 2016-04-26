@@ -1,11 +1,9 @@
 package org.rfcx.guardian.api.activity;
 
-import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.api.R;
-import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.api.RfcxGuardian;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,13 +19,6 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
-		switch (item.getItemId()) {
-		
-		case R.id.menu_prefs:
-			startActivity(new Intent(this, PrefsActivity.class));
-			break;
-			
-		}
 		return true;
 	}
 

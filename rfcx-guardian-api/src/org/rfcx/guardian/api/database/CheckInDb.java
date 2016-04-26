@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
@@ -25,7 +26,7 @@ public class CheckInDb {
 		this.dbStashed = new DbStashed(context);
 	}
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+CheckInDb.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+CheckInDb.class.getSimpleName();
 	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
 	static final String DATABASE = "checkin";

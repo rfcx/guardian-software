@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class ApiCheckInService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCheckInService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInService.class.getSimpleName();
 
 	private boolean runFlag = false;
 	private ApiCheckIn apiCheckIn;

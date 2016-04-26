@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class DeviceCPUTuner {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceCPUTuner.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceCPUTuner.class.getSimpleName();
 	
 	private static final String cpuTunerAppName = "ch.amana.android.cputuner";
 	

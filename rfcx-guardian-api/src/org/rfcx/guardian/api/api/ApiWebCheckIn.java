@@ -28,7 +28,7 @@ import android.util.Log;
 
 public class ApiWebCheckIn {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiWebCheckIn.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiWebCheckIn.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	HttpPostMultipart httpPostMultipart = new HttpPostMultipart();
@@ -67,7 +67,7 @@ public class ApiWebCheckIn {
 			Log.i(TAG, "CheckIn sent at: " + requestSendStart.toLocaleString());
 			String checkInResponse = httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments);
 			processCheckInResponse(checkInResponse);
-			if (checkInResponse.equals("Rfcx-" + RfcxConstants.ROLE_NAME + "-HttpPostMultipart-UnknownHostException")) {
+			if (checkInResponse.equals("Rfcx-" + RfcxGuardian.APP_ROLE + "-HttpPostMultipart-UnknownHostException")) {
 				Log.e(TAG, "NOT INCREMENTING CHECK-IN ATTEMPTS");
 			} else {
 				app.checkInDb.dbQueued.incrementSingleRowAttempts(checkInAudioReference);
@@ -89,11 +89,8 @@ public class ApiWebCheckIn {
 					"0", 
 					filepath
 				);
-		
-		// get the count of actively queued checkins
-		int checkInDbCount = (int) Integer.parseInt(app.checkInDb.dbQueued.getCount());
 
-		Log.i(TAG, "CheckIn Queued ("+checkInDbCount+" in database): " + queueJson);
+		Log.d(TAG, "Queued (1/"+app.checkInDb.dbQueued.getCount()+"): " + queueJson);
 		
 		// once queued, remove database reference from audio role
 		int purgeAudioFromDb = app.getContentResolver().delete(Uri.parse(RfcxConstants.RfcxContentProvider.audio.URI_1 + "/" + audioInfo[1]), null, null);

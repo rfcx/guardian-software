@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class DownloadFileService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DownloadFileService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DownloadFileService.class.getSimpleName();
 	
 	private DownloadFile downloadFile;
 

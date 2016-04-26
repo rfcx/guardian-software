@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.api"
     android:versionCode="1"
-    android:versionName="0.1.29" >
+    android:versionName="0.1.30" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -56,10 +56,6 @@
         
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.audio.service.ServiceMonitorIntentService" />
-
-        <activity
-            android:name="org.rfcx.guardian.api.activity.PrefsActivity"
-            android:label="@string/menu_prefs" />
 
         <activity
             android:name="org.rfcx.guardian.api.activity.MainActivity"

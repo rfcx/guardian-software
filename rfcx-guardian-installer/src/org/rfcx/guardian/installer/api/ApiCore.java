@@ -13,7 +13,7 @@ import android.util.Log;
 
 public class ApiCore {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCore.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCore.class.getSimpleName();
 
 	public long lastCheckInTime = Calendar.getInstance().getTimeInMillis();
 

@@ -1,5 +1,6 @@
 package org.rfcx.guardian.api.device;
 
+import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.Context;
@@ -9,7 +10,7 @@ import android.os.BatteryManager;
 
 public class DeviceBattery {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceBattery.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceBattery.class.getSimpleName();
 	
 	public int getBatteryChargePercentage(Context context, Intent intent) {
 		if (intent == null) intent = context.getApplicationContext().registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));

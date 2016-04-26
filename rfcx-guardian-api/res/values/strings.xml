@@ -2,7 +2,5 @@
 <resources>
 
     <string name="app_name">rfcx api</string>
-    
-    <string name="menu_prefs">prefs</string>
 	
 </resources>

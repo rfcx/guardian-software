@@ -17,7 +17,7 @@ import android.util.Log;
 
 public class ApiContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiContentProvider.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	private Context context = null;
