@@ -3,7 +3,6 @@
 
     <string name="app_name">rfcx updater</string>
 
-    <string name="menu_prefs">prefs</string>
 	<string name="menu_check_version">api check</string>
 	<string name="menu_root_command">root command</string>
 	

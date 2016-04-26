@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class DeviceScreenShot {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceScreenShot.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceScreenShot.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 

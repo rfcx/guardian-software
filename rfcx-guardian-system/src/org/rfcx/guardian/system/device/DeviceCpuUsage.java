@@ -3,6 +3,7 @@ package org.rfcx.guardian.system.device;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.text.TextUtils;
@@ -10,7 +11,7 @@ import android.util.Log;
 
 public class DeviceCpuUsage {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceCpuUsage.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceCpuUsage.class.getSimpleName();
 	
 	public static final int REPORTING_SAMPLE_COUNT = 60;
 	

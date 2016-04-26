@@ -2,8 +2,5 @@
 <resources>
 
     <string name="app_name">rfcx carrier</string>
-    
-    <string name="menu_prefs">prefs</string>
-    <string name="menu_test_key_entry">test key entry</string>
 	
 </resources>

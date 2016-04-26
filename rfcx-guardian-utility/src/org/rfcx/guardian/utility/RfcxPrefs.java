@@ -76,6 +76,10 @@ public class RfcxPrefs {
 	public void writeVersionToFile(String versionName) {
 		writeToGuardianTxtFile(this.context, "version",versionName);
 	}
+	
+	public String getVersionFromFile(String targetAppRole) {
+		return readFromGuardianTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(), "version");
+	}
 
 	private static void writeToGuardianTxtFile(Context context, String fileNameNoExt, String stringContents) {
     	String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";

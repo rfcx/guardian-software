@@ -23,10 +23,6 @@ public class MainActivity extends Activity {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		switch (item.getItemId()) {
 		
-		case R.id.menu_prefs:
-			startActivity(new Intent(this, PrefsActivity.class));
-			break;
-		
 		case R.id.menu_check_version:
 			app.triggerService("ApiCheckVersion",true);
 			break;

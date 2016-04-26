@@ -13,7 +13,7 @@ import android.util.Log;
 
 public class DeviceScreenShotService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceScreenShotService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceScreenShotService.class.getSimpleName();
 
 	private DeviceScreenShotSvc deviceScreenShotSvc;
 

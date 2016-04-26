@@ -2,6 +2,7 @@ package org.rfcx.guardian.system.device;
 
 import java.util.Date;
 
+import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
@@ -18,7 +19,7 @@ import android.util.Log;
 
 public class DeviceState {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceState.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceState.class.getSimpleName();
 	
 	public int serviceSamplesPerMinute = 60;
 	

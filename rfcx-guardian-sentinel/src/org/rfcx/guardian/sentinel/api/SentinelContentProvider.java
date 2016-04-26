@@ -15,7 +15,7 @@ import android.net.Uri;
 
 public class SentinelContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+SentinelContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+SentinelContentProvider.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	private Context context = null;

@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class DeviceLogcat {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceLogcat.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceLogcat.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 	private String filesDir = null;

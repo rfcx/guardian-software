@@ -57,10 +57,6 @@
         <service android:name="org.rfcx.guardian.updater.service.InstallAppService" />
 
         <activity
-            android:name="org.rfcx.guardian.updater.activity.PrefsActivity"
-            android:label="@string/menu_prefs" />
-
-        <activity
             android:name="org.rfcx.guardian.updater.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>

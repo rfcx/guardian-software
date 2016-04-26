@@ -21,7 +21,7 @@ import android.util.Log;
 
 public class DeviceStateService extends Service implements SensorEventListener {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceStateService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceStateService.class.getSimpleName();
 	
 	RfcxGuardian app;
 	

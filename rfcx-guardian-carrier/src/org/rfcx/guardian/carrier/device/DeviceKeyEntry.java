@@ -3,6 +3,7 @@ package org.rfcx.guardian.carrier.device;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.rfcx.guardian.carrier.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
 
@@ -11,7 +12,7 @@ import android.text.TextUtils;
 
 public class DeviceKeyEntry {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceKeyEntry.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceKeyEntry.class.getSimpleName();
 	
 	private List<String[]> keyCodes = null;
 	

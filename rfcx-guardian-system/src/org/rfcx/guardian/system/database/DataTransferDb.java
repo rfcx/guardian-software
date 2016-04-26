@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.ContentValues;
@@ -21,7 +22,7 @@ public class DataTransferDb {
 		this.dbTransferred = new DbTransferred(context);
 	}
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DataTransferDb.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DataTransferDb.class.getSimpleName();
 	private int VERSION = 1;
 	static final String DATABASE = "data";
 	static final String C_CREATED_AT = "created_at";

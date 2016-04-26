@@ -9,10 +9,10 @@ import android.util.Log;
 
 public class ApiCheckVersionIntentService extends IntentService {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCheckVersionIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckVersionIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".INSTALLER_SERVICE";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".INSTALLER_SERVICE";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
 	
 	public ApiCheckVersionIntentService() {
 		super(TAG);

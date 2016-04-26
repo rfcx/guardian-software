@@ -14,29 +14,12 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_home, menu);
+//		getMenuInflater().inflate(R.menu.activity_home, menu);
 		return true;
 	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		RfcxGuardian app = (RfcxGuardian) getApplication();
-		switch (item.getItemId()) {
-		
-		case R.id.menu_prefs:
-			startActivity(new Intent(this, PrefsActivity.class));
-			break;
-	
-		case R.id.menu_test:
-			
-			if (app.findOrCreateLogcatCaptureScript()) {
-				(new ShellCommands()).executeCommand("/data/data/org.rfcx.guardian.system/files/txt/logcat_capture&", null, false, app.getApplicationContext());
-			}
-			
-			break;
-			
-		}		
-		
 		return true;
 	}
 

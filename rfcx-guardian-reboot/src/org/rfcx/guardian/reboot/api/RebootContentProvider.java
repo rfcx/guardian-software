@@ -17,7 +17,7 @@ import android.util.Log;
 
 public class RebootContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RebootContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+RebootContentProvider.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	private Context context = null;

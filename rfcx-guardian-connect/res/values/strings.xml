@@ -2,9 +2,5 @@
 <resources>
 
     <string name="app_name">rfcx connect</string>
-
-    <string name="menu_prefs">prefs</string>
-	
-    <string name="menu_test_content">test content provider</string>
     
 </resources>

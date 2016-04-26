@@ -15,7 +15,7 @@ import android.net.Uri;
 
 public class CarrierContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+CarrierContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+CarrierContentProvider.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	private Context context = null;

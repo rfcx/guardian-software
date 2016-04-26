@@ -20,6 +20,8 @@ import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.RfcxPrefs;
+import org.rfcx.guardian.utility.RfcxRoleVersions;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -32,9 +34,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
-
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
+public class RfcxGuardian extends Application {
 
 	public String version;
 	Context context;
@@ -42,20 +42,20 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private String deviceId = null;
 	private String deviceToken = null;
 	
-	public static final String thisAppRole = "system";
-	public final String targetAppRole = "updater";
-	
-	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
-	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
+	public static final String APP_ROLE = "System";
 
-	public boolean isConnected = false;
-	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
-	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
+	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
+
+	public RfcxPrefs rfcxPrefs = null;
 	
 	// database access helpers
 	public DeviceStateDb deviceStateDb = null;
 	public DataTransferDb dataTransferDb = null;
 	public ScreenShotDb screenShotDb = null;
+
+	public boolean isConnected = false;
+	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
+	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
 
 	// prefs (WILL BE SET DYNAMICALLY)
 	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
@@ -77,12 +77,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	@Override
 	public void onCreate() {
+		
 		super.onCreate();
 		
-		rfcxGuardianPrefs.initializePrefs();
-		rfcxGuardianPrefs.checkAndSet(this);
+		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), this.APP_ROLE);
 		
-		setAppVersion();
+		this.version = RfcxRoleVersions.getAppVersion(getApplicationContext());
+		rfcxPrefs.writeVersionToFile(this.version);
+		
 		setDbHandlers();
 				
 		initializeRoleServices(getApplicationContext());
@@ -94,60 +96,26 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void appResume() {
-		rfcxGuardianPrefs.checkAndSet(this);
+
 	}
 	
 	public void appPause() {
+		
 	}
 	
-	@Override
-	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		Log.d(TAG, "Preference changed: "+key);
-		rfcxGuardianPrefs.checkAndSet(this);
-	}
-	
-	private void setAppVersion() {
-		try {
-			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
-			rfcxGuardianPrefs.writeVersionToFile(this.version);
-		} catch (NameNotFoundException e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC);
-		}
-	}
-	
-	public int getAppVersionValue(String versionName) {
-		try {
-			int majorVersion = (int) Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
-			int subVersion = (int) Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
-			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
-			return 1000*majorVersion+100*subVersion+updateVersion;
-		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-		}
-		return 0;
-	}
-
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
-			rfcxGuardianPrefs.writeGuidToFile(deviceId);
+			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "installer")).getDeviceId();
+			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;
 	}
 	
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
-			this.deviceToken = (new DeviceToken(getApplicationContext(), this.sharedPrefs)).getDeviceToken();
+			this.deviceToken = (new DeviceToken(getApplicationContext())).getDeviceToken();
 		}
 		return this.deviceToken;
-	}
-	
-	public String getPref(String prefName) {
-		return this.sharedPrefs.getString(prefName, null);
-	}
-	
-	public boolean setPref(String prefName, String prefValue) {
-		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
 	}
 	
 	public void initializeRoleServices(Context context) {
@@ -220,7 +188,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	private void setDbHandlers() {
-		int versionNumber = getAppVersionValue(this.version);
+		int versionNumber = RfcxRoleVersions.getAppVersionValue(this.version);
 		this.deviceStateDb = new DeviceStateDb(this,versionNumber);
 		this.dataTransferDb = new DataTransferDb(this,versionNumber);
 		this.screenShotDb = new ScreenShotDb(this,versionNumber);

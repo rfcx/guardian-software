@@ -50,7 +50,7 @@ public class ApiCore {
 				}
 			}
 		
-			String currentGuardianVersion = app.getCurrentGuardianTargetRoleVersion();
+			String currentGuardianVersion = app.rfcxPrefs.getVersionFromFile(app.targetAppRole);
 			int currentGuardianVersionValue = calculateVersionValue(currentGuardianVersion);
 			
 			if (	(	(this.latestVersion != null) && (currentGuardianVersion == null))

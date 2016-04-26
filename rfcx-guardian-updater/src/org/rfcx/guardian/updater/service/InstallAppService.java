@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class InstallAppService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+InstallAppService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+InstallAppService.class.getSimpleName();
 	
 	private InstallApp installApp;
 
@@ -75,7 +75,7 @@ public class InstallAppService extends Service {
 			boolean successfullyInstalled = false;
 			String apkFileName = app.apiCore.installRole+"-"+app.apiCore.installVersion+".apk";
 			try {
-				shellCommands.killProcessByName(context,"org.rfcx.guardian."+app.targetAppRole,"."+app.thisAppRole);
+				shellCommands.killProcessByName(context,"org.rfcx.guardian."+app.targetAppRole,"."+app.APP_ROLE);
 				successfullyInstalled = installApk(context,apkFileName,false);
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);

@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class ApiCore {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ApiCore.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCore.class.getSimpleName();
 
 	public long lastCheckInTime = Calendar.getInstance().getTimeInMillis();
 
@@ -49,7 +49,7 @@ public class ApiCore {
 				}
 			}
 		
-			String currentGuardianVersion = app.getCurrentGuardianTargetRoleVersion();
+			String currentGuardianVersion = app.rfcxPrefs.getVersionFromFile(app.targetAppRole);
 			int currentGuardianVersionValue = calculateVersionValue(currentGuardianVersion);
 			
 			if (	(	(this.latestVersion != null) && (currentGuardianVersion == null))

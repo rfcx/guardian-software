@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class DeviceScreenLock {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceScreenLock.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceScreenLock.class.getSimpleName();
 	
 	private RfcxGuardian app = null;
 	
@@ -39,7 +39,7 @@ public class DeviceScreenLock {
 		if (this.wakeLock != null) {
 			this.wakeLock.release();
 			keyguardLock.reenableKeyguard();
-			Log.d(TAG,"KeyGuardLock disabled & WakeLock released & KeyGuardLock enabled.");
+			Log.d(TAG,"WakeLock released & KeyGuardLock enabled.");
 		}
 	}
 	

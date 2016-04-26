@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
@@ -28,7 +29,7 @@ public class DeviceStateDb {
 		this.dbLightMeter = new DbLightMeter(context);
 	}
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+DeviceStateDb.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceStateDb.class.getSimpleName();
 	private int VERSION = 1;
 	static final String DATABASE = "device";
 	static final String C_MEASURED_AT = "measured_at";

@@ -22,10 +22,6 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		switch (item.getItemId()) {
-		
-		case R.id.menu_prefs:
-			startActivity(new Intent(this, PrefsActivity.class));
-			break;
 
 		case R.id.menu_reboot:
 			(new ShellCommands()).executeCommand("reboot",null,false,getApplicationContext());

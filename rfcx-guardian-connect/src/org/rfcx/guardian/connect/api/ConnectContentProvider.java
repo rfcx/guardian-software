@@ -16,7 +16,7 @@ import android.net.Uri;
 
 public class ConnectContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ConnectContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ConnectContentProvider.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	private Context context = null;

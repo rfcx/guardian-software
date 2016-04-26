@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class UpdaterContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+UpdaterContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+UpdaterContentProvider.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	private Context context = null;
@@ -44,7 +44,7 @@ public class UpdaterContentProvider extends ContentProvider {
 			for (String softwareRole : RfcxConstants.ALL_ROLES) {
 				cursor.addRow(new Object[] { 
 					softwareRole,
-					(app.isRoleInstalled(softwareRole)) ? app.getCurrentGuardianRoleVersion(softwareRole) : null
+					(app.isRoleInstalled(softwareRole)) ? app.rfcxPrefs.getVersionFromFile(softwareRole) : null
 				});
 			}
 			

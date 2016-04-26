@@ -2,9 +2,5 @@
 <resources>
 
     <string name="app_name">rfcx system</string>
-
-    <string name="menu_prefs">prefs</string>
-    
-    <string name="menu_test">test</string>
 	
 </resources>

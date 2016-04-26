@@ -53,16 +53,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public static final String targetAppRoleApiEndpoint = "updater";
 	public String targetAppRole = "updater";
-
-	// prefs (WILL BE SET DYNAMICALLY)
-//	public String API_URL_BASE = "https://api.rfcx.org";
-//	public int INSTALL_BATTERY_CUTOFF = (int) Integer.parseInt(   "30"   );
-//	public int INSTALL_CYCLE_DURATION = (int) Integer.parseInt(   "3600000"   );
-//	public int INSTALL_OFFLINE_TOGGLE_THRESHOLD = (int) Integer.parseInt(   "900000"   );
-//	public int CPUTUNER_FREQ_MIN = (int) Integer.parseInt(   "30720"   );
-//	public int CPUTUNER_FREQ_MAX = (int) Integer.parseInt(   "600000"   );
-//	public int CPUTUNER_GOVERNOR_UP = (int) Integer.parseInt(   "98"   );
-//	public int CPUTUNER_GOVERNOR_DOWN = (int) Integer.parseInt(   "95"   );
 	
 	public SharedPreferences sharedPrefs = null;
 
@@ -214,37 +204,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}	
 	}
+
 	
-	private String getValueFromGuardianTargetRoleTxtFile(String fileNameNoExt) {
-    	context = getApplicationContext();
-    	try {
-    		String mainAppPath = context.getFilesDir().getAbsolutePath();
-    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+this.APP_ROLE).length()))+"."+this.targetAppRole+"/files/txt",fileNameNoExt+".txt");
-    		if (txtFile.exists()) {
-				FileInputStream input = new FileInputStream(txtFile);
-				StringBuffer fileContent = new StringBuffer("");
-				byte[] buffer = new byte[12];
-				while (input.read(buffer) != -1) {
-				    fileContent.append(new String(buffer));
-				}
-	    		String txtFileContents = fileContent.toString().trim();
-	    		input.close();
-	    		Log.d(TAG, "Fetched '"+fileNameNoExt+"' from org.rfcx.guardian."+this.targetAppRole+": "+txtFileContents);
-	    		return txtFileContents;
-    		} else {
-    			Log.e(TAG, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+this.targetAppRole+"...");
-    		}
-    	} catch (FileNotFoundException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-    	} catch (IOException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-		}
-    	return null;
-	}
 	
-    public String getCurrentGuardianTargetRoleVersion() {
-    	return getValueFromGuardianTargetRoleTxtFile("version");
-    }
+	
+	
+	
+	
+	
+	
     
     public void setExtremeDevelopmentSystemDefaults(){
     	

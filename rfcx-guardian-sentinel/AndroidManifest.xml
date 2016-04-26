@@ -55,10 +55,6 @@
 		<uses-library android:name="com.android.future.usb.accessory" />
 
         <activity
-            android:name="org.rfcx.guardian.sentinel.activity.PrefsActivity"
-            android:label="@string/menu_prefs" />
-
-        <activity
             android:name="org.rfcx.guardian.sentinel.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
