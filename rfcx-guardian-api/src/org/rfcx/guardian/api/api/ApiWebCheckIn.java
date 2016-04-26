@@ -56,7 +56,6 @@ public class ApiWebCheckIn {
 	}
 
 	public String getCheckInUrl() {
-		Log.d(TAG, app.rfcxPrefs.getPrefAsString("api_url_base"));
 		return app.rfcxPrefs.getPrefAsString("api_url_base") + "/v1/guardians/" + app.getDeviceId() + "/checkins";
 	}
 

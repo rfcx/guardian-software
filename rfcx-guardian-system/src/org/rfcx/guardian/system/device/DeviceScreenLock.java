@@ -24,7 +24,6 @@ public class DeviceScreenLock {
 		KeyguardManager keyguardManager = (KeyguardManager) app.getSystemService(Context.KEYGUARD_SERVICE); 
 		this.keyguardLock = keyguardManager.newKeyguardLock("RfcxKeyguardLock");
 		this.keyguardLock.disableKeyguard();
-		Log.d(TAG,"Disabling KeyGuardLock");
 
 		PowerManager powerManager = (PowerManager) app.getSystemService(Context.POWER_SERVICE); 
 		this.wakeLock = powerManager.newWakeLock(
@@ -32,16 +31,15 @@ public class DeviceScreenLock {
 		        | PowerManager.ACQUIRE_CAUSES_WAKEUP
 		        | PowerManager.ON_AFTER_RELEASE,
 		        "RfcxWakeLock");
-		Log.d(TAG,"Setting WakeLock");
 		this.wakeLock.acquire();
+		Log.d(TAG,"KeyGuardLock disabled & WakeLock set.");
 	}
 	
 	public void releaseWakeLock() {
 		if (this.wakeLock != null) {
 			this.wakeLock.release();
-			Log.d(TAG,"Releasing WakeLock");
 			keyguardLock.reenableKeyguard();
-			Log.d(TAG,"Re-Enabling KeyGuardLock");
+			Log.d(TAG,"KeyGuardLock disabled & WakeLock released & KeyGuardLock enabled.");
 		}
 	}
 	
