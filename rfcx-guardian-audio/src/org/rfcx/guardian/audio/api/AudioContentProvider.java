@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class AudioContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+AudioContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioContentProvider.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	private Context context = null;

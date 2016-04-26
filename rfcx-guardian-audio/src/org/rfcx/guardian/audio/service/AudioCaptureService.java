@@ -21,7 +21,7 @@ import android.util.Log;
 
 public class AudioCaptureService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+AudioCaptureService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioCaptureService.class.getSimpleName();
 
 	private boolean runFlag = false;
 	private AudioCaptureSvc audioCaptureSvc;
@@ -104,9 +104,9 @@ public class AudioCaptureService extends Service {
 			
 			captureLoopPeriod = (long) app.AUDIO_CYCLE_DURATION;
 			captureSampleRate = app.AUDIO_SAMPLE_RATE;
-			encodingBitRate = app.AUDIO_BITRATE;
-			captureCodec = (app.AUDIO_CODEC.equals("aac")) ? "aac" : "pcm";
-			captureFileExtension = (app.AUDIO_CODEC.equals("aac")) ? "m4a" : "wav";
+			encodingBitRate = app.AUDIO_ENCODE_BITRATE;
+			captureCodec = (app.AUDIO_ENCODE_CODEC.equals("aac")) ? "aac" : "pcm";
+			captureFileExtension = (app.AUDIO_ENCODE_CODEC.equals("aac")) ? "m4a" : "wav";
 			
 			try {
 				Log.d(TAG, "Capture Loop Period: "+ captureLoopPeriod +"ms");

@@ -11,10 +11,10 @@ import android.util.Log;
 
 public class CheckInTriggerIntentService extends IntentService {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+CheckInTriggerIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+CheckInTriggerIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".CHECKIN_TRIGGER";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".RECEIVE_CHECKIN_TRIGGER_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".CHECKIN_TRIGGER";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_CHECKIN_TRIGGER_NOTIFICATIONS";
 	
 	public CheckInTriggerIntentService() {
 		super(TAG);

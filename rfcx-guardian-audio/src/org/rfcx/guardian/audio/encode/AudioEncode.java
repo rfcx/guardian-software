@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.service.AudioEncodeIntentService;
 import org.rfcx.guardian.audio.service.CheckInTriggerIntentService;
 import org.rfcx.guardian.utility.RfcxConstants;
@@ -19,7 +20,7 @@ import android.util.Log;
 
 public class AudioEncode {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+AudioEncode.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncode.class.getSimpleName();
 
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
 

@@ -2,7 +2,6 @@ package org.rfcx.guardian.audio.service;
 
 
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -10,10 +9,10 @@ import android.util.Log;
 
 public class ServiceMonitorIntentService extends IntentService {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+ServiceMonitorIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ServiceMonitorIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".SERVICE_MONITOR";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".SERVICE_MONITOR";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
 	
 	public ServiceMonitorIntentService() {
 		super(TAG);

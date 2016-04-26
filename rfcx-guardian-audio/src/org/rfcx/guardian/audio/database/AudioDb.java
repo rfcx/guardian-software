@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.ContentValues;
@@ -23,7 +24,7 @@ public class AudioDb {
 		this.dbEncoded = new DbEncoded(context);
 	}
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+AudioDb.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioDb.class.getSimpleName();
 	private int VERSION = 1;
 	static final String DATABASE = "audio";
 	static final String C_CREATED_AT = "created_at";

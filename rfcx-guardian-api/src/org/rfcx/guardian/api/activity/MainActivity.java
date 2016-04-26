@@ -1,6 +1,7 @@
 package org.rfcx.guardian.api.activity;
 
 import org.rfcx.guardian.api.RfcxGuardian;
+import org.rfcx.guardian.api.R;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -17,14 +18,13 @@ public class MainActivity extends Activity {
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		RfcxGuardian app = (RfcxGuardian) getApplication();
 		return true;
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		setContentView(R.layout.activity_home);
+		setContentView(R.layout.activity_home);
 	}
 
 	@Override

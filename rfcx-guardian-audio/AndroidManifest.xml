@@ -57,10 +57,6 @@
         <service android:name="org.rfcx.guardian.audio.service.ServiceMonitorIntentService" />
         <service android:name="org.rfcx.guardian.audio.service.AudioEncodeIntentService" />
         <service android:name="org.rfcx.guardian.audio.service.CheckInTriggerIntentService" />
-        
-        <activity
-            android:name="org.rfcx.guardian.audio.activity.PrefsActivity"
-            android:label="@string/menu_prefs" />
 
         <activity
             android:name="org.rfcx.guardian.audio.activity.MainActivity"

@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-
-	<EditTextPreference
-        android:key="device_guid"
-        android:enabled="true"
-	    android:title="Device GUID"
-	    android:summary="Unique ID of Guardian"
-		android:defaultValue=""/>
     
 </PreferenceScreen>

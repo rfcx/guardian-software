@@ -9,21 +9,18 @@ import org.rfcx.guardian.audio.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.RfcxPrefs;
+import org.rfcx.guardian.utility.RfcxRoleVersions;
 
 import android.app.AlarmManager;
 import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
-
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+RfcxGuardian.class.getSimpleName();
+public class RfcxGuardian extends Application {
 
 	public String version;
 	Context context;
@@ -31,25 +28,27 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private String deviceId = null;
 	private String deviceToken = null;
 	
-	public static final String thisAppRole = "audio";
-	public final String targetAppRole = "updater";
-	
-	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
-	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
+	public static final String APP_ROLE = "Audio";
+
+	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
+
+	public RfcxPrefs rfcxPrefs = null;
 	
 	// database access helpers
 	public AudioDb audioDb = null;
+	
+	// prefs (WILL BE SET DYNAMICALLY)
+	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
+	public String AUDIO_ENCODE_CODEC = "aac".toLowerCase();
+	public int AUDIO_ENCODE_BITRATE = (int) Integer.parseInt(   "16384"   );
+	public int AUDIO_ENCODE_QUALITY = (int) Integer.parseInt(   "9"   );
+	public int AUDIO_BATTERY_CUTOFF = (int) Integer.parseInt(   "60"   );
+
 
 	// capturing and encoding audio
 	public final static int AUDIO_SAMPLE_RATE = 8000;
 	public AudioCapture audioCapture = new AudioCapture();
 	public AudioEncode audioEncode = new AudioEncode();
-	
-	// prefs (WILL BE SET DYNAMICALLY)
-	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
-	public String AUDIO_CODEC = "aac".toLowerCase();
-	public int AUDIO_BITRATE = (int) Integer.parseInt(   "16384"   );
-	public int AUDIO_BATTERY_CUTOFF = (int) Integer.parseInt(   "60"   );
 	
 	public DeviceBattery deviceBattery = new DeviceBattery();
 	
@@ -65,10 +64,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void onCreate() {
 		super.onCreate();
 		
-		rfcxGuardianPrefs.initializePrefs();
-		rfcxGuardianPrefs.checkAndSet(this);
+		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), this.APP_ROLE);
 		
-		setAppVersion();
+		this.version = RfcxRoleVersions.getAppVersion(getApplicationContext());
+		rfcxPrefs.writeVersionToFile(this.version);
+		
 		setDbHandlers();
 		
 		initializeRoleServices(getApplicationContext());
@@ -79,60 +79,26 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void appResume() {
-		rfcxGuardianPrefs.checkAndSet(this);
+
 	}
 	
 	public void appPause() {
-	}
-	
-	@Override
-	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		Log.d(TAG, "Preference changed: "+key);
-		rfcxGuardianPrefs.checkAndSet(this);
-	}
-	
-	private void setAppVersion() {
-		try {
-			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
-			rfcxGuardianPrefs.writeVersionToFile(this.version);
-		} catch (NameNotFoundException e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC);
-		}
-	}
-	
-	public int getAppVersionValue(String versionName) {
-		try {
-			int majorVersion = (int) Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
-			int subVersion = (int) Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
-			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
-			return 1000*majorVersion+100*subVersion+updateVersion;
-		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-		}
-		return 0;
+		
 	}
 
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext(), this.sharedPrefs)).getDeviceId();
-			rfcxGuardianPrefs.writeGuidToFile(deviceId);
+			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "installer")).getDeviceId();
+			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;
 	}
 	
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
-			this.deviceToken = (new DeviceToken(getApplicationContext(), this.sharedPrefs)).getDeviceToken();
+			this.deviceToken = (new DeviceToken(getApplicationContext())).getDeviceToken();
 		}
 		return this.deviceToken;
-	}
-	
-	public String getPref(String prefName) {
-		return this.sharedPrefs.getString(prefName, null);
-	}
-	
-	public boolean setPref(String prefName, String prefValue) {
-		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
 	}
 	
 	public void initializeRoleServices(Context context) {
@@ -195,7 +161,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	private void setDbHandlers() {
-		int versionNumber = getAppVersionValue(this.version);
+		int versionNumber = RfcxRoleVersions.getAppVersionValue(this.version);
 		this.audioDb = new AudioDb(this,versionNumber);
 	}
     

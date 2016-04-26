@@ -78,15 +78,15 @@
         android:defaultValue="60" />
  	
  	<EditTextPreference
-        android:key="audio_codec"
-        android:title="audio_codec"
+        android:key="audio_encode_codec"
+        android:title="audio_encode_codec"
         android:summary="string - codec"
         android:enabled="true"
         android:defaultValue="aac" />
  	
  	<EditTextPreference
-        android:key="audio_bitrate"
-        android:title="audio_bitrate"
+        android:key="audio_encode_bitrate"
+        android:title="audio_encode_bitrate"
         android:summary="int - bits per sec"
         android:enabled="true"
         android:defaultValue="16384" />

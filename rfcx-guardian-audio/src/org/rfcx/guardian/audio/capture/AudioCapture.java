@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class AudioCapture {
 
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+AudioCapture.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioCapture.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	

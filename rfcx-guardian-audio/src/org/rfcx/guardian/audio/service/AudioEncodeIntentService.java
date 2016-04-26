@@ -15,10 +15,10 @@ import android.util.Log;
 
 public class AudioEncodeIntentService extends IntentService {
 	
-	private static final String TAG = "Rfcx-"+RfcxConstants.ROLE_NAME+"-"+AudioEncodeIntentService.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncodeIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".AUDIO_ENCODE";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxConstants.ROLE_NAME.toLowerCase()+".RECEIVE_AUDIO_ENCODE_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".AUDIO_ENCODE";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_AUDIO_ENCODE_NOTIFICATIONS";
 
     private FileUtils fileUtils = new FileUtils();
     private GZipUtils gZipUtils = new GZipUtils();
@@ -68,8 +68,8 @@ public class AudioEncodeIntentService extends IntentService {
 				app.audioDb.dbEncoded.insert(
 						capturedRow[1], capturedRow[2], preZipDigest,
 						(int) Integer.parseInt(capturedRow[4]), 
-						app.AUDIO_BITRATE, 
-						app.AUDIO_CODEC, 
+						app.AUDIO_ENCODE_BITRATE, 
+						app.AUDIO_ENCODE_CODEC, 
 						(long) Long.parseLong(capturedRow[7]),
 						(System.currentTimeMillis() - encodeStartTime.getTime())
 						);
