@@ -3,7 +3,6 @@ package org.rfcx.guardian.sentinel.activity;
 
 import android.app.Activity;
 
-import com.hoho.android.usbserial.driver.UsbSerialPort;
 
 /**
  * Monitors a single {@link UsbSerialPort} instance, showing all data
