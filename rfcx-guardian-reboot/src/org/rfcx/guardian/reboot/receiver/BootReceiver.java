@@ -1,5 +1,7 @@
 package org.rfcx.guardian.reboot.receiver;
 
+import java.util.Calendar;
+
 import org.rfcx.guardian.reboot.RfcxGuardian;
 
 import android.content.BroadcastReceiver;
@@ -10,7 +12,9 @@ public class BootReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		((RfcxGuardian) context.getApplicationContext()).initializeRoleServices(context);
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		app.rebootDb.dbReboot.insert(Calendar.getInstance().getTimeInMillis());
+		app.initializeRoleServices(context);
 	}
 
 }

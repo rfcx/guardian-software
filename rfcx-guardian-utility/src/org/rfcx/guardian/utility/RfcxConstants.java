@@ -31,7 +31,7 @@ public class RfcxConstants {
 		
 		public static final class reboot {
 			public static final String AUTHORITY = "org.rfcx.guardian.reboot";
-			public static final String[] PROJECTION_1 = { "last_rebooted_at" };
+			public static final String[] PROJECTION_1 = { "created_at", "rebooted_at" };
 			public static final String ENDPOINT_1 = "events";
 			public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
 		}

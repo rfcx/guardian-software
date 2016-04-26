@@ -1,6 +1,6 @@
 package org.rfcx.guardian.reboot.api;
 
-import java.util.Calendar;
+import java.util.Date;
 
 import org.rfcx.guardian.reboot.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
@@ -43,9 +43,9 @@ public class RebootContentProvider extends ContentProvider {
 		try {
 			MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.reboot.PROJECTION_1);
 			
-			cursor.addRow(new Object[] { 
-					Calendar.getInstance().getTimeInMillis()
-				});
+			for (String[] rebootEvent : app.rebootDb.dbReboot.getAllEvents()) {
+				cursor.addRow(new Object[] { rebootEvent[0], rebootEvent[1] });
+			}
 			
 			return cursor;
 		} catch (Exception e) {
@@ -58,6 +58,15 @@ public class RebootContentProvider extends ContentProvider {
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		checkSetApplicationContext();
 		
+		try {
+			if (URI_MATCHER.match(uri) == ENDPOINT_1_ID) {
+				Date deleteBefore = new Date(Long.parseLong(uri.getLastPathSegment()));
+				app.rebootDb.dbReboot.clearEventsBefore(deleteBefore);
+				return 1;
+			}
+		} catch (Exception e) {
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+		}
 		return 0;
 	}
 	

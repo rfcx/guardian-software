@@ -147,6 +147,26 @@ public class ApiWebCheckIn {
 		}
 	}
 
+	private List<String> getRebootEvents() {
+		List<String> rebootEvents = new ArrayList<String>();
+		try {
+			Cursor cursor = app.getContentResolver().query(
+					Uri.parse(RfcxConstants.RfcxContentProvider.reboot.URI_1),
+					RfcxConstants.RfcxContentProvider.reboot.PROJECTION_1,
+					null, null, null);
+			if (cursor.moveToFirst()) {
+				do {
+					rebootEvents.add(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.reboot.PROJECTION_1[1])));
+				} while (cursor.moveToNext());
+			}
+		} catch (Exception e) {
+			Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+		}
+		//REMOVE THIS AFTER DEBUGGING
+		Log.d(TAG, "REBOOTS: "+TextUtils.join("|", rebootEvents));
+		return rebootEvents;
+	}
+	
 	private List<String> getInstalledSoftwareVersions() {
 
 		List<String> softwareVersions = new ArrayList<String>();
@@ -179,21 +199,19 @@ public class ApiWebCheckIn {
 		this.checkInPreFlightTimestamp = new Date();
 
 		try {
-			Cursor cursor = app
-					.getContentResolver()
-					.query(Uri
-							.parse(RfcxConstants.RfcxContentProvider.system.URI_META),
-							RfcxConstants.RfcxContentProvider.system.PROJECTION_META,
-							null, null, null);
+			Cursor cursor = app.getContentResolver().query(
+					Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_META),
+					RfcxConstants.RfcxContentProvider.system.PROJECTION_META,
+					null, null, null);
 			if (cursor.moveToFirst()) {
 				do {
 					for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION_META.length; i++) {
-						metaDataJsonObj
-								.put(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i],
-										(cursor.getString(cursor
-												.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i])) != null) ? cursor.getString(cursor
-												.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i]))
-												: null);
+						metaDataJsonObj.put(
+								RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i],
+								(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i])) != null)
+									? cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i]))
+									: null
+							);
 					}
 				} while (cursor.moveToNext());
 			}
@@ -228,6 +246,9 @@ public class ApiWebCheckIn {
 
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", getInstalledSoftwareVersions()));
+		
+		// Adding reboot events
+		checkInMetaJson.put("reboots", TextUtils.join("|", getRebootEvents()));
 
 		// Adding device location timezone offset
 		checkInMetaJson.put("timezone_offset", timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime()));
@@ -264,9 +285,16 @@ public class ApiWebCheckIn {
 				Log.i(TAG, "CheckIn request time: " + (checkInDuration / 1000) + " seconds");
 
 				// clear system metadata included in successful checkin preflight
-				int clearPreFlightSystemMetaData = app
-						.getContentResolver()
+				int clearPreFlightSystemMetaData = 
+						app.getContentResolver()
 						.delete(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_META
+								+ "/" + checkInPreFlightTimestamp.getTime()),
+								null, null);
+				
+				// clear reboot events included in successful checkin preflight
+				int clearPreFlightRebootEvents = 
+						app.getContentResolver()
+						.delete(Uri.parse(RfcxConstants.RfcxContentProvider.reboot.URI_1
 								+ "/" + checkInPreFlightTimestamp.getTime()),
 								null, null);
 
