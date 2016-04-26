@@ -91,6 +91,13 @@
         android:enabled="true"
         android:defaultValue="16384" />
  	
+ 	<EditTextPreference
+        android:key="audio_encode_quality"
+        android:title="audio_encode_quality"
+        android:summary="int - encoder-specific number"
+        android:enabled="true"
+        android:defaultValue="9" />
+ 	
  	<!-- CheckIn Prefs -->
  	
  	<EditTextPreference
