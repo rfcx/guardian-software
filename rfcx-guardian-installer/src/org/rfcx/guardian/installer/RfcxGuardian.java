@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
 import org.rfcx.guardian.installer.api.ApiCore;
 import org.rfcx.guardian.installer.device.DeviceBattery;
@@ -18,6 +19,8 @@ import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
 import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.RfcxPrefs;
+import org.rfcx.guardian.utility.RfcxRoleVersions;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.AlarmManager;
@@ -29,8 +32,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -43,23 +46,25 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	private String deviceToken = null;
 	
 	public static final String APP_ROLE = "Installer";
-	public static final String targetAppRoleApiEndpoint = "updater";
-	public String targetAppRole = "updater";
 
 	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
 
-	// prefs (WILL BE SET DYNAMICALLY)
-	public String API_URL_BASE = "https://api.rfcx.org";
-	public int INSTALL_BATTERY_CUTOFF = (int) Integer.parseInt(   "30"   );
-	public int INSTALL_CYCLE_DURATION = (int) Integer.parseInt(   "3600000"   );
-	public int INSTALL_OFFLINE_TOGGLE_THRESHOLD = (int) Integer.parseInt(   "900000"   );
-	public int CPUTUNER_FREQ_MIN = (int) Integer.parseInt(   "30720"   );
-	public int CPUTUNER_FREQ_MAX = (int) Integer.parseInt(   "600000"   );
-	public int CPUTUNER_GOVERNOR_UP = (int) Integer.parseInt(   "98"   );
-	public int CPUTUNER_GOVERNOR_DOWN = (int) Integer.parseInt(   "95"   );
+	public RfcxPrefs rfcxPrefs = null;
 	
-	private RfcxGuardianPrefs rfcxGuardianPrefs = new RfcxGuardianPrefs();
-	public SharedPreferences sharedPrefs = rfcxGuardianPrefs.createPrefs(this);
+	public static final String targetAppRoleApiEndpoint = "updater";
+	public String targetAppRole = "updater";
+
+	// prefs (WILL BE SET DYNAMICALLY)
+//	public String API_URL_BASE = "https://api.rfcx.org";
+//	public int INSTALL_BATTERY_CUTOFF = (int) Integer.parseInt(   "30"   );
+//	public int INSTALL_CYCLE_DURATION = (int) Integer.parseInt(   "3600000"   );
+//	public int INSTALL_OFFLINE_TOGGLE_THRESHOLD = (int) Integer.parseInt(   "900000"   );
+//	public int CPUTUNER_FREQ_MIN = (int) Integer.parseInt(   "30720"   );
+//	public int CPUTUNER_FREQ_MAX = (int) Integer.parseInt(   "600000"   );
+//	public int CPUTUNER_GOVERNOR_UP = (int) Integer.parseInt(   "98"   );
+//	public int CPUTUNER_GOVERNOR_DOWN = (int) Integer.parseInt(   "95"   );
+	
+	public SharedPreferences sharedPrefs = null;
 
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
@@ -85,15 +90,22 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), this.APP_ROLE);
 		
-		rfcxGuardianPrefs.initializePrefs();
-		rfcxGuardianPrefs.checkAndSet(this);
+		PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.prefs, true);
+		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
+		this.syncSharedPrefs();
 		
-		setAppVersion();
+		this.version = RfcxRoleVersions.getAppVersion(getApplicationContext());
+		rfcxPrefs.writeVersionToFile(this.version);
 		
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
-		apiCore.setApiCheckVersionEndpoint(getDeviceId());
+		this.apiCore.targetAppRoleApiEndpoint = this.targetAppRoleApiEndpoint;
+		this.apiCore.setApiCheckVersionEndpoint(getDeviceId());
+		
 	    initializeRoleServices(getApplicationContext());
 	}
 	
@@ -103,43 +115,33 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void appResume() {
-		rfcxGuardianPrefs.checkAndSet(this);
+		syncSharedPrefs();
 	}
 	
 	public void appPause() {
+		
 	}
 	
 	@Override
-	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		Log.d(TAG, "Preference changed: "+key);
-		rfcxGuardianPrefs.checkAndSet(this);
+	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
+		Log.d(TAG, "Pref changed: "+prefKey+" = "+this.sharedPrefs.getString(prefKey, null));
+		syncSharedPrefs();
 	}
 	
-	private void setAppVersion() {
-		try {
-			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
-			rfcxGuardianPrefs.writeVersionToFile(this.version);
-		} catch (NameNotFoundException e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC);
+	private void syncSharedPrefs() {
+		for ( Map.Entry<String,?> pref : this.sharedPrefs.getAll().entrySet() ) {
+			this.rfcxPrefs.setPref(this.APP_ROLE, pref.getKey(), pref.getValue().toString());
 		}
 	}
 	
-	public int getAppVersionValue(String versionName) {
-		try {
-			int majorVersion = (int) Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
-			int subVersion = (int) Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
-			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
-			return 1000*majorVersion+100*subVersion+updateVersion;
-		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-		}
-		return 0;
+	public boolean setPref(String prefKey, String prefValue) {
+		return this.sharedPrefs.edit().putString(prefKey,prefValue).commit();
 	}
 
 	public String getDeviceId() {
 		if (this.deviceId == null) {
 			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "updater")).getDeviceId();
-			rfcxGuardianPrefs.writeGuidToFile(deviceId);
+			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;
 	}
@@ -161,21 +163,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				int delayAfterAppLaunchInMinutes = 2;
 				PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ApiCheckVersionIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				AlarmManager updaterAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
-				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, ( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ), INSTALL_CYCLE_DURATION, updaterIntentService);
-				Log.d(TAG, "ApiCheckVersion will run every " + Math.round( INSTALL_CYCLE_DURATION / (60*1000) ) + " minute(s), starting at "+(new Date(( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ))).toLocaleString());
+				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, ( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ), this.rfcxPrefs.getPrefAsInt("install_cycle_duration"), updaterIntentService);
+				Log.d(TAG, "ApiCheckVersion will run every " + Math.round( this.rfcxPrefs.getPrefAsInt("install_cycle_duration") / (60*1000) ) + " minute(s), starting at "+(new Date(( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ))).toLocaleString());
 				this.hasRun_OnLaunchServiceTrigger = true;	
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			}
 		}
-	}
-	
-	public String getPref(String prefName) {
-		return this.sharedPrefs.getString(prefName, null);
-	}
-	
-	public boolean setPref(String prefName, String prefValue) {
-		return this.sharedPrefs.edit().putString(prefName,prefValue).commit();
 	}
 	
 	public void triggerService(String serviceName, boolean forceReTrigger) {

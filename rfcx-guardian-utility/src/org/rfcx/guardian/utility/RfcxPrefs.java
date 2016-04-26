@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -19,11 +21,45 @@ public class RfcxPrefs {
 	private Context context = null;
 	private String thisAppRole = null;
 	
+	private Map<String, String> cachedPrefs = new HashMap<String, String>();
+	
 	public RfcxPrefs init(Context context, String thisAppRole) {
 		this.context = context;
 		this.thisAppRole = thisAppRole.toLowerCase();
 		return this;
 	}
+	
+	// Getters and Setters
+	
+	public String getPrefAsString(String prefKey) {
+		if (this.cachedPrefs.containsKey(prefKey)) {
+			return this.cachedPrefs.get(prefKey);
+		} else if (readPrefFromFile("installer", prefKey) != null) {
+			this.cachedPrefs.put(prefKey, readPrefFromFile("installer", prefKey));
+			return this.cachedPrefs.get(prefKey);
+		} else {
+			return null;
+		}
+	}
+
+	public int getPrefAsInt(String prefKey) {
+		return (int) Integer.parseInt(getPrefAsString(prefKey));
+	}
+	
+	public void setPref(String targetAppRole, String prefKey, String prefValue) {
+		this.cachedPrefs.put(prefKey, prefValue);
+		if ( 	(targetAppRole.toLowerCase().equals(this.thisAppRole.toLowerCase()))
+			&&	!prefValue.equals(readPrefFromFile(targetAppRole, prefKey))
+			) {
+				writePrefToFile(prefKey, prefValue);
+			}
+	}
+
+	public void setPref(String targetAppRole, String prefKey, int prefValue) {
+		setPref(targetAppRole, prefKey, ""+prefValue);
+	}
+	
+	// Reading and Writing to preference text files
 	
 	public String readPrefFromFile(String targetAppRole, String prefKey) {
 		return readFromGuardianTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(), "pref_"+prefKey.toLowerCase());
@@ -64,7 +100,7 @@ public class RfcxPrefs {
     		if (txtFile.exists()) {
 				FileInputStream input = new FileInputStream(txtFile);
 				StringBuffer fileContent = new StringBuffer("");
-				byte[] buffer = new byte[12];
+				byte[] buffer = new byte[256];
 				while (input.read(buffer) != -1) {
 				    fileContent.append(new String(buffer));
 				}

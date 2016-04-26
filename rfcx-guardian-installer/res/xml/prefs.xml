@@ -1,56 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     
-    <CheckBoxPreference
-	    android:key="verbose_logging"
-	    android:title="Verbose Logging"
-	    android:summary="Verbose Logging"
-		android:enabled="true"
-		android:defaultValue="true"/>
-
-    <EditTextPreference
-        android:key="apicheckversion_interval"
-        android:enabled="true"
-	    android:inputType="number"
-        android:title="ApiCheckVersion Interval"
-        android:summary="How often to check the API (minutes)"
-        android:defaultValue="60"/>
-    
  	<EditTextPreference
-        android:key="api_domain"
-        android:title="API Protocol/Address"
-        android:summary="Domain/Protocol for API calls"
+        android:key="api_url_base"
+        android:title="api_url_base"
+        android:summary="string - protocol+domain"
         android:enabled="true"
         android:defaultValue="https://api.rfcx.org" />
+ 	
+ 	<!-- Installer/Updater Prefs -->
+ 	
+ 	<EditTextPreference
+        android:key="install_battery_cutoff"
+        android:title="install_battery_cutoff"
+        android:summary="int - percentage"
+        android:enabled="true"
+        android:defaultValue="30" />
+ 	
+ 	<EditTextPreference
+        android:key="install_cycle_duration"
+        android:title="install_cycle_duration"
+        android:summary="int - milliseconds"
+        android:enabled="true"
+        android:defaultValue="3600000" />
+ 	
+ 	<EditTextPreference
+        android:key="install_offline_toggle_threshold"
+        android:title="install_offline_toggle_threshold"
+        android:summary="int - milliseconds"
+        android:enabled="true"
+        android:defaultValue="900000" />
+ 	
+ 	<!-- CPUTuner Prefs -->
+ 	
+ 	<EditTextPreference
+        android:key="cputuner_freq_min"
+        android:title="cputuner_freq_min"
+        android:summary="int - cpu clock speed"
+        android:enabled="true"
+        android:defaultValue="30720" />
+ 	
+ 	<EditTextPreference
+        android:key="cputuner_freq_max"
+        android:title="cputuner_freq_max"
+        android:summary="int - cpu clock speed"
+        android:enabled="true"
+        android:defaultValue="600000" />
+ 	
+ 	<EditTextPreference
+        android:key="cputuner_governor_up"
+        android:title="cputuner_governor_up"
+        android:summary="int - cpu percentage"
+        android:enabled="true"
+        android:defaultValue="98" />
+ 	
+ 	<EditTextPreference
+        android:key="cputuner_governor_down"
+        android:title="cputuner_governor_down"
+        android:summary="int - cpu percentage"
+        android:enabled="true"
+        android:defaultValue="95" />
+ 	
+ 	<!-- Audio Prefs -->
+ 	
+ 	<EditTextPreference
+        android:key="audio_cycle_duration"
+        android:title="audio_cycle_duration"
+        android:summary="int - milliseconds"
+        android:enabled="true"
+        android:defaultValue="90000" />
+ 	
+ 	<EditTextPreference
+        android:key="audio_battery_cutoff"
+        android:title="audio_battery_cutoff"
+        android:summary="int - percentage"
+        android:enabled="true"
+        android:defaultValue="60" />
+ 	
+ 	<EditTextPreference
+        android:key="audio_codec"
+        android:title="audio_codec"
+        android:summary="string - codec"
+        android:enabled="true"
+        android:defaultValue="aac" />
+ 	
+ 	<EditTextPreference
+        android:key="audio_bitrate"
+        android:title="audio_bitrate"
+        android:summary="int - bits per sec"
+        android:enabled="true"
+        android:defaultValue="16384" />
+ 	
+ 	<!-- CheckIn Prefs -->
+ 	
+ 	<EditTextPreference
+        android:key="checkin_cycle_pause"
+        android:title="checkin_cycle_pause"
+        android:summary="int - milliseconds"
+        android:enabled="true"
+        android:defaultValue="5000" />
+ 	
+ 	<EditTextPreference
+        android:key="checkin_battery_cutoff"
+        android:title="checkin_battery_cutoff"
+        android:summary="int - percentage"
+        android:enabled="true"
+        android:defaultValue="90" />
+ 	
+ 	<EditTextPreference
+        android:key="checkin_skip_threshold"
+        android:title="checkin_skip_threshold"
+        android:summary="int - count"
+        android:enabled="true"
+        android:defaultValue="5" />
+ 	
+ 	<EditTextPreference
+        android:key="checkin_stash_threshold"
+        android:title="checkin_stash_threshold"
+        android:summary="int - count"
+        android:enabled="true"
+        android:defaultValue="120" />
+ 	
+ 	<EditTextPreference
+        android:key="checkin_archive_threshold"
+        android:title="checkin_archive_threshold"
+        android:summary="int - count"
+        android:enabled="true"
+        android:defaultValue="1000" />
+ 	
 
-	<EditTextPreference
-        android:key="device_guid"
-        android:enabled="true"
-	    android:title="Device GUID"
-	    android:summary="Unique ID of Guardian"
-		android:defaultValue=""/>
-
-	<EditTextPreference
-        android:key="device_token"
-	    android:title="Device Token"
-	    android:summary="Unique Token of Guardian"
-        android:enabled="true"
-		android:defaultValue=""/>
-	
-	<EditTextPreference
-        android:key="service_monitor_interval"
-        android:title="Service Monitor Interval"
-        android:summary="How often to check if services are running? (minutes)"
-	    android:inputType="number"
-        android:enabled="true"
-        android:defaultValue="5"/>
-	
-	<EditTextPreference
-        android:key="audio_capture_interval"
-        android:title="Audio Capture Interval"
-        android:summary="How long should each audio chunk be? (seconds)"
-	    android:inputType="number"
-        android:enabled="true"
-        android:defaultValue="90"/>
     
 </PreferenceScreen>

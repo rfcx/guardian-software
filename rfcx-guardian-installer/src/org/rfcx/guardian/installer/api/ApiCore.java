@@ -67,7 +67,7 @@ public class ApiCore {
 					app.triggerService("DownloadFile", true);
 				} else {
 					Log.i(TAG, "Download & Installation disabled due to low battery level"
-							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.INSTALL_BATTERY_CUTOFF+"%)."
+							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("install_battery_cutoff")+"%)."
 							);
 				}
 				return true;
@@ -110,7 +110,7 @@ public class ApiCore {
 	
 	private boolean isBatteryChargeSufficientForDownloadAndInstall(RfcxGuardian app) {
 		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= app.INSTALL_BATTERY_CUTOFF);
+		return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("install_battery_cutoff"));
 	}
 	
 }

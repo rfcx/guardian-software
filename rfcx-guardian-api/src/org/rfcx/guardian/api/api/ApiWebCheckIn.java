@@ -56,7 +56,8 @@ public class ApiWebCheckIn {
 	}
 
 	public String getCheckInUrl() {
-		return app.API_URL_BASE + "/v1/guardians/" + app.getDeviceId() + "/checkins";
+		Log.d(TAG, app.rfcxPrefs.getPrefAsString("api_url_base"));
+		return app.rfcxPrefs.getPrefAsString("api_url_base") + "/v1/guardians/" + app.getDeviceId() + "/checkins";
 	}
 
 	public void sendCheckIn(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments, boolean allowAttachments, String checkInAudioReference) {

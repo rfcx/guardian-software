@@ -15,6 +15,7 @@ import org.rfcx.guardian.utility.DeviceGuid;
 import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
+import org.rfcx.guardian.utility.RfcxRoleVersions;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -46,7 +47,7 @@ public class RfcxGuardian extends Application {
 	public CheckInDb checkInDb = null;
 
 	// prefs (WILL BE SET DYNAMICALLY)
-	public String API_URL_BASE = "https://api.rfcx.org";
+//	public String API_URL_BASE = "https://api.rfcx.org";
 	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
 	public int CHECKIN_CYCLE_PAUSE = (int) Integer.parseInt(   "5000"   );
 	public int CHECKIN_BATTERY_CUTOFF = (int) Integer.parseInt(   "90"   );
@@ -83,10 +84,9 @@ public class RfcxGuardian extends Application {
 		
 		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), this.APP_ROLE);
 		
-		// test
-		this.rfcxPrefs.writePrefToFile("api_url_base", this.API_URL_BASE);
+		this.version = RfcxRoleVersions.getAppVersion(getApplicationContext());
+		rfcxPrefs.writeVersionToFile(this.version);
 		
-		setAppVersion();
 		setDbHandlers();
 		
 		apiWebCheckIn.init(this);
@@ -102,33 +102,11 @@ public class RfcxGuardian extends Application {
 	}
 	
 	public void appResume() {
-		Log.v(TAG, "Resuming application.");
+		
 	}
 	
 	public void appPause() {
-		Log.v(TAG, "Pausing application.");
-	}
-	
-	
-	private void setAppVersion() {
-		try {
-			this.version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName.trim();
-			rfcxPrefs.writeVersionToFile(this.version);
-		} catch (NameNotFoundException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-		}
-	}
-	
-	public int getAppVersionValue(String versionName) {
-		try {
-			int majorVersion = (int) Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
-			int subVersion = (int) Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
-			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
-			return 1000*majorVersion+100*subVersion+updateVersion;
-		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-		}
-		return 0;
+		
 	}
 
 	public String getDeviceId() {
@@ -144,14 +122,6 @@ public class RfcxGuardian extends Application {
 			this.deviceToken = (new DeviceToken(getApplicationContext())).getDeviceToken();
 		}
 		return this.deviceToken;
-	}
-	
-	public String getPref(String prefKey) {
-		return this.rfcxPrefs.readPrefFromFile(this.APP_ROLE, prefKey);
-	}
-	
-	public void setPref(String prefKey, String prefValue) {
-		this.rfcxPrefs.writePrefToFile(prefKey, prefValue);
 	}
 	
 	public void initializeRoleServices(Context context) {
@@ -222,7 +192,7 @@ public class RfcxGuardian extends Application {
 	}
 	
 	private void setDbHandlers() {
-		int versionNumber = getAppVersionValue(this.version);
+		int versionNumber = RfcxRoleVersions.getAppVersionValue(this.version);
 		this.checkInDb = new CheckInDb(this,versionNumber);
 	}
 }
