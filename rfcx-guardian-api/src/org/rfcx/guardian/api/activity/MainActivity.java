@@ -1,6 +1,5 @@
 package org.rfcx.guardian.api.activity;
 
-import org.rfcx.guardian.api.R;
 import org.rfcx.guardian.api.RfcxGuardian;
 
 import android.app.Activity;
@@ -12,7 +11,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_home, menu);
+//		getMenuInflater().inflate(R.menu.activity_home, menu);
 		return true;
 	}
 	
@@ -25,7 +24,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_home);
+//		setContentView(R.layout.activity_home);
 	}
 
 	@Override

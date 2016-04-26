@@ -27,6 +27,8 @@ echo "key.alias=rfcx-guardian-android-$ROLE" >> local.properties;
 echo "key.store.password=$KEY_PSWD" >> local.properties;
 echo "key.alias.password=$KEY_PSWD" >> local.properties;
 
+echo "android.library.reference.1=../rfcx-guardian-utility" >> local.properties;
+
 echo "setting up build process...";
 export ANT_CLEAN=`ant clean`;
 
