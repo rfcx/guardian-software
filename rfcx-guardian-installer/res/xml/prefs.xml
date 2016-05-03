@@ -36,7 +36,7 @@
         android:title="install_api_registration_token"
         android:summary="string - api token"
         android:enabled="true"
-        android:defaultValue="X" />
+        android:defaultValue="ABCDEFGH" />
  	
  	<!-- CPUTuner Prefs -->
  	
