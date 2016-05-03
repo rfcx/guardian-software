@@ -31,6 +31,13 @@
         android:enabled="true"
         android:defaultValue="900000" />
  	
+ 	<EditTextPreference
+        android:key="install_api_registration_token"
+        android:title="install_api_registration_token"
+        android:summary="string - api token"
+        android:enabled="true"
+        android:defaultValue="X" />
+ 	
  	<!-- CPUTuner Prefs -->
  	
  	<EditTextPreference

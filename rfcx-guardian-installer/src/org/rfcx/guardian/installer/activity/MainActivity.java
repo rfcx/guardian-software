@@ -31,6 +31,10 @@ public class MainActivity extends Activity {
 		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
+
+		case R.id.menu_api_register:
+			app.triggerService("ApiRegister",true);
+			break;
 			
 		case R.id.menu_cputuner_install:
 			String cpuTunerPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner";

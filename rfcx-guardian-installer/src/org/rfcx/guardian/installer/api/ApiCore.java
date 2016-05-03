@@ -22,6 +22,9 @@ public class ApiCore {
 	public String apiCheckVersionEndpoint = null;
 	public String targetAppRoleApiEndpoint = "all";
 
+	public String apiRegisterEndpoint = null;
+	public String apiRegisterToken = "HXJ1A595";
+
 	public String latestRole = null;
 	public String latestVersion = null;
 	private String latestVersionUrl = null;
@@ -84,6 +87,10 @@ public class ApiCore {
 	
 	public void setApiCheckVersionEndpoint(String guardianId) {
 		this.apiCheckVersionEndpoint = "/v1/guardians/"+guardianId+"/software/"+this.targetAppRoleApiEndpoint;
+	}
+	
+	public void setApiRegisterEndpoint() {
+		this.apiRegisterEndpoint = "/v1/guardians/register";
 	}
 	
 	private static int calculateVersionValue(String versionName) {

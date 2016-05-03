@@ -12,6 +12,7 @@ import org.rfcx.guardian.installer.api.ApiCore;
 import org.rfcx.guardian.installer.device.DeviceBattery;
 import org.rfcx.guardian.installer.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.installer.service.ApiCheckVersionService;
+import org.rfcx.guardian.installer.service.ApiRegisterService;
 import org.rfcx.guardian.installer.service.DownloadFileService;
 import org.rfcx.guardian.installer.service.InstallAppService;
 import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
@@ -68,6 +69,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// for checking battery level
 	public DeviceBattery deviceBattery = new DeviceBattery();
 	
+	public boolean isRunning_ApiRegister = false;
 	public boolean isRunning_ApiCheckVersion = false;
 	public boolean isRunning_DownloadFile = false;
 	public boolean isRunning_InstallApp = false;
@@ -95,6 +97,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		this.apiCore.targetAppRoleApiEndpoint = this.targetAppRoleApiEndpoint;
 		this.apiCore.setApiCheckVersionEndpoint(getDeviceId());
+		this.apiCore.setApiRegisterEndpoint();
 		
 	    initializeRoleServices(getApplicationContext());
 	}
@@ -170,6 +173,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				context.stopService(new Intent(context, ApiCheckVersionService.class));
 				context.startService(new Intent(context, ApiCheckVersionService.class));
 			} else {Log.d(TAG, "Service ApiCheckVersion is already running..."); }
+		} else if (serviceName.equals("ApiRegister")) {
+			if (!this.isRunning_ApiRegister || forceReTrigger) {
+				context.stopService(new Intent(context, ApiRegisterService.class));
+				context.startService(new Intent(context, ApiRegisterService.class));
+			} else {Log.d(TAG, "Service ApiRegister is already running..."); }
 		} else if (serviceName.equals("DownloadFile")) {
 			if (!this.isRunning_DownloadFile || forceReTrigger) {
 				context.stopService(new Intent(context, DownloadFileService.class));
@@ -194,6 +202,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		context = getApplicationContext();		
 		if (serviceName.equals("ApiCheckVersion")) {
 			context.stopService(new Intent(context, ApiCheckVersionService.class));
+		} else if (serviceName.equals("ApiRegister")) {
+			context.stopService(new Intent(context, ApiRegisterService.class));
 		} else if (serviceName.equals("DownloadFile")) {
 			context.stopService(new Intent(context, DownloadFileService.class));
 		} else if (serviceName.equals("InstallApp")) {

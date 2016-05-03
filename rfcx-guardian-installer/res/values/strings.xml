@@ -4,6 +4,7 @@
     <string name="app_name">rfcx installer</string>
 
     <string name="menu_prefs">prefs</string>
+    <string name="menu_api_register">register</string>
 	<string name="menu_cputuner_install">install cputuner</string>
 	<string name="menu_spectrogram_install">install spectrogram</string>
 	<string name="menu_moduleloader_install">install moduleloader</string>
