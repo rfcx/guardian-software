@@ -1,27 +1,21 @@
 package org.rfcx.guardian.updater;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import org.rfcx.guardian.updater.api.ApiCore;
 import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
+import org.rfcx.guardian.updater.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.updater.service.ApiCheckVersionService;
 import org.rfcx.guardian.updater.service.DownloadFileService;
 import org.rfcx.guardian.updater.service.InstallAppService;
-import org.rfcx.guardian.updater.service.ApiCheckVersionIntentService;
-import org.rfcx.guardian.utility.DeviceGuid;
-import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
-import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.device.DeviceBattery;
+import org.rfcx.guardian.utility.device.DeviceGuid;
+import org.rfcx.guardian.utility.device.DeviceToken;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -30,9 +24,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -53,12 +44,6 @@ public class RfcxGuardian extends Application {
 	
 	public static final String targetAppRoleApiEndpoint = "all";
 	public String targetAppRole = "";
-
-	// prefs (WILL BE SET DYNAMICALLY)
-//	public String API_URL_BASE = "https://api.rfcx.org";
-//	public int INSTALL_BATTERY_CUTOFF = (int) Integer.parseInt(   "30"   );
-//	public int INSTALL_CYCLE_DURATION = (int) Integer.parseInt(   "3600000"   );
-//	public int INSTALL_OFFLINE_TOGGLE_THRESHOLD = (int) Integer.parseInt(   "900000"   );
 		
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
@@ -114,7 +99,7 @@ public class RfcxGuardian extends Application {
 	
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "installer")).getDeviceId();
+			this.deviceId = (new DeviceGuid(getApplicationContext())).getDeviceId();
 			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;

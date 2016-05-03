@@ -1,8 +1,8 @@
 package org.rfcx.guardian.carrier;
 
 import org.rfcx.guardian.carrier.device.DeviceScreenLock;
-import org.rfcx.guardian.utility.DeviceGuid;
-import org.rfcx.guardian.utility.DeviceToken;
+import org.rfcx.guardian.utility.device.DeviceGuid;
+import org.rfcx.guardian.utility.device.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
@@ -60,7 +60,7 @@ public class RfcxGuardian extends Application {
 	
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "installer")).getDeviceId();
+			this.deviceId = (new DeviceGuid(getApplicationContext())).getDeviceId();
 			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;

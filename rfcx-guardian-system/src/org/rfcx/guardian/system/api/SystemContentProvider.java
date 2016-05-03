@@ -62,7 +62,7 @@ public class SystemContentProvider extends ContentProvider {
 				String[] vDataTransferred = app.dataTransferDb.dbTransferred.getConcatRows();
 				
 				List<String> diskUsage = new ArrayList<String>();
-				for (String[] usageStat : app.deviceDiskUsage.allDiskStatsAsStrings()) {
+				for (String[] usageStat : app.deviceDiskUsage.allDiskStats()) {
 					diskUsage.add(TextUtils.join("*", usageStat));
 				}
 				

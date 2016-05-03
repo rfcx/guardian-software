@@ -5,8 +5,8 @@ import org.rfcx.guardian.audio.database.AudioDb;
 import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.audio.service.AudioCaptureService;
 import org.rfcx.guardian.audio.service.ServiceMonitorIntentService;
-import org.rfcx.guardian.utility.DeviceGuid;
-import org.rfcx.guardian.utility.DeviceToken;
+import org.rfcx.guardian.utility.device.DeviceGuid;
+import org.rfcx.guardian.utility.device.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
@@ -36,14 +36,6 @@ public class RfcxGuardian extends Application {
 	
 	// database access helpers
 	public AudioDb audioDb = null;
-	
-	// prefs (WILL BE SET DYNAMICALLY)
-//	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
-//	public String AUDIO_ENCODE_CODEC = "aac".toLowerCase();
-//	public int AUDIO_ENCODE_BITRATE = (int) Integer.parseInt(   "16384"   );
-//	public int AUDIO_ENCODE_QUALITY = (int) Integer.parseInt(   "9"   );
-//	public int AUDIO_BATTERY_CUTOFF = (int) Integer.parseInt(   "60"   );
-
 
 	// capturing and encoding audio
 	public final static int AUDIO_SAMPLE_RATE = 8000;
@@ -88,7 +80,7 @@ public class RfcxGuardian extends Application {
 
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "installer")).getDeviceId();
+			this.deviceId = (new DeviceGuid(getApplicationContext())).getDeviceId();
 			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;

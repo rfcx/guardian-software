@@ -1,6 +1,5 @@
-package org.rfcx.guardian.api.device;
+package org.rfcx.guardian.utility.device;
 
-import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.Context;
@@ -10,11 +9,9 @@ import android.util.Log;
 
 public class DeviceAirplaneMode {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceAirplaneMode.class.getSimpleName();
+	private static final String TAG = "Rfcx-Utils-"+DeviceAirplaneMode.class.getSimpleName();
 	
 	private boolean isEnabled;
-	
-	private RfcxGuardian app = null;
 	
 	public boolean isEnabled(Context context) {
 		isEnabled = Settings.System.getInt(context.getContentResolver(),Settings.System.AIRPLANE_MODE_ON, 0) == 1;
@@ -22,7 +19,6 @@ public class DeviceAirplaneMode {
 	}
 	
 	public void setOn(Context context) {
-		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
 		Log.v(TAG, "Turning AirplaneMode ON");
     	if (!isEnabled(context)) {
     		set(context, 1);
@@ -30,7 +26,6 @@ public class DeviceAirplaneMode {
 	}
 	
 	public void setOff(Context context) {
-		if (app == null) { app = (RfcxGuardian) context.getApplicationContext(); }
 		Log.v(TAG, "Turning AirplaneMode OFF");
     	if (!isEnabled(context)) {
     		set(context, 1);

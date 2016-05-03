@@ -16,8 +16,8 @@ import org.rfcx.guardian.installer.service.DownloadFileService;
 import org.rfcx.guardian.installer.service.InstallAppService;
 import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
-import org.rfcx.guardian.utility.DeviceGuid;
-import org.rfcx.guardian.utility.DeviceToken;
+import org.rfcx.guardian.utility.device.DeviceGuid;
+import org.rfcx.guardian.utility.device.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
@@ -133,7 +133,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "updater")).getDeviceId();
+			this.deviceId = (new DeviceGuid(getApplicationContext())).getDeviceId();
 			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;

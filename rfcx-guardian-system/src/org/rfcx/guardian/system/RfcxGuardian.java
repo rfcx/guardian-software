@@ -16,8 +16,8 @@ import org.rfcx.guardian.system.device.DeviceState;
 import org.rfcx.guardian.system.service.DeviceScreenShotService;
 import org.rfcx.guardian.system.service.DeviceStateService;
 import org.rfcx.guardian.system.service.ServiceMonitorIntentService;
-import org.rfcx.guardian.utility.DeviceGuid;
-import org.rfcx.guardian.utility.DeviceToken;
+import org.rfcx.guardian.utility.device.DeviceGuid;
+import org.rfcx.guardian.utility.device.DeviceToken;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
@@ -30,9 +30,6 @@ import android.app.Application;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -58,10 +55,6 @@ public class RfcxGuardian extends Application {
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
-
-	// prefs (WILL BE SET DYNAMICALLY)
-//	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
-//	public int SCREENSHOT_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
 
 	// for obtaining device stats and characteristics
 	public DeviceState deviceState = new DeviceState();
@@ -110,7 +103,7 @@ public class RfcxGuardian extends Application {
 	
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "installer")).getDeviceId();
+			this.deviceId = (new DeviceGuid(getApplicationContext())).getDeviceId();
 			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;

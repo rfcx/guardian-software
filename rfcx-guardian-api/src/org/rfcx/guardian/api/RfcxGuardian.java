@@ -4,14 +4,14 @@ import java.util.Calendar;
 
 import org.rfcx.guardian.api.api.ApiWebCheckIn;
 import org.rfcx.guardian.api.database.CheckInDb;
-import org.rfcx.guardian.api.device.DeviceAirplaneMode;
+import org.rfcx.guardian.utility.device.DeviceAirplaneMode;
 import org.rfcx.guardian.api.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.api.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.api.service.ApiCheckInService;
 import org.rfcx.guardian.api.service.ApiCheckInTrigger;
 import org.rfcx.guardian.api.service.ServiceMonitorIntentService;
-import org.rfcx.guardian.utility.DeviceGuid;
-import org.rfcx.guardian.utility.DeviceToken;
+import org.rfcx.guardian.utility.device.DeviceGuid;
+import org.rfcx.guardian.utility.device.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
@@ -44,15 +44,6 @@ public class RfcxGuardian extends Application {
 	
 	// database access helpers
 	public CheckInDb checkInDb = null;
-
-	// prefs (WILL BE SET DYNAMICALLY)
-//	public String API_URL_BASE = "https://api.rfcx.org";
-//	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
-//	public int CHECKIN_CYCLE_PAUSE = (int) Integer.parseInt(   "5000"   );
-//	public int CHECKIN_BATTERY_CUTOFF = (int) Integer.parseInt(   "90"   );
-//	public int CHECKIN_SKIP_THRESHOLD = (int) Integer.parseInt(   "5"   );
-//	public int CHECKIN_STASH_THRESHOLD = (int) Integer.parseInt(   "120"   );
-//	public int CHECKIN_ARCHIVE_THRESHOLD = (int) Integer.parseInt(   "1000"   );
 	
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
@@ -110,7 +101,7 @@ public class RfcxGuardian extends Application {
 
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext(), this.APP_ROLE, "installer")).getDeviceId();
+			this.deviceId = (new DeviceGuid(getApplicationContext())).getDeviceId();
 			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;

@@ -7,35 +7,26 @@ import android.os.Environment;
 import android.os.StatFs;
 
 public class DeviceDiskUsage {
-	
-  public static List<int[]> allDiskStatsAsInts() {
-	  StatFs internalStatFs = getStats(false);
-	  StatFs sdCardStatFs = getStats(true);
-	  List<int[]> allStats = new ArrayList<int[]>();
-	  allStats.add(new int[] { diskUsedBytes(internalStatFs), diskFreeBytes(internalStatFs), diskTotalBytes(internalStatFs) });
-	  allStats.add(new int[] { diskUsedBytes(sdCardStatFs), diskFreeBytes(sdCardStatFs), diskTotalBytes(sdCardStatFs) });
-	  return allStats;
-  }
  
-  public static List<String[]> allDiskStatsAsStrings() {
+  public static List<String[]> allDiskStats() {
 	  StatFs internalStatFs = getStats(false);
 	  StatFs sdCardStatFs = getStats(true);
 	  List<String[]> allStats = new ArrayList<String[]>();
-	  allStats.add(new String[] { ""+diskUsedBytes(internalStatFs), ""+diskFreeBytes(internalStatFs), ""+diskTotalBytes(internalStatFs) });
-	  allStats.add(new String[] { ""+diskUsedBytes(sdCardStatFs), ""+diskFreeBytes(sdCardStatFs), ""+diskTotalBytes(sdCardStatFs) });
+	  allStats.add(new String[] { "internal", ""+diskUsedBytes(internalStatFs), ""+diskFreeBytes(internalStatFs) });
+	  allStats.add(new String[] { "external", ""+diskUsedBytes(sdCardStatFs), ""+diskFreeBytes(sdCardStatFs) });
 	  return allStats;
   }
 
-  public static int diskTotalBytes(StatFs statFs) {
-    return (statFs.getBlockCount() * statFs.getBlockSize());
+  public static long diskTotalBytes(StatFs statFs) {
+    return (((long) statFs.getBlockCount()) * ((long) statFs.getBlockSize()));
   }
 
-  public static int diskFreeBytes(StatFs statFs) {
-    return (statFs.getAvailableBlocks() * statFs.getBlockSize());
+  public static long diskFreeBytes(StatFs statFs) {
+    return (((long) statFs.getAvailableBlocks()) * ((long) statFs.getBlockSize()));
   }
 
-  public static int diskUsedBytes(StatFs statFs) {
-    return ( (statFs.getBlockCount() * statFs.getBlockSize()) - (statFs.getAvailableBlocks() * statFs.getBlockSize()) );
+  public static long diskUsedBytes(StatFs statFs) {
+    return ( ((long) (statFs.getBlockCount()) * ((long) statFs.getBlockSize())) - (((long) statFs.getAvailableBlocks()) * ((long) statFs.getBlockSize())) );
   }
 
   private static StatFs getStats(boolean external){

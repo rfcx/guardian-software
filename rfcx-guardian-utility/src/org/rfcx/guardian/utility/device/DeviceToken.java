@@ -1,7 +1,9 @@
-package org.rfcx.guardian.utility;
+package org.rfcx.guardian.utility.device;
 
 import java.security.MessageDigest;
 import java.util.UUID;
+
+import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -37,7 +39,6 @@ public class DeviceToken {
             }
         }
     }
-
 
     public String getDeviceToken() {
         return deviceToken;
