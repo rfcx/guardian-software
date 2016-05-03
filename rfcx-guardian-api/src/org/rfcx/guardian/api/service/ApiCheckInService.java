@@ -97,8 +97,8 @@ public class ApiCheckInService extends Service {
 								app.apiWebCheckIn.packagePreFlightCheckInJson(currentCheckIn[2]) 
 							});
 						
-						if (((int) Integer.parseInt(currentCheckIn[3])) > app.CHECKIN_SKIP_THRESHOLD) {
-							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.CHECKIN_SKIP_THRESHOLD+" failed attempts");
+						if (((int) Integer.parseInt(currentCheckIn[3])) > app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold")) {
+							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold")+" failed attempts");
 							app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3], currentCheckIn[4]);
 							app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(currentCheckIn[1]);
 						} else {
@@ -113,13 +113,13 @@ public class ApiCheckInService extends Service {
 					} else {
 				
 						// force a [brief] pause seconds before trying to check in again
-						Thread.sleep(app.CHECKIN_CYCLE_PAUSE);
+						Thread.sleep(app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause"));
 						
 						if (!app.apiWebCheckIn.isBatteryChargeSufficientForCheckIn()) {
-							long extendCheckInLoopBy = (2 * app.AUDIO_CYCLE_DURATION) - app.CHECKIN_CYCLE_PAUSE;
+							long extendCheckInLoopBy = (2 * app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")) - app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause");
 							Log.i(TAG, "CheckIns automatically disabled due to low battery level"
-									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+app.CHECKIN_BATTERY_CUTOFF+"%)."
-									+" Waiting " + ( Math.round( ( extendCheckInLoopBy + app.CHECKIN_CYCLE_PAUSE ) / 1000 ) ) + " seconds before next attempt.");
+									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff")+"%)."
+									+" Waiting " + ( Math.round( ( extendCheckInLoopBy + app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause") ) / 1000 ) ) + " seconds before next attempt.");
 							Thread.sleep(extendCheckInLoopBy);
 						}
 					}

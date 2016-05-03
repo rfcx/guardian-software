@@ -87,11 +87,9 @@ public class DeviceStateService extends Service implements SensorEventListener {
 					recordingIncrement++;
 					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
 						
-						app.deviceState.setBatteryState(app.getApplicationContext(), null);
-						
 						app.deviceStateDb.dbCPU.insert(new Date(), app.deviceCpuUsage.getCpuUsageAvg(), app.deviceCpuUsage.getCpuClockAvg());
-						app.deviceStateDb.dbBattery.insert(new Date(), app.deviceState.getBatteryPercent(), app.deviceState.getBatteryTemperature());
-						app.deviceStateDb.dbPower.insert(new Date(), !app.deviceState.isBatteryDisCharging(), app.deviceState.isBatteryCharged());
+						app.deviceStateDb.dbBattery.insert(new Date(), app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null), app.deviceBattery.getBatteryTemperature(app.getApplicationContext(), null));
+						app.deviceStateDb.dbPower.insert(new Date(), !app.deviceBattery.isBatteryDischarging(app.getApplicationContext(), null), app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null));
 						
 						long[] trafficStats = app.deviceState.updateDataTransferStats();
 						app.dataTransferDb.dbTransferred.insert(new Date(), new Date(trafficStats[0]), new Date(trafficStats[1]), trafficStats[2], trafficStats[3], trafficStats[4], trafficStats[5]);

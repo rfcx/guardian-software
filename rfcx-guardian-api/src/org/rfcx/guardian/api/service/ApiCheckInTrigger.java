@@ -71,12 +71,12 @@ public class ApiCheckInTrigger extends Service {
 			ApiCheckInTrigger apiCheckInTrigger = ApiCheckInTrigger.this;
 			app = (RfcxGuardian) getApplication();
 			try {
-				Log.d(TAG, "ApiCheckTrigger Period: "+ ( 3 * app.CHECKIN_CYCLE_PAUSE ) +"ms");
+				Log.d(TAG, "ApiCheckTrigger Period: "+ ( 3 * app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause") ) +"ms");
 				while (apiCheckInTrigger.runFlag) {
 					try {
 						app.triggerService("ApiCheckIn", false);
 						app.apiWebCheckIn.connectivityToggleCheck();
-				        Thread.sleep( 3 * app.CHECKIN_CYCLE_PAUSE );
+				        Thread.sleep( 3 * app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause") );
 
 					} catch (Exception e) {
 						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);

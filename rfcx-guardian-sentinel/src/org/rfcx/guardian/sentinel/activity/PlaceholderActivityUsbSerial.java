@@ -10,9 +10,9 @@ import android.app.Activity;
  *
  * @author mike wakerly (opensource@hoho.com)
  */
-public class MainActivityUsbSerial extends Activity {
+public class PlaceholderActivityUsbSerial extends Activity {
 
-    private final String TAG = MainActivityUsbSerial.class.getSimpleName();
+    private final String TAG = PlaceholderActivityUsbSerial.class.getSimpleName();
 
 //    /**
 //     * Driver instance, passed in statically via

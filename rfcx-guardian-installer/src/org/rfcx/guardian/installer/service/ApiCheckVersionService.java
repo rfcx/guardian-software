@@ -85,7 +85,7 @@ public class ApiCheckVersionService extends Service {
 						app.lastApiCheckTriggeredAt = Calendar.getInstance().getTimeInMillis();
 						String getUrl =	(((app.rfcxPrefs.getPrefAsString("api_url_base")!=null) ? app.rfcxPrefs.getPrefAsString("api_url_base") : "https://api.rfcx.org")
 										+ app.apiCore.apiCheckVersionEndpoint
-										+ "?role="+app.APP_ROLE
+										+ "?role="+app.APP_ROLE.toLowerCase()
 										+ "&version="+app.version
 										+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
 										+ "&timestamp="+Calendar.getInstance().getTimeInMillis()

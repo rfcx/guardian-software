@@ -47,7 +47,7 @@ public class ApiWebCheckIn {
 	public void init(RfcxGuardian app) {
 		this.app = app;
 		// setting http post timeouts to the same as the audio capture interval.
-		this.httpPostMultipart.setTimeOuts(app.AUDIO_CYCLE_DURATION, app.AUDIO_CYCLE_DURATION);
+		this.httpPostMultipart.setTimeOuts(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"), app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
 		// defining customized RFCx authentication headers (necessary for API access)
 		List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
 		rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/" + app.getDeviceId() });
@@ -103,7 +103,7 @@ public class ApiWebCheckIn {
 	
 	private void stashOldestCheckIns() {
 		
-		List<String[]> checkInsBeyondStashThreshold = app.checkInDb.dbQueued.getQueuedWithOffset(app.CHECKIN_STASH_THRESHOLD, app.CHECKIN_ARCHIVE_THRESHOLD);
+		List<String[]> checkInsBeyondStashThreshold = app.checkInDb.dbQueued.getQueuedWithOffset(app.rfcxPrefs.getPrefAsInt("checkin_stash_threshold"), app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold"));
 		
 		if (checkInsBeyondStashThreshold.size() > 0) {
 			
@@ -121,7 +121,7 @@ public class ApiWebCheckIn {
 			Log.i(TAG, "Stashed CheckIns ("+app.checkInDb.dbStashed.getCount()+" total in database): "+TextUtils.join(" ", stashList));
 		}
 		
-		if (((int) Integer.parseInt(app.checkInDb.dbStashed.getCount())) >= app.CHECKIN_ARCHIVE_THRESHOLD) {
+		if (((int) Integer.parseInt(app.checkInDb.dbStashed.getCount())) >= app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold")) {
 			Log.i(TAG, "TODO: STASHED CHECKINS SHOULD BE ARCHIVED HERE...");
 		}
 	}
@@ -501,7 +501,7 @@ public class ApiWebCheckIn {
 
 	public boolean isBatteryChargeSufficientForCheckIn() {
 		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= app.CHECKIN_BATTERY_CUTOFF);
+		return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff"));
 	}
 
 }

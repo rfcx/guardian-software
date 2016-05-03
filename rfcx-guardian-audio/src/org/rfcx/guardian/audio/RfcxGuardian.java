@@ -2,7 +2,6 @@ package org.rfcx.guardian.audio;
 
 import org.rfcx.guardian.audio.capture.AudioCapture;
 import org.rfcx.guardian.audio.database.AudioDb;
-import org.rfcx.guardian.audio.device.DeviceBattery;
 import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.audio.service.AudioCaptureService;
 import org.rfcx.guardian.audio.service.ServiceMonitorIntentService;
@@ -11,6 +10,7 @@ import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
+import org.rfcx.guardian.utility.device.DeviceBattery;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -38,11 +38,11 @@ public class RfcxGuardian extends Application {
 	public AudioDb audioDb = null;
 	
 	// prefs (WILL BE SET DYNAMICALLY)
-	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
-	public String AUDIO_ENCODE_CODEC = "aac".toLowerCase();
-	public int AUDIO_ENCODE_BITRATE = (int) Integer.parseInt(   "16384"   );
-	public int AUDIO_ENCODE_QUALITY = (int) Integer.parseInt(   "9"   );
-	public int AUDIO_BATTERY_CUTOFF = (int) Integer.parseInt(   "60"   );
+//	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
+//	public String AUDIO_ENCODE_CODEC = "aac".toLowerCase();
+//	public int AUDIO_ENCODE_BITRATE = (int) Integer.parseInt(   "16384"   );
+//	public int AUDIO_ENCODE_QUALITY = (int) Integer.parseInt(   "9"   );
+//	public int AUDIO_BATTERY_CUTOFF = (int) Integer.parseInt(   "60"   );
 
 
 	// capturing and encoding audio
@@ -109,7 +109,7 @@ public class RfcxGuardian extends Application {
 				// Service Monitor
 				triggerIntentService("ServiceMonitor", 
 						System.currentTimeMillis(),
-						3 * Math.round( AUDIO_CYCLE_DURATION / 1000 )
+						3 * Math.round( this.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 1000 )
 						);
 
 				hasRun_OnLaunchServiceTrigger = true;

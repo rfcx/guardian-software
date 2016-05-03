@@ -1,7 +1,9 @@
 package org.rfcx.guardian.system.api;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
@@ -59,6 +61,11 @@ public class SystemContentProvider extends ContentProvider {
 				String[] vLightMeter = app.deviceStateDb.dbLightMeter.getConcatRows();
 				String[] vDataTransferred = app.dataTransferDb.dbTransferred.getConcatRows();
 				
+				List<String> diskUsage = new ArrayList<String>();
+				for (String[] usageStat : app.deviceDiskUsage.allDiskStatsAsStrings()) {
+					diskUsage.add(TextUtils.join("*", usageStat));
+				}
+				
 				cursor.addRow(new Object[] { 
 						(vBattery[0] != "0") ? vBattery[1] : null, 	// battery
 						(vCpu[0] != "0") ? vCpu[1] : null, 			// cpu
@@ -66,7 +73,8 @@ public class SystemContentProvider extends ContentProvider {
 						(vNetwork[0] != "0") ? vNetwork[1] : null,	// network
 						(vOffline[0] != "0") ? vOffline[1] : null, 	// offline
 						(vLightMeter[0] != "0") ? vLightMeter[1] : null, // lightmeter
-						(vDataTransferred[0] != "0") ? vDataTransferred[1] : null  // data_transfer
+						(vDataTransferred[0] != "0") ? vDataTransferred[1] : null,  // data_transfer
+						TextUtils.join("|", diskUsage)		// disk_usage
 					});
 				return cursor;
 				

@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.Map;
 
 import org.rfcx.guardian.installer.api.ApiCore;
-import org.rfcx.guardian.installer.device.DeviceBattery;
 import org.rfcx.guardian.installer.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.installer.service.ApiCheckVersionService;
 import org.rfcx.guardian.installer.service.ApiRegisterService;
@@ -23,6 +22,7 @@ import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.device.DeviceBattery;
 
 import android.app.AlarmManager;
 import android.app.Application;

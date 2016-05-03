@@ -5,7 +5,6 @@ import java.util.Calendar;
 import org.rfcx.guardian.api.api.ApiWebCheckIn;
 import org.rfcx.guardian.api.database.CheckInDb;
 import org.rfcx.guardian.api.device.DeviceAirplaneMode;
-import org.rfcx.guardian.api.device.DeviceBattery;
 import org.rfcx.guardian.api.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.api.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.api.service.ApiCheckInService;
@@ -16,6 +15,7 @@ import org.rfcx.guardian.utility.DeviceToken;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
+import org.rfcx.guardian.utility.device.DeviceBattery;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -47,12 +47,12 @@ public class RfcxGuardian extends Application {
 
 	// prefs (WILL BE SET DYNAMICALLY)
 //	public String API_URL_BASE = "https://api.rfcx.org";
-	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
-	public int CHECKIN_CYCLE_PAUSE = (int) Integer.parseInt(   "5000"   );
-	public int CHECKIN_BATTERY_CUTOFF = (int) Integer.parseInt(   "90"   );
-	public int CHECKIN_SKIP_THRESHOLD = (int) Integer.parseInt(   "5"   );
-	public int CHECKIN_STASH_THRESHOLD = (int) Integer.parseInt(   "120"   );
-	public int CHECKIN_ARCHIVE_THRESHOLD = (int) Integer.parseInt(   "1000"   );
+//	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
+//	public int CHECKIN_CYCLE_PAUSE = (int) Integer.parseInt(   "5000"   );
+//	public int CHECKIN_BATTERY_CUTOFF = (int) Integer.parseInt(   "90"   );
+//	public int CHECKIN_SKIP_THRESHOLD = (int) Integer.parseInt(   "5"   );
+//	public int CHECKIN_STASH_THRESHOLD = (int) Integer.parseInt(   "120"   );
+//	public int CHECKIN_ARCHIVE_THRESHOLD = (int) Integer.parseInt(   "1000"   );
 	
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
@@ -132,7 +132,7 @@ public class RfcxGuardian extends Application {
 				// Service Monitor
 				triggerIntentService("ServiceMonitor", 
 						System.currentTimeMillis(),
-						3 * Math.round( AUDIO_CYCLE_DURATION / 1000 )
+						3 * Math.round( this.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 1000 )
 						);
 
 				hasRun_OnLaunchServiceTrigger = true;

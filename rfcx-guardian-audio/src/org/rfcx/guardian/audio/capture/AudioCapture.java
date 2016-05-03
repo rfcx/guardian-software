@@ -45,7 +45,7 @@ public class AudioCapture {
 
 	public boolean isBatteryChargeSufficientForCapture() {
 		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= this.app.AUDIO_BATTERY_CUTOFF);
+		return (batteryCharge >= this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff"));
 	}
 
 }

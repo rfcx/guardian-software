@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.updater.api.ApiCore;
-import org.rfcx.guardian.updater.device.DeviceBattery;
 import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.updater.service.ApiCheckVersionService;
 import org.rfcx.guardian.updater.service.DownloadFileService;
@@ -22,6 +21,7 @@ import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.device.DeviceBattery;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -55,10 +55,10 @@ public class RfcxGuardian extends Application {
 	public String targetAppRole = "";
 
 	// prefs (WILL BE SET DYNAMICALLY)
-	public String API_URL_BASE = "https://api.rfcx.org";
-	public int INSTALL_BATTERY_CUTOFF = (int) Integer.parseInt(   "30"   );
-	public int INSTALL_CYCLE_DURATION = (int) Integer.parseInt(   "3600000"   );
-	public int INSTALL_OFFLINE_TOGGLE_THRESHOLD = (int) Integer.parseInt(   "900000"   );
+//	public String API_URL_BASE = "https://api.rfcx.org";
+//	public int INSTALL_BATTERY_CUTOFF = (int) Integer.parseInt(   "30"   );
+//	public int INSTALL_CYCLE_DURATION = (int) Integer.parseInt(   "3600000"   );
+//	public int INSTALL_OFFLINE_TOGGLE_THRESHOLD = (int) Integer.parseInt(   "900000"   );
 		
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
@@ -133,8 +133,8 @@ public class RfcxGuardian extends Application {
 				int delayAfterAppLaunchInMinutes = 5;
 				PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ApiCheckVersionIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				AlarmManager updaterAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
-				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, ( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ), INSTALL_CYCLE_DURATION, updaterIntentService);
-				Log.d(TAG, "ApiCheckVersion will run every " + Math.round( INSTALL_CYCLE_DURATION / (60*1000) ) + " minute(s), starting at "+(new Date(( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ))).toLocaleString());
+				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, ( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ), this.rfcxPrefs.getPrefAsInt("install_cycle_duration"), updaterIntentService);
+				Log.d(TAG, "ApiCheckVersion will run every " + Math.round( this.rfcxPrefs.getPrefAsInt("install_cycle_duration") / (60*1000) ) + " minute(s), starting at "+(new Date(( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ))).toLocaleString());
 				this.hasRun_OnLaunchServiceTrigger = true;	
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);

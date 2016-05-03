@@ -22,6 +22,8 @@ import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
+import org.rfcx.guardian.utility.device.DeviceBattery;
+import org.rfcx.guardian.utility.device.DeviceDiskUsage;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -58,11 +60,14 @@ public class RfcxGuardian extends Application {
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
 
 	// prefs (WILL BE SET DYNAMICALLY)
-	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
-	public int SCREENSHOT_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
+//	public int AUDIO_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
+//	public int SCREENSHOT_CYCLE_DURATION = (int) Integer.parseInt(   "90000"   );
 
 	// for obtaining device stats and characteristics
 	public DeviceState deviceState = new DeviceState();
+	
+	public DeviceBattery deviceBattery = new DeviceBattery();
+	public DeviceDiskUsage deviceDiskUsage = new DeviceDiskUsage();
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
 	public DeviceScreenLock deviceScreenLock = new DeviceScreenLock();
 	
@@ -125,7 +130,7 @@ public class RfcxGuardian extends Application {
 				// Service Monitor
 				triggerIntentService("ServiceMonitor", 
 						System.currentTimeMillis(),
-						3 * Math.round( AUDIO_CYCLE_DURATION / 1000 )
+						3 * Math.round( this.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 1000 )
 						);
 				// background service for gather system stats
 				triggerService("DeviceState", true);

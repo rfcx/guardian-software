@@ -102,11 +102,11 @@ public class AudioCaptureService extends Service {
 			app.audioCapture.cleanupCaptureDirectory();
 			app.audioEncode.cleanupEncodeDirectory();
 			
-			captureLoopPeriod = (long) app.AUDIO_CYCLE_DURATION;
+			captureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			captureSampleRate = app.AUDIO_SAMPLE_RATE;
-			encodingBitRate = app.AUDIO_ENCODE_BITRATE;
-			captureCodec = (app.AUDIO_ENCODE_CODEC.equals("aac")) ? "aac" : "pcm";
-			captureFileExtension = (app.AUDIO_ENCODE_CODEC.equals("aac")) ? "m4a" : "wav";
+			encodingBitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
+			captureCodec = (app.rfcxPrefs.getPrefAsString("audio_encode_codec").equals("aac")) ? "aac" : "pcm";
+			captureFileExtension = (app.rfcxPrefs.getPrefAsString("audio_encode_codec").equals("aac")) ? "m4a" : "wav";
 			
 			try {
 				Log.d(TAG, "Capture Loop Period: "+ captureLoopPeriod +"ms");
@@ -120,7 +120,7 @@ public class AudioCaptureService extends Service {
 						} else {
 							Thread.sleep(2*captureLoopPeriod);
 							Log.i(TAG, "AudioCapture disabled due to low battery level"
-									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+app.AUDIO_BATTERY_CUTOFF+"%)."
+									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")+"%)."
 									+" Waiting "+(Math.round(2*captureLoopPeriod/1000))+" seconds before next attempt.");
 						}
 					} catch (Exception e) {

@@ -68,8 +68,8 @@ public class AudioEncodeIntentService extends IntentService {
 				app.audioDb.dbEncoded.insert(
 						capturedRow[1], capturedRow[2], preZipDigest,
 						(int) Integer.parseInt(capturedRow[4]), 
-						app.AUDIO_ENCODE_BITRATE, 
-						app.AUDIO_ENCODE_CODEC, 
+						app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate"), 
+						app.rfcxPrefs.getPrefAsString("audio_encode_codec"), 
 						(long) Long.parseLong(capturedRow[7]),
 						(System.currentTimeMillis() - encodeStartTime.getTime())
 						);
