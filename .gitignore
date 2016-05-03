@@ -30,5 +30,4 @@ proguard-project.txt
 # Repo-specific items to ignore
 !/bin/
 /tmp/
-publish-db-entry.sh
-/bin/private/
+/bin/_private/

@@ -3,9 +3,9 @@
 export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export ROLE=$1;
-export APK_VERSION=`cat $SCRIPT_DIR/../rfcx-guardian-$ROLE/AndroidManifest.xml | grep 'android:versionName=' | cut -d'"' -f 2`;
+export APK_VERSION=`cat $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/AndroidManifest.xml | grep 'android:versionName=' | cut -d'"' -f 2`;
 
-export ALL_ROLES=`ls -l $SCRIPT_DIR/../ | grep "rfcx-guardian-" | cut -d' ' -f 14 | cut -d'-' -f 3`;
+export ALL_ROLES=`ls -l $SCRIPT_DIR/../ | grep "rfcx-guardian-role-" | cut -d' ' -f 14 | cut -d'-' -f 3`;
 
 $SCRIPT_DIR/build-apk.sh $ROLE;
 
@@ -15,8 +15,7 @@ export SHA1=`openssl dgst -sha1 $SCRIPT_DIR/../tmp/$ROLE-$APK_VERSION.apk | grep
 echo "copying apk to s3...";
 aws s3 cp $SCRIPT_DIR/../tmp/$ROLE-$APK_VERSION.apk s3://rfcx-install/rfcx-guardian/guardian-android-$ROLE/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers; 
 
-export DB_URI=`cat $SCRIPT_DIR/private/rfcx-guardian-api-db-uri.txt;`;
-#export DB_PSWD=`cat $SCRIPT_DIR/private/rfcx-guardian-api-db-pswd.txt;`;
+export DB_URI=`cat $SCRIPT_DIR/_private/rfcx-api-db-pswd-production.txt;`;
 
 export ROLE_FROM_SQL=`ssh rfcx-proxy "mysql -h$DB_URI -uebroot -p ebdb -e \"SELECT id FROM GuardianSoftware WHERE role='$ROLE' LIMIT 1;\";";`;
 export ROLE_ID=`echo $ROLE_FROM_SQL | cut -d' ' -f 2`;

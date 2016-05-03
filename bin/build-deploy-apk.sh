@@ -3,9 +3,9 @@
 export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export ROLE=$1;
-export APK_VERSION=`cat $SCRIPT_DIR/../rfcx-guardian-$ROLE/AndroidManifest.xml | grep 'android:versionName=' | cut -d'"' -f 2`;
+export APK_VERSION=`cat $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/AndroidManifest.xml | grep 'android:versionName=' | cut -d'"' -f 2`;
 
-export ALL_ROLES=`ls -l $SCRIPT_DIR/../ | grep "rfcx-guardian-" | cut -d' ' -f 14 | cut -d'-' -f 3`;
+export ALL_ROLES=`ls -l $SCRIPT_DIR/../ | grep "rfcx-guardian-role-" | cut -d' ' -f 14 | cut -d'-' -f 3`;
 
 $SCRIPT_DIR/build-apk.sh $ROLE;
 
