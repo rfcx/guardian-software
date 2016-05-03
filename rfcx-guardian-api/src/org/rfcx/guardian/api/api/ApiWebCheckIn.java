@@ -41,7 +41,7 @@ public class ApiWebCheckIn {
 
 	private DateFormat timeZoneOffsetDateFormat = new SimpleDateFormat("Z");
 
-	public int[] connectivityToggleThresholds = new int[] { 10, 20, 30, 40 };
+	public int[] connectivityToggleThresholds = new int[] { 10, 17, 24, 30 };
 	public boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 
 	public void init(RfcxGuardian app) {
@@ -64,10 +64,10 @@ public class ApiWebCheckIn {
 			keyFilepathMimeAttachments = new ArrayList<String[]>();
 		if (app.isConnected) {
 			this.requestSendStart = new Date();
-			Log.i(TAG, "CheckIn sent at: " + requestSendStart.toLocaleString());
+			Log.i(TAG, "CheckIn sent at: " + (new DateTimeUtils()).getDateTime(this.requestSendStart));
 			String checkInResponse = httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments);
 			processCheckInResponse(checkInResponse);
-			if (checkInResponse.equals("Rfcx-" + RfcxGuardian.APP_ROLE + "-HttpPostMultipart-UnknownHostException")) {
+			if (checkInResponse.equals("Rfcx-Utils-HttpPostMultipart-UnknownHostException")) {
 				Log.e(TAG, "NOT INCREMENTING CHECK-IN ATTEMPTS");
 			} else {
 				app.checkInDb.dbQueued.incrementSingleRowAttempts(checkInAudioReference);
@@ -162,8 +162,6 @@ public class ApiWebCheckIn {
 		} catch (Exception e) {
 			Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
-		//REMOVE THIS AFTER DEBUGGING
-		Log.d(TAG, "REBOOTS: "+TextUtils.join("|", rebootEvents));
 		return rebootEvents;
 	}
 	
