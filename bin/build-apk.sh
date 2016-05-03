@@ -20,10 +20,8 @@ echo "RFCx $ROLE ($APK_VERSION)";
 echo "generating build configuration...";
 export BUILD_CONFIG=`android update project -p . -n rfcx-guardian-$ROLE`;
 
-echo "key.store=$SCRIPT_DIR/private/rfcx-guardian.jks" >> local.properties;
-# eventually we want to sign all the roles with the SAME key
-# ...but once we do we will not be able to update existing guardians in the field (different key)
-echo "key.alias=rfcx-guardian-android-$ROLE" >> local.properties;
+echo "key.store=$SCRIPT_DIR/private/rfcx-guardian-android.jks" >> local.properties;
+echo "key.alias=rfcx-guardian-android" >> local.properties;
 echo "key.store.password=$KEY_PSWD" >> local.properties;
 echo "key.alias.password=$KEY_PSWD" >> local.properties;
 
