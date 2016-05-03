@@ -1,16 +1,12 @@
 package org.rfcx.guardian.installer.service;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.rfcx.guardian.installer.RfcxGuardian;
-import org.rfcx.guardian.utility.HttpGet;
 import org.rfcx.guardian.utility.HttpPostMultipart;
 import org.rfcx.guardian.utility.RfcxConstants;
-
 
 import android.app.Service;
 import android.content.Context;
