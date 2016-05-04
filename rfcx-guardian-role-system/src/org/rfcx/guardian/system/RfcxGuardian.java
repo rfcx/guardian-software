@@ -11,7 +11,7 @@ import org.rfcx.guardian.system.database.DataTransferDb;
 import org.rfcx.guardian.system.database.DeviceStateDb;
 import org.rfcx.guardian.system.database.ScreenShotDb;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
-import org.rfcx.guardian.system.device.DeviceScreenLock;
+import org.rfcx.guardian.utility.device.DeviceScreenLock;
 import org.rfcx.guardian.system.device.DeviceState;
 import org.rfcx.guardian.system.service.DeviceScreenShotService;
 import org.rfcx.guardian.system.service.DeviceStateService;

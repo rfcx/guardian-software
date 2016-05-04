@@ -1,12 +1,8 @@
-package org.rfcx.guardian.system.device;
+package org.rfcx.guardian.installer.device;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
-import org.rfcx.guardian.system.RfcxGuardian;
+import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -16,13 +12,13 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class DeviceScreenShot {
+public class DeviceLogCat {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceScreenShot.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceLogCat.class.getSimpleName();
 
-	private String processTag = "screenshot";
-	private String binName = "fb2png";
-	private String fileType = "png";
+	private String processTag = "logcat";
+	private String binName = "logcat_capture";
+	private String fileType = "log";
 	
 	private String sdCardFilesDir = Environment.getExternalStorageDirectory().getAbsolutePath()+"/rfcx";
 	private String nonSdCardFilesDir = Environment.getDownloadCacheDirectory().getAbsolutePath()+"/rfcx";
@@ -30,13 +26,13 @@ public class DeviceScreenShot {
 	private String filesDir = nonSdCardFilesDir+"/"+processTag;
 	private String captureDir = nonSdCardFilesDir+"/capture/"+processTag;
 	private String binFilePath = nonSdCardFilesDir+"/bin/"+binName;
-	
+
 	private boolean isInitialized = false;
 	private FileUtils fileUtils = new FileUtils();
 
 	private boolean initializeCapture(Context context) {
 		if (!this.isInitialized) {
-			if ((new File(this.sdCardFilesDir)).exists()) { this.filesDir = this.sdCardFilesDir+"/screenshot"; }
+			if ((new File(this.sdCardFilesDir)).exists()) { this.filesDir = this.sdCardFilesDir+"/logcat"; }
 			(new File(this.filesDir)).mkdirs(); fileUtils.chmod(this.filesDir, 0755);
 			(new File(this.captureDir)).mkdirs(); fileUtils.chmod(this.captureDir, 0755);
 			this.isInitialized = true;
@@ -57,8 +53,8 @@ public class DeviceScreenShot {
 				// run framebuffer binary to save screenshot to file
 				(new ShellCommands()).executeCommand(this.binFilePath+" "+captureFilePath, null, false, context);
 				
-				return completeCapture(timestamp, captureFilePath, finalFilePath);
-				
+				return null;
+						
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			}
@@ -84,7 +80,6 @@ public class DeviceScreenShot {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
 		return null;
-	}
-	
-	
+	}	
+    
 }

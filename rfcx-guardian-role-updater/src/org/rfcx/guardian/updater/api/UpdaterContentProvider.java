@@ -16,9 +16,6 @@ import android.util.Log;
 public class UpdaterContentProvider extends ContentProvider {
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+UpdaterContentProvider.class.getSimpleName();
-
-	private RfcxGuardian app = null;
-	private Context context = null;
 	
 	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.updater.AUTHORITY;
 	private static final String ENDPOINT_1 = RfcxConstants.RfcxContentProvider.updater.ENDPOINT_1;
@@ -36,7 +33,8 @@ public class UpdaterContentProvider extends ContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		checkSetApplicationContext();
+		
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		try {
 			MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.updater.PROJECTION_1);
@@ -58,14 +56,7 @@ public class UpdaterContentProvider extends ContentProvider {
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		checkSetApplicationContext();
-		
 		return 0;
-	}
-	
-	private void checkSetApplicationContext() {
-		if (this.context == null) { this.context = getContext(); }
-		if (this.app == null) { this.app = (RfcxGuardian) this.context.getApplicationContext(); }
 	}
 	
 	@Override
@@ -75,22 +66,16 @@ public class UpdaterContentProvider extends ContentProvider {
 	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		checkSetApplicationContext();
-		
 		return 0;
 	}
 	
 	@Override
 	public String getType(Uri uri) {
-		checkSetApplicationContext();
-		
 		return null;
 	}
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		checkSetApplicationContext();
-		
 		return null;
 	}
 	

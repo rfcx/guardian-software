@@ -3,7 +3,10 @@ package org.rfcx.guardian.installer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
@@ -18,6 +21,7 @@ import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
 import org.rfcx.guardian.utility.device.DeviceGuid;
 import org.rfcx.guardian.utility.device.DeviceToken;
+import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
@@ -34,6 +38,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -92,6 +97,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		this.version = RfcxRoleVersions.getAppVersion(getApplicationContext());
 		rfcxPrefs.writeVersionToFile(this.version);
+		
+		// install external binary
+		this.installExternalExecutable("fb2png", false);
+		this.installExternalExecutable("logcat_capture", true);
 		
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
@@ -265,6 +274,41 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         	}
         	
         	shellCommands.executeCommand(executeAppDeletion, null, true, context);
+    }
+    
+    private boolean installExternalExecutable(String binName, boolean forceOverWrite) {
+    	try {
+
+    		String binDirPath = Environment.getDownloadCacheDirectory().getAbsolutePath()+"/rfcx/bin";
+    		(new File(binDirPath)).mkdirs();
+    		(new FileUtils()).chmod(binDirPath, 0755);
+    		String binFilePath = binDirPath+"/"+binName;
+	     	File binFile = new File(binFilePath);
+	     	
+	     	if (forceOverWrite) { binFile.delete(); }
+	     		
+	        if (!binFile.exists()) {
+	    		try {
+	    			InputStream inputStream = getApplicationContext().getAssets().open(binName);
+	    		    OutputStream outputStream = new FileOutputStream(binFilePath);
+	    		    byte[] buf = new byte[1024];
+	    		    int len;
+	    		    while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
+	    		    inputStream.close();
+	    		    outputStream.close();
+	    		    (new FileUtils()).chmod(binFile, 0755);
+	    		    return binFile.exists();
+	    		} catch (IOException e) {
+	    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+	    			return false;
+	    		}
+	        } else {
+	        	return true;
+	        }
+    	} catch (Exception e) {
+    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+    		return false;
+    	}
     }
     
 }

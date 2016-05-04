@@ -2,6 +2,7 @@ package org.rfcx.guardian.system.service;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
+import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Service;
@@ -66,14 +67,17 @@ public class DeviceScreenShotService extends Service {
 
 		@Override
 		public void run() {
-			DeviceScreenShotService deviceCPUTunerService = DeviceScreenShotService.this;
+			DeviceScreenShotService deviceScreenShotService = DeviceScreenShotService.this;
 			try {
 				// activate screen and set wake lock
 				app.deviceScreenLock.unLockScreen(context);
 				Thread.sleep(3000);
 				
-				String screenShotTimeStamp = deviceScreenShot.saveScreenShot(context);
-				if (screenShotTimeStamp != null) Log.i(TAG, "Screenshot saved: "+screenShotTimeStamp);
+				String[] saveScreenShot = deviceScreenShot.launchCapture(context);
+				if (saveScreenShot != null) { 
+					app.screenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3]);
+					Log.i(TAG, "ScreenShot saved: "+saveScreenShot[0]+"."+saveScreenShot[1]);
+				}
 				Thread.sleep(3000);
 
 			} catch (Exception e) {

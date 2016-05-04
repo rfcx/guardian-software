@@ -1,7 +1,4 @@
-package org.rfcx.guardian.system.device;
-
-import org.rfcx.guardian.system.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
+package org.rfcx.guardian.utility.device;
 
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -11,21 +8,18 @@ import android.util.Log;
 
 public class DeviceScreenLock {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceScreenLock.class.getSimpleName();
-	
-	private RfcxGuardian app = null;
+	private static final String TAG = "Rfcx-Utils-"+DeviceScreenLock.class.getSimpleName();
 	
 	private WakeLock wakeLock = null;
 	private KeyguardManager.KeyguardLock keyguardLock = null;
 
 	public void unLockScreen(Context context) {
-		app = (RfcxGuardian) context.getApplicationContext();
 		
-		KeyguardManager keyguardManager = (KeyguardManager) app.getSystemService(Context.KEYGUARD_SERVICE); 
+		KeyguardManager keyguardManager = (KeyguardManager) context.getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE); 
 		this.keyguardLock = keyguardManager.newKeyguardLock("RfcxKeyguardLock");
 		this.keyguardLock.disableKeyguard();
 
-		PowerManager powerManager = (PowerManager) app.getSystemService(Context.POWER_SERVICE); 
+		PowerManager powerManager = (PowerManager) context.getApplicationContext().getSystemService(Context.POWER_SERVICE); 
 		this.wakeLock = powerManager.newWakeLock(
 				PowerManager.FULL_WAKE_LOCK
 		        | PowerManager.ACQUIRE_CAUSES_WAKEUP

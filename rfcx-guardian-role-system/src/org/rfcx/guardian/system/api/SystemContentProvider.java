@@ -22,9 +22,6 @@ import android.util.Log;
 public class SystemContentProvider extends ContentProvider {
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+SystemContentProvider.class.getSimpleName();
-
-	private RfcxGuardian app = null;
-	private Context context = null;
 	
 	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.system.AUTHORITY;
 	private static final String ENDPOINT_META = RfcxConstants.RfcxContentProvider.system.ENDPOINT_META;
@@ -47,7 +44,8 @@ public class SystemContentProvider extends ContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		checkSetApplicationContext();
+
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		try {
 			if (URI_MATCHER.match(uri) == ENDPOINT_META_LIST) {
@@ -96,7 +94,8 @@ public class SystemContentProvider extends ContentProvider {
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		checkSetApplicationContext();
+
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		try {
 			if (URI_MATCHER.match(uri) == ENDPOINT_META_ID) {
@@ -128,11 +127,6 @@ public class SystemContentProvider extends ContentProvider {
 		return 0;
 	}
 	
-	private void checkSetApplicationContext() {
-		if (this.context == null) { this.context = getContext(); }
-		if (this.app == null) { this.app = (RfcxGuardian) this.context.getApplicationContext(); }
-	}
-	
 	@Override
 	public boolean onCreate() {
 		return true;
@@ -140,21 +134,18 @@ public class SystemContentProvider extends ContentProvider {
 	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		checkSetApplicationContext();
-		
 		return 0;
 	}
 	
 	@Override
 	public String getType(Uri uri) {
-		checkSetApplicationContext();
-		
 		return null;
 	}
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		checkSetApplicationContext();
+		
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		try {
 			if (URI_MATCHER.match(uri) == ENDPOINT_META_LIST) {

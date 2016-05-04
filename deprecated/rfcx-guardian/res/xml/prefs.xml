@@ -1,49 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
- 	<EditTextPreference
-        android:key="api_domain"
-        android:title="API Protocol/Address"
-        android:summary="Domain/Protocol for API calls"
-        android:enabled="true"
-        android:defaultValue="https://api.rfcx.org" />
-	
-	<EditTextPreference
-        android:key="audio_capture_interval"
-        android:title="Audio Capture Interval"
-        android:summary="How long should each audio chunk be? (seconds)"
-	    android:inputType="number"
-        android:enabled="true"
-        android:defaultValue="90"/>
-	
-	<EditTextPreference
-        android:key="service_monitor_interval"
-        android:title="Service Monitor Interval"
-        android:summary="How often to check if services are running? (minutes)"
-	    android:inputType="number"
-        android:enabled="true"
-        android:defaultValue="5"/>
-	
-	<CheckBoxPreference
-	    android:key="transcode_as_aac"
-	    android:title="Encode as AAC (vs. FLAC)"
-	    android:summary="Record audio, then transcode to lossy AAC"
-        android:enabled="true"
-		android:defaultValue="false"/>	
-	
-	<CheckBoxPreference
-	    android:key="capture_as_aac"
-	    android:title="Capture as AAC"
-	    android:summary="Record audio directly to lossy AAC"
-        android:enabled="true"
-		android:defaultValue="true"/>
-
-	<CheckBoxPreference
-	    android:key="run_carriercodes"
-	    android:title="Should we run USSD codes?"
-	    android:summary="This applies to both TopUp+Balance codes"
-        android:enabled="true"
-		android:defaultValue="true"/>
 	
 	<EditTextPreference
         android:key="carriercode_topup"
@@ -74,61 +31,6 @@
 	    android:summary="Comma-separated sequence of keys"
         android:enabled="true"
 		android:defaultValue="down,down,right,enter,enter"/>
-	
-	<EditTextPreference
-        android:key="device_guid"
-	    android:title="Device GUID"
-	    android:summary="Unique ID of Guardian"
-        android:enabled="true"
-		android:defaultValue=""/>
 
-	<EditTextPreference
-        android:key="device_token"
-	    android:title="Device Token"
-	    android:summary="Unique Token of Guardian"
-        android:enabled="true"
-		android:defaultValue=""/>
-
-	<CheckBoxPreference
-	    android:key="enable_service_audiocapture"
-	    android:title="Audio Capture"
-	    android:summary="Enable/Disable Service"
-        android:enabled="true"
-		android:defaultValue="true"/>
-	
-	<CheckBoxPreference
-	    android:key="enable_service_devicestate"
-	    android:title="Device Stats"
-	    android:summary="Enable/Disable Service"
-        android:enabled="true"
-		android:defaultValue="true"/>
-
-	<CheckBoxPreference
-	    android:key="enable_service_apicheckin"
-	    android:title="API Check-In"
-	    android:summary="Enable/Disable Service"
-        android:enabled="true"
-		android:defaultValue="true"/>
-
-	<CheckBoxPreference
-	    android:key="enable_service_carriercode"
-	    android:title="Carrier Interaction (USSD)"
-	    android:summary="Enable/Disable Service"
-        android:enabled="true"
-		android:defaultValue="true"/>
-
-	<CheckBoxPreference
-	    android:key="enable_service_sms"
-	    android:title="Send SMS"
-	    android:summary="Enable/Disable Service"
-        android:enabled="true"
-		android:defaultValue="true"/>
-
-	<CheckBoxPreference
-	    android:key="enable_service_cputuner"
-	    android:title="CPUTuner Set"
-	    android:summary="Enable/Disable Service"
-        android:enabled="true"
-		android:defaultValue="true"/>
 	
 </PreferenceScreen>
