@@ -1,29 +1,24 @@
 package org.rfcx.guardian.system;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Calendar;
 
 import org.rfcx.guardian.system.database.DataTransferDb;
 import org.rfcx.guardian.system.database.DeviceStateDb;
 import org.rfcx.guardian.system.database.ScreenShotDb;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
-import org.rfcx.guardian.utility.device.DeviceScreenLock;
-import org.rfcx.guardian.system.device.DeviceState;
 import org.rfcx.guardian.system.service.DeviceScreenShotService;
+import org.rfcx.guardian.system.service.DeviceSensorService;
 import org.rfcx.guardian.system.service.DeviceStateService;
 import org.rfcx.guardian.system.service.ServiceMonitorIntentService;
-import org.rfcx.guardian.utility.device.DeviceGuid;
-import org.rfcx.guardian.utility.device.DeviceToken;
-import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.RfcxConstants;
 import org.rfcx.guardian.utility.RfcxPrefs;
 import org.rfcx.guardian.utility.RfcxRoleVersions;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceDiskUsage;
+import org.rfcx.guardian.utility.device.DeviceGuid;
+import org.rfcx.guardian.utility.device.DeviceNetworkStats;
+import org.rfcx.guardian.utility.device.DeviceScreenLock;
+import org.rfcx.guardian.utility.device.DeviceToken;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -55,17 +50,16 @@ public class RfcxGuardian extends Application {
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
-
-	// for obtaining device stats and characteristics
-	public DeviceState deviceState = new DeviceState();
 	
 	public DeviceBattery deviceBattery = new DeviceBattery();
 	public DeviceDiskUsage deviceDiskUsage = new DeviceDiskUsage();
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
 	public DeviceScreenLock deviceScreenLock = new DeviceScreenLock();
+	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats();
 	
 	// Background Services
 	public boolean isRunning_DeviceState = false;
+	public boolean isRunning_DeviceSensor = false;
 	public boolean isRunning_DeviceScreenShot = false;
 	
 	// Repeating IntentServices
@@ -125,8 +119,10 @@ public class RfcxGuardian extends Application {
 						System.currentTimeMillis(),
 						3 * Math.round( this.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 1000 )
 						);
-				// background service for gather system stats
+				// background service for gathering system stats
 				triggerService("DeviceState", true);
+				// background service for gathering sensor stats
+				triggerService("DeviceSensor", true);
 				// background service for taking screenshots
 				triggerService("ScreenShot", true);
 				
@@ -164,6 +160,11 @@ public class RfcxGuardian extends Application {
 				context.stopService(new Intent(context, DeviceStateService.class));
 				context.startService(new Intent(context, DeviceStateService.class));
 			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
+		} else if (serviceName.equals("DeviceSensor")) {
+			if (!this.isRunning_DeviceSensor || forceReTrigger) {
+				context.stopService(new Intent(context, DeviceSensorService.class));
+				context.startService(new Intent(context, DeviceSensorService.class));
+			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
 		} else if (serviceName.equals("ScreenShot")) {
 			if (!this.isRunning_DeviceScreenShot || forceReTrigger) {
 				context.stopService(new Intent(context, DeviceScreenShotService.class));
@@ -178,6 +179,8 @@ public class RfcxGuardian extends Application {
 		context = getApplicationContext();		
 		if (serviceName.equals("DeviceState")) {
 			context.stopService(new Intent(context, DeviceStateService.class));
+		} else if (serviceName.equals("DeviceSensor")) {
+			context.stopService(new Intent(context, DeviceSensorService.class));
 		} else if (serviceName.equals("ScreenShot")) {
 			context.stopService(new Intent(context, DeviceScreenShotService.class));
 		} else {
@@ -192,33 +195,33 @@ public class RfcxGuardian extends Application {
 		this.screenShotDb = new ScreenShotDb(this,versionNumber);
 	}
  
-    public boolean findOrCreateLogcatCaptureScript() {
-    	try {
-	     	File logcatCaptureScript = new File(this.getFilesDir().getAbsolutePath()+"/bin/logcat_capture");
-	     	
-	        if (!logcatCaptureScript.exists()) {
-	    		try {
-	    			InputStream inputStream = this.getAssets().open("logcat_capture");
-	    		    OutputStream outputStream = new FileOutputStream(this.getFilesDir().getAbsolutePath()+"/bin/logcat_capture");
-	    		    byte[] buf = new byte[1024];
-	    		    int len;
-	    		    while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
-	    		    inputStream.close();
-	    		    outputStream.close();
-	    		    (new FileUtils()).chmod(logcatCaptureScript, 0755);
-	    		    return logcatCaptureScript.exists();
-	    		} catch (IOException e) {
-	    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-	    			return false;
-	    		}
-	        } else {
-	        	return true;
-	        }
-    	} catch (Exception e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-    		return false;
-    	}
-    }
+//    public boolean findOrCreateLogcatCaptureScript() {
+//    	try {
+//	     	File logcatCaptureScript = new File(this.getFilesDir().getAbsolutePath()+"/bin/logcat_capture");
+//	     	
+//	        if (!logcatCaptureScript.exists()) {
+//	    		try {
+//	    			InputStream inputStream = this.getAssets().open("logcat_capture");
+//	    		    OutputStream outputStream = new FileOutputStream(this.getFilesDir().getAbsolutePath()+"/bin/logcat_capture");
+//	    		    byte[] buf = new byte[1024];
+//	    		    int len;
+//	    		    while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
+//	    		    inputStream.close();
+//	    		    outputStream.close();
+//	    		    (new FileUtils()).chmod(logcatCaptureScript, 0755);
+//	    		    return logcatCaptureScript.exists();
+//	    		} catch (IOException e) {
+//	    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+//	    			return false;
+//	    		}
+//	        } else {
+//	        	return true;
+//	        }
+//    	} catch (Exception e) {
+//    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+//    		return false;
+//    	}
+//    }
 	
 	
 }

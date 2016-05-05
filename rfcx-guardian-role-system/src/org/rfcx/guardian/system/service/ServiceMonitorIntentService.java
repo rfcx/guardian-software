@@ -32,6 +32,7 @@ public class ServiceMonitorIntentService extends IntentService {
 		if (app.isRunning_ServiceMonitor) {
 			
 			app.triggerService("DeviceState", false);
+			app.triggerService("DeviceSensor", false);
 			
 		} else {
 			// the Monitor logic won't run the first time the intent service is fired

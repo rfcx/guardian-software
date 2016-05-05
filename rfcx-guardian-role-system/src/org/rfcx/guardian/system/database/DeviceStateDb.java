@@ -213,6 +213,9 @@ public class DeviceStateDb {
 				db.close();
 			}
 		}
+		public void insert(Date measured_at, int is_powered, int is_charged) {
+			insert(measured_at, (is_powered == 1), (is_charged == 1));
+		}
 		public List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();

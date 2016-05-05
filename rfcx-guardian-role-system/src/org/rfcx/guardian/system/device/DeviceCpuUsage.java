@@ -12,8 +12,10 @@ import android.util.Log;
 public class DeviceCpuUsage {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceCpuUsage.class.getSimpleName();
-	
+
+	public static final int STATS_REPORTING_CYCLE_DURATION_MS = 60000;
 	public static final int REPORTING_SAMPLE_COUNT = 60;
+	public static final int SAMPLE_LENGTH_MS = 360;
 	
 	private float cpuUsageNow = 0;
 	private float cpuUsageAvg = 0;
@@ -23,8 +25,6 @@ public class DeviceCpuUsage {
 	private float cpuClockAvg = 0;
 	private float[] prevCpuClock = new float[REPORTING_SAMPLE_COUNT];
 	private boolean updateClockSpeed = false;
-	
-	public static final int SAMPLE_LENGTH_MS = 360;
 	
 	public int getCpuUsageAvg() {
 		return Math.round(100*cpuUsageAvg);

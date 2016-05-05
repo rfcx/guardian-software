@@ -4,22 +4,13 @@ import java.util.Date;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
-import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.IBinder;
-import android.telephony.PhoneStateListener;
-import android.telephony.SignalStrength;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
-public class DeviceStateService extends Service implements SensorEventListener {
+public class DeviceStateService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceStateService.class.getSimpleName();
 	
@@ -30,13 +21,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 
 	private int recordingIncrement = 0;
 	
-	private SensorManager sensorManager;
-//	Sensor accelSensor = null;
-	Sensor lightSensor = null;
-	
-	SignalStrengthListener signalStrengthListener;
-	TelephonyManager telephonyManager;
-	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -46,7 +30,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 	public void onCreate() {
 		super.onCreate();
 		this.deviceStateSvc = new DeviceStateSvc();
-		registerListeners();
 	}
 	
 	@Override
@@ -67,7 +50,6 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		app.isRunning_DeviceState = false;
 		this.deviceStateSvc.interrupt();
 		this.deviceStateSvc = null;
-		unRegisterListeners();
 	}
 	
 	
@@ -80,25 +62,36 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		@Override
 		public void run() {
 			DeviceStateService deviceStateService = DeviceStateService.this;
+			
 			if (app == null) { app = (RfcxGuardian) getApplication(); }
+			
+			long CYCLE_DELAY_MS = (long) ( Math.round( DeviceCpuUsage.STATS_REPORTING_CYCLE_DURATION_MS / DeviceCpuUsage.REPORTING_SAMPLE_COUNT ) - DeviceCpuUsage.SAMPLE_LENGTH_MS );
+			
 			while (deviceStateService.runFlag) {
 				try {
+					
 					app.deviceCpuUsage.updateCpuUsage();
+					
 					recordingIncrement++;
-					if (recordingIncrement == DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
+					
+					if (recordingIncrement < DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
+						
+						Thread.sleep(CYCLE_DELAY_MS);
+						
+					} else {
 						
 						app.deviceStateDb.dbCPU.insert(new Date(), app.deviceCpuUsage.getCpuUsageAvg(), app.deviceCpuUsage.getCpuClockAvg());
-						app.deviceStateDb.dbBattery.insert(new Date(), app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null), app.deviceBattery.getBatteryTemperature(app.getApplicationContext(), null));
-						app.deviceStateDb.dbPower.insert(new Date(), !app.deviceBattery.isBatteryDischarging(app.getApplicationContext(), null), app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null));
 						
-						long[] trafficStats = app.deviceState.updateDataTransferStats();
-						app.dataTransferDb.dbTransferred.insert(new Date(), new Date(trafficStats[0]), new Date(trafficStats[1]), trafficStats[2], trafficStats[3], trafficStats[4], trafficStats[5]);
+						int[] batteryStats = app.deviceBattery.getBatteryState(app.getApplicationContext(), null);
+						app.deviceStateDb.dbBattery.insert(new Date(), batteryStats[0], batteryStats[1]);
+						app.deviceStateDb.dbPower.insert(new Date(), batteryStats[2], batteryStats[3]);
+						
+						long[] networkStats = app.deviceNetworkStats.updateDataTransferStats();
+						app.dataTransferDb.dbTransferred.insert(new Date(), new Date(networkStats[0]), new Date(networkStats[1]), networkStats[2], networkStats[3], networkStats[4], networkStats[5]);
 						
 						recordingIncrement = 0;
 					}
-											
-					long delayMs = (long) (Math.round(60000/app.deviceState.serviceSamplesPerMinute) - DeviceCpuUsage.SAMPLE_LENGTH_MS);
-					Thread.sleep(delayMs);
+					
 				} catch (InterruptedException e) {
 					deviceStateService.runFlag = false;
 					app.isRunning_DeviceState = true;
@@ -108,139 +101,4 @@ public class DeviceStateService extends Service implements SensorEventListener {
 		}		
 	}
 
-	
-	// Sensor methods
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		if (this.app == null) this.app = (RfcxGuardian) getApplication();
-		if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
-			if (event.values[0] >= 0) {
-				this.app.deviceStateDb.dbLightMeter.insert(new Date(), Math.round(event.values[0]), "");
-//			} else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-//				return;
-			}
-			return;
-		} else {
-			return;
-		}
-	}
-	
-	
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
-	}
-	
-	private void registerListeners() {
-		
-		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-//		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
-//			accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-//			this.sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//		}
-		if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
-			lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
-			this.sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		}
-		
-		signalStrengthListener = new SignalStrengthListener();
-		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-		
-	}
-	
-	private void unRegisterListeners() {
-//		if (accelSensor != null) {
-//			this.sensorManager.unregisterListener(this, accelSensor);
-//		}
-		if (lightSensor != null) {
-			this.sensorManager.unregisterListener(this, lightSensor);
-		}
-		
-		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		telephonyManager.listen(signalStrengthListener, PhoneStateListener.LISTEN_NONE);	// LISTEN_NONE : Stop listening for updates.
-	}
-	
-	
-
-	
-	public class SignalStrengthListener extends PhoneStateListener {
-		
-		@Override
-		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
-			super.onSignalStrengthsChanged(signalStrength);
-
-			boolean	isGsmActive = signalStrength.isGsm();
-	//		int	cdmaRssi = signalStrength.getCdmaDbm(); // CDMA RSSI value in dBm
-	//		int	cdmaEcIo = signalStrength.getCdmaEcio(); //CDMA Ec/Io value in dB*10
-	//		int	evdoRssi = signalStrength.getEvdoDbm(); //EVDO RSSI value in dBm
-	//		int	evdoEcIo = signalStrength.getEvdoEcio(); //EVDO Ec/Io value in dB*10
-	//		int	evdoSnr = signalStrength.getEvdoSnr(); //signal to noise ratio. Valid values are 0-8. 8 is the highest.
-	//		int	gsmBitErrorRate = signalStrength.getGsmBitErrorRate(); // GSM bit error rate (0-7, 99) as defined in TS 27.007 8.5
-			int	gsmSignalStrength = signalStrength.getGsmSignalStrength(); //GSM Signal Strength, valid values are (0-31, 99) as defined in TS 27.007 8.5
-			
-			int dBmGsmSignalStrength = (-113+2*gsmSignalStrength);
-			String networkType = "";
-			String carrierName = "";
-			
-			if (dBmGsmSignalStrength > 0) {
-				dBmGsmSignalStrength = 0;
-			} else { 
-				carrierName = telephonyManager.getNetworkOperatorName();
-				networkType = getNetworkTypeCategory(telephonyManager.getNetworkType());
-			}
-			app.deviceStateDb.dbNetwork.insert(new Date(), dBmGsmSignalStrength, networkType, carrierName);
-			
-		}
-	}
-	
-	private static String getNetworkTypeCategory(int getNetworkType) {
-		String networkTypeCategory = null;
-	    switch (getNetworkType) {
-	        case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-	        	networkTypeCategory = "unknown";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_IDEN:
-	        	networkTypeCategory = "iden";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_GPRS:
-	        	networkTypeCategory = "gprs";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_EDGE:
-	        	networkTypeCategory = "edge";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_UMTS:
-	        	networkTypeCategory = "umts";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_CDMA:
-	        	networkTypeCategory = "cdma";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_1xRTT:
-	        	networkTypeCategory = "1xrtt";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_EVDO_0:
-	        	networkTypeCategory = "evdo0";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_EVDO_A:
-	        	networkTypeCategory = "evdoA";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_EVDO_B:
-	        	networkTypeCategory = "evdoB";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_HSDPA:
-	        	networkTypeCategory = "hsdpa";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_HSUPA:
-	        	networkTypeCategory = "hsupa";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_HSPA:
-	        	networkTypeCategory = "hspa";
-	            break;
-	        default:
-	        	networkTypeCategory = null;
-	    }
-	    return networkTypeCategory;
-	}
-	
 }
