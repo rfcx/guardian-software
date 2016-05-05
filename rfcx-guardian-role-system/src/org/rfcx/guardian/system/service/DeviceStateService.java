@@ -30,6 +30,8 @@ public class DeviceStateService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.deviceStateSvc = new DeviceStateSvc();
+		
+		if (app == null) { app = (RfcxGuardian) getApplication(); }
 	}
 	
 	@Override
@@ -86,8 +88,11 @@ public class DeviceStateService extends Service {
 						app.deviceStateDb.dbBattery.insert(new Date(), batteryStats[0], batteryStats[1]);
 						app.deviceStateDb.dbPower.insert(new Date(), batteryStats[2], batteryStats[3]);
 						
-						long[] networkStats = app.deviceNetworkStats.updateDataTransferStats();
-						app.dataTransferDb.dbTransferred.insert(new Date(), new Date(networkStats[0]), new Date(networkStats[1]), networkStats[2], networkStats[3], networkStats[4], networkStats[5]);
+						long[] networkStats = app.deviceNetworkStats.getDataTransferStatsSnapshot();
+						// before saving, make sure this isn't the first time the stats are being generated (that throws off the net change figures)
+						if (networkStats[6] == 0) {
+							app.dataTransferDb.dbTransferred.insert(new Date(), new Date(networkStats[0]), new Date(networkStats[1]), networkStats[2], networkStats[3], networkStats[4], networkStats[5]);
+						}
 						
 						recordingIncrement = 0;
 					}

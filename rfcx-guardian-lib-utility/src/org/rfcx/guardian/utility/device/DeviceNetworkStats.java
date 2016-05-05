@@ -16,7 +16,9 @@ public class DeviceNetworkStats {
 	private long networkStatsReceivedTotal = 0;
 	private long networkStatsSentTotal = 0;
 	
-	public long[] updateDataTransferStats() {
+	public long[] getDataTransferStatsSnapshot() {
+
+		boolean isFirstRun = ((this.networkStatsReceivedTotal == 0) && (this.networkStatsSentTotal == 0));
 		
 		long mobileRxBytes = TrafficStats.getMobileRxBytes();
 		long mobileTxBytes = TrafficStats.getMobileTxBytes();
@@ -28,7 +30,15 @@ public class DeviceNetworkStats {
 		this.networkStatsReceivedTotal = mobileRxBytes;
 		this.networkStatsSentTotal = mobileTxBytes;
 				
-		return new long[] { this.networkStatsStart.getTime(), this.networkStatsEnd.getTime(), this.networkStatsReceived, this.networkStatsSent, this.networkStatsReceivedTotal, this.networkStatsSentTotal };
+		return new long[] { 
+				this.networkStatsStart.getTime(), 
+				this.networkStatsEnd.getTime(), 
+				this.networkStatsReceived, 
+				this.networkStatsSent, 
+				this.networkStatsReceivedTotal, 
+				this.networkStatsSentTotal,
+				(isFirstRun) ? 1 : 0
+			};
 	}
 	
 }

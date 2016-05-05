@@ -16,6 +16,7 @@ import org.rfcx.guardian.utility.RfcxRoleVersions;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceDiskUsage;
 import org.rfcx.guardian.utility.device.DeviceGuid;
+import org.rfcx.guardian.utility.device.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.DeviceScreenLock;
 import org.rfcx.guardian.utility.device.DeviceToken;

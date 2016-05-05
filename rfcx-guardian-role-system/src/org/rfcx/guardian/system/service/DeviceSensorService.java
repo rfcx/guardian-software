@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
+import org.rfcx.guardian.utility.device.DeviceMobileNetwork;
 
 import android.app.Service;
 import android.content.Context;
@@ -27,19 +28,19 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 	
 	private boolean runFlag = false;
 	private DeviceSensorSvc deviceSensorSvc;
-
-	private static final int RECORDING_CYCLE_DURATION_MS = 15000;
 	
 	private SensorManager sensorManager;
-	Sensor lightSensor = null;
-	Sensor accelSensor = null;
+	private Sensor lightSensor;
+	private Sensor accelSensor;
 	
-	SignalStrengthListener signalStrengthListener = null;
-	TelephonyManager telephonyManager = null;
+	private SignalStrengthListener signalStrengthListener;
+	private TelephonyManager telephonyManager;
 
-	List<long[]> lightSensorValues = new ArrayList<long[]>();
-	List<long[]> accelSensorValues = new ArrayList<long[]>();
-	List<String[]> networkValues = new ArrayList<String[]>();
+	private List<long[]> lightSensorValues = new ArrayList<long[]>();
+	private List<long[]> accelSensorValues = new ArrayList<long[]>();
+	private List<String[]> networkValues = new ArrayList<String[]>();
+	
+	private static final int ACCEL_FLOAT_MULTIPLIER = 1000;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -50,7 +51,11 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 	public void onCreate() {
 		super.onCreate();
 		this.deviceSensorSvc = new DeviceSensorSvc();
-		registerListeners();
+		
+		if (app == null) { app = (RfcxGuardian) getApplication(); }
+		
+		registerListener("light");
+		registerListener("network");
 	}
 	
 	@Override
@@ -59,7 +64,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 		if (app == null) { app = (RfcxGuardian) getApplication(); }
 		Log.v(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		app.isRunning_DeviceSensor = true;
+		((RfcxGuardian) getApplication()).isRunning_DeviceSensor = true;
 		this.deviceSensorSvc.start();
 		return START_STICKY;
 	}
@@ -71,7 +76,9 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 		app.isRunning_DeviceSensor = false;
 		this.deviceSensorSvc.interrupt();
 		this.deviceSensorSvc = null;
-		unRegisterListeners();
+		
+		unRegisterListener("light");
+		unRegisterListener("network");
 	}
 	
 	
@@ -86,15 +93,19 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 			DeviceSensorService deviceSensorService = DeviceSensorService.this;
 			
 			if (app == null) { app = (RfcxGuardian) getApplication(); }
+			
+			long sensorCaptureCycleDuration = (long) Math.round(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")/3);
+			Log.d(TAG, "Pause: "+sensorCaptureCycleDuration);
 					
 			while (deviceSensorService.runFlag) {
+				
 				try {
 					
-					Thread.sleep(RECORDING_CYCLE_DURATION_MS);
+					Thread.sleep(sensorCaptureCycleDuration);
 					
-					saveValuesToDatabase("light");
-					saveValuesToDatabase("accel");
-					saveValuesToDatabase("network");
+					saveSensorValuesToDatabase("light");
+					saveSensorValuesToDatabase("accel");
+					saveSensorValuesToDatabase("network");
 					
 				} catch (InterruptedException e) {
 					deviceSensorService.runFlag = false;
@@ -110,160 +121,95 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-
-		if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
-			if (event.values[0] >= 0) {
-				this.lightSensorValues.add(new long[] { (new Date()).getTime(), (long) Math.round(event.values[0]) } );
-			} else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-				Log.d(TAG, "Accel: "+event.values[0]+", "+event.values[1]+", "+event.values[2]);
-			//	this.accelSensorValues.add(new long[] {} );
-			//	return;
-			}
-			return;
-		} else {
-			return;
+		
+		int eventType = event.sensor.getType();
+		
+		if (eventType == Sensor.TYPE_LIGHT) {
+			this.lightSensorValues.add( new long[] { 
+					(new Date()).getTime(), 
+					(long) Math.round(event.values[0]) 
+				} );
+		} else if (eventType == Sensor.TYPE_ACCELEROMETER) {
+			this.accelSensorValues.add( new long[] { 
+					(new Date()).getTime(), 
+					(long) Math.round(event.values[0]*ACCEL_FLOAT_MULTIPLIER), 
+					(long) Math.round(event.values[1]*ACCEL_FLOAT_MULTIPLIER), 
+					(long) Math.round(event.values[2]*ACCEL_FLOAT_MULTIPLIER) 
+				} );
 		}
 	}
-	
 	
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
 	}
 	
-	private void registerListeners() {
+	private void registerListener(String sensorAbbreviation) {
 		
 		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		
-		if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
-			this.lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
-			this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-		}
-		
-		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
+		if (sensorAbbreviation.equalsIgnoreCase("accel") && (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0)) {
 			this.accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
 			this.sensorManager.registerListener(this, this.accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
+		} else if (sensorAbbreviation.equalsIgnoreCase("light") && (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0)) {
+			this.lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
+			this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+		} else if (sensorAbbreviation.equalsIgnoreCase("network")) {
+			this.signalStrengthListener = new SignalStrengthListener();
+			this.telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+			this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+		} else {
+			Log.e(TAG, "Listener failed to unregister for sensor abbreviation '"+sensorAbbreviation+"'.");
 		}
-		
-		this.signalStrengthListener = new SignalStrengthListener();
-		this.telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 		
 	}
 	
-	private void unRegisterListeners() {
+	private void unRegisterListener(String sensorAbbreviation) {
 		
-		if (this.lightSensor != null) { this.sensorManager.unregisterListener(this, this.lightSensor); }
-
-		if (this.accelSensor != null) { this.sensorManager.unregisterListener(this, this.accelSensor); }
-		
-		if (this.telephonyManager != null) { this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE); }
-
+		if (sensorAbbreviation.equalsIgnoreCase("accel") && (this.accelSensor != null)) { 
+			this.sensorManager.unregisterListener(this, this.accelSensor); 
+		} else if (sensorAbbreviation.equalsIgnoreCase("light") && (this.lightSensor != null)) { 
+			this.sensorManager.unregisterListener(this, this.lightSensor); 
+		} else if (sensorAbbreviation.equalsIgnoreCase("network") && (this.telephonyManager != null)) { 
+			this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE); 
+		} else {
+			Log.e(TAG, "Listener failed to unregister for sensor abbreviation '"+sensorAbbreviation+"'.");
+		}
 	}
 	
 	public class SignalStrengthListener extends PhoneStateListener {
-		
 		@Override
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
-			
 			super.onSignalStrengthsChanged(signalStrength);
-
-			boolean	isGsmActive = signalStrength.isGsm();
-	//		int	cdmaRssi = signalStrength.getCdmaDbm(); // CDMA RSSI value in dBm
-	//		int	cdmaEcIo = signalStrength.getCdmaEcio(); //CDMA Ec/Io value in dB*10
-	//		int	evdoRssi = signalStrength.getEvdoDbm(); //EVDO RSSI value in dBm
-	//		int	evdoEcIo = signalStrength.getEvdoEcio(); //EVDO Ec/Io value in dB*10
-	//		int	evdoSnr = signalStrength.getEvdoSnr(); //signal to noise ratio. Valid values are 0-8. 8 is the highest.
-	//		int	gsmBitErrorRate = signalStrength.getGsmBitErrorRate(); // GSM bit error rate (0-7, 99) as defined in TS 27.007 8.5
-			int	gsmSignalStrength = signalStrength.getGsmSignalStrength(); //GSM Signal Strength, valid values are (0-31, 99) as defined in TS 27.007 8.5
-			
-			int dBmGsmSignalStrength = (-113+2*gsmSignalStrength);
-			String networkType = "";
-			String carrierName = "";
-			
-			if (dBmGsmSignalStrength > 0) {
-				dBmGsmSignalStrength = 0;
-			} else { 
-				carrierName = telephonyManager.getNetworkOperatorName();
-				networkType = getNetworkTypeCategory(telephonyManager.getNetworkType());
-			}
-			
-			networkValues.add(new String[] { ""+(new Date()).getTime(), ""+dBmGsmSignalStrength, networkType, carrierName } );
-			
+			networkValues.add(DeviceMobileNetwork.getMobileNetworkSummary(telephonyManager, signalStrength));
 		}
 	}
 	
-	private static String getNetworkTypeCategory(int getNetworkType) {
-		String networkTypeCategory = null;
-	    switch (getNetworkType) {
-	        case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-	        	networkTypeCategory = "unknown";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_IDEN:
-	        	networkTypeCategory = "iden";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_GPRS:
-	        	networkTypeCategory = "gprs";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_EDGE:
-	        	networkTypeCategory = "edge";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_UMTS:
-	        	networkTypeCategory = "umts";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_CDMA:
-	        	networkTypeCategory = "cdma";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_1xRTT:
-	        	networkTypeCategory = "1xrtt";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_EVDO_0:
-	        	networkTypeCategory = "evdo0";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_EVDO_A:
-	        	networkTypeCategory = "evdoA";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_EVDO_B:
-	        	networkTypeCategory = "evdoB";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_HSDPA:
-	        	networkTypeCategory = "hsdpa";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_HSUPA:
-	        	networkTypeCategory = "hsupa";
-	            break;
-	        case TelephonyManager.NETWORK_TYPE_HSPA:
-	        	networkTypeCategory = "hspa";
-	            break;
-	        default:
-	        	networkTypeCategory = null;
-	    }
-	    return networkTypeCategory;
-	}
-	
-	private void saveValuesToDatabase(String valueName) {
+	private void saveSensorValuesToDatabase(String sensorAbbreviation) {
 		
-		if (valueName.equals("light")) {
+		if (sensorAbbreviation.equalsIgnoreCase("light")) {
 			
 			for (long[] lightVals : this.lightSensorValues) {
 				app.deviceStateDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
 			}
 			this.lightSensorValues = new ArrayList<long[]>();	
 			
-		} else if (valueName.equals("accel")) {
+		} else if (sensorAbbreviation.equalsIgnoreCase("accel")) {
 			
 			for (long[] accelVals : this.accelSensorValues) {
 //				app.deviceStateDb.db.insert(new Date(lightVals[0]), lightVals[1], "");
 			}
 			this.accelSensorValues = new ArrayList<long[]>();
 			
-		} else if (valueName.equals("network")) {
+		} else if (sensorAbbreviation.equalsIgnoreCase("network")) {
 			
 			for (String[] signalVals : this.networkValues) {
 				app.deviceStateDb.dbNetwork.insert(new Date((long) Long.parseLong(signalVals[0])), (int) Integer.parseInt(signalVals[1]), signalVals[2], signalVals[3]);
 			}
 			this.networkValues = new ArrayList<String[]>();	
 			
+		} else {
+			Log.e(TAG, "Sensor value info could not be saved to database for sensor abbreviation '"+sensorAbbreviation+"'.");
 		}
 		
 	}
