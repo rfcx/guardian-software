@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
-import org.rfcx.guardian.system.device.DeviceCpuUsage;
-import org.rfcx.guardian.utility.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;
@@ -30,18 +28,18 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 	private boolean runFlag = false;
 	private DeviceSensorSvc deviceSensorSvc;
 
-	private static final int RECORDING_CYCLE_DURATION_MS = 20000;
+	private static final int RECORDING_CYCLE_DURATION_MS = 15000;
 	
 	private SensorManager sensorManager;
-	Sensor accelSensor = null;
 	Sensor lightSensor = null;
+	Sensor accelSensor = null;
 	
 	SignalStrengthListener signalStrengthListener = null;
 	TelephonyManager telephonyManager = null;
-	
-	List<long[]> accelSensorValues = new ArrayList<long[]>();
+
 	List<long[]> lightSensorValues = new ArrayList<long[]>();
-	List<String[]> signalStrengthValues = new ArrayList<String[]>();
+	List<long[]> accelSensorValues = new ArrayList<long[]>();
+	List<String[]> networkValues = new ArrayList<String[]>();
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -61,7 +59,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 		if (app == null) { app = (RfcxGuardian) getApplication(); }
 		Log.v(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		((RfcxGuardian) getApplication()).isRunning_DeviceSensor = true;
+		app.isRunning_DeviceSensor = true;
 		this.deviceSensorSvc.start();
 		return START_STICKY;
 	}
@@ -94,21 +92,9 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 					
 					Thread.sleep(RECORDING_CYCLE_DURATION_MS);
 					
-					for (long[] lightVals : lightSensorValues) {
-						app.deviceStateDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
-					}
-					lightSensorValues = new ArrayList<long[]>();
-					
-					for (long[] accelVals : accelSensorValues) {
-			//			app.deviceStateDb.db.insert(new Date(lightVals[0]), lightVals[1], "");
-					}
-					accelSensorValues = new ArrayList<long[]>();
-					
-					for (String[] signalVals : signalStrengthValues) {
-						app.deviceStateDb.dbNetwork.insert(new Date((long) Long.parseLong(signalVals[0])), (int) Integer.parseInt(signalVals[1]), signalVals[2], signalVals[3]);
-					}
-					signalStrengthValues = new ArrayList<String[]>();					
-					
+					saveValuesToDatabase("light");
+					saveValuesToDatabase("accel");
+					saveValuesToDatabase("network");
 					
 				} catch (InterruptedException e) {
 					deviceSensorService.runFlag = false;
@@ -124,12 +110,14 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		if (this.app == null) this.app = (RfcxGuardian) getApplication();
+
 		if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
 			if (event.values[0] >= 0) {
-				this.lightSensorValues.add(new long[] { (new Date()).getTime(), (long) Math.round(event.values[0]) });
-//			} else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-//				return;
+				this.lightSensorValues.add(new long[] { (new Date()).getTime(), (long) Math.round(event.values[0]) } );
+			} else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+				Log.d(TAG, "Accel: "+event.values[0]+", "+event.values[1]+", "+event.values[2]);
+			//	this.accelSensorValues.add(new long[] {} );
+			//	return;
 			}
 			return;
 		} else {
@@ -147,14 +135,14 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 		
 		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		
-//		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
-//			accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-//			this.sensorManager.registerListener(this, accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//		}
-		
 		if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
-			lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
-			this.sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+			this.lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
+			this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+		}
+		
+		if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
+			this.accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+			this.sensorManager.registerListener(this, this.accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
 		}
 		
 		this.signalStrengthListener = new SignalStrengthListener();
@@ -165,9 +153,9 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 	
 	private void unRegisterListeners() {
 		
-		if (this.accelSensor != null) { this.sensorManager.unregisterListener(this, this.accelSensor); }
-		
 		if (this.lightSensor != null) { this.sensorManager.unregisterListener(this, this.lightSensor); }
+
+		if (this.accelSensor != null) { this.sensorManager.unregisterListener(this, this.accelSensor); }
 		
 		if (this.telephonyManager != null) { this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE); }
 
@@ -200,7 +188,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 				networkType = getNetworkTypeCategory(telephonyManager.getNetworkType());
 			}
 			
-			signalStrengthValues.add(new String[] { ""+(new Date()).getTime(), ""+dBmGsmSignalStrength, networkType, carrierName } );
+			networkValues.add(new String[] { ""+(new Date()).getTime(), ""+dBmGsmSignalStrength, networkType, carrierName } );
 			
 		}
 	}
@@ -251,6 +239,33 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 	        	networkTypeCategory = null;
 	    }
 	    return networkTypeCategory;
+	}
+	
+	private void saveValuesToDatabase(String valueName) {
+		
+		if (valueName.equals("light")) {
+			
+			for (long[] lightVals : this.lightSensorValues) {
+				app.deviceStateDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
+			}
+			this.lightSensorValues = new ArrayList<long[]>();	
+			
+		} else if (valueName.equals("accel")) {
+			
+			for (long[] accelVals : this.accelSensorValues) {
+//				app.deviceStateDb.db.insert(new Date(lightVals[0]), lightVals[1], "");
+			}
+			this.accelSensorValues = new ArrayList<long[]>();
+			
+		} else if (valueName.equals("network")) {
+			
+			for (String[] signalVals : this.networkValues) {
+				app.deviceStateDb.dbNetwork.insert(new Date((long) Long.parseLong(signalVals[0])), (int) Integer.parseInt(signalVals[1]), signalVals[2], signalVals[3]);
+			}
+			this.networkValues = new ArrayList<String[]>();	
+			
+		}
+		
 	}
 	
 }
