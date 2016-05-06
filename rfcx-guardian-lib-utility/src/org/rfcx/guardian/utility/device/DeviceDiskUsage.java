@@ -12,8 +12,8 @@ public class DeviceDiskUsage {
 	  StatFs internalStatFs = getStats(false);
 	  StatFs sdCardStatFs = getStats(true);
 	  List<String[]> allStats = new ArrayList<String[]>();
-	  allStats.add(new String[] { "internal", ""+diskUsedBytes(internalStatFs), ""+diskFreeBytes(internalStatFs) });
-	  allStats.add(new String[] { "external", ""+diskUsedBytes(sdCardStatFs), ""+diskFreeBytes(sdCardStatFs) });
+	  allStats.add(new String[] { "internal", ""+System.currentTimeMillis(), ""+diskUsedBytes(internalStatFs), ""+diskFreeBytes(internalStatFs) });
+	  allStats.add(new String[] { "external", ""+System.currentTimeMillis(), ""+diskUsedBytes(sdCardStatFs), ""+diskFreeBytes(sdCardStatFs) });
 	  return allStats;
   }
 
