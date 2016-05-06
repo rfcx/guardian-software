@@ -53,7 +53,6 @@ public class RfcxGuardian extends Application {
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
 	
 	public DeviceBattery deviceBattery = new DeviceBattery();
-	public DeviceDiskUsage deviceDiskUsage = new DeviceDiskUsage();
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
 	public DeviceScreenLock deviceScreenLock = new DeviceScreenLock();
 	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats();

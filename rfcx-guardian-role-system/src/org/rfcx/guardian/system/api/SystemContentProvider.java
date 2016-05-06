@@ -8,6 +8,7 @@ import java.util.List;
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
 import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.device.DeviceDiskUsage;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -61,7 +62,7 @@ public class SystemContentProvider extends ContentProvider {
 				String[] vAccelerometer = app.deviceStateDb.dbAccelerometer.getConcatRows();
 				
 				List<String> diskUsage = new ArrayList<String>();
-				for (String[] usageStat : app.deviceDiskUsage.allDiskStats()) {
+				for (String[] usageStat : DeviceDiskUsage.allDiskStats()) {
 					diskUsage.add(TextUtils.join("*", usageStat));
 				}
 				
