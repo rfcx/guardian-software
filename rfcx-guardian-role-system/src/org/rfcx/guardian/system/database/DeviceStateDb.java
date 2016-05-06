@@ -27,6 +27,7 @@ public class DeviceStateDb {
 		this.dbNetwork = new DbNetwork(context);
 		this.dbOffline = new DbOffline(context);
 		this.dbLightMeter = new DbLightMeter(context);
+		this.dbAccelerometer = new DbAccelerometer(context);
 	}
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceStateDb.class.getSimpleName();
@@ -437,5 +438,70 @@ public class DeviceStateDb {
 		}
 	}
 	public final DbLightMeter dbLightMeter;
+	
+	
+	public class DbAccelerometer {
+		private String TABLE = "accelerometer";
+		class DbHelper extends SQLiteOpenHelper {
+			public DbHelper(Context context) {
+				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
+			}
+			@Override
+			public void onCreate(SQLiteDatabase db) {
+				try {
+					db.execSQL(createColumnString(TABLE));
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
+			}
+			@Override
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); }
+			}
+		}
+		final DbHelper dbHelper;
+		public DbAccelerometer(Context context) {
+			this.dbHelper = new DbHelper(context);
+		}
+		public void close() {
+			this.dbHelper.close();
+		}
+		public void insert(Date measured_at, String x_y_z, int sample_count) {
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, measured_at.getTime());
+			values.put(C_VALUE_1, x_y_z);
+			values.put(C_VALUE_2, sample_count);
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} finally {
+				db.close();
+			}
+		}
+		public List<String[]> getAllRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			ArrayList<String[]> list = new ArrayList<String[]>();
+			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if (cursor.getCount() > 0) {
+					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
+			return list;
+		}
+		public void clearRowsBefore(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
+			} finally { db.close(); }
+		}
+		public String[] getConcatRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String[] stats = new String[] { null, null };
+			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
+				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
+				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+			} catch (Exception e) { Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC); } finally { db.close(); }
+			return stats;
+		}
+	}
+	public final DbAccelerometer dbAccelerometer;
 	
 }

@@ -38,7 +38,7 @@ public class DeviceGuid {
             			String randomGuid = (UUID.randomUUID()).toString();
                 		deviceGuid = randomGuid.substring(1+randomGuid.lastIndexOf("-"));
             		}
-            		Log.d(TAG,"GUID: "+deviceGuid);
+//            		Log.d(TAG,"GUID: "+deviceGuid);
             	}
             }
         }

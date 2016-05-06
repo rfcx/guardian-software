@@ -154,11 +154,11 @@ public class ApiWebCheckIn {
 					Uri.parse(RfcxConstants.RfcxContentProvider.reboot.URI_1),
 					RfcxConstants.RfcxContentProvider.reboot.PROJECTION_1,
 					null, null, null);
-			if (cursor.moveToFirst()) {
-				do {
-					rebootEvents.add(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.reboot.PROJECTION_1[1])));
-				} while (cursor.moveToNext());
-			}
+			
+			if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do { 
+				rebootEvents.add(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.reboot.PROJECTION_1[1])));
+			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			
 		} catch (Exception e) {
 			Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
@@ -174,16 +174,18 @@ public class ApiWebCheckIn {
 					Uri.parse(RfcxConstants.RfcxContentProvider.updater.URI_1),
 					RfcxConstants.RfcxContentProvider.updater.PROJECTION_1,
 					null, null, null);
-			if (cursor.moveToFirst()) {
-				do {
-					softwareVersions
-							.add(cursor.getString(cursor
-									.getColumnIndex(RfcxConstants.RfcxContentProvider.updater.PROJECTION_1[0]))
-									+ "*"
-									+ cursor.getString(cursor
-											.getColumnIndex(RfcxConstants.RfcxContentProvider.updater.PROJECTION_1[1])));
-				} while (cursor.moveToNext());
-			}
+
+			if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do { 
+				
+				softwareVersions
+				.add(cursor.getString(cursor
+						.getColumnIndex(RfcxConstants.RfcxContentProvider.updater.PROJECTION_1[0]))
+						+ "*"
+						+ cursor.getString(cursor
+								.getColumnIndex(RfcxConstants.RfcxContentProvider.updater.PROJECTION_1[1])));
+	
+			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+
 		} catch (Exception e) {
 			Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
@@ -201,18 +203,21 @@ public class ApiWebCheckIn {
 					Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_META),
 					RfcxConstants.RfcxContentProvider.system.PROJECTION_META,
 					null, null, null);
-			if (cursor.moveToFirst()) {
-				do {
-					for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION_META.length; i++) {
-						metaDataJsonObj.put(
-								RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i],
-								(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i])) != null)
-									? cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i]))
-									: null
-							);
-					}
-				} while (cursor.moveToNext());
-			}
+			
+
+			if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do { 
+
+				for (int i = 0; i < RfcxConstants.RfcxContentProvider.system.PROJECTION_META.length; i++) {
+					metaDataJsonObj.put(
+							RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i],
+							(cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i])) != null)
+								? cursor.getString(cursor.getColumnIndex(RfcxConstants.RfcxContentProvider.system.PROJECTION_META[i]))
+								: null
+						);
+				}
+				
+			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			
 		} catch (Exception e) {
 			Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
@@ -361,24 +366,26 @@ public class ApiWebCheckIn {
 		JSONArray msgJsonArray = new JSONArray();
 		Cursor cursor = app.getContentResolver().query(
 				Uri.parse("content://sms/"), null, null, null, null);
-		if (cursor.moveToFirst()) {
-			do {
-				try {
-					JSONObject msgJson = new JSONObject();
-					msgJson.put("android_id",
-							cursor.getString(cursor.getColumnIndex("_id")));
-					msgJson.put("received_at",
-							cursor.getLong(cursor.getColumnIndex("date")));
-					msgJson.put("address",
-							cursor.getString(cursor.getColumnIndex("address")));
-					msgJson.put("body",
-							cursor.getString(cursor.getColumnIndex("body")));
-					msgJsonArray.put(msgJson);
-				} catch (Exception e) {
-					Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-				}
-			} while (cursor.moveToNext());
-		}
+		
+		if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do {
+
+			try {
+				JSONObject msgJson = new JSONObject();
+				msgJson.put("android_id",
+						cursor.getString(cursor.getColumnIndex("_id")));
+				msgJson.put("received_at",
+						cursor.getLong(cursor.getColumnIndex("date")));
+				msgJson.put("address",
+						cursor.getString(cursor.getColumnIndex("address")));
+				msgJson.put("body",
+						cursor.getString(cursor.getColumnIndex("body")));
+				msgJsonArray.put(msgJson);
+			} catch (Exception e) {
+				Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			}
+			
+		} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+				
 		return msgJsonArray;
 	}
 
@@ -392,7 +399,8 @@ public class ApiWebCheckIn {
 						.parse(RfcxConstants.RfcxContentProvider.system.URI_SCREENSHOT),
 						RfcxConstants.RfcxContentProvider.system.PROJECTION_SCREENSHOT,
 						null, null, null);
-		if (cursor.moveToFirst()) {
+
+		if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) {
 			try {
 				return new String[] {
 						cursor.getString(cursor.getColumnIndex("created_at")),
@@ -402,7 +410,8 @@ public class ApiWebCheckIn {
 			} catch (Exception e) {
 				Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			}
-		}
+		} } finally { cursor.close(); } }
+		
 		return null;
 	}
 
@@ -436,7 +445,9 @@ public class ApiWebCheckIn {
 				.query(Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_SCREENSHOT),
 						RfcxConstants.RfcxContentProvider.system.PROJECTION_SCREENSHOT,
 						null, null, null);
-		if (cursor.moveToFirst()) {
+
+		if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) {
+
 			try {
 				String imgId = cursor.getString(cursor
 						.getColumnIndex("timestamp"));
@@ -457,7 +468,8 @@ public class ApiWebCheckIn {
 			} catch (Exception e) {
 				Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 			}
-		}
+			
+		} } finally { cursor.close(); } }
 
 		return checkInFiles;
 	}

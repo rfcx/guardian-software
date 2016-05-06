@@ -21,7 +21,7 @@ public class RfcxConstants {
 		
 		public static final class system {
 			public static final String AUTHORITY = "org.rfcx.guardian.system";
-			public static final String[] PROJECTION_META = { "battery", "cpu", "power", "network", "offline", "lightmeter", "data_transfer", "disk_usage" };
+			public static final String[] PROJECTION_META = { "battery", "cpu", "power", "network", "offline", "lightmeter", "data_transfer", "disk_usage", "accelerometer" };
 			public static final String ENDPOINT_META = "meta";
 			public static final String URI_META = "content://"+AUTHORITY+"/"+ENDPOINT_META;
 			public static final String[] PROJECTION_SCREENSHOT = { "created_at", "timestamp", "format", "digest", "filepath" };

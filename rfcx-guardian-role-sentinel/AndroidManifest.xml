@@ -42,7 +42,7 @@
 	<permission android:name="org.rfcx.guardian.READ" android:protectionLevel="normal" />
 	<permission android:name="org.rfcx.guardian.WRITE" android:protectionLevel="normal" />
 
-	<!-- <uses-feature android:name="android.hardware.usb.accessory" /> -->
+	<uses-feature android:name="android.hardware.usb.accessory" />
 	
     <application
         android:allowBackup="true"
@@ -52,7 +52,7 @@
         android:name="org.rfcx.guardian.sentinel.RfcxGuardian"
         >
         
-		<uses-library android:name="com.android.future.usb.accessory" />
+	<!-- <uses-library android:name="com.android.future.usb.accessory" /> -->
 
         <activity
             android:name="org.rfcx.guardian.sentinel.activity.MainActivity"
