@@ -7,6 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;

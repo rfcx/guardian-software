@@ -3,7 +3,8 @@ package org.rfcx.guardian.carrier.api;
 import java.util.Calendar;
 
 import org.rfcx.guardian.carrier.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -20,8 +21,8 @@ public class CarrierContentProvider extends ContentProvider {
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.carrier.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxConstants.RfcxContentProvider.carrier.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.RoleApi.carrier.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.RoleApi.carrier.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -38,7 +39,7 @@ public class CarrierContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.carrier.PROJECTION_1);
+		MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.carrier.PROJECTION_1);
 		
 		cursor.addRow(new Object[] { 
 				Calendar.getInstance().getTimeInMillis()

@@ -3,7 +3,8 @@ package org.rfcx.guardian.sentinel.api;
 import java.util.Calendar;
 
 import org.rfcx.guardian.sentinel.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -20,8 +21,8 @@ public class SentinelContentProvider extends ContentProvider {
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.sentinel.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxConstants.RfcxContentProvider.sentinel.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.RoleApi.sentinel.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.RoleApi.sentinel.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -38,7 +39,7 @@ public class SentinelContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.sentinel.PROJECTION_1);
+		MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.sentinel.PROJECTION_1);
 		
 		cursor.addRow(new Object[] { 
 				Calendar.getInstance().getTimeInMillis()

@@ -1,8 +1,6 @@
 package org.rfcx.guardian.installer;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,12 +17,11 @@ import org.rfcx.guardian.installer.service.DownloadFileService;
 import org.rfcx.guardian.installer.service.InstallAppService;
 import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
-import org.rfcx.guardian.utility.device.DeviceGuid;
-import org.rfcx.guardian.utility.device.DeviceToken;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.RfcxConstants;
-import org.rfcx.guardian.utility.RfcxPrefs;
-import org.rfcx.guardian.utility.RfcxRoleVersions;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 
@@ -88,14 +85,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void onCreate() {
 		super.onCreate();
 
-		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), this.APP_ROLE);
+		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
 		
 		PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.prefs, true);
 		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 		this.syncSharedPrefs();
 		
-		this.version = RfcxRoleVersions.getAppVersion(getApplicationContext());
+		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
 		rfcxPrefs.writeVersionToFile(this.version);
 		
 		// install external binary
@@ -142,7 +139,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext())).getDeviceId();
+			this.deviceId = (new RfcxDeviceId(getApplicationContext())).getDeviceGuid();
 			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;
@@ -150,7 +147,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
-			this.deviceToken = (new DeviceToken(getApplicationContext())).getDeviceToken();
+			this.deviceToken = (new RfcxDeviceId(getApplicationContext())).getDeviceToken();
 		}
 		return this.deviceToken;
 	}

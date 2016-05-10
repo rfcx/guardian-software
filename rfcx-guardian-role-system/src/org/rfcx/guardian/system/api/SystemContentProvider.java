@@ -7,8 +7,9 @@ import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 import org.rfcx.guardian.utility.device.DeviceDiskUsage;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -24,9 +25,9 @@ public class SystemContentProvider extends ContentProvider {
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+SystemContentProvider.class.getSimpleName();
 	
-	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.system.AUTHORITY;
-	private static final String ENDPOINT_META = RfcxConstants.RfcxContentProvider.system.ENDPOINT_META;
-	private static final String ENDPOINT_SCREENSHOT = RfcxConstants.RfcxContentProvider.system.ENDPOINT_SCREENSHOT;
+	private static final String AUTHORITY = RfcxRole.RoleApi.system.AUTHORITY;
+	private static final String ENDPOINT_META = RfcxRole.RoleApi.system.ENDPOINT_META;
+	private static final String ENDPOINT_SCREENSHOT = RfcxRole.RoleApi.system.ENDPOINT_SCREENSHOT;
 	
 	private static final int ENDPOINT_META_LIST = 1;
 	private static final int ENDPOINT_META_ID = 2;
@@ -51,7 +52,7 @@ public class SystemContentProvider extends ContentProvider {
 		try {
 			if (URI_MATCHER.match(uri) == ENDPOINT_META_LIST) {
 			
-				MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.system.PROJECTION_META);
+				MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.system.PROJECTION_META);
 				String[] vBattery = app.deviceStateDb.dbBattery.getConcatRows();
 				String[] vCpu = app.deviceStateDb.dbCPU.getConcatRows();
 				String[] vPower = app.deviceStateDb.dbPower.getConcatRows();
@@ -82,7 +83,7 @@ public class SystemContentProvider extends ContentProvider {
 				
 			} else if (URI_MATCHER.match(uri) == ENDPOINT_SCREENSHOT_LIST) {
 				
-				MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.system.PROJECTION_SCREENSHOT);
+				MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.system.PROJECTION_SCREENSHOT);
 				
 				for (String[] screenShotRow : app.screenShotDb.dbCaptured.getAllCaptured()) {
 					cursor.addRow(new Object[] { 

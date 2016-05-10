@@ -6,7 +6,7 @@ import java.util.Date;
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.GZipUtils;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.IntentService;
 import android.content.Intent;

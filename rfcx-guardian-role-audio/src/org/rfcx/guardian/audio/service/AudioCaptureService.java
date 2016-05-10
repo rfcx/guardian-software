@@ -9,7 +9,7 @@ import org.rfcx.guardian.audio.capture.AudioCapture;
 import org.rfcx.guardian.audio.capture.ExtAudioRecorderModified;
 import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;

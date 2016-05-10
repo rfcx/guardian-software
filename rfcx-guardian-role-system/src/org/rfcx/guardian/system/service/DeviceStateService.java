@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.Service;
 import android.content.Intent;

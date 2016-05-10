@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -15,11 +17,6 @@ import android.util.Log;
 public class GZipUtils {
 
 	private static final String TAG = "Rfcx-Utils-"+GZipUtils.class.getSimpleName();
-	
-//	public GZipUtils init(String roleName) {
-//		this.TAG = "Rfcx-"+roleName+"-"+GZipUtils.class.getSimpleName();
-//		return this;
-//	}
 	
 	public static String gZipStringToBase64(String inputString) {
 		return Base64.encodeToString(gZipString(inputString),Base64.DEFAULT);
@@ -63,6 +60,12 @@ public class GZipUtils {
 		} catch (IOException e) {
 			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
 		}
+	}
+	
+	public static void gZipFile(String inputFilePath, String outputFilePath) {
+		
+		gZipFile( (new File(inputFilePath)), (new File(outputFilePath)));
+		
 	}
 
 }

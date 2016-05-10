@@ -3,7 +3,7 @@ package org.rfcx.guardian.system.service;
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;

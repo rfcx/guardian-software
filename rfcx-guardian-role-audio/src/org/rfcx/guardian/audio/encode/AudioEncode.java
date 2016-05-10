@@ -8,7 +8,7 @@ import java.util.Locale;
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.service.AudioEncodeIntentService;
 import org.rfcx.guardian.audio.service.CheckInTriggerIntentService;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

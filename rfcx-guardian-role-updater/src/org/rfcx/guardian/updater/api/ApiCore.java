@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.text.TextUtils;
 import android.util.Log;

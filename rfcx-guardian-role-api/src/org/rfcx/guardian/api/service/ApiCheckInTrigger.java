@@ -1,7 +1,7 @@
 package org.rfcx.guardian.api.service;
 
 import org.rfcx.guardian.api.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;

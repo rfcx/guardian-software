@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility;
+package org.rfcx.guardian.utility.http;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,6 +23,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.text.TextUtils;
 import android.util.Log;

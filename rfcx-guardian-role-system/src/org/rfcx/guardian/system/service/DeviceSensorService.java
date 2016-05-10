@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 import org.rfcx.guardian.utility.device.DeviceMobileNetwork;
 
 import android.app.Service;

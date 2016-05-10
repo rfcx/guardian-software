@@ -12,6 +12,8 @@ import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+
 import android.text.TextUtils;
 import android.util.Log;
 

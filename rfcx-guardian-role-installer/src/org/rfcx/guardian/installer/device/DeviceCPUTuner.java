@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;

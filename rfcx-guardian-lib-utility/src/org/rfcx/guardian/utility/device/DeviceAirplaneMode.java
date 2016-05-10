@@ -1,6 +1,6 @@
 package org.rfcx.guardian.utility.device;
 
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.content.Context;
 import android.content.Intent;

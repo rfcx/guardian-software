@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
-import org.rfcx.guardian.utility.HttpGet;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.http.HttpGet;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;

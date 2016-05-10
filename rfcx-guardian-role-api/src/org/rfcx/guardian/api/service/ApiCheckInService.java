@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.GZipUtils;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;

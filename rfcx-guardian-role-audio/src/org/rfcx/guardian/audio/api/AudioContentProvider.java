@@ -1,11 +1,9 @@
 package org.rfcx.guardian.audio.api;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -14,7 +12,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.util.Log;
 
 public class AudioContentProvider extends ContentProvider {
 	
@@ -23,8 +20,8 @@ public class AudioContentProvider extends ContentProvider {
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.audio.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxConstants.RfcxContentProvider.audio.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.RoleApi.audio.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.RoleApi.audio.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -43,7 +40,7 @@ public class AudioContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.audio.PROJECTION_1);
+		MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.audio.PROJECTION_1);
 		List<String[]> encodedEntries = app.audioDb.dbEncoded.getAllEncoded();
 		for (String[] encodedEntry : encodedEntries) {
 					// if it's asking for list, we return all rows...

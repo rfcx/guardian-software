@@ -8,7 +8,7 @@ import java.io.OutputStream;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;

@@ -3,7 +3,8 @@ package org.rfcx.guardian.reboot.api;
 import java.util.Date;
 
 import org.rfcx.guardian.reboot.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -22,8 +23,8 @@ public class RebootContentProvider extends ContentProvider {
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxConstants.RfcxContentProvider.reboot.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxConstants.RfcxContentProvider.reboot.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.RoleApi.reboot.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.RoleApi.reboot.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -41,7 +42,7 @@ public class RebootContentProvider extends ContentProvider {
 		checkSetApplicationContext();
 		
 		try {
-			MatrixCursor cursor = new MatrixCursor(RfcxConstants.RfcxContentProvider.reboot.PROJECTION_1);
+			MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.reboot.PROJECTION_1);
 			
 			for (String[] rebootEvent : app.rebootDb.dbReboot.getAllEvents()) {
 				cursor.addRow(new Object[] { rebootEvent[0], rebootEvent[1] });

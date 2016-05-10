@@ -1,7 +1,7 @@
 package org.rfcx.guardian.carrier.device;
 
 import org.rfcx.guardian.carrier.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.KeyguardManager;
 import android.content.Context;

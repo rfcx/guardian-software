@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.json.JSONArray;
 import org.rfcx.guardian.installer.RfcxGuardian;
-import org.rfcx.guardian.utility.HttpPostMultipart;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.http.HttpPostMultipart;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.Service;
 import android.content.Context;

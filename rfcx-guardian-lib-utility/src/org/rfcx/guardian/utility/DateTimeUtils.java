@@ -13,11 +13,6 @@ public class DateTimeUtils {
 	private static final String TAG = "Rfcx-Utils-"+DateTimeUtils.class.getSimpleName();
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 	
-//	public DateTimeUtils init(String roleName) {
-//		this.TAG = "Rfcx-"+roleName+"-"+DateTimeUtils.class.getSimpleName();
-//		return this;
-//	}
-	
 	public String getDateTime() {
 		Date date = new Date();
 		return dateFormat.format(date);

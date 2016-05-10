@@ -3,11 +3,10 @@ package org.rfcx.guardian.reboot;
 import org.rfcx.guardian.reboot.database.RebootDb;
 import org.rfcx.guardian.reboot.service.RebootIntentService;
 import org.rfcx.guardian.utility.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceGuid;
-import org.rfcx.guardian.utility.device.DeviceToken;
-import org.rfcx.guardian.utility.RfcxConstants;
-import org.rfcx.guardian.utility.RfcxPrefs;
-import org.rfcx.guardian.utility.RfcxRoleVersions;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.app.AlarmManager;
 import android.app.Application;
@@ -41,9 +40,9 @@ public class RfcxGuardian extends Application {
 
 		super.onCreate();
 		
-		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), this.APP_ROLE);
+		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
 		
-		this.version = RfcxRoleVersions.getAppVersion(getApplicationContext());
+		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
 		rfcxPrefs.writeVersionToFile(this.version);
 		
 		setDbHandlers();
@@ -65,7 +64,7 @@ public class RfcxGuardian extends Application {
 	
 	public String getDeviceId() {
 		if (this.deviceId == null) {
-			this.deviceId = (new DeviceGuid(getApplicationContext())).getDeviceId();
+			this.deviceId = (new RfcxDeviceId(getApplicationContext())).getDeviceGuid();
 			rfcxPrefs.writeGuidToFile(this.deviceId);
 		}
 		return this.deviceId;
@@ -73,7 +72,7 @@ public class RfcxGuardian extends Application {
 	
 	public String getDeviceToken() {
 		if (this.deviceToken == null) {
-			this.deviceToken = (new DeviceToken(getApplicationContext())).getDeviceToken();
+			this.deviceToken = (new RfcxDeviceId(getApplicationContext())).getDeviceToken();
 		}
 		return this.deviceToken;
 	}
@@ -93,7 +92,7 @@ public class RfcxGuardian extends Application {
 	}
 	
 	private void setDbHandlers() {
-		int versionNumber = RfcxRoleVersions.getAppVersionValue(this.version);
+		int versionNumber = RfcxRole.getRoleVersionValue(this.version, TAG);
 		this.rebootDb = new RebootDb(this,versionNumber);
 	}
     

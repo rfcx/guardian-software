@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility;
+package org.rfcx.guardian.utility.http;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,6 +19,7 @@ import javax.net.ssl.HttpsURLConnection;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.content.Context;
 import android.text.TextUtils;

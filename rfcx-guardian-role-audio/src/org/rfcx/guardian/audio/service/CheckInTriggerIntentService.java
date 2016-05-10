@@ -1,7 +1,7 @@
 package org.rfcx.guardian.audio.service;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.app.IntentService;
 import android.content.ContentValues;
@@ -40,7 +40,7 @@ public class CheckInTriggerIntentService extends IntentService {
 		lastAudioValues.put("encode_duration", lastAudio[8]);
 		
 		Uri createdCheckInUri = getContentResolver().insert(
-				Uri.parse(RfcxConstants.RfcxContentProvider.api.URI_1),
+				Uri.parse(RfcxRole.RoleApi.api.URI_1),
 				lastAudioValues);
 		if (createdCheckInUri == null) {
 			Log.e(TAG,"Error triggering CheckIn via ContentProvider in 'api' role...");

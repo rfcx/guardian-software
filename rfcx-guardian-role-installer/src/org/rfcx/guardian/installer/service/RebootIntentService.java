@@ -2,7 +2,7 @@ package org.rfcx.guardian.installer.service;
 
 import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.IntentService;
 import android.content.Context;

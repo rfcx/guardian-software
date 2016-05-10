@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Service;

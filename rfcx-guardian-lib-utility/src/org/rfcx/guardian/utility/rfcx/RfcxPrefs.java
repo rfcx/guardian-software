@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility;
+package org.rfcx.guardian.utility.rfcx;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.rfcx.guardian.utility.FileUtils;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -47,6 +49,7 @@ public class RfcxPrefs {
 	}
 	
 	public void setPref(String targetAppRole, String prefKey, String prefValue) {
+		this.cachedPrefs.remove(prefKey);
 		this.cachedPrefs.put(prefKey, prefValue);
 		if ( 	(targetAppRole.toLowerCase().equals(this.thisAppRole.toLowerCase()))
 			&&	!prefValue.equals(readPrefFromFile(targetAppRole, prefKey))
