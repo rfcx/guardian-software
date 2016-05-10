@@ -27,7 +27,6 @@ public class CheckInDb {
 	}
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+CheckInDb.class.getSimpleName();
-	public DateTimeUtils dateTimeUtils = new DateTimeUtils();
 	private int VERSION = 1;
 	static final String DATABASE = "checkin";
 	static final String C_CREATED_AT = "created_at";
@@ -74,7 +73,7 @@ public class CheckInDb {
 		}
 		public void insert(String audio, String json, String attempts, String filepath) {
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, dateTimeUtils.getDateTime());
+			values.put(C_CREATED_AT, DateTimeUtils.getDateTime());
 			values.put(C_AUDIO, audio);
 			values.put(C_JSON, json);
 			values.put(C_ATTEMPTS, attempts);
@@ -140,7 +139,7 @@ public class CheckInDb {
 		
 		public void clearQueuedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+dateTimeUtils.getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+DateTimeUtils.getDateTime(date)+"'");
 			} finally { db.close(); }
 		}
 		
@@ -237,7 +236,7 @@ public class CheckInDb {
 		
 		public void clearSkippedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+dateTimeUtils.getDateTime(date)+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+DateTimeUtils.getDateTime(date)+"'");
 			} finally { db.close(); }
 		}
 		
@@ -285,7 +284,7 @@ public class CheckInDb {
 		}
 		public void insert(String audio, String json, String attempts, String filepath) {
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, dateTimeUtils.getDateTime());
+			values.put(C_CREATED_AT, DateTimeUtils.getDateTime());
 			values.put(C_AUDIO, audio);
 			values.put(C_JSON, json);
 			values.put(C_ATTEMPTS, attempts);

@@ -5,33 +5,45 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+
+import android.text.TextUtils;
 import android.util.Log;
 
 public class DateTimeUtils {
 	
 	private static final String TAG = "Rfcx-Utils-"+DateTimeUtils.class.getSimpleName();
-	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 	
-	public String getDateTime() {
+	private static final Locale DEFAULT_LOCALE = Locale.getDefault();
+	private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", DEFAULT_LOCALE);
+	private static final SimpleDateFormat TIMEZONE_FORMAT = new SimpleDateFormat("Z", DEFAULT_LOCALE);
+	
+
+	public static String getTimeZoneOffset() {
+		return TIMEZONE_FORMAT.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), DEFAULT_LOCALE).getTime());
+	}
+	
+	public static String getDateTime() {
 		Date date = new Date();
-		return dateFormat.format(date);
+		return DATETIME_FORMAT.format(date);
 	}
 	
-	public String getDateTime(Date date) {
-		return dateFormat.format(date);
+	public static String getDateTime(Date date) {
+		return DATETIME_FORMAT.format(date);
 	}
 	
-	public Date getDateFromString(String dateString) {
+	public static Date getDateFromString(String dateString) {
 		try {
-			return dateFormat.parse(dateString);
+			return DATETIME_FORMAT.parse(dateString);
 		} catch (ParseException e) {
-			Log.e(TAG, e.getMessage());
-			return new Date();
+			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			return null;
 		}
 	}
 	
-	public Calendar nextOccurenceOf(int hour, int minute, int second) {
+	public static Calendar nextOccurenceOf(int hour, int minute, int second) {
 		Calendar rightNow = Calendar.getInstance();
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.HOUR_OF_DAY, hour);

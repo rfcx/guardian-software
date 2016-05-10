@@ -40,8 +40,6 @@ public class ApiWebCheckIn {
 	private List<String> previousCheckIns = new ArrayList<String>();
 	private Date checkInPreFlightTimestamp = new Date();
 
-	private DateFormat timeZoneOffsetDateFormat = new SimpleDateFormat("Z");
-
 	public int[] connectivityToggleThresholds = new int[] { 10, 17, 24, 30 };
 	public boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 
@@ -65,7 +63,7 @@ public class ApiWebCheckIn {
 			keyFilepathMimeAttachments = new ArrayList<String[]>();
 		if (app.isConnected) {
 			this.requestSendStart = new Date();
-			Log.i(TAG, "CheckIn sent at: " + (new DateTimeUtils()).getDateTime(this.requestSendStart));
+			Log.i(TAG, "CheckIn sent at: " + DateTimeUtils.getDateTime(this.requestSendStart));
 			String checkInResponse = httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments);
 			processCheckInResponse(checkInResponse);
 			if (checkInResponse.equals("Rfcx-Utils-HttpPostMultipart-UnknownHostException")) {
@@ -253,8 +251,10 @@ public class ApiWebCheckIn {
 		checkInMetaJson.put("reboots", TextUtils.join("|", getRebootEvents()));
 
 		// Adding device location timezone offset
-		checkInMetaJson.put("timezone_offset", timeZoneOffsetDateFormat.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), Locale.getDefault()).getTime()));
-
+		checkInMetaJson.put("timezone_offset", DateTimeUtils.getTimeZoneOffset());
+		// DELETE LATER!!
+		Log.e(TAG, "Timezone Offset: "+DateTimeUtils.getTimeZoneOffset());
+		
 		// Adding messages to JSON blob
 		checkInMetaJson.put("messages", getSmsMessagesAsJson());
 
