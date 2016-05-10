@@ -71,11 +71,10 @@ public class InstallAppService extends Service {
 		@Override
 		public void run() {
 			InstallAppService installAppService = InstallAppService.this;
-			ShellCommands shellCommands = new ShellCommands();
 			boolean successfullyInstalled = false;
 			String apkFileName = app.apiCore.installRole+"-"+app.apiCore.installVersion+".apk";
 			try {
-				shellCommands.killProcessByName(context,"org.rfcx.guardian."+app.targetAppRole,"."+app.APP_ROLE);
+				ShellCommands.killProcessByName(context,"org.rfcx.guardian."+app.targetAppRole,"."+app.APP_ROLE);
 				successfullyInstalled = installApk(context,apkFileName,false);
 			} catch (Exception e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
@@ -88,8 +87,8 @@ public class InstallAppService extends Service {
 					Log.d(TAG, "installation successful ("+app.targetAppRole+", "+app.apiCore.installVersion+"). deleting apk and rebooting...");
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
-					shellCommands.executeCommand("reboot",null,false,context);
-				} else if ((installLoopCounter < 1) && (new FileUtils()).sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
+					ShellCommands.executeCommand("reboot",null,false,context);
+				} else if ((installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
 					installLoopCounter++;
 					app.triggerService("InstallApp", true);
 				} else {
@@ -106,14 +105,13 @@ public class InstallAppService extends Service {
 	
 	private boolean installApk(Context context, String apkFileName, boolean forceReInstallFlag) {
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-		ShellCommands shellCommands = new ShellCommands();
 		File apkFile = new File(context.getFilesDir().getPath(), apkFileName);
 		String apkFilePath = apkFile.getAbsolutePath();
 		String reInstallFlag = (app.apiCore.installVersion == null) ? "" : " -r";
 		if (forceReInstallFlag) reInstallFlag = " -r";
 		Log.d(TAG, "installing "+apkFilePath);
 		try {
-			boolean isInstalled = shellCommands.executeCommand(
+			boolean isInstalled = ShellCommands.executeCommand(
 					"pm install"+reInstallFlag+" "+apkFilePath,
 					"Success",true,context);
 			if (apkFile.exists()) { apkFile.delete(); }

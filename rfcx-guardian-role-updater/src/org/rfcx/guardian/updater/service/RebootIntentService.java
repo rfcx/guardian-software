@@ -27,7 +27,7 @@ public class RebootIntentService extends IntentService {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
 		Log.d(TAG, "Running RebootIntentService");
-		(new ShellCommands()).executeCommand("reboot",null,false,context);
+		ShellCommands.executeCommand("reboot",null,false,context);
 	}
 
 }

@@ -28,7 +28,7 @@ public class DeviceKeyEntry {
 		
 		this.keyCodes = defineKeyCodes(this.keyCodes);
 		
-		(new ShellCommands()).executeCommand(
+		ShellCommands.executeCommand(
 				generateKeyEntryCommand(
 					concatenatedCommandSequence.split(concatenatedCommandSequenceDelim),
 					this.keyCodes

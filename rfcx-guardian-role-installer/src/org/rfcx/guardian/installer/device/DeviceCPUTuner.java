@@ -90,9 +90,9 @@ public class DeviceCPUTuner {
         			app.rfcxPrefs.getPrefAsInt("cputuner_governor_down")
         			));
         	outFile.close();
-        	(new FileUtils()).chmod(tmpPrefsFile, 0755);
+        	FileUtils.chmod(tmpPrefsFile, 0755);
         	if (tmpPrefsFile.exists()) {
-        		(new ShellCommands()).executeCommand("cp "+tmpPrefsFilePath+" "+getPrefsPath(context),null,true,context);
+        		ShellCommands.executeCommand("cp "+tmpPrefsFilePath+" "+getPrefsPath(context),null,true,context);
         	}
         } catch (IOException e) {
         	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
@@ -101,12 +101,11 @@ public class DeviceCPUTuner {
 	
 	private static void createOrUpdateDbProfile(Context context) {
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-		ShellCommands sh = new ShellCommands();
 		String pre = "sqlite3 "+getDbPath(context)+" ";
-		if (sh.executeCommand(pre+"\""+sqlCheckIfProfileExists+"\"","0",true,context)) {
+		if (ShellCommands.executeCommand(pre+"\""+sqlCheckIfProfileExists+"\"","0",true,context)) {
 			Log.d(TAG, "Inserting RFCx profile into CPUTuner database for the first time.");
-			sh.executeCommand(pre+"\""+sqlDeleteRfcxProfile+"\"", null, true, context);
-			sh.executeCommand(pre+"\""+getSqlInsertRfcxProfile(
+			ShellCommands.executeCommand(pre+"\""+sqlDeleteRfcxProfile+"\"", null, true, context);
+			ShellCommands.executeCommand(pre+"\""+getSqlInsertRfcxProfile(
 	        			app.rfcxPrefs.getPrefAsInt("cputuner_freq_min"),
 	        			app.rfcxPrefs.getPrefAsInt("cputuner_freq_max"),
 	        			app.rfcxPrefs.getPrefAsInt("cputuner_governor_up"),
@@ -114,7 +113,7 @@ public class DeviceCPUTuner {
         			)+"\"", null, true, context);
 		} else {
 			Log.v(TAG, "Updating RFCx profile in CPUTuner database.");
-			sh.executeCommand(pre+"\""+getSqlUpdateRfcxProfile(
+			ShellCommands.executeCommand(pre+"\""+getSqlUpdateRfcxProfile(
 	        			app.rfcxPrefs.getPrefAsInt("cputuner_freq_min"),
 	        			app.rfcxPrefs.getPrefAsInt("cputuner_freq_max"),
 	        			app.rfcxPrefs.getPrefAsInt("cputuner_governor_up"),
@@ -122,7 +121,7 @@ public class DeviceCPUTuner {
         			)+"\"", null, true, context);
 		}
 		
-		sh.executeCommand(pre+"\""+sqlUpdateTriggers+"\"", null, true, context);
+		ShellCommands.executeCommand(pre+"\""+sqlUpdateTriggers+"\"", null, true, context);
 	}
 	
 	private static boolean isInstalled(Context context) {

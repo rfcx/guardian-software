@@ -43,7 +43,7 @@ public class UpdaterContentProvider extends ContentProvider {
 			for (String softwareRole : RfcxRole.ALL_ROLES) {
 				cursor.addRow(new Object[] { 
 					softwareRole,
-					(app.isRoleInstalled(softwareRole)) ? app.rfcxPrefs.getVersionFromFile(softwareRole) : null
+					(RfcxRole.isRoleInstalled(app.getApplicationContext(), softwareRole)) ? app.rfcxPrefs.getVersionFromFile(softwareRole) : null
 				});
 			}
 			

@@ -33,13 +33,11 @@ public class RfcxGuardian extends Application {
 	public String version;
 	Context context;
 	
-	private String deviceId = null;
-	private String deviceToken = null;
-	
 	public static final String APP_ROLE = "System";
 
 	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
 
+	public RfcxDeviceId rfcxDeviceId = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	
 	// database access helpers
@@ -70,7 +68,8 @@ public class RfcxGuardian extends Application {
 	public void onCreate() {
 		
 		super.onCreate();
-		
+
+		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
 		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
 		
 		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
@@ -92,21 +91,6 @@ public class RfcxGuardian extends Application {
 	
 	public void appPause() {
 		
-	}
-	
-	public String getDeviceId() {
-		if (this.deviceId == null) {
-			this.deviceId = (new RfcxDeviceId(getApplicationContext())).getDeviceGuid();
-			rfcxPrefs.writeGuidToFile(this.deviceId);
-		}
-		return this.deviceId;
-	}
-	
-	public String getDeviceToken() {
-		if (this.deviceToken == null) {
-			this.deviceToken = (new RfcxDeviceId(getApplicationContext())).getDeviceToken();
-		}
-		return this.deviceToken;
 	}
 	
 	public void initializeRoleServices(Context context) {
@@ -194,33 +178,7 @@ public class RfcxGuardian extends Application {
 		this.screenShotDb = new ScreenShotDb(this,versionNumber);
 	}
  
-//    public boolean findOrCreateLogcatCaptureScript() {
-//    	try {
-//	     	File logcatCaptureScript = new File(this.getFilesDir().getAbsolutePath()+"/bin/logcat_capture");
-//	     	
-//	        if (!logcatCaptureScript.exists()) {
-//	    		try {
-//	    			InputStream inputStream = this.getAssets().open("logcat_capture");
-//	    		    OutputStream outputStream = new FileOutputStream(this.getFilesDir().getAbsolutePath()+"/bin/logcat_capture");
-//	    		    byte[] buf = new byte[1024];
-//	    		    int len;
-//	    		    while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
-//	    		    inputStream.close();
-//	    		    outputStream.close();
-//	    		    (new FileUtils()).chmod(logcatCaptureScript, 0755);
-//	    		    return logcatCaptureScript.exists();
-//	    		} catch (IOException e) {
-//	    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-//	    			return false;
-//	    		}
-//	        } else {
-//	        	return true;
-//	        }
-//    	} catch (Exception e) {
-//    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-//    		return false;
-//    	}
-//    }
+
 	
 	
 }

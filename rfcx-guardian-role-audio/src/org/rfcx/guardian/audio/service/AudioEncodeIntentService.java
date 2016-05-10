@@ -19,9 +19,6 @@ public class AudioEncodeIntentService extends IntentService {
 	
 	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".AUDIO_ENCODE";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_AUDIO_ENCODE_NOTIFICATIONS";
-
-    private FileUtils fileUtils = new FileUtils();
-    private GZipUtils gZipUtils = new GZipUtils();
     
 	public AudioEncodeIntentService() {
 		super(TAG);
@@ -47,20 +44,20 @@ public class AudioEncodeIntentService extends IntentService {
 				
 				// This is where the actual encoding would take place...
 				// for now (since we're already in AAC) we just copy the file to the final location
-				fileUtils.copy(preEncodeFile, postEncodeFile);
+				FileUtils.copy(preEncodeFile, postEncodeFile);
 				
 				// delete pre-encode file
 				if (preEncodeFile.exists() && postEncodeFile.exists()) { preEncodeFile.delete(); }
 				
 				// generate file checksum of encoded file
-				String preZipDigest = fileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
+				String preZipDigest = FileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
 				
 				// GZIP encoded file into final filepath
-				gZipUtils.gZipFile(postEncodeFile, gZippedFile);
+				GZipUtils.gZipFile(postEncodeFile, gZippedFile);
 				
 				// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
 				if (gZippedFile.exists()) {
-					fileUtils.chmod(gZippedFile, 0755);
+					FileUtils.chmod(gZippedFile, 0755);
 					if (postEncodeFile.exists()) { postEncodeFile.delete(); }
 				}
 				

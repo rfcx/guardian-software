@@ -1,6 +1,8 @@
 package org.rfcx.guardian.utility.rfcx;
 
 
+import java.io.File;
+
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.text.TextUtils;
@@ -114,4 +116,9 @@ public class RfcxRole {
 		return 0;
 	}
 
+	public static boolean isRoleInstalled(Context context, String appRole) {
+		String mainAppPath = context.getFilesDir().getAbsolutePath();
+		return (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian."))+"/org.rfcx.guardian."+appRole.toLowerCase())).exists();
+	}
+	
 }

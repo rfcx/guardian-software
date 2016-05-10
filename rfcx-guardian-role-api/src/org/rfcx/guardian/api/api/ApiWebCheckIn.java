@@ -51,13 +51,13 @@ public class ApiWebCheckIn {
 		this.httpPostMultipart.setTimeOuts(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"), app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
 		// defining customized RFCx authentication headers (necessary for API access)
 		List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
-		rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/" + app.getDeviceId() });
-		rfcxAuthHeaders.add(new String[] { "x-auth-token", app.getDeviceToken() });
+		rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/" + app.rfcxDeviceId.getDeviceGuid() });
+		rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxDeviceId.getDeviceToken() });
 		this.httpPostMultipart.setCustomHttpHeaders(rfcxAuthHeaders);
 	}
 
 	public String getCheckInUrl() {
-		return app.rfcxPrefs.getPrefAsString("api_url_base") + "/v1/guardians/" + app.getDeviceId() + "/checkins";
+		return app.rfcxPrefs.getPrefAsString("api_url_base") + "/v1/guardians/" + app.rfcxDeviceId.getDeviceGuid() + "/checkins";
 	}
 
 	public void sendCheckIn(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments, boolean allowAttachments, String checkInAudioReference) {
@@ -264,7 +264,7 @@ public class ApiWebCheckIn {
 
 		// Stringify JSON, gzip the output and convert to base 64 string for sending
 		String jsonFinal = checkInMetaJson.toString();
-		String jsonFinalGZipped = (new GZipUtils()).gZipStringToBase64(jsonFinal);
+		String jsonFinalGZipped = GZipUtils.gZipStringToBase64(jsonFinal);
 
 		int pct = Math.round(100 * (1 - ((float) jsonFinalGZipped.length()) / ((float) jsonFinal.length())));
 		Log.d(TAG, "JSON MetaData Packaged: " + pct + "% reduced");
@@ -501,8 +501,7 @@ public class ApiWebCheckIn {
 						Log.d(TAG, "ToggleCheck: ForcedReboot ("
 								+ toggleThreshold
 								+ " minutes since last successful CheckIn)");
-						(new ShellCommands()).executeCommand("reboot", null,
-								false, app.getApplicationContext());
+						ShellCommands.executeCommand("reboot", null, false, app.getApplicationContext());
 					}
 				}
 				thresholdIndex++;

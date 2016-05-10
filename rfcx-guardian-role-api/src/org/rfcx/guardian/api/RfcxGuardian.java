@@ -32,13 +32,11 @@ public class RfcxGuardian extends Application {
 	public String version;
 	Context context;
 	
-	private String deviceId = null;
-	private String deviceToken = null;
-	
 	public static final String APP_ROLE = "Api";
 
 	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
 
+	public RfcxDeviceId rfcxDeviceId = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	
 	// database access helpers
@@ -71,6 +69,7 @@ public class RfcxGuardian extends Application {
 		
 		super.onCreate();
 		
+		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
 		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
 		
 		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
@@ -96,21 +95,6 @@ public class RfcxGuardian extends Application {
 	
 	public void appPause() {
 		
-	}
-
-	public String getDeviceId() {
-		if (this.deviceId == null) {
-			this.deviceId = (new RfcxDeviceId(getApplicationContext())).getDeviceGuid();
-			rfcxPrefs.writeGuidToFile(this.deviceId);
-		}
-		return this.deviceId;
-	}
-	
-	public String getDeviceToken() {
-		if (this.deviceToken == null) {
-			this.deviceToken = (new RfcxDeviceId(getApplicationContext())).getDeviceToken();
-		}
-		return this.deviceToken;
 	}
 	
 	public void initializeRoleServices(Context context) {

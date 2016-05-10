@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.rfcx.guardian.api.RfcxGuardian;
-import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.Service;
@@ -23,8 +22,6 @@ public class ApiCheckInService extends Service {
 
 	private RfcxGuardian app = null;
 	private Context context = null;
-	
-	GZipUtils gZipUtils = new GZipUtils();
 	
 	@Override
 	public IBinder onBind(Intent arg0) {

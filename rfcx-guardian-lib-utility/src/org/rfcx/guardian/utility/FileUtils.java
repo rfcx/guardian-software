@@ -26,7 +26,7 @@ public class FileUtils {
 //		return this;
 //	}
 	
-	public String sha1Hash(String filePath) {
+	public static String sha1Hash(String filePath) {
 		try {
 			MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
 		    FileInputStream fileInputStream = new FileInputStream(filePath);
@@ -54,7 +54,7 @@ public class FileUtils {
 		return null;
 	}
 	
-	public int chmod(File file, int mode) {
+	public static int chmod(File file, int mode) {
 		try {
 			Class fileUtils = Class.forName("android.os.FileUtils");
 			Method setPermissions = fileUtils.getMethod("setPermissions", String.class, int.class, int.class, int.class);
@@ -77,11 +77,11 @@ public class FileUtils {
 		return 0;
 	}
 	
-	public int chmod(String filePath, int mode) {
+	public static int chmod(String filePath, int mode) {
 		return chmod(new File(filePath), mode);
 	}
 	
-	public void copy(File srcFile, File dstFile) throws IOException {
+	public static void copy(File srcFile, File dstFile) throws IOException {
 		
 		(new File(dstFile.getAbsolutePath().substring(0,dstFile.getAbsolutePath().lastIndexOf("/")))).mkdirs();
 		

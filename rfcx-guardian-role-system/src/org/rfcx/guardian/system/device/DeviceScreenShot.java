@@ -1,15 +1,11 @@
 package org.rfcx.guardian.system.device;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.content.Context;
 import android.os.Environment;
@@ -30,23 +26,20 @@ public class DeviceScreenShot {
 	private String filesDir = nonSdCardFilesDir+"/"+processTag;
 	private String captureDir = nonSdCardFilesDir+"/capture/"+processTag;
 	private String binFilePath = nonSdCardFilesDir+"/bin/"+binName;
-	
-	private boolean isInitialized = false;
-	private FileUtils fileUtils = new FileUtils();
 
-	private boolean initializeCapture(Context context) {
-		if (!this.isInitialized) {
-			if ((new File(this.sdCardFilesDir)).exists()) { this.filesDir = this.sdCardFilesDir+"/screenshot"; }
-			(new File(this.filesDir)).mkdirs(); fileUtils.chmod(this.filesDir, 0755);
-			(new File(this.captureDir)).mkdirs(); fileUtils.chmod(this.captureDir, 0755);
-			this.isInitialized = true;
-		}
+	private boolean initializeCapture() {
+		
+		if ((new File(this.sdCardFilesDir)).exists()) { this.filesDir = this.sdCardFilesDir+"/"+this.processTag; }
+		
+		if (!(new File(this.filesDir)).exists()) { (new File(this.filesDir)).mkdirs(); FileUtils.chmod(this.filesDir, 0755); }
+		if (!(new File(this.captureDir)).exists()) { (new File(this.captureDir)).mkdirs(); FileUtils.chmod(this.captureDir, 0755); }
+		
 		return (new File(this.binFilePath)).exists();
 	}
     
 	public String[] launchCapture(Context context) {
 		
-		if (initializeCapture(context)) {
+		if (initializeCapture()) {
 			
 			try {
 				
@@ -55,7 +48,7 @@ public class DeviceScreenShot {
 				String finalFilePath = this.filesDir+"/"+timestamp+"."+this.fileType;
 				
 				// run framebuffer binary to save screenshot to file
-				(new ShellCommands()).executeCommand(this.binFilePath+" "+captureFilePath, null, false, context);
+				ShellCommands.executeCommand(this.binFilePath+" "+captureFilePath, null, false, context);
 				
 				return completeCapture(timestamp, captureFilePath, finalFilePath);
 				
@@ -74,10 +67,10 @@ public class DeviceScreenShot {
 			File finalFile = new File(finalFilePath);
 			
 	        if (captureFile.exists()) {
-	        	fileUtils.copy(captureFile, finalFile);
+	        	FileUtils.copy(captureFile, finalFile);
 	        	if (finalFile.exists()) {
 	        		captureFile.delete();
-	        		return new String[] { timestamp, this.fileType, fileUtils.sha1Hash(finalFilePath), finalFilePath };
+	        		return new String[] { timestamp, this.fileType, FileUtils.sha1Hash(finalFilePath), finalFilePath };
 	        	}
 		    }
 		} catch (Exception e) {

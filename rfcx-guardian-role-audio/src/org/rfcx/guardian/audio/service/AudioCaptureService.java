@@ -32,8 +32,6 @@ public class AudioCaptureService extends Service {
 	MediaRecorder mediaRecorder = null;
     ExtAudioRecorderModified audioRecorder = null;
     
-    FileUtils fileUtils = new FileUtils();
-    
 	private long captureLoopPeriod;
 	private int captureSampleRate;
 	
@@ -192,7 +190,7 @@ public class AudioCaptureService extends Service {
 		if (completedCapture.exists()) {
 			try {
 				File preEncodeFile = new File(app.audioEncode.getAudioFileLocation_PreEncode(captureTimeStamps[0],captureFileExtension));
-				fileUtils.copy(completedCapture, preEncodeFile);
+				FileUtils.copy(completedCapture, preEncodeFile);
 				if (preEncodeFile.exists()) { completedCapture.delete(); }				
 			} catch (IOException e) {
 				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);

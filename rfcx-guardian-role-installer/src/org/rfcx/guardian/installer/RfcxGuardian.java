@@ -45,13 +45,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String version;
 	Context context;
 	
-	private String deviceId = null;
-	private String deviceToken = null;
-	
 	public static final String APP_ROLE = "Installer";
 
 	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
 
+	public RfcxDeviceId rfcxDeviceId = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	
 	public static final String targetAppRoleApiEndpoint = "updater";
@@ -85,6 +83,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void onCreate() {
 		super.onCreate();
 
+		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
 		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
 		
 		PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.prefs, true);
@@ -102,7 +101,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
 		this.apiCore.targetAppRoleApiEndpoint = this.targetAppRoleApiEndpoint;
-		this.apiCore.setApiCheckVersionEndpoint(getDeviceId());
+		this.apiCore.setApiCheckVersionEndpoint(this.rfcxDeviceId.getDeviceGuid());
 		this.apiCore.setApiRegisterEndpoint();
 		
 	    initializeRoleServices(getApplicationContext());
@@ -135,21 +134,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public boolean setPref(String prefKey, String prefValue) {
 		return this.sharedPrefs.edit().putString(prefKey,prefValue).commit();
-	}
-
-	public String getDeviceId() {
-		if (this.deviceId == null) {
-			this.deviceId = (new RfcxDeviceId(getApplicationContext())).getDeviceGuid();
-			rfcxPrefs.writeGuidToFile(this.deviceId);
-		}
-		return this.deviceId;
-	}
-	
-	public String getDeviceToken() {
-		if (this.deviceToken == null) {
-			this.deviceToken = (new RfcxDeviceId(getApplicationContext())).getDeviceToken();
-		}
-		return this.deviceToken;
 	}
 	
 	public void initializeRoleServices(Context context) {
@@ -232,30 +216,28 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     
     public void setExtremeDevelopmentSystemDefaults(){
     	
-    	ShellCommands shellCommands = new ShellCommands();
     	context = getApplicationContext();
     	
     	String[] buildDotPropSettings = new String[] {
     			"service.adb.tcp.port=5555", // permanently turns on network adb access (for bluetooth/wifi administration)
     			"ro.com.android.dataroaming=true", // turns on data roaming
     			"ro.com.android.dateformat=yyyy-MM-dd", // sets the date format
-    			"net.bt.name=rfcx-"+getDeviceId().substring(0,4) // sets the default bluetooth device name to 
+    			"net.bt.name=rfcx-"+this.rfcxDeviceId.getDeviceGuid().substring(0,4) // sets the default bluetooth device name to 
     		};
     	
-    	shellCommands.executeCommand("mount -o rw,remount /dev/block/mmcblk0p1 /system", null, true, context);
+    	ShellCommands.executeCommand("mount -o rw,remount /dev/block/mmcblk0p1 /system", null, true, context);
     	
     	String writeToBuildDotProp = "";
     	for (int i = 0; i < buildDotPropSettings.length; i++) {
     		writeToBuildDotProp += " echo "+buildDotPropSettings[i]+" >> /system/build.prop; ";
     	}
     	
-    	shellCommands.executeCommand(writeToBuildDotProp, null, true, context);
+    	ShellCommands.executeCommand(writeToBuildDotProp, null, true, context);
     	
     }
     
     public void deleteExtraCyanogenModApps() {
             
-            ShellCommands shellCommands = new ShellCommands();
         	context = getApplicationContext();
         	
         	String[] appsToDelete = new String[] {
@@ -263,25 +245,32 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         			"Calendar", "Gallery", "Music", "QuickSearchBox", "VoiceDialer", "RomManager"
         		};
         	
-        	shellCommands.executeCommand("mount -o rw,remount /dev/block/mmcblk0p1 /system", null, true, context);
+        	ShellCommands.executeCommand("mount -o rw,remount /dev/block/mmcblk0p1 /system", null, true, context);
         	
         	String executeAppDeletion = "";
         	for (int i = 0; i < appsToDelete.length; i++) {
         		executeAppDeletion += " rm -f /system/app/"+appsToDelete[i]+".apk; ";
         	}
         	
-        	shellCommands.executeCommand(executeAppDeletion, null, true, context);
+        	ShellCommands.executeCommand(executeAppDeletion, null, true, context);
     }
     
     private boolean installExternalExecutable(String binName, boolean forceOverWrite) {
     	try {
-
-    		String binDirPath = Environment.getDownloadCacheDirectory().getAbsolutePath()+"/rfcx/bin";
-    		(new File(binDirPath)).mkdirs();
-    		(new FileUtils()).chmod(binDirPath, 0755);
-    		String binFilePath = binDirPath+"/"+binName;
-	     	File binFile = new File(binFilePath);
-	     	
+    		
+    		String assetDirPath = Environment.getDownloadCacheDirectory().getAbsolutePath()+"/rfcx";
+    		String binDirPath = assetDirPath+"/bin"; File binDir = new File(binDirPath);
+    		String binFilePath = binDirPath+"/"+binName; File binFile = new File(binFilePath);
+    		
+    		if (!(new File(assetDirPath)).exists()) {
+    			ShellCommands.executeCommand("mkdir "+assetDirPath+"; chmod a+rw "+assetDirPath+";", null, true, getApplicationContext());
+    		}
+    		
+    		if (!binDir.exists()) {
+	    		binDir.mkdirs();
+	    		FileUtils.chmod(binDir, 0755);
+    		}
+    		
 	     	if (forceOverWrite) { binFile.delete(); }
 	     		
 	        if (!binFile.exists()) {
@@ -293,7 +282,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	    		    while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
 	    		    inputStream.close();
 	    		    outputStream.close();
-	    		    (new FileUtils()).chmod(binFile, 0755);
+	    		    FileUtils.chmod(binFile, 0755);
 	    		    return binFile.exists();
 	    		} catch (IOException e) {
 	    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);

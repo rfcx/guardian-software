@@ -27,22 +27,19 @@ public class DeviceLogCat {
 	private String captureDir = nonSdCardFilesDir+"/capture/"+processTag;
 	private String binFilePath = nonSdCardFilesDir+"/bin/"+binName;
 
-	private boolean isInitialized = false;
-	private FileUtils fileUtils = new FileUtils();
-
-	private boolean initializeCapture(Context context) {
-		if (!this.isInitialized) {
-			if ((new File(this.sdCardFilesDir)).exists()) { this.filesDir = this.sdCardFilesDir+"/logcat"; }
-			(new File(this.filesDir)).mkdirs(); fileUtils.chmod(this.filesDir, 0755);
-			(new File(this.captureDir)).mkdirs(); fileUtils.chmod(this.captureDir, 0755);
-			this.isInitialized = true;
-		}
+	private boolean initializeCapture() {
+		
+		if ((new File(this.sdCardFilesDir)).exists()) { this.filesDir = this.sdCardFilesDir+"/"+this.processTag; }
+		
+		if (!(new File(this.filesDir)).exists()) { (new File(this.filesDir)).mkdirs(); FileUtils.chmod(this.filesDir, 0755); }
+		if (!(new File(this.captureDir)).exists()) { (new File(this.captureDir)).mkdirs(); FileUtils.chmod(this.captureDir, 0755); }
+		
 		return (new File(this.binFilePath)).exists();
 	}
     
 	public String[] launchCapture(Context context) {
 		
-		if (initializeCapture(context)) {
+		if (initializeCapture()) {
 			
 			try {
 				
@@ -51,7 +48,7 @@ public class DeviceLogCat {
 				String finalFilePath = this.filesDir+"/"+timestamp+"."+this.fileType;
 				
 				// run framebuffer binary to save screenshot to file
-				(new ShellCommands()).executeCommand(this.binFilePath+" "+captureFilePath, null, false, context);
+				ShellCommands.executeCommand(this.binFilePath+" "+captureFilePath, null, false, context);
 				
 				return null;
 						
@@ -70,10 +67,10 @@ public class DeviceLogCat {
 			File finalFile = new File(finalFilePath);
 			
 	        if (captureFile.exists()) {
-	        	fileUtils.copy(captureFile, finalFile);
+	        	FileUtils.copy(captureFile, finalFile);
 	        	if (finalFile.exists()) {
 	        		captureFile.delete();
-	        		return new String[] { timestamp, this.fileType, fileUtils.sha1Hash(finalFilePath), finalFilePath };
+	        		return new String[] { timestamp, this.fileType, FileUtils.sha1Hash(finalFilePath), finalFilePath };
 	        	}
 		    }
 		} catch (Exception e) {

@@ -74,8 +74,8 @@ public class ApiCheckVersionService extends Service {
 			HttpGet httpGet = new HttpGet();
 			// setting customized rfcx authentication headers (necessary for API access)
 			List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
-			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.getDeviceId() });
-			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.getDeviceToken() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxDeviceId.getDeviceGuid() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxDeviceId.getDeviceToken() });
 			httpGet.setCustomHttpHeaders(rfcxAuthHeaders);
 
 			try {

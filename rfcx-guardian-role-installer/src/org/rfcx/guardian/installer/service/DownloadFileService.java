@@ -79,7 +79,7 @@ public class DownloadFileService extends Service {
 				if (httpGet.getAsFile(url, fileName, context)) {
 					Log.d(TAG, "Download Complete. Verifying Checksum...");
 					String filePath = context.getFilesDir().toString()+"/"+fileName;
-					String fileSha1 = (new FileUtils()).sha1Hash(filePath);
+					String fileSha1 = FileUtils.sha1Hash(filePath);
 					Log.d(TAG, "sha1 (apicheck): "+sha1);
 					Log.d(TAG, "sha1 (download): "+fileSha1);
 					if (fileSha1.equals(sha1)) {

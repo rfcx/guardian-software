@@ -16,16 +16,14 @@ import android.util.Log;
 public class ShellCommands {
 
 	private static final String TAG = "Rfcx-Utils-"+ShellCommands.class.getSimpleName();
-
-	FileUtils fileUtils = new FileUtils();
 	
-	public void killProcessByName(Context context, String searchTerm, String excludeTerm) {
+	public static void killProcessByName(Context context, String searchTerm, String excludeTerm) {
 		Log.i(TAG, "Attempting to kill process associated with search term '"+searchTerm+"'.");
 		String grepExclude = (excludeTerm != null) ? " grep -v "+excludeTerm+" |" : "";
 		executeCommand("kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)", null, true, context);
 	}
 	
-	public boolean executeCommand(String commandContents, String outputSearchString, boolean asRoot, Context context) {
+	public static boolean executeCommand(String commandContents, String outputSearchString, boolean asRoot, Context context) {
 	    String filePath = context.getFilesDir().toString()+"/txt/script.sh";
 	    (new File(filePath.substring(0,filePath.lastIndexOf("/")))).mkdirs();
 	    File fileObj = new File(filePath);
@@ -39,7 +37,7 @@ public class ShellCommands {
 	        		+"\n"+commandContents
 	        		+"\n");
 	        outFile.close();
-	        fileUtils.chmod(fileObj, 0755);
+	        FileUtils.chmod(fileObj, 0755);
 		    if (fileObj.exists()) {
 		    	if (outputSearchString != null) {
 		    		if (asRoot) { commandProcess = Runtime.getRuntime().exec(new String[] { "su", "-c", filePath }); }
@@ -65,7 +63,7 @@ public class ShellCommands {
 	    return commandSuccess;
 	}
 	
-	public void triggerNeedForRootAccess(Context context) {
+	public static void triggerNeedForRootAccess(Context context) {
 		executeCommand("pm list features",null,true,context);
 	}
 	

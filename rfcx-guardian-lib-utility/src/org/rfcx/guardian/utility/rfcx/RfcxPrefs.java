@@ -18,7 +18,6 @@ import android.util.Log;
 public class RfcxPrefs {
 
 	private static final String TAG = "Rfcx-Utils-"+RfcxPrefs.class.getSimpleName();
-	private static final FileUtils fileUtils = new FileUtils();
 	
 	private Context context = null;
 	private String thisAppRole = null;
@@ -88,13 +87,13 @@ public class RfcxPrefs {
     	String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
     	File fileObj = new File(filePath);
     	fileObj.mkdirs();
-    	fileUtils.chmod(new File(context.getFilesDir().toString()+"/txt"), 0755);
+    	FileUtils.chmod(context.getFilesDir().toString()+"/txt", 0755);
     	if (fileObj.exists()) { fileObj.delete(); }
         try {
         	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
         	outFile.write(stringContents);
         	outFile.close();
-        	fileUtils.chmod(new File(filePath), 0755);
+        	FileUtils.chmod(filePath, 0755);
         } catch (IOException e) {
         	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
         }

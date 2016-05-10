@@ -85,8 +85,8 @@ public class ApiRegisterService extends Service {
 										);
 						
 						List<String[]> registrationParameters = new ArrayList<String[]>();
-						registrationParameters.add(new String[] {  "guid", app.getDeviceId() });
-						registrationParameters.add(new String[] {  "token", app.getDeviceToken() });
+						registrationParameters.add(new String[] {  "guid", app.rfcxDeviceId.getDeviceGuid() });
+						registrationParameters.add(new String[] {  "token", app.rfcxDeviceId.getDeviceToken() });
 						
 						String stringRegistrationResponse = httpPostMultipart.doMultipartPost(postUrl, registrationParameters, new ArrayList<String[]>());
 						JSONArray jsonRegistrationResponse = new JSONArray(stringRegistrationResponse);

@@ -32,13 +32,11 @@ public class RfcxGuardian extends Application {
 	public String version;
 	Context context;
 	
-	private String deviceId = null;
-	private String deviceToken = null;
-	
 	public static final String APP_ROLE = "Updater";
 
 	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
 
+	public RfcxDeviceId rfcxDeviceId = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	
 	public static final String targetAppRoleApiEndpoint = "all";
@@ -68,7 +66,8 @@ public class RfcxGuardian extends Application {
 	public void onCreate() {
 
 		super.onCreate();
-		
+
+		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
 		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
 		
 		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
@@ -78,7 +77,7 @@ public class RfcxGuardian extends Application {
 				
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
-		apiCore.setApiCheckVersionEndpoint(getDeviceId());
+		apiCore.setApiCheckVersionEndpoint(this.rfcxDeviceId.getDeviceGuid());
 		
 	    initializeRoleServices(getApplicationContext());
 	}
@@ -94,21 +93,6 @@ public class RfcxGuardian extends Application {
 	
 	public void appPause() {
 		
-	}
-	
-	public String getDeviceId() {
-		if (this.deviceId == null) {
-			this.deviceId = (new RfcxDeviceId(getApplicationContext())).getDeviceGuid();
-			rfcxPrefs.writeGuidToFile(this.deviceId);
-		}
-		return this.deviceId;
-	}
-	
-	public String getDeviceToken() {
-		if (this.deviceToken == null) {
-			this.deviceToken = (new RfcxDeviceId(getApplicationContext())).getDeviceToken();
-		}
-		return this.deviceToken;
 	}
 	
 	public void initializeRoleServices(Context context) {
@@ -165,26 +149,7 @@ public class RfcxGuardian extends Application {
 	private void setDbHandlers() {
 		int versionNumber = RfcxRole.getRoleVersionValue(this.version, TAG);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public boolean isRoleInstalled(String appRole) {
-		String mainAppPath = getApplicationContext().getFilesDir().getAbsolutePath();
-		return (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian."))+"/org.rfcx.guardian."+appRole)).exists();
-	}
+
 
     
 }
