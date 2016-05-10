@@ -3,7 +3,7 @@ package org.rfcx.guardian.sentinel.api;
 import java.util.Calendar;
 
 import org.rfcx.guardian.sentinel.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;

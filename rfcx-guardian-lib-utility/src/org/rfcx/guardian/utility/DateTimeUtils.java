@@ -7,10 +7,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
-
-import android.text.TextUtils;
-import android.util.Log;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DateTimeUtils {
 	
@@ -19,7 +16,6 @@ public class DateTimeUtils {
 	private static final Locale DEFAULT_LOCALE = Locale.getDefault();
 	private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", DEFAULT_LOCALE);
 	private static final SimpleDateFormat TIMEZONE_FORMAT = new SimpleDateFormat("Z", DEFAULT_LOCALE);
-	
 
 	public static String getTimeZoneOffset() {
 		return TIMEZONE_FORMAT.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), DEFAULT_LOCALE).getTime());
@@ -38,9 +34,9 @@ public class DateTimeUtils {
 		try {
 			return DATETIME_FORMAT.parse(dateString);
 		} catch (ParseException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-			return null;
+			RfcxLog.logExc(TAG, e);
 		}
+		return null;
 	}
 	
 	public static Calendar nextOccurenceOf(int hour, int minute, int second) {

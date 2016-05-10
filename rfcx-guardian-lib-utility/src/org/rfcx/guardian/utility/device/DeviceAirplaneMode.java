@@ -1,6 +1,6 @@
 package org.rfcx.guardian.utility.device;
 
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.content.Intent;
@@ -42,7 +42,7 @@ public class DeviceAirplaneMode {
         	intentAp.putExtra("state", (value == 1) ? true : false);
         	context.sendBroadcast(intentAp);
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? e.getMessage() : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 	}
 	

@@ -95,7 +95,7 @@ public class RfcxPrefs {
         	outFile.close();
         	FileUtils.chmod(filePath, 0755);
         } catch (IOException e) {
-        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
         }
 	}
 	
@@ -117,9 +117,9 @@ public class RfcxPrefs {
     			Log.e(TAG, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+targetAppRole+"...");
     		}
     	} catch (FileNotFoundException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
     	} catch (IOException e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
     	return null;
 	}

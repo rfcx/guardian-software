@@ -3,7 +3,7 @@ package org.rfcx.guardian.reboot.api;
 import java.util.Date;
 
 import org.rfcx.guardian.reboot.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
@@ -50,7 +50,7 @@ public class RebootContentProvider extends ContentProvider {
 			
 			return cursor;
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return null;
 	}
@@ -66,7 +66,7 @@ public class RebootContentProvider extends ContentProvider {
 				return 1;
 			}
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return 0;
 	}

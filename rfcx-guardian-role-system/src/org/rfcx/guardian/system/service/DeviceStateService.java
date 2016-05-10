@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Intent;
@@ -102,7 +102,7 @@ public class DeviceStateService extends Service {
 				} catch (InterruptedException e) {
 					deviceStateService.runFlag = false;
 					app.isRunning_DeviceState = true;
-					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+					RfcxLog.logExc(TAG, e);
 				}
 			}
 			Log.v(TAG, "Stopping service: "+TAG);

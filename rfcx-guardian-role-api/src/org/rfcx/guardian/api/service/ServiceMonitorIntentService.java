@@ -2,10 +2,8 @@ package org.rfcx.guardian.api.service;
 
 
 import org.rfcx.guardian.api.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 

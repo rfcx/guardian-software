@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.rfcx.guardian.api.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;
@@ -48,7 +48,7 @@ public class ApiCheckInService extends Service {
 		try {
 			this.apiCheckIn.start();
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return START_STICKY;
 	}
@@ -122,7 +122,7 @@ public class ApiCheckInService extends Service {
 					}
 						
 				} catch (Exception e) {
-					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+					RfcxLog.logExc(TAG, e);
 					apiCheckInService.runFlag = false;
 					app.isRunning_ApiCheckIn = false;
 				}

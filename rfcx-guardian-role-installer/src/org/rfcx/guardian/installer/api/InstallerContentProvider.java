@@ -3,7 +3,7 @@ package org.rfcx.guardian.installer.api;
 import java.util.Calendar;
 
 import org.rfcx.guardian.installer.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
@@ -45,7 +45,7 @@ public class InstallerContentProvider extends ContentProvider {
 			
 			return cursor;
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return null;
 	}

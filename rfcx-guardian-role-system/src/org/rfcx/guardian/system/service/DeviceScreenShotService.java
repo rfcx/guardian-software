@@ -3,7 +3,7 @@ package org.rfcx.guardian.system.service;
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;
@@ -46,7 +46,7 @@ public class DeviceScreenShotService extends Service {
 			this.deviceScreenShotSvc.start();
 			Log.v(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return START_STICKY;
 	}
@@ -81,7 +81,7 @@ public class DeviceScreenShotService extends Service {
 				Thread.sleep(3000);
 
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			} finally {
 				app.isRunning_DeviceScreenShot = false;
 				app.stopService("ScreenShot");

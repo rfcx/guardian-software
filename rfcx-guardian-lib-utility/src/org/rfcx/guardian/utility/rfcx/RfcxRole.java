@@ -2,13 +2,14 @@ package org.rfcx.guardian.utility.rfcx;
 
 
 import java.io.File;
+import java.util.Locale;
 
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class RfcxRole {
+
+	private static final String TAG = "Rfcx-Utils-"+RfcxRole.class.getSimpleName();
 	
 	public static final String[] 
 			
@@ -99,7 +100,7 @@ public class RfcxRole {
 		try {
 			version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName.trim();
 		} catch (NameNotFoundException e) {
-			Log.e(logTag,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return version;
 	}
@@ -111,14 +112,14 @@ public class RfcxRole {
 			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
 			return 1000*majorVersion+100*subVersion+updateVersion;
 		} catch (Exception e) {
-			Log.e(logTag,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return 0;
 	}
 
 	public static boolean isRoleInstalled(Context context, String appRole) {
 		String mainAppPath = context.getFilesDir().getAbsolutePath();
-		return (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian."))+"/org.rfcx.guardian."+appRole.toLowerCase())).exists();
+		return (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian."))+"/org.rfcx.guardian."+appRole.toLowerCase(Locale.US))).exists();
 	}
 	
 }

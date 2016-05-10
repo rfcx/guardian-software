@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import org.rfcx.guardian.system.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -65,7 +65,7 @@ public class DeviceCpuUsage {
 	              + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        try {
 	            Thread.sleep(SAMPLE_LENGTH_MS);
-	        } catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); }
+	        } catch (Exception e) { RfcxLog.logExc(TAG, e); }
 	        reader.seek(0);
 	        load = reader.readLine();
 	        reader.close();
@@ -75,7 +75,7 @@ public class DeviceCpuUsage {
 	            + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        this.cpuUsageNow = (float)(cpu2 - cpu1) / ((cpu2 + idle2) - (cpu1 + idle1));
 	    } catch (IOException e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+	    	RfcxLog.logExc(TAG, e);
 	    }
 		
 		if (updateClockSpeed) {
@@ -85,7 +85,7 @@ public class DeviceCpuUsage {
 				scaling_cur_freq.close();
 			}
 			catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 		}
 	}

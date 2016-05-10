@@ -8,7 +8,7 @@ import java.util.Locale;
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.service.AudioEncodeIntentService;
 import org.rfcx.guardian.audio.service.CheckInTriggerIntentService;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -43,7 +43,11 @@ public class AudioEncode {
 	
 	public void cleanupEncodeDirectory() {
 		for (File file : (new File(this.encodeDir)).listFiles()) {
-			try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); }
+			try { 
+				file.delete(); 
+			} catch (Exception e) {
+				RfcxLog.logExc(TAG, e);
+			}
 		}
 	}
 	
@@ -64,7 +68,7 @@ public class AudioEncode {
 			(new File(getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();
 			Log.d(TAG, "Purging audio asset: "+audioTimestamp+"."+audioFileExtension);
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 	}
 

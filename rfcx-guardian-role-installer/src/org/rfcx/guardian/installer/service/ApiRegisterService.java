@@ -6,7 +6,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;
@@ -47,7 +47,7 @@ public class ApiRegisterService extends Service {
 			this.apiRegister.start();
 			Log.d(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return START_STICKY;
 	}
@@ -100,7 +100,7 @@ public class ApiRegisterService extends Service {
 					Log.d(TAG, "Cancelled because there is no internet connectivity...");
 				}
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			} finally {
 				app.isRunning_ApiRegister = false;
 				app.stopService("ApiRegister");

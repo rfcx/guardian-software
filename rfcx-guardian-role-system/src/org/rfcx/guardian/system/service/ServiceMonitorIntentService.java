@@ -2,7 +2,7 @@ package org.rfcx.guardian.system.service;
 
 
 import org.rfcx.guardian.system.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.IntentService;
 import android.content.Context;

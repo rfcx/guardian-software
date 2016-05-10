@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;
@@ -95,7 +95,7 @@ public class DeviceCPUTuner {
         		ShellCommands.executeCommand("cp "+tmpPrefsFilePath+" "+getPrefsPath(context),null,true,context);
         	}
         } catch (IOException e) {
-        	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+        	RfcxLog.logExc(TAG, e);
         }	
 	}
 	

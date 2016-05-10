@@ -17,8 +17,8 @@ import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.database.Cursor;
@@ -141,7 +141,7 @@ public class ApiWebCheckIn {
 			return queueJson.toString();
 
 		} catch (JSONException e) {
-			Log.e(TAG, (e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 			return "{}";
 		}
 	}
@@ -159,7 +159,7 @@ public class ApiWebCheckIn {
 			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			
 		} catch (Exception e) {
-			Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return rebootEvents;
 	}
@@ -185,7 +185,7 @@ public class ApiWebCheckIn {
 			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 
 		} catch (Exception e) {
-			Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 
 		return softwareVersions;
@@ -216,7 +216,7 @@ public class ApiWebCheckIn {
 			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			
 		} catch (Exception e) {
-			Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 
 		return metaDataJsonObj;
@@ -354,7 +354,7 @@ public class ApiWebCheckIn {
 				}
 
 			} catch (Exception e) {
-				Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			} finally {
 				Log.i(TAG, "API Response: " + checkInResponse);
 			}
@@ -380,7 +380,7 @@ public class ApiWebCheckIn {
 						cursor.getString(cursor.getColumnIndex("body")));
 				msgJsonArray.put(msgJson);
 			} catch (Exception e) {
-				Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 			
 		} while (cursor.moveToNext()); } } finally { cursor.close(); } }
@@ -407,7 +407,7 @@ public class ApiWebCheckIn {
 						cursor.getString(cursor.getColumnIndex("format")),
 						cursor.getString(cursor.getColumnIndex("digest")) };
 			} catch (Exception e) {
-				Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 		} } finally { cursor.close(); } }
 		
@@ -434,7 +434,7 @@ public class ApiWebCheckIn {
 
 			}
 		} catch (Exception e) {
-			Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 
 		// attach screenshot images - we only attach one per check-in (the
@@ -465,7 +465,7 @@ public class ApiWebCheckIn {
 									+ "/" + imgId), null, null);
 				}
 			} catch (Exception e) {
-				Log.e(TAG,(e != null) ? (e.getMessage() + " ||| " + TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 			
 		} } finally { cursor.close(); } }

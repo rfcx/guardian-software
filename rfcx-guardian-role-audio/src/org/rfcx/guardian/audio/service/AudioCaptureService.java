@@ -9,14 +9,13 @@ import org.rfcx.guardian.audio.capture.AudioCapture;
 import org.rfcx.guardian.audio.capture.ExtAudioRecorderModified;
 import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaRecorder;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class AudioCaptureService extends Service {
@@ -68,7 +67,7 @@ public class AudioCaptureService extends Service {
 		try {
 			this.audioCaptureSvc.start();
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return START_STICKY;
 	}
@@ -122,7 +121,7 @@ public class AudioCaptureService extends Service {
 									+" Waiting "+(Math.round(2*captureLoopPeriod/1000))+" seconds before next attempt.");
 						}
 					} catch (Exception e) {
-						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+						RfcxLog.logExc(TAG, e);
 						audioCaptureService.runFlag = false;
 						app.isRunning_AudioCapture = false;
 					}
@@ -131,7 +130,7 @@ public class AudioCaptureService extends Service {
 				captureLoopEnd();
 				
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 				audioCaptureService.runFlag = false;
 				app.isRunning_AudioCapture = false;
 			}
@@ -154,7 +153,7 @@ public class AudioCaptureService extends Service {
 		        audioRecorder.start();
 			}
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
         captureTimeStamps[0] = captureTimeStamps[1];
         captureTimeStamps[1] = timeStamp;
@@ -170,7 +169,7 @@ public class AudioCaptureService extends Service {
 				audioRecorder.release();
 			}
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 	}
 	
@@ -193,7 +192,7 @@ public class AudioCaptureService extends Service {
 				FileUtils.copy(completedCapture, preEncodeFile);
 				if (preEncodeFile.exists()) { completedCapture.delete(); }				
 			} catch (IOException e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", captureFileExtension, "-", captureSampleRate, 0, captureCodec, captureLoopPeriod, captureLoopPeriod);
 			Log.i(TAG, "Capture file created ("+this.captureLoopPeriod+"ms): "+captureTimeStamps[0]+"."+captureFileExtension);
@@ -220,7 +219,7 @@ public class AudioCaptureService extends Service {
 //		        audioRecorder.start();
 //			}
 //		} catch (IllegalThreadStateException e) {
-//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+//			RfcxLog.logExc(TAG, e);
 //		}
 //        captureTimeStamps[0] = captureTimeStamps[1];
 //        captureTimeStamps[1] = timeStamp;
@@ -236,7 +235,7 @@ public class AudioCaptureService extends Service {
 //				audioRecorder.release();
 //			}
 //		} catch (IllegalThreadStateException e) {
-//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+//			RfcxLog.logExc(TAG, e);
 //		}
 //	}
 	

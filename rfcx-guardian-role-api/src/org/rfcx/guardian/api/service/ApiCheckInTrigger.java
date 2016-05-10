@@ -1,7 +1,7 @@
 package org.rfcx.guardian.api.service;
 
 import org.rfcx.guardian.api.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;
@@ -45,7 +45,7 @@ public class ApiCheckInTrigger extends Service {
 		try {
 			this.apiCheckInTrigger.start();
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return START_STICKY;
 	}
@@ -79,7 +79,7 @@ public class ApiCheckInTrigger extends Service {
 				        Thread.sleep( 3 * app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause") );
 
 					} catch (Exception e) {
-						Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+						RfcxLog.logExc(TAG, e);
 						apiCheckInTrigger.runFlag = false;
 						app.isRunning_ApiCheckInTrigger = false;
 					}
@@ -87,7 +87,7 @@ public class ApiCheckInTrigger extends Service {
 				Log.v(TAG, "Stopping service: "+TAG);
 				
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 				apiCheckInTrigger.runFlag = false;
 				app.isRunning_ApiCheckInTrigger = false;
 			}

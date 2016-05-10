@@ -5,7 +5,7 @@ import java.io.File;
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.ShellCommands;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.os.Environment;
@@ -53,7 +53,7 @@ public class DeviceScreenShot {
 				return completeCapture(timestamp, captureFilePath, finalFilePath);
 				
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 		} else {
 			Log.e(TAG, "Executable not found: "+this.binFilePath);
@@ -74,7 +74,7 @@ public class DeviceScreenShot {
 	        	}
 		    }
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return null;
 	}

@@ -12,19 +12,11 @@ import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
-
-import android.text.TextUtils;
-import android.util.Log;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class FileUtils {
 	
 	private static final String TAG = "Rfcx-Utils-"+FileUtils.class.getSimpleName();
-
-//	public FileUtils init(String roleName) {
-//		this.TAG = "Rfcx-"+roleName+"-"+FileUtils.class.getSimpleName();
-//		return this;
-//	}
 	
 	public static String sha1Hash(String filePath) {
 		try {
@@ -43,13 +35,13 @@ public class FileUtils {
 		    }
 			return stringBuilder.toString();
 		} catch (NoSuchAlgorithmException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		} catch (FileNotFoundException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		} catch (IOException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return null;
 	}
@@ -60,19 +52,19 @@ public class FileUtils {
 			Method setPermissions = fileUtils.getMethod("setPermissions", String.class, int.class, int.class, int.class);
 			return (Integer) setPermissions.invoke(null, file.getAbsolutePath(), mode, -1, -1);
 		} catch (ClassNotFoundException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		} catch (SecurityException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		} catch (NoSuchMethodException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		} catch (IllegalArgumentException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		} catch (IllegalAccessException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		} catch (InvocationTargetException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return 0;
 	}

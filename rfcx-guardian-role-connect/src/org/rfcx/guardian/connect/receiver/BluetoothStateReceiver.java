@@ -1,7 +1,7 @@
 package org.rfcx.guardian.connect.receiver;
 
 import org.rfcx.guardian.connect.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;

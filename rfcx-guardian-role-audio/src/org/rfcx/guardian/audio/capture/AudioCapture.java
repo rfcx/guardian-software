@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.database.AudioDb;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.os.Environment;
 import android.text.TextUtils;
@@ -39,7 +39,11 @@ public class AudioCapture {
 	
 	public void cleanupCaptureDirectory() {
 		for (File file : (new File(this.captureDir)).listFiles()) {
-			try { file.delete(); } catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); }
+			try { 
+				file.delete();
+			} catch (Exception e) { 
+				RfcxLog.logExc(TAG, e);
+			}
 		}
 	}
 

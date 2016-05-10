@@ -4,7 +4,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.rfcx.guardian.system.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

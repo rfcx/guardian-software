@@ -23,7 +23,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -77,9 +77,9 @@ public class HttpPostMultipart {
 				requestEntity.addPart(keyValue[0], new StringBody(URLEncoder.encode(keyValue[1], "UTF-8")));
 			}
 		} catch (UnsupportedEncodingException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return executeMultipartPost(fullUrl, requestEntity);
 	}
@@ -96,8 +96,7 @@ public class HttpPostMultipart {
 				return "";
 			}
 		} catch (MalformedURLException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-			Log.e(TAG,"Malformed URL");
+			RfcxLog.logExc(TAG, e);
 			return "";
 		}
 	}
@@ -127,12 +126,12 @@ public class HttpPostMultipart {
 		    }
 		    return readResponseStream(conn.getInputStream());
 	    } catch (UnknownHostException e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-				return TAG+"-UnknownHostException";
+			RfcxLog.logExc(TAG, e);
+			return TAG+"-UnknownHostException";
 	    } catch (ProtocolException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 	    } catch (IOException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 	    return "";        
 	}
@@ -161,12 +160,12 @@ public class HttpPostMultipart {
 		    }
 	        return readResponseStream(conn.getInputStream());
 	    } catch (UnknownHostException e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
-				return TAG+"-UnknownHostException";
+			RfcxLog.logExc(TAG, e);
+			return TAG+"-UnknownHostException";
 	    } catch (ProtocolException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 	    } catch (IOException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 	    return "";        
 	}
@@ -181,13 +180,13 @@ public class HttpPostMultipart {
 	            stringBuilder.append(currentLine);
 	        }
 	    } catch (IOException e) {
-	    	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 	    } finally {
 	        if (bufferedReader != null) {
 	            try {
 	                bufferedReader.close();
 	            } catch (IOException e) {
-	            	Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+	    			RfcxLog.logExc(TAG, e);
 	            }
 	        }
 	    }

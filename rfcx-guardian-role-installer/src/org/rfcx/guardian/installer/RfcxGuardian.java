@@ -18,7 +18,7 @@ import org.rfcx.guardian.installer.service.InstallAppService;
 import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -150,7 +150,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				Log.d(TAG, "ApiCheckVersion will run every " + Math.round( this.rfcxPrefs.getPrefAsInt("install_cycle_duration") / (60*1000) ) + " minute(s), starting at "+(new Date(( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ))).toLocaleString());
 				this.hasRun_OnLaunchServiceTrigger = true;	
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 		}
 	}
@@ -285,14 +285,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	    		    FileUtils.chmod(binFile, 0755);
 	    		    return binFile.exists();
 	    		} catch (IOException e) {
-	    			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+	    			RfcxLog.logExc(TAG, e);
 	    			return false;
 	    		}
 	        } else {
 	        	return true;
 	        }
     	} catch (Exception e) {
-    		Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+    		RfcxLog.logExc(TAG, e);
     		return false;
     	}
     }

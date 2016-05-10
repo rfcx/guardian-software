@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;
@@ -53,7 +53,7 @@ public class DeviceLogCat {
 				return null;
 						
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 		} else {
 			Log.e(TAG, "Executable not found: "+this.binFilePath);
@@ -74,7 +74,7 @@ public class DeviceLogCat {
 	        	}
 		    }
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return null;
 	}	

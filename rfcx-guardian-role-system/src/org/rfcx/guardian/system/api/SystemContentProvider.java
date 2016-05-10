@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.device.DeviceDiskUsage;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -92,7 +92,7 @@ public class SystemContentProvider extends ContentProvider {
 				return cursor;
 			}
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return null;
 	}
@@ -128,7 +128,7 @@ public class SystemContentProvider extends ContentProvider {
 				return 1;
 			}
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return 0;
 	}
@@ -162,7 +162,7 @@ public class SystemContentProvider extends ContentProvider {
 		//		return Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_SCREENSHOT+"/"+screenShotId);
 			}
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return null;
 	}

@@ -2,7 +2,7 @@ package org.rfcx.guardian.installer.service;
 
 import org.rfcx.guardian.installer.RfcxGuardian;
 import org.rfcx.guardian.installer.device.DeviceCPUTuner;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;
@@ -43,7 +43,7 @@ public class DeviceCPUTunerService extends Service {
 			this.deviceCPUTunerSvc.start();
 			Log.v(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return START_STICKY;
 	}
@@ -70,7 +70,7 @@ public class DeviceCPUTunerService extends Service {
 				(new DeviceCPUTuner()).set(context);
 				
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			} finally {
 				app.isRunning_CPUTuner = false;
 				app.stopService("CPUTuner");

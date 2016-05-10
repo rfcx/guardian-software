@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -63,12 +63,16 @@ public class AudioDb {
 			public void onCreate(SQLiteDatabase db) {
 				try {
 					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); }
+				} catch (SQLException e) { 
+					RfcxLog.logExc(TAG, e); 
+				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); }
+				} catch (SQLException e) { 
+					RfcxLog.logExc(TAG, e);
+				}
 			}
 		}
 		final DbHelper dbHelper;
@@ -104,13 +108,20 @@ public class AudioDb {
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { 
+				RfcxLog.logExc(TAG, e);
+			} finally { 
+				db.close();
+			}
 			return list;
 		}
 		public void clearCapturedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			try { 
+				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
+			} finally { 
+				db.close(); 
+			}
 		}
 		
 		public String getSerializedCaptured() {
@@ -135,12 +146,16 @@ public class AudioDb {
 			public void onCreate(SQLiteDatabase db) {
 				try {
 					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); }
+				} catch (SQLException e) { 
+					RfcxLog.logExc(TAG, e);
+				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); }
+				} catch (SQLException e) { 
+					RfcxLog.logExc(TAG, e);
+				}
 			}
 		}
 		final DbHelper dbHelper;
@@ -175,7 +190,11 @@ public class AudioDb {
 				if (cursor.getCount() > 0) {
 					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { 
+				RfcxLog.logExc(TAG, e);
+			} finally { 
+				db.close(); 
+			}
 			return list;
 		}
 		public String[] getLatestRow() {
@@ -187,19 +206,29 @@ public class AudioDb {
 					try {
 						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) };
 					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC); } finally { db.close(); }
+			} catch (Exception e) { 
+				RfcxLog.logExc(TAG, e);
+			} finally { 
+				db.close(); 
+			}
 			return row;
 		}
 		public void clearEncodedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			try { 
+				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
+			} finally { 
+				db.close(); 
+			}
 		}
 		
 		public void deleteSingleEncoded(String timestamp) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
-			} finally { db.close(); }
+			try { 
+				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
+			} finally { 
+				db.close(); 
+			}
 		}
 		
 	}

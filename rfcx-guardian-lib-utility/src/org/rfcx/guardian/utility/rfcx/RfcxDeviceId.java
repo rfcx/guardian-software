@@ -4,8 +4,6 @@ import java.security.MessageDigest;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class RfcxDeviceId {
 	
@@ -33,7 +31,7 @@ public class RfcxDeviceId {
 			    }
 			    deviceGuid = stringBuilder.toString().substring(0,12);
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 //				String randomGuid = (UUID.randomUUID()).toString();
 //				deviceGuid = randomGuid.substring(1+randomGuid.lastIndexOf("-"));
 			}
@@ -53,7 +51,7 @@ public class RfcxDeviceId {
 			    }
 			    deviceToken = stringBuilder.toString();
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 //				deviceToken = ((UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()).replaceAll("-","").substring(0,40);
 			}
     	}

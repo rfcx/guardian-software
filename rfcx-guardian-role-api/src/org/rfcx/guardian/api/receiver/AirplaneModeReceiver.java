@@ -3,7 +3,6 @@ package org.rfcx.guardian.api.receiver;
 import java.util.Calendar;
 
 import org.rfcx.guardian.api.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

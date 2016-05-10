@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.device.DeviceMobileNetwork;
 
 import android.app.Service;
@@ -122,7 +122,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 				} catch (InterruptedException e) {
 					deviceSensorService.runFlag = false;
 					app.isRunning_DeviceSensor = true;
-					Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+					RfcxLog.logExc(TAG, e);
 				}
 			}
 			Log.v(TAG, "Stopping service: "+TAG);

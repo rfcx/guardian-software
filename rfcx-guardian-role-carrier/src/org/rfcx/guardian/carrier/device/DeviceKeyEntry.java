@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.rfcx.guardian.carrier.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;

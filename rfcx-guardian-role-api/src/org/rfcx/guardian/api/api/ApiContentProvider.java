@@ -3,7 +3,7 @@ package org.rfcx.guardian.api.api;
 import java.util.Calendar;
 
 import org.rfcx.guardian.api.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
@@ -51,7 +51,7 @@ public class ApiContentProvider extends ContentProvider {
 			return cursor;
 			
 		} catch (Exception e) {
-			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+			RfcxLog.logExc(TAG, e);
 		}
 		return null;
 	}
@@ -110,7 +110,7 @@ public class ApiContentProvider extends ContentProvider {
 					return Uri.parse(RfcxRole.RoleApi.api.URI_1+"/"+values.getAsString("timestamp"));
 				}
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 		}
 		return null;

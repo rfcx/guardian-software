@@ -11,7 +11,7 @@ import org.rfcx.guardian.api.service.ApiCheckInService;
 import org.rfcx.guardian.api.service.ApiCheckInTrigger;
 import org.rfcx.guardian.api.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.device.DeviceBattery;
@@ -111,7 +111,7 @@ public class RfcxGuardian extends Application {
 
 				hasRun_OnLaunchServiceTrigger = true;
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 		}
 	}

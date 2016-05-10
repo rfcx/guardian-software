@@ -26,7 +26,7 @@ public class DeviceGeoLocation {
 //			this.geoLocationLongitude = (double) location.getLongitude();
 //			this.geoLocationPrecision = 0;
 //		} catch (Exception e) {
-//			Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+//			RfcxLog.logExc(TAG, e);
 //		}
 //	}
 

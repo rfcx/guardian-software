@@ -6,7 +6,7 @@ import java.util.Date;
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.GZipUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxConstants;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -78,12 +78,12 @@ public class AudioEncodeIntentService extends IntentService {
 				app.audioEncode.triggerCheckInAfterEncode(app.getApplicationContext());
 				
 			} catch (Exception e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
-				Log.e(TAG,(e!=null) ? (e.getMessage() +" ||| "+ TextUtils.join(" | ", e.getStackTrace())) : RfcxConstants.NULL_EXC);
+				RfcxLog.logExc(TAG, e);
 			}
 		}
 	
