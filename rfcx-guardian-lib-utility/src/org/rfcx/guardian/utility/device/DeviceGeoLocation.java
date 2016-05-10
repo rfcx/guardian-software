@@ -1,5 +1,10 @@
 package org.rfcx.guardian.utility.device;
 
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
+import android.content.Context;
+import android.location.Criteria;
+import android.location.Location;
 import android.location.LocationManager;
 
 public class DeviceGeoLocation {
@@ -15,8 +20,7 @@ public class DeviceGeoLocation {
 		return new double[] { this.geoLocationLatitude, this.geoLocationLongitude, this.geoLocationPrecision };
 	}
 	
-//	private void updateGeoLocation() {
-//		
+	private void updateGeoLocation() {
 //		this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 //		Criteria criteria = new Criteria();
 //		String bestProvider = locationManager.getBestProvider(criteria, false);
@@ -28,7 +32,7 @@ public class DeviceGeoLocation {
 //		} catch (Exception e) {
 //			RfcxLog.logExc(TAG, e);
 //		}
-//	}
+	}
 
 	
 	

@@ -7,12 +7,12 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.rfcx.guardian.utility.FileUtils;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class RfcxPrefs {
@@ -26,7 +26,7 @@ public class RfcxPrefs {
 	
 	public RfcxPrefs init(Context context, String thisAppRole) {
 		this.context = context;
-		this.thisAppRole = thisAppRole.toLowerCase();
+		this.thisAppRole = thisAppRole.toLowerCase(Locale.US);
 		return this;
 	}
 	
@@ -50,7 +50,7 @@ public class RfcxPrefs {
 	public void setPref(String targetAppRole, String prefKey, String prefValue) {
 		this.cachedPrefs.remove(prefKey);
 		this.cachedPrefs.put(prefKey, prefValue);
-		if ( 	(targetAppRole.toLowerCase().equals(this.thisAppRole.toLowerCase()))
+		if ( 	(targetAppRole.toLowerCase(Locale.US).equals(this.thisAppRole.toLowerCase(Locale.US)))
 			&&	!prefValue.equals(readPrefFromFile(targetAppRole, prefKey))
 			) {
 				writePrefToFile(prefKey, prefValue);
@@ -64,11 +64,11 @@ public class RfcxPrefs {
 	// Reading and Writing to preference text files
 	
 	public String readPrefFromFile(String targetAppRole, String prefKey) {
-		return readFromGuardianTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(), "pref_"+prefKey.toLowerCase());
+		return readFromGuardianTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(Locale.US), "pref_"+prefKey.toLowerCase(Locale.US));
 	}
 	
 	public void writePrefToFile(String prefKey, String prefValue) {
-		writeToGuardianTxtFile(this.context, "pref_"+prefKey.toLowerCase(), prefValue);
+		writeToGuardianTxtFile(this.context, "pref_"+prefKey.toLowerCase(Locale.US), prefValue);
 	}
 
 	public void writeGuidToFile(String deviceId) {
@@ -80,7 +80,7 @@ public class RfcxPrefs {
 	}
 	
 	public String getVersionFromFile(String targetAppRole) {
-		return readFromGuardianTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(), "version");
+		return readFromGuardianTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(Locale.US), "version");
 	}
 
 	private static void writeToGuardianTxtFile(Context context, String fileNameNoExt, String stringContents) {

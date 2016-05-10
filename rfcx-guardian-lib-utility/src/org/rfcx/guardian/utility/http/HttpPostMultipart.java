@@ -25,7 +25,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import android.text.TextUtils;
 import android.util.Log;
 
 public class HttpPostMultipart {
