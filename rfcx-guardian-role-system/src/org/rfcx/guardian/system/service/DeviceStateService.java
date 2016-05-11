@@ -9,7 +9,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class DeviceStateService extends Service {
@@ -42,7 +41,7 @@ public class DeviceStateService extends Service {
 		if (app == null) { app = (RfcxGuardian) getApplication(); }
 		Log.v(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		((RfcxGuardian) getApplication()).isRunning_DeviceState = true;
+		app.serviceHandler.setRunState("DeviceState", true);
 		this.deviceStateSvc.start();
 		return START_STICKY;
 	}
@@ -51,7 +50,7 @@ public class DeviceStateService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.isRunning_DeviceState = false;
+		app.serviceHandler.setRunState("DeviceState", false);
 		this.deviceStateSvc.interrupt();
 		this.deviceStateSvc = null;
 	}
@@ -101,7 +100,7 @@ public class DeviceStateService extends Service {
 					
 				} catch (InterruptedException e) {
 					deviceStateService.runFlag = false;
-					app.isRunning_DeviceState = true;
+					app.serviceHandler.setRunState("DeviceState", false);
 					RfcxLog.logExc(TAG, e);
 				}
 			}

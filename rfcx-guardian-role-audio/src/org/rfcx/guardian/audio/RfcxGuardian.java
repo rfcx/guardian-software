@@ -137,7 +137,7 @@ public class RfcxGuardian extends Application {
 	}
 	
 	private void setDbHandlers() {
-		int versionNumber = RfcxRole.getRoleVersionValue(this.version, TAG);
+		int versionNumber = RfcxRole.getRoleVersionValue(this.version);
 		this.audioDb = new AudioDb(this,versionNumber);
 	}
     

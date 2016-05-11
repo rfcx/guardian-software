@@ -22,21 +22,22 @@ public class ServiceMonitorIntentService extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
+		
 		Intent intent = new Intent(INTENT_TAG);
 		sendBroadcast(intent, NOTIFICATION_TAG);
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
-
-		Log.v(TAG, "Running Service Monitor...");
 		
-		if (app.isRunning_ServiceMonitor) {
+		if (app.serviceHandler.isRunning("ServiceMonitor")) {
 			
-			app.triggerService("DeviceState", false);
+			Log.v(TAG, "Running Service Monitor...");
+			
+			app.serviceHandler.triggerService("DeviceState", false);//app.triggerService("DeviceState", false);
 			app.triggerService("DeviceSensor", false);
 			
 		} else {
 			// the Monitor logic won't run the first time the intent service is fired
-			app.isRunning_ServiceMonitor = true;
+			app.serviceHandler.setRunState("ServiceMonitor", true);
 			
 		}
 	}

@@ -121,7 +121,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 					
 				} catch (InterruptedException e) {
 					deviceSensorService.runFlag = false;
-					app.isRunning_DeviceSensor = true;
+					app.isRunning_DeviceSensor = false;
 					RfcxLog.logExc(TAG, e);
 				}
 			}

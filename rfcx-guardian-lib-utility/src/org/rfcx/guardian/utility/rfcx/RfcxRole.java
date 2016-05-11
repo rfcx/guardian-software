@@ -105,7 +105,7 @@ public class RfcxRole {
 		return version;
 	}
 	
-	public static int getRoleVersionValue(String versionName, String logTag) {
+	public static int getRoleVersionValue(String versionName) {
 		try {
 			int majorVersion = (int) Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
 			int subVersion = (int) Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
