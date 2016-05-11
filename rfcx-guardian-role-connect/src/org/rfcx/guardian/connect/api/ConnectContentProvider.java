@@ -22,8 +22,8 @@ public class ConnectContentProvider extends ContentProvider {
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxRole.RoleApi.connect.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxRole.RoleApi.connect.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.ContentProvider.connect.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.connect.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -40,7 +40,7 @@ public class ConnectContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.connect.PROJECTION_1);
+		MatrixCursor cursor = new MatrixCursor(RfcxRole.ContentProvider.connect.PROJECTION_1);
 		
 		cursor.addRow(new Object[] { 
 				Calendar.getInstance().getTimeInMillis()

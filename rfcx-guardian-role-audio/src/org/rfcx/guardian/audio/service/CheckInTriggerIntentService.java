@@ -40,7 +40,7 @@ public class CheckInTriggerIntentService extends IntentService {
 		lastAudioValues.put("encode_duration", lastAudio[8]);
 		
 		Uri createdCheckInUri = getContentResolver().insert(
-				Uri.parse(RfcxRole.RoleApi.api.URI_1),
+				Uri.parse(RfcxRole.ContentProvider.api.URI_1),
 				lastAudioValues);
 		if (createdCheckInUri == null) {
 			Log.e(TAG,"Error triggering CheckIn via ContentProvider in 'api' role...");

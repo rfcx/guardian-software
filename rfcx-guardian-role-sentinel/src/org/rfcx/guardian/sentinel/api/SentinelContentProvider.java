@@ -21,8 +21,9 @@ public class SentinelContentProvider extends ContentProvider {
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxRole.RoleApi.sentinel.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxRole.RoleApi.sentinel.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.ContentProvider.sentinel.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.sentinel.ENDPOINT_1;
+	private static final String[] PROJECTION_1 = RfcxRole.ContentProvider.sentinel.PROJECTION_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -39,7 +40,7 @@ public class SentinelContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.sentinel.PROJECTION_1);
+		MatrixCursor cursor = new MatrixCursor(PROJECTION_1);
 		
 		cursor.addRow(new Object[] { 
 				Calendar.getInstance().getTimeInMillis()

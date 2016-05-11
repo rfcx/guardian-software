@@ -25,9 +25,9 @@ public class SystemContentProvider extends ContentProvider {
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+SystemContentProvider.class.getSimpleName();
 	
-	private static final String AUTHORITY = RfcxRole.RoleApi.system.AUTHORITY;
-	private static final String ENDPOINT_META = RfcxRole.RoleApi.system.ENDPOINT_META;
-	private static final String ENDPOINT_SCREENSHOT = RfcxRole.RoleApi.system.ENDPOINT_SCREENSHOT;
+	private static final String AUTHORITY = RfcxRole.ContentProvider.system.AUTHORITY;
+	private static final String ENDPOINT_META = RfcxRole.ContentProvider.system.ENDPOINT_META;
+	private static final String ENDPOINT_SCREENSHOT = RfcxRole.ContentProvider.system.ENDPOINT_SCREENSHOT;
 	
 	private static final int ENDPOINT_META_LIST = 1;
 	private static final int ENDPOINT_META_ID = 2;
@@ -52,7 +52,7 @@ public class SystemContentProvider extends ContentProvider {
 		try {
 			if (URI_MATCHER.match(uri) == ENDPOINT_META_LIST) {
 			
-				MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.system.PROJECTION_META);
+				MatrixCursor cursor = new MatrixCursor(RfcxRole.ContentProvider.system.PROJECTION_META);
 				String[] vBattery = app.deviceStateDb.dbBattery.getConcatRows();
 				String[] vCpu = app.deviceStateDb.dbCPU.getConcatRows();
 				String[] vPower = app.deviceStateDb.dbPower.getConcatRows();
@@ -83,7 +83,7 @@ public class SystemContentProvider extends ContentProvider {
 				
 			} else if (URI_MATCHER.match(uri) == ENDPOINT_SCREENSHOT_LIST) {
 				
-				MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.system.PROJECTION_SCREENSHOT);
+				MatrixCursor cursor = new MatrixCursor(RfcxRole.ContentProvider.system.PROJECTION_SCREENSHOT);
 				
 				for (String[] screenShotRow : app.screenShotDb.dbCaptured.getAllCaptured()) {
 					cursor.addRow(new Object[] { 

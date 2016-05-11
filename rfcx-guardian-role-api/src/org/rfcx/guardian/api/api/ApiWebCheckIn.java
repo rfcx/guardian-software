@@ -92,7 +92,7 @@ public class ApiWebCheckIn {
 		Log.d(TAG, "Queued (1/"+app.checkInDb.dbQueued.getCount()+"): " + queueJson);
 		
 		// once queued, remove database reference from audio role
-		int purgeAudioFromDb = app.getContentResolver().delete(Uri.parse(RfcxRole.RoleApi.audio.URI_1 + "/" + audioInfo[1]), null, null);
+		int purgeAudioFromDb = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.audio.URI_1 + "/" + audioInfo[1]), null, null);
 		
 		// if the queued table has grown beyond the maximum threshold, stash the oldest checkins 
 		stashOldestCheckIns();
@@ -150,12 +150,12 @@ public class ApiWebCheckIn {
 		List<String> rebootEvents = new ArrayList<String>();
 		try {
 			Cursor cursor = app.getContentResolver().query(
-					Uri.parse(RfcxRole.RoleApi.reboot.URI_1),
-					RfcxRole.RoleApi.reboot.PROJECTION_1,
+					Uri.parse(RfcxRole.ContentProvider.reboot.URI_1),
+					RfcxRole.ContentProvider.reboot.PROJECTION_1,
 					null, null, null);
 			
 			if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do { 
-				rebootEvents.add(cursor.getString(cursor.getColumnIndex(RfcxRole.RoleApi.reboot.PROJECTION_1[1])));
+				rebootEvents.add(cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.reboot.PROJECTION_1[1])));
 			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 			
 		} catch (Exception e) {
@@ -170,17 +170,17 @@ public class ApiWebCheckIn {
 
 		try {
 			Cursor cursor = app.getContentResolver().query(
-					Uri.parse(RfcxRole.RoleApi.updater.URI_1),
-					RfcxRole.RoleApi.updater.PROJECTION_1,
+					Uri.parse(RfcxRole.ContentProvider.updater.URI_1),
+					RfcxRole.ContentProvider.updater.PROJECTION_1,
 					null, null, null);
 
 			if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do { 
 				
 				softwareVersions
 				.add(cursor.getString(cursor
-						.getColumnIndex(RfcxRole.RoleApi.updater.PROJECTION_1[0]))
+						.getColumnIndex(RfcxRole.ContentProvider.updater.PROJECTION_1[0]))
 						+ "*"
-						+ cursor.getString(cursor.getColumnIndex(RfcxRole.RoleApi.updater.PROJECTION_1[1])));
+						+ cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.updater.PROJECTION_1[1])));
 	
 			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 
@@ -198,17 +198,17 @@ public class ApiWebCheckIn {
 
 		try {
 			Cursor cursor = app.getContentResolver().query(
-					Uri.parse(RfcxRole.RoleApi.system.URI_META),
-					RfcxRole.RoleApi.system.PROJECTION_META,
+					Uri.parse(RfcxRole.ContentProvider.system.URI_META),
+					RfcxRole.ContentProvider.system.PROJECTION_META,
 					null, null, null);
 			
 
 			if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do { 
 
-				for (int i = 0; i < RfcxRole.RoleApi.system.PROJECTION_META.length; i++) {
-					metaDataJsonObj.put(RfcxRole.RoleApi.system.PROJECTION_META[i],
-							(cursor.getString(cursor.getColumnIndex(RfcxRole.RoleApi.system.PROJECTION_META[i])) != null)
-								? cursor.getString(cursor.getColumnIndex(RfcxRole.RoleApi.system.PROJECTION_META[i]))
+				for (int i = 0; i < RfcxRole.ContentProvider.system.PROJECTION_META.length; i++) {
+					metaDataJsonObj.put(RfcxRole.ContentProvider.system.PROJECTION_META[i],
+							(cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.system.PROJECTION_META[i])) != null)
+								? cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.system.PROJECTION_META[i]))
 								: null
 						);
 				}
@@ -289,14 +289,14 @@ public class ApiWebCheckIn {
 				// clear system metadata included in successful checkin preflight
 				int clearPreFlightSystemMetaData = 
 						app.getContentResolver()
-						.delete(Uri.parse(RfcxRole.RoleApi.system.URI_META
+						.delete(Uri.parse(RfcxRole.ContentProvider.system.URI_META
 								+ "/" + checkInPreFlightTimestamp.getTime()),
 								null, null);
 				
 				// clear reboot events included in successful checkin preflight
 				int clearPreFlightRebootEvents = 
 						app.getContentResolver()
-						.delete(Uri.parse(RfcxRole.RoleApi.reboot.URI_1
+						.delete(Uri.parse(RfcxRole.ContentProvider.reboot.URI_1
 								+ "/" + checkInPreFlightTimestamp.getTime()),
 								null, null);
 
@@ -305,7 +305,7 @@ public class ApiWebCheckIn {
 				for (int i = 0; i < audioJsonArray.length(); i++) {
 					JSONObject audioJson = audioJsonArray.getJSONObject(i);
 					String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioJson.getString("id"))[1];
-					int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.RoleApi.audio.URI_1+"/"+audioFileNameInDb), null, null);
+					int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.audio.URI_1+"/"+audioFileNameInDb), null, null);
 					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioJson.getString("id"));
 				}
 
@@ -317,7 +317,7 @@ public class ApiWebCheckIn {
 							.getJSONObject(i);
 					int deleteScreenShot = app
 							.getContentResolver()
-							.delete(Uri.parse(RfcxRole.RoleApi.system.URI_SCREENSHOT
+							.delete(Uri.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT
 									+ "/" + screenShotJson.getString("id")),
 									null, null);
 				}
@@ -395,8 +395,8 @@ public class ApiWebCheckIn {
 		Cursor cursor = app
 				.getContentResolver()
 				.query(Uri
-						.parse(RfcxRole.RoleApi.system.URI_SCREENSHOT),
-						RfcxRole.RoleApi.system.PROJECTION_SCREENSHOT,
+						.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT),
+						RfcxRole.ContentProvider.system.PROJECTION_SCREENSHOT,
 						null, null, null);
 
 		if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) {
@@ -429,7 +429,7 @@ public class ApiWebCheckIn {
 			} else {
 				Log.e(TAG, "Audio attachment file doesn't exist: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
 				String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId)[1];
-				int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.RoleApi.audio.URI_1 + "/" + audioFileNameInDb), null, null);
+				int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.audio.URI_1 + "/" + audioFileNameInDb), null, null);
 				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
 
 			}
@@ -441,8 +441,8 @@ public class ApiWebCheckIn {
 		// latest screenshot)
 		Cursor cursor = app
 				.getContentResolver()
-				.query(Uri.parse(RfcxRole.RoleApi.system.URI_SCREENSHOT),
-						RfcxRole.RoleApi.system.PROJECTION_SCREENSHOT,
+				.query(Uri.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT),
+						RfcxRole.ContentProvider.system.PROJECTION_SCREENSHOT,
 						null, null, null);
 
 		if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) {
@@ -461,7 +461,7 @@ public class ApiWebCheckIn {
 							+ imgFilePath);
 					int deleteScreenShot = app
 							.getContentResolver()
-							.delete(Uri.parse(RfcxRole.RoleApi.system.URI_SCREENSHOT
+							.delete(Uri.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT
 									+ "/" + imgId), null, null);
 				}
 			} catch (Exception e) {

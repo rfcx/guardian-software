@@ -25,7 +25,7 @@ public class RfcxRole {
 				"updater"
 			};
 	
-	public static final class RoleApi {
+	public static final class ContentProvider {
 		
 		public static final class api {
 			public static final String AUTHORITY = "org.rfcx.guardian.api";

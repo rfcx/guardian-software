@@ -10,7 +10,7 @@ import org.rfcx.guardian.system.service.DeviceScreenShotService;
 import org.rfcx.guardian.system.service.DeviceSensorService;
 import org.rfcx.guardian.system.service.DeviceStateService;
 import org.rfcx.guardian.system.service.ServiceMonitorIntentService;
-import org.rfcx.guardian.utility.ServiceHandler;
+import org.rfcx.guardian.utility.service.ServiceHandler;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.DeviceScreenLock;
@@ -42,23 +42,22 @@ public class RfcxGuardian extends Application {
 	public DeviceStateDb deviceStateDb = null;
 	public DataTransferDb dataTransferDb = null;
 	public ScreenShotDb screenShotDb = null;
-
-	public boolean isConnected = false;
-	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
-	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
+	
+	// for triggering and stopping services and intentservices
+	public ServiceHandler serviceHandler = new ServiceHandler();
 	
 	public DeviceBattery deviceBattery = new DeviceBattery();
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
 	public DeviceScreenLock deviceScreenLock = new DeviceScreenLock();
 	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats();
+
+	public boolean isConnected = false;
+	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
+	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
 	
 	// Background Services
 	public boolean isRunning_DeviceSensor = false;
 	public boolean isRunning_DeviceScreenShot = false;
-	
-	public ServiceHandler serviceHandler = null;
-	
-	private boolean hasRun_OnLaunchServiceTrigger = false;
 	
 	@Override
 	public void onCreate() {
@@ -67,7 +66,6 @@ public class RfcxGuardian extends Application {
 
 		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
 		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
-		this.serviceHandler = (new ServiceHandler()).init(getApplicationContext());
 		
 		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
 		rfcxPrefs.writeVersionToFile(this.version);
@@ -92,7 +90,8 @@ public class RfcxGuardian extends Application {
 	}
 	
 	public void initializeRoleServices(Context context) {
-		if (!this.hasRun_OnLaunchServiceTrigger) {
+		if (!this.serviceHandler.hasRun("ServiceMonitor")) {
+//		if (!this.hasRun_OnLaunchServiceTrigger) {
 			try {
 				
 				// Service Monitor
@@ -109,10 +108,12 @@ public class RfcxGuardian extends Application {
 				// background service for taking screenshots
 				triggerService("ScreenShot", true);
 				
-				hasRun_OnLaunchServiceTrigger = true;
+				this.serviceHandler.setAbsoluteRunState("ServiceMonitor", true);
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 			}
+		} else {
+			Log.w(TAG, "Service Trigger has already run...");
 		}
 	}
 	
@@ -179,6 +180,7 @@ public class RfcxGuardian extends Application {
 	}
 	
 	private void setServiceHandlers() {
+		this.serviceHandler.setContext(getApplicationContext());
 		this.serviceHandler.setServiceClass("DeviceState", DeviceStateService.class);
 		this.serviceHandler.setServiceClass("DeviceSensor", DeviceSensorService.class);
 		this.serviceHandler.setServiceClass("ScreenShot", DeviceScreenShotService.class);

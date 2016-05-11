@@ -18,8 +18,8 @@ public class UpdaterContentProvider extends ContentProvider {
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+UpdaterContentProvider.class.getSimpleName();
 	
-	private static final String AUTHORITY = RfcxRole.RoleApi.updater.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxRole.RoleApi.updater.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.ContentProvider.updater.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.updater.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -38,7 +38,7 @@ public class UpdaterContentProvider extends ContentProvider {
 		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		try {
-			MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.updater.PROJECTION_1);
+			MatrixCursor cursor = new MatrixCursor(RfcxRole.ContentProvider.updater.PROJECTION_1);
 			
 			for (String softwareRole : RfcxRole.ALL_ROLES) {
 				cursor.addRow(new Object[] { 

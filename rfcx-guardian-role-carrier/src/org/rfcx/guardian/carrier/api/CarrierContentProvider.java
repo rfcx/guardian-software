@@ -21,8 +21,8 @@ public class CarrierContentProvider extends ContentProvider {
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxRole.RoleApi.carrier.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxRole.RoleApi.carrier.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.ContentProvider.carrier.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.carrier.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -39,7 +39,7 @@ public class CarrierContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.carrier.PROJECTION_1);
+		MatrixCursor cursor = new MatrixCursor(RfcxRole.ContentProvider.carrier.PROJECTION_1);
 		
 		cursor.addRow(new Object[] { 
 				Calendar.getInstance().getTimeInMillis()

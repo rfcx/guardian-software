@@ -23,8 +23,8 @@ public class RebootContentProvider extends ContentProvider {
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxRole.RoleApi.reboot.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxRole.RoleApi.reboot.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.ContentProvider.reboot.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.reboot.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -42,7 +42,7 @@ public class RebootContentProvider extends ContentProvider {
 		checkSetApplicationContext();
 		
 		try {
-			MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.reboot.PROJECTION_1);
+			MatrixCursor cursor = new MatrixCursor(RfcxRole.ContentProvider.reboot.PROJECTION_1);
 			
 			for (String[] rebootEvent : app.rebootDb.dbReboot.getAllEvents()) {
 				cursor.addRow(new Object[] { rebootEvent[0], rebootEvent[1] });

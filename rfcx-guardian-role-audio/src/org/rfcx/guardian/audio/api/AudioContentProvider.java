@@ -20,8 +20,8 @@ public class AudioContentProvider extends ContentProvider {
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxRole.RoleApi.audio.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxRole.RoleApi.audio.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.ContentProvider.audio.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.audio.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -40,7 +40,7 @@ public class AudioContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		checkSetApplicationContext();
 		
-		MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.audio.PROJECTION_1);
+		MatrixCursor cursor = new MatrixCursor(RfcxRole.ContentProvider.audio.PROJECTION_1);
 		List<String[]> encodedEntries = app.audioDb.dbEncoded.getAllEncoded();
 		for (String[] encodedEntry : encodedEntries) {
 					// if it's asking for list, we return all rows...

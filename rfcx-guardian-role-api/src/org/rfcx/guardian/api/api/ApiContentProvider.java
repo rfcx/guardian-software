@@ -23,8 +23,8 @@ public class ApiContentProvider extends ContentProvider {
 	private RfcxGuardian app = null;
 	private Context context = null;
 	
-	private static final String AUTHORITY = RfcxRole.RoleApi.api.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxRole.RoleApi.api.ENDPOINT_1;
+	private static final String AUTHORITY = RfcxRole.ContentProvider.api.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.api.ENDPOINT_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -42,7 +42,7 @@ public class ApiContentProvider extends ContentProvider {
 		checkSetApplicationContext();
 		
 		try {
-			MatrixCursor cursor = new MatrixCursor(RfcxRole.RoleApi.api.PROJECTION_1);
+			MatrixCursor cursor = new MatrixCursor(RfcxRole.ContentProvider.api.PROJECTION_1);
 			
 			cursor.addRow(new Object[] { 
 					Calendar.getInstance().getTimeInMillis()
@@ -107,7 +107,7 @@ public class ApiContentProvider extends ContentProvider {
 				};
 				
 				if (app.apiWebCheckIn.addCheckInToQueue(audioInfo, values.getAsString("filepath"))) {
-					return Uri.parse(RfcxRole.RoleApi.api.URI_1+"/"+values.getAsString("timestamp"));
+					return Uri.parse(RfcxRole.ContentProvider.api.URI_1+"/"+values.getAsString("timestamp"));
 				}
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
