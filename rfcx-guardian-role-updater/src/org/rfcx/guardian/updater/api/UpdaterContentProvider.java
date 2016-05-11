@@ -6,13 +6,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class UpdaterContentProvider extends ContentProvider {
 	
@@ -20,6 +17,7 @@ public class UpdaterContentProvider extends ContentProvider {
 	
 	private static final String AUTHORITY = RfcxRole.ContentProvider.updater.AUTHORITY;
 	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.updater.ENDPOINT_1;
+	private static final String[] PROJECTION_1 = RfcxRole.ContentProvider.updater.PROJECTION_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -38,7 +36,7 @@ public class UpdaterContentProvider extends ContentProvider {
 		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		try {
-			MatrixCursor cursor = new MatrixCursor(RfcxRole.ContentProvider.updater.PROJECTION_1);
+			MatrixCursor cursor = new MatrixCursor(PROJECTION_1);
 			
 			for (String softwareRole : RfcxRole.ALL_ROLES) {
 				cursor.addRow(new Object[] { 

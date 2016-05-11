@@ -22,6 +22,7 @@ public class InstallerContentProvider extends ContentProvider {
 	
 	private static final String AUTHORITY = RfcxRole.ContentProvider.installer.AUTHORITY;
 	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.installer.ENDPOINT_1;
+	private static final String[] PROJECTION_1 = RfcxRole.ContentProvider.installer.PROJECTION_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
@@ -37,7 +38,7 @@ public class InstallerContentProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		try {
-			MatrixCursor cursor = new MatrixCursor(RfcxRole.ContentProvider.installer.PROJECTION_1);
+			MatrixCursor cursor = new MatrixCursor(PROJECTION_1);
 			
 			cursor.addRow(new Object[] { 
 					Calendar.getInstance().getTimeInMillis()
