@@ -130,7 +130,7 @@ public class CheckInDb {
 		
 		public void deleteSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioId+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioId.substring(0,13)+"'");
 			} finally { db.close(); }
 		}
 		

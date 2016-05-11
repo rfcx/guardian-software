@@ -7,6 +7,7 @@ import org.rfcx.guardian.system.device.DeviceCpuUsage;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -31,18 +32,20 @@ public class DeviceStateService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.deviceStateSvc = new DeviceStateSvc();
-		
-		if (app == null) { app = (RfcxGuardian) getApplication(); }
+		app = (RfcxGuardian) getApplication();
 	}
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		if (app == null) { app = (RfcxGuardian) getApplication(); }
 		Log.v(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		app.serviceHandler.setRunState("DeviceState", true);
-		this.deviceStateSvc.start();
+		app.rfcxServiceHandler.setRunState("DeviceState", true);
+		try {
+			this.deviceStateSvc.start();
+		} catch (IllegalThreadStateException e) {
+			RfcxLog.logExc(TAG, e);
+		}
 		return START_STICKY;
 	}
 	
@@ -50,7 +53,7 @@ public class DeviceStateService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.serviceHandler.setRunState("DeviceState", false);
+		app.rfcxServiceHandler.setRunState("DeviceState", false);
 		this.deviceStateSvc.interrupt();
 		this.deviceStateSvc = null;
 	}
@@ -66,11 +69,12 @@ public class DeviceStateService extends Service {
 		public void run() {
 			DeviceStateService deviceStateService = DeviceStateService.this;
 			
-			if (app == null) { app = (RfcxGuardian) getApplication(); }
+			app = (RfcxGuardian) getApplication();
 			
 			long CYCLE_DELAY_MS = (long) ( Math.round( DeviceCpuUsage.STATS_REPORTING_CYCLE_DURATION_MS / DeviceCpuUsage.REPORTING_SAMPLE_COUNT ) - DeviceCpuUsage.SAMPLE_LENGTH_MS );
 			
 			while (deviceStateService.runFlag) {
+				
 				try {
 					
 					app.deviceCpuUsage.updateCpuUsage();
@@ -100,7 +104,7 @@ public class DeviceStateService extends Service {
 					
 				} catch (InterruptedException e) {
 					deviceStateService.runFlag = false;
-					app.serviceHandler.setRunState("DeviceState", false);
+					app.rfcxServiceHandler.setRunState("DeviceState", false);
 					RfcxLog.logExc(TAG, e);
 				}
 			}

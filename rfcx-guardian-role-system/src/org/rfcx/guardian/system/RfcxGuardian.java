@@ -1,6 +1,8 @@
 package org.rfcx.guardian.system;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import org.rfcx.guardian.system.database.DataTransferDb;
 import org.rfcx.guardian.system.database.DeviceStateDb;
@@ -10,7 +12,7 @@ import org.rfcx.guardian.system.service.DeviceScreenShotService;
 import org.rfcx.guardian.system.service.DeviceSensorService;
 import org.rfcx.guardian.system.service.DeviceStateService;
 import org.rfcx.guardian.system.service.ServiceMonitorIntentService;
-import org.rfcx.guardian.utility.service.ServiceHandler;
+import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.DeviceScreenLock;
@@ -44,7 +46,7 @@ public class RfcxGuardian extends Application {
 	public ScreenShotDb screenShotDb = null;
 	
 	// for triggering and stopping services and intentservices
-	public ServiceHandler serviceHandler = new ServiceHandler();
+	public RfcxServiceHandler rfcxServiceHandler = new RfcxServiceHandler();
 	
 	public DeviceBattery deviceBattery = new DeviceBattery();
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
@@ -54,10 +56,6 @@ public class RfcxGuardian extends Application {
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
-	
-	// Background Services
-	public boolean isRunning_DeviceSensor = false;
-	public boolean isRunning_DeviceScreenShot = false;
 	
 	@Override
 	public void onCreate() {
@@ -75,6 +73,12 @@ public class RfcxGuardian extends Application {
 				
 		initializeRoleServices(getApplicationContext());
 		
+		List<String[]> svcToRun = new ArrayList<String[]>();
+		svcToRun.add(new String[] { "DeviceState" });
+		svcToRun.add(new String[] { "DeviceSensor" });
+		svcToRun.add(new String[] { "ScreenShot" });
+		this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceTrigger2", svcToRun);
+		
 	}
 	
 	public void onTerminate() {
@@ -82,7 +86,7 @@ public class RfcxGuardian extends Application {
 	}
 	
 	public void appResume() {
-
+		
 	}
 	
 	public void appPause() {
@@ -90,25 +94,28 @@ public class RfcxGuardian extends Application {
 	}
 	
 	public void initializeRoleServices(Context context) {
-		if (!this.serviceHandler.hasRun("ServiceMonitor")) {
-//		if (!this.hasRun_OnLaunchServiceTrigger) {
+		
+		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceTrigger")) {
+		
 			try {
-				
 				// Service Monitor
-				triggerIntentService("ServiceMonitor", 
-						System.currentTimeMillis(),
-						3 * Math.round( this.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 1000 )
-						);
+				this.rfcxServiceHandler.triggerIntentService("ServiceMonitor", 0, (3 * this.rfcxPrefs.getPrefAsInt("audio_cycle_duration")));
+//				triggerIntentService("ServiceMonitor", 
+//						System.currentTimeMillis(),
+//						3 * this.rfcxPrefs.getPrefAsInt("audio_cycle_duration")
+//						);
+				
 				// background service for gathering system stats
-				this.serviceHandler.triggerService("DeviceState", true);
-				//triggerService("DeviceState", true);
+				this.rfcxServiceHandler.triggerService("DeviceState", true);
 				
 				// background service for gathering sensor stats
-				triggerService("DeviceSensor", true);
-				// background service for taking screenshots
-				triggerService("ScreenShot", true);
+				this.rfcxServiceHandler.triggerService("DeviceSensor", true);
 				
-				this.serviceHandler.setAbsoluteRunState("ServiceMonitor", true);
+				// background service for taking screenshots
+				this.rfcxServiceHandler.triggerService("ScreenShot", true);
+				
+				this.rfcxServiceHandler.setAbsoluteRunState("OnLaunchServiceTrigger", true);
+				
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 			}
@@ -125,50 +132,13 @@ public class RfcxGuardian extends Application {
 		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		
 		if (intentServiceName.equals("ServiceMonitor")) {
-			if (!this.serviceHandler.isRunning("ServiceMonitor")) {
+			if (!this.rfcxServiceHandler.isRunning("ServiceMonitor")) {
 				PendingIntent monitorServiceIntent = PendingIntent.getService(context, -1, new Intent(context, ServiceMonitorIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
 				if (repeatIntervalSeconds == 0) { alarmManager.set(AlarmManager.RTC, startTimeMillis, monitorServiceIntent);
 				} else { alarmManager.setInexactRepeating(AlarmManager.RTC, startTimeMillis, repeatInterval, monitorServiceIntent); }
 			} else { Log.w(TAG, "Repeating IntentService 'ServiceMonitor' is already running..."); }
 		} else {
 			Log.w(TAG, "No IntentService named '"+intentServiceName+"'.");
-		}
-	}
-	
-	
-	public void triggerService(String serviceName, boolean forceReTrigger) {
-		context = getApplicationContext();
-		if (forceReTrigger) Log.w(TAG,"Forcing [re]trigger of service "+serviceName);
-		/*if (serviceName.equals("DeviceState")) {
-			if (!this.isRunning_DeviceState || forceReTrigger) {
-				context.stopService(new Intent(context, DeviceStateService.class));
-				context.startService(new Intent(context, DeviceStateService.class));
-			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-		} else*/ if (serviceName.equals("DeviceSensor")) {
-			if (!this.isRunning_DeviceSensor || forceReTrigger) {
-				context.stopService(new Intent(context, DeviceSensorService.class));
-				context.startService(new Intent(context, DeviceSensorService.class));
-			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-		} else if (serviceName.equals("ScreenShot")) {
-			if (!this.isRunning_DeviceScreenShot || forceReTrigger) {
-				context.stopService(new Intent(context, DeviceScreenShotService.class));
-				context.startService(new Intent(context, DeviceScreenShotService.class));
-			} else { Log.w(TAG, "Service '"+serviceName+"' is already running..."); }
-		} else {
-			Log.w(TAG, "There is no service named '"+serviceName+"'.");
-		}
-	}
-	
-	public void stopService(String serviceName) {
-		context = getApplicationContext();		
-		/*if (serviceName.equals("DeviceState")) {
-			context.stopService(new Intent(context, DeviceStateService.class));
-		} else */if (serviceName.equals("DeviceSensor")) {
-			context.stopService(new Intent(context, DeviceSensorService.class));
-		} else if (serviceName.equals("ScreenShot")) {
-			context.stopService(new Intent(context, DeviceScreenShotService.class));
-		} else {
-			Log.e(TAG, "There is no service named '"+serviceName+"'.");
 		}
 	}
 	
@@ -180,11 +150,11 @@ public class RfcxGuardian extends Application {
 	}
 	
 	private void setServiceHandlers() {
-		this.serviceHandler.setContext(getApplicationContext());
-		this.serviceHandler.setServiceClass("DeviceState", DeviceStateService.class);
-		this.serviceHandler.setServiceClass("DeviceSensor", DeviceSensorService.class);
-		this.serviceHandler.setServiceClass("ScreenShot", DeviceScreenShotService.class);
-		this.serviceHandler.setServiceClass("ServiceMonitor", ServiceMonitorIntentService.class);
+		this.rfcxServiceHandler.init(getApplicationContext(), APP_ROLE);
+		this.rfcxServiceHandler.addService("DeviceState", DeviceStateService.class);
+		this.rfcxServiceHandler.addService("DeviceSensor", DeviceSensorService.class);
+		this.rfcxServiceHandler.addService("ScreenShot", DeviceScreenShotService.class);
+		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitorIntentService.class);
 	}
  
 

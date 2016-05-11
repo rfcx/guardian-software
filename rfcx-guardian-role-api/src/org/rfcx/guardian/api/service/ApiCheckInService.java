@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.rfcx.guardian.api.RfcxGuardian;
+import org.rfcx.guardian.api.api.ApiWebCheckIn;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -99,13 +100,16 @@ public class ApiCheckInService extends Service {
 							app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3], currentCheckIn[4]);
 							app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(currentCheckIn[1]);
 						} else {
-							app.apiWebCheckIn.sendCheckIn(
-								app.apiWebCheckIn.getCheckInUrl(),
-								stringParameters, 
-								app.apiWebCheckIn.loadCheckInFiles(currentCheckIn[4]),
-								true, // allow (or, if false, block) file attachments (audio/screenshots)
-								currentCheckIn[1]
-							);
+							List<String[]> checkInFiles = app.apiWebCheckIn.loadCheckInFiles(currentCheckIn[4]);
+							if (ApiWebCheckIn.doesCheckInIncludeAudio(checkInFiles)) {
+								app.apiWebCheckIn.sendCheckIn(
+									app.apiWebCheckIn.getCheckInUrl(),
+									stringParameters, 
+									checkInFiles,
+									true, // allow (or, if false, block) file attachments (audio/screenshots)
+									currentCheckIn[1]
+								);	
+							}
 						}
 					} else {
 				

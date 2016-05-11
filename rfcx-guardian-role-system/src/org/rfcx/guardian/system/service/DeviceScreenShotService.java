@@ -15,11 +15,11 @@ import android.util.Log;
 public class DeviceScreenShotService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceScreenShotService.class.getSimpleName();
-
+	
+	RfcxGuardian app;
+	
+	private boolean runFlag = false;
 	private DeviceScreenShotSvc deviceScreenShotSvc;
-
-	private RfcxGuardian app = null;
-	private Context context = null;
 	
 	private DeviceScreenShot deviceScreenShot = new DeviceScreenShot();
 	
@@ -32,19 +32,17 @@ public class DeviceScreenShotService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.deviceScreenShotSvc = new DeviceScreenShotSvc();
+		app = (RfcxGuardian) getApplication();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		
-		app = (RfcxGuardian) getApplication();
-		if (context == null) context = app.getApplicationContext();
-		
-		app.isRunning_DeviceScreenShot = true;
+		Log.v(TAG, "Starting service: "+TAG);
+		this.runFlag = true;
+		app.rfcxServiceHandler.setRunState("ScreenShot", true);
 		try {
 			this.deviceScreenShotSvc.start();
-			Log.v(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(TAG, e);
 		}
@@ -54,7 +52,8 @@ public class DeviceScreenShotService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		app.isRunning_DeviceScreenShot = false;
+		this.runFlag = false;
+		app.rfcxServiceHandler.setRunState("ScreenShot", false);
 		this.deviceScreenShotSvc.interrupt();
 		this.deviceScreenShotSvc = null;
 	}
@@ -68,6 +67,10 @@ public class DeviceScreenShotService extends Service {
 		@Override
 		public void run() {
 			DeviceScreenShotService deviceScreenShotService = DeviceScreenShotService.this;
+
+			app = (RfcxGuardian) getApplication();
+			Context context = app.getApplicationContext();
+			
 			try {
 				// activate screen and set wake lock
 				app.deviceScreenLock.unLockScreen(context);
@@ -83,8 +86,9 @@ public class DeviceScreenShotService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 			} finally {
-				app.isRunning_DeviceScreenShot = false;
-				app.stopService("ScreenShot");
+				deviceScreenShotService.runFlag = false;
+				app.rfcxServiceHandler.setRunState("ScreenShot", false);
+				app.rfcxServiceHandler.stopService("ScreenShot");
 				app.deviceScreenLock.releaseWakeLock();
 			}
 		}

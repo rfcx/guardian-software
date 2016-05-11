@@ -58,8 +58,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 	public void onCreate() {
 		super.onCreate();
 		this.deviceSensorSvc = new DeviceSensorSvc();
-		
-		if (app == null) { app = (RfcxGuardian) getApplication(); }
+		app = (RfcxGuardian) getApplication();
 		
 		registerListener("light");
 		registerListener("network");
@@ -68,11 +67,14 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		if (app == null) { app = (RfcxGuardian) getApplication(); }
 		Log.v(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		((RfcxGuardian) getApplication()).isRunning_DeviceSensor = true;
-		this.deviceSensorSvc.start();
+		app.rfcxServiceHandler.setRunState("DeviceSensor", true);
+		try {
+			this.deviceSensorSvc.start();
+		} catch (IllegalThreadStateException e) {
+			RfcxLog.logExc(TAG, e);
+		}
 		return START_STICKY;
 	}
 	
@@ -80,7 +82,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.isRunning_DeviceSensor = false;
+		app.rfcxServiceHandler.setRunState("DeviceSensor", false);
 		this.deviceSensorSvc.interrupt();
 		this.deviceSensorSvc = null;
 		
@@ -98,8 +100,8 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 		@Override
 		public void run() {
 			DeviceSensorService deviceSensorService = DeviceSensorService.this;
-			
-			if (app == null) { app = (RfcxGuardian) getApplication(); }
+
+			app = (RfcxGuardian) getApplication();
 			
 		//	long sensorCaptureCycleDurationHalf = (long) Math.round(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 4 );
 			long sensorCaptureCycleDurationHalf = 22000;
@@ -121,7 +123,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 					
 				} catch (InterruptedException e) {
 					deviceSensorService.runFlag = false;
-					app.isRunning_DeviceSensor = false;
+					app.rfcxServiceHandler.setRunState("DeviceSensor", false);
 					RfcxLog.logExc(TAG, e);
 				}
 			}
@@ -213,49 +215,57 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 	
 	private void saveSensorValuesToDatabase(String sensorAbbreviation) {
 		
-		if (sensorAbbreviation.equalsIgnoreCase("light")) {
-			for (long[] lightVals : this.lightSensorValues) {
-				app.deviceStateDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
-			}
-			this.lightSensorValues = new ArrayList<long[]>();	
-			
-		} else if (sensorAbbreviation.equalsIgnoreCase("network")) {
-			
-			for (String[] signalVals : this.networkValues) {
-				app.deviceStateDb.dbNetwork.insert(new Date((long) Long.parseLong(signalVals[0])), (int) Integer.parseInt(signalVals[1]), signalVals[2], signalVals[3]);
-			}
-			this.networkValues = new ArrayList<String[]>();	
-			
-		} else if (sensorAbbreviation.equalsIgnoreCase("accel")) {
-			
-			List<long[]> accelValsSnapshot = this.accelSensorValues;
-			this.accelSensorValues = new ArrayList<long[]>();
-			long[] avgAccelVals = new long[] { 0, 0, 0, 0 };
-			int sampleCount = accelValsSnapshot.size();
-			
-			for (long[] accelVals : accelValsSnapshot) {
-				avgAccelVals[0] = accelVals[0];
-				avgAccelVals[1] = avgAccelVals[1]+accelVals[1];
-				avgAccelVals[2] = avgAccelVals[2]+accelVals[2];
-				avgAccelVals[3] = avgAccelVals[3]+accelVals[3];
-				sampleCount++;
-			}
-			
-			avgAccelVals[1] = (long) Math.round(avgAccelVals[1]/sampleCount);
-			avgAccelVals[2] = (long) Math.round(avgAccelVals[2]/sampleCount);
-			avgAccelVals[3] = (long) Math.round(avgAccelVals[3]/sampleCount);
+		try {
 
-			app.deviceStateDb.dbAccelerometer.insert(
-					new Date(avgAccelVals[0]), 
-					(((double) avgAccelVals[1])/ACCEL_FLOAT_MULTIPLIER)
-					+","+(((double) avgAccelVals[2])/ACCEL_FLOAT_MULTIPLIER)
-					+","+(((double) avgAccelVals[3])/ACCEL_FLOAT_MULTIPLIER),
-					sampleCount);
+			if (sensorAbbreviation.equalsIgnoreCase("light")) {
+				for (long[] lightVals : this.lightSensorValues) {
+					app.deviceStateDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
+				}
+				this.lightSensorValues = new ArrayList<long[]>();	
+				
+			} else if (sensorAbbreviation.equalsIgnoreCase("network")) {
+				
+				for (String[] signalVals : this.networkValues) {
+					app.deviceStateDb.dbNetwork.insert(new Date((long) Long.parseLong(signalVals[0])), (int) Integer.parseInt(signalVals[1]), signalVals[2], signalVals[3]);
+				}
+				this.networkValues = new ArrayList<String[]>();	
+				
+			} else if (sensorAbbreviation.equalsIgnoreCase("accel")) {
+				
+					List<long[]> accelValsSnapshot = this.accelSensorValues;
+					this.accelSensorValues = new ArrayList<long[]>();
+					long[] avgAccelVals = new long[] { 0, 0, 0, 0 };
+					int sampleCount = accelValsSnapshot.size();
+					
+					if (sampleCount > 0) {
 
-		} else {
-			Log.e(TAG, "Sensor value info could not be saved to database for sensor abbreviation '"+sensorAbbreviation+"'.");
+						for (long[] accelVals : accelValsSnapshot) {
+							avgAccelVals[0] = accelVals[0];
+							avgAccelVals[1] = avgAccelVals[1]+accelVals[1];
+							avgAccelVals[2] = avgAccelVals[2]+accelVals[2];
+							avgAccelVals[3] = avgAccelVals[3]+accelVals[3];
+							sampleCount++;
+						}
+						
+						avgAccelVals[1] = (long) Math.round(avgAccelVals[1]/sampleCount);
+						avgAccelVals[2] = (long) Math.round(avgAccelVals[2]/sampleCount);
+						avgAccelVals[3] = (long) Math.round(avgAccelVals[3]/sampleCount);
+			
+						app.deviceStateDb.dbAccelerometer.insert(
+								new Date(avgAccelVals[0]), 
+								(((double) avgAccelVals[1])/ACCEL_FLOAT_MULTIPLIER)
+								+","+(((double) avgAccelVals[2])/ACCEL_FLOAT_MULTIPLIER)
+								+","+(((double) avgAccelVals[3])/ACCEL_FLOAT_MULTIPLIER),
+								sampleCount);
+					}
+	
+			} else {
+				Log.e(TAG, "Sensor value info could not be saved to database for sensor abbreviation '"+sensorAbbreviation+"'.");
+			}
+			
+		} catch (Exception e) {
+			RfcxLog.logExc(TAG, e);
 		}
-		
 	}
 	
 }

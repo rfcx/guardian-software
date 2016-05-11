@@ -75,6 +75,15 @@ public class ApiWebCheckIn {
 			Log.d(TAG, "No connectivity... Can't send CheckIn");
 		}
 	}
+	
+	public static boolean doesCheckInIncludeAudio(List<String[]> checkInFiles) {
+		for (String[] fileItems : checkInFiles) {
+			if (fileItems[0].equals("audio")) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
@@ -252,8 +261,6 @@ public class ApiWebCheckIn {
 
 		// Adding device location timezone offset
 		checkInMetaJson.put("timezone_offset", DateTimeUtils.getTimeZoneOffset());
-		// DELETE LATER!!
-		Log.e(TAG, "Timezone Offset: "+DateTimeUtils.getTimeZoneOffset());
 		
 		// Adding messages to JSON blob
 		checkInMetaJson.put("messages", getSmsMessagesAsJson());
@@ -428,9 +435,9 @@ public class ApiWebCheckIn {
 				Log.d(TAG, "Audio attached: " + audioId + "." + audioFormat);
 			} else {
 				Log.e(TAG, "Audio attachment file doesn't exist: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
+				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
 				String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId)[1];
 				int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.audio.URI_1 + "/" + audioFileNameInDb), null, null);
-				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
 
 			}
 		} catch (Exception e) {
@@ -457,12 +464,8 @@ public class ApiWebCheckIn {
 							"image/png" });
 					Log.d(TAG, "Screenshot attached: " + imgId + ".png");
 				} else {
-					Log.e(TAG, "Screenshot attachment file doesn't exist: "
-							+ imgFilePath);
-					int deleteScreenShot = app
-							.getContentResolver()
-							.delete(Uri.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT
-									+ "/" + imgId), null, null);
+					Log.e(TAG, "Screenshot attachment file doesn't exist ("+imgId+"): "+ imgFilePath);
+					int deleteScreenShot = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT+"/"+imgId), null, null);
 				}
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);

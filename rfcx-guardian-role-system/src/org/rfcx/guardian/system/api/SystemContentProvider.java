@@ -156,8 +156,7 @@ public class SystemContentProvider extends ContentProvider {
 			if (URI_MATCHER.match(uri) == ENDPOINT_META_LIST) {
 				return null;
 			} else if (URI_MATCHER.match(uri) == ENDPOINT_SCREENSHOT_LIST) {
-				app.triggerService("ScreenShot", true);
-		//		String screenShotId = (new DeviceScreenShot()).saveScreenShot(app.getApplicationContext());
+				app.rfcxServiceHandler.triggerService(new String[] { "ScreenShot" }, true);
 		//		return Uri.parse(RfcxConstants.RfcxContentProvider.system.URI_SCREENSHOT+"/"+screenShotId);
 			}
 		} catch (Exception e) {
