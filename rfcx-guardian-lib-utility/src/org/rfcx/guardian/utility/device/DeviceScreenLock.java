@@ -8,32 +8,39 @@ import android.util.Log;
 
 public class DeviceScreenLock {
 
-	private static final String TAG = "Rfcx-Utils-"+DeviceScreenLock.class.getSimpleName();
+	private String logTag = "Rfcx-Utils-"+DeviceScreenLock.class.getSimpleName();
 	
 	private WakeLock wakeLock = null;
 	private KeyguardManager.KeyguardLock keyguardLock = null;
+	private Context context = null;
+	
+	public DeviceScreenLock init(Context context, String roleName) {
+		this.context = context;
+		this.logTag = "Rfcx-"+roleName+"-"+DeviceScreenLock.class.getSimpleName();
+		return this;
+	}
 
-	public void unLockScreen(Context context) {
+	public void unLockScreen() {
 		
-		KeyguardManager keyguardManager = (KeyguardManager) context.getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE); 
+		KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE); 
 		this.keyguardLock = keyguardManager.newKeyguardLock("RfcxKeyguardLock");
 		this.keyguardLock.disableKeyguard();
 
-		PowerManager powerManager = (PowerManager) context.getApplicationContext().getSystemService(Context.POWER_SERVICE); 
+		PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE); 
 		this.wakeLock = powerManager.newWakeLock(
 				PowerManager.FULL_WAKE_LOCK
 		        | PowerManager.ACQUIRE_CAUSES_WAKEUP
 		        | PowerManager.ON_AFTER_RELEASE,
 		        "RfcxWakeLock");
 		this.wakeLock.acquire();
-		Log.d(TAG,"KeyGuardLock disabled & WakeLock set.");
+		Log.d(this.logTag,"KeyGuardLock disabled & WakeLock set.");
 	}
 	
 	public void releaseWakeLock() {
 		if (this.wakeLock != null) {
 			this.wakeLock.release();
 			keyguardLock.reenableKeyguard();
-			Log.d(TAG,"WakeLock released & KeyGuardLock enabled.");
+			Log.d(this.logTag,"WakeLock released & KeyGuardLock enabled.");
 		}
 	}
 	

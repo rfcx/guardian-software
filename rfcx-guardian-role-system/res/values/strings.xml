@@ -3,4 +3,6 @@
 
     <string name="app_name">rfcx system</string>
 	
+    <string name="menu_screenshot">capture screenshot</string>
+    
 </resources>

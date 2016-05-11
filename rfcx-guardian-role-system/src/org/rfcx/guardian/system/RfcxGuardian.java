@@ -50,7 +50,6 @@ public class RfcxGuardian extends Application {
 	
 	public DeviceBattery deviceBattery = new DeviceBattery();
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
-	public DeviceScreenLock deviceScreenLock = new DeviceScreenLock();
 	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats();
 
 	public boolean isConnected = false;

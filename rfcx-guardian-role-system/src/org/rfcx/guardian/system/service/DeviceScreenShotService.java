@@ -3,6 +3,7 @@ package org.rfcx.guardian.system.service;
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
 import org.rfcx.guardian.utility.FileUtils;
+import org.rfcx.guardian.utility.device.DeviceScreenLock;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -70,10 +71,11 @@ public class DeviceScreenShotService extends Service {
 
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
+			DeviceScreenLock deviceScreenLock = (new DeviceScreenLock()).init(context, RfcxGuardian.APP_ROLE);
 			
 			try {
 				// activate screen and set wake lock
-				app.deviceScreenLock.unLockScreen(context);
+				deviceScreenLock.unLockScreen();
 				Thread.sleep(3000);
 				
 				String[] saveScreenShot = deviceScreenShot.launchCapture(context);
@@ -89,7 +91,7 @@ public class DeviceScreenShotService extends Service {
 				deviceScreenShotService.runFlag = false;
 				app.rfcxServiceHandler.setRunState("ScreenShot", false);
 				app.rfcxServiceHandler.stopService("ScreenShot");
-				app.deviceScreenLock.releaseWakeLock();
+				deviceScreenLock.releaseWakeLock();
 			}
 		}
 	}
