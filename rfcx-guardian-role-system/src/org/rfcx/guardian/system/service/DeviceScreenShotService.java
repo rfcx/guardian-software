@@ -71,7 +71,7 @@ public class DeviceScreenShotService extends Service {
 
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
-			DeviceScreenLock deviceScreenLock = (new DeviceScreenLock()).init(context, RfcxGuardian.APP_ROLE);
+			DeviceScreenLock deviceScreenLock = new DeviceScreenLock(context, RfcxGuardian.APP_ROLE);
 			
 			try {
 				// activate screen and set wake lock

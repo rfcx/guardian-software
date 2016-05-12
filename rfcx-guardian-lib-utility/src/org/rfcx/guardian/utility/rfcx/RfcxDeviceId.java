@@ -7,18 +7,16 @@ import android.telephony.TelephonyManager;
 
 public class RfcxDeviceId {
 	
-	private static final String TAG = "Rfcx-Utils-"+RfcxDeviceId.class.getSimpleName();
+	public RfcxDeviceId(Context context, String appRole) {
+		this.logTag = "Rfcx-"+appRole+"-"+RfcxDeviceId.class.getSimpleName();
+		this.telephonyId = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId().toString();
+	}
+	
+	private String logTag = "Rfcx-Utils-"+RfcxDeviceId.class.getSimpleName();
 	
 	private String telephonyId;
 	private String deviceGuid;
 	private String deviceToken;
-
-	public RfcxDeviceId init(Context context) {
-		if (telephonyId == null) {
-			telephonyId = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId().toString();
-		}
-		return this;
-	}
 	
     public String getDeviceGuid() {
     	if (deviceGuid == null) {
@@ -31,7 +29,7 @@ public class RfcxDeviceId {
 			    }
 			    deviceGuid = stringBuilder.toString().substring(0,12);
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 //				String randomGuid = (UUID.randomUUID()).toString();
 //				deviceGuid = randomGuid.substring(1+randomGuid.lastIndexOf("-"));
 			}
@@ -51,7 +49,7 @@ public class RfcxDeviceId {
 			    }
 			    deviceToken = stringBuilder.toString();
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 //				deviceToken = ((UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()).replaceAll("-","").substring(0,40);
 			}
     	}

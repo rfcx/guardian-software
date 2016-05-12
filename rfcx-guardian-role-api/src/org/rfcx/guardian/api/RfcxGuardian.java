@@ -47,7 +47,7 @@ public class RfcxGuardian extends Application {
 	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
 	
 	// for viewing and controlling airplane mode
-	public DeviceAirplaneMode airplaneMode = new DeviceAirplaneMode();
+	public DeviceAirplaneMode airplaneMode = new DeviceAirplaneMode(APP_ROLE);
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 
@@ -55,7 +55,7 @@ public class RfcxGuardian extends Application {
 	public ApiWebCheckIn apiWebCheckIn = new ApiWebCheckIn();
 	
 	// for checking battery level
-	public DeviceBattery deviceBattery = new DeviceBattery();
+	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 
 	public boolean isRunning_ApiCheckIn = false;
 	public boolean isRunning_ApiCheckInTrigger = false;
@@ -69,8 +69,8 @@ public class RfcxGuardian extends Application {
 		
 		super.onCreate();
 		
-		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
-		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
+		this.rfcxDeviceId = new RfcxDeviceId(getApplicationContext(), APP_ROLE);
+		this.rfcxPrefs = new RfcxPrefs(getApplicationContext(), APP_ROLE);
 		
 		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
 		rfcxPrefs.writeVersionToFile(this.version);

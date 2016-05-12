@@ -9,7 +9,11 @@ import android.location.LocationManager;
 
 public class DeviceGeoLocation {
 	
-	private static final String TAG = "Rfcx-Utils-"+DeviceGeoLocation.class.getSimpleName();
+	public DeviceGeoLocation(String appRole) {
+		this.logTag = "Rfcx-"+appRole+"-"+DeviceGeoLocation.class.getSimpleName();
+	}
+	
+	private String logTag = "Rfcx-Utils-"+DeviceGeoLocation.class.getSimpleName();
 	
 	private LocationManager locationManager;
 	private double geoLocationLatitude = 0;

@@ -38,8 +38,8 @@ public class RfcxGuardian extends Application {
 
 		super.onCreate();
 
-		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
-		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
+		this.rfcxDeviceId = new RfcxDeviceId(getApplicationContext(), APP_ROLE);
+		this.rfcxPrefs = new RfcxPrefs(getApplicationContext(), APP_ROLE);
 		
 		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
 		rfcxPrefs.writeVersionToFile(this.version);

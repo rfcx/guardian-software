@@ -67,7 +67,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public ApiCore apiCore = new ApiCore();
 	
 	// for checking battery level
-	public DeviceBattery deviceBattery = new DeviceBattery();
+	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 	
 	public boolean isRunning_ApiRegister = false;
 	public boolean isRunning_ApiCheckVersion = false;
@@ -83,8 +83,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void onCreate() {
 		super.onCreate();
 
-		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
-		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
+		this.rfcxDeviceId = new RfcxDeviceId(getApplicationContext(), APP_ROLE);
+		this.rfcxPrefs = new RfcxPrefs(getApplicationContext(), APP_ROLE);
 		
 		PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.prefs, true);
 		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

@@ -47,7 +47,7 @@ public class RfcxGuardian extends Application {
 	public ApiCore apiCore = new ApiCore();
 	
 	// for checking battery level
-	public DeviceBattery deviceBattery = new DeviceBattery();
+	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
@@ -67,8 +67,8 @@ public class RfcxGuardian extends Application {
 
 		super.onCreate();
 
-		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
-		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
+		this.rfcxDeviceId = new RfcxDeviceId(getApplicationContext(), APP_ROLE);
+		this.rfcxPrefs = new RfcxPrefs(getApplicationContext(), APP_ROLE);
 		
 		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
 		rfcxPrefs.writeVersionToFile(this.version);

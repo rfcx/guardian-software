@@ -9,7 +9,11 @@ import android.util.Log;
 
 public class DeviceAirplaneMode {
 
-	private static final String TAG = "Rfcx-Utils-"+DeviceAirplaneMode.class.getSimpleName();
+	public DeviceAirplaneMode(String appRole) {
+		this.logTag = "Rfcx-"+appRole+"-"+DeviceAirplaneMode.class.getSimpleName();
+	}
+	
+	private String logTag = "Rfcx-Utils-"+DeviceAirplaneMode.class.getSimpleName();
 	
 	private boolean isEnabled;
 	
@@ -19,14 +23,14 @@ public class DeviceAirplaneMode {
 	}
 	
 	public void setOn(Context context) {
-		Log.v(TAG, "Turning AirplaneMode ON");
+		Log.v(logTag, "Turning AirplaneMode ON");
     	if (!isEnabled(context)) {
     		set(context, 1);
     	}
 	}
 	
 	public void setOff(Context context) {
-		Log.v(TAG, "Turning AirplaneMode OFF");
+		Log.v(logTag, "Turning AirplaneMode OFF");
     	if (!isEnabled(context)) {
     		set(context, 1);
     		set(context, 0);
@@ -42,7 +46,7 @@ public class DeviceAirplaneMode {
         	intentAp.putExtra("state", (value == 1) ? true : false);
         	context.sendBroadcast(intentAp);
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	}
 	

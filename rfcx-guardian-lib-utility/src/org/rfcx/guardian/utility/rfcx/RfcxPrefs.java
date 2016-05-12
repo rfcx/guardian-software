@@ -17,18 +17,18 @@ import android.util.Log;
 
 public class RfcxPrefs {
 
-	private static final String TAG = "Rfcx-Utils-"+RfcxPrefs.class.getSimpleName();
+	public RfcxPrefs(Context context, String appRole) {
+		this.logTag = "Rfcx-"+appRole+"-"+RfcxPrefs.class.getSimpleName();
+		this.thisAppRole = appRole.toLowerCase(Locale.US);
+		this.context = context;
+	}
+	
+	private String logTag = "Rfcx-Utils-"+RfcxPrefs.class.getSimpleName();
 	
 	private Context context = null;
 	private String thisAppRole = null;
 	
 	private Map<String, String> cachedPrefs = new HashMap<String, String>();
-	
-	public RfcxPrefs init(Context context, String thisAppRole) {
-		this.context = context;
-		this.thisAppRole = thisAppRole.toLowerCase(Locale.US);
-		return this;
-	}
 	
 	// Getters and Setters
 	
@@ -83,7 +83,7 @@ public class RfcxPrefs {
 		return readFromGuardianTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(Locale.US), "version");
 	}
 
-	private static void writeToGuardianTxtFile(Context context, String fileNameNoExt, String stringContents) {
+	private void writeToGuardianTxtFile(Context context, String fileNameNoExt, String stringContents) {
     	String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
     	File fileObj = new File(filePath);
     	fileObj.mkdirs();
@@ -95,11 +95,11 @@ public class RfcxPrefs {
         	outFile.close();
         	FileUtils.chmod(filePath, 0755);
         } catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
         }
 	}
 	
-	private static String readFromGuardianTxtFile(Context context, String thisAppRole, String targetAppRole, String fileNameNoExt) {
+	private String readFromGuardianTxtFile(Context context, String thisAppRole, String targetAppRole, String fileNameNoExt) {
     	try {
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
     		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+thisAppRole).length()))+"."+targetAppRole+"/files/txt",fileNameNoExt+".txt");
@@ -114,12 +114,12 @@ public class RfcxPrefs {
 	    		input.close();
 	    		return txtFileContents;
     		} else {
-    			Log.e(TAG, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+targetAppRole+"...");
+    			Log.e(logTag, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+targetAppRole+"...");
     		}
     	} catch (FileNotFoundException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
     	} catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
     	return null;
 	}

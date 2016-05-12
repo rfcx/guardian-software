@@ -7,7 +7,11 @@ import android.telephony.TelephonyManager;
 
 public class DeviceMobileNetwork {
 	
-	private static final String TAG = "Rfcx-Utils-"+DeviceMobileNetwork.class.getSimpleName();
+	public DeviceMobileNetwork(String appRole) {
+		this.logTag = "Rfcx-"+appRole+"-"+DeviceMobileNetwork.class.getSimpleName();
+	}
+	
+	private String logTag = "Rfcx-Utils-"+DeviceMobileNetwork.class.getSimpleName();
 	
 	public static String[] getMobileNetworkSummary(TelephonyManager telephonyManager, SignalStrength signalStrength) {
 		

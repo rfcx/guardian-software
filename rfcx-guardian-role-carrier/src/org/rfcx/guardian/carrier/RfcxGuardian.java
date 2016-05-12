@@ -1,6 +1,5 @@
 package org.rfcx.guardian.carrier;
 
-import org.rfcx.guardian.carrier.device.DeviceScreenLock;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -23,9 +22,6 @@ public class RfcxGuardian extends Application {
 	public RfcxDeviceId rfcxDeviceId = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	
-	// handler for unlocking/locking the screen before/after carrier interaction
-	public DeviceScreenLock deviceScreenLock = new DeviceScreenLock();
-	
 	private boolean hasRun_OnLaunchServiceTrigger = false;
 	
 	@Override
@@ -33,8 +29,8 @@ public class RfcxGuardian extends Application {
 		
 		super.onCreate();
 
-		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
-		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
+		this.rfcxDeviceId = new RfcxDeviceId(getApplicationContext(), APP_ROLE);
+		this.rfcxPrefs = new RfcxPrefs(getApplicationContext(), APP_ROLE);
 		
 		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
 		rfcxPrefs.writeVersionToFile(this.version);

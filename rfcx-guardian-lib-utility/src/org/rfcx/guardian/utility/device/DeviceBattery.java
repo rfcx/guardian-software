@@ -6,8 +6,12 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 
 public class DeviceBattery {
-
-	private static final String TAG = "Rfcx-Utils-"+DeviceBattery.class.getSimpleName();
+	
+	public DeviceBattery(String appRole) {
+		this.logTag = "Rfcx-"+appRole+"-"+DeviceBattery.class.getSimpleName();
+	}
+	
+	private String logTag = "Rfcx-Utils-"+DeviceBattery.class.getSimpleName();
 	
 	private Intent getIntent(Context context, Intent intent) {
 		return (intent == null) ? intent = context.getApplicationContext().registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED)) : intent;

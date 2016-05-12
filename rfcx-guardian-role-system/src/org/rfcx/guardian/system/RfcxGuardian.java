@@ -15,7 +15,6 @@ import org.rfcx.guardian.system.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
-import org.rfcx.guardian.utility.device.DeviceScreenLock;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -48,9 +47,9 @@ public class RfcxGuardian extends Application {
 	// for triggering and stopping services and intentservices
 	public RfcxServiceHandler rfcxServiceHandler = new RfcxServiceHandler();
 	
-	public DeviceBattery deviceBattery = new DeviceBattery();
+	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
-	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats();
+	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
 
 	public boolean isConnected = false;
 	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
@@ -61,8 +60,8 @@ public class RfcxGuardian extends Application {
 		
 		super.onCreate();
 
-		this.rfcxDeviceId = (new RfcxDeviceId()).init(getApplicationContext());
-		this.rfcxPrefs = (new RfcxPrefs()).init(getApplicationContext(), APP_ROLE);
+		this.rfcxDeviceId = new RfcxDeviceId(getApplicationContext(), APP_ROLE);
+		this.rfcxPrefs = new RfcxPrefs(getApplicationContext(), APP_ROLE);
 		
 		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
 		rfcxPrefs.writeVersionToFile(this.version);

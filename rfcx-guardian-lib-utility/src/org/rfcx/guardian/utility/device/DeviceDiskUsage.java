@@ -7,15 +7,21 @@ import android.os.Environment;
 import android.os.StatFs;
 
 public class DeviceDiskUsage {
+	
+	public DeviceDiskUsage(String appRole) {
+		this.logTag = "Rfcx-"+appRole+"-"+DeviceDiskUsage.class.getSimpleName();
+	}
+	
+	private String logTag = "Rfcx-Utils-"+DeviceDiskUsage.class.getSimpleName();
  
-  public static List<String[]> allDiskStats() {
-	  StatFs internalStatFs = getStats(false);
-	  StatFs sdCardStatFs = getStats(true);
-	  List<String[]> allStats = new ArrayList<String[]>();
-	  allStats.add(new String[] { "internal", ""+System.currentTimeMillis(), ""+diskUsedBytes(internalStatFs), ""+diskFreeBytes(internalStatFs) });
-	  allStats.add(new String[] { "external", ""+System.currentTimeMillis(), ""+diskUsedBytes(sdCardStatFs), ""+diskFreeBytes(sdCardStatFs) });
-	  return allStats;
-  }
+	public static List<String[]> allDiskStats() {
+		StatFs internalStatFs = getStats(false);
+		StatFs sdCardStatFs = getStats(true);
+		List<String[]> allStats = new ArrayList<String[]>();
+		allStats.add(new String[] { "internal", ""+System.currentTimeMillis(), ""+diskUsedBytes(internalStatFs), ""+diskFreeBytes(internalStatFs) });
+		allStats.add(new String[] { "external", ""+System.currentTimeMillis(), ""+diskUsedBytes(sdCardStatFs), ""+diskFreeBytes(sdCardStatFs) });
+		return allStats;
+	}
 
   public static long diskTotalBytes(StatFs statFs) {
     return (((long) statFs.getBlockCount()) * ((long) statFs.getBlockSize()));

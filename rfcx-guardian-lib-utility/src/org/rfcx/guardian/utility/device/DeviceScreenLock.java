@@ -7,18 +7,17 @@ import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 public class DeviceScreenLock {
-
+	
+	public DeviceScreenLock(Context context, String appRole) {
+		this.context = context;
+		this.logTag = "Rfcx-"+appRole+"-"+DeviceScreenLock.class.getSimpleName();
+	}
+	
 	private String logTag = "Rfcx-Utils-"+DeviceScreenLock.class.getSimpleName();
 	
 	private WakeLock wakeLock = null;
 	private KeyguardManager.KeyguardLock keyguardLock = null;
 	private Context context = null;
-	
-	public DeviceScreenLock init(Context context, String roleName) {
-		this.context = context;
-		this.logTag = "Rfcx-"+roleName+"-"+DeviceScreenLock.class.getSimpleName();
-		return this;
-	}
 
 	public void unLockScreen() {
 		

@@ -7,7 +7,11 @@ import android.net.TrafficStats;
 
 public class DeviceNetworkStats {
 	
-	private static final String TAG = "Rfcx-Utils-"+DeviceNetworkStats.class.getSimpleName();
+	public DeviceNetworkStats(String appRole) {
+		this.logTag = "Rfcx-"+appRole+"-"+DeviceNetworkStats.class.getSimpleName();
+	}
+	
+	private String logTag = "Rfcx-Utils-"+DeviceNetworkStats.class.getSimpleName();
 	
 	private Date networkStatsStart = new Date();
 	private Date networkStatsEnd = new Date();
