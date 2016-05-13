@@ -18,11 +18,13 @@ import android.util.Log;
 public class ApiRegisterService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiRegisterService.class.getSimpleName();
+	
+	private static final String SERVICE_NAME = "ApiRegister";
 
+	private RfcxGuardian app;
+	
+	private boolean runFlag = false;
 	private ApiRegister apiRegister;
-
-	private RfcxGuardian app = null;
-	private Context context = null;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -33,19 +35,17 @@ public class ApiRegisterService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.apiRegister = new ApiRegister();
+		app = (RfcxGuardian) getApplication();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		
-		app = (RfcxGuardian) getApplication();
-		if (context == null) context = app.getApplicationContext();
-		
-		app.isRunning_ApiRegister = true;
+		Log.v(TAG, "Starting service: "+TAG);
+		this.runFlag = true;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.apiRegister.start();
-			Log.d(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(TAG, e);
 		}
@@ -55,7 +55,8 @@ public class ApiRegisterService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		app.isRunning_ApiRegister = false;
+		this.runFlag = false;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.apiRegister.interrupt();
 		this.apiRegister = null;
 	}
@@ -78,7 +79,7 @@ public class ApiRegisterService extends Service {
 			httpPostMultipart.setCustomHttpHeaders(rfcxAuthHeaders);
 
 			try {
-				if (app.isConnected) {
+				if (app.deviceConnectivity.isConnected()) {
 					if (app.apiCore.apiRegisterEndpoint != null) {
 						String postUrl =	(((app.rfcxPrefs.getPrefAsString("api_url_base")!=null) ? app.rfcxPrefs.getPrefAsString("api_url_base") : "https://api.rfcx.org")
 										+ app.apiCore.apiRegisterEndpoint
@@ -102,8 +103,8 @@ public class ApiRegisterService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 			} finally {
-				app.isRunning_ApiRegister = false;
-				app.stopService("ApiRegister");
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}
 		}
 	}

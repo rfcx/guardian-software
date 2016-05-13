@@ -17,7 +17,9 @@ public class DeviceScreenShotService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceScreenShotService.class.getSimpleName();
 	
-	RfcxGuardian app;
+	private static final String SERVICE_NAME = "ScreenShot";
+	
+	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
 	private DeviceScreenShotSvc deviceScreenShotSvc;
@@ -41,7 +43,7 @@ public class DeviceScreenShotService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		Log.v(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState("ScreenShot", true);
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.deviceScreenShotSvc.start();
 		} catch (IllegalThreadStateException e) {
@@ -54,7 +56,7 @@ public class DeviceScreenShotService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState("ScreenShot", false);
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.deviceScreenShotSvc.interrupt();
 		this.deviceScreenShotSvc = null;
 	}
@@ -89,8 +91,8 @@ public class DeviceScreenShotService extends Service {
 				RfcxLog.logExc(TAG, e);
 			} finally {
 				deviceScreenShotService.runFlag = false;
-				app.rfcxServiceHandler.setRunState("ScreenShot", false);
-				app.rfcxServiceHandler.stopService("ScreenShot");
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 				deviceScreenLock.releaseWakeLock();
 			}
 		}

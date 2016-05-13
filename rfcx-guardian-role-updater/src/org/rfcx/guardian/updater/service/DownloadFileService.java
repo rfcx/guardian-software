@@ -17,11 +17,13 @@ import android.util.Log;
 public class DownloadFileService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DownloadFileService.class.getSimpleName();
+	
+	private static final String SERVICE_NAME = "DownloadFile";
 
+	private RfcxGuardian app;
+	
+	private boolean runFlag = false;
 	private DownloadFile downloadFile;
-
-	private RfcxGuardian app = null;
-	private Context context = null;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -32,18 +34,15 @@ public class DownloadFileService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.downloadFile = new DownloadFile();
+		app = (RfcxGuardian) getApplication();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		
-		app = (RfcxGuardian) getApplication();
-		if (context == null) context = app.getApplicationContext();
-		
-		Log.d(TAG, "Starting service: "+TAG);
-		
-		app.isRunning_DownloadFile = true;
+		Log.v(TAG, "Starting service: "+TAG);
+		this.runFlag = true;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.downloadFile.start();
 		} catch (IllegalThreadStateException e) {
@@ -55,7 +54,8 @@ public class DownloadFileService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		app.isRunning_DownloadFile = false;
+		this.runFlag = false;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.downloadFile.interrupt();
 		this.downloadFile = null;
 	}
@@ -77,15 +77,13 @@ public class DownloadFileService extends Service {
 				Context context = app.getApplicationContext();
 				
 				if (httpGet.getAsFile(url, fileName, context)) {
-					
 					Log.d(TAG, "Download Complete. Verifying Checksum...");
 					String filePath = context.getFilesDir().toString()+"/"+fileName;
 					String fileSha1 = FileUtils.sha1Hash(filePath);
 					Log.d(TAG, "sha1 (apicheck): "+sha1);
 					Log.d(TAG, "sha1 (download): "+fileSha1);
-					
 					if (fileSha1.equals(sha1)) {
-						app.triggerService("InstallApp", false);
+						app.rfcxServiceHandler.triggerService("InstallApp", false);
 					} else {
 						Log.e(TAG, "Checksum mismatch");
 						(new File(filePath)).delete();
@@ -96,8 +94,8 @@ public class DownloadFileService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 			} finally {
-				app.isRunning_DownloadFile = false;
-				app.stopService("DownloadFile");
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}
 		}
 	}

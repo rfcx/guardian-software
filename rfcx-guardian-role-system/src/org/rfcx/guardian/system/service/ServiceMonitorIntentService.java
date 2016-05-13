@@ -13,6 +13,8 @@ public class ServiceMonitorIntentService extends IntentService {
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ServiceMonitorIntentService.class.getSimpleName();
 	
+	private static final String SERVICE_NAME = "ServiceMonitor";
+	
 	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".SERVICE_MONITOR";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
 	
@@ -28,18 +30,18 @@ public class ServiceMonitorIntentService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		if (app.rfcxServiceHandler.isRunning("ServiceMonitor")) {
+		if (app.rfcxServiceHandler.isRunning(SERVICE_NAME)) {
 			
-			Log.v(TAG, "Running Service Monitor...");
-			
-			app.rfcxServiceHandler.triggerService(new String[] { "DeviceState" }, false);
-			app.rfcxServiceHandler.triggerService(new String[] { "DeviceSensor" }, false);
-			
-		} else {
-			// the Monitor logic won't run the first time the intent service is fired
-			app.rfcxServiceHandler.setRunState("ServiceMonitor", true);
-			
+			app.rfcxServiceHandler.triggerServiceSequence(
+					"ServiceMonitorSequence", 
+						new String[] { 
+							"DeviceState", 
+							"DeviceSensor" 
+						}, 
+					false);
 		}
+		
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 	}
 	
 	

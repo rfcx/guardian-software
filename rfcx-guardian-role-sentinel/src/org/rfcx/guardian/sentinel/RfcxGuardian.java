@@ -1,14 +1,13 @@
 package org.rfcx.guardian.sentinel;
 
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.sentinel.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
+import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.Application;
 import android.content.Context;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class RfcxGuardian extends Application {
 	
@@ -21,23 +20,24 @@ public class RfcxGuardian extends Application {
 
 	public RfcxDeviceId rfcxDeviceId = null; 
 	public RfcxPrefs rfcxPrefs = null;
-	
-	private boolean hasRun_OnLaunchServiceTrigger = false;
+	public RfcxServiceHandler rfcxServiceHandler = null;
 	
 	@Override
 	public void onCreate() {
 
 		super.onCreate();
 
-		this.rfcxDeviceId = new RfcxDeviceId(getApplicationContext(), APP_ROLE);
-		this.rfcxPrefs = new RfcxPrefs(getApplicationContext(), APP_ROLE);
+		this.rfcxDeviceId = new RfcxDeviceId(this, APP_ROLE);
+		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
+		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 		
 		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
 		rfcxPrefs.writeVersionToFile(this.version);
 		
 		setDbHandlers();
+		setServiceHandlers();
 		
-		initializeRoleServices(getApplicationContext());
+		initializeRoleServices();
 	}
 	
 	public void onTerminate() {
@@ -51,23 +51,25 @@ public class RfcxGuardian extends Application {
 	public void appPause() {
 		
 	}
-	
-	public void initializeRoleServices(Context context) {
-		if (!this.hasRun_OnLaunchServiceTrigger) {
-			try {
-				// reboots system at 5 minutes before midnight every day
-//				PendingIntent rebootIntentService = PendingIntent.getService(context, -1, new Intent(context, RebootIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-//				AlarmManager rebootAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
-//				rebootAlarmManager.setRepeating(AlarmManager.RTC, DateTimeUtils.nextOccurenceOf(23,55,0).getTimeInMillis(), 24*60*60*1000, rebootIntentService);
-				this.hasRun_OnLaunchServiceTrigger = true;
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
+
+	public void initializeRoleServices() {
+		
+		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+			this.rfcxServiceHandler.triggerServiceSequence(
+				"OnLaunchServiceSequence", 
+					new String[] { 
+//						"ServiceMonitor"+"|"+"0"+"|"+(3*this.rfcxPrefs.getPrefAsInt("audio_cycle_duration"))
+						}, 
+				true);
 		}
 	}
 	
 	private void setDbHandlers() {
 		int versionNumber = RfcxRole.getRoleVersionValue(this.version);
+	}
+
+	private void setServiceHandlers() {
+		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitorIntentService.class);
 	}
 	
 //	

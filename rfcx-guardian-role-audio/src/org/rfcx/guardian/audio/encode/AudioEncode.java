@@ -21,28 +21,45 @@ import android.util.Log;
 public class AudioEncode {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncode.class.getSimpleName();
-
+	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
+	
+	public static String appFilesDir(Context context) {
+		return context.getFilesDir().toString();
+	}
+	
+	public static String sdCardFilesDir() {
+		return Environment.getExternalStorageDirectory().toString()+"/rfcx";
+	}
+	
+	public static String finalFilesDir() {
+		String filesDir = Environment.getDownloadCacheDirectory().toString()+"/rfcx";
+		if ((new File(sdCardFilesDir())).isDirectory()) { filesDir = sdCardFilesDir(); }
+		return filesDir;
+	}
 
-	public String sdCardFilesDir = Environment.getExternalStorageDirectory().toString()+"/rfcx";
-	public String finalFilesDir = Environment.getDownloadCacheDirectory().toString()+"/rfcx";
-	public String postZipDir = null;
-	public String encodeDir = null;
-	
-	public String getAudioFileLocation_PreEncode(long timestamp, String fileExtension) {
-		return this.encodeDir+"/"+timestamp+"."+fileExtension;
-	}
-	
-	public String getAudioFileLocation_PostEncode(long timestamp, String fileExtension) {
-		return this.encodeDir+"/_"+timestamp+"."+fileExtension;
+	public static String postZipDir() {
+		return finalFilesDir()+"/audio";
 	}
 
-	public String getAudioFileLocation_Complete_PostZip(long timestamp, String fileExtension) {
-		return this.postZipDir+"/"+dateFormat.format(new Date(timestamp))+"/"+timestamp+"."+fileExtension+".gz";
+	public static String encodeDir(Context context) {
+		return appFilesDir(context)+"/encode"; 
 	}
 	
-	public void cleanupEncodeDirectory() {
-		for (File file : (new File(this.encodeDir)).listFiles()) {
+	public static String getAudioFileLocation_PreEncode(Context context, long timestamp, String fileExtension) {
+		return encodeDir(context)+"/"+timestamp+"."+fileExtension;
+	}
+	
+	public static String getAudioFileLocation_PostEncode(Context context, long timestamp, String fileExtension) {
+		return encodeDir(context)+"/_"+timestamp+"."+fileExtension;
+	}
+
+	public static String getAudioFileLocation_Complete_PostZip(long timestamp, String fileExtension) {
+		return postZipDir()+"/"+dateFormat.format(new Date(timestamp))+"/"+timestamp+"."+fileExtension+".gz";
+	}
+	
+	public static void cleanupEncodeDirectory(Context context) {
+		for (File file : (new File(encodeDir(context))).listFiles()) {
 			try { 
 				file.delete(); 
 			} catch (Exception e) {
@@ -51,19 +68,17 @@ public class AudioEncode {
 		}
 	}
 	
-	public void triggerAudioEncodeAfterCapture(Context context) {
-		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		PendingIntent audioEncodeIntentService = PendingIntent.getService(context, -1, new Intent(context, AudioEncodeIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-		alarmManager.set(AlarmManager.RTC, System.currentTimeMillis(), audioEncodeIntentService);
-	}
+//	public void triggerAudioEncodeAfterCapture(Context context) {
+//		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+//		PendingIntent audioEncodeIntentService = PendingIntent.getService(context, -1, new Intent(context, AudioEncodeIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+//		alarmManager.set(AlarmManager.RTC, System.currentTimeMillis(), audioEncodeIntentService);
+//	}
+//	
+//	public void triggerCheckInAfterEncode() {
+//		app.rfcxServiceHandler.triggerService(new String[] { "AudioEncode", "0", "0" }, false);
+//	}
 	
-	public void triggerCheckInAfterEncode(Context context) {
-		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		PendingIntent checkInTriggerIntentService = PendingIntent.getService(context, -1, new Intent(context, CheckInTriggerIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-		alarmManager.set(AlarmManager.RTC, System.currentTimeMillis(), checkInTriggerIntentService);
-	}
-	
-	public void purgeSingleAudioAssetFromDisk(String audioTimestamp, String audioFileExtension) {
+	public static void purgeSingleAudioAssetFromDisk(String audioTimestamp, String audioFileExtension) {
 		try {
 			(new File(getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();
 			Log.d(TAG, "Purging audio asset: "+audioTimestamp+"."+audioFileExtension);

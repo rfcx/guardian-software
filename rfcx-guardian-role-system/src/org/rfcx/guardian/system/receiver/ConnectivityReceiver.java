@@ -18,17 +18,17 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-        app.isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-		if (app.isConnected) {
-			app.lastConnectedAt = Calendar.getInstance().getTimeInMillis();
-			Log.d(TAG, "Connectivity: YES");
-			int disconnectedFor = (int) (app.lastConnectedAt - app.lastDisconnectedAt);
-			if (disconnectedFor > 1000) app.deviceStateDb.dbOffline.insert(new Date(), disconnectedFor, "");
-		} else {
-			app.lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
-			Log.d(TAG, "Connectivity: NO");
-		}
+        
+        int disconnectedFor = 
+        		app.deviceConnectivity.updateConnectivityStateAndReportDisconnectedFor(
+        			!intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false)
+        		);
+        
+        if (disconnectedFor > 1000) {
+        	app.deviceStateDb.dbOffline.insert(new Date(), disconnectedFor, "");
+        }
         
 	}
 

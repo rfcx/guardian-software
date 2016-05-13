@@ -16,7 +16,9 @@ public class DeviceStateService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceStateService.class.getSimpleName();
 	
-	RfcxGuardian app;
+	private static final String SERVICE_NAME = "DeviceState";
+	
+	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
 	private DeviceStateSvc deviceStateSvc;
@@ -40,7 +42,7 @@ public class DeviceStateService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		Log.v(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState("DeviceState", true);
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.deviceStateSvc.start();
 		} catch (IllegalThreadStateException e) {
@@ -53,7 +55,7 @@ public class DeviceStateService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState("DeviceState", false);
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.deviceStateSvc.interrupt();
 		this.deviceStateSvc = null;
 	}
@@ -103,8 +105,8 @@ public class DeviceStateService extends Service {
 					}
 					
 				} catch (InterruptedException e) {
+					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 					deviceStateService.runFlag = false;
-					app.rfcxServiceHandler.setRunState("DeviceState", false);
 					RfcxLog.logExc(TAG, e);
 				}
 			}

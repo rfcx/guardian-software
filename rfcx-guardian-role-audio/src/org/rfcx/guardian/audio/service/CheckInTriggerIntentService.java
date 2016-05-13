@@ -1,6 +1,7 @@
 package org.rfcx.guardian.audio.service;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
+import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.app.IntentService;
@@ -13,6 +14,8 @@ public class CheckInTriggerIntentService extends IntentService {
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+CheckInTriggerIntentService.class.getSimpleName();
 	
+	private static final String SERVICE_NAME = "CheckInTrigger";
+	
 	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".CHECKIN_TRIGGER";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_CHECKIN_TRIGGER_NOTIFICATIONS";
 	
@@ -22,9 +25,10 @@ public class CheckInTriggerIntentService extends IntentService {
 
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Intent intent = new Intent(INTENT_TAG);
 		sendBroadcast(intent, NOTIFICATION_TAG);
+
+		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
 		String [] lastAudio = app.audioDb.dbEncoded.getLatestRow();
 		ContentValues lastAudioValues = new ContentValues();
@@ -32,7 +36,7 @@ public class CheckInTriggerIntentService extends IntentService {
 		lastAudioValues.put("timestamp", lastAudio[1]);
 		lastAudioValues.put("format", lastAudio[2]);
 		lastAudioValues.put("digest", lastAudio[3]);
-		lastAudioValues.put("filepath", app.audioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(lastAudio[1]), lastAudio[2]));
+		lastAudioValues.put("filepath", AudioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(lastAudio[1]), lastAudio[2]));
 		lastAudioValues.put("samplerate", lastAudio[4]);
 		lastAudioValues.put("bitrate", lastAudio[5]);
 		lastAudioValues.put("codec", lastAudio[6]);

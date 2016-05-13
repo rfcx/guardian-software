@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
 			break;
 
 		case R.id.menu_api_register:
-			app.triggerService("ApiRegister",true);
+			app.rfcxServiceHandler.triggerService("ApiRegister", true);
 			break;
 			
 		case R.id.menu_cputuner_install:
@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
 				Log.d("Rfcx-Installer","CPUTuner will now be downloaded and installed...");
 				app.apiCore.targetAppRoleApiEndpoint = "cputuner";
 				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
-				app.triggerService("ApiCheckVersion",true);
+				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
 			} else {
 				Log.d("Rfcx-Installer","CPUTuner is already installed...");
 			}
@@ -54,7 +54,7 @@ public class MainActivity extends Activity {
 				Log.d("Rfcx-Installer","SpectralViewPro will now be downloaded and installed...");
 				app.apiCore.targetAppRoleApiEndpoint = "spectrogram";
 				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
-				app.triggerService("ApiCheckVersion",true);
+				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
 			} else {
 				Log.d("Rfcx-Installer","SpectralViewPro is already installed...");
 			}
@@ -66,14 +66,14 @@ public class MainActivity extends Activity {
 				Log.d("Rfcx-Installer","ModuleLoader will now be downloaded and installed...");
 				app.apiCore.targetAppRoleApiEndpoint = "moduleloader";
 				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
-				app.triggerService("ApiCheckVersion",true);
+				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
 			} else {
 				Log.d("Rfcx-Installer","ModuleLoader is already installed...");
 			}
 			break;
 			
 		case R.id.menu_check_version:
-			app.triggerService("ApiCheckVersion",true);
+			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
 			break;
 
 		case R.id.menu_root_command:

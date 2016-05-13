@@ -5,7 +5,6 @@ import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,7 +23,7 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 		
 		case R.id.menu_check_version:
-			app.triggerService("ApiCheckVersion",true);
+			app.rfcxServiceHandler.triggerService("ApiCheckVersion",true);
 			break;
 
 		case R.id.menu_root_command:

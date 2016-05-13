@@ -53,6 +53,9 @@
         >
         
 	<!-- <uses-library android:name="com.android.future.usb.accessory" /> -->
+	
+        <!-- IntentServices -->
+        <service android:name="org.rfcx.guardian.sentinel.service.ServiceMonitorIntentService" />
 
         <activity
             android:name="org.rfcx.guardian.sentinel.activity.MainActivity"

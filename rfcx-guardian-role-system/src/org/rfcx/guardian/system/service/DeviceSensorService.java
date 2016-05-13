@@ -26,7 +26,9 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceSensorService.class.getSimpleName();
 	
-	RfcxGuardian app;
+	private static final String SERVICE_NAME = "DeviceSensor";
+	
+	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
 	private DeviceSensorSvc deviceSensorSvc;
@@ -69,7 +71,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 		super.onStartCommand(intent, flags, startId);
 		Log.v(TAG, "Starting service: "+TAG);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState("DeviceSensor", true);
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.deviceSensorSvc.start();
 		} catch (IllegalThreadStateException e) {
@@ -82,7 +84,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState("DeviceSensor", false);
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.deviceSensorSvc.interrupt();
 		this.deviceSensorSvc = null;
 		
@@ -123,7 +125,7 @@ public class DeviceSensorService extends Service implements SensorEventListener 
 					
 				} catch (InterruptedException e) {
 					deviceSensorService.runFlag = false;
-					app.rfcxServiceHandler.setRunState("DeviceSensor", false);
+					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 					RfcxLog.logExc(TAG, e);
 				}
 			}

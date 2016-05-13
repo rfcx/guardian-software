@@ -12,7 +12,6 @@ import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.media.MediaRecorder;
 import android.os.IBinder;
@@ -21,18 +20,20 @@ import android.util.Log;
 public class AudioCaptureService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioCaptureService.class.getSimpleName();
-
+	
+	private static final String SERVICE_NAME = "AudioCapture";
+	
+	private RfcxGuardian app;
+	
 	private boolean runFlag = false;
 	private AudioCaptureSvc audioCaptureSvc;
-
-	private RfcxGuardian app = null;
-	private Context context = null;
+	
+	private AudioCapture audioCapture;
 	
 	MediaRecorder mediaRecorder = null;
     ExtAudioRecorderModified audioRecorder = null;
     
 	private long captureLoopPeriod;
-	private int captureSampleRate;
 	
 	private int encodingBitRate;
 	private String captureFileExtension;
@@ -49,21 +50,16 @@ public class AudioCaptureService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.audioCaptureSvc = new AudioCaptureSvc();
+		app = (RfcxGuardian) getApplication();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		this.runFlag = true;
-		
-		app = (RfcxGuardian) getApplication();
-		context = app.getApplicationContext();
-
-		app.audioCapture.initializeAudioDirectories(app);
-		
 		Log.v(TAG, "Starting service: "+TAG);
-		
-		app.isRunning_AudioCapture = true;
+		this.runFlag = true;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		this.audioCapture = new AudioCapture(app.getApplicationContext());
 		try {
 			this.audioCaptureSvc.start();
 		} catch (IllegalThreadStateException e) {
@@ -76,7 +72,7 @@ public class AudioCaptureService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.isRunning_AudioCapture = false;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.audioCaptureSvc.interrupt();
 		this.audioCaptureSvc = null;
 	}
@@ -90,17 +86,14 @@ public class AudioCaptureService extends Service {
 		@Override
 		public void run() {
 			AudioCaptureService audioCaptureService = AudioCaptureService.this;
+			
 			app = (RfcxGuardian) getApplication();
 			
-			AudioCapture audioCapture = app.audioCapture;
-			AudioEncode audioEncode = app.audioEncode;
-			
 			// cleanup directories of old or broken audio files
-			app.audioCapture.cleanupCaptureDirectory();
-			app.audioEncode.cleanupEncodeDirectory();
+			audioCapture.cleanupCaptureDirectory();
+			AudioEncode.cleanupEncodeDirectory(app.getApplicationContext());
 			
 			captureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
-			captureSampleRate = app.AUDIO_SAMPLE_RATE;
 			encodingBitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
 			captureCodec = (app.rfcxPrefs.getPrefAsString("audio_encode_codec").equals("aac")) ? "aac" : "pcm";
 			captureFileExtension = (app.rfcxPrefs.getPrefAsString("audio_encode_codec").equals("aac")) ? "m4a" : "wav";
@@ -109,7 +102,7 @@ public class AudioCaptureService extends Service {
 				Log.d(TAG, "Capture Loop Period: "+ captureLoopPeriod +"ms");
 				while (audioCaptureService.runFlag) {
 					try {
-						if (app.audioCapture.isBatteryChargeSufficientForCapture()) {
+						if (audioCapture.isBatteryChargeSufficientForCapture()) {
 							captureLoopStart();
 					        processCompletedCaptureFile();
 					        Thread.sleep(captureLoopPeriod);
@@ -117,29 +110,29 @@ public class AudioCaptureService extends Service {
 						} else {
 							Thread.sleep(2*captureLoopPeriod);
 							Log.i(TAG, "AudioCapture disabled due to low battery level"
-									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")+"%)."
+									+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")+"%)."
 									+" Waiting "+(Math.round(2*captureLoopPeriod/1000))+" seconds before next attempt.");
 						}
 					} catch (Exception e) {
-						RfcxLog.logExc(TAG, e);
+						app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 						audioCaptureService.runFlag = false;
-						app.isRunning_AudioCapture = false;
+						RfcxLog.logExc(TAG, e);
 					}
 				}
 				Log.v(TAG, "Stopping service: "+TAG);
 				captureLoopEnd();
 				
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				audioCaptureService.runFlag = false;
-				app.isRunning_AudioCapture = false;
+				RfcxLog.logExc(TAG, e);
 			}
 		}
 	}
 	
 	private void captureLoopStart() throws IllegalStateException, IOException {
 		long timeStamp = Calendar.getInstance().getTimeInMillis();; 
-		String filePath = app.audioCapture.captureDir+"/"+timeStamp+"."+captureFileExtension;
+		String filePath = audioCapture.captureDir+"/"+timeStamp+"."+captureFileExtension;
 		try {
 			if (captureCodec.equals("aac")) {
 				mediaRecorder = setAacCaptureRecorder();
@@ -178,25 +171,25 @@ public class AudioCaptureService extends Service {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        mediaRecorder.setAudioSamplingRate(captureSampleRate);
+        mediaRecorder.setAudioSamplingRate(AudioCapture.AUDIO_SAMPLE_RATE);
         mediaRecorder.setAudioEncodingBitRate(encodingBitRate);
         mediaRecorder.setAudioChannels(1);
         return mediaRecorder;
 	}
 	
 	private void processCompletedCaptureFile() {
-		File completedCapture = new File(app.audioCapture.captureDir+"/"+captureTimeStamps[0]+"."+captureFileExtension);
+		File completedCapture = new File(audioCapture.captureDir+"/"+captureTimeStamps[0]+"."+captureFileExtension);
 		if (completedCapture.exists()) {
 			try {
-				File preEncodeFile = new File(app.audioEncode.getAudioFileLocation_PreEncode(captureTimeStamps[0],captureFileExtension));
+				File preEncodeFile = new File(AudioEncode.getAudioFileLocation_PreEncode(app.getApplicationContext(),captureTimeStamps[0],captureFileExtension));
 				FileUtils.copy(completedCapture, preEncodeFile);
 				if (preEncodeFile.exists()) { completedCapture.delete(); }				
 			} catch (IOException e) {
 				RfcxLog.logExc(TAG, e);
 			}
-	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", captureFileExtension, "-", captureSampleRate, 0, captureCodec, captureLoopPeriod, captureLoopPeriod);
+	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", captureFileExtension, "-", AudioCapture.AUDIO_SAMPLE_RATE, 0, captureCodec, captureLoopPeriod, captureLoopPeriod);
 			Log.i(TAG, "Capture file created ("+this.captureLoopPeriod+"ms): "+captureTimeStamps[0]+"."+captureFileExtension);
-	        app.audioEncode.triggerAudioEncodeAfterCapture(context);
+			app.rfcxServiceHandler.triggerService(new String[] { "AudioEncode", "0", "0" }, false);
 		}
 	}
 	

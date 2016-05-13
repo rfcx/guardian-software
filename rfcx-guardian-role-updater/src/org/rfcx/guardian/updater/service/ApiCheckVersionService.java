@@ -10,20 +10,20 @@ import org.rfcx.guardian.utility.http.HttpGet;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class ApiCheckVersionService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckVersionService.class.getSimpleName();
+	
+	private static final String SERVICE_NAME = "ApiCheckVersion";
 
+	private RfcxGuardian app;
+	
+	private boolean runFlag = false;
 	private ApiCheckVersion apiCheckVersion;
-
-	private RfcxGuardian app = null;
-	private Context context = null;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -34,19 +34,17 @@ public class ApiCheckVersionService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.apiCheckVersion = new ApiCheckVersion();
+		app = (RfcxGuardian) getApplication();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		
-		app = (RfcxGuardian) getApplication();
-		if (context == null) context = app.getApplicationContext();
-		
-		app.isRunning_ApiCheckVersion = true;
+		Log.v(TAG, "Starting service: "+TAG);
+		this.runFlag = true;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.apiCheckVersion.start();
-			Log.d(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(TAG, e);
 		}
@@ -56,7 +54,8 @@ public class ApiCheckVersionService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		app.isRunning_ApiCheckVersion = false;
+		this.runFlag = false;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.apiCheckVersion.interrupt();
 		this.apiCheckVersion = null;
 	}
@@ -79,7 +78,7 @@ public class ApiCheckVersionService extends Service {
 			httpGet.setCustomHttpHeaders(rfcxAuthHeaders);
 
 			try {
-				if (app.isConnected) {
+				if (app.deviceConnectivity.isConnected()) {
 					if (app.apiCore.apiCheckVersionEndpoint != null) {
 						app.lastApiCheckTriggeredAt = Calendar.getInstance().getTimeInMillis();
 						String getUrl =	(((app.rfcxPrefs.getPrefAsString("api_url_base")!=null) ? app.rfcxPrefs.getPrefAsString("api_url_base") : "https://api.rfcx.org")
@@ -87,17 +86,18 @@ public class ApiCheckVersionService extends Service {
 										+ "?role="+app.APP_ROLE.toLowerCase()
 										+ "&version="+app.version
 										+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
-										+ "&timestamp="+Calendar.getInstance().getTimeInMillis());
+										+ "&timestamp="+Calendar.getInstance().getTimeInMillis()
+										);
 						
 						long sinceLastCheckIn = (Calendar.getInstance().getTimeInMillis() - app.apiCore.lastCheckInTime) / 1000;
 						Log.d(TAG, "Since last checkin: "+sinceLastCheckIn);
 						List<JSONObject> jsonResponse = httpGet.getAsJsonList(getUrl);
-
-						for (JSONObject json : jsonResponse) { Log.d(TAG, json.toString()); }
-
+						for (JSONObject json : jsonResponse) {
+							Log.d(TAG, json.toString());
+						}
 						for (JSONObject jsonResponseItem : jsonResponse) {
 							String appRole = jsonResponseItem.getString("role").toLowerCase();
-							if (!appRole.equals(app.APP_ROLE)) {
+							if (!appRole.equals(RfcxGuardian.APP_ROLE)) {
 								app.targetAppRole = appRole;
 								if (app.apiCore.apiCheckVersionFollowUp(app,appRole,jsonResponse)) {
 									break;
@@ -113,8 +113,8 @@ public class ApiCheckVersionService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 			} finally {
-				app.isRunning_ApiCheckVersion = false;
-				app.stopService("ApiCheckVersion");
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}
 		}
 	}

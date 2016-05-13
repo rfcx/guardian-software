@@ -21,6 +21,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.ShellCommands;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.telephony.SmsManager;
@@ -28,10 +29,17 @@ import android.text.TextUtils;
 import android.util.Log;
 
 public class ApiWebCheckIn {
+	
+	public ApiWebCheckIn(Context context) {
+		this.app = (RfcxGuardian) context.getApplicationContext();
+		// setting http post timeouts to the same as the audio capture interval.
+		setCheckInTimeOuts(this.app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
+		setCheckInAuthHeaders(this.app.rfcxDeviceId.getDeviceGuid(), this.app.rfcxDeviceId.getDeviceToken());
+	}
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiWebCheckIn.class.getSimpleName();
 
-	private RfcxGuardian app = null;
+	private RfcxGuardian app;
 	HttpPostMultipart httpPostMultipart = new HttpPostMultipart();
 
 	public Date requestSendStart = new Date();
@@ -42,16 +50,16 @@ public class ApiWebCheckIn {
 
 	public int[] connectivityToggleThresholds = new int[] { 10, 17, 24, 30 };
 	public boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
-
-	public void init(RfcxGuardian app) {
-		this.app = app;
-		// setting http post timeouts to the same as the audio capture interval.
-		this.httpPostMultipart.setTimeOuts(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"), app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
-		// defining customized RFCx authentication headers (necessary for API access)
+	
+	private void setCheckInAuthHeaders(String deviceGuid, String deviceToken) {
 		List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
-		rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/" + app.rfcxDeviceId.getDeviceGuid() });
-		rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxDeviceId.getDeviceToken() });
+		rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/" + deviceGuid });
+		rfcxAuthHeaders.add(new String[] { "x-auth-token", deviceToken });
 		this.httpPostMultipart.setCustomHttpHeaders(rfcxAuthHeaders);
+	}
+	
+	private void setCheckInTimeOuts(int timeOut) {
+		this.httpPostMultipart.setTimeOuts(timeOut, timeOut);
 	}
 
 	public String getCheckInUrl() {
@@ -61,7 +69,7 @@ public class ApiWebCheckIn {
 	public void sendCheckIn(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments, boolean allowAttachments, String checkInAudioReference) {
 		if (!allowAttachments)
 			keyFilepathMimeAttachments = new ArrayList<String[]>();
-		if (app.isConnected) {
+		if (app.deviceConnectivity.isConnected()) {
 			this.requestSendStart = new Date();
 			Log.i(TAG, "CheckIn sent at: " + DateTimeUtils.getDateTime(this.requestSendStart));
 			String checkInResponse = httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments);
@@ -76,13 +84,14 @@ public class ApiWebCheckIn {
 		}
 	}
 	
-	public static boolean doesCheckInIncludeAudio(List<String[]> checkInFiles) {
+	public static boolean validateCheckInAttachments(List<String[]> checkInFiles) {
+		boolean includesAudio = false;
+		boolean includesScreenShot = false;
 		for (String[] fileItems : checkInFiles) {
-			if (fileItems[0].equals("audio")) {
-				return true;
-			}
+			if (fileItems[0].equals("audio")) { includesAudio = true; }
+			if (fileItems[0].equals("screenshot")) { includesScreenShot = true; }
 		}
-		return false;
+		return (includesAudio);
 	}
 
 	public boolean addCheckInToQueue(String[] audioInfo, String filepath) {
@@ -377,14 +386,10 @@ public class ApiWebCheckIn {
 
 			try {
 				JSONObject msgJson = new JSONObject();
-				msgJson.put("android_id",
-						cursor.getString(cursor.getColumnIndex("_id")));
-				msgJson.put("received_at",
-						cursor.getLong(cursor.getColumnIndex("date")));
-				msgJson.put("address",
-						cursor.getString(cursor.getColumnIndex("address")));
-				msgJson.put("body",
-						cursor.getString(cursor.getColumnIndex("body")));
+				msgJson.put("android_id", cursor.getString(cursor.getColumnIndex("_id")));
+				msgJson.put("received_at", cursor.getLong(cursor.getColumnIndex("date")));
+				msgJson.put("address", cursor.getString(cursor.getColumnIndex("address")));
+				msgJson.put("body", cursor.getString(cursor.getColumnIndex("body")));
 				msgJsonArray.put(msgJson);
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
@@ -401,8 +406,7 @@ public class ApiWebCheckIn {
 		// (the latest screenshot)
 		Cursor cursor = app
 				.getContentResolver()
-				.query(Uri
-						.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT),
+				.query(Uri.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT),
 						RfcxRole.ContentProvider.system.PROJECTION_SCREENSHOT,
 						null, null, null);
 
@@ -430,11 +434,11 @@ public class ApiWebCheckIn {
 		String audioId = audioFileName.substring(0, audioFileName.lastIndexOf("."));
 		String audioFormat = audioFileName.substring(1 + audioFileName.lastIndexOf("."));
 		try {
-			if ((new File(audioFilePath)).exists()) {
+			if ((new File(audioFilePath)).exists() && (new File(audioFilePath)).canRead()) {
 				checkInFiles.add(new String[] { "audio", audioFilePath, "audio/" + audioFormat });
 				Log.d(TAG, "Audio attached: " + audioId + "." + audioFormat);
 			} else {
-				Log.e(TAG, "Audio attachment file doesn't exist: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
+				Log.e(TAG, "Audio attachment file doesn't exist or isn't readable: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
 				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
 				String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId)[1];
 				int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.audio.URI_1 + "/" + audioFileNameInDb), null, null);
@@ -455,16 +459,13 @@ public class ApiWebCheckIn {
 		if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) {
 
 			try {
-				String imgId = cursor.getString(cursor
-						.getColumnIndex("timestamp"));
-				String imgFilePath = cursor.getString(cursor
-						.getColumnIndex("filepath"));
-				if ((new File(imgFilePath)).exists()) {
-					checkInFiles.add(new String[] { "screenshot", imgFilePath,
-							"image/png" });
+				String imgId = cursor.getString(cursor.getColumnIndex("timestamp"));
+				String imgFilePath = cursor.getString(cursor.getColumnIndex("filepath"));
+				if ((new File(imgFilePath)).exists() && (new File(imgFilePath)).canRead()) {
+					checkInFiles.add(new String[] { "screenshot", imgFilePath, "image/png" });
 					Log.d(TAG, "Screenshot attached: " + imgId + ".png");
 				} else {
-					Log.e(TAG, "Screenshot attachment file doesn't exist ("+imgId+"): "+ imgFilePath);
+					Log.e(TAG, "Screenshot attachment file doesn't exist or isn't readable ("+imgId+"): "+ imgFilePath);
 					int deleteScreenShot = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT+"/"+imgId), null, null);
 				}
 			} catch (Exception e) {
@@ -498,7 +499,7 @@ public class ApiWebCheckIn {
 					this.connectivityToggleThresholdsReached[thresholdIndex] = true;
 					Log.d(TAG, "ToggleCheck: AirplaneMode (" + toggleThreshold
 							+ " minutes since last successful CheckIn)");
-					app.airplaneMode.setOff(app.getApplicationContext());
+					app.deviceAirplaneMode.setOff(app.getApplicationContext());
 					if (toggleThreshold == this.connectivityToggleThresholds[this.connectivityToggleThresholds.length - 1]) {
 						// last index, force reboot
 						Log.d(TAG, "ToggleCheck: ForcedReboot ("

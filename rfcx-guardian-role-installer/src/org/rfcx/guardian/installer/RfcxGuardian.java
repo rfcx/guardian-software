@@ -6,38 +6,36 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Map;
 
 import org.rfcx.guardian.installer.api.ApiCore;
 import org.rfcx.guardian.installer.receiver.ConnectivityReceiver;
+import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.installer.service.ApiCheckVersionService;
 import org.rfcx.guardian.installer.service.ApiRegisterService;
+import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
 import org.rfcx.guardian.installer.service.DownloadFileService;
 import org.rfcx.guardian.installer.service.InstallAppService;
-import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
-import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
+import org.rfcx.guardian.installer.service.RebootIntentService;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.device.DeviceBattery;
+import org.rfcx.guardian.utility.device.DeviceConnectivity;
+import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
+import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-import android.app.AlarmManager;
 import android.app.Application;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
@@ -51,15 +49,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	public RfcxDeviceId rfcxDeviceId = null; 
 	public RfcxPrefs rfcxPrefs = null;
+	public RfcxServiceHandler rfcxServiceHandler = null;
 	
 	public static final String targetAppRoleApiEndpoint = "updater";
 	public String targetAppRole = "updater";
 	
 	public SharedPreferences sharedPrefs = null;
-
-	public boolean isConnected = false;
-	public long lastConnectedAt = Calendar.getInstance().getTimeInMillis();
-	public long lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
+	
 	public long lastApiCheckTriggeredAt = Calendar.getInstance().getTimeInMillis();
 	
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -68,43 +64,40 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	// for checking battery level
 	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
-	
-	public boolean isRunning_ApiRegister = false;
-	public boolean isRunning_ApiCheckVersion = false;
-	public boolean isRunning_DownloadFile = false;
-	public boolean isRunning_InstallApp = false;
-	public boolean isRunning_CPUTuner = false;
-	
-	public boolean isRunning_UpdaterService = false;
-	
-	private boolean hasRun_OnLaunchServiceTrigger = false;
+	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	
 	@Override
 	public void onCreate() {
+		
 		super.onCreate();
 
-		this.rfcxDeviceId = new RfcxDeviceId(getApplicationContext(), APP_ROLE);
-		this.rfcxPrefs = new RfcxPrefs(getApplicationContext(), APP_ROLE);
+		this.rfcxDeviceId = new RfcxDeviceId(this, APP_ROLE);
+		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
+		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 		
-		PreferenceManager.setDefaultValues(getApplicationContext(), R.xml.prefs, true);
-		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
-		this.syncSharedPrefs();
-		
-		this.version = RfcxRole.getRoleVersion(getApplicationContext(), TAG);
-		rfcxPrefs.writeVersionToFile(this.version);
-		
-		// install external binary
-		this.installExternalExecutable("fb2png", false);
-		this.installExternalExecutable("logcat_capture", true);
+		this.version = RfcxRole.getRoleVersion(this, TAG);
+		this.rfcxPrefs.writeVersionToFile(this.version);
 		
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+		
+		PreferenceManager.setDefaultValues(this, R.xml.prefs, true);
+		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
+		this.syncSharedPrefs();
 		
 		this.apiCore.targetAppRoleApiEndpoint = this.targetAppRoleApiEndpoint;
 		this.apiCore.setApiCheckVersionEndpoint(this.rfcxDeviceId.getDeviceGuid());
 		this.apiCore.setApiRegisterEndpoint();
 		
-	    initializeRoleServices(getApplicationContext());
+		// install external binaries
+		this.installExternalExecutable("fb2png", false);
+		this.installExternalExecutable("logcat_capture", true);
+		
+		setDbHandlers();
+		setServiceHandlers();
+		
+		initializeRoleServices();
+
 	}
 	
 	public void onTerminate() {
@@ -120,6 +113,38 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 	}
 	
+	public void initializeRoleServices() {
+		
+		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+			this.rfcxServiceHandler.triggerServiceSequence(
+				"OnLaunchServiceSequence", 
+					new String[] { 
+						"ApiCheckVersionIntentService"
+								+"|"+(System.currentTimeMillis() + (2 * 60 * 1000)) // waits two minutes before running
+								+"|"+(this.rfcxPrefs.getPrefAsInt("install_cycle_duration")),
+						"CPUTuner"
+						}, 
+				true);
+		}
+	}
+	
+	private void setDbHandlers() {
+		int versionNumber = RfcxRole.getRoleVersionValue(this.version);
+	}
+
+	private void setServiceHandlers() {
+		this.rfcxServiceHandler.addService("ApiCheckVersion", ApiCheckVersionService.class);
+		this.rfcxServiceHandler.addService("ApiCheckVersionIntentService", ApiCheckVersionIntentService.class);
+		this.rfcxServiceHandler.addService("CPUTuner", DeviceCPUTunerService.class);
+		this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
+		this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
+		this.rfcxServiceHandler.addService("ApiRegister", ApiRegisterService.class);
+		this.rfcxServiceHandler.addService("RebootIntentService", RebootIntentService.class);
+	}
+	
+	
+
+	
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
 		Log.d(TAG, "Pref changed: "+prefKey+" = "+this.sharedPrefs.getString(prefKey, null));
@@ -128,83 +153,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	private void syncSharedPrefs() {
 		for ( Map.Entry<String,?> pref : this.sharedPrefs.getAll().entrySet() ) {
-			this.rfcxPrefs.setPref(this.APP_ROLE, pref.getKey(), pref.getValue().toString());
+			this.rfcxPrefs
+			.setPref(APP_ROLE, pref.getKey(), pref.getValue().toString());
 		}
 	}
 	
 	public boolean setPref(String prefKey, String prefValue) {
 		return this.sharedPrefs.edit().putString(prefKey,prefValue).commit();
 	}
-	
-	public void initializeRoleServices(Context context) {
-		if (!this.hasRun_OnLaunchServiceTrigger) {
-			try {
-
-				// force CPUTuner Config (requires root access)
-				triggerService("CPUTuner", true);
-				
-				int delayAfterAppLaunchInMinutes = 2;
-				PendingIntent updaterIntentService = PendingIntent.getService(context, -1, new Intent(context, ApiCheckVersionIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-				AlarmManager updaterAlarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);		
-				updaterAlarmManager.setInexactRepeating(AlarmManager.RTC, ( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ), this.rfcxPrefs.getPrefAsInt("install_cycle_duration"), updaterIntentService);
-				Log.d(TAG, "ApiCheckVersion will run every " + Math.round( this.rfcxPrefs.getPrefAsInt("install_cycle_duration") / (60*1000) ) + " minute(s), starting at "+(new Date(( System.currentTimeMillis() + ( delayAfterAppLaunchInMinutes * (60 * 1000) ) ))).toLocaleString());
-				this.hasRun_OnLaunchServiceTrigger = true;	
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-		}
-	}
-	
-	public void triggerService(String serviceName, boolean forceReTrigger) {
-		context = getApplicationContext();
-		
-		if (serviceName.equals("ApiCheckVersion")) {
-			if (!this.isRunning_ApiCheckVersion || forceReTrigger) {
-				context.stopService(new Intent(context, ApiCheckVersionService.class));
-				context.startService(new Intent(context, ApiCheckVersionService.class));
-			} else {Log.d(TAG, "Service ApiCheckVersion is already running..."); }
-		} else if (serviceName.equals("ApiRegister")) {
-			if (!this.isRunning_ApiRegister || forceReTrigger) {
-				context.stopService(new Intent(context, ApiRegisterService.class));
-				context.startService(new Intent(context, ApiRegisterService.class));
-			} else {Log.d(TAG, "Service ApiRegister is already running..."); }
-		} else if (serviceName.equals("DownloadFile")) {
-			if (!this.isRunning_DownloadFile || forceReTrigger) {
-				context.stopService(new Intent(context, DownloadFileService.class));
-				context.startService(new Intent(context, DownloadFileService.class));
-			} else {Log.d(TAG, "Service DownloadFile is already running..."); }
-		} else if (serviceName.equals("InstallApp")) {
-			if (!this.isRunning_InstallApp || forceReTrigger) {
-				context.stopService(new Intent(context, InstallAppService.class));
-				context.startService(new Intent(context, InstallAppService.class));
-			} else { Log.d(TAG, "Service InstallApp is already running..."); }
-		} else if (serviceName.equals("CPUTuner")) {
-			if (!this.isRunning_CPUTuner || forceReTrigger) {
-				context.stopService(new Intent(context, DeviceCPUTunerService.class));
-				context.startService(new Intent(context, DeviceCPUTunerService.class));
-			} else { Log.d(TAG, "Service CPUTuner is already running..."); }
-		} else {
-			Log.e(TAG, "There is no service named '"+serviceName+"'.");
-		}
-	}
-	
-	public void stopService(String serviceName) {
-		context = getApplicationContext();		
-		if (serviceName.equals("ApiCheckVersion")) {
-			context.stopService(new Intent(context, ApiCheckVersionService.class));
-		} else if (serviceName.equals("ApiRegister")) {
-			context.stopService(new Intent(context, ApiRegisterService.class));
-		} else if (serviceName.equals("DownloadFile")) {
-			context.stopService(new Intent(context, DownloadFileService.class));
-		} else if (serviceName.equals("InstallApp")) {
-			context.stopService(new Intent(context, InstallAppService.class));
-		} else if (serviceName.equals("CPUTuner")) {
-			context.stopService(new Intent(context, DeviceCPUTunerService.class));
-		} else {
-			Log.e(TAG, "There is no service named '"+serviceName+"'.");
-		}	
-	}
-
 	
 	
 	

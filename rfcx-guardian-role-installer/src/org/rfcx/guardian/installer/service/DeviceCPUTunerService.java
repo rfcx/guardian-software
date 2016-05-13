@@ -14,11 +14,13 @@ import android.util.Log;
 public class DeviceCPUTunerService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceCPUTunerService.class.getSimpleName();
+	
+	private static final String SERVICE_NAME = "CPUTuner";
 
+	private RfcxGuardian app;
+	
+	private boolean runFlag = false;
 	private DeviceCPUTunerSvc deviceCPUTunerSvc;
-
-	private RfcxGuardian app = null;
-	private Context context = null;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -29,19 +31,17 @@ public class DeviceCPUTunerService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.deviceCPUTunerSvc = new DeviceCPUTunerSvc();
+		app = (RfcxGuardian) getApplication();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		
-		app = (RfcxGuardian) getApplication();
-		if (context == null) context = app.getApplicationContext();
-		
-		app.isRunning_CPUTuner = true;
+		Log.v(TAG, "Starting service: "+TAG);
+		this.runFlag = true;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.deviceCPUTunerSvc.start();
-			Log.v(TAG, "Starting service: "+TAG);
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(TAG, e);
 		}
@@ -51,7 +51,8 @@ public class DeviceCPUTunerService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		app.isRunning_CPUTuner = false;
+		this.runFlag = false;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.deviceCPUTunerSvc.interrupt();
 		this.deviceCPUTunerSvc = null;
 	}
@@ -67,13 +68,13 @@ public class DeviceCPUTunerService extends Service {
 			DeviceCPUTunerService deviceCPUTunerService = DeviceCPUTunerService.this;
 			try {
 				
-				(new DeviceCPUTuner()).set(context);
+				(new DeviceCPUTuner()).set(app.getApplicationContext());
 				
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 			} finally {
-				app.isRunning_CPUTuner = false;
-				app.stopService("CPUTuner");
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}
 		}
 	}

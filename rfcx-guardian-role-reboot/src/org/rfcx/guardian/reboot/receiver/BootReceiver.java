@@ -12,9 +12,8 @@ public class BootReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-		app.rebootDb.dbReboot.insert(Calendar.getInstance().getTimeInMillis());
-		app.initializeRoleServices(context);
+		((RfcxGuardian) context.getApplicationContext()).rebootDb.dbReboot.insert(Calendar.getInstance().getTimeInMillis());
+//		((RfcxGuardian) context.getApplicationContext()).initializeRoleServices();
 	}
 
 }

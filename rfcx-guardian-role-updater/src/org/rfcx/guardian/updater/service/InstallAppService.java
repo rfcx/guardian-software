@@ -4,8 +4,8 @@ import java.io.File;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;
@@ -18,10 +18,12 @@ public class InstallAppService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+InstallAppService.class.getSimpleName();
 	
-	private InstallApp installApp;
+	private static final String SERVICE_NAME = "InstallApp";
 
-	private RfcxGuardian app = null;
-	private Context context = null;
+	private RfcxGuardian app;
+	
+	private boolean runFlag = false;
+	private InstallApp installApp;
 	
 	private int installLoopCounter = 0;
 	
@@ -34,18 +36,15 @@ public class InstallAppService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.installApp = new InstallApp();
+		app = (RfcxGuardian) getApplication();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		
-		app = (RfcxGuardian) getApplication();
-		if (context == null) context = app.getApplicationContext();
-		
-		Log.d(TAG, "Starting service: "+TAG);
-		
-		app.isRunning_InstallApp = true;
+		Log.v(TAG, "Starting service: "+TAG);
+		this.runFlag = true;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.installApp.start();
 		} catch (IllegalThreadStateException e) {
@@ -57,7 +56,8 @@ public class InstallAppService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		app.isRunning_InstallApp = false;
+		this.runFlag = false;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.installApp.interrupt();
 		this.installApp = null;
 	}
@@ -74,31 +74,31 @@ public class InstallAppService extends Service {
 			boolean successfullyInstalled = false;
 			String apkFileName = app.apiCore.installRole+"-"+app.apiCore.installVersion+".apk";
 			try {
-				ShellCommands.killProcessByName(context,"org.rfcx.guardian."+app.targetAppRole,"."+app.APP_ROLE);
-				successfullyInstalled = installApk(context,apkFileName,false);
+				ShellCommands.killProcessByName(app.getApplicationContext(),"org.rfcx.guardian."+app.targetAppRole,"."+RfcxGuardian.APP_ROLE);
+				successfullyInstalled = installApk(app.getApplicationContext(),apkFileName,false);
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 			} finally {
-
-				String apkFilePath = context.getFilesDir().getAbsolutePath()+"/"+apkFileName;
+				
+				String apkFilePath = app.getApplicationContext().getFilesDir().getAbsolutePath()+"/"+apkFileName;
 				File apkFile = (new File(apkFilePath));
 				
 				if (successfullyInstalled) {
 					Log.d(TAG, "installation successful ("+app.targetAppRole+", "+app.apiCore.installVersion+"). deleting apk and rebooting...");
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
-					ShellCommands.executeCommand("reboot",null,false,context);
-				} else if ((installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
+					ShellCommands.executeCommand("reboot",null,false,app.getApplicationContext());
+				} else if (	(installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
 					installLoopCounter++;
-					app.triggerService("InstallApp", true);
+					app.rfcxServiceHandler.triggerService(SERVICE_NAME, true);
 				} else {
 					Log.d(TAG, "installation failed ("+app.targetAppRole+", "+app.apiCore.installVersion+").  deleting apk...");
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
 				}
 
-				app.isRunning_DownloadFile = false;
-				app.stopService("InstallApp");
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}
 		}
 	}

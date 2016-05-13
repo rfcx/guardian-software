@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Date;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
+import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -17,18 +18,23 @@ public class AudioEncodeIntentService extends IntentService {
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncodeIntentService.class.getSimpleName();
 	
+	private static final String SERVICE_NAME = "AudioEncode";
+	
 	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".AUDIO_ENCODE";
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_AUDIO_ENCODE_NOTIFICATIONS";
-    
+
+	private AudioEncode audioEncode;
+	
 	public AudioEncodeIntentService() {
 		super(TAG);
 	}
 
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Intent intent = new Intent(INTENT_TAG);
 		sendBroadcast(intent, NOTIFICATION_TAG);
+
+		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
 		for (String[] capturedRow : app.audioDb.dbCaptured.getAllCaptured()) {
 			
@@ -36,9 +42,9 @@ public class AudioEncodeIntentService extends IntentService {
 			
 			Log.i(TAG, "Encoding: '"+capturedRow[0]+"','"+capturedRow[1]+"','"+capturedRow[2]+"'");
 			
-			File preEncodeFile = new File(app.audioEncode.getAudioFileLocation_PreEncode((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
-			File postEncodeFile = new File(app.audioEncode.getAudioFileLocation_PostEncode((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
-			File gZippedFile = new File(app.audioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
+			File preEncodeFile = new File(AudioEncode.getAudioFileLocation_PreEncode(app.getApplicationContext(),(long) Long.parseLong(capturedRow[1]),capturedRow[2]));
+			File postEncodeFile = new File(AudioEncode.getAudioFileLocation_PostEncode(app.getApplicationContext(),(long) Long.parseLong(capturedRow[1]),capturedRow[2]));
+			File gZippedFile = new File(AudioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(capturedRow[1]),capturedRow[2]));
 			
 			try {
 				
@@ -75,8 +81,7 @@ public class AudioEncodeIntentService extends IntentService {
 				app.audioDb.dbCaptured.clearCapturedBefore(new Date((long) Long.parseLong(capturedRow[0])));
 				
 				//make sure the previous step(s) are synchronous or else the checkin will occur before the encode...
-				app.audioEncode.triggerCheckInAfterEncode(app.getApplicationContext());
-				
+				app.rfcxServiceHandler.triggerService(new String[] { "CheckInTrigger", "0", "0" }, false);
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 			}

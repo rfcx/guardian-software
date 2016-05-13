@@ -1,6 +1,7 @@
 package org.rfcx.guardian.api.receiver;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import org.rfcx.guardian.api.RfcxGuardian;
 
@@ -15,12 +16,12 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-        app.isConnected = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-		if (app.isConnected) {
-			app.lastConnectedAt = Calendar.getInstance().getTimeInMillis();
-		} else {
-			app.lastDisconnectedAt = Calendar.getInstance().getTimeInMillis();
-		}
+        
+        int disconnectedFor = 
+        		app.deviceConnectivity.updateConnectivityStateAndReportDisconnectedFor(
+        			!intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false)
+        		);
 	}
 }

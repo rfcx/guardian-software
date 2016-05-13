@@ -8,21 +8,20 @@ import org.rfcx.guardian.api.api.ApiWebCheckIn;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class ApiCheckInService extends Service {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInService.class.getSimpleName();
-
+	
+	private static final String SERVICE_NAME = "ApiCheckIn";
+	
+	private RfcxGuardian app;
+	
 	private boolean runFlag = false;
-	private ApiCheckIn apiCheckIn;
-
-	private RfcxGuardian app = null;
-	private Context context = null;
+	private ApiCheckIn serviceObject;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -32,22 +31,18 @@ public class ApiCheckInService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.apiCheckIn = new ApiCheckIn();
+		this.serviceObject = new ApiCheckIn();
+		app = (RfcxGuardian) getApplication();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		this.runFlag = true;
-		
-		app = (RfcxGuardian) getApplication();
-		context = app.getApplicationContext();
-
 		Log.v(TAG, "Starting service: "+TAG);
-		
-		app.isRunning_ApiCheckIn = true;
+		this.runFlag = true;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.apiCheckIn.start();
+			this.serviceObject.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(TAG, e);
 		}
@@ -58,9 +53,9 @@ public class ApiCheckInService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.isRunning_ApiCheckIn = false;
-		this.apiCheckIn.interrupt();
-		this.apiCheckIn = null;
+		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		this.serviceObject.interrupt();
+		this.serviceObject = null;
 	}
 	
 	private class ApiCheckIn extends Thread {
@@ -71,10 +66,11 @@ public class ApiCheckInService extends Service {
 		
 		@Override
 		public void run() {
-			ApiCheckInService apiCheckInService = ApiCheckInService.this;
+			ApiCheckInService serviceInstance = ApiCheckInService.this;
+			
 			app = (RfcxGuardian) getApplication();
 			
-			while (apiCheckInService.runFlag) {
+			while (serviceInstance.runFlag) {
 				String[] currentCheckIn = new String[] {null,null,null};
 				try {
 					
@@ -84,7 +80,7 @@ public class ApiCheckInService extends Service {
 					if (	// 1) there is a pending check in in the database
 							(currentCheckIn[0] != null)
 							// 2) there is an active network connection
-						&& 	app.isConnected
+						&& 	app.deviceConnectivity.isConnected()
 							// 3) the device internal battery percentage is at or above the minimum charge threshold
 						&&	app.apiWebCheckIn.isBatteryChargeSufficientForCheckIn()
 						) {
@@ -101,7 +97,7 @@ public class ApiCheckInService extends Service {
 							app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(currentCheckIn[1]);
 						} else {
 							List<String[]> checkInFiles = app.apiWebCheckIn.loadCheckInFiles(currentCheckIn[4]);
-							if (ApiWebCheckIn.doesCheckInIncludeAudio(checkInFiles)) {
+							if (ApiWebCheckIn.validateCheckInAttachments(checkInFiles)) {
 								app.apiWebCheckIn.sendCheckIn(
 									app.apiWebCheckIn.getCheckInUrl(),
 									stringParameters, 
@@ -119,7 +115,7 @@ public class ApiCheckInService extends Service {
 						if (!app.apiWebCheckIn.isBatteryChargeSufficientForCheckIn()) {
 							long extendCheckInLoopBy = (2 * app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")) - app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause");
 							Log.i(TAG, "CheckIns automatically disabled due to low battery level"
-									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff")+"%)."
+									+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff")+"%)."
 									+" Waiting " + ( Math.round( ( extendCheckInLoopBy + app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause") ) / 1000 ) ) + " seconds before next attempt.");
 							Thread.sleep(extendCheckInLoopBy);
 						}
@@ -127,13 +123,13 @@ public class ApiCheckInService extends Service {
 						
 				} catch (Exception e) {
 					RfcxLog.logExc(TAG, e);
-					apiCheckInService.runFlag = false;
-					app.isRunning_ApiCheckIn = false;
+					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+					serviceInstance.runFlag = false;
 				}
 			}
-			
-			apiCheckInService.runFlag = false;
-			app.isRunning_ApiCheckIn = false;
+
+			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			serviceInstance.runFlag = false;
 
 		}
 	}

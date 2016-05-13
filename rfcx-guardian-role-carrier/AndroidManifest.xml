@@ -50,6 +50,9 @@
         android:name="org.rfcx.guardian.carrier.RfcxGuardian"
         >
 
+        <!-- IntentServices -->
+        <service android:name="org.rfcx.guardian.carrier.service.ServiceMonitorIntentService" />
+        
         <activity
             android:name="org.rfcx.guardian.carrier.activity.MainActivity"
             android:label="@string/app_name" >

@@ -51,4 +51,16 @@ public class DateTimeUtils {
 		return calendar;
 	}
 	
+	public static String milliSecondsAsMinutes(long milliSeconds) {
+		StringBuilder rtrnStr = new StringBuilder();
+		
+		int minutes = (int) Math.floor( milliSeconds / 60000 );
+		rtrnStr.append(minutes).append(" minutes");
+		
+		int seconds = Math.round((milliSeconds - (minutes * 60000)) / 1000);
+		if (seconds > 0) { rtrnStr.append(", ").append(seconds).append(" seconds"); }
+		
+		return rtrnStr.toString();
+	}
+	
 }

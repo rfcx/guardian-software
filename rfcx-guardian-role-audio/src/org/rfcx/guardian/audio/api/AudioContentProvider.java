@@ -3,6 +3,8 @@ package org.rfcx.guardian.audio.api;
 import java.util.List;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
+import org.rfcx.guardian.audio.encode.AudioEncode;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
@@ -54,7 +56,7 @@ public class AudioContentProvider extends ContentProvider {
 						encodedEntry[1], // timestamp
 						encodedEntry[2], // extension
 						encodedEntry[3], // digest
-						app.audioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(encodedEntry[1]), encodedEntry[2])
+						AudioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(encodedEntry[1]), encodedEntry[2])
 					});
 			}
 		}
@@ -67,15 +69,20 @@ public class AudioContentProvider extends ContentProvider {
 		
 		String urlValue = uri.getLastPathSegment();
 		
-		if (URI_MATCHER.match(uri) == ENDPOINT_1_ID) {
-			app.audioDb.dbEncoded.deleteSingleEncoded(urlValue);
-			return 1;
-		} else if (URI_MATCHER.match(uri) == ENDPOINT_1_FILENAME) {
-			String audioId = urlValue.substring(0,urlValue.lastIndexOf("."));
-			String audioExt = urlValue.substring(1+urlValue.lastIndexOf("."));
-			app.audioEncode.purgeSingleAudioAssetFromDisk(audioId, audioExt);
-			app.audioDb.dbEncoded.deleteSingleEncoded(audioId);
-			return 1;
+		try {
+		
+			if (URI_MATCHER.match(uri) == ENDPOINT_1_ID) {
+				app.audioDb.dbEncoded.deleteSingleEncoded(urlValue);
+				return 1;
+			} else if (URI_MATCHER.match(uri) == ENDPOINT_1_FILENAME) {
+				String audioId = urlValue.substring(0,urlValue.lastIndexOf("."));
+				String audioExt = urlValue.substring(1+urlValue.lastIndexOf("."));
+				AudioEncode.purgeSingleAudioAssetFromDisk(audioId, audioExt);
+				app.audioDb.dbEncoded.deleteSingleEncoded(audioId);
+				return 1;
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(TAG, e);
 		}
 		return 0;
 	}

@@ -1,7 +1,8 @@
 package org.rfcx.guardian.installer.service;
 
+import java.util.Locale;
+
 import org.rfcx.guardian.installer.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -11,8 +12,10 @@ public class ApiCheckVersionIntentService extends IntentService {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckVersionIntentService.class.getSimpleName();
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".INSTALLER_SERVICE";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
+	private static final String SERVICE_NAME = "ApiCheckVersionIntentService";
+	
+	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase(Locale.US)+".INSTALLER_SERVICE";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase(Locale.US)+".RECEIVE_INSTALLER_SERVICE_NOTIFICATIONS";
 	
 	public ApiCheckVersionIntentService() {
 		super(TAG);
@@ -27,10 +30,10 @@ public class ApiCheckVersionIntentService extends IntentService {
 		
 		int INSTALL_OFFLINE_TOGGLE_THRESHOLD = app.rfcxPrefs.getPrefAsInt("install_offline_toggle_threshold");
 		
-		if (app.isConnected) {
-			app.triggerService("ApiCheckVersion", true);
-		} else if (	(app.lastDisconnectedAt > app.lastConnectedAt)
-				&& 	((app.lastDisconnectedAt-app.lastConnectedAt) > INSTALL_OFFLINE_TOGGLE_THRESHOLD)
+		if (app.deviceConnectivity.isConnected()) {
+			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
+		} else if (	(app.deviceConnectivity.lastDisconnectedAt() > app.deviceConnectivity.lastConnectedAt())
+				&& 	((app.deviceConnectivity.lastDisconnectedAt()-app.deviceConnectivity.lastConnectedAt()) > INSTALL_OFFLINE_TOGGLE_THRESHOLD)
 				) {
 			Log.e(TAG, "Disconnected for more than " + Math.round( INSTALL_OFFLINE_TOGGLE_THRESHOLD / ( 60 * 1000 ) ) + " minutes.");
 			// nothing happens here

@@ -1,40 +1,37 @@
 package org.rfcx.guardian.audio.capture;
 
 import java.io.File;
-import java.util.Date;
-import java.util.List;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.audio.database.AudioDb;
+import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import android.os.Environment;
-import android.text.TextUtils;
-import android.util.Log;
+import android.content.Context;
 
 public class AudioCapture {
 
+	public AudioCapture(Context context) {
+		this.app = (RfcxGuardian) context.getApplicationContext();
+		initializeAudioDirectories();
+	}
+	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioCapture.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	
 	public String captureDir = null;
-	
-	public void initializeAudioDirectories(RfcxGuardian app) {
-		
-		this.app = app;
-		
-		String appFilesDir = app.getApplicationContext().getFilesDir().toString();
 
-		(new File(app.audioEncode.sdCardFilesDir)).mkdirs();
-		(new File(app.audioEncode.finalFilesDir)).mkdirs();
-		
-		if ((new File(app.audioEncode.sdCardFilesDir)).isDirectory()) { app.audioEncode.finalFilesDir = app.audioEncode.sdCardFilesDir; }
+	public final static int AUDIO_SAMPLE_RATE = 8000;
+	
+	private void initializeAudioDirectories() {
 				
-		this.captureDir = appFilesDir+"/capture"; (new File(this.captureDir)).mkdirs();
-		app.audioEncode.encodeDir = appFilesDir+"/encode"; (new File(app.audioEncode.encodeDir)).mkdirs();
-		app.audioEncode.postZipDir = app.audioEncode.finalFilesDir+"/audio"; (new File(app.audioEncode.postZipDir)).mkdirs();
+		this.captureDir = AudioEncode.appFilesDir(app.getApplicationContext())+"/capture"; 
 		
+		(new File(this.captureDir)).mkdirs();
+		(new File(AudioEncode.encodeDir(app.getApplicationContext()))).mkdirs();
+		(new File(AudioEncode.sdCardFilesDir())).mkdirs();
+		(new File(AudioEncode.finalFilesDir())).mkdirs();
+		(new File(AudioEncode.postZipDir())).mkdirs();
 	}
 	
 	public void cleanupCaptureDirectory() {

@@ -1,11 +1,12 @@
-package org.rfcx.guardian.audio.service;
+package org.rfcx.guardian.sentinel.service;
 
 
-import org.rfcx.guardian.audio.RfcxGuardian;
+import java.util.Locale;
+
+import org.rfcx.guardian.sentinel.RfcxGuardian;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 public class ServiceMonitorIntentService extends IntentService {
 	
@@ -13,8 +14,8 @@ public class ServiceMonitorIntentService extends IntentService {
 	
 	private static final String SERVICE_NAME = "ServiceMonitor";
 	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".SERVICE_MONITOR";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
+	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase(Locale.US)+".SERVICE_MONITOR";
+	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase(Locale.US)+".RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
 	
 	public ServiceMonitorIntentService() {
 		super(TAG);
@@ -22,6 +23,7 @@ public class ServiceMonitorIntentService extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
+		
 		Intent intent = new Intent(INTENT_TAG);
 		sendBroadcast(intent, NOTIFICATION_TAG);
 		
@@ -32,7 +34,7 @@ public class ServiceMonitorIntentService extends IntentService {
 			app.rfcxServiceHandler.triggerServiceSequence(
 					"ServiceMonitorSequence", 
 						new String[] { 
-							"AudioCapture"
+							
 						}, 
 					false);
 		}

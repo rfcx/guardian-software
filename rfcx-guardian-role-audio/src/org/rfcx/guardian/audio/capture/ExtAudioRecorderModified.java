@@ -19,7 +19,7 @@ public class ExtAudioRecorderModified {
 			result = new ExtAudioRecorderModified(
 					true,
 					AudioSource.MIC,
-					RfcxGuardian.AUDIO_SAMPLE_RATE,
+					AudioCapture.AUDIO_SAMPLE_RATE,
 					AudioFormat.CHANNEL_CONFIGURATION_MONO,
 					AudioFormat.ENCODING_PCM_16BIT);
 		} while (!(result.getState() == ExtAudioRecorderModified.State.INITIALIZING));

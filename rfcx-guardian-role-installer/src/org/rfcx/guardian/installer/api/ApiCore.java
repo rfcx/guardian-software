@@ -67,7 +67,7 @@ public class ApiCore {
 				
 				if (isBatteryChargeSufficientForDownloadAndInstall(app)) {
 					Log.d(TAG, "Latest version detected and download triggered: "+this.installVersion+" ("+this.installVersionValue+")");	
-					app.triggerService("DownloadFile", true);
+					app.rfcxServiceHandler.triggerService("DownloadFile", true);
 				} else {
 					Log.i(TAG, "Download & Installation disabled due to low battery level"
 							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("install_battery_cutoff")+"%)."
