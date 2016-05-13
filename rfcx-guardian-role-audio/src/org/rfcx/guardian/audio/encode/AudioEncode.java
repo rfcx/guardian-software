@@ -68,16 +68,6 @@ public class AudioEncode {
 		}
 	}
 	
-//	public void triggerAudioEncodeAfterCapture(Context context) {
-//		AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-//		PendingIntent audioEncodeIntentService = PendingIntent.getService(context, -1, new Intent(context, AudioEncodeIntentService.class), PendingIntent.FLAG_UPDATE_CURRENT);
-//		alarmManager.set(AlarmManager.RTC, System.currentTimeMillis(), audioEncodeIntentService);
-//	}
-//	
-//	public void triggerCheckInAfterEncode() {
-//		app.rfcxServiceHandler.triggerService(new String[] { "AudioEncode", "0", "0" }, false);
-//	}
-	
 	public static void purgeSingleAudioAssetFromDisk(String audioTimestamp, String audioFileExtension) {
 		try {
 			(new File(getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();

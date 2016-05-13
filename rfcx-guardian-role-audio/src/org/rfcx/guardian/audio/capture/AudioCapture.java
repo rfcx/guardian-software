@@ -12,30 +12,29 @@ public class AudioCapture {
 
 	public AudioCapture(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
-		initializeAudioDirectories();
+		initializeAudioDirectories(context);
 	}
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioCapture.class.getSimpleName();
 
 	private RfcxGuardian app = null;
-	
-	public String captureDir = null;
 
 	public final static int AUDIO_SAMPLE_RATE = 8000;
 	
-	private void initializeAudioDirectories() {
-				
-		this.captureDir = AudioEncode.appFilesDir(app.getApplicationContext())+"/capture"; 
-		
-		(new File(this.captureDir)).mkdirs();
-		(new File(AudioEncode.encodeDir(app.getApplicationContext()))).mkdirs();
+	private static void initializeAudioDirectories(Context context) {
+		(new File(captureDir(context))).mkdirs();
+		(new File(AudioEncode.encodeDir(context))).mkdirs();
 		(new File(AudioEncode.sdCardFilesDir())).mkdirs();
 		(new File(AudioEncode.finalFilesDir())).mkdirs();
 		(new File(AudioEncode.postZipDir())).mkdirs();
 	}
 	
-	public void cleanupCaptureDirectory() {
-		for (File file : (new File(this.captureDir)).listFiles()) {
+	public static String captureDir(Context context) {
+		return context.getFilesDir().toString()+"/capture"; 
+	}
+	
+	public static void cleanupCaptureDirectory(Context context) {
+		for (File file : (new File(captureDir(context))).listFiles()) {
 			try { 
 				file.delete();
 			} catch (Exception e) { 

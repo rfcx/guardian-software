@@ -90,7 +90,7 @@ public class AudioCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			
 			// cleanup directories of old or broken audio files
-			audioCapture.cleanupCaptureDirectory();
+			AudioCapture.cleanupCaptureDirectory(app.getApplicationContext());
 			AudioEncode.cleanupEncodeDirectory(app.getApplicationContext());
 			
 			captureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
@@ -132,7 +132,7 @@ public class AudioCaptureService extends Service {
 	
 	private void captureLoopStart() throws IllegalStateException, IOException {
 		long timeStamp = Calendar.getInstance().getTimeInMillis();; 
-		String filePath = audioCapture.captureDir+"/"+timeStamp+"."+captureFileExtension;
+		String filePath = AudioCapture.captureDir(app.getApplicationContext())+"/"+timeStamp+"."+captureFileExtension;
 		try {
 			if (captureCodec.equals("aac")) {
 				mediaRecorder = setAacCaptureRecorder();
@@ -178,7 +178,7 @@ public class AudioCaptureService extends Service {
 	}
 	
 	private void processCompletedCaptureFile() {
-		File completedCapture = new File(audioCapture.captureDir+"/"+captureTimeStamps[0]+"."+captureFileExtension);
+		File completedCapture = new File(AudioCapture.captureDir(app.getApplicationContext())+"/"+captureTimeStamps[0]+"."+captureFileExtension);
 		if (completedCapture.exists()) {
 			try {
 				File preEncodeFile = new File(AudioEncode.getAudioFileLocation_PreEncode(app.getApplicationContext(),captureTimeStamps[0],captureFileExtension));
@@ -187,9 +187,11 @@ public class AudioCaptureService extends Service {
 			} catch (IOException e) {
 				RfcxLog.logExc(TAG, e);
 			}
-	        app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", captureFileExtension, "-", AudioCapture.AUDIO_SAMPLE_RATE, 0, captureCodec, captureLoopPeriod, captureLoopPeriod);
+	        
+			app.audioDb.dbCaptured.insert(captureTimeStamps[0]+"", captureFileExtension, "-", AudioCapture.AUDIO_SAMPLE_RATE, 0, captureCodec, captureLoopPeriod, captureLoopPeriod);
 			Log.i(TAG, "Capture file created ("+this.captureLoopPeriod+"ms): "+captureTimeStamps[0]+"."+captureFileExtension);
-			app.rfcxServiceHandler.triggerService(new String[] { "AudioEncode", "0", "0" }, false);
+			
+			app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioEncode");
 		}
 	}
 	

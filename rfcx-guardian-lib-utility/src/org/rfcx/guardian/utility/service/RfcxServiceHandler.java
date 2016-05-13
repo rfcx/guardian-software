@@ -74,6 +74,10 @@ public class RfcxServiceHandler {
 		triggerService(new String[] { svcToTrigger, ""+startTimeMillis, ""+repeatIntervalMillis }, false);
 	}
 	
+	public void triggerIntentServiceImmediately(String svcToTrigger) {
+		triggerService(new String[] { svcToTrigger, null, null }, false);
+	}
+	
 	public void stopService(String svcToStop) {
 		
 		if (!this.svcClasses.containsKey(svcToStop.toLowerCase(Locale.US))) {

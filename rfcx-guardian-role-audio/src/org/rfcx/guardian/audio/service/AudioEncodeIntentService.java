@@ -81,7 +81,7 @@ public class AudioEncodeIntentService extends IntentService {
 				app.audioDb.dbCaptured.clearCapturedBefore(new Date((long) Long.parseLong(capturedRow[0])));
 				
 				//make sure the previous step(s) are synchronous or else the checkin will occur before the encode...
-				app.rfcxServiceHandler.triggerService(new String[] { "CheckInTrigger", "0", "0" }, false);
+				app.rfcxServiceHandler.triggerIntentServiceImmediately("CheckInTrigger");
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 			}
