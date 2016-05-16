@@ -92,10 +92,13 @@ public class CheckInDb {
 		public List<String[]> getAllQueued() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			}
@@ -104,10 +107,13 @@ public class CheckInDb {
 		public List<String[]> getQueuedWithOffset(int rowOffset, int rowLimit) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", ""+(rowOffset+rowLimit));
-				if (cursor.getCount() > rowOffset) {
-					try { if (cursor.moveToPosition(rowOffset)) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", ""+(rowOffset+rowLimit));
+				if ((cursor.getCount() > rowOffset) && cursor.moveToPosition(rowOffset)) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			}
@@ -118,10 +124,11 @@ public class CheckInDb {
 			String[] row = new String[] {null,null,null};
 			try { 
 				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
-				if (cursor.getCount() > 0) {
-					try {
-						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			}
@@ -139,10 +146,11 @@ public class CheckInDb {
 			String[] row = new String[] {null,null,null};
 			try { 
 				Cursor cursor = db.query(TABLE, ALL_COLUMNS, " substr("+C_AUDIO+",0,14) = ?", new String[] { audioId }, null, null, C_CREATED_AT+" DESC", "1");
-				if (cursor.getCount() > 0) {
-					try {
-						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			}
@@ -167,10 +175,11 @@ public class CheckInDb {
 			String[] countReturn = new String[] { "0" };
 			try { 
 				Cursor cursor = db.query(TABLE, QUERY, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try {
-						if (cursor.moveToFirst()) { do { countReturn = new String[] { cursor.getString(0) };
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { countReturn = new String[] { cursor.getString(0) };
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			}
@@ -226,10 +235,13 @@ public class CheckInDb {
 		public List<String[]> getAllSkipped() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			}
@@ -240,10 +252,11 @@ public class CheckInDb {
 			String[] row = new String[] {null,null,null};
 			try { 
 				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
-				if (cursor.getCount() > 0) {
-					try {
-						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			}
@@ -268,10 +281,11 @@ public class CheckInDb {
 			String[] countReturn = new String[] { "0" };
 			try { 
 				Cursor cursor = db.query(TABLE, QUERY, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try {
-						if (cursor.moveToFirst()) { do { countReturn = new String[] { cursor.getString(0) };
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { countReturn = new String[] { cursor.getString(0) };
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			}
@@ -331,10 +345,11 @@ public class CheckInDb {
 			String[] countReturn = new String[] { "0" };
 			try { 
 				Cursor cursor = db.query(TABLE, QUERY, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try {
-						if (cursor.moveToFirst()) { do { countReturn = new String[] { cursor.getString(0) };
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { countReturn = new String[] { cursor.getString(0) };
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			}

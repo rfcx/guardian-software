@@ -21,7 +21,7 @@ else
   cd rfcx-guardian-role-$ROLE;
 
   export APK_VERSION=`cat $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/AndroidManifest.xml | grep 'android:versionName=' | cut -d'"' -f 2`;
-  echo "RFCx $ROLE ($APK_VERSION)";
+  echo ""; echo "RFCx $ROLE ($APK_VERSION)";
 
   echo "generating build configuration...";
   export BUILD_CONFIG=`android update project -p . -n rfcx-guardian-role-$ROLE`;

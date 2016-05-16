@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class DataTransferDb {
@@ -32,7 +33,6 @@ public class DataTransferDb {
 	static final String C_BYTES_SENT_CURRENT = "bytes_sent_current";
 	static final String C_BYTES_RECEIVED_TOTAL = "bytes_received_total";
 	static final String C_BYTES_SENT_TOTAL = "bytes_sent_total";
-	private static final String[] CONCAT_ROWS = { "COUNT("+C_CREATED_AT+")", "GROUP_CONCAT( "+C_START_TIME+" || '*' || "+C_END_TIME+" || '*' || "+C_BYTES_RECEIVED_CURRENT+" || '*' || "+C_BYTES_SENT_CURRENT+" || '*' || "+C_BYTES_RECEIVED_TOTAL+" || '*' || "+C_BYTES_SENT_TOTAL+", '|')" };
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_START_TIME, C_END_TIME, C_BYTES_RECEIVED_CURRENT, C_BYTES_SENT_CURRENT, C_BYTES_RECEIVED_TOTAL, C_BYTES_SENT_TOTAL };
 
 	private String createColumnString(String tableName) {
@@ -75,9 +75,11 @@ public class DataTransferDb {
 		public DbTransferred(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
+		
 		public void close() {
 			this.dbHelper.close();
 		}
+		
 		public void insert(Date created_at, Date start_time, Date end_time, long bytes_rx_current, long bytes_tx_current, long bytes_rx_total, long bytes_tx_total) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, created_at.getTime());
@@ -94,13 +96,19 @@ public class DataTransferDb {
 				db.close();
 			}
 		}
-		public List<String[]> getAllRows() {
+		
+		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
 				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+					if (cursor.moveToFirst()) { 
+						do { list.add(new String[] { cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6) });
+						} while (cursor.moveToNext());
+					} 
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			} finally { 
@@ -108,6 +116,7 @@ public class DataTransferDb {
 			}
 			return list;
 		}
+		
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { 
@@ -116,18 +125,19 @@ public class DataTransferDb {
 				db.close(); 
 			}
 		}
-		public String[] getConcatRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null };
-			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+		
+		public String getConcatRows() {
+			String concatRows = null;
+			ArrayList<String> rowList = new ArrayList<String>();
+			try {
+				for (String[] row : getAllRows()) {
+					rowList.add(TextUtils.join("*", row));
+				}
+				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
 			}
-			return stats;
+			return concatRows;
 		}
 	}
 	public final DbTransferred dbTransferred;

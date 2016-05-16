@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class DeviceStateDb {
@@ -89,34 +90,45 @@ public class DeviceStateDb {
 				db.close();
 			}
 		}
-		public List<String[]> getAllRows() {
+		
+		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
+			} finally { 
+				db.close(); 
+			}
 			return list;
 		}
+		
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
-		public String[] getConcatRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null };
-			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} catch (Exception e) { 
+		
+		public String getConcatRows() {
+			String concatRows = null;
+			ArrayList<String> rowList = new ArrayList<String>();
+			try {
+				for (String[] row : getAllRows()) {
+					rowList.add(TextUtils.join("*", row));
+				}
+				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
+			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
-			return stats;
+			}
+			return concatRows;
 		}
+
 	}
 	public final DbCPU dbCPU;
 	
@@ -162,34 +174,45 @@ public class DeviceStateDb {
 				db.close();
 			}
 		}
-		public List<String[]> getAllRows() {
+		
+		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) {
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
+			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
+			} finally { 
+				db.close(); 
+			}
 			return list;
 		}
+		
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
-		public String[] getConcatRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null };
-			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+		
+		public String getConcatRows() {
+			String concatRows = null;
+			ArrayList<String> rowList = new ArrayList<String>();
+			try {
+				for (String[] row : getAllRows()) {
+					rowList.add(TextUtils.join("*", row));
+				}
+				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
-			return stats;
+			}
+			return concatRows;
 		}
+
 	}
 	public final DbBattery dbBattery;
 	
@@ -237,34 +260,45 @@ public class DeviceStateDb {
 		public void insert(Date measured_at, int is_powered, int is_charged) {
 			insert(measured_at, (is_powered == 1), (is_charged == 1));
 		}
-		public List<String[]> getAllRows() {
+		
+		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) {
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
+			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
+			} finally { 
+				db.close(); 
+			}
 			return list;
 		}
+		
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
-		public String[] getConcatRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null };
-			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+		
+		public String getConcatRows() {
+			String concatRows = null;
+			ArrayList<String> rowList = new ArrayList<String>();
+			try {
+				for (String[] row : getAllRows()) {
+					rowList.add(TextUtils.join("*", row));
+				}
+				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
-			return stats;
+			}
+			return concatRows;
 		}
+
 	}
 	public final DbPower dbPower;
 	
@@ -312,34 +346,45 @@ public class DeviceStateDb {
 				db.close();
 			}
 		}
-		public List<String[]> getAllRows() {
+		
+		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) {
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
+			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
+			} finally { 
+				db.close(); 
+			}
 			return list;
 		}
+		
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
-		public String[] getConcatRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null };
-			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
-			} catch (Exception e) { 
+		
+		public String getConcatRows() {
+			String concatRows = null;
+			ArrayList<String> rowList = new ArrayList<String>();
+			try {
+				for (String[] row : getAllRows()) {
+					rowList.add(TextUtils.join("*", row));
+				}
+				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
+			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
-			return stats;
+			}
+			return concatRows;
 		}
+
 	}
 	public final DbNetwork dbNetwork;
 
@@ -384,34 +429,45 @@ public class DeviceStateDb {
 				db.close();
 			}
 		}
-		public List<String[]> getAllRows() {
+		
+		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) {
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
+			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
+			} finally { 
+				db.close(); 
+			}
 			return list;
 		}
+		
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
-		public String[] getConcatRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null };
-			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+		
+		public String getConcatRows() {
+			String concatRows = null;
+			ArrayList<String> rowList = new ArrayList<String>();
+			try {
+				for (String[] row : getAllRows()) {
+					rowList.add(TextUtils.join("*", row));
+				}
+				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
-			return stats;
+			}
+			return concatRows;
 		}
+
 	}
 	public final DbOffline dbOffline;
 	
@@ -456,34 +512,45 @@ public class DeviceStateDb {
 				db.close();
 			}
 		}
-		public List<String[]> getAllRows() {
+		
+		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) {
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
+			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
+			} finally { 
+				db.close(); 
+			}
 			return list;
 		}
+		
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
-		public String[] getConcatRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null };
-			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+		
+		public String getConcatRows() {
+			String concatRows = null;
+			ArrayList<String> rowList = new ArrayList<String>();
+			try {
+				for (String[] row : getAllRows()) {
+					rowList.add(TextUtils.join("*", row));
+				}
+				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
-			return stats;
+			}
+			return concatRows;
 		}
+
 	}
 	public final DbLightMeter dbLightMeter;
 	
@@ -529,34 +596,45 @@ public class DeviceStateDb {
 				db.close();
 			}
 		}
-		public List<String[]> getAllRows() {
+		
+		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) {
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
+			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
+			} finally { 
+				db.close(); 
+			}
 			return list;
 		}
+		
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
-		public String[] getConcatRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] stats = new String[] { null, null };
-			try { Cursor cursor = db.query(TABLE, CONCAT_ROWS, null, null, null, null, null, null);
-				try { if (cursor.moveToFirst()) { do { for (int i = 0; i < stats.length; i++) { stats[i] = cursor.getString(i); }
-				} while (cursor.moveToNext()); } } finally { cursor.close(); }
+		
+		public String getConcatRows() {
+			String concatRows = null;
+			ArrayList<String> rowList = new ArrayList<String>();
+			try {
+				for (String[] row : getAllRows()) {
+					rowList.add(TextUtils.join("*", row));
+				}
+				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
-			} finally { db.close(); }
-			return stats;
+			}
+			return concatRows;
 		}
+
 	}
 	public final DbAccelerometer dbAccelerometer;
 	

@@ -13,8 +13,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class ScreenShotDb {
 	
@@ -83,16 +81,27 @@ public class ScreenShotDb {
 				db.close();
 			}
 		}
+		
 		public List<String[]> getAllCaptured() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null,  C_CREATED_AT+" DESC", null);
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null,  C_CREATED_AT+" DESC", null);
 				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { RfcxLog.logExc(TAG, e); } finally { db.close(); }
+					if (cursor.moveToFirst()) { 
+						do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
+						} while (cursor.moveToNext()); 
+					} 
+				}
+				cursor.close();
+			} catch (Exception e) { 
+				RfcxLog.logExc(TAG, e); 
+			} finally { 
+				db.close(); 
+			}
 			return list;
 		}
+		
 		public void clearCapturedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
@@ -111,10 +120,17 @@ public class ScreenShotDb {
 			try { 
 				Cursor cursor = db.query(TABLE, ALL_COLUMNS, " "+C_TIMESTAMP+" = ?", new String[] { timestamp }, null, null, C_CREATED_AT+" DESC", "1");
 				if (cursor.getCount() > 0) {
-					try {
-						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { RfcxLog.logExc(TAG, e); } finally { db.close(); }
+					if (cursor.moveToFirst()) { 
+						do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
+						} while (cursor.moveToNext());
+					}
+				}
+				cursor.close();
+			} catch (Exception e) { 
+				RfcxLog.logExc(TAG, e); 
+			} finally { 
+				db.close(); 
+			}
 			return row;
 		}
 

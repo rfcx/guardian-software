@@ -38,19 +38,20 @@ public class AudioDb {
 	static final String C_CREATION_DURATION = "creation_duration";
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_SAMPLE_RATE, C_BITRATE, C_CODEC, C_DURATION, C_CREATION_DURATION };
 	
-	private String createColumnString(String tableName) {
+	private static String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName);
-		sbOut.append("(").append(C_CREATED_AT).append(" INTEGER");
-		sbOut.append(", "+C_TIMESTAMP+" TEXT");
-		sbOut.append(", "+C_FORMAT+" TEXT");
-		sbOut.append(", "+C_DIGEST+" TEXT");
-		sbOut.append(", "+C_SAMPLE_RATE+" INTEGER");
-		sbOut.append(", "+C_BITRATE+" INTEGER");
-		sbOut.append(", "+C_CODEC+" TEXT");
-		sbOut.append(", "+C_DURATION+" INTEGER");
-		sbOut.append(", "+C_CREATION_DURATION+" INTEGER");
-		return sbOut.append(")").toString();
+		sbOut.append("CREATE TABLE ").append(tableName)
+			.append("(").append(C_CREATED_AT).append(" INTEGER")
+			.append(", ").append(C_TIMESTAMP).append(" TEXT")
+			.append(", ").append(C_FORMAT).append(" TEXT")
+			.append(", ").append(C_DIGEST).append(" TEXT")
+			.append(", ").append(C_SAMPLE_RATE).append(" INTEGER")
+			.append(", ").append(C_BITRATE).append(" INTEGER")
+			.append(", ").append(C_CODEC).append(" TEXT")
+			.append(", ").append(C_DURATION).append(" INTEGER")
+			.append(", ").append(C_CREATION_DURATION).append(" INTEGER")
+			.append(")");
+		return sbOut.toString();
 	}
 	
 	public class DbCaptured {
@@ -104,10 +105,13 @@ public class AudioDb {
 		public List<String[]> getAllCaptured() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			} finally { 
@@ -123,15 +127,7 @@ public class AudioDb {
 				db.close(); 
 			}
 		}
-		
-		public String getSerializedCaptured() {
-			List<String[]> capturedList = getAllCaptured();
-			String[] capturedArray = new String[capturedList.size()];
-			for (int i = 0; i < capturedList.size(); i++) {
-				capturedArray[i] = TextUtils.join("|", capturedList.get(i));
-			}
-			return (capturedList.size() > 0) ? TextUtils.join("$", capturedArray) : "";
-		}
+
 	}
 	public final DbCaptured dbCaptured;
 	
@@ -186,10 +182,13 @@ public class AudioDb {
 		public List<String[]> getAllEncoded() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+			try { 
+				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			} finally { 
@@ -202,10 +201,11 @@ public class AudioDb {
 			String[] row = new String[] {null,null,null};
 			try { 
 				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_TIMESTAMP+" DESC", "1");
-				if (cursor.getCount() > 0) {
-					try {
-						if (cursor.moveToFirst()) { do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) };
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) };
+					} while (cursor.moveToNext());
+				}
+				cursor.close();
 			} catch (Exception e) { 
 				RfcxLog.logExc(TAG, e);
 			} finally { 

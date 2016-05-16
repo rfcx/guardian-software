@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.os.Environment;
 import android.os.StatFs;
+import android.text.TextUtils;
 
 public class DeviceDiskUsage {
 	
@@ -14,6 +15,14 @@ public class DeviceDiskUsage {
 	
 	private String logTag = "Rfcx-Utils-"+DeviceDiskUsage.class.getSimpleName();
  
+	public static String concatDiskStats() {
+		List<String> diskUsage = new ArrayList<String>();
+		for (String[] usageStat : allDiskStats()) {
+			diskUsage.add(TextUtils.join("*", usageStat));
+		}
+		return TextUtils.join("|", diskUsage);
+	}
+	
 	public static List<String[]> allDiskStats() {
 		StatFs internalStatFs = getStats(false);
 		StatFs sdCardStatFs = getStats(true);

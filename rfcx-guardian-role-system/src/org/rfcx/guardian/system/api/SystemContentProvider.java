@@ -50,34 +50,21 @@ public class SystemContentProvider extends ContentProvider {
 		
 		try {
 			if (URI_MATCHER.match(uri) == ENDPOINT_META_LIST) {
-			
+				
 				MatrixCursor cursor = new MatrixCursor(PROJECTION_META);
-				String[] vBattery = app.deviceStateDb.dbBattery.getConcatRows();
-				String[] vCpu = app.deviceStateDb.dbCPU.getConcatRows();
-				String[] vPower = app.deviceStateDb.dbPower.getConcatRows();
-				String[] vNetwork = app.deviceStateDb.dbNetwork.getConcatRows();
-				String[] vOffline = app.deviceStateDb.dbOffline.getConcatRows();
-				String[] vLightMeter = app.deviceStateDb.dbLightMeter.getConcatRows();
-				String[] vDataTransferred = app.dataTransferDb.dbTransferred.getConcatRows();
-				String[] vAccelerometer = app.deviceStateDb.dbAccelerometer.getConcatRows();
 				
-				List<String> diskUsage = new ArrayList<String>();
-				for (String[] usageStat : DeviceDiskUsage.allDiskStats()) {
-					diskUsage.add(TextUtils.join("*", usageStat));
-				}
+				cursor.addRow(new Object[] {
+					app.deviceStateDb.dbBattery.getConcatRows(),		// battery
+					app.deviceStateDb.dbCPU.getConcatRows(),			// cpu
+					app.deviceStateDb.dbPower.getConcatRows(),			// power
+					app.deviceStateDb.dbNetwork.getConcatRows(),		// network
+					app.deviceStateDb.dbOffline.getConcatRows(),		// offline
+					app.deviceStateDb.dbLightMeter.getConcatRows(),		// lightmeter
+					app.dataTransferDb.dbTransferred.getConcatRows(),	// data_transfer
+					DeviceDiskUsage.concatDiskStats(),					// disk_usage
+					app.deviceStateDb.dbAccelerometer.getConcatRows()	// accelerometer
+				});
 				
-				cursor.addRow(new Object[] { 
-						(vBattery[0] != "0") ? vBattery[1] : null, 	// battery
-						(vCpu[0] != "0") ? vCpu[1] : null, 			// cpu
-						(vPower[0] != "0") ? vPower[1] : null, 			// power
-						(vNetwork[0] != "0") ? vNetwork[1] : null,				// network
-						(vOffline[0] != "0") ? vOffline[1] : null, 				// offline
-						(vLightMeter[0] != "0") ? vLightMeter[1] : null, 		// lightmeter
-						(vDataTransferred[0] != "0") ? vDataTransferred[1] : null,  // data_transfer
-						TextUtils.join("|", diskUsage),							// disk_usage
-						(vAccelerometer[0] != "0") ? vAccelerometer[1] : null 	// accelerometer
-						
-					});
 				return cursor;
 				
 			} else if (URI_MATCHER.match(uri) == ENDPOINT_SCREENSHOT_LIST) {
