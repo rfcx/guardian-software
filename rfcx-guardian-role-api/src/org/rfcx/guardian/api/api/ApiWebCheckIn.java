@@ -1,14 +1,9 @@
 package org.rfcx.guardian.api.api;
 
 import java.io.File;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,10 +11,11 @@ import org.json.JSONObject;
 import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.GZipUtils;
+import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.device.DeviceGeoLocation;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
-import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -163,24 +159,6 @@ public class ApiWebCheckIn {
 			return "{}";
 		}
 	}
-
-//	private List<String> getRebootEvents() {
-//		List<String> rebootEvents = new ArrayList<String>();
-//		try {
-//			Cursor cursor = app.getContentResolver().query(
-//					Uri.parse(RfcxRole.ContentProvider.reboot.URI_1),
-//					RfcxRole.ContentProvider.reboot.PROJECTION_1,
-//					null, null, null);
-//			
-//			if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do { 
-//				rebootEvents.add(cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.reboot.PROJECTION_1[1])));
-//			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-//			
-//		} catch (Exception e) {
-//			RfcxLog.logExc(TAG, e);
-//		}
-//		return rebootEvents;
-//	}
 	
 	private List<String> getInstalledSoftwareVersions() {
 
@@ -248,11 +226,8 @@ public class ApiWebCheckIn {
 		checkInMetaJson.put("measured_at", checkInPreFlightTimestamp.getTime());
 
 		// Adding GeoCoordinates
-		JSONArray geoLocation = new JSONArray();
-		geoLocation.put(3.6141375); // latitude... currently this is fake, obviously
-		geoLocation.put(14.2108033); // longitude... currently this is fake, obviously
-		geoLocation.put(1.000001); // precision... currently this is fake, obviously
-		checkInMetaJson.put("location", geoLocation);
+		DeviceGeoLocation TEMPORARY_DEVICE_GEOLOCATION_PLACEHOLDER = new DeviceGeoLocation(RfcxGuardian.APP_ROLE);
+		checkInMetaJson.put("location", TEMPORARY_DEVICE_GEOLOCATION_PLACEHOLDER.getSerializedGeoLocation());
 
 		// Adding latency data from previous checkins
 		checkInMetaJson.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
@@ -305,16 +280,8 @@ public class ApiWebCheckIn {
 				Log.i(TAG, "CheckIn request time: " + (checkInDuration / 1000) + " seconds");
 
 				// clear system metadata included in successful checkin preflight
-				int clearPreFlightSystemMetaData = 
-						app.getContentResolver()
+				int clearPreFlightSystemMetaData = app.getContentResolver()
 						.delete(Uri.parse(RfcxRole.ContentProvider.system.URI_META
-								+ "/" + checkInPreFlightTimestamp.getTime()),
-								null, null);
-				
-				// clear reboot events included in successful checkin preflight
-				int clearPreFlightRebootEvents = 
-						app.getContentResolver()
-						.delete(Uri.parse(RfcxRole.ContentProvider.reboot.URI_1
 								+ "/" + checkInPreFlightTimestamp.getTime()),
 								null, null);
 
@@ -328,47 +295,33 @@ public class ApiWebCheckIn {
 				}
 
 				// parse the screenshot info and use it to purge the data locally
-				JSONArray screenShotJsonArray = new JSONArray(
-						responseJson.getString("screenshots"));
+				JSONArray screenShotJsonArray = new JSONArray(responseJson.getString("screenshots"));
 				for (int i = 0; i < screenShotJsonArray.length(); i++) {
-					JSONObject screenShotJson = screenShotJsonArray
-							.getJSONObject(i);
-					int deleteScreenShot = app
-							.getContentResolver()
+					JSONObject screenShotJson = screenShotJsonArray.getJSONObject(i);
+					int deleteScreenShot = app.getContentResolver()
 							.delete(Uri.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT
 									+ "/" + screenShotJson.getString("id")),
 									null, null);
 				}
 
 				// parse the message info and use it to purge the data locally
-				JSONArray msgJsonArray = new JSONArray(
-						responseJson.getString("messages"));
+				JSONArray msgJsonArray = new JSONArray(responseJson.getString("messages"));
 				for (int i = 0; i < msgJsonArray.length(); i++) {
 					JSONObject msgJson = msgJsonArray.getJSONObject(i);
 					int deleteMsg = app.getContentResolver().delete(
-							Uri.parse("content://sms/"
-									+ msgJson.getString("id")), null, null);
+							Uri.parse("content://sms/"+ msgJson.getString("id")), null, null);
 					if (deleteMsg == 1)
-						Log.i(TAG,
-								"deleted sms message with id "
-										+ msgJson.getString("id"));
+						Log.i(TAG, "deleted sms message with id "+ msgJson.getString("id"));
 				}
 
 				// parse the instructions section
-				JSONObject instructionsJson = responseJson
-						.getJSONObject("instructions");
-
-				// handle prefs instuctions
-				JSONObject prefsJson = instructionsJson.getJSONObject("prefs");
+				JSONObject instructionsJson = responseJson.getJSONObject("instructions");
 
 				// handle messages instructions
-				JSONArray msgsJsonArr = instructionsJson
-						.getJSONArray("messages");
+				JSONArray msgsJsonArr = instructionsJson.getJSONArray("messages");
 				for (int i = 0; i < msgsJsonArr.length(); i++) {
 					JSONObject msgJson = msgsJsonArr.getJSONObject(i);
-					SmsManager smsManager = SmsManager.getDefault();
-					smsManager.sendTextMessage(msgJson.getString("address"),
-							null, msgJson.getString("body"), null, null);
+					(SmsManager.getDefault()).sendTextMessage(msgJson.getString("address"), null, msgJson.getString("body"), null, null);
 				}
 
 			} catch (Exception e) {
@@ -381,23 +334,23 @@ public class ApiWebCheckIn {
 
 	public JSONArray getSmsMessagesAsJson() {
 		JSONArray msgJsonArray = new JSONArray();
-		Cursor cursor = app.getContentResolver().query(
-				Uri.parse("content://sms/"), null, null, null, null);
+		Cursor cursor = app.getContentResolver().query(Uri.parse("content://sms/"), null, null, null, null);
 		
-		if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do {
-
-			try {
-				JSONObject msgJson = new JSONObject();
-				msgJson.put("android_id", cursor.getString(cursor.getColumnIndex("_id")));
-				msgJson.put("received_at", cursor.getLong(cursor.getColumnIndex("date")));
-				msgJson.put("address", cursor.getString(cursor.getColumnIndex("address")));
-				msgJson.put("body", cursor.getString(cursor.getColumnIndex("body")));
-				msgJsonArray.put(msgJson);
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-			
-		} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+		if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+			do {
+				try {
+					JSONObject msgJson = new JSONObject();
+					msgJson.put("android_id", cursor.getString(cursor.getColumnIndex("_id")));
+					msgJson.put("received_at", cursor.getLong(cursor.getColumnIndex("date")));
+					msgJson.put("address", cursor.getString(cursor.getColumnIndex("address")));
+					msgJson.put("body", cursor.getString(cursor.getColumnIndex("body")));
+					msgJsonArray.put(msgJson);
+				} catch (Exception e) {
+					RfcxLog.logExc(TAG, e);
+				}
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
 				
 		return msgJsonArray;
 	}
@@ -481,32 +434,25 @@ public class ApiWebCheckIn {
 
 	public void connectivityToggleCheck() {
 
-		int secsSinceSuccess = (int) ((new Date()).getTime() - this.requestSendReturned
-				.getTime()) / 1000;
+		int secsSinceSuccess = (int) ((new Date()).getTime() - this.requestSendReturned.getTime()) / 1000;
 		if ((secsSinceSuccess / 60) < this.connectivityToggleThresholds[0]) {
 			// everything is going fine and we haven't even reached the first
 			// threshold of bad connectivity
-			this.connectivityToggleThresholdsReached = new boolean[] { false,
-					false, false, false };
+			this.connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 		} else if (!isBatteryChargeSufficientForCheckIn()) {
 			// checkins are paused due to low battery level, so we are resetting
 			// the connectivity problem thesholds
-			this.connectivityToggleThresholdsReached = new boolean[] { false,
-					false, false, false };
+			this.connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
 		} else {
 			int thresholdIndex = 0;
 			for (int toggleThreshold : this.connectivityToggleThresholds) {
-				if (((secsSinceSuccess / 60) >= toggleThreshold)
-						&& !this.connectivityToggleThresholdsReached[thresholdIndex]) {
+				if (((secsSinceSuccess / 60) >= toggleThreshold) && !this.connectivityToggleThresholdsReached[thresholdIndex]) {
 					this.connectivityToggleThresholdsReached[thresholdIndex] = true;
-					Log.d(TAG, "ToggleCheck: AirplaneMode (" + toggleThreshold
-							+ " minutes since last successful CheckIn)");
+					Log.d(TAG, "ToggleCheck: AirplaneMode (" + toggleThreshold + " minutes since last successful CheckIn)");
 					app.deviceAirplaneMode.setOff(app.getApplicationContext());
 					if (toggleThreshold == this.connectivityToggleThresholds[this.connectivityToggleThresholds.length - 1]) {
 						// last index, force reboot
-						Log.d(TAG, "ToggleCheck: ForcedReboot ("
-								+ toggleThreshold
-								+ " minutes since last successful CheckIn)");
+						Log.d(TAG, "ToggleCheck: ForcedReboot (" + toggleThreshold + " minutes since last successful CheckIn)");
 						ShellCommands.executeCommand("reboot", null, false, app.getApplicationContext());
 					}
 				}

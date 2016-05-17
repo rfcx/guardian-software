@@ -1,5 +1,8 @@
 package org.rfcx.guardian.utility.device;
 
+import java.util.Calendar;
+
+import org.json.JSONArray;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
@@ -16,12 +19,22 @@ public class DeviceGeoLocation {
 	private String logTag = "Rfcx-Utils-"+DeviceGeoLocation.class.getSimpleName();
 	
 	private LocationManager locationManager;
-	private double geoLocationLatitude = 0;
-	private double geoLocationLongitude = 0;
-	private double geoLocationPrecision = 0;
+	private double geoLocationLatitude = 3.6141375; //0;
+	private double geoLocationLongitude = 14.2108033; //0;
+	private double geoLocationPrecision = 1.000001; //0;
 	
 	public double[] getGeoLocation() {
 		return new double[] { this.geoLocationLatitude, this.geoLocationLongitude, this.geoLocationPrecision };
+	}
+	
+	public String getSerializedGeoLocation() {
+		double[] geoLocation = getGeoLocation();
+		StringBuilder sb = new StringBuilder();
+		sb.append(Calendar.getInstance().getTimeInMillis())
+			.append("*").append(geoLocation[0])
+			.append("*").append(geoLocation[1])
+			.append("*").append(geoLocation[2]);
+		return sb.toString();
 	}
 	
 	private void updateGeoLocation() {

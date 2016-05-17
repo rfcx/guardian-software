@@ -85,7 +85,7 @@ public class RebootDb {
 			return DbUtils.getConcatRows(getAllRows());
 		}
 		
-		public void clearRebootEventsBefore(Date date) {
+		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
 			} finally { db.close(); }

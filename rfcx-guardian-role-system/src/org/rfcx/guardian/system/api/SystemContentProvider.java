@@ -102,6 +102,7 @@ public class SystemContentProvider extends ContentProvider {
 				app.deviceStateDb.dbLightMeter.clearRowsBefore(deleteBefore);
 				app.deviceStateDb.dbAccelerometer.clearRowsBefore(deleteBefore);
 				app.dataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
+				app.rebootDb.dbReboot.clearRowsBefore(deleteBefore);
 				
 				return 1;
 				
