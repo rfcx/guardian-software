@@ -198,19 +198,20 @@ public class ApiWebCheckIn {
 					Uri.parse(RfcxRole.ContentProvider.system.URI_META),
 					RfcxRole.ContentProvider.system.PROJECTION_META,
 					null, null, null);
-			
+			if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+				do { 
 
-			if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do { 
-
-				for (int i = 0; i < RfcxRole.ContentProvider.system.PROJECTION_META.length; i++) {
-					metaDataJsonObj.put(RfcxRole.ContentProvider.system.PROJECTION_META[i],
-							(cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.system.PROJECTION_META[i])) != null)
-								? cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.system.PROJECTION_META[i]))
-								: null
-						);
-				}
+					for (int i = 0; i < RfcxRole.ContentProvider.system.PROJECTION_META.length; i++) {
+						metaDataJsonObj.put(RfcxRole.ContentProvider.system.PROJECTION_META[i],
+								(cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.system.PROJECTION_META[i])) != null)
+									? cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.system.PROJECTION_META[i]))
+									: null
+							);
+					}
 				
-			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+				} while (cursor.moveToNext());
+			}
+			cursor.close();
 			
 		} catch (Exception e) {
 			RfcxLog.logExc(TAG, e);
@@ -240,9 +241,6 @@ public class ApiWebCheckIn {
 
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", getInstalledSoftwareVersions()));
-		
-//		// Adding reboot events
-//		checkInMetaJson.put("reboots", TextUtils.join("|", getRebootEvents()));
 
 		// Adding device location timezone offset
 		checkInMetaJson.put("timezone_offset", DateTimeUtils.getTimeZoneOffset());
