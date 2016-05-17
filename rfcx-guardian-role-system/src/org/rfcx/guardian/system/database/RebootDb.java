@@ -1,10 +1,11 @@
-package org.rfcx.guardian.reboot.database;
+package org.rfcx.guardian.system.database;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.reboot.RfcxGuardian;
+import org.rfcx.guardian.system.RfcxGuardian;
+import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.ContentValues;
@@ -13,8 +14,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class RebootDb {
 	
@@ -27,15 +26,16 @@ public class RebootDb {
 	private int VERSION = 1;
 	static final String DATABASE = "reboot";
 	static final String C_CREATED_AT = "created_at";
-	static final String C_TIMESTAMP = "timestamp";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP };
+	static final String C_REBOOTED_AT = "rebooted_at";
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_REBOOTED_AT };
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName);
-		sbOut.append("(").append(C_CREATED_AT).append(" INTEGER");
-		sbOut.append(", "+C_TIMESTAMP+" TEXT");
-		return sbOut.append(")").toString();
+			sbOut.append("CREATE TABLE ").append(tableName)
+				.append("(").append(C_CREATED_AT).append(" INTEGER")
+				.append(", ").append(C_REBOOTED_AT).append(" INTEGER")
+				.append(")");
+		return sbOut.toString();
 	}
 	
 	public class DbReboot {
@@ -63,10 +63,10 @@ public class RebootDb {
 		public void close() {
 			this.dbHelper.close();
 		}
-		public void insert(long timestamp) {
+		public void insert(long rebootedAt) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_TIMESTAMP, ""+timestamp);
+			values.put(C_REBOOTED_AT, rebootedAt);
 			
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
@@ -75,17 +75,17 @@ public class RebootDb {
 				db.close();
 			}
 		}
-		public List<String[]> getAllEvents() {
+		
+		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					try { if (cursor.moveToFirst()) { do { list.add(new String[] { cursor.getString(0), cursor.getString(1) });
-					} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			} catch (Exception e) { RfcxLog.logExc(TAG, e); } finally { db.close(); }
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
 		}
-		public void clearEventsBefore(Date date) {
+		
+		public String getConcatRows() {
+			return DbUtils.getConcatRows(getAllRows());
+		}
+		
+		public void clearRebootEventsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
 			} finally { db.close(); }

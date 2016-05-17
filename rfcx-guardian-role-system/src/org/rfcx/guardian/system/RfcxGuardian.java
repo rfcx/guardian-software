@@ -4,6 +4,7 @@ import java.util.Calendar;
 
 import org.rfcx.guardian.system.database.DataTransferDb;
 import org.rfcx.guardian.system.database.DeviceStateDb;
+import org.rfcx.guardian.system.database.RebootDb;
 import org.rfcx.guardian.system.database.ScreenShotDb;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
 import org.rfcx.guardian.system.service.DeviceScreenShotService;
@@ -38,6 +39,7 @@ public class RfcxGuardian extends Application {
 	public DeviceStateDb deviceStateDb = null;
 	public DataTransferDb dataTransferDb = null;
 	public ScreenShotDb screenShotDb = null;
+	public RebootDb rebootDb = null;
 	
 	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
@@ -95,6 +97,7 @@ public class RfcxGuardian extends Application {
 		this.deviceStateDb = new DeviceStateDb(this,versionNumber);
 		this.dataTransferDb = new DataTransferDb(this,versionNumber);
 		this.screenShotDb = new ScreenShotDb(this,versionNumber);
+		this.rebootDb = new RebootDb(this,versionNumber);
 	}
 	
 	private void setServiceHandlers() {

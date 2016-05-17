@@ -17,7 +17,7 @@ else
   adb push $SCRIPT_DIR/../tmp/$ROLE-$APK_VERSION.apk /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
 
   echo "killing app role process...";
-  adb shell 'kill $(ps | grep org.rfcx.guardian.$ROLE | cut -d " " -f 5); kill $(ps | grep org.rfcx.guardian.$ROLE | cut -d " " -f 5);';
+  adb shell 'kill $(ps | grep org.rfcx.guardian.$ROLE | cut -d " " -f 5);';
 
   echo "performing installation...";
   adb shell pm install -r /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;

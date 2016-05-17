@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.ContentValues;
@@ -38,12 +39,14 @@ public class CheckInDb {
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName).append("(").append(C_CREATED_AT).append(" DATETIME");
-		sbOut.append(", "+C_AUDIO+" TEXT");
-		sbOut.append(", "+C_JSON+" TEXT");
-		sbOut.append(", "+C_ATTEMPTS+" TEXT");
-		sbOut.append(", "+C_FILEPATH+" TEXT");
-		return sbOut.append(")").toString();
+		sbOut.append("CREATE TABLE ").append(tableName)
+			.append("(").append(C_CREATED_AT).append(" DATETIME")
+			.append(", ").append(C_AUDIO).append(" TEXT")
+			.append(", ").append(C_JSON).append(" TEXT")
+			.append(", ").append(C_ATTEMPTS).append(" TEXT")
+			.append(", ").append(C_FILEPATH).append(" TEXT")
+			.append(")");
+		return sbOut.toString();
 	}
 	
 	public class DbQueued {
@@ -91,48 +94,65 @@ public class CheckInDb {
 		}
 		public List<String[]> getAllQueued() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+			
+//			ArrayList<String[]> list = new ArrayList<String[]>();
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+//					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
+//					} while (cursor.moveToNext());
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			}
+//			return list;
 		}
 		public List<String[]> getQueuedWithOffset(int rowOffset, int rowLimit) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", ""+(rowOffset+rowLimit));
-				if ((cursor.getCount() > rowOffset) && cursor.moveToPosition(rowOffset)) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, rowOffset, rowLimit);
+			
+//			ArrayList<String[]> list = new ArrayList<String[]>();
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", ""+(rowOffset+rowLimit));
+//				if ((cursor.getCount() > rowOffset) && cursor.moveToPosition(rowOffset)) {
+//					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
+//					} while (cursor.moveToNext());
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			}
+//			return list;
 		}
+		
 		public String[] getLatestRow() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] row = new String[] {null,null,null};
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			}
-			return row;
+			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
+			
+//			String[] latestRow = new String[] { null, null, null };
+//			try { 
+//				for (String[] singleRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, C_CREATED_AT+" DESC", 0, 1)) {
+//					latestRow = singleRow;
+//				}
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			}
+//			return latestRow;
+			
+//			StlatestRoww = new String[] {null,null,null};
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_CREATED_AT+" DESC", "1");
+//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+//					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
+//					} while (cursor.moveToNext());
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			}
+//			return row;
 		}
 		
 		public void deleteSingleRowByAudioAttachmentId(String audioId) {
@@ -143,18 +163,19 @@ public class CheckInDb {
 		
 		public String[] getSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] row = new String[] {null,null,null};
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, " substr("+C_AUDIO+",0,14) = ?", new String[] { audioId }, null, null, C_CREATED_AT+" DESC", "1");
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			}
-			return row;
+			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " substr("+C_AUDIO+",0,14) = ?", new String[] { audioId.substring(0,13) }, C_CREATED_AT, 0);
+//			String[] row = new String[] {null,null,null};
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, " substr("+C_AUDIO+",0,14) = ?", new String[] { audioId.substring(0,13) }, null, null, C_CREATED_AT+" DESC", "1");
+//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+//					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
+//					} while (cursor.moveToNext());
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			}
+//			return row;
 		}
 		
 		public void clearQueuedBefore(Date date) {
@@ -165,25 +186,26 @@ public class CheckInDb {
 		
 		public void incrementSingleRowAttempts(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_AUDIO+",0,14)='"+audioFile+"'");
+			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_AUDIO+",0,14)='"+audioFile.substring(0,13)+"'");
 			} finally { db.close(); }
 		}
 		
-		public String getCount() {
+		public int getCount() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] QUERY = new String[] { "COUNT(*)" };
-			String[] countReturn = new String[] { "0" };
-			try { 
-				Cursor cursor = db.query(TABLE, QUERY, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { countReturn = new String[] { cursor.getString(0) };
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			}
-			return countReturn[0];
+			return DbUtils.getCount(db, TABLE, null, null);
+//			String[] QUERY = new String[] { "COUNT(*)" };
+//			String[] countReturn = new String[] { "0" };
+//			try { 
+//				Cursor cursor = db.query(TABLE, QUERY, null, null, null, null, null, null);
+//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+//					do { countReturn = new String[] { cursor.getString(0) };
+//					} while (cursor.moveToNext());
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			}
+//			return countReturn[0];
 		}
 
 	}
@@ -265,7 +287,7 @@ public class CheckInDb {
 		
 		public void deleteSingleRowByAudioAttachment(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioFile+"'");
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioFile.substring(0,13)+"'");
 			} finally { db.close(); }
 		}
 		

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 
@@ -93,20 +94,22 @@ public class DeviceStateDb {
 		
 		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+//			
+//			ArrayList<String[]> list = new ArrayList<String[]>();
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+//					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
+//					} while (cursor.moveToNext());
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			} finally { 
+//				db.close(); 
+//			}
+//			return list;
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -116,17 +119,18 @@ public class DeviceStateDb {
 		}
 		
 		public String getConcatRows() {
-			String concatRows = null;
-			ArrayList<String> rowList = new ArrayList<String>();
-			try {
-				for (String[] row : getAllRows()) {
-					rowList.add(TextUtils.join("*", row));
-				}
-				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-			return concatRows;
+			return DbUtils.getConcatRows(getAllRows());
+//			String concatRows = null;
+//			ArrayList<String> rowList = new ArrayList<String>();
+//			try {
+//				for (String[] row : getAllRows()) {
+//					rowList.add(TextUtils.join("*", row));
+//				}
+//				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
+//			} catch (Exception e) {
+//				RfcxLog.logExc(TAG, e);
+//			}
+//			return concatRows;
 		}
 
 	}

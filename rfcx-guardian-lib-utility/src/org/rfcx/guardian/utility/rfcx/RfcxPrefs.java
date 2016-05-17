@@ -11,8 +11,10 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.rfcx.guardian.utility.FileUtils;
+import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 public class RfcxPrefs {
@@ -21,12 +23,15 @@ public class RfcxPrefs {
 		this.logTag = "Rfcx-"+appRole+"-"+RfcxPrefs.class.getSimpleName();
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
+		detectOrCreatePrefsDirectory(context);
 	}
 	
 	private String logTag = "Rfcx-Utils-"+RfcxPrefs.class.getSimpleName();
 	
 	private Context context = null;
 	private String thisAppRole = null;
+	private static final String prefsParentDirPath = Environment.getDownloadCacheDirectory().getAbsolutePath()+"/rfcx";
+	private static final String prefsDirPath = prefsParentDirPath+"/prefs";
 	
 	private Map<String, String> cachedPrefs = new HashMap<String, String>();
 	
@@ -44,7 +49,13 @@ public class RfcxPrefs {
 	}
 
 	public int getPrefAsInt(String prefKey) {
-		return (int) Integer.parseInt(getPrefAsString(prefKey));
+		String stringValue = getPrefAsString(prefKey);
+		try {
+			return (int) Integer.parseInt(stringValue);
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+			return 0;
+		}
 	}
 	
 	public void setPref(String targetAppRole, String prefKey, String prefValue) {
@@ -63,27 +74,68 @@ public class RfcxPrefs {
 	
 	// Reading and Writing to preference text files
 	
-	public String readPrefFromFile(String targetAppRole, String prefKey) {
-		return readFromGuardianTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(Locale.US), "pref_"+prefKey.toLowerCase(Locale.US));
+	private String readPrefFromFile(String targetAppRole, String prefKey) {
+		try {
+    		String filePath = prefsDirPath+"/"+prefKey.toLowerCase(Locale.US)+".txt";
+        	File fileObj = new File(filePath);
+        	
+    		if (fileObj.exists()) {
+				FileInputStream input = new FileInputStream(fileObj);
+				StringBuffer fileContent = new StringBuffer("");
+				byte[] buffer = new byte[256];
+				while (input.read(buffer) != -1) {
+				    fileContent.append(new String(buffer));
+				}
+	    		String txtFileContents = fileContent.toString().trim();
+	    		input.close();
+	    		return txtFileContents;
+    		} else {
+    			Log.e(logTag, "No preference file '"+prefKey+"' exists...");
+    		}
+    	} catch (FileNotFoundException e) {
+			RfcxLog.logExc(logTag, e);
+    	} catch (IOException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+    	return null;
 	}
 	
-	public void writePrefToFile(String prefKey, String prefValue) {
-		writeToGuardianTxtFile(this.context, "pref_"+prefKey.toLowerCase(Locale.US), prefValue);
-	}
-
-	public void writeGuidToFile(String deviceId) {
-		writeToGuardianTxtFile(this.context, "guid",deviceId);
+	
+	private boolean writePrefToFile(String prefKey, String prefValue) {
+		
+		boolean writeSuccess = false;
+		
+    	String filePath = prefsDirPath+"/"+prefKey.toLowerCase(Locale.US)+".txt";
+    	File fileObj = new File(filePath);
+    	
+    	if (!fileObj.exists()) {
+        	fileObj.mkdirs();
+        	FileUtils.chmod(prefsDirPath, 0755);
+    	} else {
+    		fileObj.delete();
+    	}
+    	
+        try {
+        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
+        	outFile.write(prefValue);
+        	outFile.close();
+        	FileUtils.chmod(filePath, 0755);
+        	writeSuccess = fileObj.exists();
+        } catch (IOException e) {
+			RfcxLog.logExc(logTag, e);
+        }
+        return writeSuccess;
 	}
 	
 	public void writeVersionToFile(String versionName) {
-		writeToGuardianTxtFile(this.context, "version",versionName);
+		writeToGuardianRoleTxtFile(this.context, "version",versionName);
 	}
 	
 	public String getVersionFromFile(String targetAppRole) {
-		return readFromGuardianTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(Locale.US), "version");
+		return readFromGuardianRoleTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(Locale.US), "version");
 	}
 
-	private void writeToGuardianTxtFile(Context context, String fileNameNoExt, String stringContents) {
+	private void writeToGuardianRoleTxtFile(Context context, String fileNameNoExt, String stringContents) {
     	String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
     	File fileObj = new File(filePath);
     	fileObj.mkdirs();
@@ -99,7 +151,7 @@ public class RfcxPrefs {
         }
 	}
 	
-	private String readFromGuardianTxtFile(Context context, String thisAppRole, String targetAppRole, String fileNameNoExt) {
+	private String readFromGuardianRoleTxtFile(Context context, String thisAppRole, String targetAppRole, String fileNameNoExt) {
     	try {
     		String mainAppPath = context.getFilesDir().getAbsolutePath();
     		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+thisAppRole).length()))+"."+targetAppRole+"/files/txt",fileNameNoExt+".txt");
@@ -122,6 +174,14 @@ public class RfcxPrefs {
 			RfcxLog.logExc(logTag, e);
 		}
     	return null;
+	}
+
+	
+	// this may require root...
+	public void detectOrCreatePrefsDirectory(Context context) {
+		if (!(new File(prefsParentDirPath)).exists()) {
+			ShellCommands.executeCommand("mkdir "+prefsParentDirPath+"; chmod a+rw "+prefsParentDirPath+";", null, true, context);
+		}
 	}
 	
 }

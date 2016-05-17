@@ -64,7 +64,7 @@ public class RfcxRole {
 		
 		public static final class reboot {
 			public static final String AUTHORITY = "org.rfcx.guardian.reboot";
-			public static final String[] PROJECTION_1 = { "created_at", "rebooted_at" };
+			public static final String[] PROJECTION_1 = { "current_time" };
 			public static final String ENDPOINT_1 = "events";
 			public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
 		}
@@ -78,7 +78,7 @@ public class RfcxRole {
 		
 		public static final class system {
 			public static final String AUTHORITY = "org.rfcx.guardian.system";
-			public static final String[] PROJECTION_META = { "battery", "cpu", "power", "network", "offline", "lightmeter", "data_transfer", "disk_usage", "accelerometer" };
+			public static final String[] PROJECTION_META = { "battery", "cpu", "power", "network", "offline", "lightmeter", "data_transfer", "disk_usage", "accelerometer", "reboots" };
 			public static final String ENDPOINT_META = "meta";
 			public static final String URI_META = "content://"+AUTHORITY+"/"+ENDPOINT_META;
 			public static final String[] PROJECTION_SCREENSHOT = { "created_at", "timestamp", "format", "digest", "filepath" };

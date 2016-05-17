@@ -62,7 +62,8 @@ public class SystemContentProvider extends ContentProvider {
 					app.deviceStateDb.dbLightMeter.getConcatRows(),		// lightmeter
 					app.dataTransferDb.dbTransferred.getConcatRows(),	// data_transfer
 					DeviceDiskUsage.concatDiskStats(),					// disk_usage
-					app.deviceStateDb.dbAccelerometer.getConcatRows()	// accelerometer
+					app.deviceStateDb.dbAccelerometer.getConcatRows(),	// accelerometer
+					app.rebootDb.dbReboot.getConcatRows()				// reboots
 				});
 				
 				return cursor;

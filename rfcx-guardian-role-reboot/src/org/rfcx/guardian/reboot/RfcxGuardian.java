@@ -1,6 +1,5 @@
 package org.rfcx.guardian.reboot;
 
-import org.rfcx.guardian.reboot.database.RebootDb;
 import org.rfcx.guardian.reboot.service.RebootIntentService;
 import org.rfcx.guardian.reboot.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.DateTimeUtils;
@@ -24,9 +23,6 @@ public class RfcxGuardian extends Application {
 	public RfcxDeviceId rfcxDeviceId = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
-	
-	// database access helpers
-	public RebootDb rebootDb = null;
 	
 	@Override
 	public void onCreate() {
@@ -73,7 +69,6 @@ public class RfcxGuardian extends Application {
 	
 	private void setDbHandlers() {
 		int versionNumber = RfcxRole.getRoleVersionValue(this.version);
-		this.rebootDb = new RebootDb(this,versionNumber);
 	}
 
 	private void setServiceHandlers() {

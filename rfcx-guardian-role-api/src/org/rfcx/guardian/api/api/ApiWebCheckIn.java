@@ -164,23 +164,23 @@ public class ApiWebCheckIn {
 		}
 	}
 
-	private List<String> getRebootEvents() {
-		List<String> rebootEvents = new ArrayList<String>();
-		try {
-			Cursor cursor = app.getContentResolver().query(
-					Uri.parse(RfcxRole.ContentProvider.reboot.URI_1),
-					RfcxRole.ContentProvider.reboot.PROJECTION_1,
-					null, null, null);
-			
-			if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do { 
-				rebootEvents.add(cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.reboot.PROJECTION_1[1])));
-			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
-			
-		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
-		}
-		return rebootEvents;
-	}
+//	private List<String> getRebootEvents() {
+//		List<String> rebootEvents = new ArrayList<String>();
+//		try {
+//			Cursor cursor = app.getContentResolver().query(
+//					Uri.parse(RfcxRole.ContentProvider.reboot.URI_1),
+//					RfcxRole.ContentProvider.reboot.PROJECTION_1,
+//					null, null, null);
+//			
+//			if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do { 
+//				rebootEvents.add(cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.reboot.PROJECTION_1[1])));
+//			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
+//			
+//		} catch (Exception e) {
+//			RfcxLog.logExc(TAG, e);
+//		}
+//		return rebootEvents;
+//	}
 	
 	private List<String> getInstalledSoftwareVersions() {
 
@@ -265,8 +265,8 @@ public class ApiWebCheckIn {
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", getInstalledSoftwareVersions()));
 		
-		// Adding reboot events
-		checkInMetaJson.put("reboots", TextUtils.join("|", getRebootEvents()));
+//		// Adding reboot events
+//		checkInMetaJson.put("reboots", TextUtils.join("|", getRebootEvents()));
 
 		// Adding device location timezone offset
 		checkInMetaJson.put("timezone_offset", DateTimeUtils.getTimeZoneOffset());
@@ -281,6 +281,8 @@ public class ApiWebCheckIn {
 		// Stringify JSON, gzip the output and convert to base 64 string for sending
 		String jsonFinal = checkInMetaJson.toString();
 		String jsonFinalGZipped = GZipUtils.gZipStringToBase64(jsonFinal);
+		
+		Log.d(TAG, checkInMetaJson.toString());
 
 		int pct = Math.round(100 * (1 - ((float) jsonFinalGZipped.length()) / ((float) jsonFinal.length())));
 		Log.d(TAG, "JSON MetaData Packaged: " + pct + "% reduced");
