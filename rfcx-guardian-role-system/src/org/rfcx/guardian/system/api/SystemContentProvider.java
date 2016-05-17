@@ -72,7 +72,7 @@ public class SystemContentProvider extends ContentProvider {
 				
 				MatrixCursor cursor = new MatrixCursor(PROJECTION_SCREENSHOT);
 				
-				for (String[] screenShotRow : app.screenShotDb.dbCaptured.getAllCaptured()) {
+				for (String[] screenShotRow : app.screenShotDb.dbCaptured.getAllRows()) {
 					cursor.addRow(new Object[] { 
 							screenShotRow[0], screenShotRow[1], screenShotRow[2], screenShotRow[3], screenShotRow[4]});
 				}

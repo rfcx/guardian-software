@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
+import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.ContentValues;
@@ -77,12 +78,15 @@ public class AudioDb {
 			}
 		}
 		final DbHelper dbHelper;
+		
 		public DbCaptured(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
+		
 		public void close() {
 			this.dbHelper.close();
 		}
+		
 		public void insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -102,24 +106,27 @@ public class AudioDb {
 				db.close();
 			}
 		}
-		public List<String[]> getAllCaptured() {
+		
+		public List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close();
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+//			ArrayList<String[]> list = new ArrayList<String[]>();
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+//					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
+//					} while (cursor.moveToNext());
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			} finally { 
+//				db.close();
+//			}
+//			return list;
 		}
-		public void clearCapturedBefore(Date date) {
+		
+		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { 
 				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
@@ -155,12 +162,15 @@ public class AudioDb {
 			}
 		}
 		final DbHelper dbHelper;
+		
 		public DbEncoded(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
+		
 		public void close() {
 			this.dbHelper.close();
 		}
+		
 		public void insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -179,41 +189,46 @@ public class AudioDb {
 				db.close();
 			}
 		}
-		public List<String[]> getAllEncoded() {
+		
+		public List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+//			ArrayList<String[]> list = new ArrayList<String[]>();
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+//					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
+//					} while (cursor.moveToNext());
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			} finally { 
+//				db.close(); 
+//			}
+//			return list;
 		}
+		
 		public String[] getLatestRow() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] row = new String[] {null,null,null};
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_TIMESTAMP+" DESC", "1");
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) };
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
-			}
-			return row;
+			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP, 0);
+//			String[] row = new String[] {null,null,null};
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_TIMESTAMP+" DESC", "1");
+//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
+//					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) };
+//					} while (cursor.moveToNext());
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			} finally { 
+//				db.close(); 
+//			}
+//			return row;
 		}
-		public void clearEncodedBefore(Date date) {
+		
+		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { 
 				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
@@ -222,7 +237,7 @@ public class AudioDb {
 			}
 		}
 		
-		public void deleteSingleEncoded(String timestamp) {
+		public void deleteSingleRow(String timestamp) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { 
 				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");

@@ -38,16 +38,16 @@ public class DeviceStateDb {
 	static final String C_MEASURED_AT = "measured_at";
 	static final String C_VALUE_1 = "value_1";
 	static final String C_VALUE_2 = "value_2";
-	private static final String[] CONCAT_ROWS = { "COUNT("+C_MEASURED_AT+")", "GROUP_CONCAT( "+C_MEASURED_AT+" || '*' || "+C_VALUE_1+" || '*' || "+C_VALUE_2+", '|')" };
 	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VALUE_1, C_VALUE_2 };
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName);
-		sbOut.append("(").append(C_MEASURED_AT).append(" INTEGER");
-		sbOut.append(", ").append(C_VALUE_1).append(" TEXT");
-		sbOut.append(", ").append(C_VALUE_2).append(" TEXT");
-		return sbOut.append(")").toString();
+		sbOut.append("CREATE TABLE ").append(tableName)
+			.append("(").append(C_MEASURED_AT).append(" INTEGER")
+			.append(", ").append(C_VALUE_1).append(" TEXT")
+			.append(", ").append(C_VALUE_2).append(" TEXT")
+			.append(")");
+		return sbOut.toString();
 	}
 	
 	public class DbCPU {
@@ -95,21 +95,6 @@ public class DeviceStateDb {
 		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
-//			
-//			ArrayList<String[]> list = new ArrayList<String[]>();
-//			try { 
-//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-//					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-//					} while (cursor.moveToNext());
-//				}
-//				cursor.close();
-//			} catch (Exception e) { 
-//				RfcxLog.logExc(TAG, e);
-//			} finally { 
-//				db.close(); 
-//			}
-//			return list;
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -120,17 +105,6 @@ public class DeviceStateDb {
 		
 		public String getConcatRows() {
 			return DbUtils.getConcatRows(getAllRows());
-//			String concatRows = null;
-//			ArrayList<String> rowList = new ArrayList<String>();
-//			try {
-//				for (String[] row : getAllRows()) {
-//					rowList.add(TextUtils.join("*", row));
-//				}
-//				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
-//			} catch (Exception e) {
-//				RfcxLog.logExc(TAG, e);
-//			}
-//			return concatRows;
 		}
 
 	}
@@ -160,12 +134,15 @@ public class DeviceStateDb {
 			}
 		}
 		final DbHelper dbHelper;
+		
 		public DbBattery(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
+		
 		public void close() {
 			this.dbHelper.close();
 		}
+		
 		public void insert(Date measured_at, int battery_percent, int battery_temperature) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
@@ -181,20 +158,7 @@ public class DeviceStateDb {
 		
 		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -204,17 +168,7 @@ public class DeviceStateDb {
 		}
 		
 		public String getConcatRows() {
-			String concatRows = null;
-			ArrayList<String> rowList = new ArrayList<String>();
-			try {
-				for (String[] row : getAllRows()) {
-					rowList.add(TextUtils.join("*", row));
-				}
-				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-			return concatRows;
+			return DbUtils.getConcatRows(getAllRows());
 		}
 
 	}
@@ -243,12 +197,15 @@ public class DeviceStateDb {
 			}
 		}
 		final DbHelper dbHelper;
+		
 		public DbPower(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
+		
 		public void close() {
 			this.dbHelper.close();
 		}
+		
 		public void insert(Date measured_at, boolean is_powered, boolean is_charged) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
@@ -261,26 +218,14 @@ public class DeviceStateDb {
 				db.close();
 			}
 		}
+		
 		public void insert(Date measured_at, int is_powered, int is_charged) {
 			insert(measured_at, (is_powered == 1), (is_charged == 1));
 		}
 		
 		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -290,17 +235,7 @@ public class DeviceStateDb {
 		}
 		
 		public String getConcatRows() {
-			String concatRows = null;
-			ArrayList<String> rowList = new ArrayList<String>();
-			try {
-				for (String[] row : getAllRows()) {
-					rowList.add(TextUtils.join("*", row));
-				}
-				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-			return concatRows;
+			return DbUtils.getConcatRows(getAllRows());
 		}
 
 	}
@@ -329,12 +264,15 @@ public class DeviceStateDb {
 			}
 		}
 		final DbHelper dbHelper;
+		
 		public DbNetwork(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
+		
 		public void close() {
 			this.dbHelper.close();
 		}
+		
 		public void insert(Date measured_at, int signal_strength, String network_type, String carrier_name) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
@@ -353,20 +291,7 @@ public class DeviceStateDb {
 		
 		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -376,17 +301,7 @@ public class DeviceStateDb {
 		}
 		
 		public String getConcatRows() {
-			String concatRows = null;
-			ArrayList<String> rowList = new ArrayList<String>();
-			try {
-				for (String[] row : getAllRows()) {
-					rowList.add(TextUtils.join("*", row));
-				}
-				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-			return concatRows;
+			return DbUtils.getConcatRows(getAllRows());
 		}
 
 	}
@@ -415,12 +330,15 @@ public class DeviceStateDb {
 			}
 		}
 		final DbHelper dbHelper;
+		
 		public DbOffline(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
+		
 		public void close() {
 			this.dbHelper.close();
 		}
+		
 		public void insert(Date measured_at, long offline_period, String carrier_name) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
@@ -436,20 +354,7 @@ public class DeviceStateDb {
 		
 		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -459,17 +364,7 @@ public class DeviceStateDb {
 		}
 		
 		public String getConcatRows() {
-			String concatRows = null;
-			ArrayList<String> rowList = new ArrayList<String>();
-			try {
-				for (String[] row : getAllRows()) {
-					rowList.add(TextUtils.join("*", row));
-				}
-				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-			return concatRows;
+			return DbUtils.getConcatRows(getAllRows());
 		}
 
 	}
@@ -498,12 +393,15 @@ public class DeviceStateDb {
 			}
 		}
 		final DbHelper dbHelper;
+		
 		public DbLightMeter(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
+		
 		public void close() {
 			this.dbHelper.close();
 		}
+		
 		public void insert(Date measured_at, long luminosity, String value_2) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
@@ -519,20 +417,7 @@ public class DeviceStateDb {
 		
 		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -542,17 +427,7 @@ public class DeviceStateDb {
 		}
 		
 		public String getConcatRows() {
-			String concatRows = null;
-			ArrayList<String> rowList = new ArrayList<String>();
-			try {
-				for (String[] row : getAllRows()) {
-					rowList.add(TextUtils.join("*", row));
-				}
-				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-			return concatRows;
+			return DbUtils.getConcatRows(getAllRows());
 		}
 
 	}
@@ -582,12 +457,15 @@ public class DeviceStateDb {
 			}
 		}
 		final DbHelper dbHelper;
+		
 		public DbAccelerometer(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
+		
 		public void close() {
 			this.dbHelper.close();
 		}
+		
 		public void insert(Date measured_at, String x_y_z, int sample_count) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
@@ -603,20 +481,7 @@ public class DeviceStateDb {
 		
 		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2) });
-					} while (cursor.moveToNext());
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -626,17 +491,7 @@ public class DeviceStateDb {
 		}
 		
 		public String getConcatRows() {
-			String concatRows = null;
-			ArrayList<String> rowList = new ArrayList<String>();
-			try {
-				for (String[] row : getAllRows()) {
-					rowList.add(TextUtils.join("*", row));
-				}
-				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-			return concatRows;
+			return DbUtils.getConcatRows(getAllRows());
 		}
 
 	}

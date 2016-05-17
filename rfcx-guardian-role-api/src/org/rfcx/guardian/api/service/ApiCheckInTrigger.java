@@ -2,6 +2,7 @@ package org.rfcx.guardian.api.service;
 
 import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import android.app.Service;
 import android.content.Context;

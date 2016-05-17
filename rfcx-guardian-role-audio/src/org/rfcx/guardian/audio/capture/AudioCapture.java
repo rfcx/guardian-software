@@ -5,6 +5,7 @@ import java.io.File;
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import android.content.Context;
 

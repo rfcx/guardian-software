@@ -15,6 +15,7 @@ import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.device.DeviceGeoLocation;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.Context;
@@ -116,7 +117,7 @@ public class ApiWebCheckIn {
 	
 	private void stashOldestCheckIns() {
 		
-		List<String[]> checkInsBeyondStashThreshold = app.checkInDb.dbQueued.getQueuedWithOffset(app.rfcxPrefs.getPrefAsInt("checkin_stash_threshold"), app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold"));
+		List<String[]> checkInsBeyondStashThreshold = app.checkInDb.dbQueued.getRowsWithOffset(app.rfcxPrefs.getPrefAsInt("checkin_stash_threshold"), app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold"));
 		
 		if (checkInsBeyondStashThreshold.size() > 0) {
 			
@@ -134,7 +135,7 @@ public class ApiWebCheckIn {
 			Log.i(TAG, "Stashed CheckIns ("+app.checkInDb.dbStashed.getCount()+" total in database): "+TextUtils.join(" ", stashList));
 		}
 		
-		if (((int) Integer.parseInt(app.checkInDb.dbStashed.getCount())) >= app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold")) {
+		if (app.checkInDb.dbStashed.getCount() >= app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold")) {
 			Log.i(TAG, "TODO: STASHED CHECKINS SHOULD BE ARCHIVED HERE...");
 		}
 	}

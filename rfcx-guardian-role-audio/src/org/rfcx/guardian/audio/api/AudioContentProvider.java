@@ -44,7 +44,7 @@ public class AudioContentProvider extends ContentProvider {
 		checkSetApplicationContext();
 		
 		MatrixCursor cursor = new MatrixCursor(PROJECTION_1);
-		List<String[]> encodedEntries = app.audioDb.dbEncoded.getAllEncoded();
+		List<String[]> encodedEntries = app.audioDb.dbEncoded.getAllRows();
 		for (String[] encodedEntry : encodedEntries) {
 					// if it's asking for list, we return all rows...
 			if (	(URI_MATCHER.match(uri) == ENDPOINT_1_LIST)
@@ -72,13 +72,13 @@ public class AudioContentProvider extends ContentProvider {
 		try {
 		
 			if (URI_MATCHER.match(uri) == ENDPOINT_1_ID) {
-				app.audioDb.dbEncoded.deleteSingleEncoded(urlValue);
+				app.audioDb.dbEncoded.deleteSingleRow(urlValue);
 				return 1;
 			} else if (URI_MATCHER.match(uri) == ENDPOINT_1_FILENAME) {
 				String audioId = urlValue.substring(0,urlValue.lastIndexOf("."));
 				String audioExt = urlValue.substring(1+urlValue.lastIndexOf("."));
 				AudioEncode.purgeSingleAudioAssetFromDisk(audioId, audioExt);
-				app.audioDb.dbEncoded.deleteSingleEncoded(audioId);
+				app.audioDb.dbEncoded.deleteSingleRow(audioId);
 				return 1;
 			}
 		} catch (Exception e) {

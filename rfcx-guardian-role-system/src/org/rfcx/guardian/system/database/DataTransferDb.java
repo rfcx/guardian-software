@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
+import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.ContentValues;
@@ -33,19 +34,20 @@ public class DataTransferDb {
 	static final String C_BYTES_SENT_CURRENT = "bytes_sent_current";
 	static final String C_BYTES_RECEIVED_TOTAL = "bytes_received_total";
 	static final String C_BYTES_SENT_TOTAL = "bytes_sent_total";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_START_TIME, C_END_TIME, C_BYTES_RECEIVED_CURRENT, C_BYTES_SENT_CURRENT, C_BYTES_RECEIVED_TOTAL, C_BYTES_SENT_TOTAL };
+	private static final String[] ALL_COLUMNS = new String[] { C_START_TIME, C_END_TIME, C_BYTES_RECEIVED_CURRENT, C_BYTES_SENT_CURRENT, C_BYTES_RECEIVED_TOTAL, C_BYTES_SENT_TOTAL };
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName);
-		sbOut.append("(").append(C_CREATED_AT).append(" INTEGER");
-		sbOut.append(", "+C_START_TIME+" INTEGER");
-		sbOut.append(", "+C_END_TIME+" INTEGER");
-		sbOut.append(", "+C_BYTES_RECEIVED_CURRENT+" INTEGER");
-		sbOut.append(", "+C_BYTES_SENT_CURRENT+" INTEGER");
-		sbOut.append(", "+C_BYTES_RECEIVED_TOTAL+" INTEGER");
-		sbOut.append(", "+C_BYTES_SENT_TOTAL+" INTEGER");
-		return sbOut.append(")").toString();
+		sbOut.append("CREATE TABLE ").append(tableName)
+			.append("(").append(C_CREATED_AT).append(" INTEGER")
+			.append(", ").append(C_START_TIME).append(" INTEGER")
+			.append(", ").append(C_END_TIME).append(" INTEGER")
+			.append(", ").append(C_BYTES_RECEIVED_CURRENT).append(" INTEGER")
+			.append(", ").append(C_BYTES_SENT_CURRENT).append(" INTEGER")
+			.append(", ").append(C_BYTES_RECEIVED_TOTAL).append(" INTEGER")
+			.append(", ").append(C_BYTES_SENT_TOTAL).append(" INTEGER")
+			.append(")");
+		return sbOut.toString();
 	}
 	
 	public class DbTransferred {
@@ -72,6 +74,7 @@ public class DataTransferDb {
 			}
 		}
 		final DbHelper dbHelper;
+		
 		public DbTransferred(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
@@ -99,22 +102,23 @@ public class DataTransferDb {
 		
 		private List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-				if (cursor.getCount() > 0) {
-					if (cursor.moveToFirst()) { 
-						do { list.add(new String[] { cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6) });
-						} while (cursor.moveToNext());
-					} 
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			} finally { 
-				db.close(); 
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+//			ArrayList<String[]> list = new ArrayList<String[]>();
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
+//				if (cursor.getCount() > 0) {
+//					if (cursor.moveToFirst()) { 
+//						do { list.add(new String[] { cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6) });
+//						} while (cursor.moveToNext());
+//					} 
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e);
+//			} finally { 
+//				db.close(); 
+//			}
+//			return list;
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -127,17 +131,18 @@ public class DataTransferDb {
 		}
 		
 		public String getConcatRows() {
-			String concatRows = null;
-			ArrayList<String> rowList = new ArrayList<String>();
-			try {
-				for (String[] row : getAllRows()) {
-					rowList.add(TextUtils.join("*", row));
-				}
-				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-			return concatRows;
+			return DbUtils.getConcatRows(getAllRows());
+//			String concatRows = null;
+//			ArrayList<String> rowList = new ArrayList<String>();
+//			try {
+//				for (String[] row : getAllRows()) {
+//					rowList.add(TextUtils.join("*", row));
+//				}
+//				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
+//			} catch (Exception e) {
+//				RfcxLog.logExc(TAG, e);
+//			}
+//			return concatRows;
 		}
 	}
 	public final DbTransferred dbTransferred;

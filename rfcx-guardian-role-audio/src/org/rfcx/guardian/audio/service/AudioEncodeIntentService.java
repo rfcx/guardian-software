@@ -36,7 +36,7 @@ public class AudioEncodeIntentService extends IntentService {
 
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		for (String[] capturedRow : app.audioDb.dbCaptured.getAllCaptured()) {
+		for (String[] capturedRow : app.audioDb.dbCaptured.getAllRows()) {
 			
 			Date encodeStartTime = new Date();
 			
@@ -78,7 +78,7 @@ public class AudioEncodeIntentService extends IntentService {
 						);
 
 				// remove capture file entry from database
-				app.audioDb.dbCaptured.clearCapturedBefore(new Date((long) Long.parseLong(capturedRow[0])));
+				app.audioDb.dbCaptured.clearRowsBefore(new Date((long) Long.parseLong(capturedRow[0])));
 				
 				//make sure the previous step(s) are synchronous or else the checkin will occur before the encode...
 				app.rfcxServiceHandler.triggerIntentServiceImmediately("CheckInTrigger");

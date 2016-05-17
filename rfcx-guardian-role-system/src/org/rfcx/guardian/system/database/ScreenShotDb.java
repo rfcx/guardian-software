@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
+import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.ContentValues;
@@ -33,13 +34,14 @@ public class ScreenShotDb {
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName);
-		sbOut.append("(").append(C_CREATED_AT).append(" INTEGER");
-		sbOut.append(", "+C_TIMESTAMP+" TEXT");
-		sbOut.append(", "+C_FORMAT+" TEXT");
-		sbOut.append(", "+C_DIGEST+" TEXT");
-		sbOut.append(", "+C_FILEPATH+" TEXT");
-		return sbOut.append(")").toString();
+		sbOut.append("CREATE TABLE ").append(tableName)
+			.append("(").append(C_CREATED_AT).append(" INTEGER")
+			.append(", ").append(C_TIMESTAMP).append(" TEXT")
+			.append(", ").append(C_FORMAT).append(" TEXT")
+			.append(", ").append(C_DIGEST).append(" TEXT")
+			.append(", ").append(C_FILEPATH).append(" TEXT")
+			.append(")");
+		return sbOut.toString();
 	}
 	
 	public class DbCaptured {
@@ -61,12 +63,15 @@ public class ScreenShotDb {
 			}
 		}
 		final DbHelper dbHelper;
+		
 		public DbCaptured(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
+		
 		public void close() {
 			this.dbHelper.close();
 		}
+		
 		public void insert(String timestamp, String format, String digest, String filepath) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -82,24 +87,25 @@ public class ScreenShotDb {
 			}
 		}
 		
-		public List<String[]> getAllCaptured() {
+		public List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			ArrayList<String[]> list = new ArrayList<String[]>();
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null,  C_CREATED_AT+" DESC", null);
-				if (cursor.getCount() > 0) {
-					if (cursor.moveToFirst()) { 
-						do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
-						} while (cursor.moveToNext()); 
-					} 
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e); 
-			} finally { 
-				db.close(); 
-			}
-			return list;
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, C_CREATED_AT);
+//			ArrayList<String[]> list = new ArrayList<String[]>();
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null,  C_CREATED_AT+" DESC", null);
+//				if (cursor.getCount() > 0) {
+//					if (cursor.moveToFirst()) { 
+//						do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
+//						} while (cursor.moveToNext()); 
+//					} 
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e); 
+//			} finally { 
+//				db.close(); 
+//			}
+//			return list;
 		}
 		
 		public void clearCapturedBefore(Date date) {
@@ -116,22 +122,23 @@ public class ScreenShotDb {
 		
 		public String[] getSingleRowByTimestamp(String timestamp) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String[] row = new String[] {null,null,null};
-			try { 
-				Cursor cursor = db.query(TABLE, ALL_COLUMNS, " "+C_TIMESTAMP+" = ?", new String[] { timestamp }, null, null, C_CREATED_AT+" DESC", "1");
-				if (cursor.getCount() > 0) {
-					if (cursor.moveToFirst()) { 
-						do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
-						} while (cursor.moveToNext());
-					}
-				}
-				cursor.close();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e); 
-			} finally { 
-				db.close(); 
-			}
-			return row;
+			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " "+C_TIMESTAMP+" = ?", new String[] { timestamp }, C_CREATED_AT, 0);
+//			String[] row = new String[] {null,null,null};
+//			try { 
+//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, " "+C_TIMESTAMP+" = ?", new String[] { timestamp }, null, null, C_CREATED_AT+" DESC", "1");
+//				if (cursor.getCount() > 0) {
+//					if (cursor.moveToFirst()) { 
+//						do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
+//						} while (cursor.moveToNext());
+//					}
+//				}
+//				cursor.close();
+//			} catch (Exception e) { 
+//				RfcxLog.logExc(TAG, e); 
+//			} finally { 
+//				db.close(); 
+//			}
+//			return row;
 		}
 
 	}

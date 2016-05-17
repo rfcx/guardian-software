@@ -23,6 +23,7 @@ public class RfcxPrefs {
 		this.logTag = "Rfcx-"+appRole+"-"+RfcxPrefs.class.getSimpleName();
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
+		setDefaultPrefs();
 		detectOrCreatePrefsDirectory(context);
 	}
 	
@@ -34,6 +35,7 @@ public class RfcxPrefs {
 	private static final String prefsDirPath = prefsParentDirPath+"/prefs";
 	
 	private Map<String, String> cachedPrefs = new HashMap<String, String>();
+	private Map<String, String> defaultPrefs = new HashMap<String, String>();
 	
 	// Getters and Setters
 	
@@ -43,6 +45,9 @@ public class RfcxPrefs {
 		} else if (readPrefFromFile("installer", prefKey) != null) {
 			this.cachedPrefs.put(prefKey, readPrefFromFile("installer", prefKey));
 			return this.cachedPrefs.get(prefKey);
+		} else if (this.defaultPrefs.containsKey(prefKey)) {
+			Log.e(logTag, "Unable to read pref '"+prefKey+"', falling back to default value '"+this.defaultPrefs.get(prefKey)+"'...");
+			return this.defaultPrefs.get(prefKey);
 		} else {
 			return null;
 		}
@@ -50,12 +55,7 @@ public class RfcxPrefs {
 
 	public int getPrefAsInt(String prefKey) {
 		String stringValue = getPrefAsString(prefKey);
-		try {
-			return (int) Integer.parseInt(stringValue);
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-			return 0;
-		}
+		return (int) Integer.parseInt(stringValue);
 	}
 	
 	public void setPref(String targetAppRole, String prefKey, String prefValue) {
@@ -109,7 +109,7 @@ public class RfcxPrefs {
     	File fileObj = new File(filePath);
     	
     	if (!fileObj.exists()) {
-        	fileObj.mkdirs();
+        	(new File(prefsDirPath)).mkdirs();
         	FileUtils.chmod(prefsDirPath, 0755);
     	} else {
     		fileObj.delete();
@@ -178,10 +178,38 @@ public class RfcxPrefs {
 
 	
 	// this may require root...
-	public void detectOrCreatePrefsDirectory(Context context) {
+	private void detectOrCreatePrefsDirectory(Context context) {
 		if (!(new File(prefsParentDirPath)).exists()) {
 			ShellCommands.executeCommand("mkdir "+prefsParentDirPath+"; chmod a+rw "+prefsParentDirPath+";", null, true, context);
 		}
+	}
+	
+	private void setDefaultPrefs() {
+		
+		defaultPrefs.put("api_url_base", "https://api.rfcx.org");
+		
+		defaultPrefs.put("install_battery_cutoff", "30");
+		defaultPrefs.put("install_cycle_duration", "3600000");
+		defaultPrefs.put("install_offline_toggle_threshold", "900000");
+		defaultPrefs.put("install_api_registration_token", "ABCDEFGH");
+		
+		defaultPrefs.put("cputuner_freq_min", "30720");
+		defaultPrefs.put("cputuner_freq_max", "600000");
+		defaultPrefs.put("cputuner_governor_up", "98");
+		defaultPrefs.put("cputuner_governor_down", "95");
+		
+		defaultPrefs.put("audio_cycle_duration", "90000");
+		defaultPrefs.put("audio_battery_cutoff", "60");
+		defaultPrefs.put("audio_encode_codec", "aac");
+		defaultPrefs.put("audio_encode_bitrate", "16384");
+		defaultPrefs.put("audio_encode_quality", "9");
+		
+		defaultPrefs.put("checkin_cycle_pause", "5000");
+		defaultPrefs.put("checkin_battery_cutoff", "90");
+		defaultPrefs.put("checkin_skip_threshold", "5");
+		defaultPrefs.put("checkin_stash_threshold", "120");
+		defaultPrefs.put("checkin_archive_threshold", "1000");
+		
 	}
 	
 }
