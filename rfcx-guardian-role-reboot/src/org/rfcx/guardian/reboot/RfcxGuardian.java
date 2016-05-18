@@ -60,7 +60,7 @@ public class RfcxGuardian extends Application {
 			this.rfcxServiceHandler.triggerServiceSequence(
 				"OnLaunchServiceSequence", 
 					new String[] { 
-						"RebootIntentService"+"|"+DateTimeUtils.nextOccurenceOf(23,55,0).getTimeInMillis()+"|"+(24*60*60*1000),
+						"RebootIntentService"+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()+"|"+"0"/*(24*60*60*1000)*/,
 //						"ServiceMonitor"+"|"+"0"+"|"+(3*this.rfcxPrefs.getPrefAsInt("audio_cycle_duration"))
 						}, 
 				true);

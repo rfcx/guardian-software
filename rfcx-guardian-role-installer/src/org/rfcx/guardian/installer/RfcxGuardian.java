@@ -121,7 +121,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 					new String[] { 
 						"ApiCheckVersionIntentService"
 								+"|"+(System.currentTimeMillis() + (2 * 60 * 1000)) // waits two minutes before running
-								+"|"+(this.rfcxPrefs.getPrefAsInt("install_cycle_duration")),
+								+"|"+this.rfcxPrefs.getPrefAsInt("install_cycle_duration"),
 						"CPUTuner"
 						}, 
 				true);
@@ -129,7 +129,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	private void setDbHandlers() {
-		int versionNumber = RfcxRole.getRoleVersionValue(this.version);
+
 	}
 
 	private void setServiceHandlers() {

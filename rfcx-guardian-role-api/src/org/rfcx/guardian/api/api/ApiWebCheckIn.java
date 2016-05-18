@@ -256,7 +256,7 @@ public class ApiWebCheckIn {
 		String jsonFinal = checkInMetaJson.toString();
 		String jsonFinalGZipped = GZipUtils.gZipStringToBase64(jsonFinal);
 		
-		Log.d(TAG, checkInMetaJson.toString());
+//		Log.d(TAG, checkInMetaJson.toString());
 
 		int pct = Math.round(100 * (1 - ((float) jsonFinalGZipped.length()) / ((float) jsonFinal.length())));
 		Log.d(TAG, "JSON MetaData Packaged: " + pct + "% reduced");

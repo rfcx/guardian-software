@@ -1,6 +1,5 @@
 package org.rfcx.guardian.utility.service;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -34,23 +33,35 @@ public class RfcxServiceHandler {
 			Log.e(logTag, "There is no service named '"+svcToTrigger[0]+"'.");
 		} else if (!this.isRunning(svcToTrigger[0]) || forceReTrigger) {
 			try {
-				// this means it's likely an intent service
+				// this means it's likely an intent service (rather than a service)
 				if (svcToTrigger.length > 1) {
 					
-					long startTimeMillis = ((svcToTrigger[1] == null) || (svcToTrigger[1].equals("0"))) ? System.currentTimeMillis() : (long) Long.parseLong(svcToTrigger[1]);
-					long repeatIntervalMillis = ((svcToTrigger[2] == null) || (svcToTrigger[2].equals("0"))) ? 0 : (long) Long.parseLong(svcToTrigger[2]);
+					long startTimeMillis = System.currentTimeMillis();
+					if (	!svcToTrigger[1].equals("0") 
+						&& 	!svcToTrigger[1].toLowerCase(Locale.US).equals("now")
+						) { try {
+							startTimeMillis = (long) Long.parseLong(svcToTrigger[1]);
+						} catch (Exception e) { RfcxLog.logExc(logTag, e); } 
+					}
 					
-					AlarmManager alarmMgr = (AlarmManager) this.context.getSystemService(Context.ALARM_SERVICE);
-					PendingIntent svcIntent = PendingIntent.getService(this.context, -1, new Intent(this.context, svcClasses.get(svcToTrigger[0].toLowerCase(Locale.US))), PendingIntent.FLAG_UPDATE_CURRENT);
-					if (repeatIntervalMillis == 0) { 
-						alarmMgr.set(AlarmManager.RTC, startTimeMillis, svcIntent);
-						Log.i(logTag,"Scheduled IntentService '"+svcToTrigger[0]+"' (begins at "+DateTimeUtils.getDateTime(new Date(startTimeMillis))+")");
-					} else { 
-						alarmMgr.setInexactRepeating(AlarmManager.RTC, startTimeMillis, repeatIntervalMillis, svcIntent); 
-						Log.i(logTag,"Scheduled IntentService '"+svcToTrigger[0]+"' (begins at "+DateTimeUtils.getDateTime(new Date(startTimeMillis))+", repeats approx. every "+DateTimeUtils.milliSecondsAsMinutes(repeatIntervalMillis)+")");
+					long repeatIntervalMillis = 0;
+					if (	!svcToTrigger[2].equals("0") 
+						&& 	!svcToTrigger[2].toLowerCase(Locale.US).equals("norepeat")
+						) { try {
+							repeatIntervalMillis = (long) Long.parseLong(svcToTrigger[2]);
+						} catch (Exception e) { RfcxLog.logExc(logTag, e); } 
 					}
 
-				// this means it's likely a service
+					if (repeatIntervalMillis == 0) { 
+						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC, startTimeMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcToTrigger[0].toLowerCase(Locale.US))), PendingIntent.FLAG_UPDATE_CURRENT));
+						Log.i(logTag,"Scheduled IntentService '"+svcToTrigger[0]+"' (begins at "+DateTimeUtils.getDateTime(startTimeMillis)+")");
+					} else { 
+						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).setRepeating(AlarmManager.RTC, startTimeMillis, repeatIntervalMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcToTrigger[0].toLowerCase(Locale.US))), PendingIntent.FLAG_UPDATE_CURRENT));
+						// could also use setInexactRepeating() here instead, but this was sometimes appearing to lead to dropped events the first time around
+						Log.i(logTag,"Scheduled Repeating IntentService '"+svcToTrigger[0]+"' (begins at "+DateTimeUtils.getDateTime(startTimeMillis)+", repeats approx. every "+DateTimeUtils.milliSecondsAsMinutes(repeatIntervalMillis)+")");
+					}
+
+				// this means it's likely a service (rather than an intent service)
 				} else if (svcToTrigger.length == 1) {
 					
 					this.context.stopService(new Intent(this.context, svcClasses.get(svcToTrigger[0].toLowerCase(Locale.US))));
@@ -75,7 +86,7 @@ public class RfcxServiceHandler {
 	}
 	
 	public void triggerIntentServiceImmediately(String svcToTrigger) {
-		triggerService(new String[] { svcToTrigger, null, null }, false);
+		triggerService(new String[] { svcToTrigger, "0", "0" }, false);
 	}
 	
 	public void stopService(String svcToStop) {

@@ -91,14 +91,14 @@ public class RfcxGuardian extends Application {
 					new String[] { 
 						"ApiCheckVersionIntentService"
 								+"|"+(System.currentTimeMillis() + (5 * 60 * 1000)) // waits five minutes before running
-								+"|"+(this.rfcxPrefs.getPrefAsInt("install_cycle_duration"))
+								+"|"+this.rfcxPrefs.getPrefAsInt("install_cycle_duration")
 						}, 
 				true);
 		}
 	}
 	
 	private void setDbHandlers() {
-		int versionNumber = RfcxRole.getRoleVersionValue(this.version);
+
 	}
 
 	private void setServiceHandlers() {

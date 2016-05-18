@@ -30,6 +30,10 @@ public class DateTimeUtils {
 		return DATETIME_FORMAT.format(date);
 	}
 	
+	public static String getDateTime(long date) {
+		return DATETIME_FORMAT.format(new Date(date));
+	}
+	
 	public static Date getDateFromString(String dateString) {
 		try {
 			return DATETIME_FORMAT.parse(dateString);
@@ -49,6 +53,15 @@ public class DateTimeUtils {
 			calendar.set(Calendar.DAY_OF_YEAR, rightNow.get(Calendar.DAY_OF_YEAR)+1);
 		}
 		return calendar;
+	}
+	
+	public static Calendar nextOccurenceOf(String HH_MM_SS) {
+		String[] timePieces = HH_MM_SS.split(":");
+		int hour = (int) Integer.parseInt(timePieces[0]);
+		int minute = (int) Integer.parseInt(timePieces[1]);
+		int second = 0;
+		if (timePieces.length == 3) { second = (int) Integer.parseInt(timePieces[2]); }
+		return nextOccurenceOf(hour,minute,second);
 	}
 	
 	public static String milliSecondsAsMinutes(long milliSeconds) {
