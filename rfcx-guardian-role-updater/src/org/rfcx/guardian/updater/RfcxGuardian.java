@@ -9,6 +9,7 @@ import org.rfcx.guardian.updater.service.ApiCheckVersionService;
 import org.rfcx.guardian.updater.service.DownloadFileService;
 import org.rfcx.guardian.updater.service.InstallAppService;
 import org.rfcx.guardian.updater.service.RebootIntentService;
+import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
@@ -90,8 +91,8 @@ public class RfcxGuardian extends Application {
 				"OnLaunchServiceSequence", 
 					new String[] { 
 						"ApiCheckVersionIntentService"
-								+"|"+(System.currentTimeMillis() + (5 * 60 * 1000)) // waits five minutes before running
-								+"|"+this.rfcxPrefs.getPrefAsInt("install_cycle_duration")
+								+"|"+DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
+								+"|"+this.rfcxPrefs.getPrefAsString("install_cycle_duration")
 						}, 
 				true);
 		}

@@ -71,7 +71,7 @@ public class RfcxGuardian extends Application {
 				"OnLaunchServiceSequence", 
 					new String[] { 
 						"AudioCapture",
-						"ServiceMonitor"+"|"+"0"+"|"+(3*this.rfcxPrefs.getPrefAsInt("audio_cycle_duration"))
+						"ServiceMonitor"+"|"+"0"+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
 					}, 
 				true);
 		}

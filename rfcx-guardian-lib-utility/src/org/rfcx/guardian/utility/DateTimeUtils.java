@@ -64,6 +64,23 @@ public class DateTimeUtils {
 		return nextOccurenceOf(hour,minute,second);
 	}
 	
+	public static Calendar nowPlusThisLong(int hours, int minutes, int seconds) {
+		long rightNow = Calendar.getInstance().getTimeInMillis();
+		long nowPlus = rightNow + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000);
+		Calendar nowPlusCalendar = Calendar.getInstance();
+		try { nowPlusCalendar.setTimeInMillis(nowPlus); } catch (Exception e) { RfcxLog.logExc(TAG, e); }
+		return nowPlusCalendar;
+	}
+
+	public static Calendar nowPlusThisLong(String HH_MM_SS) {
+		String[] timePieces = HH_MM_SS.split(":");
+		int hours = (int) Integer.parseInt(timePieces[0]);
+		int minutes = (int) Integer.parseInt(timePieces[1]);
+		int seconds = 0;
+		if (timePieces.length == 3) { seconds = (int) Integer.parseInt(timePieces[2]); }
+		return nowPlusThisLong(hours,minutes,seconds);
+	}
+	
 	public static String milliSecondsAsMinutes(long milliSeconds) {
 		StringBuilder rtrnStr = new StringBuilder();
 		

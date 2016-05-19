@@ -28,52 +28,60 @@ public class RfcxServiceHandler {
 	private Map<String, boolean[]> svcAbsoluteRunStates = new HashMap<String, boolean[]>();
 
 	public void triggerService(String[] svcToTrigger, boolean forceReTrigger) {
+		
+		String svcName = svcToTrigger[0];
+		String svcId = svcName.toLowerCase(Locale.US);
 
-		if (!this.svcClasses.containsKey(svcToTrigger[0].toLowerCase(Locale.US))) {
-			Log.e(logTag, "There is no service named '"+svcToTrigger[0]+"'.");
-		} else if (!this.isRunning(svcToTrigger[0]) || forceReTrigger) {
+		if (!this.svcClasses.containsKey(svcId)) {
+			
+			Log.e(logTag, "There is no service named '"+svcName+"'.");
+			
+		} else if (!this.isRunning(svcName) || forceReTrigger) {
 			try {
 				// this means it's likely an intent service (rather than a service)
 				if (svcToTrigger.length > 1) {
 					
+					String svcStart = svcToTrigger[1];
+					String svcRepeat = svcToTrigger[2];
+					
 					long startTimeMillis = System.currentTimeMillis();
-					if (	!svcToTrigger[1].equals("0") 
-						&& 	!svcToTrigger[1].toLowerCase(Locale.US).equals("now")
+					if (	!svcStart.equals("0") 
+						&& 	!svcStart.equalsIgnoreCase("now")
 						) { try {
-							startTimeMillis = (long) Long.parseLong(svcToTrigger[1]);
+							startTimeMillis = (long) Long.parseLong(svcStart);
 						} catch (Exception e) { RfcxLog.logExc(logTag, e); } 
 					}
 					
 					long repeatIntervalMillis = 0;
-					if (	!svcToTrigger[2].equals("0") 
-						&& 	!svcToTrigger[2].toLowerCase(Locale.US).equals("norepeat")
+					if (	!svcRepeat.equals("0") 
+						&& 	!svcRepeat.equalsIgnoreCase("norepeat")
 						) { try {
-							repeatIntervalMillis = (long) Long.parseLong(svcToTrigger[2]);
+							repeatIntervalMillis = (long) Long.parseLong(svcRepeat);
 						} catch (Exception e) { RfcxLog.logExc(logTag, e); } 
 					}
 
 					if (repeatIntervalMillis == 0) { 
-						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC, startTimeMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcToTrigger[0].toLowerCase(Locale.US))), PendingIntent.FLAG_UPDATE_CURRENT));
-						Log.i(logTag,"Scheduled IntentService '"+svcToTrigger[0]+"' (begins at "+DateTimeUtils.getDateTime(startTimeMillis)+")");
+						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC, startTimeMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcId)), PendingIntent.FLAG_UPDATE_CURRENT));
+						Log.i(logTag,"Scheduled IntentService '"+svcName+"' (begins at "+DateTimeUtils.getDateTime(startTimeMillis)+")");
 					} else { 
-						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).setRepeating(AlarmManager.RTC, startTimeMillis, repeatIntervalMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcToTrigger[0].toLowerCase(Locale.US))), PendingIntent.FLAG_UPDATE_CURRENT));
+						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).setRepeating(AlarmManager.RTC, startTimeMillis, repeatIntervalMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcId)), PendingIntent.FLAG_UPDATE_CURRENT));
 						// could also use setInexactRepeating() here instead, but this was sometimes appearing to lead to dropped events the first time around
-						Log.i(logTag,"Scheduled Repeating IntentService '"+svcToTrigger[0]+"' (begins at "+DateTimeUtils.getDateTime(startTimeMillis)+", repeats approx. every "+DateTimeUtils.milliSecondsAsMinutes(repeatIntervalMillis)+")");
+						Log.i(logTag,"Scheduled Repeating IntentService '"+svcName+"' (begins at "+DateTimeUtils.getDateTime(startTimeMillis)+", repeats approx. every "+DateTimeUtils.milliSecondsAsMinutes(repeatIntervalMillis)+")");
 					}
 
 				// this means it's likely a service (rather than an intent service)
 				} else if (svcToTrigger.length == 1) {
 					
-					this.context.stopService(new Intent(this.context, svcClasses.get(svcToTrigger[0].toLowerCase(Locale.US))));
-					this.context.startService(new Intent(this.context, svcClasses.get(svcToTrigger[0].toLowerCase(Locale.US))));
-					Log.i(logTag,"Triggered Service '"+svcToTrigger[0]+"'");
+					this.context.stopService(new Intent(this.context, svcClasses.get(svcId)));
+					this.context.startService(new Intent(this.context, svcClasses.get(svcId)));
+					Log.i(logTag,"Triggered Service '"+svcName+"'");
 					
 				}
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			}
 		} else { 
-//			Log.w(logTag, "Service '"+svcToTrigger[0]+"' is already running...");
+//			Log.w(logTag, "Service '"+svcName+"' is already running...");
 		}
 	}
 	
@@ -91,11 +99,13 @@ public class RfcxServiceHandler {
 	
 	public void stopService(String svcToStop) {
 		
-		if (!this.svcClasses.containsKey(svcToStop.toLowerCase(Locale.US))) {
+		String svcId = svcToStop.toLowerCase(Locale.US);
+		
+		if (!this.svcClasses.containsKey(svcId)) {
 			Log.e(logTag, "There is no service named '"+svcToStop+"'.");
 		} else { 
 			try {
-				this.context.stopService(new Intent(this.context, svcClasses.get(svcToStop.toLowerCase(Locale.US))));
+				this.context.stopService(new Intent(this.context, svcClasses.get(svcId)));
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			}
@@ -122,9 +132,12 @@ public class RfcxServiceHandler {
 	// Getters and Setters
 	
 	public boolean isRunning(String svcName) {
-		if (this.svcRunStates.containsKey(svcName.toLowerCase(Locale.US))) {
+		
+		String svcId = svcName.toLowerCase(Locale.US);
+		
+		if (this.svcRunStates.containsKey(svcId)) {
 			try {
-				return this.svcRunStates.get(svcName.toLowerCase(Locale.US))[0];
+				return this.svcRunStates.get(svcId)[0];
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			}
@@ -133,9 +146,12 @@ public class RfcxServiceHandler {
 	}
 
 	public boolean hasRun(String svcName) {
-		if (this.svcAbsoluteRunStates.containsKey(svcName.toLowerCase(Locale.US))) {
+		
+		String svcId = svcName.toLowerCase(Locale.US);
+		
+		if (this.svcAbsoluteRunStates.containsKey(svcId)) {
 			try {
-				return this.svcAbsoluteRunStates.get(svcName.toLowerCase(Locale.US))[0];
+				return this.svcAbsoluteRunStates.get(svcId)[0];
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			}
@@ -144,16 +160,22 @@ public class RfcxServiceHandler {
 	}
 	
 	public void setRunState(String svcName, boolean isRunning) {
-		this.svcRunStates.put(svcName.toLowerCase(Locale.US), new boolean[] { isRunning } );
+		
+		String svcId = svcName.toLowerCase(Locale.US);
+		this.svcRunStates.put(svcId, new boolean[] { isRunning } );
 		if (isRunning) setAbsoluteRunState(svcName, true);
 	}
 	
 	public void setAbsoluteRunState(String svcName, boolean hasRun) {
-		this.svcAbsoluteRunStates.put(svcName.toLowerCase(Locale.US), new boolean[] { hasRun } );
+		
+		String svcId = svcName.toLowerCase(Locale.US);
+		this.svcAbsoluteRunStates.put(svcId, new boolean[] { hasRun } );
 	}
 	
 	public void addService(String svcName, Class<?> svcClass) {
-		this.svcClasses.put(svcName.toLowerCase(Locale.US), svcClass);
+		
+		String svcId = svcName.toLowerCase(Locale.US);
+		this.svcClasses.put(svcId, svcClass);
 		setRunState(svcName, false);
 		setAbsoluteRunState(svcName, false);
 	}

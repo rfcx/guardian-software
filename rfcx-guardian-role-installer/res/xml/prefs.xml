@@ -7,6 +7,20 @@
         android:summary="string - protocol+domain"
         android:enabled="true"
         android:defaultValue="https://api.rfcx.org" />
+    
+ 	<EditTextPreference
+        android:key="service_monitor_cycle_duration"
+        android:title="service_monitor_cycle_duration"
+        android:summary="int - milliseconds"
+        android:enabled="true"
+        android:defaultValue="600000" />
+ 	
+ 	<EditTextPreference
+        android:key="reboot_forced_daily_at"
+        android:title="reboot_forced_daily_at"
+        android:summary="string - time"
+        android:enabled="true"
+        android:defaultValue="23:55:00" />
  	
  	<!-- Installer/Updater Prefs -->
  	
@@ -141,12 +155,5 @@
         android:summary="int - count"
         android:enabled="true"
         android:defaultValue="1000" />
- 	
- 	<EditTextPreference
-        android:key="reboot_forced_daily_at"
-        android:title="reboot_forced_daily_at"
-        android:summary="string - time"
-        android:enabled="true"
-        android:defaultValue="23:55:00" />
  	
 </PreferenceScreen>

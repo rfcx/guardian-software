@@ -9,17 +9,30 @@ public class RfcxDeviceId {
 	
 	public RfcxDeviceId(Context context, String appRole) {
 		this.logTag = "Rfcx-"+appRole+"-"+RfcxDeviceId.class.getSimpleName();
-		this.telephonyId = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId().toString();
+		this.context = context;
+		checkSetTelephonyId(context);
 	}
 	
 	private String logTag = "Rfcx-Utils-"+RfcxDeviceId.class.getSimpleName();
 	
+	private Context context;
 	private String telephonyId;
 	private String deviceGuid;
 	private String deviceToken;
 	
+	private void checkSetTelephonyId(Context context) {
+		try {
+			if (this.telephonyId == null) {
+				this.telephonyId = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId().toString();
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+	}
+	
     public String getDeviceGuid() {
     	if (deviceGuid == null) {
+    		checkSetTelephonyId(this.context);
 			try {
 				MessageDigest telephonyIdMd5 = MessageDigest.getInstance("MD5");
 				byte[] telephonyIdMd5Bytes = telephonyIdMd5.digest(telephonyId.getBytes("UTF-8"));
@@ -39,6 +52,7 @@ public class RfcxDeviceId {
     
     public String getDeviceToken() {
     	if (deviceToken == null) {
+    		checkSetTelephonyId(this.context);
 			try {
 				MessageDigest telephonyIdSha1 = MessageDigest.getInstance("SHA-1");
 				telephonyIdSha1.update(telephonyId.getBytes("UTF-8"));

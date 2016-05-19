@@ -17,6 +17,7 @@ import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
 import org.rfcx.guardian.installer.service.DownloadFileService;
 import org.rfcx.guardian.installer.service.InstallAppService;
 import org.rfcx.guardian.installer.service.RebootIntentService;
+import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.device.DeviceBattery;
@@ -120,8 +121,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 				"OnLaunchServiceSequence", 
 					new String[] { 
 						"ApiCheckVersionIntentService"
-								+"|"+(System.currentTimeMillis() + (2 * 60 * 1000)) // waits two minutes before running
-								+"|"+this.rfcxPrefs.getPrefAsInt("install_cycle_duration"),
+								+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
+								+"|"+this.rfcxPrefs.getPrefAsString("install_cycle_duration"),
 						"CPUTuner"
 						}, 
 				true);

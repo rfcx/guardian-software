@@ -187,13 +187,15 @@ public class RfcxPrefs {
 	private void setDefaultPrefs() {
 		
 		defaultPrefs.put("api_url_base", "https://api.rfcx.org");
+
+		defaultPrefs.put("service_monitor_cycle_duration", "600000");
+
+		defaultPrefs.put("reboot_forced_daily_at", "23:55:00");
 		
 		defaultPrefs.put("install_battery_cutoff", "30");
 		defaultPrefs.put("install_cycle_duration", "3600000");
 		defaultPrefs.put("install_offline_toggle_threshold", "900000");
 		defaultPrefs.put("install_api_registration_token", "ABCDEFGH");
-
-		defaultPrefs.put("reboot_forced_daily_at", "23:55:00");
 		
 		defaultPrefs.put("cputuner_freq_min", "30720");
 		defaultPrefs.put("cputuner_freq_max", "600000");
