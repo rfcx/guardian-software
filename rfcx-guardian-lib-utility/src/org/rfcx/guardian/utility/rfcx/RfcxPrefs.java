@@ -42,8 +42,8 @@ public class RfcxPrefs {
 	public String getPrefAsString(String prefKey) {
 		if (this.cachedPrefs.containsKey(prefKey)) {
 			return this.cachedPrefs.get(prefKey);
-		} else if (readPrefFromFile("installer", prefKey) != null) {
-			this.cachedPrefs.put(prefKey, readPrefFromFile("installer", prefKey));
+		} else if (readPrefFromFile("setup", prefKey) != null) {
+			this.cachedPrefs.put(prefKey, readPrefFromFile("setup", prefKey));
 			return this.cachedPrefs.get(prefKey);
 		} else if (this.defaultPrefs.containsKey(prefKey)) {
 			Log.e(logTag, "Unable to read pref '"+prefKey+"', falling back to default value '"+this.defaultPrefs.get(prefKey)+"'...");

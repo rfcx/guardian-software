@@ -1,6 +1,6 @@
-package org.rfcx.guardian.installer.activity;
+package org.rfcx.guardian.setup.activity;
 
-import org.rfcx.guardian.installer.R;
+import org.rfcx.guardian.setup.R;
 
 import android.preference.PreferenceActivity;
 import android.os.Bundle;

@@ -1,11 +1,11 @@
-package org.rfcx.guardian.installer.api;
+package org.rfcx.guardian.setup.api;
 
 import java.util.Calendar;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.rfcx.guardian.installer.R;
-import org.rfcx.guardian.installer.RfcxGuardian;
+import org.rfcx.guardian.setup.R;
+import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.text.TextUtils;

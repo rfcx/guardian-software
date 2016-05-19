@@ -1,4 +1,4 @@
-package org.rfcx.guardian.installer;
+package org.rfcx.guardian.setup;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,15 +8,16 @@ import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.Map;
 
-import org.rfcx.guardian.installer.api.ApiCore;
-import org.rfcx.guardian.installer.receiver.ConnectivityReceiver;
-import org.rfcx.guardian.installer.service.ApiCheckVersionIntentService;
-import org.rfcx.guardian.installer.service.ApiCheckVersionService;
-import org.rfcx.guardian.installer.service.ApiRegisterService;
-import org.rfcx.guardian.installer.service.DeviceCPUTunerService;
-import org.rfcx.guardian.installer.service.DownloadFileService;
-import org.rfcx.guardian.installer.service.InstallAppService;
-import org.rfcx.guardian.installer.service.RebootIntentService;
+import org.rfcx.guardian.setup.R;
+import org.rfcx.guardian.setup.api.ApiCore;
+import org.rfcx.guardian.setup.receiver.ConnectivityReceiver;
+import org.rfcx.guardian.setup.service.ApiCheckVersionIntentService;
+import org.rfcx.guardian.setup.service.ApiCheckVersionService;
+import org.rfcx.guardian.setup.service.ApiRegisterService;
+import org.rfcx.guardian.setup.service.DeviceCPUTunerService;
+import org.rfcx.guardian.setup.service.DownloadFileService;
+import org.rfcx.guardian.setup.service.InstallAppService;
+import org.rfcx.guardian.setup.service.RebootIntentService;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -44,7 +45,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String version;
 	Context context;
 	
-	public static final String APP_ROLE = "Installer";
+	public static final String APP_ROLE = "Setup";
 
 	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
 

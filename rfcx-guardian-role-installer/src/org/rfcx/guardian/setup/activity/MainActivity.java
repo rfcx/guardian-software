@@ -1,9 +1,9 @@
-package org.rfcx.guardian.installer.activity;
+package org.rfcx.guardian.setup.activity;
 
 import java.io.File;
 
-import org.rfcx.guardian.installer.RfcxGuardian;
-import org.rfcx.guardian.installer.R;
+import org.rfcx.guardian.setup.R;
+import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Activity;
@@ -39,36 +39,36 @@ public class MainActivity extends Activity {
 		case R.id.menu_cputuner_install:
 			String cpuTunerPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner";
 			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner")).isDirectory()) {
-				Log.d("Rfcx-Installer","CPUTuner will now be downloaded and installed...");
+				Log.d("Rfcx-Setup","CPUTuner will now be downloaded and installed...");
 				app.apiCore.targetAppRoleApiEndpoint = "cputuner";
 				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
 				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
 			} else {
-				Log.d("Rfcx-Installer","CPUTuner is already installed...");
+				Log.d("Rfcx-Setup","CPUTuner is already installed...");
 			}
 			break;
 			
 		case R.id.menu_spectrogram_install:
 			String spectrogramPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/radonsoft.net.spectralviewpro";
 			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/radonsoft.net.spectralviewpro")).isDirectory()) {
-				Log.d("Rfcx-Installer","SpectralViewPro will now be downloaded and installed...");
+				Log.d("Rfcx-Setup","SpectralViewPro will now be downloaded and installed...");
 				app.apiCore.targetAppRoleApiEndpoint = "spectrogram";
 				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
 				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
 			} else {
-				Log.d("Rfcx-Installer","SpectralViewPro is already installed...");
+				Log.d("Rfcx-Setup","SpectralViewPro is already installed...");
 			}
 			break;
 			
 		case R.id.menu_moduleloader_install:
 			String moduleLoaderPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/com.d4.moduleLoader";
 			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/com.d4.moduleLoader")).isDirectory()) {
-				Log.d("Rfcx-Installer","ModuleLoader will now be downloaded and installed...");
+				Log.d("Rfcx-Setup","ModuleLoader will now be downloaded and installed...");
 				app.apiCore.targetAppRoleApiEndpoint = "moduleloader";
 				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
 				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
 			} else {
-				Log.d("Rfcx-Installer","ModuleLoader is already installed...");
+				Log.d("Rfcx-Setup","ModuleLoader is already installed...");
 			}
 			break;
 			

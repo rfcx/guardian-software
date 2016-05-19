@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.rfcx.guardian.installer"
+    package="org.rfcx.guardian.setup"
     android:versionCode="1"
     android:versionName="0.2.27" >
 
@@ -44,26 +44,26 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/icon_guardian_installer"
+        android:icon="@drawable/icon_guardian_setup"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:name="org.rfcx.guardian.installer.RfcxGuardian"
+        android:name="org.rfcx.guardian.setup.RfcxGuardian"
         >
 
-        <service android:name="org.rfcx.guardian.installer.service.ApiCheckVersionIntentService" />
-        <service android:name="org.rfcx.guardian.installer.service.RebootIntentService" />
-        <service android:name="org.rfcx.guardian.installer.service.DownloadFileService" />
-        <service android:name="org.rfcx.guardian.installer.service.ApiCheckVersionService" />
-        <service android:name="org.rfcx.guardian.installer.service.ApiRegisterService" />
-        <service android:name="org.rfcx.guardian.installer.service.InstallAppService" />
-        <service android:name="org.rfcx.guardian.installer.service.DeviceCPUTunerService" />
+        <service android:name="org.rfcx.guardian.setup.service.ApiCheckVersionIntentService" />
+        <service android:name="org.rfcx.guardian.setup.service.RebootIntentService" />
+        <service android:name="org.rfcx.guardian.setup.service.DownloadFileService" />
+        <service android:name="org.rfcx.guardian.setup.service.ApiCheckVersionService" />
+        <service android:name="org.rfcx.guardian.setup.service.ApiRegisterService" />
+        <service android:name="org.rfcx.guardian.setup.service.InstallAppService" />
+        <service android:name="org.rfcx.guardian.setup.service.DeviceCPUTunerService" />
 
         <activity
-            android:name="org.rfcx.guardian.installer.activity.PrefsActivity"
+            android:name="org.rfcx.guardian.setup.activity.PrefsActivity"
             android:label="@string/menu_prefs" />
 
         <activity
-            android:name="org.rfcx.guardian.installer.activity.MainActivity"
+            android:name="org.rfcx.guardian.setup.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -71,15 +71,15 @@
             </intent-filter>
         </activity>
 
-         <receiver android:name="org.rfcx.guardian.installer.receiver.BootReceiver">
+         <receiver android:name="org.rfcx.guardian.setup.receiver.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>
 		</receiver>
 		
 		<provider 
-		    android:name="org.rfcx.guardian.installer.api.InstallerContentProvider"
-			android:authorities="org.rfcx.guardian.installer"
+		    android:name="org.rfcx.guardian.setup.api.SetupContentProvider"
+			android:authorities="org.rfcx.guardian.setup"
         	android:readPermission="org.rfcx.guardian.READ"
         	android:writePermission="org.rfcx.guardian.WRITE"
         	android:exported="true" />

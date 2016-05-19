@@ -1,7 +1,7 @@
-package org.rfcx.guardian.installer.service;
+package org.rfcx.guardian.setup.service;
 
-import org.rfcx.guardian.installer.RfcxGuardian;
-import org.rfcx.guardian.installer.device.DeviceCPUTuner;
+import org.rfcx.guardian.setup.RfcxGuardian;
+import org.rfcx.guardian.setup.device.DeviceCPUTuner;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;

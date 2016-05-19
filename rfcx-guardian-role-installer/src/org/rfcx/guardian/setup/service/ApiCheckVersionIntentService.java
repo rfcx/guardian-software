@@ -1,8 +1,8 @@
-package org.rfcx.guardian.installer.service;
+package org.rfcx.guardian.setup.service;
 
 import java.util.Locale;
 
-import org.rfcx.guardian.installer.RfcxGuardian;
+import org.rfcx.guardian.setup.RfcxGuardian;
 
 import android.app.IntentService;
 import android.content.Intent;

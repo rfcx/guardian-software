@@ -1,8 +1,8 @@
-package org.rfcx.guardian.installer.api;
+package org.rfcx.guardian.setup.api;
 
 import java.util.Calendar;
 
-import org.rfcx.guardian.installer.RfcxGuardian;
+import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -16,13 +16,13 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
-public class InstallerContentProvider extends ContentProvider {
+public class SetupContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+InstallerContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+SetupContentProvider.class.getSimpleName();
 	
-	private static final String AUTHORITY = RfcxRole.ContentProvider.installer.AUTHORITY;
-	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.installer.ENDPOINT_1;
-	private static final String[] PROJECTION_1 = RfcxRole.ContentProvider.installer.PROJECTION_1;
+	private static final String AUTHORITY = RfcxRole.ContentProvider.setup.AUTHORITY;
+	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.setup.ENDPOINT_1;
+	private static final String[] PROJECTION_1 = RfcxRole.ContentProvider.setup.PROJECTION_1;
 	
 	private static final int ENDPOINT_1_LIST = 1;
 	private static final int ENDPOINT_1_ID = 2;
