@@ -49,7 +49,7 @@ public class AudioEncodeTriggerIntentService extends IntentService {
 			
 			if (AudioCapture.reLocateAudioCaptureFile(context, captureTimeStampQueue[0], captureFileExtension)) {
 				
-				String preEncodeFilePath = AudioFile.getAudioFileLocation_PreEncode(context,captureTimeStampQueue[0],captureFileExtension);
+				String preEncodeFilePath = AudioFile.getAudioFileLocation_PreEncode(captureTimeStampQueue[0],captureFileExtension);
 				
 				ContentValues capturedAudioValues = new ContentValues();
 				capturedAudioValues.put("created_at", "-");

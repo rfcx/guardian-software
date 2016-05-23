@@ -41,25 +41,25 @@ public class AudioCapture {
 	}
 	
 	public static MediaRecorder getAacRecorder(String captureDir, long timestamp, String fileExtension, int bitRate, int sampleRate) throws IllegalStateException, IOException, IllegalThreadStateException {
-		MediaRecorder mr = null;
-		mr = new MediaRecorder();
-        mr.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mr.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mr.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        mr.setAudioSamplingRate(sampleRate);
-        mr.setAudioEncodingBitRate(bitRate);
-        mr.setAudioChannels(1);
-		mr.setOutputFile(getCaptureFilePath(captureDir,timestamp,fileExtension));
-		mr.prepare();
-        return mr;
+		MediaRecorder rec = null;
+		rec = new MediaRecorder();
+        rec.setAudioSource(MediaRecorder.AudioSource.MIC);
+        rec.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+        rec.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        rec.setAudioSamplingRate(sampleRate);
+        rec.setAudioEncodingBitRate(bitRate);
+        rec.setAudioChannels(1);
+		rec.setOutputFile(getCaptureFilePath(captureDir,timestamp,fileExtension));
+		rec.prepare();
+        return rec;
 	}
 	
 	public static WavAudioRecorder getWavRecorder(String captureDir, long timestamp, String fileExtension, int sampleRate) throws IllegalStateException, IOException, IllegalThreadStateException {
-		WavAudioRecorder ar = null;
-		ar = WavAudioRecorder.getInstance(sampleRate);
-		ar.setOutputFile(getCaptureFilePath(captureDir,timestamp,fileExtension));
-		ar.prepare();
-        return ar;
+		WavAudioRecorder rec = null;
+		rec = WavAudioRecorder.getInstance(sampleRate);
+		rec.setOutputFile(getCaptureFilePath(captureDir,timestamp,fileExtension));
+		rec.prepare();
+        return rec;
 	}
 	
 	public static boolean reLocateAudioCaptureFile(Context context, long timestamp, String fileExtension) {
@@ -67,7 +67,7 @@ public class AudioCapture {
 		File captureFile = new File(getCaptureFilePath(AudioFile.captureDir(context),timestamp,fileExtension));
 		if (captureFile.exists()) {
 			try {
-				File preEncodeFile = new File(AudioFile.getAudioFileLocation_PreEncode(context,timestamp,fileExtension));
+				File preEncodeFile = new File(AudioFile.getAudioFileLocation_PreEncode(timestamp,fileExtension));
 				FileUtils.copy(captureFile, preEncodeFile);
 				FileUtils.chmod(preEncodeFile, 0777);
 				if (preEncodeFile.exists()) { captureFile.delete(); }	

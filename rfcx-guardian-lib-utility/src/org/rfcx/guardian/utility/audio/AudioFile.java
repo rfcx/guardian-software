@@ -81,11 +81,11 @@ public class AudioFile {
 		return (new StringBuilder()).append(captureDir(context)).append("/").append(timestamp).append(".").append(fileExtension).toString(); 
 	}
 	
-	public static String getAudioFileLocation_PreEncode(Context context, long timestamp, String fileExtension) {
+	public static String getAudioFileLocation_PreEncode(long timestamp, String fileExtension) {
 		return (new StringBuilder()).append(encodeDir()).append("/").append(timestamp).append(".").append(fileExtension).toString(); 
 	}
 	
-	public static String getAudioFileLocation_PostEncode(Context context, long timestamp, String fileExtension) {
+	public static String getAudioFileLocation_PostEncode(long timestamp, String fileExtension) {
 		return (new StringBuilder()).append(encodeDir()).append("/_").append(timestamp).append(".").append(fileExtension).toString(); 
 	}
 
