@@ -1,13 +1,5 @@
 package org.rfcx.guardian.utility.device;
 
-import java.util.Calendar;
-
-import org.json.JSONArray;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import android.content.Context;
-import android.location.Criteria;
-import android.location.Location;
 import android.location.LocationManager;
 
 public class DeviceGeoLocation {
@@ -30,7 +22,7 @@ public class DeviceGeoLocation {
 	public String getSerializedGeoLocation() {
 		double[] geoLocation = getGeoLocation();
 		StringBuilder sb = new StringBuilder();
-		sb.append(Calendar.getInstance().getTimeInMillis())
+		sb.append(System.currentTimeMillis())
 			.append("*").append(geoLocation[0])
 			.append("*").append(geoLocation[1])
 			.append("*").append(geoLocation[2]);

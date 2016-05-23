@@ -1,8 +1,5 @@
 package org.rfcx.guardian.setup.receiver;
 
-import java.util.Calendar;
-
-import org.rfcx.guardian.setup.R;
 import org.rfcx.guardian.setup.RfcxGuardian;
 
 import android.content.BroadcastReceiver;

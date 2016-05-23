@@ -4,12 +4,11 @@ import java.io.File;
 
 import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.os.Environment;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class DeviceLogCat {

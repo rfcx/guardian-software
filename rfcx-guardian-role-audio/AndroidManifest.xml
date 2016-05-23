@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.audio"
     android:versionCode="1"
-    android:versionName="0.1.22" >
+    android:versionName="0.1.23" >
    
     <uses-sdk
         android:minSdkVersion="10"
@@ -55,8 +55,7 @@
         
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.audio.service.ServiceMonitorIntentService" />
-        <service android:name="org.rfcx.guardian.audio.service.AudioEncodeIntentService" />
-        <service android:name="org.rfcx.guardian.audio.service.CheckInTriggerIntentService" />
+        <service android:name="org.rfcx.guardian.audio.service.AudioEncodeTriggerIntentService" />
 
         <activity
             android:name="org.rfcx.guardian.audio.activity.MainActivity"

@@ -15,9 +15,10 @@ public class RfcxRole {
 			
 			ALL_ROLES= new String[] { 
 				"api", 
-				"audio", 
+				"audio",  
 				"carrier", 
-				"connect", 
+				"connect",
+				"encode", 
 				"reboot", 
 				"sentinel",
 				"setup",  
@@ -29,9 +30,9 @@ public class RfcxRole {
 		
 		public static final class api {
 			public static final String AUTHORITY = "org.rfcx.guardian.api";
-			public static final String[] PROJECTION_1 = { "checkin_id" };
-			public static final String ENDPOINT_1 = "checkins";
-			public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
+			public static final String[] PROJECTION_CHECKIN = { "checkin_id" };
+			public static final String ENDPOINT_CHECKIN = "checkins";
+			public static final String URI_CHECKIN = "content://"+AUTHORITY+"/"+ENDPOINT_CHECKIN;
 		}
 		
 		public static final class audio {
@@ -57,9 +58,12 @@ public class RfcxRole {
 		
 		public static final class encode {
 			public static final String AUTHORITY = "org.rfcx.guardian.encode";
-			public static final String[] PROJECTION_1 = { "last_encoded_at" };
-			public static final String ENDPOINT_1 = "events";
-			public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
+			public static final String[] PROJECTION_QUEUE = { "created_at", "timestamp", "format", "digest", "samplerate", "bitrate", "codec", "duration", "encode_duration", "filepath" };
+			public static final String ENDPOINT_QUEUE = "queue";
+			public static final String URI_QUEUE = "content://"+AUTHORITY+"/"+ENDPOINT_QUEUE;
+			public static final String[] PROJECTION_ENCODED = { "created_at", "timestamp", "format", "digest", "samplerate", "bitrate", "codec", "duration", "encode_duration", "filepath" };
+			public static final String ENDPOINT_ENCODED = "encoded";
+			public static final String URI_ENCODED = "content://"+AUTHORITY+"/"+ENDPOINT_ENCODED;
 		}
 		
 		public static final class setup {

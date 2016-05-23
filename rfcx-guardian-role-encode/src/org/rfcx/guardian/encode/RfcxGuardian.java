@@ -1,6 +1,11 @@
 package org.rfcx.guardian.encode;
 
+import org.rfcx.guardian.encode.database.AudioEncodeDb;
+import org.rfcx.guardian.encode.service.AudioEncodeService;
+import org.rfcx.guardian.encode.service.CheckInTriggerIntentService;
 import org.rfcx.guardian.encode.service.ServiceMonitorIntentService;
+import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -16,11 +21,15 @@ public class RfcxGuardian extends Application {
 	
 	public static final String APP_ROLE = "Encode";
 
-	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
+	private static final String logTag = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
 
 	public RfcxDeviceId rfcxDeviceId = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
+	
+	public AudioEncodeDb audioEncodeDb = null;
+	
+	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 	
 	@Override
 	public void onCreate() {
@@ -31,7 +40,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
 		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 		
-		this.version = RfcxRole.getRoleVersion(this, TAG);
+		this.version = RfcxRole.getRoleVersion(this, logTag);
 		this.rfcxPrefs.writeVersionToFile(this.version);
 		
 		setDbHandlers();
@@ -58,17 +67,22 @@ public class RfcxGuardian extends Application {
 			this.rfcxServiceHandler.triggerServiceSequence(
 				"OnLaunchServiceSequence", 
 					new String[] { 
-//						"ServiceMonitor"+"|"+"0"+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
+						"AudioEncode",
+						"ServiceMonitor"
+							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits one minute before running
+							+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
 					}, 
 				true);
 		}
 	}
 	
 	private void setDbHandlers() {
-		int versionNumber = RfcxRole.getRoleVersionValue(this.version);
+		this.audioEncodeDb = new AudioEncodeDb(this, this.version);
 	}
 	
 	private void setServiceHandlers() {
+		this.rfcxServiceHandler.addService("AudioEncode", AudioEncodeService.class);
+		this.rfcxServiceHandler.addService("CheckInTrigger", CheckInTriggerIntentService.class);
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitorIntentService.class);
 	}
     

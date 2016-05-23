@@ -1,20 +1,15 @@
 package org.rfcx.guardian.setup.api;
 
-import java.util.Calendar;
-
 import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class SetupContentProvider extends ContentProvider {
 	
@@ -41,7 +36,7 @@ public class SetupContentProvider extends ContentProvider {
 			MatrixCursor cursor = new MatrixCursor(PROJECTION_1);
 			
 			cursor.addRow(new Object[] { 
-					Calendar.getInstance().getTimeInMillis()
+					System.currentTimeMillis()
 				});
 			
 			return cursor;

@@ -1,7 +1,7 @@
 package org.rfcx.guardian.audio.activity;
 
-import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.R;
+import org.rfcx.guardian.audio.RfcxGuardian;
 
 import android.app.Activity;
 import android.os.Bundle;

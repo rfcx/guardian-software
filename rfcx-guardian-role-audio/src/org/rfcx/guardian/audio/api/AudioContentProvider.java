@@ -1,15 +1,10 @@
 package org.rfcx.guardian.audio.api;
 
-import java.util.List;
-
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.audio.encode.AudioEncode;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -18,9 +13,6 @@ import android.net.Uri;
 public class AudioContentProvider extends ContentProvider {
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioContentProvider.class.getSimpleName();
-
-	private RfcxGuardian app = null;
-	private Context context = null;
 	
 	private static final String AUTHORITY = RfcxRole.ContentProvider.audio.AUTHORITY;
 	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.audio.ENDPOINT_1;
@@ -41,81 +33,67 @@ public class AudioContentProvider extends ContentProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		checkSetApplicationContext();
+		
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		MatrixCursor cursor = new MatrixCursor(PROJECTION_1);
-		List<String[]> encodedEntries = app.audioDb.dbEncoded.getAllRows();
-		for (String[] encodedEntry : encodedEntries) {
-					// if it's asking for list, we return all rows...
-			if (	(URI_MATCHER.match(uri) == ENDPOINT_1_LIST)
-					// or if it's asking for one item, we check if each row matches, and return one
-				|| 	((URI_MATCHER.match(uri) == ENDPOINT_1_ID) && encodedEntry[1].equals(uri.getLastPathSegment()))
-				) {
-				cursor.addRow(new Object[] { 
-						encodedEntry[0], // created_at
-						encodedEntry[1], // timestamp
-						encodedEntry[2], // extension
-						encodedEntry[3], // digest
-						AudioEncode.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(encodedEntry[1]), encodedEntry[2])
-					});
-			}
-		}
+//		List<String[]> encodedEntries = app.audioCaptureDb.dbEncoded.getAllRows();
+//		for (String[] encodedEntry : encodedEntries) {
+//					// if it's asking for list, we return all rows...
+//			if (	(URI_MATCHER.match(uri) == ENDPOINT_1_LIST)
+//					// or if it's asking for one item, we check if each row matches, and return one
+//				|| 	((URI_MATCHER.match(uri) == ENDPOINT_1_ID) && encodedEntry[1].equals(uri.getLastPathSegment()))
+//				) {
+//				cursor.addRow(new Object[] { 
+//						encodedEntry[0], // created_at
+//						encodedEntry[1], // timestamp
+//						encodedEntry[2], // extension
+//						encodedEntry[3], // digest
+//						AudioFile.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(encodedEntry[1]), encodedEntry[2])
+//					});
+//			}
+//		}
 		return cursor;
 	}
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		checkSetApplicationContext();
+		
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		String urlValue = uri.getLastPathSegment();
 		
-		try {
-		
-			if (URI_MATCHER.match(uri) == ENDPOINT_1_ID) {
-				app.audioDb.dbEncoded.deleteSingleRow(urlValue);
-				return 1;
-			} else if (URI_MATCHER.match(uri) == ENDPOINT_1_FILENAME) {
-				String audioId = urlValue.substring(0,urlValue.lastIndexOf("."));
-				String audioExt = urlValue.substring(1+urlValue.lastIndexOf("."));
-				AudioEncode.purgeSingleAudioAssetFromDisk(audioId, audioExt);
-				app.audioDb.dbEncoded.deleteSingleRow(audioId);
-				return 1;
-			}
-		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
-		}
 		return 0;
-	}
-	
-	private void checkSetApplicationContext() {
-		if (this.context == null) { this.context = getContext(); }
-		if (this.app == null) { this.app = (RfcxGuardian) this.context.getApplicationContext(); }
 	}
 	
 	@Override
 	public boolean onCreate() {
-		checkSetApplicationContext();
+		
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		return true;
 	}
 	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		checkSetApplicationContext();
+		
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		return 0;
 	}
 	
 	@Override
 	public String getType(Uri uri) {
-		checkSetApplicationContext();
+		
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		return null;
 	}
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		checkSetApplicationContext();
+		
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		return null;
 	}

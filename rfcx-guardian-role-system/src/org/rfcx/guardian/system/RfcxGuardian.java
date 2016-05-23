@@ -1,7 +1,5 @@
 package org.rfcx.guardian.system;
 
-import java.util.Calendar;
-
 import org.rfcx.guardian.system.database.DataTransferDb;
 import org.rfcx.guardian.system.database.DeviceStateDb;
 import org.rfcx.guardian.system.database.RebootDb;
@@ -11,6 +9,7 @@ import org.rfcx.guardian.system.service.DeviceScreenShotService;
 import org.rfcx.guardian.system.service.DeviceSensorService;
 import org.rfcx.guardian.system.service.DeviceStateService;
 import org.rfcx.guardian.system.service.ServiceMonitorIntentService;
+import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
@@ -86,7 +85,9 @@ public class RfcxGuardian extends Application {
 						"DeviceState", 
 						"DeviceSensor", 
 						"ScreenShot",
-						"ServiceMonitor"+"|"+"0"+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
+						"ServiceMonitor"
+							+"|"+DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minute before running
+							+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
 					}, 
 				true);
 		}

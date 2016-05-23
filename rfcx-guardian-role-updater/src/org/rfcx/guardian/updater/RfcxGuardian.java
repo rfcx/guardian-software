@@ -1,7 +1,5 @@
 package org.rfcx.guardian.updater;
 
-import java.util.Calendar;
-
 import org.rfcx.guardian.updater.api.ApiCore;
 import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.updater.service.ApiCheckVersionIntentService;
@@ -47,7 +45,7 @@ public class RfcxGuardian extends Application {
 	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
-	public long lastApiCheckTriggeredAt = Calendar.getInstance().getTimeInMillis();
+	public long lastApiCheckTriggeredAt = System.currentTimeMillis();
 	
 	@Override
 	public void onCreate() {

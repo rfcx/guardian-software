@@ -1,9 +1,7 @@
 package org.rfcx.guardian.system.api;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.device.DeviceDiskUsage;
@@ -16,13 +14,13 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.text.TextUtils;
 
 public class SystemContentProvider extends ContentProvider {
 	
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+SystemContentProvider.class.getSimpleName();
 	
 	private static final String AUTHORITY = RfcxRole.ContentProvider.system.AUTHORITY;
+	
 	private static final String ENDPOINT_META = RfcxRole.ContentProvider.system.ENDPOINT_META;
 	private static final String ENDPOINT_SCREENSHOT = RfcxRole.ContentProvider.system.ENDPOINT_SCREENSHOT;
 	private static final String[] PROJECTION_META = RfcxRole.ContentProvider.system.PROJECTION_META;
@@ -128,6 +126,9 @@ public class SystemContentProvider extends ContentProvider {
 	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
+		
 		return 0;
 	}
 	

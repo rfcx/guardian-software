@@ -2,7 +2,6 @@ package org.rfcx.guardian.utility.device;
 
 import java.util.Date;
 
-import android.location.LocationManager;
 import android.net.TrafficStats;
 
 public class DeviceNetworkStats {

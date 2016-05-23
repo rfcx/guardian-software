@@ -7,7 +7,6 @@ import org.rfcx.guardian.system.device.DeviceCpuUsage;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;

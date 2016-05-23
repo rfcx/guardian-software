@@ -1,20 +1,18 @@
 package org.rfcx.guardian.updater.api;
 
-import java.util.Calendar;
 import java.util.List;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import android.text.TextUtils;
 import android.util.Log;
 
 public class ApiCore {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCore.class.getSimpleName();
 
-	public long lastCheckInTime = Calendar.getInstance().getTimeInMillis();
+	public long lastCheckInTime = System.currentTimeMillis();
 
 	private long lastCheckInTriggered = 0;
 	
@@ -35,7 +33,7 @@ public class ApiCore {
 	
 	public boolean apiCheckVersionFollowUp(RfcxGuardian app, String targetRole, List<JSONObject> jsonList) {
 		
-		this.lastCheckInTime = Calendar.getInstance().getTimeInMillis();
+		this.lastCheckInTime = System.currentTimeMillis();
 		
 		try {
 		

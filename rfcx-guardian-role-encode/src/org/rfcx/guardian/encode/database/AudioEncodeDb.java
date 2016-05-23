@@ -1,33 +1,31 @@
-package org.rfcx.guardian.audio.database;
+package org.rfcx.guardian.encode.database;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.audio.RfcxGuardian;
+import org.rfcx.guardian.encode.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.TextUtils;
-import android.util.Log;
 
-public class AudioDb {
+public class AudioEncodeDb {
 	
-	public AudioDb(Context context, int appVersion) {
-		this.VERSION = appVersion;
-		this.dbCaptured = new DbCaptured(context);
+	public AudioEncodeDb(Context context, String appVersion) {
+		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.dbEncodeQueue = new DbEncodeQueue(context);
 		this.dbEncoded = new DbEncoded(context);
 	}
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioDb.class.getSimpleName();
+	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncodeDb.class.getSimpleName();
 	private int VERSION = 1;
 	static final String DATABASE = "audio";
+	
 	static final String C_CREATED_AT = "created_at";
 	static final String C_TIMESTAMP = "timestamp";
 	static final String C_FORMAT = "format";
@@ -37,7 +35,23 @@ public class AudioDb {
 	static final String C_CODEC = "codec";
 	static final String C_DURATION = "duration";
 	static final String C_CREATION_DURATION = "creation_duration";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_SAMPLE_RATE, C_BITRATE, C_CODEC, C_DURATION, C_CREATION_DURATION };
+	static final String C_FILEPATH = "filepath";
+	static final String C_ATTEMPTS = "attempts";
+	
+	private static final String[] ALL_COLUMNS = 
+		new String[] { 
+			C_CREATED_AT,	// 0 
+			C_TIMESTAMP,	// 1
+			C_FORMAT, 		// 2
+			C_DIGEST, 		// 3
+			C_SAMPLE_RATE,	// 4
+			C_BITRATE, 		// 5
+			C_CODEC, 		// 6
+			C_DURATION, 	// 7
+			C_CREATION_DURATION,// 8 
+			C_FILEPATH, 	// 9
+			C_ATTEMPTS 		// 10
+		};
 	
 	private static String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -51,96 +65,15 @@ public class AudioDb {
 			.append(", ").append(C_CODEC).append(" TEXT")
 			.append(", ").append(C_DURATION).append(" INTEGER")
 			.append(", ").append(C_CREATION_DURATION).append(" INTEGER")
+			.append(", ").append(C_FILEPATH).append(" TEXT")
+			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
 			.append(")");
 		return sbOut.toString();
 	}
 	
-	public class DbCaptured {
-		private String TABLE = "captured";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e); 
-				}
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
-				}
-			}
-		}
-		final DbHelper dbHelper;
-		
-		public DbCaptured(Context context) {
-			this.dbHelper = new DbHelper(context);
-		}
-		
-		public void close() {
-			this.dbHelper.close();
-		}
-		
-		public void insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration) {
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_TIMESTAMP, value);
-			values.put(C_FORMAT, format);
-			values.put(C_DIGEST, digest);
-			values.put(C_SAMPLE_RATE, samplerate);
-			values.put(C_BITRATE, bitrate);
-			values.put(C_CODEC, codec);
-			values.put(C_DURATION, duration);
-			values.put(C_CREATION_DURATION, creation_duration);
-			
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
-		}
-		
-		public List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
-//			ArrayList<String[]> list = new ArrayList<String[]>();
-//			try { 
-//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-//					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
-//					} while (cursor.moveToNext());
-//				}
-//				cursor.close();
-//			} catch (Exception e) { 
-//				RfcxLog.logExc(TAG, e);
-//			} finally { 
-//				db.close();
-//			}
-//			return list;
-		}
-		
-		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { 
-				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
-			} finally { 
-				db.close(); 
-			}
-		}
 
-	}
-	public final DbCaptured dbCaptured;
-	
-	
-	public class DbEncoded {
-		private String TABLE = "encoded";
+	public class DbEncodeQueue {
+		private String TABLE = "queued";
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) {
 				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
@@ -150,20 +83,20 @@ public class AudioDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}
 		final DbHelper dbHelper;
 		
-		public DbEncoded(Context context) {
+		public DbEncodeQueue(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
 		
@@ -171,7 +104,7 @@ public class AudioDb {
 			this.dbHelper.close();
 		}
 		
-		public void insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration) {
+		public void insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_TIMESTAMP, value);
@@ -182,6 +115,8 @@ public class AudioDb {
 			values.put(C_CODEC, codec);
 			values.put(C_DURATION, duration);
 			values.put(C_CREATION_DURATION, creation_duration);
+			values.put(C_FILEPATH, filepath);
+			values.put(C_ATTEMPTS, 0);
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
@@ -193,39 +128,11 @@ public class AudioDb {
 		public List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
-//			ArrayList<String[]> list = new ArrayList<String[]>();
-//			try { 
-//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-//					do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) });
-//					} while (cursor.moveToNext());
-//				}
-//				cursor.close();
-//			} catch (Exception e) { 
-//				RfcxLog.logExc(TAG, e);
-//			} finally { 
-//				db.close(); 
-//			}
-//			return list;
 		}
 		
 		public String[] getLatestRow() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP, 0);
-//			String[] row = new String[] {null,null,null};
-//			try { 
-//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, C_TIMESTAMP+" DESC", "1");
-//				if ((cursor.getCount() > 0) && cursor.moveToFirst()) {
-//					do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8) };
-//					} while (cursor.moveToNext());
-//				}
-//				cursor.close();
-//			} catch (Exception e) { 
-//				RfcxLog.logExc(TAG, e);
-//			} finally { 
-//				db.close(); 
-//			}
-//			return row;
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -244,6 +151,106 @@ public class AudioDb {
 			} finally { 
 				db.close(); 
 			}
+		}
+		
+		public int getCount() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			return DbUtils.getCount(db, TABLE, null, null);
+		}
+		
+	}
+	public final DbEncodeQueue dbEncodeQueue;
+	
+	public class DbEncoded {
+		private String TABLE = "encoded";
+		class DbHelper extends SQLiteOpenHelper {
+			public DbHelper(Context context) {
+				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
+			}
+			@Override
+			public void onCreate(SQLiteDatabase db) {
+				try {
+					db.execSQL(createColumnString(TABLE));
+				} catch (SQLException e) { 
+					RfcxLog.logExc(logTag, e);
+				}
+			}
+			@Override
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { 
+					RfcxLog.logExc(logTag, e);
+				}
+			}
+		}
+		final DbHelper dbHelper;
+		
+		public DbEncoded(Context context) {
+			this.dbHelper = new DbHelper(context);
+		}
+		
+		public void close() {
+			this.dbHelper.close();
+		}
+		
+		public void insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, (new Date()).getTime());
+			values.put(C_TIMESTAMP, value);
+			values.put(C_FORMAT, format);
+			values.put(C_DIGEST, digest);
+			values.put(C_SAMPLE_RATE, samplerate);
+			values.put(C_BITRATE, bitrate);
+			values.put(C_CODEC, codec);
+			values.put(C_DURATION, duration);
+			values.put(C_CREATION_DURATION, creation_duration);
+			values.put(C_FILEPATH, filepath);
+			values.put(C_ATTEMPTS, 0);
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} finally {
+				db.close();
+			}
+		}
+		
+		public List<String[]> getAllRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+		}
+		
+		public String[] getLatestRow() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP, 0);
+		}
+		
+		public void clearRowsBefore(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { 
+				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
+			} finally { 
+				db.close(); 
+			}
+		}
+		
+		public void deleteSingleRow(String timestamp) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { 
+				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
+			} finally { 
+				db.close(); 
+			}
+		}
+		
+		public void incrementSingleRowAttempts(String audioTimeStamp) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_TIMESTAMP+",0,14)='"+audioTimeStamp.substring(0,13)+"'");
+			} finally { db.close(); }
+		}
+		
+		public int getCount() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			return DbUtils.getCount(db, TABLE, null, null);
 		}
 		
 	}

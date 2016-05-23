@@ -58,7 +58,9 @@ public class RfcxGuardian extends Application {
 			this.rfcxServiceHandler.triggerServiceSequence(
 				"OnLaunchServiceSequence", 
 					new String[] { 
-//						"ServiceMonitor"+"|"+"0"+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
+//						"ServiceMonitor"
+//							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits one minute before running
+//							+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
 					}, 
 				true);
 		}

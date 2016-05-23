@@ -1,7 +1,6 @@
 package org.rfcx.guardian.updater.service;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -80,16 +79,16 @@ public class ApiCheckVersionService extends Service {
 			try {
 				if (app.deviceConnectivity.isConnected()) {
 					if (app.apiCore.apiCheckVersionEndpoint != null) {
-						app.lastApiCheckTriggeredAt = Calendar.getInstance().getTimeInMillis();
+						app.lastApiCheckTriggeredAt = System.currentTimeMillis();
 						String getUrl =	(((app.rfcxPrefs.getPrefAsString("api_url_base")!=null) ? app.rfcxPrefs.getPrefAsString("api_url_base") : "https://api.rfcx.org")
 										+ app.apiCore.apiCheckVersionEndpoint
 										+ "?role="+app.APP_ROLE.toLowerCase()
 										+ "&version="+app.version
 										+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
-										+ "&timestamp="+Calendar.getInstance().getTimeInMillis()
+										+ "&timestamp="+System.currentTimeMillis()
 										);
 						
-						long sinceLastCheckIn = (Calendar.getInstance().getTimeInMillis() - app.apiCore.lastCheckInTime) / 1000;
+						long sinceLastCheckIn = (System.currentTimeMillis() - app.apiCore.lastCheckInTime) / 1000;
 						Log.d(TAG, "Since last checkin: "+sinceLastCheckIn);
 						List<JSONObject> jsonResponse = httpGet.getAsJsonList(getUrl);
 						for (JSONObject json : jsonResponse) {

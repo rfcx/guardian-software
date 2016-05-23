@@ -1,7 +1,7 @@
 package org.rfcx.guardian.api.activity;
 
-import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.api.R;
+import org.rfcx.guardian.api.RfcxGuardian;
 
 import android.app.Activity;
 import android.os.Bundle;

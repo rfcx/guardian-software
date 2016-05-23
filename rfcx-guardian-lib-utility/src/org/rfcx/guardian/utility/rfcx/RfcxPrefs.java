@@ -110,7 +110,7 @@ public class RfcxPrefs {
     	
     	if (!fileObj.exists()) {
         	(new File(prefsDirPath)).mkdirs();
-        	FileUtils.chmod(prefsDirPath, 0755);
+        	FileUtils.chmod(prefsDirPath, 0777);
     	} else {
     		fileObj.delete();
     	}
@@ -119,7 +119,7 @@ public class RfcxPrefs {
         	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
         	outFile.write(prefValue);
         	outFile.close();
-        	FileUtils.chmod(filePath, 0755);
+        	FileUtils.chmod(filePath, 0777);
         	writeSuccess = fileObj.exists();
         } catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
@@ -204,9 +204,13 @@ public class RfcxPrefs {
 		
 		defaultPrefs.put("audio_cycle_duration", "90000");
 		defaultPrefs.put("audio_battery_cutoff", "60");
+		
 		defaultPrefs.put("audio_encode_codec", "aac");
 		defaultPrefs.put("audio_encode_bitrate", "16384");
+		defaultPrefs.put("audio_sample_rate", "8000");
 		defaultPrefs.put("audio_encode_quality", "9");
+		defaultPrefs.put("audio_encode_skip_threshold", "3");
+		defaultPrefs.put("audio_encode_cycle_pause", "5000");
 		
 		defaultPrefs.put("checkin_cycle_pause", "5000");
 		defaultPrefs.put("checkin_battery_cutoff", "90");

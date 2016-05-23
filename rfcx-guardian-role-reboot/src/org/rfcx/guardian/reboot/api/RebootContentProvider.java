@@ -1,8 +1,5 @@
 package org.rfcx.guardian.reboot.api;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import org.rfcx.guardian.reboot.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -14,8 +11,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class RebootContentProvider extends ContentProvider {
 	
@@ -46,7 +41,7 @@ public class RebootContentProvider extends ContentProvider {
 		try {
 			MatrixCursor cursor = new MatrixCursor(PROJECTION_1);
 			
-			cursor.addRow(new Object[] { Calendar.getInstance().getTimeInMillis() });
+			cursor.addRow(new Object[] { System.currentTimeMillis() });
 			
 			return cursor;
 		} catch (Exception e) {

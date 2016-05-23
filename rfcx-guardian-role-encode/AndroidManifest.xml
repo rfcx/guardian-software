@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.encode"
     android:versionCode="1"
-    android:versionName="0.1.0" >
+    android:versionName="0.1.1" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -50,8 +50,12 @@
         android:name="org.rfcx.guardian.encode.RfcxGuardian"
         >
 
+        <!-- Services -->
+        <service android:name="org.rfcx.guardian.encode.service.AudioEncodeService" />
+        
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.encode.service.ServiceMonitorIntentService" />
+        <service android:name="org.rfcx.guardian.encode.service.CheckInTriggerIntentService" />
         
         <activity
             android:name="org.rfcx.guardian.encode.activity.MainActivity"

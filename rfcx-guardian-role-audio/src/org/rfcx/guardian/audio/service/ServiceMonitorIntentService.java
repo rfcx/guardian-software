@@ -5,7 +5,6 @@ import org.rfcx.guardian.audio.RfcxGuardian;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 public class ServiceMonitorIntentService extends IntentService {
 	
@@ -32,7 +31,7 @@ public class ServiceMonitorIntentService extends IntentService {
 			app.rfcxServiceHandler.triggerServiceSequence(
 					"ServiceMonitorSequence", 
 						new String[] { 
-							"AudioCapture"
+							"AudioCapture",
 						}, 
 					false);
 		}

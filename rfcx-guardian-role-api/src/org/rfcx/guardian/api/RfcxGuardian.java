@@ -7,6 +7,7 @@ import org.rfcx.guardian.api.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.api.service.ApiCheckInService;
 import org.rfcx.guardian.api.service.ApiCheckInTrigger;
 import org.rfcx.guardian.api.service.ServiceMonitorIntentService;
+import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -91,7 +92,9 @@ public class RfcxGuardian extends Application {
 				"OnLaunchServiceSequence", 
 					new String[] { 
 						"ApiCheckInTrigger",
-						"ServiceMonitor"+"|"+"0"+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
+						"ServiceMonitor"
+							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits one minute before running
+							+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
 					}, 
 				true);
 		}

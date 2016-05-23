@@ -1,7 +1,6 @@
 package org.rfcx.guardian.updater.service;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.IntentService;

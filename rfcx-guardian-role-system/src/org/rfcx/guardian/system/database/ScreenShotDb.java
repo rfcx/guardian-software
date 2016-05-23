@@ -1,6 +1,5 @@
 package org.rfcx.guardian.system.database;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -10,7 +9,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -90,22 +88,6 @@ public class ScreenShotDb {
 		public List<String[]> getAllRows() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, C_CREATED_AT);
-//			ArrayList<String[]> list = new ArrayList<String[]>();
-//			try { 
-//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null,  C_CREATED_AT+" DESC", null);
-//				if (cursor.getCount() > 0) {
-//					if (cursor.moveToFirst()) { 
-//						do { list.add(new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) });
-//						} while (cursor.moveToNext()); 
-//					} 
-//				}
-//				cursor.close();
-//			} catch (Exception e) { 
-//				RfcxLog.logExc(TAG, e); 
-//			} finally { 
-//				db.close(); 
-//			}
-//			return list;
 		}
 		
 		public void clearCapturedBefore(Date date) {
@@ -123,22 +105,6 @@ public class ScreenShotDb {
 		public String[] getSingleRowByTimestamp(String timestamp) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " "+C_TIMESTAMP+" = ?", new String[] { timestamp }, C_CREATED_AT, 0);
-//			String[] row = new String[] {null,null,null};
-//			try { 
-//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, " "+C_TIMESTAMP+" = ?", new String[] { timestamp }, null, null, C_CREATED_AT+" DESC", "1");
-//				if (cursor.getCount() > 0) {
-//					if (cursor.moveToFirst()) { 
-//						do { row = new String[] { cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4) };
-//						} while (cursor.moveToNext());
-//					}
-//				}
-//				cursor.close();
-//			} catch (Exception e) { 
-//				RfcxLog.logExc(TAG, e); 
-//			} finally { 
-//				db.close(); 
-//			}
-//			return row;
 		}
 
 	}

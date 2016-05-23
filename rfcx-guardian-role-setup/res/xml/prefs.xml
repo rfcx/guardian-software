@@ -99,6 +99,13 @@
         android:defaultValue="60" />
  	
  	<EditTextPreference
+        android:key="audio_sample_rate"
+        android:title="audio_sample_rate"
+        android:summary="int - hertz"
+        android:enabled="true"
+        android:defaultValue="8000" />
+ 	
+ 	<EditTextPreference
         android:key="audio_encode_codec"
         android:title="audio_encode_codec"
         android:summary="string - codec"
@@ -117,7 +124,21 @@
         android:title="audio_encode_quality"
         android:summary="int - encoder-specific number"
         android:enabled="true"
-        android:defaultValue="9" />
+        android:defaultValue="7" />
+ 	
+ 	<EditTextPreference
+        android:key="audio_encode_skip_threshold"
+        android:title="audio_encode_skip_threshold"
+        android:summary="int - count"
+        android:enabled="true"
+        android:defaultValue="3" />
+ 	
+ 	<EditTextPreference
+        android:key="audio_encode_cycle_pause"
+        android:title="audio_encode_cycle_pause"
+        android:summary="int - milliseconds"
+        android:enabled="true"
+        android:defaultValue="5000" />
  	
  	<!-- CheckIn Prefs -->
  	

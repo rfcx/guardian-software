@@ -1,10 +1,6 @@
 package org.rfcx.guardian.connect.api;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import org.rfcx.guardian.connect.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
@@ -44,7 +40,7 @@ public class ConnectContentProvider extends ContentProvider {
 		MatrixCursor cursor = new MatrixCursor(PROJECTION_1);
 		
 		cursor.addRow(new Object[] { 
-				Calendar.getInstance().getTimeInMillis()
+				System.currentTimeMillis()
 			});
 		
 		return cursor;

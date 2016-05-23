@@ -10,7 +10,7 @@ import android.content.Intent;
 
 public class ServiceMonitorIntentService extends IntentService {
 	
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ServiceMonitorIntentService.class.getSimpleName();
+	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ServiceMonitorIntentService.class.getSimpleName();
 	
 	private static final String SERVICE_NAME = "ServiceMonitor";
 	
@@ -18,7 +18,7 @@ public class ServiceMonitorIntentService extends IntentService {
 	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase(Locale.US)+".RECEIVE_SERVICE_MONITOR_NOTIFICATIONS";
 	
 	public ServiceMonitorIntentService() {
-		super(TAG);
+		super(logTag);
 	}
 	
 	@Override
@@ -34,7 +34,7 @@ public class ServiceMonitorIntentService extends IntentService {
 			app.rfcxServiceHandler.triggerServiceSequence(
 					"ServiceMonitorSequence", 
 						new String[] { 
-							
+							"AudioEncode"
 						}, 
 					false);
 		}

@@ -6,7 +6,6 @@ import java.util.List;
 import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.api.api.ApiWebCheckIn;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import android.app.Service;
 import android.content.Intent;
@@ -71,6 +70,11 @@ public class ApiCheckInService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 			
+			int prefsCheckInSkipThreshold = app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold");
+			int prefCheckInCyclePause = app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause");
+			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+			int prefsCheckInBatteryCutoff = app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff");
+			
 			while (serviceInstance.runFlag) {
 				String[] currentCheckIn = new String[] {null,null,null};
 				try {
@@ -92,8 +96,8 @@ public class ApiCheckInService extends Service {
 								app.apiWebCheckIn.packagePreFlightCheckInJson(currentCheckIn[2]) 
 							});
 						
-						if (((int) Integer.parseInt(currentCheckIn[3])) > app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold")) {
-							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold")+" failed attempts");
+						if (((int) Integer.parseInt(currentCheckIn[3])) > prefsCheckInSkipThreshold) {
+							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
 							app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3], currentCheckIn[4]);
 							app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(currentCheckIn[1]);
 						} else {
@@ -111,13 +115,13 @@ public class ApiCheckInService extends Service {
 					} else {
 				
 						// force a [brief] pause seconds before trying to check in again
-						Thread.sleep(app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause"));
+						Thread.sleep(prefCheckInCyclePause);
 						
 						if (!app.apiWebCheckIn.isBatteryChargeSufficientForCheckIn()) {
-							long extendCheckInLoopBy = (2 * app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")) - app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause");
+							long extendCheckInLoopBy = (2 * prefsAudioCycleDuration) - prefCheckInCyclePause;
 							Log.i(TAG, "CheckIns automatically disabled due to low battery level"
-									+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff")+"%)."
-									+" Waiting " + ( Math.round( ( extendCheckInLoopBy + app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause") ) / 1000 ) ) + " seconds before next attempt.");
+									+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+prefsCheckInBatteryCutoff+"%)."
+									+" Waiting " + ( Math.round( ( extendCheckInLoopBy + prefCheckInCyclePause ) / 1000 ) ) + " seconds before next attempt.");
 							Thread.sleep(extendCheckInLoopBy);
 						}
 					}

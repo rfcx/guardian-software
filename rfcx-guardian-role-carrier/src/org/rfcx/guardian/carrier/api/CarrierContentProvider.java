@@ -1,9 +1,6 @@
 package org.rfcx.guardian.carrier.api;
 
-import java.util.Calendar;
-
 import org.rfcx.guardian.carrier.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
@@ -43,7 +40,7 @@ public class CarrierContentProvider extends ContentProvider {
 		MatrixCursor cursor = new MatrixCursor(PROJECTION_1);
 		
 		cursor.addRow(new Object[] { 
-				Calendar.getInstance().getTimeInMillis()
+				System.currentTimeMillis()
 			});
 		
 		return cursor;

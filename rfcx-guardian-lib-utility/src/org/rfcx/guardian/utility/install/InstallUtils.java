@@ -1,13 +1,6 @@
 package org.rfcx.guardian.utility.install;
 
-import java.io.File;
-
-import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.database.DbUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import android.content.Context;
-import android.util.Log;
 
 public class InstallUtils {
 

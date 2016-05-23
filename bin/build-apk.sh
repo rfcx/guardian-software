@@ -32,6 +32,7 @@ else
   echo "key.alias.password=$KEY_PSWD" >> local.properties;
 
   echo "android.library.reference.1=../rfcx-guardian-lib-utility" >> local.properties;
+  echo "android.library.reference.2=../rfcx-guardian-lib-audio" >> local.properties;
 
   echo "setting up build process...";
   export ANT_CLEAN=`ant clean`;

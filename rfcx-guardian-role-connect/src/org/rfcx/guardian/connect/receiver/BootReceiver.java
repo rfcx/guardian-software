@@ -1,7 +1,5 @@
 package org.rfcx.guardian.connect.receiver;
 
-import org.rfcx.guardian.connect.RfcxGuardian;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

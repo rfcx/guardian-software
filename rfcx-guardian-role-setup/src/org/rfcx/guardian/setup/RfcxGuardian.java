@@ -5,10 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Calendar;
 import java.util.Map;
 
-import org.rfcx.guardian.setup.R;
 import org.rfcx.guardian.setup.api.ApiCore;
 import org.rfcx.guardian.setup.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.setup.service.ApiCheckVersionIntentService;
@@ -58,7 +56,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public SharedPreferences sharedPrefs = null;
 	
-	public long lastApiCheckTriggeredAt = Calendar.getInstance().getTimeInMillis();
+	public long lastApiCheckTriggeredAt = System.currentTimeMillis();
 	
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	

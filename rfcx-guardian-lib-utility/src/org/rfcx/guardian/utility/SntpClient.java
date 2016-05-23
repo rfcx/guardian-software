@@ -16,12 +16,12 @@ package org.rfcx.guardian.utility;
  * limitations under the License.
  */
 
-import android.os.SystemClock;
-import android.util.Log;
-
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+
+import android.os.SystemClock;
+import android.util.Log;
 
 /**
  * {@hide}

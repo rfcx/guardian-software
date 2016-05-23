@@ -1,12 +1,10 @@
 package org.rfcx.guardian.audio;
 
 import org.rfcx.guardian.audio.capture.AudioCapture;
-import org.rfcx.guardian.audio.database.AudioDb;
-import org.rfcx.guardian.audio.encode.AudioEncode;
 import org.rfcx.guardian.audio.service.AudioCaptureService;
-import org.rfcx.guardian.audio.service.AudioEncodeIntentService;
-import org.rfcx.guardian.audio.service.CheckInTriggerIntentService;
+import org.rfcx.guardian.audio.service.AudioEncodeTriggerIntentService;
 import org.rfcx.guardian.audio.service.ServiceMonitorIntentService;
+import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -29,8 +27,7 @@ public class RfcxGuardian extends Application {
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
 	
-	// database access helpers
-	public AudioDb audioDb = null;
+	public AudioCapture audioCapture = null;
 	
 	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 	
@@ -71,21 +68,21 @@ public class RfcxGuardian extends Application {
 				"OnLaunchServiceSequence", 
 					new String[] { 
 						"AudioCapture",
-						"ServiceMonitor"+"|"+"0"+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
+						"ServiceMonitor"
+							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits one minute before running
+							+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
 					}, 
 				true);
 		}
 	}
 	
 	private void setDbHandlers() {
-		int versionNumber = RfcxRole.getRoleVersionValue(this.version);
-		this.audioDb = new AudioDb(this,versionNumber);
+
 	}
 	
 	private void setServiceHandlers() {
 		this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
-		this.rfcxServiceHandler.addService("AudioEncode", AudioEncodeIntentService.class);
-		this.rfcxServiceHandler.addService("CheckInTrigger", CheckInTriggerIntentService.class);
+		this.rfcxServiceHandler.addService("AudioEncodeTrigger", AudioEncodeTriggerIntentService.class);
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitorIntentService.class);
 	}
     

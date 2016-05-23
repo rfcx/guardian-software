@@ -2,8 +2,8 @@ package org.rfcx.guardian.setup.activity;
 
 import org.rfcx.guardian.setup.R;
 
-import android.preference.PreferenceActivity;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 
 public class PrefsActivity extends PreferenceActivity {
 	

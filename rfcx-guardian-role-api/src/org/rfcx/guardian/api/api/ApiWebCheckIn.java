@@ -15,7 +15,6 @@ import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.device.DeviceGeoLocation;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.Context;
@@ -106,8 +105,8 @@ public class ApiWebCheckIn {
 
 		Log.d(TAG, "Queued (1/"+app.checkInDb.dbQueued.getCount()+"): " + queueJson);
 		
-		// once queued, remove database reference from audio role
-		int purgeAudioFromDb = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.audio.URI_1 + "/" + audioInfo[1]), null, null);
+		// once queued, remove database reference from encode role
+		int purgeAudioFromEncodeRoleDatabase = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.encode.URI_ENCODED + "/" + audioInfo[1]), null, null);
 		
 		// if the queued table has grown beyond the maximum threshold, stash the oldest checkins 
 		stashOldestCheckIns();
@@ -289,7 +288,8 @@ public class ApiWebCheckIn {
 				for (int i = 0; i < audioJsonArray.length(); i++) {
 					JSONObject audioJson = audioJsonArray.getJSONObject(i);
 					String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioJson.getString("id"))[1];
-					int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.audio.URI_1+"/"+audioFileNameInDb), null, null);
+					Log.d(TAG, audioFileNameInDb);
+					int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.encode.URI_ENCODED + "/" + audioFileNameInDb), null, null);
 					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioJson.getString("id"));
 				}
 
@@ -395,8 +395,9 @@ public class ApiWebCheckIn {
 				Log.e(TAG, "Audio attachment file doesn't exist or isn't readable: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
 				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
 				String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId)[1];
-				int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.audio.URI_1 + "/" + audioFileNameInDb), null, null);
-
+				Log.d(TAG, audioFileNameInDb);
+				int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.encode.URI_ENCODED + "/" + audioFileNameInDb), null, null);
+				
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(TAG, e);

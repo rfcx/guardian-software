@@ -5,7 +5,6 @@ import org.rfcx.guardian.reboot.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;

@@ -2,7 +2,6 @@ package org.rfcx.guardian.system.service;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceScreenShot;
-import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.device.DeviceScreenLock;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -10,7 +9,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class DeviceScreenShotService extends Service {

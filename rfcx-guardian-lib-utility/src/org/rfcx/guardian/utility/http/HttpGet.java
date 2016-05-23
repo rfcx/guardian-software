@@ -11,7 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -55,9 +54,9 @@ public class HttpGet {
 	}
 	
 	public JSONObject getAsJson(String fullUrl, List<String[]> keyValueParameters) {
-		long startTime = Calendar.getInstance().getTimeInMillis();
+		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms");
+		Log.v(TAG,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
 		try {
 			return new JSONObject(str);
 		} catch (JSONException e) {
@@ -71,9 +70,9 @@ public class HttpGet {
 	}
 	
 	public List<JSONObject> getAsJsonList(String fullUrl, List<String[]> keyValueParameters) {
-		long startTime = Calendar.getInstance().getTimeInMillis();
+		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms");
+		Log.v(TAG,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
 		try {
 			List<JSONObject> jsonArray = new ArrayList<JSONObject>();
 			JSONArray jsonAll = new JSONArray(str);
@@ -92,9 +91,9 @@ public class HttpGet {
 	}
 	
 	public String getAsString(String fullUrl, List<String[]> keyValueParameters) {
-		long startTime = Calendar.getInstance().getTimeInMillis();
+		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms");
+		Log.v(TAG,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
 		return str;
 	}
 	
@@ -103,7 +102,7 @@ public class HttpGet {
 	}
 	
 	public boolean getAsFile(String fullUrl, List<String[]> keyValueParameters, String outputFileName, Context context) {
-		long startTime = Calendar.getInstance().getTimeInMillis();
+		long startTime = System.currentTimeMillis();
 		StringBuilder url = (new StringBuilder()).append(fullUrl);
 		if (keyValueParameters.size() > 0) url.append("?");
 		for (String[] keyValue : keyValueParameters) {
@@ -115,7 +114,7 @@ public class HttpGet {
 		if ((inputStream != null) && (fileOutputStream != null)) {
 			writeFileResponseStream(inputStream,fileOutputStream);
 			closeInputOutputStreams(inputStream,fileOutputStream);
-			Log.v(TAG,DOWNLOAD_TIME_LABEL+(Calendar.getInstance().getTimeInMillis()-startTime)+"ms");
+			Log.v(TAG,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
 			return (new File(context.getFilesDir(), outputFileName)).exists();
 		}
 		return false;

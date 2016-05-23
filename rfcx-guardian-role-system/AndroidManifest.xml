@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.system"
     android:versionCode="1"
-    android:versionName="0.1.24" >
+    android:versionName="0.1.25" >
    
     <uses-sdk
         android:minSdkVersion="10"

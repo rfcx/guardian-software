@@ -65,10 +65,9 @@ public class DateTimeUtils {
 	}
 	
 	public static Calendar nowPlusThisLong(int hours, int minutes, int seconds) {
-		long rightNow = Calendar.getInstance().getTimeInMillis();
-		long nowPlus = rightNow + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000);
+		long rightNowPlus = System.currentTimeMillis() + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000);
 		Calendar nowPlusCalendar = Calendar.getInstance();
-		try { nowPlusCalendar.setTimeInMillis(nowPlus); } catch (Exception e) { RfcxLog.logExc(TAG, e); }
+		try { nowPlusCalendar.setTimeInMillis(rightNowPlus); } catch (Exception e) { RfcxLog.logExc(TAG, e); }
 		return nowPlusCalendar;
 	}
 

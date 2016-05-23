@@ -6,9 +6,6 @@ import java.io.RandomAccessFile;
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import android.text.TextUtils;
-import android.util.Log;
-
 public class DeviceCpuUsage {
 
 	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceCpuUsage.class.getSimpleName();

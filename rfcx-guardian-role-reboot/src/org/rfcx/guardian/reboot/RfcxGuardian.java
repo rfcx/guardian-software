@@ -62,8 +62,10 @@ public class RfcxGuardian extends Application {
 					new String[] { 
 						"RebootIntentService"
 								+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
-								+"|"+"norepeat",
-//						"ServiceMonitor"+"|"+"0"+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
+								+"|"+"norepeat"
+//						"ServiceMonitor"
+//								+"|"+DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minute before running
+//								+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
 						}, 
 				true);
 		}
