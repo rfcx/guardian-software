@@ -157,6 +157,11 @@ public class AudioEncodeDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			return DbUtils.getCount(db, TABLE, null, null);
 		}
+
+		public String[] getSingleRowByAudioId(String audioId) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " substr("+C_TIMESTAMP+",0,14) = ?", new String[] { audioId.substring(0,13) }, C_CREATED_AT, 0);
+		}
 		
 	}
 	public final DbEncodeQueue dbEncodeQueue;
@@ -251,6 +256,11 @@ public class AudioEncodeDb {
 		public int getCount() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			return DbUtils.getCount(db, TABLE, null, null);
+		}
+
+		public String[] getSingleRowByAudioId(String audioId) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " substr("+C_TIMESTAMP+",0,14) = ?", new String[] { audioId.substring(0,13) }, C_CREATED_AT, 0);
 		}
 		
 	}

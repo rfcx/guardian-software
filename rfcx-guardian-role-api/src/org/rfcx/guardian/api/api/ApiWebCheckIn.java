@@ -12,6 +12,7 @@ import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.audio.AudioFile;
 import org.rfcx.guardian.utility.device.DeviceGeoLocation;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -288,9 +289,9 @@ public class ApiWebCheckIn {
 				for (int i = 0; i < audioJsonArray.length(); i++) {
 					JSONObject audioJson = audioJsonArray.getJSONObject(i);
 					String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioJson.getString("id"))[1];
-					Log.d(TAG, audioFileNameInDb);
-					int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.encode.URI_ENCODED + "/" + audioFileNameInDb), null, null);
+					int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.encode.URI_ENCODED + "/" + audioJson.getString("id")), null, null);
 					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioJson.getString("id"));
+					AudioFile.purgeSingleAudioAssetFromDisk(audioJson.getString("id"),audioFileNameInDb.substring(1+audioFileNameInDb.lastIndexOf(".")));
 				}
 
 				// parse the screenshot info and use it to purge the data locally
@@ -393,11 +394,10 @@ public class ApiWebCheckIn {
 				Log.d(TAG, "Audio attached: " + audioId + "." + audioFormat);
 			} else {
 				Log.e(TAG, "Audio attachment file doesn't exist or isn't readable: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
-				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
 				String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId)[1];
-				Log.d(TAG, audioFileNameInDb);
 				int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.encode.URI_ENCODED + "/" + audioFileNameInDb), null, null);
-				
+				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
+				AudioFile.purgeSingleAudioAssetFromDisk(audioId, audioFormat);
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(TAG, e);

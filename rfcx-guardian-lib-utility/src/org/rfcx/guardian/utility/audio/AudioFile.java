@@ -85,12 +85,12 @@ public class AudioFile {
 		return (new StringBuilder()).append(encodeDir()).append("/").append(timestamp).append(".").append(fileExtension).toString(); 
 	}
 	
-	public static String getAudioFileLocation_PostEncode(long timestamp, String fileExtension) {
-		return (new StringBuilder()).append(encodeDir()).append("/_").append(timestamp).append(".").append(fileExtension).toString(); 
+	public static String getAudioFileLocation_PostEncode(long timestamp, String audioCodec) {
+		return (new StringBuilder()).append(encodeDir()).append("/_").append(timestamp).append(".").append(getFileExtension(audioCodec)).toString(); 
 	}
 
-	public static String getAudioFileLocation_Complete_PostZip(long timestamp, String fileExtension) {
-		return (new StringBuilder()).append(postZipDir()).append("/").append(dateFormat.format(new Date(timestamp))).append("/").append(timestamp).append(".").append(fileExtension).append(".gz").toString(); 
+	public static String getAudioFileLocation_Complete_PostZip(long timestamp, String audioCodec) {
+		return (new StringBuilder()).append(postZipDir()).append("/").append(dateFormat.format(new Date(timestamp))).append("/").append(timestamp).append(".").append(getFileExtension(audioCodec)).append(".gz").toString(); 
 	}
 	
 	public static void cleanupEncodeDirectory(Context context) {
@@ -110,6 +110,20 @@ public class AudioFile {
 		} catch (Exception e) {
 			RfcxLog.logExc(TAG, e);
 		}
+	}
+	
+	public static String getFileExtension(String audioCodecOrFileExtension) {
+		String fileExtension = "wav";
+		if (audioCodecOrFileExtension.equalsIgnoreCase("aac") || audioCodecOrFileExtension.equalsIgnoreCase("m4a")) {
+			fileExtension = "m4a";
+		} else if (audioCodecOrFileExtension.equalsIgnoreCase("opus")) {
+			fileExtension = "opus";
+		} else if (audioCodecOrFileExtension.equalsIgnoreCase("mp3")) {
+			fileExtension = "mp3";
+		} else if (audioCodecOrFileExtension.equalsIgnoreCase("flac")) {
+			fileExtension = "flac";
+		}
+		return fileExtension;
 	}
 	
 }

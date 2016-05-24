@@ -113,8 +113,8 @@ public class AudioEncodeService extends Service {
 									
 									Log.i(logTag, "Encoding: '"+audioToEncode[1]+"','"+audioToEncode[2]+"','"+audioToEncode[9]+"'");
 								
-									File postEncodeFile = new File(AudioFile.getAudioFileLocation_PostEncode((long) Long.parseLong(audioToEncode[1]),audioToEncode[2]));
-									File gZippedFile = new File(AudioFile.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioToEncode[1]),audioToEncode[2]));
+									File postEncodeFile = new File(AudioFile.getAudioFileLocation_PostEncode((long) Long.parseLong(audioToEncode[1]),audioToEncode[6]));
+									File gZippedFile = new File(AudioFile.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioToEncode[1]),AudioFile.getFileExtension(audioToEncode[6])));
 									
 									// perform audio encoding and return duration
 									long encodeDuration = encodeAudioFile(preEncodeFile, postEncodeFile, audioToEncode[6], (int) Integer.parseInt(audioToEncode[5]), prefsAudioEncodeQuality);
@@ -135,7 +135,9 @@ public class AudioEncodeService extends Service {
 										if (postEncodeFile.exists()) { postEncodeFile.delete(); }
 
 										app.audioEncodeDb.dbEncoded.insert(
-												audioToEncode[1], audioToEncode[2], preZipDigest, 
+												audioToEncode[1], 
+												AudioFile.getFileExtension(audioToEncode[6]), 
+												preZipDigest, 
 												(int) Integer.parseInt(audioToEncode[4]), 
 												(int) Integer.parseInt(audioToEncode[5]), 
 												audioToEncode[6], 

@@ -21,7 +21,7 @@ else
   echo "copying apk to s3...";
   aws s3 cp $SCRIPT_DIR/../tmp/$ROLE-$APK_VERSION.apk s3://rfcx-install/rfcx-guardian/guardian-android-$ROLE/ --grants read=uri=http://acs.amazonaws.com/groups/global/AllUsers; 
 
-  export DB_URI=`cat $SCRIPT_DIR/_private/rfcx-api-db-pswd-production.txt;`;
+  export DB_URI=`cat $SCRIPT_DIR/_private/rfcx-api-db-uri-staging.txt;`;
 
   export ROLE_FROM_SQL=`ssh rfcx-proxy "mysql -h$DB_URI -uebroot -p ebdb -e \"SELECT id FROM GuardianSoftware WHERE role='$ROLE' LIMIT 1;\";";`;
   export ROLE_ID=`echo $ROLE_FROM_SQL | cut -d' ' -f 2`;
