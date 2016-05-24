@@ -93,16 +93,6 @@ public class AudioFile {
 		return (new StringBuilder()).append(postZipDir()).append("/").append(dateFormat.format(new Date(timestamp))).append("/").append(timestamp).append(".").append(getFileExtension(audioCodec)).append(".gz").toString(); 
 	}
 	
-	public static void cleanupEncodeDirectory(Context context) {
-		for (File file : (new File(encodeDir())).listFiles()) {
-			try { 
-				file.delete(); 
-			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
-			}
-		}
-	}
-	
 	public static void purgeSingleAudioAssetFromDisk(String audioTimestamp, String audioFileExtension) {
 		try {
 			(new File(getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();

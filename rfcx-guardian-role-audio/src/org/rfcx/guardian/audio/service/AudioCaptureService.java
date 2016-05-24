@@ -76,7 +76,7 @@ public class AudioCaptureService extends Service {
 			app.audioCapture.captureTimeStampQueue = new long[] { 0, 0 };
 			
 			AudioFile.cleanupCaptureDirectory(context);
-			AudioFile.cleanupEncodeDirectory(context);
+			AudioFile.cleanupEncodeDirectory();
 			String captureDir = AudioFile.captureDir(context);
 
 			
@@ -86,6 +86,7 @@ public class AudioCaptureService extends Service {
 			boolean encodeOnCapture = app.rfcxPrefs.getPrefAsString("audio_encode_codec").equalsIgnoreCase("aac");
 			String captureFileExtension = (encodeOnCapture) ? "m4a" : "wav";
 			int prefsAudioBatteryCutoff = app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff");
+			boolean isBatteryChargeSufficientForCapture = app.audioCapture.isBatteryChargeSufficientForCapture();
 			
 			try {
 				
@@ -93,7 +94,7 @@ public class AudioCaptureService extends Service {
 				
 				while (audioCaptureService.runFlag) {
 					try {
-						if (app.audioCapture.isBatteryChargeSufficientForCapture()) {
+						if (isBatteryChargeSufficientForCapture) {
 							
 							long timeStamp = System.currentTimeMillis();
 							
@@ -105,6 +106,7 @@ public class AudioCaptureService extends Service {
 									app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioEncodeTrigger");
 								}
 								Thread.sleep(prefsCaptureLoopPeriod);
+								isBatteryChargeSufficientForCapture = app.audioCapture.isBatteryChargeSufficientForCapture();
 								recorder.stop();
 								recorder.release();
 								
@@ -116,6 +118,7 @@ public class AudioCaptureService extends Service {
 									app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioEncodeTrigger");
 								}
 								Thread.sleep(prefsCaptureLoopPeriod);
+								isBatteryChargeSufficientForCapture = app.audioCapture.isBatteryChargeSufficientForCapture();
 								recorder.stop();
 								recorder.release();
 								
@@ -123,6 +126,7 @@ public class AudioCaptureService extends Service {
 							
 						} else {
 							Thread.sleep(2*prefsCaptureLoopPeriod);
+							isBatteryChargeSufficientForCapture = app.audioCapture.isBatteryChargeSufficientForCapture();
 							Log.i(TAG, "AudioCapture disabled due to low battery level"
 									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+prefsAudioBatteryCutoff+"%)."
 									+" Waiting "+(Math.round(2*prefsCaptureLoopPeriod/1000))+" seconds before next attempt.");
