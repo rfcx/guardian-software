@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.rfcx.guardian.utility"
+    package="org.rfcx.guardian.audio"
     android:versionCode="1"
     android:versionName="1.0" >
 
