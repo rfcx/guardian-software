@@ -6,7 +6,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;

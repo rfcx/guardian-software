@@ -1,9 +1,6 @@
 package org.rfcx.guardian.encode.api;
 
-import java.util.Date;
-
 import org.rfcx.guardian.encode.RfcxGuardian;
-import org.rfcx.guardian.utility.audio.AudioFile;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -13,8 +10,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.text.TextUtils;
-import android.util.Log;
 
 public class EncodeContentProvider extends ContentProvider {
 	

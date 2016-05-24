@@ -2,7 +2,6 @@ package org.rfcx.guardian.encode.service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 
 import org.rfcx.guardian.audio.flac.FLAC_FileEncoder;
 import org.rfcx.guardian.encode.RfcxGuardian;
