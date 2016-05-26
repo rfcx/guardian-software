@@ -11,7 +11,7 @@ import android.text.TextUtils;
 
 public class DeviceKeyEntry {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceKeyEntry.class.getSimpleName();
+	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceKeyEntry.class.getSimpleName();
 	
 	private List<String[]> keyCodes = null;
 	

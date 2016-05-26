@@ -135,6 +135,9 @@ public class EncodeContentProvider extends ContentProvider {
 						values.getAsString("filepath")
 						);
 				
+				// Attempt to trigger encode service just in case it's not running
+				app.rfcxServiceHandler.triggerService("AudioEncode", false);
+				
 				return Uri.parse(RfcxRole.ContentProvider.encode.URI_QUEUE+"/"+values.getAsString("timestamp"));
 				
 			} else if (URI_MATCHER.match(uri) == ENDPOINT_ENCODED_LIST) {

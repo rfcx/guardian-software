@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.carrier"
     android:versionCode="1"
-    android:versionName="0.1.6" >
+    android:versionName="0.1.7" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -66,6 +66,12 @@
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>
+		</receiver>
+		
+        <receiver android:name="org.rfcx.guardian.carrier.receiver.SmsReceiver">
+    		<intent-filter>
+        		<action android:name="android.provider.Telephony.SMS_RECEIVED" />
+   			</intent-filter>
 		</receiver>
 		
 		<provider 

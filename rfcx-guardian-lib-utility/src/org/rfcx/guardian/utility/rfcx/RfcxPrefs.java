@@ -208,7 +208,7 @@ public class RfcxPrefs {
 		defaultPrefs.put("audio_encode_codec", "aac");
 		defaultPrefs.put("audio_encode_bitrate", "16384");
 		defaultPrefs.put("audio_sample_rate", "8000");
-		defaultPrefs.put("audio_encode_quality", "9");
+		defaultPrefs.put("audio_encode_quality", "7");
 		defaultPrefs.put("audio_encode_skip_threshold", "3");
 		defaultPrefs.put("audio_encode_cycle_pause", "5000");
 		

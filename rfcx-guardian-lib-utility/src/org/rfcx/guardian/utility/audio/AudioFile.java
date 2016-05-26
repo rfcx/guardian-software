@@ -18,6 +18,9 @@ public class AudioFile {
 	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
 	
+	public static final int AUDIO_SAMPLE_SIZE = 16;
+	public static final int AUDIO_CHANNEL_COUNT = 1;
+	
 	public static void initializeAudioDirectories(Context context) {
 		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context), 0777);
 		(new File(cacheFilesDir())).mkdirs(); FileUtils.chmod(cacheFilesDir(), 0777);

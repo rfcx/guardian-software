@@ -34,7 +34,7 @@ public class ApiWebCheckIn {
 		setCheckInAuthHeaders(this.app.rfcxDeviceId.getDeviceGuid(), this.app.rfcxDeviceId.getDeviceToken());
 	}
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiWebCheckIn.class.getSimpleName();
+	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiWebCheckIn.class.getSimpleName();
 
 	private RfcxGuardian app;
 	HttpPostMultipart httpPostMultipart = new HttpPostMultipart();
@@ -68,16 +68,16 @@ public class ApiWebCheckIn {
 			keyFilepathMimeAttachments = new ArrayList<String[]>();
 		if (app.deviceConnectivity.isConnected()) {
 			this.requestSendStart = new Date();
-			Log.i(TAG, "CheckIn sent at: " + DateTimeUtils.getDateTime(this.requestSendStart));
+			Log.i(logTag, "CheckIn sent at: " + DateTimeUtils.getDateTime(this.requestSendStart));
 			String checkInResponse = httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments);
 			processCheckInResponse(checkInResponse);
 			if (checkInResponse.equals("Rfcx-Utils-HttpPostMultipart-UnknownHostException")) {
-				Log.e(TAG, "NOT INCREMENTING CHECK-IN ATTEMPTS");
+				Log.e(logTag, "NOT INCREMENTING CHECK-IN ATTEMPTS");
 			} else {
 				app.checkInDb.dbQueued.incrementSingleRowAttempts(checkInAudioReference);
 			}
 		} else {
-			Log.d(TAG, "No connectivity... Can't send CheckIn");
+			Log.d(logTag, "No connectivity... Can't send CheckIn");
 		}
 	}
 	
@@ -104,7 +104,7 @@ public class ApiWebCheckIn {
 					filepath
 				);
 
-		Log.d(TAG, "Queued (1/"+app.checkInDb.dbQueued.getCount()+"): " + queueJson);
+		Log.d(logTag, "Queued (1/"+app.checkInDb.dbQueued.getCount()+"): " + queueJson);
 		
 		// once queued, remove database reference from encode role
 		int purgeAudioFromEncodeRoleDatabase = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.encode.URI_ENCODED + "/" + audioInfo[1]), null, null);
@@ -132,11 +132,11 @@ public class ApiWebCheckIn {
 			}
 			
 			//report in the logs
-			Log.i(TAG, "Stashed CheckIns ("+app.checkInDb.dbStashed.getCount()+" total in database): "+TextUtils.join(" ", stashList));
+			Log.i(logTag, "Stashed CheckIns ("+app.checkInDb.dbStashed.getCount()+" total in database): "+TextUtils.join(" ", stashList));
 		}
 		
 		if (app.checkInDb.dbStashed.getCount() >= app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold")) {
-			Log.i(TAG, "TODO: STASHED CHECKINS SHOULD BE ARCHIVED HERE...");
+			Log.i(logTag, "TODO: STASHED CHECKINS SHOULD BE ARCHIVED HERE...");
 		}
 	}
 
@@ -156,7 +156,7 @@ public class ApiWebCheckIn {
 			return queueJson.toString();
 
 		} catch (JSONException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 			return "{}";
 		}
 	}
@@ -182,7 +182,7 @@ public class ApiWebCheckIn {
 			} while (cursor.moveToNext()); } } finally { cursor.close(); } }
 
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 
 		return softwareVersions;
@@ -214,7 +214,7 @@ public class ApiWebCheckIn {
 			cursor.close();
 			
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 
 		return metaDataJsonObj;
@@ -259,7 +259,7 @@ public class ApiWebCheckIn {
 //		Log.d(TAG, checkInMetaJson.toString());
 
 		int pct = Math.round(100 * (1 - ((float) jsonFinalGZipped.length()) / ((float) jsonFinal.length())));
-		Log.d(TAG, "JSON MetaData Packaged: " + pct + "% reduced");
+		Log.d(logTag, "JSON MetaData Packaged: " + pct + "% reduced");
 
 		return jsonFinalGZipped;
 	}
@@ -276,7 +276,7 @@ public class ApiWebCheckIn {
 				this.previousCheckIns = new ArrayList<String>();
 				this.previousCheckIns.add(responseJson.getString("checkin_id") + "*" + checkInDuration);
 				this.requestSendReturned = new Date();
-				Log.i(TAG, "CheckIn request time: " + (checkInDuration / 1000) + " seconds");
+				Log.i(logTag, "CheckIn request time: " + (checkInDuration / 1000) + " seconds");
 
 				// clear system metadata included in successful checkin preflight
 				int clearPreFlightSystemMetaData = app.getContentResolver()
@@ -311,7 +311,7 @@ public class ApiWebCheckIn {
 					int deleteMsg = app.getContentResolver().delete(
 							Uri.parse("content://sms/"+ msgJson.getString("id")), null, null);
 					if (deleteMsg == 1)
-						Log.i(TAG, "deleted sms message with id "+ msgJson.getString("id"));
+						Log.i(logTag, "deleted sms message with id "+ msgJson.getString("id"));
 				}
 
 				// parse the instructions section
@@ -325,9 +325,9 @@ public class ApiWebCheckIn {
 				}
 
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			} finally {
-				Log.i(TAG, "API Response: " + checkInResponse);
+				Log.i(logTag, "API Response: " + checkInResponse);
 			}
 		}
 	}
@@ -346,7 +346,7 @@ public class ApiWebCheckIn {
 					msgJson.put("body", cursor.getString(cursor.getColumnIndex("body")));
 					msgJsonArray.put(msgJson);
 				} catch (Exception e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			} while (cursor.moveToNext());
 		}
@@ -373,7 +373,7 @@ public class ApiWebCheckIn {
 						cursor.getString(cursor.getColumnIndex("format")),
 						cursor.getString(cursor.getColumnIndex("digest")) };
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			}
 		} } finally { cursor.close(); } }
 		
@@ -391,16 +391,16 @@ public class ApiWebCheckIn {
 		try {
 			if ((new File(audioFilePath)).exists() && (new File(audioFilePath)).canRead()) {
 				checkInFiles.add(new String[] { "audio", audioFilePath, "audio/" + audioFormat });
-				Log.d(TAG, "Audio attached: " + audioId + "." + audioFormat);
+				Log.d(logTag, "Audio attached: " + audioId + "." + audioFormat);
 			} else {
-				Log.e(TAG, "Audio attachment file doesn't exist or isn't readable: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
+				Log.e(logTag, "Audio attachment file doesn't exist or isn't readable: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
 				String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId)[1];
 				int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.encode.URI_ENCODED + "/" + audioFileNameInDb), null, null);
 				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
 				AudioFile.purgeSingleAudioAssetFromDisk(audioId, audioFormat);
 			}
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 
 		// attach screenshot images - we only attach one per check-in (the
@@ -418,13 +418,13 @@ public class ApiWebCheckIn {
 				String imgFilePath = cursor.getString(cursor.getColumnIndex("filepath"));
 				if ((new File(imgFilePath)).exists() && (new File(imgFilePath)).canRead()) {
 					checkInFiles.add(new String[] { "screenshot", imgFilePath, "image/png" });
-					Log.d(TAG, "Screenshot attached: " + imgId + ".png");
+					Log.d(logTag, "Screenshot attached: " + imgId + ".png");
 				} else {
-					Log.e(TAG, "Screenshot attachment file doesn't exist or isn't readable ("+imgId+"): "+ imgFilePath);
+					Log.e(logTag, "Screenshot attachment file doesn't exist or isn't readable ("+imgId+"): "+ imgFilePath);
 					int deleteScreenShot = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT+"/"+imgId), null, null);
 				}
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			}
 			
 		} } finally { cursor.close(); } }
@@ -448,11 +448,11 @@ public class ApiWebCheckIn {
 			for (int toggleThreshold : this.connectivityToggleThresholds) {
 				if (((secsSinceSuccess / 60) >= toggleThreshold) && !this.connectivityToggleThresholdsReached[thresholdIndex]) {
 					this.connectivityToggleThresholdsReached[thresholdIndex] = true;
-					Log.d(TAG, "ToggleCheck: AirplaneMode (" + toggleThreshold + " minutes since last successful CheckIn)");
+					Log.d(logTag, "ToggleCheck: AirplaneMode (" + toggleThreshold + " minutes since last successful CheckIn)");
 					app.deviceAirplaneMode.setOff(app.getApplicationContext());
 					if (toggleThreshold == this.connectivityToggleThresholds[this.connectivityToggleThresholds.length - 1]) {
 						// last index, force reboot
-						Log.d(TAG, "ToggleCheck: ForcedReboot (" + toggleThreshold + " minutes since last successful CheckIn)");
+						Log.d(logTag, "ToggleCheck: ForcedReboot (" + toggleThreshold + " minutes since last successful CheckIn)");
 						ShellCommands.executeCommand("reboot", null, false, app.getApplicationContext());
 					}
 				}

@@ -163,6 +163,12 @@ public class AudioEncodeDb {
 			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " substr("+C_TIMESTAMP+",0,14) = ?", new String[] { audioId.substring(0,13) }, C_CREATED_AT, 0);
 		}
 		
+		public void incrementSingleRowAttempts(String audioId) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_TIMESTAMP+",0,14)='"+audioId.substring(0,13)+"'");
+			} finally { db.close(); }
+		}
+		
 	}
 	public final DbEncodeQueue dbEncodeQueue;
 	

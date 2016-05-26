@@ -48,7 +48,7 @@ public class AudioCapture {
         rec.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         rec.setAudioSamplingRate(sampleRate);
         rec.setAudioEncodingBitRate(bitRate);
-        rec.setAudioChannels(1);
+        rec.setAudioChannels(AudioFile.AUDIO_CHANNEL_COUNT);
 		rec.setOutputFile(getCaptureFilePath(captureDir,timestamp,fileExtension));
 		rec.prepare();
         return rec;
