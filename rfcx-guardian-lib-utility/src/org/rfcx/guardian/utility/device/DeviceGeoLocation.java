@@ -21,12 +21,12 @@ public class DeviceGeoLocation {
 	
 	public String getSerializedGeoLocation() {
 		double[] geoLocation = getGeoLocation();
-		StringBuilder sb = new StringBuilder();
-		sb.append(System.currentTimeMillis())
+		return (new StringBuilder())
+			.append(System.currentTimeMillis())
 			.append("*").append(geoLocation[0])
 			.append("*").append(geoLocation[1])
-			.append("*").append(geoLocation[2]);
-		return sb.toString();
+			.append("*").append(geoLocation[2])
+			.toString();
 	}
 	
 	private void updateGeoLocation() {
