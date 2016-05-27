@@ -1,10 +1,9 @@
 package org.rfcx.guardian.encode.service;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.rfcx.guardian.audio.flac.FLAC_FileEncoder;
 import org.rfcx.guardian.encode.RfcxGuardian;
+import org.rfcx.guardian.encode.utils.AudioEncodeUtils;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.audio.AudioFile;
@@ -114,56 +113,52 @@ public class AudioEncodeService extends Service {
 								
 								try {
 									
-									Log.i(logTag, "Encoding: '"+audioToEncode[1]+"','"+audioToEncode[2]+"','"+audioToEncode[9]+"'");
+									Log.i(logTag, "Beginning Encode: '"+audioToEncode[1]+"','"+audioToEncode[2]+"','"+audioToEncode[6]+"'");
 								
 									File postEncodeFile = new File(AudioFile.getAudioFileLocation_PostEncode((long) Long.parseLong(audioToEncode[1]),audioToEncode[6]));
 									File gZippedFile = new File(AudioFile.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioToEncode[1]),AudioFile.getFileExtension(audioToEncode[6])));
-									
+
 									// just in case there's already a post-encoded file, delete it first
 									if (postEncodeFile.exists()) { postEncodeFile.delete(); }
-									
+
 									long encodeStartTime = System.currentTimeMillis();
-									
-									// perform audio encoding and set encoding duration
-									int encodeBitRate = -1;
-									try {
-										encodeBitRate = 
-											encodeAudioFile(
-													preEncodeFile, 
-													postEncodeFile, 
-													audioToEncode[6], 
-													(int) Integer.parseInt(audioToEncode[4]), 
-													(int) Integer.parseInt(audioToEncode[5]), 
-													prefsAudioEncodeQuality
-												);
-									} catch (Exception e) {
-										RfcxLog.logExc(logTag, e);
-									}
-									
+
+									// perform audio encoding and set encoding eventual bit rate
+									int encodeBitRate = 
+										AudioEncodeUtils.encodeAudioFile(
+											preEncodeFile, 								// source file
+											postEncodeFile, 							// target file
+											audioToEncode[6], 							// encoding codec
+											(int) Integer.parseInt(audioToEncode[4]), 	// encoding sample rate
+											(int) Integer.parseInt(audioToEncode[5]), 	// encoding target bitrate
+											prefsAudioEncodeQuality						// encoding quality
+										);
+
 									long encodeDuration = (System.currentTimeMillis() - encodeStartTime);
-									
+
 									if (encodeBitRate < 0) {
-										
+
 										app.audioEncodeDb.dbEncodeQueue.incrementSingleRowAttempts(audioToEncode[1]);
 										
 									} else {
-											
+
 										// delete pre-encode file
 										if (preEncodeFile.exists() && postEncodeFile.exists()) { preEncodeFile.delete(); }
-										
+
 										// generate file checksum of encoded file
 										String preZipDigest = FileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
-										
+
 										// GZIP encoded file into final location
 										GZipUtils.gZipFile(postEncodeFile, gZippedFile);
-										
+
 										// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
 										if (gZippedFile.exists()) {
-											
+
 											FileUtils.chmod(gZippedFile, 0777);
 											if (postEncodeFile.exists()) { postEncodeFile.delete(); }
-	
-											app.audioEncodeDb.dbEncoded.insert(
+
+											app.audioEncodeDb.dbEncoded
+												.insert(
 													audioToEncode[1], 
 													AudioFile.getFileExtension(audioToEncode[6]), 
 													preZipDigest, 
@@ -174,9 +169,9 @@ public class AudioEncodeService extends Service {
 													encodeDuration, 
 													gZippedFile.getAbsolutePath()
 												);
-											
+
 											app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(audioToEncode[1]);
-											
+
 											app.rfcxServiceHandler.triggerIntentServiceImmediately("CheckInTrigger");
 										}
 										
@@ -189,7 +184,7 @@ public class AudioEncodeService extends Service {
 								}
 							}
 					} else {
-						
+
 						if (app.deviceBattery.getBatteryChargePercentage(context,null) < prefsAudioBatteryCutoff) {
 							long extendEncodeLoopBy = (2 * prefsCaptureLoopPeriod) - prefsAudioEncodeCyclePause;
 							Log.i(logTag, "AudioEncode disabled due to low battery level"
@@ -212,30 +207,5 @@ public class AudioEncodeService extends Service {
 		}
 	}
 	
-	
-	private static int encodeAudioFile(File preEncodeFile, File postEncodeFile, String encodeCodec, int encodeSampleRate, int encodeBitRate, int encodeQuality) throws IOException {
-		
-		int encodeOutputBitRate = -1;
-		
-		if (preEncodeFile.exists()) {
-			if (encodeCodec.equalsIgnoreCase("opus")) {
-				FileUtils.copy(preEncodeFile, postEncodeFile);
-				encodeOutputBitRate = 1;
-			} else if (encodeCodec.equalsIgnoreCase("mp3")) {
-				FileUtils.copy(preEncodeFile, postEncodeFile);
-				encodeOutputBitRate = 1;
-			} else if (encodeCodec.equalsIgnoreCase("flac")) {
-				FLAC_FileEncoder flacEncoder = new FLAC_FileEncoder();
-				flacEncoder.adjustAudioConfig(encodeSampleRate, AudioFile.AUDIO_SAMPLE_SIZE, AudioFile.AUDIO_CHANNEL_COUNT);
-				flacEncoder.encode(preEncodeFile, postEncodeFile);
-				encodeOutputBitRate = 0;
-			} else {
-				FileUtils.copy(preEncodeFile, postEncodeFile);
-				encodeOutputBitRate = encodeBitRate;
-			}
-		}
-		
-		return encodeOutputBitRate;
-	}
 
 }

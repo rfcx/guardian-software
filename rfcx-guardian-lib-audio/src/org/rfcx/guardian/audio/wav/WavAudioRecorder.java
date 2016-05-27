@@ -15,7 +15,8 @@ public class WavAudioRecorder {
 		WavAudioRecorder result = null;
 		do {
 			result = new WavAudioRecorder( 
-					true, AudioSource.MIC, audioSampleRate,
+					true, AudioSource.MIC, 
+					audioSampleRate,
 					AudioFormat.CHANNEL_CONFIGURATION_MONO,
 					AudioFormat.ENCODING_PCM_16BIT
 				);

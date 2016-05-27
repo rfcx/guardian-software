@@ -3,7 +3,7 @@ package org.rfcx.guardian.audio.service;
 import java.io.File;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.audio.capture.AudioCapture;
+import org.rfcx.guardian.audio.utils.AudioCaptureUtils;
 import org.rfcx.guardian.utility.audio.AudioFile;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -47,7 +47,7 @@ public class AudioEncodeTriggerIntentService extends IntentService {
 			boolean encodeOnCapture = encodeCodec.equalsIgnoreCase("aac");
 			String captureFileExtension = (encodeOnCapture) ? "m4a" : "wav";
 			
-			if (AudioCapture.reLocateAudioCaptureFile(context, captureTimeStampQueue[0], captureFileExtension)) {
+			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, captureTimeStampQueue[0], captureFileExtension)) {
 				
 				String preEncodeFilePath = AudioFile.getAudioFileLocation_PreEncode(captureTimeStampQueue[0],captureFileExtension);
 				

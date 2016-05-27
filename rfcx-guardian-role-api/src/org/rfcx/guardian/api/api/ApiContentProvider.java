@@ -96,7 +96,8 @@ public class ApiContentProvider extends ContentProvider {
 						values.getAsString("bitrate"),
 						values.getAsString("codec"),
 						values.getAsString("duration"),
-						values.getAsString("encode_duration")
+						values.getAsString("encode_duration"),
+						values.getAsString("cbr_or_vbr")
 				};
 				
 				if (app.apiWebCheckIn.addCheckInToQueue(audioInfo, values.getAsString("filepath"))) {

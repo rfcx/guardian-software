@@ -95,7 +95,7 @@ public class ApiWebCheckIn {
 
 		// serialize audio info into JSON for checkin queue insertion
 		String queueJson = generateCheckInQueueJson(audioInfo);
-		
+	
 		// add audio info to checkin queue
 		app.checkInDb.dbQueued.insert(
 					audioInfo[1]+"."+audioInfo[2],

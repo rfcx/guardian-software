@@ -1,7 +1,7 @@
 package org.rfcx.guardian.audio.service;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.audio.capture.AudioCapture;
+import org.rfcx.guardian.audio.utils.AudioCaptureUtils;
 import org.rfcx.guardian.audio.wav.WavAudioRecorder;
 import org.rfcx.guardian.utility.audio.AudioFile;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -72,7 +72,7 @@ public class AudioCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			app.audioCapture = new AudioCapture(context);
+			app.audioCapture = new AudioCaptureUtils(context);
 			app.audioCapture.captureTimeStampQueue = new long[] { 0, 0 };
 			
 			AudioFile.cleanupCaptureDirectory(context);
@@ -100,7 +100,7 @@ public class AudioCaptureService extends Service {
 							
 							if (encodeOnCapture) {
 								
-								MediaRecorder recorder = AudioCapture.getAacRecorder(captureDir, timeStamp, captureFileExtension, prefsEncodingBitRate, prefsAudioSampleRate);
+								MediaRecorder recorder = AudioCaptureUtils.getAacRecorder(captureDir, timeStamp, captureFileExtension, prefsEncodingBitRate, prefsAudioSampleRate);
 								recorder.start();
 								if (app.audioCapture.updateCaptureTimeStampQueue(timeStamp)) { 
 									app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioEncodeTrigger");
@@ -112,7 +112,7 @@ public class AudioCaptureService extends Service {
 								
 							} else {
 								
-								WavAudioRecorder recorder = AudioCapture.getWavRecorder(captureDir, timeStamp, captureFileExtension, prefsAudioSampleRate);
+								WavAudioRecorder recorder = AudioCaptureUtils.getWavRecorder(captureDir, timeStamp, captureFileExtension, prefsAudioSampleRate);
 								recorder.start();
 								if (app.audioCapture.updateCaptureTimeStampQueue(timeStamp)) { 
 									app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioEncodeTrigger");

@@ -44,6 +44,7 @@ public class CheckInTriggerIntentService extends IntentService {
 			lastAudioValues.put("codec", encodedAudio[6]);
 			lastAudioValues.put("duration", encodedAudio[7]);
 			lastAudioValues.put("encode_duration", encodedAudio[8]);
+			lastAudioValues.put("cbr_or_vbr", "cbr");
 			lastAudioValues.put("filepath", encodedAudio[9]);
 
 			Uri queuedCheckInUri = getContentResolver().insert( Uri.parse(RfcxRole.ContentProvider.api.URI_CHECKIN), lastAudioValues );

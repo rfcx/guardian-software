@@ -1,9 +1,9 @@
 package org.rfcx.guardian.audio;
 
-import org.rfcx.guardian.audio.capture.AudioCapture;
 import org.rfcx.guardian.audio.service.AudioCaptureService;
 import org.rfcx.guardian.audio.service.AudioEncodeTriggerIntentService;
 import org.rfcx.guardian.audio.service.ServiceMonitorIntentService;
+import org.rfcx.guardian.audio.utils.AudioCaptureUtils;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
@@ -27,7 +27,7 @@ public class RfcxGuardian extends Application {
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
 	
-	public AudioCapture audioCapture = null;
+	public AudioCaptureUtils audioCapture = null;
 	
 	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 	

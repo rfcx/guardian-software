@@ -1,4 +1,4 @@
-package org.rfcx.guardian.audio.capture;
+package org.rfcx.guardian.audio.utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,14 +12,14 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import android.content.Context;
 import android.media.MediaRecorder;
 
-public class AudioCapture {
+public class AudioCaptureUtils {
 
-	public AudioCapture(Context context) {
+	public AudioCaptureUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 		AudioFile.initializeAudioDirectories(context);
 	}
 	
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioCapture.class.getSimpleName();
+	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioCaptureUtils.class.getSimpleName();
 
 	private RfcxGuardian app = null;
 	
@@ -73,7 +73,7 @@ public class AudioCapture {
 				if (preEncodeFile.exists()) { captureFile.delete(); }	
 				isFileMoved = preEncodeFile.exists();
 			} catch (IOException e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			}
 		}
 		return isFileMoved;

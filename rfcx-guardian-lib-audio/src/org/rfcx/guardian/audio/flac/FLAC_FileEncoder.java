@@ -173,7 +173,7 @@ public class FLAC_FileEncoder {
 //        }
 
 
-        FileInputStream sin=null;
+        FileInputStream sin = null;
         try {
             sin = new FileInputStream(inputFile);
         } catch (FileNotFoundException e1) {

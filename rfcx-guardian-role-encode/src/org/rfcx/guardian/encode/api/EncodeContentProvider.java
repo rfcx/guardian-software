@@ -85,7 +85,7 @@ public class EncodeContentProvider extends ContentProvider {
 				
 			} else if (URI_MATCHER.match(uri) == ENDPOINT_ENCODED_ID) {
 				String[] audioFromDb = app.audioEncodeDb.dbEncoded.getSingleRowByAudioId(uri.getLastPathSegment());
-				app.audioEncodeDb.dbEncoded.deleteSingleRow(audioFromDb[1]);
+				if (audioFromDb[1] != null) { app.audioEncodeDb.dbEncoded.deleteSingleRow(audioFromDb[1]); }
 				return 1;
 			}
 		} catch (Exception e) {
