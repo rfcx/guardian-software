@@ -25,7 +25,7 @@ import android.util.Log;
 
 public class HttpGet {
 
-	private static final String TAG = "Rfcx-Utils-"+HttpGet.class.getSimpleName();
+	private static final String logTag = "Rfcx-Utils-"+HttpGet.class.getSimpleName();
 	private static final String DOWNLOAD_TIME_LABEL = "Download time: ";
 	
 	// These hard coded timeout values are just defaults.
@@ -56,11 +56,11 @@ public class HttpGet {
 	public JSONObject getAsJson(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(TAG,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
+		Log.v(logTag,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
 		try {
 			return new JSONObject(str);
 		} catch (JSONException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return null;
 	}
@@ -72,7 +72,7 @@ public class HttpGet {
 	public List<JSONObject> getAsJsonList(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(TAG,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
+		Log.v(logTag,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
 		try {
 			List<JSONObject> jsonArray = new ArrayList<JSONObject>();
 			JSONArray jsonAll = new JSONArray(str);
@@ -81,7 +81,7 @@ public class HttpGet {
 			}
 			return jsonArray;
 		} catch (JSONException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return null;
 	}
@@ -93,7 +93,7 @@ public class HttpGet {
 	public String getAsString(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(TAG,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
+		Log.v(logTag,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
 		return str;
 	}
 	
@@ -108,13 +108,13 @@ public class HttpGet {
 		for (String[] keyValue : keyValueParameters) {
 			url.append(keyValue[0]).append("=").append(keyValue[1]).append("&");
 		}
-		Log.v(TAG,"HTTP GET: "+url.toString());
+		Log.v(logTag,"HTTP GET: "+url.toString());
 		FileOutputStream fileOutputStream = httpGetFileOutputStream(outputFileName,context);
 		InputStream inputStream = httpGetFileInputStream(url.toString());
 		if ((inputStream != null) && (fileOutputStream != null)) {
 			writeFileResponseStream(inputStream,fileOutputStream);
 			closeInputOutputStreams(inputStream,fileOutputStream);
-			Log.v(TAG,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
+			Log.v(logTag,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
 			return (new File(context.getFilesDir(), outputFileName)).exists();
 		}
 		return false;
@@ -130,7 +130,7 @@ public class HttpGet {
 		for (String[] keyValue : keyValueParameters) {
 			url.append(keyValue[0]).append("=").append(keyValue[1]).append("&");
 		}
-		Log.v(TAG,"HTTP GET: "+url.toString());
+		Log.v(logTag,"HTTP GET: "+url.toString());
 		return executeGet(url.toString());
 	}
     
@@ -142,10 +142,10 @@ public class HttpGet {
 			} else if (inferredProtocol.equals("https")) {
 				return sendSecureGetRequest((new URL(fullUrl)));
 			} else {
-				Log.e(TAG, "Inferred protocol was neither HTTP nor HTTPS.");
+				Log.e(logTag, "Inferred protocol was neither HTTP nor HTTPS.");
 			}
 		} catch (MalformedURLException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return null;
 	}
@@ -165,10 +165,10 @@ public class HttpGet {
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 	            return readResponseStream(conn.getInputStream());
 	        } else {
-	        	Log.e(TAG, "HTTP Code: "+conn.getResponseCode());
+	        	Log.e(logTag, "HTTP Code: "+conn.getResponseCode());
 	        }
 	    } catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 	    }
 	    return null;        
 	}
@@ -188,10 +188,10 @@ public class HttpGet {
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
 	            return readResponseStream(conn.getInputStream());
 	        } else {
-	        	Log.e(TAG, "HTTP Code: "+conn.getResponseCode());
+	        	Log.e(logTag, "HTTP Code: "+conn.getResponseCode());
 	        }
 	    } catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 	    }
 	    return null;    
 	}
@@ -206,13 +206,13 @@ public class HttpGet {
 	            stringBuilder.append(currentLine);
 	        }
 	    } catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 	    } finally {
 	        if (bufferedReader != null) {
 	            try {
 	                bufferedReader.close();
 	            } catch (IOException e) {
-	    			RfcxLog.logExc(TAG, e);
+	    			RfcxLog.logExc(logTag, e);
 	            }
 	        }
 	    }
@@ -227,7 +227,7 @@ public class HttpGet {
 				fileOutputStream.write(buffer, 0, bufferLength);
 			}
 		} catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	}
 	
@@ -237,7 +237,7 @@ public class HttpGet {
 			fileOutputStream.flush();
 			fileOutputStream.close();
 		} catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	}
 	
@@ -247,7 +247,7 @@ public class HttpGet {
 		try {
 			return context.openFileOutput(fileName, Context.MODE_WORLD_READABLE|Context.MODE_WORLD_WRITEABLE);
 		} catch (FileNotFoundException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return null;
 	}
@@ -266,9 +266,9 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-		            Log.i(TAG, "Success ("+conn.getResponseCode()+"): "+fullUrl);
+		            Log.i(logTag, "Success ("+conn.getResponseCode()+"): "+fullUrl);
 			    } else {
-		            Log.i(TAG, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
+		            Log.i(logTag, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
 			    }
 		        return conn.getInputStream();
 			} else if (inferredProtocol.equals("http")) {
@@ -282,19 +282,19 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-		            Log.i(TAG, "Success ("+conn.getResponseCode()+"): "+fullUrl);
+		            Log.i(logTag, "Success ("+conn.getResponseCode()+"): "+fullUrl);
 			    } else {
-		            Log.i(TAG, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
+		            Log.i(logTag, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
 			    }
 		        return conn.getInputStream();
 			} else {
-				Log.e(TAG,"Inferred protocol was neither HTTP nor HTTPS.");
+				Log.e(logTag,"Inferred protocol was neither HTTP nor HTTPS.");
 				return null;
 			}
     	} catch (MalformedURLException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
     	} catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
     	}
 		return null;
 	}

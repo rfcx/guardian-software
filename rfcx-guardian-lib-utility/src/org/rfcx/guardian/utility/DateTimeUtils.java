@@ -11,7 +11,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DateTimeUtils {
 	
-	private static final String TAG = "Rfcx-Utils-"+DateTimeUtils.class.getSimpleName();
+	private static final String logTag = "Rfcx-Utils-"+DateTimeUtils.class.getSimpleName();
 	
 	private static final Locale DEFAULT_LOCALE = Locale.getDefault();
 	private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", DEFAULT_LOCALE);
@@ -38,7 +38,7 @@ public class DateTimeUtils {
 		try {
 			return DATETIME_FORMAT.parse(dateString);
 		} catch (ParseException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return null;
 	}
@@ -67,7 +67,7 @@ public class DateTimeUtils {
 	public static Calendar nowPlusThisLong(int hours, int minutes, int seconds) {
 		long rightNowPlus = System.currentTimeMillis() + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000);
 		Calendar nowPlusCalendar = Calendar.getInstance();
-		try { nowPlusCalendar.setTimeInMillis(rightNowPlus); } catch (Exception e) { RfcxLog.logExc(TAG, e); }
+		try { nowPlusCalendar.setTimeInMillis(rightNowPlus); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		return nowPlusCalendar;
 	}
 

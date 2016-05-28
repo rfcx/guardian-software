@@ -35,9 +35,10 @@ import android.util.Log;
  * }
  * </pre>
  */
-public class SntpClient
-{
-	private static final String TAG = "Rfcx-Utils-"+SntpClient.class.getSimpleName();
+
+public class SntpClient {
+	
+	private static final String logTag = "Rfcx-Utils-"+SntpClient.class.getSimpleName();
 
     private static final int REFERENCE_TIME_OFFSET = 16;
     private static final int ORIGINATE_TIME_OFFSET = 24;
@@ -119,7 +120,7 @@ public class SntpClient
             mNtpTimeReference = responseTicks;
             mRoundTripTime = roundTripTime;
         } catch (Exception e) {
-            if (false) Log.d(TAG, "request time failed: " + e);
+            if (false) Log.d(logTag, "request time failed: " + e);
             return false;
         } finally {
             if (socket != null) {

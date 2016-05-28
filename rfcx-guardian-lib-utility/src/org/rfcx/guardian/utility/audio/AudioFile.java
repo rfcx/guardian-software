@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class AudioFile {
 
-	private static final String TAG = "Rfcx-Utils-"+AudioFile.class.getSimpleName();
+	private static final String logTag = "Rfcx-Utils-"+AudioFile.class.getSimpleName();
 	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
 	
@@ -79,9 +79,9 @@ public class AudioFile {
 	public static void purgeSingleAudioAssetFromDisk(String audioTimestamp, String audioFileExtension) {
 		try {
 			(new File(getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();
-			Log.d(TAG, "Purging audio asset: "+audioTimestamp+"."+audioFileExtension);
+			Log.d(logTag, "Purging audio asset: "+audioTimestamp+"."+audioFileExtension);
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	}
 	

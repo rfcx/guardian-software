@@ -9,7 +9,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 
 public class RfcxRole {
 
-	private static final String TAG = "Rfcx-Utils-"+RfcxRole.class.getSimpleName();
+	private static final String logTag = "Rfcx-Utils-"+RfcxRole.class.getSimpleName();
 	
 	public static final String[] 
 			
@@ -111,7 +111,7 @@ public class RfcxRole {
 		try {
 			version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName.trim();
 		} catch (NameNotFoundException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return version;
 	}
@@ -123,7 +123,7 @@ public class RfcxRole {
 			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
 			return 1000*majorVersion+100*subVersion+updateVersion;
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return 0;
 	}

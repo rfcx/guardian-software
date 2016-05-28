@@ -16,7 +16,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class FileUtils {
 	
-	private static final String TAG = "Rfcx-Utils-"+FileUtils.class.getSimpleName();
+	private static final String logTag = "Rfcx-Utils-"+FileUtils.class.getSimpleName();
 	
 	public static String sha1Hash(String filePath) {
 		try {
@@ -35,13 +35,13 @@ public class FileUtils {
 		    }
 			return stringBuilder.toString();
 		} catch (NoSuchAlgorithmException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (FileNotFoundException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return null;
 	}
@@ -52,19 +52,19 @@ public class FileUtils {
 			Method setPermissions = fileUtils.getMethod("setPermissions", String.class, int.class, int.class, int.class);
 			return (Integer) setPermissions.invoke(null, file.getAbsolutePath(), mode, -1, -1);
 		} catch (ClassNotFoundException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (SecurityException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (NoSuchMethodException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (IllegalArgumentException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (IllegalAccessException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (InvocationTargetException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return 0;
 	}

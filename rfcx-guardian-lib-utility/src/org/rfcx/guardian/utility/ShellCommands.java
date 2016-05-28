@@ -14,10 +14,10 @@ import android.util.Log;
 
 public class ShellCommands {
 
-	private static final String TAG = "Rfcx-Utils-"+ShellCommands.class.getSimpleName();
+	private static final String logTag = "Rfcx-Utils-"+ShellCommands.class.getSimpleName();
 	
 	public static void killProcessByName(Context context, String searchTerm, String excludeTerm) {
-		Log.i(TAG, "Attempting to kill process associated with search term '"+searchTerm+"'.");
+		Log.i(logTag, "Attempting to kill process associated with search term '"+searchTerm+"'.");
 		String grepExclude = (excludeTerm != null) ? " grep -v "+excludeTerm+" |" : "";
 		executeCommand("kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)", null, true, context);
 	}
@@ -52,12 +52,12 @@ public class ShellCommands {
 		    		commandSuccess = true;
 		    	}
 		    } else {
-		    	Log.e(TAG,"Shell script could not be located for execution");
+		    	Log.e(logTag,"Shell script could not be located for execution");
 		    }
 	    } catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 	    } catch (InterruptedException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	    return commandSuccess;
 	}

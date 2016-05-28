@@ -14,7 +14,7 @@ import android.util.Base64;
 
 public class GZipUtils {
 
-	private static final String TAG = "Rfcx-Utils-"+GZipUtils.class.getSimpleName();
+	private static final String logTag = "Rfcx-Utils-"+GZipUtils.class.getSimpleName();
 	
 	public static String gZipStringToBase64(String inputString) {
 		return Base64.encodeToString(gZipString(inputString),Base64.DEFAULT);
@@ -27,13 +27,13 @@ public class GZipUtils {
 			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
 			gZIPOutputStream.write(inputString.getBytes("UTF-8"));
 		} catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} finally { 
 			if (gZIPOutputStream != null) {
 				try { 
 					gZIPOutputStream.close();
 				} catch (IOException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				};
 			}
 		}
@@ -61,9 +61,9 @@ public class GZipUtils {
             fileInputStream.close();
             
 		} catch (FileNotFoundException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	}
 	

@@ -29,7 +29,7 @@ import android.util.Log;
 
 public class HttpPostMultipart {
 
-	private static final String TAG = "Rfcx-Utils-"+HttpPostMultipart.class.getSimpleName();
+	private static final String logTag = "Rfcx-Utils-"+HttpPostMultipart.class.getSimpleName();
 
 	// These hard coded timeout values are just defaults.
 	// They may be customized through the setTimeOuts method.
@@ -76,9 +76,9 @@ public class HttpPostMultipart {
 				requestEntity.addPart(keyValue[0], new StringBody(URLEncoder.encode(keyValue[1], "UTF-8")));
 			}
 		} catch (UnsupportedEncodingException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return executeMultipartPost(fullUrl, requestEntity);
 	}
@@ -91,11 +91,11 @@ public class HttpPostMultipart {
 			} else if (inferredProtocol.equals("https")) {
 				return sendSecurePostRequest((new URL(fullUrl)), requestEntity);
 			} else {
-				Log.e(TAG,"Inferred protocol was neither HTTP nor HTTPS.");
+				Log.e(logTag,"Inferred protocol was neither HTTP nor HTTPS.");
 				return "";
 			}
 		} catch (MalformedURLException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 			return "";
 		}
 	}
@@ -119,18 +119,18 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	            Log.d(TAG, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
+	            Log.d(logTag, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
 		    } else {
-	            Log.e(TAG, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
+	            Log.e(logTag, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
 		    }
 		    return readResponseStream(conn.getInputStream());
 	    } catch (UnknownHostException e) {
-			RfcxLog.logExc(TAG, e);
-			return TAG+"-UnknownHostException";
+			RfcxLog.logExc(logTag, e);
+			return logTag+"-UnknownHostException";
 	    } catch (ProtocolException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 	    } catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	    return "";        
 	}
@@ -153,18 +153,18 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-	            Log.d(TAG, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
+	            Log.d(logTag, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
 		    } else {
-	            Log.e(TAG, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
+	            Log.e(logTag, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
 		    }
 	        return readResponseStream(conn.getInputStream());
 	    } catch (UnknownHostException e) {
-			RfcxLog.logExc(TAG, e);
-			return TAG+"-UnknownHostException";
+			RfcxLog.logExc(logTag, e);
+			return logTag+"-UnknownHostException";
 	    } catch (ProtocolException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 	    } catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	    return "";        
 	}
@@ -179,13 +179,13 @@ public class HttpPostMultipart {
 	            stringBuilder.append(currentLine);
 	        }
 	    } catch (IOException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 	    } finally {
 	        if (bufferedReader != null) {
 	            try {
 	                bufferedReader.close();
 	            } catch (IOException e) {
-	    			RfcxLog.logExc(TAG, e);
+	    			RfcxLog.logExc(logTag, e);
 	            }
 	        }
 	    }

@@ -27,8 +27,7 @@ public class RfcxServiceHandler {
 	private Map<String, boolean[]> svcRunStates = new HashMap<String, boolean[]>();
 	private Map<String, boolean[]> svcAbsoluteRunStates = new HashMap<String, boolean[]>();
 	
-	// svcLastActiveAt is not very well implemented yet... 
-	// ...in that most services don't use/update this value
+	// ...in that most services don't use/update this value yet
 	// ...and it's not yet clear how it would be used in full
 	private Map<String, long[]> svcLastReportedActiveAt = new HashMap<String, long[]>();
 
