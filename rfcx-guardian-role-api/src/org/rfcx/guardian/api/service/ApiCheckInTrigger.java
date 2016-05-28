@@ -68,6 +68,7 @@ public class ApiCheckInTrigger extends Service {
 			app = (RfcxGuardian) getApplication();
 
 			long apiCheckInTriggerCyclePause = (long) (3 * app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause"));
+			long apiCheckInLoopTimeOut = (long) (3 * app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
 			
 			try {
 				Log.d(TAG, "ApiCheckTrigger Period: "+ apiCheckInTriggerCyclePause +"ms");
@@ -77,7 +78,7 @@ public class ApiCheckInTrigger extends Service {
 					
 					try {
 				        Thread.sleep(apiCheckInTriggerCyclePause);
-						app.rfcxServiceHandler.triggerService("ApiCheckIn", false);
+				        app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckIn", apiCheckInLoopTimeOut);
 						app.apiWebCheckIn.connectivityToggleCheck();
 
 					} catch (Exception e) {
