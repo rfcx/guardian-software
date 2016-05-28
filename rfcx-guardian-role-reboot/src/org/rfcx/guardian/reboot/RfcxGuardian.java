@@ -1,6 +1,6 @@
 package org.rfcx.guardian.reboot;
 
-import org.rfcx.guardian.reboot.service.RebootIntentService;
+import org.rfcx.guardian.reboot.service.RebootTriggerIntentService;
 import org.rfcx.guardian.reboot.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
@@ -60,7 +60,7 @@ public class RfcxGuardian extends Application {
 			this.rfcxServiceHandler.triggerServiceSequence(
 				"OnLaunchServiceSequence", 
 					new String[] { 
-						"RebootIntentService"
+						"RebootTrigger"
 								+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
 								+"|"+"norepeat"
 //						"ServiceMonitor"
@@ -77,7 +77,7 @@ public class RfcxGuardian extends Application {
 
 	private void setServiceHandlers() {
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitorIntentService.class);
-		this.rfcxServiceHandler.addService("RebootIntentService", RebootIntentService.class);
+		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerIntentService.class);
 	}
     
 }

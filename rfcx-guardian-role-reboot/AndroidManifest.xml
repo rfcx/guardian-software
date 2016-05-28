@@ -52,7 +52,7 @@
 
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.reboot.service.ServiceMonitorIntentService" />
-        <service android:name="org.rfcx.guardian.reboot.service.RebootIntentService" />
+        <service android:name="org.rfcx.guardian.reboot.service.RebootTriggerIntentService" />
 
         <activity
             android:name="org.rfcx.guardian.reboot.activity.MainActivity"

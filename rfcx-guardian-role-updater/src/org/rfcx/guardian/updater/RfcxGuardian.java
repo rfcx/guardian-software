@@ -6,7 +6,7 @@ import org.rfcx.guardian.updater.service.ApiCheckVersionIntentService;
 import org.rfcx.guardian.updater.service.ApiCheckVersionService;
 import org.rfcx.guardian.updater.service.DownloadFileService;
 import org.rfcx.guardian.updater.service.InstallAppService;
-import org.rfcx.guardian.updater.service.RebootIntentService;
+import org.rfcx.guardian.updater.service.RebootTriggerIntentService;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -105,7 +105,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("ApiCheckVersionIntentService", ApiCheckVersionIntentService.class);
 		this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
 		this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
-		this.rfcxServiceHandler.addService("RebootIntentService", RebootIntentService.class);
+		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerIntentService.class);
 	}
 
 

@@ -7,6 +7,7 @@ import org.rfcx.guardian.audio.utils.AudioCaptureUtils;
 import org.rfcx.guardian.utility.audio.AudioFile;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
+import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
 import android.content.ContentValues;
@@ -20,18 +21,15 @@ public class AudioEncodeTriggerIntentService extends IntentService {
 	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncodeTriggerIntentService.class.getSimpleName();
 	
 	private static final String SERVICE_NAME = "AudioEncodeTrigger";
-	
-	public static final String INTENT_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".AUDIO_ENCODE_TRIGGER";
-	public static final String NOTIFICATION_TAG = "org.rfcx.guardian."+RfcxGuardian.APP_ROLE.toLowerCase()+".RECEIVE_AUDIO_ENCODE_TRIGGER_NOTIFICATIONS";
-	
+		
 	public AudioEncodeTriggerIntentService() {
 		super(logTag);
 	}
 
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		Intent intent = new Intent(INTENT_TAG);
-		sendBroadcast(intent, NOTIFICATION_TAG);
+		Intent intent = new Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
+		sendBroadcast(intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
 
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();

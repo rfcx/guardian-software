@@ -30,8 +30,18 @@ public class RfcxServiceHandler {
 	// svcLastActiveAt is not very well implemented yet... 
 	// ...in that most services don't use/update this value
 	// ...and it's not yet clear how it would be used in full
-	private Map<String, long[]> svcLastActiveAt = new HashMap<String, long[]>();
+	private Map<String, long[]> svcLastReportedActiveAt = new HashMap<String, long[]>();
 
+	public static String intentServiceTags(boolean isNotificationTag, String appRole, String svcName) {
+		return (new StringBuilder())
+				.append("org.rfcx.guardian.")
+				.append(appRole.toLowerCase(Locale.US))
+				.append( isNotificationTag ? ".RECEIVE_" : "." )
+				.append(svcName.toUpperCase(Locale.US))
+				.append( isNotificationTag ? "_NOTIFICATIONS" : "" )
+				.toString();
+	}
+	
 	public void triggerService(String[] svcToTrigger, boolean forceReTrigger) {
 		
 		String svcName = svcToTrigger[0];
@@ -177,17 +187,17 @@ public class RfcxServiceHandler {
 		this.svcAbsoluteRunStates.put(svcId, new boolean[] { hasRun } );
 	}
 	
-	public void setLastActiveAt(String svcName, long lastActiveAt) {
+	public void reportAsActive(String svcName) {
 		
 		String svcId = svcName.toLowerCase(Locale.US);
-		this.svcLastActiveAt.put(svcId, new long[] { lastActiveAt } );
+		this.svcLastReportedActiveAt.put(svcId, new long[] { System.currentTimeMillis() } );
 	}
 	
-	public long getLastActiveAt(String svcName) {
+	public long getLastReportedActiveAt(String svcName) {
 		
 		String svcId = svcName.toLowerCase(Locale.US);
-		if (this.svcLastActiveAt.containsKey(svcId)) {
-			return this.svcLastActiveAt.get(svcId)[0];
+		if (this.svcLastReportedActiveAt.containsKey(svcId)) {
+			return this.svcLastReportedActiveAt.get(svcId)[0];
 		} else {
 			return 0;
 		}
@@ -199,6 +209,17 @@ public class RfcxServiceHandler {
 		this.svcClasses.put(svcId, svcClass);
 		setRunState(svcName, false);
 		setAbsoluteRunState(svcName, false);
+	}
+	
+	public void triggerOrForceReTriggerIfTimedOut(String svcName, long timeOutDuration) {
+
+		long lastActiveAt = getLastReportedActiveAt(svcName);
+		if ((lastActiveAt > 0) && ((System.currentTimeMillis() - lastActiveAt) > timeOutDuration)) {
+			Log.e(logTag, "Service '"+svcName+"' timed out... Forcing re-trigger...");
+			triggerService(svcName, true);
+		} else {
+			triggerService(svcName, false);
+		}
 	}
 	
 }

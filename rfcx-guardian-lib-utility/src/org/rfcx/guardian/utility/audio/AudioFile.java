@@ -86,17 +86,32 @@ public class AudioFile {
 	}
 	
 	public static String getFileExtension(String audioCodecOrFileExtension) {
-		String fileExtension = "wav";
-		if (audioCodecOrFileExtension.equalsIgnoreCase("aac") || audioCodecOrFileExtension.equalsIgnoreCase("m4a")) {
-			fileExtension = "m4a";
-		} else if (audioCodecOrFileExtension.equalsIgnoreCase("opus")) {
-			fileExtension = "opus";
-		} else if (audioCodecOrFileExtension.equalsIgnoreCase("mp3")) {
-			fileExtension = "mp3";
-		} else if (audioCodecOrFileExtension.equalsIgnoreCase("flac")) {
-			fileExtension = "flac";
+
+		if 	(		audioCodecOrFileExtension.equalsIgnoreCase("opus")
+				||	audioCodecOrFileExtension.equalsIgnoreCase("flac")
+				||	audioCodecOrFileExtension.equalsIgnoreCase("mp3")
+			) {
+			
+			return audioCodecOrFileExtension;
+			
+		} else if (	audioCodecOrFileExtension.equalsIgnoreCase("aac")
+				||	audioCodecOrFileExtension.equalsIgnoreCase("m4a")
+				) {
+			
+			return "m4a";
+			
+		} else {
+			
+			return "wav";
+			
 		}
-		return fileExtension;
+	}
+	
+	public static boolean isEncodedWithVbr(String audioCodecOrFileExtension) {
+		return (	audioCodecOrFileExtension.equalsIgnoreCase("opus")
+				||	audioCodecOrFileExtension.equalsIgnoreCase("flac")
+				||	audioCodecOrFileExtension.equalsIgnoreCase("mp3")
+				);
 	}
 	
 }

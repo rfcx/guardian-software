@@ -51,7 +51,7 @@
         >
 
         <service android:name="org.rfcx.guardian.setup.service.ApiCheckVersionIntentService" />
-        <service android:name="org.rfcx.guardian.setup.service.RebootIntentService" />
+        <service android:name="org.rfcx.guardian.setup.service.RebootTriggerIntentService" />
         <service android:name="org.rfcx.guardian.setup.service.DownloadFileService" />
         <service android:name="org.rfcx.guardian.setup.service.ApiCheckVersionService" />
         <service android:name="org.rfcx.guardian.setup.service.ApiRegisterService" />

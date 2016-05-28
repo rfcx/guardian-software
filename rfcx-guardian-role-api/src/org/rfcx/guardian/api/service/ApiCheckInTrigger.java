@@ -66,14 +66,17 @@ public class ApiCheckInTrigger extends Service {
 			ApiCheckInTrigger apiCheckInTrigger = ApiCheckInTrigger.this;
 			
 			app = (RfcxGuardian) getApplication();
-			
-			long prefsApiCheckInTriggerCyclePause = 15000; //(long) (3 * app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause"));
+
+			long apiCheckInTriggerCyclePause = (long) (3 * app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause"));
 			
 			try {
-				Log.d(TAG, "ApiCheckTrigger Period: "+ prefsApiCheckInTriggerCyclePause +"ms");
+				Log.d(TAG, "ApiCheckTrigger Period: "+ apiCheckInTriggerCyclePause +"ms");
 				while (apiCheckInTrigger.runFlag) {
+					
+					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					
 					try {
-				        Thread.sleep(prefsApiCheckInTriggerCyclePause);
+				        Thread.sleep(apiCheckInTriggerCyclePause);
 						app.rfcxServiceHandler.triggerService("ApiCheckIn", false);
 						app.apiWebCheckIn.connectivityToggleCheck();
 

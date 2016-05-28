@@ -77,13 +77,11 @@ public class ApiCheckInService extends Service {
 			
 			while (serviceInstance.runFlag) {
 				
-				app.rfcxServiceHandler.setLastActiveAt(SERVICE_NAME, System.currentTimeMillis());
-				
-				String[] currentCheckIn = new String[] {null,null,null};
+				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 				
 				try {
 					
-					currentCheckIn = app.checkInDb.dbQueued.getLatestRow();	
+					String[] currentCheckIn = app.checkInDb.dbQueued.getLatestRow();	
 										
 					// only proceed with check in process if:
 					if (	// 1) there is a pending check in in the database

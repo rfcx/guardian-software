@@ -15,7 +15,7 @@ import org.rfcx.guardian.setup.service.ApiRegisterService;
 import org.rfcx.guardian.setup.service.DeviceCPUTunerService;
 import org.rfcx.guardian.setup.service.DownloadFileService;
 import org.rfcx.guardian.setup.service.InstallAppService;
-import org.rfcx.guardian.setup.service.RebootIntentService;
+import org.rfcx.guardian.setup.service.RebootTriggerIntentService;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.ShellCommands;
@@ -139,7 +139,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
 		this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
 		this.rfcxServiceHandler.addService("ApiRegister", ApiRegisterService.class);
-		this.rfcxServiceHandler.addService("RebootIntentService", RebootIntentService.class);
+		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerIntentService.class);
 	}
 	
 	

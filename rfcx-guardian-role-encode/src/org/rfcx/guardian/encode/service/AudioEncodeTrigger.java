@@ -66,15 +66,19 @@ public class AudioEncodeTrigger extends Service {
 			AudioEncodeTrigger audioEncodeTrigger = AudioEncodeTrigger.this;
 			
 			app = (RfcxGuardian) getApplication();
-			
-			long prefsAudioEncodeTriggerCyclePause = 15000; //(long) (3 * app.rfcxPrefs.getPrefAsInt("audio_encode_cycle_pause"));
+
+			long audioEncodeTriggerCyclePause = (long) (3 * app.rfcxPrefs.getPrefAsInt("audio_encode_cycle_pause"));
+			long audioEncodeLoopTimeOut = (long) (3 * app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
 			
 			try {
-				Log.d(TAG, "AudioEncodeTrigger Period: "+ prefsAudioEncodeTriggerCyclePause +"ms");
+				Log.d(TAG, "AudioEncodeTrigger Period: "+ audioEncodeTriggerCyclePause +"ms");
 				while (audioEncodeTrigger.runFlag) {
+
+					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					
 					try {
-				        Thread.sleep(prefsAudioEncodeTriggerCyclePause);
-						app.rfcxServiceHandler.triggerService("AudioEncode", false);
+				        Thread.sleep(audioEncodeTriggerCyclePause);
+				        app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncode", audioEncodeLoopTimeOut);
 
 					} catch (Exception e) {
 						RfcxLog.logExc(TAG, e);

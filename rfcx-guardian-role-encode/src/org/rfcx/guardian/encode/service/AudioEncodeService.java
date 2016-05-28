@@ -84,7 +84,7 @@ public class AudioEncodeService extends Service {
 			
 			while (serviceInstance.runFlag) {
 				
-				app.rfcxServiceHandler.setLastActiveAt(SERVICE_NAME, System.currentTimeMillis());
+				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 			
 				try {
 					
