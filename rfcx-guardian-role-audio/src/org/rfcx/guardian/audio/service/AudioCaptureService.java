@@ -75,8 +75,7 @@ public class AudioCaptureService extends Service {
 			app.audioCapture = new AudioCaptureUtils(context);
 			app.audioCapture.captureTimeStampQueue = new long[] { 0, 0 };
 			
-			AudioFile.cleanupCaptureDirectory(context);
-			AudioFile.cleanupEncodeDirectory();
+			AudioCaptureUtils.cleanupCaptureDirectory(context);
 			String captureDir = AudioFile.captureDir(context);
 
 			

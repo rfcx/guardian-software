@@ -30,26 +30,6 @@ public class AudioFile {
 		(new File(postZipDir())).mkdirs(); FileUtils.chmod(postZipDir(), 0777);
 	}
 	
-	public static void cleanupCaptureDirectory(Context context) {
-		for (File file : (new File(captureDir(context))).listFiles()) {
-			try { 
-				file.delete();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			}
-		}
-	}
-	
-	public static void cleanupEncodeDirectory() {
-		for (File file : (new File(encodeDir())).listFiles()) {
-			try { 
-				file.delete();
-			} catch (Exception e) { 
-				RfcxLog.logExc(TAG, e);
-			}
-		}
-	}
-	
 	public static String appFilesDir(Context context) {
 		return context.getFilesDir().toString();
 	}

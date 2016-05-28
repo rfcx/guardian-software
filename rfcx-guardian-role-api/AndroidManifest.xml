@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.api"
     android:versionCode="1"
-    android:versionName="0.1.36" >
+    android:versionName="0.1.37" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -55,7 +55,7 @@
         <service android:name="org.rfcx.guardian.api.service.ApiCheckInTrigger" />
         
         <!-- IntentServices -->
-        <service android:name="org.rfcx.guardian.audio.service.ServiceMonitorIntentService" />
+        <service android:name="org.rfcx.guardian.api.service.ServiceMonitorIntentService" />
 
         <activity
             android:name="org.rfcx.guardian.api.activity.MainActivity"

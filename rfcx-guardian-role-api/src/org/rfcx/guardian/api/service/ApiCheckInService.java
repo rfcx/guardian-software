@@ -71,12 +71,16 @@ public class ApiCheckInService extends Service {
 			app = (RfcxGuardian) getApplication();
 			
 			int prefsCheckInSkipThreshold = app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold");
-			int prefCheckInCyclePause = app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause");
-			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+			long prefCheckInCyclePause = (long) app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause");
+			long prefsAudioCycleDuration = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			int prefsCheckInBatteryCutoff = app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff");
 			
 			while (serviceInstance.runFlag) {
+				
+				app.rfcxServiceHandler.setLastActiveAt(SERVICE_NAME, System.currentTimeMillis());
+				
 				String[] currentCheckIn = new String[] {null,null,null};
+				
 				try {
 					
 					currentCheckIn = app.checkInDb.dbQueued.getLatestRow();	

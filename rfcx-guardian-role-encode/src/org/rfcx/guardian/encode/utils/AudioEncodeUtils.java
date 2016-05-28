@@ -1,6 +1,7 @@
 package org.rfcx.guardian.encode.utils;
 
 import java.io.File;
+import java.util.List;
 
 import org.rfcx.guardian.audio.flac.FLAC_FileEncoder;
 import org.rfcx.guardian.encode.RfcxGuardian;
@@ -42,6 +43,29 @@ public class AudioEncodeUtils {
 		}
 		
 		return encodeOutputBitRate;
+	}
+	
+	public static void cleanupEncodeDirectory(List<String[]> queuedForEncode) {
+		
+		for (File file : (new File(AudioFile.encodeDir())).listFiles()) {
+			
+			boolean isQueuedForEncode = false;
+			
+			for (String[] queuedRow : queuedForEncode) {
+				if (file.getAbsolutePath().equalsIgnoreCase(queuedRow[9])) {
+					isQueuedForEncode = true;
+				}
+			}
+			
+			if (!isQueuedForEncode) {
+				try { 
+					file.delete();
+					Log.d(logTag, "Deleted "+file.getName()+" from encode directory...");
+				} catch (Exception e) { 
+					RfcxLog.logExc(logTag, e);
+				}
+			}
+		}
 	}
 	
 }

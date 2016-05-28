@@ -1,6 +1,6 @@
-package org.rfcx.guardian.api.service;
+package org.rfcx.guardian.encode.service;
 
-import org.rfcx.guardian.api.RfcxGuardian;
+import org.rfcx.guardian.encode.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -8,16 +8,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class ApiCheckInTrigger extends Service {
+public class AudioEncodeTrigger extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInTrigger.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncodeTrigger.class.getSimpleName();
 	
-	private static final String SERVICE_NAME = "ApiCheckInTrigger";
+	private static final String SERVICE_NAME = "AudioEncodeTrigger";
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private ApiCheckIn apiCheckInTrigger;
+	private AudioEncode audioEncodeTrigger;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -27,7 +27,7 @@ public class ApiCheckInTrigger extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.apiCheckInTrigger = new ApiCheckIn();
+		this.audioEncodeTrigger = new AudioEncode();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -38,7 +38,7 @@ public class ApiCheckInTrigger extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.apiCheckInTrigger.start();
+			this.audioEncodeTrigger.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(TAG, e);
 		}
@@ -50,47 +50,46 @@ public class ApiCheckInTrigger extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.apiCheckInTrigger.interrupt();
-		this.apiCheckInTrigger = null;
+		this.audioEncodeTrigger.interrupt();
+		this.audioEncodeTrigger = null;
 	}
 	
 	
-	private class ApiCheckIn extends Thread {
+	private class AudioEncode extends Thread {
 		
-		public ApiCheckIn() {
-			super("ApiCheckInTrigger-ApiCheckIn");
+		public AudioEncode() {
+			super("AudioEncodeTrigger-AudioEncode");
 		}
 		
 		@Override
 		public void run() {
-			ApiCheckInTrigger apiCheckInTrigger = ApiCheckInTrigger.this;
+			AudioEncodeTrigger audioEncodeTrigger = AudioEncodeTrigger.this;
 			
 			app = (RfcxGuardian) getApplication();
 			
-			long prefsApiCheckInTriggerCyclePause = 15000; //(long) (3 * app.rfcxPrefs.getPrefAsInt("checkin_cycle_pause"));
+			long prefsAudioEncodeTriggerCyclePause = 15000; //(long) (3 * app.rfcxPrefs.getPrefAsInt("audio_encode_cycle_pause"));
 			
 			try {
-				Log.d(TAG, "ApiCheckTrigger Period: "+ prefsApiCheckInTriggerCyclePause +"ms");
-				while (apiCheckInTrigger.runFlag) {
+				Log.d(TAG, "AudioEncodeTrigger Period: "+ prefsAudioEncodeTriggerCyclePause +"ms");
+				while (audioEncodeTrigger.runFlag) {
 					try {
-				        Thread.sleep(prefsApiCheckInTriggerCyclePause);
-						app.rfcxServiceHandler.triggerService("ApiCheckIn", false);
-						app.apiWebCheckIn.connectivityToggleCheck();
+				        Thread.sleep(prefsAudioEncodeTriggerCyclePause);
+						app.rfcxServiceHandler.triggerService("AudioEncode", false);
 
 					} catch (Exception e) {
 						RfcxLog.logExc(TAG, e);
 						app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-						apiCheckInTrigger.runFlag = false;
+						audioEncodeTrigger.runFlag = false;
 					}
 				}
 				Log.v(TAG, "Stopping service: "+TAG);
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				apiCheckInTrigger.runFlag = false;
+				audioEncodeTrigger.runFlag = false;
 				
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				apiCheckInTrigger.runFlag = false;
+				audioEncodeTrigger.runFlag = false;
 			}
 		}
 	}

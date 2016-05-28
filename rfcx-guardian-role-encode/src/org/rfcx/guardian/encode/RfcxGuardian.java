@@ -2,6 +2,7 @@ package org.rfcx.guardian.encode;
 
 import org.rfcx.guardian.encode.database.AudioEncodeDb;
 import org.rfcx.guardian.encode.service.AudioEncodeService;
+import org.rfcx.guardian.encode.service.AudioEncodeTrigger;
 import org.rfcx.guardian.encode.service.CheckInTriggerIntentService;
 import org.rfcx.guardian.encode.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.DateTimeUtils;
@@ -67,7 +68,7 @@ public class RfcxGuardian extends Application {
 			this.rfcxServiceHandler.triggerServiceSequence(
 				"OnLaunchServiceSequence", 
 					new String[] { 
-						"AudioEncode",
+						"AudioEncodeTrigger",
 						"ServiceMonitor"
 							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits one minute before running
 							+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
@@ -82,6 +83,7 @@ public class RfcxGuardian extends Application {
 	
 	private void setServiceHandlers() {
 		this.rfcxServiceHandler.addService("AudioEncode", AudioEncodeService.class);
+		this.rfcxServiceHandler.addService("AudioEncodeTrigger", AudioEncodeTrigger.class);
 		this.rfcxServiceHandler.addService("CheckInTrigger", CheckInTriggerIntentService.class);
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitorIntentService.class);
 	}

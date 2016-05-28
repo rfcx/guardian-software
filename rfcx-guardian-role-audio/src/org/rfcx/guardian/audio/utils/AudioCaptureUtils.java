@@ -78,5 +78,15 @@ public class AudioCaptureUtils {
 		}
 		return isFileMoved;
 	}
+	
+	public static void cleanupCaptureDirectory(Context context) {
+		for (File file : (new File(AudioFile.captureDir(context))).listFiles()) {
+			try { 
+				file.delete();
+			} catch (Exception e) { 
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+	}
 
 }

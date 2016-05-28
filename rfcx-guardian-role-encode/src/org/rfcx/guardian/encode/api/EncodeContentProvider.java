@@ -136,7 +136,7 @@ public class EncodeContentProvider extends ContentProvider {
 						);
 				
 				// Attempt to trigger encode service just in case it's not running
-				app.rfcxServiceHandler.triggerService("AudioEncode", false);
+				app.rfcxServiceHandler.triggerService("AudioEncodeTrigger", false);
 				
 				return Uri.parse(RfcxRole.ContentProvider.encode.URI_QUEUE+"/"+values.getAsString("timestamp"));
 				

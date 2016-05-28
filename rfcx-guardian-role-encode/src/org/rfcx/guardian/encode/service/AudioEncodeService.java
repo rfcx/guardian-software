@@ -80,16 +80,13 @@ public class AudioEncodeService extends Service {
 			long prefsCaptureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			int prefsAudioEncodeQuality = app.rfcxPrefs.getPrefAsInt("audio_encode_quality");
 			
-			if ( ( app.audioEncodeDb.dbEncodeQueue.getCount() + app.audioEncodeDb.dbEncoded.getCount() ) < 1) {
-				AudioFile.cleanupEncodeDirectory();
-			}
+			AudioEncodeUtils.cleanupEncodeDirectory(app.audioEncodeDb.dbEncodeQueue.getAllRows());
 			
 			while (serviceInstance.runFlag) {
+				
+				app.rfcxServiceHandler.setLastActiveAt(SERVICE_NAME, System.currentTimeMillis());
 			
 				try {
-
-					// force a [brief] pause before re-running each cycle
-					Thread.sleep(prefsAudioEncodeCyclePause);
 					
 					String[] audioToEncode = app.audioEncodeDb.dbEncodeQueue.getLatestRow();
 										
@@ -101,8 +98,12 @@ public class AudioEncodeService extends Service {
 						) {
 						
 							File preEncodeFile = new File(audioToEncode[9]);
-						
-							if (((int) Integer.parseInt(audioToEncode[10])) >= prefsEncodeSkipThreshold) {
+							
+							if (!preEncodeFile.exists()) {
+								
+								app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(audioToEncode[1]);
+								
+							} else if (((int) Integer.parseInt(audioToEncode[10])) >= prefsEncodeSkipThreshold) {
 								
 								Log.d(logTag,"Skipping AudioEncode "+audioToEncode[1]+" after "+prefsEncodeSkipThreshold+" failed attempts");
 								
@@ -185,6 +186,9 @@ public class AudioEncodeService extends Service {
 							}
 					} else {
 
+						// force a [brief] pause before re-running each cycle
+						Thread.sleep(prefsAudioEncodeCyclePause);
+						
 						if (app.deviceBattery.getBatteryChargePercentage(context,null) < prefsAudioBatteryCutoff) {
 							long extendEncodeLoopBy = (2 * prefsCaptureLoopPeriod) - prefsAudioEncodeCyclePause;
 							Log.i(logTag, "AudioEncode disabled due to low battery level"

@@ -34,7 +34,7 @@ public class ServiceMonitorIntentService extends IntentService {
 			app.rfcxServiceHandler.triggerServiceSequence(
 					"ServiceMonitorSequence", 
 						new String[] { 
-							"AudioEncode"
+							"AudioEncodeTrigger"
 						}, 
 					false);
 		}

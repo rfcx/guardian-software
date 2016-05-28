@@ -26,6 +26,11 @@ public class RfcxServiceHandler {
 	private Map<String, Class<?>> svcClasses = new HashMap<String, Class<?>>();
 	private Map<String, boolean[]> svcRunStates = new HashMap<String, boolean[]>();
 	private Map<String, boolean[]> svcAbsoluteRunStates = new HashMap<String, boolean[]>();
+	
+	// svcLastActiveAt is not very well implemented yet... 
+	// ...in that most services don't use/update this value
+	// ...and it's not yet clear how it would be used in full
+	private Map<String, long[]> svcLastActiveAt = new HashMap<String, long[]>();
 
 	public void triggerService(String[] svcToTrigger, boolean forceReTrigger) {
 		
@@ -170,6 +175,22 @@ public class RfcxServiceHandler {
 		
 		String svcId = svcName.toLowerCase(Locale.US);
 		this.svcAbsoluteRunStates.put(svcId, new boolean[] { hasRun } );
+	}
+	
+	public void setLastActiveAt(String svcName, long lastActiveAt) {
+		
+		String svcId = svcName.toLowerCase(Locale.US);
+		this.svcLastActiveAt.put(svcId, new long[] { lastActiveAt } );
+	}
+	
+	public long getLastActiveAt(String svcName) {
+		
+		String svcId = svcName.toLowerCase(Locale.US);
+		if (this.svcLastActiveAt.containsKey(svcId)) {
+			return this.svcLastActiveAt.get(svcId)[0];
+		} else {
+			return 0;
+		}
 	}
 	
 	public void addService(String svcName, Class<?> svcClass) {
