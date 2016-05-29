@@ -31,3 +31,7 @@ proguard-project.txt
 !/bin/
 /tmp/
 /bin/_private/
+
+# NDK built files to ignore
+rfcx-guardian-lib-audio/libs/
+rfcx-guardian-lib-audio/obj/
