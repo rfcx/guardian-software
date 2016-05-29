@@ -41,7 +41,7 @@ int read_samples(FILE *input_file, short *input) {
 	return nb_read;
 }
 
-JNIEXPORT jint JNICALL Java_org_rfcx_guardian_audio_opus_Mp3AudioEncoder_encodeFile(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_org_rfcx_guardian_audio_mp3_Mp3AudioEncoder_encodeFile(JNIEnv *env,
 		jobject jobj, jstring in_source_path, jstring in_target_path,
 		jint in_brate, jint in_quality) {
 	const char *source_path, *target_path;
