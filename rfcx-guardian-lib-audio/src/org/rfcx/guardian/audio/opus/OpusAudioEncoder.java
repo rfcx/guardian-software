@@ -1,5 +1,7 @@
 package org.rfcx.guardian.audio.opus;
 
+import java.io.File;
+
 public class OpusAudioEncoder {
 
 	// -------- publicly visible part ----------
@@ -17,6 +19,11 @@ public class OpusAudioEncoder {
 		int result = encodeOpusFile( inputFile, outputFile, bitRate/1000, quality);
 
 		return result == 0 ? "OK" : "ERROR";  
+	}
+
+	public String transcode( File inputFile, File outputFile, int bitRate, int quality) {
+		
+		return transcode(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), bitRate, quality);
 	}
 	
 	private native int encodeOpusFile(String sourcePath, String targetPath, int bitRate, int quality);

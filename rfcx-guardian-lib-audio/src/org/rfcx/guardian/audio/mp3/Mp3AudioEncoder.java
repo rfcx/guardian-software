@@ -1,5 +1,7 @@
 package org.rfcx.guardian.audio.mp3;
 
+import java.io.File;
+
 public class Mp3AudioEncoder {
 
 	// -------- publicly visible part ----------
@@ -18,6 +20,11 @@ public class Mp3AudioEncoder {
 		int result = encodeFile( inFile, outFile, outBitRate / 1000, outQuality);
 
 		return result == 0 ? "OK" : "ERROR";  
+	}
+
+	public String transcode( File inputFile, File outputFile, int bitRate, int quality) {
+		
+		return transcode(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), bitRate, quality);
 	}
 
 	private native int encodeFile(String sourcePath, String targetPath, int bitRate, int quality);
