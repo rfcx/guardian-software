@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.List;
 
 import org.rfcx.guardian.audio.flac.FLAC_FileEncoder;
+import org.rfcx.guardian.audio.mp3.Mp3AudioEncoder;
+import org.rfcx.guardian.audio.opus.OpusAudioEncoder;
 import org.rfcx.guardian.encode.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.audio.AudioFile;
@@ -22,20 +24,32 @@ public class AudioEncodeUtils {
 		if (preEncodeFile.exists()) {
 			try {
 				if (encodeCodec.equalsIgnoreCase("opus")) {
-					FileUtils.copy(preEncodeFile, postEncodeFile);
-					encodeOutputBitRate = 1;
+					
+					OpusAudioEncoder opusEncoder = new OpusAudioEncoder();
+					String encStatus = opusEncoder.transcode(preEncodeFile, postEncodeFile, encodeBitRate, encodeQuality);
+					if (encStatus.equalsIgnoreCase("OK")) { encodeOutputBitRate = encodeBitRate; }
+					Log.d(logTag, "OPUS Encoding Complete: "+encStatus);
+					
 				} else if (encodeCodec.equalsIgnoreCase("mp3")) {
-					FileUtils.copy(preEncodeFile, postEncodeFile);
-					encodeOutputBitRate = 1;
+					
+					Mp3AudioEncoder mp3Encoder = new Mp3AudioEncoder();
+					String encStatus = mp3Encoder.transcode(preEncodeFile, postEncodeFile, encodeBitRate, encodeQuality);
+					if (encStatus.equalsIgnoreCase("OK")) { encodeOutputBitRate = encodeBitRate; }
+					Log.d(logTag, "MP3 Encoding Complete: "+encStatus);
+					
 				} else if (encodeCodec.equalsIgnoreCase("flac")) {
+					
 					FLAC_FileEncoder flacEncoder = new FLAC_FileEncoder();
 					flacEncoder.adjustAudioConfig(encodeSampleRate, AudioFile.AUDIO_SAMPLE_SIZE, AudioFile.AUDIO_CHANNEL_COUNT);
 					FLAC_FileEncoder.Status encStatus = flacEncoder.encode(preEncodeFile, postEncodeFile);
 					if (encStatus == FLAC_FileEncoder.Status.FULL_ENCODE) { encodeOutputBitRate = 0; }
 					Log.d(logTag, "FLAC Encoding Complete: "+encStatus.name());
+					
 				} else {
+					
 					FileUtils.copy(preEncodeFile, postEncodeFile);
 					encodeOutputBitRate = encodeBitRate;
+					
 				}
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
