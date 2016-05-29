@@ -1,6 +1,6 @@
 package org.rfcx.guardian.audio.opus;
 
-public class OpusAudioRecorder {
+public class OpusAudioEncoder {
 
 	// -------- publicly visible part ----------
 //	transcode(
