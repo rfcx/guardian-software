@@ -11,8 +11,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
+import org.rfcx.guardian.utility.audio.RfcxAudio;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
+import android.content.Context;
+import android.util.Log;
 
 public class FileUtils {
 	
@@ -103,6 +108,32 @@ public class FileUtils {
 				return false;
 		}
 		return file.delete();
+	}
+	
+	public static void deleteDirectoryContents(String directoryFilePath) {
+		File directory = new File(directoryFilePath);
+		for (File file : directory.listFiles()) {
+			try { 
+				file.delete();
+				Log.d(logTag, "Deleted "+file.getName()+" from "+directory.getName()+" directory.");
+			} catch (Exception e) { 
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+	}
+	
+	public static void deleteDirectoryContents(String directoryFilePath, List<String> excludeFilePaths) {
+		File directory = new File(directoryFilePath);
+		for (File file : directory.listFiles()) {
+			try { 
+				if (!excludeFilePaths.contains(file.getAbsolutePath())) {
+					file.delete();
+					Log.d(logTag, "Deleted "+file.getName()+" from "+directory.getName()+" directory.");
+				}
+			} catch (Exception e) { 
+				RfcxLog.logExc(logTag, e);
+			}
+		}
 	}
 	
 }

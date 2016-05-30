@@ -66,7 +66,7 @@
         android:title="cputuner_freq_max"
         android:summary="int - cpu clock speed"
         android:enabled="true"
-        android:defaultValue="600000" />
+        android:defaultValue="320000" />
  	
  	<EditTextPreference
         android:key="cputuner_governor_up"
@@ -103,14 +103,14 @@
         android:title="audio_sample_rate"
         android:summary="int - hertz"
         android:enabled="true"
-        android:defaultValue="8000" />
+        android:defaultValue="12000" />
  	
  	<EditTextPreference
         android:key="audio_encode_codec"
         android:title="audio_encode_codec"
         android:summary="string - codec"
         android:enabled="true"
-        android:defaultValue="aac" />
+        android:defaultValue="opus" />
  	
  	<EditTextPreference
         android:key="audio_encode_bitrate"

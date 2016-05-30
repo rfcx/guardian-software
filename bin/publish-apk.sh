@@ -4,7 +4,7 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export ROLE=$1;
 
-export ENV="production";
+export ENV="staging";
 
 read -p "Please provide the database password for the '$ENV' environment: " -n 30 -r
 export DB_PSWD="${REPLY}";

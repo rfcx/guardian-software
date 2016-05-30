@@ -12,7 +12,7 @@ import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.ShellCommands;
-import org.rfcx.guardian.utility.audio.AudioFile;
+import org.rfcx.guardian.utility.audio.RfcxAudio;
 import org.rfcx.guardian.utility.device.DeviceGeoLocation;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -291,7 +291,7 @@ public class ApiWebCheckIn {
 					String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioJson.getString("id"))[1];
 					int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.encode.URI_ENCODED + "/" + audioJson.getString("id")), null, null);
 					app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioJson.getString("id"));
-					AudioFile.purgeSingleAudioAssetFromDisk(audioJson.getString("id"),audioFileNameInDb.substring(1+audioFileNameInDb.lastIndexOf(".")));
+					purgeSingleAudioAssetFromDisk(audioJson.getString("id"),audioFileNameInDb.substring(1+audioFileNameInDb.lastIndexOf(".")));
 				}
 
 				// parse the screenshot info and use it to purge the data locally
@@ -300,8 +300,7 @@ public class ApiWebCheckIn {
 					JSONObject screenShotJson = screenShotJsonArray.getJSONObject(i);
 					int deleteScreenShot = app.getContentResolver()
 							.delete(Uri.parse(RfcxRole.ContentProvider.system.URI_SCREENSHOT
-									+ "/" + screenShotJson.getString("id")),
-									null, null);
+									+ "/" + screenShotJson.getString("id")), null, null);
 				}
 
 				// parse the message info and use it to purge the data locally
@@ -397,7 +396,7 @@ public class ApiWebCheckIn {
 				String audioFileNameInDb = app.checkInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId)[1];
 				int purgeAudio = app.getContentResolver().delete(Uri.parse(RfcxRole.ContentProvider.encode.URI_ENCODED + "/" + audioFileNameInDb), null, null);
 				app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
-				AudioFile.purgeSingleAudioAssetFromDisk(audioId, audioFormat);
+				purgeSingleAudioAssetFromDisk(audioId, audioFormat);
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -464,6 +463,15 @@ public class ApiWebCheckIn {
 	public boolean isBatteryChargeSufficientForCheckIn() {
 		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 		return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff"));
+	}
+	
+	private static void purgeSingleAudioAssetFromDisk(String audioTimestamp, String audioFileExtension) {
+		try {
+			(new File(RfcxAudio.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();
+			Log.d(logTag, "Purging audio asset: "+audioTimestamp+"."+audioFileExtension);
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
 	}
 
 }

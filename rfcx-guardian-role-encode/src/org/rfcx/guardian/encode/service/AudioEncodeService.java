@@ -6,7 +6,7 @@ import org.rfcx.guardian.encode.RfcxGuardian;
 import org.rfcx.guardian.encode.utils.AudioEncodeUtils;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.GZipUtils;
-import org.rfcx.guardian.utility.audio.AudioFile;
+import org.rfcx.guardian.utility.audio.RfcxAudio;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -17,7 +17,7 @@ import android.util.Log;
 
 public class AudioEncodeService extends Service {
 
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncodeService.class.getSimpleName();
+	private static final String logTag = (new StringBuilder()).append("Rfcx-").append(RfcxGuardian.APP_ROLE).append("-").append(AudioEncodeService.class.getSimpleName()).toString();
 	
 	private static final String SERVICE_NAME = "AudioEncode";
 	
@@ -105,7 +105,7 @@ public class AudioEncodeService extends Service {
 								
 							} else if (((int) Integer.parseInt(audioToEncode[10])) >= prefsEncodeSkipThreshold) {
 								
-								Log.d(logTag,"Skipping AudioEncode "+audioToEncode[1]+" after "+prefsEncodeSkipThreshold+" failed attempts");
+								Log.d(logTag, (new StringBuilder()).append("Skipping AudioEncode ").append(audioToEncode[1]).append(" after ").append(prefsEncodeSkipThreshold).append(" failed attempts").toString());
 								
 								app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(audioToEncode[1]);
 								if (preEncodeFile.exists()) { preEncodeFile.delete(); }
@@ -114,10 +114,10 @@ public class AudioEncodeService extends Service {
 								
 								try {
 									
-									Log.i(logTag, "Beginning Encode: '"+audioToEncode[1]+"','"+audioToEncode[2]+"','"+audioToEncode[6]+"'");
+									Log.i(logTag, (new StringBuilder()).append("Beginning Encode: ").append(audioToEncode[1]).append(" ").append(audioToEncode[2]).append("=>").append(audioToEncode[6]).toString());
 								
-									File postEncodeFile = new File(AudioFile.getAudioFileLocation_PostEncode((long) Long.parseLong(audioToEncode[1]),audioToEncode[6]));
-									File gZippedFile = new File(AudioFile.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioToEncode[1]),AudioFile.getFileExtension(audioToEncode[6])));
+									File postEncodeFile = new File(RfcxAudio.getAudioFileLocation_PostEncode((long) Long.parseLong(audioToEncode[1]),audioToEncode[6]));
+									File gZippedFile = new File(RfcxAudio.getAudioFileLocation_Complete_PostZip((long) Long.parseLong(audioToEncode[1]),RfcxAudio.getFileExtension(audioToEncode[6])));
 
 									// just in case there's already a post-encoded file, delete it first
 									if (postEncodeFile.exists()) { postEncodeFile.delete(); }
@@ -161,7 +161,7 @@ public class AudioEncodeService extends Service {
 											app.audioEncodeDb.dbEncoded
 												.insert(
 													audioToEncode[1], 
-													AudioFile.getFileExtension(audioToEncode[6]), 
+													RfcxAudio.getFileExtension(audioToEncode[6]), 
 													preZipDigest, 
 													(int) Integer.parseInt(audioToEncode[4]), 
 													encodeBitRate, 
@@ -191,9 +191,13 @@ public class AudioEncodeService extends Service {
 						
 						if (app.deviceBattery.getBatteryChargePercentage(context,null) < prefsAudioBatteryCutoff) {
 							long extendEncodeLoopBy = (2 * prefsCaptureLoopPeriod) - prefsAudioEncodeCyclePause;
-							Log.i(logTag, "AudioEncode disabled due to low battery level"
-									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+prefsAudioBatteryCutoff+"%)."
-									+" Waiting "+(Math.round(2*prefsCaptureLoopPeriod/1000))+" seconds before next attempt.");
+							Log.i(logTag, (new StringBuilder())
+									.append("AudioEncode disabled due to low battery level (")
+									.append("current: ").append(app.deviceBattery.getBatteryChargePercentage(context, null)).append("%, ")
+									.append("required: ").append(prefsAudioBatteryCutoff).append("%")
+									.append("). Waiting ").append((Math.round(2*prefsCaptureLoopPeriod/1000))).append(" seconds before next attempt.")
+									.toString()
+									);
 							Thread.sleep(extendEncodeLoopBy);
 						}
 					}

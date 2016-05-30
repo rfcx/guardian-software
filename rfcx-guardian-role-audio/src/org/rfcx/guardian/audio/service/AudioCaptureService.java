@@ -3,7 +3,8 @@ package org.rfcx.guardian.audio.service;
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.utils.AudioCaptureUtils;
 import org.rfcx.guardian.audio.wav.WavAudioRecorder;
-import org.rfcx.guardian.utility.audio.AudioFile;
+import org.rfcx.guardian.utility.FileUtils;
+import org.rfcx.guardian.utility.audio.RfcxAudio;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -75,10 +76,9 @@ public class AudioCaptureService extends Service {
 			app.audioCapture = new AudioCaptureUtils(context);
 			app.audioCapture.captureTimeStampQueue = new long[] { 0, 0 };
 			
-			AudioCaptureUtils.cleanupCaptureDirectory(context);
-			String captureDir = AudioFile.captureDir(context);
+			String captureDir = RfcxAudio.captureDir(context);
+			FileUtils.deleteDirectoryContents(captureDir);
 
-			
 			long prefsCaptureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			int prefsEncodingBitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
 			int prefsAudioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");

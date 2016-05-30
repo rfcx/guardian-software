@@ -20,19 +20,19 @@ import android.util.Log;
 public class RfcxPrefs {
 
 	public RfcxPrefs(Context context, String appRole) {
-		this.logTag = "Rfcx-"+appRole+"-"+RfcxPrefs.class.getSimpleName();
+		this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(RfcxPrefs.class.getSimpleName()).toString();
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
 		setDefaultPrefs();
 		detectOrCreatePrefsDirectory(context);
 	}
 	
-	private String logTag = "Rfcx-Utils-"+RfcxPrefs.class.getSimpleName();
+	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(RfcxPrefs.class.getSimpleName()).toString();
 	
 	private Context context = null;
 	private String thisAppRole = null;
-	private static final String prefsParentDirPath = Environment.getDownloadCacheDirectory().getAbsolutePath()+"/rfcx";
-	private static final String prefsDirPath = prefsParentDirPath+"/prefs";
+	private static final String prefsParentDirPath = (new StringBuilder()).append(Environment.getDownloadCacheDirectory().getAbsolutePath()).append("/rfcx").toString();
+	private static final String prefsDirPath = (new StringBuilder()).append(prefsParentDirPath).append("/prefs").toString();
 	
 	private Map<String, String> cachedPrefs = new HashMap<String, String>();
 	private Map<String, String> defaultPrefs = new HashMap<String, String>();
@@ -54,8 +54,11 @@ public class RfcxPrefs {
 	}
 
 	public int getPrefAsInt(String prefKey) {
-		String stringValue = getPrefAsString(prefKey);
-		return (int) Integer.parseInt(stringValue);
+		return (int) Integer.parseInt(getPrefAsString(prefKey));
+	}
+
+	public long getPrefAsLong(String prefKey) {
+		return (long) Long.parseLong(getPrefAsString(prefKey));
 	}
 	
 	public void setPref(String targetAppRole, String prefKey, String prefValue) {
@@ -72,11 +75,15 @@ public class RfcxPrefs {
 		setPref(targetAppRole, prefKey, ""+prefValue);
 	}
 	
+	public void clearPrefsCache() {
+		this.cachedPrefs = new HashMap<String, String>();
+	}
+	
 	// Reading and Writing to preference text files
 	
 	private String readPrefFromFile(String targetAppRole, String prefKey) {
 		try {
-    		String filePath = prefsDirPath+"/"+prefKey.toLowerCase(Locale.US)+".txt";
+    		String filePath = (new StringBuilder()).append(prefsDirPath).append("/").append(prefKey.toLowerCase(Locale.US)).append(".txt").toString();
         	File fileObj = new File(filePath);
         	
     		if (fileObj.exists()) {
@@ -192,28 +199,29 @@ public class RfcxPrefs {
 
 		defaultPrefs.put("reboot_forced_daily_at", "23:55:00");
 		
-		defaultPrefs.put("install_battery_cutoff", "30");
 		defaultPrefs.put("install_cycle_duration", "3600000");
 		defaultPrefs.put("install_offline_toggle_threshold", "900000");
 		defaultPrefs.put("install_api_registration_token", "ABCDEFGH");
 		
 		defaultPrefs.put("cputuner_freq_min", "30720");
-		defaultPrefs.put("cputuner_freq_max", "600000");
+		defaultPrefs.put("cputuner_freq_max", "245760"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000, 
 		defaultPrefs.put("cputuner_governor_up", "98");
 		defaultPrefs.put("cputuner_governor_down", "95");
 		
 		defaultPrefs.put("audio_cycle_duration", "90000");
-		defaultPrefs.put("audio_battery_cutoff", "60");
 		
-		defaultPrefs.put("audio_encode_codec", "aac");
+		defaultPrefs.put("audio_encode_codec", "opus");
 		defaultPrefs.put("audio_encode_bitrate", "16384");
-		defaultPrefs.put("audio_sample_rate", "8000");
+		defaultPrefs.put("audio_sample_rate", "12000");
 		defaultPrefs.put("audio_encode_quality", "7");
 		defaultPrefs.put("audio_encode_skip_threshold", "3");
 		defaultPrefs.put("audio_encode_cycle_pause", "5000");
+
+		defaultPrefs.put("checkin_battery_cutoff", "90");
+		defaultPrefs.put("audio_battery_cutoff", "60");
+		defaultPrefs.put("install_battery_cutoff", "30");
 		
 		defaultPrefs.put("checkin_cycle_pause", "5000");
-		defaultPrefs.put("checkin_battery_cutoff", "90");
 		defaultPrefs.put("checkin_skip_threshold", "5");
 		defaultPrefs.put("checkin_stash_threshold", "120");
 		defaultPrefs.put("checkin_archive_threshold", "1000");

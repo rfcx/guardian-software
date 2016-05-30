@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.wav.WavAudioRecorder;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.audio.AudioFile;
+import org.rfcx.guardian.utility.audio.RfcxAudio;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
@@ -16,7 +16,7 @@ public class AudioCaptureUtils {
 
 	public AudioCaptureUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
-		AudioFile.initializeAudioDirectories(context);
+		RfcxAudio.initializeAudioDirectories(context);
 	}
 	
 	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioCaptureUtils.class.getSimpleName();
@@ -48,7 +48,7 @@ public class AudioCaptureUtils {
         rec.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         rec.setAudioSamplingRate(sampleRate);
         rec.setAudioEncodingBitRate(bitRate);
-        rec.setAudioChannels(AudioFile.AUDIO_CHANNEL_COUNT);
+        rec.setAudioChannels(RfcxAudio.AUDIO_CHANNEL_COUNT);
 		rec.setOutputFile(getCaptureFilePath(captureDir,timestamp,fileExtension));
 		rec.prepare();
         return rec;
@@ -64,10 +64,10 @@ public class AudioCaptureUtils {
 	
 	public static boolean reLocateAudioCaptureFile(Context context, long timestamp, String fileExtension) {
 		boolean isFileMoved = false;
-		File captureFile = new File(getCaptureFilePath(AudioFile.captureDir(context),timestamp,fileExtension));
+		File captureFile = new File(getCaptureFilePath(RfcxAudio.captureDir(context),timestamp,fileExtension));
 		if (captureFile.exists()) {
 			try {
-				File preEncodeFile = new File(AudioFile.getAudioFileLocation_PreEncode(timestamp,fileExtension));
+				File preEncodeFile = new File(RfcxAudio.getAudioFileLocation_PreEncode(timestamp,fileExtension));
 				FileUtils.copy(captureFile, preEncodeFile);
 				FileUtils.chmod(preEncodeFile, 0777);
 				if (preEncodeFile.exists()) { captureFile.delete(); }	
@@ -77,16 +77,6 @@ public class AudioCaptureUtils {
 			}
 		}
 		return isFileMoved;
-	}
-	
-	public static void cleanupCaptureDirectory(Context context) {
-		for (File file : (new File(AudioFile.captureDir(context))).listFiles()) {
-			try { 
-				file.delete();
-			} catch (Exception e) { 
-				RfcxLog.logExc(logTag, e);
-			}
-		}
 	}
 
 }

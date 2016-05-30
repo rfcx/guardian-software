@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.utils.AudioCaptureUtils;
-import org.rfcx.guardian.utility.audio.AudioFile;
+import org.rfcx.guardian.utility.audio.RfcxAudio;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
@@ -47,7 +47,7 @@ public class AudioEncodeTriggerIntentService extends IntentService {
 			
 			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, captureTimeStampQueue[0], captureFileExtension)) {
 				
-				String preEncodeFilePath = AudioFile.getAudioFileLocation_PreEncode(captureTimeStampQueue[0],captureFileExtension);
+				String preEncodeFilePath = RfcxAudio.getAudioFileLocation_PreEncode(captureTimeStampQueue[0],captureFileExtension);
 				
 				ContentValues capturedAudioValues = new ContentValues();
 				capturedAudioValues.put("created_at", "-");

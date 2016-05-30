@@ -1,7 +1,7 @@
 package org.rfcx.guardian.encode.service;
 
 import org.rfcx.guardian.encode.RfcxGuardian;
-import org.rfcx.guardian.utility.audio.AudioFile;
+import org.rfcx.guardian.utility.audio.RfcxAudio;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
@@ -43,7 +43,7 @@ public class CheckInTriggerIntentService extends IntentService {
 				queueValues.put("codec", encodedAudio[6]);
 				queueValues.put("duration", encodedAudio[7]);
 				queueValues.put("encode_duration", encodedAudio[8]);
-				queueValues.put("cbr_or_vbr", AudioFile.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr");
+				queueValues.put("cbr_or_vbr", RfcxAudio.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr");
 				queueValues.put("filepath", encodedAudio[9]);
 	
 				Uri queuedCheckInUri = getContentResolver().insert( Uri.parse(RfcxRole.ContentProvider.api.URI_CHECKIN), queueValues );
