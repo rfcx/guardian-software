@@ -25,11 +25,11 @@
  	<!-- Installer/Updater Prefs -->
  	
  	<EditTextPreference
-        android:key="install_battery_cutoff"
-        android:title="install_battery_cutoff"
-        android:summary="int - percentage"
+        android:key="install_api_registration_token"
+        android:title="install_api_registration_token"
+        android:summary="string - api token"
         android:enabled="true"
-        android:defaultValue="30" />
+        android:defaultValue="" />
  	
  	<EditTextPreference
         android:key="install_cycle_duration"
@@ -45,13 +45,6 @@
         android:enabled="true"
         android:defaultValue="900000" />
  	
- 	<EditTextPreference
-        android:key="install_api_registration_token"
-        android:title="install_api_registration_token"
-        android:summary="string - api token"
-        android:enabled="true"
-        android:defaultValue="ABCDEFGH" />
- 	
  	<!-- CPUTuner Prefs -->
  	
  	<EditTextPreference
@@ -66,7 +59,7 @@
         android:title="cputuner_freq_max"
         android:summary="int - cpu clock speed"
         android:enabled="true"
-        android:defaultValue="320000" />
+        android:defaultValue="122880" />
  	
  	<EditTextPreference
         android:key="cputuner_governor_up"
@@ -82,7 +75,7 @@
         android:enabled="true"
         android:defaultValue="95" />
  	
- 	<!-- Audio Prefs -->
+ 	<!-- Audio Capture Controls -->
  	
  	<EditTextPreference
         android:key="audio_cycle_duration"
@@ -92,18 +85,13 @@
         android:defaultValue="90000" />
  	
  	<EditTextPreference
-        android:key="audio_battery_cutoff"
-        android:title="audio_battery_cutoff"
-        android:summary="int - percentage"
+        android:key="audio_schedule_off_hours"
+        android:title="audio_schedule_off_hours"
+        android:summary="string - time ranges, comma separated"
         android:enabled="true"
-        android:defaultValue="60" />
+        android:defaultValue="21:00-22:30,00:15-04:45" />
  	
- 	<EditTextPreference
-        android:key="audio_sample_rate"
-        android:title="audio_sample_rate"
-        android:summary="int - hertz"
-        android:enabled="true"
-        android:defaultValue="12000" />
+ 	<!-- Audio Capture Formatting -->
  	
  	<EditTextPreference
         android:key="audio_encode_codec"
@@ -118,6 +106,13 @@
         android:summary="int - bits per sec"
         android:enabled="true"
         android:defaultValue="16384" />
+ 	
+ 	<EditTextPreference
+        android:key="audio_sample_rate"
+        android:title="audio_sample_rate"
+        android:summary="int - hertz"
+        android:enabled="true"
+        android:defaultValue="12000" />
  	
  	<EditTextPreference
         android:key="audio_encode_quality"
@@ -140,14 +135,7 @@
         android:enabled="true"
         android:defaultValue="5000" />
  	
- 	<!-- CheckIn Prefs -->
- 	
- 	<EditTextPreference
-        android:key="checkin_cycle_pause"
-        android:title="checkin_cycle_pause"
-        android:summary="int - milliseconds"
-        android:enabled="true"
-        android:defaultValue="5000" />
+ 	<!-- Battery Cutoff Thresholds -->
  	
  	<EditTextPreference
         android:key="checkin_battery_cutoff"
@@ -155,6 +143,29 @@
         android:summary="int - percentage"
         android:enabled="true"
         android:defaultValue="90" />
+ 	
+ 	<EditTextPreference
+        android:key="audio_battery_cutoff"
+        android:title="audio_battery_cutoff"
+        android:summary="int - percentage"
+        android:enabled="true"
+        android:defaultValue="60" />
+ 	
+ 	<EditTextPreference
+        android:key="install_battery_cutoff"
+        android:title="install_battery_cutoff"
+        android:summary="int - percentage"
+        android:enabled="true"
+        android:defaultValue="30" />
+ 	
+ 	<!-- CheckIn Triggering Controls -->
+ 	
+ 	<EditTextPreference
+        android:key="checkin_cycle_pause"
+        android:title="checkin_cycle_pause"
+        android:summary="int - milliseconds"
+        android:enabled="true"
+        android:defaultValue="5000" />
  	
  	<EditTextPreference
         android:key="checkin_skip_threshold"
@@ -175,6 +186,6 @@
         android:title="checkin_archive_threshold"
         android:summary="int - count"
         android:enabled="true"
-        android:defaultValue="1000" />
+        android:defaultValue="960" />
  	
 </PreferenceScreen>
