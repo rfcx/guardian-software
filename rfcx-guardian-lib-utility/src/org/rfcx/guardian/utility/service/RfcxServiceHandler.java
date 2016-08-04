@@ -80,7 +80,7 @@ public class RfcxServiceHandler {
 					} else { 
 						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).setRepeating(AlarmManager.RTC, startTimeMillis, repeatIntervalMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcId)), PendingIntent.FLAG_UPDATE_CURRENT));
 						// could also use setInexactRepeating() here instead, but this was appearing to lead to dropped events the first time around
-						Log.i(logTag, (new StringBuilder()).append("Scheduled Repeating IntentService '").append(svcName).append("' (begins at ").append(DateTimeUtils.getDateTime(startTimeMillis)).append(", repeats approx. every ").append(DateTimeUtils.milliSecondsAsMinutes(repeatIntervalMillis)).append(")").toString());
+						Log.i(logTag, (new StringBuilder()).append("Scheduled Repeating IntentService '").append(svcName).append("' (begins at ").append(DateTimeUtils.getDateTime(startTimeMillis)).append(", repeats approx. every ").append(DateTimeUtils.milliSecondDurationAsReadableString(repeatIntervalMillis)).append(")").toString());
 					}
 
 				// this means it's likely a service (rather than an intent service)

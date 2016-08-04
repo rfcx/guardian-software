@@ -136,4 +136,9 @@ public class FileUtils {
 		}
 	}
 	
+	public static String getSystemApplicationDirPath(Context context) {
+		String currentAppFilesDir = context.getFilesDir().getAbsolutePath();
+		return currentAppFilesDir.substring(0, currentAppFilesDir.indexOf("org.rfcx.guardian."));
+	}
+	
 }

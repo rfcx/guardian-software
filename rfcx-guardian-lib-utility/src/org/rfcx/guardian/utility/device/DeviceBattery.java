@@ -36,7 +36,7 @@ public class DeviceBattery {
 		return Math.round(getIntent(context,intent).getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)/10);
 	}
 	
-	private boolean isBatteryCharged(Context context, Intent intent) {
+	public boolean isBatteryCharged(Context context, Intent intent) {
 		return ( getIntent(context,intent).getIntExtra(BatteryManager.EXTRA_STATUS, -1) == BatteryManager.BATTERY_STATUS_FULL );
 	}
 	

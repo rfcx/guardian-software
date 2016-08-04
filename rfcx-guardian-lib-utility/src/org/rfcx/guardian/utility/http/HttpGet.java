@@ -24,8 +24,15 @@ import android.content.Context;
 import android.util.Log;
 
 public class HttpGet {
-
-	private static final String logTag = "Rfcx-Utils-"+HttpGet.class.getSimpleName();
+	
+	private Context context;
+	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(HttpGet.class.getSimpleName()).toString();
+	
+	public HttpGet(Context context, String appName) {
+		this.context = context;
+		this.logTag = (new StringBuilder()).append("Rfcx-").append(appName).append("-").append(HttpGet.class.getSimpleName()).toString();
+	}
+	
 	private static final String DOWNLOAD_TIME_LABEL = "Download time: ";
 	
 	// These hard coded timeout values are just defaults.
@@ -101,7 +108,7 @@ public class HttpGet {
 		return getAsString(fullUrl,(new ArrayList<String[]>()));
 	}
 	
-	public boolean getAsFile(String fullUrl, List<String[]> keyValueParameters, String outputFileName, Context context) {
+	public boolean getAsFile(String fullUrl, List<String[]> keyValueParameters, String outputFileName) {
 		long startTime = System.currentTimeMillis();
 		StringBuilder url = (new StringBuilder()).append(fullUrl);
 		if (keyValueParameters.size() > 0) url.append("?");
@@ -109,19 +116,19 @@ public class HttpGet {
 			url.append(keyValue[0]).append("=").append(keyValue[1]).append("&");
 		}
 		Log.v(logTag,"HTTP GET: "+url.toString());
-		FileOutputStream fileOutputStream = httpGetFileOutputStream(outputFileName,context);
+		FileOutputStream fileOutputStream = httpGetFileOutputStream(outputFileName, this.context, this.logTag);
 		InputStream inputStream = httpGetFileInputStream(url.toString());
 		if ((inputStream != null) && (fileOutputStream != null)) {
-			writeFileResponseStream(inputStream,fileOutputStream);
-			closeInputOutputStreams(inputStream,fileOutputStream);
+			writeFileResponseStream(inputStream, fileOutputStream, this.logTag);
+			closeInputOutputStreams(inputStream, fileOutputStream, this.logTag);
 			Log.v(logTag,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
-			return (new File(context.getFilesDir(), outputFileName)).exists();
+			return (new File(this.context.getFilesDir(), outputFileName)).exists();
 		}
 		return false;
 	}
 	
-	public boolean getAsFile(String fullUrl, String outputFileName, Context context) {
-		return getAsFile(fullUrl, (new ArrayList<String[]>()), outputFileName, context);
+	public boolean getAsFile(String fullUrl, String outputFileName) {
+		return getAsFile(fullUrl, (new ArrayList<String[]>()), outputFileName);
 	}	
 	
 	private String doGetString(String fullUrl, List<String[]> keyValueParameters) {
@@ -163,7 +170,7 @@ public class HttpGet {
 			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	            return readResponseStream(conn.getInputStream());
+	            return readResponseStream(conn.getInputStream(), this.logTag);
 	        } else {
 	        	Log.e(logTag, "HTTP Code: "+conn.getResponseCode());
 	        }
@@ -186,7 +193,7 @@ public class HttpGet {
 			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-	            return readResponseStream(conn.getInputStream());
+	            return readResponseStream(conn.getInputStream(), this.logTag);
 	        } else {
 	        	Log.e(logTag, "HTTP Code: "+conn.getResponseCode());
 	        }
@@ -196,7 +203,7 @@ public class HttpGet {
 	    return null;    
 	}
 
-	private static String readResponseStream(InputStream inputStream) {
+	private static String readResponseStream(InputStream inputStream, String logTag) {
 	    BufferedReader bufferedReader = null;
 	    StringBuilder stringBuilder = new StringBuilder();
 	    try {
@@ -219,7 +226,7 @@ public class HttpGet {
 	    return stringBuilder.toString();
 	} 
 
-	private static void writeFileResponseStream(InputStream inputStream, FileOutputStream fileOutputStream) {
+	private static void writeFileResponseStream(InputStream inputStream, FileOutputStream fileOutputStream, String logTag) {
 		try {
 			byte[] buffer = new byte[8192];
 			int bufferLength = 0;
@@ -231,7 +238,7 @@ public class HttpGet {
 		}
 	}
 	
-	private static void closeInputOutputStreams(InputStream inputStream, FileOutputStream fileOutputStream) {
+	private static void closeInputOutputStreams(InputStream inputStream, FileOutputStream fileOutputStream, String logTag) {
 		try {
 			inputStream.close();
 			fileOutputStream.flush();
@@ -241,7 +248,7 @@ public class HttpGet {
 		}
 	}
 	
-	private static FileOutputStream httpGetFileOutputStream(String fileName, Context context) {
+	private static FileOutputStream httpGetFileOutputStream(String fileName, Context context, String logTag) {
 		File targetFile = new File(context.getFilesDir().toString()+"/"+fileName);
 		if (targetFile.exists()) { targetFile.delete(); }
 		try {

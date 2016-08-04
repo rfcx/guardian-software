@@ -80,16 +80,51 @@ public class DateTimeUtils {
 		return nowPlusThisLong(hours,minutes,seconds);
 	}
 	
-	public static String milliSecondsAsMinutes(long milliSeconds) {
+	public static String milliSecondDurationAsReadableString(long milliSeconds) {
 		StringBuilder rtrnStr = new StringBuilder();
 		
-		int minutes = (int) Math.floor( milliSeconds / 60000 );
-		rtrnStr.append(minutes).append(" minutes");
+		int hours = (int) Math.floor( milliSeconds / 3600000 );
+		if (hours > 0) { rtrnStr.append(hours).append(" hours"); }
 		
-		int seconds = Math.round((milliSeconds - (minutes * 60000)) / 1000);
-		if (seconds > 0) { rtrnStr.append(", ").append(seconds).append(" seconds"); }
+		int minutes = (int) Math.floor( (milliSeconds - (hours * 3600000)) / 60000 );
+		if (minutes > 0) { rtrnStr.append((hours > 0) ? ", " : "").append(minutes).append(" minutes"); }
+		
+		int seconds = Math.round((milliSeconds - (hours * 3600000) - (minutes * 60000)) / 1000);
+		if (seconds > 0) { rtrnStr.append((minutes > 0) ? ", " : "").append(seconds).append(" seconds"); }
 		
 		return rtrnStr.toString();
+	}
+	
+	public static boolean isTimeStampWithinTimeRange(Date timeStamp, int startHour, int startMinute, int startSecond, int endHour, int endMinute, int endSecond) {
+		
+		Calendar startCalendar = Calendar.getInstance();
+		startCalendar.set(Calendar.HOUR_OF_DAY, startHour);
+		startCalendar.set(Calendar.MINUTE, startMinute);
+		startCalendar.set(Calendar.SECOND, startSecond);
+		
+		Calendar endCalendar = Calendar.getInstance();
+		endCalendar.set(Calendar.HOUR_OF_DAY, endHour);
+		endCalendar.set(Calendar.MINUTE, endMinute);
+		endCalendar.set(Calendar.SECOND, endSecond);
+		
+		return ((timeStamp.getTime() >= startCalendar.getTimeInMillis()) && (timeStamp.getTime() <= endCalendar.getTimeInMillis()));
+	}
+	
+	public static boolean isTimeStampWithinTimeRange(Date timeStamp, String start_HH_MM_SS, String end_HH_MM_SS) {
+		
+		String[] startTimePieces = start_HH_MM_SS.split(":");
+		int startHour = (int) Integer.parseInt(startTimePieces[0]);
+		int startMinute = (int) Integer.parseInt(startTimePieces[1]);
+		int startSecond = 0;
+		if (startTimePieces.length == 3) { startSecond = (int) Integer.parseInt(startTimePieces[2]); }
+		
+		String[] endTimePieces = end_HH_MM_SS.split(":");
+		int endHour = (int) Integer.parseInt(endTimePieces[0]);
+		int endMinute = (int) Integer.parseInt(endTimePieces[1]);
+		int endSecond = 0;
+		if (endTimePieces.length == 3) { endSecond = (int) Integer.parseInt(endTimePieces[2]); }
+		
+		return isTimeStampWithinTimeRange(timeStamp, startHour, startMinute, startSecond, endHour, endMinute, endSecond);
 	}
 	
 }

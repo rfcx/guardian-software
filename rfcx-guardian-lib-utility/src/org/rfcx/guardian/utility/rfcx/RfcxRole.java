@@ -68,9 +68,9 @@ public class RfcxRole {
 		
 		public static final class setup {
 			public static final String AUTHORITY = "org.rfcx.guardian.setup";
-			public static final String[] PROJECTION_1 = { "current_time" };
-			public static final String ENDPOINT_1 = "events";
-			public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
+			public static final String[] PROJECTION_PREFS = RfcxPrefs.listPrefsKeys();
+			public static final String ENDPOINT_PREFS = "prefs";
+			public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_PREFS;
 		}
 		
 		public static final class reboot {
