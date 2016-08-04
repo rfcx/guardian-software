@@ -4,9 +4,10 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export ROLE=$1;
 
-if [[ $ROLE = 'all' ]]
-then
+if [[ $ROLE = 'all' ]]; then
+
   $SCRIPT_DIR/_for-all-roles.sh build
+
 else
 
   export KEY_PSWD=`cat $SCRIPT_DIR/_private/rfcx-guardian-keystore-pswd.txt;`;
@@ -31,8 +32,13 @@ else
   echo "key.store.password=$KEY_PSWD" >> local.properties;
   echo "key.alias.password=$KEY_PSWD" >> local.properties;
 
+  # include rfcx shared library
   echo "android.library.reference.1=../rfcx-guardian-lib-utility" >> local.properties;
-  echo "android.library.reference.2=../rfcx-guardian-lib-audio" >> local.properties;
+  
+  # for the 'encode' role, include rfcx shared audio encoding library
+  if [[ $ROLE = 'encode' ]]; then
+    echo "android.library.reference.2=../rfcx-guardian-lib-audio" >> local.properties;
+  fi
 
   echo "setting up build process...";
   export ANT_CLEAN=`ant clean`;
