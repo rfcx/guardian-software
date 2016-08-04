@@ -33,6 +33,7 @@ public class CheckInTriggerIntentService extends IntentService {
 			
 			try {
 				
+				app.audioEncodeDb.dbEncoded.deleteSingleRow(encodedAudio[1]);
 				ContentValues queueValues = new ContentValues();
 				queueValues.put("created_at", encodedAudio[0]);
 				queueValues.put("timestamp", encodedAudio[1]);
@@ -50,8 +51,8 @@ public class CheckInTriggerIntentService extends IntentService {
 			
 				if (queuedCheckInUri == null) { Log.e(logTag,"Failed to trigger CheckIn via ContentProvider..."); }
 				
-				// Wait an extra second between cycles in case the 'api' role needs a pause.
-				// This is probably not necessary... but it's also likely harmless.
+//				// Wait an extra second between cycles in case the 'api' role needs a pause.
+//				// This is probably not necessary... but it's also likely harmless.
 				Thread.sleep(1000);
 				
 			} catch (Exception e) {

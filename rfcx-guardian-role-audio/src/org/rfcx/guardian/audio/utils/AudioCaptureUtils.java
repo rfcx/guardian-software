@@ -2,15 +2,17 @@ package org.rfcx.guardian.audio.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
-import org.rfcx.guardian.audio.wav.WavAudioRecorder;
+import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudio;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.media.MediaRecorder;
+import android.text.TextUtils;
 
 public class AudioCaptureUtils {
 
@@ -34,6 +36,16 @@ public class AudioCaptureUtils {
 	public boolean isBatteryChargeSufficientForCapture() {
 		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 		return (batteryCharge >= this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff"));
+	}
+
+	public boolean isCaptureAllowedAtThisTimeOfDay() {
+		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours"), ",")) {
+			String[] offHours = TextUtils.split(offHoursRange, "-");
+			if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	private static String getCaptureFilePath(String captureDir, long timestamp, String fileExtension) {

@@ -2,7 +2,7 @@ package org.rfcx.guardian.audio.service;
 
 import org.rfcx.guardian.audio.RfcxGuardian;
 import org.rfcx.guardian.audio.utils.AudioCaptureUtils;
-import org.rfcx.guardian.audio.wav.WavAudioRecorder;
+import org.rfcx.guardian.audio.utils.WavAudioRecorder;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudio;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -85,15 +85,18 @@ public class AudioCaptureService extends Service {
 			boolean encodeOnCapture = app.rfcxPrefs.getPrefAsString("audio_encode_codec").equalsIgnoreCase("aac");
 			String captureFileExtension = (encodeOnCapture) ? "m4a" : "wav";
 			int prefsAudioBatteryCutoff = app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff");
-			boolean isBatteryChargeSufficientForCapture = app.audioCapture.isBatteryChargeSufficientForCapture();
+			//int prefsAudioScheduleOffHours = app.rfcxPrefs.getPrefAsInt("audio_schedule_off_hours");
 			
+			boolean isBatteryChargeSufficientForCapture = app.audioCapture.isBatteryChargeSufficientForCapture();
+			boolean isCaptureAllowedAtThisTimeOfDay = app.audioCapture.isCaptureAllowedAtThisTimeOfDay();
+		
 			try {
 				
 				Log.d(TAG, "Capture Loop Period: "+ prefsCaptureLoopPeriod +"ms");
 				
 				while (audioCaptureService.runFlag) {
 					try {
-						if (isBatteryChargeSufficientForCapture) {
+						if (isBatteryChargeSufficientForCapture && isCaptureAllowedAtThisTimeOfDay) {
 							
 							long timeStamp = System.currentTimeMillis();
 							
@@ -106,6 +109,7 @@ public class AudioCaptureService extends Service {
 								}
 								Thread.sleep(prefsCaptureLoopPeriod);
 								isBatteryChargeSufficientForCapture = app.audioCapture.isBatteryChargeSufficientForCapture();
+								isCaptureAllowedAtThisTimeOfDay = app.audioCapture.isCaptureAllowedAtThisTimeOfDay();
 								recorder.stop();
 								recorder.release();
 								
@@ -118,17 +122,32 @@ public class AudioCaptureService extends Service {
 								}
 								Thread.sleep(prefsCaptureLoopPeriod);
 								isBatteryChargeSufficientForCapture = app.audioCapture.isBatteryChargeSufficientForCapture();
+								isCaptureAllowedAtThisTimeOfDay = app.audioCapture.isCaptureAllowedAtThisTimeOfDay();
 								recorder.stop();
 								recorder.release();
 								
 							}
 							
 						} else {
-							Thread.sleep(2*prefsCaptureLoopPeriod);
+							
 							isBatteryChargeSufficientForCapture = app.audioCapture.isBatteryChargeSufficientForCapture();
-							Log.i(TAG, "AudioCapture disabled due to low battery level"
-									+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+prefsAudioBatteryCutoff+"%)."
-									+" Waiting "+(Math.round(2*prefsCaptureLoopPeriod/1000))+" seconds before next attempt.");
+							isCaptureAllowedAtThisTimeOfDay = app.audioCapture.isCaptureAllowedAtThisTimeOfDay();
+							
+							if (!isBatteryChargeSufficientForCapture) {
+								
+								Log.i(TAG, "AudioCapture disabled due to low battery level"
+										+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+prefsAudioBatteryCutoff+"%)."
+										+" Waiting "+(Math.round(2*prefsCaptureLoopPeriod/1000))+" seconds before next attempt.");
+								Thread.sleep(prefsCaptureLoopPeriod);
+								
+							} else if (!isCaptureAllowedAtThisTimeOfDay) {
+								
+								Log.i(TAG, "AudioCapture disabled during specified off hours.."
+								//		+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+prefsAudioBatteryCutoff+"%)."
+								//		+" Waiting "+(Math.round(2*prefsCaptureLoopPeriod/1000))+" seconds before next attempt."
+										);
+							}
+							Thread.sleep(prefsCaptureLoopPeriod);
 						}
 					} catch (Exception e) {
 						app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
