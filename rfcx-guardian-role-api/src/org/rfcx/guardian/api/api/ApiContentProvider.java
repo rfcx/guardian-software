@@ -13,7 +13,7 @@ import android.net.Uri;
 
 public class ApiContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiContentProvider.class.getSimpleName();
+	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiContentProvider.class.getSimpleName();
 	
 	private static final String AUTHORITY = RfcxRole.ContentProvider.api.AUTHORITY;
 	private static final String ENDPOINT_CHECKIN = RfcxRole.ContentProvider.api.ENDPOINT_CHECKIN;
@@ -45,7 +45,7 @@ public class ApiContentProvider extends ContentProvider {
 			return cursor;
 			
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return null;
 	}
@@ -103,7 +103,7 @@ public class ApiContentProvider extends ContentProvider {
 					return Uri.parse(RfcxRole.ContentProvider.api.URI_CHECKIN+"/"+values.getAsString("timestamp"));
 				}
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			}
 		}
 		return null;

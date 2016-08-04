@@ -95,7 +95,7 @@ public class ApiWebCheckIn {
 
 		// serialize audio info into JSON for checkin queue insertion
 		String queueJson = generateCheckInQueueJson(audioInfo);
-	
+		
 		// add audio info to checkin queue
 		app.checkInDb.dbQueued.insert(
 					audioInfo[1]+"."+audioInfo[2],
@@ -234,7 +234,7 @@ public class ApiWebCheckIn {
 		// Adding latency data from previous checkins
 		checkInMetaJson.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
 
-		// Recording number of currently queued/skipped checkins
+		// Recording number of currently queued/skipped/stashed checkins
 		checkInMetaJson.put("queued_checkins", app.checkInDb.dbQueued.getCount());
 		checkInMetaJson.put("skipped_checkins", app.checkInDb.dbSkipped.getCount());
 		checkInMetaJson.put("stashed_checkins", app.checkInDb.dbStashed.getCount());
@@ -463,6 +463,10 @@ public class ApiWebCheckIn {
 	public boolean isBatteryChargeSufficientForCheckIn() {
 		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 		return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff"));
+	}
+	
+	public boolean isBatteryChargedButBelowCheckInThreshold() {
+		return (app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null) && !isBatteryChargeSufficientForCheckIn());
 	}
 	
 	private static void purgeSingleAudioAssetFromDisk(String audioTimestamp, String audioFileExtension) {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.rfcx.guardian.api.RfcxGuardian;
 import org.rfcx.guardian.api.api.ApiWebCheckIn;
+import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -14,7 +15,7 @@ import android.util.Log;
 
 public class ApiCheckInService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInService.class.getSimpleName();
+	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInService.class.getSimpleName();
 	
 	private static final String SERVICE_NAME = "ApiCheckIn";
 	
@@ -38,13 +39,13 @@ public class ApiCheckInService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(TAG, "Starting service: "+TAG);
+		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.serviceObject.start();
 		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return START_STICKY;
 	}
@@ -99,7 +100,7 @@ public class ApiCheckInService extends Service {
 							});
 						
 						if (((int) Integer.parseInt(currentCheckIn[3])) > prefsCheckInSkipThreshold) {
-							Log.d(TAG,"Skipping CheckIn "+currentCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
+							Log.d(logTag,"Skipping CheckIn "+currentCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
 							app.checkInDb.dbSkipped.insert(currentCheckIn[0], currentCheckIn[1], currentCheckIn[2], currentCheckIn[3], currentCheckIn[4]);
 							app.checkInDb.dbQueued.deleteSingleRowByAudioAttachmentId(currentCheckIn[1]);
 						} else {
@@ -120,8 +121,14 @@ public class ApiCheckInService extends Service {
 						Thread.sleep(prefCheckInCyclePause);
 						
 						if (!app.apiWebCheckIn.isBatteryChargeSufficientForCheckIn()) {
+							
+							if (app.apiWebCheckIn.isBatteryChargedButBelowCheckInThreshold()) {
+								// THIS NEEDS TO BE REVIEWED
+								ShellCommands.executeCommand("reboot", null, false, app.getApplicationContext());
+							}
+							
 							long extendCheckInLoopBy = (2 * prefsAudioCycleDuration) - prefCheckInCyclePause;
-							Log.i(TAG, "CheckIns automatically disabled due to low battery level"
+							Log.i(logTag, "CheckIns automatically disabled due to low battery level"
 									+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+prefsCheckInBatteryCutoff+"%)."
 									+" Waiting " + ( Math.round( ( extendCheckInLoopBy + prefCheckInCyclePause ) / 1000 ) ) + " seconds before next attempt.");
 							Thread.sleep(extendCheckInLoopBy);
@@ -129,7 +136,7 @@ public class ApiCheckInService extends Service {
 					}
 						
 				} catch (Exception e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 					serviceInstance.runFlag = false;
 				}

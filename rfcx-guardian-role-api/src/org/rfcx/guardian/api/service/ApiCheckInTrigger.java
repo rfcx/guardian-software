@@ -10,7 +10,7 @@ import android.util.Log;
 
 public class ApiCheckInTrigger extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInTrigger.class.getSimpleName();
+	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInTrigger.class.getSimpleName();
 	
 	private static final String SERVICE_NAME = "ApiCheckInTrigger";
 	
@@ -34,13 +34,13 @@ public class ApiCheckInTrigger extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(TAG, "Starting service: "+TAG);
+		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.apiCheckInTrigger.start();
 		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return START_STICKY;
 	}
@@ -71,7 +71,7 @@ public class ApiCheckInTrigger extends Service {
 			long apiCheckInLoopTimeOut = (long) (3 * app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
 			
 			try {
-				Log.d(TAG, "ApiCheckTrigger Period: "+ apiCheckInTriggerCyclePause +"ms");
+				Log.d(logTag, "ApiCheckInTrigger Period: "+ apiCheckInTriggerCyclePause +"ms");
 				while (apiCheckInTrigger.runFlag) {
 					
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
@@ -82,17 +82,17 @@ public class ApiCheckInTrigger extends Service {
 						app.apiWebCheckIn.connectivityToggleCheck();
 
 					} catch (Exception e) {
-						RfcxLog.logExc(TAG, e);
+						RfcxLog.logExc(logTag, e);
 						app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 						apiCheckInTrigger.runFlag = false;
 					}
 				}
-				Log.v(TAG, "Stopping service: "+TAG);
+				Log.v(logTag, "Stopping service: "+logTag);
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				apiCheckInTrigger.runFlag = false;
 				
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				apiCheckInTrigger.runFlag = false;
 			}
