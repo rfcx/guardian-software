@@ -1,7 +1,7 @@
 package org.rfcx.guardian.setup.service;
 
 import org.rfcx.guardian.setup.RfcxGuardian;
-import org.rfcx.guardian.setup.device.DeviceCPUTuner;
+import org.rfcx.guardian.utility.install.DeviceCPUTuner;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -66,7 +66,13 @@ public class DeviceCPUTunerService extends Service {
 			DeviceCPUTunerService deviceCPUTunerService = DeviceCPUTunerService.this;
 			try {
 				
-				(new DeviceCPUTuner()).set(app.getApplicationContext());
+				(new DeviceCPUTuner(app.getApplicationContext(), RfcxGuardian.APP_ROLE))
+					.writeConfiguration(
+						app.rfcxPrefs.getPrefAsInt("cputuner_freq_min"),
+		        		app.rfcxPrefs.getPrefAsInt("cputuner_freq_max"),
+		        		app.rfcxPrefs.getPrefAsInt("cputuner_governor_up"),
+		        		app.rfcxPrefs.getPrefAsInt("cputuner_governor_down")
+		        	);
 				
 			} catch (Exception e) {
 				RfcxLog.logExc(TAG, e);
