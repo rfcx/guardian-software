@@ -153,7 +153,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	private void syncSharedPrefs() {
 		for ( Map.Entry<String,?> pref : this.sharedPrefs.getAll().entrySet() ) {
-			this.rfcxPrefs.setPref(APP_ROLE, pref.getKey(), pref.getValue().toString());
+			this.rfcxPrefs.setPref(pref.getKey(), pref.getValue().toString());
 		}
 	}
 	
