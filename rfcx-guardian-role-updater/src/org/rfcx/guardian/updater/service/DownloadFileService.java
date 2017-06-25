@@ -11,6 +11,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class DownloadFileService extends Service {
@@ -68,14 +69,14 @@ public class DownloadFileService extends Service {
 		@Override
 		public void run() {
 			DownloadFileService downloadFileService = DownloadFileService.this;
-			HttpGet httpGet = new HttpGet();
+			Context context = app.getApplicationContext();
+			HttpGet httpGet = new HttpGet(context, RfcxGuardian.APP_ROLE);
 			try {
 				String fileName = app.apiCore.installRole+"-"+app.apiCore.installVersion+".apk";
 				String url = app.apiCore.installVersionUrl;
 				String sha1 = app.apiCore.installVersionSha1;
-				Context context = app.getApplicationContext();
 				
-				if (httpGet.getAsFile(url, fileName, context)) {
+				if (httpGet.getAsFile(url, fileName)) {
 					Log.d(TAG, "Download Complete. Verifying Checksum...");
 					String filePath = context.getFilesDir().toString()+"/"+fileName;
 					String fileSha1 = FileUtils.sha1Hash(filePath);
