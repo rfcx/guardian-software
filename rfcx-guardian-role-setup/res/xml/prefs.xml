@@ -59,7 +59,7 @@
         android:title="cputuner_freq_max"
         android:summary="int - cpu clock speed"
         android:enabled="true"
-        android:defaultValue="122880" />
+        android:defaultValue="245760" />
  	
  	<EditTextPreference
         android:key="cputuner_governor_up"
@@ -89,7 +89,7 @@
         android:title="audio_schedule_off_hours"
         android:summary="string - time ranges, comma separated"
         android:enabled="true"
-        android:defaultValue="21:00-22:30,00:15-04:45" />
+        android:defaultValue="00:15-03:00,03:00-04:45" />
  	
  	<!-- Audio Capture Formatting -->
  	
@@ -179,7 +179,7 @@
         android:title="checkin_stash_threshold"
         android:summary="int - count"
         android:enabled="true"
-        android:defaultValue="120" />
+        android:defaultValue="320" />
  	
  	<EditTextPreference
         android:key="checkin_archive_threshold"

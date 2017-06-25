@@ -16,15 +16,18 @@ chmod a+x $DATE_CONV_SCRIPT;
 export API_USER=$1;
 export API_TOKEN=$2;
 
-export GUARDIAN_GUID=$3;
-export AUDIO_DIR=$4;
+export AUDIO_FORMAT=$3;
 
-export AUDIO_FORMAT="opus";
-export AUDIO_FORMAT_ID="3";
-export AUDIO_FORMAT_SAMPLE_RATE="12000";
-# export AUDIO_FORMAT="m4a";
-# export AUDIO_FORMAT_ID="4";
-# export AUDIO_FORMAT_SAMPLE_RATE="8000";
+export GUARDIAN_GUID=$4;
+export AUDIO_DIR=$5;
+
+if [[ "$AUDIO_FORMAT" == "m4a" ]]; then
+  AUDIO_FORMAT_ID="4";
+  AUDIO_FORMAT_SAMPLE_RATE="8000";
+else
+  AUDIO_FORMAT_ID="3";
+  AUDIO_FORMAT_SAMPLE_RATE="12000";
+fi
 
 export PRE_PREP=`rm -rf $AUDIO_DIR/*.wav; mkdir $AUDIO_DIR/-complete;`;
 

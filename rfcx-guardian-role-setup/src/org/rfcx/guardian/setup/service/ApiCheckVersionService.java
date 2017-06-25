@@ -69,7 +69,7 @@ public class ApiCheckVersionService extends Service {
 		public void run() {
 			ApiCheckVersionService apiCheckVersionService = ApiCheckVersionService.this;
 
-			HttpGet httpGet = new HttpGet();
+			HttpGet httpGet = new HttpGet(app.getApplicationContext(), RfcxGuardian.APP_ROLE);
 			// setting customized rfcx authentication headers (necessary for API access)
 			List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
 			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxDeviceId.getDeviceGuid() });

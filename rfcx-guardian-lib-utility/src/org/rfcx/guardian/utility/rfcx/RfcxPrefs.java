@@ -260,12 +260,12 @@ public class RfcxPrefs {
 //		defaultPrefs.put("install_api_registration_token", "ABCDEFGH");
 //		
 //		defaultPrefs.put("cputuner_freq_min", "30720");
-//		defaultPrefs.put("cputuner_freq_max", "122880"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000, 
+//		defaultPrefs.put("cputuner_freq_max", "245760"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000, 
 //		defaultPrefs.put("cputuner_governor_up", "98");
 //		defaultPrefs.put("cputuner_governor_down", "95");
 //		
 //		defaultPrefs.put("audio_cycle_duration", "90000");
-//		defaultPrefs.put("audio_schedule_off_hours", "21:00-22:30,00:15-04:45");
+//		defaultPrefs.put("audio_schedule_off_hours", "00:15-03:00,03:00-04:45");
 //		
 //		defaultPrefs.put("audio_encode_codec", "opus");
 //		defaultPrefs.put("audio_encode_bitrate", "16384");
@@ -280,7 +280,7 @@ public class RfcxPrefs {
 //		
 //		defaultPrefs.put("checkin_cycle_pause", "5000");
 //		defaultPrefs.put("checkin_skip_threshold", "5");
-//		defaultPrefs.put("checkin_stash_threshold", "120");
+//		defaultPrefs.put("checkin_stash_threshold", "320");
 //		defaultPrefs.put("checkin_archive_threshold", "960");
 //		
 //	}
