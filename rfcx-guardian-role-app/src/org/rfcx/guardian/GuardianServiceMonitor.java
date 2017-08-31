@@ -6,13 +6,13 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 import android.app.IntentService;
 import android.content.Intent;
 
-public class RfcxGuardianServiceMonitor extends IntentService {
+public class GuardianServiceMonitor extends IntentService {
 	
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+RfcxGuardianServiceMonitor.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+GuardianServiceMonitor.class.getSimpleName();
 	
 	private static final String SERVICE_NAME = "ServiceMonitor";
 		
-	public RfcxGuardianServiceMonitor() {
+	public GuardianServiceMonitor() {
 		super(TAG);
 	}
 	

@@ -71,10 +71,10 @@
         <service android:name="org.rfcx.guardian.audio.capture.AudioCaptureService" />
         <service android:name="org.rfcx.guardian.audio.encode.AudioEncodeLoopService" />
         <service android:name="org.rfcx.guardian.audio.encode.AudioEncodeJobService" />
-        <service android:name="org.rfcx.guardian.device.system.DeviceSystemService" />
+        <service android:name="org.rfcx.guardian.device.system.stats.DeviceSystemService" />
         
         <!-- IntentServices -->
-        <service android:name="org.rfcx.guardian.RfcxGuardianServiceMonitor" />
+        <service android:name="org.rfcx.guardian.GuardianServiceMonitor" />
         <service android:name="org.rfcx.guardian.audio.encode.AudioEncodeQueueIntentService" />
         <service android:name="org.rfcx.guardian.api.checkin.ApiCheckInTriggerIntentService" />
 
@@ -87,7 +87,7 @@
 		
         <!-- ContentProviders -->
 		<provider 
-		    android:name="org.rfcx.guardian.contentprovider.AppContentProvider"
+		    android:name="org.rfcx.guardian.contentprovider.GuardianContentProvider"
 			android:authorities="org.rfcx.guardian.audio"
         	android:readPermission="org.rfcx.guardian.READ"
         	android:writePermission="org.rfcx.guardian.WRITE"

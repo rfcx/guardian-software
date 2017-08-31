@@ -10,9 +10,9 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 
-public class AppContentProvider extends ContentProvider {
+public class GuardianContentProvider extends ContentProvider {
 	
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AppContentProvider.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+GuardianContentProvider.class.getSimpleName();
 	
 	private static final String AUTHORITY = RfcxRole.ContentProvider.app.AUTHORITY;
 	private static final String ENDPOINT_1 = RfcxRole.ContentProvider.app.ENDPOINT_1;

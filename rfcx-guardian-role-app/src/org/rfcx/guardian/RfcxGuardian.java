@@ -13,15 +13,16 @@ import org.rfcx.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.audio.encode.AudioEncodeLoopService;
 import org.rfcx.guardian.device.reboot.DeviceRebootDb;
-import org.rfcx.guardian.device.system.DeviceDataTransferDb;
-import org.rfcx.guardian.device.system.DeviceScreenShotDb;
-import org.rfcx.guardian.device.system.DeviceSensorDb;
-import org.rfcx.guardian.device.system.DeviceSystemDb;
-import org.rfcx.guardian.device.system.DeviceSystemService;
+import org.rfcx.guardian.device.system.assets.DeviceScreenShotDb;
+import org.rfcx.guardian.device.system.stats.DeviceDataTransferDb;
+import org.rfcx.guardian.device.system.stats.DeviceSensorDb;
+import org.rfcx.guardian.device.system.stats.DeviceSystemDb;
+import org.rfcx.guardian.device.system.stats.DeviceSystemService;
 import org.rfcx.guardian.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
+import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -67,6 +68,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// Android Device Handlers
 	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
+	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
 
 	// Misc
 	public AudioCaptureUtils audioCaptureUtils = null;
@@ -156,7 +158,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInTrigger", ApiCheckInTriggerIntentService.class);
-		this.rfcxServiceHandler.addService("ServiceMonitor", RfcxGuardianServiceMonitor.class);
+		this.rfcxServiceHandler.addService("ServiceMonitor", GuardianServiceMonitor.class);
 		
 	}
 	

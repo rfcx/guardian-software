@@ -1,4 +1,4 @@
-package org.rfcx.guardian.device.system;
+package org.rfcx.guardian.device.system.stats;
 
 import java.util.Date;
 import java.util.List;
@@ -21,7 +21,7 @@ public class DeviceSystemDb {
 		this.dbCPU = new DbCPU(context);
 		this.dbBattery = new DbBattery(context);
 		this.dbPower = new DbPower(context);
-		this.dbNetwork = new DbNetwork(context);
+		this.dbTelephony = new DbTelephony(context);
 		this.dbOffline = new DbOffline(context);
 	}
 	
@@ -234,8 +234,8 @@ public class DeviceSystemDb {
 	}
 	public final DbPower dbPower;
 	
-	public class DbNetwork {
-		private String TABLE = "network";
+	public class DbTelephony {
+		private String TABLE = "telephony";
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) {
 				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
@@ -258,7 +258,7 @@ public class DeviceSystemDb {
 		}
 		final DbHelper dbHelper;
 		
-		public DbNetwork(Context context) {
+		public DbTelephony(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
 		
@@ -298,7 +298,7 @@ public class DeviceSystemDb {
 		}
 
 	}
-	public final DbNetwork dbNetwork;
+	public final DbTelephony dbTelephony;
 
 	public class DbOffline {
 		private String TABLE = "offline";

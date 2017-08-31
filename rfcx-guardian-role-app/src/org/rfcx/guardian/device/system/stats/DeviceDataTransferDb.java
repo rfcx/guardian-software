@@ -1,4 +1,4 @@
-package org.rfcx.guardian.device.system;
+package org.rfcx.guardian.device.system.stats;
 
 import java.util.Date;
 import java.util.List;

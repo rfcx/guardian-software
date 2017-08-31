@@ -32,7 +32,7 @@ public class ShellCommands {
 	    try {
 	    	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
 	        outFile.write(
-	        		"#!/system/xbin/bash"
+	        		"#!/system/bin/sh"
 	        		+"\n"+commandContents
 	        		+"\n");
 	        outFile.close();

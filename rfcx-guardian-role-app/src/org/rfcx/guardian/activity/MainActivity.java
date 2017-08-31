@@ -2,6 +2,7 @@ package org.rfcx.guardian.activity;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.app.R;
+import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -25,7 +26,10 @@ public class MainActivity extends Activity {
 		case R.id.menu_prefs:
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
-		
+
+		case R.id.menu_reboot:
+			ShellCommands.executeCommand("reboot",null,false,getApplicationContext());
+			break;
 		
 		}
 		

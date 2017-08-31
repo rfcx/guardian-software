@@ -1,4 +1,4 @@
-package org.rfcx.guardian.device.system;
+package org.rfcx.guardian.device.system.stats;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,12 +39,13 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 	private Sensor lightSensor;
 	private Sensor accelSensor;
 
-	// local data lists for queuing captured network data and writing to disk in batches
-	private List<String[]> networkValues = new ArrayList<String[]>();
+	private List<String[]> telephonyValues = new ArrayList<String[]>();
 	private List<long[]> lightSensorValues = new ArrayList<long[]>();
 	private List<long[]> accelSensorValues = new ArrayList<long[]>();
+	private List<long[]> dataTransferValues = new ArrayList<long[]>();
+	private List<int[]> batteryLevelValues = new ArrayList<int[]>();
 	
-	private boolean isRegistered_network = false;
+	private boolean isRegistered_telephony = false;
 	private boolean isRegistered_light = false;
 	private boolean isRegistered_accel = false;
 	
@@ -62,7 +63,7 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 		app = (RfcxGuardian) getApplication();
 		
 		registerListener("light");
-		registerListener("network");
+		registerListener("telephony");
 	}
 	
 	@Override
@@ -88,7 +89,7 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 		this.deviceSystemSvc = null;
 		
 		unRegisterListener("light");
-		unRegisterListener("network");
+		unRegisterListener("telephony");
 	}
 	
 	
@@ -116,10 +117,22 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 					registerListener("accel");
 					
 					Thread.sleep(captureCycleDurationHalf);
+					
+					// STILL NEED TO ADD:
+					// CPU
+					
+					// capture and cache data transfer stats
+					dataTransferValues.add(app.deviceNetworkStats.getDataTransferStatsSnapshot());
+					saveSystemStatValuesToDatabase("datatransfer");
 
+					// capture and cache battery level stats
+					batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
+					saveSystemStatValuesToDatabase("battery");
+
+					// cache pre-captured sensor data
 					saveSystemStatValuesToDatabase("light");
 					saveSystemStatValuesToDatabase("accel");
-					saveSystemStatValuesToDatabase("network");
+					saveSystemStatValuesToDatabase("telephony");
 					
 				} catch (InterruptedException e) {
 					deviceSystemService.runFlag = false;
@@ -170,7 +183,7 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 		@Override
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			super.onSignalStrengthsChanged(signalStrength);
-			networkValues.add(DeviceMobileNetwork.getMobileNetworkSummary(telephonyManager, signalStrength));
+			telephonyValues.add(DeviceMobileNetwork.getMobileNetworkSummary(telephonyManager, signalStrength));
 		}
 	}
 	
@@ -188,11 +201,11 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 			this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
 			this.isRegistered_light = true;
 			
-		} else if (sensorAbbreviation.equalsIgnoreCase("network")) {
+		} else if (sensorAbbreviation.equalsIgnoreCase("telephony")) {
 			this.signalStrengthListener = new SignalStrengthListener();
 			this.telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 			this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-			this.isRegistered_network = true;
+			this.isRegistered_telephony = true;
 			
 		} else {
 			Log.e(logTag, "Listener failed to register for '"+sensorAbbreviation+"'.");
@@ -211,8 +224,8 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 			this.isRegistered_light = false;
 			this.sensorManager.unregisterListener(this, this.lightSensor); 
 			
-		} else if (sensorAbbreviation.equalsIgnoreCase("network") && (this.telephonyManager != null)) { 
-			this.isRegistered_network = false;
+		} else if (sensorAbbreviation.equalsIgnoreCase("telephony") && (this.telephonyManager != null)) { 
+			this.isRegistered_telephony = false;
 			this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE); 
 			
 		} else {
@@ -234,7 +247,7 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 				}
 				
 				if (lightSensorValuesCache.size() > 0) {
-					Log.d(logTag, "Saved "+lightSensorValuesCache.size()+" measurements to '"+statAbbreviation+"' database.");
+					Log.d(logTag, "Saved "+lightSensorValuesCache.size()+" measurement(s) to '"+statAbbreviation+"' database.");
 				}
 				
 			} else if (statAbbreviation.equalsIgnoreCase("accel")) {
@@ -268,22 +281,49 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 				}
 
 				if (accelValuesCache.size() > 0) {
-					Log.d(logTag, "Saved "+accelValuesCache.size()+" measurements to '"+statAbbreviation+"' database.");
+					Log.d(logTag, "Saved "+accelValuesCache.size()+" measurement(s) to '"+statAbbreviation+"' database.");
 				}
 					
-			} else if (statAbbreviation.equalsIgnoreCase("network")) {
+			} else if (statAbbreviation.equalsIgnoreCase("telephony")) {
 				
-				List<String[]> networkValuesCache = this.networkValues;
-				this.networkValues = new ArrayList<String[]>();
+				List<String[]> telephonyValuesCache = this.telephonyValues;
+				this.telephonyValues = new ArrayList<String[]>();
 				
-				for (String[] signalVals : networkValuesCache) {
-					app.deviceSystemDb.dbNetwork.insert(new Date((long) Long.parseLong(signalVals[0])), (int) Integer.parseInt(signalVals[1]), signalVals[2], signalVals[3]);
+				for (String[] telephonyVals : telephonyValuesCache) {
+					app.deviceSystemDb.dbTelephony.insert(new Date((long) Long.parseLong(telephonyVals[0])), (int) Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3]);
 				}
 
-				if (networkValuesCache.size() > 0) {
-					Log.d(logTag, "Saved "+networkValuesCache.size()+" measurements to '"+statAbbreviation+"' database.");
+				if (telephonyValuesCache.size() > 0) {
+					Log.d(logTag, "Saved "+telephonyValuesCache.size()+" measurement(s) to '"+statAbbreviation+"' database.");
 				}
-						 
+
+			} else if (statAbbreviation.equalsIgnoreCase("datatransfer")) {
+			
+				List<long[]> dataTransferValuesCache = this.dataTransferValues;
+				this.dataTransferValues = new ArrayList<long[]>();
+				
+				for (long[] dataTransferVals : dataTransferValuesCache) {
+					// before saving, make sure this isn't the first time the stats are being generated (that throws off the net change figures)
+					if (dataTransferVals[6] == 0) {
+						app.deviceDataTransferDb.dbTransferred.insert(new Date(), new Date(dataTransferVals[0]), new Date(dataTransferVals[1]), dataTransferVals[2], dataTransferVals[3], dataTransferVals[4], dataTransferVals[5]);
+						Log.d(logTag, "Saved 1 measurement(s) to '"+statAbbreviation+"' database.");
+					}
+				}
+				
+			} else if (statAbbreviation.equalsIgnoreCase("battery")) {
+				
+				List<int[]> batteryLevelValuesCache = this.batteryLevelValues;
+				this.batteryLevelValues = new ArrayList<int[]>();
+				
+				for (int[] batteryLevelVals : batteryLevelValuesCache) {
+					app.deviceSystemDb.dbBattery.insert(new Date(), batteryLevelVals[0], batteryLevelVals[1]);
+					app.deviceSystemDb.dbPower.insert(new Date(), batteryLevelVals[2], batteryLevelVals[3]);
+				}
+				
+				if (batteryLevelValuesCache.size() > 0) {
+					Log.d(logTag, "Saved "+batteryLevelValuesCache.size()+" measurement(s) to '"+statAbbreviation+"' database.");
+				}
+				
 			} else {
 				Log.e(logTag, "Value info for '"+statAbbreviation+"' could not be saved to database.");
 			}
