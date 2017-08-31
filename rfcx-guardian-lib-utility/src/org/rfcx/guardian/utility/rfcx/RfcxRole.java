@@ -14,6 +14,9 @@ public class RfcxRole {
 	public static final String[] 
 			
 			ALL_ROLES= new String[] { 
+		
+				"app",
+				
 				"api", 
 				"audio",  
 				"carrier", 
@@ -27,6 +30,15 @@ public class RfcxRole {
 			};
 	
 	public static final class ContentProvider {
+		
+		public static final class app {
+			public static final String AUTHORITY = "org.rfcx.guardian.app";
+			public static final String[] PROJECTION_1 = { "some_id" };
+			public static final String ENDPOINT_1 = "something";
+			public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
+		}
+		
+		
 		
 		public static final class api {
 			public static final String AUTHORITY = "org.rfcx.guardian.api";

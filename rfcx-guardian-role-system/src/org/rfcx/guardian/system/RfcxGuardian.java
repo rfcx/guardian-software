@@ -11,6 +11,7 @@ import org.rfcx.guardian.system.service.DeviceStateService;
 import org.rfcx.guardian.system.service.ServiceMonitorIntentService;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
+import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
@@ -36,12 +37,13 @@ public class RfcxGuardian extends Application {
 	
 	// database access helpers
 	public DeviceStateDb deviceStateDb = null;
+	public DeviceSensorDb deviceSensorDb = null;
 	public DataTransferDb dataTransferDb = null;
 	public ScreenShotDb screenShotDb = null;
 	public RebootDb rebootDb = null;
 	
 	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
-	public DeviceCpuUsage deviceCpuUsage = new DeviceCpuUsage();
+	public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
 	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	
@@ -96,6 +98,7 @@ public class RfcxGuardian extends Application {
 	private void setDbHandlers() {
 		int versionNumber = RfcxRole.getRoleVersionValue(this.version);
 		this.deviceStateDb = new DeviceStateDb(this,versionNumber);
+		this.device
 		this.dataTransferDb = new DataTransferDb(this,versionNumber);
 		this.screenShotDb = new ScreenShotDb(this,versionNumber);
 		this.rebootDb = new RebootDb(this,versionNumber);

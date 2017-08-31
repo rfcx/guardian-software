@@ -36,7 +36,12 @@ else
   echo "android.library.reference.1=../rfcx-guardian-lib-utility" >> local.properties;
   
   # for the 'encode' role, include rfcx shared audio encoding library
-  if [[ $ROLE = 'encode' ]]; then
+  # if [[ $ROLE = 'encode' ]]; then
+  #   echo "android.library.reference.2=../rfcx-guardian-lib-audio" >> local.properties;
+  # fi
+
+    # for the 'encode' role, include rfcx shared audio encoding library
+  if [[ $ROLE = 'app' ]]; then
     echo "android.library.reference.2=../rfcx-guardian-lib-audio" >> local.properties;
   fi
 

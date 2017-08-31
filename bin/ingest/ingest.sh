@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+## Script Execution Syntax:
+## ./ingest.sh [API_USER_GUID] [API_USER_TOKEN] [AUDIO_FORMAT] [GUARDIAN_GUID] [AUDIO_DIRECTORY_PATH]
+##
+
 export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export DATE_CONV_SCRIPT="$SCRIPT_DIR/date_conv.js";

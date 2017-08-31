@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.rfcx.guardian.system.RfcxGuardian;
 import org.rfcx.guardian.system.device.DeviceCpuUsage;
+import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -71,18 +72,23 @@ public class DeviceStateService extends Service {
 			DeviceStateService deviceStateService = DeviceStateService.this;
 			
 			app = (RfcxGuardian) getApplication();
+
+			long REPORTING_LOOP_MS = 45000;
+			long MEASUREMENT_LOOP_MS = 1000;
 			
-			long CYCLE_DELAY_MS = (long) ( Math.round( DeviceCpuUsage.STATS_REPORTING_CYCLE_DURATION_MS / DeviceCpuUsage.REPORTING_SAMPLE_COUNT ) - DeviceCpuUsage.SAMPLE_LENGTH_MS );
+			int cpuSampleCountPerReportingLoop = Math.round( REPORTING_LOOP_MS / MEASUREMENT_LOOP_MS );
+			
+			long CYCLE_DELAY_MS = MEASUREMENT_LOOP_MS - DeviceCPU.MEASUREMENT_DURATION_MS;
 			
 			while (deviceStateService.runFlag) {
 				
 				try {
 					
-					app.deviceCpuUsage.updateCpuUsage();
+					app.deviceCPU.takeMeasurement();
 					
 					recordingIncrement++;
 					
-					if (recordingIncrement < DeviceCpuUsage.REPORTING_SAMPLE_COUNT) {
+					if (recordingIncrement < cpuSampleCountPerReportingLoop) {
 						
 						Thread.sleep(CYCLE_DELAY_MS);
 						

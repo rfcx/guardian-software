@@ -15,7 +15,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.ShellCommands;
 
 import android.content.Context;
 import android.os.Environment;
@@ -27,16 +26,15 @@ public class RfcxPrefs {
 		this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(RfcxPrefs.class.getSimpleName()).toString();
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
+		this.prefsDirPath = setOrCreatePrefsDirectory(context);
 //		setDefaultPrefs();
-		detectOrCreatePrefsDirectory(context);
 	}
 	
 	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(RfcxPrefs.class.getSimpleName()).toString();
 	
 	private Context context = null;
 	private String thisAppRole = null;
-	private static final String prefsParentDirPath = (new StringBuilder()).append(Environment.getDownloadCacheDirectory().getAbsolutePath()).append("/rfcx").toString();
-	private static final String prefsDirPath = (new StringBuilder()).append(prefsParentDirPath).append("/prefs").toString();
+	private String prefsDirPath = null;
 	
 	private Map<String, String> cachedPrefs = new HashMap<String, String>();
 //	private Map<String, String> defaultPrefs = new HashMap<String, String>();
@@ -187,10 +185,17 @@ public class RfcxPrefs {
 
 	
 	// this may require root...
-	private void detectOrCreatePrefsDirectory(Context context) {
-		if (!(new File(prefsParentDirPath)).exists()) {
-			ShellCommands.executeCommand("mkdir "+prefsParentDirPath+"; chmod a+rw "+prefsParentDirPath+";", null, true, context);
-		}
+	private static String setOrCreatePrefsDirectory(Context context) {
+		
+		String appFilesDir = (new StringBuilder()).append(context.getFilesDir().toString()).append("/prefs").toString();
+		(new File(appFilesDir)).mkdirs(); FileUtils.chmod(appFilesDir, 0777);
+
+		String sdCardDir = (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/prefs").toString();
+		if (!(new File(sdCardDir)).isDirectory()) { (new File(sdCardDir)).mkdirs(); FileUtils.chmod(sdCardDir, 0777); }
+		
+		// defaults to SD card directory...
+		return (new File(sdCardDir)).isDirectory() ? sdCardDir : appFilesDir;
+		
 	}
 	
 
@@ -217,7 +222,7 @@ public class RfcxPrefs {
 			
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "16384");
-			put("audio_sample_rate", "12000");
+			put("audio_sample_rate", "16000");
 			put("audio_encode_quality", "7");
 			put("audio_encode_skip_threshold", "3");
 			put("audio_encode_cycle_pause", "5000");
