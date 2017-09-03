@@ -16,7 +16,7 @@ else
   echo "transferring apk to device...";
   adb push $SCRIPT_DIR/../tmp/$ROLE-$APK_VERSION.apk /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
 
-  echo "running adb with root access...";
+  echo "restarting adbd with root access...";
   adb root; sleep 2;
 
   echo "killing app role process...";
@@ -28,11 +28,14 @@ else
   echo "deleting apk...";
   adb shell rm /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
 
-  echo "waking up device..."
-  adb shell "input keyevent KEYCODE_POWER";
+  # echo "waking up device..."
+  # adb shell "input keyevent KEYCODE_POWER";
 
-  echo "force relaunch of app role";
+  echo "force relaunch of app role...";
   adb shell am start -n org.rfcx.guardian.$ROLE/org.rfcx.guardian.activity.MainActivity;
+
+  # echo "restarting adbd without root access..."
+  # adb shell "setprop service.adb.root 0 && setprop ctl.restart adbd;";
 
   cd $SCRIPT_DIR/../;
 

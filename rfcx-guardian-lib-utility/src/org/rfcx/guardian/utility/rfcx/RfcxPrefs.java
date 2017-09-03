@@ -27,6 +27,7 @@ public class RfcxPrefs {
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
 		this.prefsDirPath = setOrCreatePrefsDirectory(context);
+		
 //		setDefaultPrefs();
 	}
 	
@@ -187,14 +188,13 @@ public class RfcxPrefs {
 	// this may require root...
 	private static String setOrCreatePrefsDirectory(Context context) {
 		
-		String appFilesDir = (new StringBuilder()).append(context.getFilesDir().toString()).append("/prefs").toString();
-		(new File(appFilesDir)).mkdirs(); FileUtils.chmod(appFilesDir, 0777);
+		String prefsDir = (new StringBuilder()).append(context.getFilesDir().toString()).append("/prefs").toString();
+		(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, 0777);
 
-		String sdCardDir = (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/prefs").toString();
-		if (!(new File(sdCardDir)).isDirectory()) { (new File(sdCardDir)).mkdirs(); FileUtils.chmod(sdCardDir, 0777); }
+//		String sdCardDir = (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/prefs").toString();
+//		if (!(new File(sdCardDir)).isDirectory()) { (new File(sdCardDir)).mkdirs(); FileUtils.chmod(sdCardDir, 0777); }
 		
-		// defaults to SD card directory...
-		return (new File(sdCardDir)).isDirectory() ? sdCardDir : appFilesDir;
+		return prefsDir;
 		
 	}
 	
@@ -218,7 +218,7 @@ public class RfcxPrefs {
 			put("cputuner_governor_down", "95");
 			
 			put("audio_cycle_duration", "90000");
-			put("audio_schedule_off_hours", "21:00-22:30,00:15-04:45");
+			put("audio_schedule_off_hours", "00:10-00:15,00:15-00:20");
 			
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "16384");
@@ -270,7 +270,7 @@ public class RfcxPrefs {
 //		defaultPrefs.put("cputuner_governor_down", "95");
 //		
 //		defaultPrefs.put("audio_cycle_duration", "90000");
-//		defaultPrefs.put("audio_schedule_off_hours", "00:15-03:00,03:00-04:45");
+//		defaultPrefs.put("audio_schedule_off_hours", "00:10-00:15,00:15-00:20");
 //		
 //		defaultPrefs.put("audio_encode_codec", "opus");
 //		defaultPrefs.put("audio_encode_bitrate", "16384");
