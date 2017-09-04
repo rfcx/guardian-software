@@ -204,7 +204,7 @@ public class ApiCheckInUtils {
 			metaDataJsonObj.put("lightmeter",	app.deviceSensorDb.dbLightMeter.getConcatRows());
 			metaDataJsonObj.put("data_transfer",	app.deviceDataTransferDb.dbTransferred.getConcatRows());
 			metaDataJsonObj.put("accelerometer",	app.deviceSensorDb.dbAccelerometer.getConcatRows());
-			metaDataJsonObj.put("reboots",		app.deviceRebootDb.dbReboot.getConcatRows());
+			metaDataJsonObj.put("reboots",		app.rebootDb.dbReboot.getConcatRows());
 			metaDataJsonObj.put("disk_usage",	DeviceDiskUsage.concatDiskStats());
 			
 		} catch (Exception e) {
@@ -224,7 +224,7 @@ public class ApiCheckInUtils {
 			app.deviceSensorDb.dbLightMeter.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbAccelerometer.clearRowsBefore(deleteBefore);
 			app.deviceDataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
-			app.deviceRebootDb.dbReboot.clearRowsBefore(deleteBefore);
+			app.rebootDb.dbReboot.clearRowsBefore(deleteBefore);
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}

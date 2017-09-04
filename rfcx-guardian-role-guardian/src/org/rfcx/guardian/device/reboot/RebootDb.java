@@ -14,14 +14,14 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DeviceRebootDb {
+public class RebootDb {
 	
-	public DeviceRebootDb(Context context, String appVersion) {
+	public RebootDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbReboot = new DbReboot(context);
 	}
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceRebootDb.class.getSimpleName();
+	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+RebootDb.class.getSimpleName();
 	private int VERSION = 1;
 	static final String DATABASE = "reboot";
 	static final String C_CREATED_AT = "created_at";

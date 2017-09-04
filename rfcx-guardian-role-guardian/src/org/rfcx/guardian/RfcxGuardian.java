@@ -14,7 +14,8 @@ import org.rfcx.guardian.audio.encode.AudioEncodeQueueIntentService;
 import org.rfcx.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.audio.encode.AudioEncodeLoopService;
-import org.rfcx.guardian.device.reboot.DeviceRebootDb;
+import org.rfcx.guardian.device.reboot.RebootDb;
+import org.rfcx.guardian.device.reboot.RebootTriggerIntentService;
 import org.rfcx.guardian.device.system.assets.DeviceScreenShotDb;
 import org.rfcx.guardian.device.system.assets.DeviceScreenShotJobService;
 import org.rfcx.guardian.device.system.stats.DeviceDataTransferDb;
@@ -29,6 +30,7 @@ import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.DeviceScreenShotUtils;
+import org.rfcx.guardian.utility.device.control.DeviceRebootUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -64,7 +66,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public ApiCheckInDb apiCheckInDb = null;
 	public DeviceSystemDb deviceSystemDb = null;
 	public DeviceSensorDb deviceSensorDb = null;
-	public DeviceRebootDb deviceRebootDb = null;
+	public RebootDb rebootDb = null;
 	public DeviceDataTransferDb deviceDataTransferDb = null;
 	public DeviceScreenShotDb deviceScreenShotDb = null;
 	
@@ -82,6 +84,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public AudioCaptureUtils audioCaptureUtils = null;
 	public ApiCheckInUtils apiCheckInUtils = null;
 	public DeviceScreenShotUtils deviceScreenShotUtils = null;
+	public DeviceRebootUtils deviceRebootUtils = null;
 	
 	public String[] RfcxCoreServices = 
 		new String[] { 
@@ -116,6 +119,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
 		this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
 		this.deviceScreenShotUtils = new DeviceScreenShotUtils(getApplicationContext());
+		this.deviceRebootUtils = new DeviceRebootUtils(APP_ROLE);
 		
 		initializeRoleServices();
 	}
@@ -155,7 +159,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.apiCheckInDb = new ApiCheckInDb(this, this.version);
 		this.deviceSystemDb = new DeviceSystemDb(this, this.version);
 		this.deviceSensorDb = new DeviceSensorDb(this, this.version);
-		this.deviceRebootDb = new DeviceRebootDb(this, this.version);
+		this.rebootDb = new RebootDb(this, this.version);
 		this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
 
@@ -169,6 +173,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
 		this.rfcxServiceHandler.addService("DeviceScreenShotJob", DeviceScreenShotJobService.class);
+		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerIntentService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueIntentService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInLoop", ApiCheckInLoopService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);

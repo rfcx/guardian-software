@@ -16,34 +16,19 @@
 	    android:title="@string/menu_cputuner_install"
 	    />
     <item
-	    android:id="@+id/menu_spectrogram_install"
-        android:orderInCategory="4"
-	    android:title="@string/menu_spectrogram_install"
-	    />
-    <item
-	    android:id="@+id/menu_moduleloader_install"
-        android:orderInCategory="5"
-	    android:title="@string/menu_moduleloader_install"
-	    />
-    <item
 	    android:id="@+id/menu_check_version"
-        android:orderInCategory="6"
+        android:orderInCategory="4"
 	    android:title="@string/menu_check_version"
 	    />
     <item
 	    android:id="@+id/menu_root_command"
-        android:orderInCategory="7"
+        android:orderInCategory="5"
 	    android:title="@string/menu_root_command"
 	    />
     <item
 	    android:id="@+id/menu_set_defaults"
-        android:orderInCategory="8"
+        android:orderInCategory="6"
 	    android:title="@string/menu_set_defaults"
-	    />
-    <item
-	    android:id="@+id/menu_delete_apps"
-        android:orderInCategory="9"
-	    android:title="@string/menu_delete_apps"
 	    />
     
 </menu>

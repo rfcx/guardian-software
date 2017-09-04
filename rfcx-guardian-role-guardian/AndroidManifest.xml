@@ -80,6 +80,7 @@
         <service android:name="org.rfcx.guardian.GuardianServiceMonitor" />
         <service android:name="org.rfcx.guardian.audio.encode.AudioEncodeQueueIntentService" />
         <service android:name="org.rfcx.guardian.api.checkin.ApiCheckInQueueIntentService" />
+        <service android:name="org.rfcx.guardian.device.reboot.RebootTriggerIntentService" />
 
         <!-- Receivers -->
          <receiver android:name="org.rfcx.guardian.receiver.BootReceiver">

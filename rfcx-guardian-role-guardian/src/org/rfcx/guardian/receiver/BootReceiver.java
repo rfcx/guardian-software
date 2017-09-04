@@ -12,7 +12,7 @@ public class BootReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		
 		// record boot time in database
-		((RfcxGuardian) context.getApplicationContext()).deviceRebootDb.dbReboot.insert(System.currentTimeMillis());
+		((RfcxGuardian) context.getApplicationContext()).rebootDb.dbReboot.insert(System.currentTimeMillis());
 		
 		// launch background services
 		((RfcxGuardian) context.getApplicationContext()).initializeRoleServices();

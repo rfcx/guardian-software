@@ -45,7 +45,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public static final String APP_ROLE = "Setup";
 
-	private static final String TAG = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
+	private static final String logTag = "Rfcx-"+APP_ROLE+"-"+RfcxGuardian.class.getSimpleName();
 
 	public RfcxDeviceId rfcxDeviceId = null; 
 	public RfcxPrefs rfcxPrefs = null;
@@ -75,7 +75,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
 		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 		
-		this.version = RfcxRole.getRoleVersion(this, TAG);
+		this.version = RfcxRole.getRoleVersion(this, logTag);
 		this.rfcxPrefs.writeVersionToFile(this.version);
 		
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -147,7 +147,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	@Override
 	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
-		Log.d(TAG, "Pref changed: "+prefKey+" = "+this.sharedPrefs.getString(prefKey, null));
+		Log.d(logTag, "Pref changed: "+prefKey+" = "+this.sharedPrefs.getString(prefKey, null));
 		syncSharedPrefs();
 	}
 	
@@ -240,14 +240,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	    		    FileUtils.chmod(binFile, 0755);
 	    		    return binFile.exists();
 	    		} catch (IOException e) {
-	    			RfcxLog.logExc(TAG, e);
+	    			RfcxLog.logExc(logTag, e);
 	    			return false;
 	    		}
 	        } else {
 	        	return true;
 	        }
     	} catch (Exception e) {
-    		RfcxLog.logExc(TAG, e);
+    		RfcxLog.logExc(logTag, e);
     		return false;
     	}
     }

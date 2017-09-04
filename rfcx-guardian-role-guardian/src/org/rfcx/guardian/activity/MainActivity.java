@@ -2,7 +2,6 @@ package org.rfcx.guardian.activity;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.R;
-import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -30,7 +29,7 @@ public class MainActivity extends Activity {
 			break;
 
 		case R.id.menu_reboot:
-			ShellCommands.executeCommand("reboot",null,true,getApplicationContext());
+			app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 			break;
 
 		case R.id.menu_screenshot:
