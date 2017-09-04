@@ -30,7 +30,7 @@ public class MainActivity extends Activity {
 			break;
 
 		case R.id.menu_reboot:
-			ShellCommands.executeCommand("reboot",null,false,getApplicationContext());
+			ShellCommands.executeCommand("reboot",null,true,getApplicationContext());
 			break;
 
 		case R.id.menu_screenshot:

@@ -1,8 +1,8 @@
 package org.rfcx.guardian.device.system.assets;
 
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.device.DeviceScreenLock;
 import org.rfcx.guardian.utility.device.DeviceScreenShotUtils;
+import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -70,13 +70,13 @@ public class DeviceScreenShotJobService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
-			DeviceScreenLock deviceScreenLock = new DeviceScreenLock(context, RfcxGuardian.APP_ROLE);
+			DeviceScreenLock deviceScreenLock = new DeviceScreenLock(RfcxGuardian.APP_ROLE);
 			
 			try {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
 				// activate screen and set wake lock
-				deviceScreenLock.unLockScreen();
+				deviceScreenLock.unLockScreen(context);
 				Thread.sleep(3000);
 				
 				String[] saveScreenShot = DeviceScreenShotUtils.launchCapture(context);

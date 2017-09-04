@@ -59,8 +59,8 @@ static inline int oe_write_page(ogg_page *page, FILE *fp)
 #define IMIN(a,b) ((a) < (b) ? (a) : (b))   /**< Minimum int value.   */
 #define IMAX(a,b) ((a) > (b) ? (a) : (b))   /**< Maximum int value.   */
 
-#define PACKAGE_NAME "RFCX transcoder"
-#define PACKAGE_VERSION "0.1.3"
+#define PACKAGE_NAME "rfcx-guardian-lib-audio"
+#define PACKAGE_VERSION "0.1.0"
 
 int convert( const char* source_path, const char* target_path, int bitRate, int quality);
 
