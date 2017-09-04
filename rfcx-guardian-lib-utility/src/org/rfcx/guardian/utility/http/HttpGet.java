@@ -24,14 +24,14 @@ import android.content.Context;
 import android.util.Log;
 
 public class HttpGet {
+		
+	public HttpGet(Context context, String appRole) {
+		this.context = context;
+		this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(HttpGet.class.getSimpleName()).toString();
+	}
 	
 	private Context context;
 	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(HttpGet.class.getSimpleName()).toString();
-	
-	public HttpGet(Context context, String appName) {
-		this.context = context;
-		this.logTag = (new StringBuilder()).append("Rfcx-").append(appName).append("-").append(HttpGet.class.getSimpleName()).toString();
-	}
 	
 	private static final String DOWNLOAD_TIME_LABEL = "Download time: ";
 	

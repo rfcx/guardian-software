@@ -105,7 +105,7 @@ public class ApiCheckInUtils {
 					filepath
 				);
 
-		Log.d(logTag, "Queued (1/"+app.apiCheckInDb.dbQueued.getCount()+"): " + queueJson);
+		Log.d(logTag, "Queued (1/"+app.apiCheckInDb.dbQueued.getCount()+"): "+queueJson+" | "+filepath);
 		
 		// once queued, remove database reference from encode role
 		String[] encodedAudioFromDb = app.audioEncodeDb.dbEncoded.getSingleRowByAudioId(audioInfo[1]);

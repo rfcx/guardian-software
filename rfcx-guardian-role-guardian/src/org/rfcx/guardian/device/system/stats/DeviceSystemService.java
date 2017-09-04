@@ -2,7 +2,9 @@ package org.rfcx.guardian.device.system.stats;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.device.DeviceCPU;
@@ -47,9 +49,14 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 	private List<int[]> batteryLevelValues = new ArrayList<int[]>();
 	private List<int[]> cpuUsageValues = new ArrayList<int[]>();
 	
+	
 	private boolean isListenerRegistered_telephony = false;
 	private boolean isListenerRegistered_light = false;
 	private boolean isListenerRegistered_accel = false;
+
+	private boolean allowListenerRegistration_telephony = true;
+	private boolean allowListenerRegistration_light = true;
+	private boolean allowListenerRegistration_accel = true;
 	
 	private static final int ACCEL_FLOAT_MULTIPLIER = 1000000;
 	private static final long CPU_USAGE_MEASUREMENT_LOOP_MS = 1000;
@@ -209,17 +216,27 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 		
 		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		
-		if (sensorAbbreviation.equalsIgnoreCase("accel") && (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0)) {
-			this.accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
-			this.sensorManager.registerListener(this, this.accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-			this.isListenerRegistered_accel = true;
+		if (sensorAbbreviation.equalsIgnoreCase("accel") && this.allowListenerRegistration_accel) {
+			if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
+				this.accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
+				this.sensorManager.registerListener(this, this.accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
+				this.isListenerRegistered_accel = true;
+			} else {
+				this.allowListenerRegistration_accel = false;
+				Log.d(logTag, "Disabling Listener Registration for Accelerometer because it doesn't seem to be present.");
+			}
 			
-		} else if (sensorAbbreviation.equalsIgnoreCase("light") && (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0)) {
-			this.lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
-			this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-			this.isListenerRegistered_light = true;
+		} else if (sensorAbbreviation.equalsIgnoreCase("light") && this.allowListenerRegistration_light) { 
+			if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
+				this.lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
+				this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+				this.isListenerRegistered_light = true;
+			} else {
+				this.allowListenerRegistration_light = false;
+				Log.d(logTag, "Disabling Listener Registration for LightMeter because it doesn't seem to be present.");
+			}
 			
-		} else if (sensorAbbreviation.equalsIgnoreCase("telephony")) {
+		} else if (sensorAbbreviation.equalsIgnoreCase("telephony") && this.allowListenerRegistration_telephony) {
 			this.signalStrengthListener = new SignalStrengthListener();
 			this.telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 			this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);

@@ -44,14 +44,7 @@ public class ApiCheckInQueueIntentService extends IntentService {
 						encodedAudio[8] //"encode_duration"
 				};
 				
-				if (app.apiCheckInUtils.addCheckInToQueue(audioInfo, encodedAudio[9])) {
-					Log.d(logTag, "Check In Queued for audio file: "+encodedAudio[9]);
-				}
-				
-				// Wait an extra second between cycles
-				// This is probably not necessary... 
-				// but it's also likely harmless.
-				Thread.sleep(1000);
+				boolean addCheckInToQueue = app.apiCheckInUtils.addCheckInToQueue(audioInfo, encodedAudio[9]);
 				
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
