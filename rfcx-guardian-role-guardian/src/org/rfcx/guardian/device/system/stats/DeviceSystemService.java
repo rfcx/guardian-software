@@ -26,7 +26,7 @@ import android.util.Log;
 
 public class DeviceSystemService extends Service implements SensorEventListener {
 
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceSystemService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSystemService.class);
 	
 	private static final String SERVICE_NAME = "DeviceSystem";
 	

@@ -10,10 +10,10 @@ import android.util.Log;
 public class DeviceAirplaneMode {
 
 	public DeviceAirplaneMode(String appRole) {
-		this.logTag = this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(DeviceAirplaneMode.class.getSimpleName()).toString();
+		this.logTag = RfcxLog.generateLogTag(appRole, this.getClass());
 	}
 	
-	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(DeviceAirplaneMode.class.getSimpleName()).toString();
+	private String logTag = RfcxLog.generateLogTag("Utils", this.getClass());
 	
 	private boolean isEnabled;
 	

@@ -1,5 +1,7 @@
 package org.rfcx.guardian.utility;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,8 +15,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.rfcx.guardian.utility.audio.RfcxAudio;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.xeustechnologies.jtar.TarEntry;
+import org.xeustechnologies.jtar.TarOutputStream;
 
 import android.content.Context;
 import android.util.Log;
@@ -133,6 +136,41 @@ public class FileUtils {
 			} catch (Exception e) { 
 				RfcxLog.logExc(logTag, e);
 			}
+		}
+	}
+	
+	public static boolean createTarArchiveFromFileList(List<String> inputFilePaths, String outputTarFilePath) {
+
+		if ((new File(outputTarFilePath)).exists()) {
+			Log.d(logTag, "'"+outputTarFilePath+"' already exists. This file will not be overwritten.");
+			return false;
+		} else {
+			try {
+				FileOutputStream tarFileOutputStream = new FileOutputStream(outputTarFilePath);
+				TarOutputStream tarOutputStream = new TarOutputStream(new BufferedOutputStream(tarFileOutputStream));
+				for (String filePath : inputFilePaths) {
+					File fileObj = new File(filePath);
+					if (fileObj.exists()) {
+						tarOutputStream.putNextEntry(new TarEntry(fileObj, fileObj.getName()));
+						BufferedInputStream originInputStream = new BufferedInputStream(new FileInputStream(fileObj));
+						int count;
+						byte data[] = new byte[2048];
+						while((count = originInputStream.read(data)) != -1) {
+							tarOutputStream.write(data, 0, count);
+						}
+						tarOutputStream.flush();
+						originInputStream.close();
+					} else {
+						Log.d(logTag, filePath+" does not exist.");
+					}
+				}
+				tarOutputStream.close();
+			} catch (FileNotFoundException e) {
+				RfcxLog.logExc(logTag, e);
+			} catch (IOException e) {
+				RfcxLog.logExc(logTag, e);
+			}
+			return (new File(outputTarFilePath)).exists();
 		}
 	}
 	

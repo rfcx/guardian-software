@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class ApiRegisterService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiRegisterService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiRegisterService.class);
 	
 	private static final String SERVICE_NAME = "ApiRegister";
 
@@ -39,13 +39,13 @@ public class ApiRegisterService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(TAG, "Starting service: "+TAG);
+		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.apiRegister.start();
 		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return START_STICKY;
 	}
@@ -90,16 +90,16 @@ public class ApiRegisterService extends Service {
 						String stringRegistrationResponse = httpPostMultipart.doMultipartPost(postUrl, registrationParameters, new ArrayList<String[]>());
 						JSONArray jsonRegistrationResponse = new JSONArray(stringRegistrationResponse);
 						
-						Log.d(TAG, stringRegistrationResponse);
+						Log.d(logTag, stringRegistrationResponse);
 						
 					} else {
-						Log.d(TAG, "Cancelled because apiRegisterEndpoint is null...");
+						Log.d(logTag, "Cancelled because apiRegisterEndpoint is null...");
 					}
 				} else {
-					Log.d(TAG, "Cancelled because there is no internet connectivity...");
+					Log.d(logTag, "Cancelled because there is no internet connectivity...");
 				}
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			} finally {
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);

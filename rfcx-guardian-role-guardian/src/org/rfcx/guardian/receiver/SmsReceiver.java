@@ -1,5 +1,6 @@
 package org.rfcx.guardian.receiver;
 
+import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
@@ -11,11 +12,7 @@ import android.util.Log;
 
 public class SmsReceiver extends BroadcastReceiver {
 
-	public SmsReceiver(String appRole) {
-		this.logTag = "Rfcx-"+appRole+"-"+SmsReceiver.class.getSimpleName();
-	}
-
-	private String logTag = "Rfcx-Utils-"+SmsReceiver.class.getSimpleName();
+	private String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SmsReceiver.class);
 	
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -33,7 +30,7 @@ public class SmsReceiver extends BroadcastReceiver {
                         Log.i(logTag, "SMS received from '"+msg.getOriginatingAddress()+"': "+msg.getMessageBody());
                     }
                 } catch (Exception e) {
-                	RfcxLog.logExc(logTag, e);
+                		RfcxLog.logExc(logTag, e);
                 }
             }
         }

@@ -1,8 +1,8 @@
 package org.rfcx.guardian.device.system.assets;
 
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.device.DeviceScreenShotUtils;
 import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
+import org.rfcx.guardian.utility.device.DeviceScreenShotUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -13,7 +13,7 @@ import android.util.Log;
 
 public class DeviceScreenShotJobService extends Service {
 
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceScreenShotJobService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceScreenShotJobService.class);
 	
 	private static final String SERVICE_NAME = "DeviceScreenShotJob";
 	

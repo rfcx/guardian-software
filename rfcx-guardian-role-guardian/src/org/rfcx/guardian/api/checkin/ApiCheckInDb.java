@@ -24,7 +24,7 @@ public class ApiCheckInDb {
 		this.dbStashed = new DbStashed(context);
 	}
 	
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInDb.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "checkin";
 	static final String C_CREATED_AT = "created_at";
@@ -57,14 +57,14 @@ public class ApiCheckInDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}
@@ -150,14 +150,14 @@ public class ApiCheckInDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}
@@ -227,14 +227,14 @@ public class ApiCheckInDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}

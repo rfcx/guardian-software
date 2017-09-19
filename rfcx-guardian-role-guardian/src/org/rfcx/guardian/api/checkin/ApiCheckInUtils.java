@@ -12,7 +12,7 @@ import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.GZipUtils;
 import org.rfcx.guardian.utility.ShellCommands;
-import org.rfcx.guardian.utility.audio.RfcxAudio;
+import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.device.DeviceDiskUsage;
 import org.rfcx.guardian.utility.device.DeviceGeoLocation;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
@@ -35,7 +35,7 @@ public class ApiCheckInUtils {
 		setCheckInAuthHeaders(this.app.rfcxDeviceId.getDeviceGuid(), this.app.rfcxDeviceId.getDeviceToken());
 	}
 
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInUtils.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInUtils.class);
 
 	private RfcxGuardian app;
 	HttpPostMultipart httpPostMultipart = new HttpPostMultipart();
@@ -480,7 +480,7 @@ public class ApiCheckInUtils {
 	
 	private static void purgeSingleAudioAssetFromDisk(Context context, String audioTimestamp, String audioFileExtension) {
 		try {
-			(new File(RfcxAudio.getAudioFileLocation_Complete_PostZip(context, (long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();
+			(new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostZip(context, (long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();
 			Log.d(logTag, "Purging audio asset: "+audioTimestamp+"."+audioFileExtension);
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

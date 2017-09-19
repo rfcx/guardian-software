@@ -3,6 +3,7 @@ package org.rfcx.guardian.receiver;
 import java.util.Date;
 
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,11 +12,7 @@ import android.net.ConnectivityManager;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 	
-	public ConnectivityReceiver(String appRole) {
-		this.logTag = "Rfcx-"+appRole+"-"+ConnectivityReceiver.class.getSimpleName();
-	}
-
-	private String logTag = "Rfcx-Utils-"+ConnectivityReceiver.class.getSimpleName();
+	private String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ConnectivityReceiver.class);
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {

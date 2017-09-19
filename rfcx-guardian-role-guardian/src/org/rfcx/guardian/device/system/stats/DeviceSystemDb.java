@@ -25,7 +25,7 @@ public class DeviceSystemDb {
 		this.dbOffline = new DbOffline(context);
 	}
 	
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceSystemDb.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSystemDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "device";
 	static final String C_MEASURED_AT = "measured_at";
@@ -54,14 +54,14 @@ public class DeviceSystemDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}
@@ -115,14 +115,14 @@ public class DeviceSystemDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}
@@ -178,14 +178,14 @@ public class DeviceSystemDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}
@@ -245,14 +245,14 @@ public class DeviceSystemDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}
@@ -311,14 +311,14 @@ public class DeviceSystemDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}

@@ -2,7 +2,7 @@ package org.rfcx.guardian.audio.capture;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.audio.RfcxAudio;
+import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class AudioCaptureService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioCaptureService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioCaptureService.class);
 	
 	private static final String SERVICE_NAME = "AudioCapture";
 	
@@ -38,13 +38,13 @@ public class AudioCaptureService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(TAG, "Starting service: "+TAG);
+		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.audioCaptureSvc.start();
 		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return START_STICKY;
 	}
@@ -74,7 +74,7 @@ public class AudioCaptureService extends Service {
 //			app.audioCaptureUtils = new AudioCaptureUtils(context);
 			app.audioCaptureUtils.captureTimeStampQueue = new long[] { 0, 0 };
 			
-			String captureDir = RfcxAudio.captureDir(context);
+			String captureDir = RfcxAudioUtils.captureDir(context);
 			FileUtils.deleteDirectoryContents(captureDir);
 
 			long prefsCaptureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
@@ -90,7 +90,7 @@ public class AudioCaptureService extends Service {
 		
 			try {
 				
-				Log.d(TAG, "Capture Loop Period: "+ prefsCaptureLoopPeriod +"ms");
+				Log.d(logTag, "Capture Loop Period: "+ prefsCaptureLoopPeriod +"ms");
 				
 				while (audioCaptureService.runFlag) {
 					try {
@@ -126,29 +126,29 @@ public class AudioCaptureService extends Service {
 							
 							if (!isBatteryChargeSufficientForCapture) {
 								
-								Log.i(TAG, "AudioCapture disabled due to low battery level"
+								Log.i(logTag, "AudioCapture disabled due to low battery level"
 										+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+prefsAudioBatteryCutoff+"%)."
 										+" Waiting "+(Math.round(2*prefsCaptureLoopPeriod/1000))+" seconds before next attempt.");
 								Thread.sleep(prefsCaptureLoopPeriod);
 								
 							} else if (!isCaptureAllowedAtThisTimeOfDay) {
 								
-								Log.i(TAG, "AudioCapture disabled during specified off hours..");
+								Log.i(logTag, "AudioCapture disabled during specified off hours..");
 							}
 							Thread.sleep(prefsCaptureLoopPeriod);
 						}
 					} catch (Exception e) {
 						app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 						audioCaptureService.runFlag = false;
-						RfcxLog.logExc(TAG, e);
+						RfcxLog.logExc(logTag, e);
 					}
 				}
-				Log.v(TAG, "Stopping service: "+TAG);
+				Log.v(logTag, "Stopping service: "+logTag);
 				
 			} catch (Exception e) {
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				audioCaptureService.runFlag = false;
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			}
 		}
 	}

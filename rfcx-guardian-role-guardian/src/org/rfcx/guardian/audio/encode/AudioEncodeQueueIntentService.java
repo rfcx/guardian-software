@@ -2,7 +2,7 @@ package org.rfcx.guardian.audio.encode;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.audio.capture.AudioCaptureUtils;
-import org.rfcx.guardian.utility.audio.RfcxAudio;
+import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class AudioEncodeQueueIntentService extends IntentService {
 	
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncodeQueueIntentService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioEncodeQueueIntentService.class);
 	
 	private static final String SERVICE_NAME = "AudioEncodeQueue";
 		
@@ -44,7 +44,7 @@ public class AudioEncodeQueueIntentService extends IntentService {
 			
 			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, captureTimeStampQueue[0], captureFileExtension)) {
 				
-				String preEncodeFilePath = RfcxAudio.getAudioFileLocation_PreEncode(context, captureTimeStampQueue[0],captureFileExtension);	
+				String preEncodeFilePath = RfcxAudioUtils.getAudioFileLocation_PreEncode(context, captureTimeStampQueue[0],captureFileExtension);	
 				
 				app.audioEncodeDb.dbEncodeQueue.insert(
 						""+captureTimeStampQueue[0],

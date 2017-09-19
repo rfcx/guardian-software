@@ -36,28 +36,42 @@ public class RfcxRole {
 		public static final class guardian {
 			
 			public static final String AUTHORITY = "org.rfcx.guardian.guardian";
-			
-			public static final String[] PROJECTION_PREFS = { "pref_key", "pref_value" };
-			public static final String ENDPOINT_PREFS = "prefs";
-			public static final String URI_PREFS = "content://"+AUTHORITY+"/"+ENDPOINT_PREFS;
 
 			public static final String[] PROJECTION_VERSION = { "role", "version" };
 			public static final String ENDPOINT_VERSION = "version";
 			public static final String URI_VERSION = "content://"+AUTHORITY+"/"+ENDPOINT_VERSION;
+			
+			public static final String[] PROJECTION_PREFS = { "pref_key", "pref_value" };
+			public static final String ENDPOINT_PREFS = "prefs";
+			public static final String URI_PREFS = "content://"+AUTHORITY+"/"+ENDPOINT_PREFS;
+			
+		}
+		
+		public static final class admin {
+			
+			public static final String AUTHORITY = "org.rfcx.guardian.admin";
+
+			public static final String[] PROJECTION_VERSION = { "role", "version" };
+			public static final String ENDPOINT_VERSION = "version";
+			public static final String URI_VERSION = "content://"+AUTHORITY+"/"+ENDPOINT_VERSION;
+			
+			public static final String[] PROJECTION_EXECUTE = { "command" };
+			public static final String ENDPOINT_EXECUTE = "execute";
+			public static final String URI_EXECUTE = "content://"+AUTHORITY+"/"+ENDPOINT_EXECUTE;
 			
 		}
 		
 		public static final class updater {
 			
 			public static final String AUTHORITY = "org.rfcx.guardian.updater";
-			
-			public static final String[] PROJECTION_PREFS = { "pref_key", "pref_value" };
-			public static final String ENDPOINT_PREFS = "prefs";
-			public static final String URI_PREFS = "content://"+AUTHORITY+"/"+ENDPOINT_PREFS;
 
 			public static final String[] PROJECTION_VERSION = { "role", "version" };
 			public static final String ENDPOINT_VERSION = "version";
 			public static final String URI_VERSION = "content://"+AUTHORITY+"/"+ENDPOINT_VERSION;
+			
+			public static final String[] PROJECTION_PREFS = { "pref_key", "pref_value" };
+			public static final String ENDPOINT_PREFS = "prefs";
+			public static final String URI_PREFS = "content://"+AUTHORITY+"/"+ENDPOINT_PREFS;
 			
 //			public static final String[] PROJECTION_1 = { "role", "version" };
 //			public static final String ENDPOINT_1 = "software";
@@ -67,14 +81,14 @@ public class RfcxRole {
 		public static final class setup {
 			
 			public static final String AUTHORITY = "org.rfcx.guardian.setup";
-			
-			public static final String[] PROJECTION_PREFS = { "pref_key", "pref_value" };
-			public static final String ENDPOINT_PREFS = "prefs";
-			public static final String URI_PREFS = "content://"+AUTHORITY+"/"+ENDPOINT_PREFS;
 
 			public static final String[] PROJECTION_VERSION = { "role", "version" };
 			public static final String ENDPOINT_VERSION = "version";
 			public static final String URI_VERSION = "content://"+AUTHORITY+"/"+ENDPOINT_VERSION;
+			
+			public static final String[] PROJECTION_PREFS = { "pref_key", "pref_value" };
+			public static final String ENDPOINT_PREFS = "prefs";
+			public static final String URI_PREFS = "content://"+AUTHORITY+"/"+ENDPOINT_PREFS;
 			
 		}
 		

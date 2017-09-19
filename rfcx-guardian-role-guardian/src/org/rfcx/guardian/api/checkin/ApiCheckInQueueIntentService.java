@@ -1,7 +1,7 @@
 package org.rfcx.guardian.api.checkin;
 
 import org.rfcx.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.audio.RfcxAudio;
+import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class ApiCheckInQueueIntentService extends IntentService {
 	
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInQueueIntentService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInQueueIntentService.class);
 	
 	private static final String SERVICE_NAME = "ApiCheckInQueue";
 		
@@ -40,7 +40,7 @@ public class ApiCheckInQueueIntentService extends IntentService {
 						encodedAudio[4], //"samplerate"
 						encodedAudio[5], //"bitrate"
 						encodedAudio[6], //"codec"
-						(RfcxAudio.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr"), //"cbr_or_vbr"
+						(RfcxAudioUtils.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr"), //"cbr_or_vbr"
 						encodedAudio[8] //"encode_duration"
 				};
 				

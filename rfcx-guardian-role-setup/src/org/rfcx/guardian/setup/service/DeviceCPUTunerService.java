@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class DeviceCPUTunerService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceCPUTunerService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceCPUTunerService.class);
 	
 	private static final String SERVICE_NAME = "CPUTuner";
 
@@ -35,13 +35,13 @@ public class DeviceCPUTunerService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(TAG, "Starting service: "+TAG);
+		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.deviceCPUTunerSvc.start();
 		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return START_STICKY;
 	}
@@ -75,7 +75,7 @@ public class DeviceCPUTunerService extends Service {
 		        	);
 				
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			} finally {
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);

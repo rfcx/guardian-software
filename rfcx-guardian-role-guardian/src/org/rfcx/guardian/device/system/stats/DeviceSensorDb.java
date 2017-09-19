@@ -22,7 +22,7 @@ public class DeviceSensorDb {
 		this.dbAccelerometer = new DbAccelerometer(context);
 	}
 	
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceSensorDb.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSensorDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "device";
 	static final String C_MEASURED_AT = "measured_at";
@@ -51,14 +51,14 @@ public class DeviceSensorDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}
@@ -115,14 +115,14 @@ public class DeviceSensorDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) {
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}

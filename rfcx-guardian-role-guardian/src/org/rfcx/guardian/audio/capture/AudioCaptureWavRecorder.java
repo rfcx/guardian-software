@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
@@ -23,6 +26,8 @@ public class AudioCaptureWavRecorder {
 		} while (!(result.getState() == AudioCaptureWavRecorder.State.INITIALIZING));
 		return result;
 	}
+	
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioCaptureWavRecorder.class);
 
 	/**
 	 * INITIALIZING : recorder is initializing; READY : recorder has been
@@ -118,8 +123,7 @@ public class AudioCaptureWavRecorder {
 					}
 				}
 			} catch (IOException e) {
-				Log.e(AudioCaptureWavRecorder.class.getName(),
-						"Error occured in updateListener, recording is aborted");
+				RfcxLog.logExc(logTag, e);
 				// stop();
 			}
 		}
@@ -171,9 +175,7 @@ public class AudioCaptureWavRecorder {
 							channelConfig, audioFormat);
 					// Set frame period and timer interval accordingly
 					framePeriod = bufferSize / (2 * bSamples * nChannels / 8);
-					Log.w(AudioCaptureWavRecorder.class.getName(),
-							"Increasing buffer size to "
-									+ Integer.toString(bufferSize));
+					Log.w(logTag, "Increasing buffer size to "+Integer.toString(bufferSize));
 				}
 
 				audioRecorder = new AudioRecord(audioSource, sampleRate,
@@ -189,10 +191,9 @@ public class AudioCaptureWavRecorder {
 			state = State.INITIALIZING;
 		} catch (Exception e) {
 			if (e.getMessage() != null) {
-				Log.e(AudioCaptureWavRecorder.class.getName(), e.getMessage());
+				RfcxLog.logExc(logTag, e);
 			} else {
-				Log.e(AudioCaptureWavRecorder.class.getName(),
-						"Unknown error occured while initializing recording");
+				Log.e(logTag, "Unknown error occured while initializing recording");
 			}
 			state = State.ERROR;
 		}
@@ -212,10 +213,9 @@ public class AudioCaptureWavRecorder {
 			}
 		} catch (Exception e) {
 			if (e.getMessage() != null) {
-				Log.e(AudioCaptureWavRecorder.class.getName(), e.getMessage());
+				RfcxLog.logExc(logTag, e);
 			} else {
-				Log.e(AudioCaptureWavRecorder.class.getName(),
-						"Unknown error occured while setting output path");
+				Log.e(logTag, "Unknown error occured while setting output path");
 			}
 			state = State.ERROR;
 		}
@@ -309,17 +309,15 @@ public class AudioCaptureWavRecorder {
 				}
 
 			} else {
-				Log.e(AudioCaptureWavRecorder.class.getName(),
-						"prepare() method called on illegal state");
+				Log.e(logTag, "prepare() method called on illegal state");
 				release();
 				state = State.ERROR;
 			}
 		} catch (Exception e) {
 			if (e.getMessage() != null) {
-				Log.e(AudioCaptureWavRecorder.class.getName(), e.getMessage());
+				RfcxLog.logExc(logTag, e);
 			} else {
-				Log.e(AudioCaptureWavRecorder.class.getName(),
-						"Unknown error occured in prepare()");
+				Log.e(logTag, "Unknown error occured in prepare()");
 			}
 			state = State.ERROR;
 		}
@@ -340,8 +338,7 @@ public class AudioCaptureWavRecorder {
 				try {
 					randomAccessWriter.close(); // Remove prepared file
 				} catch (IOException e) {
-					Log.e(AudioCaptureWavRecorder.class.getName(),
-							"I/O exception occured while closing output file");
+					Log.e(logTag, "I/O exception occured while closing output file");
 				}
 				(new File(filePath)).delete();
 			}
@@ -373,7 +370,7 @@ public class AudioCaptureWavRecorder {
 				state = State.INITIALIZING;
 			}
 		} catch (Exception e) {
-			Log.e(AudioCaptureWavRecorder.class.getName(), e.getMessage());
+			RfcxLog.logExc(logTag, e);
 			state = State.ERROR;
 		}
 	}
@@ -394,8 +391,7 @@ public class AudioCaptureWavRecorder {
 
 			state = State.RECORDING;
 		} else {
-			Log.e(AudioCaptureWavRecorder.class.getName(),
-					"start() called on illegal state");
+			Log.e(logTag, "start() called on illegal state");
 			state = State.ERROR;
 		}
 	}
@@ -425,13 +421,13 @@ public class AudioCaptureWavRecorder {
 
 				randomAccessWriter.close();
 			} catch (IOException e) {
-				Log.e(AudioCaptureWavRecorder.class.getName(), "I/O exception occured while closing output file");
+				Log.e(logTag, "I/O exception occured while closing output file");
 				state = State.ERROR;
 			}
 
 			state = State.STOPPED;
 		} else {
-			Log.e(AudioCaptureWavRecorder.class.getName(), "stop() called on illegal state");
+			Log.e(logTag, "stop() called on illegal state");
 			state = State.ERROR;
 		}
 	}

@@ -6,5 +6,9 @@
     <string name="menu_prefs">prefs</string>
     <string name="menu_reboot">reboot</string>
     <string name="menu_screenshot">screenshot</string>
+    <string name="menu_test_i2c">i2c test</string>
+    
+    
+    
     
 </resources>

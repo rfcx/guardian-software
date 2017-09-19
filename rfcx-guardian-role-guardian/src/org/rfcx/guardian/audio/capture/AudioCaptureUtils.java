@@ -7,7 +7,7 @@ import java.util.Date;
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.audio.RfcxAudio;
+import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
@@ -17,10 +17,10 @@ public class AudioCaptureUtils {
 
 	public AudioCaptureUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
-		RfcxAudio.initializeAudioDirectories(context);
+		RfcxAudioUtils.initializeAudioDirectories(context);
 	}
 	
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioCaptureUtils.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioCaptureUtils.class);
 
 	private RfcxGuardian app = null;
 	
@@ -61,10 +61,10 @@ public class AudioCaptureUtils {
 	
 	public static boolean reLocateAudioCaptureFile(Context context, long timestamp, String fileExtension) {
 		boolean isFileMoved = false;
-		File captureFile = new File(getCaptureFilePath(RfcxAudio.captureDir(context),timestamp,fileExtension));
+		File captureFile = new File(getCaptureFilePath(RfcxAudioUtils.captureDir(context),timestamp,fileExtension));
 		if (captureFile.exists()) {
 			try {
-				File preEncodeFile = new File(RfcxAudio.getAudioFileLocation_PreEncode(context, timestamp,fileExtension));
+				File preEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PreEncode(context, timestamp,fileExtension));
 				FileUtils.copy(captureFile, preEncodeFile);
 				FileUtils.chmod(preEncodeFile, 0777);
 				if (preEncodeFile.exists()) { captureFile.delete(); }	

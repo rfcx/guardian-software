@@ -10,7 +10,7 @@ import android.util.Log;
 
 public class AudioEncodeLoopService extends Service {
 
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncodeLoopService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioEncodeLoopService.class);
 	
 	private static final String SERVICE_NAME = "AudioEncodeLoop";
 	

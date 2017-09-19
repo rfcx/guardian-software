@@ -36,57 +36,57 @@ public class MainActivity extends Activity {
 			app.rfcxServiceHandler.triggerService("ApiRegister", true);
 			break;
 			
-		case R.id.menu_cputuner_install:
-			String cpuTunerPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner";
-			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner")).isDirectory()) {
-				Log.d("Rfcx-Setup","CPUTuner will now be downloaded and installed...");
-				app.apiCore.targetAppRoleApiEndpoint = "cputuner";
-				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
-				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
-			} else {
-				Log.d("Rfcx-Setup","CPUTuner is already installed...");
-			}
-			break;
+//		case R.id.menu_cputuner_install:
+//			String cpuTunerPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner";
+//			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner")).isDirectory()) {
+//				Log.d("Rfcx-Setup","CPUTuner will now be downloaded and installed...");
+//				app.apiCore.targetAppRoleApiEndpoint = "cputuner";
+//				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
+//				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
+//			} else {
+//				Log.d("Rfcx-Setup","CPUTuner is already installed...");
+//			}
+//			break;
 			
-		case R.id.menu_spectrogram_install:
-			String spectrogramPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/radonsoft.net.spectralviewpro";
-			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/radonsoft.net.spectralviewpro")).isDirectory()) {
-				Log.d("Rfcx-Setup","SpectralViewPro will now be downloaded and installed...");
-				app.apiCore.targetAppRoleApiEndpoint = "spectrogram";
-				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
-				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
-			} else {
-				Log.d("Rfcx-Setup","SpectralViewPro is already installed...");
-			}
-			break;
-			
-		case R.id.menu_moduleloader_install:
-			String moduleLoaderPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/com.d4.moduleLoader";
-			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/com.d4.moduleLoader")).isDirectory()) {
-				Log.d("Rfcx-Setup","ModuleLoader will now be downloaded and installed...");
-				app.apiCore.targetAppRoleApiEndpoint = "moduleloader";
-				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
-				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
-			} else {
-				Log.d("Rfcx-Setup","ModuleLoader is already installed...");
-			}
-			break;
-			
-		case R.id.menu_check_version:
-			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
-			break;
+//		case R.id.menu_spectrogram_install:
+//			String spectrogramPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/radonsoft.net.spectralviewpro";
+//			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/radonsoft.net.spectralviewpro")).isDirectory()) {
+//				Log.d("Rfcx-Setup","SpectralViewPro will now be downloaded and installed...");
+//				app.apiCore.targetAppRoleApiEndpoint = "spectrogram";
+//				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
+//				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
+//			} else {
+//				Log.d("Rfcx-Setup","SpectralViewPro is already installed...");
+//			}
+//			break;
+//			
+//		case R.id.menu_moduleloader_install:
+//			String moduleLoaderPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/com.d4.moduleLoader";
+//			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/com.d4.moduleLoader")).isDirectory()) {
+//				Log.d("Rfcx-Setup","ModuleLoader will now be downloaded and installed...");
+//				app.apiCore.targetAppRoleApiEndpoint = "moduleloader";
+//				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
+//				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
+//			} else {
+//				Log.d("Rfcx-Setup","ModuleLoader is already installed...");
+//			}
+//			break;
+//			
+//		case R.id.menu_check_version:
+//			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
+//			break;
 
 		case R.id.menu_root_command:
 			ShellCommands.triggerNeedForRootAccess(getApplicationContext());
 			break;
 			
-		case R.id.menu_set_defaults:
-			app.setExtremeDevelopmentSystemDefaults();
-			break;
-			
-		case R.id.menu_delete_apps:
-			app.deleteExtraCyanogenModApps();
-			break;
+//		case R.id.menu_set_defaults:
+//			app.setExtremeDevelopmentSystemDefaults();
+//			break;
+//			
+//		case R.id.menu_delete_apps:
+//			app.deleteExtraCyanogenModApps();
+//			break;
 			
 		}
 		return true;

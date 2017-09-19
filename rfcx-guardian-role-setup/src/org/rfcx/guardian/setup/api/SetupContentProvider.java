@@ -16,7 +16,7 @@ import android.net.Uri;
 
 public class SetupContentProvider extends ContentProvider {
 	
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+SetupContentProvider.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SetupContentProvider.class);
 	
 	private static final String AUTHORITY = RfcxRole.ContentProvider.setup.AUTHORITY;
 	private static final String ENDPOINT_PREFS = RfcxRole.ContentProvider.setup.ENDPOINT_PREFS;

@@ -34,15 +34,18 @@ else
 
   # include rfcx shared library
   echo "android.library.reference.1=../rfcx-guardian-lib-utility" >> local.properties;
-  
-  # for the 'encode' role, include rfcx shared audio encoding library
-  # if [[ $ROLE = 'encode' ]]; then
-  #   echo "android.library.reference.2=../rfcx-guardian-lib-audio" >> local.properties;
-  # fi
 
     # for the 'encode' role, include rfcx shared audio encoding library
-  if [[ $ROLE = 'app' ]]; then
+  if [[ $ROLE = 'guardian' ]]; then
+    
     echo "android.library.reference.2=../rfcx-guardian-lib-audio" >> local.properties;
+    cd $SCRIPT_DIR/../rfcx-guardian-lib-audio/jni && ndk-build;
+
+    echo "android.library.reference.3=../rfcx-guardian-lib-i2c" >> local.properties;
+    cd $SCRIPT_DIR/../rfcx-guardian-lib-i2c/jni && ndk-build;
+
+    cd $SCRIPT_DIR/../rfcx-guardian-role-$ROLE;
+
   fi
 
   echo "setting up build process...";

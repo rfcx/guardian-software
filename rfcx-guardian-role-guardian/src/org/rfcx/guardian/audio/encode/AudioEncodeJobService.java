@@ -6,7 +6,7 @@ import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.audio.encode.AudioEncodeUtils;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.GZipUtils;
-import org.rfcx.guardian.utility.audio.RfcxAudio;
+import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -17,7 +17,7 @@ import android.util.Log;
 
 public class AudioEncodeJobService extends Service {
 
-	private static final String logTag = (new StringBuilder()).append("Rfcx-").append(RfcxGuardian.APP_ROLE).append("-").append(AudioEncodeJobService.class.getSimpleName()).toString();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioEncodeJobService.class);
 	
 	private static final String SERVICE_NAME = "AudioEncodeJob";
 	
@@ -116,8 +116,8 @@ public class AudioEncodeJobService extends Service {
 									
 									Log.i(logTag, (new StringBuilder()).append("Beginning Encode: ").append(audioToEncode[1]).append(" ").append(audioToEncode[2]).append("=>").append(audioToEncode[6]).toString());
 								
-									File postEncodeFile = new File(RfcxAudio.getAudioFileLocation_PostEncode(context, (long) Long.parseLong(audioToEncode[1]),audioToEncode[6]));
-									File gZippedFile = new File(RfcxAudio.getAudioFileLocation_Complete_PostZip(context, (long) Long.parseLong(audioToEncode[1]),RfcxAudio.getFileExtension(audioToEncode[6])));
+									File postEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PostEncode(context, (long) Long.parseLong(audioToEncode[1]),audioToEncode[6]));
+									File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostZip(context, (long) Long.parseLong(audioToEncode[1]),RfcxAudioUtils.getFileExtension(audioToEncode[6])));
 
 									// just in case there's already a post-encoded file, delete it first
 									if (postEncodeFile.exists()) { postEncodeFile.delete(); }
@@ -161,7 +161,7 @@ public class AudioEncodeJobService extends Service {
 											app.audioEncodeDb.dbEncoded
 												.insert(
 													audioToEncode[1], 
-													RfcxAudio.getFileExtension(audioToEncode[6]), 
+													RfcxAudioUtils.getFileExtension(audioToEncode[6]), 
 													preZipDigest, 
 													(int) Integer.parseInt(audioToEncode[4]), 
 													encodeBitRate, 

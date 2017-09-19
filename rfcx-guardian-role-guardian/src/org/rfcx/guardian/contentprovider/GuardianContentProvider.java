@@ -16,7 +16,7 @@ import android.net.Uri;
 
 public class GuardianContentProvider extends ContentProvider {
 	
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+GuardianContentProvider.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, GuardianContentProvider.class);
 	
 	private static final String AUTHORITY = RfcxRole.ContentProvider.guardian.AUTHORITY;
 	

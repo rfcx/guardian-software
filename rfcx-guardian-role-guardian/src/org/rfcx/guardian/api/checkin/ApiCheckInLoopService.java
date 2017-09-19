@@ -10,7 +10,7 @@ import android.util.Log;
 
 public class ApiCheckInLoopService extends Service {
 
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInLoopService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInLoopService.class);
 	
 	private static final String SERVICE_NAME = "ApiCheckInLoop";
 	

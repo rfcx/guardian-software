@@ -2,6 +2,7 @@ package org.rfcx.guardian.activity;
 
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.R;
+import org.rfcx.guardian.i2c.I2cUtils;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -28,12 +29,12 @@ public class MainActivity extends Activity {
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 
-		case R.id.menu_reboot:
-			app.rfcxServiceHandler.triggerService("RebootTrigger", true);
-			break;
-
 		case R.id.menu_screenshot:
 			app.rfcxServiceHandler.triggerService("DeviceScreenShotJob", true);
+			break;
+
+		case R.id.menu_test_i2c:
+			I2cUtils.writeToI2c( 4 );
 			break;
 		
 		}

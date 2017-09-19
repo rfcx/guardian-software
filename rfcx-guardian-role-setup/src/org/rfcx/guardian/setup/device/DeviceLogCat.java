@@ -13,7 +13,7 @@ import android.util.Log;
 
 public class DeviceLogCat {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceLogCat.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceLogCat.class);
 
 	private String processTag = "logcat";
 	private String binName = "logcat_capture";
@@ -52,10 +52,10 @@ public class DeviceLogCat {
 				return null;
 						
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			}
 		} else {
-			Log.e(TAG, "Executable not found: "+this.binFilePath);
+			Log.e(logTag, "Executable not found: "+this.binFilePath);
 		}
 		return null;
 	}
@@ -73,7 +73,7 @@ public class DeviceLogCat {
 	        	}
 		    }
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return null;
 	}	

@@ -5,6 +5,12 @@ import android.util.Log;
 
 public class RfcxLog {
 	
+	public static String generateLogTag(String appRole, Class logClass) {
+		
+		return (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(logClass.getSimpleName()).toString();
+		
+	}
+	
 	public static void logExc(String logTag, Exception exc) {
 		
 		StringBuilder excMsg = new StringBuilder();

@@ -21,7 +21,7 @@ public class DeviceDataTransferDb {
 		this.dbTransferred = new DbTransferred(context);
 	}
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceDataTransferDb.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceDataTransferDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "data";
 	static final String C_CREATED_AT = "created_at";
@@ -58,7 +58,7 @@ public class DeviceDataTransferDb {
 				try {
 					db.execSQL(createColumnString(TABLE));
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 			@Override
@@ -66,7 +66,7 @@ public class DeviceDataTransferDb {
 				try { 
 					db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
 				} catch (SQLException e) { 
-					RfcxLog.logExc(TAG, e);
+					RfcxLog.logExc(logTag, e);
 				}
 			}
 		}

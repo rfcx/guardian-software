@@ -22,7 +22,7 @@ public class AudioEncodeDb {
 		this.dbEncoded = new DbEncoded(context);
 	}
 
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncodeDb.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioEncodeDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "audio";
 	

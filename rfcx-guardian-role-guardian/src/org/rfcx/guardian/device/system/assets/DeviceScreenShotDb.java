@@ -21,7 +21,7 @@ public class DeviceScreenShotDb {
 		this.dbCaptured = new DbCaptured(context);
 	}
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DeviceScreenShotDb.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceScreenShotDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "screenshots";
 	static final String C_CREATED_AT = "created_at";
@@ -53,12 +53,12 @@ public class DeviceScreenShotDb {
 			public void onCreate(SQLiteDatabase db) {
 				try {
 					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { RfcxLog.logExc(TAG, e); }
+				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
 			}
 			@Override
 			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { RfcxLog.logExc(TAG, e); }
+				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
 			}
 		}
 		final DbHelper dbHelper;

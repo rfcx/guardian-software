@@ -7,7 +7,7 @@ import java.util.List;
 import org.rfcx.guardian.RfcxGuardian;
 import org.rfcx.guardian.audio.flac.FLAC_FileEncoder;
 import org.rfcx.guardian.audio.opus.OpusAudioEncoder;
-import org.rfcx.guardian.utility.audio.RfcxAudio;
+import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class AudioEncodeUtils {
 
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+AudioEncodeUtils.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioEncodeUtils.class);
 	
 	public static int encodeAudioFile(File preEncodeFile, File postEncodeFile, String encodeCodec, int encodeSampleRate, int encodeBitRate, int encodeQuality) {
 		
@@ -34,7 +34,7 @@ public class AudioEncodeUtils {
 				} else if (encodeCodec.equalsIgnoreCase("flac")) {
 					
 					FLAC_FileEncoder flacEncoder = new FLAC_FileEncoder();
-					flacEncoder.adjustAudioConfig(encodeSampleRate, RfcxAudio.AUDIO_SAMPLE_SIZE, RfcxAudio.AUDIO_CHANNEL_COUNT);
+					flacEncoder.adjustAudioConfig(encodeSampleRate, RfcxAudioUtils.AUDIO_SAMPLE_SIZE, RfcxAudioUtils.AUDIO_CHANNEL_COUNT);
 					FLAC_FileEncoder.Status encStatus = flacEncoder.encode(preEncodeFile, postEncodeFile);
 					if (encStatus == FLAC_FileEncoder.Status.FULL_ENCODE) { encodeOutputBitRate = 0; }
 					Log.d(logTag, "FLAC Encoding Complete: "+encStatus.name());
@@ -60,7 +60,7 @@ public class AudioEncodeUtils {
 			filesQueuedForEncode.add(queuedRow[9]);
 		}
 		
-		FileUtils.deleteDirectoryContents(RfcxAudio.encodeDir(context), filesQueuedForEncode);
+		FileUtils.deleteDirectoryContents(RfcxAudioUtils.encodeDir(context), filesQueuedForEncode);
 	}
 	
 }

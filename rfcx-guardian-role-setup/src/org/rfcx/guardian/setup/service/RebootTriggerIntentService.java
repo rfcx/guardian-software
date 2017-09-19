@@ -2,6 +2,7 @@ package org.rfcx.guardian.setup.service;
 
 import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
@@ -9,12 +10,12 @@ import android.content.Intent;
 
 public class RebootTriggerIntentService extends IntentService {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+RebootTriggerIntentService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, RebootTriggerIntentService.class);
 	
 	private static final String SERVICE_NAME = "RebootTrigger";
 	
 	public RebootTriggerIntentService() {
-		super(TAG);
+		super(logTag);
 	}
 
 	@Override

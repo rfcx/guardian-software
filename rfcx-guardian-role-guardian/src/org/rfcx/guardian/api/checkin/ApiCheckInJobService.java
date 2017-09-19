@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class ApiCheckInJobService extends Service {
 
-	private static final String logTag = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckInJobService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInJobService.class);
 	
 	private static final String SERVICE_NAME = "ApiCheckInJob";
 	
