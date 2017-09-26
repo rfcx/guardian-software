@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">admin</string>
+    <string name="app_name">rfcx admin</string>
     
+	<string name="menu_root_command">root command</string>
 	<string name="menu_reboot">reboot</string>
+	<string name="menu_screenshot">screenshot</string>
+	<string name="menu_i2c">i2c test</string>
 	
 </resources>

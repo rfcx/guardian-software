@@ -14,7 +14,7 @@ import android.util.Log;
 
 public class ShellCommands {
 
-	private static final String logTag = "Rfcx-Utils-"+ShellCommands.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag("Utils", ShellCommands.class);
 	
 	public static void killProcessByName(Context context, String searchTerm, String excludeTerm) {
 		Log.i(logTag, "Attempting to kill process associated with search term '"+searchTerm+"'.");

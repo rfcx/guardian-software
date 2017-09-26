@@ -1,5 +1,7 @@
 package org.rfcx.guardian.utility.device;
 
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -8,10 +10,10 @@ import android.os.BatteryManager;
 public class DeviceBattery {
 	
 	public DeviceBattery(String appRole) {
-		this.logTag = this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(DeviceBattery.class.getSimpleName()).toString();
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceBattery.class);
 	}
 	
-	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(DeviceBattery.class.getSimpleName()).toString();
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceBattery.class);
 	
 	private Intent getIntent(Context context, Intent intent) {
 		return (intent == null) ? intent = context.getApplicationContext().registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED)) : intent;

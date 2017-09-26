@@ -23,7 +23,7 @@ import android.util.Log;
 public class RfcxPrefs {
 
 	public RfcxPrefs(Context context, String appRole) {
-		this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(RfcxPrefs.class.getSimpleName()).toString();
+		this.logTag = RfcxLog.generateLogTag(appRole, RfcxPrefs.class);
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
 		this.prefsDirPath = setOrCreatePrefsDirectory(context);
@@ -31,7 +31,7 @@ public class RfcxPrefs {
 //		setDefaultPrefs();
 	}
 	
-	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(RfcxPrefs.class.getSimpleName()).toString();
+	private String logTag = RfcxLog.generateLogTag("Utils", RfcxPrefs.class);
 	
 	private Context context = null;
 	private String thisAppRole = null;
@@ -62,6 +62,10 @@ public class RfcxPrefs {
 
 	public long getPrefAsLong(String prefKey) {
 		return (long) Long.parseLong(getPrefAsString(prefKey));
+	}
+
+	public boolean getPrefAsBoolean(String prefKey) {
+		return getPrefAsString(prefKey).equalsIgnoreCase("true");
 	}
 	
 	public void setPref(String prefKey, String prefValue) {
@@ -201,7 +205,9 @@ public class RfcxPrefs {
 
 	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
 	    new HashMap<String, String>() {{
-	    	
+
+			put("checkin_offline_mode", "false");
+			
 	        put("api_url_base", "https://api.rfcx.org");
 	        
 	        put("service_monitor_cycle_duration", "600000");
@@ -254,6 +260,8 @@ public class RfcxPrefs {
 	
 //	private void setDefaultPrefs() {
 //		
+//		defaultPrefs.put("checkin_offline_mode", "false");
+//	
 //		defaultPrefs.put("api_url_base", "https://api.rfcx.org");
 //
 //		defaultPrefs.put("service_monitor_cycle_duration", "600000");

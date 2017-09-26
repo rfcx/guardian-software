@@ -24,7 +24,7 @@ import android.util.Log;
 
 public class FileUtils {
 	
-	private static final String logTag = "Rfcx-Utils-"+FileUtils.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag("Utils", FileUtils.class);
 	
 	public static String sha1Hash(String filePath) {
 		try {

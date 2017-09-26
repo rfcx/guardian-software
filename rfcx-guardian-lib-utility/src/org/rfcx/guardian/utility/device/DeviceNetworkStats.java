@@ -2,15 +2,17 @@ package org.rfcx.guardian.utility.device;
 
 import java.util.Date;
 
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
 import android.net.TrafficStats;
 
 public class DeviceNetworkStats {
 	
 	public DeviceNetworkStats(String appRole) {
-		this.logTag = "Rfcx-"+appRole+"-"+DeviceNetworkStats.class.getSimpleName();
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceNetworkStats.class);
 	}
 	
-	private String logTag = "Rfcx-Utils-"+DeviceNetworkStats.class.getSimpleName();
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceNetworkStats.class);
 	
 	private Date networkStatsStart = new Date();
 	private Date networkStatsEnd = new Date();

@@ -14,7 +14,7 @@ import android.util.Base64;
 
 public class GZipUtils {
 
-	private static final String logTag = "Rfcx-Utils-"+GZipUtils.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag("Utils", GZipUtils.class);
 	
 	public static String gZipStringToBase64(String inputString) {
 		return Base64.encodeToString(gZipString(inputString),Base64.DEFAULT);

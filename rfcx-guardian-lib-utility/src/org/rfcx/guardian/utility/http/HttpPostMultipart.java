@@ -28,8 +28,8 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import android.util.Log;
 
 public class HttpPostMultipart {
-
-	private static final String logTag = "Rfcx-Utils-"+HttpPostMultipart.class.getSimpleName();
+	
+	private static final String logTag = RfcxLog.generateLogTag("Utils", HttpPostMultipart.class);
 
 	// These hard coded timeout values are just defaults.
 	// They may be customized through the setTimeOuts method.

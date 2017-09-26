@@ -34,7 +34,8 @@ public class MainActivity extends Activity {
 			break;
 
 		case R.id.menu_test_i2c:
-			I2cUtils.writeToI2c( 4 );
+//			I2cUtils.writeToI2c( 4 );
+			app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
 			break;
 		
 		}

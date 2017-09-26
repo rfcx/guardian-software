@@ -1,8 +1,12 @@
 package org.rfcx.guardian.admin;
 
+import org.rfcx.guardian.admin.service.AirplaneModeOffJobService;
 import org.rfcx.guardian.admin.service.RebootTriggerIntentService;
+import org.rfcx.guardian.admin.service.ScreenShotJobService;
 import org.rfcx.guardian.utility.DateTimeUtils;
-import org.rfcx.guardian.utility.device.control.DeviceRebootUtils;
+import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
+import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
+import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -25,7 +29,10 @@ public class RfcxGuardian extends Application {
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
 	
-	public DeviceRebootUtils deviceRebootUtils = null;
+	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
+	public DeviceBluetooth deviceBluetooth = new DeviceBluetooth(APP_ROLE);
+	
+	public DeviceScreenShot deviceScreenShot = null;
 	
 	public String[] RfcxCoreServices = 
 			new String[] { 
@@ -45,8 +52,8 @@ public class RfcxGuardian extends Application {
 		
 		setDbHandlers();
 		setServiceHandlers();
-
-		this.deviceRebootUtils = new DeviceRebootUtils(APP_ROLE);
+		
+		this.deviceScreenShot = new DeviceScreenShot(getApplicationContext());
 		
 		initializeRoleServices();
 	}
@@ -86,6 +93,8 @@ public class RfcxGuardian extends Application {
 	private void setServiceHandlers() {
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerIntentService.class);
+		this.rfcxServiceHandler.addService("ScreenShotJob", ScreenShotJobService.class);
+		this.rfcxServiceHandler.addService("AirplaneModeOff", AirplaneModeOffJobService.class);
 	}
     
 }

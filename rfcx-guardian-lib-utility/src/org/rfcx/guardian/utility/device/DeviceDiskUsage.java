@@ -3,6 +3,8 @@ package org.rfcx.guardian.utility.device;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
 import android.os.Environment;
 import android.os.StatFs;
 import android.text.TextUtils;
@@ -10,10 +12,10 @@ import android.text.TextUtils;
 public class DeviceDiskUsage {
 	
 	public DeviceDiskUsage(String appRole) {
-		this.logTag = "Rfcx-"+appRole+"-"+DeviceDiskUsage.class.getSimpleName();
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceDiskUsage.class);
 	}
 	
-	private String logTag = "Rfcx-Utils-"+DeviceDiskUsage.class.getSimpleName();
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceDiskUsage.class);
  
 	public static String concatDiskStats() {
 		List<String> diskUsage = new ArrayList<String>();

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+ 	<EditTextPreference
+        android:key="checkin_offline_mode"
+        android:title="checkin_offline_mode"
+        android:summary="string - true/false"
+        android:enabled="true"
+        android:defaultValue="false" />
     
  	<EditTextPreference
         android:key="api_url_base"

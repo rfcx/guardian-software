@@ -1,14 +1,14 @@
 package org.rfcx.guardian.utility.device;
 
-
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceConnectivity {
 	
 	public DeviceConnectivity(String appRole) {
-		this.logTag = "Rfcx-"+appRole+"-"+DeviceConnectivity.class.getSimpleName();
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceConnectivity.class);
 	}
 	
-	private String logTag = "Rfcx-Utils-"+DeviceConnectivity.class.getSimpleName();
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceConnectivity.class);
 	
 	private boolean isConnected = false;
 	private long lastConnectedAt = System.currentTimeMillis();

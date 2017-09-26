@@ -8,12 +8,12 @@ import android.telephony.TelephonyManager;
 public class RfcxDeviceId {
 	
 	public RfcxDeviceId(Context context, String appRole) {
-		this.logTag = "Rfcx-"+appRole+"-"+RfcxDeviceId.class.getSimpleName();
+		this.logTag = RfcxLog.generateLogTag(appRole, RfcxDeviceId.class);
 		this.context = context;
 		checkSetTelephonyId(context);
 	}
 	
-	private String logTag = "Rfcx-Utils-"+RfcxDeviceId.class.getSimpleName();
+	private String logTag = RfcxLog.generateLogTag("Utils", RfcxDeviceId.class);
 	
 	private Context context;
 	private String telephonyId;

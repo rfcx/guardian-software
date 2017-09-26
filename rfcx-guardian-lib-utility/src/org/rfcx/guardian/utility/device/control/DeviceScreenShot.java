@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device;
+package org.rfcx.guardian.utility.device.control;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -13,13 +13,13 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
-public class DeviceScreenShotUtils {
+public class DeviceScreenShot {
 	
-	public DeviceScreenShotUtils(Context context) {
+	public DeviceScreenShot(Context context) {
 		initializeScreenShotDirectories(context);
 	}
 
-	private static final String logTag = "Rfcx-Utils-"+DeviceScreenShotUtils.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceScreenShot.class);
 	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
 	
@@ -72,7 +72,7 @@ public class DeviceScreenShotUtils {
 	
 	public static String[] launchCapture(Context context) {
 		
-		String executableBinaryFilePath = DeviceScreenShotUtils.getExecutableBinaryFilePath(context);
+		String executableBinaryFilePath = DeviceScreenShot.getExecutableBinaryFilePath(context);
 		
 		if ((new File(executableBinaryFilePath)).exists()) {
 			
@@ -80,8 +80,8 @@ public class DeviceScreenShotUtils {
 				
 				long captureTimestamp = System.currentTimeMillis();
 				
-				String captureFilePath = DeviceScreenShotUtils.getScreenShotFileLocation_Capture(context, captureTimestamp);
-				String finalFilePath = DeviceScreenShotUtils.getScreenShotFileLocation_Complete(context, captureTimestamp);
+				String captureFilePath = DeviceScreenShot.getScreenShotFileLocation_Capture(context, captureTimestamp);
+				String finalFilePath = DeviceScreenShot.getScreenShotFileLocation_Complete(context, captureTimestamp);
 				
 				// run framebuffer binary to save screenshot to file
 				ShellCommands.executeCommand(executableBinaryFilePath+" "+captureFilePath, null, false, context);
@@ -106,7 +106,7 @@ public class DeviceScreenShotUtils {
 	        	FileUtils.copy(captureFile, finalFile);
 	        	if (finalFile.exists()) {
 	        		captureFile.delete();
-	        		return new String[] { ""+timestamp, DeviceScreenShotUtils.FILETYPE, FileUtils.sha1Hash(finalFilePath), finalFilePath };
+	        		return new String[] { ""+timestamp, DeviceScreenShot.FILETYPE, FileUtils.sha1Hash(finalFilePath), finalFilePath };
 	        	}
 		    }
 		} catch (Exception e) {

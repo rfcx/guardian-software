@@ -11,7 +11,7 @@ import android.text.TextUtils;
 
 public class DbUtils {
 	
-	private static final String logTag = "Rfcx-Utils-"+DbUtils.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag("Utils", DbUtils.class);
 
 	private static final int DEFAULT_ROWOFFSET = 0;
 	private static final int DEFAULT_ROWLIMIT = 1000;

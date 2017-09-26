@@ -21,9 +21,21 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		switch (item.getItemId()) {
-
+			
+		case R.id.menu_root_command:
+			ShellCommands.triggerNeedForRootAccess(getApplicationContext());
+			break;
+			
 		case R.id.menu_reboot:
 			app.rfcxServiceHandler.triggerService("RebootTrigger", true);
+			break;
+			
+		case R.id.menu_screenshot:
+		//	app.rfcxServiceHandler.triggerService("RebootTrigger", true);
+			break;
+			
+		case R.id.menu_i2c:
+		//	app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 			break;
 			
 		}

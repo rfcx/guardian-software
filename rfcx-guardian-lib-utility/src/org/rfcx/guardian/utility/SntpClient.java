@@ -20,6 +20,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -38,7 +40,7 @@ import android.util.Log;
 
 public class SntpClient {
 	
-	private static final String logTag = "Rfcx-Utils-"+SntpClient.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag("Utils", SntpClient.class);
 
     private static final int REFERENCE_TIME_OFFSET = 16;
     private static final int ORIGINATE_TIME_OFFSET = 24;

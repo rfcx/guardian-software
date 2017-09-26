@@ -19,7 +19,7 @@ public class RfcxLog {
 				.append("Cause: ").append(exc.getCause()).append(" ||| ")
 				.append("StackTrace: ").append(TextUtils.join(" | ",exc.getStackTrace()));
 		} else {
-			excMsg.append("An exception thrown, but the exception itself is null.");
+			excMsg.append("An exception is thrown, but the exception itself is null.");
 		}
 		
 		Log.e( logTag, excMsg.toString());

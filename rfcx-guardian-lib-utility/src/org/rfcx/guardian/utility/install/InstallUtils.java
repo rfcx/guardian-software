@@ -10,25 +10,25 @@ import java.util.Map.Entry;
 
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.http.HttpGet;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.util.Log;
 
 public class InstallUtils {
-
-	private Context context;
-	private String appRole = "Utils";
-	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(InstallUtils.class.getSimpleName()).toString();
 	
 	public InstallUtils (Context context, String appRole) {
 		this.context = context;
 		this.appRole = appRole;
-		this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(InstallUtils.class.getSimpleName()).toString();
+		this.logTag = RfcxLog.generateLogTag(appRole, InstallUtils.class);
 	}
+	
+	private Context context;
+	private String logTag = RfcxLog.generateLogTag("Utils", InstallUtils.class);
+	private String appRole = "Utils";
 	
 	private Map<String, String[]> downloadQueue = new HashMap<String, String[]>();
 	private Map<String, String[]> installQueue = new HashMap<String, String[]>();
-	
 	
 	public void scanThroughDownloadEntries() {
 	   for (Map.Entry<String, String[]> queueEntry : downloadQueue.entrySet()) { 

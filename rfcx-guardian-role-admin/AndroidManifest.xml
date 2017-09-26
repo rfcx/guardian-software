@@ -63,7 +63,8 @@
         </activity>
         
         <!-- Services -->
-        
+        <service android:name="org.rfcx.guardian.admin.service.ScreenShotJobService" />
+        <service android:name="org.rfcx.guardian.admin.service.AirplaneModeOffJobService" />
         
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.admin.ServiceMonitor" />

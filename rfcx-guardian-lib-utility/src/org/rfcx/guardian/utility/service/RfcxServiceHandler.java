@@ -15,13 +15,13 @@ import android.util.Log;
 
 public class RfcxServiceHandler {
 
-	public RfcxServiceHandler(Context context, String roleName) {
+	public RfcxServiceHandler(Context context, String appRole) {
 		this.context = context;
-		this.logTag = (new StringBuilder()).append("Rfcx-").append(roleName).append("-").append(RfcxServiceHandler.class.getSimpleName()).toString();
+		this.logTag = RfcxLog.generateLogTag(appRole, RfcxServiceHandler.class);
 	}	
 
 	Context context;
-	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(RfcxServiceHandler.class.getSimpleName()).toString();
+	private String logTag = RfcxLog.generateLogTag("Utils", RfcxServiceHandler.class);
 
 	private Map<String, Class<?>> svcClasses = new HashMap<String, Class<?>>();
 	private Map<String, boolean[]> svcRunStates = new HashMap<String, boolean[]>();

@@ -18,7 +18,8 @@ public class DeviceRebootDb {
 	
 	public DeviceRebootDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.dbReboot = new DbReboot(context);
+		this.dbRebootComplete = new DbRebootComplete(context);
+		this.dbRebootAttempt = new DbRebootAttempt(context);
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceRebootDb.class);
@@ -37,8 +38,8 @@ public class DeviceRebootDb {
 		return sbOut.toString();
 	}
 	
-	public class DbReboot {
-		private String TABLE = "events";
+	public class DbRebootComplete {
+		private String TABLE = "reboots";
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) {
 				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
@@ -56,7 +57,7 @@ public class DeviceRebootDb {
 			}
 		}
 		final DbHelper dbHelper;
-		public DbReboot(Context context) {
+		public DbRebootComplete(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
 		public void close() {
@@ -91,7 +92,64 @@ public class DeviceRebootDb {
 		}
 		
 	}
-	public final DbReboot dbReboot;
+	public final DbRebootComplete dbRebootComplete;
+	
+	
+	public class DbRebootAttempt {
+		private String TABLE = "attempts";
+		class DbHelper extends SQLiteOpenHelper {
+			public DbHelper(Context context) {
+				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
+			}
+			@Override
+			public void onCreate(SQLiteDatabase db) {
+				try {
+					db.execSQL(createColumnString(TABLE));
+				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
+			}
+			@Override
+			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
+				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
+			}
+		}
+		final DbHelper dbHelper;
+		public DbRebootAttempt(Context context) {
+			this.dbHelper = new DbHelper(context);
+		}
+		public void close() {
+			this.dbHelper.close();
+		}
+		public void insert(long rebootedAt) {
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, (new Date()).getTime());
+			values.put(C_REBOOTED_AT, rebootedAt);
+			
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			} finally {
+				db.close();
+			}
+		}
+		
+		private List<String[]> getAllRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+		}
+		
+		public String getConcatRows() {
+			return DbUtils.getConcatRows(getAllRows());
+		}
+		
+		public void clearRowsBefore(Date date) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
+			} finally { db.close(); }
+		}
+		
+	}
+	public final DbRebootAttempt dbRebootAttempt;
 	
 
 	

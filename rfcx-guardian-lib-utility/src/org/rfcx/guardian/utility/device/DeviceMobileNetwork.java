@@ -2,16 +2,18 @@ package org.rfcx.guardian.utility.device;
 
 import java.util.Date;
 
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 
 public class DeviceMobileNetwork {
 	
 	public DeviceMobileNetwork(String appRole) {
-		this.logTag = "Rfcx-"+appRole+"-"+DeviceMobileNetwork.class.getSimpleName();
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceMobileNetwork.class);
 	}
 	
-	private String logTag = "Rfcx-Utils-"+DeviceMobileNetwork.class.getSimpleName();
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceMobileNetwork.class);
 	
 	public static String[] getMobileNetworkSummary(TelephonyManager telephonyManager, SignalStrength signalStrength) {
 		

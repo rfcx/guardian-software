@@ -1,14 +1,16 @@
 package org.rfcx.guardian.utility.device;
 
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
 import android.location.LocationManager;
 
 public class DeviceGeoLocation {
 	
 	public DeviceGeoLocation(String appRole) {
-		this.logTag = "Rfcx-"+appRole+"-"+DeviceGeoLocation.class.getSimpleName();
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceGeoLocation.class);
 	}
 	
-	private String logTag = "Rfcx-Utils-"+DeviceGeoLocation.class.getSimpleName();
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceGeoLocation.class);
 	
 	private LocationManager locationManager;
 	private double geoLocationLatitude = 3.6141375; //0;

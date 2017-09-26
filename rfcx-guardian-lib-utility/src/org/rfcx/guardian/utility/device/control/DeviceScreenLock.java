@@ -1,5 +1,7 @@
 package org.rfcx.guardian.utility.device.control;
 
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.PowerManager;
@@ -9,10 +11,10 @@ import android.util.Log;
 public class DeviceScreenLock {
 	
 	public DeviceScreenLock(String appRole) {
-		this.logTag = this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(DeviceScreenLock.class.getSimpleName()).toString();
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceScreenLock.class);
 	}
 	
-	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(DeviceScreenLock.class.getSimpleName()).toString();
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceScreenLock.class);
 	
 	private WakeLock wakeLock = null;
 	private KeyguardManager.KeyguardLock keyguardLock = null;

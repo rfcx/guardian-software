@@ -14,7 +14,6 @@ import org.rfcx.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.audio.encode.AudioEncodeLoopService;
 import org.rfcx.guardian.audio.encode.AudioEncodeQueueIntentService;
 import org.rfcx.guardian.device.system.assets.DeviceScreenShotDb;
-import org.rfcx.guardian.device.system.assets.DeviceScreenShotJobService;
 import org.rfcx.guardian.device.system.stats.DeviceDataTransferDb;
 import org.rfcx.guardian.device.system.stats.DeviceRebootDb;
 import org.rfcx.guardian.device.system.stats.DeviceSensorDb;
@@ -24,12 +23,11 @@ import org.rfcx.guardian.guardian.R;
 import org.rfcx.guardian.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.receiver.SmsReceiver;
 import org.rfcx.guardian.utility.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceAirplaneMode;
+import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
-import org.rfcx.guardian.utility.device.DeviceScreenShotUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -78,12 +76,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
 	public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
-	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
 
 	// Misc
 	public AudioCaptureUtils audioCaptureUtils = null;
 	public ApiCheckInUtils apiCheckInUtils = null;
-	public DeviceScreenShotUtils deviceScreenShotUtils = null;
+	
+	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);;
 	
 	public String[] RfcxCoreServices = 
 		new String[] { 
@@ -117,7 +115,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
 		this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
-		this.deviceScreenShotUtils = new DeviceScreenShotUtils(getApplicationContext());
 		
 		initializeRoleServices();
 	}
@@ -171,7 +168,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("AudioEncodeLoop", AudioEncodeLoopService.class);
 		this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
-		this.rfcxServiceHandler.addService("DeviceScreenShotJob", DeviceScreenShotJobService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueIntentService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInLoop", ApiCheckInLoopService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);

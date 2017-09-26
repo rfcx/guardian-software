@@ -8,10 +8,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceCPU {
 	
 	public DeviceCPU(String appRole) {
-		this.logTag = "Rfcx-"+appRole+"-"+DeviceCPU.class.getSimpleName();
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceCPU.class);
 	}
 
-	private String logTag = "Rfcx-Utils-"+DeviceCPU.class.getSimpleName();
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceCPU.class);
 	
 	private int reportingSampleCount = 60;
 	

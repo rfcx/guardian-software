@@ -3,6 +3,7 @@ package org.rfcx.guardian.receiver;
 import java.util.Calendar;
 
 import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
@@ -17,9 +18,9 @@ public class AirplaneModeReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		
-		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+//		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
-		Log.v(logTag, "AirplaneMode " + ( app.deviceAirplaneMode.isEnabled(context) ? "Enabled" : "Disabled" )
+		Log.v(logTag, "AirplaneMode " + ( DeviceAirplaneMode.isEnabled(context) ? "Enabled" : "Disabled" )
 						+ " at "+(Calendar.getInstance()).getTime().toLocaleString());
 		
 	}

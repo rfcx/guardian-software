@@ -74,7 +74,6 @@
         <service android:name="org.rfcx.guardian.api.checkin.ApiCheckInLoopService" />
         <service android:name="org.rfcx.guardian.api.checkin.ApiCheckInJobService" />
         <service android:name="org.rfcx.guardian.device.system.stats.DeviceSystemService" />
-        <service android:name="org.rfcx.guardian.device.system.assets.DeviceScreenShotJobService" />
         
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.ServiceMonitor" />

@@ -15,6 +15,7 @@ import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.device.DeviceDiskUsage;
 import org.rfcx.guardian.utility.device.DeviceGeoLocation;
+import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -204,7 +205,7 @@ public class ApiCheckInUtils {
 			metaDataJsonObj.put("lightmeter",	app.deviceSensorDb.dbLightMeter.getConcatRows());
 			metaDataJsonObj.put("data_transfer",	app.deviceDataTransferDb.dbTransferred.getConcatRows());
 			metaDataJsonObj.put("accelerometer",	app.deviceSensorDb.dbAccelerometer.getConcatRows());
-			metaDataJsonObj.put("reboots",		app.rebootDb.dbReboot.getConcatRows());
+			metaDataJsonObj.put("reboots",		app.rebootDb.dbRebootComplete.getConcatRows());
 			metaDataJsonObj.put("disk_usage",	DeviceDiskUsage.concatDiskStats());
 			
 		} catch (Exception e) {
@@ -224,7 +225,7 @@ public class ApiCheckInUtils {
 			app.deviceSensorDb.dbLightMeter.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbAccelerometer.clearRowsBefore(deleteBefore);
 			app.deviceDataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
-			app.rebootDb.dbReboot.clearRowsBefore(deleteBefore);
+			app.rebootDb.dbRebootComplete.clearRowsBefore(deleteBefore);
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -457,7 +458,7 @@ public class ApiCheckInUtils {
 				if (((secsSinceSuccess / 60) >= toggleThreshold) && !this.connectivityToggleThresholdsReached[thresholdIndex]) {
 					this.connectivityToggleThresholdsReached[thresholdIndex] = true;
 					Log.d(logTag, "ToggleCheck: AirplaneMode (" + toggleThreshold + " minutes since last successful CheckIn)");
-					app.deviceAirplaneMode.setOff(app.getApplicationContext());
+					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_off", app.getApplicationContext().getContentResolver());
 					if (toggleThreshold == this.connectivityToggleThresholds[this.connectivityToggleThresholds.length - 1]) {
 						// last index, force reboot
 						Log.d(logTag, "ToggleCheck: ForcedReboot (" + toggleThreshold + " minutes since last successful CheckIn)");

@@ -4,6 +4,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -24,16 +25,16 @@ public class AdminContentProvider extends ContentProvider {
 	private static final String[] PROJECTION_VERSION = RfcxRole.ContentProvider.admin.PROJECTION_VERSION;
 	private static final int ENDPOINT_VERSION_LIST = 1;
 	
-	private static final String ENDPOINT_EXECUTE = RfcxRole.ContentProvider.admin.ENDPOINT_EXECUTE;
-	private static final String[] PROJECTION_EXECUTE = RfcxRole.ContentProvider.admin.PROJECTION_EXECUTE;
-	private static final int ENDPOINT_EXECUTE_ID = 2;
+	private static final String ENDPOINT_CONTROL = RfcxRole.ContentProvider.admin.ENDPOINT_CONTROL;
+	private static final String[] PROJECTION_CONTROL = RfcxRole.ContentProvider.admin.PROJECTION_CONTROL;
+	private static final int ENDPOINT_CONTROL_ID = 2;
 
 	private static final UriMatcher URI_MATCHER;
 
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_VERSION, ENDPOINT_VERSION_LIST);
-		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_EXECUTE+"/#", ENDPOINT_EXECUTE_ID);
+		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_CONTROL+"/#", ENDPOINT_CONTROL_ID);
 	}
 
 	@Override
@@ -62,7 +63,7 @@ public class AdminContentProvider extends ContentProvider {
 		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		
 		try {
-			if (URI_MATCHER.match(uri) == ENDPOINT_EXECUTE_ID) {
+			if (URI_MATCHER.match(uri) == ENDPOINT_CONTROL_ID) {
 
 				String commandName = uri.getLastPathSegment();
 				
@@ -70,7 +71,13 @@ public class AdminContentProvider extends ContentProvider {
 					app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 					return 1;
 					
-				} else if (commandName.equals("something")) {
+				} else if (commandName.equals("screenshot")) {
+					app.rfcxServiceHandler.triggerService("ScreenShotJob", true);
+					return 1;
+					
+				} else if (commandName.equals("airplanemode_off")) {
+					app.rfcxServiceHandler.triggerService("AirplaneModeOff", true);
+					return 1;
 					
 				}
 			}

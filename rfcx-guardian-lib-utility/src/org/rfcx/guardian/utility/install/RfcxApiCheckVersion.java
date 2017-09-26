@@ -11,21 +11,22 @@ import java.util.Map.Entry;
 
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.http.HttpGet;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.util.Log;
 
 public class RfcxApiCheckVersion {
-
-	private Context context;
-	private String appRole = "Utils";
-	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(RfcxApiCheckVersion.class.getSimpleName()).toString();
 	
 	public RfcxApiCheckVersion (Context context, String appRole) {
 		this.context = context;
 		this.appRole = appRole;
-		this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(RfcxApiCheckVersion.class.getSimpleName()).toString();
+		this.logTag = RfcxLog.generateLogTag(appRole, RfcxApiCheckVersion.class);
 	}
+	
+	private Context context;
+	private String logTag = RfcxLog.generateLogTag("Utils", RfcxApiCheckVersion.class);
+	private String appRole = "Utils";
 	
 	public long lastApiCheckVersionAt = System.currentTimeMillis();
 	private long lastApiCheckVersionTriggeredAt = 0;

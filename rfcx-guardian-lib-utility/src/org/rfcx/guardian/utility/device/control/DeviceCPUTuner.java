@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.install;
+package org.rfcx.guardian.utility.device.control;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,13 +14,13 @@ import android.util.Log;
 
 public class DeviceCPUTuner {
 	
-	private Context context;
-	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(DeviceCPUTuner.class.getSimpleName()).toString();
-
 	public DeviceCPUTuner(Context context, String appRole) {
 		this.context = context;
-		this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(DeviceCPUTuner.class.getSimpleName()).toString();
+		this.logTag = RfcxLog.generateLogTag("Utils", DeviceCPUTuner.class);
 	}
+	
+	private Context context;
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceCPUTuner.class);
 	
 	public void writeConfiguration(int freq_min, int freq_max, int governor_up, int governor_down) {
 		if (isInstalled(this.context)) {

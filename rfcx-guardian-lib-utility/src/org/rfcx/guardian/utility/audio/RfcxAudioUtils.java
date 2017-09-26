@@ -6,13 +6,14 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.rfcx.guardian.utility.FileUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.os.Environment;
 
 public class RfcxAudioUtils {
 
-	private static final String logTag = "Rfcx-Utils-"+RfcxAudioUtils.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxAudioUtils.class);
 	
 	public static final int AUDIO_SAMPLE_SIZE = 16;
 	public static final int AUDIO_CHANNEL_COUNT = 1;

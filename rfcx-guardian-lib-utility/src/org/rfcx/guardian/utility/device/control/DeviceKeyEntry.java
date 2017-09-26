@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -11,10 +12,10 @@ import android.text.TextUtils;
 public class DeviceKeyEntry {
 
 	public DeviceKeyEntry(String appRole) {
-		this.logTag = this.logTag = (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(DeviceKeyEntry.class.getSimpleName()).toString();
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceKeyEntry.class);
 	}
 
-	private String logTag = (new StringBuilder()).append("Rfcx-Utils-").append(DeviceKeyEntry.class.getSimpleName()).toString();
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceKeyEntry.class);
 	
 	private List<String[]> keyCodes = null;
 	

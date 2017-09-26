@@ -1,8 +1,8 @@
-package org.rfcx.guardian.device.system.assets;
+package org.rfcx.guardian.admin.service;
 
-import org.rfcx.guardian.RfcxGuardian;
+import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
-import org.rfcx.guardian.utility.device.DeviceScreenShotUtils;
+import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -11,16 +11,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class DeviceScreenShotJobService extends Service {
+public class ScreenShotJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceScreenShotJobService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScreenShotJobService.class);
 	
-	private static final String SERVICE_NAME = "DeviceScreenShotJob";
+	private static final String SERVICE_NAME = "ScreenShotJob";
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private DeviceScreenShotJob deviceScreenShotJob;
+	private ScreenShotJob screenShotJob;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,7 +30,7 @@ public class DeviceScreenShotJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.deviceScreenShotJob = new DeviceScreenShotJob();
+		this.screenShotJob = new ScreenShotJob();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -41,7 +41,7 @@ public class DeviceScreenShotJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.deviceScreenShotJob.start();
+			this.screenShotJob.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -53,20 +53,20 @@ public class DeviceScreenShotJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.deviceScreenShotJob.interrupt();
-		this.deviceScreenShotJob = null;
+		this.screenShotJob.interrupt();
+		this.screenShotJob = null;
 	}
 	
 	
-	private class DeviceScreenShotJob extends Thread {
+	private class ScreenShotJob extends Thread {
 		
-		public DeviceScreenShotJob() {
-			super("DeviceScreenShotJobService-DeviceScreenShotJob");
+		public ScreenShotJob() {
+			super("ScreenShotJobService-ScreenShotJob");
 		}
 		
 		@Override
 		public void run() {
-			DeviceScreenShotJobService deviceScreenShotJobInstance = DeviceScreenShotJobService.this;
+			ScreenShotJobService screenShotJobInstance = ScreenShotJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
@@ -79,9 +79,9 @@ public class DeviceScreenShotJobService extends Service {
 				deviceScreenLock.unLockScreen(context);
 				Thread.sleep(3000);
 				
-				String[] saveScreenShot = DeviceScreenShotUtils.launchCapture(context);
+				String[] saveScreenShot = DeviceScreenShot.launchCapture(context);
 				if (saveScreenShot != null) { 
-					app.deviceScreenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3]);
+//					app.deviceScreenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3]);
 					Log.i(logTag, "ScreenShot saved: "+saveScreenShot[0]+"."+saveScreenShot[1]);
 				}
 				Thread.sleep(3000);
@@ -89,7 +89,7 @@ public class DeviceScreenShotJobService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				deviceScreenShotJobInstance.runFlag = false;
+				screenShotJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 				deviceScreenLock.releaseWakeLock();

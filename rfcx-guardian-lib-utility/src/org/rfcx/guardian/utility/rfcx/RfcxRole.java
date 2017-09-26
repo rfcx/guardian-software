@@ -9,7 +9,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 
 public class RfcxRole {
 
-	private static final String logTag = "Rfcx-Utils-"+RfcxRole.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxRole.class);
 	
 	public static final String[] 
 			
@@ -55,9 +55,9 @@ public class RfcxRole {
 			public static final String ENDPOINT_VERSION = "version";
 			public static final String URI_VERSION = "content://"+AUTHORITY+"/"+ENDPOINT_VERSION;
 			
-			public static final String[] PROJECTION_EXECUTE = { "command" };
-			public static final String ENDPOINT_EXECUTE = "execute";
-			public static final String URI_EXECUTE = "content://"+AUTHORITY+"/"+ENDPOINT_EXECUTE;
+			public static final String[] PROJECTION_CONTROL = { "command" };
+			public static final String ENDPOINT_CONTROL = "execute";
+			public static final String URI_CONTROL = "content://"+AUTHORITY+"/"+ENDPOINT_CONTROL;
 			
 		}
 		
