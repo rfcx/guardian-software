@@ -13,16 +13,18 @@ import org.rfcx.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.audio.encode.AudioEncodeLoopService;
 import org.rfcx.guardian.audio.encode.AudioEncodeQueueIntentService;
-import org.rfcx.guardian.device.system.assets.DeviceScreenShotDb;
-import org.rfcx.guardian.device.system.stats.DeviceDataTransferDb;
-import org.rfcx.guardian.device.system.stats.DeviceRebootDb;
-import org.rfcx.guardian.device.system.stats.DeviceSensorDb;
-import org.rfcx.guardian.device.system.stats.DeviceSystemDb;
-import org.rfcx.guardian.device.system.stats.DeviceSystemService;
+import org.rfcx.guardian.device.android.DeviceDataTransferDb;
+import org.rfcx.guardian.device.android.DeviceLogCatCaptureDb;
+import org.rfcx.guardian.device.android.DeviceRebootDb;
+import org.rfcx.guardian.device.android.DeviceScreenShotDb;
+import org.rfcx.guardian.device.android.DeviceSensorDb;
+import org.rfcx.guardian.device.android.DeviceSystemDb;
+import org.rfcx.guardian.device.android.DeviceSystemService;
 import org.rfcx.guardian.guardian.R;
 import org.rfcx.guardian.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.receiver.SmsReceiver;
 import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
@@ -67,6 +69,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DeviceRebootDb rebootDb = null;
 	public DeviceDataTransferDb deviceDataTransferDb = null;
 	public DeviceScreenShotDb deviceScreenShotDb = null;
+	public DeviceLogCatCaptureDb deviceLogCatCaptureDb = null;
 	
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -81,7 +84,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public AudioCaptureUtils audioCaptureUtils = null;
 	public ApiCheckInUtils apiCheckInUtils = null;
 	
-	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);;
+	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
+	public DeviceBluetooth deviceBluetooth = new DeviceBluetooth(APP_ROLE);
 	
 	public String[] RfcxCoreServices = 
 		new String[] { 
@@ -157,6 +161,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rebootDb = new DeviceRebootDb(this, this.version);
 		this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
+		this.deviceLogCatCaptureDb = new DeviceLogCatCaptureDb(this, this.version);
 
 	}
 	

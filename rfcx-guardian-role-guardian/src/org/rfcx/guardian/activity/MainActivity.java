@@ -29,13 +29,16 @@ public class MainActivity extends Activity {
 			startActivity(new Intent(this, PrefsActivity.class));
 			break;
 
+		case R.id.menu_reboot:
+			app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
+			break;
+
 		case R.id.menu_screenshot:
-			app.rfcxServiceHandler.triggerService("DeviceScreenShotJob", true);
+			app.deviceControlUtils.runOrTriggerDeviceControl("screenshot", app.getApplicationContext().getContentResolver());
 			break;
 
 		case R.id.menu_test_i2c:
 //			I2cUtils.writeToI2c( 4 );
-			app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
 			break;
 		
 		}

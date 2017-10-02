@@ -1,4 +1,4 @@
-package org.rfcx.guardian.device.system.stats;
+package org.rfcx.guardian.device.android;
 
 import java.util.ArrayList;
 import java.util.Date;

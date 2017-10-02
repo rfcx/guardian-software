@@ -1,9 +1,12 @@
 package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.service.AirplaneModeOffJobService;
+import org.rfcx.guardian.admin.service.AirplaneModeOnJobService;
+import org.rfcx.guardian.admin.service.I2cResetPermissionsJobService;
 import org.rfcx.guardian.admin.service.RebootTriggerIntentService;
 import org.rfcx.guardian.admin.service.ScreenShotJobService;
 import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
@@ -12,6 +15,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Application;
 import android.content.Context;
@@ -32,10 +36,9 @@ public class RfcxGuardian extends Application {
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
 	public DeviceBluetooth deviceBluetooth = new DeviceBluetooth(APP_ROLE);
 	
-	public DeviceScreenShot deviceScreenShot = null;
-	
 	public String[] RfcxCoreServices = 
 			new String[] { 
+				"I2cResetPermissions"
 			};
 	
 	@Override
@@ -53,7 +56,7 @@ public class RfcxGuardian extends Application {
 		setDbHandlers();
 		setServiceHandlers();
 		
-		this.deviceScreenShot = new DeviceScreenShot(getApplicationContext());
+		this.context = getApplicationContext();
 		
 		initializeRoleServices();
 	}
@@ -95,6 +98,15 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerIntentService.class);
 		this.rfcxServiceHandler.addService("ScreenShotJob", ScreenShotJobService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeOff", AirplaneModeOffJobService.class);
+		this.rfcxServiceHandler.addService("AirplaneModeOn", AirplaneModeOnJobService.class);
+		this.rfcxServiceHandler.addService("I2cResetPermissions", I2cResetPermissionsJobService.class);
 	}
     
+	
+	public void i2cTest() {
+		
+		ShellCommands.executeCommand("/sdcard/rfcx/i2cget -y 0 0x68 0x4a w > /sdcard/rfcx/test.txt", null, true, this.context);
+		
+		
+	}
 }

@@ -35,6 +35,7 @@ public class MainActivity extends Activity {
 			break;
 			
 		case R.id.menu_i2c:
+			app.i2cTest();
 		//	app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 			break;
 			

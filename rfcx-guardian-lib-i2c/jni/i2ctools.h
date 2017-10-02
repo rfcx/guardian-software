@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 //should be modified according your package name
-JNIEXPORT jint JNICALL Java_org_rfcx_guardian_i2c_I2cUtils_i2cGetNative(JNIEnv *, jobject, jint);
+JNIEXPORT jint JNICALL Java_org_rfcx_guardian_i2c_I2cTools_i2cGetNative(JNIEnv *, jobject, jint);
 #ifdef __cplusplus
 }
 #endif

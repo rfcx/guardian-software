@@ -65,6 +65,8 @@
         <!-- Services -->
         <service android:name="org.rfcx.guardian.admin.service.ScreenShotJobService" />
         <service android:name="org.rfcx.guardian.admin.service.AirplaneModeOffJobService" />
+        <service android:name="org.rfcx.guardian.admin.service.AirplaneModeOnJobService" />
+        <service android:name="org.rfcx.guardian.admin.service.I2cResetPermissionsJobService" />
         
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.admin.ServiceMonitor" />

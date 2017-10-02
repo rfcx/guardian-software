@@ -14,18 +14,17 @@ import android.os.Environment;
 public class RfcxAudioUtils {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxAudioUtils.class);
+
+	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
 	
 	public static final int AUDIO_SAMPLE_SIZE = 16;
 	public static final int AUDIO_CHANNEL_COUNT = 1;
-	
-	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
 	
 	public static void initializeAudioDirectories(Context context) {
 		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context), 0777);
 		(new File(encodeDir(context))).mkdirs(); FileUtils.chmod(encodeDir(context), 0777);
 		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(), 0777);
 		(new File(finalFilesDir(context))).mkdirs(); FileUtils.chmod(finalFilesDir(context), 0777);
-		(new File(postZipDir(context))).mkdirs(); FileUtils.chmod(postZipDir(context), 0777);
 	}
 	
 	private static String sdCardFilesDir() {
@@ -38,11 +37,6 @@ public class RfcxAudioUtils {
 		} else {
 			return (new StringBuilder()).append(context.getFilesDir().toString()).append("/audio/final").toString();
 		}
-	}
-
-	private static String postZipDir(Context context) {
-		return finalFilesDir(context);
-//		return (new StringBuilder()).append(finalFilesDir()).append("/audio").toString(); 
 	}
 	
 	public static String captureDir(Context context) {
@@ -66,7 +60,7 @@ public class RfcxAudioUtils {
 	}
 
 	public static String getAudioFileLocation_Complete_PostZip(Context context, long timestamp, String audioCodec) {
-		return (new StringBuilder()).append(postZipDir(context)).append("/").append(dateFormat.format(new Date(timestamp))).append("/").append(timestamp).append(".").append(getFileExtension(audioCodec)).append(".gz").toString(); 
+		return (new StringBuilder()).append(finalFilesDir(context)).append("/").append(dateFormat.format(new Date(timestamp))).append("/").append(timestamp).append(".").append(getFileExtension(audioCodec)).append(".gz").toString(); 
 	}
 	
 	public static String getFileExtension(String audioCodecOrFileExtension) {

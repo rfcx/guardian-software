@@ -1,4 +1,4 @@
-package org.rfcx.guardian.device.system.assets;
+package org.rfcx.guardian.device.android;
 
 import java.util.Date;
 import java.util.List;

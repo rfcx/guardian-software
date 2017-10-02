@@ -49,7 +49,6 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         android:name="org.rfcx.guardian.RfcxGuardian"
-        android:debuggable="true"
         >
         
         <!-- Activities -->
@@ -73,7 +72,7 @@
         <service android:name="org.rfcx.guardian.audio.encode.AudioEncodeJobService" />
         <service android:name="org.rfcx.guardian.api.checkin.ApiCheckInLoopService" />
         <service android:name="org.rfcx.guardian.api.checkin.ApiCheckInJobService" />
-        <service android:name="org.rfcx.guardian.device.system.stats.DeviceSystemService" />
+        <service android:name="org.rfcx.guardian.device.android.DeviceSystemService" />
         
         <!-- IntentServices -->
         <service android:name="org.rfcx.guardian.ServiceMonitor" />
@@ -86,14 +85,19 @@
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 			</intent-filter>
 		</receiver>
+        <receiver android:name="org.rfcx.guardian.receiver.BluetoothStateReceiver">
+    			<intent-filter>
+        			<action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
+   			</intent-filter>
+		</receiver>
 		
         <!-- ContentProviders -->
 		<provider 
 		    android:name="org.rfcx.guardian.contentprovider.GuardianContentProvider"
 			android:authorities="org.rfcx.guardian.audio"
-        	android:readPermission="org.rfcx.guardian.READ"
-        	android:writePermission="org.rfcx.guardian.WRITE"
-        	android:exported="true" />
+        		android:readPermission="org.rfcx.guardian.READ"
+        		android:writePermission="org.rfcx.guardian.WRITE"
+        		android:exported="true" />
 
     </application>
 

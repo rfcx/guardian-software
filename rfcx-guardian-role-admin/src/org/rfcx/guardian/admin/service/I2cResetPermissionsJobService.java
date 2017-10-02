@@ -1,8 +1,7 @@
 package org.rfcx.guardian.admin.service;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
-import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
+import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -11,16 +10,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class ScreenShotJobService extends Service {
+public class I2cResetPermissionsJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScreenShotJobService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, I2cResetPermissionsJobService.class);
 	
-	private static final String SERVICE_NAME = "ScreenShotJob";
+	private static final String SERVICE_NAME = "I2cResetPermissions";
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private ScreenShotJob screenShotJob;
+	private I2cResetPermissionsJob i2cResetPermissionsJob;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,7 +29,7 @@ public class ScreenShotJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.screenShotJob = new ScreenShotJob();
+		this.i2cResetPermissionsJob = new I2cResetPermissionsJob();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -41,7 +40,7 @@ public class ScreenShotJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.screenShotJob.start();
+			this.i2cResetPermissionsJob.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -53,48 +52,35 @@ public class ScreenShotJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.screenShotJob.interrupt();
-		this.screenShotJob = null;
+		this.i2cResetPermissionsJob.interrupt();
+		this.i2cResetPermissionsJob = null;
 	}
 	
 	
-	private class ScreenShotJob extends Thread {
+	private class I2cResetPermissionsJob extends Thread {
 		
-		public ScreenShotJob() {
-			super("ScreenShotJobService-ScreenShotJob");
+		public I2cResetPermissionsJob() {
+			super("I2cResetPermissionsJobService-I2cResetPermissionsJob");
 		}
 		
 		@Override
 		public void run() {
-			ScreenShotJobService screenShotJobInstance = ScreenShotJobService.this;
+			I2cResetPermissionsJobService i2cResetPermissionsJobInstance = I2cResetPermissionsJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 			
-			DeviceScreenShot deviceScreenShot = new DeviceScreenShot(context, RfcxGuardian.APP_ROLE);
-			DeviceScreenLock deviceScreenLock = new DeviceScreenLock(RfcxGuardian.APP_ROLE);
-			
 			try {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				// activate screen and set wake lock
-				deviceScreenLock.unLockScreen(context);
-				Thread.sleep(3000);
-				
-				String[] saveScreenShot = deviceScreenShot.launchCapture(context);
-				if (saveScreenShot != null) { 
-//					app.deviceScreenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3]);
-					Log.i(logTag, "ScreenShot saved: "+saveScreenShot[0]+"."+saveScreenShot[1]);
-				}
-				Thread.sleep(3000);
+				ShellCommands.executeCommand("chmod 666 /dev/i2c-*", null, true, context);
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				screenShotJobInstance.runFlag = false;
+				i2cResetPermissionsJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
-				deviceScreenLock.releaseWakeLock();
 			}
 		}
 	}

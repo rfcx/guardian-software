@@ -77,7 +77,9 @@ public class ApiCheckInLoopService extends Service {
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 					
 					try {
+						
 				        Thread.sleep(apiCheckInLoopCyclePause);
+				        
 				        app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", apiCheckInLoopTimeOut);
 						app.apiCheckInUtils.connectivityToggleCheck();
 

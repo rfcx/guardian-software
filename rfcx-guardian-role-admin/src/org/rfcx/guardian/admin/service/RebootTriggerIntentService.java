@@ -23,7 +23,12 @@ public class RebootTriggerIntentService extends IntentService {
 		Intent intent = new Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
 		sendBroadcast(intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));
 		
-		ShellCommands.executeCommand("reboot", null, true, ((RfcxGuardian) getApplication()).getApplicationContext());
+		ShellCommands.executeCommand(
+//				"am broadcast android.intent.action.ACTION_SHUTDOWN"
+//				+" && sleep 5"
+//				+" && reboot", 
+				"am start -a android.intent.action.REBOOT",
+				null, true, ((RfcxGuardian) getApplication()).getApplicationContext());
 		
 	}
 

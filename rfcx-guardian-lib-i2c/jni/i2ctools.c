@@ -16,15 +16,15 @@
 //library for log
 #include <android/log.h>
 
-#define APPNAME "Rfcx-I2c-I2cUtils"
-static const char *TAG="Rfcx-I2c-I2cUtils";
+#define APPNAME "Rfcx-I2c-I2cTools"
+static const char *TAG="Rfcx-I2c-I2cTools";
 
 #define LOGI(fmt, args...) __android_log_print(ANDROID_LOG_INFO,  TAG, fmt, ##args)
 #define LOGD(fmt, args...) __android_log_print(ANDROID_LOG_DEBUG, TAG, fmt, ##args)
 #define LOGE(fmt, args...) __android_log_print(ANDROID_LOG_ERROR, TAG, fmt, ##args)
 
 // should be modified according your package name
-JNIEXPORT jint JNICALL Java_org_rfcx_guardian_i2c_I2cUtils_i2cGetNative(JNIEnv * env, jobject jobj, jint i2c_slave_addr) {
+JNIEXPORT jint JNICALL Java_org_rfcx_guardian_i2c_I2cTools_i2cGetNative(JNIEnv * env, jobject jobj, jint i2c_slave_addr) {
 
 	char *bufByte;
 	int res = 0, i = 0, j = 0;

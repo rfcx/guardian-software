@@ -1,8 +1,6 @@
 package org.rfcx.guardian.admin.service;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
-import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -11,16 +9,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class ScreenShotJobService extends Service {
+public class AirplaneModeOnJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScreenShotJobService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AirplaneModeOnJobService.class);
 	
-	private static final String SERVICE_NAME = "ScreenShotJob";
+	private static final String SERVICE_NAME = "AirplaneModeOnJob";
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private ScreenShotJob screenShotJob;
+	private AirplaneModeOnJob airplaneModeOnJob;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,7 +28,7 @@ public class ScreenShotJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.screenShotJob = new ScreenShotJob();
+		this.airplaneModeOnJob = new AirplaneModeOnJob();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -41,7 +39,7 @@ public class ScreenShotJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.screenShotJob.start();
+			this.airplaneModeOnJob.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -53,48 +51,35 @@ public class ScreenShotJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.screenShotJob.interrupt();
-		this.screenShotJob = null;
+		this.airplaneModeOnJob.interrupt();
+		this.airplaneModeOnJob = null;
 	}
 	
 	
-	private class ScreenShotJob extends Thread {
+	private class AirplaneModeOnJob extends Thread {
 		
-		public ScreenShotJob() {
-			super("ScreenShotJobService-ScreenShotJob");
+		public AirplaneModeOnJob() {
+			super("AirplaneModeOnJobService-AirplaneModeOnJob");
 		}
 		
 		@Override
 		public void run() {
-			ScreenShotJobService screenShotJobInstance = ScreenShotJobService.this;
+			AirplaneModeOnJobService airplaneModeOnJobInstance = AirplaneModeOnJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 			
-			DeviceScreenShot deviceScreenShot = new DeviceScreenShot(context, RfcxGuardian.APP_ROLE);
-			DeviceScreenLock deviceScreenLock = new DeviceScreenLock(RfcxGuardian.APP_ROLE);
-			
 			try {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				// activate screen and set wake lock
-				deviceScreenLock.unLockScreen(context);
-				Thread.sleep(3000);
-				
-				String[] saveScreenShot = deviceScreenShot.launchCapture(context);
-				if (saveScreenShot != null) { 
-//					app.deviceScreenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3]);
-					Log.i(logTag, "ScreenShot saved: "+saveScreenShot[0]+"."+saveScreenShot[1]);
-				}
-				Thread.sleep(3000);
+				app.deviceAirplaneMode.setOn(context);
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				screenShotJobInstance.runFlag = false;
+				airplaneModeOnJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
-				deviceScreenLock.releaseWakeLock();
 			}
 		}
 	}
