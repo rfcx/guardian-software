@@ -23,7 +23,8 @@ else
   adb shell 'kill $(ps | grep org.rfcx.guardian.$ROLE | cut -d " " -f 5);';
 
   echo "performing installation...";
-  adb shell pm install -r /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
+  adb shell pm set-install-location 1;
+  adb shell pm install -f -r /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
 
   echo "deleting apk...";
   adb shell rm /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
@@ -32,7 +33,7 @@ else
   # adb shell "input keyevent KEYCODE_POWER";
 
   echo "force relaunch of app role...";
-  adb shell am start -n org.rfcx.guardian.$ROLE/org.rfcx.guardian.activity.MainActivity;
+  adb shell am start -n org.rfcx.guardian.$ROLE/$ROLE.activity.MainActivity;
 
   # echo "restarting adbd without root access..."
   # adb shell "setprop service.adb.root 0 && setprop ctl.restart adbd;";

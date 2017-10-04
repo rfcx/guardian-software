@@ -111,7 +111,7 @@ public class InstallAppService extends Service {
 		Log.d(logTag, "installing "+apkFilePath);
 		try {
 			boolean isInstalled = ShellCommands.executeCommand(
-					"pm install"+reInstallFlag+" "+apkFilePath,
+					"pm install -f"+reInstallFlag+" "+apkFilePath,
 					"Success",true,context);
 			if (apkFile.exists()) { apkFile.delete(); }
 			return isInstalled;

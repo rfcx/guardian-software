@@ -7,7 +7,7 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH) $(LOCAL_PATH)/$(KERNEL_DIR)/include
 LOCAL_SRC_FILES := tools/i2cbusses.c tools/util.c
 LOCAL_MODULE := i2c-tools
 include $(BUILD_STATIC_LIBRARY)
-include $(BUILD_SHARED_LIBRARY)
+#include $(BUILD_SHARED_LIBRARY)
 
 #include $(CLEAR_VARS)
 #

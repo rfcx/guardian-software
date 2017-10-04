@@ -3,12 +3,15 @@ package org.rfcx.guardian.utility.device.control;
 import java.util.Locale;
 
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 public class DeviceControlUtils {
 	 
@@ -24,12 +27,15 @@ public class DeviceControlUtils {
 
 		// replace this with something that more dynamically determines whether the roles has root access
 		boolean mustUseContentProvider = appRole.equalsIgnoreCase("guardian");
-		
-		ContentValues contentValues = new ContentValues();
-		
+			
 		if (mustUseContentProvider) {
 			try { 
-				contentResolver.update(Uri.parse(RfcxRole.ContentProvider.admin.URI_CONTROL+"/"+controlCommand.toLowerCase(Locale.US)), contentValues, null, null);
+				Log.v(logTag, "Triggering '"+controlCommand+"' via content provider.");
+				Cursor deviceControlResponse = 
+						contentResolver.query(
+							RfcxComm.getUri("admin", "control", controlCommand),
+							RfcxComm.getProjection("admin", "control"),
+							null, null, null);
 				return true;
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

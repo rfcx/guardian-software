@@ -48,13 +48,13 @@
         android:icon="@drawable/icon_guardian_guardian"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:name="org.rfcx.guardian.RfcxGuardian"
+        android:name="guardian.RfcxGuardian"
         >
         
         <!-- Activities -->
         
         <activity
-            android:name="org.rfcx.guardian.activity.MainActivity"
+            android:name="guardian.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,29 +63,31 @@
         </activity>
    
         <activity
-            android:name="org.rfcx.guardian.activity.PrefsActivity"
+            android:name="guardian.activity.PrefsActivity"
             android:label="@string/menu_prefs" />
         
         <!-- Services -->
-        <service android:name="org.rfcx.guardian.audio.capture.AudioCaptureService" />
-        <service android:name="org.rfcx.guardian.audio.encode.AudioEncodeLoopService" />
-        <service android:name="org.rfcx.guardian.audio.encode.AudioEncodeJobService" />
-        <service android:name="org.rfcx.guardian.api.checkin.ApiCheckInLoopService" />
-        <service android:name="org.rfcx.guardian.api.checkin.ApiCheckInJobService" />
-        <service android:name="org.rfcx.guardian.device.android.DeviceSystemService" />
+        <service android:name="guardian.audio.capture.AudioCaptureService" />
+        <service android:name="guardian.audio.encode.AudioEncodeLoopService" />
+        <service android:name="guardian.audio.encode.AudioEncodeJobService" />
+        <service android:name="guardian.api.checkin.ApiCheckInLoopService" />
+        <service android:name="guardian.api.checkin.ApiCheckInJobService" />
+        <service android:name="guardian.device.android.DeviceSystemService" />
         
         <!-- IntentServices -->
-        <service android:name="org.rfcx.guardian.ServiceMonitor" />
-        <service android:name="org.rfcx.guardian.audio.encode.AudioEncodeQueueIntentService" />
-        <service android:name="org.rfcx.guardian.api.checkin.ApiCheckInQueueIntentService" />
+        <service android:name="guardian.ServiceMonitor" />
+        <service android:name="guardian.audio.encode.AudioEncodeQueueIntentService" />
+        <service android:name="guardian.api.checkin.ApiCheckInQueueIntentService" />
 
         <!-- Receivers -->
-         <receiver android:name="org.rfcx.guardian.receiver.BootReceiver">
+         <receiver android:name="guardian.receiver.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
+				<category android:name="android.intent.category.DEFAULT"/>
+				<action android:name="android.intent.action.QUICKBOOT_POWERON" />
 			</intent-filter>
 		</receiver>
-        <receiver android:name="org.rfcx.guardian.receiver.BluetoothStateReceiver">
+        <receiver android:name="guardian.receiver.BluetoothStateReceiver">
     			<intent-filter>
         			<action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
    			</intent-filter>
@@ -93,7 +95,7 @@
 		
         <!-- ContentProviders -->
 		<provider 
-		    android:name="org.rfcx.guardian.contentprovider.GuardianContentProvider"
+		    android:name="guardian.contentprovider.GuardianContentProvider"
 			android:authorities="org.rfcx.guardian.audio"
         		android:readPermission="org.rfcx.guardian.READ"
         		android:writePermission="org.rfcx.guardian.WRITE"

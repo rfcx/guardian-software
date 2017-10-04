@@ -21,14 +21,6 @@ public class RfcxRole {
 				"updater",
 				"setup",  
 				
-//				"api", 
-//				"audio",  
-//				"carrier", 
-//				"connect",
-//				"encode", 
-//				"reboot", 
-//				"sentinel",
-//				"system"
 			};
 	
 	public static final class ContentProvider {
@@ -56,7 +48,7 @@ public class RfcxRole {
 			public static final String URI_VERSION = "content://"+AUTHORITY+"/"+ENDPOINT_VERSION;
 			
 			public static final String[] PROJECTION_CONTROL = { "command" };
-			public static final String ENDPOINT_CONTROL = "execute";
+			public static final String ENDPOINT_CONTROL = "control";
 			public static final String URI_CONTROL = "content://"+AUTHORITY+"/"+ENDPOINT_CONTROL;
 			
 		}

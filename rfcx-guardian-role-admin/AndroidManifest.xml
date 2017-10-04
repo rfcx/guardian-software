@@ -48,13 +48,13 @@
         android:icon="@drawable/icon_guardian_admin"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:name="org.rfcx.guardian.admin.RfcxGuardian"
+        android:name="admin.RfcxGuardian"
         >
 
         <!-- IntentServices -->
 
         <activity
-            android:name="org.rfcx.guardian.admin.activity.MainActivity"
+            android:name="admin.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -63,23 +63,25 @@
         </activity>
         
         <!-- Services -->
-        <service android:name="org.rfcx.guardian.admin.service.ScreenShotJobService" />
-        <service android:name="org.rfcx.guardian.admin.service.AirplaneModeOffJobService" />
-        <service android:name="org.rfcx.guardian.admin.service.AirplaneModeOnJobService" />
-        <service android:name="org.rfcx.guardian.admin.service.I2cResetPermissionsJobService" />
+        <service android:name="admin.service.ScreenShotJobService" />
+        <service android:name="admin.service.AirplaneModeOffJobService" />
+        <service android:name="admin.service.AirplaneModeOnJobService" />
+        <service android:name="admin.service.I2cResetPermissionsJobService" />
+        <service android:name="admin.service.RebootTriggerJobService" />
         
         <!-- IntentServices -->
-        <service android:name="org.rfcx.guardian.admin.ServiceMonitor" />
-        <service android:name="org.rfcx.guardian.admin.service.RebootTriggerIntentService" />
+        <service android:name="admin.ServiceMonitor" />
 
-         <receiver android:name="org.rfcx.guardian.admin.receiver.BootReceiver">
+         <receiver android:name="admin.receiver.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
+				<category android:name="android.intent.category.DEFAULT"/>
+				<action android:name="android.intent.action.QUICKBOOT_POWERON" />
 			</intent-filter>
 		</receiver>
 		
 		<provider 
-		    android:name="org.rfcx.guardian.admin.contentprovider.AdminContentProvider"
+		    android:name="admin.contentprovider.AdminContentProvider"
 			android:authorities="org.rfcx.guardian.admin"
         		android:readPermission="org.rfcx.guardian.READ"
         		android:writePermission="org.rfcx.guardian.WRITE"
