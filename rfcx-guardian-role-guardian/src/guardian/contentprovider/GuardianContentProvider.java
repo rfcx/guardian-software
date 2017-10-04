@@ -3,6 +3,7 @@ package guardian.contentprovider;
 import java.util.Locale;
 import java.util.Map;
 
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -17,28 +18,8 @@ import guardian.RfcxGuardian;
 public class GuardianContentProvider extends ContentProvider {
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, GuardianContentProvider.class);
-	
-	private static final String AUTHORITY = RfcxRole.ContentProvider.guardian.AUTHORITY;
-	
-	private static final String ENDPOINT_PREFS = RfcxRole.ContentProvider.guardian.ENDPOINT_PREFS;
-	private static final String[] PROJECTION_PREFS = RfcxRole.ContentProvider.guardian.PROJECTION_PREFS;
-	private static final int ENDPOINT_PREFS_LIST = 1;
-	private static final int ENDPOINT_PREFS_ID = 2;
 
-	private static final String ENDPOINT_VERSION = RfcxRole.ContentProvider.guardian.ENDPOINT_VERSION;
-	private static final String[] PROJECTION_VERSION = RfcxRole.ContentProvider.guardian.PROJECTION_VERSION;
-	private static final int ENDPOINT_VERSION_LIST = 3;
-
-	private static final UriMatcher URI_MATCHER;
-
-	static {
-		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
-		
-		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_PREFS, ENDPOINT_PREFS_LIST);
-		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_PREFS+"/#", ENDPOINT_PREFS_ID);
-		
-		URI_MATCHER.addURI(AUTHORITY, ENDPOINT_VERSION, ENDPOINT_VERSION_LIST);
-	}
+	private static final String appRole = RfcxGuardian.APP_ROLE;
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
@@ -47,29 +28,26 @@ public class GuardianContentProvider extends ContentProvider {
 		
 		try {
 			
-			if (URI_MATCHER.match(uri) == ENDPOINT_PREFS_LIST) {
-				MatrixCursor cursor = new MatrixCursor(PROJECTION_PREFS);
-				for ( Map.Entry<String,?> pref : app.sharedPrefs.getAll().entrySet() ) {
-					cursor.addRow(new Object[] {
-						pref.getKey(), app.rfcxPrefs.getPrefAsString(pref.getKey())
-					});
+			// get role "version" endpoints
+			
+			if (RfcxComm.uriMatch(uri, appRole, "version", null)) {
+				return RfcxComm.getProjectionCursor(appRole, "version", new Object[] { appRole, RfcxRole.getRoleVersion(app.getApplicationContext(), logTag) });
+			
+			// "prefs" function endpoints
+			
+			} else if (RfcxComm.uriMatch(uri, appRole, "prefs", null)) {
+				MatrixCursor cursor = RfcxComm.getProjectionCursor(appRole, "prefs", null);
+				for (String prefKey : app.rfcxPrefs.listPrefsKeys()) {
+					cursor.addRow(new Object[] { prefKey, app.rfcxPrefs.getPrefAsString(prefKey) });
 				}
 				return cursor;
 				
-			} else if (URI_MATCHER.match(uri) == ENDPOINT_PREFS_ID) {
+			} else if (RfcxComm.uriMatch(uri, appRole, "prefs", "*")) {
 				String prefKey = uri.getLastPathSegment();
-				MatrixCursor cursor = new MatrixCursor(PROJECTION_PREFS);
-				cursor.addRow(new Object[] {
-					prefKey, app.rfcxPrefs.getPrefAsString(prefKey)
-				});
-				return cursor;
+				return RfcxComm.getProjectionCursor(appRole, "prefs", new Object[] { prefKey, app.rfcxPrefs.getPrefAsString(prefKey) });
 				
-			} else if (URI_MATCHER.match(uri) == ENDPOINT_VERSION_LIST) {
-				MatrixCursor cursor = new MatrixCursor(PROJECTION_VERSION);
-				cursor.addRow(new Object[] { RfcxGuardian.APP_ROLE.toLowerCase(Locale.US), RfcxRole.getRoleVersion(app.getApplicationContext(), logTag) });
-				return cursor;
-	
 			}
+			
 			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -84,11 +62,11 @@ public class GuardianContentProvider extends ContentProvider {
 		
 		try {
 			
-			if (URI_MATCHER.match(uri) == ENDPOINT_PREFS_ID) {
-				String prefKey = uri.getLastPathSegment();
-				app.setPref(prefKey, values.getAsString(prefKey));
-				return 1;
-			}
+//			if (URI_MATCHER.match(uri) == ENDPOINT_PREFS_ID) {
+//				String prefKey = uri.getLastPathSegment();
+//				app.setPref(prefKey, values.getAsString(prefKey));
+//				return 1;
+//			}
 			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

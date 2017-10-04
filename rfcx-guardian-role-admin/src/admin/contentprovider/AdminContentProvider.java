@@ -2,6 +2,7 @@ package admin.contentprovider;
 
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import admin.RfcxGuardian;
 import android.content.ContentProvider;
@@ -24,9 +25,27 @@ public class AdminContentProvider extends ContentProvider {
 		
 		try {
 		
-			// these are the endpoints for the "control" functions
+			// get role "version" endpoints
 			
-			if (RfcxComm.uriMatch(uri, appRole, "control", "reboot")) {
+			if (RfcxComm.uriMatch(uri, appRole, "version", null)) {
+				return RfcxComm.getProjectionCursor(appRole, "version", new Object[] { appRole, RfcxRole.getRoleVersion(app.getApplicationContext(), logTag) });
+
+			// "prefs" function endpoints
+			
+			} else if (RfcxComm.uriMatch(uri, appRole, "prefs", null)) {
+				MatrixCursor cursor = RfcxComm.getProjectionCursor(appRole, "prefs", null);
+				for (String prefKey : app.rfcxPrefs.listPrefsKeys()) {
+					cursor.addRow(new Object[] { prefKey, app.rfcxPrefs.getPrefAsString(prefKey) });
+				}
+				return cursor;
+				
+			} else if (RfcxComm.uriMatch(uri, appRole, "prefs", "*")) {
+				String prefKey = uri.getLastPathSegment();
+				return RfcxComm.getProjectionCursor(appRole, "prefs", new Object[] { prefKey, app.rfcxPrefs.getPrefAsString(prefKey) });
+				
+			// "control" function endpoints
+			
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "reboot")) {
 				app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "reboot", null, System.currentTimeMillis() });
 				
@@ -39,6 +58,10 @@ public class AdminContentProvider extends ContentProvider {
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "airplanemode_off", null, System.currentTimeMillis() });
 			
 			}
+			
+			
+			
+			
 			return null;
 						
 		} catch (Exception e) {

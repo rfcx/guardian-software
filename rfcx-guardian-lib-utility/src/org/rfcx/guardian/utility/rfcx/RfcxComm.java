@@ -37,9 +37,10 @@ public class RfcxComm {
 
 	public static MatrixCursor getProjectionCursor(String role, String function, Object[] values) {
 		MatrixCursor cursor = new MatrixCursor(getProjection(role, function));
-		cursor.addRow(values);
+		if (values != null) { cursor.addRow(values); }
 		return cursor;
 	}
+
 	
 	public static Uri getUri(String role, String function, String command) {
 		StringBuilder uri = (new StringBuilder())
@@ -81,16 +82,20 @@ public class RfcxComm {
 		return uriMatcher;
 	}
 	
-	public static boolean uriMatch(Uri uri, String role, String function, String command) {
+	public static boolean uriMatch(Uri uri, String role, String function, String value) {
 		int uriMatch = getUriMatcher(role, function).match(uri);
 		int[] uriMatchIds = getUriMatchId(role, function);
-		boolean commandIsIncluded = ((command != null) && (!command.isEmpty()));
-		return (		!commandIsIncluded 
+		boolean valueIsIncluded = ((value != null) && (!value.isEmpty()));
+		return (		!valueIsIncluded 
 				&& 	(uriMatch == uriMatchIds[0])
 				)
-			|| 	(	commandIsIncluded 
+			|| 	(	valueIsIncluded 
 				&& 	(uriMatch == uriMatchIds[1]) 
-				&& 	(uri.getLastPathSegment().toLowerCase(Locale.US)).equals(command.toLowerCase(Locale.US))
+				&& 	(uri.getLastPathSegment().toLowerCase(Locale.US)).equals(value.toLowerCase(Locale.US))
+				)
+			|| 	(	valueIsIncluded 
+				&& 	(uriMatch == uriMatchIds[1]) 
+				&& 	value.equals("*")
 				); 
 	}
 
