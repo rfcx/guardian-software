@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.rfcx.guardian.utility.FileUtils;
 
@@ -202,7 +203,14 @@ public class RfcxPrefs {
 		
 	}
 	
-
+	public static List<String> listPrefsKeys() {
+		List<String> prefsKeys = new ArrayList<String>();
+		for (Entry prefKeyEntry : defaultPrefs.entrySet()) {
+			prefsKeys.add(prefKeyEntry.getKey().toString());
+		}
+		return prefsKeys;
+	}
+	
 	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
 	    new HashMap<String, String>() {{
 
@@ -244,19 +252,7 @@ public class RfcxPrefs {
 			
 	    }}
 	);
-	
-	public static String[] listPrefsKeys() {
-		List<String> prefsKeys = new ArrayList<String>();
-		
-		Iterator prefsIterator = defaultPrefs.entrySet().iterator();
-		while (prefsIterator.hasNext()) {
-	        Map.Entry prefsOption = (Map.Entry)prefsIterator.next();
-	        prefsKeys.add(prefsOption.getKey().toString());
-	        prefsIterator.remove(); // avoids a ConcurrentModificationException
-		}
-		
-		return prefsKeys.toArray(new String[prefsKeys.size()]);
-	}
+
 	
 //	private void setDefaultPrefs() {
 //		

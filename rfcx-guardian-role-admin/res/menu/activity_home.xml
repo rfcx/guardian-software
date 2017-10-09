@@ -16,9 +16,9 @@
 	    android:title="@string/menu_screenshot"
 	    />
     <item
-	    android:id="@+id/menu_i2c"
+	    android:id="@+id/menu_get_prefs"
         android:orderInCategory="4"
-	    android:title="@string/menu_i2c"
+	    android:title="@string/menu_get_prefs"
 	    />
     
 </menu>

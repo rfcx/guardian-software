@@ -96,7 +96,7 @@
         <!-- ContentProviders -->
 		<provider 
 		    android:name="guardian.contentprovider.GuardianContentProvider"
-			android:authorities="org.rfcx.guardian.audio"
+			android:authorities="org.rfcx.guardian.guardian"
         		android:readPermission="org.rfcx.guardian.READ"
         		android:writePermission="org.rfcx.guardian.WRITE"
         		android:exported="true" />

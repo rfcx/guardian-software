@@ -84,7 +84,7 @@ public class AudioCaptureService extends Service {
 			//int prefsAudioScheduleOffHours = app.rfcxPrefs.getPrefAsInt("audio_schedule_off_hours");
 
 			long captureTimeStamp;
-			AudioCaptureWavRecorder wavRecorder_A;
+			AudioCaptureWavRecorder wavRecorder;
 			boolean isBatteryChargeSufficientForCapture = app.audioCaptureUtils.isBatteryChargeSufficientForCapture();
 			boolean isCaptureAllowedAtThisTimeOfDay = app.audioCaptureUtils.isCaptureAllowedAtThisTimeOfDay();
 		
@@ -100,9 +100,14 @@ public class AudioCaptureService extends Service {
 							// set timestamp of beginning of audio clip
 							captureTimeStamp = System.currentTimeMillis();
 							
-							// initialize and start audio capture
-							wavRecorder_A = AudioCaptureUtils.getWavRecorder(captureDir, captureTimeStamp, "wav", prefsAudioSampleRate);
-							wavRecorder_A.start();
+							if (wavRecorder == null) {
+								// initialize and start audio capture
+								wavRecorder = AudioCaptureUtils.getWavRecorder(captureDir, captureTimeStamp, "wav", prefsAudioSampleRate);
+								wavRecorder.start();
+							} else {
+								wavRecorder.setOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
+							}
+							
 							
 							if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) { 
 								app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioEncodeQueue");
@@ -115,9 +120,9 @@ public class AudioCaptureService extends Service {
 							isBatteryChargeSufficientForCapture = app.audioCaptureUtils.isBatteryChargeSufficientForCapture();
 							isCaptureAllowedAtThisTimeOfDay = app.audioCaptureUtils.isCaptureAllowedAtThisTimeOfDay();
 							
-							// stop and release recorder
-							wavRecorder_A.stop();
-							wavRecorder_A.release();
+//							// stop and release recorder
+//							wavRecorder.stop();
+//							wavRecorder.release();
 							
 						} else {
 							
@@ -144,6 +149,12 @@ public class AudioCaptureService extends Service {
 					}
 				}
 				Log.v(logTag, "Stopping service: "+logTag);
+				
+				if (wavRecorder != null) {
+					// stop and release recorder
+					wavRecorder.stop();
+					wavRecorder.release();
+				}
 				
 			} catch (Exception e) {
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);

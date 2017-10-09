@@ -1,5 +1,6 @@
 # OSX Files
 .DS_Store
+.sync
 
 # built application files
 *.apk

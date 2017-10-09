@@ -1,17 +1,22 @@
 package admin.activity;
 
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import admin.RfcxGuardian;
 
 import org.rfcx.guardian.admin.R;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.util.Log;
 
 public class MainActivity extends Activity {
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -33,11 +38,36 @@ public class MainActivity extends Activity {
 			break;
 			
 		case R.id.menu_screenshot:
-		//	app.rfcxServiceHandler.triggerService("RebootTrigger", true);
+			app.rfcxServiceHandler.triggerService("ScreenShotJob", true);
 			break;
 			
-		case R.id.menu_i2c:
-			app.i2cTest();
+		case R.id.menu_get_prefs:
+
+			String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, MainActivity.class);
+			
+			try {
+				
+				Cursor prefsCursor = 
+					app.getApplicationContext().getContentResolver().query(
+					RfcxComm.getUri("guardian", "prefs", null),
+					RfcxComm.getProjection("guardian", "prefs"),
+					null, null, null);
+				
+				
+					if (prefsCursor.getCount() > 0) { if (prefsCursor.moveToFirst()) { try { do {
+									
+						Log.v( logTag,
+								prefsCursor.getString(prefsCursor.getColumnIndex("pref_key"))
+								+" : "
+								+prefsCursor.getString(	prefsCursor.getColumnIndex("pref_value"))
+							);
+									
+					} while (prefsCursor.moveToNext()); } finally { prefsCursor.close(); } } }
+				
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+			}
+			
 		//	app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 			break;
 			

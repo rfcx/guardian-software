@@ -13,6 +13,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.util.Log;
 import guardian.RfcxGuardian;
 
 public class GuardianContentProvider extends ContentProvider {

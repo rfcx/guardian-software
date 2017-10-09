@@ -20,10 +20,10 @@ else
   adb root; sleep 2;
 
   echo "killing app role process...";
-  adb shell 'kill $(ps | grep org.rfcx.guardian.$ROLE | cut -d " " -f 5);';
+  # adb shell 'kill $(ps | grep org.rfcx.guardian.$ROLE | cut -d " " -f 5);';
 
   echo "performing installation...";
-  adb shell pm set-install-location 1;
+  # adb shell pm set-install-location 1;
   adb shell pm install -f -r /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
 
   echo "deleting apk...";

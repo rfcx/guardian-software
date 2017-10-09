@@ -47,7 +47,7 @@ public class AudioCaptureUtils {
 		return true;
 	}
 	
-	private static String getCaptureFilePath(String captureDir, long timestamp, String fileExtension) {
+	public static String getCaptureFilePath(String captureDir, long timestamp, String fileExtension) {
 		return (new StringBuilder()).append(captureDir).append("/").append(timestamp).append(".").append(fileExtension).toString();
 	}
 	
