@@ -98,6 +98,13 @@
         android:enabled="true"
         android:defaultValue="00:10-00:15,00:15-00:20" />
  	
+ 	<EditTextPreference
+        android:key="schedule_off_hours_cutoffs_enabled"
+        android:title="schedule_off_hours_cutoffs_enabled"
+        android:summary="string - true/false"
+        android:enabled="true"
+        android:defaultValue="false" />
+ 	
  	<!-- Audio Capture Formatting -->
  	
  	<EditTextPreference
@@ -143,6 +150,13 @@
         android:defaultValue="5000" />
  	
  	<!-- Battery Cutoff Thresholds -->
+ 	
+ 	<EditTextPreference
+        android:key="battery_cutoffs_enabled"
+        android:title="battery_cutoffs_enabled"
+        android:summary="string - true/false"
+        android:enabled="true"
+        android:defaultValue="false" />
  	
  	<EditTextPreference
         android:key="checkin_battery_cutoff"

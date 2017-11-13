@@ -27,15 +27,13 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import guardian.api.checkin.ApiCheckInDb;
 import guardian.api.checkin.ApiCheckInJobService;
-import guardian.api.checkin.ApiCheckInLoopService;
-import guardian.api.checkin.ApiCheckInQueueIntentService;
+import guardian.api.checkin.ApiCheckInQueueService;
 import guardian.api.checkin.ApiCheckInUtils;
 import guardian.audio.capture.AudioCaptureService;
 import guardian.audio.capture.AudioCaptureUtils;
 import guardian.audio.encode.AudioEncodeDb;
 import guardian.audio.encode.AudioEncodeJobService;
-import guardian.audio.encode.AudioEncodeLoopService;
-import guardian.audio.encode.AudioEncodeQueueIntentService;
+import guardian.audio.encode.AudioEncodeQueueService;
 import guardian.device.android.DeviceDataTransferDb;
 import guardian.device.android.DeviceLogCatCaptureDb;
 import guardian.device.android.DeviceRebootDb;
@@ -90,8 +88,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String[] RfcxCoreServices = 
 		new String[] { 
 			"AudioCapture",
-			"AudioEncodeLoop",
-			"ApiCheckInLoop",
 			"DeviceSystem"
 		};
 	
@@ -169,12 +165,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
 		this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
-		this.rfcxServiceHandler.addService("AudioEncodeQueue", AudioEncodeQueueIntentService.class);
-		this.rfcxServiceHandler.addService("AudioEncodeLoop", AudioEncodeLoopService.class);
+		this.rfcxServiceHandler.addService("AudioEncodeQueue", AudioEncodeQueueService.class);
 		this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
-		this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueIntentService.class);
-		this.rfcxServiceHandler.addService("ApiCheckInLoop", ApiCheckInLoopService.class);
+		this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
 		
 	}

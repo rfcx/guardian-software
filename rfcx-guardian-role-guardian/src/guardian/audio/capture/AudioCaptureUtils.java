@@ -11,6 +11,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 import guardian.RfcxGuardian;
 
 public class AudioCaptureUtils {
@@ -47,16 +48,34 @@ public class AudioCaptureUtils {
 		return true;
 	}
 	
+	public boolean isAudioCaptureAllowed() {
+		
+		boolean limitBasedOnBatteryLevel = (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("battery_cutoffs_enabled"));
+		boolean limitBasedOnTimeOfDay = (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("schedule_off_hours_cutoffs_enabled"));
+		
+		if (limitBasedOnTimeOfDay) {
+			Log.i(logTag, "AudioCapture not allowed due to current time of day/night"
+					+" (off hours: '"+app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")+"'.");
+			
+		} else if (limitBasedOnBatteryLevel) {
+			Log.i(logTag, "AudioCapture not allowed due to low battery level"
+				+" (current: "+this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)+"%, required: "+this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")+"%).");
+		
+		}
+		
+		return !limitBasedOnTimeOfDay && !limitBasedOnBatteryLevel;
+	}
+	
 	public static String getCaptureFilePath(String captureDir, long timestamp, String fileExtension) {
 		return (new StringBuilder()).append(captureDir).append("/").append(timestamp).append(".").append(fileExtension).toString();
 	}
 	
-	public static AudioCaptureWavRecorder getWavRecorder(String captureDir, long timestamp, String fileExtension, int sampleRate) throws IllegalStateException, IOException, IllegalThreadStateException {
-		AudioCaptureWavRecorder rec = null;
-		rec = AudioCaptureWavRecorder.getInstance(sampleRate);
-		rec.setOutputFile(getCaptureFilePath(captureDir,timestamp,fileExtension));
-		rec.prepare();
-        return rec;
+	public static AudioCaptureWavRecorder initializeWavRecorder(String captureDir, long timestamp, int sampleRate) throws IllegalStateException, IOException, IllegalThreadStateException {
+		AudioCaptureWavRecorder wavRecorderInstance = null;
+		wavRecorderInstance = AudioCaptureWavRecorder.getInstance(sampleRate);
+		wavRecorderInstance.setOutputFile(getCaptureFilePath(captureDir, timestamp, "wav"));
+		wavRecorderInstance.prepareRecorder();
+        return wavRecorderInstance;
 	}
 	
 	public static boolean reLocateAudioCaptureFile(Context context, long timestamp, String fileExtension) {

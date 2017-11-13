@@ -1,5 +1,7 @@
 package guardian.audio.capture;
 
+import java.io.File;
+
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -71,95 +73,61 @@ public class AudioCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-//			app.audioCaptureUtils = new AudioCaptureUtils(context);
+			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+
 			app.audioCaptureUtils.captureTimeStampQueue = new long[] { 0, 0 };
 			
 			String captureDir = RfcxAudioUtils.captureDir(context);
 			FileUtils.deleteDirectoryContents(captureDir);
 
 			long prefsCaptureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
-			int prefsEncodingBitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
 			int prefsAudioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
-			int prefsAudioBatteryCutoff = app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff");
-			//int prefsAudioScheduleOffHours = app.rfcxPrefs.getPrefAsInt("audio_schedule_off_hours");
-
-			long captureTimeStamp;
-			AudioCaptureWavRecorder wavRecorder;
-			boolean isBatteryChargeSufficientForCapture = app.audioCaptureUtils.isBatteryChargeSufficientForCapture();
-			boolean isCaptureAllowedAtThisTimeOfDay = app.audioCaptureUtils.isCaptureAllowedAtThisTimeOfDay();
-		
+			
+			AudioCaptureWavRecorder wavRecorder = null;
+			boolean isWavRecorderInitialized = false;
+			long captureTimeStamp = System.currentTimeMillis(); // timestamp of beginning of audio clip
+			
 			try {
 				
 				Log.d(logTag, "Capture Loop Period: "+ prefsCaptureLoopPeriod +"ms");
 				
 				while (audioCaptureService.runFlag) {
-					try {
+				
+					if (!app.audioCaptureUtils.isAudioCaptureAllowed()) {
+						Thread.sleep(prefsCaptureLoopPeriod);
 						
-						if (isBatteryChargeSufficientForCapture && isCaptureAllowedAtThisTimeOfDay) {
-							
-							// set timestamp of beginning of audio clip
+					} else {
+						
+						if (!isWavRecorderInitialized) {
 							captureTimeStamp = System.currentTimeMillis();
-							
-							if (wavRecorder == null) {
-								// initialize and start audio capture
-								wavRecorder = AudioCaptureUtils.getWavRecorder(captureDir, captureTimeStamp, "wav", prefsAudioSampleRate);
-								wavRecorder.start();
-							} else {
-								wavRecorder.setOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
-							}
-							
-							
-							if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) { 
-								app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioEncodeQueue");
-							}
-							
-							// sleep for intended length of capture clip
-							Thread.sleep(prefsCaptureLoopPeriod);
-							
-							// cache state of whether capture is allowed (to be used on next capture loop)
-							isBatteryChargeSufficientForCapture = app.audioCaptureUtils.isBatteryChargeSufficientForCapture();
-							isCaptureAllowedAtThisTimeOfDay = app.audioCaptureUtils.isCaptureAllowedAtThisTimeOfDay();
-							
-//							// stop and release recorder
-//							wavRecorder.stop();
-//							wavRecorder.release();
+							wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, prefsAudioSampleRate);
+							wavRecorder.startRecorder();
+							isWavRecorderInitialized = true;
 							
 						} else {
-							
-							isBatteryChargeSufficientForCapture = app.audioCaptureUtils.isBatteryChargeSufficientForCapture();
-							isCaptureAllowedAtThisTimeOfDay = app.audioCaptureUtils.isCaptureAllowedAtThisTimeOfDay();
-							
-							if (!isBatteryChargeSufficientForCapture) {
-								
-								Log.i(logTag, "AudioCapture disabled due to low battery level"
-										+" (current: "+app.deviceBattery.getBatteryChargePercentage(context, null)+"%, required: "+prefsAudioBatteryCutoff+"%)."
-										+" Waiting "+(Math.round(2*prefsCaptureLoopPeriod/1000))+" seconds before next attempt.");
-								Thread.sleep(prefsCaptureLoopPeriod);
-								
-							} else if (!isCaptureAllowedAtThisTimeOfDay) {
-								
-								Log.i(logTag, "AudioCapture disabled during specified off hours..");
-							}
-							Thread.sleep(prefsCaptureLoopPeriod);
+							captureTimeStamp = System.currentTimeMillis();
+							wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
 						}
-					} catch (Exception e) {
-						app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-						audioCaptureService.runFlag = false;
-						RfcxLog.logExc(logTag, e);
+						
+						if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
+							app.rfcxServiceHandler.triggerService("AudioEncodeQueue", true);
+						}
+						
+						// sleep for intended length of capture clip
+						Thread.sleep(prefsCaptureLoopPeriod);
+						
 					}
 				}
 				Log.v(logTag, "Stopping service: "+logTag);
 				
-				if (wavRecorder != null) {
-					// stop and release recorder
-					wavRecorder.stop();
-					wavRecorder.release();
-				}
-				
 			} catch (Exception e) {
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				audioCaptureService.runFlag = false;
 				RfcxLog.logExc(logTag, e);
+				
+			} finally {
+				audioCaptureService.runFlag = false;
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME);
+				
 			}
 		}
 	}

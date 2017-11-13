@@ -1,6 +1,7 @@
 package guardian.audio.capture;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -15,84 +16,52 @@ import guardian.RfcxGuardian;
 public class AudioCaptureWavRecorder {
 
 	public static AudioCaptureWavRecorder getInstance(int audioSampleRate) {
-		AudioCaptureWavRecorder result = null;
+		AudioCaptureWavRecorder captureWavRecorderResult = null;
 		do {
-			result = new AudioCaptureWavRecorder( 
-					true, AudioSource.MIC, 
-					audioSampleRate,
-					AudioFormat.CHANNEL_CONFIGURATION_MONO,
-					AudioFormat.ENCODING_PCM_16BIT
-				);
-		} while (!(result.getState() == AudioCaptureWavRecorder.State.INITIALIZING));
-		return result;
+			captureWavRecorderResult = new AudioCaptureWavRecorder(true, AudioSource.MIC, audioSampleRate, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT );
+		} while (!(captureWavRecorderResult.getRecorderState() == AudioCaptureWavRecorder.State.INITIALIZING));
+		return captureWavRecorderResult;
 	}
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioCaptureWavRecorder.class);
 
-	/**
-	 * INITIALIZING : recorder is initializing; READY : recorder has been
-	 * initialized, recorder not yet started RECORDING : recording ERROR :
-	 * reconstruction needed STOPPED: reset needed
-	 */
-	public enum State {
-		INITIALIZING, READY, RECORDING, ERROR, STOPPED
-	};
+	// 	INITIALIZING : recorder is initializing; 
+	//	READY : recorder has been initialized, recorder not yet started
+	//	RECORDING : recording 
+	//	ERROR : reconstruction needed 
+	//	STOPPED: reset needed
+	
+	public enum State { INITIALIZING, READY, RECORDING, ERROR, STOPPED };
+	private State recorderState;
 
-	public static final boolean RECORDING_UNCOMPRESSED = true;
-
-	// The interval in which the recorded samples are output to the file
-	// Used only in uncompressed mode
-	private static final int TIMER_INTERVAL = 120;
-
-	// Toggles uncompressed recording on/off; RECORDING_UNCOMPRESSED /
-	// RECORDING_COMPRESSED
-	private boolean rUncompressed;
-
-	// Recorder used for uncompressed recording
 	private AudioRecord audioRecorder = null;
+	public static final boolean RECORDING_UNCOMPRESSED = true;
+	private boolean isRecordingUncompressed; //on/off; RECORDING_UNCOMPRESSED / RECORDING_COMPRESSED
+	private String recorderOutputFilePath = null;
+	private RandomAccessFile recorderOutputFileRandomAccessWriter;
+	private int recorderFileOutputFramePeriod; // Number of frames written to file on each output (only in uncompressed mode)
+	private byte[] uncompressedOutputBuffer; // Buffer for output (only in uncompressed mode)
+
+	// The interval in which the recorded samples are output to the file used only in uncompressed mode
+	private static final int TIMER_INTERVAL_UNCOMPRESSED = 100;//120; 
 
 	// Stores current amplitude (only in uncompressed mode)
-	private int cAmplitude = 0;
+	private int currentAmplitude = 0;
 
-	// Output file path
-	private String filePath = null;
+	// Number of channels, sample rate, sample size(size in bits), buffer size, audio source, sample size (see AudioFormat)
+	private short captureChannelCount;
+	private int captureSampleRate;
+	private short captureSampleSizeInBits;
+	private int captureBufferSize;
+	private int captureAudioSource;
+	private int captureAudioFormat;
 
-	// Recorder state; see State
-	private State state;
+	// Number of bytes written to file after header(only in uncompressed mode) after stop() is called, this size is written to the header/data chunk in the wave file
+	private int captureFilePayloadSizeInBytes;
 
-	// File writer (only in uncompressed mode)
-	private RandomAccessFile randomAccessWriter;
-
-	// Number of channels, sample rate, sample size(size in bits), buffer size,
-	// audio source, sample size(see AudioFormat)
-	private short nChannels;
-	private int sRate;
-	private short bSamples;
-	private int bufferSize;
-	private int aSource;
-	private int aFormat;
-
-	// Number of frames written to file on each output(only in uncompressed
-	// mode)
-	private int framePeriod;
-
-	// Buffer for output(only in uncompressed mode)
-	private byte[] buffer;
-
-	// Number of bytes written to file after header(only in uncompressed mode)
-	// after stop() is called, this size is written to the header/data chunk in
-	// the wave file
-	private int payloadSize;
-
-	/**
-	 * 
-	 * Returns the state of the recorder in a RehearsalAudioRecord.State typed
-	 * object. Useful, as no exceptions are thrown.
-	 * 
-	 * @return recorder state
-	 */
-	public State getState() {
-		return state;
+	//	Returns the state of the recorder in a RehearsalAudioRecord.State typed object. Useful, as no exceptions are thrown.
+	public State getRecorderState() {
+		return recorderState;
 	}
 
 	/*
@@ -101,30 +70,28 @@ public class AudioCaptureWavRecorder {
 	 */
 	private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
 		public void onPeriodicNotification(AudioRecord recorder) {
-			audioRecorder.read(buffer, 0, buffer.length); // Fill buffer
+			audioRecorder.read(uncompressedOutputBuffer, 0, uncompressedOutputBuffer.length); // Fill buffer
 			try {
-				randomAccessWriter.write(buffer); // Write buffer to file
-				payloadSize += buffer.length;
-				if (bSamples == 16) {
-					for (int i = 0; i < buffer.length / 2; i++) { // 16bit
-																	// sample
-																	// size
-						short curSample = getShort(buffer[i * 2],
-								buffer[i * 2 + 1]);
-						if (curSample > cAmplitude) { // Check amplitude
-							cAmplitude = curSample;
-						}
-					}
-				} else { // 8bit sample size
-					for (int i = 0; i < buffer.length; i++) {
-						if (buffer[i] > cAmplitude) { // Check amplitude
-							cAmplitude = buffer[i];
-						}
-					}
-				}
+				recorderOutputFileRandomAccessWriter.write(uncompressedOutputBuffer); // Write buffer to file
+				captureFilePayloadSizeInBytes += uncompressedOutputBuffer.length;
+//				if (captureSampleSizeInBits == 16) {
+//					for (int i = 0; i < uncompressedOutputBuffer.length / 2; i++) { // 16 bit sample size
+//						short curSample = getShort(uncompressedOutputBuffer[i * 2], uncompressedOutputBuffer[i * 2 + 1]);
+//						if (curSample > currentAmplitude) { // Check amplitude
+//							currentAmplitude = curSample;
+//						}
+//					}
+//				} else { // 8bit sample size
+//					for (int i = 0; i < uncompressedOutputBuffer.length; i++) {
+//						if (uncompressedOutputBuffer[i] > currentAmplitude) { // Check amplitude
+//							currentAmplitude = uncompressedOutputBuffer[i];
+//						}
+//					}
+//				}
 			} catch (IOException e) {
 				RfcxLog.logExc(logTag, e);
-				// stop();
+				stopRecorder();
+				recorderState = State.ERROR;
 			}
 		}
 
@@ -143,81 +110,68 @@ public class AudioCaptureWavRecorder {
 	 * but the state is set to ERROR
 	 * 
 	 */
-	public AudioCaptureWavRecorder(boolean uncompressed, int audioSource,
-			int sampleRate, int channelConfig, int audioFormat) {
+	public AudioCaptureWavRecorder(boolean isUncompressed, int audioSource, int sampleRate, int channelConfig, int audioFormat) {
+		
 		try {
-			rUncompressed = uncompressed;
-			if (rUncompressed) { // RECORDING_UNCOMPRESSED
+			isRecordingUncompressed = isUncompressed;
+			if (isRecordingUncompressed) { // RECORDING_UNCOMPRESSED
+				
 				if (audioFormat == AudioFormat.ENCODING_PCM_16BIT) {
-					bSamples = 16;
+					captureSampleSizeInBits = 16;
 				} else {
-					bSamples = 8;
+					captureSampleSizeInBits = 8;
 				}
 
 				if (channelConfig == AudioFormat.CHANNEL_CONFIGURATION_MONO) {
-					nChannels = 1;
+					captureChannelCount = 1;
 				} else {
-					nChannels = 2;
+					captureChannelCount = 2;
 				}
 
-				aSource = audioSource;
-				sRate = sampleRate;
-				aFormat = audioFormat;
+				captureAudioSource = audioSource;
+				captureSampleRate = sampleRate;
+				captureAudioFormat = audioFormat;
 
-				framePeriod = sampleRate * TIMER_INTERVAL / 1000;
-				bufferSize = framePeriod * 2 * bSamples * nChannels / 8;
-				if (bufferSize < AudioRecord.getMinBufferSize(sampleRate,
-						channelConfig, audioFormat)) { // Check to make sure
-														// buffer size is not
-														// smaller than the
-														// smallest allowed one
-					bufferSize = AudioRecord.getMinBufferSize(sampleRate,
-							channelConfig, audioFormat);
+				recorderFileOutputFramePeriod = sampleRate * TIMER_INTERVAL_UNCOMPRESSED / 1000;
+				captureBufferSize = recorderFileOutputFramePeriod * 2 * captureSampleSizeInBits * captureChannelCount / 8;
+				
+				if (captureBufferSize < AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)) { 
+					
+					// Check to make sure buffer size is not smaller than the smallest allowed one
+					captureBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
+					
 					// Set frame period and timer interval accordingly
-					framePeriod = bufferSize / (2 * bSamples * nChannels / 8);
-					Log.w(logTag, "Increasing buffer size to "+Integer.toString(bufferSize));
+					recorderFileOutputFramePeriod = captureBufferSize / (2 * captureSampleSizeInBits * captureChannelCount / 8);
+					
+					Log.w(logTag, "Increasing buffer size to "+Integer.toString(captureBufferSize));
 				}
 
-				audioRecorder = new AudioRecord(audioSource, sampleRate,
-						channelConfig, audioFormat, bufferSize);
+				audioRecorder = new AudioRecord(audioSource, sampleRate, channelConfig, audioFormat, captureBufferSize);
 
-				if (audioRecorder.getState() != AudioRecord.STATE_INITIALIZED)
-					throw new Exception("AudioRecord initialization failed");
+				if (audioRecorder.getState() != AudioRecord.STATE_INITIALIZED) throw new Exception("AudioRecord initialization failed");
+				
 				audioRecorder.setRecordPositionUpdateListener(updateListener);
-				audioRecorder.setPositionNotificationPeriod(framePeriod);
+				audioRecorder.setPositionNotificationPeriod(recorderFileOutputFramePeriod);
 			}
-			cAmplitude = 0;
-			filePath = null;
-			state = State.INITIALIZING;
+			currentAmplitude = 0;
+			recorderOutputFilePath = null;
+			recorderState = State.INITIALIZING;
+			
 		} catch (Exception e) {
-			if (e.getMessage() != null) {
-				RfcxLog.logExc(logTag, e);
-			} else {
-				Log.e(logTag, "Unknown error occured while initializing recording");
-			}
-			state = State.ERROR;
+			RfcxLog.logExc(logTag, e);
+			recorderState = State.ERROR;
 		}
 	}
 
-	/**
-	 * Sets output file path, call directly after construction/reset.
-	 * 
-	 * @param output
-	 *            file path
-	 * 
-	 */
-	public void setOutputFile(String argPath) {
+
+	public void setOutputFile(String outputFilePath) {
 		try {
-			if (state == State.INITIALIZING) {
-				filePath = argPath;
+			if (recorderState == State.INITIALIZING) {
+				recorderOutputFilePath = outputFilePath;
 			}
 		} catch (Exception e) {
-			if (e.getMessage() != null) {
-				RfcxLog.logExc(logTag, e);
-			} else {
-				Log.e(logTag, "Unknown error occured while setting output path");
-			}
-			state = State.ERROR;
+			RfcxLog.logExc(logTag, e);
+			recorderState = State.ERROR;
 		}
 	}
 
@@ -230,10 +184,10 @@ public class AudioCaptureWavRecorder {
 	 * 
 	 */
 	public int getMaxAmplitude() {
-		if (state == State.RECORDING) {
-			int result = cAmplitude;
-			cAmplitude = 0;
-			return result;
+		if (recorderState == State.RECORDING) {
+			int currentAmplitudeResult = currentAmplitude;
+			currentAmplitude = 0;
+			return currentAmplitudeResult;
 		} else {
 			return 0;
 		}
@@ -248,79 +202,81 @@ public class AudioCaptureWavRecorder {
 	 * written. In case of an exception, the state is changed to ERROR
 	 * 
 	 */
-	public void prepare() {
+	public void prepareRecorder() {
 		try {
-			if (state == State.INITIALIZING) {
-				if ((audioRecorder.getState() == AudioRecord.STATE_INITIALIZED)
-						& (filePath != null)) {
-					// write file header
+			if (recorderState == State.INITIALIZING) {
+				
+				if (audioRecorder.getState() == AudioRecord.STATE_INITIALIZED) {
+					
+					prepareRecorderOutputFileWriter(recorderOutputFilePath);
 
-					randomAccessWriter = new RandomAccessFile(filePath,
-							"rw");
-
-					randomAccessWriter.setLength(0); // Set file length to
-														// 0, to prevent
-														// unexpected
-														// behavior in case
-														// the file already
-														// existed
-					randomAccessWriter.writeBytes("RIFF");
-					randomAccessWriter.writeInt(0); // Final file size not
-													// known yet, write 0
-					randomAccessWriter.writeBytes("WAVE");
-					randomAccessWriter.writeBytes("fmt ");
-					randomAccessWriter.writeInt(Integer.reverseBytes(16)); // Sub-chunk
-																			// size,
-																			// 16
-																			// for
-																			// PCM
-					randomAccessWriter.writeShort(Short
-							.reverseBytes((short) 1)); // AudioFormat, 1 for
-														// PCM
-					randomAccessWriter.writeShort(Short
-							.reverseBytes(nChannels));// Number of channels,
-														// 1 for mono, 2 for
-														// stereo
-					randomAccessWriter
-							.writeInt(Integer.reverseBytes(sRate)); // Sample
-																	// rate
-					randomAccessWriter.writeInt(Integer.reverseBytes(sRate
-							* bSamples * nChannels / 8)); // Byte rate,
-															// SampleRate*NumberOfChannels*BitsPerSample/8
-					randomAccessWriter
-							.writeShort(Short
-									.reverseBytes((short) (nChannels
-											* bSamples / 8))); // Block
-																// align,
-																// NumberOfChannels*BitsPerSample/8
-					randomAccessWriter.writeShort(Short
-							.reverseBytes(bSamples)); // Bits per sample
-					randomAccessWriter.writeBytes("data");
-					randomAccessWriter.writeInt(0); // Data chunk size not
-													// known yet, write 0
-
-					buffer = new byte[framePeriod * bSamples / 8
-							* nChannels];
-					state = State.READY;
+					uncompressedOutputBuffer = new byte[recorderFileOutputFramePeriod * captureSampleSizeInBits / 8 * captureChannelCount];
+					
+					recorderState = State.READY;
+					
 				} else {
-					Log.e(AudioCaptureWavRecorder.class.getName(),
-							"prepare() method called on uninitialized recorder");
-					state = State.ERROR;
+					Log.e(logTag, "prepareRecorder() method called on uninitialized recorder");
+					recorderState = State.ERROR;
 				}
 
 			} else {
-				Log.e(logTag, "prepare() method called on illegal state");
-				release();
-				state = State.ERROR;
+				Log.e(logTag, "prepareRecorder() method called on illegal state");
+				releaseRecorder();
+				recorderState = State.ERROR;
 			}
 		} catch (Exception e) {
-			if (e.getMessage() != null) {
-				RfcxLog.logExc(logTag, e);
-			} else {
-				Log.e(logTag, "Unknown error occured in prepare()");
-			}
-			state = State.ERROR;
+			RfcxLog.logExc(logTag, e);
+			recorderState = State.ERROR;
 		}
+	}
+	
+	
+	private void prepareRecorderOutputFileWriter(String outputFilePath) throws IOException {
+		
+		if (outputFilePath != null) {
+		
+			recorderOutputFileRandomAccessWriter = new RandomAccessFile(recorderOutputFilePath, "rw");
+	
+			 // Set file length to 0, to prevent unexpected behavior in case the file already existed
+			recorderOutputFileRandomAccessWriter.setLength(0);
+			
+			recorderOutputFileRandomAccessWriter.writeBytes("RIFF");
+			
+			// Final file size not known yet, write 0
+			recorderOutputFileRandomAccessWriter.writeInt(0); 
+											
+			recorderOutputFileRandomAccessWriter.writeBytes("WAVE");
+			recorderOutputFileRandomAccessWriter.writeBytes("fmt ");
+			
+			// Sub-chunk size, 16 for PCM
+			recorderOutputFileRandomAccessWriter.writeInt(Integer.reverseBytes(16)); 
+			
+			// AudioFormat, 1 for PCM
+			recorderOutputFileRandomAccessWriter.writeShort(Short.reverseBytes((short) 1)); 
+	
+			// Number of channels, 1 for mono, 2 for stereo
+			recorderOutputFileRandomAccessWriter.writeShort(Short.reverseBytes(captureChannelCount));
+			
+			// Sample rate
+			recorderOutputFileRandomAccessWriter.writeInt(Integer.reverseBytes(captureSampleRate));
+	
+			// Byte rate, SampleRate*NumberOfChannels*BitsPerSample/8
+			recorderOutputFileRandomAccessWriter.writeInt(Integer.reverseBytes(captureSampleRate * captureSampleSizeInBits * captureChannelCount / 8));
+			
+			// Block align, NumberOfChannels*BitsPerSample/8
+			recorderOutputFileRandomAccessWriter.writeShort(Short.reverseBytes((short) (captureChannelCount * captureSampleSizeInBits / 8)));
+			
+			// Bits per sample
+			recorderOutputFileRandomAccessWriter.writeShort(Short.reverseBytes(captureSampleSizeInBits));
+			recorderOutputFileRandomAccessWriter.writeBytes("data");
+			
+			// Data chunk size not known yet, write 0
+			recorderOutputFileRandomAccessWriter.writeInt(0);
+			
+		} else {
+			recorderState = State.ERROR;
+		}
+		
 	}
 
 	/**
@@ -330,18 +286,20 @@ public class AudioCaptureWavRecorder {
 	 * unnecessary files, when necessary
 	 * 
 	 */
-	public void release() {
-		if (state == State.RECORDING) {
-			stop();
-		} else {
-			if ((state == State.READY) & (rUncompressed)) {
-				try {
-					randomAccessWriter.close(); // Remove prepared file
-				} catch (IOException e) {
-					Log.e(logTag, "I/O exception occured while closing output file");
-				}
-				(new File(filePath)).delete();
+	public void releaseRecorder() {
+		
+		if (recorderState == State.RECORDING) {
+			stopRecorder();
+			
+		} else if (isRecordingUncompressed && (recorderState == State.READY)) {
+			
+			try {
+				recorderOutputFileRandomAccessWriter.close(); // Remove prepared file
+				
+			} catch (IOException e) {
+				RfcxLog.logExc(logTag, e);
 			}
+//			(new File(recorderOutputFilePath)).delete();
 		}
 
 		if (audioRecorder != null) {
@@ -357,21 +315,20 @@ public class AudioCaptureWavRecorder {
 	 * case of exceptions the class is set to the ERROR state.
 	 * 
 	 */
-	public void reset() {
+	public void resetRecorder() {
 		try {
-			if (state != State.ERROR) {
-				release();
-				filePath = null; // Reset file path
-				cAmplitude = 0; // Reset amplitude
+			if (recorderState != State.ERROR) {
+				releaseRecorder();
+				recorderOutputFilePath = null; // Reset file path
+				currentAmplitude = 0; // Reset amplitude
 
-				audioRecorder = new AudioRecord(aSource, sRate,
-						nChannels + 1, aFormat, bufferSize);
+				audioRecorder = new AudioRecord(captureAudioSource, captureSampleRate, captureChannelCount + 1, captureAudioFormat, captureBufferSize);
 
-				state = State.INITIALIZING;
+				recorderState = State.INITIALIZING;
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
-			state = State.ERROR;
+			recorderState = State.ERROR;
 		}
 	}
 
@@ -382,17 +339,18 @@ public class AudioCaptureWavRecorder {
 	 * prepare().
 	 * 
 	 */
-	public void start() {
-		if (state == State.READY) {
+	public void startRecorder() {
+		
+		if (recorderState == State.READY) {
 
-			payloadSize = 0;
+			captureFilePayloadSizeInBytes = 0;
 			audioRecorder.startRecording();
-			audioRecorder.read(buffer, 0, buffer.length);
-
-			state = State.RECORDING;
+			audioRecorder.read(uncompressedOutputBuffer, 0, uncompressedOutputBuffer.length);
+			recorderState = State.RECORDING;
+			
 		} else {
-			Log.e(logTag, "start() called on illegal state");
-			state = State.ERROR;
+			Log.e(logTag, "startRecorder() called on illegal recorderState");
+			recorderState = State.ERROR;
 		}
 	}
 
@@ -404,31 +362,29 @@ public class AudioCaptureWavRecorder {
 	 * uncompressed recording.
 	 * 
 	 */
-	public void stop() {
-		if (state == State.RECORDING) {
+	public void stopRecorder() {
+		
+		if (recorderState == State.RECORDING) {
 
 			audioRecorder.stop();
 
 			try {
-				randomAccessWriter.seek(4); // Write size to RIFF header
-				randomAccessWriter.writeInt(Integer
-						.reverseBytes(36 + payloadSize));
-
-				randomAccessWriter.seek(40); // Write size to Subchunk2Size
-												// field
-				randomAccessWriter.writeInt(Integer
-						.reverseBytes(payloadSize));
-
-				randomAccessWriter.close();
+				recorderOutputFileRandomAccessWriter.seek(4); 		// Write size to RIFF header
+				recorderOutputFileRandomAccessWriter.writeInt(Integer.reverseBytes(36 + captureFilePayloadSizeInBytes));
+				recorderOutputFileRandomAccessWriter.seek(40);		// Write size to Subchunk2Size field
+				recorderOutputFileRandomAccessWriter.writeInt(Integer.reverseBytes(captureFilePayloadSizeInBytes));
+				recorderOutputFileRandomAccessWriter.close();
+				
 			} catch (IOException e) {
-				Log.e(logTag, "I/O exception occured while closing output file");
-				state = State.ERROR;
+				RfcxLog.logExc(logTag, e);
+				recorderState = State.ERROR;
 			}
 
-			state = State.STOPPED;
+			recorderState = State.STOPPED;
+			
 		} else {
-			Log.e(logTag, "stop() called on illegal state");
-			state = State.ERROR;
+			Log.e(logTag, "stopRecorder() called on illegal recorderState");
+			recorderState = State.ERROR;
 		}
 	}
 
@@ -440,4 +396,19 @@ public class AudioCaptureWavRecorder {
 		return (short) (argB1 | (argB2 << 8));
 	}
 
+	public void swapOutputFile(String outputFilePath) {
+		
+		try {
+			stopRecorder();
+			recorderOutputFilePath = outputFilePath;
+			recorderOutputFileRandomAccessWriter.close();
+			recorderState = State.INITIALIZING;
+			prepareRecorder();
+			startRecorder();
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		
+	}
+	
 }

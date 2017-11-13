@@ -233,6 +233,7 @@ public class RfcxPrefs {
 			
 			put("audio_cycle_duration", "90000");
 			put("audio_schedule_off_hours", "00:10-00:15,00:15-00:20");
+			put("schedule_off_hours_cutoffs_enabled", "false");
 			
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "16384");
@@ -241,6 +242,7 @@ public class RfcxPrefs {
 			put("audio_encode_skip_threshold", "3");
 			put("audio_encode_cycle_pause", "5000");
 
+			put("battery_cutoffs_enabled", "false");
 			put("checkin_battery_cutoff", "90");
 			put("audio_battery_cutoff", "60");
 			put("install_battery_cutoff", "30");
@@ -283,6 +285,7 @@ public class RfcxPrefs {
 //		defaultPrefs.put("audio_encode_skip_threshold", "3");
 //		defaultPrefs.put("audio_encode_cycle_pause", "5000");
 //
+//		defaultPrefs.put("battery_cutoffs_enabled", "false");
 //		defaultPrefs.put("checkin_battery_cutoff", "90");
 //		defaultPrefs.put("audio_battery_cutoff", "60");
 //		defaultPrefs.put("install_battery_cutoff", "30");

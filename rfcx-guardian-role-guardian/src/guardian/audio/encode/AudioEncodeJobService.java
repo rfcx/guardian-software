@@ -1,6 +1,8 @@
 package guardian.audio.encode;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.GZipUtils;
@@ -73,144 +75,117 @@ public class AudioEncodeJobService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
+
+			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 			
 			int prefsEncodeSkipThreshold = app.rfcxPrefs.getPrefAsInt("audio_encode_skip_threshold");
-			int prefsAudioEncodeCyclePause = app.rfcxPrefs.getPrefAsInt("audio_encode_cycle_pause");
-			int prefsAudioBatteryCutoff = app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff");
-			long prefsCaptureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			int prefsAudioEncodeQuality = app.rfcxPrefs.getPrefAsInt("audio_encode_quality");
 			
-			AudioEncodeUtils.cleanupEncodeDirectory(context, app.audioEncodeDb.dbEncodeQueue.getAllRows());
+//			AudioEncodeUtils.cleanupEncodeDirectory(context, app.audioEncodeDb.dbEncodeQueue.getAllRows());
 			
-			while (audioEncodeJobInstance.runFlag) {
+			try {
 				
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-			
-				try {
-					
-					String[] audioToEncode = app.audioEncodeDb.dbEncodeQueue.getLatestRow();
-										
-					// only proceed with encode process if:
-					if (	// 1) there is a queued audio file in the database
-							(audioToEncode[0] != null)
-							// 2) the device internal battery percentage is at or above the minimum charge threshold
-						&&	(app.deviceBattery.getBatteryChargePercentage(context,null) >= prefsAudioBatteryCutoff)
-						) {
+				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbEncodeQueue.getAllRows();
+				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
+				
+				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
+									
+					// only proceed with encode process if there is a valid queued audio file in the database
+					if (latestQueuedAudioToEncode[0] != null) {
 						
-							File preEncodeFile = new File(audioToEncode[9]);
+						File preEncodeFile = new File(latestQueuedAudioToEncode[9]);
+						
+						if (!preEncodeFile.exists()) {
 							
-							if (!preEncodeFile.exists()) {
+							app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(latestQueuedAudioToEncode[1]);
+							
+						} else if (((int) Integer.parseInt(latestQueuedAudioToEncode[10])) >= prefsEncodeSkipThreshold) {
+							
+							Log.d(logTag, (new StringBuilder()).append("Skipping AudioEncodeJob ").append(latestQueuedAudioToEncode[1]).append(" after ").append(prefsEncodeSkipThreshold).append(" failed attempts").toString());
+							
+							app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(latestQueuedAudioToEncode[1]);
+							if (preEncodeFile.exists()) { preEncodeFile.delete(); }
+							
+						} else {
 								
-								app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(audioToEncode[1]);
-								
-							} else if (((int) Integer.parseInt(audioToEncode[10])) >= prefsEncodeSkipThreshold) {
-								
-								Log.d(logTag, (new StringBuilder()).append("Skipping AudioEncodeJob ").append(audioToEncode[1]).append(" after ").append(prefsEncodeSkipThreshold).append(" failed attempts").toString());
-								
-								app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(audioToEncode[1]);
-								if (preEncodeFile.exists()) { preEncodeFile.delete(); }
+							Log.i(logTag, (new StringBuilder()).append("Beginning Encode: ").append(latestQueuedAudioToEncode[1]).append(" ").append(latestQueuedAudioToEncode[2]).append("=>").append(latestQueuedAudioToEncode[6]).toString());
+						
+							File postEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PostEncode(context, (long) Long.parseLong(latestQueuedAudioToEncode[1]),latestQueuedAudioToEncode[6]));
+							File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostZip(context, (long) Long.parseLong(latestQueuedAudioToEncode[1]),RfcxAudioUtils.getFileExtension(latestQueuedAudioToEncode[6])));
+
+							// just in case there's already a post-encoded file, delete it first
+							if (postEncodeFile.exists()) { postEncodeFile.delete(); }
+
+							long encodeStartTime = System.currentTimeMillis();
+
+							// perform audio encoding and set encoding eventual bit rate
+							int encodeBitRate = 
+								AudioEncodeUtils.encodeAudioFile(
+									preEncodeFile, 											// source file
+									postEncodeFile, 											// target file
+									latestQueuedAudioToEncode[6], 							// encoding codec
+									(int) Integer.parseInt(latestQueuedAudioToEncode[4]), 	// encoding sample rate
+									(int) Integer.parseInt(latestQueuedAudioToEncode[5]), 	// encoding target bitrate
+									prefsAudioEncodeQuality									// encoding quality
+								);
+
+							long encodeDuration = (System.currentTimeMillis() - encodeStartTime);
+
+							if (encodeBitRate < 0) {
+
+								app.audioEncodeDb.dbEncodeQueue.incrementSingleRowAttempts(latestQueuedAudioToEncode[1]);
 								
 							} else {
-								
-								try {
-									
-									Log.i(logTag, (new StringBuilder()).append("Beginning Encode: ").append(audioToEncode[1]).append(" ").append(audioToEncode[2]).append("=>").append(audioToEncode[6]).toString());
-								
-									File postEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PostEncode(context, (long) Long.parseLong(audioToEncode[1]),audioToEncode[6]));
-									File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostZip(context, (long) Long.parseLong(audioToEncode[1]),RfcxAudioUtils.getFileExtension(audioToEncode[6])));
 
-									// just in case there's already a post-encoded file, delete it first
+								// delete pre-encode file
+								if (preEncodeFile.exists() && postEncodeFile.exists()) { preEncodeFile.delete(); }
+
+								// generate file checksum of encoded file
+								String preZipDigest = FileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
+
+								// GZIP encoded file into final location
+								GZipUtils.gZipFile(postEncodeFile, gZippedFile);
+
+								// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
+								if (gZippedFile.exists()) {
+
+									FileUtils.chmod(gZippedFile, 0777);
 									if (postEncodeFile.exists()) { postEncodeFile.delete(); }
 
-									long encodeStartTime = System.currentTimeMillis();
-
-									// perform audio encoding and set encoding eventual bit rate
-									int encodeBitRate = 
-										AudioEncodeUtils.encodeAudioFile(
-											preEncodeFile, 								// source file
-											postEncodeFile, 							// target file
-											audioToEncode[6], 							// encoding codec
-											(int) Integer.parseInt(audioToEncode[4]), 	// encoding sample rate
-											(int) Integer.parseInt(audioToEncode[5]), 	// encoding target bitrate
-											prefsAudioEncodeQuality						// encoding quality
+									app.audioEncodeDb.dbEncoded
+										.insert(
+											latestQueuedAudioToEncode[1], 
+											RfcxAudioUtils.getFileExtension(latestQueuedAudioToEncode[6]), 
+											preZipDigest, 
+											(int) Integer.parseInt(latestQueuedAudioToEncode[4]), 
+											encodeBitRate, 
+											latestQueuedAudioToEncode[6], 
+											(long) Long.parseLong(latestQueuedAudioToEncode[7]),
+											encodeDuration, 
+											gZippedFile.getAbsolutePath()
 										);
 
-									long encodeDuration = (System.currentTimeMillis() - encodeStartTime);
+									app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(latestQueuedAudioToEncode[1]);
 
-									if (encodeBitRate < 0) {
-
-										app.audioEncodeDb.dbEncodeQueue.incrementSingleRowAttempts(audioToEncode[1]);
-										
-									} else {
-
-										// delete pre-encode file
-										if (preEncodeFile.exists() && postEncodeFile.exists()) { preEncodeFile.delete(); }
-
-										// generate file checksum of encoded file
-										String preZipDigest = FileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
-
-										// GZIP encoded file into final location
-										GZipUtils.gZipFile(postEncodeFile, gZippedFile);
-
-										// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
-										if (gZippedFile.exists()) {
-
-											FileUtils.chmod(gZippedFile, 0777);
-											if (postEncodeFile.exists()) { postEncodeFile.delete(); }
-
-											app.audioEncodeDb.dbEncoded
-												.insert(
-													audioToEncode[1], 
-													RfcxAudioUtils.getFileExtension(audioToEncode[6]), 
-													preZipDigest, 
-													(int) Integer.parseInt(audioToEncode[4]), 
-													encodeBitRate, 
-													audioToEncode[6], 
-													(long) Long.parseLong(audioToEncode[7]),
-													encodeDuration, 
-													gZippedFile.getAbsolutePath()
-												);
-
-											app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(audioToEncode[1]);
-
-											app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInQueue");
-										}
-										
-									}
-									
-								} catch (Exception e) {
-									RfcxLog.logExc(logTag, e);
-									app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-									audioEncodeJobInstance.runFlag = false;
+									app.rfcxServiceHandler.triggerService("ApiCheckInQueue", true);
 								}
+								
 							}
+						}		
 					} else {
-
-						// force a [brief] pause before re-running each cycle
-						Thread.sleep(prefsAudioEncodeCyclePause);
+						Log.d(logTag, "Queued audio file entry in database is invalid.");
 						
-						if (app.deviceBattery.getBatteryChargePercentage(context,null) < prefsAudioBatteryCutoff) {
-							long extendEncodeLoopBy = (2 * prefsCaptureLoopPeriod) - prefsAudioEncodeCyclePause;
-							Log.i(logTag, (new StringBuilder())
-									.append("AudioEncodeJob disabled due to low battery level (")
-									.append("current: ").append(app.deviceBattery.getBatteryChargePercentage(context, null)).append("%, ")
-									.append("required: ").append(prefsAudioBatteryCutoff).append("%")
-									.append("). Waiting ").append((Math.round(2*prefsCaptureLoopPeriod/1000))).append(" seconds before next attempt.")
-									.toString()
-									);
-							Thread.sleep(extendEncodeLoopBy);
-						}
 					}
-						
-				} catch (Exception e) {
-					RfcxLog.logExc(logTag, e);
-					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-					audioEncodeJobInstance.runFlag = false;
 				}
+					
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+			
+			} finally { 
+				audioEncodeJobInstance.runFlag = false;
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}
-
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			audioEncodeJobInstance.runFlag = false;
 
 		}
 	}
