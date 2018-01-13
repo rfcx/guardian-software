@@ -29,29 +29,6 @@
         android:enabled="true"
         android:defaultValue="23:55:00" />
  	
- 	<!-- Installer/Updater Prefs -->
- 	
- 	<EditTextPreference
-        android:key="install_api_registration_token"
-        android:title="install_api_registration_token"
-        android:summary="string - api token"
-        android:enabled="true"
-        android:defaultValue="" />
- 	
- 	<EditTextPreference
-        android:key="install_cycle_duration"
-        android:title="install_cycle_duration"
-        android:summary="int - milliseconds"
-        android:enabled="true"
-        android:defaultValue="3600000" />
- 	
- 	<EditTextPreference
-        android:key="install_offline_toggle_threshold"
-        android:title="install_offline_toggle_threshold"
-        android:summary="int - milliseconds"
-        android:enabled="true"
-        android:defaultValue="900000" />
- 	
  	<!-- CPUTuner Prefs -->
  	
  	<EditTextPreference
@@ -171,13 +148,6 @@
         android:summary="int - percentage"
         android:enabled="true"
         android:defaultValue="60" />
- 	
- 	<EditTextPreference
-        android:key="install_battery_cutoff"
-        android:title="install_battery_cutoff"
-        android:summary="int - percentage"
-        android:enabled="true"
-        android:defaultValue="30" />
  	
  	<!-- CheckIn Triggering Controls -->
  	

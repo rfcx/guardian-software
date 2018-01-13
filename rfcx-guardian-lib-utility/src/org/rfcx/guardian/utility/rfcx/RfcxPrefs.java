@@ -118,22 +118,22 @@ public class RfcxPrefs {
 		
 		boolean writeSuccess = false;
 		
-    	String filePath = prefsDirPath+"/"+prefKey.toLowerCase(Locale.US)+".txt";
-    	File fileObj = new File(filePath);
-    	
-    	if (!fileObj.exists()) {
-        	(new File(prefsDirPath)).mkdirs();
-        	FileUtils.chmod(prefsDirPath, 0777);
-    	} else {
-    		fileObj.delete();
-    	}
-    	
+	    	String filePath = prefsDirPath+"/"+prefKey.toLowerCase(Locale.US)+".txt";
+	    	File fileObj = new File(filePath);
+	    	
+	    	if (!fileObj.exists()) {
+	        	(new File(prefsDirPath)).mkdirs();
+	        	FileUtils.chmod(prefsDirPath, 0777);
+	    	} else {
+	    		fileObj.delete();
+	    	}
+	    	
         try {
-        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
-        	outFile.write(prefValue);
-        	outFile.close();
-        	FileUtils.chmod(filePath, 0777);
-        	writeSuccess = fileObj.exists();
+	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
+	        	outFile.write(prefValue);
+	        	outFile.close();
+	        	FileUtils.chmod(filePath, 0777);
+	        	writeSuccess = fileObj.exists();
         } catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
         }
@@ -141,52 +141,64 @@ public class RfcxPrefs {
 	}
 	
 	public void writeVersionToFile(String versionName) {
-		writeToGuardianRoleTxtFile(this.context, "version",versionName);
+		writeToGuardianRoleTxtFile(this.context, this.logTag, "version",versionName);
 	}
 	
 	public String getVersionFromFile(String targetAppRole) {
-		return readFromGuardianRoleTxtFile(this.context, this.thisAppRole, targetAppRole.toLowerCase(Locale.US), "version");
+		return readFromGuardianRoleTxtFile(this.context, this.logTag, this.thisAppRole, targetAppRole.toLowerCase(Locale.US), "version");
+	}
+	
+	public void writeGuidToFile(String deviceGuid) {
+		writeToGuardianRoleTxtFile(this.context, this.logTag, "guid", deviceGuid);
 	}
 
-	private void writeToGuardianRoleTxtFile(Context context, String fileNameNoExt, String stringContents) {
-    	String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
-    	File fileObj = new File(filePath);
-    	fileObj.mkdirs();
-    	FileUtils.chmod(context.getFilesDir().toString()+"/txt", 0755);
-    	if (fileObj.exists()) { fileObj.delete(); }
+	public static void writeGuidToFile(Context context, String logTag, String deviceGuid) {
+		writeToGuardianRoleTxtFile(context, logTag, "guid", deviceGuid);
+	}
+	
+	public static String getGuidFromFile(Context context, String logTag, String thisAppRole, String targetAppRole) {
+		return readFromGuardianRoleTxtFile(context, logTag, thisAppRole, targetAppRole.toLowerCase(Locale.US), "guid");
+	}
+
+	private static void writeToGuardianRoleTxtFile(Context context, String logTag, String fileNameNoExt, String stringContents) {
+	    	String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
+	    	File fileObj = new File(filePath);
+	    	fileObj.mkdirs();
+	    	FileUtils.chmod(context.getFilesDir().toString()+"/txt", 0755);
+	    	if (fileObj.exists()) { fileObj.delete(); }
         try {
-        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
-        	outFile.write(stringContents);
-        	outFile.close();
-        	FileUtils.chmod(filePath, 0755);
+	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
+	        	outFile.write(stringContents);
+	        	outFile.close();
+	        	FileUtils.chmod(filePath, 0755);
         } catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
         }
 	}
 	
-	private String readFromGuardianRoleTxtFile(Context context, String thisAppRole, String targetAppRole, String fileNameNoExt) {
-    	try {
-    		String mainAppPath = context.getFilesDir().getAbsolutePath();
-    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+thisAppRole).length()))+"."+targetAppRole+"/files/txt",fileNameNoExt+".txt");
-    		if (txtFile.exists()) {
-				FileInputStream input = new FileInputStream(txtFile);
-				StringBuffer fileContent = new StringBuffer("");
-				byte[] buffer = new byte[256];
-				while (input.read(buffer) != -1) {
-				    fileContent.append(new String(buffer));
-				}
-	    		String txtFileContents = fileContent.toString().trim();
-	    		input.close();
-	    		return txtFileContents;
-    		} else {
-    			Log.e(logTag, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+targetAppRole+"...");
-    		}
-    	} catch (FileNotFoundException e) {
+	private static String readFromGuardianRoleTxtFile(Context context, String logTag, String thisAppRole, String targetAppRole, String fileNameNoExt) {
+	    	try {
+	    		String mainAppPath = context.getFilesDir().getAbsolutePath();
+	    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+thisAppRole).length()))+"."+targetAppRole+"/files/txt",fileNameNoExt+".txt");
+	    		if (txtFile.exists()) {
+					FileInputStream input = new FileInputStream(txtFile);
+					StringBuffer fileContent = new StringBuffer("");
+					byte[] buffer = new byte[256];
+					while (input.read(buffer) != -1) {
+					    fileContent.append(new String(buffer));
+					}
+		    		String txtFileContents = fileContent.toString().trim();
+		    		input.close();
+		    		return txtFileContents.isEmpty() ? null : txtFileContents;
+	    		} else {
+	    			Log.e(logTag, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+targetAppRole+"...");
+	    		}
+	    	} catch (FileNotFoundException e) {
 			RfcxLog.logExc(logTag, e);
-    	} catch (IOException e) {
+	    	} catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-    	return null;
+	    	return null;
 	}
 
 	
@@ -221,10 +233,6 @@ public class RfcxPrefs {
 	        put("service_monitor_cycle_duration", "600000");
 	        
 			put("reboot_forced_daily_at", "23:55:00");
-
-			put("install_api_registration_token", "");
-			put("install_cycle_duration", "3600000");
-			put("install_offline_toggle_threshold", "900000");
 			
 			put("cputuner_freq_min", "30720");
 			put("cputuner_freq_max", "122880"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000, 
@@ -245,7 +253,6 @@ public class RfcxPrefs {
 			put("battery_cutoffs_enabled", "false");
 			put("checkin_battery_cutoff", "90");
 			put("audio_battery_cutoff", "60");
-			put("install_battery_cutoff", "30");
 			
 			put("checkin_cycle_pause", "5000");
 			put("checkin_skip_threshold", "5");
@@ -266,10 +273,6 @@ public class RfcxPrefs {
 //
 //		defaultPrefs.put("reboot_forced_daily_at", "23:55:00");
 //		
-//		defaultPrefs.put("install_cycle_duration", "3600000");
-//		defaultPrefs.put("install_offline_toggle_threshold", "900000");
-//		defaultPrefs.put("install_api_registration_token", "ABCDEFGH");
-//		
 //		defaultPrefs.put("cputuner_freq_min", "30720");
 //		defaultPrefs.put("cputuner_freq_max", "245760"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000, 
 //		defaultPrefs.put("cputuner_governor_up", "98");
@@ -288,7 +291,6 @@ public class RfcxPrefs {
 //		defaultPrefs.put("battery_cutoffs_enabled", "false");
 //		defaultPrefs.put("checkin_battery_cutoff", "90");
 //		defaultPrefs.put("audio_battery_cutoff", "60");
-//		defaultPrefs.put("install_battery_cutoff", "30");
 //		
 //		defaultPrefs.put("checkin_cycle_pause", "5000");
 //		defaultPrefs.put("checkin_skip_threshold", "5");

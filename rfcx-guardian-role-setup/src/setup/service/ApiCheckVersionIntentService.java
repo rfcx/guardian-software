@@ -1,12 +1,12 @@
-package org.rfcx.guardian.setup.service;
+package setup.service;
 
-import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
+import setup.RfcxGuardian;
 
 public class ApiCheckVersionIntentService extends IntentService {
 
@@ -25,7 +25,7 @@ public class ApiCheckVersionIntentService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		int prefsInstallOfflineToggleThreshold = app.rfcxPrefs.getPrefAsInt("install_offline_toggle_threshold");
+		int prefsInstallOfflineToggleThreshold = 900000; // 15 minutes
 		
 		if (app.deviceConnectivity.isConnected()) {
 			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);

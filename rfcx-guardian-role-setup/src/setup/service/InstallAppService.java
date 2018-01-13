@@ -1,8 +1,7 @@
-package org.rfcx.guardian.setup.service;
+package setup.service;
 
 import java.io.File;
 
-import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -12,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+import setup.RfcxGuardian;
 
 public class InstallAppService extends Service {
 

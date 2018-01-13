@@ -1,7 +1,6 @@
 package guardian.audio.encode;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.rfcx.guardian.utility.FileUtils;
@@ -15,7 +14,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import guardian.RfcxGuardian;
-import guardian.audio.encode.AudioEncodeUtils;
 
 public class AudioEncodeJobService extends Service {
 
@@ -111,7 +109,7 @@ public class AudioEncodeJobService extends Service {
 							Log.i(logTag, (new StringBuilder()).append("Beginning Encode: ").append(latestQueuedAudioToEncode[1]).append(" ").append(latestQueuedAudioToEncode[2]).append("=>").append(latestQueuedAudioToEncode[6]).toString());
 						
 							File postEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PostEncode(context, (long) Long.parseLong(latestQueuedAudioToEncode[1]),latestQueuedAudioToEncode[6]));
-							File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostZip(context, (long) Long.parseLong(latestQueuedAudioToEncode[1]),RfcxAudioUtils.getFileExtension(latestQueuedAudioToEncode[6])));
+							File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(app.rfcxDeviceGuid.getDeviceGuid(), context, (long) Long.parseLong(latestQueuedAudioToEncode[1]),RfcxAudioUtils.getFileExtension(latestQueuedAudioToEncode[6])));
 
 							// just in case there's already a post-encoded file, delete it first
 							if (postEncodeFile.exists()) { postEncodeFile.delete(); }

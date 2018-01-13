@@ -14,10 +14,9 @@ import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.device.DeviceDiskUsage;
 import org.rfcx.guardian.utility.device.DeviceGeoLocation;
-import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
+import org.rfcx.guardian.utility.device.DeviceMobileSIMCard;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -33,7 +32,7 @@ public class ApiCheckInUtils {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 		// setting http post timeouts to the same as the audio capture interval.
 		setCheckInTimeOuts(this.app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
-		setCheckInAuthHeaders(this.app.rfcxDeviceId.getDeviceGuid(), this.app.rfcxDeviceId.getDeviceToken());
+		setCheckInAuthHeaders(this.app.rfcxDeviceGuid.getDeviceGuid(), this.app.rfcxDeviceGuid.getDeviceToken());
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInUtils.class);
@@ -47,8 +46,8 @@ public class ApiCheckInUtils {
 	private List<String> previousCheckIns = new ArrayList<String>();
 	private Date checkInPreFlightTimestamp = new Date();
 
-	public int[] connectivityToggleThresholds = new int[] { 10, 17, 24, 30 };
-	public boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false };
+	public int[] connectivityToggleThresholds = new int[] { 10, 20, 30, 45, 60, 75, 90, 110, 130, 150, 180 };
+	public boolean[] connectivityToggleThresholdsReached = new boolean[] { false, false, false, false, false, false, false, false, false, false, false };
 	
 	private void setCheckInAuthHeaders(String deviceGuid, String deviceToken) {
 		List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
@@ -62,7 +61,7 @@ public class ApiCheckInUtils {
 	}
 
 	public String getCheckInUrl() {
-		return app.rfcxPrefs.getPrefAsString("api_url_base") + "/v1/guardians/" + app.rfcxDeviceId.getDeviceGuid() + "/checkins";
+		return app.rfcxPrefs.getPrefAsString("api_url_base") + "/v1/guardians/" + app.rfcxDeviceGuid.getDeviceGuid() + "/checkins";
 	}
 
 	public void sendCheckIn(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments, boolean allowAttachments, String checkInAudioReference) {
@@ -250,6 +249,11 @@ public class ApiCheckInUtils {
 		checkInMetaJson.put("skipped_checkins", app.apiCheckInDb.dbSkipped.getCount());
 		checkInMetaJson.put("stashed_checkins", app.apiCheckInDb.dbStashed.getCount());
 
+		// Telephony and SIM card info
+		checkInMetaJson.put("phone_sim", DeviceMobileSIMCard.getSIMSerial(app.getApplicationContext()));
+		checkInMetaJson.put("phone_imsi", DeviceMobileSIMCard.getIMSI(app.getApplicationContext()));
+		checkInMetaJson.put("phone_imei", DeviceMobileSIMCard.getIMEI(app.getApplicationContext()));
+
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", getInstalledSoftwareVersions()));
 
@@ -300,7 +304,7 @@ public class ApiCheckInUtils {
 					String[] audioFromDb = app.audioEncodeDb.dbEncoded.getSingleRowByAudioId(audioJson.getString("id"));
 					if (audioFromDb[1] != null) { app.audioEncodeDb.dbEncoded.deleteSingleRow(audioFromDb[1]); }
 					app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioJson.getString("id"));
-					purgeSingleAudioAssetFromDisk(app.getApplicationContext(), audioJson.getString("id"), audioFileNameInDb.substring(1+audioFileNameInDb.lastIndexOf(".")));
+					purgeSingleAudioAssetFromDisk(app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), audioJson.getString("id"), audioFileNameInDb.substring(1+audioFileNameInDb.lastIndexOf(".")));
 				}
 
 //				// parse the screenshot info and use it to purge the data locally
@@ -406,7 +410,7 @@ public class ApiCheckInUtils {
 				String[] audioFromDb = app.audioEncodeDb.dbEncoded.getSingleRowByAudioId(audioFileNameInDb);
 				if (audioFromDb[1] != null) { app.audioEncodeDb.dbEncoded.deleteSingleRow(audioFromDb[1]); }
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
-				purgeSingleAudioAssetFromDisk(app.getApplicationContext(), audioId, audioFormat);
+				purgeSingleAudioAssetFromDisk(app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), audioId, audioFormat);
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -479,9 +483,9 @@ public class ApiCheckInUtils {
 		return (app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null) && !isBatteryChargeSufficientForCheckIn());
 	}
 	
-	private static void purgeSingleAudioAssetFromDisk(Context context, String audioTimestamp, String audioFileExtension) {
+	private static void purgeSingleAudioAssetFromDisk(String rfcxDeviceId, Context context, String audioTimestamp, String audioFileExtension) {
 		try {
-			(new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostZip(context, (long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();
+			(new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(rfcxDeviceId, context, (long) Long.parseLong(audioTimestamp),audioFileExtension))).delete();
 			Log.d(logTag, "Purging audio asset: "+audioTimestamp+"."+audioFileExtension);
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

@@ -1,10 +1,9 @@
-package org.rfcx.guardian.setup.service;
+package setup.service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.http.HttpGet;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -12,6 +11,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+import setup.RfcxGuardian;
 
 public class ApiCheckVersionService extends Service {
 
@@ -72,15 +72,15 @@ public class ApiCheckVersionService extends Service {
 			HttpGet httpGet = new HttpGet(app.getApplicationContext(), RfcxGuardian.APP_ROLE);
 			// setting customized rfcx authentication headers (necessary for API access)
 			List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
-			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxDeviceId.getDeviceGuid() });
-			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxDeviceId.getDeviceToken() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.getDeviceGuid() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxDeviceGuid.getDeviceToken() });
 			httpGet.setCustomHttpHeaders(rfcxAuthHeaders);
 
 			try {
 				if (app.deviceConnectivity.isConnected()) {
 					if (app.apiCore.apiCheckVersionEndpoint != null) {
 						app.lastApiCheckTriggeredAt = System.currentTimeMillis();
-						String getUrl =	(((app.rfcxPrefs.getPrefAsString("api_url_base")!=null) ? app.rfcxPrefs.getPrefAsString("api_url_base") : "https://api.rfcx.org")
+						String getUrl =	(((app.getPref("api_url_base")!=null) ? app.getPref("api_url_base") : "https://api.rfcx.org")
 										+ app.apiCore.apiCheckVersionEndpoint
 										+ "?role="+app.APP_ROLE.toLowerCase()
 										+ "&version="+app.version

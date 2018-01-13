@@ -1,7 +1,5 @@
 package guardian.audio.capture;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
@@ -43,10 +41,7 @@ public class AudioCaptureWavRecorder {
 	private byte[] uncompressedOutputBuffer; // Buffer for output (only in uncompressed mode)
 
 	// The interval in which the recorded samples are output to the file used only in uncompressed mode
-	private static final int TIMER_INTERVAL_UNCOMPRESSED = 100;//120; 
-
-	// Stores current amplitude (only in uncompressed mode)
-	private int currentAmplitude = 0;
+	private static final int TIMER_INTERVAL_UNCOMPRESSED = 120; 
 
 	// Number of channels, sample rate, sample size(size in bits), buffer size, audio source, sample size (see AudioFormat)
 	private short captureChannelCount;
@@ -69,25 +64,12 @@ public class AudioCaptureWavRecorder {
 	 * Method used for recording.
 	 */
 	private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
+		
 		public void onPeriodicNotification(AudioRecord recorder) {
 			audioRecorder.read(uncompressedOutputBuffer, 0, uncompressedOutputBuffer.length); // Fill buffer
 			try {
 				recorderOutputFileRandomAccessWriter.write(uncompressedOutputBuffer); // Write buffer to file
 				captureFilePayloadSizeInBytes += uncompressedOutputBuffer.length;
-//				if (captureSampleSizeInBits == 16) {
-//					for (int i = 0; i < uncompressedOutputBuffer.length / 2; i++) { // 16 bit sample size
-//						short curSample = getShort(uncompressedOutputBuffer[i * 2], uncompressedOutputBuffer[i * 2 + 1]);
-//						if (curSample > currentAmplitude) { // Check amplitude
-//							currentAmplitude = curSample;
-//						}
-//					}
-//				} else { // 8bit sample size
-//					for (int i = 0; i < uncompressedOutputBuffer.length; i++) {
-//						if (uncompressedOutputBuffer[i] > currentAmplitude) { // Check amplitude
-//							currentAmplitude = uncompressedOutputBuffer[i];
-//						}
-//					}
-//				}
 			} catch (IOException e) {
 				RfcxLog.logExc(logTag, e);
 				stopRecorder();
@@ -101,8 +83,6 @@ public class AudioCaptureWavRecorder {
 	};
 
 	/**
-	 * 
-	 * 
 	 * Default constructor
 	 * 
 	 * Instantiates a new recorder, in case of compressed recording the
@@ -153,7 +133,6 @@ public class AudioCaptureWavRecorder {
 				audioRecorder.setRecordPositionUpdateListener(updateListener);
 				audioRecorder.setPositionNotificationPeriod(recorderFileOutputFramePeriod);
 			}
-			currentAmplitude = 0;
 			recorderOutputFilePath = null;
 			recorderState = State.INITIALIZING;
 			
@@ -172,24 +151,6 @@ public class AudioCaptureWavRecorder {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 			recorderState = State.ERROR;
-		}
-	}
-
-	/**
-	 * 
-	 * Returns the largest amplitude sampled since the last call to this method.
-	 * 
-	 * @return returns the largest amplitude since the last call, or 0 when not
-	 *         in recording state.
-	 * 
-	 */
-	public int getMaxAmplitude() {
-		if (recorderState == State.RECORDING) {
-			int currentAmplitudeResult = currentAmplitude;
-			currentAmplitude = 0;
-			return currentAmplitudeResult;
-		} else {
-			return 0;
 		}
 	}
 
@@ -320,7 +281,6 @@ public class AudioCaptureWavRecorder {
 			if (recorderState != State.ERROR) {
 				releaseRecorder();
 				recorderOutputFilePath = null; // Reset file path
-				currentAmplitude = 0; // Reset amplitude
 
 				audioRecorder = new AudioRecord(captureAudioSource, captureSampleRate, captureChannelCount + 1, captureAudioFormat, captureBufferSize);
 

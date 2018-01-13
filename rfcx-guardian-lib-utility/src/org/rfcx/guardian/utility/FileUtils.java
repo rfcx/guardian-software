@@ -37,11 +37,11 @@ public class FileUtils {
 		    };
 		    fileInputStream.close();
 		    byte[] mdbytes = messageDigest.digest();
-		    StringBuffer stringBuilder = new StringBuffer("");
+		    StringBuffer stringBuffer = new StringBuffer("");
 		    for (int i = 0; i < mdbytes.length; i++) {
-		    	stringBuilder.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+		    	stringBuffer.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
 		    }
-			return stringBuilder.toString();
+			return stringBuffer.toString();
 		} catch (NoSuchAlgorithmException e) {
 			RfcxLog.logExc(logTag, e);
 		} catch (FileNotFoundException e) {
@@ -136,6 +136,20 @@ public class FileUtils {
 			} catch (Exception e) { 
 				RfcxLog.logExc(logTag, e);
 			}
+		}
+	}
+	
+	public static void deleteFiles(List<String> filePathsToDelete) {
+		StringBuilder successLog = new StringBuilder();
+		for (String filePath : filePathsToDelete) {
+			File fileObj = new File(filePath);
+			try { 
+				fileObj.delete();
+				successLog.append(fileObj.getName()).append(", ");
+			} catch (Exception e) { 
+				RfcxLog.logExc(logTag, e);
+			}
+			Log.d(logTag, "Deleted Files: "+successLog.toString());
 		}
 	}
 	

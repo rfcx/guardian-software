@@ -1,27 +1,12 @@
-package org.rfcx.guardian.setup;
+package setup;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Map;
 
-import org.rfcx.guardian.setup.api.ApiCore;
-import org.rfcx.guardian.setup.receiver.ConnectivityReceiver;
-import org.rfcx.guardian.setup.service.ApiCheckVersionIntentService;
-import org.rfcx.guardian.setup.service.ApiCheckVersionService;
-import org.rfcx.guardian.setup.service.ApiRegisterService;
-import org.rfcx.guardian.setup.service.DeviceCPUTunerService;
-import org.rfcx.guardian.setup.service.DownloadFileService;
-import org.rfcx.guardian.setup.service.InstallAppService;
-import org.rfcx.guardian.setup.service.RebootTriggerIntentService;
+import org.rfcx.guardian.setup.R;
 import org.rfcx.guardian.utility.DateTimeUtils;
-import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
+import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -34,9 +19,16 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import setup.api.ApiCore;
+import setup.receiver.ConnectivityReceiver;
+import setup.service.ApiCheckVersionIntentService;
+import setup.service.ApiCheckVersionService;
+import setup.service.ApiRegisterService;
+import setup.service.DownloadFileService;
+import setup.service.InstallAppService;
+import setup.service.RebootTriggerIntentService;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 	
@@ -47,14 +39,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, RfcxGuardian.class);
 
-	public RfcxDeviceId rfcxDeviceId = null; 
+	public RfcxDeviceGuid rfcxDeviceGuid = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
 
 	public SharedPreferences sharedPrefs = null;
 	
-	public static final String targetAppRoleApiEndpoint = "updater";
-	public String targetAppRole = "updater";
+	public static final String targetAppRoleApiEndpoint = "all";
+	public String targetAppRole = "";
 	
 	public long lastApiCheckTriggeredAt = System.currentTimeMillis();
 	
@@ -75,12 +67,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		super.onCreate();
 
-		this.rfcxDeviceId = new RfcxDeviceId(this, APP_ROLE);
+		this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
 		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
 		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 		
 		this.version = RfcxRole.getRoleVersion(this, logTag);
-		this.rfcxPrefs.writeVersionToFile(this.version);
 		
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		
@@ -89,8 +80,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 		this.syncSharedPrefs();
 		
+		if (this.sharedPrefs.getString("guardian_guid", "").trim().length() != 12) {
+			this.setPref("guardian_guid", this.rfcxDeviceGuid.getDeviceGuid());
+		}
+		
+		Log.d(logTag, "Guardian GUID: "+this.getDeviceGuid());
+		this.rfcxPrefs.writeGuidToFile(this.getDeviceGuid());
+		
 		this.apiCore.targetAppRoleApiEndpoint = this.targetAppRoleApiEndpoint;
-		this.apiCore.setApiCheckVersionEndpoint(this.rfcxDeviceId.getDeviceGuid());
+		this.apiCore.setApiCheckVersionEndpoint(this.getDeviceGuid());
 		this.apiCore.setApiRegisterEndpoint();
 		
 		// install external binaries
@@ -120,15 +118,16 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void initializeRoleServices() {
 		
 		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
-//			this.rfcxServiceHandler.triggerServiceSequence(
-//				"OnLaunchServiceSequence", 
-//					new String[] { 
-//						"ApiCheckVersionIntentService"
-//								+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
-//								+"|"+this.rfcxPrefs.getPrefAsString("install_cycle_duration"),
-//						"CPUTuner"
-//						}, 
-//				true);
+			
+			String[] onLaunchServices = new String[RfcxCoreServices.length+1];
+			System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
+			onLaunchServices[RfcxCoreServices.length] = 
+					"ApiCheckVersionIntentService"
+							+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
+							+"|"+3600000 // repeats hourly
+						;
+			
+			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true);
 		}
 	}
 	
@@ -137,13 +136,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 
 	private void setServiceHandlers() {
-//		this.rfcxServiceHandler.addService("ApiCheckVersion", ApiCheckVersionService.class);
-//		this.rfcxServiceHandler.addService("ApiCheckVersionIntentService", ApiCheckVersionIntentService.class);
-//		this.rfcxServiceHandler.addService("CPUTuner", DeviceCPUTunerService.class);
-//		this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
-//		this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
+		this.rfcxServiceHandler.addService("ApiCheckVersion", ApiCheckVersionService.class);
+		this.rfcxServiceHandler.addService("ApiCheckVersionIntentService", ApiCheckVersionIntentService.class);
 		this.rfcxServiceHandler.addService("ApiRegister", ApiRegisterService.class);
-//		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerIntentService.class);
+		this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
+		this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
+		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerIntentService.class);
 	}
 	
 	
@@ -157,12 +155,24 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	private void syncSharedPrefs() {
 		for ( Map.Entry<String,?> pref : this.sharedPrefs.getAll().entrySet() ) {
-			this.rfcxPrefs.setPref(pref.getKey(), pref.getValue().toString());
+//			this.rfcxPrefs.setPref(pref.getKey(), pref.getValue().toString());
 		}
 	}
 	
 	public boolean setPref(String prefKey, String prefValue) {
 		return this.sharedPrefs.edit().putString(prefKey,prefValue).commit();
+	}
+	
+	public String getPref(String prefKey) {
+		return this.sharedPrefs.getString(prefKey, null);
+	}
+	
+	public String getDeviceGuid() {
+		if (this.sharedPrefs.getString("guardian_guid", "").length() == 12) {
+			return this.sharedPrefs.getString("guardian_guid", null);
+		} else {
+			return this.rfcxDeviceGuid.getDeviceGuid();
+		}
 	}
 	
 	

@@ -1,19 +1,14 @@
 package guardian.contentprovider;
 
-import java.util.Locale;
-import java.util.Map;
-
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.util.Log;
 import guardian.RfcxGuardian;
 
 public class GuardianContentProvider extends ContentProvider {

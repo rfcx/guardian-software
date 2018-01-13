@@ -15,7 +15,8 @@ public class RfcxAudioUtils {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxAudioUtils.class);
 
-	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
+	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
+	private static final SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyy-MM-ddTHH-mm-ss.SSSZ", Locale.US);
 	
 	public static final int AUDIO_SAMPLE_SIZE = 16;
 	public static final int AUDIO_CHANNEL_COUNT = 1;
@@ -24,14 +25,14 @@ public class RfcxAudioUtils {
 		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context), 0777);
 		(new File(encodeDir(context))).mkdirs(); FileUtils.chmod(encodeDir(context), 0777);
 		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(), 0777);
-		(new File(finalFilesDir(context))).mkdirs(); FileUtils.chmod(finalFilesDir(context), 0777);
+		(new File(finalCacheDir(context))).mkdirs(); FileUtils.chmod(finalCacheDir(context), 0777);
 	}
 	
 	private static String sdCardFilesDir() {
 		return (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/audio").toString(); 
 	}
 	
-	private static String finalFilesDir(Context context) {
+	private static String finalCacheDir(Context context) {
 		if ((new File(sdCardFilesDir())).isDirectory()) {
 			return sdCardFilesDir();
 		} else {
@@ -59,15 +60,14 @@ public class RfcxAudioUtils {
 		return (new StringBuilder()).append(encodeDir(context)).append("/_").append(timestamp).append(".").append(getFileExtension(audioCodec)).toString(); 
 	}
 
-	public static String getAudioFileLocation_Complete_PostZip(Context context, long timestamp, String audioCodec) {
-		return (new StringBuilder()).append(finalFilesDir(context)).append("/").append(dateFormat.format(new Date(timestamp))).append("/").append(timestamp).append(".").append(getFileExtension(audioCodec)).append(".gz").toString(); 
+	public static String getAudioFileLocation_Complete_PostGZip(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
+		return (new StringBuilder()).append(finalCacheDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateFormat.format(new Date(timestamp))).append(".").append(getFileExtension(audioCodec)).append(".gz").toString(); 
 	}
 	
 	public static String getFileExtension(String audioCodecOrFileExtension) {
 
 		if 	(		audioCodecOrFileExtension.equalsIgnoreCase("opus")
 				||	audioCodecOrFileExtension.equalsIgnoreCase("flac")
-				||	audioCodecOrFileExtension.equalsIgnoreCase("mp3")
 			) {
 			
 			return audioCodecOrFileExtension;
@@ -82,7 +82,6 @@ public class RfcxAudioUtils {
 	public static boolean isEncodedWithVbr(String audioCodecOrFileExtension) {
 		return (	audioCodecOrFileExtension.equalsIgnoreCase("opus")
 				||	audioCodecOrFileExtension.equalsIgnoreCase("flac")
-				||	audioCodecOrFileExtension.equalsIgnoreCase("mp3")
 				);
 	}
 	

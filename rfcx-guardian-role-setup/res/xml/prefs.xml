@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    	<EditTextPreference
+        android:key="guardian_guid"
+        android:title="guardian_guid"
+        android:summary="string - device guid"
+        android:enabled="true"
+        android:defaultValue="" />
     
  	<EditTextPreference
         android:key="api_url_base"
@@ -14,5 +21,12 @@
         android:summary="string - api token"
         android:enabled="true"
         android:defaultValue="" />
+ 	
+ 	<EditTextPreference
+        android:key="install_battery_cutoff"
+        android:title="install_battery_cutoff"
+        android:summary="int - percentage"
+        android:enabled="true"
+        android:defaultValue="15" />
  	
 </PreferenceScreen>

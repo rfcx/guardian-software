@@ -1,12 +1,12 @@
-package org.rfcx.guardian.setup.receiver;
+package setup.receiver;
 
-import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import setup.RfcxGuardian;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 

@@ -5,12 +5,13 @@ import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
+import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
+import admin.i2c.I2cUtils;
 import admin.service.AirplaneModeOffJobService;
 import admin.service.AirplaneModeOnJobService;
 import admin.service.I2cResetPermissionsJobService;
@@ -31,9 +32,10 @@ public class RfcxGuardian extends Application {
 
 	private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, RfcxGuardian.class);
 
-	public RfcxDeviceId rfcxDeviceId = null; 
+	public RfcxDeviceGuid rfcxDeviceGuid = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
+	public I2cUtils i2cUtils = null;
 	
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
 	public DeviceBluetooth deviceBluetooth = new DeviceBluetooth(APP_ROLE);
@@ -48,9 +50,11 @@ public class RfcxGuardian extends Application {
 
 		super.onCreate();
 
-		this.rfcxDeviceId = new RfcxDeviceId(this, APP_ROLE);
+		this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
 		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
 		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
+		
+		this.i2cUtils = new I2cUtils(this);
 		
 		this.version = RfcxRole.getRoleVersion(this, logTag);
 		this.rfcxPrefs.writeVersionToFile(this.version);
@@ -104,11 +108,4 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("I2cResetPermissions", I2cResetPermissionsJobService.class);
 	}
     
-	
-	public void i2cTest() {
-		
-		ShellCommands.executeCommand("/sdcard/rfcx/i2cget -y 0 0x68 0x4a w > /sdcard/rfcx/test.txt", null, true, this.context);
-		
-		
-	}
 }

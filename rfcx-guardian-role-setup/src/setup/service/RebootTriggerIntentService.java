@@ -1,12 +1,12 @@
-package org.rfcx.guardian.setup.service;
+package setup.service;
 
-import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
 import android.content.Intent;
+import setup.RfcxGuardian;
 
 public class RebootTriggerIntentService extends IntentService {
 

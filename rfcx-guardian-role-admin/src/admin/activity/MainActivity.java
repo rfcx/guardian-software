@@ -40,6 +40,10 @@ public class MainActivity extends Activity {
 		case R.id.menu_screenshot:
 			app.rfcxServiceHandler.triggerService("ScreenShotJob", true);
 			break;
+
+		case R.id.menu_test_i2c:
+			app.i2cUtils.i2cTest();
+			break;
 			
 		case R.id.menu_get_prefs:
 

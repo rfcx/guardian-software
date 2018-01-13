@@ -1,12 +1,12 @@
-package org.rfcx.guardian.setup.api;
+package setup.api;
 
 import java.util.List;
 
 import org.json.JSONObject;
-import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.util.Log;
+import setup.RfcxGuardian;
 
 public class ApiCore {
 
@@ -20,7 +20,7 @@ public class ApiCore {
 	public String targetAppRoleApiEndpoint = "all";
 
 	public String apiRegisterEndpoint = null;
-	public String apiRegisterToken = "HXJ1A595";
+	public String apiRegisterToken = "XXXXXXXX";
 
 	public String latestRole = null;
 	public String latestVersion = null;
@@ -67,7 +67,7 @@ public class ApiCore {
 					app.rfcxServiceHandler.triggerService("DownloadFile", true);
 				} else {
 					Log.i(logTag, "Download & Installation disabled due to low battery level"
-							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("install_battery_cutoff")+"%)."
+							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.getPref("install_battery_cutoff")+"%)."
 							);
 				}
 				return true;
@@ -114,7 +114,8 @@ public class ApiCore {
 	
 	private boolean isBatteryChargeSufficientForDownloadAndInstall(RfcxGuardian app) {
 		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("install_battery_cutoff"));
+		int installBatteryCutoff = (int) Integer.parseInt(app.getPref("install_battery_cutoff"));
+		return (batteryCharge >= installBatteryCutoff);
 	}
 	
 }

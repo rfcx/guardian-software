@@ -1,10 +1,9 @@
-package org.rfcx.guardian.setup.service;
+package setup.service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.http.HttpPostMultipart;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -12,6 +11,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+import setup.RfcxGuardian;
 
 public class ApiRegisterService extends Service {
 
@@ -73,19 +73,19 @@ public class ApiRegisterService extends Service {
 			// setting customized rfcx authentication headers (necessary for API access)
 			List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
 			rfcxAuthHeaders.add(new String[] { "x-auth-user", "register" });
-			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxPrefs.getPrefAsString("install_api_registration_token") });
+			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.getPref("install_api_registration_token") });
 			httpPostMultipart.setCustomHttpHeaders(rfcxAuthHeaders);
 
 			try {
 				if (app.deviceConnectivity.isConnected()) {
 					if (app.apiCore.apiRegisterEndpoint != null) {
-						String postUrl =	(((app.rfcxPrefs.getPrefAsString("api_url_base")!=null) ? app.rfcxPrefs.getPrefAsString("api_url_base") : "https://api.rfcx.org")
+						String postUrl =	(((app.getPref("api_url_base")!=null) ? app.getPref("api_url_base") : "https://api.rfcx.org")
 										+ app.apiCore.apiRegisterEndpoint
 										);
 						
 						List<String[]> registrationParameters = new ArrayList<String[]>();
-						registrationParameters.add(new String[] {  "guid", app.rfcxDeviceId.getDeviceGuid() });
-						registrationParameters.add(new String[] {  "token", app.rfcxDeviceId.getDeviceToken() });
+						registrationParameters.add(new String[] {  "guid", app.getDeviceGuid() });
+						registrationParameters.add(new String[] {  "token", app.rfcxDeviceGuid.getDeviceToken() });
 						
 						String stringRegistrationResponse = httpPostMultipart.doMultipartPost(postUrl, registrationParameters, new ArrayList<String[]>());
 						JSONArray jsonRegistrationResponse = new JSONArray(stringRegistrationResponse);

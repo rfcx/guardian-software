@@ -5,9 +5,6 @@
 
     <string name="menu_prefs">prefs</string>
     <string name="menu_api_register">register</string>
-	<string name="menu_cputuner_install">install cputuner</string>
-	<string name="menu_check_version">update guardian</string>
-	<string name="menu_root_command">root command</string>
-	<string name="menu_set_defaults">set defaults</string>
+	<string name="menu_api_update">check update</string>
 	
 </resources>

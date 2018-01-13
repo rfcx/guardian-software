@@ -4,13 +4,13 @@ import java.util.Map;
 
 import org.rfcx.guardian.guardian.R;
 import org.rfcx.guardian.utility.DateTimeUtils;
-import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
-import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceId;
+import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
+import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -41,8 +41,8 @@ import guardian.device.android.DeviceScreenShotDb;
 import guardian.device.android.DeviceSensorDb;
 import guardian.device.android.DeviceSystemDb;
 import guardian.device.android.DeviceSystemService;
+import guardian.device.sentinel.SentinelPowerDb;
 import guardian.receiver.ConnectivityReceiver;
-import guardian.receiver.SmsReceiver;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
@@ -53,7 +53,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, RfcxGuardian.class);
 	
-	public RfcxDeviceId rfcxDeviceId = null; 
+	public RfcxDeviceGuid rfcxDeviceGuid = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
 
@@ -68,6 +68,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DeviceDataTransferDb deviceDataTransferDb = null;
 	public DeviceScreenShotDb deviceScreenShotDb = null;
 	public DeviceLogCatCaptureDb deviceLogCatCaptureDb = null;
+	public SentinelPowerDb sentinelPowerDb = null;
 	
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -96,7 +97,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		super.onCreate();
 
-		this.rfcxDeviceId = new RfcxDeviceId(this, APP_ROLE);
+		this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
 		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
 		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 		
@@ -158,6 +159,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
 		this.deviceLogCatCaptureDb = new DeviceLogCatCaptureDb(this, this.version);
+		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
 
 	}
 	

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.setup.activity;
+package setup.activity;
 
 import org.rfcx.guardian.setup.R;
 

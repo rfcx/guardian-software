@@ -1,9 +1,8 @@
-package org.rfcx.guardian.setup.activity;
+package setup.activity;
 
 import java.io.File;
 
 import org.rfcx.guardian.setup.R;
-import org.rfcx.guardian.setup.RfcxGuardian;
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Activity;
@@ -12,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import setup.RfcxGuardian;
 
 public class MainActivity extends Activity {
 
@@ -34,6 +34,10 @@ public class MainActivity extends Activity {
 
 		case R.id.menu_api_register:
 			app.rfcxServiceHandler.triggerService("ApiRegister", true);
+			break;
+
+		case R.id.menu_api_update:
+			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
 			break;
 			
 //		case R.id.menu_cputuner_install:
@@ -75,10 +79,6 @@ public class MainActivity extends Activity {
 //		case R.id.menu_check_version:
 //			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
 //			break;
-
-		case R.id.menu_root_command:
-			ShellCommands.triggerNeedForRootAccess(getApplicationContext());
-			break;
 			
 //		case R.id.menu_set_defaults:
 //			app.setExtremeDevelopmentSystemDefaults();

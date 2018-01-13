@@ -1,4 +1,4 @@
-package org.rfcx.guardian.setup.receiver;
+package setup.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
