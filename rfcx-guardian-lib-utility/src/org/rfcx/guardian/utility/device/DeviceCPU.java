@@ -76,7 +76,7 @@ public class DeviceCPU {
 	        try {
 	            Thread.sleep(SAMPLE_DURATION_MILLISECONDS);
 	        } catch (Exception e) { 
-	        	RfcxLog.logExc(logTag, e); 
+	        		RfcxLog.logExc(logTag, e); 
 	        }
 	        reader.seek(0);
 	        load = reader.readLine();
@@ -87,7 +87,7 @@ public class DeviceCPU {
 	            + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        return (float)(cpu2 - cpu1) / ((cpu2 + idle2) - (cpu1 + idle1));
 	    } catch (IOException e) {
-	    	RfcxLog.logExc(logTag, e);
+	    		RfcxLog.logExc(logTag, e);
 	    }
 		return 0;
 	}

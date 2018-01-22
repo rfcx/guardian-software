@@ -10,6 +10,7 @@ import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
+import org.rfcx.guardian.utility.mqtt.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -82,6 +83,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// Misc
 	public AudioCaptureUtils audioCaptureUtils = null;
 	public ApiCheckInUtils apiCheckInUtils = null;
+	public MqttUtils mqttUtils = null;
 	
 	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
 	public DeviceBluetooth deviceBluetooth = new DeviceBluetooth(APP_ROLE);
@@ -116,6 +118,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
 		this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
+		this.mqttUtils = new MqttUtils(APP_ROLE);
 		
 		initializeRoleServices();
 	}
