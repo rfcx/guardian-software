@@ -23,7 +23,7 @@ public class BootReceiver extends BroadcastReceiver {
 		app.rebootDb.dbRebootComplete.insert(System.currentTimeMillis());
 		
 		// launch background services
-		app.initializeRoleServices();
+	//	app.initializeRoleServices();
 	
 	}
 

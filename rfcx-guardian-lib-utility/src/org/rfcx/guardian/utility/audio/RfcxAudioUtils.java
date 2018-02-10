@@ -16,7 +16,7 @@ public class RfcxAudioUtils {
 	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxAudioUtils.class);
 
 	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
-	private static final SimpleDateFormat fileDateFormat = new SimpleDateFormat("yyyy-MM-ddTHH-mm-ss.SSSZ", Locale.US);
+	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SZZZ", Locale.US);
 	
 	public static final int AUDIO_SAMPLE_SIZE = 16;
 	public static final int AUDIO_CHANNEL_COUNT = 1;
@@ -61,7 +61,7 @@ public class RfcxAudioUtils {
 	}
 
 	public static String getAudioFileLocation_Complete_PostGZip(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
-		return (new StringBuilder()).append(finalCacheDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateFormat.format(new Date(timestamp))).append(".").append(getFileExtension(audioCodec)).append(".gz").toString(); 
+		return (new StringBuilder()).append(finalCacheDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateTimeFormat.format(new Date(timestamp))).append(".").append(getFileExtension(audioCodec)).append(".gz").toString(); 
 	}
 	
 	public static String getFileExtension(String audioCodecOrFileExtension) {

@@ -5,6 +5,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import admin.RfcxGuardian;
+import admin.sentinel.I2cUtils;
 
 import org.rfcx.guardian.admin.R;
 
@@ -30,7 +31,7 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 			
 		case R.id.menu_root_command:
-			ShellCommands.triggerNeedForRootAccess(getApplicationContext());
+			(new ShellCommands(app.APP_ROLE, app.getApplicationContext())).triggerNeedForRootAccess();
 			break;
 			
 		case R.id.menu_reboot:
@@ -42,7 +43,10 @@ public class MainActivity extends Activity {
 			break;
 
 		case R.id.menu_test_i2c:
-			app.i2cUtils.i2cTest();
+			app.sentinelPowerUtils.getBatteryVoltage();
+			app.sentinelPowerUtils.getBatteryCurrent();
+			app.sentinelPowerUtils.getInputVoltage();
+			app.sentinelPowerUtils.getSystemVoltage();
 			break;
 			
 		case R.id.menu_get_prefs:

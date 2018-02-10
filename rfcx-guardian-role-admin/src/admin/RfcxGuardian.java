@@ -11,7 +11,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-import admin.i2c.I2cUtils;
+import admin.sentinel.SentinelPowerDb;
+import admin.sentinel.SentinelPowerUtils;
+import admin.sentinel.I2cUtils;
 import admin.service.AirplaneModeOffJobService;
 import admin.service.AirplaneModeOnJobService;
 import admin.service.I2cResetPermissionsJobService;
@@ -26,7 +28,6 @@ import android.content.Context;
 public class RfcxGuardian extends Application {
 	
 	public String version;
-	Context context;
 	
 	public static final String APP_ROLE = "Admin";
 
@@ -35,7 +36,9 @@ public class RfcxGuardian extends Application {
 	public RfcxDeviceGuid rfcxDeviceGuid = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
-	public I2cUtils i2cUtils = null;
+	
+	public SentinelPowerUtils sentinelPowerUtils = null;
+	public SentinelPowerDb sentinelPowerDb = null;
 	
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
 	public DeviceBluetooth deviceBluetooth = new DeviceBluetooth(APP_ROLE);
@@ -54,15 +57,13 @@ public class RfcxGuardian extends Application {
 		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
 		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 		
-		this.i2cUtils = new I2cUtils(this);
-		
 		this.version = RfcxRole.getRoleVersion(this, logTag);
 		this.rfcxPrefs.writeVersionToFile(this.version);
 		
 		setDbHandlers();
 		setServiceHandlers();
 		
-		this.context = getApplicationContext();
+		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		
 		initializeRoleServices();
 	}
@@ -96,7 +97,8 @@ public class RfcxGuardian extends Application {
 	}
 	
 	private void setDbHandlers() {
-		int versionNumber = RfcxRole.getRoleVersionValue(this.version);
+		
+		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
 	}
 
 	private void setServiceHandlers() {

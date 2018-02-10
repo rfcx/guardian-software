@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -13,57 +15,123 @@ import android.content.Context;
 import android.util.Log;
 
 public class ShellCommands {
-
-	private static final String logTag = RfcxLog.generateLogTag("Utils", ShellCommands.class);
 	
-	public static void killProcessByName(Context context, String searchTerm, String excludeTerm) {
-		Log.i(logTag, "Attempting to kill process associated with search term '"+searchTerm+"'.");
-		String grepExclude = (excludeTerm != null) ? " grep -v "+excludeTerm+" |" : "";
-		executeCommand("kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)", null, true, context);
+	public ShellCommands(String appRole, Context context) {
+		this.logTag = RfcxLog.generateLogTag(appRole, ShellCommands.class);
+		this.context = context;
 	}
+
+	private String logTag = RfcxLog.generateLogTag("Utils", ShellCommands.class);
+	private Context context = null;
 	
-	public static boolean executeCommand(String commandContents, String outputSearchString, boolean asRoot, Context context) {
-	    String filePath = context.getFilesDir().toString()+"/txt/script.sh";
+	private static List<String> executeCommandInShell(String commandContents, String ifOutputContainThisStringReturnTrue, boolean asRoot, Context context, String logTag) {
+
+	    List<String> standardOutStringLines = new ArrayList<String>();
+	    standardOutStringLines.add("false");
+	    
+		String filePath = context.getFilesDir().toString()+"/txt/script.sh";
 	    (new File(filePath.substring(0,filePath.lastIndexOf("/")))).mkdirs();
 	    File fileObj = new File(filePath);
-	    if (fileObj.exists()) { fileObj.delete(); }
-	    boolean commandSuccess = false;
-	    Process commandProcess = null;
-	    try {
-	    	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
-	        outFile.write(
-	        		"#!/system/bin/sh"
-	        		+"\n"+commandContents
-	        		+"\n");
-	        outFile.close();
-	        FileUtils.chmod(fileObj, 0755);
-		    if (fileObj.exists()) {
-		    	if (outputSearchString != null) {
-		    		if (asRoot) { commandProcess = Runtime.getRuntime().exec(new String[] { "su", "-c", filePath }); }
-		    		else { commandProcess = Runtime.getRuntime().exec(new String[] { filePath }); }
-					BufferedReader reader = new BufferedReader (new InputStreamReader(commandProcess.getInputStream()));
-					String eachLine; while ((eachLine = reader.readLine()) != null) {
-						if (eachLine.equals(outputSearchString)) { commandSuccess = true; }
-					}
-		    	} else {
-		    		if (asRoot) { commandProcess = (new ProcessBuilder("su", "-c", filePath)).start(); }
-		    		else { commandProcess = (new ProcessBuilder(filePath)).start(); } 
-		    		commandProcess.waitFor();
-		    		commandSuccess = true;
-		    	}
-		    } else {
-		    	Log.e(logTag,"Shell script could not be located for execution");
+	    
+	    if (fileObj.exists()) { 
+	    		Log.e(logTag,"CANCELLED SCRIPT EXECUTION BECAUSE ANOTHER THREAD IS RUNNING RIGHT NOW...");
+	    	} else {
+	    			    
+		    Process commandProcess = null;
+		    try {
+		    		BufferedWriter scriptFile = new BufferedWriter(new FileWriter(filePath));
+		        scriptFile.write(
+		        		"#!/system/bin/sh"
+		        		+"\n"+commandContents
+		        		+"\n");
+		        scriptFile.close();
+		        FileUtils.chmod(fileObj, 0755);
+		        
+			    if (fileObj.exists()) {
+			    	
+			    		if (asRoot) { commandProcess = Runtime.getRuntime().exec(new String[] { "su", "-c", filePath }); }
+			    		else { commandProcess = Runtime.getRuntime().exec(new String[] { filePath }); }
+	
+					commandProcess.waitFor();
+						
+					BufferedReader bufferedReaderOutput = new BufferedReader (new InputStreamReader(commandProcess.getInputStream())); 
+					String eachLine_BufferedReaderOutput; while ((eachLine_BufferedReaderOutput = bufferedReaderOutput.readLine()) != null) {
+						standardOutStringLines.add(eachLine_BufferedReaderOutput.trim());
+						if (eachLine_BufferedReaderOutput.equalsIgnoreCase(ifOutputContainThisStringReturnTrue)) {
+							standardOutStringLines.set(0, "true");
+						}
+					} bufferedReaderOutput.close();
+					
+	//					BufferedReader bufferedReaderError = new BufferedReader (new InputStreamReader(commandProcess.getErrorStream())); 
+	//					String eachLine_BufferedReaderError; while ((eachLine_BufferedReaderError = bufferedReaderError.readLine()) != null) {
+	//						standardOutStringLines.add(eachLine_BufferedReaderError.trim());
+	//					} bufferedReaderError.close();
+					
+					if (ifOutputContainThisStringReturnTrue == null) { standardOutStringLines.set(0, (commandProcess.exitValue() == 1) ? "true" : "false"); }
+					commandProcess.destroy();
+	
+			    } else {
+			    		Log.e(logTag,"Shell script could not be located for execution");
+			    }
+		    } catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
 		    }
-	    } catch (IOException e) {
-			RfcxLog.logExc(logTag, e);
-	    } catch (InterruptedException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-	    return commandSuccess;
+	    	}
+	    if (fileObj.exists()) { fileObj.delete(); }
+	    return standardOutStringLines;
 	}
 	
-	public static void triggerNeedForRootAccess(Context context) {
-		executeCommand("pm list features",null,true,context);
+	private static boolean executeCommandInShell_ReturnBoolean(String commandContents, String ifOutputContainThisStringReturnTrue, boolean asRoot, Context context, String logTag) {
+		return executeCommandInShell(commandContents, ifOutputContainThisStringReturnTrue, asRoot, context, logTag).get(0).equals("true");
+	}
+	
+	public List<String> executeCommand(String commandContents) { 
+		return executeCommandInShell(commandContents, null, false, this.context, this.logTag);
+	}
+
+	public boolean executeCommandAndIgnoreOutput(String commandContents) { 
+		return executeCommandInShell_ReturnBoolean(commandContents, null, false, this.context, this.logTag);
+	}
+
+	public List<String> executeCommandAsRoot(String commandContents) { 
+		return executeCommandInShell(commandContents, null, true, this.context, this.logTag);
+	}
+
+	public boolean executeCommandAsRootAndIgnoreOutput(String commandContents) { 
+		return executeCommandInShell_ReturnBoolean(commandContents, null, true, this.context, this.logTag);
+	}
+	
+	public boolean executeCommandAndSearchOutput(String commandContents, String outputSearchString) { 
+		return executeCommandInShell_ReturnBoolean(commandContents, outputSearchString, false, this.context, this.logTag);
+	}
+
+	public boolean executeCommandAsRootAndSearchOutput(String commandContents, String outputSearchString) { 
+		return executeCommandInShell_ReturnBoolean(commandContents, outputSearchString, true, this.context, this.logTag);
+	}
+	
+	
+	
+	
+	
+	public void killProcessByName(String searchTerm, String excludeTerm) {
+		Log.i(this.logTag, "Attempting to kill process associated with search term '"+searchTerm+"'.");
+		String grepExclude = (excludeTerm != null) ? " grep -v "+excludeTerm+" |" : "";
+		executeCommandInShell("kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)", null, true, this.context, this.logTag);
+	}
+	
+	public void triggerNeedForRootAccess() {
+		executeCommandInShell_ReturnBoolean("pm list features", null, true, this.context, this.logTag);
+	}
+	
+	public void triggerRebootAsRoot() {
+		executeCommandInShell_ReturnBoolean(
+				"am start -a android.intent.action.REBOOT; "+
+				"am broadcast android.intent.action.ACTION_SHUTDOWN; "+
+				"sleep 20; "+
+				"reboot;"
+				//" sleep 30;"//" reboot" 
+//				"svc power reboot"
+			, null, true, this.context, this.logTag);
 	}
 	
 }

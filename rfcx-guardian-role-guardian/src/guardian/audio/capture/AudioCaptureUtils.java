@@ -70,7 +70,7 @@ public class AudioCaptureUtils {
 		return (new StringBuilder()).append(captureDir).append("/").append(timestamp).append(".").append(fileExtension).toString();
 	}
 	
-	public static AudioCaptureWavRecorder initializeWavRecorder(String captureDir, long timestamp, int sampleRate) throws IllegalStateException, IOException, IllegalThreadStateException {
+	public static AudioCaptureWavRecorder initializeWavRecorder(String captureDir, long timestamp, int sampleRate) throws Exception {
 		AudioCaptureWavRecorder wavRecorderInstance = null;
 		wavRecorderInstance = AudioCaptureWavRecorder.getInstance(sampleRate);
 		wavRecorderInstance.setOutputFile(getCaptureFilePath(captureDir, timestamp, "wav"));

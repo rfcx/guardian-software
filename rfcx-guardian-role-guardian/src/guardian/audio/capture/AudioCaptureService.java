@@ -1,5 +1,7 @@
 package guardian.audio.capture;
 
+import java.io.IOException;
+
 import org.rfcx.guardian.utility.FileUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -74,58 +76,60 @@ public class AudioCaptureService extends Service {
 
 			app.audioCaptureUtils.captureTimeStampQueue = new long[] { 0, 0 };
 			
-			String captureDir = RfcxAudioUtils.captureDir(context);
-			FileUtils.deleteDirectoryContents(captureDir);
-
 			long prefsCaptureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			int prefsAudioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
+			
+			String captureDir = RfcxAudioUtils.captureDir(context);
+			FileUtils.deleteDirectoryContents(captureDir);
 			
 			AudioCaptureWavRecorder wavRecorder = null;
 			boolean isWavRecorderInitialized = false;
 			long captureTimeStamp = System.currentTimeMillis(); // timestamp of beginning of audio clip
-			
+
 			try {
 				
 				Log.d(logTag, "Capture Loop Period: "+ prefsCaptureLoopPeriod +"ms");
-				
+			
 				while (audioCaptureService.runFlag) {
-				
-					if (!app.audioCaptureUtils.isAudioCaptureAllowed()) {
-						Thread.sleep(prefsCaptureLoopPeriod);
+					
+					try {
 						
-					} else {
+						if (app.audioCaptureUtils.isAudioCaptureAllowed()) {
 						
-						if (!isWavRecorderInitialized) {
-							captureTimeStamp = System.currentTimeMillis();
-							wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, prefsAudioSampleRate);
-							wavRecorder.startRecorder();
-							isWavRecorderInitialized = true;
+							if (!isWavRecorderInitialized) {
+								captureTimeStamp = System.currentTimeMillis();
+								wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, prefsAudioSampleRate);
+								wavRecorder.startRecorder();
+								isWavRecorderInitialized = true;
+							} else {
+								captureTimeStamp = System.currentTimeMillis();
+								wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
+							}
+
+							if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
+								app.rfcxServiceHandler.triggerService("AudioEncodeQueue", true);
+							}
 							
-						} else {
-							captureTimeStamp = System.currentTimeMillis();
-							wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
-						}
-						
-						if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
-							app.rfcxServiceHandler.triggerService("AudioEncodeQueue", true);
 						}
 						
 						// sleep for intended length of capture clip
 						Thread.sleep(prefsCaptureLoopPeriod);
 						
+					} catch (Exception e) {
+						audioCaptureService.runFlag = false;
+						app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+						RfcxLog.logExc(logTag, e);
 					}
 				}
+				
 				Log.v(logTag, "Stopping service: "+logTag);
-				
+					
 			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-				
-			} finally {
 				audioCaptureService.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME);
-				
+				RfcxLog.logExc(logTag, e);
 			}
+				
 		}
 	}
 	

@@ -42,13 +42,11 @@ import guardian.device.android.DeviceScreenShotDb;
 import guardian.device.android.DeviceSensorDb;
 import guardian.device.android.DeviceSystemDb;
 import guardian.device.android.DeviceSystemService;
-import guardian.device.sentinel.SentinelPowerDb;
 import guardian.receiver.ConnectivityReceiver;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
 	public String version;
-	Context context;
 	
 	public static final String APP_ROLE = "Guardian";
 
@@ -69,7 +67,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DeviceDataTransferDb deviceDataTransferDb = null;
 	public DeviceScreenShotDb deviceScreenShotDb = null;
 	public DeviceLogCatCaptureDb deviceLogCatCaptureDb = null;
-	public SentinelPowerDb sentinelPowerDb = null;
 	
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -118,7 +115,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
 		this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
-		this.mqttUtils = new MqttUtils(APP_ROLE);
+		this.mqttUtils = new MqttUtils(APP_ROLE, this.rfcxDeviceGuid.getDeviceGuid());
 		
 		initializeRoleServices();
 	}
@@ -162,7 +159,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
 		this.deviceLogCatCaptureDb = new DeviceLogCatCaptureDb(this, this.version);
-		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
 
 	}
 	

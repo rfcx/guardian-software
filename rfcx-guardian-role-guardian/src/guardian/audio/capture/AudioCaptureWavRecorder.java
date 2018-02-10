@@ -13,7 +13,7 @@ import guardian.RfcxGuardian;
 
 public class AudioCaptureWavRecorder {
 
-	public static AudioCaptureWavRecorder getInstance(int audioSampleRate) {
+	public static AudioCaptureWavRecorder getInstance(int audioSampleRate) throws Exception {
 		AudioCaptureWavRecorder captureWavRecorderResult = null;
 		do {
 			captureWavRecorderResult = new AudioCaptureWavRecorder(true, AudioSource.MIC, audioSampleRate, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT );
@@ -88,58 +88,56 @@ public class AudioCaptureWavRecorder {
 	 * Instantiates a new recorder, in case of compressed recording the
 	 * parameters can be left as 0. In case of errors, no exception is thrown,
 	 * but the state is set to ERROR
+	 * @throws Exception 
 	 * 
 	 */
-	public AudioCaptureWavRecorder(boolean isUncompressed, int audioSource, int sampleRate, int channelConfig, int audioFormat) {
+	public AudioCaptureWavRecorder(boolean isUncompressed, int audioSource, int sampleRate, int channelConfig, int audioFormat) throws Exception {
 		
-		try {
-			isRecordingUncompressed = isUncompressed;
-			if (isRecordingUncompressed) { // RECORDING_UNCOMPRESSED
-				
-				if (audioFormat == AudioFormat.ENCODING_PCM_16BIT) {
-					captureSampleSizeInBits = 16;
-				} else {
-					captureSampleSizeInBits = 8;
-				}
-
-				if (channelConfig == AudioFormat.CHANNEL_CONFIGURATION_MONO) {
-					captureChannelCount = 1;
-				} else {
-					captureChannelCount = 2;
-				}
-
-				captureAudioSource = audioSource;
-				captureSampleRate = sampleRate;
-				captureAudioFormat = audioFormat;
-
-				recorderFileOutputFramePeriod = sampleRate * TIMER_INTERVAL_UNCOMPRESSED / 1000;
-				captureBufferSize = recorderFileOutputFramePeriod * 2 * captureSampleSizeInBits * captureChannelCount / 8;
-				
-				if (captureBufferSize < AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)) { 
-					
-					// Check to make sure buffer size is not smaller than the smallest allowed one
-					captureBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
-					
-					// Set frame period and timer interval accordingly
-					recorderFileOutputFramePeriod = captureBufferSize / (2 * captureSampleSizeInBits * captureChannelCount / 8);
-					
-					Log.w(logTag, "Increasing buffer size to "+Integer.toString(captureBufferSize));
-				}
-
-				audioRecorder = new AudioRecord(audioSource, sampleRate, channelConfig, audioFormat, captureBufferSize);
-
-				if (audioRecorder.getState() != AudioRecord.STATE_INITIALIZED) throw new Exception("AudioRecord initialization failed");
-				
-				audioRecorder.setRecordPositionUpdateListener(updateListener);
-				audioRecorder.setPositionNotificationPeriod(recorderFileOutputFramePeriod);
-			}
-			recorderOutputFilePath = null;
-			recorderState = State.INITIALIZING;
+		isRecordingUncompressed = isUncompressed;
+		if (isRecordingUncompressed) { // RECORDING_UNCOMPRESSED
 			
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-			recorderState = State.ERROR;
+			if (audioFormat == AudioFormat.ENCODING_PCM_16BIT) {
+				captureSampleSizeInBits = 16;
+			} else {
+				captureSampleSizeInBits = 8;
+			}
+
+			if (channelConfig == AudioFormat.CHANNEL_CONFIGURATION_MONO) {
+				captureChannelCount = 1;
+			} else {
+				captureChannelCount = 2;
+			}
+
+			captureAudioSource = audioSource;
+			captureSampleRate = sampleRate;
+			captureAudioFormat = audioFormat;
+
+			recorderFileOutputFramePeriod = sampleRate * TIMER_INTERVAL_UNCOMPRESSED / 1000;
+			captureBufferSize = recorderFileOutputFramePeriod * 2 * captureSampleSizeInBits * captureChannelCount / 8;
+			
+			if (captureBufferSize < AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)) { 
+				
+				// Check to make sure buffer size is not smaller than the smallest allowed one
+				captureBufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
+				
+				// Set frame period and timer interval accordingly
+				recorderFileOutputFramePeriod = captureBufferSize / (2 * captureSampleSizeInBits * captureChannelCount / 8);
+				
+				Log.w(logTag, "Increasing buffer size to "+Integer.toString(captureBufferSize));
+			}
+
+			audioRecorder = new AudioRecord(audioSource, sampleRate, channelConfig, audioFormat, captureBufferSize);
+
+			if (audioRecorder.getState() != AudioRecord.STATE_INITIALIZED) {
+				recorderState = State.ERROR;
+				throw new Exception("AudioRecord initialization failed");
+			}
+			
+			audioRecorder.setRecordPositionUpdateListener(updateListener);
+			audioRecorder.setPositionNotificationPeriod(recorderFileOutputFramePeriod);
 		}
+		recorderOutputFilePath = null;
+		recorderState = State.INITIALIZING;
 	}
 
 
@@ -161,10 +159,11 @@ public class AudioCaptureWavRecorder {
 	 * the ERROR state, which makes a reconstruction necessary. In case
 	 * uncompressed recording is toggled, the header of the wave file is
 	 * written. In case of an exception, the state is changed to ERROR
+	 * @throws IOException 
 	 * 
 	 */
-	public void prepareRecorder() {
-		try {
+	public void prepareRecorder() throws IOException {
+//		try {
 			if (recorderState == State.INITIALIZING) {
 				
 				if (audioRecorder.getState() == AudioRecord.STATE_INITIALIZED) {
@@ -185,10 +184,10 @@ public class AudioCaptureWavRecorder {
 				releaseRecorder();
 				recorderState = State.ERROR;
 			}
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-			recorderState = State.ERROR;
-		}
+//		} catch (Exception e) {
+//			RfcxLog.logExc(logTag, e);
+//			recorderState = State.ERROR;
+//		}
 	}
 	
 	
@@ -356,18 +355,18 @@ public class AudioCaptureWavRecorder {
 		return (short) (argB1 | (argB2 << 8));
 	}
 
-	public void swapOutputFile(String outputFilePath) {
+	public void swapOutputFile(String outputFilePath) throws IOException {
 		
-		try {
+//		try {
 			stopRecorder();
 			recorderOutputFilePath = outputFilePath;
 			recorderOutputFileRandomAccessWriter.close();
 			recorderState = State.INITIALIZING;
 			prepareRecorder();
 			startRecorder();
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
+//		} catch (Exception e) {
+//			RfcxLog.logExc(logTag, e);
+//		}
 		
 	}
 	

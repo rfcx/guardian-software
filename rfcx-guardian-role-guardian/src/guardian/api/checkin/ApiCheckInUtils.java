@@ -466,7 +466,9 @@ public class ApiCheckInUtils {
 					if (toggleThreshold == this.connectivityToggleThresholds[this.connectivityToggleThresholds.length - 1]) {
 						// last index, force reboot
 						Log.d(logTag, "ToggleCheck: ForcedReboot (" + toggleThreshold + " minutes since last successful CheckIn)");
-						ShellCommands.executeCommand("reboot", null, false, app.getApplicationContext());
+						
+						Log.e(logTag, "WARNING: SKIPPING THE REBOOT ATTEMPT. PLEASE REFER TO CODE, WHERE REBOOT IS COMMENTED OUT.");
+				//		ShellCommands.executeCommand("reboot", null, false, app.getApplicationContext());
 					}
 				}
 				thresholdIndex++;

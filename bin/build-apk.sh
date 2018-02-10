@@ -32,21 +32,29 @@ else
   echo "key.store.password=$KEY_PSWD" >> local.properties;
   echo "key.alias.password=$KEY_PSWD" >> local.properties;
 
-  # include rfcx shared library
+  # include rfcx shared 'utility' library
   echo "android.library.reference.1=../rfcx-guardian-lib-utility" >> local.properties;
 
-    # for the 'encode' role, include rfcx shared audio encoding library
+  # for the 'guardian' role, include rfcx shared audio encoding library
   if [[ $ROLE = 'guardian' ]]; then
     
     echo "android.library.reference.2=../rfcx-guardian-lib-audio" >> local.properties;
     cd $SCRIPT_DIR/../rfcx-guardian-lib-audio/jni && ndk-build;
 
-    echo "android.library.reference.3=../rfcx-guardian-lib-i2c" >> local.properties;
+  fi
+
+  # for the 'admin' role, include rfcx shared i2c access library
+  if [[ $ROLE = 'admin' ]]; then
+    
+ #   echo "android.library.reference.2=../rfcx-guardian-lib-i2c" >> local.properties;
     cd $SCRIPT_DIR/../rfcx-guardian-lib-i2c/jni && ndk-build;
 
-    cd $SCRIPT_DIR/../rfcx-guardian-role-$ROLE;
-
+    cp $SCRIPT_DIR/../rfcx-guardian-lib-i2c/libs/armeabi/i2cget $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/assets/i2cget;
+    cp $SCRIPT_DIR/../rfcx-guardian-lib-i2c/libs/armeabi/i2cset $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/assets/i2cset;
+     
   fi
+
+  cd $SCRIPT_DIR/../rfcx-guardian-role-$ROLE;
 
   echo "setting up build process...";
   export ANT_CLEAN=`ant clean`;

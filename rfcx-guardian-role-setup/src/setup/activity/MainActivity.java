@@ -63,30 +63,7 @@ public class MainActivity extends Activity {
 //				Log.d("Rfcx-Setup","SpectralViewPro is already installed...");
 //			}
 //			break;
-//			
-//		case R.id.menu_moduleloader_install:
-//			String moduleLoaderPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/com.d4.moduleLoader";
-//			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/com.d4.moduleLoader")).isDirectory()) {
-//				Log.d("Rfcx-Setup","ModuleLoader will now be downloaded and installed...");
-//				app.apiCore.targetAppRoleApiEndpoint = "moduleloader";
-//				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
-//				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
-//			} else {
-//				Log.d("Rfcx-Setup","ModuleLoader is already installed...");
-//			}
-//			break;
-//			
-//		case R.id.menu_check_version:
-//			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
-//			break;
-			
-//		case R.id.menu_set_defaults:
-//			app.setExtremeDevelopmentSystemDefaults();
-//			break;
-//			
-//		case R.id.menu_delete_apps:
-//			app.deleteExtraCyanogenModApps();
-//			break;
+
 			
 		}
 		return true;

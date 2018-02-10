@@ -17,10 +17,12 @@ public class DeviceCPUTuner {
 	public DeviceCPUTuner(Context context, String appRole) {
 		this.context = context;
 		this.logTag = RfcxLog.generateLogTag("Utils", DeviceCPUTuner.class);
+		this.shellCommands = new ShellCommands(appRole, context);
 	}
 	
 	private Context context;
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceCPUTuner.class);
+	private ShellCommands shellCommands;
 	
 	public void writeConfiguration(int freq_min, int freq_max, int governor_up, int governor_down) {
 		if (isInstalled(this.context)) {
@@ -75,7 +77,7 @@ public class DeviceCPUTuner {
 		return (new StringBuilder()).append("\"UPDATE cpuProfiles SET frequencyMax=").append(frequencyMax).append(", frequencyMin=").append(frequencyMin).append(", wifiState=").append(wifiState).append(", gpsState=").append(gpsState).append(", bluetoothState=").append(bluetoothState).append(", mobiledataState=").append(mobiledataState).append(", governorThresholdUp=").append(governorThresholdUp).append(", governorThresholdDown=").append(governorThresholdDown).append(", backgroundSyncState=").append(backgroundSyncState).append(", virtualGovernor=").append(virtualGovernor).append(", mobiledataConnectionState=").append(mobiledataConnectionState).append(", powersaveBias=").append(powersaveBias).append(", AIRPLANEMODE=").append(AIRPLANEMODE).append(" WHERE profileName='RFCx';\"").toString();
 	}
 	
-	private static void overWritePrefsXml(Context context, String logTag, int freq_min, int freq_max, int governor_up, int governor_down) {
+	private void overWritePrefsXml(Context context, String logTag, int freq_min, int freq_max, int governor_up, int governor_down) {
 		
 		String tmpPrefsFilePath = context.getFilesDir().getAbsolutePath().toString()+"/txt/cputuner.xml";
 		File tmpPrefsFile = new File(tmpPrefsFilePath);			
@@ -87,26 +89,26 @@ public class DeviceCPUTuner {
         	outFile.close();
         	FileUtils.chmod(tmpPrefsFile, 0755);
         	if (tmpPrefsFile.exists()) {
-        		ShellCommands.executeCommand("cp "+tmpPrefsFilePath+" "+getPrefsPath(context),null,true,context);
+        		this.shellCommands.executeCommandAsRoot("cp "+tmpPrefsFilePath+" "+getPrefsPath(context));
         	}
         } catch (IOException e) {
-        	RfcxLog.logExc(logTag, e);
+        		RfcxLog.logExc(logTag, e);
         }	
 	}
 	
-	private static void createOrUpdateDbProfile(Context context, String logTag, int freq_min, int freq_max, int governor_up, int governor_down) {
+	private void createOrUpdateDbProfile(Context context, String logTag, int freq_min, int freq_max, int governor_up, int governor_down) {
 
 		String preQuery = (new StringBuilder()).append("sqlite3 ").append(getDbPath(context)).append(" ").toString();
-		if (ShellCommands.executeCommand(preQuery+sqlCheckIfProfileExists, "0", true, context)) {
+		if (this.shellCommands.executeCommandAsRootAndSearchOutput(preQuery+sqlCheckIfProfileExists, "0")) {
 			Log.d(logTag, "Inserting RFCx profile into CPUTuner database for the first time.");
-			ShellCommands.executeCommand(preQuery+sqlDeleteRfcxProfile, null, true, context);
-			ShellCommands.executeCommand(preQuery+getSqlInsertRfcxProfile(freq_min, freq_max, governor_up, governor_down), null, true, context);
+			this.shellCommands.executeCommandAsRoot(preQuery+sqlDeleteRfcxProfile);
+			this.shellCommands.executeCommandAsRoot(preQuery+getSqlInsertRfcxProfile(freq_min, freq_max, governor_up, governor_down));
 		} else {
 			Log.v(logTag, "Updating RFCx profile in CPUTuner database.");
-			ShellCommands.executeCommand(preQuery+getSqlUpdateRfcxProfile(freq_min, freq_max, governor_up, governor_down), null, true, context);
+			this.shellCommands.executeCommandAsRoot(preQuery+getSqlUpdateRfcxProfile(freq_min, freq_max, governor_up, governor_down));
 		}
 		
-		ShellCommands.executeCommand(preQuery+sqlUpdateTriggers, null, true, context);
+		this.shellCommands.executeCommandAsRoot(preQuery+sqlUpdateTriggers);
 	}
 	
 	private static boolean isInstalled(Context context) {

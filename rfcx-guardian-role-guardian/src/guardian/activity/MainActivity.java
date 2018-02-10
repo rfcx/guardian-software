@@ -35,10 +35,6 @@ public class MainActivity extends Activity {
 		case R.id.menu_screenshot:
 			app.deviceControlUtils.runOrTriggerDeviceControl("screenshot", app.getApplicationContext().getContentResolver());
 			break;
-
-		case R.id.menu_test_i2c:
-//			I2cUtils.writeToI2c( 4 );
-			break;
 		
 		}
 		

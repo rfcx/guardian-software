@@ -17,10 +17,12 @@ public class DeviceScreenShot {
 	
 	public DeviceScreenShot(Context context, String appRole) {
 		this.logTag = RfcxLog.generateLogTag(appRole, DeviceScreenShot.class);
+		this.appRole = appRole;
 		initializeScreenShotDirectories(context);
 	}
 
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceScreenShot.class);
+	private String appRole = "Utils";
 	
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
 
@@ -84,7 +86,7 @@ public class DeviceScreenShot {
 				String finalFilePath = DeviceScreenShot.getScreenShotFileLocation_Complete(context, captureTimestamp);
 				
 				// run framebuffer binary to save screenshot to file
-				ShellCommands.executeCommand(executableBinaryFilePath+" "+captureFilePath, null, true, context);
+				(new ShellCommands(this.appRole, context)).executeCommandAsRoot(executableBinaryFilePath+" "+captureFilePath);
 				
 				return completeCapture(captureTimestamp, captureFilePath, finalFilePath);
 				

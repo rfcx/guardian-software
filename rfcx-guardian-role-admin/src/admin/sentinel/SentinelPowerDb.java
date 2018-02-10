@@ -1,4 +1,4 @@
-package guardian.device.sentinel;
+package admin.sentinel;
 
 import java.util.Date;
 import java.util.List;
@@ -7,19 +7,19 @@ import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
+import admin.RfcxGuardian;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import guardian.RfcxGuardian;
 
 public class SentinelPowerDb {
 	
 	public SentinelPowerDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbExternalPowerBattery = new DbExternalPowerBattery(context);
-		this.dbExternalPowerSolar = new DbExternalPowerSolar(context);
+		this.dbExternalPowerInput = new DbExternalPowerInput(context);
 		this.dbExternalPowerLoad = new DbExternalPowerLoad(context);
 		this.dbExternalPowerController = new DbExternalPowerController(context);
 	}
@@ -113,8 +113,8 @@ public class SentinelPowerDb {
 	
 	
 	
-	public class DbExternalPowerSolar {
-		private String TABLE = "solar";
+	public class DbExternalPowerInput {
+		private String TABLE = "input";
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) {
 				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
@@ -137,7 +137,7 @@ public class SentinelPowerDb {
 		}
 		final DbHelper dbHelper;
 		
-		public DbExternalPowerSolar(Context context) {
+		public DbExternalPowerInput(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
 		
@@ -176,7 +176,7 @@ public class SentinelPowerDb {
 		}
 
 	}
-	public final DbExternalPowerSolar dbExternalPowerSolar;
+	public final DbExternalPowerInput dbExternalPowerInput;
 	
 	
 	

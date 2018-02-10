@@ -70,18 +70,12 @@ public class RebootTriggerJobService extends Service {
 			RebootTriggerJobService rebootTriggerJobInstance = RebootTriggerJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
-			Context context = app.getApplicationContext();
 			
 			try {
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 				
-				ShellCommands.executeCommand(
-//						"am broadcast android.intent.action.ACTION_SHUTDOWN"
-//						+" && sleep 5"
-//						+" && reboot", 
-						"am start -a android.intent.action.REBOOT"
-//						"svc power reboot"
-						, null, true, context);
+				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+
+				(new ShellCommands(app.APP_ROLE, app.getApplicationContext())).triggerRebootAsRoot();
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

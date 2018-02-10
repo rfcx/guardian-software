@@ -70,7 +70,6 @@ public class I2cResetPermissionsJobService extends Service {
 			I2cResetPermissionsJobService i2cResetPermissionsJobInstance = I2cResetPermissionsJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
-			Context context = app.getApplicationContext();
 			
 			try {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
@@ -91,7 +90,7 @@ public class I2cResetPermissionsJobService extends Service {
 
 				if (resetShellCommand.length() > 0) {
 					Log.v(logTag, "Resetting Permissions on I2C Handlers...");
-					ShellCommands.executeCommand(resetShellCommand.toString(), null, true, context);
+					(new ShellCommands(app.APP_ROLE, app.getApplicationContext())).executeCommandAsRoot(resetShellCommand.toString());
 				}
 					
 			} catch (Exception e) {

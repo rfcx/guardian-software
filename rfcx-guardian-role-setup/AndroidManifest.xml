@@ -74,11 +74,12 @@
          <receiver android:name="setup.receiver.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
+				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
 		</receiver>
 		
 		<provider 
-		    android:name="setup.api.SetupContentProvider"
+		    android:name="setup.contentprovider.SetupContentProvider"
 			android:authorities="org.rfcx.guardian.setup"
         	android:readPermission="org.rfcx.guardian.READ"
         	android:writePermission="org.rfcx.guardian.WRITE"

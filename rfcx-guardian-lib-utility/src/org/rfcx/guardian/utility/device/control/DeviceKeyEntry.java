@@ -13,9 +13,11 @@ public class DeviceKeyEntry {
 
 	public DeviceKeyEntry(String appRole) {
 		this.logTag = RfcxLog.generateLogTag(appRole, DeviceKeyEntry.class);
+		this.appRole = appRole;
 	}
 
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceKeyEntry.class);
+	private String appRole = "Utils";
 	
 	private List<String[]> keyCodes = null;
 	
@@ -31,12 +33,12 @@ public class DeviceKeyEntry {
 		
 		this.keyCodes = defineKeyCodes(this.keyCodes);
 		
-		ShellCommands.executeCommand(
+		(new ShellCommands(this.appRole, context)).executeCommand(
 				generateKeyEntryCommand(
 					concatenatedCommandSequence.split(concatenatedCommandSequenceDelim),
 					this.keyCodes
-					),
-				null, false, context);
+				)
+			);
 	}
 
 	private static List<String[]> defineKeyCodes(List<String[]> keyCodes) {
