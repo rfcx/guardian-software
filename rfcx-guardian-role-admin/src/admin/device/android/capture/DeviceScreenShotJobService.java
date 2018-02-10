@@ -1,4 +1,4 @@
-package admin.service;
+package admin.device.android.capture;
 
 import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
 import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
@@ -11,9 +11,9 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class ScreenShotJobService extends Service {
+public class DeviceScreenShotJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScreenShotJobService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceScreenShotJobService.class);
 	
 	private static final String SERVICE_NAME = "ScreenShotJob";
 	
@@ -66,12 +66,12 @@ public class ScreenShotJobService extends Service {
 		
 		@Override
 		public void run() {
-			ScreenShotJobService screenShotJobInstance = ScreenShotJobService.this;
+			DeviceScreenShotJobService screenShotJobInstance = DeviceScreenShotJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 			
-			DeviceScreenShot deviceScreenShot = new DeviceScreenShot(context, RfcxGuardian.APP_ROLE);
+			DeviceScreenShot deviceScreenShot = new DeviceScreenShot(context, RfcxGuardian.APP_ROLE, app.rfcxDeviceGuid.getDeviceGuid());
 			DeviceScreenLock deviceScreenLock = new DeviceScreenLock(RfcxGuardian.APP_ROLE);
 			
 			try {
@@ -83,8 +83,8 @@ public class ScreenShotJobService extends Service {
 				
 				String[] saveScreenShot = deviceScreenShot.launchCapture(context);
 				if (saveScreenShot != null) { 
-//					app.deviceScreenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3]);
-					Log.i(logTag, "ScreenShot saved: "+saveScreenShot[0]+"."+saveScreenShot[1]);
+					app.deviceScreenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3]);
+					Log.i(logTag, "ScreenShot saved: "+saveScreenShot[3]);
 				}
 				Thread.sleep(3000);
 					

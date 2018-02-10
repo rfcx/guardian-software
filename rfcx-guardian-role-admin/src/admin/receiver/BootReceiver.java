@@ -19,8 +19,6 @@ public class BootReceiver extends BroadcastReceiver {
 		
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
-		// launch background services
-		app.initializeRoleServices();
 	}
 
 }

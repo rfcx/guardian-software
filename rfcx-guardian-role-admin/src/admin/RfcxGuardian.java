@@ -13,12 +13,14 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import admin.sentinel.SentinelPowerDb;
 import admin.sentinel.SentinelPowerUtils;
+import admin.device.android.capture.DeviceLogCatCaptureDb;
+import admin.device.android.capture.DeviceScreenShotDb;
+import admin.device.android.capture.DeviceScreenShotJobService;
 import admin.sentinel.I2cUtils;
 import admin.service.AirplaneModeOffJobService;
 import admin.service.AirplaneModeOnJobService;
 import admin.service.I2cResetPermissionsJobService;
 import admin.service.RebootTriggerJobService;
-import admin.service.ScreenShotJobService;
 
 import org.rfcx.guardian.utility.ShellCommands;
 
@@ -39,6 +41,9 @@ public class RfcxGuardian extends Application {
 	
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelPowerDb sentinelPowerDb = null;
+	
+	public DeviceScreenShotDb deviceScreenShotDb = null;
+	public DeviceLogCatCaptureDb deviceLogCatCaptureDb = null;
 	
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
 	public DeviceBluetooth deviceBluetooth = new DeviceBluetooth(APP_ROLE);
@@ -99,12 +104,14 @@ public class RfcxGuardian extends Application {
 	private void setDbHandlers() {
 		
 		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
+		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
+		this.deviceLogCatCaptureDb = new DeviceLogCatCaptureDb(this, this.version);
 	}
 
 	private void setServiceHandlers() {
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);
-		this.rfcxServiceHandler.addService("ScreenShotJob", ScreenShotJobService.class);
+		this.rfcxServiceHandler.addService("ScreenShotJob", DeviceScreenShotJobService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeOff", AirplaneModeOffJobService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeOn", AirplaneModeOnJobService.class);
 		this.rfcxServiceHandler.addService("I2cResetPermissions", I2cResetPermissionsJobService.class);

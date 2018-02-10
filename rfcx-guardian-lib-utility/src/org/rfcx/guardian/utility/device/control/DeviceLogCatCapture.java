@@ -18,14 +18,19 @@ import android.util.Log;
 
 public class DeviceLogCatCapture {
 	
-	public DeviceLogCatCapture(Context context, String appRole) {
+	public DeviceLogCatCapture(Context context, String appRole, String rfcxDeviceId) {
 		this.logTag = RfcxLog.generateLogTag(appRole, DeviceLogCatCapture.class);
+		this.appRole = appRole;
+		this.rfcxDeviceId = rfcxDeviceId;
 		initializeLogCatDirectories(context);
 	}
 
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceLogCatCapture.class);
+	private String appRole = "Utils";
+	private String rfcxDeviceId = null;
 	
-	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
+	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
+	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SZZZ", Locale.US);
 
 	public static final String SCRIPT_NAME = "logcat_capture";
 	public static final String FILETYPE = "log";
@@ -67,8 +72,8 @@ public class DeviceLogCatCapture {
 		return (new StringBuilder()).append(captureDir(context)).append("/").append(timestamp).append(".").append(FILETYPE).toString(); 
 	}
 
-	public static String getLogFileLocation_Complete_PostZip(Context context, long timestamp) {
-		return (new StringBuilder()).append(finalFilesDir(context)).append("/").append(dateFormat.format(new Date(timestamp))).append("/").append(timestamp).append(".").append(FILETYPE).append(".gz").toString(); 
+	public static String getLogFileLocation_Complete_PostZip(String rfcxDeviceId, Context context, long timestamp) {
+		return (new StringBuilder()).append(finalFilesDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateTimeFormat.format(new Date(timestamp))).append(".").append(FILETYPE).append(".gz").toString(); 
 	}
 	
 	

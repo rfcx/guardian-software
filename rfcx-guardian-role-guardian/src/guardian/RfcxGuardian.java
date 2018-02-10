@@ -36,9 +36,7 @@ import guardian.audio.encode.AudioEncodeDb;
 import guardian.audio.encode.AudioEncodeJobService;
 import guardian.audio.encode.AudioEncodeQueueService;
 import guardian.device.android.DeviceDataTransferDb;
-import guardian.device.android.DeviceLogCatCaptureDb;
 import guardian.device.android.DeviceRebootDb;
-import guardian.device.android.DeviceScreenShotDb;
 import guardian.device.android.DeviceSensorDb;
 import guardian.device.android.DeviceSystemDb;
 import guardian.device.android.DeviceSystemService;
@@ -65,8 +63,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DeviceSensorDb deviceSensorDb = null;
 	public DeviceRebootDb rebootDb = null;
 	public DeviceDataTransferDb deviceDataTransferDb = null;
-	public DeviceScreenShotDb deviceScreenShotDb = null;
-	public DeviceLogCatCaptureDb deviceLogCatCaptureDb = null;
 	
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -157,8 +153,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.deviceSensorDb = new DeviceSensorDb(this, this.version);
 		this.rebootDb = new DeviceRebootDb(this, this.version);
 		this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
-		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
-		this.deviceLogCatCaptureDb = new DeviceLogCatCaptureDb(this, this.version);
 
 	}
 	

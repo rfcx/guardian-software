@@ -1,4 +1,4 @@
-package guardian.device.android;
+package admin.device.android.capture;
 
 import java.util.Date;
 import java.util.List;
@@ -12,18 +12,18 @@ import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import guardian.RfcxGuardian;
+import admin.RfcxGuardian;
 
-public class DeviceScreenShotDb {
+public class DeviceLogCatCaptureDb {
 	
-	public DeviceScreenShotDb(Context context, String appVersion) {
+	public DeviceLogCatCaptureDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbCaptured = new DbCaptured(context);
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceScreenShotDb.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceLogCatCaptureDb.class);
 	private int VERSION = 1;
-	static final String DATABASE = "screenshots";
+	static final String DATABASE = "logs";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_TIMESTAMP = "timestamp";
 	static final String C_FORMAT = "format";

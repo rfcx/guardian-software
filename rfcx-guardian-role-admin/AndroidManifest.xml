@@ -66,7 +66,7 @@
         </activity>
         
         <!-- Services -->
-        <service android:name="admin.service.ScreenShotJobService" />
+        <service android:name="admin.device.android.capture.DeviceScreenShotJobService" />
         <service android:name="admin.service.AirplaneModeOffJobService" />
         <service android:name="admin.service.AirplaneModeOnJobService" />
         <service android:name="admin.service.I2cResetPermissionsJobService" />

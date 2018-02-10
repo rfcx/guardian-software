@@ -1,6 +1,10 @@
 package org.rfcx.guardian.utility.device.control;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -15,16 +19,20 @@ import android.util.Log;
 
 public class DeviceScreenShot {
 	
-	public DeviceScreenShot(Context context, String appRole) {
+	public DeviceScreenShot(Context context, String appRole, String rfcxDeviceId) {
 		this.logTag = RfcxLog.generateLogTag(appRole, DeviceScreenShot.class);
 		this.appRole = appRole;
+		this.rfcxDeviceId = rfcxDeviceId;
 		initializeScreenShotDirectories(context);
+		checkSetScreenShotBinary(context);
 	}
 
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceScreenShot.class);
 	private String appRole = "Utils";
+	private String rfcxDeviceId = null;
 	
-	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
+	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM/dd-a", Locale.US);
+	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SZZZ", Locale.US);
 
 	public static final String BINARY_NAME = "fb2png";
 	public static final String FILETYPE = "png";
@@ -34,8 +42,6 @@ public class DeviceScreenShot {
 		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(), 0777);
 		(new File(finalFilesDir(context))).mkdirs(); FileUtils.chmod(finalFilesDir(context), 0777);
 		(new File(getExecutableBinaryDir(context))).mkdirs(); FileUtils.chmod(getExecutableBinaryDir(context), 0777);
-		
-		// find copy/manage executable binary...
 	}
 	
 	private static String sdCardFilesDir() {
@@ -66,8 +72,8 @@ public class DeviceScreenShot {
 		return (new StringBuilder()).append(captureDir(context)).append("/").append(timestamp).append(".png").toString(); 
 	}
 
-	public static String getScreenShotFileLocation_Complete(Context context, long timestamp) {
-		return (new StringBuilder()).append(finalFilesDir(context)).append("/").append(dateFormat.format(new Date(timestamp))).append("/").append(timestamp).append(".png").toString(); 
+	public static String getScreenShotFileLocation_Complete(String rfcxDeviceId, Context context, long timestamp) {
+		return (new StringBuilder()).append(finalFilesDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateTimeFormat.format(new Date(timestamp))).append(".png").toString(); 
 	}
 	
 	
@@ -83,10 +89,10 @@ public class DeviceScreenShot {
 				long captureTimestamp = System.currentTimeMillis();
 				
 				String captureFilePath = DeviceScreenShot.getScreenShotFileLocation_Capture(context, captureTimestamp);
-				String finalFilePath = DeviceScreenShot.getScreenShotFileLocation_Complete(context, captureTimestamp);
+				String finalFilePath = DeviceScreenShot.getScreenShotFileLocation_Complete(this.rfcxDeviceId, context, captureTimestamp);
 				
 				// run framebuffer binary to save screenshot to file
-				(new ShellCommands(this.appRole, context)).executeCommandAsRoot(executableBinaryFilePath+" "+captureFilePath);
+				(new ShellCommands(this.appRole, context)).executeCommand(executableBinaryFilePath+" "+captureFilePath);
 				
 				return completeCapture(captureTimestamp, captureFilePath, finalFilePath);
 				
@@ -115,6 +121,24 @@ public class DeviceScreenShot {
 			RfcxLog.logExc(logTag, e);
 		}
 		return null;
+	}
+	
+	private void checkSetScreenShotBinary(Context context) {
+		
+		String executableBinaryFilePath = DeviceScreenShot.getExecutableBinaryFilePath(context);
+		
+		if (!(new File(executableBinaryFilePath)).exists()) {
+    			try {
+    				InputStream inputStream = context.getAssets().open("fb2png");
+    				OutputStream outputStream = new FileOutputStream(executableBinaryFilePath);
+    				byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
+    				inputStream.close(); outputStream.close();
+    				FileUtils.chmod(executableBinaryFilePath, 0755);
+    			} catch (IOException e) {
+    				RfcxLog.logExc(logTag, e);
+    			}
+		}
+		
 	}
 	
 }
