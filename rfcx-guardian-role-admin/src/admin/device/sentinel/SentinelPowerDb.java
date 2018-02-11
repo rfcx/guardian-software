@@ -1,4 +1,4 @@
-package admin.sentinel;
+package admin.device.sentinel;
 
 import java.util.Date;
 import java.util.List;

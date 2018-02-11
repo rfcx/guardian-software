@@ -1,4 +1,4 @@
-package admin.service;
+package admin.device.sentinel;
 
 import java.io.File;
 

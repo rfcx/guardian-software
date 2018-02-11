@@ -54,8 +54,12 @@ public class AdminContentProvider extends ContentProvider {
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "screenshot", null, System.currentTimeMillis() });
 			
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_off")) {
-				app.rfcxServiceHandler.triggerService("AirplaneModeOff", true);
+				app.rfcxServiceHandler.triggerService("AirplaneModeOffJob", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "airplanemode_off", null, System.currentTimeMillis() });
+			
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_on")) {
+				app.rfcxServiceHandler.triggerService("AirplaneModeOnJob", true);
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "airplanemode_on", null, System.currentTimeMillis() });
 			
 			}
 			

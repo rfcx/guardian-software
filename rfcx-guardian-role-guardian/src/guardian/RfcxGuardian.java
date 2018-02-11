@@ -35,6 +35,7 @@ import guardian.audio.capture.AudioCaptureUtils;
 import guardian.audio.encode.AudioEncodeDb;
 import guardian.audio.encode.AudioEncodeJobService;
 import guardian.audio.encode.AudioEncodeQueueService;
+import guardian.device.android.DateTimeSntpSyncJobService;
 import guardian.device.android.DeviceDataTransferDb;
 import guardian.device.android.DeviceRebootDb;
 import guardian.device.android.DeviceSensorDb;
@@ -79,7 +80,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public MqttUtils mqttUtils = null;
 	
 	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
-	public DeviceBluetooth deviceBluetooth = new DeviceBluetooth(APP_ROLE);
 	
 	public String[] RfcxCoreServices = 
 		new String[] { 
@@ -118,6 +118,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public void onTerminate() {
 		super.onTerminate();
+		
 		this.unregisterReceiver(connectivityReceiver);
 	}
 	
@@ -165,6 +166,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
+		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		
 	}
 	

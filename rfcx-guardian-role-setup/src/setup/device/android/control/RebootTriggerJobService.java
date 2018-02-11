@@ -1,11 +1,11 @@
-package admin.service;
+package setup.device.android.control;
 
 import java.io.File;
 
 import org.rfcx.guardian.utility.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import admin.RfcxGuardian;
+import setup.RfcxGuardian;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;

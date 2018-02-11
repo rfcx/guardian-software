@@ -7,12 +7,8 @@ import android.content.Context;
 import android.util.Log;
 
 public class DeviceBluetooth {
-
-	public DeviceBluetooth(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceBluetooth.class);
-	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceBluetooth.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceBluetooth.class);
 	
 	public static boolean isEnabled() {
 		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -37,7 +33,7 @@ public class DeviceBluetooth {
 //		return false;
 //	}
 	
-	public void setOn() {
+	public static void setOn() {
 	    	if (!isEnabled()) {
 	    		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	    		if (bluetoothAdapter != null) {
@@ -49,7 +45,7 @@ public class DeviceBluetooth {
 	    	}
 	}
 	
-	public void setOff(Context context) {
+	public static void setOff(Context context) {
 	    	if (isEnabled()) {
     			Log.v(logTag, "Deactivating Bluetooth");
 	    		BluetoothAdapter.getDefaultAdapter().disable();

@@ -1,4 +1,4 @@
-package guardian.receiver;
+package admin.receiver;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -8,11 +8,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
-import guardian.RfcxGuardian;
+import admin.RfcxGuardian;
 
 public class SmsReceiver extends BroadcastReceiver {
 
-	private String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SmsReceiver.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SmsReceiver.class);
 	
     @Override
     public void onReceive(Context context, Intent intent) {

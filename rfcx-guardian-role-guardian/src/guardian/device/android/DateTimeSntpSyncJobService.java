@@ -1,34 +1,36 @@
-package admin.service;
+package guardian.device.android;
 
+import org.rfcx.guardian.utility.SntpClient;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import admin.RfcxGuardian;
+import guardian.RfcxGuardian;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
-public class AirplaneModeOffJobService extends Service {
+public class DateTimeSntpSyncJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AirplaneModeOffJobService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DateTimeSntpSyncJobService.class);
 	
-	private static final String SERVICE_NAME = "AirplaneModeOffJob";
+	private static final String SERVICE_NAME = "DateTimeSntpSyncJob";
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private AirplaneModeOffJob airplaneModeOffJob;
+	private DateTimeSntpSyncJob dateTimeSntpSyncJob;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
+		
 	}
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.airplaneModeOffJob = new AirplaneModeOffJob();
+		this.dateTimeSntpSyncJob = new DateTimeSntpSyncJob();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -39,7 +41,7 @@ public class AirplaneModeOffJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.airplaneModeOffJob.start();
+			this.dateTimeSntpSyncJob.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -51,33 +53,38 @@ public class AirplaneModeOffJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.airplaneModeOffJob.interrupt();
-		this.airplaneModeOffJob = null;
+		this.dateTimeSntpSyncJob.interrupt();
+		this.dateTimeSntpSyncJob = null;
 	}
 	
 	
-	private class AirplaneModeOffJob extends Thread {
+	private class DateTimeSntpSyncJob extends Thread {
 		
-		public AirplaneModeOffJob() {
-			super("AirplaneModeOffJobService-AirplaneModeOffJob");
+		public DateTimeSntpSyncJob() {
+			super("DateTimeSntpSyncJobService-DateTimeSntpSyncJob");
 		}
 		
 		@Override
 		public void run() {
-			AirplaneModeOffJobService airplaneModeOffJobInstance = AirplaneModeOffJobService.this;
+			DateTimeSntpSyncJobService dateTimeSntpSyncJobInstance = DateTimeSntpSyncJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
-			Context context = app.getApplicationContext();
 			
 			try {
+				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				app.deviceAirplaneMode.setOff(context);
+				SntpClient sntpClient = new SntpClient();
+				if (sntpClient.requestTime("time.apple.com", 15000)) {
+					long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
+					long nowSystem = System.currentTimeMillis();
+					Log.v(logTag, "SNTP CHECK: "+nowSntp+" - "+nowSystem+" ("+(nowSystem-nowSntp)+")");
+				 }
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				airplaneModeOffJobInstance.runFlag = false;
+				dateTimeSntpSyncJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}

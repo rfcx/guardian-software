@@ -35,6 +35,18 @@ public class MainActivity extends Activity {
 		case R.id.menu_screenshot:
 			app.deviceControlUtils.runOrTriggerDeviceControl("screenshot", app.getApplicationContext().getContentResolver());
 			break;
+
+		case R.id.menu_sntp_check:
+			app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);
+			break;
+
+		case R.id.menu_airplanemode_off:
+			app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_off", app.getApplicationContext().getContentResolver());
+			break;
+
+		case R.id.menu_airplanemode_on:
+			app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_on", app.getApplicationContext().getContentResolver());
+			break;
 		
 		}
 		

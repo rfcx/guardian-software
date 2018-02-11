@@ -1,4 +1,4 @@
-package admin.service;
+package admin.device.android.control;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -9,16 +9,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class AirplaneModeOnJobService extends Service {
+public class AirplaneModeOffJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AirplaneModeOnJobService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AirplaneModeOffJobService.class);
 	
-	private static final String SERVICE_NAME = "AirplaneModeOnJob";
+	private static final String SERVICE_NAME = "AirplaneModeOffJob";
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private AirplaneModeOnJob airplaneModeOnJob;
+	private AirplaneModeOffJob airplaneModeOffJob;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -28,7 +28,7 @@ public class AirplaneModeOnJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.airplaneModeOnJob = new AirplaneModeOnJob();
+		this.airplaneModeOffJob = new AirplaneModeOffJob();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -39,7 +39,7 @@ public class AirplaneModeOnJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.airplaneModeOnJob.start();
+			this.airplaneModeOffJob.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -51,20 +51,20 @@ public class AirplaneModeOnJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.airplaneModeOnJob.interrupt();
-		this.airplaneModeOnJob = null;
+		this.airplaneModeOffJob.interrupt();
+		this.airplaneModeOffJob = null;
 	}
 	
 	
-	private class AirplaneModeOnJob extends Thread {
+	private class AirplaneModeOffJob extends Thread {
 		
-		public AirplaneModeOnJob() {
-			super("AirplaneModeOnJobService-AirplaneModeOnJob");
+		public AirplaneModeOffJob() {
+			super("AirplaneModeOffJobService-AirplaneModeOffJob");
 		}
 		
 		@Override
 		public void run() {
-			AirplaneModeOnJobService airplaneModeOnJobInstance = AirplaneModeOnJobService.this;
+			AirplaneModeOffJobService airplaneModeOffJobInstance = AirplaneModeOffJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
@@ -72,12 +72,12 @@ public class AirplaneModeOnJobService extends Service {
 			try {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				app.deviceAirplaneMode.setOn(context);
+				app.deviceAirplaneMode.setOff(context);
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				airplaneModeOnJobInstance.runFlag = false;
+				airplaneModeOffJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}

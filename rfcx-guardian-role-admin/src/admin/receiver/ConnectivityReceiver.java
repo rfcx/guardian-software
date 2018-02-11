@@ -1,4 +1,4 @@
-package guardian.receiver;
+package admin.receiver;
 
 import java.util.Date;
 
@@ -8,7 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import guardian.RfcxGuardian;
+import admin.RfcxGuardian;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 	
@@ -25,7 +25,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         		);
         
         if (disconnectedFor > 1000) {
-        		app.deviceSystemDb.dbOffline.insert(new Date(), disconnectedFor, "");
+//        		app.deviceSystemDb.dbOffline.insert(new Date(), disconnectedFor, "");
         }
         
 	}

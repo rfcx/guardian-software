@@ -6,6 +6,7 @@
 	<string name="menu_root_command">root command</string>
 	<string name="menu_reboot">reboot</string>
 	<string name="menu_screenshot">screenshot</string>
+	<string name="menu_sntp">sntp</string>
 	<string name="menu_get_prefs">get prefs</string>
 	<string name="menu_test_i2c">test i2c</string>
 	

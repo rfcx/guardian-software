@@ -22,13 +22,13 @@ import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import setup.api.ApiCore;
+import setup.device.android.control.RebootTriggerJobService;
 import setup.receiver.ConnectivityReceiver;
 import setup.service.ApiCheckVersionIntentService;
 import setup.service.ApiCheckVersionService;
 import setup.service.ApiRegisterService;
 import setup.service.DownloadFileService;
 import setup.service.InstallAppService;
-import setup.service.RebootTriggerIntentService;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 	
@@ -54,7 +54,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	public ApiCore apiCore = new ApiCore();
 	
-	// for checking battery level
 	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
@@ -141,7 +140,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("ApiRegister", ApiRegisterService.class);
 		this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
 		this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
-		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerIntentService.class);
+		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);		
 	}
 	
 	

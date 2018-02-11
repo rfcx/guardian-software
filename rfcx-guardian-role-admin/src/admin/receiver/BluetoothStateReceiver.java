@@ -1,21 +1,20 @@
-package guardian.receiver;
+package admin.receiver;
 
+import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import guardian.RfcxGuardian;
+import admin.RfcxGuardian;
 
 public class BluetoothStateReceiver extends BroadcastReceiver {
 
-	private String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, BluetoothStateReceiver.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, BluetoothStateReceiver.class);
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		
-		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 		
 		final String intentAction = intent.getAction();
 
@@ -25,10 +24,10 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
             
             switch (bluetoothState) {
 	            case BluetoothAdapter.STATE_OFF:
-	            		app.deviceBluetooth.setOn();
+//	            		DeviceBluetooth.setOn();
 	                break;
 	            case BluetoothAdapter.STATE_TURNING_OFF:
-	            		app.deviceBluetooth.setOn();
+//	            		DeviceBluetooth.setOn();
 	                break;
             }
             

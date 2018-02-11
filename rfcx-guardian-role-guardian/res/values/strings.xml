@@ -6,6 +6,9 @@
     <string name="menu_prefs">prefs</string>
     <string name="menu_reboot">reboot</string>
     <string name="menu_screenshot">screenshot</string>
+    <string name="menu_sntp_check">sntp check</string>
+    <string name="menu_airplanemode_off">airplane off</string>
+    <string name="menu_airplanemode_on">airplane on</string>
     
     
     

@@ -2,6 +2,7 @@ package admin;
 
 import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
@@ -11,21 +12,28 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-import admin.sentinel.SentinelPowerDb;
-import admin.sentinel.SentinelPowerUtils;
 import admin.device.android.capture.DeviceLogCatCaptureDb;
 import admin.device.android.capture.DeviceScreenShotDb;
 import admin.device.android.capture.DeviceScreenShotJobService;
-import admin.sentinel.I2cUtils;
-import admin.service.AirplaneModeOffJobService;
-import admin.service.AirplaneModeOnJobService;
-import admin.service.I2cResetPermissionsJobService;
-import admin.service.RebootTriggerJobService;
+import admin.device.android.control.AirplaneModeOffJobService;
+import admin.device.android.control.AirplaneModeOnJobService;
+import admin.device.android.control.DateTimeSntpSyncJobService;
+import admin.device.android.control.RebootTriggerJobService;
+import admin.device.sentinel.I2cResetPermissionsJobService;
+import admin.device.sentinel.I2cUtils;
+import admin.device.sentinel.SentinelPowerDb;
+import admin.device.sentinel.SentinelPowerUtils;
+import admin.receiver.AirplaneModeReceiver;
+import admin.receiver.ConnectivityReceiver;
 
 import org.rfcx.guardian.utility.ShellCommands;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 
 public class RfcxGuardian extends Application {
 	
@@ -45,8 +53,12 @@ public class RfcxGuardian extends Application {
 	public DeviceScreenShotDb deviceScreenShotDb = null;
 	public DeviceLogCatCaptureDb deviceLogCatCaptureDb = null;
 	
+	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
-	public DeviceBluetooth deviceBluetooth = new DeviceBluetooth(APP_ROLE);
+
+	// Receivers
+	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
+	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
 	
 	public String[] RfcxCoreServices = 
 			new String[] { 
@@ -64,6 +76,9 @@ public class RfcxGuardian extends Application {
 		
 		this.version = RfcxRole.getRoleVersion(this, logTag);
 		this.rfcxPrefs.writeVersionToFile(this.version);
+
+		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+		this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
 		
 		setDbHandlers();
 		setServiceHandlers();
@@ -75,6 +90,9 @@ public class RfcxGuardian extends Application {
 	
 	public void onTerminate() {
 		super.onTerminate();
+
+		this.unregisterReceiver(connectivityReceiver);
+		this.unregisterReceiver(airplaneModeReceiver);
 	}
 	
 	public void appResume() {
@@ -112,9 +130,10 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);
 		this.rfcxServiceHandler.addService("ScreenShotJob", DeviceScreenShotJobService.class);
-		this.rfcxServiceHandler.addService("AirplaneModeOff", AirplaneModeOffJobService.class);
-		this.rfcxServiceHandler.addService("AirplaneModeOn", AirplaneModeOnJobService.class);
+		this.rfcxServiceHandler.addService("AirplaneModeOffJob", AirplaneModeOffJobService.class);
+		this.rfcxServiceHandler.addService("AirplaneModeOnJob", AirplaneModeOnJobService.class);
 		this.rfcxServiceHandler.addService("I2cResetPermissions", I2cResetPermissionsJobService.class);
+		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 	}
     
 }

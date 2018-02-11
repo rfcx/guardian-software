@@ -5,7 +5,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import admin.RfcxGuardian;
-import admin.sentinel.I2cUtils;
+import admin.device.sentinel.I2cUtils;
 
 import org.rfcx.guardian.admin.R;
 
@@ -40,6 +40,10 @@ public class MainActivity extends Activity {
 			
 		case R.id.menu_screenshot:
 			app.rfcxServiceHandler.triggerService("ScreenShotJob", true);
+			break;
+			
+		case R.id.menu_sntp:
+			app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);
 			break;
 
 		case R.id.menu_test_i2c:
