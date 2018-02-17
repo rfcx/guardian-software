@@ -25,5 +25,20 @@ public class RfcxLog {
 		Log.e( logTag, excMsg.toString());
 		
 	}
+	
+	public static void logThrowable(String logTag, Throwable thrw) {
+		
+		StringBuilder thrwMsg = new StringBuilder();
+		if ( thrw != null ) {
+			thrwMsg.append("Message: ").append(thrw.getMessage()).append(" ||| ")
+				.append("Cause: ").append(thrw.getCause()).append(" ||| ")
+				.append("StackTrace: ").append(TextUtils.join(" | ",thrw.getStackTrace()));
+		} else {
+			thrwMsg.append("The throwable itself is null.");
+		}
+		
+		Log.e( logTag, thrwMsg.toString());
+		
+	}
 
 }

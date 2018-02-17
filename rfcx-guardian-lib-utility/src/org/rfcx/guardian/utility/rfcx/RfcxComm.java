@@ -35,13 +35,15 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"control", new String[] { "command", "result", "received_at" });
 			roleFuncProj.get(role).put(
+				"sms_send", new String[] { "address|message", "result", "received_at" });
+			roleFuncProj.get(role).put(
 				"database_get_all_rows", new String[] { "table", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"database_get_latest_row", new String[] { "table", "result", "received_at" });
 			roleFuncProj.get(role).put(
-				"database_delete_row", new String[] { "table-id", "result", "received_at" });
+				"database_delete_row", new String[] { "table|id", "result", "received_at" });
 			roleFuncProj.get(role).put(
-				"database_delete_rows_before", new String[] { "table-timestamp", "result", "received_at" });
+				"database_delete_rows_before", new String[] { "table|timestamp", "result", "received_at" });
 		}
 		return roleFuncProj;
 	}

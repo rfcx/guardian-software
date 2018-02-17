@@ -61,7 +61,14 @@ public class AdminContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_on")) {
 				app.rfcxServiceHandler.triggerService("AirplaneModeOnJob", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "airplanemode_on", null, System.currentTimeMillis() });
-			
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "sms_send", "*")) {
+				String pathSeg = uri.getLastPathSegment();
+				String pathSegAddress = pathSeg.substring(0,pathSeg.indexOf("|"));
+				String pathSegMessage = pathSeg.substring(1+pathSeg.indexOf("|"));
+				DeviceSmsUtils.sendSmsMessage(pathSegAddress, pathSegMessage);
+				return RfcxComm.getProjectionCursor(appRole, "sms_send", new Object[] { "sms_send", null, System.currentTimeMillis() });	
+				
 			// "database" function endpoints
 			
 			} else if (RfcxComm.uriMatch(uri, appRole, "database_get_all_rows", "*")) {
@@ -89,8 +96,8 @@ public class AdminContentProvider extends ContentProvider {
 			
 			} else if (RfcxComm.uriMatch(uri, appRole, "database_delete_row", "*")) {
 				String pathSeg = uri.getLastPathSegment();
-				String pathSegTable = pathSeg.substring(0,pathSeg.indexOf("-"));
-				String pathSegId = pathSeg.substring(1+pathSeg.indexOf("-"));
+				String pathSegTable = pathSeg.substring(0,pathSeg.indexOf("|"));
+				String pathSegId = pathSeg.substring(1+pathSeg.indexOf("|"));
 				
 				if (pathSegTable.equalsIgnoreCase("sms")) {
 					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[] { pathSeg, DeviceSmsUtils.deleteSmsMessage(pathSegId, app.getApplicationContext().getContentResolver()), System.currentTimeMillis() });	

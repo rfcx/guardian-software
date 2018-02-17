@@ -88,8 +88,8 @@ public class ApiCheckInJobService extends Service {
 						
 						if (!app.deviceConnectivity.isConnected()) {
 							Log.v(logTag, "No CheckIn because guardian currently has no connectivity."
-								+" Waiting " + ( Math.round( ( prefsAudioCycleDuration ) / 1000 ) ) + " seconds before next attempt.");
-							Thread.sleep( prefsAudioCycleDuration );
+								+" Waiting " + ( Math.round( ( prefsAudioCycleDuration / 4 ) / 1000 ) ) + " seconds before next attempt.");
+							Thread.sleep( prefsAudioCycleDuration / 4 );
 							
 						} else if (prefsEnableBatteryCutoffs && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
 							Log.v(logTag, "CheckIns currently disabled due to low battery level"
@@ -118,8 +118,8 @@ public class ApiCheckInJobService extends Service {
 								} else {
 									
 									// MQTT
-									app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn[2], latestQueuedCheckIn[4]);
-									Thread.sleep(10000);
+									app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
+									Thread.sleep(1000);
 									
 									// HTTP
 //									List<String[]> stringParameters = new ArrayList<String[]>();
@@ -158,6 +158,7 @@ public class ApiCheckInJobService extends Service {
 			apiCheckInJobInstance.runFlag = false;
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 			app.rfcxServiceHandler.stopService(SERVICE_NAME);
+			Log.v(logTag, "Closing service: "+logTag);
 		}
 	}
 

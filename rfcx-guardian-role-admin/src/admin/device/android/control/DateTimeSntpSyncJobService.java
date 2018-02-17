@@ -76,7 +76,7 @@ public class DateTimeSntpSyncJobService extends Service {
 
 				SntpClient sntpClient = new SntpClient();
 				
-				String dateTimeNtpHost = app.rfcxPrefs.getPrefAsString("datetime_ntp_host");
+				String dateTimeNtpHost = app.rfcxPrefs.getPrefAsString("api_ntp_host");
 				
 				if (sntpClient.requestTime(dateTimeNtpHost, 15000) && sntpClient.requestTime(dateTimeNtpHost, 15000)) {
 					long nowSystem = System.currentTimeMillis();

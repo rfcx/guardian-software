@@ -20,7 +20,14 @@
         android:title="api_mqtt_host"
         android:summary="string - mqtt api address"
         android:enabled="true"
-        android:defaultValue="192.168.1.1" />
+        android:defaultValue="mqtt.rfcx.org" />
+ 	
+ 	<EditTextPreference
+        android:key="api_ntp_host"
+        android:title="api_ntp_host"
+        android:summary="string - hostname"
+        android:enabled="true"
+        android:defaultValue="time.apple.com" />
     
  	<EditTextPreference
         android:key="service_monitor_cycle_duration"
@@ -126,13 +133,6 @@
         android:enabled="true"
         android:defaultValue="3" />
  	
- 	<EditTextPreference
-        android:key="audio_encode_cycle_pause"
-        android:title="audio_encode_cycle_pause"
-        android:summary="int - milliseconds"
-        android:enabled="true"
-        android:defaultValue="5000" />
- 	
  	<!-- Battery Cutoff Thresholds -->
  	
  	<EditTextPreference
@@ -178,12 +178,5 @@
         android:summary="int - count"
         android:enabled="true"
         android:defaultValue="960" />
- 	
- 	<EditTextPreference
-        android:key="datetime_ntp_host"
-        android:title="datetime_ntp_host"
-        android:summary="string - hostname"
-        android:enabled="true"
-        android:defaultValue="time.apple.com" />
  	
 </PreferenceScreen>

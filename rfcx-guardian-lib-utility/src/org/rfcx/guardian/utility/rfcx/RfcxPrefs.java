@@ -229,7 +229,8 @@ public class RfcxPrefs {
 			put("checkin_offline_mode", "false");
 			
 	        put("api_url_base", "https://api.rfcx.org");
-	        put("api_mqtt_host", "192.168.1.1");
+	        put("api_mqtt_host", "mqtt.rfcx.org");
+	        put("api_ntp_host", "time.apple.com");
 	        
 	        put("service_monitor_cycle_duration", "600000");
 	        
@@ -249,7 +250,6 @@ public class RfcxPrefs {
 			put("audio_sample_rate", "12000");
 			put("audio_encode_quality", "9");
 			put("audio_encode_skip_threshold", "3");
-			put("audio_encode_cycle_pause", "5000");
 
 			put("battery_cutoffs_enabled", "false");
 			put("checkin_battery_cutoff", "90");
@@ -259,7 +259,6 @@ public class RfcxPrefs {
 			put("checkin_stash_threshold", "120");
 			put("checkin_archive_threshold", "960");
 
-	        put("datetime_ntp_host", "time.apple.com");
 			
 	    }}
 	);
