@@ -1,8 +1,8 @@
 package admin.device.android.capture;
 
-import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
-import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.device.control.DeviceScreenLock;
+import rfcx.utility.device.control.DeviceScreenShot;
+import rfcx.utility.rfcx.RfcxLog;
 
 import admin.RfcxGuardian;
 import android.app.Service;

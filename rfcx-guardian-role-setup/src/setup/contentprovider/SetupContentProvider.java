@@ -1,6 +1,6 @@
 package setup.contentprovider;
 
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;

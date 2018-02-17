@@ -11,7 +11,15 @@
     <string name="menu_airplanemode_on">airplane on</string>
     
     
-    
+    <string-array name="true_or_false">
+		<item>true</item>
+		<item>false</item>
+	</string-array>
+	
+    <string-array name="opus_or_flac">
+		<item>opus</item>
+		<item>flac</item>
+	</string-array>
     
     
     

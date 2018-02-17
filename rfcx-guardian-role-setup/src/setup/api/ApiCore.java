@@ -3,7 +3,7 @@ package setup.api;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.util.Log;
 import setup.RfcxGuardian;

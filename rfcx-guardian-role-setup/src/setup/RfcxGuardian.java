@@ -3,14 +3,14 @@ package setup;
 import java.util.Map;
 
 import org.rfcx.guardian.setup.R;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceBattery;
-import org.rfcx.guardian.utility.device.DeviceConnectivity;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import rfcx.utility.datetime.DateTimeUtils;
+import rfcx.utility.device.DeviceBattery;
+import rfcx.utility.device.DeviceConnectivity;
+import rfcx.utility.rfcx.RfcxDeviceGuid;
+import rfcx.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxPrefs;
+import rfcx.utility.rfcx.RfcxRole;
+import rfcx.utility.service.RfcxServiceHandler;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;

@@ -2,9 +2,9 @@ package guardian.audio.capture;
 
 import java.io.IOException;
 
-import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.misc.FileUtils;
+import rfcx.utility.audio.RfcxAudioUtils;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;

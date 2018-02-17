@@ -2,8 +2,8 @@ package setup.device.android.control;
 
 import java.io.File;
 
-import org.rfcx.guardian.utility.ShellCommands;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.misc.ShellCommands;
+import rfcx.utility.rfcx.RfcxLog;
 
 import setup.RfcxGuardian;
 import android.app.Service;

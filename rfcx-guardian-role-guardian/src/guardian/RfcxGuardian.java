@@ -3,19 +3,19 @@ package guardian;
 import java.util.Map;
 
 import org.rfcx.guardian.guardian.R;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceBattery;
-import org.rfcx.guardian.utility.device.DeviceCPU;
-import org.rfcx.guardian.utility.device.DeviceConnectivity;
-import org.rfcx.guardian.utility.device.DeviceGeoLocation;
-import org.rfcx.guardian.utility.device.DeviceNetworkStats;
-import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
-import org.rfcx.guardian.utility.mqtt.MqttUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import rfcx.utility.datetime.DateTimeUtils;
+import rfcx.utility.device.DeviceBattery;
+import rfcx.utility.device.DeviceCPU;
+import rfcx.utility.device.DeviceConnectivity;
+import rfcx.utility.device.DeviceGeoLocation;
+import rfcx.utility.device.DeviceNetworkStats;
+import rfcx.utility.device.control.DeviceControlUtils;
+import rfcx.utility.mqtt.MqttUtils;
+import rfcx.utility.rfcx.RfcxDeviceGuid;
+import rfcx.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxPrefs;
+import rfcx.utility.rfcx.RfcxRole;
+import rfcx.utility.service.RfcxServiceHandler;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;
@@ -139,7 +139,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			onLaunchServices[RfcxCoreServices.length] = 
 					"ServiceMonitor"
 						+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
-						+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
+						+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
 						;
 			
 			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true);

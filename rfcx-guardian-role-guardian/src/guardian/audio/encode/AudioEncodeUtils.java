@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rfcx.guardian.audio.flac.FLAC_FileEncoder;
-import org.rfcx.guardian.audio.opus.OpusAudioEncoder;
-import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
-import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.audio.flac.FLAC_FileEncoder;
+import rfcx.audio.opus.OpusAudioEncoder;
+import rfcx.utility.audio.RfcxAudioUtils;
+import rfcx.utility.misc.FileUtils;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.util.Log;

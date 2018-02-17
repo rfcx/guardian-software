@@ -3,7 +3,7 @@ package guardian.api.checkin;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Intent;

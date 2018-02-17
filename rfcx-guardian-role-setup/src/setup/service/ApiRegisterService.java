@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.rfcx.guardian.utility.http.HttpPostMultipart;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.http.HttpPostMultipart;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Intent;

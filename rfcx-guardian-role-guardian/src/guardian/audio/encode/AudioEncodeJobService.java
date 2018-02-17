@@ -3,10 +3,9 @@ package guardian.audio.encode;
 import java.io.File;
 import java.util.List;
 
-import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.GZipUtils;
-import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.misc.FileUtils;
+import rfcx.utility.audio.RfcxAudioUtils;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;
@@ -142,7 +141,7 @@ public class AudioEncodeJobService extends Service {
 								String preZipDigest = FileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
 
 								// GZIP encoded file into final location
-								GZipUtils.gZipFile(postEncodeFile, gZippedFile);
+								FileUtils.gZipFile(postEncodeFile, gZippedFile);
 
 								// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
 								if (gZippedFile.exists()) {

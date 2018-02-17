@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.utility.device.DeviceCPU;
-import org.rfcx.guardian.utility.device.DeviceMobileNetwork;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.device.DeviceCPU;
+import rfcx.utility.device.DeviceMobileNetwork;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;

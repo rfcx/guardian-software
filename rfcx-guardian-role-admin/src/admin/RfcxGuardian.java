@@ -1,14 +1,14 @@
 package admin;
 
-import org.rfcx.guardian.utility.ShellCommands;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceConnectivity;
-import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import rfcx.utility.misc.ShellCommands;
+import rfcx.utility.datetime.DateTimeUtils;
+import rfcx.utility.device.DeviceConnectivity;
+import rfcx.utility.device.control.DeviceAirplaneMode;
+import rfcx.utility.rfcx.RfcxDeviceGuid;
+import rfcx.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxPrefs;
+import rfcx.utility.rfcx.RfcxRole;
+import rfcx.utility.service.RfcxServiceHandler;
 
 import admin.device.android.capture.DeviceLogCatCaptureDb;
 import admin.device.android.capture.DeviceScreenShotDb;
@@ -109,7 +109,7 @@ public class RfcxGuardian extends Application {
 			onLaunchServices[RfcxCoreServices.length] = 
 					"ServiceMonitor"
 						+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits three minutes before running
-						+"|"+this.rfcxPrefs.getPrefAsString("service_monitor_cycle_duration")
+						+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
 						;
 			
 			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true);

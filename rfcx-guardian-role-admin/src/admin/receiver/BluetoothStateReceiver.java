@@ -1,7 +1,7 @@
 package admin.receiver;
 
-import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.device.control.DeviceBluetooth;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;

@@ -3,7 +3,7 @@ package setup.activity;
 import java.io.File;
 
 import org.rfcx.guardian.setup.R;
-import org.rfcx.guardian.utility.ShellCommands;
+import rfcx.utility.misc.ShellCommands;
 
 import android.app.Activity;
 import android.content.Intent;

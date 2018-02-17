@@ -1,7 +1,7 @@
 package setup.service;
 
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import rfcx.utility.rfcx.RfcxLog;
+import rfcx.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
 import android.content.Intent;

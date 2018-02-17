@@ -2,9 +2,9 @@ package setup.service;
 
 import java.io.File;
 
-import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.ShellCommands;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.misc.FileUtils;
+import rfcx.utility.misc.ShellCommands;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Context;

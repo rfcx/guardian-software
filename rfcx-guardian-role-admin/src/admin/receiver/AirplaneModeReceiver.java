@@ -2,9 +2,9 @@ package admin.receiver;
 
 import java.util.Calendar;
 
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.datetime.DateTimeUtils;
+import rfcx.utility.device.control.DeviceAirplaneMode;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

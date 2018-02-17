@@ -3,9 +3,9 @@ package guardian.audio.encode;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.utility.database.DbUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
+import rfcx.utility.database.DbUtils;
+import rfcx.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxRole;
 
 import android.content.ContentValues;
 import android.content.Context;

@@ -1,7 +1,7 @@
 package admin.receiver;
 
-import org.rfcx.guardian.utility.device.DeviceSmsUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.device.DeviceSmsUtils;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

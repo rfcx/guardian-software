@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-
- 	<EditTextPreference
+    
+ 	<!--<EditTextPreference
         android:key="checkin_offline_mode"
         android:title="checkin_offline_mode"
         android:summary="string - true/false"
         android:enabled="true"
-        android:defaultValue="false" />
+        android:defaultValue="false" />-->
+        
+	<ListPreference
+		android:key="checkin_offline_mode"
+		android:title="checkin_offline_mode"
+		android:dialogTitle="checkin_offline_mode"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="false" />
     
  	<EditTextPreference
         android:key="api_url_base"
@@ -28,13 +36,6 @@
         android:summary="string - hostname"
         android:enabled="true"
         android:defaultValue="time.apple.com" />
-    
- 	<EditTextPreference
-        android:key="service_monitor_cycle_duration"
-        android:title="service_monitor_cycle_duration"
-        android:summary="int - milliseconds"
-        android:enabled="true"
-        android:defaultValue="600000" />
  	
  	<EditTextPreference
         android:key="reboot_forced_daily_at"
@@ -87,7 +88,7 @@
         android:title="audio_schedule_off_hours"
         android:summary="string - time ranges, comma separated"
         android:enabled="true"
-        android:defaultValue="00:10-00:15,00:15-00:20" />
+        android:defaultValue="23:56-23:58,23:58-00:00" />
  	
  	<EditTextPreference
         android:key="schedule_off_hours_cutoffs_enabled"
@@ -98,12 +99,20 @@
  	
  	<!-- Audio Capture Formatting -->
  	
- 	<EditTextPreference
+ 	<!--<EditTextPreference
         android:key="audio_encode_codec"
         android:title="audio_encode_codec"
         android:summary="string - codec"
         android:enabled="true"
-        android:defaultValue="opus" />
+        android:defaultValue="opus" />-->
+ 	
+ 	<ListPreference
+		android:key="audio_encode_codec"
+		android:title="audio_encode_codec"
+		android:dialogTitle="audio_encode_codec"
+		android:entries="@array/opus_or_flac"
+		android:entryValues="@array/opus_or_flac"
+		android:defaultValue="opus" />
  	
  	<EditTextPreference
         android:key="audio_encode_bitrate"

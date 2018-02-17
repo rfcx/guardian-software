@@ -3,8 +3,8 @@ package guardian.activity;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.R;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxComm;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.app.Activity;
 import android.content.Intent;

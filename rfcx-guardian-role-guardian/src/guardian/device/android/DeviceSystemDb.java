@@ -3,9 +3,9 @@ package guardian.device.android;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.utility.database.DbUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
+import rfcx.utility.database.DbUtils;
+import rfcx.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxRole;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -70,7 +70,7 @@ public class DeviceSystemDb {
 			this.dbHelper = new DbHelper(context);
 		}
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); } 
 		}
 		public void insert(Date measured_at, int cpu_percent, int cpu_clock) {
 			ContentValues values = new ContentValues();
@@ -133,7 +133,7 @@ public class DeviceSystemDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); } 
 		}
 		
 		public void insert(Date measured_at, int battery_percent, int battery_temperature) {
@@ -196,7 +196,7 @@ public class DeviceSystemDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); } 
 		}
 		
 		public void insert(Date measured_at, boolean is_powered, boolean is_charged) {
@@ -263,7 +263,7 @@ public class DeviceSystemDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); } 
 		}
 		
 		public void insert(Date measured_at, int signal_strength, String network_type, String carrier_name) {
@@ -329,7 +329,7 @@ public class DeviceSystemDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); } 
 		}
 		
 		public void insert(Date measured_at, long offline_period, String carrier_name) {

@@ -18,18 +18,18 @@ import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.rfcx.guardian.utility.FileUtils;
-import org.rfcx.guardian.utility.GZipUtils;
-import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceDiskUsage;
-import org.rfcx.guardian.utility.device.DeviceMobileSIMCard;
-import org.rfcx.guardian.utility.device.control.DeviceLogCatCapture;
-import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
-import org.rfcx.guardian.utility.http.HttpPostMultipart;
-import org.rfcx.guardian.utility.mqtt.MqttUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.misc.FileUtils;
+import rfcx.utility.misc.StringUtils;
+import rfcx.utility.audio.RfcxAudioUtils;
+import rfcx.utility.datetime.DateTimeUtils;
+import rfcx.utility.device.DeviceDiskUsage;
+import rfcx.utility.device.DeviceMobileSIMCard;
+import rfcx.utility.device.control.DeviceLogCatCapture;
+import rfcx.utility.device.control.DeviceScreenShot;
+import rfcx.utility.http.HttpPostMultipart;
+import rfcx.utility.mqtt.MqttUtils;
+import rfcx.utility.rfcx.RfcxComm;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -260,7 +260,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		String[] screenShotMeta = getLatestExternalAssetMeta("screenshots");
 		String[] logFileMeta = getLatestExternalAssetMeta("logs");
 		
-		byte[] jsonBlobAsBytes = GZipUtils.gZipStringToByteArray(buildCheckInJson(checkInJsonString, screenShotMeta, logFileMeta));
+		byte[] jsonBlobAsBytes = StringUtils.gZipStringToByteArray(buildCheckInJson(checkInJsonString, screenShotMeta, logFileMeta));
 		String jsonBlobMetaSection = String.format("%012d", jsonBlobAsBytes.length);
 		byteArrayOutputStream.write(jsonBlobMetaSection.getBytes("UTF-8"));
 		byteArrayOutputStream.write(jsonBlobAsBytes);
@@ -484,6 +484,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	@Override
 	public void connectionLost(Throwable cause) {
 		Log.e(logTag, "Connection lost.");
+		cause.printStackTrace();
 		RfcxLog.logThrowable(logTag, cause);
 	}
 	
@@ -556,7 +557,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		// Stringify JSON, gzip the output and convert to base 64 string for sending	
 		String jsonFinal = buildCheckInJson(checkInJsonString, getLatestExternalAssetMeta("screenshots"), getLatestExternalAssetMeta("logs"));	
 		Log.d(logTag, jsonFinal);
-		String jsonFinalGZipped = GZipUtils.gZipStringToBase64(jsonFinal);
+		String jsonFinalGZipped = StringUtils.gZipStringToBase64(jsonFinal);
 
 		return jsonFinalGZipped;
 	}

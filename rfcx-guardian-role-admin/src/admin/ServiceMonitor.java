@@ -1,8 +1,8 @@
 package admin;
 
 
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import rfcx.utility.rfcx.RfcxLog;
+import rfcx.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -12,6 +12,8 @@ public class ServiceMonitor extends IntentService {
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ServiceMonitor.class);
 	
 	private static final String SERVICE_NAME = "ServiceMonitor";
+	
+	public static final long SERVICE_MONITOR_CYCLE_DURATION = 600000;
 		
 	public ServiceMonitor() {
 		super(logTag);

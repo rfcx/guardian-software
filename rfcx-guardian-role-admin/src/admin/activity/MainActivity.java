@@ -1,8 +1,8 @@
 package admin.activity;
 
-import org.rfcx.guardian.utility.ShellCommands;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.misc.ShellCommands;
+import rfcx.utility.rfcx.RfcxComm;
+import rfcx.utility.rfcx.RfcxLog;
 
 import admin.RfcxGuardian;
 import admin.device.sentinel.I2cUtils;

@@ -1,8 +1,8 @@
 package guardian.contentprovider;
 
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
+import rfcx.utility.rfcx.RfcxComm;
+import rfcx.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;

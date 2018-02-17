@@ -1,6 +1,6 @@
 package admin.device.android.control;
 
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxLog;
 
 import admin.RfcxGuardian;
 import android.app.Service;

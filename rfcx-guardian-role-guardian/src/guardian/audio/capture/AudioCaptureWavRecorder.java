@@ -3,7 +3,7 @@ package guardian.audio.capture;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import rfcx.utility.rfcx.RfcxLog;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
