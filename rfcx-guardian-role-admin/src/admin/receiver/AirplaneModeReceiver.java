@@ -2,7 +2,7 @@ package admin.receiver;
 
 import java.util.Calendar;
 
-import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 

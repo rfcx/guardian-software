@@ -17,7 +17,7 @@ public class DeviceCPUTuner {
 	public DeviceCPUTuner(Context context, String appRole) {
 		this.context = context;
 		this.logTag = RfcxLog.generateLogTag("Utils", DeviceCPUTuner.class);
-		this.shellCommands = new ShellCommands(appRole, context);
+		this.shellCommands = new ShellCommands(context, appRole);
 	}
 	
 	private Context context;

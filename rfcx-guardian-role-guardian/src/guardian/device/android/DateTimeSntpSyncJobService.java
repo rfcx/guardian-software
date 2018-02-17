@@ -1,6 +1,6 @@
 package guardian.device.android;
 
-import org.rfcx.guardian.utility.SntpClient;
+import org.rfcx.guardian.utility.datetime.SntpClient;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import guardian.RfcxGuardian;
@@ -75,10 +75,15 @@ public class DateTimeSntpSyncJobService extends Service {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
 				SntpClient sntpClient = new SntpClient();
-				if (sntpClient.requestTime("time.apple.com", 15000)) {
-					long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
+				
+				String dateTimeNtpHost = app.rfcxPrefs.getPrefAsString("datetime_ntp_host");
+				
+				if (sntpClient.requestTime(dateTimeNtpHost, 15000) && sntpClient.requestTime(dateTimeNtpHost, 15000)) {
 					long nowSystem = System.currentTimeMillis();
-					Log.v(logTag, "SNTP CHECK: "+nowSntp+" - "+nowSystem+" ("+(nowSystem-nowSntp)+")");
+					long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
+					Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntp+" - System: "+nowSystem+" (System is "+Math.abs(nowSystem-nowSntp)+"ms "+
+							((nowSystem >= nowSntp) ? "ahead of" : "behind")
+							+" SNTP value.)");
 				 }
 					
 			} catch (Exception e) {

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility;
+package org.rfcx.guardian.utility.datetime;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -8,6 +8,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
+import android.os.SystemClock;
 
 public class DateTimeUtils {
 	
@@ -126,5 +128,6 @@ public class DateTimeUtils {
 		
 		return isTimeStampWithinTimeRange(timeStamp, startHour, startMinute, startSecond, endHour, endMinute, endSecond);
 	}
+
 	
 }

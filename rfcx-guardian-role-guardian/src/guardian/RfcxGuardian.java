@@ -3,12 +3,12 @@ package guardian;
 import java.util.Map;
 
 import org.rfcx.guardian.guardian.R;
-import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
+import org.rfcx.guardian.utility.device.DeviceGeoLocation;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
-import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
 import org.rfcx.guardian.utility.mqtt.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
@@ -19,7 +19,6 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -73,18 +72,20 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
 	public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
+	public DeviceGeoLocation deviceGeoLocation = new DeviceGeoLocation(APP_ROLE);
 
 	// Misc
 	public AudioCaptureUtils audioCaptureUtils = null;
 	public ApiCheckInUtils apiCheckInUtils = null;
-	public MqttUtils mqttUtils = null;
 	
 	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
 	
 	public String[] RfcxCoreServices = 
 		new String[] { 
 			"AudioCapture",
-			"DeviceSystem"
+			"DeviceSystem",
+			"ApiCheckInQueue",
+			"ApiCheckInJob"
 		};
 	
 	@Override
@@ -111,7 +112,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
 		this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
-		this.mqttUtils = new MqttUtils(APP_ROLE, this.rfcxDeviceGuid.getDeviceGuid());
 		
 		initializeRoleServices();
 	}

@@ -1,11 +1,9 @@
 package admin;
 
-import org.rfcx.guardian.utility.DateTimeUtils;
 import org.rfcx.guardian.utility.ShellCommands;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
-import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
-import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -17,20 +15,16 @@ import admin.device.android.capture.DeviceScreenShotDb;
 import admin.device.android.capture.DeviceScreenShotJobService;
 import admin.device.android.control.AirplaneModeOffJobService;
 import admin.device.android.control.AirplaneModeOnJobService;
+import admin.device.android.control.DateTimeResetPermissionsJobService;
 import admin.device.android.control.DateTimeSntpSyncJobService;
 import admin.device.android.control.RebootTriggerJobService;
 import admin.device.sentinel.I2cResetPermissionsJobService;
-import admin.device.sentinel.I2cUtils;
 import admin.device.sentinel.SentinelPowerDb;
 import admin.device.sentinel.SentinelPowerUtils;
 import admin.receiver.AirplaneModeReceiver;
 import admin.receiver.ConnectivityReceiver;
-
-import org.rfcx.guardian.utility.ShellCommands;
-
 import android.app.Application;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -62,7 +56,8 @@ public class RfcxGuardian extends Application {
 	
 	public String[] RfcxCoreServices = 
 			new String[] { 
-				"I2cResetPermissions"
+				"I2cResetPermissions",
+				"DateTimeResetPermissions"
 			};
 	
 	@Override
@@ -84,6 +79,8 @@ public class RfcxGuardian extends Application {
 		setServiceHandlers();
 		
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
+		
+		(new ShellCommands(this, APP_ROLE)).triggerNeedForRootAccess();
 		
 		initializeRoleServices();
 	}
@@ -133,6 +130,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("AirplaneModeOffJob", AirplaneModeOffJobService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeOnJob", AirplaneModeOnJobService.class);
 		this.rfcxServiceHandler.addService("I2cResetPermissions", I2cResetPermissionsJobService.class);
+		this.rfcxServiceHandler.addService("DateTimeResetPermissions", DateTimeResetPermissionsJobService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 	}
     

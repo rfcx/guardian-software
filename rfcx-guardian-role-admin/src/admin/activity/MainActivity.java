@@ -30,10 +30,6 @@ public class MainActivity extends Activity {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		switch (item.getItemId()) {
 			
-		case R.id.menu_root_command:
-			(new ShellCommands(app.APP_ROLE, app.getApplicationContext())).triggerNeedForRootAccess();
-			break;
-			
 		case R.id.menu_reboot:
 			app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 			break;

@@ -1,15 +1,23 @@
 package guardian.activity;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.R;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import guardian.RfcxGuardian;
 
 public class MainActivity extends Activity {
+	
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, MainActivity.class);
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

@@ -92,7 +92,7 @@ public class DeviceScreenShot {
 				String finalFilePath = DeviceScreenShot.getScreenShotFileLocation_Complete(this.rfcxDeviceId, context, captureTimestamp);
 				
 				// run framebuffer binary to save screenshot to file
-				(new ShellCommands(this.appRole, context)).executeCommand(executableBinaryFilePath+" "+captureFilePath);
+				(new ShellCommands(context, this.appRole)).executeCommand(executableBinaryFilePath+" "+captureFilePath);
 				
 				return completeCapture(captureTimestamp, captureFilePath, finalFilePath);
 				

@@ -7,7 +7,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import android.content.ContentResolver;
 import android.content.UriMatcher;
+import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.util.Log;
@@ -30,11 +35,43 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"control", new String[] { "command", "result", "received_at" });
 			roleFuncProj.get(role).put(
-				"database", new String[] { "table", "query", "result", "received_at" });
+				"database_get_all_rows", new String[] { "table", "result", "received_at" });
+			roleFuncProj.get(role).put(
+				"database_get_latest_row", new String[] { "table", "result", "received_at" });
+			roleFuncProj.get(role).put(
+				"database_delete_row", new String[] { "table-id", "result", "received_at" });
+			roleFuncProj.get(role).put(
+				"database_delete_rows_before", new String[] { "table-timestamp", "result", "received_at" });
 		}
 		return roleFuncProj;
 	}
+	
+	public static JSONArray getQueryContentProvider(String role, String function, String query, ContentResolver contentResolver) {
+		JSONArray getQueryResults = new JSONArray();
+		try {
+			Cursor queryCursor = contentResolver.query( getUri( role, function, query ), getProjection( role, function ), null, null, null );
+			if ((queryCursor != null) && (queryCursor.getCount() > 0) && queryCursor.moveToFirst()) { do {
+				getQueryResults = new JSONArray( queryCursor.getString( queryCursor.getColumnIndex("result") ) );
+			} while (queryCursor.moveToNext()); queryCursor.close(); }
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return getQueryResults;
+	}
 
+	public static int deleteQueryContentProvider(String role, String function, String query, ContentResolver contentResolver) {
+		int deleteQueryResult = 0;
+		try {
+			Cursor queryCursor = contentResolver.query( getUri( role, function, query ), getProjection( role, function ), null, null, null );
+			if ((queryCursor != null) && (queryCursor.getCount() > 0) && queryCursor.moveToFirst()) { do {
+				deleteQueryResult = (int) Integer.parseInt( queryCursor.getString( queryCursor.getColumnIndex("result") ) );
+			} while (queryCursor.moveToNext()); queryCursor.close(); }
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return deleteQueryResult;
+	}
+	
 	public static MatrixCursor getProjectionCursor(String role, String function, Object[] values) {
 		MatrixCursor cursor = new MatrixCursor(getProjection(role, function));
 		if (values != null) { cursor.addRow(values); }

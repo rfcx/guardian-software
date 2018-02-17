@@ -2,6 +2,7 @@ package org.rfcx.guardian.utility;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -20,6 +21,8 @@ import org.xeustechnologies.jtar.TarEntry;
 import org.xeustechnologies.jtar.TarOutputStream;
 
 import android.content.Context;
+import android.util.Base64;
+import android.util.Base64OutputStream;
 import android.util.Log;
 
 public class FileUtils {
@@ -52,6 +55,57 @@ public class FileUtils {
 			RfcxLog.logExc(logTag, e);
 		}
 		return null;
+	}
+	
+	public static String fileAsBase64String(String filePath) {
+		
+		String base64String = null;
+		
+		try {
+			FileInputStream fileInputStream = new FileInputStream(filePath);
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			Base64OutputStream base64OutputStream = new Base64OutputStream(outputStream,Base64.NO_WRAP);
+	
+			byte[] buffer = new byte[3 * 512]; int len = 0;
+			while ((len = fileInputStream.read(buffer)) >= 0) {
+			    base64OutputStream.write(buffer, 0, len);
+			}
+	
+			base64OutputStream.flush();
+			base64OutputStream.close();
+	
+			base64String = new String(outputStream.toByteArray(), "UTF-8");
+			
+			outputStream.close();
+			fileInputStream.close();
+			
+		} catch (IOException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		
+		return base64String;
+	}
+	
+	public static byte[] fileAsByteArray(String filePath) {
+		
+		byte[] fileBytes = null;
+		
+		try {
+			File fileObj = new File(filePath);
+			int fileLength = (int) fileObj.length();
+			fileBytes = new byte[fileLength];
+		
+	    		InputStream fileInputStream = new FileInputStream(fileObj);
+    			int offset = 0; int numRead = 0;
+    			while (		(offset < fileBytes.length)
+    					&& 	((numRead = fileInputStream.read(fileBytes, offset, fileBytes.length-offset)) >= 0)
+    				) { offset += numRead; }
+    			if (offset < fileBytes.length) { fileInputStream.close(); throw new IOException("Could not completely read file "+fileObj.getName()); }
+    			fileInputStream.close();
+		} catch (IOException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+    		return fileBytes;
 	}
 	
 	public static int chmod(File file, int mode) {

@@ -1,4 +1,4 @@
-package admin.device.sentinel;
+package admin.device.android.control;
 
 import java.io.File;
 
@@ -12,16 +12,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class I2cResetPermissionsJobService extends Service {
+public class DateTimeResetPermissionsJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, I2cResetPermissionsJobService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DateTimeResetPermissionsJobService.class);
 	
-	private static final String SERVICE_NAME = "I2cResetPermissions";
+	private static final String SERVICE_NAME = "DateTimeResetPermissions";
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private I2cResetPermissionsJob i2cResetPermissionsJob;
+	private DateTimeResetPermissionsJob dateTimeResetPermissionsJob;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -31,7 +31,7 @@ public class I2cResetPermissionsJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.i2cResetPermissionsJob = new I2cResetPermissionsJob();
+		this.dateTimeResetPermissionsJob = new DateTimeResetPermissionsJob();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -42,7 +42,7 @@ public class I2cResetPermissionsJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.i2cResetPermissionsJob.start();
+			this.dateTimeResetPermissionsJob.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -54,50 +54,48 @@ public class I2cResetPermissionsJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.i2cResetPermissionsJob.interrupt();
-		this.i2cResetPermissionsJob = null;
+		this.dateTimeResetPermissionsJob.interrupt();
+		this.dateTimeResetPermissionsJob = null;
 	}
 	
 	
-	private class I2cResetPermissionsJob extends Thread {
+	private class DateTimeResetPermissionsJob extends Thread {
 		
-		public I2cResetPermissionsJob() {
-			super("I2cResetPermissionsJobService-I2cResetPermissionsJob");
+		public DateTimeResetPermissionsJob() {
+			super("DateTimeResetPermissionsJobService-DateTimeResetPermissionsJob");
 		}
 		
 		@Override
 		public void run() {
-			I2cResetPermissionsJobService i2cResetPermissionsJobInstance = I2cResetPermissionsJobService.this;
+			DateTimeResetPermissionsJobService dateTimeResetPermissionsJobInstance = DateTimeResetPermissionsJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			
 			try {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 				
-				File[] i2cHandlers = new File[] { 
-						new File("/dev/i2c-0"), 
-						new File("/dev/i2c-1"), 
-						new File("/dev/i2c-2")
+				File[] dateTimeAlarmHandlers = new File[] { 
+						new File("/dev/alarm")
 						};
 
 				StringBuilder resetShellCommand = new StringBuilder();
 				
-				for (File i2cHandler : i2cHandlers) {
-					if (i2cHandler.exists() && (!i2cHandler.canRead() || !i2cHandler.canWrite())) {
-						resetShellCommand.append("chmod 666 ").append(i2cHandler.getAbsolutePath()).append("; ");
+				for (File dateTimeAlarmHandler : dateTimeAlarmHandlers) {
+					if (dateTimeAlarmHandler.exists() && (!dateTimeAlarmHandler.canRead() || !dateTimeAlarmHandler.canWrite())) {
+						resetShellCommand.append("chmod 666 ").append(dateTimeAlarmHandler.getAbsolutePath()).append("; ");
 					}	
 				}
 
 				if (resetShellCommand.length() > 0) {
 					ShellCommands shellCommands = new ShellCommands(app.getApplicationContext(), RfcxGuardian.APP_ROLE);
-					Log.v(logTag, "Resetting Permissions on I2C Handlers...");
+					Log.v(logTag, "Resetting Permissions on DateTime Alarm Handlers...");
 					shellCommands.executeCommandAsRootAndIgnoreOutput(resetShellCommand.toString());
 				}
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				i2cResetPermissionsJobInstance.runFlag = false;
+				dateTimeResetPermissionsJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}

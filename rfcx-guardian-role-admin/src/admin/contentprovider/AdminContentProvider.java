@@ -1,5 +1,6 @@
 package admin.contentprovider;
 
+import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -61,7 +62,53 @@ public class AdminContentProvider extends ContentProvider {
 				app.rfcxServiceHandler.triggerService("AirplaneModeOnJob", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "airplanemode_on", null, System.currentTimeMillis() });
 			
+			// "database" function endpoints
+			
+			} else if (RfcxComm.uriMatch(uri, appRole, "database_get_all_rows", "*")) {
+				String pathSeg = uri.getLastPathSegment();
+				
+				if (pathSeg.equalsIgnoreCase("sms")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[] { "sms", DeviceSmsUtils.getSmsMessagesAsJson(app.getApplicationContext().getContentResolver()), System.currentTimeMillis() });
+				
+				} else {
+					return null;
+				}
+				
+			} else if (RfcxComm.uriMatch(uri, appRole, "database_get_latest_row", "*")) {
+				String pathSeg = uri.getLastPathSegment();
+				
+				if (pathSeg.equalsIgnoreCase("screenshots")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[] { "screenshots", app.deviceScreenShotDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis() });
+				
+				} else if (pathSeg.equalsIgnoreCase("logs")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[] { "logs", app.deviceLogCatCaptureDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis() });
+				
+				} else {
+					return null;
+				}
+			
+			} else if (RfcxComm.uriMatch(uri, appRole, "database_delete_row", "*")) {
+				String pathSeg = uri.getLastPathSegment();
+				String pathSegTable = pathSeg.substring(0,pathSeg.indexOf("-"));
+				String pathSegId = pathSeg.substring(1+pathSeg.indexOf("-"));
+				
+				if (pathSegTable.equalsIgnoreCase("sms")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[] { pathSeg, DeviceSmsUtils.deleteSmsMessage(pathSegId, app.getApplicationContext().getContentResolver()), System.currentTimeMillis() });	
+				
+				} else if (pathSegTable.equalsIgnoreCase("screenshots")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[] { pathSeg, app.deviceScreenShotDb.dbCaptured.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis() });	
+
+				} else if (pathSegTable.equalsIgnoreCase("logs")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[] { pathSeg, app.deviceLogCatCaptureDb.dbCaptured.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis() });	
+									
+				} else {
+					return null;
+				}
+				
+				
 			}
+			
+		
 			
 			
 			

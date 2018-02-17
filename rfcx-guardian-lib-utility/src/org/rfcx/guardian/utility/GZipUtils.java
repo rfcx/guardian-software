@@ -1,11 +1,18 @@
 package org.rfcx.guardian.utility;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -17,10 +24,10 @@ public class GZipUtils {
 	private static final String logTag = RfcxLog.generateLogTag("Utils", GZipUtils.class);
 	
 	public static String gZipStringToBase64(String inputString) {
-		return Base64.encodeToString(gZipString(inputString),Base64.DEFAULT);
+		return Base64.encodeToString(gZipStringToByteArray(inputString),Base64.DEFAULT);
 	}
 	
-	public static byte[] gZipString(String inputString) {
+	public static byte[] gZipStringToByteArray(String inputString) {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		GZIPOutputStream gZIPOutputStream = null;
 		try {
@@ -97,5 +104,27 @@ public class GZipUtils {
 	public static void unGZipFile(String inputFilePath, String outputFilePath) {
 		unGZipFile( (new File(inputFilePath)), (new File(outputFilePath)));
 	}
+	
+//	public static String unGZipString(byte[] gZippedString) {
+//		
+//		String unzippedString = null;
+//		
+//		try {
+//			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(gZippedString);
+//			GZIPInputStream gZipInputStream = new GZIPInputStream(byteArrayInputStream);
+//			InputStreamReader inputStreamReader = new InputStreamReader(gZipInputStream, "UTF-8");
+//			Writer stringWriter = new StringWriter();
+//			
+//			char[] buffer = new char[10240];
+//			for (int length = 0; (length = inputStreamReader.read(buffer)) > 0;) {
+//				stringWriter.write(buffer, 0, length);
+//			}
+//			unzippedString = stringWriter.toString();
+//		} catch (IOException e) {
+//			RfcxLog.logExc(logTag, e);
+//		}
+//		
+//		return unzippedString;
+//	}
 
 }

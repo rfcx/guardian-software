@@ -16,7 +16,7 @@ import android.util.Log;
 
 public class ShellCommands {
 	
-	public ShellCommands(String appRole, Context context) {
+	public ShellCommands(Context context, String appRole) {
 		this.logTag = RfcxLog.generateLogTag(appRole, ShellCommands.class);
 		this.context = context;
 	}
@@ -29,55 +29,60 @@ public class ShellCommands {
 	    List<String> standardOutStringLines = new ArrayList<String>();
 	    standardOutStringLines.add("false");
 	    
-		String filePath = context.getFilesDir().toString()+"/txt/script.sh";
+		String filePath = context.getFilesDir().toString()+"/scr/script"+(asRoot ? "-root" : "")+".sh";
 	    (new File(filePath.substring(0,filePath.lastIndexOf("/")))).mkdirs();
 	    File fileObj = new File(filePath);
-	    
+	    	
 	    if (fileObj.exists()) { 
-	    		Log.e(logTag,"CANCELLED SCRIPT EXECUTION BECAUSE ANOTHER THREAD IS RUNNING RIGHT NOW...");
-	    	} else {
-	    			    
+	    		long waitToExecute = 500;
+	    		Log.e(logTag,"OTHER SCRIPT IS RUNNING SO WAITING "+waitToExecute+"ms BEFORE STARTING..."); 
+	//    		try { Thread.sleep(waitToExecute); } catch (InterruptedException e) { RfcxLog.logExc(logTag, e); }
+		}
+	    
+	    try {
+
 		    Process commandProcess = null;
-		    try {
-		    		BufferedWriter scriptFile = new BufferedWriter(new FileWriter(filePath));
-		        scriptFile.write(
-		        		"#!/system/bin/sh"
-		        		+"\n"+commandContents
-		        		+"\n");
-		        scriptFile.close();
-		        FileUtils.chmod(fileObj, 0755);
-		        
-			    if (fileObj.exists()) {
-			    	
-			    		if (asRoot) { commandProcess = Runtime.getRuntime().exec(new String[] { "su", "-c", filePath }); }
-			    		else { commandProcess = Runtime.getRuntime().exec(new String[] { filePath }); }
-	
-					commandProcess.waitFor();
-						
-					BufferedReader bufferedReaderOutput = new BufferedReader (new InputStreamReader(commandProcess.getInputStream())); 
-					String eachLine_BufferedReaderOutput; while ((eachLine_BufferedReaderOutput = bufferedReaderOutput.readLine()) != null) {
-						standardOutStringLines.add(eachLine_BufferedReaderOutput.trim());
-						if (eachLine_BufferedReaderOutput.equalsIgnoreCase(ifOutputContainThisStringReturnTrue)) {
-							standardOutStringLines.set(0, "true");
-						}
-					} bufferedReaderOutput.close();
+	    		BufferedWriter scriptFile = new BufferedWriter(new FileWriter(filePath));
+	        scriptFile.write(
+	        		"#!/system/bin/sh"
+	        		+"\n"+commandContents
+	        		+"\n");
+	        scriptFile.close();
+	        FileUtils.chmod(fileObj, 0755);
+	        
+		    if (fileObj.exists()) {
+		    	
+		    		if (asRoot) { commandProcess = Runtime.getRuntime().exec(new String[] { "su", "-c", filePath }); }
+		    		else { commandProcess = Runtime.getRuntime().exec(new String[] { filePath }); }
+		    		
+				commandProcess.waitFor();
 					
-	//					BufferedReader bufferedReaderError = new BufferedReader (new InputStreamReader(commandProcess.getErrorStream())); 
-	//					String eachLine_BufferedReaderError; while ((eachLine_BufferedReaderError = bufferedReaderError.readLine()) != null) {
-	//						standardOutStringLines.add(eachLine_BufferedReaderError.trim());
-	//					} bufferedReaderError.close();
-					
-					if (ifOutputContainThisStringReturnTrue == null) { standardOutStringLines.set(0, (commandProcess.exitValue() == 1) ? "true" : "false"); }
-					commandProcess.destroy();
-	
-			    } else {
-			    		Log.e(logTag,"Shell script could not be located for execution");
-			    }
-		    } catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
+				BufferedReader bufferedReaderOutput = new BufferedReader (new InputStreamReader(commandProcess.getInputStream())); 
+				String eachLine_BufferedReaderOutput; while ((eachLine_BufferedReaderOutput = bufferedReaderOutput.readLine()) != null) {
+					standardOutStringLines.add(eachLine_BufferedReaderOutput.trim());
+					if (eachLine_BufferedReaderOutput.equalsIgnoreCase(ifOutputContainThisStringReturnTrue)) {
+						standardOutStringLines.set(0, "true");
+					}
+				} bufferedReaderOutput.close();
+				
+//					BufferedReader bufferedReaderError = new BufferedReader (new InputStreamReader(commandProcess.getErrorStream())); 
+//					String eachLine_BufferedReaderError; while ((eachLine_BufferedReaderError = bufferedReaderError.readLine()) != null) {
+//						standardOutStringLines.add(eachLine_BufferedReaderError.trim());
+//					} bufferedReaderError.close();
+				
+				if (ifOutputContainThisStringReturnTrue == null) { standardOutStringLines.set(0, (commandProcess.exitValue() == 1) ? "true" : "false"); }
+				commandProcess.destroy();
+
+		    } else {
+		    		Log.e(logTag,"Shell script could not be located for execution");
 		    }
-	    	}
-	    if (fileObj.exists()) { fileObj.delete(); }
+	    } catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+	    } finally {
+	    		if (fileObj.exists()) { fileObj.delete(); }
+	    }
+	    
+		    
 	    return standardOutStringLines;
 	}
 	
@@ -123,14 +128,13 @@ public class ShellCommands {
 		executeCommandInShell_ReturnBoolean("pm list features", null, true, this.context, this.logTag);
 	}
 	
-	public void triggerRebootAsRoot() {
-		executeCommandInShell_ReturnBoolean(
+	public boolean triggerRebootAsRoot() {
+		int rebootPreDelay = 10;
+		Log.v(this.logTag, "Attempting graceful reboot... then after "+rebootPreDelay+" seconds, killing RFCx processes and forcing reboot...");
+		return executeCommandInShell_ReturnBoolean(
 				"am start -a android.intent.action.REBOOT; "+
 				"am broadcast android.intent.action.ACTION_SHUTDOWN; "+
-				"sleep 20; "+
-				"reboot;"
-				//" sleep 30;"//" reboot" 
-//				"svc power reboot"
+				"sleep "+rebootPreDelay+" && kill $(ps | grep org.rfcx.guardian | cut -d \" \" -f 5) && sleep 1 && reboot; "
 			, null, true, this.context, this.logTag);
 	}
 	

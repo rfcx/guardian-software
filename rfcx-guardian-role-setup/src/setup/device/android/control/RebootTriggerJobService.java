@@ -75,7 +75,7 @@ public class RebootTriggerJobService extends Service {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				(new ShellCommands(app.APP_ROLE, app.getApplicationContext())).triggerRebootAsRoot();
+				(new ShellCommands(app.getApplicationContext(), RfcxGuardian.APP_ROLE)).triggerRebootAsRoot();
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

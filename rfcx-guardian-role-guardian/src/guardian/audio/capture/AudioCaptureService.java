@@ -112,23 +112,29 @@ public class AudioCaptureService extends Service {
 							
 						}
 						
-						// sleep for intended length of capture clip
-						Thread.sleep(prefsCaptureLoopPeriod);
+//						try {
+							// sleep for intended length of capture clip
+							Thread.sleep(prefsCaptureLoopPeriod);
+//						} catch (Exception e) {
+//							RfcxLog.logExc(logTag, e);
+//						}
 						
 					} catch (Exception e) {
-						audioCaptureService.runFlag = false;
-						app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 						RfcxLog.logExc(logTag, e);
+						audioCaptureService.runFlag = false;
 					}
 				}
-				
-				Log.v(logTag, "Stopping service: "+logTag);
 					
 			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+				
+			} finally {
 				audioCaptureService.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				RfcxLog.logExc(logTag, e);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}
+			
+			Log.v(logTag, "Stopping service: "+logTag);
 				
 		}
 	}

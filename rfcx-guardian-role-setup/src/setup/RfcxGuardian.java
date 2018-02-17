@@ -3,7 +3,7 @@ package setup;
 import java.util.Map;
 
 import org.rfcx.guardian.setup.R;
-import org.rfcx.guardian.utility.DateTimeUtils;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;

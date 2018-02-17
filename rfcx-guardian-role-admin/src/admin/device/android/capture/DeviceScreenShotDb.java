@@ -1,8 +1,12 @@
 package admin.device.android.capture;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -91,16 +95,34 @@ public class DeviceScreenShotDb {
 			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, C_CREATED_AT);
 		}
 		
+		public JSONArray getLatestRowAsJsonArray() {
+			JSONArray jsonArray = new JSONArray();
+			try {
+				List<String[]> rowList = getAllRows();
+				if (rowList.size() > 0) {
+					JSONObject jsonRow = new JSONObject();
+					for (int i = 0; i < ALL_COLUMNS.length; i++) {
+						jsonRow.put(ALL_COLUMNS[i], rowList.get(0)[i]);
+					}
+					jsonArray.put(jsonRow);
+				}
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+			}
+			return jsonArray;
+		}
+		
 		public void clearCapturedBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
 			} finally { db.close(); }
 		}
 		
-		public void deleteSingleRowByTimestamp(String timestamp) {
+		public int deleteSingleRowByTimestamp(String timestamp) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
 			} finally { db.close(); }
+			return 0;
 		}
 		
 		public String[] getSingleRowByTimestamp(String timestamp) {

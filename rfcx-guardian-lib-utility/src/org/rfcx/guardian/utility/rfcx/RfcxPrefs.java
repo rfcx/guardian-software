@@ -229,13 +229,14 @@ public class RfcxPrefs {
 			put("checkin_offline_mode", "false");
 			
 	        put("api_url_base", "https://api.rfcx.org");
+	        put("api_mqtt_host", "192.168.1.1");
 	        
 	        put("service_monitor_cycle_duration", "600000");
 	        
 			put("reboot_forced_daily_at", "23:55:00");
 			
 			put("cputuner_freq_min", "30720");
-			put("cputuner_freq_max", "122880"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000, 
+			put("cputuner_freq_max", "245760"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000, 
 			put("cputuner_governor_up", "98");
 			put("cputuner_governor_down", "95");
 			
@@ -254,49 +255,14 @@ public class RfcxPrefs {
 			put("checkin_battery_cutoff", "90");
 			put("audio_battery_cutoff", "60");
 			
-			put("checkin_cycle_pause", "5000");
 			put("checkin_skip_threshold", "5");
 			put("checkin_stash_threshold", "120");
 			put("checkin_archive_threshold", "960");
+
+	        put("datetime_ntp_host", "time.apple.com");
 			
 	    }}
 	);
 
-	
-//	private void setDefaultPrefs() {
-//		
-//		defaultPrefs.put("checkin_offline_mode", "false");
-//	
-//		defaultPrefs.put("api_url_base", "https://api.rfcx.org");
-//
-//		defaultPrefs.put("service_monitor_cycle_duration", "600000");
-//
-//		defaultPrefs.put("reboot_forced_daily_at", "23:55:00");
-//		
-//		defaultPrefs.put("cputuner_freq_min", "30720");
-//		defaultPrefs.put("cputuner_freq_max", "245760"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000, 
-//		defaultPrefs.put("cputuner_governor_up", "98");
-//		defaultPrefs.put("cputuner_governor_down", "95");
-//		
-//		defaultPrefs.put("audio_cycle_duration", "90000");
-//		defaultPrefs.put("audio_schedule_off_hours", "00:10-00:15,00:15-00:20");
-//		
-//		defaultPrefs.put("audio_encode_codec", "opus");
-//		defaultPrefs.put("audio_encode_bitrate", "16384");
-//		defaultPrefs.put("audio_sample_rate", "12000");
-//		defaultPrefs.put("audio_encode_quality", "9");
-//		defaultPrefs.put("audio_encode_skip_threshold", "3");
-//		defaultPrefs.put("audio_encode_cycle_pause", "5000");
-//
-//		defaultPrefs.put("battery_cutoffs_enabled", "false");
-//		defaultPrefs.put("checkin_battery_cutoff", "90");
-//		defaultPrefs.put("audio_battery_cutoff", "60");
-//		
-//		defaultPrefs.put("checkin_cycle_pause", "5000");
-//		defaultPrefs.put("checkin_skip_threshold", "5");
-//		defaultPrefs.put("checkin_stash_threshold", "320");
-//		defaultPrefs.put("checkin_archive_threshold", "960");
-//		
-//	}
 	
 }
