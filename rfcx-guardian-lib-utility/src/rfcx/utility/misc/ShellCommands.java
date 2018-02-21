@@ -127,7 +127,7 @@ public class ShellCommands {
 	}
 	
 	public boolean triggerRebootAsRoot() {
-		int rebootPreDelay = 10;
+		int rebootPreDelay = 5;
 		Log.v(this.logTag, "Attempting graceful reboot... then after "+rebootPreDelay+" seconds, killing RFCx processes and forcing reboot...");
 		return executeCommandInShell_ReturnBoolean(
 				"am start -a android.intent.action.REBOOT; "+

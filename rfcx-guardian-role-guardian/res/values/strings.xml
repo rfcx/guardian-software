@@ -20,6 +20,21 @@
 		<item>opus</item>
 		<item>flac</item>
 	</string-array>
+	
+    <string-array name="audio_sample_rate_labels">
+		<item>8 kHz</item>
+		<item>12 kHz</item>
+		<item>16 kHz</item>
+		<item>24 kHz</item>
+		<item>48 kHz</item>
+	</string-array>
+    <string-array name="audio_sample_rate_values">
+		<item>8000</item>
+		<item>12000</item>
+		<item>16000</item>
+		<item>24000</item>
+		<item>48000</item>
+	</string-array>
     
     
     

@@ -93,7 +93,12 @@ public class ApiCheckInQueueService extends Service {
 		
 				}
 				
-				app.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
+
+				if (app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")) { 
+					Log.v(logTag, "No CheckIn because offline mode is on");
+				} else {
+					app.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
+				}
 				
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

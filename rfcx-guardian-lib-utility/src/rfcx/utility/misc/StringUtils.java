@@ -1,8 +1,10 @@
 package rfcx.utility.misc;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Random;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import android.util.Base64;
@@ -47,6 +49,25 @@ public class StringUtils {
 			}
 		}
 		return byteArrayOutputStream.toByteArray();
+	}
+	
+	public static String UnGZipByteArrayToString(byte[] inputByteArray) {
+		
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		
+		try {
+			GZIPInputStream gZIPInputStream = new GZIPInputStream(new ByteArrayInputStream(inputByteArray));
+			int res = 0; byte buf[] = new byte[1024];
+			while (res >= 0) {
+			    res = gZIPInputStream.read(buf, 0, buf.length);
+			    if (res > 0) {
+			    		byteArrayOutputStream.write(buf, 0, res);
+			    }
+			}
+		} catch (IOException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return new String(byteArrayOutputStream.toByteArray());
 	}
 	
 }

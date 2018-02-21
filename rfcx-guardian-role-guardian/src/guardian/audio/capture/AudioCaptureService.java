@@ -76,7 +76,6 @@ public class AudioCaptureService extends Service {
 
 			app.audioCaptureUtils.captureTimeStampQueue = new long[] { 0, 0 };
 			
-			long prefsCaptureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			int prefsAudioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
 			
 			String captureDir = RfcxAudioUtils.captureDir(context);
@@ -88,11 +87,13 @@ public class AudioCaptureService extends Service {
 
 			try {
 				
-				Log.d(logTag, "Capture Loop Period: "+ prefsCaptureLoopPeriod +"ms");
+				Log.d(logTag, "Capture Loop Period: "+ app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") +"ms");
 			
 				while (audioCaptureService.runFlag) {
 					
 					try {
+						
+						long prefsCaptureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 						
 						if (app.audioCaptureUtils.isAudioCaptureAllowed()) {
 						

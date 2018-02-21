@@ -213,7 +213,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		JSONObject checkInMetaJson = getSystemMetaDataAsJson(new JSONObject(checkInJsonString));
 		
 		// Adding Guardian GUID
-		checkInMetaJson.put("guid", this.app.rfcxDeviceGuid.getDeviceGuid());
+		checkInMetaJson.put("guardian_id", this.app.rfcxDeviceGuid.getDeviceGuid());
 
 		// Adding timestamp of metadata (JSON) snapshot
 		checkInMetaJson.put("measured_at", checkInPreFlightTimestamp.getTime());
@@ -244,10 +244,10 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver()));
 
 		// Adding screenshot meta to JSON blob
-		checkInMetaJson.put( "screenshots", (screenShotMeta[0] != null) ? (screenShotMeta[1]+"*"+screenShotMeta[2]+"*"+screenShotMeta[3]+"*"+screenShotMeta[4]) : null);
+		checkInMetaJson.put( "screenshots", (screenShotMeta[0] != null) ? (screenShotMeta[1]+"*"+screenShotMeta[2]+"*"+screenShotMeta[3]+"*"+screenShotMeta[4]) : "");
 
 		// Adding logs meta to JSON blob
-		checkInMetaJson.put( "logs", (logFileMeta[0] != null) ? (logFileMeta[1]+"*"+logFileMeta[2]+"*"+logFileMeta[3]+"*"+logFileMeta[4]) : null);
+		checkInMetaJson.put( "logs", (logFileMeta[0] != null) ? (logFileMeta[1]+"*"+logFileMeta[2]+"*"+logFileMeta[3]+"*"+logFileMeta[4]) : "");
 		
 		return checkInMetaJson.toString();
 		
@@ -467,8 +467,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	public void messageArrived(String messageTopic, MqttMessage mqttMessage) throws Exception {
 		
 		if (messageTopic.equalsIgnoreCase("guardians/"+this.app.rfcxDeviceGuid.getDeviceGuid())) {
-			String msgBody = new String(mqttMessage.getPayload());
-			processCheckInResponseJson(msgBody);
+			processCheckInResponseJson(StringUtils.UnGZipByteArrayToString(mqttMessage.getPayload()));
 		}
 	}
 	

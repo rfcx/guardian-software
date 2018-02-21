@@ -12,6 +12,7 @@
 		android:key="checkin_offline_mode"
 		android:title="checkin_offline_mode"
 		android:dialogTitle="checkin_offline_mode"
+        android:summary="string - true/false"
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="false" />
@@ -110,6 +111,7 @@
 		android:key="audio_encode_codec"
 		android:title="audio_encode_codec"
 		android:dialogTitle="audio_encode_codec"
+        android:summary="string - codec"
 		android:entries="@array/opus_or_flac"
 		android:entryValues="@array/opus_or_flac"
 		android:defaultValue="opus" />
@@ -121,12 +123,21 @@
         android:enabled="true"
         android:defaultValue="16384" />
  	
- 	<EditTextPreference
+ 	<!-- <EditTextPreference
         android:key="audio_sample_rate"
         android:title="audio_sample_rate"
         android:summary="int - hertz"
         android:enabled="true"
-        android:defaultValue="12000" />
+        android:defaultValue="12000" /> -->
+ 	
+	<ListPreference
+		android:key="audio_sample_rate"
+		android:title="audio_sample_rate"
+		android:dialogTitle="audio_sample_rate"
+        android:summary="int - hertz"
+		android:entries="@array/audio_sample_rate_labels"
+		android:entryValues="@array/audio_sample_rate_values"
+		android:defaultValue="12000" />
  	
  	<EditTextPreference
         android:key="audio_encode_quality"
@@ -144,12 +155,21 @@
  	
  	<!-- Battery Cutoff Thresholds -->
  	
- 	<EditTextPreference
+<!--  	<EditTextPreference
         android:key="battery_cutoffs_enabled"
         android:title="battery_cutoffs_enabled"
         android:summary="string - true/false"
         android:enabled="true"
-        android:defaultValue="false" />
+        android:defaultValue="false" /> -->
+        
+	<ListPreference
+		android:key="battery_cutoffs_enabled"
+		android:title="battery_cutoffs_enabled"
+		android:dialogTitle="battery_cutoffs_enabled"
+        android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="false" />
  	
  	<EditTextPreference
         android:key="checkin_battery_cutoff"

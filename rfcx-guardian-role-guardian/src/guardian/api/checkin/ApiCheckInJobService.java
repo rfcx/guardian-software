@@ -55,6 +55,7 @@ public class ApiCheckInJobService extends Service {
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.apiCheckInJob.interrupt();
 		this.apiCheckInJob = null;
+		Log.v(logTag, "Stopping service: "+logTag);
 	}
 	
 	private class ApiCheckInJob extends Thread {
@@ -70,58 +71,54 @@ public class ApiCheckInJobService extends Service {
 			app = (RfcxGuardian) getApplication();
 
 			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-			
-			boolean prefsCheckInOfflineMode = app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode");
-			int prefsCheckInSkipThreshold = app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold");
-			long prefsAudioCycleDuration = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
-			boolean prefsEnableBatteryCutoffs = app.rfcxPrefs.getPrefAsBoolean("battery_cutoffs_enabled");
-			int prefsCheckInBatteryCutoff = app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff");
-			
-			if (prefsCheckInOfflineMode) {
-				Log.v(logTag, "No CheckIn because offline mode is on");
 				
-			} else {
+			try {
 				
-				try {
+				while (		!app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")
+						&&	(app.apiCheckInDb.dbQueued.getCount() > 0)
+					) {
 					
-					while (app.apiCheckInDb.dbQueued.getCount() > 0) {
+					long prefsAudioCycleDuration = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+					int prefsCheckInSkipThreshold = app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold");
+					boolean prefsEnableBatteryCutoffs = app.rfcxPrefs.getPrefAsBoolean("battery_cutoffs_enabled");
+					int prefsCheckInBatteryCutoff = app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff");
+					
+					if (!app.deviceConnectivity.isConnected()) {
+						Log.v(logTag, "No CheckIn because guardian currently has no connectivity."
+							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration / 4 ) / 1000 ) ) + " seconds before next attempt.");
+						Thread.sleep( prefsAudioCycleDuration / 4 );
 						
-						if (!app.deviceConnectivity.isConnected()) {
-							Log.v(logTag, "No CheckIn because guardian currently has no connectivity."
-								+" Waiting " + ( Math.round( ( prefsAudioCycleDuration / 4 ) / 1000 ) ) + " seconds before next attempt.");
-							Thread.sleep( prefsAudioCycleDuration / 4 );
+					} else if (prefsEnableBatteryCutoffs && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
+						Log.v(logTag, "CheckIns currently disabled due to low battery level"
+							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+prefsCheckInBatteryCutoff+"%)."
+							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration * 2 ) / 1000 ) ) + " seconds before next attempt.");
+						Thread.sleep( prefsAudioCycleDuration * 2 );
+						
+						// reboots guardian in situations where battery charge percentage doesn't reflect charge state
+						if (app.apiCheckInUtils.isBatteryChargedButBelowCheckInThreshold()) {
+							app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
+						}
+						
+					} else {
 							
-						} else if (prefsEnableBatteryCutoffs && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
-							Log.v(logTag, "CheckIns currently disabled due to low battery level"
-								+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+prefsCheckInBatteryCutoff+"%)."
-								+" Waiting " + ( Math.round( ( prefsAudioCycleDuration * 2 ) / 1000 ) ) + " seconds before next attempt.");
-							Thread.sleep( prefsAudioCycleDuration * 2 );
+						String[] latestQueuedCheckIn = app.apiCheckInDb.dbQueued.getLatestRow();	
+						
+						// only proceed with checkin process if there is a queued checkin in the database
+						if (latestQueuedCheckIn[0] != null) {
 							
-							// DO WE WANT TO REBOOT GUARDIAN IF IT FAILS TO CONNECT AFTER THRESHOLDS?
-//							if (app.apiCheckInUtils.isBatteryChargedButBelowCheckInThreshold()) {
-//								ShellCommands.executeCommand("reboot", null, false, app.getApplicationContext());
-//							}
-							
-						} else {
+							if (((int) Integer.parseInt(latestQueuedCheckIn[3])) > prefsCheckInSkipThreshold) {
 								
-							String[] latestQueuedCheckIn = app.apiCheckInDb.dbQueued.getLatestRow();	
-							
-							// only proceed with checkin process if there is a queued checkin in the database
-							if (latestQueuedCheckIn[0] != null) {
+								Log.d(logTag,"Skipping CheckIn "+latestQueuedCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
+								app.apiCheckInDb.dbSkipped.insert(latestQueuedCheckIn[0], latestQueuedCheckIn[1], latestQueuedCheckIn[2], latestQueuedCheckIn[3], latestQueuedCheckIn[4]);
+								app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
 								
-								if (((int) Integer.parseInt(latestQueuedCheckIn[3])) > prefsCheckInSkipThreshold) {
-									
-									Log.d(logTag,"Skipping CheckIn "+latestQueuedCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
-									app.apiCheckInDb.dbSkipped.insert(latestQueuedCheckIn[0], latestQueuedCheckIn[1], latestQueuedCheckIn[2], latestQueuedCheckIn[3], latestQueuedCheckIn[4]);
-									app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
-									
-								} else {
-									
-									// MQTT
-									app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
-									Thread.sleep(1000);
-									
-									// HTTP
+							} else {
+								
+								// MQTT
+								app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
+								Thread.sleep(1000);
+								
+								// HTTP
 //									List<String[]> stringParameters = new ArrayList<String[]>();
 //									stringParameters.add(new String[] { "meta", app.apiCheckInUtils.packageHttpCheckInJson(latestQueuedCheckIn[2]) });
 //									List<String[]> checkInFiles = app.apiCheckInUtils.loadHttpCheckInFiles(latestQueuedCheckIn[4]);
@@ -135,30 +132,30 @@ public class ApiCheckInJobService extends Service {
 //											latestQueuedCheckIn[1]
 //										);	
 //									}
-									
-								}
-							} else {
-								Log.d(logTag, "Queued checkin entry in database was invalid.");
 								
 							}
+						} else {
+							Log.d(logTag, "Queued checkin entry in database was invalid.");
 							
 						}
+						
 					}
-				
-				} catch (Exception e) {
-					RfcxLog.logExc(logTag, e);
-					
-				} finally {
-					apiCheckInJobInstance.runFlag = false;
-					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-					app.rfcxServiceHandler.stopService(SERVICE_NAME);
 				}
+			
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+				
+			} finally {
+				apiCheckInJobInstance.runFlag = false;
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}
+			
+			if (app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")) { Log.v(logTag, "No CheckIn because offline mode is on"); }
 			
 			apiCheckInJobInstance.runFlag = false;
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 			app.rfcxServiceHandler.stopService(SERVICE_NAME);
-			Log.v(logTag, "Closing service: "+logTag);
 		}
 	}
 
