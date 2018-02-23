@@ -23,11 +23,10 @@ public class RfcxServiceHandler {
 	private String logTag = RfcxLog.generateLogTag("Utils", RfcxServiceHandler.class);
 
 	private Map<String, Class<?>> svcClasses = new HashMap<String, Class<?>>();
+	
 	private Map<String, boolean[]> svcRunStates = new HashMap<String, boolean[]>();
 	private Map<String, boolean[]> svcAbsoluteRunStates = new HashMap<String, boolean[]>();
 	
-	// ...in that most services don't use/update this value yet
-	// ...and it's not yet clear how it would be used in full
 	private Map<String, long[]> svcLastReportedActiveAt = new HashMap<String, long[]>();
 
 	public static String intentServiceTags(boolean isNotificationTag, String appRole, String svcName) {

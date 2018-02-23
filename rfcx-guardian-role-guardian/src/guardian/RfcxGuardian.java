@@ -10,7 +10,6 @@ import rfcx.utility.device.DeviceConnectivity;
 import rfcx.utility.device.DeviceGeoLocation;
 import rfcx.utility.device.DeviceNetworkStats;
 import rfcx.utility.device.control.DeviceControlUtils;
-import rfcx.utility.mqtt.MqttUtils;
 import rfcx.utility.rfcx.RfcxDeviceGuid;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxPrefs;
@@ -27,13 +26,13 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import guardian.api.checkin.ApiCheckInDb;
 import guardian.api.checkin.ApiCheckInJobService;
-import guardian.api.checkin.ApiCheckInQueueService;
 import guardian.api.checkin.ApiCheckInUtils;
+import guardian.api.checkin.ApiQueueCheckInService;
 import guardian.audio.capture.AudioCaptureService;
 import guardian.audio.capture.AudioCaptureUtils;
 import guardian.audio.encode.AudioEncodeDb;
 import guardian.audio.encode.AudioEncodeJobService;
-import guardian.audio.encode.AudioEncodeQueueService;
+import guardian.audio.encode.AudioQueueEncodeService;
 import guardian.device.android.DateTimeSntpSyncJobService;
 import guardian.device.android.DeviceDataTransferDb;
 import guardian.device.android.DeviceRebootDb;
@@ -84,7 +83,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		new String[] { 
 			"AudioCapture",
 			"DeviceSystem",
-			"ApiCheckInQueue",
 			"ApiCheckInJob"
 		};
 	
@@ -161,10 +159,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
 		this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
-		this.rfcxServiceHandler.addService("AudioEncodeQueue", AudioEncodeQueueService.class);
+		this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
 		this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
-		this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueService.class);
+		this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		

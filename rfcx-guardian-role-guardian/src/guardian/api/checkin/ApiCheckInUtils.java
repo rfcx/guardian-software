@@ -42,12 +42,13 @@ public class ApiCheckInUtils implements MqttCallback {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 		
 		// setting http post timeouts to the same as the audio capture interval.
-		setHttpCheckInTimeOuts(this.app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
-		setHttpCheckInAuthHeaders(this.app.rfcxDeviceGuid.getDeviceGuid(), this.app.rfcxDeviceGuid.getDeviceToken());
+//		setHttpCheckInTimeOuts(this.app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
+//		setHttpCheckInAuthHeaders(this.app.rfcxDeviceGuid.getDeviceGuid(), this.app.rfcxDeviceGuid.getDeviceToken());
 		
 		this.mqttCheckInClient = new MqttUtils(RfcxGuardian.APP_ROLE, this.app.rfcxDeviceGuid.getDeviceGuid());
 		this.mqttCheckInClient.setOrResetBroker("tcp", 1883, this.app.rfcxPrefs.getPrefAsString("api_mqtt_host"));
 		this.mqttCheckInClient.setCallback(this);
+//		this.mqttCheckInClient.setActionTimeout( 2 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") );
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInUtils.class);
@@ -213,7 +214,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		JSONObject checkInMetaJson = getSystemMetaDataAsJson(new JSONObject(checkInJsonString));
 		
 		// Adding Guardian GUID
-		checkInMetaJson.put("guardian_id", this.app.rfcxDeviceGuid.getDeviceGuid());
+		checkInMetaJson.put("guardian_guid", this.app.rfcxDeviceGuid.getDeviceGuid());
 
 		// Adding timestamp of metadata (JSON) snapshot
 		checkInMetaJson.put("measured_at", checkInPreFlightTimestamp.getTime());
@@ -505,87 +506,87 @@ public class ApiCheckInUtils implements MqttCallback {
 	
 	
 
-	HttpPostMultipart httpPostMultipart = new HttpPostMultipart();
-	
-	private void setHttpCheckInAuthHeaders(String deviceGuid, String deviceToken) {
-		List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
-		rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/" + deviceGuid });
-		rfcxAuthHeaders.add(new String[] { "x-auth-token", deviceToken });
-		this.httpPostMultipart.setCustomHttpHeaders(rfcxAuthHeaders);
-	}
-	
-	private void setHttpCheckInTimeOuts(int timeOut) {
-		this.httpPostMultipart.setTimeOuts(timeOut, timeOut);
-	}
-
-	public String getHttpCheckInUrl() {
-		return app.rfcxPrefs.getPrefAsString("api_url_base") + "/v1/guardians/" + app.rfcxDeviceGuid.getDeviceGuid() + "/checkins";
-	}
-
-	public void sendHttpCheckIn(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments, boolean allowAttachments, String checkInAudioReference) {
-		if (!allowAttachments)
-			keyFilepathMimeAttachments = new ArrayList<String[]>();
-		if (app.deviceConnectivity.isConnected()) {
-			this.requestSendStart = new Date();
-			Log.i(logTag, "CheckIn sent at: " + DateTimeUtils.getDateTime(this.requestSendStart));
-			String checkInResponse = httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments);
-			processHttpCheckInResponse(checkInResponse);
-			if (checkInResponse.equals("Rfcx-Utils-HttpPostMultipart-UnknownHostException")) {
-				Log.e(logTag, "NOT INCREMENTING CHECK-IN ATTEMPTS");
-			} else {
-				app.apiCheckInDb.dbQueued.incrementSingleRowAttempts(checkInAudioReference);
-			}
-		} else {
-			Log.d(logTag, "No connectivity... Can't send CheckIn");
-		}
-	}
-	
-	public static boolean validateHttpCheckInAttachments(List<String[]> checkInFiles) {
-		boolean includesAudio = false;
-		boolean includesScreenShot = false;
-		for (String[] fileItems : checkInFiles) {
-			if (fileItems[0].equals("audio")) { includesAudio = true; }
-			if (fileItems[0].equals("screenshot")) { includesScreenShot = true; }
-		}
-		return (includesAudio);
-	}
-
-	public String packageHttpCheckInJson(String checkInJsonString) throws JSONException, IOException {
-
-		// For HTTP
-		// Stringify JSON, gzip the output and convert to base 64 string for sending	
-		String jsonFinal = buildCheckInJson(checkInJsonString, getLatestExternalAssetMeta("screenshots"), getLatestExternalAssetMeta("logs"));	
-		Log.d(logTag, jsonFinal);
-		String jsonFinalGZipped = StringUtils.gZipStringToBase64(jsonFinal);
-
-		return jsonFinalGZipped;
-	}
-
-
-	public List<String[]> loadHttpCheckInFiles(String audioFilePath) {
-
-		List<String[]> checkInFiles = new ArrayList<String[]>();
-
-		// attach audio file - we only attach one per check-in
-		String audioFileName = audioFilePath.substring(1 + audioFilePath.lastIndexOf("/"));
-		String audioId = audioFileName.substring(0, audioFileName.lastIndexOf("."));
-		String audioFormat = audioFileName.substring(1 + audioFileName.lastIndexOf("."));
-		try {
-			if ((new File(audioFilePath)).exists() && (new File(audioFilePath)).canRead()) {
-				checkInFiles.add(new String[] { "audio", audioFilePath, "audio/" + audioFormat });
-				Log.d(logTag, "Audio attached: " + audioId + "." + audioFormat);
-			} else {
-				Log.e(logTag, "Audio attachment file doesn't exist or isn't readable: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
-				String audioFileNameInDb = app.apiCheckInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId)[1];
-				String[] audioFromDb = app.audioEncodeDb.dbEncoded.getSingleRowByAudioId(audioFileNameInDb);
-				if (audioFromDb[1] != null) { app.audioEncodeDb.dbEncoded.deleteSingleRow(audioFromDb[1]); }
-				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
-				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(audioId);
-				purseSingleAssetFromDisk("audio", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), audioId, audioFormat);
-			}
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
+//	HttpPostMultipart httpPostMultipart = new HttpPostMultipart();
+//	
+//	private void setHttpCheckInAuthHeaders(String deviceGuid, String deviceToken) {
+//		List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
+//		rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/" + deviceGuid });
+//		rfcxAuthHeaders.add(new String[] { "x-auth-token", deviceToken });
+//		this.httpPostMultipart.setCustomHttpHeaders(rfcxAuthHeaders);
+//	}
+//	
+//	private void setHttpCheckInTimeOuts(int timeOut) {
+//		this.httpPostMultipart.setTimeOuts(timeOut, timeOut);
+//	}
+//
+//	public String getHttpCheckInUrl() {
+//		return app.rfcxPrefs.getPrefAsString("api_url_base") + "/v1/guardians/" + app.rfcxDeviceGuid.getDeviceGuid() + "/checkins";
+//	}
+//
+//	public void sendHttpCheckIn(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments, boolean allowAttachments, String checkInAudioReference) {
+//		if (!allowAttachments)
+//			keyFilepathMimeAttachments = new ArrayList<String[]>();
+//		if (app.deviceConnectivity.isConnected()) {
+//			this.requestSendStart = new Date();
+//			Log.i(logTag, "CheckIn sent at: " + DateTimeUtils.getDateTime(this.requestSendStart));
+//			String checkInResponse = httpPostMultipart.doMultipartPost(fullUrl, keyValueParameters, keyFilepathMimeAttachments);
+//			processHttpCheckInResponse(checkInResponse);
+//			if (checkInResponse.equals("Rfcx-Utils-HttpPostMultipart-UnknownHostException")) {
+//				Log.e(logTag, "NOT INCREMENTING CHECK-IN ATTEMPTS");
+//			} else {
+//				app.apiCheckInDb.dbQueued.incrementSingleRowAttempts(checkInAudioReference);
+//			}
+//		} else {
+//			Log.d(logTag, "No connectivity... Can't send CheckIn");
+//		}
+//	}
+//	
+//	public static boolean validateHttpCheckInAttachments(List<String[]> checkInFiles) {
+//		boolean includesAudio = false;
+//		boolean includesScreenShot = false;
+//		for (String[] fileItems : checkInFiles) {
+//			if (fileItems[0].equals("audio")) { includesAudio = true; }
+//			if (fileItems[0].equals("screenshot")) { includesScreenShot = true; }
+//		}
+//		return (includesAudio);
+//	}
+//
+//	public String packageHttpCheckInJson(String checkInJsonString) throws JSONException, IOException {
+//
+//		// For HTTP
+//		// Stringify JSON, gzip the output and convert to base 64 string for sending	
+//		String jsonFinal = buildCheckInJson(checkInJsonString, getLatestExternalAssetMeta("screenshots"), getLatestExternalAssetMeta("logs"));	
+//		Log.d(logTag, jsonFinal);
+//		String jsonFinalGZipped = StringUtils.gZipStringToBase64(jsonFinal);
+//
+//		return jsonFinalGZipped;
+//	}
+//
+//
+//	public List<String[]> loadHttpCheckInFiles(String audioFilePath) {
+//
+//		List<String[]> checkInFiles = new ArrayList<String[]>();
+//
+//		// attach audio file - we only attach one per check-in
+//		String audioFileName = audioFilePath.substring(1 + audioFilePath.lastIndexOf("/"));
+//		String audioId = audioFileName.substring(0, audioFileName.lastIndexOf("."));
+//		String audioFormat = audioFileName.substring(1 + audioFileName.lastIndexOf("."));
+//		try {
+//			if ((new File(audioFilePath)).exists() && (new File(audioFilePath)).canRead()) {
+//				checkInFiles.add(new String[] { "audio", audioFilePath, "audio/" + audioFormat });
+//				Log.d(logTag, "Audio attached: " + audioId + "." + audioFormat);
+//			} else {
+//				Log.e(logTag, "Audio attachment file doesn't exist or isn't readable: (" + audioId+ "." + audioFormat + ") " + audioFilePath);
+//				String audioFileNameInDb = app.apiCheckInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId)[1];
+//				String[] audioFromDb = app.audioEncodeDb.dbEncoded.getSingleRowByAudioId(audioFileNameInDb);
+//				if (audioFromDb[1] != null) { app.audioEncodeDb.dbEncoded.deleteSingleRow(audioFromDb[1]); }
+//				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(audioId);
+//				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(audioId);
+//				purseSingleAssetFromDisk("audio", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), audioId, audioFormat);
+//			}
+//		} catch (Exception e) {
+//			RfcxLog.logExc(logTag, e);
+//		}
 
 //		// attach screenshot images - we only attach one per check-in (the
 //		// latest screenshot)
@@ -612,18 +613,18 @@ public class ApiCheckInUtils implements MqttCallback {
 //			}
 //			
 //		} } finally { cursor.close(); } }
-
-		return checkInFiles;
-	}
-	
-	public void processHttpCheckInResponse(String checkInResponse) {
-		if ((checkInResponse != null) && !checkInResponse.isEmpty()) {
-			
-			this.requestSendDuration = (new Date()).getTime() - this.requestSendStart.getTime();
-			
-			processCheckInResponseJson(checkInResponse);
-
-		}
-	}
+//
+//		return checkInFiles;
+//	}
+//	
+//	public void processHttpCheckInResponse(String checkInResponse) {
+//		if ((checkInResponse != null) && !checkInResponse.isEmpty()) {
+//			
+//			this.requestSendDuration = (new Date()).getTime() - this.requestSendStart.getTime();
+//			
+//			processCheckInResponseJson(checkInResponse);
+//
+//		}
+//	}
 
 }

@@ -108,17 +108,13 @@ public class AudioCaptureService extends Service {
 							}
 
 							if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
-								app.rfcxServiceHandler.triggerService("AudioEncodeQueue", true);
+								app.rfcxServiceHandler.triggerService("AudioQueueEncode", true);
 							}
 							
 						}
 						
-//						try {
-							// sleep for intended length of capture clip
-							Thread.sleep(prefsCaptureLoopPeriod);
-//						} catch (Exception e) {
-//							RfcxLog.logExc(logTag, e);
-//						}
+						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+						Thread.sleep(prefsCaptureLoopPeriod);
 						
 					} catch (Exception e) {
 						RfcxLog.logExc(logTag, e);
@@ -131,6 +127,7 @@ public class AudioCaptureService extends Service {
 				
 			} finally {
 				audioCaptureService.runFlag = false;
+				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}

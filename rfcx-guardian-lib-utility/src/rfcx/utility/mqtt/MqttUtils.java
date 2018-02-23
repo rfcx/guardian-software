@@ -66,6 +66,14 @@ public class MqttUtils implements MqttCallback {
 		return mqttConnectOptions;
 	}
 	
+	public void setActionTimeout(long timeToWaitInMillis) {
+		// PLEASE NOTE:
+		// In the event of a timeout the action carries on running in the background until it completes. 
+		// The timeout is used on methods that block while the action is in progress.
+		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttClient.html#setTimeToWait-long-
+		this.mqttClient.setTimeToWait(timeToWaitInMillis);
+	}
+	
 	public Date publishMessage(byte[] messageByteArray) throws MqttPersistenceException, MqttException {
 		if (confirmOrCreateConnection()) {
 			Log.i(logTag, (new StringBuilder()).append("MQTT Message (").append(messageByteArray.length).append(" bytes) published to '").append(this.mqttTopicPublish).append("' at ").append(DateTimeUtils.getDateTime(new Date())).toString());

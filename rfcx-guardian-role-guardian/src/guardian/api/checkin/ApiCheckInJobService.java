@@ -55,7 +55,7 @@ public class ApiCheckInJobService extends Service {
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 		this.apiCheckInJob.interrupt();
 		this.apiCheckInJob = null;
-		Log.v(logTag, "Stopping service: "+logTag);
+//		Log.v(logTag, "Stopping service: "+logTag);
 	}
 	
 	private class ApiCheckInJob extends Thread {
@@ -77,6 +77,8 @@ public class ApiCheckInJobService extends Service {
 				while (		!app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")
 						&&	(app.apiCheckInDb.dbQueued.getCount() > 0)
 					) {
+
+					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 					
 					long prefsAudioCycleDuration = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 					int prefsCheckInSkipThreshold = app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold");
@@ -147,6 +149,7 @@ public class ApiCheckInJobService extends Service {
 				
 			} finally {
 				apiCheckInJobInstance.runFlag = false;
+				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}

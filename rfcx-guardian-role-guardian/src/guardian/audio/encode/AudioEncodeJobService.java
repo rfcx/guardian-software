@@ -86,6 +86,8 @@ public class AudioEncodeJobService extends Service {
 				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
 				
 				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
+
+					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 									
 					// only proceed with encode process if there is a valid queued audio file in the database
 					if (latestQueuedAudioToEncode[0] != null) {
@@ -164,7 +166,7 @@ public class AudioEncodeJobService extends Service {
 
 									app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(latestQueuedAudioToEncode[1]);
 
-									app.rfcxServiceHandler.triggerService("ApiCheckInQueue", true);
+									app.rfcxServiceHandler.triggerService("ApiQueueCheckIn", true);
 								}
 								
 							}

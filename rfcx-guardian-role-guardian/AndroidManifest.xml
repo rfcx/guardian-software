@@ -75,15 +75,15 @@
         
         <!-- Services -->
         <service android:name="guardian.audio.capture.AudioCaptureService" />
-        <service android:name="guardian.audio.encode.AudioEncodeQueueService" />
         <service android:name="guardian.audio.encode.AudioEncodeJobService" />
-        <service android:name="guardian.api.checkin.ApiCheckInQueueService" />
         <service android:name="guardian.api.checkin.ApiCheckInJobService" />
         <service android:name="guardian.device.android.DeviceSystemService" />
         <service android:name="guardian.device.android.DateTimeSntpSyncJobService" />
         
         <!-- IntentServices -->
         <service android:name="guardian.ServiceMonitor" />
+        <service android:name="guardian.api.checkin.ApiQueueCheckInService" />
+        <service android:name="guardian.audio.encode.AudioQueueEncodeService" />
 
         <!-- Receivers -->
          <receiver android:name="guardian.receiver.BootReceiver">
