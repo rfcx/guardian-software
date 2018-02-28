@@ -50,7 +50,7 @@ else
     cd $SCRIPT_DIR/../rfcx-guardian-lib-i2c/jni && ndk-build;
 
     cp $SCRIPT_DIR/../rfcx-guardian-lib-i2c/libs/armeabi/i2cget $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/assets/i2cget;
-    cp $SCRIPT_DIR/../rfcx-guardian-lib-i2c/libs/armeabi/i2cset $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/assets/i2cset;
+#    cp $SCRIPT_DIR/../rfcx-guardian-lib-i2c/libs/armeabi/i2cset $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/assets/i2cset;
      
   fi
 

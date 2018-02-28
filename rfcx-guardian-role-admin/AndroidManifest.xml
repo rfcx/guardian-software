@@ -70,11 +70,10 @@
         <!-- Services -->
         <service android:name="admin.device.android.capture.DeviceScreenShotJobService" />
         <service android:name="admin.device.android.control.RebootTriggerJobService" />
-        <service android:name="admin.device.sentinel.I2cResetPermissionsJobService" />
         <service android:name="admin.device.android.control.AirplaneModeOffJobService" />
         <service android:name="admin.device.android.control.AirplaneModeOnJobService" />
         <service android:name="admin.device.android.control.DateTimeSntpSyncJobService" />
-        <service android:name="admin.device.android.control.DateTimeResetPermissionsJobService" />
+        <service android:name="admin.device.sentinel.DeviceSentinelService" />
         
         <!-- IntentServices -->
         <service android:name="admin.ServiceMonitor" />

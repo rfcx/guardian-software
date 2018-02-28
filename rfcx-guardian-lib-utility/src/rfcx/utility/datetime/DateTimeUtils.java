@@ -7,7 +7,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import android.content.Context;
 import android.os.SystemClock;
+import android.util.Log;
+import rfcx.utility.misc.ShellCommands;
 import rfcx.utility.rfcx.RfcxLog;
 
 public class DateTimeUtils {
@@ -128,5 +131,9 @@ public class DateTimeUtils {
 		return isTimeStampWithinTimeRange(timeStamp, startHour, startMinute, startSecond, endHour, endMinute, endSecond);
 	}
 
-	
+	public static void resetDateTimeReadWritePermissions(Context context, String appRole) {
+		ShellCommands shellCommands = new ShellCommands(context, appRole);
+		Log.v(logTag, "Resetting Permissions on DateTime Alarm Handlers...");
+		shellCommands.executeCommandAsRootAndIgnoreOutput("chmod 666 /dev/alarm;");
+	}
 }

@@ -3,6 +3,7 @@ package admin;
 import rfcx.utility.misc.ShellCommands;
 import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceConnectivity;
+import rfcx.utility.device.DeviceI2cUtils;
 import rfcx.utility.device.control.DeviceAirplaneMode;
 import rfcx.utility.rfcx.RfcxDeviceGuid;
 import rfcx.utility.rfcx.RfcxLog;
@@ -15,10 +16,9 @@ import admin.device.android.capture.DeviceScreenShotDb;
 import admin.device.android.capture.DeviceScreenShotJobService;
 import admin.device.android.control.AirplaneModeOffJobService;
 import admin.device.android.control.AirplaneModeOnJobService;
-import admin.device.android.control.DateTimeResetPermissionsJobService;
 import admin.device.android.control.DateTimeSntpSyncJobService;
 import admin.device.android.control.RebootTriggerJobService;
-import admin.device.sentinel.I2cResetPermissionsJobService;
+import admin.device.sentinel.DeviceSentinelService;
 import admin.device.sentinel.SentinelPowerDb;
 import admin.device.sentinel.SentinelPowerUtils;
 import admin.receiver.AirplaneModeReceiver;
@@ -41,7 +41,6 @@ public class RfcxGuardian extends Application {
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
 	
-	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelPowerDb sentinelPowerDb = null;
 	
 	public DeviceScreenShotDb deviceScreenShotDb = null;
@@ -56,8 +55,7 @@ public class RfcxGuardian extends Application {
 	
 	public String[] RfcxCoreServices = 
 			new String[] { 
-				"I2cResetPermissions",
-				"DateTimeResetPermissions"
+				"DeviceSentinel"
 			};
 	
 	@Override
@@ -78,9 +76,9 @@ public class RfcxGuardian extends Application {
 		setDbHandlers();
 		setServiceHandlers();
 		
-		this.sentinelPowerUtils = new SentinelPowerUtils(this);
-		
 		(new ShellCommands(this, APP_ROLE)).triggerNeedForRootAccess();
+		DeviceI2cUtils.resetI2cPermissions(this, APP_ROLE);
+		DateTimeUtils.resetDateTimeReadWritePermissions(this, APP_ROLE);
 		
 		initializeRoleServices();
 	}
@@ -129,9 +127,8 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("ScreenShotJob", DeviceScreenShotJobService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeOffJob", AirplaneModeOffJobService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeOnJob", AirplaneModeOnJobService.class);
-		this.rfcxServiceHandler.addService("I2cResetPermissions", I2cResetPermissionsJobService.class);
-		this.rfcxServiceHandler.addService("DateTimeResetPermissions", DateTimeResetPermissionsJobService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
+		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 	}
     
 }

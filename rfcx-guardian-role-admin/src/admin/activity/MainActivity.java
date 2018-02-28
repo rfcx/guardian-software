@@ -1,20 +1,16 @@
 package admin.activity;
 
-import rfcx.utility.misc.ShellCommands;
-import rfcx.utility.rfcx.RfcxComm;
-import rfcx.utility.rfcx.RfcxLog;
-
-import admin.RfcxGuardian;
-import admin.device.sentinel.I2cUtils;
-
 import org.rfcx.guardian.admin.R;
 
+import admin.RfcxGuardian;
 import android.app.Activity;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.util.Log;
+import rfcx.utility.rfcx.RfcxComm;
+import rfcx.utility.rfcx.RfcxLog;
 
 public class MainActivity extends Activity {
 	
@@ -40,13 +36,6 @@ public class MainActivity extends Activity {
 			
 		case R.id.menu_sntp:
 			app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);
-			break;
-
-		case R.id.menu_test_i2c:
-			app.sentinelPowerUtils.getBatteryVoltage();
-			app.sentinelPowerUtils.getBatteryCurrent();
-			app.sentinelPowerUtils.getInputVoltage();
-			app.sentinelPowerUtils.getSystemVoltage();
 			break;
 			
 		case R.id.menu_get_prefs:
