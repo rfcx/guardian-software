@@ -17,7 +17,7 @@ public class DeviceSmsUtils {
 	
 	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceSmsUtils.class);
 	
-	public static String getSmsMessagesAsJson(ContentResolver contentResolver) {
+	public static JSONArray getSmsMessagesAsJsonArray(ContentResolver contentResolver) {
 		
 		JSONArray msgJsonArray = new JSONArray();
 		Cursor cursor = contentResolver.query(Uri.parse("content://sms/"), null, null, null, null);
@@ -34,7 +34,7 @@ public class DeviceSmsUtils {
 				RfcxLog.logExc(logTag, e);
 			}
 		} while (cursor.moveToNext()); } cursor.close();
-		return msgJsonArray.toString();
+		return msgJsonArray;
 	}
 	
 	public static int deleteSmsMessage(String messageAndroidId, ContentResolver contentResolver) {

@@ -83,8 +83,26 @@ public class DateTimeUtils {
 		if (timePieces.length == 3) { seconds = (int) Integer.parseInt(timePieces[2]); }
 		return nowPlusThisLong(hours,minutes,seconds);
 	}
+
+	public static String timeStampDifferenceFromNowAsReadableString(Date date) {
+		return milliSecondDurationAsReadableString(Math.abs(timeStampDifferenceFromNowInMilliSeconds(date)), true);
+	}
 	
-	public static String milliSecondDurationAsReadableString(long milliSeconds) {
+	public static String timeStampDifferenceFromNowAsReadableString(long date) {
+		return timeStampDifferenceFromNowAsReadableString(new Date(date));
+	}
+	
+	public static long timeStampDifferenceFromNowInMilliSeconds(Date date) {
+		long rightNow = System.currentTimeMillis();
+		long timeStamp = date.getTime();
+		return timeStamp - rightNow;
+	}
+	
+	public static long timeStampDifferenceFromNowInMilliSeconds(long date) {
+		return timeStampDifferenceFromNowInMilliSeconds(new Date(date));
+	}
+	
+	public static String milliSecondDurationAsReadableString(long milliSeconds, boolean displayEvenIfZero) {
 		StringBuilder rtrnStr = new StringBuilder();
 		
 		int hours = (int) Math.floor( milliSeconds / 3600000 );
@@ -95,8 +113,13 @@ public class DateTimeUtils {
 		
 		int seconds = Math.round((milliSeconds - (hours * 3600000) - (minutes * 60000)) / 1000);
 		if (seconds > 0) { rtrnStr.append((minutes > 0) ? ", " : "").append(seconds).append(" seconds"); }
+		else if (displayEvenIfZero && (seconds == 0)) { rtrnStr.append(seconds).append(" seconds"); }
 		
 		return rtrnStr.toString();
+	}
+	
+	public static String milliSecondDurationAsReadableString(long milliSeconds) {
+		return milliSecondDurationAsReadableString(milliSeconds, false);
 	}
 	
 	public static boolean isTimeStampWithinTimeRange(Date timeStamp, int startHour, int startMinute, int startSecond, int endHour, int endMinute, int endSecond) {

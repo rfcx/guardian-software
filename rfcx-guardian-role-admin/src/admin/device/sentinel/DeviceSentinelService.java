@@ -1,9 +1,6 @@
 package admin.device.sentinel;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import admin.RfcxGuardian;
 import android.app.Service;
@@ -73,36 +70,28 @@ public class DeviceSentinelService extends Service {
 			DeviceSentinelService deviceSentinelService = DeviceSentinelService.this;
 
 			app = (RfcxGuardian) getApplication();
+
+			try {
 						
-			SentinelPowerUtils sentinelPowerUtils = new SentinelPowerUtils(app.getApplicationContext());
-			
-			while (deviceSentinelService.runFlag) {
+				while (deviceSentinelService.runFlag) {
 				
-				try {
-					
 					Thread.sleep(SENTINEL_POWER_MEASUREMENT_LOOP_MS);
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 					
-					// Update Sentinel Power Stats
-					sentinelPowerUtils.updateSentinelPowerValues();
-					
-					String[] batteryValues = sentinelPowerUtils.getCurrentValues("battery");
-					app.sentinelPowerDb.dbExternalPowerBattery.insert(new Date(), batteryValues[0], batteryValues[1], batteryValues[2], "");
-					
-					String[] inputValues = sentinelPowerUtils.getCurrentValues("input");
-					app.sentinelPowerDb.dbExternalPowerInput.insert(new Date(), inputValues[0], inputValues[1], inputValues[2], "");
-					
-					String[] loadValues = sentinelPowerUtils.getCurrentValues("load");
-					app.sentinelPowerDb.dbExternalPowerLoad.insert(new Date(), loadValues[0], loadValues[1], loadValues[2], "");
-					
-				} catch (InterruptedException e) {
-					deviceSentinelService.runFlag = false;
-					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-					RfcxLog.logExc(logTag, e);
+					if (app.deviceSentinelPowerUtils.confirmConnection()) {
+
+						app.deviceSentinelPowerUtils.updateSentinelPowerValues();
+						app.deviceSentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext());
+						
+					}
 				}
+			
+			} catch (InterruptedException e) {
+				deviceSentinelService.runFlag = false;
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				RfcxLog.logExc(logTag, e);
 			}
-			Log.v(logTag, "Stopping service: "+logTag);
 		}		
 	}
 	

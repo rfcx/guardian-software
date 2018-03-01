@@ -43,6 +43,8 @@ public class MqttUtils implements MqttCallback {
 	private String mqttTopicSubscribe = null;
 	private MqttCallback mqttCallback = this;
 	
+	private long mqttActionTimeout = 0;
+	
 	private Date msgSendStart = new Date();
 	
 	private static MqttConnectOptions getConnectOptions() {
@@ -71,7 +73,8 @@ public class MqttUtils implements MqttCallback {
 		// In the event of a timeout the action carries on running in the background until it completes. 
 		// The timeout is used on methods that block while the action is in progress.
 		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttClient.html#setTimeToWait-long-
-		this.mqttClient.setTimeToWait(timeToWaitInMillis);
+		this.mqttActionTimeout = timeToWaitInMillis;
+//		this.mqttClient.setTimeToWait(this.mqttActionTimeout);
 	}
 	
 	public Date publishMessage(byte[] messageByteArray) throws MqttPersistenceException, MqttException {
@@ -97,13 +100,17 @@ public class MqttUtils implements MqttCallback {
 	
 	public boolean confirmOrCreateConnection() throws MqttException {
 		if ((this.mqttClient == null) || !this.mqttClient.isConnected()) {
+				
 			this.mqttClient = new MqttClient(this.mqttBrokerUri, this.mqttClientId, new MemoryPersistence());
+			Log.v(logTag, "MQTT client action timeout set to: "+this.mqttActionTimeout+"ms");
+			this.mqttClient.setTimeToWait(this.mqttActionTimeout);			
 			Log.v(logTag, "MQTT client connecting to broker: "+this.mqttBrokerUri);
 			this.mqttClient.setCallback(this.mqttCallback);
 			this.mqttClient.connect(getConnectOptions());
 			Log.v(logTag, "MQTT client connected to broker: "+this.mqttBrokerUri);
 			this.mqttClient.subscribe(this.mqttTopicSubscribe);
 			Log.v(logTag, "MQTT client subscribed to: "+this.mqttTopicSubscribe);
+				
 		}
 		return this.mqttClient.isConnected();
 	}

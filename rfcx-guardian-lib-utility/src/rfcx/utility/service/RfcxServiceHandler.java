@@ -124,7 +124,7 @@ public class RfcxServiceHandler {
 		}
 	}	
 	
-	public void triggerServiceSequence(String sequenceName, String[] serviceSequenceSerialized, boolean forceReTrigger) {
+	public void triggerServiceSequence(String sequenceName, String[] serviceSequenceSerialized, boolean forceReTrigger, long timeOutDuration) {
 		
 		if (!hasRun(sequenceName.toLowerCase(Locale.US))) {
 			
@@ -133,13 +133,22 @@ public class RfcxServiceHandler {
 			for (String serviceItemSerialized : serviceSequenceSerialized) {
 				String[] serviceItem = new String[] { serviceItemSerialized };
 				if (serviceItemSerialized.contains("|")) { serviceItem = serviceItemSerialized.split("\\|");  }
-				triggerService(serviceItem, forceReTrigger);
+				if (timeOutDuration > 0) {
+					Log.d(logTag, (new StringBuilder())
+									.append("'").append(serviceItem[0]).append("' service last registered as active ")
+									.append(DateTimeUtils.timeStampDifferenceFromNowAsReadableString(getLastReportedActiveAt(serviceItem[0])))
+									.append(" ago.").toString());
+					triggerOrForceReTriggerIfTimedOut(serviceItem[0], timeOutDuration);
+				} else {
+					triggerService(serviceItem, forceReTrigger);
+				}
 			}		 
 			
 		} else {
 			Log.w(logTag, (new StringBuilder()).append("ServiceSequence '").append(sequenceName).append("' has already run.").toString());
 		}
 	}
+	
 	
 	// Getters and Setters
 	
@@ -176,6 +185,7 @@ public class RfcxServiceHandler {
 		String svcId = svcName.toLowerCase(Locale.US);
 		this.svcRunStates.put(svcId, new boolean[] { isRunning } );
 		if (isRunning) setAbsoluteRunState(svcName, true);
+		reportAsActive(svcId);
 	}
 	
 	public void setAbsoluteRunState(String svcName, boolean hasRun) {

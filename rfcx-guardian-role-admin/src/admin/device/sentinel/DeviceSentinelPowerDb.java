@@ -14,38 +14,38 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class SentinelPowerDb {
+public class DeviceSentinelPowerDb {
 	
-	public SentinelPowerDb(Context context, String appVersion) {
+	public DeviceSentinelPowerDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.dbExternalPowerBattery = new DbExternalPowerBattery(context);
-		this.dbExternalPowerInput = new DbExternalPowerInput(context);
-		this.dbExternalPowerLoad = new DbExternalPowerLoad(context);
+		this.dbSentinelPowerBattery = new DbSentinelPowerBattery(context);
+		this.dbSentinelPowerInput = new DbSentinelPowerInput(context);
+		this.dbSentinelPowerSystem = new DbSentinelPowerSystem(context);
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SentinelPowerDb.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSentinelPowerDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "sentinel-power";
 	static final String C_MEASURED_AT = "measured_at";
-	static final String C_VALUE_1 = "value_1";
-	static final String C_VALUE_2 = "value_2";
-	static final String C_VALUE_3 = "value_3";
+	static final String C_VOLTAGE = "voltage";
+	static final String C_CURRENT = "current";
+	static final String C_TEMPERATURE = "temperature";
 	static final String C_VALUE_4 = "value_4";
-	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VALUE_1, C_VALUE_2, C_VALUE_3, C_VALUE_4 };
+	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VOLTAGE, C_CURRENT, C_TEMPERATURE, C_VALUE_4 };
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName)
 			.append("(").append(C_MEASURED_AT).append(" INTEGER")
-			.append(", ").append(C_VALUE_1).append(" TEXT")
-			.append(", ").append(C_VALUE_2).append(" TEXT")
-			.append(", ").append(C_VALUE_3).append(" TEXT")
+			.append(", ").append(C_VOLTAGE).append(" TEXT")
+			.append(", ").append(C_CURRENT).append(" TEXT")
+			.append(", ").append(C_TEMPERATURE).append(" TEXT")
 			.append(", ").append(C_VALUE_4).append(" TEXT")
 			.append(")");
 		return sbOut.toString();
 	}
 	
-	public class DbExternalPowerBattery {
+	public class DbSentinelPowerBattery {
 		private String TABLE = "battery";
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) {
@@ -69,7 +69,7 @@ public class SentinelPowerDb {
 		}
 		final DbHelper dbHelper;
 		
-		public DbExternalPowerBattery(Context context) {
+		public DbSentinelPowerBattery(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
 		
@@ -80,9 +80,9 @@ public class SentinelPowerDb {
 		public void insert(Date measured_at, String value_1, String value_2, String value_3, String value_4) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
-			values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VOLTAGE, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_CURRENT, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_TEMPERATURE, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
@@ -108,11 +108,11 @@ public class SentinelPowerDb {
 		}
 
 	}
-	public final DbExternalPowerBattery dbExternalPowerBattery;
+	public final DbSentinelPowerBattery dbSentinelPowerBattery;
 	
 	
 	
-	public class DbExternalPowerInput {
+	public class DbSentinelPowerInput {
 		private String TABLE = "input";
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) {
@@ -136,7 +136,7 @@ public class SentinelPowerDb {
 		}
 		final DbHelper dbHelper;
 		
-		public DbExternalPowerInput(Context context) {
+		public DbSentinelPowerInput(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
 		
@@ -147,9 +147,9 @@ public class SentinelPowerDb {
 		public void insert(Date measured_at, String value_1, String value_2, String value_3, String value_4) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
-			values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VOLTAGE, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_CURRENT, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_TEMPERATURE, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
@@ -175,12 +175,12 @@ public class SentinelPowerDb {
 		}
 
 	}
-	public final DbExternalPowerInput dbExternalPowerInput;
+	public final DbSentinelPowerInput dbSentinelPowerInput;
 	
 	
 	
-	public class DbExternalPowerLoad {
-		private String TABLE = "load";
+	public class DbSentinelPowerSystem {
+		private String TABLE = "system";
 		class DbHelper extends SQLiteOpenHelper {
 			public DbHelper(Context context) {
 				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
@@ -203,7 +203,7 @@ public class SentinelPowerDb {
 		}
 		final DbHelper dbHelper;
 		
-		public DbExternalPowerLoad(Context context) {
+		public DbSentinelPowerSystem(Context context) {
 			this.dbHelper = new DbHelper(context);
 		}
 		
@@ -214,9 +214,9 @@ public class SentinelPowerDb {
 		public void insert(Date measured_at, String value_1, String value_2, String value_3, String value_4) {
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
-			values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VOLTAGE, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_CURRENT, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_TEMPERATURE, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
@@ -242,7 +242,7 @@ public class SentinelPowerDb {
 		}
 
 	}
-	public final DbExternalPowerLoad dbExternalPowerLoad;
+	public final DbSentinelPowerSystem dbSentinelPowerSystem;
 	
 	
 	

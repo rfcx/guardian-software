@@ -32,18 +32,29 @@ public class DeviceI2cUtils {
 	private String execI2cGet = null;
 //	private String execI2cSet = null;
 	
-	public long i2cGet(String[] i2cLabelAndSubAddress) {
+	public long i2cGet(String subAddress, boolean parseAsHex) {
+		String rtrnValAsString = i2cGetAsString(subAddress, parseAsHex);
+		long rtrnVal = 0;
+		if (rtrnValAsString != null) {
+			try { rtrnVal = Long.parseLong(rtrnValAsString); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
+		}
+		return rtrnVal;
+	}
+	
+	public String i2cGetAsString(String subAddress, boolean parseAsHex) {
 		List<String[]> i2cLabelsAndSubAddresses = new ArrayList<String[]>();
-		i2cLabelsAndSubAddresses.add(i2cLabelAndSubAddress);
-		List<String[]> i2cReturn = i2cGet(i2cLabelsAndSubAddresses, this.execI2cGet, this.i2cMainAddress);
-		return Long.parseLong(i2cReturn.get(0)[1]);
+		i2cLabelsAndSubAddresses.add(new String[] { "no-label", subAddress });
+		List<String[]> i2cReturn = i2cGet(i2cLabelsAndSubAddresses, this.execI2cGet, this.i2cMainAddress, parseAsHex);
+		String rtrnVal = null;
+		if (i2cReturn.size() > 0) { try { rtrnVal = i2cReturn.get(0)[1]; } catch (Exception e) { RfcxLog.logExc(logTag, e); } }
+		return rtrnVal;
 	}
 	
-	public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses) {
-		return i2cGet(i2cLabelsAndSubAddresses, this.execI2cGet, this.i2cMainAddress);
+	public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, boolean parseAsHex) {
+		return i2cGet(i2cLabelsAndSubAddresses, this.execI2cGet, this.i2cMainAddress, parseAsHex);
 	}
 	
-	private static List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String execI2cGet, String i2cMainAddress) {
+	private static List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String execI2cGet, String i2cMainAddress, boolean parseAsHex) {
 
 		List<String[]> i2cLabelsAndOutputValues = new ArrayList<String[]>(); 
 		try {
@@ -52,6 +63,7 @@ public class DeviceI2cUtils {
 			BufferedReader lineReader = new BufferedReader (new InputStreamReader(i2cShellProc.getInputStream()));
 			
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
+			//	Log.v(logTag, (new StringBuilder()).append(execI2cGet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" w;").toString());
 				dataOutputStream.writeBytes((new StringBuilder()).append(execI2cGet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" w;\n").toString());
 				dataOutputStream.flush();
 			}
@@ -62,7 +74,8 @@ public class DeviceI2cUtils {
 			while ((lineContent = lineReader.readLine()) != null) { 
 				String thisLine = lineContent.trim();
 				if (thisLine.length() > 0) {
-					i2cLabelsAndOutputValues.add(new String[] { i2cLabelsAndSubAddresses.get(lineIndex)[0], ""+Long.parseLong(thisLine.substring(1+thisLine.indexOf("x")), 16) } );
+					String thisLineValueAsString = (parseAsHex) ? Long.parseLong(thisLine.substring(1+thisLine.indexOf("x")), 16)+"" : thisLine;
+					i2cLabelsAndOutputValues.add(new String[] { i2cLabelsAndSubAddresses.get(lineIndex)[0], thisLineValueAsString } );
 					lineIndex++;
 				}
 			}

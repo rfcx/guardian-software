@@ -19,8 +19,8 @@ import admin.device.android.control.AirplaneModeOnJobService;
 import admin.device.android.control.DateTimeSntpSyncJobService;
 import admin.device.android.control.RebootTriggerJobService;
 import admin.device.sentinel.DeviceSentinelService;
-import admin.device.sentinel.SentinelPowerDb;
-import admin.device.sentinel.SentinelPowerUtils;
+import admin.device.sentinel.DeviceSentinelPowerDb;
+import admin.device.sentinel.DeviceSentinelPowerUtils;
 import admin.receiver.AirplaneModeReceiver;
 import admin.receiver.ConnectivityReceiver;
 import android.app.Application;
@@ -41,10 +41,11 @@ public class RfcxGuardian extends Application {
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
 	
-	public SentinelPowerDb sentinelPowerDb = null;
-	
 	public DeviceScreenShotDb deviceScreenShotDb = null;
 	public DeviceLogCatCaptureDb deviceLogCatCaptureDb = null;
+	public DeviceSentinelPowerDb deviceSentinelPowerDb = null;
+	
+	public DeviceSentinelPowerUtils deviceSentinelPowerUtils = null;
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -80,6 +81,8 @@ public class RfcxGuardian extends Application {
 		DeviceI2cUtils.resetI2cPermissions(this, APP_ROLE);
 		DateTimeUtils.resetDateTimeReadWritePermissions(this, APP_ROLE);
 		
+		this.deviceSentinelPowerUtils = new DeviceSentinelPowerUtils(getApplicationContext());
+		
 		initializeRoleServices();
 	}
 	
@@ -106,17 +109,17 @@ public class RfcxGuardian extends Application {
 			System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
 			onLaunchServices[RfcxCoreServices.length] = 
 					"ServiceMonitor"
-						+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits three minutes before running
+						+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
 						+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
 						;
 			
-			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true);
+			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
 		}
 	}
 	
 	private void setDbHandlers() {
 		
-		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
+		this.deviceSentinelPowerDb = new DeviceSentinelPowerDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
 		this.deviceLogCatCaptureDb = new DeviceLogCatCaptureDb(this, this.version);
 	}

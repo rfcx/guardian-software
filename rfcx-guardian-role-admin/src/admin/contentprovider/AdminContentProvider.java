@@ -6,6 +6,7 @@ import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxRole;
 
 import admin.RfcxGuardian;
+import admin.device.sentinel.DeviceSentinelPowerUtils;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -75,7 +76,10 @@ public class AdminContentProvider extends ContentProvider {
 				String pathSeg = uri.getLastPathSegment();
 				
 				if (pathSeg.equalsIgnoreCase("sms")) {
-					return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[] { "sms", DeviceSmsUtils.getSmsMessagesAsJson(app.getApplicationContext().getContentResolver()), System.currentTimeMillis() });
+					return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[] { "sms", DeviceSmsUtils.getSmsMessagesAsJsonArray(app.getApplicationContext().getContentResolver()).toString(), System.currentTimeMillis() });
+				
+				} else if (pathSeg.equalsIgnoreCase("sentinel-power")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[] { "sentinel-power", DeviceSentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis() });
 				
 				} else {
 					return null;
@@ -112,6 +116,15 @@ public class AdminContentProvider extends ContentProvider {
 					return null;
 				}
 				
+			} else if (RfcxComm.uriMatch(uri, appRole, "database_delete_rows_before", "*")) {
+				String pathSeg = uri.getLastPathSegment();
+				String pathSegTable = pathSeg.substring(0,pathSeg.indexOf("|"));
+				String pathSegId = pathSeg.substring(1+pathSeg.indexOf("|"));
+				
+				if (pathSegTable.equalsIgnoreCase("sentinel-power")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[] { pathSeg, DeviceSentinelPowerUtils.deleteSentinelPowerValuesBeforeTimestamp(pathSegId, app.getApplicationContext()), System.currentTimeMillis() });	
+				
+				}
 				
 			}
 			

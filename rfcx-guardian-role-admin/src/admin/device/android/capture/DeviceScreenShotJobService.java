@@ -79,14 +79,14 @@ public class DeviceScreenShotJobService extends Service {
 
 				// activate screen and set wake lock
 				deviceScreenLock.unLockScreen(context);
-				Thread.sleep(3000);
+				Thread.sleep(1500);
 				
 				String[] saveScreenShot = deviceScreenShot.launchCapture(context);
 				if (saveScreenShot != null) { 
 					app.deviceScreenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3]);
 					Log.i(logTag, "ScreenShot saved: "+saveScreenShot[3]);
 				}
-				Thread.sleep(3000);
+				Thread.sleep(1500);
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

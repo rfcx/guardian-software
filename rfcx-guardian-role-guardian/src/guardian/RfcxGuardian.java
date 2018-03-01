@@ -140,7 +140,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 						+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
 						;
 			
-			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true);
+			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
 		}
 	}
 	

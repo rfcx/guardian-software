@@ -1,11 +1,13 @@
 package admin;
 
 
+import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 public class ServiceMonitor extends IntentService {
 	
@@ -14,6 +16,8 @@ public class ServiceMonitor extends IntentService {
 	private static final String SERVICE_NAME = "ServiceMonitor";
 	
 	public static final long SERVICE_MONITOR_CYCLE_DURATION = 600000;
+	// Please note that services that register as 'active' less frequently than this cycle duration will be forced to retrigger.
+	// For continuous, long running services, measures should be taken to ensure that they register as 'active' more often than this monitor runs.
 		
 	public ServiceMonitor() {
 		super(logTag);
@@ -28,7 +32,7 @@ public class ServiceMonitor extends IntentService {
 		
 		if (app.rfcxServiceHandler.isRunning(SERVICE_NAME)) {
 			
-			app.rfcxServiceHandler.triggerServiceSequence( "ServiceMonitorSequence", app.RfcxCoreServices, false );
+			app.rfcxServiceHandler.triggerServiceSequence( "ServiceMonitorSequence", app.RfcxCoreServices, false, SERVICE_MONITOR_CYCLE_DURATION );
 		}
 		
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);

@@ -139,6 +139,8 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 						
 					} else {
 
+						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+
 						// cache pre-captured sensor data
 						saveSystemStatValuesToDatabase("light");
 						saveSystemStatValuesToDatabase("accel");

@@ -26,7 +26,6 @@ import rfcx.utility.device.DeviceDiskUsage;
 import rfcx.utility.device.DeviceMobileSIMCard;
 import rfcx.utility.device.control.DeviceLogCatCapture;
 import rfcx.utility.device.control.DeviceScreenShot;
-import rfcx.utility.http.HttpPostMultipart;
 import rfcx.utility.mqtt.MqttUtils;
 import rfcx.utility.rfcx.RfcxComm;
 import rfcx.utility.rfcx.RfcxLog;
@@ -40,6 +39,8 @@ public class ApiCheckInUtils implements MqttCallback {
 	
 	public ApiCheckInUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
+
+		this.requestTimeOutLength = 2 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration");
 		
 		// setting http post timeouts to the same as the audio capture interval.
 //		setHttpCheckInTimeOuts(this.app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
@@ -48,7 +49,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		this.mqttCheckInClient = new MqttUtils(RfcxGuardian.APP_ROLE, this.app.rfcxDeviceGuid.getDeviceGuid());
 		this.mqttCheckInClient.setOrResetBroker("tcp", 1883, this.app.rfcxPrefs.getPrefAsString("api_mqtt_host"));
 		this.mqttCheckInClient.setCallback(this);
-//		this.mqttCheckInClient.setActionTimeout( 2 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") );
+		this.mqttCheckInClient.setActionTimeout(this.requestTimeOutLength);
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInUtils.class);
@@ -59,6 +60,8 @@ public class ApiCheckInUtils implements MqttCallback {
 	public Date requestSendStart = new Date();
 	public Date requestSendReturned = new Date();
 	public long requestSendDuration = 0;
+	
+	public long requestTimeOutLength = 0;
 	
 //	private String[] inFlightCheckInEntry = null;
 	
@@ -204,6 +207,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			app.deviceDataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
 			app.rebootDb.dbRebootComplete.clearRowsBefore(deleteBefore);
 			
+			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before", "sentinel-power|"+deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -249,6 +254,9 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		// Adding logs meta to JSON blob
 		checkInMetaJson.put( "logs", (logFileMeta[0] != null) ? (logFileMeta[1]+"*"+logFileMeta[2]+"*"+logFileMeta[3]+"*"+logFileMeta[4]) : "");
+		
+		// Adding sentinel data, if they can be retrieved
+		checkInMetaJson.put("sentinel_power", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sentinel-power", app.getApplicationContext().getContentResolver()).getJSONObject(0));
 		
 		return checkInMetaJson.toString();
 		
