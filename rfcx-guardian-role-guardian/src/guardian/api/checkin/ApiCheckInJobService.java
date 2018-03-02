@@ -69,8 +69,6 @@ public class ApiCheckInJobService extends Service {
 			ApiCheckInJobService apiCheckInJobInstance = ApiCheckInJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
-
-			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 				
 			try {
 				
@@ -118,7 +116,7 @@ public class ApiCheckInJobService extends Service {
 								
 								// MQTT
 								app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
-								Thread.sleep(1000);
+								Thread.sleep(500);
 								
 								// HTTP
 //									List<String[]> stringParameters = new ArrayList<String[]>();
@@ -157,6 +155,7 @@ public class ApiCheckInJobService extends Service {
 			if (app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")) { Log.v(logTag, "No CheckIn because offline mode is on"); }
 			
 			apiCheckInJobInstance.runFlag = false;
+			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 			app.rfcxServiceHandler.stopService(SERVICE_NAME);
 		}

@@ -93,7 +93,7 @@ public class AudioCaptureService extends Service {
 					
 					try {
 						
-						long prefsCaptureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+						long prefsCaptureLoopQuarterPeriod = (long) Math.round(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 4);
 						
 						if (app.audioCaptureUtils.isAudioCaptureAllowed()) {
 						
@@ -113,8 +113,10 @@ public class AudioCaptureService extends Service {
 							
 						}
 						
-						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-						Thread.sleep(prefsCaptureLoopPeriod);
+						for (int loopQuarterIteration = 0; loopQuarterIteration < 4; loopQuarterIteration++) {
+							app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+							Thread.sleep(prefsCaptureLoopQuarterPeriod);
+						}
 						
 					} catch (Exception e) {
 						RfcxLog.logExc(logTag, e);

@@ -16,6 +16,7 @@ import admin.device.android.capture.DeviceScreenShotDb;
 import admin.device.android.capture.DeviceScreenShotJobService;
 import admin.device.android.control.AirplaneModeOffJobService;
 import admin.device.android.control.AirplaneModeOnJobService;
+import admin.device.android.control.DailyScheduledRebootService;
 import admin.device.android.control.DateTimeSntpSyncJobService;
 import admin.device.android.control.RebootTriggerJobService;
 import admin.device.sentinel.DeviceSentinelService;
@@ -105,12 +106,17 @@ public class RfcxGuardian extends Application {
 		
 		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 			
-			String[] onLaunchServices = new String[RfcxCoreServices.length+1];
+			String[] onLaunchServices = new String[RfcxCoreServices.length+2];
 			System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
 			onLaunchServices[RfcxCoreServices.length] = 
 					"ServiceMonitor"
 						+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
 						+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
+						;
+			onLaunchServices[RfcxCoreServices.length+1] = 
+					"DailyScheduledReboot"
+						+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
+						+"|"+(24 * 60 * 60 * 1000)
 						;
 			
 			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
@@ -127,6 +133,7 @@ public class RfcxGuardian extends Application {
 	private void setServiceHandlers() {
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);
+		this.rfcxServiceHandler.addService("DailyScheduledReboot", DailyScheduledRebootService.class);
 		this.rfcxServiceHandler.addService("ScreenShotJob", DeviceScreenShotJobService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeOffJob", AirplaneModeOffJobService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeOnJob", AirplaneModeOnJobService.class);

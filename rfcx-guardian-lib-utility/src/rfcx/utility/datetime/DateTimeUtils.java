@@ -69,7 +69,7 @@ public class DateTimeUtils {
 	}
 	
 	public static Calendar nowPlusThisLong(int hours, int minutes, int seconds) {
-		long rightNowPlus = System.currentTimeMillis() + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000);
+		long rightNowPlus = (new Date()).getTime() + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000) + (seconds * 1000);
 		Calendar nowPlusCalendar = Calendar.getInstance();
 		try { nowPlusCalendar.setTimeInMillis(rightNowPlus); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		return nowPlusCalendar;
@@ -93,7 +93,7 @@ public class DateTimeUtils {
 	}
 	
 	public static long timeStampDifferenceFromNowInMilliSeconds(Date date) {
-		long rightNow = System.currentTimeMillis();
+		long rightNow = (new Date()).getTime();
 		long timeStamp = date.getTime();
 		return timeStamp - rightNow;
 	}

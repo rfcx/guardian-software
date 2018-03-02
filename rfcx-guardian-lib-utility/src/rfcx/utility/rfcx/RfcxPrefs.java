@@ -26,8 +26,8 @@ public class RfcxPrefs {
 		this.logTag = RfcxLog.generateLogTag(appRole, RfcxPrefs.class);
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
-		this.prefsDirPath = setOrCreatePrefsDirectory(context);
-		
+		this.prefsDirPath = setOrCreatePrefsDirectory(context, appRole);
+		Log.d(logTag, this.prefsDirPath);
 //		setDefaultPrefs();
 	}
 	
@@ -87,26 +87,27 @@ public class RfcxPrefs {
 	
 	private String readPrefFromFile(String prefKey) {
 		try {
-    		String filePath = (new StringBuilder()).append(prefsDirPath).append("/").append(prefKey.toLowerCase(Locale.US)).append(".txt").toString();
-        	File fileObj = new File(filePath);
-        	
-    		if (fileObj.exists()) {
-				FileInputStream input = new FileInputStream(fileObj);
-				StringBuffer fileContent = new StringBuffer("");
-				byte[] buffer = new byte[256];
-				while (input.read(buffer) != -1) {
-				    fileContent.append(new String(buffer));
-				}
-	    		String txtFileContents = fileContent.toString().trim();
-	    		input.close();
-	    		return txtFileContents;
-    		} else {
-    			Log.e(logTag, "No preference file '"+prefKey+"' exists...");
-    		}
-    	} catch (FileNotFoundException e) {
-			RfcxLog.logExc(logTag, e);
-    	} catch (IOException e) {
-			RfcxLog.logExc(logTag, e);
+			
+	    		String filePath = (new StringBuilder()).append(prefsDirPath).append("/").append(prefKey.toLowerCase(Locale.US)).append(".txt").toString();
+	        	File fileObj = new File(filePath);
+	        	
+	    		if (fileObj.exists()) {
+					FileInputStream input = new FileInputStream(fileObj);
+					StringBuffer fileContent = new StringBuffer("");
+					byte[] buffer = new byte[256];
+					while (input.read(buffer) != -1) {
+					    fileContent.append(new String(buffer));
+					}
+		    		String txtFileContents = fileContent.toString().trim();
+		    		input.close();
+		    		return txtFileContents;
+	    		} else {
+	    			Log.e(logTag, "No preference file '"+prefKey+"' exists...");
+	    		}
+	    	} catch (FileNotFoundException e) {
+				RfcxLog.logExc(logTag, e);
+	    	} catch (IOException e) {
+				RfcxLog.logExc(logTag, e);
 		}
     	return null;
 	}
@@ -200,12 +201,16 @@ public class RfcxPrefs {
 	}
 
 	
-	// this may require root...
-	private static String setOrCreatePrefsDirectory(Context context) {
+	private static String setOrCreatePrefsDirectory(Context context, String appRole) {
 		
-		String prefsDir = (new StringBuilder()).append(context.getFilesDir().toString()).append("/prefs").toString();
-		(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, 0777);
+		String roleFilesDir = context.getFilesDir().toString();
+		String prefsDir = (new StringBuilder()).append(roleFilesDir.substring(0, roleFilesDir.lastIndexOf("/files")-("."+appRole).length())).append(".guardian/files/prefs").toString();
+		
+		if (appRole.equalsIgnoreCase("guardian")) {
+			(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, 0777);
+		}
 
+		// this may require root...
 //		String sdCardDir = (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/prefs").toString();
 //		if (!(new File(sdCardDir)).isDirectory()) { (new File(sdCardDir)).mkdirs(); FileUtils.chmod(sdCardDir, 0777); }
 		

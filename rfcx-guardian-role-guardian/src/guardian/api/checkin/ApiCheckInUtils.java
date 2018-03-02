@@ -482,17 +482,18 @@ public class ApiCheckInUtils implements MqttCallback {
 	
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken deliveryToken) {
-		this.requestSendDuration = (new Date()).getTime() - this.requestSendStart.getTime();
-		Log.i(logTag, "CheckIn delivery time: " + (this.requestSendDuration / 1000) + " seconds");
 		
+		this.requestSendDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.requestSendStart));
+		Log.i(logTag, (new StringBuilder()).append("CheckIn delivery time: ").append(DateTimeUtils.milliSecondDurationAsReadableString(this.requestSendDuration, true)).toString() );
 		moveCheckInEntryToSentDatabase("0");
 		
 	}
 	
 	@Override
 	public void connectionLost(Throwable cause) {
-		Log.e(logTag, "Connection lost.");
-		cause.printStackTrace();
+		
+		Log.e(logTag, (new StringBuilder()).append("Connection lost. ").append( DateTimeUtils.timeStampDifferenceFromNowAsReadableString(this.requestSendStart) ).append(" since last CheckIn publication was launched").toString());
+		//		cause.printStackTrace();
 		RfcxLog.logThrowable(logTag, cause);
 	}
 	

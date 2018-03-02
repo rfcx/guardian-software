@@ -74,8 +74,6 @@ public class DeviceSentinelService extends Service {
 			try {
 						
 				while (deviceSentinelService.runFlag) {
-				
-					Thread.sleep(SENTINEL_POWER_MEASUREMENT_LOOP_MS);
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 					
@@ -85,6 +83,8 @@ public class DeviceSentinelService extends Service {
 						app.deviceSentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext());
 						
 					}
+					
+					Thread.sleep(SENTINEL_POWER_MEASUREMENT_LOOP_MS);
 				}
 			
 			} catch (InterruptedException e) {

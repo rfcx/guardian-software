@@ -77,6 +77,7 @@
         
         <!-- IntentServices -->
         <service android:name="admin.ServiceMonitor" />
+        <service android:name="admin.device.android.control.DailyScheduledRebootService" />
 
         
         <!-- Broadcast Receivers -->

@@ -54,11 +54,11 @@ public class MqttUtils implements MqttCallback {
 		// More info on options here:
 		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html
 		
-		mqttConnectOptions.setCleanSession(false); // If false, both the client and server will maintain state across restarts of the client, the server and the connection.
+		mqttConnectOptions.setCleanSession(true); // If false, both the client and server will maintain state across restarts of the client, the server and the connection.
 		mqttConnectOptions.setConnectionTimeout(20); // in seconds
-		mqttConnectOptions.setKeepAliveInterval(60); // in seconds
-		mqttConnectOptions.setAutomaticReconnect(true); // automatically attempt to reconnect to the server if the connection is lost
-		mqttConnectOptions.setMaxInflight(10); // limits how many messages can be sent without receiving acknowledgments
+		mqttConnectOptions.setKeepAliveInterval(40); // in seconds
+		mqttConnectOptions.setAutomaticReconnect(false); // automatically attempt to reconnect to the server if the connection is lost
+		mqttConnectOptions.setMaxInflight(2); // limits how many messages can be sent without receiving acknowledgments
 //		mqttConnectOptions.setUserName(userName);
 //		mqttConnectOptions.setPassword(password);
 //		mqttConnectOptions.setSSLProperties(props);
@@ -102,7 +102,7 @@ public class MqttUtils implements MqttCallback {
 		if ((this.mqttClient == null) || !this.mqttClient.isConnected()) {
 				
 			this.mqttClient = new MqttClient(this.mqttBrokerUri, this.mqttClientId, new MemoryPersistence());
-			Log.v(logTag, "MQTT client action timeout set to: "+this.mqttActionTimeout+"ms");
+			Log.v(logTag, "MQTT client action timeout set to: "+Math.round(this.mqttActionTimeout/1000)+" seconds");
 			this.mqttClient.setTimeToWait(this.mqttActionTimeout);			
 			Log.v(logTag, "MQTT client connecting to broker: "+this.mqttBrokerUri);
 			this.mqttClient.setCallback(this.mqttCallback);
