@@ -18,18 +18,11 @@
 		android:defaultValue="false" />
     
  	<EditTextPreference
-        android:key="api_url_base"
-        android:title="api_url_base"
-        android:summary="string - protocol+domain"
+        android:key="api_checkin_host"
+        android:title="api_checkin_host"
+        android:summary="string - api address"
         android:enabled="true"
-        android:defaultValue="https://api.rfcx.org" />
-    
- 	<EditTextPreference
-        android:key="api_mqtt_host"
-        android:title="api_mqtt_host"
-        android:summary="string - mqtt api address"
-        android:enabled="true"
-        android:defaultValue="mqtt.rfcx.org" />
+        android:defaultValue="checkin.rfcx.org" />
  	
  	<EditTextPreference
         android:key="api_ntp_host"
@@ -187,6 +180,13 @@
  	
  	<!-- CheckIn Triggering Controls -->
  	
+ 	<EditTextPreference
+        android:key="checkin_failure_thresholds"
+        android:title="checkin_failure_thresholds"
+        android:summary="string - minutes, comma separated"
+        android:enabled="true"
+        android:defaultValue="10,20,30,40,50,60,70,80,90" />
+ 	 	
  	<EditTextPreference
         android:key="checkin_skip_threshold"
         android:title="checkin_skip_threshold"

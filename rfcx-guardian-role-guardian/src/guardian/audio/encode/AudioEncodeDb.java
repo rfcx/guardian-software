@@ -160,12 +160,14 @@ public class AudioEncodeDb {
 
 		public String[] getSingleRowByAudioId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " substr("+C_TIMESTAMP+",0,14) = ?", new String[] { audioId.substring(0,13) }, C_CREATED_AT, 0);
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " "+ C_TIMESTAMP +" = ?", new String[] { audId }, C_CREATED_AT, 0);
 		}
 		
 		public void incrementSingleRowAttempts(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_TIMESTAMP+",0,14)='"+audioId.substring(0,13)+"'");
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_TIMESTAMP +" = '"+ audId +"'");
 			} finally { db.close(); }
 		}
 		
@@ -255,7 +257,8 @@ public class AudioEncodeDb {
 		
 		public void incrementSingleRowAttempts(String audioTimeStamp) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_TIMESTAMP+",0,14)='"+audioTimeStamp.substring(0,13)+"'");
+			String audId = audioTimeStamp.contains(".") ? audioTimeStamp.substring(0, audioTimeStamp.lastIndexOf(".")) : audioTimeStamp;
+			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_TIMESTAMP +" ='"+ audId +"'");
 			} finally { db.close(); }
 		}
 		
@@ -266,7 +269,8 @@ public class AudioEncodeDb {
 
 		public String[] getSingleRowByAudioId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " substr("+C_TIMESTAMP+",0,14) = ?", new String[] { audioId.substring(0,13) }, C_CREATED_AT, 0);
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " "+ C_TIMESTAMP +" = ?", new String[] { audId }, C_CREATED_AT, 0);
 		}
 		
 	}

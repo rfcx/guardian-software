@@ -6,6 +6,7 @@ import org.rfcx.guardian.setup.R;
 import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceBattery;
 import rfcx.utility.device.DeviceConnectivity;
+import rfcx.utility.misc.ShellCommands;
 import rfcx.utility.rfcx.RfcxDeviceGuid;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxPrefs;
@@ -21,14 +22,14 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import setup.api.ApiCore;
+import setup.api.UpdateCheckInUtils;
 import setup.device.android.control.RebootTriggerJobService;
 import setup.receiver.ConnectivityReceiver;
 import setup.service.ApiCheckVersionIntentService;
 import setup.service.ApiCheckVersionService;
 import setup.service.ApiRegisterService;
-import setup.service.DownloadFileService;
-import setup.service.InstallAppService;
+import setup.service.ApkDownloadService;
+import setup.service.ApkInstallService;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 	
@@ -52,7 +53,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	
-	public ApiCore apiCore = new ApiCore();
+	public UpdateCheckInUtils apiCore = new UpdateCheckInUtils();
 	
 	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
@@ -90,12 +91,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.apiCore.setApiCheckVersionEndpoint(this.getDeviceGuid());
 		this.apiCore.setApiRegisterEndpoint();
 		
-		// install external binaries
-//		this.installExternalExecutable("fb2png", false);
-//		this.installExternalExecutable("logcat_capture", true);
-		
 		setDbHandlers();
 		setServiceHandlers();
+		
+		ShellCommands.triggerNeedForRootAccess(this);
 		
 		initializeRoleServices();
 
@@ -126,7 +125,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 							+"|"+3600000 // repeats hourly
 						;
 			
-			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true);
+			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
 		}
 	}
 	
@@ -138,8 +137,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("ApiCheckVersion", ApiCheckVersionService.class);
 		this.rfcxServiceHandler.addService("ApiCheckVersionIntentService", ApiCheckVersionIntentService.class);
 		this.rfcxServiceHandler.addService("ApiRegister", ApiRegisterService.class);
-		this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
-		this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
+		
+		this.rfcxServiceHandler.addService("ApkInstall", ApkInstallService.class);
+		this.rfcxServiceHandler.addService("ApkDownload", ApkDownloadService.class);
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);		
 	}
 	
@@ -174,95 +174,5 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		}
 	}
 	
-	
-	
-	
-	
-	
-//	
-//	
-//    
-//    public void setExtremeDevelopmentSystemDefaults(){
-//    	
-//    	context = getApplicationContext();
-//    	
-//    	String[] buildDotPropSettings = new String[] {
-//    			"service.adb.tcp.port=5555", // permanently turns on network adb access (for bluetooth/wifi administration)
-//    			"ro.com.android.dataroaming=true", // turns on data roaming
-//    			"ro.com.android.dateformat=yyyy-MM-dd", // sets the date format
-//    			"net.bt.name=rfcx-"+this.rfcxDeviceId.getDeviceGuid().substring(0,4) // sets the default bluetooth device name to 
-//    		};
-//    	
-//    	ShellCommands.executeCommand("mount -o rw,remount /dev/block/mmcblk0p1 /system", null, true, context);
-//    	
-//    	String writeToBuildDotProp = "";
-//    	for (int i = 0; i < buildDotPropSettings.length; i++) {
-//    		writeToBuildDotProp += " echo "+buildDotPropSettings[i]+" >> /system/build.prop; ";
-//    	}
-//    	
-//    	ShellCommands.executeCommand(writeToBuildDotProp, null, true, context);
-//    	
-//    }
-//    
-//    public void deleteExtraCyanogenModApps() {
-//            
-//        	context = getApplicationContext();
-//        	
-//        	String[] appsToDelete = new String[] {
-//        			"Camera", "Calculator", "Browser", "Pacman", "Email", "FM", 
-//        			"Calendar", "Gallery", "Music", "QuickSearchBox", "VoiceDialer", "RomManager"
-//        		};
-//        	
-//        	ShellCommands.executeCommand("mount -o rw,remount /dev/block/mmcblk0p1 /system", null, true, context);
-//        	
-//        	String executeAppDeletion = "";
-//        	for (int i = 0; i < appsToDelete.length; i++) {
-//        		executeAppDeletion += " rm -f /system/app/"+appsToDelete[i]+".apk; ";
-//        	}
-//        	
-//        	ShellCommands.executeCommand(executeAppDeletion, null, true, context);
-//    }
-//    
-//    private boolean installExternalExecutable(String binName, boolean forceOverWrite) {
-//    	try {
-//    		
-//    		String assetDirPath = Environment.getDownloadCacheDirectory().getAbsolutePath()+"/rfcx";
-//    		String binDirPath = assetDirPath+"/bin"; File binDir = new File(binDirPath);
-//    		String binFilePath = binDirPath+"/"+binName; File binFile = new File(binFilePath);
-//    		
-//    		if (!(new File(assetDirPath)).exists()) {
-//    			ShellCommands.executeCommand("mkdir "+assetDirPath+"; chmod a+rw "+assetDirPath+";", null, true, getApplicationContext());
-//    		}
-//    		
-//    		if (!binDir.exists()) {
-//	    		binDir.mkdirs();
-//	    		FileUtils.chmod(binDir, 0755);
-//    		}
-//    		
-//	     	if (forceOverWrite) { binFile.delete(); }
-//	     		
-//	        if (!binFile.exists()) {
-//	    		try {
-//	    			InputStream inputStream = getApplicationContext().getAssets().open(binName);
-//	    		    OutputStream outputStream = new FileOutputStream(binFilePath);
-//	    		    byte[] buf = new byte[1024];
-//	    		    int len;
-//	    		    while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
-//	    		    inputStream.close();
-//	    		    outputStream.close();
-//	    		    FileUtils.chmod(binFile, 0755);
-//	    		    return binFile.exists();
-//	    		} catch (IOException e) {
-//	    			RfcxLog.logExc(logTag, e);
-//	    			return false;
-//	    		}
-//	        } else {
-//	        	return true;
-//	        }
-//    	} catch (Exception e) {
-//    		RfcxLog.logExc(logTag, e);
-//    		return false;
-//    	}
-//    }
-    
+	    
 }

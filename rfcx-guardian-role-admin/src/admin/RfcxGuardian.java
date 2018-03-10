@@ -18,6 +18,7 @@ import admin.device.android.control.AirplaneModeOffJobService;
 import admin.device.android.control.AirplaneModeOnJobService;
 import admin.device.android.control.DailyScheduledRebootService;
 import admin.device.android.control.DateTimeSntpSyncJobService;
+import admin.device.android.control.ForceRoleRelaunchService;
 import admin.device.android.control.RebootTriggerJobService;
 import admin.device.sentinel.DeviceSentinelService;
 import admin.device.sentinel.DeviceSentinelPowerDb;
@@ -78,9 +79,9 @@ public class RfcxGuardian extends Application {
 		setDbHandlers();
 		setServiceHandlers();
 		
-		(new ShellCommands(this, APP_ROLE)).triggerNeedForRootAccess();
-		DeviceI2cUtils.resetI2cPermissions(this, APP_ROLE);
-		DateTimeUtils.resetDateTimeReadWritePermissions(this, APP_ROLE);
+		ShellCommands.triggerNeedForRootAccess(this);
+		DeviceI2cUtils.resetI2cPermissions(this);
+		DateTimeUtils.resetDateTimeReadWritePermissions(this);
 		
 		this.deviceSentinelPowerUtils = new DeviceSentinelPowerUtils(getApplicationContext());
 		
@@ -106,19 +107,21 @@ public class RfcxGuardian extends Application {
 		
 		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 			
-			String[] onLaunchServices = new String[RfcxCoreServices.length+2];
-			System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
-			onLaunchServices[RfcxCoreServices.length] = 
+			String[] runOnceOnlyOnLaunch = new String[] {
 					"ServiceMonitor"
-						+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
-						+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
-						;
-			onLaunchServices[RfcxCoreServices.length+1] = 
+							+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
+							+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
+							,
 					"DailyScheduledReboot"
-						+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
-						+"|"+(24 * 60 * 60 * 1000)
-						;
+							+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
+							+"|"+(24 * 60 * 60 * 1000)
+							,
+					"ScreenShotJob"
+			};
 			
+			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
+			System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
+			System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
 			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
 		}
 	}
@@ -139,6 +142,8 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("AirplaneModeOnJob", AirplaneModeOnJobService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
+		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
+		
 	}
     
 }

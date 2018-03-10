@@ -13,16 +13,16 @@ import android.os.IBinder;
 import android.util.Log;
 import setup.RfcxGuardian;
 
-public class DownloadFileService extends Service {
+public class ApkDownloadService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DownloadFileService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApkDownloadService.class);
 	
-	private static final String SERVICE_NAME = "DownloadFile";
+	private static final String SERVICE_NAME = "ApkDownload";
 
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private DownloadFile downloadFile;
+	private ApkDownload apkDownload;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -32,7 +32,7 @@ public class DownloadFileService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.downloadFile = new DownloadFile();
+		this.apkDownload = new ApkDownload();
 		app = (RfcxGuardian) getApplication();
 	}
 
@@ -43,7 +43,7 @@ public class DownloadFileService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.downloadFile.start();
+			this.apkDownload.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -55,19 +55,19 @@ public class DownloadFileService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.downloadFile.interrupt();
-		this.downloadFile = null;
+		this.apkDownload.interrupt();
+		this.apkDownload = null;
 	}
 	
-	private class DownloadFile extends Thread {
+	private class ApkDownload extends Thread {
 
-		public DownloadFile() {
-			super("DownloadFileService-DownloadFile");
+		public ApkDownload() {
+			super("ApkDownloadService-ApkDownload");
 		}
 
 		@Override
 		public void run() {
-			DownloadFileService downloadFileService = DownloadFileService.this;
+			ApkDownloadService apkDownloadService = ApkDownloadService.this;
 			Context context = app.getApplicationContext();
 			HttpGet httpGet = new HttpGet(context, RfcxGuardian.APP_ROLE);
 			try {

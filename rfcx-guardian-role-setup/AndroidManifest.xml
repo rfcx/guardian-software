@@ -60,10 +60,10 @@
 
         <service android:name="setup.service.ApiCheckVersionIntentService" />
         <service android:name="setup.service.RebootTriggerIntentService" />
-        <service android:name="setup.service.DownloadFileService" />
+        <service android:name="setup.service.ApkDownloadService" />
         <service android:name="setup.service.ApiCheckVersionService" />
         <service android:name="setup.service.ApiRegisterService" />
-        <service android:name="setup.service.InstallAppService" />
+        <service android:name="setup.service.ApkInstallService" />
 
         <activity
             android:name="setup.activity.PrefsActivity"

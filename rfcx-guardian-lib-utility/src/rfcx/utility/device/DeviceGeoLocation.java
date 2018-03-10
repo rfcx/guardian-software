@@ -1,6 +1,10 @@
 package rfcx.utility.device;
 
+import android.content.Context;
+import android.location.Criteria;
+import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 import rfcx.utility.rfcx.RfcxLog;
 
 public class DeviceGeoLocation {
@@ -30,8 +34,8 @@ public class DeviceGeoLocation {
 			.toString();
 	}
 	
-	private void updateGeoLocation() {
-//		this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+//	private void updateGeoLocation() {
+//		this.locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 //		Criteria criteria = new Criteria();
 //		String bestProvider = locationManager.getBestProvider(criteria, false);
 //		Location location = locationManager.getLastKnownLocation(bestProvider);
@@ -40,9 +44,10 @@ public class DeviceGeoLocation {
 //			this.geoLocationLongitude = (double) location.getLongitude();
 //			this.geoLocationPrecision = 0;
 //		} catch (Exception e) {
-//			RfcxLog.logExc(TAG, e);
+//			RfcxLog.logExc(logTag, e);
 //		}
-	}
+//		Log.d(logTag, getSerializedGeoLocation());
+//	}
 
 	
 	

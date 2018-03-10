@@ -3,8 +3,8 @@
 
     <string name="app_name">rfcx setup</string>
 
-    <string name="menu_prefs">prefs</string>
     <string name="menu_api_register">register</string>
-	<string name="menu_api_update">check update</string>
+	<string name="menu_api_update">update</string>
+    <string name="menu_prefs">prefs</string>
 	
 </resources>

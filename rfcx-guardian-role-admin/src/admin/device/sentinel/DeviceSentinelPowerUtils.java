@@ -123,21 +123,20 @@ public class DeviceSentinelPowerUtils {
 	public static JSONArray getSentinelPowerValuesAsJsonArray(Context context) {
 		
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-		JSONObject powerJson = new JSONObject();
-		
+		JSONArray powerJsonArray = new JSONArray();
 		try {
+			JSONObject powerJson = new JSONObject();
 			powerJson.put("battery", app.deviceSentinelPowerDb.dbSentinelPowerBattery.getConcatRows());
 			powerJson.put("input", app.deviceSentinelPowerDb.dbSentinelPowerInput.getConcatRows());
 			powerJson.put("system", app.deviceSentinelPowerDb.dbSentinelPowerSystem.getConcatRows());
+			powerJsonArray.put(powerJson);
 			
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
+			
+		} finally {
+			return powerJsonArray;
 		}
-		
-		JSONArray powerJsonArray = new JSONArray();
-		powerJsonArray.put(powerJson);
-		
-		return powerJsonArray;
 	}
 	
 	public static int deleteSentinelPowerValuesBeforeTimestamp(String timeStamp, Context context) {
@@ -153,9 +152,11 @@ public class DeviceSentinelPowerUtils {
 		return 1;
 	}
 	
-	public void saveSentinelPowerValuesToDatabase(Context context) {
+	public void saveSentinelPowerValuesToDatabase(Context context, boolean printValuesToLog) {
 
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		
+		if (printValuesToLog) { Log.d(logTag, "-");  }
 		
 		for (String groupName : this.i2cValues.keySet()) {
 			String[] vals = getCurrentValues(groupName);
@@ -167,8 +168,10 @@ public class DeviceSentinelPowerUtils {
 				} else if (groupName.equals("system")) { 
 					app.deviceSentinelPowerDb.dbSentinelPowerSystem.insert(new Date(), vals[0], vals[1], vals[2], vals[3]);
 				}
-
-//				Log.d(logTag, groupName+": "+vals[0]+"mV - "+vals[1]+"mA - "+vals[2]+"deg - "+vals[3]+"mW");
+				
+				if (printValuesToLog) {
+					Log.d(logTag, groupName+": "+vals[0]+"mV - "+vals[1]+"mA - "+vals[2]+"deg - "+vals[3]+"mW");
+				}
 			}
 		}
 		

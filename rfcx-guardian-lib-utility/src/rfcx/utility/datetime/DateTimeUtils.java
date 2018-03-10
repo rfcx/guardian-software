@@ -154,9 +154,8 @@ public class DateTimeUtils {
 		return isTimeStampWithinTimeRange(timeStamp, startHour, startMinute, startSecond, endHour, endMinute, endSecond);
 	}
 
-	public static void resetDateTimeReadWritePermissions(Context context, String appRole) {
-		ShellCommands shellCommands = new ShellCommands(context, appRole);
+	public static void resetDateTimeReadWritePermissions(Context context) {
 		Log.v(logTag, "Resetting Permissions on DateTime Alarm Handlers...");
-		shellCommands.executeCommandAsRootAndIgnoreOutput("chmod 666 /dev/alarm;");
+		ShellCommands.executeCommandAsRootAndIgnoreOutput("chmod 666 /dev/alarm;", context);
 	}
 }

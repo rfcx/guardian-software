@@ -16,12 +16,12 @@ public class DeviceCPUTuner {
 	public DeviceCPUTuner(Context context, String appRole) {
 		this.context = context;
 		this.logTag = RfcxLog.generateLogTag("Utils", DeviceCPUTuner.class);
-		this.shellCommands = new ShellCommands(context, appRole);
+//		this.shellCommands = new ShellCommands(context);
 	}
 	
 	private Context context;
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceCPUTuner.class);
-	private ShellCommands shellCommands;
+//	private ShellCommands shellCommands;
 	
 	public void writeConfiguration(int freq_min, int freq_max, int governor_up, int governor_down) {
 		if (isInstalled(this.context)) {
@@ -88,7 +88,7 @@ public class DeviceCPUTuner {
         	outFile.close();
         	FileUtils.chmod(tmpPrefsFile, 0755);
         	if (tmpPrefsFile.exists()) {
-        		this.shellCommands.executeCommandAsRoot("cp "+tmpPrefsFilePath+" "+getPrefsPath(context));
+        		ShellCommands.executeCommandAsRoot("cp "+tmpPrefsFilePath+" "+getPrefsPath(context), context);
         	}
         } catch (IOException e) {
         		RfcxLog.logExc(logTag, e);
@@ -98,16 +98,16 @@ public class DeviceCPUTuner {
 	private void createOrUpdateDbProfile(Context context, String logTag, int freq_min, int freq_max, int governor_up, int governor_down) {
 
 		String preQuery = (new StringBuilder()).append("sqlite3 ").append(getDbPath(context)).append(" ").toString();
-		if (this.shellCommands.executeCommandAsRootAndSearchOutput(preQuery+sqlCheckIfProfileExists, "0")) {
+		if (ShellCommands.executeCommandAsRootAndSearchOutput(preQuery+sqlCheckIfProfileExists, "0", context)) {
 			Log.d(logTag, "Inserting RFCx profile into CPUTuner database for the first time.");
-			this.shellCommands.executeCommandAsRoot(preQuery+sqlDeleteRfcxProfile);
-			this.shellCommands.executeCommandAsRoot(preQuery+getSqlInsertRfcxProfile(freq_min, freq_max, governor_up, governor_down));
+			ShellCommands.executeCommandAsRoot(preQuery+sqlDeleteRfcxProfile, context);
+			ShellCommands.executeCommandAsRoot(preQuery+getSqlInsertRfcxProfile(freq_min, freq_max, governor_up, governor_down), context);
 		} else {
 			Log.v(logTag, "Updating RFCx profile in CPUTuner database.");
-			this.shellCommands.executeCommandAsRoot(preQuery+getSqlUpdateRfcxProfile(freq_min, freq_max, governor_up, governor_down));
+			ShellCommands.executeCommandAsRoot(preQuery+getSqlUpdateRfcxProfile(freq_min, freq_max, governor_up, governor_down), context);
 		}
 		
-		this.shellCommands.executeCommandAsRoot(preQuery+sqlUpdateTriggers);
+		ShellCommands.executeCommandAsRoot(preQuery+sqlUpdateTriggers, context);
 	}
 	
 	private static boolean isInstalled(Context context) {

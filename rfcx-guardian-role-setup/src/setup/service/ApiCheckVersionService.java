@@ -77,37 +77,41 @@ public class ApiCheckVersionService extends Service {
 			httpGet.setCustomHttpHeaders(rfcxAuthHeaders);
 
 			try {
-				if (app.deviceConnectivity.isConnected()) {
-					if (app.apiCore.apiCheckVersionEndpoint != null) {
-						app.lastApiCheckTriggeredAt = System.currentTimeMillis();
-						String getUrl =	(((app.getPref("api_url_base")!=null) ? app.getPref("api_url_base") : "https://api.rfcx.org")
-										+ app.apiCore.apiCheckVersionEndpoint
-										+ "?role="+app.APP_ROLE.toLowerCase()
-										+ "&version="+app.version
-										+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
-										+ "&timestamp="+System.currentTimeMillis()
-										);
-						
-						long sinceLastCheckIn = (System.currentTimeMillis() - app.apiCore.lastCheckInTime) / 1000;
-						Log.d(logTag, "Since last checkin: "+sinceLastCheckIn);
-						List<JSONObject> jsonResponse = httpGet.getAsJsonList(getUrl);
-						for (JSONObject json : jsonResponse) {
-							Log.d(logTag, json.toString());
-						}
-						for (JSONObject jsonResponseItem : jsonResponse) {
-							String appRole = jsonResponseItem.getString("role").toLowerCase();
-							if (!appRole.equals(RfcxGuardian.APP_ROLE)) {
-								app.targetAppRole = appRole;
-								if (app.apiCore.apiCheckVersionFollowUp(app,appRole,jsonResponse)) {
-									break;
-								}
+				if (!app.deviceConnectivity.isConnected()) {
+					
+					Log.d(logTag, "Cancelled because there is no internet connectivity...");
+					
+				} else if (app.apiCore.apiCheckVersionEndpoint == null) {
+					
+					Log.d(logTag, "Cancelled because apiCheckVersionEndpoint is null...");
+					
+				} else {
+					
+					app.lastApiCheckTriggeredAt = System.currentTimeMillis();
+					String getUrl =	(((app.getPref("api_url_base")!=null) ? app.getPref("api_url_base") : "https://checkin.rfcx.org")
+							+ app.apiCore.apiCheckVersionEndpoint
+							+ "?role="+app.APP_ROLE.toLowerCase()
+							+ "&version="+app.version
+							+ "&timestamp="+System.currentTimeMillis()
+							+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
+							);
+					
+					long sinceLastCheckIn = (System.currentTimeMillis() - app.apiCore.lastCheckInTime) / 1000;
+					Log.d(logTag, "Since last checkin: "+sinceLastCheckIn);
+					List<JSONObject> jsonResponse = httpGet.getAsJsonList(getUrl);
+					for (JSONObject json : jsonResponse) {
+						Log.d(logTag, json.toString());
+					}
+					for (JSONObject jsonResponseItem : jsonResponse) {
+						String appRole = jsonResponseItem.getString("role").toLowerCase();
+						if (!appRole.equals(RfcxGuardian.APP_ROLE)) {
+							app.targetAppRole = appRole;
+							if (app.apiCore.apiCheckVersionFollowUp(app,appRole,jsonResponse)) {
+								break;
 							}
 						}
-					} else {
-						Log.d(logTag, "Cancelled because apiCheckVersionEndpoint is null...");
 					}
-				} else {
-					Log.d(logTag, "Cancelled because there is no internet connectivity...");
+					
 				}
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

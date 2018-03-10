@@ -1,5 +1,6 @@
 package guardian.api.checkin;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,9 +73,7 @@ public class ApiCheckInJobService extends Service {
 				
 			try {
 				
-				while (		!app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")
-						&&	(app.apiCheckInDb.dbQueued.getCount() > 0)
-					) {
+				while (!app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode") && (app.apiCheckInDb.dbQueued.getCount() > 0)) {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 					
@@ -85,8 +84,8 @@ public class ApiCheckInJobService extends Service {
 					
 					if (!app.deviceConnectivity.isConnected()) {
 						Log.v(logTag, "No CheckIn because guardian currently has no connectivity."
-							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration / 4 ) / 1000 ) ) + " seconds before next attempt.");
-						Thread.sleep( prefsAudioCycleDuration / 4 );
+							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration / 2 ) / 1000 ) ) + " seconds before next attempt.");
+						Thread.sleep( prefsAudioCycleDuration / 2 );
 						
 					} else if (prefsEnableBatteryCutoffs && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
 						Log.v(logTag, "CheckIns currently disabled due to low battery level"
@@ -100,46 +99,35 @@ public class ApiCheckInJobService extends Service {
 						}
 						
 					} else {
-							
-						String[] latestQueuedCheckIn = app.apiCheckInDb.dbQueued.getLatestRow();	
 						
-						// only proceed with checkin process if there is a queued checkin in the database
-						if (latestQueuedCheckIn[0] != null) {
+						// grab up to three checkins at a time
+						for (String[] latestQueuedCheckIn : app.apiCheckInDb.dbQueued.getLatestRowsWithLimit(3) ) {
 							
-							if (((int) Integer.parseInt(latestQueuedCheckIn[3])) > prefsCheckInSkipThreshold) {
+							if (latestQueuedCheckIn[0] != null) {
 								
-								Log.d(logTag,"Skipping CheckIn "+latestQueuedCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
-								app.apiCheckInDb.dbSkipped.insert(latestQueuedCheckIn[0], latestQueuedCheckIn[1], latestQueuedCheckIn[2], latestQueuedCheckIn[3], latestQueuedCheckIn[4]);
-								app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
+								if (((int) Integer.parseInt(latestQueuedCheckIn[3])) > prefsCheckInSkipThreshold) {
+									
+									Log.d(logTag,"Skipping CheckIn "+latestQueuedCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
+									app.apiCheckInDb.dbSkipped.insert(latestQueuedCheckIn[0], latestQueuedCheckIn[1], latestQueuedCheckIn[2], latestQueuedCheckIn[3], latestQueuedCheckIn[4]);
+									app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
+									
+								} else if ((new File(latestQueuedCheckIn[4])).exists()) {
+									
+									// MQTT
+									app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
+									
+									// HTTP
+									//app.apiCheckInUtils.prepAndSendHttpCheckIn(latestQueuedCheckIn);
+								}
 								
 							} else {
 								
-								// MQTT
-								app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
-								Thread.sleep(500);
-								
-								// HTTP
-//									List<String[]> stringParameters = new ArrayList<String[]>();
-//									stringParameters.add(new String[] { "meta", app.apiCheckInUtils.packageHttpCheckInJson(latestQueuedCheckIn[2]) });
-//									List<String[]> checkInFiles = app.apiCheckInUtils.loadHttpCheckInFiles(latestQueuedCheckIn[4]);
-//									
-//									if (ApiCheckInUtils.validateHttpCheckInAttachments(checkInFiles)) {
-//										app.apiCheckInUtils.sendHttpCheckIn(
-//											app.apiCheckInUtils.getHttpCheckInUrl(),
-//											stringParameters, 
-//											checkInFiles,
-//											true, // allow (or, if false, block) file attachments (audio/screenshots)
-//											latestQueuedCheckIn[1]
-//										);	
-//									}
-								
+								Log.d(logTag, "Queued checkin entry in database was invalid.");
 							}
-						} else {
-							Log.d(logTag, "Queued checkin entry in database was invalid.");
-							
 						}
-						
 					}
+					
+					Thread.sleep(500);
 				}
 			
 			} catch (Exception e) {

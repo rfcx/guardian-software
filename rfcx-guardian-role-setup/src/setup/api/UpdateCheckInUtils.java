@@ -8,9 +8,9 @@ import rfcx.utility.rfcx.RfcxLog;
 import android.util.Log;
 import setup.RfcxGuardian;
 
-public class ApiCore {
+public class UpdateCheckInUtils {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCore.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, UpdateCheckInUtils.class);
 
 	public long lastCheckInTime = System.currentTimeMillis();
 

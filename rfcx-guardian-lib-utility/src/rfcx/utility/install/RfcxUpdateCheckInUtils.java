@@ -15,16 +15,16 @@ import rfcx.utility.http.HttpGet;
 import rfcx.utility.misc.FileUtils;
 import rfcx.utility.rfcx.RfcxLog;
 
-public class RfcxApiCheckVersion {
+public class RfcxUpdateCheckInUtils {
 	
-	public RfcxApiCheckVersion (Context context, String appRole) {
+	public RfcxUpdateCheckInUtils (Context context, String appRole) {
 		this.context = context;
 		this.appRole = appRole;
-		this.logTag = RfcxLog.generateLogTag(appRole, RfcxApiCheckVersion.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, RfcxUpdateCheckInUtils.class);
 	}
 	
 	private Context context;
-	private String logTag = RfcxLog.generateLogTag("Utils", RfcxApiCheckVersion.class);
+	private String logTag = RfcxLog.generateLogTag("Utils", RfcxUpdateCheckInUtils.class);
 	private String appRole = "Utils";
 	
 	public long lastApiCheckVersionAt = System.currentTimeMillis();

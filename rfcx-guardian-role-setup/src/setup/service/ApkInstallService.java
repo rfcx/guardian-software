@@ -2,6 +2,7 @@ package setup.service;
 
 import java.io.File;
 
+import rfcx.utility.device.control.DeviceAndroidApps;
 import rfcx.utility.misc.FileUtils;
 import rfcx.utility.misc.ShellCommands;
 import rfcx.utility.rfcx.RfcxLog;
@@ -13,16 +14,16 @@ import android.os.IBinder;
 import android.util.Log;
 import setup.RfcxGuardian;
 
-public class InstallAppService extends Service {
+public class ApkInstallService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, InstallAppService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApkInstallService.class);
 	
-	private static final String SERVICE_NAME = "InstallApp";
+	private static final String SERVICE_NAME = "ApkInstall";
 
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private InstallApp installApp;
+	private ApkInstall apkInstall;
 	
 	private int installLoopCounter = 0;
 	
@@ -34,7 +35,7 @@ public class InstallAppService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.installApp = new InstallApp();
+		this.apkInstall = new ApkInstall();
 		app = (RfcxGuardian) getApplication();
 	}
 
@@ -45,7 +46,7 @@ public class InstallAppService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.installApp.start();
+			this.apkInstall.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -57,24 +58,24 @@ public class InstallAppService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.installApp.interrupt();
-		this.installApp = null;
+		this.apkInstall.interrupt();
+		this.apkInstall = null;
 	}
 	
-	private class InstallApp extends Thread {
+	private class ApkInstall extends Thread {
 
-		public InstallApp() {
-			super("InstallAppService-InstallApp");
+		public ApkInstall() {
+			super("ApkInstallService-ApkInstall");
 		}
 
 		@Override
 		public void run() {
-			InstallAppService installAppService = InstallAppService.this;
+			ApkInstallService apkInstallService = ApkInstallService.this;
 			boolean successfullyInstalled = false;
 			String apkFileName = app.apiCore.installRole+"-"+app.apiCore.installVersion+".apk";
 			try {
-				ShellCommands.killProcessByName(app.getApplicationContext(),"org.rfcx.guardian."+app.targetAppRole,"."+RfcxGuardian.APP_ROLE);
-				successfullyInstalled = installApk(app.getApplicationContext(),apkFileName,false);
+				ShellCommands.killProcessByName("org.rfcx.guardian."+app.targetAppRole,"."+RfcxGuardian.APP_ROLE, app.getApplicationContext());
+		//		successfullyInstalled = DeviceAndroidApps.installAndroidApp(apkFilePath, isPreviouslyInstalled, app.getApplicationContext());
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
@@ -86,7 +87,7 @@ public class InstallAppService extends Service {
 					Log.d(logTag, "installation successful ("+app.targetAppRole+", "+app.apiCore.installVersion+"). deleting apk and rebooting...");
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
-					ShellCommands.executeCommand("reboot",null,false,app.getApplicationContext());
+					ShellCommands.triggerRebootAsRoot(app.getApplicationContext());
 				} else if (	(installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
 					installLoopCounter++;
 					app.rfcxServiceHandler.triggerService(SERVICE_NAME, true);
@@ -102,25 +103,6 @@ public class InstallAppService extends Service {
 		}
 	}
 	
-	private boolean installApk(Context context, String apkFileName, boolean forceReInstallFlag) {
-		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-		File apkFile = new File(context.getFilesDir().getPath(), apkFileName);
-		String apkFilePath = apkFile.getAbsolutePath();
-		String reInstallFlag = (app.apiCore.installVersion == null) ? "" : " -r";
-		if (forceReInstallFlag) reInstallFlag = " -r";
-		Log.d(logTag, "installing "+apkFilePath);
-		try {
-			boolean isInstalled = ShellCommands.executeCommand(
-					"pm install -f"+reInstallFlag+" "+apkFilePath,
-					"Success",true,context);
-			if (apkFile.exists()) { apkFile.delete(); }
-			return isInstalled;
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-			if (apkFile.exists()) { apkFile.delete(); }
-		} finally {
-		}
-		return false;
-	}
+
 
 }

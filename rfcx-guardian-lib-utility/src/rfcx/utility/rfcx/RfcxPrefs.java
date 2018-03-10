@@ -27,8 +27,6 @@ public class RfcxPrefs {
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
 		this.prefsDirPath = setOrCreatePrefsDirectory(context, appRole);
-		Log.d(logTag, this.prefsDirPath);
-//		setDefaultPrefs();
 	}
 	
 	private String logTag = RfcxLog.generateLogTag("Utils", RfcxPrefs.class);
@@ -231,8 +229,7 @@ public class RfcxPrefs {
 
 			put("checkin_offline_mode", "false");
 			
-	        put("api_url_base", "https://api.rfcx.org");
-	        put("api_mqtt_host", "mqtt.rfcx.org");
+	        put("api_checkin_host", "checkin.rfcx.org");
 	        put("api_ntp_host", "time.apple.com");
 	        
 			put("reboot_forced_daily_at", "23:55:00");
@@ -255,6 +252,8 @@ public class RfcxPrefs {
 			put("battery_cutoffs_enabled", "false");
 			put("checkin_battery_cutoff", "90");
 			put("audio_battery_cutoff", "60");
+
+			put("checkin_failure_thresholds", "10,20,30,40,50,60,70,80,90");
 			
 			put("checkin_skip_threshold", "5");
 			put("checkin_stash_threshold", "120");

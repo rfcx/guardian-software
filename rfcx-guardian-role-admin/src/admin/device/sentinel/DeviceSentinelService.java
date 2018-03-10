@@ -80,7 +80,7 @@ public class DeviceSentinelService extends Service {
 					if (app.deviceSentinelPowerUtils.confirmConnection()) {
 
 						app.deviceSentinelPowerUtils.updateSentinelPowerValues();
-						app.deviceSentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext());
+						app.deviceSentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext(), false);
 						
 					}
 					

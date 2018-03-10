@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -134,6 +135,26 @@ public class FileUtils {
 	
 	public static int chmod(String filePath, int mode) {
 		return chmod(new File(filePath), mode);
+	}
+	
+	public static Date lastModifiedAt(File fileObj) {
+		Date modifiedAt = null;
+		if (fileObj.exists()) {
+			modifiedAt = new Date(fileObj.lastModified());
+		}
+		return modifiedAt;
+	}
+	
+	public static Date lastModifiedAt(String filePath) {
+		return lastModifiedAt(new File(filePath));
+	}
+	
+	public static long millisecondsSinceLastModified(File fileObj) {
+		return (new Date()).getTime() - lastModifiedAt(fileObj).getTime();
+	}
+	
+	public static long millisecondsSinceLastModified(String filePath) {
+		return millisecondsSinceLastModified(new File(filePath));
 	}
 	
 	public static void copy(File srcFile, File dstFile) throws IOException {

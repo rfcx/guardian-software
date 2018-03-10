@@ -41,12 +41,15 @@ public class DeviceSmsUtils {
 		return contentResolver.delete(Uri.parse("content://sms/"+ messageAndroidId), null, null);
 	}
 	
-	public static void sendSmsMessage(String address, String body) {
+	public static int sendSmsMessage(String address, String body) {
+		int rtrnInt = 0;
 		try {
 			(SmsManager.getDefault()).sendTextMessage(address, null, body, null, null);
+			rtrnInt = 1;
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
+		return rtrnInt;
 	}
 	
 	public static String processIncomingSmsMessageAsJson(Intent intent) {

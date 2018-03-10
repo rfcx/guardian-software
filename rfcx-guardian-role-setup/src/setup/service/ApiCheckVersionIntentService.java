@@ -25,18 +25,23 @@ public class ApiCheckVersionIntentService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		int prefsInstallOfflineToggleThreshold = 900000; // 15 minutes
+		long offlineDurationToggleThreshold = 15 * 60 * 1000; // 15 minutes
 		
 		if (app.deviceConnectivity.isConnected()) {
+			
 			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
-		} else if (	(app.deviceConnectivity.lastDisconnectedAt() > app.deviceConnectivity.lastConnectedAt())
-				&& 	((app.deviceConnectivity.lastDisconnectedAt()-app.deviceConnectivity.lastConnectedAt()) > prefsInstallOfflineToggleThreshold)
-				) {
-			Log.e(logTag, "Disconnected for more than " + Math.round( prefsInstallOfflineToggleThreshold / ( 60 * 1000 ) ) + " minutes.");
-			// nothing happens here
-			// in order to ensure no conflict with other apps running in parallel
+			
+		} else if (	
+				(app.deviceConnectivity.lastDisconnectedAt() > app.deviceConnectivity.lastConnectedAt())
+			&& 	( (app.deviceConnectivity.lastDisconnectedAt() - app.deviceConnectivity.lastConnectedAt() ) > offlineDurationToggleThreshold )
+			) {
+			
+			Log.e(logTag, "Disconnected for more than " + Math.round( offlineDurationToggleThreshold / ( 60 * 1000 ) ) + " minutes.");
+			// nothing happens here in order to ensure no conflict with other apps running in parallel
+			
 		} else {
-			Log.d(logTag,"Disconnected for less than " + Math.round( prefsInstallOfflineToggleThreshold / ( 60 * 1000 ) ) + " minutes.");
+			
+			Log.d(logTag,"Disconnected for less than " + Math.round( offlineDurationToggleThreshold / ( 60 * 1000 ) ) + " minutes.");
 		}
 	}
 

@@ -74,7 +74,7 @@ public class MqttUtils implements MqttCallback {
 		// The timeout is used on methods that block while the action is in progress.
 		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttClient.html#setTimeToWait-long-
 		this.mqttActionTimeout = timeToWaitInMillis;
-//		this.mqttClient.setTimeToWait(this.mqttActionTimeout);
+		Log.v(logTag, "MQTT client action timeout set to: "+Math.round(this.mqttActionTimeout/1000)+" seconds");
 	}
 	
 	public Date publishMessage(byte[] messageByteArray) throws MqttPersistenceException, MqttException {
@@ -102,7 +102,6 @@ public class MqttUtils implements MqttCallback {
 		if ((this.mqttClient == null) || !this.mqttClient.isConnected()) {
 				
 			this.mqttClient = new MqttClient(this.mqttBrokerUri, this.mqttClientId, new MemoryPersistence());
-			Log.v(logTag, "MQTT client action timeout set to: "+Math.round(this.mqttActionTimeout/1000)+" seconds");
 			this.mqttClient.setTimeToWait(this.mqttActionTimeout);			
 			Log.v(logTag, "MQTT client connecting to broker: "+this.mqttBrokerUri);
 			this.mqttClient.setCallback(this.mqttCallback);

@@ -38,6 +38,14 @@ public class MainActivity extends Activity {
 			app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);
 			break;
 			
+		case R.id.menu_relaunch:
+			app.rfcxServiceHandler.triggerService("ForceRoleRelaunch", true);
+			break;
+		
+		case R.id.menu_i2c_view:
+			app.deviceSentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext(), true);
+			break;
+			
 		case R.id.menu_get_prefs:
 
 			String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, MainActivity.class);

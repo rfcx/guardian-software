@@ -11,8 +11,7 @@ public class RfcxLog {
 		
 	}
 	
-	public static void logExc(String logTag, Exception exc) {
-		
+	public static String getExceptionContentAsString(Exception exc) {
 		StringBuilder excMsg = new StringBuilder();
 		if ( exc != null ) {
 			excMsg.append("Message: ").append(exc.getMessage()).append(" ||| ")
@@ -21,13 +20,10 @@ public class RfcxLog {
 		} else {
 			excMsg.append("An exception is thrown, but the exception itself is null.");
 		}
-		
-		Log.e( logTag, excMsg.toString());
-		
+		return excMsg.toString();
 	}
 	
-	public static void logThrowable(String logTag, Throwable thrw) {
-		
+	public static String getThrowableContentAsString(Throwable thrw) {
 		StringBuilder thrwMsg = new StringBuilder();
 		if ( thrw != null ) {
 			thrwMsg.append("Message: ").append(thrw.getMessage()).append(" ||| ")
@@ -36,9 +32,15 @@ public class RfcxLog {
 		} else {
 			thrwMsg.append("The throwable itself is null.");
 		}
-		
-		Log.e( logTag, thrwMsg.toString());
-		
+		return thrwMsg.toString();
+	}
+	
+	public static void logExc(String logTag, Exception exc) {
+		Log.e( logTag, getExceptionContentAsString(exc));
+	}
+	
+	public static void logThrowable(String logTag, Throwable thrw) {
+		Log.e( logTag, getThrowableContentAsString(thrw));
 	}
 
 }

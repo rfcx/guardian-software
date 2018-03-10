@@ -7,13 +7,6 @@
         android:summary="string - device guid"
         android:enabled="true"
         android:defaultValue="" />
-    
- 	<EditTextPreference
-        android:key="api_url_base"
-        android:title="api_url_base"
-        android:summary="string - protocol+domain"
-        android:enabled="true"
-        android:defaultValue="https://api.rfcx.org" />
  	
  	<EditTextPreference
         android:key="install_api_registration_token"
@@ -21,6 +14,13 @@
         android:summary="string - api token"
         android:enabled="true"
         android:defaultValue="" />
+    
+ 	<EditTextPreference
+        android:key="api_url_base"
+        android:title="api_url_base"
+        android:summary="string - protocol+domain"
+        android:enabled="true"
+        android:defaultValue="https://checkin.rfcx.org" />
  	
  	<EditTextPreference
         android:key="install_battery_cutoff"

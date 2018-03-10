@@ -40,6 +40,10 @@ public class MainActivity extends Activity {
 			app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
 			break;
 
+		case R.id.menu_relaunch:
+			app.deviceControlUtils.runOrTriggerDeviceControl("relaunch", app.getApplicationContext().getContentResolver());
+			break;
+
 		case R.id.menu_screenshot:
 			app.deviceControlUtils.runOrTriggerDeviceControl("screenshot", app.getApplicationContext().getContentResolver());
 			break;

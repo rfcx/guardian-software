@@ -108,7 +108,7 @@ public class DbUtils {
 		return rtrnStr;
 	}
 	
-	private static String[] placeHolderStringArray(int columnCount) {
+	public static String[] placeHolderStringArray(int columnCount) {
 		String[] rtrnStr = new String[] {  };
 		if (columnCount == 1) {
 			rtrnStr = new String[] { null };

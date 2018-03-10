@@ -77,26 +77,30 @@ public class ApiRegisterService extends Service {
 			httpPostMultipart.setCustomHttpHeaders(rfcxAuthHeaders);
 
 			try {
-				if (app.deviceConnectivity.isConnected()) {
-					if (app.apiCore.apiRegisterEndpoint != null) {
-						String postUrl =	(((app.getPref("api_url_base")!=null) ? app.getPref("api_url_base") : "https://api.rfcx.org")
-										+ app.apiCore.apiRegisterEndpoint
-										);
-						
-						List<String[]> registrationParameters = new ArrayList<String[]>();
-						registrationParameters.add(new String[] {  "guid", app.getDeviceGuid() });
-						registrationParameters.add(new String[] {  "token", app.rfcxDeviceGuid.getDeviceToken() });
-						
-						String stringRegistrationResponse = httpPostMultipart.doMultipartPost(postUrl, registrationParameters, new ArrayList<String[]>());
-						JSONArray jsonRegistrationResponse = new JSONArray(stringRegistrationResponse);
-						
-						Log.d(logTag, stringRegistrationResponse);
-						
-					} else {
-						Log.d(logTag, "Cancelled because apiRegisterEndpoint is null...");
-					}
-				} else {
+				if (!app.deviceConnectivity.isConnected()) {
+					
 					Log.d(logTag, "Cancelled because there is no internet connectivity...");
+					
+				} else if (app.apiCore.apiRegisterEndpoint == null) {
+					
+					Log.d(logTag, "Cancelled because apiRegisterEndpoint is null...");
+					
+				} else {
+					
+					String postUrl =	(
+							((app.getPref("api_url_base")!=null) ? app.getPref("api_url_base") : "https://checkin.rfcx.org")
+							+ app.apiCore.apiRegisterEndpoint
+							);
+					
+					List<String[]> registrationParameters = new ArrayList<String[]>();
+					registrationParameters.add(new String[] {  "guid", app.getDeviceGuid() });
+					registrationParameters.add(new String[] {  "token", app.rfcxDeviceGuid.getDeviceToken() });
+					
+					String stringRegistrationResponse = httpPostMultipart.doMultipartPost(postUrl, registrationParameters, new ArrayList<String[]>());
+					JSONArray jsonRegistrationResponse = new JSONArray(stringRegistrationResponse);
+					
+					Log.d(logTag, stringRegistrationResponse);
+			
 				}
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

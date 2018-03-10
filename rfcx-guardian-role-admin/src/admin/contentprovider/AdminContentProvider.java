@@ -51,6 +51,10 @@ public class AdminContentProvider extends ContentProvider {
 				app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "reboot", null, System.currentTimeMillis() });
 				
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "relaunch")) {
+				app.rfcxServiceHandler.triggerService("ForceRoleRelaunch", true);
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "relaunch", null, System.currentTimeMillis() });
+				
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "screenshot")) {
 				app.rfcxServiceHandler.triggerService("ScreenShotJob", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "screenshot", null, System.currentTimeMillis() });
@@ -68,7 +72,7 @@ public class AdminContentProvider extends ContentProvider {
 				String pathSegAddress = pathSeg.substring(0,pathSeg.indexOf("|"));
 				String pathSegMessage = pathSeg.substring(1+pathSeg.indexOf("|"));
 				DeviceSmsUtils.sendSmsMessage(pathSegAddress, pathSegMessage);
-				return RfcxComm.getProjectionCursor(appRole, "sms_send", new Object[] { "sms_send", null, System.currentTimeMillis() });	
+				return RfcxComm.getProjectionCursor(appRole, "sms_send", new Object[] { pathSegAddress+"|"+pathSegMessage, null, System.currentTimeMillis() });	
 				
 			// "database" function endpoints
 			
@@ -78,8 +82,8 @@ public class AdminContentProvider extends ContentProvider {
 				if (pathSeg.equalsIgnoreCase("sms")) {
 					return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[] { "sms", DeviceSmsUtils.getSmsMessagesAsJsonArray(app.getApplicationContext().getContentResolver()).toString(), System.currentTimeMillis() });
 				
-				} else if (pathSeg.equalsIgnoreCase("sentinel-power")) {
-					return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[] { "sentinel-power", DeviceSentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis() });
+				} else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[] { "sentinel_power", DeviceSentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis() });
 				
 				} else {
 					return null;
@@ -119,10 +123,10 @@ public class AdminContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "database_delete_rows_before", "*")) {
 				String pathSeg = uri.getLastPathSegment();
 				String pathSegTable = pathSeg.substring(0,pathSeg.indexOf("|"));
-				String pathSegId = pathSeg.substring(1+pathSeg.indexOf("|"));
+				String pathSegTimeStamp = pathSeg.substring(1+pathSeg.indexOf("|"));
 				
-				if (pathSegTable.equalsIgnoreCase("sentinel-power")) {
-					return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[] { pathSeg, DeviceSentinelPowerUtils.deleteSentinelPowerValuesBeforeTimestamp(pathSegId, app.getApplicationContext()), System.currentTimeMillis() });	
+				if (pathSegTable.equalsIgnoreCase("sentinel_power")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[] { pathSeg, DeviceSentinelPowerUtils.deleteSentinelPowerValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis() });	
 				
 				}
 				

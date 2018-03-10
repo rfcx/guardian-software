@@ -27,10 +27,6 @@ public class MainActivity extends Activity {
 		String thisAppPath = app.getApplicationContext().getFilesDir().getAbsolutePath();
 		
 		switch (item.getItemId()) {
-		
-		case R.id.menu_prefs:
-			startActivity(new Intent(this, PrefsActivity.class));
-			break;
 
 		case R.id.menu_api_register:
 			app.rfcxServiceHandler.triggerService("ApiRegister", true);
@@ -40,31 +36,10 @@ public class MainActivity extends Activity {
 			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
 			break;
 			
-//		case R.id.menu_cputuner_install:
-//			String cpuTunerPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner";
-//			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/ch.amana.android.cputuner")).isDirectory()) {
-//				Log.d("Rfcx-Setup","CPUTuner will now be downloaded and installed...");
-//				app.apiCore.targetAppRoleApiEndpoint = "cputuner";
-//				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
-//				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
-//			} else {
-//				Log.d("Rfcx-Setup","CPUTuner is already installed...");
-//			}
-//			break;
-			
-//		case R.id.menu_spectrogram_install:
-//			String spectrogramPath = thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/radonsoft.net.spectralviewpro";
-//			if (!(new File(thisAppPath.substring(0,thisAppPath.lastIndexOf("/org.rfcx.guardian"))+"/radonsoft.net.spectralviewpro")).isDirectory()) {
-//				Log.d("Rfcx-Setup","SpectralViewPro will now be downloaded and installed...");
-//				app.apiCore.targetAppRoleApiEndpoint = "spectrogram";
-//				app.apiCore.setApiCheckVersionEndpoint(app.rfcxDeviceId.getDeviceGuid());
-//				app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);
-//			} else {
-//				Log.d("Rfcx-Setup","SpectralViewPro is already installed...");
-//			}
-//			break;
-
-			
+		case R.id.menu_prefs:
+			startActivity(new Intent(this, PrefsActivity.class));
+			break;
+						
 		}
 		return true;
 	}

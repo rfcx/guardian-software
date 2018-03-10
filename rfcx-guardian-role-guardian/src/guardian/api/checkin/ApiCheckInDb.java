@@ -13,6 +13,7 @@ import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import guardian.RfcxGuardian;
 
 public class ApiCheckInDb {
@@ -20,9 +21,9 @@ public class ApiCheckInDb {
 	public ApiCheckInDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbQueued = new DbQueued(context);
+		this.dbSent = new DbSent(context);
 		this.dbSkipped = new DbSkipped(context);
 		this.dbStashed = new DbStashed(context);
-		this.dbSent = new DbSent(context);
 	}
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInDb.class);
@@ -109,15 +110,35 @@ public class ApiCheckInDb {
 			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
 		}
 		
+		public List<String[]> getLatestRowsWithLimit(int maxRows) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, maxRows);
+		}
+		
 		public void deleteSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioId.substring(0,13)+"'");
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) {
+						db.execSQL("DELETE FROM "+TABLE+" WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+					}
+				}
 			} finally { db.close(); }
 		}
 		
 		public String[] getSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " substr("+C_AUDIO+",0,14) = ?", new String[] { audioId.substring(0,13) }, C_CREATED_AT, 0);
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			String[] rtrnRow = DbUtils.placeHolderStringArray(ALL_COLUMNS.length);
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) { rtrnRow = dbRow; break; }
+				}
+			} finally { db.close(); }
+			return rtrnRow;
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -128,7 +149,15 @@ public class ApiCheckInDb {
 		
 		public void incrementSingleRowAttempts(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_AUDIO+",0,14)='"+audioFile.substring(0,13)+"'");
+			String audId = audioFile.contains(".") ? audioFile.substring(0, audioFile.lastIndexOf(".")) : audioFile;
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) {
+						db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+						Log.v(logTag, "updated row "+audId);
+					}
+				}
 			} finally { db.close(); }
 		}
 		
@@ -204,13 +233,28 @@ public class ApiCheckInDb {
 		
 		public void deleteSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioId.substring(0,13)+"'");
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) {
+						db.execSQL("DELETE FROM "+TABLE+" WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+					}
+				}
 			} finally { db.close(); }
 		}
 		
 		public String[] getSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " substr("+C_AUDIO+",0,14) = ?", new String[] { audioId.substring(0,13) }, C_CREATED_AT, 0);
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			String[] rtrnRow = DbUtils.placeHolderStringArray(ALL_COLUMNS.length);
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) { rtrnRow = dbRow; break; }
+				}
+			} finally { db.close(); }
+			return rtrnRow;
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -221,7 +265,15 @@ public class ApiCheckInDb {
 		
 		public void incrementSingleRowAttempts(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_AUDIO+",0,14)='"+audioFile.substring(0,13)+"'");
+			String audId = audioFile.contains(".") ? audioFile.substring(0, audioFile.lastIndexOf(".")) : audioFile;
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) {
+						db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+						Log.v(logTag, "updated row "+audId);
+					}
+				}
 			} finally { db.close(); }
 		}
 		
@@ -297,13 +349,28 @@ public class ApiCheckInDb {
 		
 		public void deleteSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioId.substring(0,13)+"'");
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) {
+						db.execSQL("DELETE FROM "+TABLE+" WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+					}
+				}
 			} finally { db.close(); }
 		}
 		
 		public String[] getSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " substr("+C_AUDIO+",0,14) = ?", new String[] { audioId.substring(0,13) }, C_CREATED_AT, 0);
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			String[] rtrnRow = DbUtils.placeHolderStringArray(ALL_COLUMNS.length);
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) { rtrnRow = dbRow; break; }
+				}
+			} finally { db.close(); }
+			return rtrnRow;
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -314,7 +381,15 @@ public class ApiCheckInDb {
 		
 		public void incrementSingleRowAttempts(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_AUDIO+",0,14)='"+audioFile.substring(0,13)+"'");
+			String audId = audioFile.contains(".") ? audioFile.substring(0, audioFile.lastIndexOf(".")) : audioFile;
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) {
+						db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+						Log.v(logTag, "updated row "+audId);
+					}
+				}
 			} finally { db.close(); }
 		}
 		
@@ -390,13 +465,28 @@ public class ApiCheckInDb {
 		
 		public void deleteSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE substr("+C_AUDIO+",0,14)='"+audioId.substring(0,13)+"'");
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) {
+						db.execSQL("DELETE FROM "+TABLE+" WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+					}
+				}
 			} finally { db.close(); }
 		}
 		
 		public String[] getSingleRowByAudioAttachmentId(String audioId) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " substr("+C_AUDIO+",0,14) = ?", new String[] { audioId.substring(0,13) }, C_CREATED_AT, 0);
+			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			String[] rtrnRow = DbUtils.placeHolderStringArray(ALL_COLUMNS.length);
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) { rtrnRow = dbRow; break; }
+				}
+			} finally { db.close(); }
+			return rtrnRow;
 		}
 		
 		public void clearRowsBefore(Date date) {
@@ -407,7 +497,15 @@ public class ApiCheckInDb {
 		
 		public void incrementSingleRowAttempts(String audioFile) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE substr("+C_AUDIO+",0,14)='"+audioFile.substring(0,13)+"'");
+			String audId = audioFile.contains(".") ? audioFile.substring(0, audioFile.lastIndexOf(".")) : audioFile;
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) {
+						db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+						Log.v(logTag, "updated row "+audId);
+					}
+				}
 			} finally { db.close(); }
 		}
 		
