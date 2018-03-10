@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
- 	<!--<EditTextPreference
-        android:key="checkin_offline_mode"
-        android:title="checkin_offline_mode"
-        android:summary="string - true/false"
-        android:enabled="true"
-        android:defaultValue="false" />-->
         
 	<ListPreference
 		android:key="checkin_offline_mode"
@@ -93,13 +86,6 @@
  	
  	<!-- Audio Capture Formatting -->
  	
- 	<!--<EditTextPreference
-        android:key="audio_encode_codec"
-        android:title="audio_encode_codec"
-        android:summary="string - codec"
-        android:enabled="true"
-        android:defaultValue="opus" />-->
- 	
  	<ListPreference
 		android:key="audio_encode_codec"
 		android:title="audio_encode_codec"
@@ -109,19 +95,14 @@
 		android:entryValues="@array/opus_or_flac"
 		android:defaultValue="opus" />
  	
- 	<EditTextPreference
-        android:key="audio_encode_bitrate"
-        android:title="audio_encode_bitrate"
-        android:summary="int - bits per sec"
-        android:enabled="true"
-        android:defaultValue="16384" />
- 	
- 	<!-- <EditTextPreference
-        android:key="audio_sample_rate"
-        android:title="audio_sample_rate"
-        android:summary="int - hertz"
-        android:enabled="true"
-        android:defaultValue="12000" /> -->
+  	<ListPreference
+		android:key="audio_encode_bitrate"
+		android:title="audio_encode_bitrate"
+		android:dialogTitle="audio_encode_bitrate"
+        android:summary="int - kbits per second"
+		android:entries="@array/audio_encode_bitrate_labels"
+		android:entryValues="@array/audio_encode_bitrate_values"
+		android:defaultValue="16384" />
  	
 	<ListPreference
 		android:key="audio_sample_rate"
@@ -147,13 +128,6 @@
         android:defaultValue="3" />
  	
  	<!-- Battery Cutoff Thresholds -->
- 	
-<!--  	<EditTextPreference
-        android:key="battery_cutoffs_enabled"
-        android:title="battery_cutoffs_enabled"
-        android:summary="string - true/false"
-        android:enabled="true"
-        android:defaultValue="false" /> -->
         
 	<ListPreference
 		android:key="battery_cutoffs_enabled"
@@ -163,20 +137,24 @@
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="false" />
- 	
- 	<EditTextPreference
-        android:key="checkin_battery_cutoff"
-        android:title="checkin_battery_cutoff"
+        
+	<ListPreference
+		android:key="checkin_battery_cutoff"
+		android:title="checkin_battery_cutoff"
+		android:dialogTitle="checkin_battery_cutoff"
         android:summary="int - percentage"
-        android:enabled="true"
-        android:defaultValue="90" />
- 	
- 	<EditTextPreference
-        android:key="audio_battery_cutoff"
-        android:title="audio_battery_cutoff"
+		android:entries="@array/percent_labels"
+		android:entryValues="@array/percent_values"
+		android:defaultValue="90" />
+        
+	<ListPreference
+		android:key="audio_battery_cutoff"
+		android:title="audio_battery_cutoff"
+		android:dialogTitle="audio_battery_cutoff"
         android:summary="int - percentage"
-        android:enabled="true"
-        android:defaultValue="60" />
+		android:entries="@array/percent_labels"
+		android:entryValues="@array/percent_values"
+		android:defaultValue="60" />
  	
  	<!-- CheckIn Triggering Controls -->
  	

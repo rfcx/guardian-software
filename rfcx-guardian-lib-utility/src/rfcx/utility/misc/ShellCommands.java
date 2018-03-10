@@ -59,7 +59,6 @@ public class ShellCommands {
 				    			if (msSinceModified > deleteOldScriptFileIfOlderThan) { 
 				    				Log.e(logTag,"Deleting old script file... ("+Math.round(msSinceModified/1000)+" seconds old)");
 				    				rootScriptObj.delete();
-				    				break;
 				    			} else {
 				    				 Thread.sleep(loopDelay);
 				    			}

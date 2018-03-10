@@ -76,28 +76,43 @@ public class AudioCaptureService extends Service {
 
 			app.audioCaptureUtils.captureTimeStampQueue = new long[] { 0, 0 };
 			
-			int prefsAudioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
-			
 			String captureDir = RfcxAudioUtils.captureDir(context);
 			FileUtils.deleteDirectoryContents(captureDir);
 			
 			AudioCaptureWavRecorder wavRecorder = null;
 			boolean isWavRecorderInitialized = false;
-			long captureTimeStamp = System.currentTimeMillis(); // timestamp of beginning of audio clip
 
+			int audioSampleRate = 0;
+			int audioCycleDuration = 0;
+			long audioCycleQuarterDuration = 0;
+			long captureTimeStamp = 0; // timestamp of beginning of audio clip
+			
 			try {
 				
-				Log.d(logTag, "Capture Loop Period: "+ app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") +"ms");
-			
 				while (audioCaptureService.runFlag) {
 					
 					try {
 						
 						if (app.audioCaptureUtils.isAudioCaptureAllowed()) {
+							
+							if (		(app.rfcxPrefs.getPrefAsInt("audio_sample_rate") != audioSampleRate)
+								||	(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") != audioCycleDuration)
+								) {
+								
+								audioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
+								audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+								audioCycleQuarterDuration = (long) Math.round( audioCycleDuration / 4 );
+								
+								Log.d(logTag, (new StringBuilder())
+											.append("Capture Params: ")
+											.append(audioCycleDuration).append(" ms, ")
+											.append(audioSampleRate).append(" Hz")
+											.toString());
+							}
 						
 							if (!isWavRecorderInitialized) {
 								captureTimeStamp = System.currentTimeMillis();
-								wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, prefsAudioSampleRate);
+								wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
 								wavRecorder.startRecorder();
 								isWavRecorderInitialized = true;
 							} else {
@@ -113,7 +128,7 @@ public class AudioCaptureService extends Service {
 						
 						for (int loopQuarterIteration = 0; loopQuarterIteration < 4; loopQuarterIteration++) {
 							app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-							Thread.sleep( (long) Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 4 ) );
+							Thread.sleep(audioCycleQuarterDuration);
 						}
 						
 					} catch (Exception e) {
