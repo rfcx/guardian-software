@@ -29,7 +29,7 @@ import rfcx.utility.device.control.DeviceScreenShot;
 import rfcx.utility.mqtt.MqttUtils;
 import rfcx.utility.rfcx.RfcxComm;
 import rfcx.utility.rfcx.RfcxLog;
-
+import rfcx.utility.rfcx.RfcxRole;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
@@ -40,11 +40,11 @@ public class ApiCheckInUtils implements MqttCallback {
 	public ApiCheckInUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 
-		this.requestTimeOutLength = 2 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration");
+		this.requestTimeOutLength = 2 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
 		initializeFailedCheckInThresholds();
 		
 		// setting http post timeouts to the same as the audio capture interval.
-//		setHttpCheckInTimeOuts(this.app.rfcxPrefs.getPrefAsInt("audio_cycle_duration"));
+//		setHttpCheckInTimeOuts(this.app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000);
 //		setHttpCheckInAuthHeaders(this.app.rfcxDeviceGuid.getDeviceGuid(), this.app.rfcxDeviceGuid.getDeviceToken());
 		
 		this.mqttCheckInClient = new MqttUtils(RfcxGuardian.APP_ROLE, this.app.rfcxDeviceGuid.getDeviceGuid());
@@ -148,6 +148,17 @@ public class ApiCheckInUtils implements MqttCallback {
 	private List<String> getInstalledSoftwareVersions() {
 
 		List<String> softwareVersions = new ArrayList<String>();
+		
+		for (String appRole : RfcxRole.ALL_ROLES) {
+			
+			if (appRole.equalsIgnoreCase(RfcxGuardian.APP_ROLE)) {
+				
+			} else {
+				
+			}
+		}
+		
+		//RfcxRole.getRoleVersion(app.getApplicationContext(), logTag)
 
 //		try {
 //			Cursor cursor = app.getContentResolver().query(
@@ -374,7 +385,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				|| 	!isBatteryChargeSufficientForCheckIn()
 				) {
 				// 1) everything is going fine and we haven't even reached the first threshold of bad connectivity
-				// OR 2) checkins are paused due to low battery level, so we are resetting the connectivity problem thesholds
+				// OR 2) checkins are paused due to low battery level, so we are resetting the connectivity problem thresholds
 				for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
 					this.failedCheckInThresholdsReached[i] = false;
 				}

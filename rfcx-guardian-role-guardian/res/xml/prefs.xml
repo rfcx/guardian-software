@@ -47,28 +47,23 @@
         android:enabled="true"
         android:defaultValue="245760" />
  	
- 	<EditTextPreference
-        android:key="cputuner_governor_up"
-        android:title="cputuner_governor_up"
-        android:summary="int - cpu percentage"
-        android:enabled="true"
-        android:defaultValue="98" />
+  	<!-- Device Stats Capture Controls -->
  	
  	<EditTextPreference
-        android:key="cputuner_governor_down"
-        android:title="cputuner_governor_down"
-        android:summary="int - cpu percentage"
+        android:key="device_stats_capture_cycle_duration"
+        android:title="device_stats_capture_cycle_duration"
+        android:summary="int - seconds"
         android:enabled="true"
-        android:defaultValue="95" />
+        android:defaultValue="30" />
  	
  	<!-- Audio Capture Controls -->
  	
  	<EditTextPreference
         android:key="audio_cycle_duration"
         android:title="audio_cycle_duration"
-        android:summary="int - milliseconds"
+        android:summary="int - seconds"
         android:enabled="true"
-        android:defaultValue="90000" />
+        android:defaultValue="90" />
  	
  	<EditTextPreference
         android:key="audio_schedule_off_hours"
@@ -78,8 +73,8 @@
         android:defaultValue="23:56-23:58,23:58-00:00" />
  	
  	<EditTextPreference
-        android:key="schedule_off_hours_cutoffs_enabled"
-        android:title="schedule_off_hours_cutoffs_enabled"
+        android:key="enable_cutoffs_schedule_off_hours"
+        android:title="enable_cutoffs_schedule_off_hours"
         android:summary="string - true/false"
         android:enabled="true"
         android:defaultValue="false" />
@@ -130,13 +125,13 @@
  	<!-- Battery Cutoff Thresholds -->
         
 	<ListPreference
-		android:key="battery_cutoffs_enabled"
-		android:title="battery_cutoffs_enabled"
-		android:dialogTitle="battery_cutoffs_enabled"
+		android:key="enable_cutoffs_battery"
+		android:title="enable_cutoffs_battery"
+		android:dialogTitle="enable_cutoffs_battery"
         android:summary="string - true/false"
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
-		android:defaultValue="false" />
+		android:defaultValue="true" />
         
 	<ListPreference
 		android:key="checkin_battery_cutoff"

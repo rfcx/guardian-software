@@ -77,9 +77,9 @@ public class ApiCheckInJobService extends Service {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 					
-					long prefsAudioCycleDuration = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+					long prefsAudioCycleDuration = (long) Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
 					int prefsCheckInSkipThreshold = app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold");
-					boolean prefsEnableBatteryCutoffs = app.rfcxPrefs.getPrefAsBoolean("battery_cutoffs_enabled");
+					boolean prefsEnableBatteryCutoffs = app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery");
 					int prefsCheckInBatteryCutoff = app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff");
 					
 					if (!app.deviceConnectivity.isConnected()) {

@@ -34,7 +34,7 @@ public class AudioQueueEncodeService extends IntentService {
 	
 		try {
 			
-			long captureLoopPeriod = (long) app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+			long captureLoopPeriod = (long) Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
 			int encodingBitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
 			int audioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
 			String encodeCodec = app.rfcxPrefs.getPrefAsString("audio_encode_codec");
@@ -63,7 +63,7 @@ public class AudioQueueEncodeService extends IntentService {
 			}
 
 		//	app.rfcxServiceHandler.triggerService("AudioEncodeJob", false);
-			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") );
+			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
 				
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

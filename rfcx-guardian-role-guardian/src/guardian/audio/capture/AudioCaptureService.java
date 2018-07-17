@@ -96,12 +96,12 @@ public class AudioCaptureService extends Service {
 						if (app.audioCaptureUtils.isAudioCaptureAllowed()) {
 							
 							if (		(app.rfcxPrefs.getPrefAsInt("audio_sample_rate") != audioSampleRate)
-								||	(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") != audioCycleDuration)
+								||	((app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000) != audioCycleDuration)
 								) {
 								
 								audioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
-								audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
-								audioCycleQuarterDuration = (long) Math.round( audioCycleDuration / 4 );
+								audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000;
+							//	audioCycleQuarterDuration = (long) Math.round( audioCycleDuration / 4 );
 								
 								Log.d(logTag, (new StringBuilder())
 											.append("Capture Params: ")

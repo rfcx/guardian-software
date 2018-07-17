@@ -23,10 +23,10 @@ public class DeviceCPUTuner {
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceCPUTuner.class);
 //	private ShellCommands shellCommands;
 	
-	public void writeConfiguration(int freq_min, int freq_max, int governor_up, int governor_down) {
+	public void writeConfiguration(int freq_min, int freq_max) {
 		if (isInstalled(this.context)) {
-			createOrUpdateDbProfile(this.context, this.logTag, freq_min, freq_max, governor_up, governor_down);
-			overWritePrefsXml(this.context, this.logTag, freq_min, freq_max, governor_up, governor_down);
+			createOrUpdateDbProfile(this.context, this.logTag, freq_min, freq_max);
+			overWritePrefsXml(this.context, this.logTag, freq_min, freq_max);
 		} else {
 			Log.e(this.logTag,"CPUTuner is NOT installed");
 		}
@@ -38,11 +38,13 @@ public class DeviceCPUTuner {
 	private static final int mobiledataState = 2;
 	private static final int backgroundSyncState = 2;
 	private static final int virtualGovernor = 3;
+	private static final int governorThresholdUp = 98;
+	private static final int governorThresholdDown = 95;
 	private static final int mobiledataConnectionState = 1;
 	private static final int powersaveBias = 1000;
 	private static final int AIRPLANEMODE = 0;
 	
-	private static String getXmlPrefString(int frequencyMin, int frequencyMax, int governorThresholdUp, int governorThresholdDown) { 
+	private static String getXmlPrefString(int frequencyMin, int frequencyMax) { 
 		return (new StringBuilder())
 			.append("<?xml version='1.0' encoding='utf-8' standalone='yes' ?>")
 			.append("\n<map>")
@@ -68,15 +70,15 @@ public class DeviceCPUTuner {
 	private static final String sqlDeleteRfcxProfile = "\"DELETE FROM cpuProfiles WHERE profileName='RFCx';\"";
 	private static final String sqlUpdateTriggers = (new StringBuilder()).append("\"UPDATE triggers SET screenOffProfileId=").append(sqlRfcxProfilePrimaryKey).append(", batteryProfileId=").append(sqlRfcxProfilePrimaryKey).append(", powerProfileId=").append(sqlRfcxProfilePrimaryKey).append(", callInProgressProfileId=").append(sqlRfcxProfilePrimaryKey).append(", screenLockedProfileId=").append(sqlRfcxProfilePrimaryKey).append(";\"").toString();
 	
-	private static String getSqlInsertRfcxProfile(int frequencyMin, int frequencyMax, int governorThresholdUp, int governorThresholdDown) { 
+	private static String getSqlInsertRfcxProfile(int frequencyMin, int frequencyMax) { 
 		return (new StringBuilder()).append("\"INSERT INTO cpuProfiles VALUES (").append(sqlRfcxProfilePrimaryKey).append(", 'RFCx', 'conservative', ").append(frequencyMax).append(", ").append(frequencyMin).append(", ").append(wifiState).append(", ").append(gpsState).append(", ").append(bluetoothState).append(", ").append(mobiledataState).append(", ").append(governorThresholdUp).append(", ").append(governorThresholdDown).append(", ").append(backgroundSyncState).append(", ").append(virtualGovernor).append(", ").append(mobiledataConnectionState).append(", '', ").append(powersaveBias).append(", ").append(AIRPLANEMODE).append(", 0);\"").toString();
 	}
 	
-	private static String getSqlUpdateRfcxProfile(int frequencyMin, int frequencyMax, int governorThresholdUp, int governorThresholdDown) { 
+	private static String getSqlUpdateRfcxProfile(int frequencyMin, int frequencyMax) { 
 		return (new StringBuilder()).append("\"UPDATE cpuProfiles SET frequencyMax=").append(frequencyMax).append(", frequencyMin=").append(frequencyMin).append(", wifiState=").append(wifiState).append(", gpsState=").append(gpsState).append(", bluetoothState=").append(bluetoothState).append(", mobiledataState=").append(mobiledataState).append(", governorThresholdUp=").append(governorThresholdUp).append(", governorThresholdDown=").append(governorThresholdDown).append(", backgroundSyncState=").append(backgroundSyncState).append(", virtualGovernor=").append(virtualGovernor).append(", mobiledataConnectionState=").append(mobiledataConnectionState).append(", powersaveBias=").append(powersaveBias).append(", AIRPLANEMODE=").append(AIRPLANEMODE).append(" WHERE profileName='RFCx';\"").toString();
 	}
 	
-	private void overWritePrefsXml(Context context, String logTag, int freq_min, int freq_max, int governor_up, int governor_down) {
+	private void overWritePrefsXml(Context context, String logTag, int freq_min, int freq_max) {
 		
 		String tmpPrefsFilePath = context.getFilesDir().getAbsolutePath().toString()+"/txt/cputuner.xml";
 		File tmpPrefsFile = new File(tmpPrefsFilePath);			
@@ -84,7 +86,7 @@ public class DeviceCPUTuner {
         
         try {
         	BufferedWriter outFile = new BufferedWriter(new FileWriter(tmpPrefsFile));
-        	outFile.write(getXmlPrefString(freq_min, freq_max, governor_up, governor_down));
+        	outFile.write(getXmlPrefString(freq_min, freq_max));
         	outFile.close();
         	FileUtils.chmod(tmpPrefsFile, 0755);
         	if (tmpPrefsFile.exists()) {
@@ -95,16 +97,16 @@ public class DeviceCPUTuner {
         }	
 	}
 	
-	private void createOrUpdateDbProfile(Context context, String logTag, int freq_min, int freq_max, int governor_up, int governor_down) {
+	private void createOrUpdateDbProfile(Context context, String logTag, int freq_min, int freq_max) {
 
 		String preQuery = (new StringBuilder()).append("sqlite3 ").append(getDbPath(context)).append(" ").toString();
 		if (ShellCommands.executeCommandAsRootAndSearchOutput(preQuery+sqlCheckIfProfileExists, "0", context)) {
 			Log.d(logTag, "Inserting RFCx profile into CPUTuner database for the first time.");
 			ShellCommands.executeCommandAsRoot(preQuery+sqlDeleteRfcxProfile, context);
-			ShellCommands.executeCommandAsRoot(preQuery+getSqlInsertRfcxProfile(freq_min, freq_max, governor_up, governor_down), context);
+			ShellCommands.executeCommandAsRoot(preQuery+getSqlInsertRfcxProfile(freq_min, freq_max), context);
 		} else {
 			Log.v(logTag, "Updating RFCx profile in CPUTuner database.");
-			ShellCommands.executeCommandAsRoot(preQuery+getSqlUpdateRfcxProfile(freq_min, freq_max, governor_up, governor_down), context);
+			ShellCommands.executeCommandAsRoot(preQuery+getSqlUpdateRfcxProfile(freq_min, freq_max), context);
 		}
 		
 		ShellCommands.executeCommandAsRoot(preQuery+sqlUpdateTriggers, context);

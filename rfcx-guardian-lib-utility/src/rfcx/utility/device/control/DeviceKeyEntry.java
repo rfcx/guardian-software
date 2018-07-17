@@ -1,96 +1,68 @@
 package rfcx.utility.device.control;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import android.content.Context;
 import android.text.TextUtils;
-import rfcx.utility.misc.ShellCommands;
+import android.util.Log;
 import rfcx.utility.rfcx.RfcxLog;
 
 public class DeviceKeyEntry {
 
 	public DeviceKeyEntry(String appRole) {
 		this.logTag = RfcxLog.generateLogTag(appRole, DeviceKeyEntry.class);
-		this.appRole = appRole;
+		defineKeyCodeMap();
 	}
 
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceKeyEntry.class);
-	private String appRole = "Utils";
 	
-	private List<String[]> keyCodes = null;
+	private Map<String, int[]> keyCodeMap = new HashMap<String, int[]>();
 	
-	
-//	private static String generateKeyEntryCommand(String[] keyCommands, List<String[]> keyCodeList) {
-//		List<String> cmdSeq = new ArrayList<String>();
-//		for (String cmd : keyCommands) {
-//			cmdSeq.add("input keyevent "+keyEntrySwap(cmd, keyCodeList));
-//		}
-//		return TextUtils.join(" && ", cmdSeq);
-//	}
-//	
-//	public void executeKeyEntrySequence(String concatenatedCommandSequence, String concatenatedCommandSequenceDelim, Context context) {
-//		
-//		this.keyCodes = defineKeyCodes(this.keyCodes);
-//		
-//		(new ShellCommands(context, this.appRole)).executeCommand(
-//				generateKeyEntryCommand(
-//					concatenatedCommandSequence.split(concatenatedCommandSequenceDelim),
-//					this.keyCodes
-//				)
-//			);
-//	}
-//
-//	private static List<String[]> defineKeyCodes(List<String[]> keyCodes) {
-//		if (keyCodes == null) {
-//			List<String[]> setKeyCodes = new ArrayList();
-//			
-//			setKeyCodes.add(new String[] { "digit_0", "7" });
-//			setKeyCodes.add(new String[] { "digit_1", "8" });
-//			setKeyCodes.add(new String[] { "digit_2", "9" });
-//			setKeyCodes.add(new String[] { "digit_3", "10" });
-//			setKeyCodes.add(new String[] { "digit_4", "11" });
-//			setKeyCodes.add(new String[] { "digit_5", "12" });
-//			setKeyCodes.add(new String[] { "digit_6", "13" });
-//			setKeyCodes.add(new String[] { "digit_7", "14" });
-//			setKeyCodes.add(new String[] { "digit_8", "15" });
-//			setKeyCodes.add(new String[] { "digit_9", "16" });
-//			setKeyCodes.add(new String[] { "asterisk", "17" });
-//			setKeyCodes.add(new String[] { "pound", "18" });
-//			setKeyCodes.add(new String[] { "up", "19" });
-//			setKeyCodes.add(new String[] { "down", "20" });
-//			setKeyCodes.add(new String[] { "left", "21" });
-//			setKeyCodes.add(new String[] { "right", "22" });
-//			setKeyCodes.add(new String[] { "enter", "23" });
-//			
-//			return setKeyCodes;
-//		}
-//		return keyCodes;
-//	}
-//	
-//	private static String keyEntrySwap(String keyEntry, List<String[]> keyCodeList) {
-//		for (String[] keyCodeOption : keyCodeList) {
-//			keyEntry.replaceAll(keyCodeOption[0], keyCodeOption[1]);
-//		}
-//		return keyEntry;
-//	}
-//	
+	private void defineKeyCodeMap() {
+		
+		Map<String, int[]> _ = new HashMap<String, int[]>();
+		
+		_.put("0", new int[] { 7 } );
+		_.put("1", new int[] { 8 } );
+		_.put("2", new int[] { 9 } );
+		_.put("3", new int[] { 10 } );
+		_.put("4", new int[] { 11 } );
+		_.put("5", new int[] { 12 } );
+		_.put("6", new int[] { 13 } );
+		_.put("7", new int[] { 14 } );
+		_.put("8", new int[] { 15 } );
+		_.put("9", new int[] { 16 } );
+		
+		_.put("*", new int[] { 17 } ); // star/asterisk
+		_.put("#", new int[] { 18 } ); // pound
+		_.put("|", new int[] { 23 } ); // enter
+
+		_.put("^", new int[] { 19 } ); // up
+		_.put("v", new int[] { 20 } ); // down
+		_.put("<", new int[] { 21 } ); // left
+		_.put(">", new int[] { 22 } ); // right
+		
+		this.keyCodeMap = _;
+	}
 	
 	
-//
-//
-//Down
-//adb shell input keyevent 20
-//
-//Up
-//adb shell input keyevent 19
-//
-//Right
-//adb shell input keyevent 22
-//
-//Left
-//adb shell input keyevent 21
-//
+	private String getKeyCodeSequenceShellCommand(String keyCodeSequence) {
+		
+		char[] keyCodeChars = keyCodeSequence.toCharArray();
+		String[] keyEvents = new String[keyCodeChars.length];
+		
+		for (int i = 0; i < keyCodeChars.length; i++) {
+			keyEvents[i] = "input keyevent " + this.keyCodeMap.get(String.valueOf(keyCodeChars[i]))[0];
+		}
+		return TextUtils.join(" && ", keyEvents)+";\n";
+	}
+	
+	public void testExecuteString(String keyCodeSequence) {
+		
+		Log.d(logTag, getKeyCodeSequenceShellCommand(keyCodeSequence) );
+	}
+	
+
 //Enter
 //adb shell input keyevent 23
 //

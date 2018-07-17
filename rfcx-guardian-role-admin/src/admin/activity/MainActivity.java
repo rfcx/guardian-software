@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import rfcx.utility.device.control.DeviceKeyEntry;
 import rfcx.utility.rfcx.RfcxComm;
 import rfcx.utility.rfcx.RfcxLog;
 
@@ -27,7 +28,8 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 			
 		case R.id.menu_reboot:
-			app.rfcxServiceHandler.triggerService("RebootTrigger", true);
+	//		app.rfcxServiceHandler.triggerService("RebootTrigger", true);
+			(new DeviceKeyEntry(app.APP_ROLE)).testExecuteString("*345#");
 			break;
 			
 		case R.id.menu_screenshot:

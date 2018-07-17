@@ -235,13 +235,14 @@ public class RfcxPrefs {
 			put("reboot_forced_daily_at", "23:55:00");
 			
 			put("cputuner_freq_min", "30720");
-			put("cputuner_freq_max", "245760"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000, 
-			put("cputuner_governor_up", "98");
-			put("cputuner_governor_down", "95");
+			put("cputuner_freq_max", "245760"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000
+
+			put("device_stats_capture_cycle_duration", "30");
 			
-			put("audio_cycle_duration", "90000");
+			put("audio_cycle_duration", "90");
+			
+			put("enable_cutoffs_schedule_off_hours", "true");
 			put("audio_schedule_off_hours", "00:10-00:15,00:15-00:20");
-			put("schedule_off_hours_cutoffs_enabled", "false");
 			
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "16384");
@@ -249,7 +250,8 @@ public class RfcxPrefs {
 			put("audio_encode_quality", "9");
 			put("audio_encode_skip_threshold", "3");
 
-			put("battery_cutoffs_enabled", "false");
+			put("enable_cutoffs_battery", "true");
+			
 			put("checkin_battery_cutoff", "90");
 			put("audio_battery_cutoff", "60");
 

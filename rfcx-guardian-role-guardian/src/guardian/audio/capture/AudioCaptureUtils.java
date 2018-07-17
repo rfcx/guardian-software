@@ -50,8 +50,8 @@ public class AudioCaptureUtils {
 	
 	public boolean isAudioCaptureAllowed() {
 		
-		boolean limitBasedOnBatteryLevel = (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("battery_cutoffs_enabled"));
-		boolean limitBasedOnTimeOfDay = (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("schedule_off_hours_cutoffs_enabled"));
+		boolean limitBasedOnBatteryLevel = (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery"));
+		boolean limitBasedOnTimeOfDay = (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_schedule_off_hours"));
 		
 		if (limitBasedOnTimeOfDay) {
 			Log.i(logTag, "AudioCapture not allowed due to current time of day/night"
