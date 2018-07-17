@@ -28,8 +28,7 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 			
 		case R.id.menu_reboot:
-	//		app.rfcxServiceHandler.triggerService("RebootTrigger", true);
-			(new DeviceKeyEntry(app.APP_ROLE)).testExecuteString("*345#");
+			app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 			break;
 			
 		case R.id.menu_screenshot:

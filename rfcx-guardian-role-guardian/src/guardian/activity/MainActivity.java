@@ -48,8 +48,8 @@ public class MainActivity extends Activity {
 			app.deviceControlUtils.runOrTriggerDeviceControl("screenshot", app.getApplicationContext().getContentResolver());
 			break;
 
-		case R.id.menu_sntp_check:
-			app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);
+		case R.id.menu_sntp:
+			app.deviceControlUtils.runOrTriggerDeviceControl("datetime_sntp_sync", app.getApplicationContext().getContentResolver());
 			break;
 
 		case R.id.menu_airplanemode_off:

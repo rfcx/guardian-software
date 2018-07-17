@@ -66,6 +66,10 @@ public class AdminContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_on")) {
 				app.rfcxServiceHandler.triggerService("AirplaneModeOnJob", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "airplanemode_on", null, System.currentTimeMillis() });
+				
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "datetime_sntp_sync")) {
+				app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "datetime_sntp_sync", null, System.currentTimeMillis() });
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "sms_send", "*")) {
 				String pathSeg = uri.getLastPathSegment();

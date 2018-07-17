@@ -25,9 +25,9 @@
         />
     
     <item
-        android:id="@+id/menu_sntp_check"
+        android:id="@+id/menu_sntp"
         android:orderInCategory="5"
-        android:title="@string/menu_sntp_check"
+        android:title="@string/menu_sntp"
         />
     
     <item
