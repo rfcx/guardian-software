@@ -23,9 +23,11 @@ else
 
   export APK_VERSION=`cat $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/AndroidManifest.xml | grep 'android:versionName=' | cut -d'"' -f 2`;
   echo ""; echo "RFCx $ROLE ($APK_VERSION)";
-
-  echo "generating build configuration...";
-  export BUILD_CONFIG=`android update project -p . -n rfcx-guardian-role-$ROLE`;
+  
+  export SDK_VERSION=`cat $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/AndroidManifest.xml | grep 'android:targetSdkVersion=' | cut -d'"' -f 2`;
+  
+  echo "generating build configuration... (android-$SDK_VERSION)";
+  export BUILD_CONFIG=`$ANDROID_HOME/tools/android update project --path . --name rfcx-guardian-role-$ROLE --target android-$SDK_VERSION --subprojects`;
 
   echo "key.store=$SCRIPT_DIR/_private/rfcx-guardian-keystore.jks" >> local.properties;
   echo "key.alias=rfcx-guardian-android" >> local.properties;
@@ -39,7 +41,7 @@ else
   if [[ $ROLE = 'guardian' ]]; then
     
     echo "android.library.reference.2=../rfcx-guardian-lib-audio" >> local.properties;
-    cd $SCRIPT_DIR/../rfcx-guardian-lib-audio/jni && ndk-build;
+    cd $SCRIPT_DIR/../rfcx-guardian-lib-audio/jni && $ANDROID_HOME/ndk-bundle/ndk-build;
 
   fi
 
@@ -47,7 +49,7 @@ else
   if [[ $ROLE = 'admin' ]]; then
     
  #   echo "android.library.reference.2=../rfcx-guardian-lib-i2c" >> local.properties;
-    cd $SCRIPT_DIR/../rfcx-guardian-lib-i2c/jni && ndk-build;
+    cd $SCRIPT_DIR/../rfcx-guardian-lib-i2c/jni && $ANDROID_HOME/ndk-bundle/ndk-build;
 
     cp $SCRIPT_DIR/../rfcx-guardian-lib-i2c/libs/armeabi/i2cget $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/assets/i2cget;
     cp $SCRIPT_DIR/../rfcx-guardian-lib-i2c/libs/armeabi/i2cset $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/assets/i2cset;
