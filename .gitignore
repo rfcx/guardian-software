@@ -37,3 +37,6 @@ proguard-project.txt
 # NDK built files to ignore
 rfcx-guardian-lib-audio/libs/
 rfcx-guardian-lib-audio/obj/
+
+rfcx-guardian-lib-i2c/libs/
+rfcx-guardian-lib-i2c/obj/
