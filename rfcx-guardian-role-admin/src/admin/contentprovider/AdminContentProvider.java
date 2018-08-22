@@ -52,7 +52,7 @@ public class AdminContentProvider extends ContentProvider {
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "reboot", null, System.currentTimeMillis() });
 				
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "relaunch")) {
-				app.rfcxServiceHandler.triggerService("ForceRoleRelaunch", true);
+				app.rfcxServiceHandler.triggerIntentServiceImmediately("ForceRoleRelaunch");
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "relaunch", null, System.currentTimeMillis() });
 				
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "screenshot")) {

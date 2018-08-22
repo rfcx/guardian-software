@@ -47,7 +47,7 @@ public class AudioCaptureService extends Service {
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 
 	@Override
@@ -80,72 +80,56 @@ public class AudioCaptureService extends Service {
 			FileUtils.deleteDirectoryContents(captureDir);
 			
 			AudioCaptureWavRecorder wavRecorder = null;
-			boolean isWavRecorderInitialized = false;
 
-			int audioSampleRate = 0;
-			int audioCycleDuration = 0;
-			long audioCycleQuarterDuration = 0;
+			int audioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
+			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000;
 			long captureTimeStamp = 0; // timestamp of beginning of audio clip
-			
-			try {
 				
-				while (audioCaptureService.runFlag) {
+			while (audioCaptureService.runFlag) {
+				
+				try {
 					
-					try {
+					if (app.audioCaptureUtils.isAudioCaptureAllowed()) {
 						
-						if (app.audioCaptureUtils.isAudioCaptureAllowed()) {
+						if (		(app.rfcxPrefs.getPrefAsInt("audio_sample_rate") != audioSampleRate)
+							||	((app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000) != audioCycleDuration)
+							) {
 							
-							if (		(app.rfcxPrefs.getPrefAsInt("audio_sample_rate") != audioSampleRate)
-								||	((app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000) != audioCycleDuration)
-								) {
-								
-								audioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
-								audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000;
-							//	audioCycleQuarterDuration = (long) Math.round( audioCycleDuration / 4 );
-								
-								Log.d(logTag, (new StringBuilder())
-											.append("Capture Params: ")
-											.append(audioCycleDuration).append(" ms, ")
-											.append(audioSampleRate).append(" Hz")
-											.toString());
-							}
-						
-							if (!isWavRecorderInitialized) {
-								captureTimeStamp = System.currentTimeMillis();
-								wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
-								wavRecorder.startRecorder();
-								isWavRecorderInitialized = true;
-							} else {
-								captureTimeStamp = System.currentTimeMillis();
-								wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
-							}
+							audioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
+							audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000;
+							
+							Log.d(logTag, (new StringBuilder()).append("Capture Params: ").append(audioCycleDuration).append(" ms, ").append(audioSampleRate).append(" Hz").toString());
+						}
+					
+						if (wavRecorder == null) {
+							captureTimeStamp = System.currentTimeMillis();
+							wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
+							wavRecorder.startRecorder();
+						} else {
+							captureTimeStamp = System.currentTimeMillis();
+							wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
+						}
 
-							if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
-								app.rfcxServiceHandler.triggerService("AudioQueueEncode", true);
-							}
-							
+						if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
+							app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueueEncode");
 						}
 						
-						for (int loopQuarterIteration = 0; loopQuarterIteration < 4; loopQuarterIteration++) {
-							app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-							Thread.sleep(audioCycleQuarterDuration);
-						}
-						
-					} catch (Exception e) {
-						RfcxLog.logExc(logTag, e);
-						audioCaptureService.runFlag = false;
 					}
-				}
 					
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-				
-			} finally {
-				audioCaptureService.runFlag = false;
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME);
+					for (int loopQuarterIteration = 0; loopQuarterIteration < 4; loopQuarterIteration++) {
+						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+						Thread.sleep( (long) Math.round( audioCycleDuration / 4 ) );
+					}
+					
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e);
+					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+					audioCaptureService.runFlag = false;
+				}
 			}
+			
+			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			audioCaptureService.runFlag = false;
 			
 			Log.v(logTag, "Stopping service: "+logTag);
 				

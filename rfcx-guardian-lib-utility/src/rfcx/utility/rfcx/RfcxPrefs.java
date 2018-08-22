@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,10 +16,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Environment;
 import android.util.Log;
 import rfcx.utility.misc.FileUtils;
+import rfcx.utility.misc.StringUtils;
 
 public class RfcxPrefs {
 
@@ -40,10 +47,16 @@ public class RfcxPrefs {
 	// Getters and Setters
 	
 	public String getPrefAsString(String prefKey) {
+		
+		String tmpPrefValue = null;
+		
 		if (this.cachedPrefs.containsKey(prefKey)) {
 			return this.cachedPrefs.get(prefKey);
-		} else if (readPrefFromFile(prefKey) != null) {
-			this.cachedPrefs.put(prefKey, readPrefFromFile(prefKey));
+		} else if ((tmpPrefValue = readPrefFromFile(prefKey)) != null) {
+			this.cachedPrefs.put(prefKey, tmpPrefValue);
+			return this.cachedPrefs.get(prefKey);
+		} else if ((tmpPrefValue = readPrefFromContentProvider(prefKey)) != null) {
+			this.cachedPrefs.put(prefKey, tmpPrefValue);
 			return this.cachedPrefs.get(prefKey);
 		} else if (this.defaultPrefs.containsKey(prefKey)) {
 			Log.e(logTag, "Unable to read pref '"+prefKey+"', falling back to default value '"+this.defaultPrefs.get(prefKey)+"'...");
@@ -108,6 +121,32 @@ public class RfcxPrefs {
 				RfcxLog.logExc(logTag, e);
 		}
     	return null;
+	}
+	
+	private String readPrefFromContentProvider(String prefKey) {
+		try {
+			
+			if (!this.thisAppRole.equalsIgnoreCase("guardian")) {
+			
+				Cursor prefsCursor = this.context.getContentResolver().query(
+						RfcxComm.getUri("guardian", "prefs", prefKey),
+						RfcxComm.getProjection("guardian", "prefs"),
+						null, null, null);
+				
+				if (prefsCursor.getCount() > 0) { if (prefsCursor.moveToFirst()) { try { do {
+					
+					if (prefsCursor.getString(prefsCursor.getColumnIndex("pref_key")).equalsIgnoreCase(prefKey)) {
+						Log.v(logTag, "Receiving pref '"+prefKey+"' via content provider...");
+						return prefsCursor.getString(prefsCursor.getColumnIndex("pref_value"));
+					}
+					
+				} while (prefsCursor.moveToNext()); } finally { prefsCursor.close(); } } }
+			}
+			
+	    	} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+	    	}
+    		return null;
 	}
 	
 	
@@ -237,7 +276,7 @@ public class RfcxPrefs {
 			put("cputuner_freq_min", "30720");
 			put("cputuner_freq_max", "245760"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000
 
-			put("device_stats_capture_cycle_duration", "30");
+			put("device_stats_capture_cycle_duration", "60");
 			
 			put("audio_cycle_duration", "90");
 			
@@ -261,9 +300,31 @@ public class RfcxPrefs {
 			put("checkin_stash_threshold", "120");
 			put("checkin_archive_threshold", "960");
 
+			put("admin_enable_bluetooth", "true");			
 			
 	    }}
 	);
+	
+	public String getPrefsChecksum() {
+		
+		List<String> prefsKeys = listPrefsKeys();
+		Collections.sort(prefsKeys);
+		
+		JSONArray prefsBlob = new JSONArray();
+		
+		for (String prefKey : prefsKeys) {
+			try {
+				JSONObject thisPref = new JSONObject();
+				thisPref.put(prefKey, getPrefAsString(prefKey));
+				prefsBlob.put(thisPref);
+			} catch (JSONException e) {
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+		
+		return StringUtils.getSha1HashOfString(prefsBlob.toString());
+	
+	}
 
 	
 }

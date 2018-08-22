@@ -101,7 +101,7 @@ public class AudioEncodeDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 		
 		public void insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
@@ -203,7 +203,7 @@ public class AudioEncodeDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 		
 		public void insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
@@ -232,9 +232,9 @@ public class AudioEncodeDb {
 			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
-		public String[] getLatestRow() {
+		public List<String[]> getRowsWithLimit(int maxRows) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP, 0);
+			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null, 0, maxRows);
 		}
 		
 		public void clearRowsBefore(Date date) {

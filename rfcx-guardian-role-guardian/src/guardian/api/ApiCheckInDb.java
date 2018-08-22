@@ -1,4 +1,4 @@
-package guardian.api.checkin;
+package guardian.api;
 
 import java.util.Date;
 import java.util.List;
@@ -77,10 +77,11 @@ public class ApiCheckInDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 		
-		public void insert(String audio, String json, String attempts, String filepath) {
+		public int insert(String audio, String json, String attempts, String filepath) {
+			int rowCount = 0;
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, DateTimeUtils.getDateTime());
 			values.put(C_AUDIO, audio);
@@ -90,9 +91,11 @@ public class ApiCheckInDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+				rowCount = DbUtils.getCount(db, TABLE, null, null);
 			} finally {
 				db.close();
 			}
+			return rowCount;
 		}
 		
 		public List<String[]> getAllRows() {
@@ -144,7 +147,7 @@ public class ApiCheckInDb {
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+DateTimeUtils.getDateTime(date)+"'");
-			} finally { db.close(); }
+			} catch (Exception e) { RfcxLog.logExc(logTag, e); } finally { db.close(); }
 		}
 		
 		public void incrementSingleRowAttempts(String audioFile) {
@@ -154,8 +157,26 @@ public class ApiCheckInDb {
 				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
 					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
 					if (rowAudId.equalsIgnoreCase(audId)) {
-						db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
-						Log.v(logTag, "updated row "+audId);
+						try {
+							db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+							Log.v(logTag, "Incrementing CheckIn attempt count for audio asset: "+audId);
+						} catch (Exception e) { RfcxLog.logExc(logTag, e); }
+					}
+				}
+			} finally { db.close(); }
+		}
+		
+		public void decrementSingleRowAttempts(String audioFile) {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			String audId = audioFile.contains(".") ? audioFile.substring(0, audioFile.lastIndexOf(".")) : audioFile;
+			try { 
+				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
+					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
+					if (rowAudId.equalsIgnoreCase(audId)) {
+						try {
+							db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)-1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+							Log.v(logTag, "Decrementing CheckIn attempt count for audio asset: "+audId);
+						} catch (Exception e) { RfcxLog.logExc(logTag, e); }
 					}
 				}
 			} finally { db.close(); }
@@ -163,7 +184,17 @@ public class ApiCheckInDb {
 		
 		public int getCount() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getCount(db, TABLE, null, null);
+			int count = DbUtils.getCount(db, TABLE, null, null);
+			db.close();
+			return count;
+		}
+		
+		public void deleteAllRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.execSQL("DELETE FROM "+TABLE);
+				Log.v(logTag, "All rows deleted from '"+TABLE+"'");
+			} catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 
 	}
@@ -198,10 +229,11 @@ public class ApiCheckInDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 		
-		public void insert(String created_at, String audio, String json, String attempts, String filepath) {
+		public int insert(String created_at, String audio, String json, String attempts, String filepath) {
+			int rowCount = 0;
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, created_at);
 			values.put(C_AUDIO, audio);
@@ -211,9 +243,11 @@ public class ApiCheckInDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+				rowCount = DbUtils.getCount(db, TABLE, null, null);
 			} finally {
 				db.close();
 			}
+			return rowCount;
 		}
 		
 		public List<String[]> getAllRows() {
@@ -238,7 +272,9 @@ public class ApiCheckInDb {
 				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
 					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
 					if (rowAudId.equalsIgnoreCase(audId)) {
-						db.execSQL("DELETE FROM "+TABLE+" WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+						try {
+							db.execSQL("DELETE FROM "+TABLE+" WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+						} catch (Exception e) { RfcxLog.logExc(logTag, e); }	
 					}
 				}
 			} finally { db.close(); }
@@ -260,7 +296,7 @@ public class ApiCheckInDb {
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+DateTimeUtils.getDateTime(date)+"'");
-			} finally { db.close(); }
+			} catch (Exception e) { RfcxLog.logExc(logTag, e); } finally { db.close(); }
 		}
 		
 		public void incrementSingleRowAttempts(String audioFile) {
@@ -270,8 +306,10 @@ public class ApiCheckInDb {
 				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
 					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
 					if (rowAudId.equalsIgnoreCase(audId)) {
-						db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
-						Log.v(logTag, "updated row "+audId);
+						try {
+							db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+							Log.v(logTag, "updated row "+audId);
+						} catch (Exception e) { RfcxLog.logExc(logTag, e); }
 					}
 				}
 			} finally { db.close(); }
@@ -279,7 +317,17 @@ public class ApiCheckInDb {
 		
 		public int getCount() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getCount(db, TABLE, null, null);
+			int count = DbUtils.getCount(db, TABLE, null, null);
+			db.close();
+			return count;
+		}
+		
+		public void deleteAllRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.execSQL("DELETE FROM "+TABLE);
+				Log.v(logTag, "All rows deleted from '"+TABLE+"'");
+			} catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 
 	}
@@ -314,10 +362,11 @@ public class ApiCheckInDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 		
-		public void insert(String audio, String json, String attempts, String filepath) {
+		public int insert(String audio, String json, String attempts, String filepath) {
+			int rowCount = 0;
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, DateTimeUtils.getDateTime());
 			values.put(C_AUDIO, audio);
@@ -327,9 +376,11 @@ public class ApiCheckInDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+				rowCount = DbUtils.getCount(db, TABLE, null, null);
 			} finally {
 				db.close();
 			}
+			return rowCount;
 		}
 		
 		public List<String[]> getAllRows() {
@@ -354,7 +405,9 @@ public class ApiCheckInDb {
 				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
 					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
 					if (rowAudId.equalsIgnoreCase(audId)) {
-						db.execSQL("DELETE FROM "+TABLE+" WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+						try {
+							db.execSQL("DELETE FROM "+TABLE+" WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+						} catch (Exception e) { RfcxLog.logExc(logTag, e); }
 					}
 				}
 			} finally { db.close(); }
@@ -376,7 +429,7 @@ public class ApiCheckInDb {
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+DateTimeUtils.getDateTime(date)+"'");
-			} finally { db.close(); }
+			} catch (Exception e) { RfcxLog.logExc(logTag, e); } finally { db.close(); }
 		}
 		
 		public void incrementSingleRowAttempts(String audioFile) {
@@ -386,8 +439,10 @@ public class ApiCheckInDb {
 				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
 					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
 					if (rowAudId.equalsIgnoreCase(audId)) {
-						db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
-						Log.v(logTag, "updated row "+audId);
+						try {
+							db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+							Log.v(logTag, "updated row "+audId);
+						} catch (Exception e) { RfcxLog.logExc(logTag, e); }
 					}
 				}
 			} finally { db.close(); }
@@ -395,7 +450,17 @@ public class ApiCheckInDb {
 		
 		public int getCount() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getCount(db, TABLE, null, null);
+			int count = DbUtils.getCount(db, TABLE, null, null);
+			db.close();
+			return count;
+		}
+		
+		public void deleteAllRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.execSQL("DELETE FROM "+TABLE);
+				Log.v(logTag, "All rows deleted from '"+TABLE+"'");
+			} catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 
 	}
@@ -430,10 +495,11 @@ public class ApiCheckInDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 		
-		public void insert(String audio, String json, String attempts, String filepath) {
+		public int insert(String audio, String json, String attempts, String filepath) {
+			int rowCount = 0;
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, DateTimeUtils.getDateTime());
 			values.put(C_AUDIO, audio);
@@ -443,9 +509,11 @@ public class ApiCheckInDb {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try {
 				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+				rowCount = DbUtils.getCount(db, TABLE, null, null);
 			} finally {
 				db.close();
 			}
+			return rowCount;
 		}
 		
 		public List<String[]> getAllRows() {
@@ -470,7 +538,9 @@ public class ApiCheckInDb {
 				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
 					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
 					if (rowAudId.equalsIgnoreCase(audId)) {
-						db.execSQL("DELETE FROM "+TABLE+" WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+						try {
+							db.execSQL("DELETE FROM "+TABLE+" WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+						} catch (Exception e) { RfcxLog.logExc(logTag, e); }
 					}
 				}
 			} finally { db.close(); }
@@ -492,7 +562,7 @@ public class ApiCheckInDb {
 		public void clearRowsBefore(Date date) {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
 			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<='"+DateTimeUtils.getDateTime(date)+"'");
-			} finally { db.close(); }
+			} catch (Exception e) { RfcxLog.logExc(logTag, e); } finally { db.close(); }
 		}
 		
 		public void incrementSingleRowAttempts(String audioFile) {
@@ -502,8 +572,10 @@ public class ApiCheckInDb {
 				for (String[] dbRow : DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null)) {
 					String rowAudId = dbRow[1].contains(".") ? dbRow[1].substring(0, dbRow[1].lastIndexOf(".")) : dbRow[1];
 					if (rowAudId.equalsIgnoreCase(audId)) {
-						db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
-						Log.v(logTag, "updated row "+audId);
+						try {
+							db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_AUDIO +" = '"+ dbRow[1] +"'");
+							Log.v(logTag, "updated row "+audId);
+						} catch (Exception e) { RfcxLog.logExc(logTag, e); }
 					}
 				}
 			} finally { db.close(); }
@@ -511,7 +583,17 @@ public class ApiCheckInDb {
 		
 		public int getCount() {
 			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getCount(db, TABLE, null, null);
+			int count = DbUtils.getCount(db, TABLE, null, null);
+			db.close();
+			return count;
+		}
+		
+		public void deleteAllRows() {
+			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
+			try {
+				db.execSQL("DELETE FROM "+TABLE);
+				Log.v(logTag, "All rows deleted from '"+TABLE+"'");
+			} catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 
 	}

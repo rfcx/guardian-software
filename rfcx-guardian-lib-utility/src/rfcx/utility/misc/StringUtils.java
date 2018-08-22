@@ -3,6 +3,8 @@ package rfcx.utility.misc;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -25,6 +27,16 @@ public class StringUtils {
 		    stringBuilder.append(charRef[random.nextInt(charRef.length)]);
 		}
 		return stringBuilder.toString();
+	}
+	
+	public static String getSha1HashOfString(String inputString) {
+		MessageDigest messageDigest = null;
+		try {
+			messageDigest = MessageDigest.getInstance("SHA-1");
+		} catch (NoSuchAlgorithmException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return byteArrayToHexString(messageDigest.digest(inputString.getBytes()));
 	}
 
 	public static String gZipStringToBase64(String inputString) {
@@ -68,6 +80,14 @@ public class StringUtils {
 			RfcxLog.logExc(logTag, e);
 		}
 		return new String(byteArrayOutputStream.toByteArray());
+	}
+	
+	public static String byteArrayToHexString(byte[] byteArray) {
+		StringBuilder hexString = new StringBuilder();
+		for (int i = 0; i < byteArray.length; i++) {
+			hexString.append( Integer.toString( (byteArray[i] & 0xff) + 0x100, 16 ).substring(1) );
+		}
+		return hexString.toString();
 	}
 	
 }

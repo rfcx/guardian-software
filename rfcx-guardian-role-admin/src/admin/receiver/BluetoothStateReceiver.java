@@ -21,16 +21,19 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         if (intentAction.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
         		
             final int bluetoothState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-            
-            switch (bluetoothState) {
-	            case BluetoothAdapter.STATE_OFF:
-//	            		DeviceBluetooth.setOn();
-	                break;
-	            case BluetoothAdapter.STATE_TURNING_OFF:
-//	            		DeviceBluetooth.setOn();
-	                break;
+           
+            if (		(bluetoothState == BluetoothAdapter.STATE_OFF)
+            		||	(bluetoothState == BluetoothAdapter.STATE_TURNING_OFF)
+            		) {
+            	
+            		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+            		boolean prefsAdminEnableBluetooth = app.rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth");
+            		
+            		if (prefsAdminEnableBluetooth) {
+            			DeviceBluetooth.setOn();
+            		}
+            	
             }
-            
         }
 		
 	}

@@ -1,5 +1,6 @@
 package rfcx.utility.service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class RfcxServiceHandler {
 
 				// this means it's likely a service (rather than an intent service)
 				} else if (svcToTrigger.length == 1) {
-					
+					if (forceReTrigger) { Log.d(logTag,svcName +" activity: "+isRunning(svcName)+" and last reported as active "+DateTimeUtils.timeStampDifferenceFromNowAsReadableString((new Date(getLastReportedActiveAt(svcName))))+" ago."); }
 					this.context.stopService(new Intent(this.context, svcClasses.get(svcId)));
 					this.context.startService(new Intent(this.context, svcClasses.get(svcId)));
 					Log.i(logTag, (new StringBuilder()).append("Triggered Service '").append(svcName).append("'").toString());

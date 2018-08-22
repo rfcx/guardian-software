@@ -61,7 +61,7 @@ public class DeviceRebootDb {
 			this.dbHelper = new DbHelper(context);
 		}
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 		public void insert(long rebootedAt) {
 			ContentValues values = new ContentValues();
@@ -118,7 +118,7 @@ public class DeviceRebootDb {
 			this.dbHelper = new DbHelper(context);
 		}
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 		public void insert(long rebootedAt) {
 			ContentValues values = new ContentValues();

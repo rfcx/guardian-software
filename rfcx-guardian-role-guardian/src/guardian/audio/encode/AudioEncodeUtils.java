@@ -55,12 +55,12 @@ public class AudioEncodeUtils {
 	
 	public static void cleanupEncodeDirectory(Context context, List<String[]> queuedForEncode) {
 		
-		ArrayList<String> filesQueuedForEncode = new ArrayList<String>();
+		ArrayList<String> audioQueuedForEncode = new ArrayList<String>();
 		for (String[] queuedRow : queuedForEncode) {
-			filesQueuedForEncode.add(queuedRow[9]);
+			audioQueuedForEncode.add(queuedRow[9]);
 		}
 		
-		FileUtils.deleteDirectoryContents(RfcxAudioUtils.encodeDir(context), filesQueuedForEncode);
+		FileUtils.deleteDirectoryContents(RfcxAudioUtils.encodeDir(context), audioQueuedForEncode);
 	}
 	
 }

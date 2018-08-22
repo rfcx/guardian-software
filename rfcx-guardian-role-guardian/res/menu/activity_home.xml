@@ -31,15 +31,9 @@
         />
     
     <item
-        android:id="@+id/menu_airplanemode_off"
+        android:id="@+id/menu_purge_checkins"
         android:orderInCategory="6"
-        android:title="@string/menu_airplanemode_off"
-        />
-    
-    <item
-        android:id="@+id/menu_airplanemode_on"
-        android:orderInCategory="7"
-        android:title="@string/menu_airplanemode_on"
+        android:title="@string/menu_purge_checkins"
         />
     
 </menu>

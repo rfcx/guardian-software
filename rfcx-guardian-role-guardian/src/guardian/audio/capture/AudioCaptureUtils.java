@@ -5,11 +5,14 @@ import java.io.IOException;
 import java.util.Date;
 
 import rfcx.utility.datetime.DateTimeUtils;
+import rfcx.utility.device.DeviceDiskUsage;
 import rfcx.utility.misc.FileUtils;
 import rfcx.utility.audio.RfcxAudioUtils;
 import rfcx.utility.rfcx.RfcxLog;
 
 import android.content.Context;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
 import android.text.TextUtils;
 import android.util.Log;
 import guardian.RfcxGuardian;
@@ -18,6 +21,7 @@ public class AudioCaptureUtils {
 
 	public AudioCaptureUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
+		verifyHardwareSupportForCaptureSampleRate();
 		RfcxAudioUtils.initializeAudioDirectories(context);
 	}
 	
@@ -31,6 +35,37 @@ public class AudioCaptureUtils {
 		captureTimeStampQueue[0] = captureTimeStampQueue[1];
 		captureTimeStampQueue[1] = timeStamp;
 		return (captureTimeStampQueue[0] > 0);
+	}
+	
+	public boolean isAudioCaptureHardwareSupported = false;
+	
+	private void verifyHardwareSupportForCaptureSampleRate() {
+		
+		int[] defaultSampleRateOptions = new int[] { 8000, 12000, 16000, 24000, 48000 };
+		int originalSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
+		int verifiedOrUpdatedSampleRate = originalSampleRate;
+		
+		for (int i = 0; i < defaultSampleRateOptions.length; i++) {
+			if (		(defaultSampleRateOptions[i] >= originalSampleRate)
+				&&	(AudioRecord.getMinBufferSize(defaultSampleRateOptions[i], AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT) > 0)
+				) {
+					verifiedOrUpdatedSampleRate = defaultSampleRateOptions[i];
+					this.isAudioCaptureHardwareSupported = true;
+					break;
+					
+			} else if (i == (defaultSampleRateOptions.length-1)) {
+				this.isAudioCaptureHardwareSupported = false;
+				Log.e(logTag, "Failed to verify hardware support for any of the provided audio sample rates...");
+			}
+		}
+		
+		if (verifiedOrUpdatedSampleRate != originalSampleRate) {
+			app.rfcxPrefs.setPref("audio_sample_rate", verifiedOrUpdatedSampleRate);
+			Log.e(logTag, "Audio capture sample rate of "+originalSampleRate+" Hz not supported. Sample rate updated to "+verifiedOrUpdatedSampleRate+" Hz.");
+		}
+		
+		Log.v(logTag, "Hardware support verified for audio capture sample rate of "+verifiedOrUpdatedSampleRate+" Hz.");
+		
 	}
 	
 	public boolean isBatteryChargeSufficientForCapture() {
@@ -47,11 +82,19 @@ public class AudioCaptureUtils {
 		}
 		return true;
 	}
+
+	private static final int requiredAvailableInternalDiskSpace = 32;
+	
+	public static boolean isAvailableDiskSpaceSufficientForCapture() {
+		return (DeviceDiskUsage.getInternalDiskFreeMegaBytes() >= requiredAvailableInternalDiskSpace);
+	}
 	
 	public boolean isAudioCaptureAllowed() {
 		
 		boolean limitBasedOnBatteryLevel = (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery"));
 		boolean limitBasedOnTimeOfDay = (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_schedule_off_hours"));
+		boolean limitBasedOnAvailableDiskSpace = !isAvailableDiskSpaceSufficientForCapture();
+		boolean limitBasedOnLackOfHardwareSupport = !this.isAudioCaptureHardwareSupported;
 		
 		if (limitBasedOnTimeOfDay) {
 			Log.i(logTag, "AudioCapture not allowed due to current time of day/night"
@@ -61,9 +104,19 @@ public class AudioCaptureUtils {
 			Log.i(logTag, "AudioCapture not allowed due to low battery level"
 				+" (current: "+this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)+"%, required: "+this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")+"%).");
 		
+		} else if (limitBasedOnAvailableDiskSpace) {
+			Log.i(logTag, "AudioCapture not allowed due to low available internal disk space"
+					+" (current: "+DeviceDiskUsage.getInternalDiskFreeMegaBytes()+"MB, required: "+requiredAvailableInternalDiskSpace+"MB).");
+			
+		} else if (limitBasedOnLackOfHardwareSupport) {
+			Log.i(logTag, "AudioCapture not allowed due to lack of hardware support for capture sample rate: "+app.rfcxPrefs.getPrefAsInt("audio_sample_rate")+" Hz.");
+			
 		}
 		
-		return !limitBasedOnTimeOfDay && !limitBasedOnBatteryLevel;
+		return 		!limitBasedOnTimeOfDay 
+				&& 	!limitBasedOnBatteryLevel 
+				&& 	!limitBasedOnAvailableDiskSpace 
+				&& 	!limitBasedOnLackOfHardwareSupport;
 	}
 	
 	public static String getCaptureFilePath(String captureDir, long timestamp, String fileExtension) {

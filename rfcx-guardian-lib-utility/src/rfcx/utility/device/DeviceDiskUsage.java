@@ -32,6 +32,22 @@ public class DeviceDiskUsage {
 		allStats.add(new String[] { "external", ""+System.currentTimeMillis(), ""+diskUsedBytes(sdCardStatFs), ""+diskFreeBytes(sdCardStatFs) });
 		return allStats;
 	}
+	
+//	public static long getInternalDiskFreeBytes() {
+//		return diskFreeBytes(getStats(false));
+//	}
+//	
+//	public static long getExternalDiskFreeBytes() {
+//		return diskFreeBytes(getStats(true));
+//	}
+	
+	public static int getInternalDiskFreeMegaBytes() {
+		return Math.round(diskFreeBytes(getStats(false)) / (1024 * 1024));
+	}
+	
+	public static int getExternalDiskFreeMegaBytes() {
+		return Math.round(diskFreeBytes(getStats(true)) / (1024 * 1024));
+	}
 
   public static long diskTotalBytes(StatFs statFs) {
     return (((long) statFs.getBlockCount()) * ((long) statFs.getBlockSize()));

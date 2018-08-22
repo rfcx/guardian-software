@@ -8,8 +8,7 @@
     <string name="menu_relaunch">relaunch</string>
     <string name="menu_screenshot">screenshot</string>
     <string name="menu_sntp">sntp sync</string>
-    <string name="menu_airplanemode_off">airplane off</string>
-    <string name="menu_airplanemode_on">airplane on</string>
+    <string name="menu_purge_checkins">purge checkins</string>
     
     
     <string-array name="true_or_false">

@@ -73,19 +73,26 @@ public class DateTimeSntpSyncJobService extends Service {
 			try {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				
+				if (!app.deviceConnectivity.isConnected()) {
+					
+					Log.v(logTag, "No SNTP Sync Job because guardian currently has no connectivity.");
+					
+				} else {
 
-				SntpClient sntpClient = new SntpClient();
-				
-				String dateTimeNtpHost = app.rfcxPrefs.getPrefAsString("api_ntp_host");
-				
-				if (sntpClient.requestTime(dateTimeNtpHost, 15000) && sntpClient.requestTime(dateTimeNtpHost, 15000)) {
-					long nowSystem = System.currentTimeMillis();
-					long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
-					SystemClock.setCurrentTimeMillis(nowSntp);
-					Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntp+" - System: "+nowSystem+" (System was "+Math.abs(nowSystem-nowSntp)+"ms "+
-							((nowSystem >= nowSntp) ? "ahead of" : "behind")
-							+" SNTP value. System time now synced to SNTP value.)");
-				 }
+					SntpClient sntpClient = new SntpClient();
+					
+					String dateTimeNtpHost = app.rfcxPrefs.getPrefAsString("api_ntp_host");
+					
+					if (sntpClient.requestTime(dateTimeNtpHost, 15000) && sntpClient.requestTime(dateTimeNtpHost, 15000)) {
+						long nowSystem = System.currentTimeMillis();
+						long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
+						SystemClock.setCurrentTimeMillis(nowSntp);
+						Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntp+" - System: "+nowSystem+" (System was "+Math.abs(nowSystem-nowSntp)+"ms "+
+								((nowSystem >= nowSntp) ? "ahead of" : "behind")
+								+" SNTP value. System time now synced to SNTP value.)");
+					 }
+				}
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

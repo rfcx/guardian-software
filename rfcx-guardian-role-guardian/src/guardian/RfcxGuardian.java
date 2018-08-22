@@ -7,7 +7,6 @@ import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceBattery;
 import rfcx.utility.device.DeviceCPU;
 import rfcx.utility.device.DeviceConnectivity;
-import rfcx.utility.device.DeviceGeoLocation;
 import rfcx.utility.device.DeviceNetworkStats;
 import rfcx.utility.device.control.DeviceControlUtils;
 import rfcx.utility.rfcx.RfcxDeviceGuid;
@@ -24,10 +23,11 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import guardian.api.checkin.ApiCheckInDb;
-import guardian.api.checkin.ApiCheckInJobService;
-import guardian.api.checkin.ApiCheckInUtils;
-import guardian.api.checkin.ApiQueueCheckInService;
+import guardian.api.ApiCheckInArchiveService;
+import guardian.api.ApiCheckInDb;
+import guardian.api.ApiCheckInJobService;
+import guardian.api.ApiCheckInUtils;
+import guardian.api.ApiQueueCheckInService;
 import guardian.audio.capture.AudioCaptureService;
 import guardian.audio.capture.AudioCaptureUtils;
 import guardian.audio.encode.AudioEncodeDb;
@@ -35,6 +35,7 @@ import guardian.audio.encode.AudioEncodeJobService;
 import guardian.audio.encode.AudioQueueEncodeService;
 import guardian.device.android.DateTimeSntpSyncJobService;
 import guardian.device.android.DeviceDataTransferDb;
+import guardian.device.android.DevicePositionService;
 import guardian.device.android.DeviceRebootDb;
 import guardian.device.android.DeviceSensorDb;
 import guardian.device.android.DeviceSystemDb;
@@ -71,7 +72,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
 	public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
-	public DeviceGeoLocation deviceGeoLocation = new DeviceGeoLocation(APP_ROLE);
 
 	// Misc
 	public AudioCaptureUtils audioCaptureUtils = null;
@@ -83,6 +83,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		new String[] { 
 			"AudioCapture",
 			"DeviceSystem",
+	//		"DevicePosition",
 			"ApiCheckInJob"
 		};
 	
@@ -162,8 +163,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
 		this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
+		this.rfcxServiceHandler.addService("DevicePosition", DevicePositionService.class);
 		this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
+		this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		
 	}

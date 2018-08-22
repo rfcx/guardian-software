@@ -13,8 +13,8 @@ public class DeviceNetworkStats {
 	
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceNetworkStats.class);
 	
-	private Date networkStatsStart = new Date();
-	private Date networkStatsEnd = new Date();
+	private long networkStatsStart = System.currentTimeMillis();
+	private long networkStatsEnd = System.currentTimeMillis();
 	private long networkStatsReceived = 0;
 	private long networkStatsSent = 0;
 	private long networkStatsReceivedTotal = 0;
@@ -28,15 +28,15 @@ public class DeviceNetworkStats {
 		long mobileTxBytes = TrafficStats.getMobileTxBytes();
 		
 		this.networkStatsStart = this.networkStatsEnd;
-		this.networkStatsEnd = new Date();
+		this.networkStatsEnd = System.currentTimeMillis();
 		this.networkStatsReceived = mobileRxBytes - this.networkStatsReceivedTotal;
 		this.networkStatsSent = mobileTxBytes - this.networkStatsSentTotal;
 		this.networkStatsReceivedTotal = mobileRxBytes;
 		this.networkStatsSentTotal = mobileTxBytes;
 				
 		return new long[] { 
-				this.networkStatsStart.getTime(), 
-				this.networkStatsEnd.getTime(), 
+				this.networkStatsStart, 
+				this.networkStatsEnd, 
 				this.networkStatsReceived, 
 				this.networkStatsSent, 
 				this.networkStatsReceivedTotal, 

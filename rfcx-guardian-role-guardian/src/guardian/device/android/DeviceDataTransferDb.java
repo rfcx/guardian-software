@@ -77,7 +77,7 @@ public class DeviceDataTransferDb {
 		}
 		
 		public void close() {
-			this.dbHelper.close();
+			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
 		}
 		
 		public void insert(Date created_at, Date start_time, Date end_time, long bytes_rx_current, long bytes_tx_current, long bytes_rx_total, long bytes_tx_total) {

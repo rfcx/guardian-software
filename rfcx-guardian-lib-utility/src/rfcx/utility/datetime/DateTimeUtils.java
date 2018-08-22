@@ -106,14 +106,15 @@ public class DateTimeUtils {
 		StringBuilder rtrnStr = new StringBuilder();
 		
 		int hours = (int) Math.floor( milliSeconds / 3600000 );
-		if (hours > 0) { rtrnStr.append(hours).append(" hours"); }
+		if (hours > 0) { rtrnStr.append(hours).append(" hour").append((hours != 1) ? "s" : ""); }
 		
 		int minutes = (int) Math.floor( (milliSeconds - (hours * 3600000)) / 60000 );
-		if (minutes > 0) { rtrnStr.append((hours > 0) ? ", " : "").append(minutes).append(" minutes"); }
+		if (minutes > 0) { rtrnStr.append((hours > 0) ? ", " : "").append(minutes).append(" minute").append((minutes != 1) ? "s" : ""); }
 		
 		int seconds = Math.round((milliSeconds - (hours * 3600000) - (minutes * 60000)) / 1000);
-		if (seconds > 0) { rtrnStr.append((minutes > 0) ? ", " : "").append(seconds).append(" seconds"); }
-		else if (displayEvenIfZero && (seconds == 0)) { rtrnStr.append(seconds).append(" seconds"); }
+		if (((hours+minutes) == 0) || (seconds > 0) || displayEvenIfZero) {
+			rtrnStr.append(((hours > 0) || (minutes > 0)) ? ", " : "").append(seconds).append(" second").append((seconds != 1) ? "s" : "");
+		}
 		
 		return rtrnStr.toString();
 	}

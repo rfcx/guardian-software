@@ -1,6 +1,8 @@
 package rfcx.utility.mqtt;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -21,9 +23,7 @@ public class MqttUtils implements MqttCallback {
 
 	public MqttUtils(String appRole, String guardianGuid) {
 		this.logTag = RfcxLog.generateLogTag(appRole, MqttUtils.class);
-		this.mqttClientId = ((new StringBuilder()).append("rfcx-guardian-").append(guardianGuid.toLowerCase(Locale.US))).toString();
-		this.mqttTopicPublish = "guardians/checkins";
-		this.mqttTopicSubscribe = "guardians/"+guardianGuid.toLowerCase(Locale.US);
+		this.mqttClientId = (new StringBuilder()).append("rfcx-guardian-").append(guardianGuid.toLowerCase(Locale.US)).append("-").append(appRole.toLowerCase(Locale.US)).toString();
 	}
 	
 	private String logTag = RfcxLog.generateLogTag("Utils", MqttUtils.class);
@@ -39,13 +39,12 @@ public class MqttUtils implements MqttCallback {
 	private String mqttBrokerAddress = null;
 	private String mqttBrokerUri = null;
 	private MqttClient mqttClient = null;
-	private String mqttTopicPublish = null;
-	private String mqttTopicSubscribe = null;
+	private List<String> mqttTopics_Subscribe = new ArrayList<String>();;
 	private MqttCallback mqttCallback = this;
 	
 	private long mqttActionTimeout = 0;
 	
-	private Date msgSendStart = new Date();
+	private Date msgSendStart = new Date(System.currentTimeMillis());
 	
 	private static MqttConnectOptions getConnectOptions() {
 		
@@ -58,11 +57,11 @@ public class MqttUtils implements MqttCallback {
 		mqttConnectOptions.setConnectionTimeout(20); // in seconds
 		mqttConnectOptions.setKeepAliveInterval(40); // in seconds
 		mqttConnectOptions.setAutomaticReconnect(false); // automatically attempt to reconnect to the server if the connection is lost
-		mqttConnectOptions.setMaxInflight(2); // limits how many messages can be sent without receiving acknowledgments
-//		mqttConnectOptions.setUserName(userName);
-//		mqttConnectOptions.setPassword(password);
+		mqttConnectOptions.setMaxInflight(1); // limits how many messages can be sent without receiving acknowledgments
 //		mqttConnectOptions.setSSLProperties(props);
 //		mqttConnectOptions.setSSLHostnameVerifier(hostnameVerifier);
+//		mqttConnectOptions.setUserName(userName);
+//		mqttConnectOptions.setPassword(password);
 //		mqttConnectOptions.setWill(topic, payload, qos, retained);
 		
 		return mqttConnectOptions;
@@ -77,11 +76,17 @@ public class MqttUtils implements MqttCallback {
 		Log.v(logTag, "MQTT client action timeout set to: "+Math.round(this.mqttActionTimeout/1000)+" seconds");
 	}
 	
-	public Date publishMessage(byte[] messageByteArray) throws MqttPersistenceException, MqttException {
-		if (confirmOrCreateConnection()) {
-			Log.i(logTag, (new StringBuilder()).append("MQTT Message (").append(messageByteArray.length).append(" bytes) published to '").append(this.mqttTopicPublish).append("' at ").append(DateTimeUtils.getDateTime(new Date())).toString());
-			this.msgSendStart = new Date();
-			this.mqttClient.publish(this.mqttTopicPublish, buildMessage(messageByteArray));
+	public void addSubscribeTopic(String subscribeTopic) {
+		this.mqttTopics_Subscribe.add(subscribeTopic);
+	}
+	
+	public long mqttBrokerConnectionLastAttemptedAt = System.currentTimeMillis();
+	
+	public Date publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
+		if (confirmOrCreateConnectionToBroker(true)) {
+			Log.i(logTag, (new StringBuilder()).append("Message (").append(messageByteArray.length).append(" bytes) published to '").append(publishTopic).append("' at ").append(DateTimeUtils.getDateTime(new Date(System.currentTimeMillis()))).toString());
+			this.msgSendStart = new Date(System.currentTimeMillis());
+			this.mqttClient.publish(publishTopic, buildMessage(messageByteArray));
 		} else {
 			Log.e(logTag, "Message could not be sent because connection could not be created...");
 		}
@@ -90,7 +95,7 @@ public class MqttUtils implements MqttCallback {
 	
 	public void setOrResetBroker(String mqttBrokerProtocol, int mqttBrokerPort, String mqttBrokerAddress) {
 		this.mqttBrokerProtocol = mqttBrokerProtocol;
-		this.mqttBrokerPort = mqttBrokerPort;
+		this.mqttBrokerPort = mqttBrokerPort; 
 		this.mqttBrokerAddress = mqttBrokerAddress;
 		
 		String _mqttBrokerUri = ((new StringBuilder()).append(this.mqttBrokerProtocol).append("://").append(this.mqttBrokerAddress).append(":").append(this.mqttBrokerPort)).toString();
@@ -98,20 +103,28 @@ public class MqttUtils implements MqttCallback {
 		this.mqttBrokerUri = _mqttBrokerUri;
 	}
 	
-	public boolean confirmOrCreateConnection() throws MqttException {
-		if ((this.mqttClient == null) || !this.mqttClient.isConnected()) {
+	public boolean confirmOrCreateConnectionToBroker(boolean allowBasedOnDeviceConnectivity) throws MqttException {
+		
+		mqttBrokerConnectionLastAttemptedAt = System.currentTimeMillis();
+		
+		if (allowBasedOnDeviceConnectivity && ((this.mqttClient == null) || !this.mqttClient.isConnected())) {
 				
 			this.mqttClient = new MqttClient(this.mqttBrokerUri, this.mqttClientId, new MemoryPersistence());
-			this.mqttClient.setTimeToWait(this.mqttActionTimeout);			
-			Log.v(logTag, "MQTT client connecting to broker: "+this.mqttBrokerUri);
+			
+			this.mqttClient.setTimeToWait(this.mqttActionTimeout);	
 			this.mqttClient.setCallback(this.mqttCallback);
+
+			Log.v(logTag, "Connecting to MQTT broker: "+this.mqttBrokerUri);
 			this.mqttClient.connect(getConnectOptions());
-			Log.v(logTag, "MQTT client connected to broker: "+this.mqttBrokerUri);
-			this.mqttClient.subscribe(this.mqttTopicSubscribe);
-			Log.v(logTag, "MQTT client subscribed to: "+this.mqttTopicSubscribe);
+			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri);
+			
+			for (String subscribeTopic : this.mqttTopics_Subscribe) {
+				this.mqttClient.subscribe(subscribeTopic);
+				Log.v(logTag, "Subscribed to MQTT topic: "+subscribeTopic);
+			}
 				
 		}
-		return this.mqttClient.isConnected();
+		return allowBasedOnDeviceConnectivity && this.mqttClient.isConnected();
 	}
 	
 	public void setCallback(MqttCallback mqttCallback) {
@@ -146,8 +159,9 @@ public class MqttUtils implements MqttCallback {
 	}
 	
 	@Override
-	public void connectionLost(Throwable exception) {
-		Log.i(this.logTag, "Connection Lost");
+	public void connectionLost(Throwable cause) {
+		Log.e(this.logTag, "Connection Lost");
+		RfcxLog.logThrowable(logTag, cause);
 	}
 		
 }

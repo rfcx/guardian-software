@@ -35,6 +35,7 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 
 	private SignalStrengthListener signalStrengthListener;
 	private TelephonyManager telephonyManager;
+	private SignalStrength telephonySignalStrength;
 	
 	private SensorManager sensorManager;
 	private Sensor lightSensor;
@@ -87,7 +88,7 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 	
 	@Override
@@ -144,6 +145,9 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 						// cache pre-captured sensor data
 						saveSystemStatValuesToDatabase("light");
 						saveSystemStatValuesToDatabase("accel");
+						
+						// capture and cache telephony signal strength
+						cacheTelephonySignalStrengthSnapshot();
 						saveSystemStatValuesToDatabase("telephony");
 						
 						// capture and cache data transfer stats
@@ -157,6 +161,7 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 						cpuUsageValues.add(app.deviceCPU.getCurrentStats());
 						saveSystemStatValuesToDatabase("cpu");
 						cpuUsageRecordingIncrement = 0;
+						
 					}
 					
 				} catch (InterruptedException e) {
@@ -185,12 +190,12 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 			if (	(lightEventCacheCount == 0) 
 				|| 	(lightEventValue != this.lightSensorValues.get(lightEventCacheCount-1)[1])
 				) {
-				this.lightSensorValues.add( new long[] { (new Date()).getTime(), lightEventValue } );	
+				this.lightSensorValues.add( new long[] { System.currentTimeMillis(), lightEventValue } );	
 			}
 
 		} else if (eventType == Sensor.TYPE_ACCELEROMETER) {
 			this.accelSensorValues.add( new long[] { 
-					(new Date()).getTime(), 
+					System.currentTimeMillis(), 
 					(long) Math.round(event.values[0]*ACCEL_FLOAT_MULTIPLIER), 
 					(long) Math.round(event.values[1]*ACCEL_FLOAT_MULTIPLIER), 
 					(long) Math.round(event.values[2]*ACCEL_FLOAT_MULTIPLIER) 
@@ -208,7 +213,14 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 		@Override
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			super.onSignalStrengthsChanged(signalStrength);
-			telephonyValues.add(DeviceMobileNetwork.getMobileNetworkSummary(telephonyManager, signalStrength));
+			telephonySignalStrength = signalStrength;
+			cacheTelephonySignalStrengthSnapshot();
+		}
+	}
+	
+	private void cacheTelephonySignalStrengthSnapshot() {
+		if ((telephonyManager != null) && (telephonySignalStrength != null)) {
+			telephonyValues.add(DeviceMobileNetwork.getMobileNetworkSummary(telephonyManager, telephonySignalStrength));
 		}
 	}
 	

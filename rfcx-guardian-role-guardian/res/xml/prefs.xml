@@ -54,7 +54,7 @@
         android:title="device_stats_capture_cycle_duration"
         android:summary="int - seconds"
         android:enabled="true"
-        android:defaultValue="30" />
+        android:defaultValue="60" />
  	
  	<!-- Audio Capture Controls -->
  	
@@ -180,5 +180,7 @@
         android:summary="int - count"
         android:enabled="true"
         android:defaultValue="960" />
+ 	
+ 	
  	
 </PreferenceScreen>

@@ -1,4 +1,4 @@
-package guardian.api.checkin;
+package guardian.api;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class ApiCheckInJobService extends Service {
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 
 	@Override
@@ -71,12 +71,15 @@ public class ApiCheckInJobService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 				
-			try {
-				
-				while (!app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode") && (app.apiCheckInDb.dbQueued.getCount() > 0)) {
+			while (		apiCheckInJobInstance.runFlag
+					&&	!app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode") 
+					&& 	(app.apiCheckInDb.dbQueued.getCount() > 0)
+				) {
 
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-					
+				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+
+				try {
+						
 					long prefsAudioCycleDuration = (long) Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
 					int prefsCheckInSkipThreshold = app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold");
 					boolean prefsEnableBatteryCutoffs = app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery");
@@ -100,8 +103,8 @@ public class ApiCheckInJobService extends Service {
 						
 					} else {
 						
-						// grab up to three checkins at a time
-						for (String[] latestQueuedCheckIn : app.apiCheckInDb.dbQueued.getLatestRowsWithLimit(3) ) {
+						// grab only most recently queued checkin
+						for (String[] latestQueuedCheckIn : app.apiCheckInDb.dbQueued.getLatestRowsWithLimit(1) ) {
 							
 							if (latestQueuedCheckIn[0] != null) {
 								
@@ -111,13 +114,15 @@ public class ApiCheckInJobService extends Service {
 									app.apiCheckInDb.dbSkipped.insert(latestQueuedCheckIn[0], latestQueuedCheckIn[1], latestQueuedCheckIn[2], latestQueuedCheckIn[3], latestQueuedCheckIn[4]);
 									app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
 									
-								} else if ((new File(latestQueuedCheckIn[4])).exists()) {
+								} else if (!(new File(latestQueuedCheckIn[4])).exists()) {
 									
-									// MQTT
+									Log.d(logTag,"Disqualifying CheckIn because audio file could not be found.");
+									app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
+									
+								} else {
+									
+									// Publish CheckIn to API
 									app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
-									
-									// HTTP
-									//app.apiCheckInUtils.prepAndSendHttpCheckIn(latestQueuedCheckIn);
 								}
 								
 							} else {
@@ -127,25 +132,26 @@ public class ApiCheckInJobService extends Service {
 						}
 					}
 					
+					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					
+					// is this delay between checkin loops necessary?
 					Thread.sleep(500);
-				}
-			
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-				
-			} finally {
-				apiCheckInJobInstance.runFlag = false;
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME);
+					
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e);
+					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+					apiCheckInJobInstance.runFlag = false;
+				}			
+					
 			}
 			
-			if (app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")) { Log.v(logTag, "No CheckIn because offline mode is on"); }
-			
-			apiCheckInJobInstance.runFlag = false;
-			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+			if (app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")) {
+				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				Log.v(logTag, "No CheckIn because offline mode is on");
+			}
+
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			app.rfcxServiceHandler.stopService(SERVICE_NAME);
+			apiCheckInJobInstance.runFlag = false;
 		}
 	}
 

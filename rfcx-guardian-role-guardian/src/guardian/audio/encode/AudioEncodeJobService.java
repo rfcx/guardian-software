@@ -48,7 +48,7 @@ public class AudioEncodeJobService extends Service {
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 
 	@Override
@@ -78,12 +78,11 @@ public class AudioEncodeJobService extends Service {
 			int prefsEncodeSkipThreshold = app.rfcxPrefs.getPrefAsInt("audio_encode_skip_threshold");
 			int prefsAudioEncodeQuality = app.rfcxPrefs.getPrefAsInt("audio_encode_quality");
 			
-//			AudioEncodeUtils.cleanupEncodeDirectory(context, app.audioEncodeDb.dbEncodeQueue.getAllRows());
-			
 			try {
 				
 				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbEncodeQueue.getAllRows();
 				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
+				AudioEncodeUtils.cleanupEncodeDirectory(context, latestQueuedAudioFilesToEncode);
 				
 				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
 
@@ -166,7 +165,7 @@ public class AudioEncodeJobService extends Service {
 
 									app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(latestQueuedAudioToEncode[1]);
 
-									app.rfcxServiceHandler.triggerService("ApiQueueCheckIn", true);
+									app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiQueueCheckIn");
 								}
 								
 							}
@@ -179,12 +178,12 @@ public class AudioEncodeJobService extends Service {
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
-			
-			} finally { 
-				audioEncodeJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME);
+				audioEncodeJobInstance.runFlag = false;
 			}
+			
+			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			audioEncodeJobInstance.runFlag = false;
 
 		}
 	}

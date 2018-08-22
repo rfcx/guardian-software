@@ -1,4 +1,4 @@
-package guardian.api.checkin;
+package guardian.api;
 
 
 import rfcx.utility.audio.RfcxAudioUtils;
@@ -30,8 +30,8 @@ public class ApiQueueCheckInService extends IntentService {
 		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 		
 		try {
-			
-			for (String[] encodedAudio : app.audioEncodeDb.dbEncoded.getAllRows()) {
+				
+			for (String[] encodedAudio : app.audioEncodeDb.dbEncoded.getRowsWithLimit(10)) {
 				
 				String[] audioInfo = new String[] {
 						encodedAudio[0], // "created_at"
@@ -45,20 +45,20 @@ public class ApiQueueCheckInService extends IntentService {
 						encodedAudio[8] //"encode_duration"
 					};
 				
-				if (app.apiCheckInUtils.addCheckInToQueue(audioInfo, encodedAudio[9])) {
-					app.audioEncodeDb.dbEncoded.deleteSingleRow(encodedAudio[1]);
-				}
+				app.apiCheckInUtils.addCheckInToQueue(audioInfo, encodedAudio[9]);
 	
 			}
-			
+
 
 			if (app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")) { 
 				Log.v(logTag, "No checkin triggered because guardian is in offline mode.");
 			} else {
-//				app.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
-				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
+				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", 3 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
 				app.apiCheckInUtils.updateFailedCheckInThresholds();
 			}
+
+			// if the queued table has grown beyond the maximum threshold, stash the oldest checkins 
+			app.apiCheckInUtils.stashOldestCheckIns();
 			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

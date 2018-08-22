@@ -31,6 +31,10 @@ public class MainActivity extends Activity {
 			app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 			break;
 			
+		case R.id.menu_relaunch:
+			app.rfcxServiceHandler.triggerIntentServiceImmediately("ForceRoleRelaunch");
+			break;
+			
 		case R.id.menu_screenshot:
 			app.rfcxServiceHandler.triggerService("ScreenShotJob", true);
 			break;
@@ -38,43 +42,9 @@ public class MainActivity extends Activity {
 		case R.id.menu_sntp:
 			app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);
 			break;
-			
-		case R.id.menu_relaunch:
-			app.rfcxServiceHandler.triggerService("ForceRoleRelaunch", true);
-			break;
 		
 		case R.id.menu_i2c_view:
 			app.deviceSentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext(), true);
-			break;
-			
-		case R.id.menu_get_prefs:
-
-			String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, MainActivity.class);
-			
-			try {
-				
-				Cursor prefsCursor = 
-					app.getApplicationContext().getContentResolver().query(
-					RfcxComm.getUri("guardian", "prefs", null),
-					RfcxComm.getProjection("guardian", "prefs"),
-					null, null, null);
-				
-				
-					if (prefsCursor.getCount() > 0) { if (prefsCursor.moveToFirst()) { try { do {
-									
-						Log.v( logTag,
-								prefsCursor.getString(prefsCursor.getColumnIndex("pref_key"))
-								+" : "
-								+prefsCursor.getString(	prefsCursor.getColumnIndex("pref_value"))
-							);
-									
-					} while (prefsCursor.moveToNext()); } finally { prefsCursor.close(); } } }
-				
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-			}
-			
-		//	app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 			break;
 			
 		}

@@ -14,9 +14,10 @@ public class BootReceiver extends BroadcastReceiver {
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
+
+		Log.v(logTag, "Rfcx-"+RfcxGuardian.APP_ROLE+" BootReceiver Launched...");
 		
-		Log.v(logTag, "Running BootReceiver");
-		
+		// initializing rfcx application
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 		
 		// record boot time in database

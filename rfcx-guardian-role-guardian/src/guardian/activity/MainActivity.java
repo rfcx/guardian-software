@@ -52,12 +52,8 @@ public class MainActivity extends Activity {
 			app.deviceControlUtils.runOrTriggerDeviceControl("datetime_sntp_sync", app.getApplicationContext().getContentResolver());
 			break;
 
-		case R.id.menu_airplanemode_off:
-			app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_off", app.getApplicationContext().getContentResolver());
-			break;
-
-		case R.id.menu_airplanemode_on:
-			app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_on", app.getApplicationContext().getContentResolver());
+		case R.id.menu_purge_checkins:
+			app.apiCheckInUtils.purgeAllCheckIns();
 			break;
 		
 		}
