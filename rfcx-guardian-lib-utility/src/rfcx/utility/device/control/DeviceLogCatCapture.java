@@ -1,3 +1,4 @@
+
 package rfcx.utility.device.control;
 
 import java.io.BufferedWriter;
@@ -25,7 +26,8 @@ public class DeviceLogCatCapture {
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
 		initializeLogCatDirectories(context);
-		reSetLogCatCaptureScript(context);
+//		reSetLogCatCaptureScript(context);
+		saveExecutableScript(context);
 	}
 
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceLogCatCapture.class);
@@ -33,13 +35,14 @@ public class DeviceLogCatCapture {
 	private String rfcxDeviceId = null;
 	
 	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM/yyyy-MM-dd/HH", Locale.US);
-	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SZZZ", Locale.US);
+	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US);
 
 	public static final String SCRIPT_NAME = "logcat_capture.sh";
 	public static final String FILETYPE = "log";
 	
 	private static void initializeLogCatDirectories(Context context) {
 		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context), 0777);
+		(new File(postCaptureDir(context))).mkdirs(); FileUtils.chmod(postCaptureDir(context), 0777);
 		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(), 0777);
 		(new File(finalFilesDir(context))).mkdirs(); FileUtils.chmod(finalFilesDir(context), 0777);
 		(new File(getExecutableScriptDir(context))).mkdirs(); FileUtils.chmod(getExecutableScriptDir(context), 0777);
@@ -69,8 +72,16 @@ public class DeviceLogCatCapture {
 		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/logs/capture").toString(); 
 	}
 	
+	public static String postCaptureDir(Context context) {
+		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/logs/complete").toString(); 
+	}
+	
 	public static String getLogFileLocation_Capture(Context context, long timestamp) {
 		return (new StringBuilder()).append(captureDir(context)).append("/").append(timestamp).append(".").append(FILETYPE).toString(); 
+	}
+	
+	public static String getLogFileLocation_PostCapture(Context context, long timestamp) {
+		return (new StringBuilder()).append(postCaptureDir(context)).append("/_").append(timestamp).append(".").append(FILETYPE).toString(); 
 	}
 
 	public static String getLogFileLocation_Complete_PostZip(String rfcxDeviceId, Context context, long timestamp) {
@@ -84,23 +95,23 @@ public class DeviceLogCatCapture {
 	
 	
 	
-	private void reSetLogCatCaptureScript(Context context) {
-		
-		String logCatCaptureScriptFilePath = DeviceLogCatCapture.getExecutableScriptFilePath(context);
-		
-		if ((new File(logCatCaptureScriptFilePath)).exists()) { (new File(logCatCaptureScriptFilePath)).delete(); }
-
-		try {
-			InputStream inputStream = context.getAssets().open("logcat_capture.sh");
-			OutputStream outputStream = new FileOutputStream(logCatCaptureScriptFilePath);
-			byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
-			inputStream.close(); outputStream.close();
-			FileUtils.chmod(logCatCaptureScriptFilePath, 0755);
-		} catch (IOException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		
-	}
+//	private void reSetLogCatCaptureScript(Context context) {
+//		
+//		String logCatCaptureScriptFilePath = DeviceLogCatCapture.getExecutableScriptFilePath(context);
+//		
+//		if ((new File(logCatCaptureScriptFilePath)).exists()) { (new File(logCatCaptureScriptFilePath)).delete(); }
+//
+//		try {
+//			InputStream inputStream = context.getAssets().open("logcat_capture.sh");
+//			OutputStream outputStream = new FileOutputStream(logCatCaptureScriptFilePath);
+//			byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
+//			inputStream.close(); outputStream.close();
+//			FileUtils.chmod(logCatCaptureScriptFilePath, 0755);
+//		} catch (IOException e) {
+//			RfcxLog.logExc(logTag, e);
+//		}
+//		
+//	}
 	
 	
 	

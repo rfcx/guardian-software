@@ -5,6 +5,7 @@ import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceConnectivity;
 import rfcx.utility.device.DeviceI2cUtils;
 import rfcx.utility.device.control.DeviceAirplaneMode;
+import rfcx.utility.device.control.DeviceLogCatCapture;
 import rfcx.utility.rfcx.RfcxDeviceGuid;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxPrefs;
@@ -12,6 +13,8 @@ import rfcx.utility.rfcx.RfcxRole;
 import rfcx.utility.service.RfcxServiceHandler;
 
 import admin.device.android.capture.DeviceLogCatCaptureDb;
+import admin.device.android.capture.DeviceLogCatCaptureTriggerService;
+import admin.device.android.capture.DeviceLogCatQueueService;
 import admin.device.android.capture.DeviceScreenShotDb;
 import admin.device.android.capture.DeviceScreenShotJobService;
 import admin.device.android.control.AirplaneModeOffJobService;
@@ -48,6 +51,7 @@ public class RfcxGuardian extends Application {
 	public DeviceSentinelPowerDb deviceSentinelPowerDb = null;
 	
 	public DeviceSentinelPowerUtils deviceSentinelPowerUtils = null;
+	public DeviceLogCatCapture deviceLogCatCapture = null;
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -83,7 +87,8 @@ public class RfcxGuardian extends Application {
 		DeviceI2cUtils.resetI2cPermissions(this);
 		DateTimeUtils.resetDateTimeReadWritePermissions(this);
 		
-		this.deviceSentinelPowerUtils = new DeviceSentinelPowerUtils(getApplicationContext());
+		this.deviceSentinelPowerUtils = new DeviceSentinelPowerUtils(this);
+		this.deviceLogCatCapture = new DeviceLogCatCapture(this, APP_ROLE, this.rfcxDeviceGuid.getDeviceGuid());
 		
 		initializeRoleServices();
 	}
@@ -143,6 +148,10 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
+		this.rfcxServiceHandler.addService("DeviceLogCatCapture", DeviceLogCatCaptureTriggerService.class);
+		this.rfcxServiceHandler.addService("DeviceLogCatQueue", DeviceLogCatQueueService.class);
+		
+		
 		
 	}
     

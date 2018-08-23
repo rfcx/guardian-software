@@ -46,6 +46,10 @@ public class MainActivity extends Activity {
 		case R.id.menu_i2c_view:
 			app.deviceSentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext(), true);
 			break;
+		
+		case R.id.menu_logcat:
+			app.rfcxServiceHandler.triggerService("DeviceLogCatCapture", true);
+			break;
 			
 		}
 		return true;

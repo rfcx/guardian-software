@@ -133,13 +133,11 @@ public class RfcxPrefs {
 						RfcxComm.getProjection("guardian", "prefs"),
 						null, null, null);
 				
-				if (prefsCursor.getCount() > 0) { if (prefsCursor.moveToFirst()) { try { do {
-					
+				if ((prefsCursor != null) && (prefsCursor.getCount() > 0)) { if (prefsCursor.moveToFirst()) { try { do {
 					if (prefsCursor.getString(prefsCursor.getColumnIndex("pref_key")).equalsIgnoreCase(prefKey)) {
 						Log.v(logTag, "Receiving pref '"+prefKey+"' via content provider...");
 						return prefsCursor.getString(prefsCursor.getColumnIndex("pref_value"));
 					}
-					
 				} while (prefsCursor.moveToNext()); } finally { prefsCursor.close(); } } }
 			}
 			
@@ -263,6 +261,28 @@ public class RfcxPrefs {
 		return prefsKeys;
 	}
 	
+
+	public String getPrefsChecksum() {
+		
+		List<String> prefsKeys = listPrefsKeys();
+		Collections.sort(prefsKeys);
+		
+		JSONArray prefsBlob = new JSONArray();
+		
+		for (String prefKey : prefsKeys) {
+			try {
+				JSONObject thisPref = new JSONObject();
+				thisPref.put(prefKey, getPrefAsString(prefKey));
+				prefsBlob.put(thisPref);
+			} catch (JSONException e) {
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+		
+		return StringUtils.getSha1HashOfString(prefsBlob.toString());
+	
+	}
+	
 	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
 	    new HashMap<String, String>() {{
 
@@ -300,31 +320,15 @@ public class RfcxPrefs {
 			put("checkin_stash_threshold", "120");
 			put("checkin_archive_threshold", "960");
 
-			put("admin_enable_bluetooth", "true");			
+			put("admin_enable_bluetooth", "true");	
+			put("admin_log_capture_cycle", "300");
+			put("admin_enable_log_capture", "true");
+			
+			
 			
 	    }}
 	);
 	
-	public String getPrefsChecksum() {
-		
-		List<String> prefsKeys = listPrefsKeys();
-		Collections.sort(prefsKeys);
-		
-		JSONArray prefsBlob = new JSONArray();
-		
-		for (String prefKey : prefsKeys) {
-			try {
-				JSONObject thisPref = new JSONObject();
-				thisPref.put(prefKey, getPrefAsString(prefKey));
-				prefsBlob.put(thisPref);
-			} catch (JSONException e) {
-				RfcxLog.logExc(logTag, e);
-			}
-		}
-		
-		return StringUtils.getSha1HashOfString(prefsBlob.toString());
-	
-	}
 
 	
 }

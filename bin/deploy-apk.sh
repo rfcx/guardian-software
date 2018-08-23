@@ -11,7 +11,7 @@ else
 
   export APK_VERSION=`cat $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/AndroidManifest.xml | grep 'android:versionName=' | cut -d'"' -f 2`;
 
-#  $SCRIPT_DIR/build-apk.sh $ROLE;
+  $SCRIPT_DIR/build-apk.sh $ROLE;
 
   export ADB_BIN="$ANDROID_HOME/platform-tools/adb";
 

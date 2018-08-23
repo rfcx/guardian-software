@@ -25,6 +25,11 @@
         android:orderInCategory="5"
 	    android:title="@string/menu_i2c_view"
 	    />
+    <item
+	    android:id="@+id/menu_logcat"
+        android:orderInCategory="6"
+	    android:title="@string/menu_logcat"
+	    />
     
     
     

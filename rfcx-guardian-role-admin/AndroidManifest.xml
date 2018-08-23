@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.admin"
     android:versionCode="1"
-    android:versionName="0.5.2" >
+    android:versionName="0.5.5" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -73,12 +73,15 @@
         <service android:name="admin.device.android.control.AirplaneModeOffJobService" />
         <service android:name="admin.device.android.control.AirplaneModeOnJobService" />
         <service android:name="admin.device.android.control.DateTimeSntpSyncJobService" />
+        <service android:name="admin.device.android.capture.DeviceLogCatCaptureTriggerService" />
+        <service android:name="admin.device.android.capture.DeviceLogCatQueueService" />
         <service android:name="admin.device.sentinel.DeviceSentinelService" />
         
         <!-- IntentServices -->
         <service android:name="admin.ServiceMonitor" />
         <service android:name="admin.device.android.control.DailyScheduledRebootService" />
         <service android:name="admin.device.android.control.ForceRoleRelaunchService" />
+        
         
         <!-- Broadcast Receivers -->
         

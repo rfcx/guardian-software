@@ -215,6 +215,21 @@ public class FileUtils {
 		}
 	}
 	
+	public static void deleteDirectoryContentsIfOlderThanExpirationAge(String directoryFilePath, int expirationAgeInMinutes) {
+		File directory = new File(directoryFilePath);
+		for (File file : directory.listFiles()) {
+			try { 
+				int fileAgeInMinutes = Math.round((millisecondsSinceLastModified(file) / 1000 ) / 60);
+				if (fileAgeInMinutes > expirationAgeInMinutes) {
+					file.delete();
+					Log.d(logTag, "Deleted "+file.getName()+" from "+directory.getName()+" directory ("+fileAgeInMinutes+" minutes old).");
+				}
+			} catch (Exception e) { 
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+	}
+	
 	public static void deleteFiles(List<String> filePathsToDelete) {
 		StringBuilder successLog = new StringBuilder();
 		for (String filePath : filePathsToDelete) {

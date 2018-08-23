@@ -81,8 +81,8 @@ public class AudioCaptureService extends Service {
 			
 			AudioCaptureWavRecorder wavRecorder = null;
 
-			int audioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
-			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000;
+			int audioSampleRate = 0;
+			int audioCycleDuration = 0;
 			long captureTimeStamp = 0; // timestamp of beginning of audio clip
 				
 			while (audioCaptureService.runFlag) {
@@ -98,7 +98,7 @@ public class AudioCaptureService extends Service {
 							audioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
 							audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000;
 							
-							Log.d(logTag, (new StringBuilder()).append("Capture Params: ").append(audioCycleDuration).append(" ms, ").append(audioSampleRate).append(" Hz").toString());
+							Log.d(logTag, (new StringBuilder()).append("Audio Capture Params: ").append(Math.round(audioCycleDuration/1000)).append(" seconds, ").append(audioSampleRate).append(" Hz").toString());
 						}
 					
 						if (wavRecorder == null) {

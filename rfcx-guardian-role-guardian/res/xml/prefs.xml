@@ -181,6 +181,23 @@
         android:enabled="true"
         android:defaultValue="960" />
  	
+ 	<!-- Admin Controls -->
+ 	
+ 	<EditTextPreference
+        android:key="admin_log_capture_cycle"
+        android:title="admin_log_capture_cycle"
+        android:summary="int - seconds"
+        android:enabled="true"
+        android:defaultValue="300" />
+ 	
+ 	<EditTextPreference
+        android:key="admin_enable_log_capture"
+        android:title="admin_enable_log_capture"
+		android:dialogTitle="admin_enable_log_capture"
+        android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="true" />
  	
  	
 </PreferenceScreen>

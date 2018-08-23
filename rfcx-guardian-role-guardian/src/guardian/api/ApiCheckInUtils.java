@@ -151,44 +151,41 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 	}
 
-	private List<String> getInstalledSoftwareVersions() {
-
-		List<String> softwareVersions = new ArrayList<String>();
-
-		for (String appRole : RfcxRole.ALL_ROLES) {
-
-			if (appRole.equalsIgnoreCase(RfcxGuardian.APP_ROLE)) {
-
-			} else {
-
-			}
-		}
-
-		// RfcxRole.getRoleVersion(app.getApplicationContext(), logTag)
-
-		// try {
-		// Cursor cursor = app.getContentResolver().query(
-		// Uri.parse(RfcxRole.ContentProvider.updater.URI_1),
-		// RfcxRole.ContentProvider.updater.PROJECTION_1,
-		// null, null, null);
-		//
-		// if (cursor.getCount() > 0) { try { if (cursor.moveToFirst()) { do {
-		//
-		// softwareVersions
-		// .add(cursor.getString(cursor
-		// .getColumnIndex(RfcxRole.ContentProvider.updater.PROJECTION_1[0]))
-		// + "*"
-		// +
-		// cursor.getString(cursor.getColumnIndex(RfcxRole.ContentProvider.updater.PROJECTION_1[1])));
-		//
-		// } while (cursor.moveToNext()); } } finally { cursor.close(); } }
-		//
-		// } catch (Exception e) {
-		// RfcxLog.logExc(logTag, e);
-		// }
-
-		return softwareVersions;
-	}
+//	private List<String> getInstalledSoftwareVersions() {
+//
+//		List<String> softwareVersions = new ArrayList<String>();
+//
+//		for (String appRole : RfcxRole.ALL_ROLES) {
+//			
+//			String roleVersion = null;
+//			
+//			try {
+//				
+//				if (appRole.equalsIgnoreCase(RfcxGuardian.APP_ROLE)) {
+//					roleVersion = RfcxRole.getRoleVersion(app.getApplicationContext(), logTag);
+//					
+//				} else {
+//					Cursor versionCursor = app.getApplicationContext().getContentResolver().query(
+//							RfcxComm.getUri(appRole, "version", null), RfcxComm.getProjection(appRole, "version"), null, null, null);
+//					
+//					if ((versionCursor != null) && (versionCursor.getCount() > 0)) { if (versionCursor.moveToFirst()) { try { do {
+//						if (versionCursor.getString(versionCursor.getColumnIndex("app_role")).equalsIgnoreCase(appRole)) {
+//							roleVersion = versionCursor.getString(versionCursor.getColumnIndex("app_version"));
+//						}
+//					} while (versionCursor.moveToNext()); } finally { versionCursor.close(); } } }
+//			
+//				}
+//			} catch (Exception e) {
+//				RfcxLog.logExc(logTag, e);
+//				
+//			} finally {
+//				if (roleVersion != null) { softwareVersions.add(appRole+"*"+roleVersion); }
+//				
+//			}
+//		}
+//		
+//		return softwareVersions;
+//	}
 
 	private JSONObject getSystemMetaDataAsJson(JSONObject metaDataJsonObj) throws JSONException {
 
@@ -262,7 +259,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("phone_imei", DeviceMobileSIMCard.getIMEI(app.getApplicationContext()));
 
 		// Adding software role versions
-		checkInMetaJson.put("software", TextUtils.join("|", getInstalledSoftwareVersions()));
+		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 
 		// Adding checksum of current prefs values
 		checkInMetaJson.put("prefs", app.rfcxPrefs.getPrefsChecksum());
@@ -784,7 +781,6 @@ public class ApiCheckInUtils implements MqttCallback {
 	}
 
 	public void confirmOrCreateConnectionToBroker() {
-		Log.d(logTag, "ATTEMPTING TO CONNECT");
 
 		long minDelayBetweenConnectionAttempts = 5000;
 
@@ -796,7 +792,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				RfcxLog.logExc(logTag, e);
 			}
 		} else {
-			Log.e(logTag, "Last connection attempt was less than " + minDelayBetweenConnectionAttempts + "ms ago");
+//			Log.e(logTag, "Last connection attempt was less than " + minDelayBetweenConnectionAttempts + "ms ago");
 		}
 	}
 

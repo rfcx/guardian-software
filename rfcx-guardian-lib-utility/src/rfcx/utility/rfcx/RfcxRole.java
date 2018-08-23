@@ -2,10 +2,13 @@ package rfcx.utility.rfcx;
 
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
 
 public class RfcxRole {
 
@@ -16,7 +19,8 @@ public class RfcxRole {
 		ALL_ROLES= new String[] { 
 			"guardian",
 			"admin",
-			"setup"  
+			"setup", 
+			"updater"  
 		};
 	
 	public static String getRoleVersion(Context context, String logTag) {
@@ -44,6 +48,42 @@ public class RfcxRole {
 	public static boolean isRoleInstalled(Context context, String appRole) {
 		String mainAppPath = context.getFilesDir().getAbsolutePath();
 		return (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian."))+"/org.rfcx.guardian."+appRole.toLowerCase(Locale.US))).exists();
+	}
+	
+	public static List<String> getInstalledRoleVersions(String thisAppRole, Context context) {
+
+		List<String> softwareVersions = new ArrayList<String>();
+
+		for (String appRole : RfcxRole.ALL_ROLES) {
+			
+			String roleVersion = null;
+			
+			try {
+				
+				if (appRole.equalsIgnoreCase(thisAppRole)) {
+					roleVersion = RfcxRole.getRoleVersion(context, logTag);
+					
+				} else {
+					Cursor versionCursor = context.getContentResolver().query(
+							RfcxComm.getUri(appRole, "version", null), RfcxComm.getProjection(appRole, "version"), null, null, null);
+					
+					if ((versionCursor != null) && (versionCursor.getCount() > 0)) { if (versionCursor.moveToFirst()) { try { do {
+						if (versionCursor.getString(versionCursor.getColumnIndex("app_role")).equalsIgnoreCase(appRole)) {
+							roleVersion = versionCursor.getString(versionCursor.getColumnIndex("app_version"));
+						}
+					} while (versionCursor.moveToNext()); } finally { versionCursor.close(); } } }
+			
+				}
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+				
+			} finally {
+				if (roleVersion != null) { softwareVersions.add(appRole+"*"+roleVersion); }
+				
+			}
+		}
+		
+		return softwareVersions;
 	}
 	
 }
