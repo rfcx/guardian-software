@@ -19,10 +19,10 @@ import rfcx.utility.misc.FileUtils;
 import rfcx.utility.misc.ShellCommands;
 import rfcx.utility.rfcx.RfcxLog;
 
-public class DeviceLogCatCapture {
+public class DeviceLogCat {
 	
-	public DeviceLogCatCapture(Context context, String appRole, String rfcxDeviceId) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceLogCatCapture.class);
+	public DeviceLogCat(Context context, String appRole, String rfcxDeviceId) {
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceLogCat.class);
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
 		initializeLogCatDirectories(context);
@@ -30,7 +30,7 @@ public class DeviceLogCatCapture {
 		saveExecutableScript(context);
 	}
 
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceLogCatCapture.class);
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceLogCat.class);
 	private String appRole = "Utils";
 	private String rfcxDeviceId = null;
 	

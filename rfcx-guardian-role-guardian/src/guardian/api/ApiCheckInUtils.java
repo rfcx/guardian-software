@@ -25,7 +25,7 @@ import rfcx.utility.audio.RfcxAudioUtils;
 import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceDiskUsage;
 import rfcx.utility.device.DeviceMobileSIMCard;
-import rfcx.utility.device.control.DeviceLogCatCapture;
+import rfcx.utility.device.control.DeviceLogCat;
 import rfcx.utility.device.control.DeviceScreenShot;
 import rfcx.utility.mqtt.MqttUtils;
 import rfcx.utility.rfcx.RfcxComm;
@@ -519,7 +519,7 @@ public class ApiCheckInUtils implements MqttCallback {
 						app.getApplicationContext().getContentResolver());
 
 			} else if (assetType.equals("log")) {
-				filePath = DeviceLogCatCapture.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context,
+				filePath = DeviceLogCat.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context,
 						(long) Long.parseLong(timestamp));
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + timestamp,
 						app.getApplicationContext().getContentResolver());

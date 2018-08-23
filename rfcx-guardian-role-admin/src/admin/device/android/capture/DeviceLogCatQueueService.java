@@ -1,6 +1,6 @@
 package admin.device.android.capture;
 
-import rfcx.utility.device.control.DeviceLogCatCapture;
+import rfcx.utility.device.control.DeviceLogCat;
 import rfcx.utility.misc.FileUtils;
 import rfcx.utility.misc.ShellCommands;
 import rfcx.utility.rfcx.RfcxLog;
@@ -77,7 +77,7 @@ public class DeviceLogCatQueueService extends Service {
 			
 			try {
 				
-				List<String[]> latestLogCatCaptureFiles = app.deviceLogCatCaptureDb.dbCaptured.getAllRows();
+				List<String[]> latestLogCatCaptureFiles = app.deviceLogCatDb.dbCaptured.getAllRows();
 				if (latestLogCatCaptureFiles.size() == 0) { Log.d(logTag, "No log files have been captured."); }
 				
 				for (String[] latestLogCatCapture : latestLogCatCaptureFiles) {
@@ -90,11 +90,11 @@ public class DeviceLogCatQueueService extends Service {
 						
 						if (!postCaptureFile.exists()) {
 							
-							app.deviceLogCatCaptureDb.dbCaptured.deleteSingleRowByTimestamp(latestLogCatCapture[1]);
+							app.deviceLogCatDb.dbCaptured.deleteSingleRowByTimestamp(latestLogCatCapture[1]);
 							
 						} else {
 							
-							File finalGzipFile = new File(DeviceLogCatCapture.getLogFileLocation_Complete_PostZip(app.rfcxDeviceGuid.getDeviceGuid(), context, (long) Long.parseLong(latestLogCatCapture[1])));
+							File finalGzipFile = new File(DeviceLogCat.getLogFileLocation_Complete_PostZip(app.rfcxDeviceGuid.getDeviceGuid(), context, (long) Long.parseLong(latestLogCatCapture[1])));
 							
 							if (finalGzipFile.exists()) { finalGzipFile.delete(); }
 							
@@ -107,9 +107,9 @@ public class DeviceLogCatQueueService extends Service {
 								FileUtils.chmod(finalGzipFile, 0777);
 								if (postCaptureFile.exists()) { postCaptureFile.delete(); }
 								
-								app.deviceLogCatCaptureDb.dbQueued.insert(latestLogCatCapture[1], DeviceLogCatCapture.FILETYPE, preGzipDigest, finalGzipFile.getAbsolutePath());
+								app.deviceLogCatDb.dbQueued.insert(latestLogCatCapture[1], DeviceLogCat.FILETYPE, preGzipDigest, finalGzipFile.getAbsolutePath());
 							
-								app.deviceLogCatCaptureDb.dbCaptured.deleteSingleRowByTimestamp(latestLogCatCapture[1]);
+								app.deviceLogCatDb.dbCaptured.deleteSingleRowByTimestamp(latestLogCatCapture[1]);
 								
 							}
 							
@@ -120,7 +120,7 @@ public class DeviceLogCatQueueService extends Service {
 				}
 
 				// removing older files if they're left in the post-encode directory for more than a day
-				FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(DeviceLogCatCapture.postCaptureDir(context), 1440);
+				FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(DeviceLogCat.postCaptureDir(context), 1440);
 			
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

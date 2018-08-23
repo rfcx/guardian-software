@@ -100,7 +100,7 @@ public class AdminContentProvider extends ContentProvider {
 					return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[] { "screenshots", app.deviceScreenShotDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis() });
 				
 				} else if (pathSeg.equalsIgnoreCase("logs")) {
-					return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[] { "logs", app.deviceLogCatCaptureDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis() });
+					return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[] { "logs", app.deviceLogCatDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis() });
 				
 				} else {
 					return null;
@@ -118,7 +118,7 @@ public class AdminContentProvider extends ContentProvider {
 					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[] { pathSeg, app.deviceScreenShotDb.dbCaptured.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis() });	
 
 				} else if (pathSegTable.equalsIgnoreCase("logs")) {
-					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[] { pathSeg, app.deviceLogCatCaptureDb.dbCaptured.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis() });	
+					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[] { pathSeg, app.deviceLogCatDb.dbCaptured.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis() });	
 									
 				} else {
 					return null;

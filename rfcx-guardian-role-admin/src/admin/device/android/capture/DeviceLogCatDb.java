@@ -16,15 +16,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import admin.RfcxGuardian;
 
-public class DeviceLogCatCaptureDb {
+public class DeviceLogCatDb {
 	
-	public DeviceLogCatCaptureDb(Context context, String appVersion) {
+	public DeviceLogCatDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbCaptured = new DbCaptured(context);
 		this.dbQueued = new DbQueued(context);
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceLogCatCaptureDb.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceLogCatDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "logs";
 	static final String C_CREATED_AT = "created_at";

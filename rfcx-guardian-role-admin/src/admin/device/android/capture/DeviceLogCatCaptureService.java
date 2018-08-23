@@ -1,6 +1,6 @@
 package admin.device.android.capture;
 
-import rfcx.utility.device.control.DeviceLogCatCapture;
+import rfcx.utility.device.control.DeviceLogCat;
 import rfcx.utility.misc.FileUtils;
 import rfcx.utility.misc.ShellCommands;
 import rfcx.utility.rfcx.RfcxLog;
@@ -14,16 +14,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class DeviceLogCatCaptureTriggerService extends Service {
+public class DeviceLogCatCaptureService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceLogCatCaptureTriggerService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceLogCatCaptureService.class);
 	
 	private static final String SERVICE_NAME = "DeviceLogCatCapture";
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private DeviceLogCatCaptureTrigger deviceLogCatCaptureTrigger;
+	private DeviceLogCatCapture deviceLogCatCapture;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -33,7 +33,7 @@ public class DeviceLogCatCaptureTriggerService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.deviceLogCatCaptureTrigger = new DeviceLogCatCaptureTrigger();
+		this.deviceLogCatCapture = new DeviceLogCatCapture();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -44,7 +44,7 @@ public class DeviceLogCatCaptureTriggerService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.deviceLogCatCaptureTrigger.start();
+			this.deviceLogCatCapture.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -56,31 +56,31 @@ public class DeviceLogCatCaptureTriggerService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.deviceLogCatCaptureTrigger.interrupt();
-		this.deviceLogCatCaptureTrigger = null;
+		this.deviceLogCatCapture.interrupt();
+		this.deviceLogCatCapture = null;
 	}
 	
 	
-	private class DeviceLogCatCaptureTrigger extends Thread {
+	private class DeviceLogCatCapture extends Thread {
 		
-		public DeviceLogCatCaptureTrigger() {
-			super("DeviceLogCatCaptureTriggerService-DeviceLogCatCaptureTrigger");
+		public DeviceLogCatCapture() {
+			super("DeviceLogCatCaptureService-DeviceLogCatCapture");
 		}
 		
 		@Override
 		public void run() {
-			DeviceLogCatCaptureTriggerService deviceLogCatCaptureTriggerInstance = DeviceLogCatCaptureTriggerService.this;
+			DeviceLogCatCaptureService deviceLogCatCaptureInstance = DeviceLogCatCaptureService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			String scriptFilePath = DeviceLogCatCapture.getExecutableScriptFilePath(context);
+			String scriptFilePath = DeviceLogCat.getExecutableScriptFilePath(context);
 			int captureCycleDuration = 0;
 
 			// removing older files if they're left in the capture directory
-			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(DeviceLogCatCapture.captureDir(context), 60);
+			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(DeviceLogCat.captureDir(context), 60);
 			
-			while (deviceLogCatCaptureTriggerInstance.runFlag) {
+			while (deviceLogCatCaptureInstance.runFlag) {
 				
 				try {
 					
@@ -93,25 +93,25 @@ public class DeviceLogCatCaptureTriggerService extends Service {
 					
 					long captureCycleBeginningTimeStamp = System.currentTimeMillis();
 					
-					String captureFilePath = DeviceLogCatCapture.getLogFileLocation_Capture(context, captureCycleBeginningTimeStamp);
-					String postCaptureFilePath = DeviceLogCatCapture.getLogFileLocation_PostCapture(context, captureCycleBeginningTimeStamp);
+					String captureFilePath = DeviceLogCat.getLogFileLocation_Capture(context, captureCycleBeginningTimeStamp);
+					String postCaptureFilePath = DeviceLogCat.getLogFileLocation_PostCapture(context, captureCycleBeginningTimeStamp);
 					
 					String execCmd = scriptFilePath+" "+captureFilePath+" "+postCaptureFilePath+" "+captureCycleDuration;
 					ShellCommands.executeCommandAsRootAndIgnoreOutput(/*"nohup "+*/execCmd+"&", context);
 					
-					app.deviceLogCatCaptureDb.dbCaptured.insert(captureCycleBeginningTimeStamp+"", DeviceLogCatCapture.FILETYPE, null, postCaptureFilePath);
+					app.deviceLogCatDb.dbCaptured.insert(captureCycleBeginningTimeStamp+"", DeviceLogCat.FILETYPE, null, postCaptureFilePath);
 					app.rfcxServiceHandler.triggerService("DeviceLogCatQueue", true);
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
 					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-					deviceLogCatCaptureTriggerInstance.runFlag = false;	
+					deviceLogCatCaptureInstance.runFlag = false;	
 				}
 				
 			}
 			
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			deviceLogCatCaptureTriggerInstance.runFlag = false;
+			deviceLogCatCaptureInstance.runFlag = false;
 			
 			Log.v(logTag, "Stopping service: "+logTag);
 			

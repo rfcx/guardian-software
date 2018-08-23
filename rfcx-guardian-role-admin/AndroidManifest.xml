@@ -73,7 +73,7 @@
         <service android:name="admin.device.android.control.AirplaneModeOffJobService" />
         <service android:name="admin.device.android.control.AirplaneModeOnJobService" />
         <service android:name="admin.device.android.control.DateTimeSntpSyncJobService" />
-        <service android:name="admin.device.android.capture.DeviceLogCatCaptureTriggerService" />
+        <service android:name="admin.device.android.capture.DeviceLogCatCaptureService" />
         <service android:name="admin.device.android.capture.DeviceLogCatQueueService" />
         <service android:name="admin.device.sentinel.DeviceSentinelService" />
         

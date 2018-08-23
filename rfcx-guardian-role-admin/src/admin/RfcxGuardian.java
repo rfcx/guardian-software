@@ -5,15 +5,14 @@ import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceConnectivity;
 import rfcx.utility.device.DeviceI2cUtils;
 import rfcx.utility.device.control.DeviceAirplaneMode;
-import rfcx.utility.device.control.DeviceLogCatCapture;
 import rfcx.utility.rfcx.RfcxDeviceGuid;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxPrefs;
 import rfcx.utility.rfcx.RfcxRole;
 import rfcx.utility.service.RfcxServiceHandler;
 
-import admin.device.android.capture.DeviceLogCatCaptureDb;
-import admin.device.android.capture.DeviceLogCatCaptureTriggerService;
+import admin.device.android.capture.DeviceLogCatDb;
+import admin.device.android.capture.DeviceLogCatCaptureService;
 import admin.device.android.capture.DeviceLogCatQueueService;
 import admin.device.android.capture.DeviceScreenShotDb;
 import admin.device.android.capture.DeviceScreenShotJobService;
@@ -47,11 +46,10 @@ public class RfcxGuardian extends Application {
 	public RfcxServiceHandler rfcxServiceHandler = null;
 	
 	public DeviceScreenShotDb deviceScreenShotDb = null;
-	public DeviceLogCatCaptureDb deviceLogCatCaptureDb = null;
+	public DeviceLogCatDb deviceLogCatDb = null;
 	public DeviceSentinelPowerDb deviceSentinelPowerDb = null;
 	
 	public DeviceSentinelPowerUtils deviceSentinelPowerUtils = null;
-	public DeviceLogCatCapture deviceLogCatCapture = null;
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -88,7 +86,6 @@ public class RfcxGuardian extends Application {
 		DateTimeUtils.resetDateTimeReadWritePermissions(this);
 		
 		this.deviceSentinelPowerUtils = new DeviceSentinelPowerUtils(this);
-		this.deviceLogCatCapture = new DeviceLogCatCapture(this, APP_ROLE, this.rfcxDeviceGuid.getDeviceGuid());
 		
 		initializeRoleServices();
 	}
@@ -135,7 +132,7 @@ public class RfcxGuardian extends Application {
 		
 		this.deviceSentinelPowerDb = new DeviceSentinelPowerDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
-		this.deviceLogCatCaptureDb = new DeviceLogCatCaptureDb(this, this.version);
+		this.deviceLogCatDb = new DeviceLogCatDb(this, this.version);
 	}
 
 	private void setServiceHandlers() {
@@ -148,7 +145,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
-		this.rfcxServiceHandler.addService("DeviceLogCatCapture", DeviceLogCatCaptureTriggerService.class);
+		this.rfcxServiceHandler.addService("DeviceLogCatCapture", DeviceLogCatCaptureService.class);
 		this.rfcxServiceHandler.addService("DeviceLogCatQueue", DeviceLogCatQueueService.class);
 		
 		
