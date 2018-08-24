@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import rfcx.utility.database.DbUtils;
+import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxRole;
 
@@ -41,59 +42,31 @@ public class DeviceSensorDb {
 	}
 	
 	public class DbLightMeter {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "lightmeter";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-		}
-		final DbHelper dbHelper;
 		
 		public DbLightMeter(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public void close() {
-			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); } 
-		}
-		
-		public void insert(Date measured_at, long luminosity, String value_2) {
+		public int insert(Date measured_at, long luminosity, String value_2) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VALUE_1, luminosity);
 			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		private List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
 		}
 		
 		public String getConcatRows() {
@@ -105,59 +78,31 @@ public class DeviceSensorDb {
 	
 	
 	public class DbAccelerometer {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "accelerometer";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-		}
-		final DbHelper dbHelper;
 		
 		public DbAccelerometer(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public void close() {
-			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); } 
-		}
-		
-		public void insert(Date measured_at, String x_y_z, int sample_count) {
+		public int insert(Date measured_at, String x_y_z, int sample_count) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VALUE_1, x_y_z);
 			values.put(C_VALUE_2, sample_count);
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		private List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
 		}
 		
 		public String getConcatRows() {

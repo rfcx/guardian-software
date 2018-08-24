@@ -1,11 +1,21 @@
 package rfcx.utility.database;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
+import android.util.Log;
+import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.rfcx.RfcxLog;
 
 public class DbUtils {
@@ -16,12 +26,85 @@ public class DbUtils {
 	private static final int DEFAULT_ROWLIMIT = 1000;
 	private static final String DEFAULT_ORDER = "DESC";
 	
+	class DbHelper extends SQLiteOpenHelper {
+		
+		String TABLE;
+		String CREATE_COLUMN_QUERY;
+		
+		public DbHelper(Context context, String database, String table, int version, String createColumnQuery) {
+			super(context, database+"-"+table+".db", null, version);
+			this.TABLE = table;
+			this.CREATE_COLUMN_QUERY = createColumnQuery;
+		}
+	
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			try {
+				db.execSQL(this.CREATE_COLUMN_QUERY);
+			} catch (SQLException e) { 
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			try { db.execSQL("DROP TABLE IF EXISTS " + this.TABLE); onCreate(db);
+			} catch (SQLException e) { 
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+	}
+	
+	public DbHelper dbHelper;
+	private SQLiteDatabase sqlLiteDb = null;
+	
+	public DbUtils(Context context, String database, String table, int version, String createColumnQuery) {
+		this.dbHelper = new DbHelper(context, database, table, version, createColumnQuery);
+	}
+	
+	private SQLiteDatabase openDb() {
+		if (		(this.sqlLiteDb == null)
+			|| 	!(this.sqlLiteDb.isOpen())
+			) {
+			try {
+				this.sqlLiteDb = this.dbHelper.getWritableDatabase();
+		//		this.sqlLiteDb.execSQL("PRAGMA read_uncommitted = true;");
+		//		db.execSQL("PRAGMA synchronous = OFF;");
+			} catch (Exception e) { 
+				RfcxLog.logExc(logTag, e);
+			}	
+		}
+		return this.sqlLiteDb;
+	}
+	
+	private void closeDb() {
+//		try {
+//			if (this.sqlLiteDb != null) { this.sqlLiteDb.close(); }
+//		} catch (Exception e) { 
+//			RfcxLog.logExc(logTag, e);
+//		}
+	}
+	
+	public int insertRow(String table, ContentValues values) {
+		int rowCount = 0;
+		SQLiteDatabase db = openDb();
+		try {
+			db.insertWithOnConflict(table, null, values, SQLiteDatabase.CONFLICT_IGNORE);
+			rowCount = getCount(db, table, null, null);
+		} catch (Exception e) { 
+			RfcxLog.logExc(logTag, e);
+		} finally {
+			closeDb();
+		}
+		return rowCount;
+	}
+	
 	public static List<String[]> getRows(SQLiteDatabase db, String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy, int rowOffset, int rowLimit) {
 		
 		ArrayList<String[]> rowList = new ArrayList<String[]>();
 		try { 
 			Cursor cursor = db.query(tableName, tableColumns, selection, selectionArgs, null, null, (orderBy != null) ? orderBy+" "+DEFAULT_ORDER : null, ""+(rowOffset+rowLimit));
-			if ((cursor.getCount() > rowOffset) && cursor.moveToPosition(rowOffset)) {
+			if ((cursor != null) && (cursor.getCount() > rowOffset) && cursor.moveToPosition(rowOffset)) {
 				do { 
 					rowList.add( cursorToStringArray( cursor, tableColumns.length ) );
 				} while (cursor.moveToNext());
@@ -33,8 +116,22 @@ public class DbUtils {
 		return rowList;
 	}
 	
+	public List<String[]> getRows(String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy, int rowOffset, int rowLimit) {
+		SQLiteDatabase db = openDb();
+		List<String[]> rows = getRows(db, tableName, tableColumns, selection, selectionArgs, orderBy, rowOffset, rowLimit);
+		closeDb();
+		return rows;
+	}
+	
 	public static List<String[]> getRows(SQLiteDatabase db, String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy) {
 		return getRows(db, tableName, tableColumns, selection, selectionArgs, orderBy, DEFAULT_ROWOFFSET, DEFAULT_ROWLIMIT);
+	}
+	
+	public List<String[]> getRows(String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy) {
+		SQLiteDatabase db = openDb();
+		List<String[]> rows = getRows(db, tableName, tableColumns, selection, selectionArgs, orderBy);
+		closeDb();
+		return rows;
 	}
 	
 	public static String[] getSingleRow(SQLiteDatabase db, String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy, int rowOffset) {
@@ -49,6 +146,85 @@ public class DbUtils {
 		}
 		return row;
 	}
+	
+	public String[] getSingleRow(String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy, int rowOffset) {
+		SQLiteDatabase db = openDb();
+		String[] row = getSingleRow(db, tableName, tableColumns, selection, selectionArgs, orderBy, rowOffset);
+		closeDb();
+		return row;
+	}
+
+	private static JSONArray getRowsAsJsonArray(SQLiteDatabase db, String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy, int rowOffset, int rowLimit) {
+		JSONArray jsonArray = new JSONArray();
+		try {
+			for (String[] row : getRows(db, tableName, tableColumns, selection, selectionArgs, orderBy, rowOffset, rowLimit)) {
+				JSONObject jsonRow = new JSONObject();
+				for (int i = 0; i < tableColumns.length; i++) {
+					jsonRow.put(tableColumns[i], row[i]);
+				}
+				jsonArray.put(jsonRow);
+			}
+		} catch (Exception e) { 
+			RfcxLog.logExc(logTag, e);
+		}
+		return jsonArray;
+	}
+	
+	public JSONArray getRowsAsJsonArray(String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy, int rowOffset, int rowLimit) {
+		SQLiteDatabase db = openDb();
+		JSONArray jsonRows = getRowsAsJsonArray(db, tableName, tableColumns, selection, selectionArgs, orderBy, rowOffset, rowLimit);
+		closeDb();
+		return jsonRows;
+	}
+	
+	private static JSONArray getRowsAsJsonArray(SQLiteDatabase db, String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy) {
+		return getRowsAsJsonArray(db, tableName, tableColumns, selection, selectionArgs, orderBy, DEFAULT_ROWOFFSET, DEFAULT_ROWLIMIT);
+	}
+	
+	public JSONArray getRowsAsJsonArray(String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy) {
+		SQLiteDatabase db = openDb();
+		JSONArray jsonRows = getRowsAsJsonArray(db, tableName, tableColumns, selection, selectionArgs, orderBy);
+		closeDb();
+		return jsonRows;
+	}
+	
+	public void deleteRowsOlderThan(String tableName, String dateColumn, Date olderThanDate) {
+		SQLiteDatabase db = openDb();
+		try {
+			db.execSQL("DELETE FROM "+tableName+" WHERE "+dateColumn+"<='"+DateTimeUtils.getDateTime(olderThanDate)+"'");
+		} catch (Exception e) { 
+			RfcxLog.logExc(logTag, e); 
+		} finally {
+			closeDb();
+		}
+	}
+	
+	public void deleteRowsWithinQueryByTimestamp(String tableName, String timestampColumn, String timestampValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			for (String[] dbRow : getRows(db, tableName, new String[] { timestampColumn }, "substr("+timestampColumn+",1,"+timestampValue.length()+") = ?", new String[] { timestampValue }, null) ) {
+				db.execSQL("DELETE FROM "+tableName+" WHERE "+ timestampColumn +" = '"+ dbRow[0] +"'");
+			
+			}
+		} catch (Exception e) { 
+			RfcxLog.logExc(logTag, e); 
+		} finally {
+			closeDb();
+		}
+	}
+	
+	public void adjustNumericColumnValuesWithinQueryByTimestamp(String adjustmentAmount, String tableName, String numericColumnName, String timestampColumn, String timestampValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			for (String[] dbRow : getRows(db, tableName, new String[] { timestampColumn, numericColumnName }, "substr("+timestampColumn+",1,"+timestampValue.length()+") = ?", new String[] { timestampValue }, null) ) {
+				db.execSQL("UPDATE "+tableName+" SET "+numericColumnName+"=cast("+numericColumnName+" as INT)"+adjustmentAmount+" WHERE "+ timestampColumn +" = '"+ dbRow[0] +"'");
+			}
+		} catch (Exception e) { 
+			RfcxLog.logExc(logTag, e); 
+		} finally {
+			closeDb();
+		}
+	}
 
 	public static int getCount(SQLiteDatabase db, String tableName, String selection, String[] selectionArgs) {
 		int count = 0;
@@ -61,6 +237,25 @@ public class DbUtils {
 			RfcxLog.logExc(logTag, e);
 		}
 		return count;
+	}
+	
+	public int getCount(String tableName, String selection, String[] selectionArgs) {
+		SQLiteDatabase db = openDb();
+		int count = getCount(db, tableName, selection, selectionArgs);
+		closeDb();
+		return count;
+	}
+	
+	public void deleteAllRows(String tableName) {
+		SQLiteDatabase db = openDb();
+		try {
+			db.execSQL("DELETE FROM "+tableName);
+			Log.v(logTag, "All rows deleted from '"+tableName+"'");
+		} catch (Exception e) { 
+			RfcxLog.logExc(logTag, e); 
+		} finally {
+			closeDb();
+		}
 	}
 	
 	

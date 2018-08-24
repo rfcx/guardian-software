@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import rfcx.utility.database.DbUtils;
+import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxRole;
 
@@ -73,38 +74,17 @@ public class AudioEncodeDb {
 	
 
 	public class DbEncodeQueue {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "queued";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { 
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { 
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-		}
-		final DbHelper dbHelper;
 		
 		public DbEncodeQueue(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public void close() {
-			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
-		}
-		
-		public void insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
+		public int insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_TIMESTAMP, value);
@@ -117,96 +97,61 @@ public class AudioEncodeDb {
 			values.put(C_CREATION_DURATION, creation_duration);
 			values.put(C_FILEPATH, filepath);
 			values.put(C_ATTEMPTS, 0);
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		public List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public String[] getLatestRow() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP, 0);
+			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
 		}
 		
 		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { 
-				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
-			} finally { 
-				db.close(); 
-			}
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
 		}
 		
 		public void deleteSingleRow(String timestamp) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { 
-				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
-			} finally { 
-				db.close(); 
-			}
+			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
 		}
 		
 		public int getCount() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getCount(db, TABLE, null, null);
+			return this.dbUtils.getCount(TABLE, null, null);
 		}
-
+		
 		public String[] getSingleRowByAudioId(String audioId) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " "+ C_TIMESTAMP +" = ?", new String[] { audId }, C_CREATED_AT, 0);
+			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+C_TIMESTAMP+",1,"+timestamp.length()+") = ?", new String[] { timestamp }, null, 0);
 		}
 		
 		public void incrementSingleRowAttempts(String audioId) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_TIMESTAMP +" = '"+ audId +"'");
-			} finally { db.close(); }
+			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_TIMESTAMP, timestamp);
+		}
+		
+		public void decrementSingleRowAttempts(String audioId) {
+			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("-1", TABLE, C_ATTEMPTS, C_TIMESTAMP, timestamp);
 		}
 		
 	}
 	public final DbEncodeQueue dbEncodeQueue;
 	
 	public class DbEncoded {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "encoded";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { 
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { 
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-		}
-		final DbHelper dbHelper;
 		
 		public DbEncoded(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public void close() {
-			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
-		}
-		
-		public void insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
+		public int insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_TIMESTAMP, value);
@@ -219,59 +164,50 @@ public class AudioEncodeDb {
 			values.put(C_CREATION_DURATION, creation_duration);
 			values.put(C_FILEPATH, filepath);
 			values.put(C_ATTEMPTS, 0);
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
-		}
-		
-		public List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+			
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		public List<String[]> getRowsWithLimit(int maxRows) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null, 0, maxRows);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null, 0, maxRows);
+		}
+		
+		public List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
+		
+		public String[] getLatestRow() {
+			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
 		}
 		
 		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { 
-				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
-			} finally { 
-				db.close(); 
-			}
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
 		}
 		
 		public void deleteSingleRow(String timestamp) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { 
-				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
-			} finally { 
-				db.close(); 
-			}
-		}
-		
-		public void incrementSingleRowAttempts(String audioTimeStamp) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String audId = audioTimeStamp.contains(".") ? audioTimeStamp.substring(0, audioTimeStamp.lastIndexOf(".")) : audioTimeStamp;
-			try { db.execSQL("UPDATE "+TABLE+" SET "+C_ATTEMPTS+"=cast("+C_ATTEMPTS+" as INT)+1 WHERE "+ C_TIMESTAMP +" ='"+ audId +"'");
-			} finally { db.close(); }
+			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
 		}
 		
 		public int getCount() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getCount(db, TABLE, null, null);
+			return this.dbUtils.getCount(TABLE, null, null);
 		}
-
+		
 		public String[] getSingleRowByAudioId(String audioId) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			String audId = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " "+ C_TIMESTAMP +" = ?", new String[] { audId }, C_CREATED_AT, 0);
+			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+C_TIMESTAMP+",1,"+timestamp.length()+") = ?", new String[] { timestamp }, null, 0);
 		}
+		
+		public void incrementSingleRowAttempts(String audioId) {
+			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_TIMESTAMP, timestamp);
+		}
+		
+		public void decrementSingleRowAttempts(String audioId) {
+			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("-1", TABLE, C_ATTEMPTS, C_TIMESTAMP, timestamp);
+		}
+		
 		
 	}
 	public final DbEncoded dbEncoded;

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import rfcx.utility.database.DbUtils;
+import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxRole;
 
@@ -39,46 +40,26 @@ public class DeviceRebootDb {
 	}
 	
 	public class DbRebootComplete {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "reboots";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
-			}
-		}
-		final DbHelper dbHelper;
+		
 		public DbRebootComplete(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
-		public void close() {
-			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
-		}
-		public void insert(long rebootedAt) {
+		
+		public int insert(long rebootedAt) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_REBOOTED_AT, rebootedAt);
 			
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		private List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public String getConcatRows() {
@@ -86,9 +67,7 @@ public class DeviceRebootDb {
 		}
 		
 		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
 		}
 		
 	}
@@ -96,46 +75,26 @@ public class DeviceRebootDb {
 	
 	
 	public class DbRebootAttempt {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "attempts";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
-			}
-		}
-		final DbHelper dbHelper;
+		
 		public DbRebootAttempt(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
-		public void close() {
-			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
-		}
-		public void insert(long rebootedAt) {
+		
+		public int insert(long rebootedAt) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_REBOOTED_AT, rebootedAt);
 			
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		private List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public String getConcatRows() {
@@ -143,9 +102,7 @@ public class DeviceRebootDb {
 		}
 		
 		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
 		}
 		
 	}

@@ -199,5 +199,14 @@
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="true" />
  	
+ 	<EditTextPreference
+        android:key="admin_enable_bluetooth"
+		android:title="admin_enable_bluetooth"
+		android:dialogTitle="admin_enable_bluetooth"
+        android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="true" />
+ 	
  	
 </PreferenceScreen>

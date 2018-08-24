@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import rfcx.utility.database.DbUtils;
+import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxRole;
 
@@ -48,39 +49,17 @@ public class DeviceDataTransferDb {
 	}
 	
 	public class DbTransferred {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "transferred";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { 
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { 
-					db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { 
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-		}
-		final DbHelper dbHelper;
 		
 		public DbTransferred(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public void close() {
-			try { this.dbHelper.close(); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
-		}
-		
-		public void insert(Date created_at, Date start_time, Date end_time, long bytes_rx_current, long bytes_tx_current, long bytes_rx_total, long bytes_tx_total) {
+		public int insert(Date created_at, Date start_time, Date end_time, long bytes_rx_current, long bytes_tx_current, long bytes_rx_total, long bytes_tx_total) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, created_at.getTime());
 			values.put(C_START_TIME, start_time.getTime());
@@ -89,57 +68,20 @@ public class DeviceDataTransferDb {
 			values.put(C_BYTES_SENT_CURRENT, bytes_tx_current);
 			values.put(C_BYTES_RECEIVED_TOTAL, bytes_rx_total);
 			values.put(C_BYTES_SENT_TOTAL, bytes_tx_total);
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		private List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
-//			ArrayList<String[]> list = new ArrayList<String[]>();
-//			try { 
-//				Cursor cursor = db.query(TABLE, ALL_COLUMNS, null, null, null, null, null, null);
-//				if (cursor.getCount() > 0) {
-//					if (cursor.moveToFirst()) { 
-//						do { list.add(new String[] { cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6) });
-//						} while (cursor.moveToNext());
-//					} 
-//				}
-//				cursor.close();
-//			} catch (Exception e) { 
-//				RfcxLog.logExc(TAG, e);
-//			} finally { 
-//				db.close(); 
-//			}
-//			return list;
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { 
-				db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
-			} finally { 
-				db.close(); 
-			}
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
 		}
 		
 		public String getConcatRows() {
 			return DbUtils.getConcatRows(getAllRows());
-//			String concatRows = null;
-//			ArrayList<String> rowList = new ArrayList<String>();
-//			try {
-//				for (String[] row : getAllRows()) {
-//					rowList.add(TextUtils.join("*", row));
-//				}
-//				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
-//			} catch (Exception e) {
-//				RfcxLog.logExc(TAG, e);
-//			}
-//			return concatRows;
 		}
 	}
 	public final DbTransferred dbTransferred;

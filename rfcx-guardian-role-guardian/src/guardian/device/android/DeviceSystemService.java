@@ -88,7 +88,7 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_NOT_STICKY;
+		return START_STICKY;
 	}
 	
 	@Override

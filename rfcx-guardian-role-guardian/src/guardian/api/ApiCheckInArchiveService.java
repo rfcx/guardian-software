@@ -46,7 +46,7 @@ public class ApiCheckInArchiveService extends Service {
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_NOT_STICKY;
+		return START_STICKY;
 	}
 
 	@Override
