@@ -46,61 +46,33 @@ public class DeviceSentinelPowerDb {
 	}
 	
 	public class DbSentinelPowerBattery {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "battery";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-		}
-		final DbHelper dbHelper;
 		
 		public DbSentinelPowerBattery(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public void close() {
-			this.dbHelper.close();
-		}
-		
-		public void insert(Date measured_at, String value_1, String value_2, String value_3, String value_4) {
+		public int insert(Date measured_at, String value_1, String value_2, String value_3, String value_4) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VOLTAGE, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_CURRENT, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_TEMPERATURE, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		private List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
 		}
 		
 		public String getConcatRows() {
@@ -113,61 +85,33 @@ public class DeviceSentinelPowerDb {
 	
 	
 	public class DbSentinelPowerInput {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "input";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-		}
-		final DbHelper dbHelper;
 		
 		public DbSentinelPowerInput(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public void close() {
-			this.dbHelper.close();
-		}
-		
-		public void insert(Date measured_at, String value_1, String value_2, String value_3, String value_4) {
+		public int insert(Date measured_at, String value_1, String value_2, String value_3, String value_4) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VOLTAGE, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_CURRENT, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_TEMPERATURE, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		private List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
 		}
 		
 		public String getConcatRows() {
@@ -180,61 +124,33 @@ public class DeviceSentinelPowerDb {
 	
 	
 	public class DbSentinelPowerSystem {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "system";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
-		}
-		final DbHelper dbHelper;
 		
 		public DbSentinelPowerSystem(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public void close() {
-			this.dbHelper.close();
-		}
-		
-		public void insert(Date measured_at, String value_1, String value_2, String value_3, String value_4) {
+		public int insert(Date measured_at, String value_1, String value_2, String value_3, String value_4) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VOLTAGE, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_CURRENT, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_TEMPERATURE, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		private List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, null);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public void clearRowsBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_MEASURED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
 		}
 		
 		public String getConcatRows() {

@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
-import android.util.Log;
 import rfcx.utility.rfcx.RfcxLog;
 
 public class DeviceSmsUtils {
@@ -22,7 +21,7 @@ public class DeviceSmsUtils {
 		JSONArray msgJsonArray = new JSONArray();
 		Cursor cursor = contentResolver.query(Uri.parse("content://sms/"), null, null, null, null);
 		
-		if ((cursor.getCount() > 0) && cursor.moveToFirst()) { do {
+		if ((cursor != null) && (cursor.getCount() > 0) && cursor.moveToFirst()) { do {
 			try {
 				JSONObject msgJson = new JSONObject();
 				msgJson.put("android_id", cursor.getString(cursor.getColumnIndex("_id")));

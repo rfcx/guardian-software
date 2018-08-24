@@ -47,172 +47,78 @@ public class DeviceLogCatDb {
 	}
 	
 	public class DbCaptured {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "captured";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
-			}
-		}
-		final DbHelper dbHelper;
 		
 		public DbCaptured(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public void close() {
-			this.dbHelper.close();
-		}
-		
-		public void insert(String timestamp, String format, String digest, String filepath) {
+		public int insert(String timestamp, String format, String digest, String filepath) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_TIMESTAMP, timestamp);
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			values.put(C_FILEPATH, filepath);
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		public List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, C_CREATED_AT);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public JSONArray getLatestRowAsJsonArray() {
-			JSONArray jsonArray = new JSONArray();
-			try {
-				List<String[]> rowList = getAllRows();
-				if (rowList.size() > 0) {
-					JSONObject jsonRow = new JSONObject();
-					for (int i = 0; i < ALL_COLUMNS.length; i++) {
-						jsonRow.put(ALL_COLUMNS[i], rowList.get(0)[i]);
-					}
-					jsonArray.put(jsonRow);
-				}
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-			}
-			return jsonArray;
-		}
-		
-		public void clearCapturedBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public int deleteSingleRowByTimestamp(String timestamp) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
-			} finally { db.close(); }
+			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
 			return 0;
-		}
-		
-		public String[] getSingleRowByTimestamp(String timestamp) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " "+C_TIMESTAMP+" = ?", new String[] { timestamp }, C_CREATED_AT, 0);
 		}
 
 	}
 	public final DbCaptured dbCaptured;
 	
 	public class DbQueued {
+
+		final DbUtils dbUtils;
+
 		private String TABLE = "queued";
-		class DbHelper extends SQLiteOpenHelper {
-			public DbHelper(Context context) {
-				super(context, DATABASE+"-"+TABLE+".db", null, VERSION);
-			}
-			@Override
-			public void onCreate(SQLiteDatabase db) {
-				try {
-					db.execSQL(createColumnString(TABLE));
-				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
-			}
-			@Override
-			public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-				try { db.execSQL("DROP TABLE IF EXISTS " + TABLE); onCreate(db);
-				} catch (SQLException e) { RfcxLog.logExc(logTag, e); }
-			}
-		}
-		final DbHelper dbHelper;
 		
 		public DbQueued(Context context) {
-			this.dbHelper = new DbHelper(context);
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public void close() {
-			this.dbHelper.close();
-		}
-		
-		public void insert(String timestamp, String format, String digest, String filepath) {
+		public int insert(String timestamp, String format, String digest, String filepath) {
+			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_TIMESTAMP, timestamp);
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			values.put(C_FILEPATH, filepath);
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try {
-				db.insertWithOnConflict(TABLE, null, values, SQLiteDatabase.CONFLICT_IGNORE);
-			} finally {
-				db.close();
-			}
+			
+			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
 		public List<String[]> getAllRows() {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getRows(db, TABLE, ALL_COLUMNS, null, null, C_CREATED_AT);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public JSONArray getLatestRowAsJsonArray() {
-			JSONArray jsonArray = new JSONArray();
-			try {
-				List<String[]> rowList = getAllRows();
-				if (rowList.size() > 0) {
-					JSONObject jsonRow = new JSONObject();
-					for (int i = 0; i < ALL_COLUMNS.length; i++) {
-						jsonRow.put(ALL_COLUMNS[i], rowList.get(0)[i]);
-					}
-					jsonArray.put(jsonRow);
-				}
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-			}
-			return jsonArray;
-		}
-		
-		public void clearQueuedBefore(Date date) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_CREATED_AT+"<="+date.getTime());
-			} finally { db.close(); }
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public int deleteSingleRowByTimestamp(String timestamp) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			try { db.execSQL("DELETE FROM "+TABLE+" WHERE "+C_TIMESTAMP+"='"+timestamp+"'");
-			} finally { db.close(); }
+			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
 			return 0;
-		}
-		
-		public String[] getSingleRowByTimestamp(String timestamp) {
-			SQLiteDatabase db = this.dbHelper.getWritableDatabase();
-			return DbUtils.getSingleRow(db, TABLE, ALL_COLUMNS, " "+C_TIMESTAMP+" = ?", new String[] { timestamp }, C_CREATED_AT, 0);
 		}
 
 	}

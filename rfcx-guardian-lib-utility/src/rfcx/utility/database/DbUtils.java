@@ -69,7 +69,7 @@ public class DbUtils {
 			try {
 				this.sqlLiteDb = this.dbHelper.getWritableDatabase();
 		//		this.sqlLiteDb.execSQL("PRAGMA read_uncommitted = true;");
-		//		db.execSQL("PRAGMA synchronous = OFF;");
+		//		this.sqlLiteDb.execSQL("PRAGMA synchronous = OFF;");
 			} catch (Exception e) { 
 				RfcxLog.logExc(logTag, e);
 			}	
