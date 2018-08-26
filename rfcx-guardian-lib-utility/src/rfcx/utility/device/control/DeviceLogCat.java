@@ -26,7 +26,6 @@ public class DeviceLogCat {
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
 		initializeLogCatDirectories(context);
-//		reSetLogCatCaptureScript(context);
 		saveExecutableScript(context);
 	}
 
@@ -89,37 +88,6 @@ public class DeviceLogCat {
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-//	private void reSetLogCatCaptureScript(Context context) {
-//		
-//		String logCatCaptureScriptFilePath = DeviceLogCatCapture.getExecutableScriptFilePath(context);
-//		
-//		if ((new File(logCatCaptureScriptFilePath)).exists()) { (new File(logCatCaptureScriptFilePath)).delete(); }
-//
-//		try {
-//			InputStream inputStream = context.getAssets().open("logcat_capture.sh");
-//			OutputStream outputStream = new FileOutputStream(logCatCaptureScriptFilePath);
-//			byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
-//			inputStream.close(); outputStream.close();
-//			FileUtils.chmod(logCatCaptureScriptFilePath, 0755);
-//		} catch (IOException e) {
-//			RfcxLog.logExc(logTag, e);
-//		}
-//		
-//	}
-	
-	
-	
-	
-	
-	
-	
-	
 	public boolean saveExecutableScript(Context context) {
 		
 		String scriptBody = (new StringBuilder())
@@ -131,14 +99,14 @@ public class DeviceLogCat {
 			
 			.append("touch $CAPTURE_FILE").append("\n")
 
-			.append("TIMESTAMP_BEGIN=$(date +\"%s\")").append("\n")
+		//	.append("TIMESTAMP_BEGIN=$(date +\"%s\")").append("\n")
 			.append("logcat -v time > $CAPTURE_FILE&").append("\n")
 			.append("PID=$!").append("\n")
 
 			.append("sleep $CAPTURE_CYCLE_DURATION").append("\n")
 
 			.append("KILL=`kill -9 $PID`").append("\n")
-			.append("TIMESTAMP_END=$(date +\"%s\")").append("\n")
+		//	.append("TIMESTAMP_END=$(date +\"%s\")").append("\n")
 			.append("logcat -c").append("\n")
 			
 			.append("chmod a+rw $CAPTURE_FILE").append("\n")
@@ -161,50 +129,5 @@ public class DeviceLogCat {
 		return false;
 	}
 	
-	
-//	public String[] launchCapture(Context context) {
-//		
-//		String executableBinaryFilePath = DeviceLogCatCapture.getExecutableScriptFilePath(context);
-//		
-//		if ((new File(executableBinaryFilePath)).exists()) {
-//			
-//			try {
-//				
-//				long captureTimestamp = System.currentTimeMillis();
-//				
-//				String captureFilePath = DeviceLogCatCapture.getLogFileLocation_Capture(context, captureTimestamp);
-//				String finalFilePath = DeviceLogCatCapture.getLogFileLocation_Complete(context, captureTimestamp);
-//				
-//				// run framebuffer binary to save screenshot to file
-//				ShellCommands.executeCommand(executableBinaryFilePath+" "+captureFilePath, null, true, context);
-//				
-//				return completeCapture(captureTimestamp, captureFilePath, finalFilePath);
-//				
-//			} catch (Exception e) {
-//				RfcxLog.logExc(logTag, e);
-//			}
-//		} else {
-//			Log.e(logTag, "Executable not found: "+executableBinaryFilePath);
-//		}
-//		return null;
-//	}
-//	
-//	public String[] completeCapture(long timestamp, String captureFilePath, String finalFilePath) {
-//		try {
-//			File captureFile = new File(captureFilePath);
-//			File finalFile = new File(finalFilePath);
-//			
-//	        if (captureFile.exists()) {
-//	        	FileUtils.copy(captureFile, finalFile);
-//	        	if (finalFile.exists()) {
-//	        		captureFile.delete();
-//	        		return new String[] { ""+timestamp, DeviceLogCatCapture.FILETYPE, FileUtils.sha1Hash(finalFilePath), finalFilePath };
-//	        	}
-//		    }
-//		} catch (Exception e) {
-//			RfcxLog.logExc(logTag, e);
-//		}
-//		return null;
-//	}
 	
 }

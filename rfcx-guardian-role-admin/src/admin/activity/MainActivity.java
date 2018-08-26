@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
 			break;
 			
 		case R.id.menu_screenshot:
-			app.rfcxServiceHandler.triggerService("ScreenShotJob", true);
+			app.rfcxServiceHandler.triggerService("ScreenShotCapture", true);
 			break;
 			
 		case R.id.menu_sntp:
@@ -48,7 +48,7 @@ public class MainActivity extends Activity {
 			break;
 		
 		case R.id.menu_logcat:
-			app.rfcxServiceHandler.triggerService("DeviceLogCatCapture", true);
+			app.rfcxServiceHandler.triggerService("LogCatCapture", true);
 			break;
 			
 		}

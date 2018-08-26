@@ -31,7 +31,7 @@ public class DeviceScreenShot {
 	private String rfcxDeviceId = null;
 	
 	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM/yyyy-MM-dd/HH", Locale.US);
-	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SZZZ", Locale.US);
+	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US);
 
 	public static final String BINARY_NAME = "fb2png";
 	public static final String FILETYPE = "png";

@@ -1,4 +1,4 @@
-package admin.device.android.control;
+package admin.device.android.capture;
 
 import admin.RfcxGuardian;
 import android.app.IntentService;
@@ -6,13 +6,15 @@ import android.content.Intent;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.service.RfcxServiceHandler;
 
-public class DailyScheduledRebootService extends IntentService {
+public class ScheduledLogCatCaptureService extends IntentService {
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DailyScheduledRebootService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledLogCatCaptureService.class);
 	
-	private static final String SERVICE_NAME = "DailyScheduledReboot";
+	private static final String SERVICE_NAME = "ScheduledLogCatCapture";
+	
+	public static final long SCHEDULED_LOGCAT_CYCLE_DURATION = ( 30 * 60 * 1000 ); // every 30 minutes
 		
-	public DailyScheduledRebootService() {
+	public ScheduledLogCatCaptureService() {
 		super(logTag);
 	}
 	
@@ -23,7 +25,7 @@ public class DailyScheduledRebootService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		app.rfcxServiceHandler.triggerService("RebootTrigger", true);
+		app.rfcxServiceHandler.triggerService("LogCatCapture", true);
 	
 	}
 	

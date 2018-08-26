@@ -13,12 +13,13 @@ import rfcx.utility.service.RfcxServiceHandler;
 
 import admin.device.android.capture.DeviceLogCatDb;
 import admin.device.android.capture.DeviceLogCatCaptureService;
-import admin.device.android.capture.DeviceLogCatQueueService;
 import admin.device.android.capture.DeviceScreenShotDb;
-import admin.device.android.capture.DeviceScreenShotJobService;
+import admin.device.android.capture.DeviceScreenShotCaptureService;
+import admin.device.android.capture.ScheduledLogCatCaptureService;
+import admin.device.android.capture.ScheduledScreenShotCaptureService;
 import admin.device.android.control.AirplaneModeOffJobService;
 import admin.device.android.control.AirplaneModeOnJobService;
-import admin.device.android.control.DailyScheduledRebootService;
+import admin.device.android.control.ScheduledRebootService;
 import admin.device.android.control.DateTimeSntpSyncJobService;
 import admin.device.android.control.ForceRoleRelaunchService;
 import admin.device.android.control.RebootTriggerJobService;
@@ -114,11 +115,17 @@ public class RfcxGuardian extends Application {
 							+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
 							+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
 							,
-					"DailyScheduledReboot"
+					"ScheduledReboot"
 							+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
-							+"|"+(24 * 60 * 60 * 1000)
+							+"|"+( 24 * 60 * 60 * 1000 ) // repeats daily
 							,
-					"ScreenShotJob"
+					"ScheduledScreenShotCapture"
+							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
+							+"|"+ScheduledScreenShotCaptureService.SCHEDULED_SCREENSHOT_CYCLE_DURATION
+							,
+					"ScheduledLogCatCapture"
+							+"|"+DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
+							+"|"+ScheduledLogCatCaptureService.SCHEDULED_LOGCAT_CYCLE_DURATION
 			};
 			
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
@@ -138,15 +145,18 @@ public class RfcxGuardian extends Application {
 	private void setServiceHandlers() {
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);
-		this.rfcxServiceHandler.addService("DailyScheduledReboot", DailyScheduledRebootService.class);
-		this.rfcxServiceHandler.addService("ScreenShotJob", DeviceScreenShotJobService.class);
+		this.rfcxServiceHandler.addService("ScheduledReboot", ScheduledRebootService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeOffJob", AirplaneModeOffJobService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeOnJob", AirplaneModeOnJobService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
-		this.rfcxServiceHandler.addService("DeviceLogCatCapture", DeviceLogCatCaptureService.class);
-		this.rfcxServiceHandler.addService("DeviceLogCatQueue", DeviceLogCatQueueService.class);
+
+		this.rfcxServiceHandler.addService("ScreenShotCapture", DeviceScreenShotCaptureService.class);
+		this.rfcxServiceHandler.addService("ScheduledScreenShotCapture", ScheduledScreenShotCaptureService.class);
+
+		this.rfcxServiceHandler.addService("LogCatCapture", DeviceLogCatCaptureService.class);
+		this.rfcxServiceHandler.addService("ScheduledLogCatCapture", ScheduledLogCatCaptureService.class);
 		
 		
 		

@@ -26,7 +26,7 @@ import android.util.Log;
 import guardian.api.ApiCheckInArchiveService;
 import guardian.api.ApiCheckInDb;
 import guardian.api.ApiCheckInJobService;
-import guardian.api.ApiCheckInUtils;
+import guardian.api.ApiGuardianCheckInUtils;
 import guardian.api.ApiQueueCheckInService;
 import guardian.audio.capture.AudioCaptureService;
 import guardian.audio.capture.AudioCaptureUtils;
@@ -75,7 +75,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 	// Misc
 	public AudioCaptureUtils audioCaptureUtils = null;
-	public ApiCheckInUtils apiCheckInUtils = null;
+	public ApiGuardianCheckInUtils apiCheckInUtils = null;
 	
 	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
 	
@@ -110,7 +110,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		setServiceHandlers();
 		
 		this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
-		this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
+		this.apiCheckInUtils = new ApiGuardianCheckInUtils(getApplicationContext());
 		
 		initializeRoleServices();
 	}

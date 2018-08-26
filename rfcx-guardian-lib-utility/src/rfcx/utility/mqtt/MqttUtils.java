@@ -44,7 +44,7 @@ public class MqttUtils implements MqttCallback {
 	
 	private long mqttActionTimeout = 0;
 	
-	private Date msgSendStart = new Date(System.currentTimeMillis());
+	private Date msgSendStart = new Date();
 	
 	private static MqttConnectOptions getConnectOptions() {
 		
@@ -84,8 +84,8 @@ public class MqttUtils implements MqttCallback {
 	
 	public Date publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
 		if (confirmOrCreateConnectionToBroker(true)) {
-			Log.i(logTag, (new StringBuilder()).append("Message (").append(messageByteArray.length).append(" bytes) published to '").append(publishTopic).append("' at ").append(DateTimeUtils.getDateTime(new Date(System.currentTimeMillis()))).toString());
-			this.msgSendStart = new Date(System.currentTimeMillis());
+			Log.i(logTag, (new StringBuilder()).append("Message (").append(messageByteArray.length).append(" bytes) published to '").append(publishTopic).append("' at ").append(DateTimeUtils.getDateTime(new Date())).toString());
+			this.msgSendStart = new Date();
 			this.mqttClient.publish(publishTopic, buildMessage(messageByteArray));
 		} else {
 			Log.e(logTag, "Message could not be sent because connection could not be created...");

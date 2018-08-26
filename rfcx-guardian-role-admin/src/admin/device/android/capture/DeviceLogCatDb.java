@@ -21,7 +21,6 @@ public class DeviceLogCatDb {
 	public DeviceLogCatDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbCaptured = new DbCaptured(context);
-		this.dbQueued = new DbQueued(context);
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceLogCatDb.class);
@@ -84,44 +83,5 @@ public class DeviceLogCatDb {
 
 	}
 	public final DbCaptured dbCaptured;
-	
-	public class DbQueued {
-
-		final DbUtils dbUtils;
-
-		private String TABLE = "queued";
-		
-		public DbQueued(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
-		}
-		
-		public int insert(String timestamp, String format, String digest, String filepath) {
-			
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_TIMESTAMP, timestamp);
-			values.put(C_FORMAT, format);
-			values.put(C_DIGEST, digest);
-			values.put(C_FILEPATH, filepath);
-			
-			return this.dbUtils.insertRow(TABLE, values);
-		}
-		
-		public List<String[]> getAllRows() {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
-		}
-		
-		public JSONArray getLatestRowAsJsonArray() {
-			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
-		}
-		
-		public int deleteSingleRowByTimestamp(String timestamp) {
-			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
-			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
-			return 0;
-		}
-
-	}
-	public final DbQueued dbQueued;
 	
 }

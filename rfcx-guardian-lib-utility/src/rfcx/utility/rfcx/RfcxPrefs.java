@@ -289,6 +289,8 @@ public class RfcxPrefs {
 			put("checkin_offline_mode", "false");
 			
 	        put("api_checkin_host", "checkin.rfcx.org");
+	        put("api_checkin_protocol", "tcp");
+	        put("api_checkin_port", "1883");
 	        put("api_ntp_host", "time.apple.com");
 	        
 			put("reboot_forced_daily_at", "23:55:00");

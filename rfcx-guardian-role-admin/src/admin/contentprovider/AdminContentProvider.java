@@ -55,7 +55,7 @@ public class AdminContentProvider extends ContentProvider {
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "relaunch", null, System.currentTimeMillis() });
 				
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "screenshot")) {
-				app.rfcxServiceHandler.triggerService("ScreenShotJob", true);
+				app.rfcxServiceHandler.triggerService("ScreenShotCapture", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "screenshot", null, System.currentTimeMillis() });
 			
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_off")) {
@@ -99,7 +99,7 @@ public class AdminContentProvider extends ContentProvider {
 					return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[] { "screenshots", app.deviceScreenShotDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis() });
 				
 				} else if (pathSeg.equalsIgnoreCase("logs")) {
-					return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[] { "logs", app.deviceLogCatDb.dbQueued.getLatestRowAsJsonArray().toString(), System.currentTimeMillis() });
+					return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[] { "logs", app.deviceLogCatDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis() });
 				
 				} else {
 					return null;
@@ -117,7 +117,7 @@ public class AdminContentProvider extends ContentProvider {
 					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[] { pathSeg, app.deviceScreenShotDb.dbCaptured.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis() });	
 
 				} else if (pathSegTable.equalsIgnoreCase("logs")) {
-					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[] { pathSeg, app.deviceLogCatDb.dbQueued.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis() });	
+					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[] { pathSeg, app.deviceLogCatDb.dbCaptured.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis() });	
 									
 				} else {
 					return null;

@@ -4,13 +4,13 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 import rfcx.utility.rfcx.RfcxLog;
 
-public class DeviceMobileSIMCard {
+public class DeviceMobilePhone {
 	
-	public DeviceMobileSIMCard(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceMobileSIMCard.class);
+	public DeviceMobilePhone(String appRole) {
+		this.logTag = RfcxLog.generateLogTag(appRole, DeviceMobilePhone.class);
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceMobileSIMCard.class);
+	private String logTag = RfcxLog.generateLogTag("Utils", DeviceMobilePhone.class);
 	
 	public static String getSIMSerial(Context context) {
 		return ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getSimSerialNumber();
@@ -23,4 +23,14 @@ public class DeviceMobileSIMCard {
 	public static String getIMEI(Context context) {
 		return ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
 	}	
+	
+	public static String getConcatMobilePhoneInfo(Context context) {
+		return (new StringBuilder())
+				.append("sim*").append(getSIMSerial(context))
+				.append("|")
+				.append("imsi*").append(getIMSI(context))
+				.append("|")
+				.append("imei*").append(getIMEI(context))
+				.toString();
+	}
 }

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.admin"
     android:versionCode="1"
-    android:versionName="0.5.7" >
+    android:versionName="0.5.9" >
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -68,19 +68,20 @@
         </activity>
         
         <!-- Services -->
-        <service android:name="admin.device.android.capture.DeviceScreenShotJobService" />
+        <service android:name="admin.device.android.capture.DeviceScreenShotCaptureService" />
+        <service android:name="admin.device.android.capture.DeviceLogCatCaptureService" />
         <service android:name="admin.device.android.control.RebootTriggerJobService" />
         <service android:name="admin.device.android.control.AirplaneModeOffJobService" />
         <service android:name="admin.device.android.control.AirplaneModeOnJobService" />
         <service android:name="admin.device.android.control.DateTimeSntpSyncJobService" />
-        <service android:name="admin.device.android.capture.DeviceLogCatCaptureService" />
-        <service android:name="admin.device.android.capture.DeviceLogCatQueueService" />
         <service android:name="admin.device.sentinel.DeviceSentinelService" />
         
         <!-- IntentServices -->
         <service android:name="admin.ServiceMonitor" />
-        <service android:name="admin.device.android.control.DailyScheduledRebootService" />
+        <service android:name="admin.device.android.control.ScheduledRebootService" />
         <service android:name="admin.device.android.control.ForceRoleRelaunchService" />
+        <service android:name="admin.device.android.capture.ScheduledScreenShotCaptureService" />
+        <service android:name="admin.device.android.capture.ScheduledLogCatCaptureService" />
         
         
         <!-- Broadcast Receivers -->

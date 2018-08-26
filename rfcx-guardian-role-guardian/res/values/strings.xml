@@ -20,6 +20,11 @@
 		<item>opus</item>
 		<item>flac</item>
 	</string-array>
+
+    <string-array name="tcp_or_tls">
+		<item>tcp</item>
+		<item>tls</item>
+	</string-array>
 	
     <string-array name="audio_sample_rate_labels">
 		<item>8 kHz</item>

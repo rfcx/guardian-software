@@ -17,6 +17,22 @@
         android:enabled="true"
         android:defaultValue="checkin.rfcx.org" />
  	
+ 	<ListPreference
+		android:key="api_checkin_protocol"
+		android:title="api_checkin_protocol"
+		android:dialogTitle="api_checkin_protocol"
+        android:summary="string - api protocol"
+		android:entries="@array/tcp_or_tls"
+		android:entryValues="@array/tcp_or_tls"
+		android:defaultValue="tcp" />
+    
+ 	<EditTextPreference
+        android:key="api_checkin_port"
+        android:title="api_checkin_port"
+        android:summary="string - api port"
+        android:enabled="true"
+        android:defaultValue="1883" />
+ 	
  	<EditTextPreference
         android:key="api_ntp_host"
         android:title="api_ntp_host"
