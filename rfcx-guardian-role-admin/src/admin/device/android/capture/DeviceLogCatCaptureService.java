@@ -74,7 +74,8 @@ public class DeviceLogCatCaptureService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
-
+			
+			DeviceLogCat deviceLogCat = new DeviceLogCat(context, RfcxGuardian.APP_ROLE, app.rfcxDeviceGuid.getDeviceGuid());
 			String scriptFilePath = DeviceLogCat.getExecutableScriptFilePath(context);
 
 			// removing older files if they're left in the capture directory

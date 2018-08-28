@@ -42,6 +42,8 @@ public class RfcxComm {
 				"database_delete_row", new String[] { "table|id", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"database_delete_rows_before", new String[] { "table|timestamp", "result", "received_at" });
+			roleFuncProj.get(role).put(
+				"database_set_last_accessed_at", new String[] { "table|id", "result", "received_at" });
 		}
 		return roleFuncProj;
 	}
@@ -70,6 +72,19 @@ public class RfcxComm {
 			RfcxLog.logExc(logTag, e);
 		}
 		return deleteQueryResult;
+	}
+	
+	public static int updateQueryContentProvider(String role, String function, String query, ContentResolver contentResolver) {
+		int updateQueryResult = 0;
+		try {
+			Cursor queryCursor = contentResolver.query( getUri( role, function, query ), getProjection( role, function ), null, null, null );
+//			if ((queryCursor != null) && (queryCursor.getCount() > 0) && queryCursor.moveToFirst()) { do {
+//				updateQueryResult = (int) Integer.parseInt( queryCursor.getString( queryCursor.getColumnIndex("result") ) );
+//			} while (queryCursor.moveToNext()); queryCursor.close(); }
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return updateQueryResult;
 	}
 	
 	public static MatrixCursor getProjectionCursor(String role, String function, Object[] values) {

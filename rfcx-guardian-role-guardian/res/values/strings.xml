@@ -7,6 +7,7 @@
     <string name="menu_reboot">reboot</string>
     <string name="menu_relaunch">relaunch</string>
     <string name="menu_screenshot">screenshot</string>
+    <string name="menu_logcat">logcat</string>
     <string name="menu_sntp">sntp sync</string>
     <string name="menu_purge_checkins">purge checkins</string>
     

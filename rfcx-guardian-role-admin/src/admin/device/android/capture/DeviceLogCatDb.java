@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import rfcx.utility.database.DbUtils;
 import rfcx.utility.rfcx.RfcxLog;
@@ -31,7 +32,8 @@ public class DeviceLogCatDb {
 	static final String C_FORMAT = "format";
 	static final String C_DIGEST = "digest";
 	static final String C_FILEPATH = "filepath";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_FILEPATH };
+	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_FILEPATH, C_LAST_ACCESSED_AT };
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -41,6 +43,7 @@ public class DeviceLogCatDb {
 			.append(", ").append(C_FORMAT).append(" TEXT")
 			.append(", ").append(C_DIGEST).append(" TEXT")
 			.append(", ").append(C_FILEPATH).append(" TEXT")
+			.append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
 			.append(")");
 		return sbOut.toString();
 	}
@@ -63,12 +66,9 @@ public class DeviceLogCatDb {
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			values.put(C_FILEPATH, filepath);
+			values.put(C_LAST_ACCESSED_AT, 0);
 			
 			return this.dbUtils.insertRow(TABLE, values);
-		}
-		
-		public List<String[]> getAllRows() {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public JSONArray getLatestRowAsJsonArray() {
@@ -79,6 +79,13 @@ public class DeviceLogCatDb {
 			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
 			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
 			return 0;
+		}
+		
+		public long updateLastAccessedAtByTimestamp(String timestamp) {
+			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_TIMESTAMP, timestampValue);
+			return rightNow;
 		}
 
 	}

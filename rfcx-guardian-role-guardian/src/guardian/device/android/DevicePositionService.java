@@ -55,7 +55,7 @@ public class DevicePositionService extends Service implements LocationListener, 
 	
 	private static final String gpsProvider = LocationManager.GPS_PROVIDER;
 	private static final long gpsMinimumDistanceChangeBetweenUpdatesInMeters = 10;
-	private static final long gpsMinimumTimeElapsedBetweenUpdatesInMilliseconds = 60000;
+	private static final long gpsMinimumTimeElapsedBetweenUpdatesInMilliseconds = 15000;
 	
 	private static final int ACCEL_FLOAT_MULTIPLIER = 1000000;
 	
@@ -112,7 +112,7 @@ public class DevicePositionService extends Service implements LocationListener, 
 
 			app = (RfcxGuardian) getApplication();
 			
-			long captureCycleDuration = (long) Math.round( app.rfcxPrefs.getPrefAsInt("device_stats_capture_cycle_duration") * 1000 );
+			long captureCycleDuration = (long) Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 0.6667 * 1000 );
 					
 			while (devicePositionService.runFlag) {
 				

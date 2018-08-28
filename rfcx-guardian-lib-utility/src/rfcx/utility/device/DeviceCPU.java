@@ -19,7 +19,7 @@ public class DeviceCPU {
 		this.reportingSampleCount = reportingSampleCount;
 	}
 
-	public static final int SAMPLE_DURATION_MILLISECONDS = 360;
+	public static final long SAMPLE_DURATION_MILLISECONDS = 360;
 	
 	private float cpuPercentage_Current = 0;
 	private float cpuPercentage_Average = 0;

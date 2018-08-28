@@ -225,6 +225,19 @@ public class DbUtils {
 			closeDb();
 		}
 	}
+	
+	public void setDatetimeColumnValuesWithinQueryByTimestamp(String tableName, String datetimeColumnName, long datetimeColumnValue, String timestampColumn, String timestampValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			for (String[] dbRow : getRows(db, tableName, new String[] { timestampColumn, datetimeColumnName }, "substr("+timestampColumn+",1,"+timestampValue.length()+") = ?", new String[] { timestampValue }, null) ) {
+				db.execSQL("UPDATE "+tableName+" SET "+datetimeColumnName+"="+datetimeColumnValue+" WHERE "+ timestampColumn +" = '"+ dbRow[0] +"'");
+			}
+		} catch (Exception e) { 
+			RfcxLog.logExc(logTag, e); 
+		} finally {
+			closeDb();
+		}
+	}
 
 	public static int getCount(SQLiteDatabase db, String tableName, String selection, String[] selectionArgs) {
 		int count = 0;

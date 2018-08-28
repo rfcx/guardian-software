@@ -57,6 +57,10 @@ public class AdminContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "screenshot")) {
 				app.rfcxServiceHandler.triggerService("ScreenShotCapture", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "screenshot", null, System.currentTimeMillis() });
+				
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "logcat")) {
+				app.rfcxServiceHandler.triggerService("LogCatCapture", true);
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "logcat", null, System.currentTimeMillis() });
 			
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_off")) {
 				app.rfcxServiceHandler.triggerService("AirplaneModeOffJob", true);
@@ -131,6 +135,21 @@ public class AdminContentProvider extends ContentProvider {
 				if (pathSegTable.equalsIgnoreCase("sentinel_power")) {
 					return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[] { pathSeg, DeviceSentinelPowerUtils.deleteSentinelPowerValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis() });	
 				
+				}
+				
+			} else if (RfcxComm.uriMatch(uri, appRole, "database_set_last_accessed_at", "*")) {
+				String pathSeg = uri.getLastPathSegment();
+				String pathSegTable = pathSeg.substring(0,pathSeg.indexOf("|"));
+				String pathSegId = pathSeg.substring(1+pathSeg.indexOf("|"));
+				
+				if (pathSegTable.equalsIgnoreCase("screenshots")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_set_last_accessed_at", new Object[] { pathSeg, app.deviceScreenShotDb.dbCaptured.updateLastAccessedAtByTimestamp(pathSegId), System.currentTimeMillis() });	
+
+				} else if (pathSegTable.equalsIgnoreCase("logs")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_set_last_accessed_at", new Object[] { pathSeg, app.deviceLogCatDb.dbCaptured.updateLastAccessedAtByTimestamp(pathSegId), System.currentTimeMillis() });	
+									
+				} else {
+					return null;
 				}
 				
 			}

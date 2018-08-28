@@ -44,7 +44,7 @@ public class MqttUtils implements MqttCallback {
 	
 	private long mqttActionTimeout = 0;
 	
-	private Date msgSendStart = new Date();
+	private long msgSendStart = System.currentTimeMillis();
 	
 	private static MqttConnectOptions getConnectOptions() {
 		
@@ -82,10 +82,10 @@ public class MqttUtils implements MqttCallback {
 	
 	public long mqttBrokerConnectionLastAttemptedAt = System.currentTimeMillis();
 	
-	public Date publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
+	public long publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
 		if (confirmOrCreateConnectionToBroker(true)) {
 			Log.i(logTag, (new StringBuilder()).append("Message (").append(messageByteArray.length).append(" bytes) published to '").append(publishTopic).append("' at ").append(DateTimeUtils.getDateTime(new Date())).toString());
-			this.msgSendStart = new Date();
+			this.msgSendStart = System.currentTimeMillis();
 			this.mqttClient.publish(publishTopic, buildMessage(messageByteArray));
 		} else {
 			Log.e(logTag, "Message could not be sent because connection could not be created...");
@@ -154,7 +154,7 @@ public class MqttUtils implements MqttCallback {
 	
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken deliveryToken) {
-		long checkInDuration = System.currentTimeMillis() - this.msgSendStart.getTime();
+		long checkInDuration = System.currentTimeMillis() - this.msgSendStart;
 		Log.i(this.logTag, "Delivery Complete: "+Math.round(checkInDuration/1000)+"s");
 	}
 	

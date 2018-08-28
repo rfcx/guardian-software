@@ -297,8 +297,6 @@ public class RfcxPrefs {
 			
 			put("cputuner_freq_min", "30720");
 			put("cputuner_freq_max", "245760"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000
-
-			put("device_stats_capture_cycle_duration", "60");
 			
 			put("audio_cycle_duration", "90");
 			

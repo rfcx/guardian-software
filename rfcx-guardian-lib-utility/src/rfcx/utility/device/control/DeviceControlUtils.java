@@ -40,6 +40,11 @@ public class DeviceControlUtils {
 				RfcxLog.logExc(logTag, e);
 				return false;
 			}
+		} else {
+			
+			if (controlCommand.equalsIgnoreCase("reboot")) {
+				// should we trigger the service(s) directly here?
+			}
 		}
 		return false;
 	}

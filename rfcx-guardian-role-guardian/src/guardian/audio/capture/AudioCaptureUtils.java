@@ -86,7 +86,8 @@ public class AudioCaptureUtils {
 	private static final int requiredAvailableInternalDiskSpace = 32;
 	
 	public static boolean isAvailableDiskSpaceSufficientForCapture() {
-		return (DeviceDiskUsage.getInternalDiskFreeMegaBytes() >= requiredAvailableInternalDiskSpace);
+		return true;
+		//	return (DeviceDiskUsage.getInternalDiskFreeMegaBytes() >= requiredAvailableInternalDiskSpace);
 	}
 	
 	public boolean isAudioCaptureAllowed() {

@@ -115,12 +115,15 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 			DeviceSystemService deviceSystemService = DeviceSystemService.this;
 
 			app = (RfcxGuardian) getApplication();
-			
-			long captureCycleDuration = (long) Math.round( app.rfcxPrefs.getPrefAsInt("device_stats_capture_cycle_duration") * 1000 );
+
+			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000;
+			long captureCycleDuration = (long) Math.round( audioCycleDuration * 0.666667 );
 			int cpuUsageReportingSampleCount = Math.round( captureCycleDuration / CPU_USAGE_MEASUREMENT_LOOP_MS );
 			app.deviceCPU.setReportingSampleCount(cpuUsageReportingSampleCount);
 			long cpuUsageCycleDelayRemainderMilliseconds = (long) ( Math.round( captureCycleDuration / cpuUsageReportingSampleCount ) - DeviceCPU.SAMPLE_DURATION_MILLISECONDS );
 					
+			Log.e(logTag, "reporting: audioCycle-"+audioCycleDuration+" captureCycle-"+captureCycleDuration+" cpuUsageReportingSampleCount-"+cpuUsageReportingSampleCount+" cpuUsageCycleDelayRemainderMilliseconds-"+cpuUsageCycleDelayRemainderMilliseconds);
+			
 			while (deviceSystemService.runFlag) {
 				
 				try {

@@ -63,15 +63,6 @@
         android:enabled="true"
         android:defaultValue="245760" />
  	
-  	<!-- Device Stats Capture Controls -->
- 	
- 	<EditTextPreference
-        android:key="device_stats_capture_cycle_duration"
-        android:title="device_stats_capture_cycle_duration"
-        android:summary="int - seconds"
-        android:enabled="true"
-        android:defaultValue="60" />
- 	
  	<!-- Audio Capture Controls -->
  	
  	<EditTextPreference
