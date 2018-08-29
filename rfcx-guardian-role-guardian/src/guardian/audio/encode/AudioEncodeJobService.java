@@ -75,8 +75,7 @@ public class AudioEncodeJobService extends Service {
 
 			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 			
-			int prefsEncodeSkipThreshold = app.rfcxPrefs.getPrefAsInt("audio_encode_skip_threshold");
-			int prefsAudioEncodeQuality = app.rfcxPrefs.getPrefAsInt("audio_encode_quality");
+			int prefsEncodeSkipThreshold = 3;
 			
 			try {
 				
@@ -123,8 +122,8 @@ public class AudioEncodeJobService extends Service {
 									postEncodeFile, 											// target file
 									latestQueuedAudioToEncode[6], 							// encoding codec
 									(int) Integer.parseInt(latestQueuedAudioToEncode[4]), 	// encoding sample rate
-									(int) Integer.parseInt(latestQueuedAudioToEncode[5]), 	// encoding target bitrate
-									prefsAudioEncodeQuality									// encoding quality
+									(int) Integer.parseInt(latestQueuedAudioToEncode[5]), 	// encoding target bitrate, if codec-supported
+									9														// encoding quality, if codec-supported
 								);
 
 							long encodeDuration = (System.currentTimeMillis() - encodeStartTime);

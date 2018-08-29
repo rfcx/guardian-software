@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceCPU;
 import rfcx.utility.device.DeviceMobileNetwork;
 import rfcx.utility.rfcx.RfcxLog;
@@ -59,8 +60,6 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 	
 	private static final int ACCEL_FLOAT_MULTIPLIER = 1000000;
 	private static final long CPU_USAGE_MEASUREMENT_LOOP_MS = 1000;
-		
-	private int cpuUsageRecordingIncrement = 0;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -116,17 +115,24 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 
 			app = (RfcxGuardian) getApplication();
 
-			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000;
-			long captureCycleDuration = (long) Math.round( audioCycleDuration * 0.666667 );
-			int cpuUsageReportingSampleCount = Math.round( captureCycleDuration / CPU_USAGE_MEASUREMENT_LOOP_MS );
-			app.deviceCPU.setReportingSampleCount(cpuUsageReportingSampleCount);
-			long cpuUsageCycleDelayRemainderMilliseconds = (long) ( Math.round( captureCycleDuration / cpuUsageReportingSampleCount ) - DeviceCPU.SAMPLE_DURATION_MILLISECONDS );
-					
-			Log.e(logTag, "reporting: audioCycle-"+audioCycleDuration+" captureCycle-"+captureCycleDuration+" cpuUsageReportingSampleCount-"+cpuUsageReportingSampleCount+" cpuUsageCycleDelayRemainderMilliseconds-"+cpuUsageCycleDelayRemainderMilliseconds);
+			int audioCycleDuration = 1;
+			long captureCycleDuration = 1;
+			int cpuUsageReportingSampleCount = 1;
+			long cpuUsageCycleDelayRemainderMilliseconds = 1;
+			int cpuUsageRecordingIncrement = 1;
 			
 			while (deviceSystemService.runFlag) {
 				
 				try {
+					
+					if ( (cpuUsageRecordingIncrement == 1) && (audioCycleDuration != app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")) ) {
+						audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+						captureCycleDuration = (long) Math.round( audioCycleDuration * 1000 * 0.666667 );
+						cpuUsageReportingSampleCount = Math.round( captureCycleDuration / CPU_USAGE_MEASUREMENT_LOOP_MS );
+						app.deviceCPU.setReportingSampleCount(cpuUsageReportingSampleCount);
+						cpuUsageCycleDelayRemainderMilliseconds = (long) ( Math.round( captureCycleDuration / cpuUsageReportingSampleCount ) - DeviceCPU.SAMPLE_DURATION_MILLISECONDS );
+						Log.d(logTag, "SystemStats Capture Params: "+Math.round(captureCycleDuration / 1000)+" seconds");
+					}
 					
 					// Sample CPU Stats
 					app.deviceCPU.update();
@@ -145,6 +151,11 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
+						cpuUsageRecordingIncrement = 1;
+						
+						cpuUsageValues.add(app.deviceCPU.getCurrentStats());
+						saveSystemStatValuesToDatabase("cpu");
+
 						// cache pre-captured sensor data
 						saveSystemStatValuesToDatabase("light");
 						saveSystemStatValuesToDatabase("accel");
@@ -160,10 +171,6 @@ public class DeviceSystemService extends Service implements SensorEventListener 
 						// capture and cache battery level stats
 						batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
 						saveSystemStatValuesToDatabase("battery");
-						
-						cpuUsageValues.add(app.deviceCPU.getCurrentStats());
-						saveSystemStatValuesToDatabase("cpu");
-						cpuUsageRecordingIncrement = 0;
 						
 					}
 					

@@ -191,7 +191,7 @@ public class DbUtils {
 	public void deleteRowsOlderThan(String tableName, String dateColumn, Date olderThanDate) {
 		SQLiteDatabase db = openDb();
 		try {
-			db.execSQL("DELETE FROM "+tableName+" WHERE "+dateColumn+"<='"+DateTimeUtils.getDateTime(olderThanDate)+"'");
+			db.execSQL("DELETE FROM "+tableName+" WHERE "+dateColumn+"<="+olderThanDate.getTime());
 		} catch (Exception e) { 
 			RfcxLog.logExc(logTag, e); 
 		} finally {

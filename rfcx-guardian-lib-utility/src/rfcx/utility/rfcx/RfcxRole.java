@@ -9,6 +9,7 @@ import java.util.Locale;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
+import android.util.Log;
 
 public class RfcxRole {
 
@@ -64,21 +65,43 @@ public class RfcxRole {
 					roleVersion = RfcxRole.getRoleVersion(context, logTag);
 					
 				} else {
+					
+					// try to get version from content provider
 					Cursor versionCursor = context.getContentResolver().query(
 							RfcxComm.getUri(appRole, "version", null), RfcxComm.getProjection(appRole, "version"), null, null, null);
 					
-					if ((versionCursor != null) && (versionCursor.getCount() > 0)) { if (versionCursor.moveToFirst()) { try { do {
-						if (versionCursor.getString(versionCursor.getColumnIndex("app_role")).equalsIgnoreCase(appRole)) {
-							roleVersion = versionCursor.getString(versionCursor.getColumnIndex("app_version"));
-						}
-					} while (versionCursor.moveToNext()); } finally { versionCursor.close(); } } }
-			
+					if (		(versionCursor != null) 
+						&& 	(versionCursor.getCount() > 0)
+						) { 
+						if (versionCursor.moveToFirst()) {
+							try { 
+								do {
+									if (		(versionCursor.getColumnIndex("app_role") > -1) 
+										&& 	versionCursor.getString(versionCursor.getColumnIndex("app_role")).equalsIgnoreCase(appRole)
+										) {
+											roleVersion = versionCursor.getString(versionCursor.getColumnIndex("app_version"));
+									}
+								} while (versionCursor.moveToNext()); 
+							} finally { versionCursor.close(); } 
+						} 
+					}
+
+					// if still not found, try to get version from app directory
+					if (roleVersion == null) {
+						
+						String versionFromFile = RfcxPrefs.readFromGuardianRoleTxtFile(context, logTag, thisAppRole, appRole, "version");
+						if (versionFromFile != null) { roleVersion = versionFromFile; }
+					}
 				}
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 				
 			} finally {
-				if (roleVersion != null) { softwareVersions.add(appRole+"*"+roleVersion); }
+				if (roleVersion != null) { 
+					softwareVersions.add(appRole+"*"+roleVersion);
+				} else {
+//					Log.e(logTag, "Failed to retrieve version for app role '"+appRole+"'");
+				}
 				
 			}
 		}

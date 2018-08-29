@@ -2,6 +2,7 @@ package rfcx.utility.device;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import rfcx.utility.rfcx.RfcxLog;
 
 public class DeviceMobilePhone {
@@ -25,12 +26,10 @@ public class DeviceMobilePhone {
 	}	
 	
 	public static String getConcatMobilePhoneInfo(Context context) {
-		return (new StringBuilder())
-				.append("sim*").append(getSIMSerial(context))
-				.append("|")
-				.append("imsi*").append(getIMSI(context))
-				.append("|")
-				.append("imei*").append(getIMEI(context))
-				.toString();
+		return (TextUtils.join("|", new String[] {
+				"sim*"+getSIMSerial(context),
+				"imsi*"+getIMSI(context),
+				"imei*"+getIMEI(context)
+			}));
 	}
 }

@@ -210,7 +210,7 @@ public class RfcxPrefs {
         }
 	}
 	
-	private static String readFromGuardianRoleTxtFile(Context context, String logTag, String thisAppRole, String targetAppRole, String fileNameNoExt) {
+	public static String readFromGuardianRoleTxtFile(Context context, String logTag, String thisAppRole, String targetAppRole, String fileNameNoExt) {
 	    	try {
 	    		String mainAppPath = context.getFilesDir().getAbsolutePath();
 	    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+thisAppRole).length()))+"."+targetAppRole+"/files/txt",fileNameNoExt+".txt");
@@ -225,7 +225,7 @@ public class RfcxPrefs {
 		    		input.close();
 		    		return txtFileContents.isEmpty() ? null : txtFileContents;
 	    		} else {
-	    			Log.e(logTag, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+targetAppRole+"...");
+//	    			Log.e(logTag, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+targetAppRole+"...");
 	    		}
 	    	} catch (FileNotFoundException e) {
 			RfcxLog.logExc(logTag, e);
@@ -286,6 +286,8 @@ public class RfcxPrefs {
 	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
 	    new HashMap<String, String>() {{
 
+			put("verbose_logging", "true");
+			
 			put("checkin_offline_mode", "false");
 			
 	        put("api_checkin_host", "checkin.rfcx.org");
@@ -295,9 +297,6 @@ public class RfcxPrefs {
 	        
 			put("reboot_forced_daily_at", "23:55:00");
 			
-			put("cputuner_freq_min", "30720");
-			put("cputuner_freq_max", "245760"); // options: 30720, 49152, 61440, 122880, 245760, 320000, 480000
-			
 			put("audio_cycle_duration", "90");
 			
 			put("enable_cutoffs_schedule_off_hours", "true");
@@ -306,8 +305,6 @@ public class RfcxPrefs {
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "16384");
 			put("audio_sample_rate", "12000");
-			put("audio_encode_quality", "9");
-			put("audio_encode_skip_threshold", "3");
 
 			put("enable_cutoffs_battery", "true");
 			

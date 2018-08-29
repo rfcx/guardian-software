@@ -58,15 +58,17 @@ public class RfcxServiceHandler {
 					String svcRepeat = svcToTrigger[2];
 					
 					long startTimeMillis = System.currentTimeMillis();
-					if (	!svcStart.equals("0") 
+					boolean isSvcScheduled = false;
+					if (		!svcStart.equals("0") 
 						&& 	!svcStart.equalsIgnoreCase("now")
 						) { try {
 							startTimeMillis = (long) Long.parseLong(svcStart);
+							isSvcScheduled = true;
 						} catch (Exception e) { RfcxLog.logExc(logTag, e); } 
 					}
 					
 					long repeatIntervalMillis = 0;
-					if (	!svcRepeat.equals("0") 
+					if (		!svcRepeat.equals("0") 
 						&& 	!svcRepeat.equalsIgnoreCase("norepeat")
 						) { try {
 							repeatIntervalMillis = (long) Long.parseLong(svcRepeat);
@@ -75,7 +77,11 @@ public class RfcxServiceHandler {
 
 					if (repeatIntervalMillis == 0) { 
 						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC, startTimeMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcId)), PendingIntent.FLAG_UPDATE_CURRENT));
-						Log.i(logTag, (new StringBuilder()).append("Scheduled IntentService '").append(svcName).append("' (begins at ").append(DateTimeUtils.getDateTime(startTimeMillis)).append(")").toString());
+						Log.i(logTag, (new StringBuilder())
+										.append((isSvcScheduled) ? "Scheduled" : "Triggered")
+										.append(" IntentService '").append(svcName).append("'")
+										.append((isSvcScheduled) ? " (begins at "+DateTimeUtils.getDateTime(startTimeMillis)+")" : "")
+										.toString());
 					} else { 
 						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).setRepeating(AlarmManager.RTC, startTimeMillis, repeatIntervalMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcId)), PendingIntent.FLAG_UPDATE_CURRENT));
 						// could also use setInexactRepeating() here instead, but this was appearing to lead to dropped events the first time around

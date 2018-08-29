@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-        
+    
 	<ListPreference
+		android:key="verbose_logging"
+		android:title="verbose_logging"
+		android:dialogTitle="verbose_logging"
+        android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="true" />
+
+    	<ListPreference
 		android:key="checkin_offline_mode"
 		android:title="checkin_offline_mode"
 		android:dialogTitle="checkin_offline_mode"
@@ -46,22 +55,6 @@
         android:summary="string - time"
         android:enabled="true"
         android:defaultValue="23:55:00" />
- 	
- 	<!-- CPUTuner Prefs -->
- 	
- 	<EditTextPreference
-        android:key="cputuner_freq_min"
-        android:title="cputuner_freq_min"
-        android:summary="int - cpu clock speed"
-        android:enabled="true"
-        android:defaultValue="30720" />
- 	
- 	<EditTextPreference
-        android:key="cputuner_freq_max"
-        android:title="cputuner_freq_max"
-        android:summary="int - cpu clock speed"
-        android:enabled="true"
-        android:defaultValue="245760" />
  	
  	<!-- Audio Capture Controls -->
  	
@@ -114,20 +107,6 @@
 		android:entries="@array/audio_sample_rate_labels"
 		android:entryValues="@array/audio_sample_rate_values"
 		android:defaultValue="12000" />
- 	
- 	<EditTextPreference
-        android:key="audio_encode_quality"
-        android:title="audio_encode_quality"
-        android:summary="int - encoder-specific number"
-        android:enabled="true"
-        android:defaultValue="9" />
- 	
- 	<EditTextPreference
-        android:key="audio_encode_skip_threshold"
-        android:title="audio_encode_skip_threshold"
-        android:summary="int - count"
-        android:enabled="true"
-        android:defaultValue="3" />
  	
  	<!-- Battery Cutoff Thresholds -->
         

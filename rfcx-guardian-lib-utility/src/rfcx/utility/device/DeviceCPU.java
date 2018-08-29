@@ -3,6 +3,7 @@ package rfcx.utility.device;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import android.os.SystemClock;
 import rfcx.utility.rfcx.RfcxLog;
 
 public class DeviceCPU {
@@ -74,7 +75,7 @@ public class DeviceCPU {
 	        long cpu1 = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[4])
 	              + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 	        try {
-	            Thread.sleep(SAMPLE_DURATION_MILLISECONDS);
+	        		SystemClock.sleep(SAMPLE_DURATION_MILLISECONDS);
 	        } catch (Exception e) { 
 	        		RfcxLog.logExc(logTag, e); 
 	        }

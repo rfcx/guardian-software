@@ -30,12 +30,12 @@ public class ApiCheckInDb {
 	static final String C_JSON = "json";
 	static final String C_ATTEMPTS = "attempts";
 	static final String C_FILEPATH = "filepath";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON, C_ATTEMPTS, C_FILEPATH };
+	public static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON, C_ATTEMPTS, C_FILEPATH };
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName)
-			.append("(").append(C_CREATED_AT).append(" DATETIME")
+			.append("(").append(C_CREATED_AT).append(" INTEGER")
 			.append(", ").append(C_AUDIO).append(" TEXT")
 			.append(", ").append(C_JSON).append(" TEXT")
 			.append(", ").append(C_ATTEMPTS).append(" TEXT")
@@ -57,7 +57,7 @@ public class ApiCheckInDb {
 		public int insert(String audio, String json, String attempts, String filepath) {
 			
 			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, DateTimeUtils.getDateTime());
+			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_AUDIO, audio);
 			values.put(C_JSON, json);
 			values.put(C_ATTEMPTS, attempts);

@@ -25,6 +25,7 @@ import rfcx.utility.audio.RfcxAudioUtils;
 import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceDiskUsage;
 import rfcx.utility.device.DeviceMobilePhone;
+import rfcx.utility.device.DevicePositionGeoLocation;
 import rfcx.utility.device.control.DeviceLogCat;
 import rfcx.utility.device.control.DeviceScreenShot;
 import rfcx.utility.mqtt.MqttUtils;
@@ -96,15 +97,13 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 	}
 
 	public void stashOldestCheckIns() {
+		
+		int stashThreshold = app.rfcxPrefs.getPrefAsInt("checkin_stash_threshold");
+		int archiveThreshold = app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold");
 
-		int stashMinimumBatchSize = 10;
+		if (app.apiCheckInDb.dbQueued.getCount() > stashThreshold) {
 
-		if (app.apiCheckInDb.dbQueued
-				.getCount() > (stashMinimumBatchSize + app.rfcxPrefs.getPrefAsInt("checkin_stash_threshold"))) {
-
-			List<String[]> checkInsBeyondStashThreshold = app.apiCheckInDb.dbQueued.getRowsWithOffset(
-					app.rfcxPrefs.getPrefAsInt("checkin_stash_threshold"),
-					app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold"));
+			List<String[]> checkInsBeyondStashThreshold = app.apiCheckInDb.dbQueued.getRowsWithOffset(stashThreshold, archiveThreshold);
 
 			// string list for reporting stashed checkins to the log
 			List<String> stashList = new ArrayList<String>();
@@ -112,8 +111,7 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 
 			// cycle through stashable checkins and move them to the new table/database
 			for (String[] checkInsToStash : checkInsBeyondStashThreshold) {
-				stashCount = app.apiCheckInDb.dbStashed.insert(checkInsToStash[1], checkInsToStash[2],
-						checkInsToStash[3], checkInsToStash[4]);
+				stashCount = app.apiCheckInDb.dbStashed.insert(checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], checkInsToStash[4]);
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInsToStash[1]);
 				stashList.add(checkInsToStash[1]);
 			}
@@ -122,9 +120,8 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 			Log.i(logTag, "Stashed CheckIns (" + stashCount + " total in database): " + TextUtils.join(" ", stashList));
 		}
 
-		if (app.apiCheckInDb.dbStashed.getCount() >= app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold")) {
-			// here we will launch the checkin archive service (separately)
-			// Log.i(logTag, "TODO: STASHED CHECKINS SHOULD BE ARCHIVED HERE...");
+		if (app.apiCheckInDb.dbStashed.getCount() >= archiveThreshold) {
+			app.rfcxServiceHandler.triggerService("ApiCheckInArchive", false);
 		}
 	}
 
@@ -149,47 +146,10 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 		}
 	}
 
-//	private List<String> getInstalledSoftwareVersions() {
-//
-//		List<String> softwareVersions = new ArrayList<String>();
-//
-//		for (String appRole : RfcxRole.ALL_ROLES) {
-//			
-//			String roleVersion = null;
-//			
-//			try {
-//				
-//				if (appRole.equalsIgnoreCase(RfcxGuardian.APP_ROLE)) {
-//					roleVersion = RfcxRole.getRoleVersion(app.getApplicationContext(), logTag);
-//					
-//				} else {
-//					Cursor versionCursor = app.getApplicationContext().getContentResolver().query(
-//							RfcxComm.getUri(appRole, "version", null), RfcxComm.getProjection(appRole, "version"), null, null, null);
-//					
-//					if ((versionCursor != null) && (versionCursor.getCount() > 0)) { if (versionCursor.moveToFirst()) { try { do {
-//						if (versionCursor.getString(versionCursor.getColumnIndex("app_role")).equalsIgnoreCase(appRole)) {
-//							roleVersion = versionCursor.getString(versionCursor.getColumnIndex("app_version"));
-//						}
-//					} while (versionCursor.moveToNext()); } finally { versionCursor.close(); } } }
-//			
-//				}
-//			} catch (Exception e) {
-//				RfcxLog.logExc(logTag, e);
-//				
-//			} finally {
-//				if (roleVersion != null) { softwareVersions.add(appRole+"*"+roleVersion); }
-//				
-//			}
-//		}
-//		
-//		return softwareVersions;
-//	}
-
 	private JSONObject getSystemMetaDataAsJson(JSONObject metaDataJsonObj) throws JSONException {
 
-		this.preFlightStatsQueryTimestamp = new Date();
-
 		try {
+
 			metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
 			metaDataJsonObj.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
 			metaDataJsonObj.put("power", app.deviceSystemDb.dbPower.getConcatRows());
@@ -199,7 +159,13 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
 			metaDataJsonObj.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
 			metaDataJsonObj.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
+			
 			metaDataJsonObj.put("disk_usage", DeviceDiskUsage.concatDiskStats());
+			metaDataJsonObj.put("location", DevicePositionGeoLocation.getConcatPositionGeoLocation()); // currently these are just dummy values...
+			
+			// this timestamp should be generated and added following the previous queries
+			this.preFlightStatsQueryTimestamp = new Date();
+			metaDataJsonObj.put("measured_at", this.preFlightStatsQueryTimestamp.getTime());
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -228,34 +194,23 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 		}
 	}
 
-	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta)
-			throws JSONException, IOException {
+	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta) throws JSONException, IOException {
 
 		JSONObject checkInMetaJson = getSystemMetaDataAsJson(new JSONObject(checkInJsonString));
 
 		// Adding Guardian GUID
 		checkInMetaJson.put("guardian_guid", this.app.rfcxDeviceGuid.getDeviceGuid());
 
-		// Adding timestamp of metadata (JSON) snapshot
-		checkInMetaJson.put("measured_at", this.preFlightStatsQueryTimestamp.getTime());
-
-		// Adding GeoCoordinates
-		// checkInMetaJson.put("location",
-		// app.devicePosition.getSerializedGeoLocation());
-
 		// Adding latency data from previous checkins
 		checkInMetaJson.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
 
 		// Recording number of currently queued/skipped/stashed checkins
-		checkInMetaJson.put("checkins", (new StringBuilder())
-						.append("queued*").append(app.apiCheckInDb.dbQueued.getCount())
-						.append("|")
-						.append("sent*").append(0)
-						.append("|")
-						.append("skipped*").append(app.apiCheckInDb.dbSkipped.getCount())
-						.append("|")
-						.append("stashed*").append(app.apiCheckInDb.dbStashed.getCount())
-						.toString());
+		checkInMetaJson.put("checkins", TextUtils.join("|", new String[] { 	
+										"queued*"+app.apiCheckInDb.dbQueued.getCount() ,
+										"sent*"+app.apiCheckInDb.dbSent.getCount(),
+										"skipped*"+app.apiCheckInDb.dbSkipped.getCount(),
+										"stashed*"+app.apiCheckInDb.dbStashed.getCount()
+									}));
 
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", DeviceMobilePhone.getConcatMobilePhoneInfo(app.getApplicationContext()));
@@ -270,29 +225,25 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("timezone_offset", DateTimeUtils.getTimeZoneOffset());
 
 		// Adding messages to JSON blob
-		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms",
-				app.getApplicationContext().getContentResolver()));
+		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver()));
 
 		// Adding screenshot meta to JSON blob
-		checkInMetaJson.put("screenshots", (screenShotMeta[0] != null)
-				? (screenShotMeta[1] + "*" + screenShotMeta[2] + "*" + screenShotMeta[3] + "*" + screenShotMeta[4])
-				: "");
+		checkInMetaJson.put("screenshots", (screenShotMeta[0] == null) ? "" :
+				TextUtils.join("*", new String[] { screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4] })
+				);
 
 		// Adding logs meta to JSON blob
-		checkInMetaJson.put("logs",
-				(logFileMeta[0] != null)
-						? (logFileMeta[1] + "*" + logFileMeta[2] + "*" + logFileMeta[3] + "*" + logFileMeta[4])
-						: "");
+		checkInMetaJson.put("logs", (logFileMeta[0] == null) ? "" :
+				TextUtils.join("*", new String[] { logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4] })
+				);
 
 		// Adding sentinel data, if they can be retrieved
-		// JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin",
-		// "database_get_all_rows", "sentinel_power",
-		// app.getApplicationContext().getContentResolver());
-		// for (int i = 0; i < sentinelPower.length(); i++) {
-		//// checkInMetaJson.put("sentinel_power", sentinelPower.getJSONObject(i));
-		// }
+		JSONObject sentinelJson = new JSONObject();
+		JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sentinel_power", app.getApplicationContext().getContentResolver());
+		sentinelJson.put("power", (sentinelPower.length() > 0) ? sentinelPower.getJSONObject(0) : new JSONObject() ); 
+		checkInMetaJson.put("sentinel", sentinelJson);
 		
-		Log.d(logTag,checkInMetaJson.toString());
+		if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { Log.d(logTag,checkInMetaJson.toString()); }
 		
 		return checkInMetaJson.toString();
 
@@ -680,9 +631,6 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 			// reset/record request latency
 			this.requestSendReturned = System.currentTimeMillis();
 
-			// clear system metadata included in successful checkin preflight
-			clearPreFlightSystemMetaData(this.preFlightStatsQueryTimestamp);
-
 			// parse audio info and use it to purge the data locally
 			if (jsonObj.has("audio")) {
 				JSONArray audioJson = jsonObj.getJSONArray("audio");
@@ -697,11 +645,7 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 						if (checkInId.length() > 0) {
 							long[] checkInStats = this.inFlightCheckInStats.get(audioId);
 							this.previousCheckIns = new ArrayList<String>();
-							this.previousCheckIns.add((new StringBuilder())
-														.append(checkInId).append("*")
-														.append(checkInStats[1]).append("*")
-														.append(checkInStats[2])
-														.toString());
+							this.previousCheckIns.add( TextUtils.join("*", new String[] { checkInId+"", checkInStats[1]+"", checkInStats[2]+"" } ) );
 						}
 					}
 					
@@ -794,6 +738,9 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 			long msgSendDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.inFlightCheckInStats.get(this.inFlightCheckInAudioId)[0]));
 			
 			setInFlightCheckInStats(this.inFlightCheckInAudioId, 0, msgSendDuration, 0);
+			
+			// clear system metadata included in check in preflight
+			clearPreFlightSystemMetaData(this.preFlightStatsQueryTimestamp);
 			
 			Log.i(logTag, (new StringBuilder())
 							.append("CheckIn delivery time: ")

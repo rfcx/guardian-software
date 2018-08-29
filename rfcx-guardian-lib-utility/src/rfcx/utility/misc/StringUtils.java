@@ -1,7 +1,10 @@
 package rfcx.utility.misc;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -88,6 +91,21 @@ public class StringUtils {
 			hexString.append( Integer.toString( (byteArray[i] & 0xff) + 0x100, 16 ).substring(1) );
 		}
 		return hexString.toString();
+	}
+	
+	public static boolean saveStringToFile(String stringContents, String filePath) {
+		File fileObj = new File(filePath);
+		fileObj.mkdirs();
+    		if (fileObj.exists()) { fileObj.delete(); }
+    		try {
+    			BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
+    			outFile.write(stringContents);
+    			outFile.close();
+    			FileUtils.chmod(filePath, 0755);
+    		} catch (IOException e) {
+    			RfcxLog.logExc(logTag, e);
+    		}
+    		return fileObj.exists();
 	}
 	
 }

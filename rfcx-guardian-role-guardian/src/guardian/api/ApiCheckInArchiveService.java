@@ -1,13 +1,23 @@
 package guardian.api;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import org.json.JSONObject;
+
+import rfcx.utility.audio.RfcxAudioUtils;
+import rfcx.utility.misc.FileUtils;
+import rfcx.utility.misc.StringUtils;
 import rfcx.utility.rfcx.RfcxLog;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import guardian.RfcxGuardian;
@@ -70,74 +80,97 @@ public class ApiCheckInArchiveService extends Service {
 			ApiCheckInArchiveService apiCheckInArchiveInstance = ApiCheckInArchiveService.this;
 			
 			app = (RfcxGuardian) getApplication();
-				
-			try {
-				
-//				while (!app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode") && (apiCheckInDb.dbQueued.getCount() > 0)) {
-//
-//					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-//					
-//					long prefsAudioCycleDuration = (long) Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
-//					int prefsCheckInSkipThreshold = app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold");
-//					boolean prefsEnableBatteryCutoffs = app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery");
-//					int prefsCheckInBatteryCutoff = app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff");
-//					
-//					if (!app.deviceConnectivity.isConnected()) {
-//						Log.v(logTag, "No CheckIn because guardian currently has no connectivity."
-//							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration / 2 ) / 1000 ) ) + " seconds before next attempt.");
-//						Thread.sleep( prefsAudioCycleDuration / 2 );
-//						
-//					} else if (prefsEnableBatteryCutoffs && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
-//						Log.v(logTag, "CheckIns currently disabled due to low battery level"
-//							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+prefsCheckInBatteryCutoff+"%)."
-//							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration * 2 ) / 1000 ) ) + " seconds before next attempt.");
-//						Thread.sleep( prefsAudioCycleDuration * 2 );
-//						
-//						// reboots guardian in situations where battery charge percentage doesn't reflect charge state
-//						if (app.apiCheckInUtils.isBatteryChargedButBelowCheckInThreshold()) {
-//							app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
-//						}
-//						
-//					} else {
-//						
-//						// grab only most recently queued checkin
-//						for (String[] latestQueuedCheckIn : apiCheckInDb.dbQueued.getLatestRowsWithLimit(1) ) {
-//							
-//							if (latestQueuedCheckIn[0] != null) {
-//								
-//								if (((int) Integer.parseInt(latestQueuedCheckIn[3])) > prefsCheckInSkipThreshold) {
-//									
-//									Log.d(logTag,"Skipping CheckIn "+latestQueuedCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
-//									apiCheckInDb.dbSkipped.insert(latestQueuedCheckIn[0], latestQueuedCheckIn[1], latestQueuedCheckIn[2], latestQueuedCheckIn[3], latestQueuedCheckIn[4]);
-//									apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
-//									
-//								} else if ((new File(latestQueuedCheckIn[4])).exists()) {
-//									
-//									// MQTT
-//									app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
-//									
-//									// HTTP
-//									//app.apiCheckInUtils.prepAndSendHttpCheckIn(latestQueuedCheckIn);
-//								}
-//								
-//							} else {
-//								
-//								Log.d(logTag, "Queued checkin entry in database was invalid.");
-//							}
-//						}
-//					}
-//					
-//					Thread.sleep(500);
-//				}
+			Context context = app.getApplicationContext();
 			
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
+			String rfcxDeviceId = app.rfcxDeviceGuid.getDeviceGuid();
+
+			int archiveThreshold = app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold");
+			int stashCount = app.apiCheckInDb.dbStashed.getCount();
+			
+			String [] metaColumns = new String[] { "measured_at", "queued_at", "filename", "format", "sha1checksum", "samplerate", "bitrate", "encode_duration" };
+			
+			String sdCardArchiveDir = Environment.getExternalStorageDirectory().toString()+"/rfcx/archive";
+			(new File(sdCardArchiveDir)).mkdirs(); FileUtils.chmod(sdCardArchiveDir, 0777);
+
+			SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US);
+			SimpleDateFormat metaDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZ", Locale.US);
+			
+			long archiveTimestamp = System.currentTimeMillis();
+			String archiveTarFilePath = sdCardArchiveDir+"/"+rfcxDeviceId+"_"+fileDateTimeFormat.format(new Date(archiveTimestamp));
+			(new File(archiveTarFilePath)).mkdirs(); FileUtils.chmod(archiveTarFilePath, 0777);
+			(new File(archiveTarFilePath+"/audio")).mkdirs(); FileUtils.chmod(archiveTarFilePath+"/audio", 0777);
 				
-			} finally {
-				apiCheckInArchiveInstance.runFlag = false;
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME);
+			if (!(new File(sdCardArchiveDir)).isDirectory()) {
+				Log.e(logTag, "Archive job cancelled because SD card directory could not be located: "+sdCardArchiveDir);
+				
+			} else if (stashCount < archiveThreshold) {
+				Log.e(logTag, "Archive job cancelled because archive threshold has not been reached: "+stashCount+" checkins are currently stashed ("+archiveThreshold+" required)");
+				
+			} else {
+			
+				try {
+					
+					Log.i(logTag, "Archiving "+archiveThreshold+" of "+stashCount+" stashed checkins");
+					
+					List<String[]> checkInsBeyondArchiveThreshold = app.apiCheckInDb.dbStashed.getRowsWithOffset((stashCount - archiveThreshold), archiveThreshold);
+
+					// Create Archive File List
+					List<String> preTarFileList = new ArrayList<String>();
+					
+					StringBuilder tsvRows = new StringBuilder();
+					for (String columnName : metaColumns) { tsvRows.append(columnName).append("\t"); }
+					tsvRows.append("\n");
+					
+					for (String[] checkInToArchive : checkInsBeyondArchiveThreshold) {
+						
+						String newFileName = checkInToArchive[4].substring(1+checkInToArchive[4].lastIndexOf("/"));
+
+						// Create TSV contents row
+						JSONObject audioJson = new JSONObject(checkInToArchive[2]);
+						String[] audioMeta = audioJson.getString("audio").split("\\*");
+						
+						String tsvRow = (new StringBuilder())
+							/* measured_at */	.append(metaDateTimeFormat.format(new Date((long) Long.parseLong(audioMeta[1])))).append("\t") 					
+							/* queued_at */		.append(metaDateTimeFormat.format(new Date((long) Long.parseLong(audioJson.getString("queued_at"))))).append("\t")
+							/* filename */		.append(newFileName).append("\t") 					
+							/* format */			.append(audioMeta[2]).append("\t") 																		
+							/* sha1checksum */	.append(audioMeta[3]).append("\t") 																			
+							/* samplerate */		.append(audioMeta[4]).append("\t") 																		
+							/* bitrate */		.append(audioMeta[5]).append("\t") 											
+							/* encode_duration */.append(audioMeta[8]).append("\t") 	
+							.append("\n").toString();
+						
+						// Copy audio file into position
+						FileUtils.copy(checkInToArchive[4], archiveTarFilePath+"/audio/"+newFileName);
+						
+						if ((new File(archiveTarFilePath+"/audio/"+newFileName)).exists()) { 
+							tsvRows.append(tsvRow);
+							preTarFileList.add(archiveTarFilePath+"/audio/"+newFileName);
+						}
+					}
+					
+					StringUtils.saveStringToFile(tsvRows.toString(), archiveTarFilePath+"/_metadata.tsv");
+					preTarFileList.add(archiveTarFilePath+"/_metadata.tsv");
+					
+					FileUtils.createTarArchiveFromFileList(preTarFileList, archiveTarFilePath+".tar");
+					
+					// Clean up and remove archived originals
+					for (String[] checkInToArchive : checkInsBeyondArchiveThreshold) {
+						File fileObj = new File(checkInToArchive[4]);
+						if (fileObj.exists()) { fileObj.delete(); }
+						app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(checkInToArchive[1]);
+					}
+					FileUtils.deleteDirectory(archiveTarFilePath);
+				
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e);
+					
+				} finally {
+					apiCheckInArchiveInstance.runFlag = false;
+					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+					app.rfcxServiceHandler.stopService(SERVICE_NAME);
+				}
 			}
 			
 			apiCheckInArchiveInstance.runFlag = false;

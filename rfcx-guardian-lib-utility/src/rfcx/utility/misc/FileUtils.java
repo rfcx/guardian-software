@@ -174,6 +174,10 @@ public class FileUtils {
 	    outputStream.close();
 	}
 	
+	public static void copy(String srcFilePath, String dstFilePath) throws IOException {
+		copy(new File(srcFilePath), new File(dstFilePath));
+	}
+	
 	
 	public static boolean delete(String filePath, boolean recursive) {
 		File file = new File(filePath);
@@ -228,6 +232,22 @@ public class FileUtils {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
+	}
+	
+	public static void deleteDirectory(String directoryFilePath) {
+		File directory = new File(directoryFilePath);
+		for (File file : directory.listFiles()) {
+			try { 
+				if (file.isDirectory()) {
+					deleteDirectory(file.getAbsolutePath());
+				} else {
+					file.delete();
+				}
+			} catch (Exception e) { 
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+		directory.delete();
 	}
 	
 	public static void deleteFiles(List<String> filePathsToDelete) {
