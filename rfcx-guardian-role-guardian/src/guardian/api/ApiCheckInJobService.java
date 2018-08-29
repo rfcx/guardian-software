@@ -134,8 +134,10 @@ public class ApiCheckInJobService extends Service {
 					
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 					
-					// is this delay between checkin loops necessary?
-					Thread.sleep(500);
+					// Putting this slight delay here between cycles does mitigate some check in preparation issues, 
+					//	...but it's definitely a lame hack...
+					// Hopefully we can improve this some time.
+					Thread.sleep(333);
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);

@@ -21,6 +21,7 @@ public class DeviceSensorDb {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbLightMeter = new DbLightMeter(context);
 		this.dbAccelerometer = new DbAccelerometer(context);
+		this.dbGeoLocation = new DbGeoLocation(context);
 	}
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSensorDb.class);
@@ -111,5 +112,40 @@ public class DeviceSensorDb {
 
 	}
 	public final DbAccelerometer dbAccelerometer;
+	
+	public class DbGeoLocation {
+
+		final DbUtils dbUtils;
+
+		private String TABLE = "geolocation";
+		
+		public DbGeoLocation(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+		}
+		
+		public int insert(Date measured_at, double latitude, double longitude, double precision) {
+			
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, measured_at.getTime());
+			values.put(C_VALUE_1, latitude+"*"+longitude);
+			values.put(C_VALUE_2, Math.round(precision));
+			
+			return this.dbUtils.insertRow(TABLE, values);
+		}
+		
+		private List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
+		
+		public void clearRowsBefore(Date date) {
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
+		}
+		
+		public String getConcatRows() {
+			return DbUtils.getConcatRows(getAllRows());
+		}
+
+	}
+	public final DbGeoLocation dbGeoLocation;
 	
 }

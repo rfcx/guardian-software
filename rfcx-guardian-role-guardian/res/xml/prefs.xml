@@ -50,6 +50,13 @@
         android:defaultValue="time.apple.com" />
  	
  	<EditTextPreference
+        android:key="geolocation_override"
+        android:title="geolocation_override"
+        android:summary="string - gps, comma separated"
+        android:enabled="true"
+        android:defaultValue="37.78871,-122.47485" />
+ 	
+ 	<EditTextPreference
         android:key="reboot_forced_daily_at"
         android:title="reboot_forced_daily_at"
         android:summary="string - time"

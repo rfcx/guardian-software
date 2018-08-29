@@ -295,6 +295,8 @@ public class RfcxPrefs {
 	        put("api_checkin_port", "1883");
 	        put("api_ntp_host", "time.apple.com");
 	        
+	        put("geolocation_override", "37.78871,-122.47485");
+	        
 			put("reboot_forced_daily_at", "23:55:00");
 			
 			put("audio_cycle_duration", "90");

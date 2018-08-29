@@ -9,7 +9,6 @@ import java.util.Locale;
 
 import org.json.JSONObject;
 
-import rfcx.utility.audio.RfcxAudioUtils;
 import rfcx.utility.misc.FileUtils;
 import rfcx.utility.misc.StringUtils;
 import rfcx.utility.rfcx.RfcxLog;
@@ -19,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 import guardian.RfcxGuardian;
 
@@ -29,6 +29,18 @@ public class ApiCheckInArchiveService extends Service {
 	private static final String SERVICE_NAME = "ApiCheckInArchive";
 	
 	private RfcxGuardian app;
+
+	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM", Locale.US);
+	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.US);
+	private static final SimpleDateFormat metaDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+	
+	private String rfcxDeviceId;
+	private long archiveTimestamp = System.currentTimeMillis();
+
+	private String sdCardArchiveDir;
+	private String archiveTarFilePath;
+	
+	private static final String[] tsvMetaColumns = new String[] { "measured_at", "queued_at", "filename", "format", "sha1checksum", "samplerate", "bitrate", "encode_duration" };
 	
 	private boolean runFlag = false;
 	private ApiCheckInArchive apiCheckInArchive;
@@ -82,24 +94,14 @@ public class ApiCheckInArchiveService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 			
-			String rfcxDeviceId = app.rfcxDeviceGuid.getDeviceGuid();
-
+			rfcxDeviceId = app.rfcxDeviceGuid.getDeviceGuid();
+			archiveTimestamp = System.currentTimeMillis();
+			
+			setAndInitializeArchiveDirectories();
+			
 			int archiveThreshold = app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold");
 			int stashCount = app.apiCheckInDb.dbStashed.getCount();
-			
-			String [] metaColumns = new String[] { "measured_at", "queued_at", "filename", "format", "sha1checksum", "samplerate", "bitrate", "encode_duration" };
-			
-			String sdCardArchiveDir = Environment.getExternalStorageDirectory().toString()+"/rfcx/archive";
-			(new File(sdCardArchiveDir)).mkdirs(); FileUtils.chmod(sdCardArchiveDir, 0777);
-
-			SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US);
-			SimpleDateFormat metaDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZ", Locale.US);
-			
-			long archiveTimestamp = System.currentTimeMillis();
-			String archiveTarFilePath = sdCardArchiveDir+"/"+rfcxDeviceId+"_"+fileDateTimeFormat.format(new Date(archiveTimestamp));
-			(new File(archiveTarFilePath)).mkdirs(); FileUtils.chmod(archiveTarFilePath, 0777);
-			(new File(archiveTarFilePath+"/audio")).mkdirs(); FileUtils.chmod(archiveTarFilePath+"/audio", 0777);
-				
+						
 			if (!(new File(sdCardArchiveDir)).isDirectory()) {
 				Log.e(logTag, "Archive job cancelled because SD card directory could not be located: "+sdCardArchiveDir);
 				
@@ -115,69 +117,78 @@ public class ApiCheckInArchiveService extends Service {
 					List<String[]> checkInsBeyondArchiveThreshold = app.apiCheckInDb.dbStashed.getRowsWithOffset((stashCount - archiveThreshold), archiveThreshold);
 
 					// Create Archive File List
-					List<String> preTarFileList = new ArrayList<String>();
+					List<String> archiveFileList = new ArrayList<String>();
 					
 					StringBuilder tsvRows = new StringBuilder();
-					for (String columnName : metaColumns) { tsvRows.append(columnName).append("\t"); }
-					tsvRows.append("\n");
+					tsvRows.append(TextUtils.join("\t", tsvMetaColumns)).append("\n");
 					
-					for (String[] checkInToArchive : checkInsBeyondArchiveThreshold) {
+					for (String[] checkIn : checkInsBeyondArchiveThreshold) {
 						
-						String newFileName = checkInToArchive[4].substring(1+checkInToArchive[4].lastIndexOf("/"));
+						String gzFileName = "audio_"+checkIn[4].substring(1+checkIn[4].lastIndexOf("/"));
+						String unGzFileName = gzFileName.substring(0, gzFileName.indexOf(".gz"));
 
 						// Create TSV contents row
-						JSONObject audioJson = new JSONObject(checkInToArchive[2]);
+						JSONObject audioJson = new JSONObject(checkIn[2]);
 						String[] audioMeta = audioJson.getString("audio").split("\\*");
 						
 						String tsvRow = (new StringBuilder())
 							/* measured_at */	.append(metaDateTimeFormat.format(new Date((long) Long.parseLong(audioMeta[1])))).append("\t") 					
 							/* queued_at */		.append(metaDateTimeFormat.format(new Date((long) Long.parseLong(audioJson.getString("queued_at"))))).append("\t")
-							/* filename */		.append(newFileName).append("\t") 					
+							/* filename */		.append(unGzFileName).append("\t") 					
 							/* format */			.append(audioMeta[2]).append("\t") 																		
 							/* sha1checksum */	.append(audioMeta[3]).append("\t") 																			
 							/* samplerate */		.append(audioMeta[4]).append("\t") 																		
 							/* bitrate */		.append(audioMeta[5]).append("\t") 											
-							/* encode_duration */.append(audioMeta[8]).append("\t") 	
+							/* encode_duration */.append(audioMeta[8])
 							.append("\n").toString();
 						
-						// Copy audio file into position
-						FileUtils.copy(checkInToArchive[4], archiveTarFilePath+"/audio/"+newFileName);
+						// UnGZip audio files into position
+						FileUtils.gUnZipFile(checkIn[4], archiveTarFilePath+"/audio/"+unGzFileName);
 						
-						if ((new File(archiveTarFilePath+"/audio/"+newFileName)).exists()) { 
+						if ((new File(archiveTarFilePath+"/audio/"+unGzFileName)).exists()) { 
 							tsvRows.append(tsvRow);
-							preTarFileList.add(archiveTarFilePath+"/audio/"+newFileName);
+							archiveFileList.add(archiveTarFilePath+"/audio/"+unGzFileName);
 						}
 					}
 					
 					StringUtils.saveStringToFile(tsvRows.toString(), archiveTarFilePath+"/_metadata.tsv");
-					preTarFileList.add(archiveTarFilePath+"/_metadata.tsv");
+					archiveFileList.add(archiveTarFilePath+"/_metadata.tsv");
 					
-					FileUtils.createTarArchiveFromFileList(preTarFileList, archiveTarFilePath+".tar");
+					FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath+".tar");
+					FileUtils.gZipFile(archiveTarFilePath+".tar", archiveTarFilePath+".tar.gz");
 					
 					// Clean up and remove archived originals
-					for (String[] checkInToArchive : checkInsBeyondArchiveThreshold) {
-						File fileObj = new File(checkInToArchive[4]);
-						if (fileObj.exists()) { fileObj.delete(); }
-						app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(checkInToArchive[1]);
+					for (String[] checkIn : checkInsBeyondArchiveThreshold) {
+						FileUtils.delete(checkIn[4]);
+						app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(checkIn[1]);
 					}
-					FileUtils.deleteDirectory(archiveTarFilePath);
+					FileUtils.delete(archiveTarFilePath);
+					FileUtils.delete(archiveTarFilePath+".tar");
+					
+					Log.i(logTag, "Archive complete: "+archiveTarFilePath+".tar.gz");
 				
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
 					
-				} finally {
-					apiCheckInArchiveInstance.runFlag = false;
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-					app.rfcxServiceHandler.stopService(SERVICE_NAME);
 				}
 			}
 			
 			apiCheckInArchiveInstance.runFlag = false;
-			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 			app.rfcxServiceHandler.stopService(SERVICE_NAME);
 		}
+	}
+	
+	
+	private void setAndInitializeArchiveDirectories() {
+
+		sdCardArchiveDir = Environment.getExternalStorageDirectory().toString()+"/rfcx/archive";
+		archiveTarFilePath = sdCardArchiveDir+"/archive_"+rfcxDeviceId+"_"+fileDateTimeFormat.format(new Date(archiveTimestamp));
+		
+		(new File(sdCardArchiveDir)).mkdirs(); FileUtils.chmod(sdCardArchiveDir, 0777);
+		(new File(archiveTarFilePath)).mkdirs(); FileUtils.chmod(archiveTarFilePath, 0777);
+		(new File(archiveTarFilePath+"/audio")).mkdirs(); FileUtils.chmod(archiveTarFilePath+"/audio", 0777);
+		
 	}
 
 }

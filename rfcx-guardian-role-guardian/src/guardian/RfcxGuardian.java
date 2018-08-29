@@ -35,11 +35,11 @@ import guardian.audio.encode.AudioEncodeJobService;
 import guardian.audio.encode.AudioQueueEncodeService;
 import guardian.device.android.DateTimeSntpSyncJobService;
 import guardian.device.android.DeviceDataTransferDb;
-import guardian.device.android.DevicePositionService;
 import guardian.device.android.DeviceRebootDb;
 import guardian.device.android.DeviceSensorDb;
 import guardian.device.android.DeviceSystemDb;
 import guardian.device.android.DeviceSystemService;
+import guardian.device.android.DeviceSystemUtils;
 import guardian.receiver.ConnectivityReceiver;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
@@ -76,6 +76,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// Misc
 	public AudioCaptureUtils audioCaptureUtils = null;
 	public ApiGuardianCheckInUtils apiCheckInUtils = null;
+	public DeviceSystemUtils deviceSystemUtils = null;
 	
 	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
 	
@@ -83,7 +84,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		new String[] { 
 			"AudioCapture",
 			"DeviceSystem",
-	//		"DevicePosition",
 			"ApiCheckInJob"
 		};
 	
@@ -111,6 +111,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
 		this.apiCheckInUtils = new ApiGuardianCheckInUtils(getApplicationContext());
+		this.deviceSystemUtils = new DeviceSystemUtils(getApplicationContext());
 		
 		initializeRoleServices();
 	}
@@ -163,7 +164,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
 		this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
-		this.rfcxServiceHandler.addService("DevicePosition", DevicePositionService.class);
 		this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);

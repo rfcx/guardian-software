@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,12 +21,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import rfcx.utility.misc.FileUtils;
+import rfcx.utility.misc.MathUtils;
 import rfcx.utility.misc.StringUtils;
 import rfcx.utility.audio.RfcxAudioUtils;
 import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceDiskUsage;
 import rfcx.utility.device.DeviceMobilePhone;
-import rfcx.utility.device.DevicePositionGeoLocation;
 import rfcx.utility.device.control.DeviceLogCat;
 import rfcx.utility.device.control.DeviceScreenShot;
 import rfcx.utility.mqtt.MqttUtils;
@@ -80,6 +81,10 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 	private int[] failedCheckInThresholds = new int[0];
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
 
+	private Map<String, long[]> healthCheckMonitors = new HashMap<String, long[]>();
+	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent" };
+	private long[] healthCheckTargets = new long[healthCheckCategories.length];
+
 	public boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
 		// serialize audio info into JSON for checkin queue insertion
@@ -124,6 +129,33 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 			app.rfcxServiceHandler.triggerService("ApiCheckInArchive", false);
 		}
 	}
+	
+	private void runRecentActivityHealthCheck(long[] inputValues) {
+
+		long[] defaultValues = new long[6]; Arrays.fill(defaultValues, Math.round(Long.MAX_VALUE / defaultValues.length));
+		long[] averageValues = new long[healthCheckCategories.length]; Arrays.fill(averageValues, 0);
+
+		 /* latency */	healthCheckTargets[0] = Math.round( 0.4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
+		 /* queued */	healthCheckTargets[1] = 1; 																	
+		 /* recent */	healthCheckTargets[2] = ( defaultValues.length / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
+		
+		for (int j = 0; j < healthCheckCategories.length; j++) {
+			if (!healthCheckMonitors.containsKey(healthCheckCategories[j])) { healthCheckMonitors.put(healthCheckCategories[j], defaultValues); }
+			String categ = healthCheckCategories[j];
+			long[] arraySnapshot = new long[defaultValues.length];
+			arraySnapshot[0] = inputValues[j];
+			for (int i = (defaultValues.length-1); i > 0; i--) { arraySnapshot[i] = healthCheckMonitors.get(categ)[i-1]; }
+			healthCheckMonitors.remove(healthCheckCategories[j]);
+			healthCheckMonitors.put(healthCheckCategories[j], arraySnapshot);
+			averageValues[j] = MathUtils.getAverageAsLong(healthCheckMonitors.get(categ));
+		}
+		
+		Log.e(logTag, "Health Check: "
+							+"latency: "+averageValues[0]+"/"+healthCheckTargets[0]+", "
+							+"queue: "+averageValues[1]+"/"+healthCheckTargets[1]+", "
+							+"returns: "+Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(averageValues[2]))+"/"+healthCheckTargets[2]);
+		
+	}
 
 	private String generateCheckInQueueJson(String[] audioFileInfo) {
 
@@ -158,10 +190,10 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
 			metaDataJsonObj.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
 			metaDataJsonObj.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
+			metaDataJsonObj.put("location", app.deviceSensorDb.dbGeoLocation.getConcatRows());
 			metaDataJsonObj.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
 			
 			metaDataJsonObj.put("disk_usage", DeviceDiskUsage.concatDiskStats());
-			metaDataJsonObj.put("location", DevicePositionGeoLocation.getConcatPositionGeoLocation()); // currently these are just dummy values...
 			
 			// this timestamp should be generated and added following the previous queries
 			this.preFlightStatsQueryTimestamp = new Date();
@@ -183,6 +215,7 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 			app.deviceSystemDb.dbOffline.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbLightMeter.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbAccelerometer.clearRowsBefore(deleteBefore);
+			app.deviceSensorDb.dbGeoLocation.clearRowsBefore(deleteBefore);
 			app.deviceDataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
 			app.rebootDb.dbRebootComplete.clearRowsBefore(deleteBefore);
 
@@ -644,8 +677,12 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 						String checkInId = jsonObj.getString("checkin_id");
 						if (checkInId.length() > 0) {
 							long[] checkInStats = this.inFlightCheckInStats.get(audioId);
+							
 							this.previousCheckIns = new ArrayList<String>();
 							this.previousCheckIns.add( TextUtils.join("*", new String[] { checkInId+"", checkInStats[1]+"", checkInStats[2]+"" } ) );
+							
+							runRecentActivityHealthCheck(new long[] { checkInStats[1], (long) app.apiCheckInDb.dbQueued.getCount(), checkInStats[0] });
+								
 						}
 					}
 					
@@ -688,7 +725,7 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 							app.getApplicationContext().getContentResolver());
 				}
 			}
-
+			
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 

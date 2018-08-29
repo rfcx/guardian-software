@@ -16,6 +16,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.xeustechnologies.jtar.TarEntry;
@@ -177,22 +178,38 @@ public class FileUtils {
 	public static void copy(String srcFilePath, String dstFilePath) throws IOException {
 		copy(new File(srcFilePath), new File(dstFilePath));
 	}
-	
-	
-	public static boolean delete(String filePath, boolean recursive) {
-		File file = new File(filePath);
-		
-		if (!file.exists()) { return true; }
-		if (!recursive || !file.isDirectory()) { return file.delete(); }
 
-		String[] list = file.list();
-		for (int i = 0; i < list.length; i++) {
-			if (!delete(filePath + File.separator + list[i], true))
-				return false;
+	
+	public static boolean delete(File fileObj) {
+		
+		if (!fileObj.exists()) { return true; }
+		if (!fileObj.isDirectory()) { return fileObj.delete(); }
+
+		for (File innerFileObj : fileObj.listFiles()) {
+			try { 
+				if (innerFileObj.isDirectory()) {
+					delete(innerFileObj);
+				} else {
+					innerFileObj.delete();
+				}
+			} catch (Exception e) { 
+				RfcxLog.logExc(logTag, e);
+			}
 		}
-		return file.delete();
+		return fileObj.delete();
 	}
 	
+	public static boolean delete(String filePath) {
+		return delete(new File(filePath));
+	}
+	
+	public static void delete(List<String> filePaths) {
+		for (String filePath : filePaths) {
+			delete(filePath);
+		}
+	}
+	
+
 	public static void deleteDirectoryContents(String directoryFilePath) {
 		File directory = new File(directoryFilePath);
 		for (File file : directory.listFiles()) {
@@ -234,35 +251,6 @@ public class FileUtils {
 		}
 	}
 	
-	public static void deleteDirectory(String directoryFilePath) {
-		File directory = new File(directoryFilePath);
-		for (File file : directory.listFiles()) {
-			try { 
-				if (file.isDirectory()) {
-					deleteDirectory(file.getAbsolutePath());
-				} else {
-					file.delete();
-				}
-			} catch (Exception e) { 
-				RfcxLog.logExc(logTag, e);
-			}
-		}
-		directory.delete();
-	}
-	
-	public static void deleteFiles(List<String> filePathsToDelete) {
-		StringBuilder successLog = new StringBuilder();
-		for (String filePath : filePathsToDelete) {
-			File fileObj = new File(filePath);
-			try { 
-				fileObj.delete();
-				successLog.append(fileObj.getName()).append(", ");
-			} catch (Exception e) { 
-				RfcxLog.logExc(logTag, e);
-			}
-			Log.d(logTag, "Deleted Files: "+successLog.toString());
-		}
-	}
 	
 	public static boolean createTarArchiveFromFileList(List<String> inputFilePaths, String outputTarFilePath) {
 
@@ -329,6 +317,37 @@ public class FileUtils {
 	
 	public static void gZipFile(String inputFilePath, String outputFilePath) {
 		gZipFile( (new File(inputFilePath)), (new File(outputFilePath)));
+	}
+	
+	public static void gUnZipFile(File inputFile, File outputFile) {
+		
+		(new File(outputFile.getAbsolutePath().substring(0,outputFile.getAbsolutePath().lastIndexOf("/")))).mkdirs();
+		
+		try {
+			
+			FileInputStream fileInputStream = new FileInputStream(inputFile.getAbsolutePath());
+			GZIPInputStream gZipInputStream = new GZIPInputStream(fileInputStream);
+            FileOutputStream fileOutputStream = new FileOutputStream(outputFile.getAbsolutePath());
+            
+            byte[] buffer = new byte[1024];
+            int len;
+            while ( (len = gZipInputStream.read(buffer) ) != -1 ) {
+            		fileOutputStream.write(buffer, 0, len);
+            }
+            
+            fileOutputStream.close();
+            gZipInputStream.close();
+            fileInputStream.close();
+            
+		} catch (FileNotFoundException e) {
+			RfcxLog.logExc(logTag, e);
+		} catch (IOException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+	}
+	
+	public static void gUnZipFile(String inputFilePath, String outputFilePath) {
+		gUnZipFile( (new File(inputFilePath)), (new File(outputFilePath)));
 	}
 	
 	

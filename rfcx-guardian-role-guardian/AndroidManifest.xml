@@ -79,7 +79,6 @@
         <service android:name="guardian.api.ApiCheckInJobService" android:exported="false" />
         <service android:name="guardian.api.ApiCheckInArchiveService" android:exported="false" />
         <service android:name="guardian.device.android.DeviceSystemService" android:exported="false" />
-        <service android:name="guardian.device.android.DevicePositionService" android:exported="false" />
         <service android:name="guardian.device.android.DateTimeSntpSyncJobService" android:exported="false" />
         
         <!-- IntentServices -->
