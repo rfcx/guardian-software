@@ -188,6 +188,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("power", app.deviceSystemDb.dbPower.getConcatRows());
 			metaDataJsonObj.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
 			metaDataJsonObj.put("offline", app.deviceSystemDb.dbOffline.getConcatRows());
+			metaDataJsonObj.put("connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
 			metaDataJsonObj.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
 			metaDataJsonObj.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
 			metaDataJsonObj.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
@@ -214,6 +215,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			app.deviceSystemDb.dbPower.clearRowsBefore(deleteBefore);
 			app.deviceSystemDb.dbTelephony.clearRowsBefore(deleteBefore);
 			app.deviceSystemDb.dbOffline.clearRowsBefore(deleteBefore);
+			app.deviceSystemDb.dbMqttBrokerConnections.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbLightMeter.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbAccelerometer.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbGeoLocation.clearRowsBefore(deleteBefore);
@@ -260,7 +262,12 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		// Adding device location timezone offset
 		checkInMetaJson.put("timezone_offset", DateTimeUtils.getTimeZoneOffset());
-		checkInMetaJson.put("datetime", "system*"+System.currentTimeMillis()+"|timezone*"+DateTimeUtils.getTimeZoneOffset());
+		checkInMetaJson.put("datetime", TextUtils.join("|", new String[] { 
+										"system*"+System.currentTimeMillis(),
+										"timezone*"+DateTimeUtils.getTimeZoneOffset(),
+										"sntp*"+app.deviceSystemUtils.dateTimeDiscrepancyFromSystemClock_sntp+"*"+app.deviceSystemUtils.dateTimeSourceLastSyncedAt_sntp,
+										"gps*"+app.deviceSystemUtils.dateTimeDiscrepancyFromSystemClock_gps+"*"+app.deviceSystemUtils.dateTimeSourceLastSyncedAt_gps
+									}));
 
 		// Adding messages to JSON blob
 		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver()));
@@ -813,12 +820,19 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	public void confirmOrCreateConnectionToBroker() {
 
-		long minDelayBetweenConnectionAttempts = 5000;
+		long minDelayBetweenConnectionAttempts = 10000;
 
-		if (mqttCheckInClient.mqttBrokerConnectionLastAttemptedAt < (app.deviceConnectivity.lastConnectedAt()
-				- minDelayBetweenConnectionAttempts)) {
+		if (mqttCheckInClient.mqttBrokerConnectionLastAttemptedAt < (app.deviceConnectivity.lastConnectedAt() - minDelayBetweenConnectionAttempts)) {
 			try {
 				mqttCheckInClient.confirmOrCreateConnectionToBroker(this.app.deviceConnectivity.isConnected());
+				if (mqttCheckInClient.mqttBrokerConnectionLatency > 0) {
+					Log.v(logTag, "MQTT Connection Latency: "+mqttCheckInClient.mqttBrokerConnectionLatency+" ms");
+					app.deviceSystemDb.dbMqttBrokerConnections.insert(new Date(), 
+													mqttCheckInClient.mqttBrokerConnectionLatency, 
+													app.rfcxPrefs.getPrefAsString("api_checkin_protocol"), 
+													app.rfcxPrefs.getPrefAsString("api_checkin_host"), 
+													app.rfcxPrefs.getPrefAsInt("api_checkin_port"));
+				}
 			} catch (MqttException e) {
 				RfcxLog.logExc(logTag, e);
 			}

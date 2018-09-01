@@ -1,25 +1,25 @@
-package admin.device.android.control;
+package guardian.device.android;
 
 import rfcx.utility.datetime.SntpClient;
 import rfcx.utility.rfcx.RfcxLog;
 
-import admin.RfcxGuardian;
+import guardian.RfcxGuardian;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
 
-public class DateTimeSntpSyncJobService extends Service {
+public class SntpSyncJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DateTimeSntpSyncJobService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SntpSyncJobService.class);
 	
-	private static final String SERVICE_NAME = "DateTimeSntpSyncJob";
+	private static final String SERVICE_NAME = "SntpSyncJob";
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private DateTimeSntpSyncJob dateTimeSntpSyncJob;
+	private SntpSyncJob SntpSyncJob;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,7 +30,7 @@ public class DateTimeSntpSyncJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.dateTimeSntpSyncJob = new DateTimeSntpSyncJob();
+		this.SntpSyncJob = new SntpSyncJob();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -41,7 +41,7 @@ public class DateTimeSntpSyncJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.dateTimeSntpSyncJob.start();
+			this.SntpSyncJob.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -53,20 +53,20 @@ public class DateTimeSntpSyncJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.dateTimeSntpSyncJob.interrupt();
-		this.dateTimeSntpSyncJob = null;
+		this.SntpSyncJob.interrupt();
+		this.SntpSyncJob = null;
 	}
 	
 	
-	private class DateTimeSntpSyncJob extends Thread {
+	private class SntpSyncJob extends Thread {
 		
-		public DateTimeSntpSyncJob() {
-			super("DateTimeSntpSyncJobService-DateTimeSntpSyncJob");
+		public SntpSyncJob() {
+			super("SntpSyncJobService-SntpSyncJob");
 		}
 		
 		@Override
 		public void run() {
-			DateTimeSntpSyncJobService dateTimeSntpSyncJobInstance = DateTimeSntpSyncJobService.this;
+			SntpSyncJobService sntpSyncJobInstance = SntpSyncJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			
@@ -79,24 +79,27 @@ public class DateTimeSntpSyncJobService extends Service {
 					Log.v(logTag, "No SNTP Sync Job because guardian currently has no connectivity.");
 					
 				} else {
-
+				
 					SntpClient sntpClient = new SntpClient();
 					String dateTimeNtpHost = app.rfcxPrefs.getPrefAsString("api_ntp_host");
 					
 					if (sntpClient.requestTime(dateTimeNtpHost, 15000) && sntpClient.requestTime(dateTimeNtpHost, 15000)) {
 						long nowSystem = System.currentTimeMillis();
 						long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
-						SystemClock.setCurrentTimeMillis(nowSntp);
-						Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntp+" - System: "+nowSystem+" (System was "+Math.abs(nowSystem-nowSntp)+"ms "+
+						
+						app.deviceSystemUtils.dateTimeSourceLastSyncedAt_sntp = nowSystem;
+						app.deviceSystemUtils.dateTimeDiscrepancyFromSystemClock_sntp = (nowSntp-nowSystem);
+						
+						Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntp+" - System: "+nowSystem+" (System is "+Math.abs(nowSystem-nowSntp)+"ms "+
 								((nowSystem >= nowSntp) ? "ahead of" : "behind")
-								+" SNTP value. System time now synced to SNTP value.)");
+								+" SNTP value.)");
 					 }
 				}
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				dateTimeSntpSyncJobInstance.runFlag = false;
+				sntpSyncJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}

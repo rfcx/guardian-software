@@ -98,19 +98,19 @@ public class AudioCaptureUtils {
 		boolean limitBasedOnLackOfHardwareSupport = !this.isAudioCaptureHardwareSupported;
 		
 		if (limitBasedOnTimeOfDay) {
-			Log.i(logTag, "AudioCapture not allowed due to current time of day/night"
+			Log.e(logTag, "AudioCapture not allowed due to current time of day/night"
 					+" (off hours: '"+app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")+"'.");
 			
 		} else if (limitBasedOnBatteryLevel) {
-			Log.i(logTag, "AudioCapture not allowed due to low battery level"
+			Log.e(logTag, "AudioCapture not allowed due to low battery level"
 				+" (current: "+this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)+"%, required: "+this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")+"%).");
 		
 		} else if (limitBasedOnAvailableDiskSpace) {
-			Log.i(logTag, "AudioCapture not allowed due to low available internal disk space"
+			Log.e(logTag, "AudioCapture not allowed due to low available internal disk space"
 					+" (current: "+DeviceDiskUsage.getInternalDiskFreeMegaBytes()+"MB, required: "+requiredAvailableInternalDiskSpace+"MB).");
 			
 		} else if (limitBasedOnLackOfHardwareSupport) {
-			Log.i(logTag, "AudioCapture not allowed due to lack of hardware support for capture sample rate: "+app.rfcxPrefs.getPrefAsInt("audio_sample_rate")+" Hz.");
+			Log.e(logTag, "AudioCapture not allowed due to lack of hardware support for capture sample rate: "+app.rfcxPrefs.getPrefAsInt("audio_sample_rate")+" Hz.");
 			
 		}
 		

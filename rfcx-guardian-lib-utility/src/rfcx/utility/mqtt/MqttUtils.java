@@ -81,6 +81,8 @@ public class MqttUtils implements MqttCallback {
 	}
 	
 	public long mqttBrokerConnectionLastAttemptedAt = System.currentTimeMillis();
+	public long mqttBrokerConnectionLatency = 0;
+	public long mqttBrokerSubscriptionLatency = 0;
 	
 	public long publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
 		if (confirmOrCreateConnectionToBroker(true)) {
@@ -106,6 +108,8 @@ public class MqttUtils implements MqttCallback {
 	public boolean confirmOrCreateConnectionToBroker(boolean allowBasedOnDeviceConnectivity) throws MqttException {
 		
 		mqttBrokerConnectionLastAttemptedAt = System.currentTimeMillis();
+		mqttBrokerConnectionLatency = 0;
+		mqttBrokerSubscriptionLatency = 0;
 		
 		if (allowBasedOnDeviceConnectivity && ((this.mqttClient == null) || !this.mqttClient.isConnected())) {
 				
@@ -116,14 +120,19 @@ public class MqttUtils implements MqttCallback {
 
 			Log.v(logTag, "Connecting to MQTT broker: "+this.mqttBrokerUri);
 			this.mqttClient.connect(getConnectOptions());
-			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri);
 			
+			mqttBrokerConnectionLatency = System.currentTimeMillis() - mqttBrokerConnectionLastAttemptedAt;
+			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri);
+
+			mqttBrokerSubscriptionLatency = 0;
 			for (String subscribeTopic : this.mqttTopics_Subscribe) {
 				this.mqttClient.subscribe(subscribeTopic);
 				Log.v(logTag, "Subscribed to MQTT topic: "+subscribeTopic);
 			}
+			mqttBrokerSubscriptionLatency = System.currentTimeMillis() - (mqttBrokerConnectionLastAttemptedAt + mqttBrokerConnectionLatency);
 				
 		}
+				
 		return allowBasedOnDeviceConnectivity && this.mqttClient.isConnected();
 	}
 	

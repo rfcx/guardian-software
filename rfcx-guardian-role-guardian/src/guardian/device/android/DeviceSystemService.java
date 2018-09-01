@@ -323,8 +323,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				if (!this.geolocationProviderInfo.isEmpty()) {
 					this.locationManager.requestLocationUpdates(
 									this.geolocationProviderInfo, 
-									DeviceSystemUtils.geolocationMinTimeElapsedBetweenUpdatesInSeconds[0] * 1000, 
-									DeviceSystemUtils.geolocationMinDistanceChangeBetweenUpdatesInMeters[0], 
+									DeviceSystemUtils.geolocationMinTimeElapsedBetweenUpdatesInSeconds[1] * 1000, 
+									DeviceSystemUtils.geolocationMinDistanceChangeBetweenUpdatesInMeters[1], 
 									this);
 					cacheSnapshotValues("geolocation", app.deviceSystemUtils.getParsedGeoLocation(this.locationManager.getLastKnownLocation(this.geolocationProviderInfo)) );
 				}

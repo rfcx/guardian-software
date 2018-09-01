@@ -23,6 +23,8 @@ import org.xeustechnologies.jtar.TarEntry;
 import org.xeustechnologies.jtar.TarOutputStream;
 
 import android.content.Context;
+import android.os.Environment;
+import android.os.StatFs;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 import android.util.Log;
@@ -355,5 +357,36 @@ public class FileUtils {
 		String currentAppFilesDir = context.getFilesDir().getAbsolutePath();
 		return currentAppFilesDir.substring(0, currentAppFilesDir.indexOf("org.rfcx.guardian."));
 	}
+	
+    public boolean isExternalStorageAvailable() {
+
+        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+        double sdAvailSize = (double) stat.getAvailableBlocks() * (double) stat.getBlockSize();
+        // One binary gigabyte equals 1,073,741,824 bytes.
+        double mbAvailable = sdAvailSize / 1048576;
+
+        String state = Environment.getExternalStorageState();
+        boolean mExternalStorageAvailable = false;
+        boolean mExternalStorageWriteable = false;
+
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            // We can read and write the media
+            mExternalStorageAvailable = mExternalStorageWriteable = true;
+        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            // We can only read the media
+            mExternalStorageAvailable = true;
+            mExternalStorageWriteable = false;
+        } else {
+            // Something else is wrong. It may be one of many other states, but all we need
+            // to know is we can neither read nor write
+            mExternalStorageAvailable = mExternalStorageWriteable = false;
+        }
+
+        if (mExternalStorageAvailable == true && mExternalStorageWriteable == true && mbAvailable > 10) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 	
 }

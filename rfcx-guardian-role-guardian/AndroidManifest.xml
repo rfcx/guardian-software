@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.rfcx.guardian.guardian"
     android:versionCode="1"
-    android:versionName="0.5.15" >
+    android:versionName="0.5.16" >
    
     <uses-sdk
         android:minSdkVersion="10"
@@ -79,12 +79,13 @@
         <service android:name="guardian.api.ApiCheckInJobService" android:exported="false" />
         <service android:name="guardian.api.ApiCheckInArchiveService" android:exported="false" />
         <service android:name="guardian.device.android.DeviceSystemService" android:exported="false" />
-        <service android:name="guardian.device.android.DateTimeSntpSyncJobService" android:exported="false" />
+        <service android:name="guardian.device.android.SntpSyncJobService" android:exported="false" />
         
         <!-- IntentServices -->
         <service android:name="guardian.ServiceMonitor" android:exported="false" />
         <service android:name="guardian.api.ApiQueueCheckInService" android:exported="false" />
         <service android:name="guardian.audio.encode.AudioQueueEncodeService" android:exported="false" />
+        <service android:name="guardian.device.android.ScheduledSntpSyncService" android:exported="false" />
 
         <!-- Receivers -->
          <receiver android:name="guardian.receiver.BootReceiver">

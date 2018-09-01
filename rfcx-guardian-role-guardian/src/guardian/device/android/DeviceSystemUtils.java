@@ -23,14 +23,19 @@ public class DeviceSystemUtils {
 
 	private RfcxGuardian app = null;
 	
+	public long dateTimeDiscrepancyFromSystemClock_gps = 0;
+	public long dateTimeDiscrepancyFromSystemClock_sntp = 0;
+	public long dateTimeSourceLastSyncedAt_gps = 0;
+	public long dateTimeSourceLastSyncedAt_sntp = 0;
+	
 	public static final long captureLoopIncrementFullDurationInMilliseconds = 1000;
 	public static final long captureCycleMinimumAllowedDurationInMilliseconds = 20000;
 	public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 	
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
-	public static final long[] geolocationMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		33, 		5 	};
-	public static final long[] geolocationMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	300,		20 	};
+	public static final long[] geolocationMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		33, 		10 	};
+	public static final long[] geolocationMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	300,		30 	};
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
 
@@ -62,7 +67,7 @@ public class DeviceSystemUtils {
 			avgs = ArrayUtils.limitArrayValuesToSpecificDecimalPlaces( ArrayUtils.getAverageValuesAsArrayFromArrayList(accelValues), 6 );
 			avgs[4] = accelValues.size();	// number of samples in average
 			// find the most recent sampled timestamp
-			for (double[] accelVals : accelValues) { if (accelVals[0] > avgs[0]) { avgs[0] = (long) Math.round(accelVals[0]); } }
+			avgs[0] = 0; for (double[] accelVals : accelValues) { if (accelVals[0] > avgs[0]) { avgs[0] = (long) Math.round(accelVals[0]); } }
 		}
 		return avgs;
 	}
@@ -101,12 +106,17 @@ public class DeviceSystemUtils {
 						location.getAltitude(),
 						(double) location.getTime()
 					};
+
+				dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
+				long discrepancyFromSystemClock = location.getTime()-dateTimeSourceLastSyncedAt_gps;
+				dateTimeDiscrepancyFromSystemClock_gps = discrepancyFromSystemClock;
 				
 				if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
 					Log.i(logTag, "Snapshot —— GeoLocation"
 							+" —— Lat: "+geoLoc[1]+", Lng: "+geoLoc[2]+", Alt: "+Math.round(geoLoc[4])+" meters"
 							+" —— Accuracy: "+Math.round(geoLoc[3])+" meters"
 							+" —— "+DateTimeUtils.getDateTime((long) Math.round(geoLoc[0]))
+							+" —— Clock Discrepancy: "+discrepancyFromSystemClock+" ms"
 							);
 				}
 				

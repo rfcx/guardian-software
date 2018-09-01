@@ -3,6 +3,7 @@ package guardian;
 import java.util.Map;
 
 import org.rfcx.guardian.guardian.R;
+
 import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceBattery;
 import rfcx.utility.device.DeviceCPU;
@@ -33,13 +34,14 @@ import guardian.audio.capture.AudioCaptureUtils;
 import guardian.audio.encode.AudioEncodeDb;
 import guardian.audio.encode.AudioEncodeJobService;
 import guardian.audio.encode.AudioQueueEncodeService;
-import guardian.device.android.DateTimeSntpSyncJobService;
+import guardian.device.android.SntpSyncJobService;
 import guardian.device.android.DeviceDataTransferDb;
 import guardian.device.android.DeviceRebootDb;
 import guardian.device.android.DeviceSensorDb;
 import guardian.device.android.DeviceSystemDb;
 import guardian.device.android.DeviceSystemService;
 import guardian.device.android.DeviceSystemUtils;
+import guardian.device.android.ScheduledSntpSyncService;
 import guardian.receiver.ConnectivityReceiver;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
@@ -131,17 +133,22 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	}
 	
 	public void initializeRoleServices() {
- 		
+		
 		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 			
-			String[] onLaunchServices = new String[RfcxCoreServices.length+1];
-			System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
-			onLaunchServices[RfcxCoreServices.length] = 
+			String[] runOnceOnlyOnLaunch = new String[] {
 					"ServiceMonitor"
-						+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
-						+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
-						;
+							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
+							+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
+							,
+					"ScheduledSntpSync"
+							+"|"+DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
+							+"|"+ScheduledSntpSyncService.SCHEDULED_SNTP_SYNC_CYCLE_DURATION
+			};
 			
+			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
+			System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
+			System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
 			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
 		}
 	}
@@ -167,7 +174,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
-		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
+		this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
+		this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
 		
 	}
 	
