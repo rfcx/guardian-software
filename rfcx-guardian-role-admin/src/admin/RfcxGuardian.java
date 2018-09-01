@@ -5,6 +5,7 @@ import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceConnectivity;
 import rfcx.utility.device.DeviceI2cUtils;
 import rfcx.utility.device.control.DeviceAirplaneMode;
+import rfcx.utility.device.hardware.DeviceHardware_Huawei_IDEOS_8150;
 import rfcx.utility.rfcx.RfcxDeviceGuid;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxPrefs;
@@ -54,7 +55,7 @@ public class RfcxGuardian extends Application {
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
-
+	
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
@@ -89,6 +90,10 @@ public class RfcxGuardian extends Application {
 		this.deviceSentinelPowerUtils = new DeviceSentinelPowerUtils(this);
 		
 		initializeRoleServices();
+		
+		// fix GPS functionality for the Huawei phones
+		DeviceHardware_Huawei_IDEOS_8150.checkOrResetGPSFunctionality(this);
+		
 	}
 	
 	public void onTerminate() {

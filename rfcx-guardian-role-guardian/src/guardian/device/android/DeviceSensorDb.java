@@ -123,12 +123,12 @@ public class DeviceSensorDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public int insert(Date measured_at, double latitude, double longitude, double precision) {
+		public int insert(double measured_at, double latitude, double longitude, double accuracy, double altitude) {
 			
 			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, measured_at.getTime());
+			values.put(C_MEASURED_AT, (long) Math.round(measured_at));
 			values.put(C_VALUE_1, latitude+"*"+longitude);
-			values.put(C_VALUE_2, Math.round(precision));
+			values.put(C_VALUE_2, Math.round(accuracy)+"*"+Math.round(altitude));
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}

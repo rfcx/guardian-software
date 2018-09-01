@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 import rfcx.utility.rfcx.RfcxLog;
 
@@ -167,12 +168,15 @@ public class ShellCommands {
 	}
 	
 	public static boolean triggerRebootAsRoot(Context context) {
-		int rebootPreDelay = 3;
+		int rebootPreDelay = 2;
 		Log.v(logTag, "Attempting graceful reboot... then after "+rebootPreDelay+" seconds, killing RFCx processes and forcing reboot...");
 		executeCommandAsRoot(
 				"am start -a android.intent.action.REBOOT; "+
 				"am broadcast android.intent.action.ACTION_SHUTDOWN; "+
-				"sleep "+rebootPreDelay+" && kill $(ps | grep org.rfcx.guardian | cut -d \" \" -f 5) && sleep 1 && reboot; "
+				"sleep "+rebootPreDelay
+					+" && kill $(ps | grep org.rfcx.guardian | cut -d \" \" -f 5)"
+					+" && umount -vl "+Environment.getExternalStorageDirectory().toString()
+					+" && reboot;"
 			, context);
 		return true;
 	}

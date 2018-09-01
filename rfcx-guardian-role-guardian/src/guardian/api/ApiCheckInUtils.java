@@ -16,12 +16,12 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import rfcx.utility.misc.ArrayUtils;
 import rfcx.utility.misc.FileUtils;
-import rfcx.utility.misc.MathUtils;
 import rfcx.utility.misc.StringUtils;
 import rfcx.utility.audio.RfcxAudioUtils;
 import rfcx.utility.datetime.DateTimeUtils;
@@ -29,6 +29,7 @@ import rfcx.utility.device.DeviceDiskUsage;
 import rfcx.utility.device.DeviceMobilePhone;
 import rfcx.utility.device.control.DeviceLogCat;
 import rfcx.utility.device.control.DeviceScreenShot;
+import rfcx.utility.device.hardware.DeviceHardwareUtils;
 import rfcx.utility.mqtt.MqttUtils;
 import rfcx.utility.rfcx.RfcxComm;
 import rfcx.utility.rfcx.RfcxLog;
@@ -38,9 +39,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import guardian.RfcxGuardian;
 
-public class ApiGuardianCheckInUtils implements MqttCallback {
+public class ApiCheckInUtils implements MqttCallback {
 
-	public ApiGuardianCheckInUtils(Context context) {
+	public ApiCheckInUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 
 		this.requestTimeOutLength = 2 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
@@ -59,7 +60,7 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 		confirmOrCreateConnectionToBroker();
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiGuardianCheckInUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInUtils.class);
 
 	private RfcxGuardian app;
 	private MqttUtils mqttCheckInClient = null;
@@ -147,7 +148,7 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 			for (int i = (defaultValues.length-1); i > 0; i--) { arraySnapshot[i] = healthCheckMonitors.get(categ)[i-1]; }
 			healthCheckMonitors.remove(healthCheckCategories[j]);
 			healthCheckMonitors.put(healthCheckCategories[j], arraySnapshot);
-			averageValues[j] = MathUtils.getAverageAsLong(healthCheckMonitors.get(categ));
+			averageValues[j] = ArrayUtils.getAverageAsLong(healthCheckMonitors.get(categ));
 		}
 		
 		Log.e(logTag, "Health Check: "
@@ -247,6 +248,9 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", DeviceMobilePhone.getConcatMobilePhoneInfo(app.getApplicationContext()));
+		
+		// Hardware info
+		checkInMetaJson.put("hardware", DeviceHardwareUtils.getDeviceHardwareInfoJson());
 
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
@@ -256,6 +260,7 @@ public class ApiGuardianCheckInUtils implements MqttCallback {
 
 		// Adding device location timezone offset
 		checkInMetaJson.put("timezone_offset", DateTimeUtils.getTimeZoneOffset());
+		checkInMetaJson.put("datetime", "system*"+System.currentTimeMillis()+"|timezone*"+DateTimeUtils.getTimeZoneOffset());
 
 		// Adding messages to JSON blob
 		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver()));

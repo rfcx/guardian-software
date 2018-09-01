@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import rfcx.utility.device.DeviceMobileNetwork;
+import rfcx.utility.misc.ArrayUtils;
 import rfcx.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -16,6 +17,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
@@ -39,31 +41,57 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private SignalStrengthListener signalStrengthListener;
 	private TelephonyManager telephonyManager;
 	private SignalStrength telephonySignalStrength;
-	
+	private LocationManager locationManager;
 	private SensorManager sensorManager;
+	
 	private Sensor lightSensor;
 	private Sensor accelSensor;
+
+	private String geolocationProviderInfo;
 	
-	private float lightSensorLastValue = Float.MAX_VALUE;
+	private double lightSensorLastValue = Float.MAX_VALUE;
 
 	private List<String[]> telephonyValues = new ArrayList<String[]>();
 	private List<long[]> lightSensorValues = new ArrayList<long[]>();
 	private List<long[]> dataTransferValues = new ArrayList<long[]>();
 	private List<int[]> batteryLevelValues = new ArrayList<int[]>();
 	private List<int[]> cpuUsageValues = new ArrayList<int[]>();
-	private List<long[]> accelSensorValues = new ArrayList<long[]>();
-	private List<double[]> geoLocationValues = new ArrayList<double[]>();
+	private List<double[]> accelSensorValues = new ArrayList<double[]>();
+	private List<double[]> geolocationValues = new ArrayList<double[]>();
 	
 	private boolean isListenerRegistered_telephony = false;
 	private boolean isListenerRegistered_light = false;
 	private boolean isListenerRegistered_accel = false;
+	private boolean isListenerRegistered_geolocation = false;
 
 	private boolean allowListenerRegistration_telephony = true;
 	private boolean allowListenerRegistration_light = true;
 	private boolean allowListenerRegistration_accel = true;
+	private boolean allowListenerRegistration_geolocation = true;
+	private boolean allowListenerRegistration_geolocation_gps = true;
+	private boolean allowListenerRegistration_geolocation_network = true;
 	
 	
+	private void checkSetSensorManager() {
+		if (this.sensorManager == null) { 
+			this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE); 
+		}
+	}
 	
+	private void checkSetLocationManager() {
+		if (this.locationManager == null) { 
+			this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE); 
+			this.allowListenerRegistration_geolocation_gps = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+			this.allowListenerRegistration_geolocation_network = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+			if (this.allowListenerRegistration_geolocation_gps) {
+				this.geolocationProviderInfo = LocationManager.GPS_PROVIDER;
+				Log.d(logTag, "GeoLocation possible via GPS.");
+			} else if (this.allowListenerRegistration_geolocation_network) {
+				this.geolocationProviderInfo = LocationManager.NETWORK_PROVIDER;
+				Log.d(logTag, "GeoLocation possible via Mobile Network.");
+			}
+		}
+	}
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -78,6 +106,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		
 		registerListener("light");
 		registerListener("telephony");
+		registerListener("geolocation");
 	}
 	
 	@Override
@@ -104,6 +133,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		
 		unRegisterListener("light");
 		unRegisterListener("telephony");
+		unRegisterListener("geolocation");
 	}
 	
 	
@@ -134,14 +164,15 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 						loopsPerCaptureCycle = DeviceSystemUtils.getLoopsPerCaptureCycle(audioCycleDuration);
 						app.deviceCPU.setReportingSampleCount(loopsPerCaptureCycle);
 						loopDelayRemainderInMilliseconds = DeviceSystemUtils.getLoopDelayRemainder(audioCycleDuration);
-						Log.d(logTag, "SystemStats Capture Params: Snapshots every "+Math.round(DeviceSystemUtils.getCaptureCycleDuration(audioCycleDuration)/1000)+" seconds.");
+						
+						Log.d(logTag, "SystemStats Capture: Snapshots every "+Math.round(DeviceSystemUtils.getCaptureCycleDuration(audioCycleDuration)/1000)+" seconds.");
 					}
 					
 					// Sample CPU Stats
 					app.deviceCPU.update();
 					
 					// Sample Accelerometer Stats
-					triggerOrSkipAccelSensorSnapshot(loopIncrement, loopsPerCaptureCycle);
+					triggerOrSkipSensorListenerToggle(loopIncrement, loopsPerCaptureCycle);
 					
 					// Increment Recording Loop Counter
 					loopIncrement++;
@@ -155,30 +186,31 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 						loopIncrement = 0;
 						
+						// capture and cache cpu usage info
 						cpuUsageValues.add(app.deviceCPU.getCurrentStats());
-						saveSystemStatValuesToDatabase("cpu");
+						saveSnapshotValuesToDatabase("cpu");
 
-						saveSystemStatValuesToDatabase("accel");
+						// cache accelerometer sensor data
+						saveSnapshotValuesToDatabase("accel");
 						
-						// capture and cache sensor data
-						cacheSnapshotValues("light", new float[] { lightSensorLastValue } );
-						saveSystemStatValuesToDatabase("light");
+						// capture and cache light sensor data
+						cacheSnapshotValues("light", new double[] { lightSensorLastValue } );
+						saveSnapshotValuesToDatabase("light");
 						
 						// capture and cache telephony signal strength
-						cacheSnapshotValues("telephony", null);
-						saveSystemStatValuesToDatabase("telephony");
+						cacheSnapshotValues("telephony", new double[]{});
+						saveSnapshotValuesToDatabase("telephony");
 						
-						// capture and cache data transfer stats
+						// capture and cache data transfer info
 						dataTransferValues.add(app.deviceNetworkStats.getDataTransferStatsSnapshot());
-						saveSystemStatValuesToDatabase("datatransfer");
+						saveSnapshotValuesToDatabase("datatransfer");
 
-						// capture and cache battery level stats
+						// capture and cache battery level info
 						batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
-						saveSystemStatValuesToDatabase("battery");
+						saveSnapshotValuesToDatabase("battery");
 						
-						// capture and cache geo location stats
-						geoLocationValues.add(app.deviceSystemUtils.getCurrentGeoLocation());
-						saveSystemStatValuesToDatabase("geolocation");
+						// cache geo location info
+						saveSnapshotValuesToDatabase("geolocation");
 					}
 					
 				} catch (InterruptedException e) {
@@ -191,16 +223,15 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		}		
 	}
 	
-	private void triggerOrSkipAccelSensorSnapshot(int loopIncrement, int loopsPerCaptureCycle) {
+	private void triggerOrSkipSensorListenerToggle(int loopIncrement, int loopsPerCaptureCycle) {
 		
-		int loopsBetweenMeasurements = Math.round(loopsPerCaptureCycle / DeviceSystemUtils.accelSensorSnapshotsPerCaptureCycle);
-		int halfLoopsBetweenMeasurements = Math.round(loopsPerCaptureCycle / ( DeviceSystemUtils.accelSensorSnapshotsPerCaptureCycle * 2 ) );
+		int halfLoopsBetweenAccelSensorToggle = Math.round( loopsPerCaptureCycle / ( DeviceSystemUtils.accelSensorSnapshotsPerCaptureCycle * 2 ) );
 		
 		for (int i = 0; i < ( DeviceSystemUtils.accelSensorSnapshotsPerCaptureCycle * 2 ); i++) {
-			if (loopIncrement == (i * loopsBetweenMeasurements)) { 
+			if (loopIncrement == (i * 2 * halfLoopsBetweenAccelSensorToggle)) { 
 				registerListener("accel");
 				break;
-			} else if (loopIncrement == (i * halfLoopsBetweenMeasurements)) {
+			} else if (loopIncrement == (i * halfLoopsBetweenAccelSensorToggle)) {
 				unRegisterListener("accel");
 				break;
 			}
@@ -208,25 +239,20 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	}
 	
 	
-	private void cacheSnapshotValues(String sensorAbbreviation, float[] entryValue) {
+	private void cacheSnapshotValues(String sensorAbbrev, double[] vals) {
 		
-		if (sensorAbbreviation.equalsIgnoreCase("accel")) {
+		if (sensorAbbrev.equalsIgnoreCase("accel")) {
 			
-			if (entryValue.length >= 3) {
-				long[] accelArray = new long[] { 
-						System.currentTimeMillis(), 
-						(long) Math.round(entryValue[0]*DeviceSystemUtils.accelSensorValueFloatMultiplier), 
-						(long) Math.round(entryValue[1]*DeviceSystemUtils.accelSensorValueFloatMultiplier), 
-						(long) Math.round(entryValue[2]*DeviceSystemUtils.accelSensorValueFloatMultiplier) 
-					};
+			if (vals.length >= 3) {
+				double[] accelArray = new double[] { (double) System.currentTimeMillis(), vals[0], vals[1], vals[2], 0 };
 				
 				this.accelSensorValues.add(accelArray);
 				if (this.app != null) { this.app.deviceSystemUtils.addAccelSensorSnapshotEntry(accelArray); }
 			}
 			
-		} else if (sensorAbbreviation.equalsIgnoreCase("light")) {
+		} else if (sensorAbbrev.equalsIgnoreCase("light")) {
 			
-			this.lightSensorLastValue = entryValue[0];
+			this.lightSensorLastValue = vals[0];
 			long lightSensorLastValueAsLong = (long) Math.round(this.lightSensorLastValue);
 			if (		(this.lightSensorLastValue != Float.MAX_VALUE)
 				&&	(	(this.lightSensorValues.size() == 0) 
@@ -236,26 +262,30 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				this.lightSensorValues.add( new long[] { System.currentTimeMillis(), lightSensorLastValueAsLong } );
 			}
 			
-		} else if (sensorAbbreviation.equalsIgnoreCase("telephony")) {
+		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
 			
-			if ((telephonyManager != null) && (telephonySignalStrength != null)) {
-				telephonyValues.add(DeviceMobileNetwork.getMobileNetworkSummary(telephonyManager, telephonySignalStrength));
+			if ((this.telephonyManager != null) && (this.telephonySignalStrength != null)) {
+				this.telephonyValues.add(DeviceMobileNetwork.getMobileNetworkSummary(this.telephonyManager, this.telephonySignalStrength));
+			}
+			
+		} else if (sensorAbbrev.equalsIgnoreCase("geolocation")) {
+			if (vals.length == 5) {
+				this.geolocationValues.add(vals);
 			}
 			
 		} else {
-			Log.e(logTag, "Snapshot could not be cached for '"+sensorAbbreviation+"'.");
+			Log.e(logTag, "Snapshot could not be cached for '"+sensorAbbrev+"'.");
 		}
 		
 		
 	}
-	
-	
-	private void registerListener(String sensorAbbreviation) {
 		
-		this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+	
+	private void registerListener(String sensorAbbrev) {
 		
-		if (sensorAbbreviation.equalsIgnoreCase("accel") && this.allowListenerRegistration_accel) {
+		if (sensorAbbrev.equalsIgnoreCase("accel") && this.allowListenerRegistration_accel) {
 			if (!this.isListenerRegistered_accel) {
+				checkSetSensorManager();
 				if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
 					this.accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
 					this.sensorManager.registerListener(this, this.accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -266,8 +296,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				}
 			}
 			
-		} else if (sensorAbbreviation.equalsIgnoreCase("light") && this.allowListenerRegistration_light) { 
+		} else if (sensorAbbrev.equalsIgnoreCase("light") && this.allowListenerRegistration_light) { 
 			if (!this.isListenerRegistered_light) {
+				checkSetSensorManager();
 				if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
 					this.lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
 					this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -278,7 +309,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				}
 			}
 			
-		} else if (sensorAbbreviation.equalsIgnoreCase("telephony") && this.allowListenerRegistration_telephony) {
+		} else if (sensorAbbrev.equalsIgnoreCase("telephony") && this.allowListenerRegistration_telephony) {
 			if (!this.isListenerRegistered_telephony) {
 				this.signalStrengthListener = new SignalStrengthListener();
 				this.telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -286,43 +317,63 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				this.isListenerRegistered_telephony = true;
 			}
 			
+		} else if (sensorAbbrev.equalsIgnoreCase("geolocation") && this.allowListenerRegistration_geolocation) {
+			if (!this.isListenerRegistered_geolocation) {
+				checkSetLocationManager();
+				if (!this.geolocationProviderInfo.isEmpty()) {
+					this.locationManager.requestLocationUpdates(
+									this.geolocationProviderInfo, 
+									DeviceSystemUtils.geolocationMinTimeElapsedBetweenUpdatesInSeconds[0] * 1000, 
+									DeviceSystemUtils.geolocationMinDistanceChangeBetweenUpdatesInMeters[0], 
+									this);
+					cacheSnapshotValues("geolocation", app.deviceSystemUtils.getParsedGeoLocation(this.locationManager.getLastKnownLocation(this.geolocationProviderInfo)) );
+				}
+				this.isListenerRegistered_geolocation = true;
+			}
+			
 		} else {
-			Log.e(logTag, "Listener failed to register for '"+sensorAbbreviation+"'.");
+			Log.e(logTag, "Listener failed to register for '"+sensorAbbrev+"'.");
 		}
 		
 	}
 	
-	private void unRegisterListener(String sensorAbbreviation) {
+	private void unRegisterListener(String sensorAbbrev) {
 		
-		if (sensorAbbreviation.equalsIgnoreCase("accel") && (this.accelSensor != null)) { 
+		if (sensorAbbrev.equalsIgnoreCase("accel") && (this.accelSensor != null)) { 
 			if (this.isListenerRegistered_accel) {
 				this.sensorManager.unregisterListener(this, this.accelSensor);
 				this.isListenerRegistered_accel = false;
 				if (this.app != null) { this.app.deviceSystemUtils.processAccelSensorSnapshot(); }
 			}
 			
-		} else if (sensorAbbreviation.equalsIgnoreCase("light") && (this.lightSensor != null)) { 
+		} else if (sensorAbbrev.equalsIgnoreCase("light") && (this.lightSensor != null)) { 
 			if (this.isListenerRegistered_light) {
 				this.sensorManager.unregisterListener(this, this.lightSensor); 
 				this.isListenerRegistered_light = false;
 			}
 			
-		} else if (sensorAbbreviation.equalsIgnoreCase("telephony") && (this.telephonyManager != null)) { 
+		} else if (sensorAbbrev.equalsIgnoreCase("telephony") && (this.telephonyManager != null)) { 
 			if (this.isListenerRegistered_telephony) {
 				this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE); 
 				this.isListenerRegistered_telephony = false;
 			}
 			
+		} else if (sensorAbbrev.equalsIgnoreCase("geolocation") && (this.locationManager != null)) { 
+			if (this.isListenerRegistered_geolocation) {
+				this.locationManager.removeUpdates(this);
+				this.isListenerRegistered_geolocation = false;
+			}
+				 
 		} else {
-			Log.e(logTag, "Listener failed to unregister for '"+sensorAbbreviation+"'.");
+			Log.e(logTag, "Listener failed to unregister for '"+sensorAbbrev+"'.");
 		}
 	}
 	
-	private void saveSystemStatValuesToDatabase(String statAbbreviation) {
+	private void saveSnapshotValuesToDatabase(String statAbbrev) {
 		
 		try {
 			
-			if (statAbbreviation.equalsIgnoreCase("cpu")) {
+			if (statAbbrev.equalsIgnoreCase("cpu")) {
 				
 				List<int[]> cpuUsageValuesCache = this.cpuUsageValues;
 				this.cpuUsageValues = new ArrayList<int[]>();
@@ -331,7 +382,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1]);
 				}
 				
-			} else if (statAbbreviation.equalsIgnoreCase("light")) {
+			} else if (statAbbrev.equalsIgnoreCase("light")) {
 				
 				List<long[]> lightSensorValuesCache = this.lightSensorValues;
 				this.lightSensorValues = new ArrayList<long[]>();
@@ -340,12 +391,12 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					app.deviceSensorDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
 				}
 				
-			} else if (statAbbreviation.equalsIgnoreCase("accel")) {
+			} else if (statAbbrev.equalsIgnoreCase("accel")) {
 				
-				List<long[]> accelSensorValuesCache = this.accelSensorValues;
-				this.accelSensorValues = new ArrayList<long[]>();
+				List<double[]> accelSensorValuesCache = this.accelSensorValues;
+				this.accelSensorValues = new ArrayList<double[]>();
 				
-				double[] accelSensorAverages = DeviceSystemUtils.generateAverageAccelValue(accelSensorValuesCache);
+				double[] accelSensorAverages = DeviceSystemUtils.generateAverageAccelValues(accelSensorValuesCache);
 				
 				if (accelSensorAverages[4] > 0) {
 					app.deviceSensorDb.dbAccelerometer.insert(
@@ -355,7 +406,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 						);
 				}
 					
-			} else if (statAbbreviation.equalsIgnoreCase("telephony")) {
+			} else if (statAbbrev.equalsIgnoreCase("telephony")) {
 				
 				List<String[]> telephonyValuesCache = this.telephonyValues;
 				this.telephonyValues = new ArrayList<String[]>();
@@ -364,7 +415,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					app.deviceSystemDb.dbTelephony.insert(new Date((long) Long.parseLong(telephonyVals[0])), (int) Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3]);
 				}
 
-			} else if (statAbbreviation.equalsIgnoreCase("datatransfer")) {
+			} else if (statAbbrev.equalsIgnoreCase("datatransfer")) {
 			
 				List<long[]> dataTransferValuesCache = this.dataTransferValues;
 				this.dataTransferValues = new ArrayList<long[]>();
@@ -376,7 +427,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					}
 				}
 				
-			} else if (statAbbreviation.equalsIgnoreCase("battery")) {
+			} else if (statAbbrev.equalsIgnoreCase("battery")) {
 				
 				List<int[]> batteryLevelValuesCache = this.batteryLevelValues;
 				this.batteryLevelValues = new ArrayList<int[]>();
@@ -386,23 +437,25 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					app.deviceSystemDb.dbPower.insert(new Date(), batteryLevelVals[2], batteryLevelVals[3]);
 				}
 				
-			} else if (statAbbreviation.equalsIgnoreCase("geolocation")) {
+			} else if (statAbbrev.equalsIgnoreCase("geolocation")) {
 				
-				List<double[]> geoLocationValuesCache = this.geoLocationValues;
-				this.geoLocationValues = new ArrayList<double[]>();
+				List<double[]> geoLocationValuesCache = this.geolocationValues;
+				this.geolocationValues = new ArrayList<double[]>();
 				
 				for (double[] geoLocationVals : geoLocationValuesCache) {
-					app.deviceSensorDb.dbGeoLocation.insert(new Date((long) Math.round(geoLocationVals[0])), geoLocationVals[1], geoLocationVals[2], geoLocationVals[3]);
+					app.deviceSensorDb.dbGeoLocation.insert(geoLocationVals[0], geoLocationVals[1], geoLocationVals[2], geoLocationVals[3], geoLocationVals[4]);
 				}
 				
 			} else {
-				Log.e(logTag, "Value info for '"+statAbbreviation+"' could not be saved to database.");
+				Log.e(logTag, "Value info for '"+statAbbrev+"' could not be saved to database.");
 			}
 			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
 	}
+
+	
 
 	
 /*
@@ -414,7 +467,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			super.onSignalStrengthsChanged(signalStrength);
 			telephonySignalStrength = signalStrength;
-			cacheSnapshotValues("telephony", null);
+			cacheSnapshotValues("telephony", new double[]{});
 		}
 	}
 	
@@ -434,11 +487,11 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		
 		if (eventType == Sensor.TYPE_LIGHT) {
 			
-			cacheSnapshotValues("light", event.values);
+			cacheSnapshotValues("light", ArrayUtils.castFloatArrayToDoubleArray(event.values));
 
 		} else if (eventType == Sensor.TYPE_ACCELEROMETER) {
 			
-			cacheSnapshotValues("accel", event.values);
+			cacheSnapshotValues("accel", ArrayUtils.castFloatArrayToDoubleArray(event.values));
 			if (this.isListenerRegistered_accel) { unRegisterListener("accel"); }
 			
 		}
@@ -451,8 +504,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	
 	@Override
 	public void onLocationChanged(Location location) {
-		// TODO Auto-generated method stub
 		
+		cacheSnapshotValues("geolocation", app.deviceSystemUtils.getParsedGeoLocation(location) );
 	}
 
 	@Override
