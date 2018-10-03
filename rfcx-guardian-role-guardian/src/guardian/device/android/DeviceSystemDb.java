@@ -20,6 +20,7 @@ public class DeviceSystemDb {
 		this.dbTelephony = new DbTelephony(context);
 		this.dbOffline = new DbOffline(context);
 		this.dbMqttBrokerConnections = new DbMqttBrokerConnections(context);
+		this.dbDateTimeOffsets = new DbDateTimeOffsets(context);
 	}
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSystemDb.class);
@@ -257,5 +258,40 @@ public class DeviceSystemDb {
 
 	}
 	public final DbMqttBrokerConnections dbMqttBrokerConnections;
+	
+	public class DbDateTimeOffsets {
+
+		final DbUtils dbUtils;
+
+		private String TABLE = "datetimeoffsets";
+		
+		public DbDateTimeOffsets(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+		}
+		
+		public int insert(long measured_at, String source, long offset) {
+			
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, measured_at);
+			values.put(C_VALUE_1, source);
+			values.put(C_VALUE_2, offset);
+			
+			return this.dbUtils.insertRow(TABLE, values);
+		}
+		
+		private List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
+		
+		public void clearRowsBefore(Date date) {
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
+		}
+		
+		public String getConcatRows() {
+			return DbUtils.getConcatRows(getAllRows());
+		}
+
+	}
+	public final DbDateTimeOffsets dbDateTimeOffsets;
 	
 }

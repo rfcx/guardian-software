@@ -1,4 +1,4 @@
-package guardian.api;
+package guardian.archive;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -68,7 +68,7 @@ public class ApiCheckInArchiveService extends Service {
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 
 	@Override

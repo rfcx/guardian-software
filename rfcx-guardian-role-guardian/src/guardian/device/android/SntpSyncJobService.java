@@ -45,7 +45,7 @@ public class SntpSyncJobService extends Service {
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 	
 	@Override
@@ -87,8 +87,10 @@ public class SntpSyncJobService extends Service {
 						long nowSystem = System.currentTimeMillis();
 						long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
 						
-						app.deviceSystemUtils.dateTimeSourceLastSyncedAt_sntp = nowSystem;
-						app.deviceSystemUtils.dateTimeDiscrepancyFromSystemClock_sntp = (nowSntp-nowSystem);
+						app.deviceUtils.dateTimeSourceLastSyncedAt_sntp = nowSystem;
+						app.deviceUtils.dateTimeDiscrepancyFromSystemClock_sntp = (nowSntp-nowSystem);
+						
+						app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem));
 						
 						Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntp+" - System: "+nowSystem+" (System is "+Math.abs(nowSystem-nowSntp)+"ms "+
 								((nowSystem >= nowSntp) ? "ahead of" : "behind")

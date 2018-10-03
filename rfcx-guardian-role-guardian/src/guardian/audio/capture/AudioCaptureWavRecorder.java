@@ -370,4 +370,15 @@ public class AudioCaptureWavRecorder {
 		
 	}
 	
+	public void haltRecording() throws IOException {
+		
+//		try {
+			stopRecorder();
+			recorderOutputFileRandomAccessWriter.close();
+//		} catch (Exception e) {
+//			RfcxLog.logExc(logTag, e);
+//		}
+		
+	}
+	
 }

@@ -36,7 +36,12 @@ public class DeviceHardwareUtils {
 		hardwareInfo.add(new String[] { "manufacturer", android.os.Build.MANUFACTURER });
 		hardwareInfo.add(new String[] { "product", android.os.Build.PRODUCT });
 		hardwareInfo.add(new String[] { "model", android.os.Build.MODEL });
+		hardwareInfo.add(new String[] { "android", android.os.Build.VERSION.RELEASE });
 		return hardwareInfo;
+	}
+	
+	public static String getDeviceHardwareName() {
+		return android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL;
 	}
 	
 }

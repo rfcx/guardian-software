@@ -5,23 +5,54 @@ import java.util.Arrays;
 import java.util.List;
 
 import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.location.Location;
+import android.location.LocationManager;
+import android.telephony.SignalStrength;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import guardian.RfcxGuardian;
+import guardian.device.android.DeviceSystemService.SignalStrengthListener;
 import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceCPU;
 import rfcx.utility.misc.ArrayUtils;
 import rfcx.utility.rfcx.RfcxLog;
 
-public class DeviceSystemUtils {
+public class DeviceUtils {
 
-	public DeviceSystemUtils(Context context) {
+	public DeviceUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSystemUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceUtils.class);
 
 	private RfcxGuardian app = null;
+	
+	public SignalStrengthListener signalStrengthListener;
+	public TelephonyManager telephonyManager;
+	public SignalStrength telephonySignalStrength;
+	public LocationManager locationManager;
+	public SensorManager sensorManager;
+	
+	public Sensor lightSensor;
+	public Sensor accelSensor;
+
+	public String geolocationProviderInfo;
+	
+	public double lightSensorLastValue = Float.MAX_VALUE;
+	
+	public boolean isListenerRegistered_telephony = false;
+	public boolean isListenerRegistered_light = false;
+	public boolean isListenerRegistered_accel = false;
+	public boolean isListenerRegistered_geolocation = false;
+
+	public boolean allowListenerRegistration_telephony = true;
+	public boolean allowListenerRegistration_light = true;
+	public boolean allowListenerRegistration_accel = true;
+	public boolean allowListenerRegistration_geolocation = true;
+	public boolean allowListenerRegistration_geolocation_gps = true;
+	public boolean allowListenerRegistration_geolocation_network = true;
 	
 	public long dateTimeDiscrepancyFromSystemClock_gps = 0;
 	public long dateTimeDiscrepancyFromSystemClock_sntp = 0;
@@ -34,8 +65,9 @@ public class DeviceSystemUtils {
 	
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
-	public static final long[] geolocationMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		33, 		10 	};
-	public static final long[] geolocationMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	300,		30 	};
+	public static final long[] geolocationMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		33, 		5 	};
+	public static final long[] geolocationMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	900,		30 	};
+	public static final int geoLocationDefaultUpdateIndex = 0;
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
 
@@ -50,12 +82,16 @@ public class DeviceSystemUtils {
 		return captureCycleDuration;
 	}
 	
-	public static int getLoopsPerCaptureCycle(int audioCycleDurationInSeconds) {
+	public static int getInnerLoopsPerCaptureCycle(int audioCycleDurationInSeconds) {
 		return Math.round( getCaptureCycleDuration(audioCycleDurationInSeconds) / captureLoopIncrementFullDurationInMilliseconds );
 	}
 	
-	public static long getLoopDelayRemainder(int audioCycleDurationInSeconds) {
-		return (long) ( Math.round( getCaptureCycleDuration(audioCycleDurationInSeconds) / getLoopsPerCaptureCycle(audioCycleDurationInSeconds) ) - DeviceCPU.SAMPLE_DURATION_MILLISECONDS );
+	public static long getInnerLoopDelayRemainder(int audioCycleDurationInSeconds) {
+		return (long) ( Math.round( getCaptureCycleDuration(audioCycleDurationInSeconds) / getInnerLoopsPerCaptureCycle(audioCycleDurationInSeconds) ) - DeviceCPU.SAMPLE_DURATION_MILLISECONDS );
+	}
+	
+	public static int getOuterLoopCaptureCount(int audioCycleDurationInSeconds) {
+		return (int) ( Math.round( geolocationMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
 	}
 	
 	public static double[] generateAverageAccelValues(List<double[]> accelValues) {
@@ -110,6 +146,8 @@ public class DeviceSystemUtils {
 				dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
 				long discrepancyFromSystemClock = location.getTime()-dateTimeSourceLastSyncedAt_gps;
 				dateTimeDiscrepancyFromSystemClock_gps = discrepancyFromSystemClock;
+				
+				app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", discrepancyFromSystemClock);
 				
 				if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
 					Log.i(logTag, "Snapshot —— GeoLocation"

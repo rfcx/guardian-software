@@ -24,23 +24,24 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import guardian.api.ApiCheckInArchiveService;
 import guardian.api.ApiCheckInDb;
 import guardian.api.ApiCheckInJobService;
 import guardian.api.ApiCheckInUtils;
 import guardian.api.ApiQueueCheckInService;
+import guardian.archive.ApiCheckInArchiveService;
 import guardian.audio.capture.AudioCaptureService;
 import guardian.audio.capture.AudioCaptureUtils;
 import guardian.audio.encode.AudioEncodeDb;
 import guardian.audio.encode.AudioEncodeJobService;
 import guardian.audio.encode.AudioQueueEncodeService;
+import guardian.camera.capture.PhotoCaptureJobService;
 import guardian.device.android.SntpSyncJobService;
 import guardian.device.android.DeviceDataTransferDb;
 import guardian.device.android.DeviceRebootDb;
 import guardian.device.android.DeviceSensorDb;
 import guardian.device.android.DeviceSystemDb;
 import guardian.device.android.DeviceSystemService;
-import guardian.device.android.DeviceSystemUtils;
+import guardian.device.android.DeviceUtils;
 import guardian.device.android.ScheduledSntpSyncService;
 import guardian.receiver.ConnectivityReceiver;
 
@@ -78,7 +79,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// Misc
 	public AudioCaptureUtils audioCaptureUtils = null;
 	public ApiCheckInUtils apiCheckInUtils = null;
-	public DeviceSystemUtils deviceSystemUtils = null;
+	public DeviceUtils deviceUtils = null;
 	
 	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
 	
@@ -113,7 +114,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
 		this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
-		this.deviceSystemUtils = new DeviceSystemUtils(getApplicationContext());
+		this.deviceUtils = new DeviceUtils(getApplicationContext());
 		
 		initializeRoleServices();
 	}
@@ -170,6 +171,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
 		this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
 		this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
+		this.rfcxServiceHandler.addService("PhotoCaptureJob", PhotoCaptureJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
 		this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
 		this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);

@@ -168,8 +168,15 @@ public class ShellCommands {
 	}
 	
 	public static boolean triggerRebootAsRoot(Context context) {
+		
 		int rebootPreDelay = 2;
+		
+		System.runFinalization();
+		Runtime.getRuntime().gc();
+		System.gc();
+
 		Log.v(logTag, "Attempting graceful reboot... then after "+rebootPreDelay+" seconds, killing RFCx processes and forcing reboot...");
+		
 		executeCommandAsRoot(
 				"am start -a android.intent.action.REBOOT; "+
 				"am broadcast android.intent.action.ACTION_SHUTDOWN; "+

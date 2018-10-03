@@ -45,7 +45,7 @@ public class DeviceScreenShotCaptureService extends Service {
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 	
 	@Override

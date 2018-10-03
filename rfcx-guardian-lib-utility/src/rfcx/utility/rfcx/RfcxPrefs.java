@@ -244,10 +244,6 @@ public class RfcxPrefs {
 		if (appRole.equalsIgnoreCase("guardian")) {
 			(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, 0777);
 		}
-
-		// this may require root...
-//		String sdCardDir = (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/prefs").toString();
-//		if (!(new File(sdCardDir)).isDirectory()) { (new File(sdCardDir)).mkdirs(); FileUtils.chmod(sdCardDir, 0777); }
 		
 		return prefsDir;
 		

@@ -1,17 +1,14 @@
 package guardian.audio.capture;
 
-import java.io.IOException;
-
-import rfcx.utility.misc.FileUtils;
-import rfcx.utility.audio.RfcxAudioUtils;
-import rfcx.utility.rfcx.RfcxLog;
-
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import guardian.RfcxGuardian;
+import rfcx.utility.audio.RfcxAudioUtils;
+import rfcx.utility.misc.FileUtils;
+import rfcx.utility.rfcx.RfcxLog;
 
 public class AudioCaptureService extends Service {
 
@@ -23,6 +20,10 @@ public class AudioCaptureService extends Service {
 	
 	private boolean runFlag = false;
 	private AudioCaptureSvc audioCaptureSvc;
+
+	private int audioCycleDuration = 0; 
+	private long loopQuarterDuration = 0;
+	private int audioSampleRate = 0;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -47,7 +48,7 @@ public class AudioCaptureService extends Service {
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 
 	@Override
@@ -81,44 +82,44 @@ public class AudioCaptureService extends Service {
 			
 			AudioCaptureWavRecorder wavRecorder = null;
 
-			int audioSampleRate = 0;
-			int audioCycleDuration = 0;
 			long captureTimeStamp = 0; // timestamp of beginning of audio clip
 				
 			while (audioCaptureService.runFlag) {
 				
 				try {
 					
-					if (app.audioCaptureUtils.isAudioCaptureAllowed()) {
-						
-						if (		(app.rfcxPrefs.getPrefAsInt("audio_sample_rate") != audioSampleRate)
-							||	((app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000) != audioCycleDuration)
-							) {
+					if (confirmOrSetAudioCaptureParameters() && app.audioCaptureUtils.isAudioCaptureAllowed()) {
 							
-							audioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
-							audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000;
-							
-							Log.d(logTag, (new StringBuilder()).append("Audio Capture Params: ").append(Math.round(audioCycleDuration/1000)).append(" seconds, ").append(audioSampleRate).append(" Hz").toString());
-						}
-					
 						if (wavRecorder == null) {
+							// in this case, we are starting the audio capture from a stopped/pre-initialized state
 							captureTimeStamp = System.currentTimeMillis();
 							wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
 							wavRecorder.startRecorder();
 						} else {
+							// in this case, we are just taking a snapshot and moving capture output to a new file
+							// ( !!! THIS STILL NEEDS TO BE OPTIMIZED TO AVOID CAPTURE DOWNTIME !!! )
+							// Look in AudioCaptureWavRecorder for optimization...
 							captureTimeStamp = System.currentTimeMillis();
 							wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
 						}
-
-						if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
-							app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueueEncode");
-						}
+							
+					} else if (wavRecorder != null) {
+						// in this case, we assume that the state has changed and capture is no longer allowed... 
+						// ...but there is a capture in progress, so we take a snapshot and halt the recorder.
+						captureTimeStamp = 0;
+						wavRecorder.haltRecording();
+						wavRecorder = null;
+						Log.i(logTag, "Stopping audio capture.");
+					}
 						
+					// queueing the last capture file for encoding, if there is one
+					if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
+						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueueEncode");
 					}
 					
 					for (int loopQuarterIteration = 0; loopQuarterIteration < 4; loopQuarterIteration++) {
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-						Thread.sleep( (long) Math.round( audioCycleDuration / 4 ) );
+						Thread.sleep(loopQuarterDuration);
 					}
 					
 				} catch (Exception e) {
@@ -134,6 +135,34 @@ public class AudioCaptureService extends Service {
 			Log.v(logTag, "Stopping service: "+logTag);
 				
 		}
+	}
+	
+	private boolean confirmOrSetAudioCaptureParameters() {
+		
+		if (app != null) {
+
+			int prefsAudioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
+			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+			
+			if (		(this.audioSampleRate != prefsAudioSampleRate)
+				||	(this.audioCycleDuration != prefsAudioCycleDuration)
+				) {
+
+				this.audioSampleRate = prefsAudioSampleRate;
+				this.audioCycleDuration = prefsAudioCycleDuration;
+				loopQuarterDuration = (long) Math.round( (prefsAudioCycleDuration * 1000) / 4 );
+				
+				Log.d(logTag, (new StringBuilder())
+						.append("Audio Capture Params: ")
+						.append(prefsAudioCycleDuration).append(" seconds, ")
+						.append(Math.round(prefsAudioSampleRate/1000)).append(" kHz").toString());
+			}
+			
+		} else {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	

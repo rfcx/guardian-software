@@ -37,6 +37,15 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	
 	private boolean runFlag = false;
 	private DeviceSystemSvc deviceSystemSvc;
+	
+	private int audioCycleDuration = 1; 
+	
+	private int innerLoopIncrement = 0;
+	private int innerLoopsPerCaptureCycle = 1;
+	private long innerLoopDelayRemainderInMilliseconds = 0;
+	
+	private int outerLoopIncrement = 0;
+	private int outerLoopCaptureCount = 0;
 
 	private SignalStrengthListener signalStrengthListener;
 	private TelephonyManager telephonyManager;
@@ -85,10 +94,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			this.allowListenerRegistration_geolocation_network = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 			if (this.allowListenerRegistration_geolocation_gps) {
 				this.geolocationProviderInfo = LocationManager.GPS_PROVIDER;
-				Log.d(logTag, "GeoLocation possible via GPS.");
+				Log.d(logTag, "GeoLocation will be provided via GPS.");
 			} else if (this.allowListenerRegistration_geolocation_network) {
 				this.geolocationProviderInfo = LocationManager.NETWORK_PROVIDER;
-				Log.d(logTag, "GeoLocation possible via Mobile Network.");
+				Log.d(logTag, "GeoLocation will be provided via Mobile Network.");
 			}
 		}
 	}
@@ -120,7 +129,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 	
 	@Override
@@ -134,6 +143,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		unRegisterListener("light");
 		unRegisterListener("telephony");
 		unRegisterListener("geolocation");
+		unRegisterListener("accel");
 	}
 	
 	
@@ -148,50 +158,33 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			DeviceSystemService deviceSystemService = DeviceSystemService.this;
 
 			app = (RfcxGuardian) getApplication();
-
-			int loopIncrement = 0;
-			int audioCycleDuration = 1;
-			int loopsPerCaptureCycle = 1;
-			long loopDelayRemainderInMilliseconds = 0;
 			
 			while (deviceSystemService.runFlag) {
 				
 				try {
 					
-					if ( (loopIncrement == 0) && (audioCycleDuration != app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")) ) {
-						
-						audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
-						loopsPerCaptureCycle = DeviceSystemUtils.getLoopsPerCaptureCycle(audioCycleDuration);
-						app.deviceCPU.setReportingSampleCount(loopsPerCaptureCycle);
-						loopDelayRemainderInMilliseconds = DeviceSystemUtils.getLoopDelayRemainder(audioCycleDuration);
-						
-						Log.d(logTag, "SystemStats Capture: Snapshots every "+Math.round(DeviceSystemUtils.getCaptureCycleDuration(audioCycleDuration)/1000)+" seconds.");
-					}
+					confirmOrSetSystemCaptureParameters();
 					
 					// Sample CPU Stats
 					app.deviceCPU.update();
 					
-					// Sample Accelerometer Stats
-					triggerOrSkipSensorListenerToggle(loopIncrement, loopsPerCaptureCycle);
+					// Sample Inner Loop Stats (Accelerometer)
+					innerLoopIncrement = triggerOrSkipInnerLoopSensorMeasurement(innerLoopIncrement, innerLoopsPerCaptureCycle);
 					
-					// Increment Recording Loop Counter
-					loopIncrement++;
-					
-					if (loopIncrement < loopsPerCaptureCycle) {
+					if (innerLoopIncrement < innerLoopsPerCaptureCycle) {
 						
-						Thread.sleep(loopDelayRemainderInMilliseconds);
+						Thread.sleep(innerLoopDelayRemainderInMilliseconds);
 						
 					} else {
 
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-						loopIncrement = 0;
+
+						// Sample Outer Loop Stats (GeoLocation)
+						outerLoopIncrement = triggerOrSkipOuterLoopSensorMeasurements(outerLoopIncrement, outerLoopCaptureCount);
 						
 						// capture and cache cpu usage info
 						cpuUsageValues.add(app.deviceCPU.getCurrentStats());
 						saveSnapshotValuesToDatabase("cpu");
-
-						// cache accelerometer sensor data
-						saveSnapshotValuesToDatabase("accel");
 						
 						// capture and cache light sensor data
 						cacheSnapshotValues("light", new double[] { lightSensorLastValue } );
@@ -207,7 +200,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 						// capture and cache battery level info
 						batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
-						saveSnapshotValuesToDatabase("battery");
+						saveSnapshotValuesToDatabase("battery"); 
+
+						// cache accelerometer sensor data
+						saveSnapshotValuesToDatabase("accel");
 						
 						// cache geo location info
 						saveSnapshotValuesToDatabase("geolocation");
@@ -223,19 +219,73 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		}		
 	}
 	
-	private void triggerOrSkipSensorListenerToggle(int loopIncrement, int loopsPerCaptureCycle) {
+	
+	private boolean confirmOrSetSystemCaptureParameters() {
 		
-		int halfLoopsBetweenAccelSensorToggle = Math.round( loopsPerCaptureCycle / ( DeviceSystemUtils.accelSensorSnapshotsPerCaptureCycle * 2 ) );
+		if (app != null) {
+
+			if (innerLoopIncrement == 0) {
+				
+				int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+				
+				if (this.audioCycleDuration != prefsAudioCycleDuration) {
+			
+					this.audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+					this.innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsAudioCycleDuration);
+					this.outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsAudioCycleDuration);
+					app.deviceCPU.setReportingSampleCount(this.innerLoopsPerCaptureCycle);
+					this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsAudioCycleDuration);
+					
+					Log.d(logTag, (new StringBuilder())
+							.append("SystemStats Capture: ")
+							.append("Snapshots (all metrics) taken every ").append(Math.round(DeviceUtils.getCaptureCycleDuration(prefsAudioCycleDuration)/1000)).append(" seconds.")
+							.toString());
+				}
+			}
+			
+		} else {
+			return false;
+		}
 		
-		for (int i = 0; i < ( DeviceSystemUtils.accelSensorSnapshotsPerCaptureCycle * 2 ); i++) {
-			if (loopIncrement == (i * 2 * halfLoopsBetweenAccelSensorToggle)) { 
+		return true;
+	}
+	
+	private int triggerOrSkipInnerLoopSensorMeasurement(int innerLoopIncrement, int innerLoopsPerCaptureCycle) {
+		
+		innerLoopIncrement++;
+		if (innerLoopIncrement > innerLoopsPerCaptureCycle) { innerLoopIncrement = 0; }
+
+		int halfLoopsBetweenAccelSensorToggle = Math.round( innerLoopsPerCaptureCycle / ( DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2 ) );
+		
+		for (int i = 0; i < ( DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2 ); i++) {
+			if (innerLoopIncrement == (i * 2 * halfLoopsBetweenAccelSensorToggle)) { 
 				registerListener("accel");
 				break;
-			} else if (loopIncrement == (i * halfLoopsBetweenAccelSensorToggle)) {
+			} else if (innerLoopIncrement == (i * halfLoopsBetweenAccelSensorToggle)) {
 				unRegisterListener("accel");
 				break;
 			}
 		}
+		
+		return innerLoopIncrement;
+		
+	}
+	
+	private int triggerOrSkipOuterLoopSensorMeasurements(int outerLoopIncrement, int outerLoopCaptureCount) {
+		
+		outerLoopIncrement++;
+		
+		if (outerLoopIncrement >= outerLoopCaptureCount) { outerLoopIncrement = 0; }
+		
+		if (outerLoopIncrement == 1) {			
+			Log.e(logTag, "RUNNING OUTER LOOP LOGIC...");
+			cacheSnapshotValues("geolocation", app.deviceUtils.getParsedGeoLocation(this.locationManager.getLastKnownLocation(this.geolocationProviderInfo)) );
+//			registerListener("geolocation");	
+		} else {
+//			unRegisterListener("geolocation");	
+		}
+		
+		return outerLoopIncrement;
 	}
 	
 	
@@ -247,7 +297,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				double[] accelArray = new double[] { (double) System.currentTimeMillis(), vals[0], vals[1], vals[2], 0 };
 				
 				this.accelSensorValues.add(accelArray);
-				if (this.app != null) { this.app.deviceSystemUtils.addAccelSensorSnapshotEntry(accelArray); }
+				if (this.app != null) { this.app.deviceUtils.addAccelSensorSnapshotEntry(accelArray); }
 			}
 			
 		} else if (sensorAbbrev.equalsIgnoreCase("light")) {
@@ -323,12 +373,13 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				if (!this.geolocationProviderInfo.isEmpty()) {
 					this.locationManager.requestLocationUpdates(
 									this.geolocationProviderInfo, 
-									DeviceSystemUtils.geolocationMinTimeElapsedBetweenUpdatesInSeconds[1] * 1000, 
-									DeviceSystemUtils.geolocationMinDistanceChangeBetweenUpdatesInMeters[1], 
+									DeviceUtils.geolocationMinTimeElapsedBetweenUpdatesInSeconds[DeviceUtils.geoLocationDefaultUpdateIndex] * 1000, 
+									DeviceUtils.geolocationMinDistanceChangeBetweenUpdatesInMeters[DeviceUtils.geoLocationDefaultUpdateIndex], 
 									this);
-					cacheSnapshotValues("geolocation", app.deviceSystemUtils.getParsedGeoLocation(this.locationManager.getLastKnownLocation(this.geolocationProviderInfo)) );
+					this.isListenerRegistered_geolocation = true;
+				} else {
+					Log.e(logTag, "Couldn't register geolocation listener...");
 				}
-				this.isListenerRegistered_geolocation = true;
 			}
 			
 		} else {
@@ -339,27 +390,27 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	
 	private void unRegisterListener(String sensorAbbrev) {
 		
-		if (sensorAbbrev.equalsIgnoreCase("accel") && (this.accelSensor != null)) { 
-			if (this.isListenerRegistered_accel) {
+		if (sensorAbbrev.equalsIgnoreCase("accel")) { 
+			if (this.isListenerRegistered_accel && (this.accelSensor != null)) {
 				this.sensorManager.unregisterListener(this, this.accelSensor);
 				this.isListenerRegistered_accel = false;
-				if (this.app != null) { this.app.deviceSystemUtils.processAccelSensorSnapshot(); }
+				if (this.app != null) { this.app.deviceUtils.processAccelSensorSnapshot(); }
 			}
 			
-		} else if (sensorAbbrev.equalsIgnoreCase("light") && (this.lightSensor != null)) { 
-			if (this.isListenerRegistered_light) {
+		} else if (sensorAbbrev.equalsIgnoreCase("light")) { 
+			if (this.isListenerRegistered_light && (this.lightSensor != null)) {
 				this.sensorManager.unregisterListener(this, this.lightSensor); 
 				this.isListenerRegistered_light = false;
 			}
 			
-		} else if (sensorAbbrev.equalsIgnoreCase("telephony") && (this.telephonyManager != null)) { 
-			if (this.isListenerRegistered_telephony) {
+		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) { 
+			if (this.isListenerRegistered_telephony && (this.telephonyManager != null)) {
 				this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE); 
 				this.isListenerRegistered_telephony = false;
 			}
 			
-		} else if (sensorAbbrev.equalsIgnoreCase("geolocation") && (this.locationManager != null)) { 
-			if (this.isListenerRegistered_geolocation) {
+		} else if (sensorAbbrev.equalsIgnoreCase("geolocation")) { 
+			if (this.isListenerRegistered_geolocation && (this.locationManager != null)) {
 				this.locationManager.removeUpdates(this);
 				this.isListenerRegistered_geolocation = false;
 			}
@@ -396,7 +447,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				List<double[]> accelSensorValuesCache = this.accelSensorValues;
 				this.accelSensorValues = new ArrayList<double[]>();
 				
-				double[] accelSensorAverages = DeviceSystemUtils.generateAverageAccelValues(accelSensorValuesCache);
+				double[] accelSensorAverages = DeviceUtils.generateAverageAccelValues(accelSensorValuesCache);
 				
 				if (accelSensorAverages[4] > 0) {
 					app.deviceSensorDb.dbAccelerometer.insert(
@@ -504,8 +555,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	
 	@Override
 	public void onLocationChanged(Location location) {
-		
-		cacheSnapshotValues("geolocation", app.deviceSystemUtils.getParsedGeoLocation(location) );
+		if (app != null) {
+			cacheSnapshotValues("geolocation", app.deviceUtils.getParsedGeoLocation(location) );
+		}
 	}
 
 	@Override

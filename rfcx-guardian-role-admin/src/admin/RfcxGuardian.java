@@ -5,7 +5,8 @@ import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceConnectivity;
 import rfcx.utility.device.DeviceI2cUtils;
 import rfcx.utility.device.control.DeviceAirplaneMode;
-import rfcx.utility.device.hardware.DeviceHardware_Huawei_IDEOS_8150;
+import rfcx.utility.device.hardware.DeviceHardwareUtils;
+import rfcx.utility.device.hardware.DeviceHardware_Huawei_U8150;
 import rfcx.utility.rfcx.RfcxDeviceGuid;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxPrefs;
@@ -18,8 +19,8 @@ import admin.device.android.capture.DeviceScreenShotDb;
 import admin.device.android.capture.DeviceScreenShotCaptureService;
 import admin.device.android.capture.ScheduledLogCatCaptureService;
 import admin.device.android.capture.ScheduledScreenShotCaptureService;
-import admin.device.android.control.AirplaneModeOffJobService;
-import admin.device.android.control.AirplaneModeOnJobService;
+import admin.device.android.control.AirplaneModeToggleService;
+import admin.device.android.control.AirplaneModeEnableService;
 import admin.device.android.control.ScheduledRebootService;
 import admin.device.android.control.DateTimeSntpSyncJobService;
 import admin.device.android.control.ForceRoleRelaunchService;
@@ -92,7 +93,9 @@ public class RfcxGuardian extends Application {
 		initializeRoleServices();
 		
 		// fix GPS functionality for the Huawei phones
-		DeviceHardware_Huawei_IDEOS_8150.checkOrResetGPSFunctionality(this);
+		if (DeviceHardware_Huawei_U8150.isDevice_Huawei_U8150()) {
+			DeviceHardware_Huawei_U8150.checkOrResetGPSFunctionality(this);
+		}
 		
 	}
 	
@@ -151,8 +154,8 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);
 		this.rfcxServiceHandler.addService("ScheduledReboot", ScheduledRebootService.class);
-		this.rfcxServiceHandler.addService("AirplaneModeOffJob", AirplaneModeOffJobService.class);
-		this.rfcxServiceHandler.addService("AirplaneModeOnJob", AirplaneModeOnJobService.class);
+		this.rfcxServiceHandler.addService("AirplaneModeToggle", AirplaneModeToggleService.class);
+		this.rfcxServiceHandler.addService("AirplaneModeEnable", AirplaneModeEnableService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);

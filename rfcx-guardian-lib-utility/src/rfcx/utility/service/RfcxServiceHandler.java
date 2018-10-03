@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -125,9 +126,16 @@ public class RfcxServiceHandler {
 		} else { 
 			try {
 				this.context.stopService(new Intent(this.context, svcClasses.get(svcId)));
+				Log.i(logTag, (new StringBuilder()).append("Stopped Service '").append(svcToStop).append("'").toString());
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			}
+		}
+	}	
+	
+	public void stopAllServices() {
+		for (Entry svcEntry : this.svcClasses.entrySet()) {
+			stopService(svcEntry.getKey().toString());
 		}
 	}	
 	

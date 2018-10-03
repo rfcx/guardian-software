@@ -61,10 +61,10 @@ public class AudioCaptureUtils {
 		
 		if (verifiedOrUpdatedSampleRate != originalSampleRate) {
 			app.rfcxPrefs.setPref("audio_sample_rate", verifiedOrUpdatedSampleRate);
-			Log.e(logTag, "Audio capture sample rate of "+originalSampleRate+" Hz not supported. Sample rate updated to "+verifiedOrUpdatedSampleRate+" Hz.");
+			Log.e(logTag, "Audio capture sample rate of "+Math.round(originalSampleRate/1000)+" kHz not supported. Sample rate updated to "+Math.round(verifiedOrUpdatedSampleRate/1000)+" kHz.");
 		}
 		
-		Log.v(logTag, "Hardware support verified for audio capture sample rate of "+verifiedOrUpdatedSampleRate+" Hz.");
+		Log.v(logTag, "Hardware support verified for audio capture sample rate of "+Math.round(verifiedOrUpdatedSampleRate/1000)+" kHz.");
 		
 	}
 	
@@ -94,29 +94,40 @@ public class AudioCaptureUtils {
 		
 		boolean limitBasedOnBatteryLevel = (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery"));
 		boolean limitBasedOnTimeOfDay = (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_schedule_off_hours"));
-		boolean limitBasedOnAvailableDiskSpace = !isAvailableDiskSpaceSufficientForCapture();
+		boolean limitBasedOnExternalStorage = !FileUtils.isExternalStorageAvailable();
 		boolean limitBasedOnLackOfHardwareSupport = !this.isAudioCaptureHardwareSupported;
 		
-		if (limitBasedOnTimeOfDay) {
-			Log.e(logTag, "AudioCapture not allowed due to current time of day/night"
-					+" (off hours: '"+app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")+"'.");
+		if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) {
 			
-		} else if (limitBasedOnBatteryLevel) {
-			Log.e(logTag, "AudioCapture not allowed due to low battery level"
-				+" (current: "+this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)+"%, required: "+this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")+"%).");
-		
-		} else if (limitBasedOnAvailableDiskSpace) {
-			Log.e(logTag, "AudioCapture not allowed due to low available internal disk space"
-					+" (current: "+DeviceDiskUsage.getInternalDiskFreeMegaBytes()+"MB, required: "+requiredAvailableInternalDiskSpace+"MB).");
+			String msgNoCapture = null;
 			
-		} else if (limitBasedOnLackOfHardwareSupport) {
-			Log.e(logTag, "AudioCapture not allowed due to lack of hardware support for capture sample rate: "+app.rfcxPrefs.getPrefAsInt("audio_sample_rate")+" Hz.");
+			if (limitBasedOnTimeOfDay) {
+				msgNoCapture = "current time of day/night"
+							+" (off hours: '"+app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")+"'.";
+				
+			} else if (limitBasedOnBatteryLevel) {
+				msgNoCapture = "low battery level"
+							+" (current: "+this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)+"%,"
+							+" required: "+this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")+"%).";
+			
+			} else if (limitBasedOnExternalStorage) {
+				msgNoCapture = "a lack of external storage."
+						/*	+" (current: "+DeviceDiskUsage.getInternalDiskFreeMegaBytes()+"MB,"
+							+" required: "+requiredAvailableInternalDiskSpace+"MB)."*/;
+				
+			} else if (limitBasedOnLackOfHardwareSupport) {
+				msgNoCapture = "lack of hardware support for capture sample rate: "
+							+Math.round(app.rfcxPrefs.getPrefAsInt("audio_sample_rate")/1000)+" kHz.";
+				
+			}
+			
+			if (msgNoCapture != null) { Log.d(logTag, DateTimeUtils.getDateTime()+" - AudioCapture not allowed due to "+msgNoCapture); }
 			
 		}
 		
 		return 		!limitBasedOnTimeOfDay 
 				&& 	!limitBasedOnBatteryLevel 
-				&& 	!limitBasedOnAvailableDiskSpace 
+				&& 	!limitBasedOnExternalStorage 
 				&& 	!limitBasedOnLackOfHardwareSupport;
 	}
 	

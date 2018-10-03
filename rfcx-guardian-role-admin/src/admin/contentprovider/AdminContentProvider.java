@@ -62,13 +62,13 @@ public class AdminContentProvider extends ContentProvider {
 				app.rfcxServiceHandler.triggerService("LogCatCapture", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "logcat", null, System.currentTimeMillis() });
 			
-			} else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_off")) {
-				app.rfcxServiceHandler.triggerService("AirplaneModeOffJob", true);
-				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "airplanemode_off", null, System.currentTimeMillis() });
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_toggle")) {
+				app.rfcxServiceHandler.triggerService("AirplaneModeToggle", true);
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "airplanemode_toggle", null, System.currentTimeMillis() });
 			
-			} else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_on")) {
-				app.rfcxServiceHandler.triggerService("AirplaneModeOnJob", true);
-				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "airplanemode_on", null, System.currentTimeMillis() });
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_enable")) {
+				app.rfcxServiceHandler.triggerService("AirplaneModeEnable", true);
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[] { "airplanemode_enable", null, System.currentTimeMillis() });
 				
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "datetime_sntp_sync")) {
 				app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);

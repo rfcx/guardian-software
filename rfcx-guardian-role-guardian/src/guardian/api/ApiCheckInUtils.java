@@ -265,8 +265,8 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("datetime", TextUtils.join("|", new String[] { 
 										"system*"+System.currentTimeMillis(),
 										"timezone*"+DateTimeUtils.getTimeZoneOffset(),
-										"sntp*"+app.deviceSystemUtils.dateTimeDiscrepancyFromSystemClock_sntp+"*"+app.deviceSystemUtils.dateTimeSourceLastSyncedAt_sntp,
-										"gps*"+app.deviceSystemUtils.dateTimeDiscrepancyFromSystemClock_gps+"*"+app.deviceSystemUtils.dateTimeSourceLastSyncedAt_gps
+										"sntp*"+app.deviceUtils.dateTimeDiscrepancyFromSystemClock_sntp+"*"+app.deviceUtils.dateTimeSourceLastSyncedAt_sntp,
+										"gps*"+app.deviceUtils.dateTimeDiscrepancyFromSystemClock_gps+"*"+app.deviceUtils.dateTimeSourceLastSyncedAt_gps
 									}));
 
 		// Adding messages to JSON blob
@@ -488,7 +488,7 @@ public class ApiCheckInUtils implements MqttCallback {
 						} else if (!app.deviceConnectivity.isConnected()) {
 							Log.d(logTag, "ToggleCheck: Airplane Mode (" + toggleThreshold
 									+ " minutes since last successful CheckIn)");
-							app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_off",
+							app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle",
 									app.getApplicationContext().getContentResolver());
 						}
 						break;

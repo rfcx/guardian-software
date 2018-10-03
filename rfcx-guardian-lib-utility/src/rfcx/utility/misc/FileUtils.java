@@ -358,35 +358,66 @@ public class FileUtils {
 		return currentAppFilesDir.substring(0, currentAppFilesDir.indexOf("org.rfcx.guardian."));
 	}
 	
-    public boolean isExternalStorageAvailable() {
+    public static boolean isExternalStorageAvailable() {
+    	
+    		int requiredFreeMegaBytes = 16;
 
-        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
-        double sdAvailSize = (double) stat.getAvailableBlocks() * (double) stat.getBlockSize();
+        StatFs extDiskStat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+        double extDiskAvailSize = (double) extDiskStat.getAvailableBlocks() * (double) extDiskStat.getBlockSize();
         // One binary gigabyte equals 1,073,741,824 bytes.
-        double mbAvailable = sdAvailSize / 1048576;
+        double mbAvailable = extDiskAvailSize / 1048576;
 
-        String state = Environment.getExternalStorageState();
-        boolean mExternalStorageAvailable = false;
-        boolean mExternalStorageWriteable = false;
+        String extDiskState = Environment.getExternalStorageState();
+        boolean extDiskIsAvailable = false;
+        boolean extDiskIsWriteable = false;
 
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
+        if (Environment.MEDIA_MOUNTED.equals(extDiskState)) {
             // We can read and write the media
-            mExternalStorageAvailable = mExternalStorageWriteable = true;
-        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            extDiskIsAvailable = extDiskIsWriteable = true;
+        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(extDiskState)) {
             // We can only read the media
-            mExternalStorageAvailable = true;
-            mExternalStorageWriteable = false;
+            extDiskIsAvailable = true;
+            extDiskIsWriteable = false;
         } else {
             // Something else is wrong. It may be one of many other states, but all we need
             // to know is we can neither read nor write
-            mExternalStorageAvailable = mExternalStorageWriteable = false;
+            extDiskIsAvailable = extDiskIsWriteable = false;
         }
 
-        if (mExternalStorageAvailable == true && mExternalStorageWriteable == true && mbAvailable > 10) {
-            return true;
-        } else {
-            return false;
-        }
+        return extDiskIsAvailable && extDiskIsWriteable && (mbAvailable >= requiredFreeMegaBytes);
+        
     }
+    
+    public static boolean isInternalStorageAvailable() {
+    	
+		int requiredFreeMegaBytes = 16;
+		
+		return true;
+
+//	    StatFs intDiskStat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+//	    double intDiskAvailSize = (double) intDiskStat.getAvailableBlocks() * (double) intDiskStat.getBlockSize();
+//	    // One binary gigabyte equals 1,073,741,824 bytes.
+//	    double mbAvailable = intDiskAvailSize / 1048576;
+//	
+//	    String intDiskState = Environment.getExternalStorageState();
+//	    boolean intDiskIsAvailable = false;
+//	    boolean intDiskIsWriteable = false;
+//	
+//	    if (Environment.MEDIA_MOUNTED.equals(intDiskState)) {
+//	        // We can read and write the media
+//	        intDiskIsAvailable = intDiskIsWriteable = true;
+//	    } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(intDiskState)) {
+//	        // We can only read the media
+//	        intDiskIsAvailable = true;
+//	        intDiskIsWriteable = false;
+//	    } else {
+//	        // Something else is wrong. It may be one of many other states, but all we need
+//	        // to know is we can neither read nor write
+//	        intDiskIsAvailable = intDiskIsWriteable = false;
+//	    }
+//	
+//	    return intDiskIsAvailable && intDiskIsWriteable && (mbAvailable >= requiredFreeMegaBytes);
+	    
+	}
 	
 }
