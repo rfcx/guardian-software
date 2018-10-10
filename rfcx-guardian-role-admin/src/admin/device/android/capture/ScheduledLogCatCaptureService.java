@@ -12,7 +12,7 @@ public class ScheduledLogCatCaptureService extends IntentService {
 	
 	private static final String SERVICE_NAME = "ScheduledLogCatCapture";
 	
-	public static final long SCHEDULED_LOGCAT_CYCLE_DURATION = ( 45 * 60 * 1000 ); // every 45 minutes
+	public static final long SCHEDULED_LOGCAT_CYCLE_DURATION = ( 20 * 60 * 1000 ); // every 20 minutes
 		
 	public ScheduledLogCatCaptureService() {
 		super(logTag);
