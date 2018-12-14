@@ -61,7 +61,7 @@
         android:title="reboot_forced_daily_at"
         android:summary="string - time"
         android:enabled="true"
-        android:defaultValue="23:55:00" />
+        android:defaultValue="23:54:00" />
  	
  	<!-- Audio Capture Controls -->
  	

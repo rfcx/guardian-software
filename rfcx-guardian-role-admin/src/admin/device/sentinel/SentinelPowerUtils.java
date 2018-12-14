@@ -16,15 +16,15 @@ import android.util.Log;
 import rfcx.utility.device.DeviceI2cUtils;
 import rfcx.utility.rfcx.RfcxLog;
 
-public class DeviceSentinelPowerUtils {
+public class SentinelPowerUtils {
 
-	public DeviceSentinelPowerUtils(Context context) {
+	public SentinelPowerUtils(Context context) {
 		
 		this.deviceI2cUtils = new DeviceI2cUtils(context, sentinelPowerI2cMainAddress);
 		initSentinelPowerI2cOptions();
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSentinelPowerUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SentinelPowerUtils.class);
 	
 	private DeviceI2cUtils deviceI2cUtils = null;
 	private static final String sentinelPowerI2cMainAddress = "0x68";
@@ -126,9 +126,9 @@ public class DeviceSentinelPowerUtils {
 		JSONArray powerJsonArray = new JSONArray();
 		try {
 			JSONObject powerJson = new JSONObject();
-			powerJson.put("battery", app.deviceSentinelPowerDb.dbSentinelPowerBattery.getConcatRows());
-			powerJson.put("input", app.deviceSentinelPowerDb.dbSentinelPowerInput.getConcatRows());
-			powerJson.put("system", app.deviceSentinelPowerDb.dbSentinelPowerSystem.getConcatRows());
+			powerJson.put("battery", app.sentinelPowerDb.dbSentinelPowerBattery.getConcatRows());
+			powerJson.put("input", app.sentinelPowerDb.dbSentinelPowerInput.getConcatRows());
+			powerJson.put("system", app.sentinelPowerDb.dbSentinelPowerSystem.getConcatRows());
 			powerJsonArray.put(powerJson);
 			
 		} catch (Exception e) {
@@ -145,9 +145,9 @@ public class DeviceSentinelPowerUtils {
 		
 		Date clearBefore = new Date(Long.parseLong(timeStamp));
 	
-		app.deviceSentinelPowerDb.dbSentinelPowerBattery.clearRowsBefore(clearBefore);
-		app.deviceSentinelPowerDb.dbSentinelPowerInput.clearRowsBefore(clearBefore);
-		app.deviceSentinelPowerDb.dbSentinelPowerSystem.clearRowsBefore(clearBefore);
+		app.sentinelPowerDb.dbSentinelPowerBattery.clearRowsBefore(clearBefore);
+		app.sentinelPowerDb.dbSentinelPowerInput.clearRowsBefore(clearBefore);
+		app.sentinelPowerDb.dbSentinelPowerSystem.clearRowsBefore(clearBefore);
 		
 		return 1;
 	}
@@ -162,11 +162,11 @@ public class DeviceSentinelPowerUtils {
 			String[] vals = getCurrentValues(groupName);
 			if (vals != null) {
 				if (groupName.equals("battery")) { 
-					app.deviceSentinelPowerDb.dbSentinelPowerBattery.insert(new Date(), vals[0], vals[1], vals[2], vals[3]);
+					app.sentinelPowerDb.dbSentinelPowerBattery.insert(new Date(), vals[0], vals[1], vals[2], vals[3]);
 				} else if (groupName.equals("input")) { 
-					app.deviceSentinelPowerDb.dbSentinelPowerInput.insert(new Date(), vals[0], vals[1], vals[2], vals[3]);
+					app.sentinelPowerDb.dbSentinelPowerInput.insert(new Date(), vals[0], vals[1], vals[2], vals[3]);
 				} else if (groupName.equals("system")) { 
-					app.deviceSentinelPowerDb.dbSentinelPowerSystem.insert(new Date(), vals[0], vals[1], vals[2], vals[3]);
+					app.sentinelPowerDb.dbSentinelPowerSystem.insert(new Date(), vals[0], vals[1], vals[2], vals[3]);
 				}
 				
 				if (printValuesToLog) {

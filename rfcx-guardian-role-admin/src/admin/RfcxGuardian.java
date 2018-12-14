@@ -26,8 +26,8 @@ import admin.device.android.control.DateTimeSntpSyncJobService;
 import admin.device.android.control.ForceRoleRelaunchService;
 import admin.device.android.control.RebootTriggerJobService;
 import admin.device.sentinel.DeviceSentinelService;
-import admin.device.sentinel.DeviceSentinelPowerDb;
-import admin.device.sentinel.DeviceSentinelPowerUtils;
+import admin.device.sentinel.SentinelPowerDb;
+import admin.device.sentinel.SentinelPowerUtils;
 import admin.receiver.AirplaneModeReceiver;
 import admin.receiver.ConnectivityReceiver;
 import android.app.Application;
@@ -50,9 +50,9 @@ public class RfcxGuardian extends Application {
 	
 	public DeviceScreenShotDb deviceScreenShotDb = null;
 	public DeviceLogCatDb deviceLogCatDb = null;
-	public DeviceSentinelPowerDb deviceSentinelPowerDb = null;
+	public SentinelPowerDb sentinelPowerDb = null;
 	
-	public DeviceSentinelPowerUtils deviceSentinelPowerUtils = null;
+	public SentinelPowerUtils sentinelPowerUtils = null;
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -88,7 +88,7 @@ public class RfcxGuardian extends Application {
 		DeviceI2cUtils.resetI2cPermissions(this);
 		DateTimeUtils.resetDateTimeReadWritePermissions(this);
 		
-		this.deviceSentinelPowerUtils = new DeviceSentinelPowerUtils(this);
+		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		
 		initializeRoleServices();
 		
@@ -145,7 +145,7 @@ public class RfcxGuardian extends Application {
 	
 	private void setDbHandlers() {
 		
-		this.deviceSentinelPowerDb = new DeviceSentinelPowerDb(this, this.version);
+		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
 		this.deviceLogCatDb = new DeviceLogCatDb(this, this.version);
 	}

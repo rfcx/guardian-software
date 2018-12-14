@@ -94,11 +94,13 @@ public class AudioEncodeJobService extends Service {
 						
 						if (!preEncodeFile.exists()) {
 							
+							Log.d(logTag, (new StringBuilder()).append("Skipping AudioEncodeJob ").append(latestQueuedAudioToEncode[1]).append(" because input audio file could not be found.").toString());
+							
 							app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(latestQueuedAudioToEncode[1]);
 							
 						} else if (((int) Integer.parseInt(latestQueuedAudioToEncode[10])) >= prefsEncodeSkipThreshold) {
 							
-							Log.d(logTag, (new StringBuilder()).append("Skipping AudioEncodeJob ").append(latestQueuedAudioToEncode[1]).append(" after ").append(prefsEncodeSkipThreshold).append(" failed attempts").toString());
+							Log.d(logTag, (new StringBuilder()).append("Skipping AudioEncodeJob ").append(latestQueuedAudioToEncode[1]).append(" after ").append(prefsEncodeSkipThreshold).append(" failed attempts.").toString());
 							
 							app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(latestQueuedAudioToEncode[1]);
 							if (preEncodeFile.exists()) { preEncodeFile.delete(); }
@@ -106,7 +108,9 @@ public class AudioEncodeJobService extends Service {
 						} else {
 								
 							Log.i(logTag, (new StringBuilder()).append("Beginning Encode: ").append(latestQueuedAudioToEncode[1]).append(" ").append(latestQueuedAudioToEncode[2]).append("=>").append(latestQueuedAudioToEncode[6]).toString());
-						
+
+							app.audioEncodeDb.dbEncodeQueue.incrementSingleRowAttempts(latestQueuedAudioToEncode[1]);
+							
 							File postEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PostEncode(context, (long) Long.parseLong(latestQueuedAudioToEncode[1]),latestQueuedAudioToEncode[6]));
 							File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(app.rfcxDeviceGuid.getDeviceGuid(), context, (long) Long.parseLong(latestQueuedAudioToEncode[1]),RfcxAudioUtils.getFileExtension(latestQueuedAudioToEncode[6])));
 
@@ -128,11 +132,7 @@ public class AudioEncodeJobService extends Service {
 
 							long encodeDuration = (System.currentTimeMillis() - encodeStartTime);
 
-							if (encodeBitRate < 0) {
-
-								app.audioEncodeDb.dbEncodeQueue.incrementSingleRowAttempts(latestQueuedAudioToEncode[1]);
-								
-							} else {
+							if (encodeBitRate >= 0) {
 
 								// delete pre-encode file
 								if (preEncodeFile.exists() && postEncodeFile.exists()) { preEncodeFile.delete(); }

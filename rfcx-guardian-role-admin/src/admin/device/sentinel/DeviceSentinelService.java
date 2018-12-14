@@ -77,10 +77,10 @@ public class DeviceSentinelService extends Service {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 					
-					if (app.deviceSentinelPowerUtils.confirmConnection()) {
+					if (app.sentinelPowerUtils.confirmConnection()) {
 
-						app.deviceSentinelPowerUtils.updateSentinelPowerValues();
-						app.deviceSentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext(), false);
+						app.sentinelPowerUtils.updateSentinelPowerValues();
+						app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext(), false);
 						
 					}
 					

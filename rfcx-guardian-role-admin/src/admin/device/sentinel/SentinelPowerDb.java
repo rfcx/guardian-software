@@ -14,16 +14,16 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class DeviceSentinelPowerDb {
+public class SentinelPowerDb {
 	
-	public DeviceSentinelPowerDb(Context context, String appVersion) {
+	public SentinelPowerDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbSentinelPowerBattery = new DbSentinelPowerBattery(context);
 		this.dbSentinelPowerInput = new DbSentinelPowerInput(context);
 		this.dbSentinelPowerSystem = new DbSentinelPowerSystem(context);
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSentinelPowerDb.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SentinelPowerDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "sentinel-power";
 	static final String C_MEASURED_AT = "measured_at";

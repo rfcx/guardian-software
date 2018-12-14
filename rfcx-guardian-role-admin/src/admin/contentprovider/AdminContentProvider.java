@@ -6,7 +6,7 @@ import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.rfcx.RfcxRole;
 
 import admin.RfcxGuardian;
-import admin.device.sentinel.DeviceSentinelPowerUtils;
+import admin.device.sentinel.SentinelPowerUtils;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -90,7 +90,7 @@ public class AdminContentProvider extends ContentProvider {
 					return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[] { "sms", DeviceSmsUtils.getSmsMessagesAsJsonArray(app.getApplicationContext().getContentResolver()).toString(), System.currentTimeMillis() });
 				
 				} else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
-					return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[] { "sentinel_power", DeviceSentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis() });
+					return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[] { "sentinel_power", SentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis() });
 				
 				} else {
 					return null;
@@ -133,7 +133,7 @@ public class AdminContentProvider extends ContentProvider {
 				String pathSegTimeStamp = pathSeg.substring(1+pathSeg.indexOf("|"));
 				
 				if (pathSegTable.equalsIgnoreCase("sentinel_power")) {
-					return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[] { pathSeg, DeviceSentinelPowerUtils.deleteSentinelPowerValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis() });	
+					return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[] { pathSeg, SentinelPowerUtils.deleteSentinelPowerValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis() });	
 				
 				}
 				

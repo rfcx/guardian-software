@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
 			break;
 		
 		case R.id.menu_i2c_view:
-			app.deviceSentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext(), true);
+			app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext(), true);
 			break;
 		
 		case R.id.menu_logcat:

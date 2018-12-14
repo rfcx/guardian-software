@@ -87,7 +87,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		new String[] { 
 			"AudioCapture",
 			"DeviceSystem",
-			"ApiCheckInJob"
+			"ApiCheckInJob",
+			"AudioEncodeJob"
 		};
 	
 	@Override
