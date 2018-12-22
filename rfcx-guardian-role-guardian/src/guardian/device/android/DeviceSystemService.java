@@ -275,7 +275,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		if (outerLoopIncrement >= outerLoopCaptureCount) { outerLoopIncrement = 0; }
 		
 		if (outerLoopIncrement == 1) {			
-			Log.e(logTag, "RUNNING OUTER LOOP LOGIC...");
+		//	Log.e(logTag, "RUNNING OUTER LOOP LOGIC...");
 
 		} else {
 

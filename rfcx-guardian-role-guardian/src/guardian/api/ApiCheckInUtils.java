@@ -86,7 +86,9 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private Map<String, long[]> healthCheckMonitors = new HashMap<String, long[]>();
 	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent", "time-of-day" };
-	private long[] healthCheckTargets = new long[healthCheckCategories.length];
+	private long[] healthCheckTargetLowerBounds = new long[healthCheckCategories.length];
+	private long[] healthCheckTargetUpperBounds = new long[healthCheckCategories.length];
+	private long[] healthCheckInitValues = new long[6];
 
 	public boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
@@ -131,35 +133,74 @@ public class ApiCheckInUtils implements MqttCallback {
 		if (app.apiCheckInDb.dbStashed.getCount() >= archiveThreshold) {
 			app.rfcxServiceHandler.triggerService("ApiCheckInArchive", false);
 		}
+	}	
+	
+	private void setupRecentActivityHealthCheck() {
+		
+		// fill initial array with garbage (very high) values to ensure that checks will fail until we have the required number of checkins to compare
+		Arrays.fill(healthCheckInitValues, Math.round(Long.MAX_VALUE / healthCheckInitValues.length));
+		
+		// initialize categories with initial arrays (to be filled incrementally with real data)
+		for (int j = 0; j < healthCheckCategories.length; j++) {
+			if (!healthCheckMonitors.containsKey(healthCheckCategories[j])) { healthCheckMonitors.put(healthCheckCategories[j], healthCheckInitValues); }
+		}
+		
+		// set parameters (bounds) for health check pass or fail
+		
+		/* latency */		healthCheckTargetLowerBounds[0] = 0;
+							healthCheckTargetUpperBounds[0] = Math.round( 0.4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
+							
+		/* queued */			healthCheckTargetLowerBounds[1] = 0;
+							healthCheckTargetUpperBounds[1] = 1; 		
+							
+		/* recent */			healthCheckTargetLowerBounds[2] = 0;
+							healthCheckTargetUpperBounds[2] = ( healthCheckInitValues.length / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
+							
+		/* time-of-day */	healthCheckTargetLowerBounds[3] = 9;
+							healthCheckTargetUpperBounds[3] = 15;
 	}
 	
 	private void runRecentActivityHealthCheck(long[] inputValues) {
 
-		long[] defaultValues = new long[6]; Arrays.fill(defaultValues, Math.round(Long.MAX_VALUE / defaultValues.length));
-		long[] averageValues = new long[healthCheckCategories.length]; Arrays.fill(averageValues, 0);
-
-		 /* latency */		healthCheckTargets[0] = Math.round( 0.4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
-		 /* queued */		healthCheckTargets[1] = 1; 																	
-		 /* recent */		healthCheckTargets[2] = ( defaultValues.length / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
-		 /* time-of-day */	healthCheckTargets[3] = 12;
+		if (!healthCheckMonitors.containsKey(healthCheckCategories[0])) { setupRecentActivityHealthCheck(); }
+		
+		long[] currAvgVals = new long[healthCheckCategories.length]; Arrays.fill(currAvgVals, 0);
 		
 		for (int j = 0; j < healthCheckCategories.length; j++) {
-			if (!healthCheckMonitors.containsKey(healthCheckCategories[j])) { healthCheckMonitors.put(healthCheckCategories[j], defaultValues); }
 			String categ = healthCheckCategories[j];
-			long[] arraySnapshot = new long[defaultValues.length];
+			long[] arraySnapshot = new long[healthCheckInitValues.length];
 			arraySnapshot[0] = inputValues[j];
-			for (int i = (defaultValues.length-1); i > 0; i--) { arraySnapshot[i] = healthCheckMonitors.get(categ)[i-1]; }
+			for (int i = (healthCheckInitValues.length-1); i > 0; i--) { arraySnapshot[i] = healthCheckMonitors.get(categ)[i-1]; }
 			healthCheckMonitors.remove(healthCheckCategories[j]);
 			healthCheckMonitors.put(healthCheckCategories[j], arraySnapshot);
-			averageValues[j] = ArrayUtils.getAverageAsLong(healthCheckMonitors.get(categ));
+			currAvgVals[j] = ArrayUtils.getAverageAsLong(healthCheckMonitors.get(categ));
 		}
 		
-		Log.e(logTag, "Health Check: "
-							+"latency: "+averageValues[0]+"/"+healthCheckTargets[0]+", "
-							+"queue: "+averageValues[1]+"/"+healthCheckTargets[1]+", "
-							+"returns: "+Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(averageValues[2]))+"/"+healthCheckTargets[2]+", "
-							+"time-of-day: "+averageValues[3]+"/"+healthCheckTargets[3]
-				);
+		boolean isExceptionallyHealthy = true;
+		StringBuilder healthCheckLogging = new StringBuilder();
+		
+		for (int j = 0; j < healthCheckCategories.length; j++) {
+			
+			long currAvgVal = currAvgVals[j];
+			// some average values require modification before comparison to upper/lower bounds...
+			if (healthCheckCategories[j].equalsIgnoreCase("recent")) { currAvgVal = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(currAvgVals[j])); }
+			
+			// compare to upper lower bounds, check for pass/fail
+			if ((currAvgVal > healthCheckTargetUpperBounds[j]) || (currAvgVal < healthCheckTargetLowerBounds[j])) { isExceptionallyHealthy = false; }
+			
+			// generat some verbose logging feedback
+			healthCheckLogging.append(", ").append(healthCheckCategories[j]).append(": ").append(currAvgVal).append("/")
+							.append((healthCheckTargetLowerBounds[j] > 1) ? healthCheckTargetLowerBounds[j]+"-" : "")
+							.append(healthCheckTargetUpperBounds[j]);
+		}
+		
+		healthCheckLogging.insert(0,"ExceptionalHealthCheck (last "+healthCheckInitValues.length+" checkins): "+( isExceptionallyHealthy ? "PASS" : "FAIL" ));
+		
+		if (!isExceptionallyHealthy) { 
+			Log.w(logTag,healthCheckLogging.toString()); 
+		} else { 
+			Log.i(logTag,healthCheckLogging.toString()); 
+		}
 		
 	}
 
@@ -460,21 +501,14 @@ public class ApiCheckInUtils implements MqttCallback {
 			int minsSinceSuccess = (int) Math.floor(((System.currentTimeMillis() - this.requestSendReturned) / 1000) / 60);
 			int minsSinceConnected = (int) Math.floor(((System.currentTimeMillis() - app.deviceConnectivity.lastConnectedAt()) / 1000) / 60);
 
-			if ((minsSinceSuccess < this.failedCheckInThresholds[0]) // we haven't yet reached the first threshold for
-																		// bad connectivity
-					|| app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode") // we are explicitly in offline mode
-					|| !isBatteryChargeSufficientForCheckIn() // checkins are explicitly paused due to low battery level
-					|| (app.deviceConnectivity.isConnected() && (minsSinceConnected < this.failedCheckInThresholds[0])) // this
-																														// is
-																														// likely
-																														// the
-																														// first
-																														// checkin
-																														// after
-																														// a
-																														// period
-																														// of
-																														// disconnection
+			if (		// ...we haven't yet reached the first threshold for bad connectivity
+					(minsSinceSuccess < this.failedCheckInThresholds[0]) 
+					// OR... we are explicitly in offline mode
+					|| app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")
+					// OR... checkins are explicitly paused due to low battery level
+					|| !isBatteryChargeSufficientForCheckIn()
+					// OR... this is likely the first checkin after a period of disconnection
+					|| (app.deviceConnectivity.isConnected() && (minsSinceConnected < this.failedCheckInThresholds[0]))
 			) {
 				for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
 					this.failedCheckInThresholdsReached[i] = false;
@@ -702,11 +736,11 @@ public class ApiCheckInUtils implements MqttCallback {
 							rightNow.setTime(new Date());
 							
 							runRecentActivityHealthCheck(new long[] { 
-									checkInStats[1], 
-									(long) app.apiCheckInDb.dbQueued.getCount(), 
-									checkInStats[0], 
-									rightNow.get(Calendar.HOUR_OF_DAY)
-									});
+									/* latency */	checkInStats[1],
+									/* queued */		(long) app.apiCheckInDb.dbQueued.getCount(),
+									/* recent */		checkInStats[0],
+									/* time-of-day */	(long) rightNow.get(Calendar.HOUR_OF_DAY)
+								});
 								
 						}
 					}
