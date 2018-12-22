@@ -26,7 +26,7 @@ public class DeviceI2cUtils {
 	
 	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceI2cUtils.class);
 
-	private static final int i2cInterface = 0; // as in /dev/ic2-0
+	private static final int i2cInterface = 0; // as in /dev/i2c-0
 	private String i2cMainAddress = null;
 	
 	private String execI2cGet = null;

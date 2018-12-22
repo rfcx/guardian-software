@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -83,7 +85,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
 
 	private Map<String, long[]> healthCheckMonitors = new HashMap<String, long[]>();
-	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent" };
+	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent", "time-of-day" };
 	private long[] healthCheckTargets = new long[healthCheckCategories.length];
 
 	public boolean addCheckInToQueue(String[] audioInfo, String filepath) {
@@ -136,9 +138,10 @@ public class ApiCheckInUtils implements MqttCallback {
 		long[] defaultValues = new long[6]; Arrays.fill(defaultValues, Math.round(Long.MAX_VALUE / defaultValues.length));
 		long[] averageValues = new long[healthCheckCategories.length]; Arrays.fill(averageValues, 0);
 
-		 /* latency */	healthCheckTargets[0] = Math.round( 0.4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
-		 /* queued */	healthCheckTargets[1] = 1; 																	
-		 /* recent */	healthCheckTargets[2] = ( defaultValues.length / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
+		 /* latency */		healthCheckTargets[0] = Math.round( 0.4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
+		 /* queued */		healthCheckTargets[1] = 1; 																	
+		 /* recent */		healthCheckTargets[2] = ( defaultValues.length / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
+		 /* time-of-day */	healthCheckTargets[3] = 12;
 		
 		for (int j = 0; j < healthCheckCategories.length; j++) {
 			if (!healthCheckMonitors.containsKey(healthCheckCategories[j])) { healthCheckMonitors.put(healthCheckCategories[j], defaultValues); }
@@ -154,7 +157,9 @@ public class ApiCheckInUtils implements MqttCallback {
 		Log.e(logTag, "Health Check: "
 							+"latency: "+averageValues[0]+"/"+healthCheckTargets[0]+", "
 							+"queue: "+averageValues[1]+"/"+healthCheckTargets[1]+", "
-							+"returns: "+Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(averageValues[2]))+"/"+healthCheckTargets[2]);
+							+"returns: "+Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(averageValues[2]))+"/"+healthCheckTargets[2]+", "
+							+"time-of-day: "+averageValues[3]+"/"+healthCheckTargets[3]
+				);
 		
 	}
 
@@ -192,8 +197,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
 			metaDataJsonObj.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
 			metaDataJsonObj.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
-			metaDataJsonObj.put("location", app.deviceSensorDb.dbGeoLocation.getConcatRows());
 			metaDataJsonObj.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
+			metaDataJsonObj.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());
 			
 			metaDataJsonObj.put("disk_usage", DeviceDiskUsage.concatDiskStats());
 			
@@ -218,9 +223,9 @@ public class ApiCheckInUtils implements MqttCallback {
 			app.deviceSystemDb.dbMqttBrokerConnections.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbLightMeter.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbAccelerometer.clearRowsBefore(deleteBefore);
-			app.deviceSensorDb.dbGeoLocation.clearRowsBefore(deleteBefore);
 			app.deviceDataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
 			app.rebootDb.dbRebootComplete.clearRowsBefore(deleteBefore);
+			app.deviceSensorDb.dbGeoPosition.clearRowsBefore(deleteBefore);
 
 			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
 					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
@@ -693,7 +698,15 @@ public class ApiCheckInUtils implements MqttCallback {
 							this.previousCheckIns = new ArrayList<String>();
 							this.previousCheckIns.add( TextUtils.join("*", new String[] { checkInId+"", checkInStats[1]+"", checkInStats[2]+"" } ) );
 							
-							runRecentActivityHealthCheck(new long[] { checkInStats[1], (long) app.apiCheckInDb.dbQueued.getCount(), checkInStats[0] });
+							Calendar rightNow = GregorianCalendar.getInstance();
+							rightNow.setTime(new Date());
+							
+							runRecentActivityHealthCheck(new long[] { 
+									checkInStats[1], 
+									(long) app.apiCheckInDb.dbQueued.getCount(), 
+									checkInStats[0], 
+									rightNow.get(Calendar.HOUR_OF_DAY)
+									});
 								
 						}
 					}

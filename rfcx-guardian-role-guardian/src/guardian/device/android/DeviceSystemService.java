@@ -56,7 +56,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private Sensor lightSensor;
 	private Sensor accelSensor;
 
-	private String geolocationProviderInfo;
+	private String geoPositionProviderInfo;
 	
 	private double lightSensorLastValue = Float.MAX_VALUE;
 
@@ -66,19 +66,19 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private List<int[]> batteryLevelValues = new ArrayList<int[]>();
 	private List<int[]> cpuUsageValues = new ArrayList<int[]>();
 	private List<double[]> accelSensorValues = new ArrayList<double[]>();
-	private List<double[]> geolocationValues = new ArrayList<double[]>();
+	private List<double[]> geoPositionValues = new ArrayList<double[]>();
 	
 	private boolean isListenerRegistered_telephony = false;
 	private boolean isListenerRegistered_light = false;
 	private boolean isListenerRegistered_accel = false;
-	private boolean isListenerRegistered_geolocation = false;
+	private boolean isListenerRegistered_geoposition = false;
 
 	private boolean allowListenerRegistration_telephony = true;
 	private boolean allowListenerRegistration_light = true;
 	private boolean allowListenerRegistration_accel = true;
-	private boolean allowListenerRegistration_geolocation = true;
-	private boolean allowListenerRegistration_geolocation_gps = true;
-	private boolean allowListenerRegistration_geolocation_network = true;
+	private boolean allowListenerRegistration_geoposition = true;
+	private boolean allowListenerRegistration_geoposition_gps = true;
+	private boolean allowListenerRegistration_geoposition_network = true;
 	
 	
 	private void checkSetSensorManager() {
@@ -90,14 +90,14 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private void checkSetLocationManager() {
 		if (this.locationManager == null) { 
 			this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE); 
-			this.allowListenerRegistration_geolocation_gps = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-			this.allowListenerRegistration_geolocation_network = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-			if (this.allowListenerRegistration_geolocation_gps) {
-				this.geolocationProviderInfo = LocationManager.GPS_PROVIDER;
-				Log.d(logTag, "GeoLocation will be provided via GPS.");
-			} else if (this.allowListenerRegistration_geolocation_network) {
-				this.geolocationProviderInfo = LocationManager.NETWORK_PROVIDER;
-				Log.d(logTag, "GeoLocation will be provided via Mobile Network.");
+			this.allowListenerRegistration_geoposition_gps = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+			this.allowListenerRegistration_geoposition_network = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+			if (this.allowListenerRegistration_geoposition_gps) {
+				this.geoPositionProviderInfo = LocationManager.GPS_PROVIDER;
+				Log.d(logTag, "GeoPosition will be provided via GPS.");
+			} else if (this.allowListenerRegistration_geoposition_network) {
+				this.geoPositionProviderInfo = LocationManager.NETWORK_PROVIDER;
+				Log.d(logTag, "GeoPosition will be provided via Mobile Network.");
 			}
 		}
 	}
@@ -115,7 +115,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		
 		registerListener("light");
 		registerListener("telephony");
-		registerListener("geolocation");
+		registerListener("geoposition");
 	}
 	
 	@Override
@@ -142,7 +142,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		
 		unRegisterListener("light");
 		unRegisterListener("telephony");
-		unRegisterListener("geolocation");
+		unRegisterListener("geoposition");
 		unRegisterListener("accel");
 	}
 	
@@ -179,7 +179,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-						// Sample Outer Loop Stats (GeoLocation)
+						// Sample Outer Loop Stats (GeoPosition)
 						outerLoopIncrement = triggerOrSkipOuterLoopSensorMeasurements(outerLoopIncrement, outerLoopCaptureCount);
 						
 						// capture and cache cpu usage info
@@ -204,9 +204,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 						// cache accelerometer sensor data
 						saveSnapshotValuesToDatabase("accel");
-						
-						// cache geo location info
-						saveSnapshotValuesToDatabase("geolocation");
 					}
 					
 				} catch (InterruptedException e) {
@@ -279,10 +276,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		
 		if (outerLoopIncrement == 1) {			
 			Log.e(logTag, "RUNNING OUTER LOOP LOGIC...");
-			cacheSnapshotValues("geolocation", app.deviceUtils.getParsedGeoLocation(this.locationManager.getLastKnownLocation(this.geolocationProviderInfo)) );
-//			registerListener("geolocation");	
+
 		} else {
-//			unRegisterListener("geolocation");	
+
 		}
 		
 		return outerLoopIncrement;
@@ -316,11 +312,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			
 			if ((this.telephonyManager != null) && (this.telephonySignalStrength != null)) {
 				this.telephonyValues.add(DeviceMobileNetwork.getMobileNetworkSummary(this.telephonyManager, this.telephonySignalStrength));
-			}
-			
-		} else if (sensorAbbrev.equalsIgnoreCase("geolocation")) {
-			if (vals.length == 5) {
-				this.geolocationValues.add(vals);
 			}
 			
 		} else {
@@ -367,18 +358,18 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				this.isListenerRegistered_telephony = true;
 			}
 			
-		} else if (sensorAbbrev.equalsIgnoreCase("geolocation") && this.allowListenerRegistration_geolocation) {
-			if (!this.isListenerRegistered_geolocation) {
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition") && this.allowListenerRegistration_geoposition) {
+			if (!this.isListenerRegistered_geoposition) {
 				checkSetLocationManager();
-				if (!this.geolocationProviderInfo.isEmpty()) {
+				if (!this.geoPositionProviderInfo.isEmpty()) {
 					this.locationManager.requestLocationUpdates(
-									this.geolocationProviderInfo, 
-									DeviceUtils.geolocationMinTimeElapsedBetweenUpdatesInSeconds[DeviceUtils.geoLocationDefaultUpdateIndex] * 1000, 
-									DeviceUtils.geolocationMinDistanceChangeBetweenUpdatesInMeters[DeviceUtils.geoLocationDefaultUpdateIndex], 
+									this.geoPositionProviderInfo, 
+									DeviceUtils.geoPositionMinTimeElapsedBetweenUpdatesInSeconds[DeviceUtils.geoPositionDefaultUpdateIndex] * 1000, 
+									DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters[DeviceUtils.geoPositionDefaultUpdateIndex], 
 									this);
-					this.isListenerRegistered_geolocation = true;
+					this.isListenerRegistered_geoposition = true;
 				} else {
-					Log.e(logTag, "Couldn't register geolocation listener...");
+					Log.e(logTag, "Couldn't register geoposition listener...");
 				}
 			}
 			
@@ -409,10 +400,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				this.isListenerRegistered_telephony = false;
 			}
 			
-		} else if (sensorAbbrev.equalsIgnoreCase("geolocation")) { 
-			if (this.isListenerRegistered_geolocation && (this.locationManager != null)) {
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) { 
+			if (this.isListenerRegistered_geoposition && (this.locationManager != null)) {
 				this.locationManager.removeUpdates(this);
-				this.isListenerRegistered_geolocation = false;
+				this.isListenerRegistered_geoposition = false;
 			}
 				 
 		} else {
@@ -488,15 +479,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					app.deviceSystemDb.dbPower.insert(new Date(), batteryLevelVals[2], batteryLevelVals[3]);
 				}
 				
-			} else if (statAbbrev.equalsIgnoreCase("geolocation")) {
-				
-				List<double[]> geoLocationValuesCache = this.geolocationValues;
-				this.geolocationValues = new ArrayList<double[]>();
-				
-				for (double[] geoLocationVals : geoLocationValuesCache) {
-					app.deviceSensorDb.dbGeoLocation.insert(geoLocationVals[0], geoLocationVals[1], geoLocationVals[2], geoLocationVals[3], geoLocationVals[4]);
-				}
-				
 			} else {
 				Log.e(logTag, "Value info for '"+statAbbrev+"' could not be saved to database.");
 			}
@@ -556,7 +538,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	@Override
 	public void onLocationChanged(Location location) {
 		if (app != null) {
-			cacheSnapshotValues("geolocation", app.deviceUtils.getParsedGeoLocation(location) );
+			app.deviceUtils.processAndSaveGeoPosition(location);
 		}
 	}
 

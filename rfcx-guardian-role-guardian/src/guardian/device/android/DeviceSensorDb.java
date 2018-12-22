@@ -21,7 +21,7 @@ public class DeviceSensorDb {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbLightMeter = new DbLightMeter(context);
 		this.dbAccelerometer = new DbAccelerometer(context);
-		this.dbGeoLocation = new DbGeoLocation(context);
+		this.dbGeoPosition = new DbGeoPosition(context);
 	}
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSensorDb.class);
@@ -113,13 +113,13 @@ public class DeviceSensorDb {
 	}
 	public final DbAccelerometer dbAccelerometer;
 	
-	public class DbGeoLocation {
+	public class DbGeoPosition {
 
 		final DbUtils dbUtils;
 
-		private String TABLE = "geolocation";
+		private String TABLE = "geoposition";
 		
-		public DbGeoLocation(Context context) {
+		public DbGeoPosition(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
@@ -127,8 +127,8 @@ public class DeviceSensorDb {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, (long) Math.round(measured_at));
-			values.put(C_VALUE_1, latitude+"*"+longitude);
-			values.put(C_VALUE_2, Math.round(accuracy)+"*"+Math.round(altitude));
+			values.put(C_VALUE_1, latitude+","+longitude);
+			values.put(C_VALUE_2, Math.round(accuracy)+","+Math.round(altitude));
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}
@@ -146,6 +146,6 @@ public class DeviceSensorDb {
 		}
 
 	}
-	public final DbGeoLocation dbGeoLocation;
+	public final DbGeoPosition dbGeoPosition;
 	
 }

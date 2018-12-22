@@ -21,12 +21,12 @@ import rfcx.utility.rfcx.RfcxLog;
 
 public class DeviceLogCat {
 	
-	public DeviceLogCat(Context context, String appRole, String rfcxDeviceId) {
+	public DeviceLogCat(Context context, String appRole, String rfcxDeviceId, String logLevel) {
 		this.logTag = RfcxLog.generateLogTag(appRole, DeviceLogCat.class);
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
 		initializeLogCatDirectories(context);
-		saveExecutableScript(context);
+		saveExecutableScript(context, logLevel);
 	}
 
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceLogCat.class);
@@ -88,7 +88,7 @@ public class DeviceLogCat {
 	}
 	
 	
-	public boolean saveExecutableScript(Context context) {
+	public boolean saveExecutableScript(Context context, String logLevel) {
 		
 		String scriptBody = (new StringBuilder())
 			.append("#!/system/bin/sh").append("\n")
@@ -100,7 +100,7 @@ public class DeviceLogCat {
 			.append("touch $CAPTURE_FILE").append("\n")
 
 		//	.append("TIMESTAMP_BEGIN=$(date +\"%s\")").append("\n")
-			.append("logcat -v time > $CAPTURE_FILE&").append("\n")
+			.append("logcat -v time *:").append(logLevel.substring(0,1).toUpperCase(Locale.US)).append(" > $CAPTURE_FILE&").append("\n")
 			.append("PID=$!").append("\n")
 
 			.append("sleep $CAPTURE_CYCLE_DURATION").append("\n")

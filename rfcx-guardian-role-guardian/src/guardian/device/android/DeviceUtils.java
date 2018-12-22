@@ -38,21 +38,21 @@ public class DeviceUtils {
 	public Sensor lightSensor;
 	public Sensor accelSensor;
 
-	public String geolocationProviderInfo;
+	public String geoPositionProviderInfo;
 	
 	public double lightSensorLastValue = Float.MAX_VALUE;
 	
-	public boolean isListenerRegistered_telephony = false;
-	public boolean isListenerRegistered_light = false;
-	public boolean isListenerRegistered_accel = false;
-	public boolean isListenerRegistered_geolocation = false;
+//	public boolean isListenerRegistered_telephony = false;
+//	public boolean isListenerRegistered_light = false;
+//	public boolean isListenerRegistered_accel = false;
+//	public boolean isListenerRegistered_geoposition = false;
 
-	public boolean allowListenerRegistration_telephony = true;
-	public boolean allowListenerRegistration_light = true;
-	public boolean allowListenerRegistration_accel = true;
-	public boolean allowListenerRegistration_geolocation = true;
-	public boolean allowListenerRegistration_geolocation_gps = true;
-	public boolean allowListenerRegistration_geolocation_network = true;
+//	public boolean allowListenerRegistration_telephony = true;
+//	public boolean allowListenerRegistration_light = true;
+//	public boolean allowListenerRegistration_accel = true;
+//	public boolean allowListenerRegistration_geolocation = true;
+//	public boolean allowListenerRegistration_geolocation_gps = true;
+//	public boolean allowListenerRegistration_geolocation_network = true;
 	
 	public long dateTimeDiscrepancyFromSystemClock_gps = 0;
 	public long dateTimeDiscrepancyFromSystemClock_sntp = 0;
@@ -65,9 +65,9 @@ public class DeviceUtils {
 	
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
-	public static final long[] geolocationMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		33, 		5 	};
-	public static final long[] geolocationMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	900,		30 	};
-	public static final int geoLocationDefaultUpdateIndex = 0;
+	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		33, 		1,		1 	};
+	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	900,		60,		10 	};
+	public static final int geoPositionDefaultUpdateIndex = 1;
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
 
@@ -91,7 +91,7 @@ public class DeviceUtils {
 	}
 	
 	public static int getOuterLoopCaptureCount(int audioCycleDurationInSeconds) {
-		return (int) ( Math.round( geolocationMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
+		return (int) ( Math.round( geoPositionMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
 	}
 	
 	public static double[] generateAverageAccelValues(List<double[]> accelValues) {
@@ -131,11 +131,11 @@ public class DeviceUtils {
 		}
 	}
 	
-	public double[] getParsedGeoLocation(Location location) {
+	public void processAndSaveGeoPosition(Location location) {
 		if (location != null) {
 			try {
 				
-				double[] geoLoc = new double[] { 
+				double[] geoPos = new double[] { 
 						(double) System.currentTimeMillis(),
 						location.getLatitude(), location.getLongitude(), 
 						(double) location.getAccuracy(), 
@@ -145,25 +145,32 @@ public class DeviceUtils {
 
 				dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
 				long discrepancyFromSystemClock = location.getTime()-dateTimeSourceLastSyncedAt_gps;
-				dateTimeDiscrepancyFromSystemClock_gps = discrepancyFromSystemClock;
 				
-				app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", discrepancyFromSystemClock);
-				
-				if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
-					Log.i(logTag, "Snapshot —— GeoLocation"
-							+" —— Lat: "+geoLoc[1]+", Lng: "+geoLoc[2]+", Alt: "+Math.round(geoLoc[4])+" meters"
-							+" —— Accuracy: "+Math.round(geoLoc[3])+" meters"
-							+" —— "+DateTimeUtils.getDateTime((long) Math.round(geoLoc[0]))
-							+" —— Clock Discrepancy: "+discrepancyFromSystemClock+" ms"
-							);
+				// only save/cache geoposition values if the GPS clock is less than 5 minutes different than the system clock
+				if (Math.abs(discrepancyFromSystemClock) < (5 * 60 * 1000) ) { 
+
+					dateTimeDiscrepancyFromSystemClock_gps = discrepancyFromSystemClock;
+					
+					app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", discrepancyFromSystemClock);
+					app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);
+					
+					if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
+						Log.i(logTag, "Snapshot —— GeoPosition"
+								+" —— Lat: "+geoPos[1]+", Lng: "+geoPos[2]+", Alt: "+Math.round(geoPos[4])+" meters"
+								+" —— Accuracy: "+Math.round(geoPos[3])+" meters"
+								+" —— "+DateTimeUtils.getDateTime((long) Math.round(geoPos[0]))
+								+" —— Clock Discrepancy: "+discrepancyFromSystemClock+" ms"
+								);
+					}
+					
+				} else {
+					Log.e(logTag, "Not saving GeoPosition to database...");
 				}
-				
-				return geoLoc;
+					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
-		return new double[] {};
 	}
 
 }
