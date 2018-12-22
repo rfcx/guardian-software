@@ -67,7 +67,7 @@ public class DeviceUtils {
 
 	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		1, 		1,		1 	};
 	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	300,		60,		10 	};
-	public static final int geoPositionDefaultUpdateIndex = 0;
+	public static final int geoPositionDefaultUpdateIndex = 1;
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
 
@@ -135,33 +135,31 @@ public class DeviceUtils {
 		if (location != null) {
 			try {
 				
+				dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
+				dateTimeDiscrepancyFromSystemClock_gps = DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(location.getTime());
+				
 				double[] geoPos = new double[] { 
-						(double) System.currentTimeMillis(),
+						(double) dateTimeSourceLastSyncedAt_gps,
 						location.getLatitude(), location.getLongitude(), 
 						(double) location.getAccuracy(), 
 						location.getAltitude(),
 						(double) location.getTime()
 					};
-
-				dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
-				long discrepancyFromSystemClock = location.getTime()-dateTimeSourceLastSyncedAt_gps;
+				
+				if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
+					Log.i(logTag, "Snapshot —— GeoPosition"
+							+" —— Lat: "+geoPos[1]+", Lng: "+geoPos[2]+", Alt: "+Math.round(geoPos[4])+" meters"
+							+" —— Accuracy: "+Math.round(geoPos[3])+" meters"
+							+" —— "+DateTimeUtils.getDateTime(dateTimeSourceLastSyncedAt_gps)
+							+" —— Clock Discrepancy: "+dateTimeDiscrepancyFromSystemClock_gps+" ms"
+							);
+				}
 				
 				// only save/cache geoposition values if the GPS clock is less than 5 minutes different than the system clock
-				if (Math.abs(discrepancyFromSystemClock) < (5 * 60 * 1000) ) { 
-
-					dateTimeDiscrepancyFromSystemClock_gps = discrepancyFromSystemClock;
+				if (Math.abs(dateTimeDiscrepancyFromSystemClock_gps) < (5 * 60 * 1000) ) { 
 					
-					app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", discrepancyFromSystemClock);
+					app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps);
 					app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);
-					
-					if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
-						Log.i(logTag, "Snapshot —— GeoPosition"
-								+" —— Lat: "+geoPos[1]+", Lng: "+geoPos[2]+", Alt: "+Math.round(geoPos[4])+" meters"
-								+" —— Accuracy: "+Math.round(geoPos[3])+" meters"
-								+" —— "+DateTimeUtils.getDateTime((long) Math.round(geoPos[0]))
-								+" —— Clock Discrepancy: "+discrepancyFromSystemClock+" ms"
-								);
-					}
 					
 				} else {
 					Log.e(logTag, "Not saving GeoPosition to database...");

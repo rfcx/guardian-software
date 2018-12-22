@@ -236,6 +236,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
 			metaDataJsonObj.put("offline", app.deviceSystemDb.dbOffline.getConcatRows());
 			metaDataJsonObj.put("connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
+			metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
 			metaDataJsonObj.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
 			metaDataJsonObj.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
 			metaDataJsonObj.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
@@ -263,6 +264,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			app.deviceSystemDb.dbTelephony.clearRowsBefore(deleteBefore);
 			app.deviceSystemDb.dbOffline.clearRowsBefore(deleteBefore);
 			app.deviceSystemDb.dbMqttBrokerConnections.clearRowsBefore(deleteBefore);
+			app.deviceSystemDb.dbDateTimeOffsets.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbLightMeter.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbAccelerometer.clearRowsBefore(deleteBefore);
 			app.deviceDataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
@@ -308,13 +310,8 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("prefs", app.rfcxPrefs.getPrefsChecksum());
 
 		// Adding device location timezone offset
-		checkInMetaJson.put("timezone_offset", DateTimeUtils.getTimeZoneOffset());
-		checkInMetaJson.put("datetime", TextUtils.join("|", new String[] { 
-										"system*"+System.currentTimeMillis(),
-										"timezone*"+DateTimeUtils.getTimeZoneOffset(),
-										"sntp*"+app.deviceUtils.dateTimeDiscrepancyFromSystemClock_sntp+"*"+app.deviceUtils.dateTimeSourceLastSyncedAt_sntp,
-										"gps*"+app.deviceUtils.dateTimeDiscrepancyFromSystemClock_gps+"*"+app.deviceUtils.dateTimeSourceLastSyncedAt_gps
-									}));
+//		checkInMetaJson.put("timezone_offset", DateTimeUtils.getTimeZoneOffset());
+		checkInMetaJson.put("datetime", TextUtils.join("|", new String[] { "system*"+System.currentTimeMillis(), "timezone*"+DateTimeUtils.getTimeZoneOffset() }));
 
 		// Adding messages to JSON blob
 		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver()));
