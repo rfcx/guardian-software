@@ -88,7 +88,8 @@ public class ApiCheckInUtils implements MqttCallback {
 	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent", "time-of-day" };
 	private long[] healthCheckTargetLowerBounds = new long[healthCheckCategories.length];
 	private long[] healthCheckTargetUpperBounds = new long[healthCheckCategories.length];
-	private long[] healthCheckInitValues = new long[6];
+	private static final int healthCheckMeasurementCount = 6;
+	private long[] healthCheckInitValues = new long[healthCheckMeasurementCount];
 
 	public boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
@@ -138,7 +139,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private void setupRecentActivityHealthCheck() {
 		
 		// fill initial array with garbage (very high) values to ensure that checks will fail until we have the required number of checkins to compare
-		Arrays.fill(healthCheckInitValues, Math.round(Long.MAX_VALUE / healthCheckInitValues.length));
+		Arrays.fill(healthCheckInitValues, Math.round(Long.MAX_VALUE / healthCheckMeasurementCount));
 		
 		// initialize categories with initial arrays (to be filled incrementally with real data)
 		for (int j = 0; j < healthCheckCategories.length; j++) {
@@ -154,7 +155,7 @@ public class ApiCheckInUtils implements MqttCallback {
 							healthCheckTargetUpperBounds[1] = 1; 		
 							
 		/* recent */			healthCheckTargetLowerBounds[2] = 0;
-							healthCheckTargetUpperBounds[2] = ( healthCheckInitValues.length / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
+							healthCheckTargetUpperBounds[2] = ( healthCheckMeasurementCount / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
 							
 		/* time-of-day */	healthCheckTargetLowerBounds[3] = 9;
 							healthCheckTargetUpperBounds[3] = 15;
@@ -168,9 +169,9 @@ public class ApiCheckInUtils implements MqttCallback {
 		
 		for (int j = 0; j < healthCheckCategories.length; j++) {
 			String categ = healthCheckCategories[j];
-			long[] arraySnapshot = new long[healthCheckInitValues.length];
+			long[] arraySnapshot = new long[healthCheckMeasurementCount];
 			arraySnapshot[0] = inputValues[j];
-			for (int i = (healthCheckInitValues.length-1); i > 0; i--) { arraySnapshot[i] = healthCheckMonitors.get(categ)[i-1]; }
+			for (int i = (healthCheckMeasurementCount-1); i > 0; i--) { arraySnapshot[i] = healthCheckMonitors.get(categ)[i-1]; }
 			healthCheckMonitors.remove(healthCheckCategories[j]);
 			healthCheckMonitors.put(healthCheckCategories[j], arraySnapshot);
 			currAvgVals[j] = ArrayUtils.getAverageAsLong(healthCheckMonitors.get(categ));
@@ -194,7 +195,7 @@ public class ApiCheckInUtils implements MqttCallback {
 							.append(healthCheckTargetUpperBounds[j]);
 		}
 		
-		healthCheckLogging.insert(0,"ExceptionalHealthCheck (last "+healthCheckInitValues.length+" checkins): "+( isExceptionallyHealthy ? "PASS" : "FAIL" ));
+		healthCheckLogging.insert(0,"ExceptionalHealthCheck (last "+healthCheckMeasurementCount+" checkins): "+( isExceptionallyHealthy ? "PASS" : "FAIL" ));
 		
 		if (!isExceptionallyHealthy) { 
 			Log.w(logTag,healthCheckLogging.toString()); 
