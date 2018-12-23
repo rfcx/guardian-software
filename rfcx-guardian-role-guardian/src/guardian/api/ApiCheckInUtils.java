@@ -173,7 +173,6 @@ public class ApiCheckInUtils implements MqttCallback {
 				
 				isReQueued = (checkInToReQueue[0] == null);
 			}	
-			
 		}
 		
 		if (isReQueued) {
