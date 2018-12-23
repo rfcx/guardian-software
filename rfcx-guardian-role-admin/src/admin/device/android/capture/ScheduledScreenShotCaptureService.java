@@ -3,6 +3,7 @@ package admin.device.android.capture;
 import admin.RfcxGuardian;
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 import rfcx.utility.rfcx.RfcxLog;
 import rfcx.utility.service.RfcxServiceHandler;
 
@@ -23,8 +24,12 @@ public class ScheduledScreenShotCaptureService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		app.rfcxServiceHandler.triggerService("ScreenShotCapture", true);
-	
+		if (app.rfcxPrefs.getPrefAsBoolean("admin_enable_screenshot_capture")) {
+			app.rfcxServiceHandler.triggerService("ScreenShotCapture", true);
+		} else {
+			Log.i(logTag, "Scheduled ScreenShot Capture is currently disabled in preferences.");
+		}
+		
 	}
 	
 	
