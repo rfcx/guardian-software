@@ -178,7 +178,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		if (isReQueued) {
 			Log.i(logTag, "CheckIn Successfully ReQueued: "+audioId);
 		} else {
-			Log.e(logTag, "CheckIn Failed to ReQueu: "+audioId);
+			Log.e(logTag, "CheckIn Failed to ReQueue: "+audioId);
 		}
 		
 	}
@@ -332,6 +332,24 @@ public class ApiCheckInUtils implements MqttCallback {
 			RfcxLog.logExc(logTag, e);
 		}
 	}
+	
+	private String getCheckInStatusInfoForJson() {
+
+		StringBuilder _queued = (new StringBuilder()).append("queued").append("*").append(app.apiCheckInDb.dbQueued.getCount());
+		StringBuilder _sent = (new StringBuilder()).append("sent").append("*").append(app.apiCheckInDb.dbSent.getCount());
+		StringBuilder _skipped = (new StringBuilder()).append("skipped").append("*").append(app.apiCheckInDb.dbSkipped.getCount());
+		StringBuilder _stashed = (new StringBuilder()).append("stashed").append("*").append(app.apiCheckInDb.dbStashed.getCount());
+
+//		long sendIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+		
+		for (String[] _checkIn : app.apiCheckInDb.dbSent.getAllRows()) {
+//			long diff = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(checkInEntry[0])));
+//			Log.e(logTag, "Difference ("+checkInEntry[1]+") "+ Math.round((diff / 1000) / 60) );
+			_sent.append("*").append(_checkIn[1]);
+		}
+		
+		return TextUtils.join("|", new String[] { _queued.toString(), _sent.toString(), _skipped.toString(), _stashed.toString() });
+	}
 
 	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta) throws JSONException, IOException {
 
@@ -344,12 +362,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
 
 		// Recording number of currently queued/skipped/stashed checkins
-		checkInMetaJson.put("checkins", TextUtils.join("|", new String[] { 	
-										"queued*"+app.apiCheckInDb.dbQueued.getCount() ,
-										"sent*"+app.apiCheckInDb.dbSent.getCount(),
-										"skipped*"+app.apiCheckInDb.dbSkipped.getCount(),
-										"stashed*"+app.apiCheckInDb.dbStashed.getCount()
-									}));
+		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson());
 
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", DeviceMobilePhone.getConcatMobilePhoneInfo(app.getApplicationContext()));
