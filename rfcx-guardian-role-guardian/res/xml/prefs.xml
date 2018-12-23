@@ -179,14 +179,37 @@
  	<EditTextPreference
         android:key="admin_log_capture_cycle"
         android:title="admin_log_capture_cycle"
-        android:summary="int - seconds"
+        android:summary="int - minutes"
         android:enabled="true"
-        android:defaultValue="300" />
+        android:defaultValue="30" />
+ 	
+ 	<EditTextPreference
+        android:key="admin_log_capture_level"
+        android:title="admin_log_capture_level"
+        android:summary="string - log verbosity level"
+        android:enabled="true"
+        android:defaultValue="warn" />
  	
  	<EditTextPreference
         android:key="admin_enable_log_capture"
         android:title="admin_enable_log_capture"
 		android:dialogTitle="admin_enable_log_capture"
+        android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="true" />
+ 	
+ 	<EditTextPreference
+        android:key="admin_screenshot_capture_cycle"
+        android:title="admin_screenshot_capture_cycle"
+        android:summary="int - minutes"
+        android:enabled="true"
+        android:defaultValue="180" />
+ 	
+ 	<EditTextPreference
+        android:key="admin_enable_screenshot_capture"
+        android:title="admin_enable_screenshot_capture"
+		android:dialogTitle="admin_enable_screenshot_capture"
         android:summary="string - true/false"
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"

@@ -235,7 +235,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("power", app.deviceSystemDb.dbPower.getConcatRows());
 			metaDataJsonObj.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
 			metaDataJsonObj.put("offline", app.deviceSystemDb.dbOffline.getConcatRows());
-			metaDataJsonObj.put("connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
+			metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
 			metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
 			metaDataJsonObj.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
 			metaDataJsonObj.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
@@ -244,6 +244,13 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());
 			
 			metaDataJsonObj.put("disk_usage", DeviceDiskUsage.concatDiskStats());
+			
+			// Adding sentinel data, if they can be retrieved
+			JSONObject sentinelJson = new JSONObject();
+			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", 
+					"sentinel_power", app.getApplicationContext().getContentResolver());
+			sentinelJson.put("power", (sentinelPower.length() > 0) ? sentinelPower.getJSONObject(0) : new JSONObject() ); 
+			metaDataJsonObj.put("sentinel", sentinelJson);
 			
 			// this timestamp should be generated and added following the previous queries
 			this.preFlightStatsQueryTimestamp = new Date();
@@ -310,7 +317,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("prefs", app.rfcxPrefs.getPrefsChecksum());
 
 		// Adding device location timezone offset
-//		checkInMetaJson.put("timezone_offset", DateTimeUtils.getTimeZoneOffset());
 		checkInMetaJson.put("datetime", TextUtils.join("|", new String[] { "system*"+System.currentTimeMillis(), "timezone*"+DateTimeUtils.getTimeZoneOffset() }));
 
 		// Adding messages to JSON blob
@@ -325,12 +331,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("logs", (logFileMeta[0] == null) ? "" :
 				TextUtils.join("*", new String[] { logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4] })
 				);
-
-		// Adding sentinel data, if they can be retrieved
-		JSONObject sentinelJson = new JSONObject();
-		JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sentinel_power", app.getApplicationContext().getContentResolver());
-		sentinelJson.put("power", (sentinelPower.length() > 0) ? sentinelPower.getJSONObject(0) : new JSONObject() ); 
-		checkInMetaJson.put("sentinel", sentinelJson);
 		
 		if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { Log.d(logTag,checkInMetaJson.toString()); }
 		

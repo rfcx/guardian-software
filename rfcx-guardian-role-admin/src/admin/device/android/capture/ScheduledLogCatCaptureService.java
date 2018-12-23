@@ -11,8 +11,6 @@ public class ScheduledLogCatCaptureService extends IntentService {
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledLogCatCaptureService.class);
 	
 	private static final String SERVICE_NAME = "ScheduledLogCatCapture";
-	
-	public static final long SCHEDULED_LOGCAT_CYCLE_DURATION = ( 30 * 60 * 1000 ); // every 30 minutes
 		
 	public ScheduledLogCatCaptureService() {
 		super(logTag);

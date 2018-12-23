@@ -316,8 +316,13 @@ public class RfcxPrefs {
 			put("checkin_archive_threshold", "960");
 
 			put("admin_enable_bluetooth", "true");	
-			put("admin_log_capture_cycle", "300");
+			
+			put("admin_log_capture_cycle", "30");
+			put("admin_log_capture_level", "warn");
 			put("admin_enable_log_capture", "true");
+			
+			put("admin_screenshot_capture_cycle", "180");
+			put("admin_enable_screenshot_capture", "true");
 			
 			
 			

@@ -11,8 +11,6 @@ public class ScheduledScreenShotCaptureService extends IntentService {
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledScreenShotCaptureService.class);
 	
 	private static final String SERVICE_NAME = "ScheduledScreenShotCapture";
-	
-	public static final long SCHEDULED_SCREENSHOT_CYCLE_DURATION = ( 3 * 60 * 60 * 1000 ); // every 3 hours
 		
 	public ScheduledScreenShotCaptureService() {
 		super(logTag);

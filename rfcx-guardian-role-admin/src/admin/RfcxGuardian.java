@@ -129,11 +129,11 @@ public class RfcxGuardian extends Application {
 							,
 					"ScheduledScreenShotCapture"
 							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
-							+"|"+ScheduledScreenShotCaptureService.SCHEDULED_SCREENSHOT_CYCLE_DURATION
+							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_screenshot_capture_cycle") * 60 * 1000 )
 							,
 					"ScheduledLogCatCapture"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
-							+"|"+ScheduledLogCatCaptureService.SCHEDULED_LOGCAT_CYCLE_DURATION
+							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
+							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
 			};
 			
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];

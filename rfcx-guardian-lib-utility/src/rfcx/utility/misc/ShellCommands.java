@@ -12,6 +12,7 @@ import java.util.List;
 import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
+import rfcx.utility.rfcx.RfcxGarbageCollection;
 import rfcx.utility.rfcx.RfcxLog;
 
 public class ShellCommands {
@@ -169,11 +170,9 @@ public class ShellCommands {
 	
 	public static boolean triggerRebootAsRoot(Context context) {
 		
-		int rebootPreDelay = 2;
+		RfcxGarbageCollection.runAndroidGarbageCollection();
 		
-		System.runFinalization();
-		Runtime.getRuntime().gc();
-		System.gc();
+		int rebootPreDelay = 2;
 
 		Log.v(logTag, "Attempting graceful reboot... then after "+rebootPreDelay+" seconds, killing RFCx processes and forcing reboot...");
 		

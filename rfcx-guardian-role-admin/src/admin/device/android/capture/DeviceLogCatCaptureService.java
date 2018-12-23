@@ -75,7 +75,7 @@ public class DeviceLogCatCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 			
-			DeviceLogCat deviceLogCat = new DeviceLogCat(context, RfcxGuardian.APP_ROLE, app.rfcxDeviceGuid.getDeviceGuid(), "Warn");
+			DeviceLogCat deviceLogCat = new DeviceLogCat(context, RfcxGuardian.APP_ROLE, app.rfcxDeviceGuid.getDeviceGuid(), app.rfcxPrefs.getPrefAsString("admin_log_capture_level"));
 			String scriptFilePath = DeviceLogCat.getExecutableScriptFilePath(context);
 
 			// removing older files if they're left in the capture directory
@@ -89,8 +89,9 @@ public class DeviceLogCatCaptureService extends Service {
 				
 				String captureFilePath = DeviceLogCat.getLogFileLocation_Capture(context, captureCycleBeginningTimeStamp);
 				String postCaptureFilePath = DeviceLogCat.getLogFileLocation_PostCapture(context, captureCycleBeginningTimeStamp);
+				long scriptDurationInSeconds = Math.round((app.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60) * 0.9);
 				
-				String execCmd = scriptFilePath+" "+captureFilePath+" "+postCaptureFilePath+" "+3;
+				String execCmd = scriptFilePath+" "+captureFilePath+" "+postCaptureFilePath+" "+scriptDurationInSeconds;
 				ShellCommands.executeCommandAsRootAndIgnoreOutput(execCmd, context);
 
 				long captureCycleEndingTimeStamp = System.currentTimeMillis();
