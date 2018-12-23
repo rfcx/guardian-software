@@ -606,8 +606,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				&& !isBatteryChargeSufficientForCheckIn());
 	}
 
-	private void purgeSingleAsset(String assetType, String rfcxDeviceId, Context context, String timestamp,
-			String fileExtension) {
+	private void purgeSingleAsset(String assetType, String rfcxDeviceId, Context context, String timestamp, String fileExtension) {
 
 		try {
 			String filePath = null;
@@ -617,6 +616,7 @@ public class ApiCheckInUtils implements MqttCallback {
 						(long) Long.parseLong(timestamp), fileExtension);
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(timestamp);
 				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(timestamp);
+				app.apiCheckInDb.dbSkipped.deleteSingleRowByAudioAttachmentId(timestamp);
 				app.audioEncodeDb.dbEncoded.deleteSingleRow(timestamp);
 
 			} else if (assetType.equals("screenshot")) {
