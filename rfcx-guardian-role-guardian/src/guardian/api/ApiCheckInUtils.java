@@ -136,6 +136,54 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 	}	
 	
+	public void reQueueCheckIn(String checkInStatus, String audioId) {
+		
+		boolean isReQueued = false;
+		String[] checkInToReQueue = new String[] {};
+		String[] reQueuedCheckIn = new String[] {};
+		
+		// fetch check-in entry from relevant table, if it exists...
+		if (checkInStatus.equalsIgnoreCase("sent")) { 
+			checkInToReQueue = app.apiCheckInDb.dbSent.getSingleRowByAudioAttachmentId(audioId); 
+		} else if (checkInStatus.equalsIgnoreCase("stashed")) { 
+			checkInToReQueue = app.apiCheckInDb.dbStashed.getSingleRowByAudioAttachmentId(audioId); 
+		} else if (checkInStatus.equalsIgnoreCase("skipped")) { 
+			checkInToReQueue = app.apiCheckInDb.dbSkipped.getSingleRowByAudioAttachmentId(audioId); 
+		}
+		
+		// if it exists, add entry to checkin table
+		if (checkInToReQueue[0] != null) {
+	
+			int queuedCount = app.apiCheckInDb.dbQueued.insert(checkInToReQueue[1], checkInToReQueue[2], checkInToReQueue[3], checkInToReQueue[4]);
+			reQueuedCheckIn = app.apiCheckInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId);
+			
+			// if successfully inserted into queue table (and verified), delete from original table
+			if (reQueuedCheckIn[0] != null) {
+				
+				if (checkInStatus.equalsIgnoreCase("sent")) { 
+					app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(audioId);
+					checkInToReQueue = app.apiCheckInDb.dbSent.getSingleRowByAudioAttachmentId(audioId); 
+				} else if (checkInStatus.equalsIgnoreCase("stashed")) { 
+					app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(audioId); 
+					checkInToReQueue = app.apiCheckInDb.dbStashed.getSingleRowByAudioAttachmentId(audioId); 
+				} else if (checkInStatus.equalsIgnoreCase("skipped")) { 
+					app.apiCheckInDb.dbSkipped.deleteSingleRowByAudioAttachmentId(audioId); 
+					checkInToReQueue = app.apiCheckInDb.dbSkipped.getSingleRowByAudioAttachmentId(audioId); 
+				}
+				
+				isReQueued = (checkInToReQueue[0] == null);
+			}	
+			
+		}
+		
+		if (isReQueued) {
+			Log.i(logTag, "CheckIn Successfully ReQueued: "+audioId);
+		} else {
+			Log.e(logTag, "CheckIn Failed to ReQueu: "+audioId);
+		}
+		
+	}
+	
 	private void setupRecentActivityHealthCheck() {
 		
 		// fill initial array with garbage (very high) values to ensure that checks will fail until we have the required number of checkins to compare
