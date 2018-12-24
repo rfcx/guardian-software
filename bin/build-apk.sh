@@ -74,8 +74,5 @@ cp $APK_PATH $SCRIPT_DIR/../tmp/$ROLE-$APK_VERSION.apk;
 export POST_CLEANUP_ROLES=`rm $ROLE_DIR/local.properties $ROLE_DIR/build.xml $ROLE_DIR/proguard-project.txt;`;
 export POST_CLEANUP_LIBS=`rm $ROLE_DIR/../rfcx-guardian-lib-*/local.properties $ROLE_DIR/../rfcx-guardian-lib-*/build.xml $ROLE_DIR/../rfcx-guardian-lib-*/proguard-project.txt;`;
 
-# export POST_CLEANUP_DEPRECATED_ROLES=`cd $SCRIPT_DIR/../; rm deprecated/rfcx-guardian-role-*/local.properties deprecated/rfcx-guardian-role-*/build.xml deprecated/rfcx-guardian-role-*/proguard-project.txt;`;
-# export POST_CLEANUP_DEPRECATED_LIBS=`cd $SCRIPT_DIR/../; rm deprecated/rfcx-guardian-lib-*/local.properties deprecated/rfcx-guardian-lib-*/build.xml deprecated/rfcx-guardian-lib-*/proguard-project.txt;`;
-
 cd $SCRIPT_DIR/../;
 
