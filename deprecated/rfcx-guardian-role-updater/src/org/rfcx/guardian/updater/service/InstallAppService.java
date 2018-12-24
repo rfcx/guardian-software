@@ -86,7 +86,7 @@ public class InstallAppService extends Service {
 					Log.d(TAG, "installation successful ("+app.targetAppRole+", "+app.apiCore.installVersion+"). deleting apk and rebooting...");
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
-					ShellCommands.executeCommand("reboot",null,false,app.getApplicationContext());
+					ShellCommands.triggerReboot(app.getApplicationContext());
 				} else if (	(installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
 					installLoopCounter++;
 					app.rfcxServiceHandler.triggerService(SERVICE_NAME, true);

@@ -22,7 +22,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         		);
     
 		// added to ensure that multiple checkins don't occur at each connectivity reception
-		if (app.lastApiCheckTriggeredAt < (app.deviceConnectivity.lastConnectedAt() - 2000)) {
+		if (app.lastApiCheckTriggeredAt < (app.deviceConnectivity.lastConnectedAt() - 60000)) {
 			if (app.apiCore.allowTriggerCheckIn()) {
 				app.rfcxServiceHandler.triggerService("ApiCheckVersion",true);
 			}

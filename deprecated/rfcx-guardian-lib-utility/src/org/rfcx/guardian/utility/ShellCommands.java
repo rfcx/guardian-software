@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 public class ShellCommands {
@@ -20,6 +21,29 @@ public class ShellCommands {
 		Log.i(logTag, "Attempting to kill process associated with search term '"+searchTerm+"'.");
 		String grepExclude = (excludeTerm != null) ? " grep -v "+excludeTerm+" |" : "";
 		executeCommand("kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)", null, true, context);
+	}
+
+	public static void triggerReboot(Context context) {
+		
+		Runtime.getRuntime().runFinalization();
+		System.runFinalization();
+		
+		Runtime.getRuntime().gc();
+		System.gc();
+		
+		int rebootPreDelay = 2;
+
+		Log.v(logTag, "Attempting graceful reboot... then after "+rebootPreDelay+" seconds, killing RFCx processes and forcing reboot...");
+		
+		executeCommand(
+				"am start -a android.intent.action.REBOOT; "+
+				"am broadcast android.intent.action.ACTION_SHUTDOWN; "+
+				"sleep "+rebootPreDelay
+					+" && kill $(ps | grep org.rfcx.guardian | cut -d \" \" -f 5)"
+					+" && umount -vl "+Environment.getExternalStorageDirectory().toString()
+					+" && reboot;"
+			, null, true, context );
+
 	}
 	
 	public static boolean executeCommand(String commandContents, String outputSearchString, boolean asRoot, Context context) {
