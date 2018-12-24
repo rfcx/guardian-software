@@ -27,6 +27,14 @@
 		<item>tls</item>
 	</string-array>
 	
+    <string-array name="logcat_log_levels">
+		<item>Error</item>
+		<item>Warn</item>
+		<item>Info</item>
+		<item>Debug</item>
+		<item>Verbose</item>
+	</string-array>
+	
     <string-array name="audio_sample_rate_labels">
 		<item>8 kHz</item>
 		<item>12 kHz</item>

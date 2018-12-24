@@ -187,8 +187,10 @@
         android:key="admin_log_capture_level"
         android:title="admin_log_capture_level"
         android:summary="string - log verbosity level"
+		android:entries="@array/logcat_log_levels"
+		android:entryValues="@array/logcat_log_levels"
         android:enabled="true"
-        android:defaultValue="warn" />
+        android:defaultValue="Warn" />
  	
  	<EditTextPreference
         android:key="admin_enable_log_capture"
