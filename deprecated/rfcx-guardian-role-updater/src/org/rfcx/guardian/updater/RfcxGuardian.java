@@ -90,7 +90,11 @@ public class RfcxGuardian extends Application {
 					new String[] { 
 						"ApiCheckVersionIntentService"
 								+"|"+DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
-								+"|"+this.rfcxPrefs.getPrefAsString("install_cycle_duration")
+								+"|"+this.rfcxPrefs.getPrefAsString("install_cycle_duration"),
+
+						"RebootTrigger"
+								+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
+								+"|"+"norepeat"
 						}, 
 				true);
 		}

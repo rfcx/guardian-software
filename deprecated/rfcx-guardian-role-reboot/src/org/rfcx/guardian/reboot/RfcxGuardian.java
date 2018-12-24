@@ -63,7 +63,7 @@ public class RfcxGuardian extends Application {
 						"RebootTrigger"
 								+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
 							//	+"|"+"norepeat"
-								+"|"+(12 * 60 * 60 * 1000)
+								+"|"+(24 * 60 * 60 * 1000)
 
 //						"ServiceMonitor"
 //								+"|"+DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minute before running

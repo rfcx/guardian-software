@@ -22,7 +22,7 @@ public class RebootTriggerIntentService extends IntentService {
 		Intent intent = new Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
 		sendBroadcast(intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));
 		
-		ShellCommands.executeCommand("reboot",null,false,((RfcxGuardian) getApplication()).getApplicationContext());
+		ShellCommands.triggerReboot(((RfcxGuardian) getApplication()).getApplicationContext());
 	}
 
 }

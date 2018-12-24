@@ -23,7 +23,7 @@ public class MainActivity extends Activity {
 		switch (item.getItemId()) {
 
 		case R.id.menu_reboot:
-			ShellCommands.executeCommand("reboot",null,false,getApplicationContext());
+			ShellCommands.triggerReboot(getApplicationContext());
 			break;
 			
 		}

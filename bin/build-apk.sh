@@ -13,11 +13,13 @@ if [ ! -d tmp ]; then
   mkdir tmp;
 fi
 
-export ROLE_DIR="$SCRIPT_DIR/../rfcx-guardian-role-$ROLE";
+export ROLE_DIR_PARENT="..";
 
-if [[ $ROLE = 'updater' ]]; then
-  export ROLE_DIR="$SCRIPT_DIR/../deprecated/rfcx-guardian-role-$ROLE";
+if [ "$ROLE" = "updater" ] #|| [ "$ROLE" = "reboot" ]
+	then ROLE_DIR_PARENT="../deprecated"; 
 fi
+
+export ROLE_DIR="$SCRIPT_DIR/$ROLE_DIR_PARENT/rfcx-guardian-role-$ROLE";
 
 cd $ROLE_DIR;
 
