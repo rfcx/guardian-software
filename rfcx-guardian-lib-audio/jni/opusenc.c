@@ -3,7 +3,7 @@
 #include <jni.h>
 #include <android/log.h>
 
-#include "opus-1.1.1/include/opus.h"
+#include "opus-1.3/include/opus.h"
 
 #define LOG_TAG "OPUS ENCODER"
 #define LOGD(format, args...)  __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, format, ##args);
@@ -162,7 +162,7 @@ int convert( const char* source_path, const char* target_path, int bitRate, int 
 	srand(((getpid()&65535)<<15)^start_time);
 	serialno=rand();
 
-	opus_version= "libopus 1.1.1";	//opus_get_version_string();
+	opus_version= "libopus 1.3";	//opus_get_version_string();
 	// Vendor string should just be the encoder library, the ENCODER comment specifies the tool used.
 	if( comment_init(&inopt.comments, &inopt.comments_length, opus_version) ) {
 		return 1;	// failed
