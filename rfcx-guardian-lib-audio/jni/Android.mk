@@ -6,7 +6,7 @@ LOCAL_LDLIBS := -llog
 # libogg
 #
 include $(CLEAR_VARS)
-OGG_VERSION := 1.3.1
+OGG_VERSION := 1.3.3
 OGG_DIR   := $(LOCAL_PATH)/libogg-$(OGG_VERSION)
 include $(OGG_DIR)/Android.mk
 
@@ -16,14 +16,12 @@ include $(OGG_DIR)/Android.mk
 include $(CLEAR_VARS)
 OPUS_VERSION := 1.3
 OPUS_DIR   := $(LOCAL_PATH)/opus-$(OPUS_VERSION)
-
 include $(OPUS_DIR)/Android.mk
 
 #
 # opus wrapper
 #
 include $(CLEAR_VARS)
-
 LOCAL_C_INCLUDES    := \
 $(LOCAL_PATH)/opus-$(OPUS_VERSION)/include \
 $(LOCAL_PATH)/libogg-$(OGG_VERSION)/include
