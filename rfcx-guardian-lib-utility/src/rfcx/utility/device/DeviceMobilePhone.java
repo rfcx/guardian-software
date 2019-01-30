@@ -1,35 +1,103 @@
 package rfcx.utility.device;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import rfcx.utility.device.hardware.DeviceHardwareUtils;
 import rfcx.utility.rfcx.RfcxLog;
 
 public class DeviceMobilePhone {
 	
-	public DeviceMobilePhone(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceMobilePhone.class);
+	public DeviceMobilePhone(Context context) {
+		this.context = context;
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceMobilePhone.class);
+	private Context context;
 	
-	public static String getSIMSerial(Context context) {
-		return ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getSimSerialNumber();
+	private String simPhoneNumber = null;
+	private String simSerial = null;
+	private String deviceIMSI = null;
+	private String deviceIMEI = null;
+
+	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceHardwareUtils.class);
+	
+	public void setSimPhoneNumber(String simPhoneNumber) {
+		if (		(simPhoneNumber != null) 
+			&& 	(simPhoneNumber.length() != 0)
+		) { 
+			this.simPhoneNumber = simPhoneNumber; 
+		}
+	}
+	
+	public void setSimSerial(String simSerial) {
+		if (		(simSerial != null) 
+			&& 	(simSerial.length() != 0)
+		) { 
+			this.simSerial = simSerial; 
+		}
+	}
+	
+	public void setDeviceIMSI(String deviceIMSI) {
+		if (		(deviceIMSI != null) 
+			&& 	(deviceIMSI.length() != 0)
+		) { 
+			this.deviceIMSI = deviceIMSI; 
+		}
+	}
+	
+	public void setDeviceIMEI(String deviceIMEI) {
+		if (		(deviceIMEI != null) 
+			&& 	(deviceIMEI.length() != 0)
+		) { 
+			this.deviceIMEI = deviceIMEI; 
+		}
+	}
+	
+	private String getSimSerial() {
+		setSimSerial(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getSimSerialNumber());
+		return this.simSerial;
 	}	
 	
-	public static String getIMSI(Context context) {
-		return ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getSubscriberId();
+	private String getSimPhoneNumber() {
+		setSimPhoneNumber(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number());
+		return this.simPhoneNumber;
+	}	
+	
+	private String getDeviceIMSI() {
+		setDeviceIMSI(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getSubscriberId());
+		return this.deviceIMSI;
 	}	
 
-	public static String getIMEI(Context context) {
-		return ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+	private String getDeviceIMEI() {
+		setDeviceIMEI(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId());
+		return this.deviceIMEI;
 	}	
 	
-	public static String getConcatMobilePhoneInfo(Context context) {
-		return (TextUtils.join("|", new String[] {
-				"sim*"+getSIMSerial(context),
-				"imsi*"+getIMSI(context),
-				"imei*"+getIMEI(context)
-			}));
+	public JSONObject getMobilePhoneInfoJson() {
+		List<String[]> phoneInfoList = getMobilePhoneInfo();
+		JSONObject phoneInfoJson = new JSONObject();
+		for (String[] phoneInfo : phoneInfoList) {
+			try {
+				phoneInfoJson.put(phoneInfo[0], phoneInfo[1]);
+			} catch (JSONException e) {
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+		return phoneInfoJson;
+	}
+	
+	private List<String[]> getMobilePhoneInfo() {
+		List<String[]> phoneInfo = new ArrayList<String[]>();
+		phoneInfo.add(new String[] { "sim", getSimSerial() });
+		phoneInfo.add(new String[] { "number", getSimPhoneNumber() });
+		phoneInfo.add(new String[] { "imsi", getDeviceIMSI() });
+		phoneInfo.add(new String[] { "imei", getDeviceIMEI() });
+		return phoneInfo;
 	}
 }

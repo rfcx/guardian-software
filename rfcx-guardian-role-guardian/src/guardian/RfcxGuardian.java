@@ -8,6 +8,7 @@ import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceBattery;
 import rfcx.utility.device.DeviceCPU;
 import rfcx.utility.device.DeviceConnectivity;
+import rfcx.utility.device.DeviceMobilePhone;
 import rfcx.utility.device.DeviceNetworkStats;
 import rfcx.utility.device.control.DeviceControlUtils;
 import rfcx.utility.rfcx.RfcxDeviceGuid;
@@ -29,6 +30,7 @@ import guardian.api.ApiCheckInJobService;
 import guardian.api.ApiCheckInUtils;
 import guardian.api.ApiQueueCheckInService;
 import guardian.archive.ApiCheckInArchiveService;
+import guardian.archive.ArchiveDb;
 import guardian.audio.capture.AudioCaptureService;
 import guardian.audio.capture.AudioCaptureUtils;
 import guardian.audio.encode.AudioEncodeDb;
@@ -66,6 +68,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public DeviceSensorDb deviceSensorDb = null;
 	public DeviceRebootDb rebootDb = null;
 	public DeviceDataTransferDb deviceDataTransferDb = null;
+	public ArchiveDb archiveDb = null;
 	
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -80,6 +83,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public AudioCaptureUtils audioCaptureUtils = null;
 	public ApiCheckInUtils apiCheckInUtils = null;
 	public DeviceUtils deviceUtils = null;
+	public DeviceMobilePhone deviceMobilePhone = null;
 	
 	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
 	
@@ -110,12 +114,17 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 		this.syncSharedPrefs();
 		
+		setPref("enable_cutoffs_schedule_off_hours", "true");
+		setPref("audio_schedule_off_hours", "19:00-23:45,00:05-05:55");
+		setPref("checkin_stash_threshold", "120");
+		
 		setDbHandlers();
 		setServiceHandlers();
 		
 		this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
 		this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
 		this.deviceUtils = new DeviceUtils(getApplicationContext());
+		this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 		
 		initializeRoleServices();
 	}
@@ -163,6 +172,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.deviceSensorDb = new DeviceSensorDb(this, this.version);
 		this.rebootDb = new DeviceRebootDb(this, this.version);
 		this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
+		this.archiveDb = new ArchiveDb(this, this.version);
 
 	}
 	
@@ -197,5 +207,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public boolean setPref(String prefKey, String prefValue) {
 		return this.sharedPrefs.edit().putString(prefKey,prefValue).commit();
 	}
+	
     
 }

@@ -365,7 +365,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson());
 
 		// Telephony and SIM card info
-		checkInMetaJson.put("phone", DeviceMobilePhone.getConcatMobilePhoneInfo(app.getApplicationContext()));
+		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
 		
 		// Hardware info
 		checkInMetaJson.put("hardware", DeviceHardwareUtils.getDeviceHardwareInfoJson());

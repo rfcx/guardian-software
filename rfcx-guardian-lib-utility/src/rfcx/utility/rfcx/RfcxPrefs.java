@@ -312,7 +312,7 @@ public class RfcxPrefs {
 			put("checkin_failure_thresholds", "10,20,30,40,50,60,70,80,90");
 			
 			put("checkin_skip_threshold", "5");
-			put("checkin_stash_threshold", "120");
+			put("checkin_stash_threshold", "320");
 			put("checkin_archive_threshold", "960");
 
 			put("admin_enable_bluetooth", "true");	

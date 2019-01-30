@@ -122,6 +122,9 @@ public class ApiCheckInArchiveService extends Service {
 					StringBuilder tsvRows = new StringBuilder();
 					tsvRows.append(TextUtils.join("\t", tsvMetaColumns)).append("\n");
 					
+					long oldestCheckInTimestamp = System.currentTimeMillis();
+					long newestCheckInTimestamp = 0;
+					
 					for (String[] checkIn : checkInsBeyondArchiveThreshold) {
 						
 						String gzFileName = "audio_"+checkIn[4].substring(1+checkIn[4].lastIndexOf("/"));
@@ -131,8 +134,10 @@ public class ApiCheckInArchiveService extends Service {
 						JSONObject audioJson = new JSONObject(checkIn[2]);
 						String[] audioMeta = audioJson.getString("audio").split("\\*");
 						
+						long measuredAt = (long) Long.parseLong(audioMeta[1]);
+						
 						String tsvRow = (new StringBuilder())
-							/* measured_at */	.append(metaDateTimeFormat.format(new Date((long) Long.parseLong(audioMeta[1])))).append("\t") 					
+							/* measured_at */	.append(metaDateTimeFormat.format(new Date(measuredAt))).append("\t") 					
 							/* queued_at */		.append(metaDateTimeFormat.format(new Date((long) Long.parseLong(audioJson.getString("queued_at"))))).append("\t")
 							/* filename */		.append(unGzFileName).append("\t") 					
 							/* format */			.append(audioMeta[2]).append("\t") 																		
@@ -149,6 +154,9 @@ public class ApiCheckInArchiveService extends Service {
 							tsvRows.append(tsvRow);
 							archiveFileList.add(archiveTarFilePath+"/audio/"+unGzFileName);
 						}
+						
+						if (measuredAt < oldestCheckInTimestamp) { oldestCheckInTimestamp = measuredAt; }
+						if (measuredAt > newestCheckInTimestamp) { newestCheckInTimestamp = measuredAt; }
 					}
 					
 					StringUtils.saveStringToFile(tsvRows.toString(), archiveTarFilePath+"/_metadata.tsv");
@@ -156,6 +164,9 @@ public class ApiCheckInArchiveService extends Service {
 					
 					FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath+".tar");
 					FileUtils.gZipFile(archiveTarFilePath+".tar", archiveTarFilePath+".tar.gz");
+					
+					int archiveFileSize = 0;
+					app.archiveDb.dbCheckInArchive.insert(new Date(archiveTimestamp), new Date(oldestCheckInTimestamp), new Date(newestCheckInTimestamp), checkInsBeyondArchiveThreshold.size(), archiveFileSize, archiveTarFilePath+".tar.gz");
 					
 					// Clean up and remove archived originals
 					for (String[] checkIn : checkInsBeyondArchiveThreshold) {

@@ -364,8 +364,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				if (!this.geoPositionProviderInfo.isEmpty()) {
 					this.locationManager.requestLocationUpdates(
 									this.geoPositionProviderInfo, 
-									DeviceUtils.geoPositionMinTimeElapsedBetweenUpdatesInSeconds[DeviceUtils.geoPositionDefaultUpdateIndex] * 1000, 
-									DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters[DeviceUtils.geoPositionDefaultUpdateIndex], 
+									DeviceUtils.geoPositionMinTimeElapsedBetweenUpdatesInSeconds[app.deviceUtils.geoPositionUpdateIndex] * 1000, 
+									DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters[app.deviceUtils.geoPositionUpdateIndex], 
 									this);
 					this.isListenerRegistered_geoposition = true;
 				} else {

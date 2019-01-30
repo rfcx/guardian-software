@@ -83,8 +83,9 @@
         android:key="enable_cutoffs_schedule_off_hours"
         android:title="enable_cutoffs_schedule_off_hours"
         android:summary="string - true/false"
-        android:enabled="true"
-        android:defaultValue="false" />
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="true" />
  	
  	<!-- Audio Capture Formatting -->
  	
