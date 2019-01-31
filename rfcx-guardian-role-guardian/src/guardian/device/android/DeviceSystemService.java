@@ -38,7 +38,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private boolean runFlag = false;
 	private DeviceSystemSvc deviceSystemSvc;
 	
-	private int audioCycleDuration = 1; 
+	private int referenceCycleDuration = 1; 
 	
 	private int innerLoopIncrement = 0;
 	private int innerLoopsPerCaptureCycle = 1;
@@ -223,19 +223,22 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 			if (innerLoopIncrement == 0) {
 				
-				int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+				boolean limitBasedOnBatteryLevel = app.audioCaptureUtils.limitBasedOnBatteryLevel();
+				int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 				
-				if (this.audioCycleDuration != prefsAudioCycleDuration) {
+				int prefsReferenceCycleDuration = limitBasedOnBatteryLevel ? ( 2 * audioCycleDuration ) : audioCycleDuration;
+				
+				if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 			
-					this.audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
-					this.innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsAudioCycleDuration);
-					this.outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsAudioCycleDuration);
+					this.referenceCycleDuration = prefsReferenceCycleDuration;
+					this.innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
+					this.outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
 					app.deviceCPU.setReportingSampleCount(this.innerLoopsPerCaptureCycle);
-					this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsAudioCycleDuration);
+					this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration);
 					
 					Log.d(logTag, (new StringBuilder())
-							.append("SystemStats Capture: ")
-							.append("Snapshots (all metrics) taken every ").append(Math.round(DeviceUtils.getCaptureCycleDuration(prefsAudioCycleDuration)/1000)).append(" seconds.")
+							.append("SystemStats Capture").append(limitBasedOnBatteryLevel ? " (low power mode)" : "").append(": ")
+							.append("Snapshots (all metrics) taken every ").append(Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration)/1000)).append(" seconds.")
 							.toString());
 				}
 			}

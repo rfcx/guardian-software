@@ -114,9 +114,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
 		this.syncSharedPrefs();
 		
-		setPref("enable_cutoffs_schedule_off_hours", "true");
-		setPref("audio_schedule_off_hours", "19:00-23:45,00:05-05:55");
-		setPref("checkin_stash_threshold", "120");
+//		setPref("enable_cutoffs_schedule_off_hours", "true");
+//		setPref("audio_schedule_off_hours", "19:00-23:45,00:05-05:55");
+//		setPref("checkin_stash_threshold", "120");
 		
 		setDbHandlers();
 		setServiceHandlers();

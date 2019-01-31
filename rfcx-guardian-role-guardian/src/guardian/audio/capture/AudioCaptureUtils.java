@@ -90,10 +90,18 @@ public class AudioCaptureUtils {
 		//	return (DeviceDiskUsage.getInternalDiskFreeMegaBytes() >= requiredAvailableInternalDiskSpace);
 	}
 	
+	public boolean limitBasedOnBatteryLevel() {
+		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery"));
+	}
+	
+	public boolean limitBasedOnTimeOfDay() {
+		return (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_schedule_off_hours"));
+	}
+	
 	public boolean isAudioCaptureAllowed() {
 		
-		boolean limitBasedOnBatteryLevel = (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery"));
-		boolean limitBasedOnTimeOfDay = (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_schedule_off_hours"));
+		boolean limitBasedOnBatteryLevel = limitBasedOnBatteryLevel();
+		boolean limitBasedOnTimeOfDay = limitBasedOnTimeOfDay();
 		boolean limitBasedOnExternalStorage = !FileUtils.isExternalStorageAvailable();
 		boolean limitBasedOnLackOfHardwareSupport = !this.isAudioCaptureHardwareSupported;
 		

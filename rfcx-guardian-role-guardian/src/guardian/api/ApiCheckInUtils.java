@@ -342,10 +342,10 @@ public class ApiCheckInUtils implements MqttCallback {
 
 //		long sendIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
 		
-		for (String[] _checkIn : app.apiCheckInDb.dbSent.getAllRows()) {
+		for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(10)) {
 //			long diff = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(checkInEntry[0])));
 //			Log.e(logTag, "Difference ("+checkInEntry[1]+") "+ Math.round((diff / 1000) / 60) );
-			_sent.append("*").append(_checkIn[1]);
+			_sent.append("*").append(_checkIn[1].substring(0, _checkIn[1].lastIndexOf(".")));
 		}
 		
 		return TextUtils.join("|", new String[] { _queued.toString(), _sent.toString(), _skipped.toString(), _stashed.toString() });
