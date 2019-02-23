@@ -25,8 +25,10 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import guardian.api.ApiAssetExchangeLogDb;
 import guardian.api.ApiCheckInDb;
 import guardian.api.ApiCheckInJobService;
+import guardian.api.ApiCheckInMetaDb;
 import guardian.api.ApiCheckInUtils;
 import guardian.api.ApiQueueCheckInService;
 import guardian.archive.ApiCheckInArchiveService;
@@ -39,6 +41,7 @@ import guardian.audio.encode.AudioQueueEncodeService;
 import guardian.camera.capture.PhotoCaptureJobService;
 import guardian.device.android.SntpSyncJobService;
 import guardian.device.android.DeviceDataTransferDb;
+import guardian.device.android.DeviceDiskDb;
 import guardian.device.android.DeviceRebootDb;
 import guardian.device.android.DeviceSensorDb;
 import guardian.device.android.DeviceSystemDb;
@@ -64,10 +67,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	// Database Handlers
 	public AudioEncodeDb audioEncodeDb = null;
 	public ApiCheckInDb apiCheckInDb = null;
+	public ApiCheckInMetaDb apiCheckInMetaDb = null;
+	public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
 	public DeviceSystemDb deviceSystemDb = null;
 	public DeviceSensorDb deviceSensorDb = null;
 	public DeviceRebootDb rebootDb = null;
 	public DeviceDataTransferDb deviceDataTransferDb = null;
+	public DeviceDiskDb deviceDiskDb = null;
 	public ArchiveDb archiveDb = null;
 	
 	// Receivers
@@ -116,7 +122,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 //		setPref("enable_cutoffs_schedule_off_hours", "true");
 //		setPref("audio_schedule_off_hours", "19:00-23:45,00:05-05:55");
-//		setPref("checkin_stash_threshold", "120");
+		setPref("audio_battery_cutoff", "80");
 		
 		setDbHandlers();
 		setServiceHandlers();
@@ -168,10 +174,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		
 		this.audioEncodeDb = new AudioEncodeDb(this, this.version);
 		this.apiCheckInDb = new ApiCheckInDb(this, this.version);
+		this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
+		this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
 		this.deviceSystemDb = new DeviceSystemDb(this, this.version);
 		this.deviceSensorDb = new DeviceSensorDb(this, this.version);
 		this.rebootDb = new DeviceRebootDb(this, this.version);
 		this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
+		this.deviceDiskDb = new DeviceDiskDb(this, this.version);
 		this.archiveDb = new ArchiveDb(this, this.version);
 
 	}

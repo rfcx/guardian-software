@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import rfcx.utility.device.DeviceDiskUsage;
 import rfcx.utility.device.DeviceMobileNetwork;
 import rfcx.utility.misc.ArrayUtils;
 import rfcx.utility.rfcx.RfcxLog;
@@ -64,6 +65,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private List<long[]> lightSensorValues = new ArrayList<long[]>();
 	private List<long[]> dataTransferValues = new ArrayList<long[]>();
 	private List<int[]> batteryLevelValues = new ArrayList<int[]>();
+	private List<long[]> diskUsageValues = new ArrayList<long[]>();
 	private List<int[]> cpuUsageValues = new ArrayList<int[]>();
 	private List<double[]> accelSensorValues = new ArrayList<double[]>();
 	private List<double[]> geoPositionValues = new ArrayList<double[]>();
@@ -201,6 +203,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 						// capture and cache battery level info
 						batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
 						saveSnapshotValuesToDatabase("battery"); 
+						
+						diskUsageValues.add(DeviceDiskUsage.getCurrentDiskUsageStats());
+						saveSnapshotValuesToDatabase("diskusage"); 
 
 						// cache accelerometer sensor data
 						saveSnapshotValuesToDatabase("accel");
@@ -480,6 +485,16 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				for (int[] batteryLevelVals : batteryLevelValuesCache) {
 					app.deviceSystemDb.dbBattery.insert(new Date(), batteryLevelVals[0], batteryLevelVals[1]);
 					app.deviceSystemDb.dbPower.insert(new Date(), batteryLevelVals[2], batteryLevelVals[3]);
+				}
+				
+			} else if (statAbbrev.equalsIgnoreCase("diskusage")) {
+				
+				List<long[]> diskUsageValuesCache = this.diskUsageValues;
+				this.diskUsageValues = new ArrayList<long[]>();
+				
+				for (long[] diskUsageVals : diskUsageValuesCache) {
+					app.deviceDiskDb.dbDiskUsage.insert("internal", new Date(diskUsageVals[0]), diskUsageVals[1], diskUsageVals[2]);
+					app.deviceDiskDb.dbDiskUsage.insert("external", new Date(diskUsageVals[0]), diskUsageVals[3], diskUsageVals[4]);
 				}
 				
 			} else {

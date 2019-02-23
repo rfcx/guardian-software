@@ -15,58 +15,37 @@ public class DeviceDiskUsage {
 	}
 	
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceDiskUsage.class);
- 
-	public static String concatDiskStats() {
-		List<String> diskUsage = new ArrayList<String>();
-		for (String[] usageStat : allDiskStats()) {
-			diskUsage.add(TextUtils.join("*", usageStat));
-		}
-		return TextUtils.join("|", diskUsage);
+
+	private static StatFs getStatFs(String absolutePath){
+		return new StatFs(absolutePath);
+	}
+
+	public static long[] getCurrentDiskUsageStats() {
+		StatFs intStat = getStatFs(Environment.getRootDirectory().getAbsolutePath());
+		StatFs extStat = getStatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
+		return new long[] { System.currentTimeMillis(), diskUsedBytes(intStat), diskFreeBytes(intStat), diskUsedBytes(extStat), diskFreeBytes(extStat) };
 	}
 	
-	public static List<String[]> allDiskStats() {
-		StatFs internalStatFs = getStats(false);
-		StatFs sdCardStatFs = getStats(true);
-		List<String[]> allStats = new ArrayList<String[]>();
-		allStats.add(new String[] { "internal", ""+System.currentTimeMillis(), ""+diskUsedBytes(internalStatFs), ""+diskFreeBytes(internalStatFs) });
-		allStats.add(new String[] { "external", ""+System.currentTimeMillis(), ""+diskUsedBytes(sdCardStatFs), ""+diskFreeBytes(sdCardStatFs) });
-		return allStats;
+	private static long diskTotalBytes(StatFs statFs) {
+		return (((long) statFs.getBlockCount()) * ((long) statFs.getBlockSize()));
 	}
+
+	private static long diskFreeBytes(StatFs statFs) {
+		return (((long) statFs.getAvailableBlocks()) * ((long) statFs.getBlockSize()));
+	}
+
+	private static long diskUsedBytes(StatFs statFs) {
+		return ( ((long) (statFs.getBlockCount()) * ((long) statFs.getBlockSize())) - (((long) statFs.getAvailableBlocks()) * ((long) statFs.getBlockSize())) );
+	}
+
 	
-//	public static long getInternalDiskFreeBytes() {
-//		return diskFreeBytes(getStats(false));
+//	public static int getInternalDiskFreeMegaBytes() {
+//		return Math.round(diskFreeBytes(getStats(false)) / (1024 * 1024));
 //	}
 //	
-//	public static long getExternalDiskFreeBytes() {
-//		return diskFreeBytes(getStats(true));
+//	public static int getExternalDiskFreeMegaBytes() {
+//		return Math.round(diskFreeBytes(getStats(true)) / (1024 * 1024));
 //	}
-	
-	public static int getInternalDiskFreeMegaBytes() {
-		return Math.round(diskFreeBytes(getStats(false)) / (1024 * 1024));
-	}
-	
-	public static int getExternalDiskFreeMegaBytes() {
-		return Math.round(diskFreeBytes(getStats(true)) / (1024 * 1024));
-	}
 
-  public static long diskTotalBytes(StatFs statFs) {
-    return (((long) statFs.getBlockCount()) * ((long) statFs.getBlockSize()));
-  }
-
-  public static long diskFreeBytes(StatFs statFs) {
-    return (((long) statFs.getAvailableBlocks()) * ((long) statFs.getBlockSize()));
-  }
-
-  public static long diskUsedBytes(StatFs statFs) {
-    return ( ((long) (statFs.getBlockCount()) * ((long) statFs.getBlockSize())) - (((long) statFs.getAvailableBlocks()) * ((long) statFs.getBlockSize())) );
-  }
-
-  private static StatFs getStats(boolean external){
-    if (external) {
-    	return new StatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
-    } else {
-    	return new StatFs(Environment.getRootDirectory().getAbsolutePath());
-    }
-  }
 
 }

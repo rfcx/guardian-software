@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -26,6 +27,7 @@ import rfcx.utility.misc.ArrayUtils;
 import rfcx.utility.misc.FileUtils;
 import rfcx.utility.misc.StringUtils;
 import rfcx.utility.audio.RfcxAudioUtils;
+import rfcx.utility.database.DbUtils;
 import rfcx.utility.datetime.DateTimeUtils;
 import rfcx.utility.device.DeviceDiskUsage;
 import rfcx.utility.device.DeviceMobilePhone;
@@ -79,7 +81,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private List<String> previousCheckIns = new ArrayList<String>();
 	
-	private Date preFlightStatsQueryTimestamp = new Date();
+//	private Date preFlightStatsQueryTimestamp = new Date();
 
 	private int[] failedCheckInThresholds = new int[0];
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
@@ -273,9 +275,20 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 	}
 
-	private JSONObject getSystemMetaDataAsJson(JSONObject metaDataJsonObj) throws JSONException {
+	private void createSystemMetaDataJsonSnapshot() throws JSONException {
 
+		JSONObject metaDataJsonObj = new JSONObject();
+		
 		try {
+			
+			Date metaQueryTimestampObj = new Date();
+			long metaQueryTimestamp = metaQueryTimestampObj.getTime();
+			
+			JSONArray metaIds = new JSONArray();
+			metaIds.put(metaQueryTimestamp);
+			metaDataJsonObj.put("meta_ids", metaIds);
+
+			metaDataJsonObj.put("measured_at", metaQueryTimestamp);
 
 			metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
 			metaDataJsonObj.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
@@ -289,25 +302,21 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
 			metaDataJsonObj.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
 			metaDataJsonObj.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());
-			
-			metaDataJsonObj.put("disk_usage", DeviceDiskUsage.concatDiskStats());
+			metaDataJsonObj.put("disk_usage", app.deviceDiskDb.dbDiskUsage.getConcatRows());
 			
 			// Adding sentinel data, if they can be retrieved
-			JSONObject sentinelJson = new JSONObject();
 			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", 
 					"sentinel_power", app.getApplicationContext().getContentResolver());
-			sentinelJson.put("power", (sentinelPower.length() > 0) ? sentinelPower.getJSONObject(0) : new JSONObject() ); 
-			metaDataJsonObj.put("sentinel", sentinelJson);
+			metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPower));
 			
-			// this timestamp should be generated and added following the previous queries
-			this.preFlightStatsQueryTimestamp = new Date();
-			metaDataJsonObj.put("measured_at", this.preFlightStatsQueryTimestamp.getTime());
-
+			// Saves JSON snapshot blob to database
+			app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
+			
+			clearPreFlightSystemMetaData(metaQueryTimestampObj);
+			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
-
-		return metaDataJsonObj;
 	}
 
 	private void clearPreFlightSystemMetaData(Date deleteBefore) {
@@ -324,6 +333,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			app.deviceDataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
 			app.rebootDb.dbRebootComplete.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbGeoPosition.clearRowsBefore(deleteBefore);
+			app.deviceDiskDb.dbDiskUsage.clearRowsBefore(deleteBefore);
 
 			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
 					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
@@ -331,6 +341,41 @@ public class ApiCheckInUtils implements MqttCallback {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
+	}
+	
+	private String getConcatSentinelMeta(JSONArray sentinelJsonArray) throws JSONException {
+		
+		ArrayList<String> sentinelMetaBlobs = new ArrayList<String>();
+		
+		for (int i = 0; i < sentinelJsonArray.length(); i++) {
+			JSONObject sentinelJsonRow = sentinelJsonArray.getJSONObject(i);
+			Iterator<String> paramLabels = sentinelJsonRow.keys();
+			while (paramLabels.hasNext()) {
+				String paramLabel = paramLabels.next();
+				if ( (sentinelJsonRow.get(paramLabel) instanceof String) && (sentinelJsonRow.getString(paramLabel).length() > 0) ) {
+					sentinelMetaBlobs.add(sentinelJsonRow.getString(paramLabel));
+				}
+			}
+		}
+		
+		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
+	}
+	
+	private String getAssetExchangeLogList(String assetStatus, int rowLimit) {
+		
+		List<String[]> assetRows = new ArrayList<String[]>();
+		
+		if (assetStatus.equalsIgnoreCase("purged")) { 
+			
+			assetRows = app.apiAssetExchangeLogDb.dbPurged.getLatestRowsWithLimitExcludeCreatedAt(rowLimit);
+			for (String[] assetRow : assetRows) { app.apiAssetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(assetRow[2]); }
+		
+		}/* else if (assetStatus.equalsIgnoreCase("sent")) { 
+			
+			
+		}*/
+		
+		return DbUtils.getConcatRows(assetRows);
 	}
 	
 	private String getCheckInStatusInfoForJson() {
@@ -350,19 +395,86 @@ public class ApiCheckInUtils implements MqttCallback {
 		
 		return TextUtils.join("|", new String[] { _queued.toString(), _sent.toString(), _skipped.toString(), _stashed.toString() });
 	}
+	
+	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
+		
+		int maxRowsToQuery = 10;
+		int maxRowsToBundle = 2;
+		
+		JSONObject metaJsonBundledSnapshotsObj = null;
+		JSONArray metaJsonBundledSnapshotsIds = new JSONArray();
+		
+		for (String[] metaRow : app.apiCheckInMetaDb.dbMeta.getLatestRowsWithLimit(maxRowsToQuery)) {
+			
+			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds((long) Long.parseLong(metaRow[3])));
+			
+			if (milliSecondsSinceAccessed > this.requestTimeOutLength) {
+
+				// add meta snapshot ID to array of IDs
+				metaJsonBundledSnapshotsIds.put(metaRow[1]);
+				
+				// if this is the first row to be examined, initialize the bundled object with this JSON blob
+				if (metaJsonBundledSnapshotsObj == null) {
+					metaJsonBundledSnapshotsObj = new JSONObject(metaRow[2]); 
+					
+				} else {
+					JSONObject metaJsonObjToAppend = new JSONObject(metaRow[2]);
+					Iterator<String> jsonKeys = metaJsonBundledSnapshotsObj.keys();
+					while (jsonKeys.hasNext()) {
+						String jsonKey = jsonKeys.next();
+						
+						if (		(metaJsonBundledSnapshotsObj.get(jsonKey) instanceof String)
+							&&	(metaJsonObjToAppend.get(jsonKey) instanceof String)
+							) {
+							String origStr = metaJsonBundledSnapshotsObj.getString(jsonKey);
+							String newStr = metaJsonObjToAppend.getString(jsonKey);
+							if (	 (origStr.length() > 0) && (newStr.length() > 0) ) {
+								metaJsonBundledSnapshotsObj.put(jsonKey, origStr+"|"+newStr);
+							} else {
+								metaJsonBundledSnapshotsObj.put(jsonKey, origStr+newStr);
+							}
+							
+							Log.i(logTag, jsonKey+" - '"+origStr+"' + '"+newStr+"'");
+							
+						}
+					}
+				}
+				
+				// Overwrite meta_ids attribute with updated array of snapshot IDs
+				metaJsonBundledSnapshotsObj.put("meta_ids", metaJsonBundledSnapshotsIds);
+				
+				// mark this row as accessed in the database
+				app.apiCheckInMetaDb.dbMeta.updateLastAccessedAtByTimestamp(metaRow[1]);
+				
+				// if the bundle is already contains max number of snapshots, stop here
+				if (metaJsonBundledSnapshotsIds.length() >= maxRowsToBundle) { break; }
+			}
+		}
+		
+		return metaJsonBundledSnapshotsObj;
+	}
 
 	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta) throws JSONException, IOException {
+		
+		createSystemMetaDataJsonSnapshot();
 
-		JSONObject checkInMetaJson = getSystemMetaDataAsJson(new JSONObject(checkInJsonString));
+		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
 
 		// Adding Guardian GUID
 		checkInMetaJson.put("guardian_guid", this.app.rfcxDeviceGuid.getDeviceGuid());
+		
+		// Adding Audio JSON fields from checkin table
+		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
+		checkInMetaJson.put("queued_at", checkInJsonObj.getLong("queued_at"));
+		checkInMetaJson.put("audio", checkInJsonObj.getString("audio"));
 
 		// Adding latency data from previous checkins
 		checkInMetaJson.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
 
 		// Recording number of currently queued/skipped/stashed checkins
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson());
+		
+		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 10));
 
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
@@ -606,39 +718,48 @@ public class ApiCheckInUtils implements MqttCallback {
 				&& !isBatteryChargeSufficientForCheckIn());
 	}
 
-	private void purgeSingleAsset(String assetType, String rfcxDeviceId, Context context, String timestamp, String fileExtension) {
+	private void purgeSingleAsset(String assetType, String rfcxDeviceId, Context context, String assetId, String fileExtension) {
 
 		try {
 			String filePath = null;
 
 			if (assetType.equals("audio")) {
+				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(assetId);
+				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(assetId);
+				app.apiCheckInDb.dbSkipped.deleteSingleRowByAudioAttachmentId(assetId);
+				app.audioEncodeDb.dbEncoded.deleteSingleRow(assetId);
 				filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(rfcxDeviceId, context,
-						(long) Long.parseLong(timestamp), fileExtension);
-				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(timestamp);
-				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(timestamp);
-				app.apiCheckInDb.dbSkipped.deleteSingleRowByAudioAttachmentId(timestamp);
-				app.audioEncodeDb.dbEncoded.deleteSingleRow(timestamp);
+						(long) Long.parseLong(assetId), fileExtension);
 
 			} else if (assetType.equals("screenshot")) {
-				filePath = DeviceScreenShot.getScreenShotFileLocation_Complete(rfcxDeviceId, context,
-						(long) Long.parseLong(timestamp));
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + timestamp,
+				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
 						app.getApplicationContext().getContentResolver());
+				filePath = DeviceScreenShot.getScreenShotFileLocation_Complete(rfcxDeviceId, context,
+						(long) Long.parseLong(assetId));
 
 			} else if (assetType.equals("log")) {
-				filePath = DeviceLogCat.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context,
-						(long) Long.parseLong(timestamp));
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + timestamp,
+				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
 						app.getApplicationContext().getContentResolver());
+				filePath = DeviceLogCat.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context,
+						(long) Long.parseLong(assetId));
+				
+			} else if (assetType.equals("sms")) {
+				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,
+						app.getApplicationContext().getContentResolver());
+				
+			} else if (assetType.equals("meta")) {
+				app.apiCheckInMetaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
+				
+				// ONLY TESTING THE EXCHANGE LOG WITH META FOR THE MOMENT
+				
+				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
+				
 			}
 
-			if ((new File(filePath)).exists()) {
-				(new File(filePath)).delete();
-			}
+			if ((filePath != null) && (new File(filePath)).exists()) { (new File(filePath)).delete(); }
 
-			Log.d(logTag, "Purging asset: " + assetType + ", " + timestamp + ", "
-					+ filePath.substring(1 + filePath.lastIndexOf("/")));
-
+			Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ( (filePath != null) ? ", "+filePath.substring(1+filePath.lastIndexOf("/")) : "") );
+			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -814,10 +935,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray screenShotJson = jsonObj.getJSONArray("screenshots");
 				for (int i = 0; i < screenShotJson.length(); i++) {
 					String screenShotId = screenShotJson.getJSONObject(i).getString("id");
-					RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + screenShotId,
-							app.getApplicationContext().getContentResolver());
-					purgeSingleAsset("screenshot", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(),
-							screenShotId, "png");
+					purgeSingleAsset("screenshot", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), screenShotId, "png");
 				}
 			}
 
@@ -825,11 +943,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (jsonObj.has("logs")) {
 				JSONArray logsJson = jsonObj.getJSONArray("logs");
 				for (int i = 0; i < logsJson.length(); i++) {
-					String logFileId = logsJson.getJSONObject(i).getString("id");
-					RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + logFileId,
-							app.getApplicationContext().getContentResolver());
-					purgeSingleAsset("log", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), logFileId,
-							"log");
+					String logId = logsJson.getJSONObject(i).getString("id");
+					purgeSingleAsset("log", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), logId, "log");
 				}
 			}
 
@@ -837,9 +952,17 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (jsonObj.has("messages")) {
 				JSONArray messagesJson = jsonObj.getJSONArray("messages");
 				for (int i = 0; i < messagesJson.length(); i++) {
-					String messageId = messagesJson.getJSONObject(i).getString("id");
-					RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + messageId,
-							app.getApplicationContext().getContentResolver());
+					String smsId = messagesJson.getJSONObject(i).getString("id");
+					purgeSingleAsset("sms", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), smsId, null);
+				}
+			}
+
+			// parse meta info and use it to purge the data locally
+			if (jsonObj.has("meta")) {
+				JSONArray metaJson = jsonObj.getJSONArray("meta");
+				for (int i = 0; i < metaJson.length(); i++) {
+					String metaId = metaJson.getJSONObject(i).getString("id");
+					purgeSingleAsset("meta", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), metaId, null);
 				}
 			}
 			
@@ -892,10 +1015,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			long msgSendDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.inFlightCheckInStats.get(this.inFlightCheckInAudioId)[0]));
 			
 			setInFlightCheckInStats(this.inFlightCheckInAudioId, 0, msgSendDuration, 0);
-			
-			// clear system metadata included in check in preflight
-			clearPreFlightSystemMetaData(this.preFlightStatsQueryTimestamp);
-			
+						
 			Log.i(logTag, (new StringBuilder())
 							.append("CheckIn delivery time: ")
 							.append(DateTimeUtils.milliSecondDurationAsReadableString(msgSendDuration, true))

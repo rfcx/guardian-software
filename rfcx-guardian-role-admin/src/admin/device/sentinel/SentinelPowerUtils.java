@@ -126,9 +126,9 @@ public class SentinelPowerUtils {
 		JSONArray powerJsonArray = new JSONArray();
 		try {
 			JSONObject powerJson = new JSONObject();
-			powerJson.put("battery", app.sentinelPowerDb.dbSentinelPowerBattery.getConcatRows());
-			powerJson.put("input", app.sentinelPowerDb.dbSentinelPowerInput.getConcatRows());
-			powerJson.put("system", app.sentinelPowerDb.dbSentinelPowerSystem.getConcatRows());
+			powerJson.put("battery", app.sentinelPowerDb.dbSentinelPowerBattery.getConcatRowsWithLabelPrepended("battery"));
+			powerJson.put("input", app.sentinelPowerDb.dbSentinelPowerInput.getConcatRowsWithLabelPrepended("input"));
+			powerJson.put("system", app.sentinelPowerDb.dbSentinelPowerSystem.getConcatRowsWithLabelPrepended("system"));
 			powerJsonArray.put(powerJson);
 			
 		} catch (Exception e) {

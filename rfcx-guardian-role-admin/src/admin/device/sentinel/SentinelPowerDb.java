@@ -78,6 +78,10 @@ public class SentinelPowerDb {
 		public String getConcatRows() {
 			return DbUtils.getConcatRows(getAllRows());
 		}
+		
+		public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
+			return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
+		}
 
 	}
 	public final DbSentinelPowerBattery dbSentinelPowerBattery;
@@ -117,6 +121,10 @@ public class SentinelPowerDb {
 		public String getConcatRows() {
 			return DbUtils.getConcatRows(getAllRows());
 		}
+		
+		public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
+			return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
+		}
 
 	}
 	public final DbSentinelPowerInput dbSentinelPowerInput;
@@ -155,6 +163,10 @@ public class SentinelPowerDb {
 		
 		public String getConcatRows() {
 			return DbUtils.getConcatRows(getAllRows());
+		}
+		
+		public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
+			return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
 		}
 
 	}

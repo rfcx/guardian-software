@@ -161,22 +161,23 @@ public class ApiCheckInArchiveService extends Service {
 					
 					StringUtils.saveStringToFile(tsvRows.toString(), archiveTarFilePath+"/_metadata.tsv");
 					archiveFileList.add(archiveTarFilePath+"/_metadata.tsv");
+
 					
-					FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath+".tar");
-					FileUtils.gZipFile(archiveTarFilePath+".tar", archiveTarFilePath+".tar.gz");
+//					FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath+".tar");
+//					FileUtils.gZipFile(archiveTarFilePath+".tar", archiveTarFilePath+".tar.gz");
 					
 					int archiveFileSize = 0;
-					app.archiveDb.dbCheckInArchive.insert(new Date(archiveTimestamp), new Date(oldestCheckInTimestamp), new Date(newestCheckInTimestamp), checkInsBeyondArchiveThreshold.size(), archiveFileSize, archiveTarFilePath+".tar.gz");
+					app.archiveDb.dbCheckInArchive.insert(new Date(archiveTimestamp), new Date(oldestCheckInTimestamp), new Date(newestCheckInTimestamp), checkInsBeyondArchiveThreshold.size(), archiveFileSize, archiveTarFilePath);
 					
 					// Clean up and remove archived originals
 					for (String[] checkIn : checkInsBeyondArchiveThreshold) {
 						FileUtils.delete(checkIn[4]);
 						app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(checkIn[1]);
 					}
-					FileUtils.delete(archiveTarFilePath);
-					FileUtils.delete(archiveTarFilePath+".tar");
+//					FileUtils.delete(archiveTarFilePath);
+//					FileUtils.delete(archiveTarFilePath+".tar");
 					
-					Log.i(logTag, "Archive complete: "+archiveTarFilePath+".tar.gz");
+					Log.i(logTag, "Archive complete: "+archiveTarFilePath);
 				
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);

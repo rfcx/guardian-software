@@ -286,6 +286,20 @@ public class DbUtils {
 		return concatRows;
 	}
 	
+	public static String getConcatRowsWithLabelPrepended(String labelToPrepend, List<String[]> getRowsOutput) {
+		String concatRows = null;
+		ArrayList<String> rowList = new ArrayList<String>();
+		try {
+			for (String[] row : getRowsOutput) {
+				rowList.add(labelToPrepend+"*"+TextUtils.join("*", row));
+			}
+			concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return concatRows;
+	}
+	
 	private static String[] cursorToStringArray(Cursor cursor, int columnCount) {
 		String[] rtrnStr = new String[] {  };
 		if (columnCount == 1) {

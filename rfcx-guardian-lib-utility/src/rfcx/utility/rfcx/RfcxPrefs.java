@@ -307,7 +307,7 @@ public class RfcxPrefs {
 			put("enable_cutoffs_battery", "true");
 			
 			put("checkin_battery_cutoff", "90");
-			put("audio_battery_cutoff", "60");
+			put("audio_battery_cutoff", "80");
 
 			put("checkin_failure_thresholds", "10,20,30,40,50,60,70,80,90");
 			

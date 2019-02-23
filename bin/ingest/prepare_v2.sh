@@ -40,7 +40,7 @@ for AUDIO_DIR_YEAR_MONTH in $AUDIO_DIR/20*; do
 
           TS_DATE_DELIM="T";
           TS_TIME_DELIM=":";
-          TS_ZONE_DELIM="-";
+          TS_ZONE_DELIM="+";
           TS_BASE=`echo $AUDIO_FILE | rev | cut -d'_' -f 1 | rev`;
           TS_DATE=`echo $TS_BASE | cut -d'T' -f 1`;
           TS_HOUR=`echo $TS_BASE | cut -d'T' -f 2 | cut -d'.' -f 1 | cut -d'-' -f 1`;
@@ -48,10 +48,10 @@ for AUDIO_DIR_YEAR_MONTH in $AUDIO_DIR/20*; do
           TS_SEC=`echo $TS_BASE | cut -d'T' -f 2 | cut -d'.' -f 1 | cut -d'-' -f 3`;
           TS_MILLISEC=`echo $TS_BASE | cut -d'.' -f 2 | cut -d'-' -f 1`;
           TS_OFFSET=`echo $TS_BASE | cut -d'.' -f 2 | cut -d'-' -f 2`;
-          TS_MILLISEC_NUMBER=$((TS_MILLISEC+0));
-          TS_MILLISEC_PADDED=`printf %03d $TS_MILLISEC_NUMBER`;
+          # TS_MILLISEC_NUMBER=$((TS_MILLISEC+0));
+          # TS_MILLISEC_PADDED=`printf %03d $TS_MILLISEC_NUMBER`;
 
-          TS="$TS_DATE$TS_DATE_DELIM$TS_HOUR$TS_TIME_DELIM$TS_MIN$TS_TIME_DELIM$TS_SEC.$TS_MILLISEC_PADDED$TS_ZONE_DELIM$TS_OFFSET";
+          TS="$TS_DATE$TS_DATE_DELIM$TS_HOUR$TS_TIME_DELIM$TS_MIN$TS_TIME_DELIM$TS_SEC.$TS_MILLISEC$TS_ZONE_DELIM$TS_OFFSET";
 
           if (( $FILE_COUNT % $FILES_PER_DIRECTORY == 0 )) ; then DIR_COUNT=$((DIR_COUNT+1)); fi
 
@@ -63,9 +63,9 @@ for AUDIO_DIR_YEAR_MONTH in $AUDIO_DIR/20*; do
 
           export TS_UNIX=`$DATE_CONV_SCRIPT $TS;`;
 
-          mv $AUDIO_FILE $DEST_DIR/$TS_UNIX.$AUDIO_FORMAT;
+          cp $AUDIO_FILE $DEST_DIR/$TS_UNIX.$AUDIO_FORMAT;
 
-          if [ -f $DEST_DIR/$TS_UNIX.$AUDIO_FORMAT ] ; then FILE_COUNT=$((FILE_COUNT+1)); fi;
+          if [ -f $DEST_DIR/$TS_UNIX.$AUDIO_FORMAT ] ; then FILE_COUNT=$((FILE_COUNT+1)); rm $AUDIO_FILE; fi;
 
         fi;
 
