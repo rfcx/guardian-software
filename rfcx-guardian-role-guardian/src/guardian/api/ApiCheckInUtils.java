@@ -424,6 +424,7 @@ public class ApiCheckInUtils implements MqttCallback {
 						String jsonKey = jsonKeys.next();
 						
 						if (		(metaJsonBundledSnapshotsObj.get(jsonKey) instanceof String)
+							&&	(metaJsonObjToAppend.get(jsonKey) != null)
 							&&	(metaJsonObjToAppend.get(jsonKey) instanceof String)
 							) {
 							String origStr = metaJsonBundledSnapshotsObj.getString(jsonKey);
@@ -433,8 +434,6 @@ public class ApiCheckInUtils implements MqttCallback {
 							} else {
 								metaJsonBundledSnapshotsObj.put(jsonKey, origStr+newStr);
 							}
-							
-							Log.i(logTag, jsonKey+" - '"+origStr+"' + '"+newStr+"'");
 							
 						}
 					}
@@ -474,7 +473,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		// Recording number of currently queued/skipped/stashed checkins
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson());
 		
-		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 10));
+//		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 10));
 
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
@@ -674,7 +673,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (		// ...we haven't yet reached the first threshold for bad connectivity
 					(minsSinceSuccess < this.failedCheckInThresholds[0]) 
 					// OR... we are explicitly in offline mode
-					|| app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")
+					|| !app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")
 					// OR... checkins are explicitly paused due to low battery level
 					|| !isBatteryChargeSufficientForCheckIn()
 					// OR... this is likely the first checkin after a period of disconnection

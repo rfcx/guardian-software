@@ -283,15 +283,14 @@ public class RfcxPrefs {
 	    new HashMap<String, String>() {{
 
 			put("verbose_logging", "true");
-			
-			put("checkin_offline_mode", "false");
+
+			put("enable_audio_capture", "true");
+			put("enable_checkin_publish", "true");
 			
 	        put("api_checkin_host", "checkin.rfcx.org");
 	        put("api_checkin_protocol", "tcp");
 	        put("api_checkin_port", "1883");
 	        put("api_ntp_host", "time.apple.com");
-	        
-	        put("geolocation_override", "37.78871,-122.47485");
 	        
 			put("reboot_forced_daily_at", "23:54:00");
 			

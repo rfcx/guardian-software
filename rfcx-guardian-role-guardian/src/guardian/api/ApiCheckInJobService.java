@@ -72,7 +72,7 @@ public class ApiCheckInJobService extends Service {
 			app = (RfcxGuardian) getApplication();
 				
 			while (		apiCheckInJobInstance.runFlag
-					&&	!app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode") 
+					&&	app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish") 
 					&& 	(app.apiCheckInDb.dbQueued.getCount() > 0)
 				) {
 
@@ -147,9 +147,9 @@ public class ApiCheckInJobService extends Service {
 					
 			}
 			
-			if (app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")) {
+			if (!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-				Log.v(logTag, "No CheckIn because offline mode is on");
+				Log.v(logTag, "CheckIn publication is explicitly disabled.");
 			}
 
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);

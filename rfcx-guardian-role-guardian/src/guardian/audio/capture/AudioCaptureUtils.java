@@ -109,7 +109,10 @@ public class AudioCaptureUtils {
 			
 			String msgNoCapture = null;
 			
-			if (limitBasedOnTimeOfDay) {
+			if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
+				msgNoCapture = "it being explicitly disabled ('enable_audio_capture' is set to false).";
+				
+			} else if (limitBasedOnTimeOfDay) {
 				msgNoCapture = "current time of day/night"
 							+" (off hours: '"+app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")+"'.";
 				
@@ -133,7 +136,8 @@ public class AudioCaptureUtils {
 			
 		}
 		
-		return 		!limitBasedOnTimeOfDay 
+		return 		this.app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")
+				&&	!limitBasedOnTimeOfDay 
 				&& 	!limitBasedOnBatteryLevel 
 				&& 	!limitBasedOnExternalStorage 
 				&& 	!limitBasedOnLackOfHardwareSupport;

@@ -50,8 +50,8 @@ public class ApiQueueCheckInService extends IntentService {
 			}
 
 
-			if (app.rfcxPrefs.getPrefAsBoolean("checkin_offline_mode")) { 
-				Log.v(logTag, "No checkin triggered because guardian is in offline mode.");
+			if (!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) { 
+				Log.v(logTag, "No CheckIn triggered because guardian is in offline mode.");
 			} else {
 				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", 3 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
 				app.apiCheckInUtils.updateFailedCheckInThresholds();
