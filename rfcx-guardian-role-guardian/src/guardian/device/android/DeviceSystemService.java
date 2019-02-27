@@ -231,7 +231,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				boolean limitBasedOnBatteryLevel = app.audioCaptureUtils.limitBasedOnBatteryLevel();
 				int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 				
-				int prefsReferenceCycleDuration = limitBasedOnBatteryLevel ? ( 2 * audioCycleDuration ) : audioCycleDuration;
+				// unlike audio capture, we do continue to capture system stats in low power mode...
+				// however, if in low power mode, we slow the capture cycle to 3x the normal duration
+				int prefsReferenceCycleDuration = limitBasedOnBatteryLevel ? ( 3 * audioCycleDuration ) : audioCycleDuration;
 				
 				if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 			
