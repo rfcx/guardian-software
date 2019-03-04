@@ -228,12 +228,12 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 			if (innerLoopIncrement == 0) {
 				
-				boolean limitBasedOnBatteryLevel = app.audioCaptureUtils.limitBasedOnBatteryLevel();
+				boolean isAudioCaptureEnabled = app.audioCaptureUtils.isAudioCaptureAllowed(false);
 				int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 				
-				// unlike audio capture, we do continue to capture system stats in low power mode...
-				// however, if in low power mode, we slow the capture cycle to 3x the normal duration
-				int prefsReferenceCycleDuration = limitBasedOnBatteryLevel ? ( 3 * audioCycleDuration ) : audioCycleDuration;
+				// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
+				// however, we slow the capture cycle to 4x the normal duration
+				int prefsReferenceCycleDuration = isAudioCaptureEnabled ? audioCycleDuration : ( 4 * audioCycleDuration );
 				
 				if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 			
@@ -244,7 +244,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration);
 					
 					Log.d(logTag, (new StringBuilder())
-							.append("SystemStats Capture").append(limitBasedOnBatteryLevel ? " (low power mode)" : "").append(": ")
+							.append("SystemStats Capture").append(isAudioCaptureEnabled ? "" : " (currently limited)").append(": ")
 							.append("Snapshots (all metrics) taken every ").append(Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration)/1000)).append(" seconds.")
 							.toString());
 				}

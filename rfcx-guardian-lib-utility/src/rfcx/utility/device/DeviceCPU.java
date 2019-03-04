@@ -18,6 +18,8 @@ public class DeviceCPU {
 	
 	public void setReportingSampleCount(int reportingSampleCount) {
 		this.reportingSampleCount = reportingSampleCount;
+		cpuPercentage_Previous = new float[this.reportingSampleCount];
+		cpuClockSpeed_Previous = new float[this.reportingSampleCount];
 	}
 
 	public static final long SAMPLE_DURATION_MILLISECONDS = 360;

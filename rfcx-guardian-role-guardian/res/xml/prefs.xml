@@ -27,6 +27,24 @@
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="true" />
+        
+	<ListPreference
+		android:key="enable_cutoffs_battery"
+		android:title="enable_cutoffs_battery"
+		android:dialogTitle="enable_cutoffs_battery"
+        android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="true" />
+ 	
+  	<ListPreference
+		android:key="enable_cutoffs_schedule_off_hours"
+		android:title="enable_cutoffs_schedule_off_hours"
+		android:dialogTitle="enable_cutoffs_schedule_off_hours"
+        android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="true" />
     
  	<EditTextPreference
         android:key="api_checkin_host"
@@ -81,14 +99,6 @@
         android:enabled="true"
         android:defaultValue="23:56-23:58,23:58-00:00" />
  	
- 	<EditTextPreference
-        android:key="enable_cutoffs_schedule_off_hours"
-        android:title="enable_cutoffs_schedule_off_hours"
-        android:summary="string - true/false"
-		android:entries="@array/true_or_false"
-		android:entryValues="@array/true_or_false"
-		android:defaultValue="true" />
- 	
  	<!-- Audio Capture Formatting -->
  	
  	<ListPreference
@@ -119,15 +129,6 @@
 		android:defaultValue="12000" />
  	
  	<!-- Battery Cutoff Thresholds -->
-        
-	<ListPreference
-		android:key="enable_cutoffs_battery"
-		android:title="enable_cutoffs_battery"
-		android:dialogTitle="enable_cutoffs_battery"
-        android:summary="string - true/false"
-		android:entries="@array/true_or_false"
-		android:entryValues="@array/true_or_false"
-		android:defaultValue="true" />
         
 	<ListPreference
 		android:key="checkin_battery_cutoff"
@@ -168,14 +169,14 @@
         android:title="checkin_stash_threshold"
         android:summary="int - count"
         android:enabled="true"
-        android:defaultValue="320" />
+        android:defaultValue="240" />
  	
  	<EditTextPreference
         android:key="checkin_archive_threshold"
         android:title="checkin_archive_threshold"
         android:summary="int - count"
         android:enabled="true"
-        android:defaultValue="960" />
+        android:defaultValue="240" />
  	
  	<!-- Admin Controls -->
  	

@@ -98,14 +98,14 @@ public class AudioCaptureUtils {
 		return (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_schedule_off_hours"));
 	}
 	
-	public boolean isAudioCaptureAllowed() {
+	public boolean isAudioCaptureAllowed(boolean verboseLogging) {
 		
 		boolean limitBasedOnBatteryLevel = limitBasedOnBatteryLevel();
 		boolean limitBasedOnTimeOfDay = limitBasedOnTimeOfDay();
 		boolean limitBasedOnExternalStorage = !FileUtils.isExternalStorageAvailable();
 		boolean limitBasedOnLackOfHardwareSupport = !this.isAudioCaptureHardwareSupported;
 		
-		if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) {
+		if (verboseLogging) {
 			
 			String msgNoCapture = null;
 			

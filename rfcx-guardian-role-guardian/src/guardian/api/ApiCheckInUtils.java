@@ -54,7 +54,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		this.mqttCheckInClient = new MqttUtils(RfcxGuardian.APP_ROLE, this.app.rfcxDeviceGuid.getDeviceGuid());
 
 		this.subscribeBaseTopic = (new StringBuilder()).append("guardians/").append(this.app.rfcxDeviceGuid.getDeviceGuid().toLowerCase(Locale.US)).append("/").append(RfcxGuardian.APP_ROLE.toLowerCase(Locale.US)).toString();
-		this.mqttCheckInClient.addSubscribeTopic(this.subscribeBaseTopic + "/instructions");
+		//this.mqttCheckInClient.addSubscribeTopic(this.subscribeBaseTopic + "/instructions");
 		this.mqttCheckInClient.addSubscribeTopic(this.subscribeBaseTopic + "/checkins");
 
 		this.mqttCheckInClient.setOrResetBroker(this.app.rfcxPrefs.getPrefAsString("api_checkin_protocol"), this.app.rfcxPrefs.getPrefAsInt("api_checkin_port"), this.app.rfcxPrefs.getPrefAsString("api_checkin_host"));
@@ -836,43 +836,33 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	}
 
-	private void processInstructionMessage(byte[] messagePayload) {
-
-		String jsonStr = StringUtils.UnGZipByteArrayToString(messagePayload);
-		Log.i(logTag, "Instruction: " + jsonStr);
+	
+	private void processAndExecuteInstruction(JSONObject inputInstrObj) {
 
 		try {
-
-			JSONObject jsonObj = new JSONObject(jsonStr);
-
-			// get api-assigned instruction guid
-			if (jsonObj.has("instruction_id")) {
-				String instructionId = jsonObj.getString("instruction_id");
-				if (instructionId.length() > 0) {
-					Log.i(logTag, "Instruction ID: " + instructionId);
-					// DO SOMETHING HERE
-				}
+			
+			String instrId = inputInstrObj.has("id") ? inputInstrObj.getString("id") : null;
+			String instrType = inputInstrObj.has("type") ? inputInstrObj.getString("type") : null;
+			JSONObject instrMeta = inputInstrObj.has("meta") ? inputInstrObj.getJSONObject("meta") : null;
+			
+			String logMsg = "Instruction: " +instrId + ", " + instrType + ", ";
+			
+			// instruction: send message
+			if (instrType.equalsIgnoreCase("message_send")) {
+				String msgAddress = instrMeta.getString("address");
+				String msgBody = instrMeta.getString("body");
+				RfcxComm.getQueryContentProvider("admin", "sms_send", msgAddress + "|" + msgBody, app.getApplicationContext().getContentResolver());
+				Log.i(logTag, logMsg + msgAddress + " | " + msgBody);
 			}
 
-			// instructions: messages
-			if (jsonObj.has("messages")) {
-				JSONArray instructionMsgsJson = jsonObj.getJSONArray("messages");
-				for (int i = 0; i < instructionMsgsJson.length(); i++) {
-					JSONObject instructionMsgJson = instructionMsgsJson.getJSONObject(i);
-					RfcxComm.getQueryContentProvider("admin", "sms_send",
-							instructionMsgJson.getString("address") + "|" + instructionMsgJson.getString("body"),
-							app.getApplicationContext().getContentResolver());
-				}
-			}
-
-			// instructions: prefs
-			if (jsonObj.has("prefs")) {
-				JSONArray instructionPrefsJson = jsonObj.getJSONArray("prefs");
-				for (int i = 0; i < instructionPrefsJson.length(); i++) {
-					JSONObject instructionPrefJson = instructionPrefsJson.getJSONObject(i);
-					// Here we would set preferences...
-				}
-			}
+//			// instructions: prefs
+//			if (jsonObj.has("prefs")) {
+//				JSONArray instructionPrefsJson = jsonObj.getJSONArray("prefs");
+//				for (int i = 0; i < instructionPrefsJson.length(); i++) {
+//					JSONObject instructionPrefJson = instructionPrefsJson.getJSONObject(i);
+//					// Here we would set preferences...
+//				}
+//			}
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
@@ -965,6 +955,14 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 			
+			// parse instruction info and execute
+			if (jsonObj.has("instructions")) {
+				JSONArray instructionsJson = jsonObj.getJSONArray("instructions");
+				for (int i = 0; i < instructionsJson.length(); i++) {
+					processAndExecuteInstruction(instructionsJson.getJSONObject(i));
+				}
+			}
+			
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 
@@ -999,10 +997,10 @@ public class ApiCheckInUtils implements MqttCallback {
 			processCheckInResponseMessage(mqttMessage.getPayload());
 
 			// this is an instruction message
-		} else if (messageTopic.equalsIgnoreCase(this.subscribeBaseTopic + "/instructions")) {
+		}/* else if (messageTopic.equalsIgnoreCase(this.subscribeBaseTopic + "/instructions")) {
 			processInstructionMessage(mqttMessage.getPayload());
 
-		}
+		}*/
 	}
 
 	@Override

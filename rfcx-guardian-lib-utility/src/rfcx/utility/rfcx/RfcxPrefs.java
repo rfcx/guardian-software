@@ -286,6 +286,8 @@ public class RfcxPrefs {
 
 			put("enable_audio_capture", "true");
 			put("enable_checkin_publish", "true");
+			put("enable_cutoffs_battery", "true");
+			put("enable_cutoffs_schedule_off_hours", "true");
 			
 	        put("api_checkin_host", "checkin.rfcx.org");
 	        put("api_checkin_protocol", "tcp");
@@ -296,23 +298,20 @@ public class RfcxPrefs {
 			
 			put("audio_cycle_duration", "90");
 			
-			put("enable_cutoffs_schedule_off_hours", "true");
 			put("audio_schedule_off_hours", "00:10-00:15,00:15-00:20");
+
+			put("checkin_battery_cutoff", "90");
+			put("audio_battery_cutoff", "80");
 			
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "16384");
 			put("audio_sample_rate", "12000");
 
-			put("enable_cutoffs_battery", "true");
-			
-			put("checkin_battery_cutoff", "90");
-			put("audio_battery_cutoff", "80");
-
 			put("checkin_failure_thresholds", "10,20,30,40,50,60,70,80,90");
 			
 			put("checkin_skip_threshold", "5");
-			put("checkin_stash_threshold", "320");
-			put("checkin_archive_threshold", "960");
+			put("checkin_stash_threshold", "240");
+			put("checkin_archive_threshold", "240");
 
 			put("admin_enable_bluetooth", "true");	
 			
