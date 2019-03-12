@@ -1,0 +1,106 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="org.rfcx.guardian.guardian">
+
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> -->
+    <!-- 	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> -->
+    <!-- 	<uses-permission android:name="android.permission.BLUETOOTH" /> -->
+    <!-- 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" /> -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- 	<uses-permission android:name="android.permission.READ_LOGS" /> -->
+    <!-- 	<uses-permission android:name="android.permission.WRITE_SETTINGS" /> -->
+    <!-- 	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" /> -->
+    <!-- 	<uses-permission android:name="android.permission.SET_TIME_ZONE" /> -->
+
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- 	<uses-permission android:name="android.permission.CALL_PHONE" /> -->
+    <!-- 	<uses-permission android:name="android.permission.RECEIVE_SMS" /> -->
+    <!-- 	<uses-permission android:name="android.permission.SEND_SMS" /> -->
+    <!-- 	<uses-permission android:name="android.permission.WRITE_SMS"/> -->
+    <!-- 	<uses-permission android:name="android.permission.READ_SMS"/> -->
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.Camera" android:required="false" />
+
+    <uses-permission android:name="org.rfcx.guardian.READ" />
+    <uses-permission android:name="org.rfcx.guardian.WRITE" />
+    <permission android:name="org.rfcx.guardian.READ" android:protectionLevel="signature" />
+    <permission android:name="org.rfcx.guardian.WRITE" android:protectionLevel="signature" />
+
+    <application
+            android:allowBackup="true"
+            android:icon="@drawable/icon_guardian_guardian"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme"
+            android:name="guardian.RfcxGuardian"
+    >
+
+        <!-- Activities -->
+
+        <activity
+                android:name="guardian.activity.MainActivity"
+                android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+                android:name="guardian.activity.PrefsActivity"
+                android:label="@string/menu_prefs" />
+
+        <!-- Services -->
+        <service android:name="guardian.audio.capture.AudioCaptureService" android:exported="false" />
+        <service android:name="guardian.audio.encode.AudioEncodeJobService" android:exported="false" />
+        <service android:name="guardian.camera.capture.PhotoCaptureJobService" android:exported="false" />
+        <service android:name="guardian.api.ApiCheckInJobService" android:exported="false" />
+        <service android:name="guardian.archive.ApiCheckInArchiveService" android:exported="false" />
+        <service android:name="guardian.device.android.DeviceSystemService" android:exported="false" />
+        <service android:name="guardian.device.android.SntpSyncJobService" android:exported="false" />
+
+        <!-- IntentServices -->
+        <service android:name="guardian.ServiceMonitor" android:exported="false" />
+        <service android:name="guardian.api.ApiQueueCheckInService" android:exported="false" />
+        <service android:name="guardian.audio.encode.AudioQueueEncodeService" android:exported="false" />
+        <service android:name="guardian.device.android.ScheduledSntpSyncService" android:exported="false" />
+
+        <!-- Receivers -->
+        <receiver android:name="guardian.receiver.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <!-- 				<category android:name="android.intent.category.DEFAULT"/> -->
+            </intent-filter>
+        </receiver>
+
+        <!-- ContentProviders -->
+        <provider
+                android:name="guardian.contentprovider.GuardianContentProvider"
+                android:authorities="org.rfcx.guardian.guardian"
+                android:readPermission="org.rfcx.guardian.READ"
+                android:writePermission="org.rfcx.guardian.WRITE"
+                android:exported="true" />
+
+    </application>
+
+</manifest>
