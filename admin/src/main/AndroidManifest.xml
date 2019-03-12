@@ -51,11 +51,11 @@
             android:icon="@drawable/icon_guardian_admin"
             android:label="@string/app_name"
             android:theme="@style/AppTheme"
-            android:name="admin.RfcxGuardian"
+            android:name=".RfcxGuardian"
     >
 
         <activity
-                android:name="admin.activity.MainActivity"
+                android:name=".activity.MainActivity"
                 android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -64,38 +64,38 @@
         </activity>
 
         <!-- Services -->
-        <service android:name="admin.device.android.capture.DeviceScreenShotCaptureService" />
-        <service android:name="admin.device.android.capture.DeviceLogCatCaptureService" />
-        <service android:name="admin.device.android.control.RebootTriggerJobService" />
-        <service android:name="admin.device.android.control.AirplaneModeToggleService" />
-        <service android:name="admin.device.android.control.AirplaneModeEnableService" />
-        <service android:name="admin.device.android.control.DateTimeSntpSyncJobService" />
-        <service android:name="admin.device.sentinel.DeviceSentinelService" />
+        <service android:name=".device.android.capture.DeviceScreenShotCaptureService" />
+        <service android:name=".device.android.capture.DeviceLogCatCaptureService" />
+        <service android:name=".device.android.control.RebootTriggerJobService" />
+        <service android:name=".device.android.control.AirplaneModeToggleService" />
+        <service android:name=".device.android.control.AirplaneModeEnableService" />
+        <service android:name=".device.android.control.DateTimeSntpSyncJobService" />
+        <service android:name=".device.sentinel.DeviceSentinelService" />
 
         <!-- IntentServices -->
-        <service android:name="admin.ServiceMonitor" />
-        <service android:name="admin.device.android.control.ScheduledRebootService" />
-        <service android:name="admin.device.android.control.ForceRoleRelaunchService" />
-        <service android:name="admin.device.android.capture.ScheduledScreenShotCaptureService" />
-        <service android:name="admin.device.android.capture.ScheduledLogCatCaptureService" />
+        <service android:name=".ServiceMonitor" />
+        <service android:name=".device.android.control.ScheduledRebootService" />
+        <service android:name=".device.android.control.ForceRoleRelaunchService" />
+        <service android:name=".device.android.capture.ScheduledScreenShotCaptureService" />
+        <service android:name=".device.android.capture.ScheduledLogCatCaptureService" />
 
 
         <!-- Broadcast Receivers -->
 
-        <receiver android:name="admin.receiver.BootReceiver">
+        <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <!--  				<category android:name="android.intent.category.DEFAULT" /> -->
             </intent-filter>
         </receiver>
 
-        <receiver android:name="admin.receiver.SmsReceiver">
+        <receiver android:name=".receiver.SmsReceiver">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="admin.receiver.BluetoothStateReceiver">
+        <receiver android:name=".receiver.BluetoothStateReceiver">
             <intent-filter>
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
@@ -104,7 +104,7 @@
         <!-- Content Providers -->
 
         <provider
-                android:name="admin.contentprovider.AdminContentProvider"
+                android:name=".contentprovider.AdminContentProvider"
                 android:authorities="org.rfcx.guardian.admin"
                 android:readPermission="org.rfcx.guardian.READ"
                 android:writePermission="org.rfcx.guardian.WRITE"

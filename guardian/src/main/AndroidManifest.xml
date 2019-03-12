@@ -52,13 +52,13 @@
             android:icon="@drawable/icon_guardian_guardian"
             android:label="@string/app_name"
             android:theme="@style/AppTheme"
-            android:name="guardian.RfcxGuardian"
+            android:name=".RfcxGuardian"
     >
 
         <!-- Activities -->
 
         <activity
-                android:name="guardian.activity.MainActivity"
+                android:name=".activity.MainActivity"
                 android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -67,26 +67,26 @@
         </activity>
 
         <activity
-                android:name="guardian.activity.PrefsActivity"
+                android:name=".activity.PrefsActivity"
                 android:label="@string/menu_prefs" />
 
         <!-- Services -->
-        <service android:name="guardian.audio.capture.AudioCaptureService" android:exported="false" />
-        <service android:name="guardian.audio.encode.AudioEncodeJobService" android:exported="false" />
-        <service android:name="guardian.camera.capture.PhotoCaptureJobService" android:exported="false" />
-        <service android:name="guardian.api.ApiCheckInJobService" android:exported="false" />
-        <service android:name="guardian.archive.ApiCheckInArchiveService" android:exported="false" />
-        <service android:name="guardian.device.android.DeviceSystemService" android:exported="false" />
-        <service android:name="guardian.device.android.SntpSyncJobService" android:exported="false" />
+        <service android:name=".audio.capture.AudioCaptureService" android:exported="false" />
+        <service android:name=".audio.encode.AudioEncodeJobService" android:exported="false" />
+        <service android:name=".camera.capture.PhotoCaptureJobService" android:exported="false" />
+        <service android:name=".api.ApiCheckInJobService" android:exported="false" />
+        <service android:name=".archive.ApiCheckInArchiveService" android:exported="false" />
+        <service android:name=".device.android.DeviceSystemService" android:exported="false" />
+        <service android:name=".device.android.SntpSyncJobService" android:exported="false" />
 
         <!-- IntentServices -->
-        <service android:name="guardian.ServiceMonitor" android:exported="false" />
-        <service android:name="guardian.api.ApiQueueCheckInService" android:exported="false" />
-        <service android:name="guardian.audio.encode.AudioQueueEncodeService" android:exported="false" />
-        <service android:name="guardian.device.android.ScheduledSntpSyncService" android:exported="false" />
+        <service android:name=".ServiceMonitor" android:exported="false" />
+        <service android:name=".api.ApiQueueCheckInService" android:exported="false" />
+        <service android:name=".audio.encode.AudioQueueEncodeService" android:exported="false" />
+        <service android:name=".device.android.ScheduledSntpSyncService" android:exported="false" />
 
         <!-- Receivers -->
-        <receiver android:name="guardian.receiver.BootReceiver">
+        <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <!-- 				<category android:name="android.intent.category.DEFAULT"/> -->
@@ -95,7 +95,7 @@
 
         <!-- ContentProviders -->
         <provider
-                android:name="guardian.contentprovider.GuardianContentProvider"
+                android:name=".contentprovider.GuardianContentProvider"
                 android:authorities="org.rfcx.guardian.guardian"
                 android:readPermission="org.rfcx.guardian.READ"
                 android:writePermission="org.rfcx.guardian.WRITE"

@@ -49,22 +49,22 @@
         android:icon="@drawable/icon_guardian_setup"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
-        android:name="setup.RfcxGuardian"
+        android:name=".RfcxGuardian"
         >
 
-        <service android:name="setup.service.ApiCheckVersionIntentService" />
-        <!--<service android:name="setup.service.RebootTriggerIntentService" />-->
-        <service android:name="setup.service.ApkDownloadService" />
-        <service android:name="setup.service.ApiCheckVersionService" />
-        <service android:name="setup.service.ApiRegisterService" />
-        <service android:name="setup.service.ApkInstallService" />
+        <service android:name=".service.ApiCheckVersionIntentService" />
+        <!--<service android:name="org.rfcx.guardian.setup.service.RebootTriggerIntentService" />-->
+        <service android:name=".service.ApkDownloadService" />
+        <service android:name=".service.ApiCheckVersionService" />
+        <service android:name=".service.ApiRegisterService" />
+        <service android:name=".service.ApkInstallService" />
 
         <activity
-            android:name="setup.activity.PrefsActivity"
+            android:name=".activity.PrefsActivity"
             android:label="@string/menu_prefs" />
 
         <activity
-            android:name="setup.activity.MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -73,7 +73,7 @@
         </activity>
 
         <!-- Receivers -->
-         <receiver android:name="setup.receiver.BootReceiver">
+         <receiver android:name=".receiver.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 <!-- 				<category android:name="android.intent.category.DEFAULT"/> -->
@@ -81,7 +81,7 @@
 		</receiver>
 		
 		<provider 
-		    android:name="setup.contentprovider.SetupContentProvider"
+		    android:name=".contentprovider.SetupContentProvider"
 			android:authorities="org.rfcx.guardian.setup"
         	android:readPermission="org.rfcx.guardian.READ"
         	android:writePermission="org.rfcx.guardian.WRITE"
