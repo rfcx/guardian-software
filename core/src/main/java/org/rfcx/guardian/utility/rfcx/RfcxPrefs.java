@@ -222,7 +222,7 @@ public class RfcxPrefs {
 		    		input.close();
 		    		return txtFileContents.isEmpty() ? null : txtFileContents;
 	    		} else {
-//	    			Log.e(logTag, "No file '"+fileNameNoExt+"' saved by org.rfcx.org.rfcx.guardian.guardian."+targetAppRole+"...");
+//	    			Log.e(logTag, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+targetAppRole+"...");
 	    		}
 	    	} catch (FileNotFoundException e) {
 			RfcxLog.logExc(logTag, e);
@@ -236,9 +236,9 @@ public class RfcxPrefs {
 	private static String setOrCreatePrefsDirectory(Context context, String appRole) {
 		
 		String roleFilesDir = context.getFilesDir().toString();
-		String prefsDir = (new StringBuilder()).append(roleFilesDir.substring(0, roleFilesDir.lastIndexOf("/files")-("."+appRole).length())).append(".org.rfcx.guardian.guardian/files/prefs").toString();
+		String prefsDir = (new StringBuilder()).append(roleFilesDir.substring(0, roleFilesDir.lastIndexOf("/files")-("."+appRole).length())).append(".guardian/files/prefs").toString();
 		
-		if (appRole.equalsIgnoreCase("org.rfcx.guardian.guardian")) {
+		if (appRole.equalsIgnoreCase("guardian")) {
 			(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, 0777);
 		}
 		
