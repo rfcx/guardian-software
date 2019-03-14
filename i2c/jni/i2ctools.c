@@ -24,7 +24,7 @@ static const char *TAG="Rfcx-I2c-I2cTools";
 #define LOGE(fmt, args...) __android_log_print(ANDROID_LOG_ERROR, TAG, fmt, ##args)
 
 // should be modified according your package name
-JNIEXPORT jint JNICALL Java_rfcx_i2c_I2cTools_i2cGetNative(JNIEnv * env, jobject jobj,
+JNIEXPORT jint JNICALL Java_org_rfcx_guardian_i2c_I2cTools_i2cGetNative(JNIEnv * env, jobject jobj,
 		jint i2c_interface_addr,
 		jint i2c_main_addr,
 		jint i2c_sub_addr) {

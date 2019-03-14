@@ -64,7 +64,7 @@ static inline int oe_write_page(ogg_page *page, FILE *fp)
 
 int convert( const char* source_path, const char* target_path, int bitRate, int quality);
 
-JNIEXPORT jint JNICALL Java_rfcx_audio_opus_OpusAudioEncoder_encodeOpusFile(JNIEnv *env,
+JNIEXPORT jint JNICALL Java_org_rfcx_guardian_audio_opus_OpusAudioEncoder_encodeOpusFile(JNIEnv *env,
 		jobject jobj, jstring in_source_path, jstring in_target_path,
 		jint in_brate, jint in_quality) {
 	const char *source_path, *target_path;
