@@ -15,7 +15,7 @@ fi
 
 export ROLE_DIR_PARENT="..";
 
-if [ "$ROLE" = "updater" ] #|| [ "$ROLE" = "reboot" ]
+if [ "$ROLE" = "updater" ] || [ "$ROLE" = "reboot" ]
 	then ROLE_DIR_PARENT="../deprecated"; 
 fi
 

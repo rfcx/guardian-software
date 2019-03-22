@@ -25,6 +25,10 @@ public class MainActivity extends Activity {
 		case R.id.menu_reboot:
 			ShellCommands.triggerReboot(getApplicationContext());
 			break;
+
+		case R.id.menu_root_command:
+			ShellCommands.triggerNeedForRootAccess(getApplicationContext());
+			break;
 			
 		}
 		return true;

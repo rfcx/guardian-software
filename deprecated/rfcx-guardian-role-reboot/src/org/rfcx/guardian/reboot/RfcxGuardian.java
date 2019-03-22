@@ -60,8 +60,8 @@ public class RfcxGuardian extends Application {
 			this.rfcxServiceHandler.triggerServiceSequence(
 				"OnLaunchServiceSequence", 
 					new String[] { 
-						"RebootTrigger"
-								+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
+						"RebootTrigger"			// stated preference time, plus one minute
+								+"|"+(DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis() + ( 60 * 1000 ))
 							//	+"|"+"norepeat"
 								+"|"+(24 * 60 * 60 * 1000)
 
