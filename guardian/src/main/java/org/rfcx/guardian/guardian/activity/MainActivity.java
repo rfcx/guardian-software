@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.activity;
 
 import org.rfcx.guardian.guardian.R;
+import org.rfcx.guardian.guardian.audio.capture.AudioCaptureService;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import android.app.Activity;
 import android.content.Intent;
@@ -75,6 +76,22 @@ public class MainActivity extends Activity {
 				startActivity(new Intent(MainActivity.this, PrefsActivity.class));
 			}
 		});
+
+		Button start = (Button) findViewById(R.id.startButton);
+		start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                app.initializeRoleServices();
+            }
+        });
+
+        Button stop = (Button) findViewById(R.id.stopButton);
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                app.rfcxServiceHandler.stopAllServices();
+            }
+        });
 	}
 
 	@Override

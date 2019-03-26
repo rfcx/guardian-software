@@ -44,6 +44,7 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 public class ApiCheckInUtils implements MqttCallback {
 
 	public ApiCheckInUtils(Context context) {
+
 		this.app = (RfcxGuardian) context.getApplicationContext();
 
 		this.requestTimeOutLength = 2 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
@@ -884,6 +885,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			// parse audio info and use it to purge the data locally
 			if (jsonObj.has("audio")) {
 				JSONArray audioJson = jsonObj.getJSONArray("audio");
+
 				for (int i = 0; i < audioJson.length(); i++) {
 					
 					String audioId = audioJson.getJSONObject(i).getString("id");
@@ -897,7 +899,6 @@ public class ApiCheckInUtils implements MqttCallback {
 							
 							this.previousCheckIns = new ArrayList<String>();
 							this.previousCheckIns.add( TextUtils.join("*", new String[] { checkInId+"", checkInStats[1]+"", checkInStats[2]+"" } ) );
-							
 							Calendar rightNow = GregorianCalendar.getInstance();
 							rightNow.setTime(new Date());
 							
