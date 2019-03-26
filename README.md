@@ -7,8 +7,8 @@ A collection of inter-dependent Android applications which, together, operate as
 
 ### Requirements
 
-- Eclipse IDE (latest version from (Eclipse Foundation)[https://www.eclipse.org/downloads/]) - install the version "Eclipse IDE for Java Developers"
-- Java SE 7 (JDK) - if you have Android Studio then you probably have this already
+- Android Studio 3.2+
+- Android SDK Tools: LLDB, CMake, NDK
 
 ### Getting started
 
