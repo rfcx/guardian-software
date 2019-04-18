@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import android.app.Activity;
+import android.view.LayoutInflater;
+import android.view.View;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -23,6 +26,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.rfcx.guardian.guardian.R;
+import org.rfcx.guardian.guardian.activity.MainActivity;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -71,6 +76,8 @@ public class ApiCheckInUtils implements MqttCallback {
 	public long requestTimeOutLength = 0;
 
 	private String subscribeBaseTopic = null;
+
+	public String lastTimeCheckIn;
 
 	private long requestSendReturned = System.currentTimeMillis();
 
@@ -874,11 +881,11 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		String jsonStr = StringUtils.UnGZipByteArrayToString(messagePayload);
 		Log.i(logTag, "CheckIn: " + jsonStr);
-
 		try {
 
 			JSONObject jsonObj = new JSONObject(jsonStr);
-
+			Log.d("checkinT","timestamp: "+ jsonObj.getJSONArray("meta").getJSONObject(0).getString("id"));
+			lastTimeCheckIn = jsonObj.getJSONArray("meta").getJSONObject(0).getString("id");
 			// reset/record request latency
 			this.requestSendReturned = System.currentTimeMillis();
 

@@ -46,7 +46,7 @@
                     android:id="@+id/checkInText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="11111111"/></LinearLayout>
+                    android:text=""/></LinearLayout>
         <LinearLayout android:layout_width="wrap_content"
                       android:layout_height="wrap_content">
             <TextView
@@ -58,7 +58,7 @@
                     android:id="@+id/sizeText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="100 kb"/>
+                    android:text=""/>
         </LinearLayout>
     </LinearLayout>
 

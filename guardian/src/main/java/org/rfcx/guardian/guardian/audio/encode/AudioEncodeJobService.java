@@ -24,6 +24,8 @@ public class AudioEncodeJobService extends Service {
 	
 	private boolean runFlag = false;
 	private AudioEncodeJob audioEncodeJob;
+
+	public static String encodedFileSize;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -143,12 +145,13 @@ public class AudioEncodeJobService extends Service {
 								// GZIP encoded file into final location
 								FileUtils.gZipFile(postEncodeFile, gZippedFile);
 
+								encodedFileSize = String.valueOf(postEncodeFile.length());
+								Log.d("filesize", encodedFileSize+"");
 								// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
 								if (gZippedFile.exists()) {
 
 									FileUtils.chmod(gZippedFile, 0777);
 									if (postEncodeFile.exists()) { postEncodeFile.delete(); }
-
 									app.audioEncodeDb.dbEncoded
 										.insert(
 											latestQueuedAudioToEncode[1], 
@@ -163,7 +166,6 @@ public class AudioEncodeJobService extends Service {
 										);
 
 									app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(latestQueuedAudioToEncode[1]);
-
 									app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiQueueCheckIn");
 								}
 								

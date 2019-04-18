@@ -30,7 +30,7 @@ public class AudioEncodeUtils {
 					String encStatus = opusEncoder.transcode(preEncodeFile, postEncodeFile, encodeBitRate, encodeQuality);
 					if (encStatus.equalsIgnoreCase("OK")) { encodeOutputBitRate = encodeBitRate; }
 					Log.d(logTag, "OPUS Encoding Complete: "+encStatus);
-					
+
 				} else if (encodeCodec.equalsIgnoreCase("flac")) {
 					
 					FLAC_FileEncoder flacEncoder = new FLAC_FileEncoder();
