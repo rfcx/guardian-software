@@ -41,3 +41,5 @@ After this is complete, you do not need the setup role and can safely delete it.
 4. Run again in Android Studio.
 5. Open "Logcat" in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your phone.
 
+### Run the admin role
+
