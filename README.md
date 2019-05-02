@@ -43,3 +43,4 @@ After this is complete, you do not need the setup role and can safely delete it.
 
 ### Run the admin role
 
+You might need a rooted phone to test this.
