@@ -61,3 +61,16 @@ You will need a rooted phone to test the admin role.
     5. Orange Pi will be flashed after usb connected.
     6. Take the usb cable off after finished.
 
+### Share Orange Pi screen using Vysor
+
+1. After you flashed the Orange Pi and Take Off usb cable. Please Make sure that you take Jumper cap from COM2 and The arrange of Jumper cap from COM1 be like in the picture. *(the middle iron of jumper cap also must be the same as in the picture)*
+![Figure 1 Jumper caps COM1 and COM2](docs/images/vysor1.jpg?raw=true)
+2. Connect usb cable to your computer same as the flashing.
+3. Once you connect to the computer, The green light led will light up for 5-6 seconds.
+4. If the green led has disappear, you need to press the power button until the green led light up again.
+5. This process will take 5-8 minutes if it is first time boot up.
+6. If you do these correctly the device will be appear in the Vysor.
+![Figure 2 device connected](docs/images/vysor1.jpg?raw=true)
+7. Click view to show the Orange Pi screen
+
+
