@@ -44,3 +44,20 @@ After this is complete, you do not need the setup role and can safely delete it.
 ### Run the admin role
 
 You will need a rooted phone to test the admin role.
+
+## Using in Orange Pi
+
+### Flash Android OS on Orange Pi(Windows)
+
+1. You need to download and install these tools for flashing first
+    1. MTK Driver Installer From https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!rGhSzJBL
+    2. MTK Flash Tool From https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!mCJG3DgT
+    3. Android: IoT03_b1258_32g4g_ry_smt_v1.1.rar From https://mega.nz/#F!q8xQXZBQ!CXsQgfR2JaFsttTtBT_GMQ!3h5DTAJR
+2. Open the MTK Flash Tool **(flash_tool)**
+    1. Choose the scatter-loading file to **MT6572_Android_scatter** *(This’s in the IoT03_b1258_32g4g_ry_smt_v1.1 folder after extracted.)*
+    2. If this is the first time for Orange Pi, select Download Only. If you had flashed, select Format all and download
+    3. Click download. **(The Orange Pi must not be connected)**
+    4. Connect the Orange Pi to your computer using micro-usb plug into the Orange Pi and another side plug into your computer.
+    5. Orange Pi will be flashed after usb connected.
+    6. Take the usb cable off after finished.
+
