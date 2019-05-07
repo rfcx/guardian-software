@@ -64,13 +64,31 @@ You will need a rooted phone to test the admin role.
 ### Share Orange Pi screen using Vysor
 
 1. After you flashed the Orange Pi and Take Off usb cable. Please Make sure that you take Jumper cap from COM2 and The arrange of Jumper cap from COM1 be like in the picture. *(the middle iron of jumper cap also must be the same as in the picture)*
-![Figure 1 Jumper caps COM1 and COM2](docs/images/vysor1.jpg?raw=true)
+
+![Jumper caps COM1 and COM2](docs/images/vysor1.png)
+
 2. Connect usb cable to your computer same as the flashing.
 3. Once you connect to the computer, The green light led will light up for 5-6 seconds.
 4. If the green led has disappear, you need to press the power button until the green led light up again.
 5. This process will take 5-8 minutes if it is first time boot up.
 6. If you do these correctly the device will be appear in the Vysor.
-![Figure 2 device connected](docs/images/vysor1.jpg?raw=true)
+
+![device connected on Vysor](docs/images/vysor1.png)
+
 7. Click view to show the Orange Pi screen
+
+### Run the application through Android Studio
+
+1. Connect usb cable to your computer same as the flashing.
+2. Open Android Studio
+3. Click the RUN button to see if the device connected. *(If Vysor sees the device, Android Studio will see too.)*
+
+![device connected on Android Studio](docs/images/androidstudio1.png)
+
+4. If the device connected, click on the device and OK button.
+5. The result will show in the Vysor screen.
+6. You can also look into the logcat on the Android Studio
+
+![logcat on Android Studio](docs/images/androidstudio1.png)
 
 
