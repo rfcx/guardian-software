@@ -60,15 +60,19 @@
         <activity
                 android:name=".activity.MainActivity"
                 android:label="@string/app_name" >
+        </activity>
+
+        <activity
+                android:name=".activity.PrefsActivity"
+                android:label="@string/menu_prefs" />
+
+        <activity android:name=".activity.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity
-                android:name=".activity.PrefsActivity"
-                android:label="@string/menu_prefs" />
 
         <!-- Services -->
         <service android:name=".audio.capture.AudioCaptureService" android:exported="false" />

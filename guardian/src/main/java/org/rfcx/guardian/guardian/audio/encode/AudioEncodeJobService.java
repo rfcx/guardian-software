@@ -25,7 +25,7 @@ public class AudioEncodeJobService extends Service {
 	private boolean runFlag = false;
 	private AudioEncodeJob audioEncodeJob;
 
-	public static String encodedFileSize;
+	public String encodedFileSize;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {

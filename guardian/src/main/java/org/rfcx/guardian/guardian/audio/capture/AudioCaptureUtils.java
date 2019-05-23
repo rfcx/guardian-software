@@ -101,7 +101,8 @@ public class AudioCaptureUtils {
 		
 		boolean limitBasedOnBatteryLevel = limitBasedOnBatteryLevel();
 		boolean limitBasedOnTimeOfDay = limitBasedOnTimeOfDay();
-		boolean limitBasedOnExternalStorage = !FileUtils.isExternalStorageAvailable();
+		//boolean limitBasedOnExternalStorage = !FileUtils.isExternalStorageAvailable();
+		boolean limitBasedOnExternalStorage = false;
 		boolean limitBasedOnLackOfHardwareSupport = !this.isAudioCaptureHardwareSupported;
 		
 		if (verboseLogging) {

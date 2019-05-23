@@ -1,7 +1,26 @@
 <resources>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="margin_padding_xsmall">4dp</dimen>
+    <dimen name="margin_padding_small">8dp</dimen>
+    <dimen name="margin_padding_normal">16dp</dimen>
+    <dimen name="margin_padding_large">24dp</dimen>
+    <dimen name="margin_padding_xlarge">32dp</dimen>
+
+    <!-- Text size -->
+    <dimen name="text_xlarge">22sp</dimen>
+    <dimen name="text_large">18sp</dimen>
+    <dimen name="text_medium">16sp</dimen>
+    <dimen name="text_small">14sp</dimen>
+    <dimen name="text_xsmall">12sp</dimen>
+    <dimen name="text_xxsmall">10sp</dimen>
+
+    <dimen name="dialog_min_width">268dp</dimen>
+    <dimen name="dialog_height">480dp</dimen>
+    <dimen name="invitation_icon_size">56dp</dimen>
+
+    <dimen name="spectrogram_height">108dp</dimen>
+    <dimen name="event_icon_width">96dp</dimen>
+    <dimen name="event_map_height">160dp</dimen>
 
 </resources>

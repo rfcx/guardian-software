@@ -1,40 +1,55 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-              android:orientation="horizontal"
-	android:background="#FFFFFF"
-    tools:context=".Home" >
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             android:orientation="horizontal"
+                                             android:background="#FFFFFF"
+                                             tools:context=".Home">
 
     <TextView
-        android:id="@+id/deviceIdTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="24dp"
-        android:textColor="#ffffff" />
+            android:id="@+id/deviceIdTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:textColor="#ffffff"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
     
     <Button
         android:id="@+id/preferencesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Preferences" />
+        android:text="Preferences"
+        app:layout_constraintTop_toBottomOf="@id/deviceIdTextView"
+        app:layout_constraintStart_toStartOf="parent"/>
     <Button
             android:id="@+id/startButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="start" />
+            android:text="start"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
     <Button
             android:id="@+id/stopButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="stop" />
+            android:text="stop"
+            app:layout_constraintTop_toBottomOf="@id/startButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
     <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            app:layout_constraintTop_toBottomOf="@id/stopButton"
+            app:layout_constraintStart_toStartOf="@id/stopButton"
+            app:layout_constraintEnd_toEndOf="@id/stopButton">
         <LinearLayout android:layout_width="wrap_content"
                       android:layout_height="wrap_content">
             <TextView
@@ -62,4 +77,4 @@
         </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

@@ -11,7 +11,6 @@
     <string name="menu_sntp">sntp sync</string>
     <string name="menu_purge_checkins">purge checkins</string>
     
-    
     <string-array name="true_or_false">
 		<item>true</item>
 		<item>false</item>
@@ -104,6 +103,16 @@
 		<item>45056</item>
 		<item>49152</item>
 	</string-array>
+
+	<!-- login -->
+	<string name="email">Email</string>
+	<string name="password">Password</string>
+	<string name="login">Login</string>
+	<string name="pls_fill_email">Please fill email</string>
+	<string name="pls_fill_password">Please fill password</string>
+	<string name="incorrect_username_password">Incorrect username or password</string>
+	<string name="an_error_occurred">Service unavailable</string>
+	<string name="or">OR</string>
     
     
 </resources>
