@@ -50,7 +50,12 @@ You will need a rooted phone to test the admin role.
 ### Flash Android OS on Orange Pi(Windows)
 
 1. You need to download and install these tools for flashing first
-    1. MTK Driver Installer From https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!rGhSzJBL\ Choose WIN8 If you are using window 8 or above.\ If you failed on installing, you need to follow this link https://youtu.be/3g542NRQFwg
+    1. MTK Driver Installer From https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!rGhSzJBL
+    
+    Choose WIN8 If you are using window 8 or above.
+    
+    If you failed on installing, you need to follow this link https://youtu.be/3g542NRQFwg
+    
     2. MTK Flash Tool From https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!mCJG3DgT
     3. Android: IoT03_b1258_32g4g_ry_smt_v1.1.rar From https://mega.nz/#F!q8xQXZBQ!CXsQgfR2JaFsttTtBT_GMQ!3h5DTAJR
 2. Open the MTK Flash Tool **(flash_tool)**
@@ -64,8 +69,8 @@ You will need a rooted phone to test the admin role.
 
 Before following the instruction below. You need to download Vysor first.
 
-Google chrome extension: https://chrome.google.com/webstore/detail/vysor/gidgenkbbabolejbgbpnhbimgjbffefm
-Normal program: https://www.vysor.io/download/
+- Google chrome extension: https://chrome.google.com/webstore/detail/vysor/gidgenkbbabolejbgbpnhbimgjbffefm
+- Normal program: https://www.vysor.io/download/
 
 1. After you flashed the Orange Pi and Take Off usb cable. Please Make sure that you take Jumper cap from COM2 and The arrange of Jumper cap from COM1 be like in the picture. *(the middle iron of jumper cap also must be the same as in the picture)*
 
