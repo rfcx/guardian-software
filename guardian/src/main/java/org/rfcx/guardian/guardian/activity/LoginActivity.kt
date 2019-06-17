@@ -102,6 +102,7 @@ class LoginActivity: AppCompatActivity() {
                     }
                     else {
                         loginFailed(exception.description)
+                        Log.d("errorlogin", exception.description)
                     }
                 }
             })
