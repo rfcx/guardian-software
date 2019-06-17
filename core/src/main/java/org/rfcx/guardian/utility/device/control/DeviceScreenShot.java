@@ -56,15 +56,15 @@ public class DeviceScreenShot {
 	}
 	
 	private static String getExecutableBinaryDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshot/bin").toString(); 
+		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshot/bin").toString();
 	}
 
 	public static String getExecutableBinaryFilePath(Context context) {
-		return (new StringBuilder()).append(getExecutableBinaryDir(context)).append("/").append(BINARY_NAME).toString(); 
+		return (new StringBuilder()).append(getExecutableBinaryDir(context)).append("/").append(BINARY_NAME).toString();
 	}
 	
 	public static String captureDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshot/capture").toString(); 
+		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshot/capture").toString();
 	}
 	
 	public static String getScreenShotFileLocation_Capture(Context context, long timestamp) {

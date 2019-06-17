@@ -75,8 +75,8 @@ public class ShellCommands {
 			        FileUtils.chmod(rootScriptObj, 0755);
 				    
 				    if (rootScriptObj.exists()) {
-				    		shellProcess = Runtime.getRuntime().exec( new String[] { "su", "-c", rootScriptPath } );
-				    		shellProcess.waitFor();
+				    	shellProcess = Runtime.getRuntime().exec( new String[] { "su", "-c", rootScriptPath } );
+						shellProcess.waitFor();
 						shellReader = new BufferedReader (new InputStreamReader(shellProcess.getInputStream()));
 			    	    }
 				}
@@ -183,7 +183,7 @@ public class ShellCommands {
 					+" && kill $(ps | grep org.rfcx.org.rfcx.guardian.guardian | cut -d \" \" -f 5)"
 					+" && umount -vl "+Environment.getExternalStorageDirectory().toString()
 					+" && reboot; "
-				+"sleep "+rebootPreDelay+" && reboot; " 
+				+"sleep "+rebootPreDelay+" && reboot; "
 			, context);
 		return true;
 	}

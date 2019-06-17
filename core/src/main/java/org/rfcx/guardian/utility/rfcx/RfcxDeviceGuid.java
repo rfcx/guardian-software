@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 public class RfcxDeviceGuid {
 
@@ -60,6 +61,7 @@ public class RfcxDeviceGuid {
 					RfcxLog.logExc(this.logTag, e);
 					String randomGuid = (UUID.randomUUID()).toString();
 					deviceGuid = randomGuid.substring(1+randomGuid.lastIndexOf("-"));
+					Log.d("guid",deviceGuid);
 				}
 	    		}
 	    	}
