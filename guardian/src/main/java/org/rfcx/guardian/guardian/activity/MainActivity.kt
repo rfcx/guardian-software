@@ -16,6 +16,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.RfcxGuardian
 
 import java.net.URL
@@ -78,16 +79,21 @@ class MainActivity : Activity() {
         val start = findViewById<View>(R.id.startButton) as Button
         start.setOnClickListener {
             app.initializeRoleServices()
-            runThread()
+            //getCheckinInformation()
         }
 
         val stop = findViewById<View>(R.id.stopButton) as Button
         stop.setOnClickListener { app.rfcxServiceHandler.stopAllServices() }
 
+        go_sync.setOnClickListener {
+            val intent = Intent(this, SendDataActivity::class.java)
+            startActivity(intent)
+        }
+
 
     }
 
-    private fun runThread() {
+    private fun getCheckinInformation() {
         val checkinText = findViewById<View>(R.id.checkInText) as TextView
         val sizeText = findViewById<View>(R.id.sizeText) as TextView
         val app = application as RfcxGuardian
@@ -112,7 +118,7 @@ class MainActivity : Activity() {
                             }
                             sizeText.text = fileSize + "kb"
                         }
-                        Thread.sleep(10000)
+                        sleep(50000)
                     } catch (e: InterruptedException) {
                         e.printStackTrace()
                     }
@@ -122,11 +128,11 @@ class MainActivity : Activity() {
         }.start()
     }
 
-    public override fun onResume() {
+    override fun onResume() {
         super.onResume()
     }
 
-    public override fun onPause() {
+    override fun onPause() {
         super.onPause()
         (application as RfcxGuardian).appPause()
     }
@@ -138,11 +144,11 @@ class MainActivity : Activity() {
             context.startActivity(intent)
         }
 
-        private const val REQUEST_CODE_REPORT = 201
-        private const val REQUEST_CODE_GOOGLE_AVAILABILITY = 100
+//        private const val REQUEST_CODE_REPORT = 201
+//        private const val REQUEST_CODE_GOOGLE_AVAILABILITY = 100
 //        const val INTENT_FILTER_MESSAGE_BROADCAST = "${BuildConfig.APPLICATION_ID}.MESSAGE_RECEIVE"
-        const val CONNECTIVITY_ACTION = "android.net.conn.CONNECTIVITY_CHANGE"
-        private const val LIMIT_PER_PAGE = 12
+//        const val CONNECTIVITY_ACTION = "android.net.conn.CONNECTIVITY_CHANGE"
+//        private const val LIMIT_PER_PAGE = 12
     }
 
 
