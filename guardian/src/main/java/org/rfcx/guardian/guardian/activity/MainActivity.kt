@@ -76,6 +76,7 @@ class MainActivity : Activity() {
         val preferences = findViewById<View>(R.id.preferencesButton) as Button
         preferences.setOnClickListener { startActivity(Intent(this@MainActivity, PrefsActivity::class.java)) }
 
+
         val start = findViewById<View>(R.id.startButton) as Button
         start.setOnClickListener {
             app.initializeRoleServices()
@@ -130,6 +131,19 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+
+        val app = application as RfcxGuardian
+        if (app.rfcxPrefs.getPrefAsString("show_ui") == "false") {
+            go_sync.visibility = View.INVISIBLE
+            startButton.visibility = View.INVISIBLE
+            stopButton.visibility = View.INVISIBLE
+            status_view.visibility = View.INVISIBLE
+        } else {
+            go_sync.visibility = View.VISIBLE
+            startButton.visibility = View.VISIBLE
+            stopButton.visibility = View.VISIBLE
+            status_view.visibility = View.VISIBLE
+        }
     }
 
     override fun onPause() {
