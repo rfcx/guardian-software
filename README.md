@@ -109,4 +109,20 @@ Before following the instruction below. You need to download Vysor first.
 6. After the rooting process is success, your Orange Pi's screen will show the SuperUser app *(automatically installed)* with "Rooted" green text.
 7. If it tells the device is not rooted yet, you need to re-do on **3** again until it is success.
 
+### How to set IMEI Number
+
+1. First download [IMEI Writer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!fCJmCTAY) (for Windows)
+2. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
+3. Choose **USB VCOM** and **Smart Phone**
+4. Open System Config
+    1. In **Write Option** choose **IMEI**
+    2. In **IMEI Option** and **Header Option**, choose nothing
+    3. In **MD1_DB** choose **BPLGUInfoCustomAppSrcP_MT6572_S00_MOLY_WR8_W1315_MD_WG_MP_V47_1_wg_n** in *IoT03L_b1258_wg_4g2g_ry_smt_v1.1\modem* (directory of android image)
+    4. In **AP_DB** choose **APDB_MT6572_S01_KK1.MP7_** in the same directory
+    5. Save and then Start
+    6. Put the IMEI Number with 15 digit
+5. Make sure that Orange Pi do not connect to PC.
+6. Click OK and then connect Orange Pi to PC immediately.
+7. If there is an error, you need to re-do 5.
+
 
