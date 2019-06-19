@@ -100,4 +100,14 @@ Before following the instruction below. You need to download Vysor first.
 
 ![](docs/images/androidstudio2.PNG?raw=true)
 
+### How to root your Orange Pi
+
+1. First, you need to download KingoRoot app from https://www.kingoapp.com/android-root/download.htm *(For Windows)*
+2. Before rooting your Orange Pi, make sure that it is connected to your PC and USB debugging is on.
+3. Start KingoRoot app. *(If it detects Orange Pi, it will show the **ROOT** button)*
+4. Press root button
+5. The rooting process will start. You can look the progression on the KingoRoot or on your Orange Pi's screen *(through Vysor)*
+6. After the rooting process is success. In your Orange Pi's screen will show the SuperUser app *(Automatically installed)* with "Rooted" green text.
+7. If it tells the device is not rooted yet, you need to re-do on **3** again until it is success.
+
 
