@@ -16,7 +16,7 @@ A collection of inter-dependent Android applications which, together, operate as
 
 - Checkout the repo from GitHub
 - Open in Android Studio
-- Perform a Gradle sync (File -> Sync Project with Gradle) and accept licenses/install SDK packages (if prompted by Android Studio)
+- Perform a Gradle sync (File -> Sync Project with Gradle) and accept licences/install SDK packages (if prompted by Android Studio)
 
 #### Run the setup role
 
@@ -84,6 +84,8 @@ Before following the instruction below. You need to download Vysor first.
 ![](docs/images/vysor2.PNG?raw=true)
 
 7. Click view to show the Orange Pi screen
+
+(Debugging: green led means powered off, red led means powered on.)
 
 ### Run the application through Android Studio
 
