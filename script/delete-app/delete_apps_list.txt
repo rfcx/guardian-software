@@ -1,0 +1,43 @@
+mount -o rw,remount /system
+rm -rf /system/app/QuickSearchBox.apk
+rm -rf /data/data/com.android.quicksearchbox
+rm -rf /system/app/VoiceUnlock.apk
+rm -rf /data/data/com.mediatek.voiceunlock
+rm -rf /system/app/Calculator.apk
+rm -rf /data/data/com.android.calculator2
+rm -rf /system/app/SmsReg.apk
+rm -rf /data/data/com.mediatek.smsreg
+rm -rf /system/app/VoiceCommand.apk
+rm -rf /data/data/com.mediatek.voicecommand
+rm -rf /system/app/Calendar.apk
+rm -rf /data/data/com.android.calendar
+rm -rf /system/app/MTKLogger.apk
+rm -rf /data/data/com.mediatek.mtklogger
+rm -rf /system/app/Videos.apk
+rm -rf /data/data/com.mediatek.videoplayer
+rm -rf /system/app/Exchange2.apk
+rm -rf /data/data/com.android.exchange
+rm -rf /system/app/VisualizationWallpapers.apk
+rm -rf /data/data/com.android.musicvis
+rm -rf /system/app/LiveWallpapersPicker.apk
+rm -rf /data/data/com.android.wallpaper.livepicker
+rm -rf /system/app/Email.apk
+rm -rf /data/data/com.android.email
+rm -rf /system/app/MagicSmokeWallpapers.apk
+rm -rf /data/data/com.android.magicsmoke
+rm -rf /system/app/FMRadio.apk
+rm -rf /data/data/com.mediatek.FMRadio
+rm -rf /system/app/MusicFX.apk
+rm -rf /data/data/com.android.musicfx
+rm -rf /system/app/HoloSpiralWallpaper.apk
+rm -rf /data/data/com.android.wallpaper.holospiral
+rm -rf /system/app/Music.apk
+rm -rf /data/data/com.android.music
+rm -rf /system/app/DeskClock.apk
+rm -rf /data/data/com.android.deskclock
+rm -rf /system/priv-app/Contacts.apk
+rm -rf /data/data/com.android.contacts
+
+mount -o ro,remount /system
+exit
+exit
