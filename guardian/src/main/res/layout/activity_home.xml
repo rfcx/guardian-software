@@ -7,23 +7,13 @@
                                              android:background="#FFFFFF"
                                              tools:context=".Home">
 
-    <TextView
-            android:id="@+id/deviceIdTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="24dp"
-            android:textColor="#ffffff"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
     
     <Button
         android:id="@+id/preferencesButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Preferences"
-        app:layout_constraintTop_toBottomOf="@id/deviceIdTextView"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
     <Button
@@ -32,7 +22,32 @@
             android:layout_height="wrap_content"
             android:text="sync"
             app:layout_constraintStart_toEndOf="@id/preferencesButton"
-            app:layout_constraintTop_toBottomOf="@id/deviceIdTextView"/>
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    <LinearLayout
+            android:id="@+id/guidLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/preferencesButton"
+            app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+                android:id="@+id/deviceIdText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="xxxxxxxxx"/>
+
+        <TextView
+                android:id="@+id/recordingStateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@string/recording_state"/>
+    </LinearLayout>
+
     <Button
             android:id="@+id/startButton"
             android:layout_width="wrap_content"

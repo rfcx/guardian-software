@@ -113,6 +113,8 @@
 	<string name="incorrect_username_password">Incorrect username or password</string>
 	<string name="an_error_occurred">Service unavailable</string>
 	<string name="or">OR</string>
-    
-    
+    <string name="recording_state">recording</string>
+	<string name="notrecording_state">not recording</string>
+
+
 </resources>

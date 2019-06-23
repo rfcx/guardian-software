@@ -94,7 +94,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String[] RfcxCoreServices = 
 		new String[] { 
 			"AudioCapture",
-			"DeviceSystem",
+			//"DeviceSystem",
 			"ApiCheckInJob",
 			"AudioEncodeJob"
 		};
@@ -131,6 +131,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
 		initializeRoleServices();
+		setRecordingState("true");
 	}
 	
 	public void onTerminate() {
@@ -166,6 +167,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 			System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
 			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
 		}
+	}
+
+	public void setRecordingState(String state){
+		String prefKey = "recordingState";
+		this.sharedPrefs.edit().putString(prefKey, state).commit();
+	}
+
+	public String getRecordingState(){
+		return this.sharedPrefs.getString("recordingState", null);
 	}
 	
 	private void setDbHandlers() {

@@ -25,8 +25,6 @@ public class AudioEncodeJobService extends Service {
 	private boolean runFlag = false;
 	private AudioEncodeJob audioEncodeJob;
 
-	public String encodedFileSize;
-	
 	@Override
 	public IBinder onBind(Intent arg0) {
 		return null;
@@ -145,8 +143,9 @@ public class AudioEncodeJobService extends Service {
 								// GZIP encoded file into final location
 								FileUtils.gZipFile(postEncodeFile, gZippedFile);
 
-								encodedFileSize = String.valueOf(postEncodeFile.length());
-								Log.d("filesize", encodedFileSize+"");
+								String encodedFileSize = String.valueOf(postEncodeFile.length());
+								app.sharedPrefs.edit().putString("fileSize", encodedFileSize).commit();
+								Log.d("filesize", encodedFileSize +"");
 								// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
 								if (gZippedFile.exists()) {
 

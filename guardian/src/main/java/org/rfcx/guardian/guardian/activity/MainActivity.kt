@@ -1,12 +1,9 @@
 package org.rfcx.guardian.guardian.activity
 
-import android.os.AsyncTask
 import android.text.format.DateFormat
 import android.util.Log
 import android.widget.TextView
 import org.rfcx.guardian.guardian.R
-import org.rfcx.guardian.guardian.audio.capture.AudioCaptureService
-import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import android.app.Activity
 import android.content.Context
@@ -15,13 +12,11 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.RfcxGuardian
 
-import java.net.URL
-
 class MainActivity : Activity() {
+    var thread : Thread? = null
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.activity_home, menu)
@@ -73,18 +68,27 @@ class MainActivity : Activity() {
 
         val app = application as RfcxGuardian
 
-        val preferences = findViewById<View>(R.id.preferencesButton) as Button
-        preferences.setOnClickListener { startActivity(Intent(this@MainActivity, PrefsActivity::class.java)) }
+        preferencesButton.setOnClickListener { startActivity(Intent(this@MainActivity, PrefsActivity::class.java)) }
 
+        changeRecordingState(app)
+        changeButtonStateByRecordingState(app)
+        getCheckinInformation(app)
 
-        val start = findViewById<View>(R.id.startButton) as Button
-        start.setOnClickListener {
+        startButton.setOnClickListener {
             app.initializeRoleServices()
-            //getCheckinInformation()
+            app.recordingState = "true"
+            changeRecordingState(app)
+            changeButtonStateByRecordingState(app)
+            getCheckinInformation(app)
         }
 
-        val stop = findViewById<View>(R.id.stopButton) as Button
-        stop.setOnClickListener { app.rfcxServiceHandler.stopAllServices() }
+        stopButton.setOnClickListener {
+            app.rfcxServiceHandler.stopAllServices()
+            thread?.interrupt()
+            app.recordingState = "false"
+            changeRecordingState(app)
+            changeButtonStateByRecordingState(app)
+        }
 
         go_sync.setOnClickListener {
             val intent = Intent(this, SendDataActivity::class.java)
@@ -94,45 +98,34 @@ class MainActivity : Activity() {
 
     }
 
-    private fun getCheckinInformation() {
-        val checkinText = findViewById<View>(R.id.checkInText) as TextView
-        val sizeText = findViewById<View>(R.id.sizeText) as TextView
-        val app = application as RfcxGuardian
-        val audioEncodeJobService = AudioEncodeJobService()
-        object : Thread() {
-            override fun run() {
-                while (true) {
-                    try {
-                        runOnUiThread {
-                            var lastestCheckIn = ""
-                            if (app.apiCheckInUtils.lastTimeCheckIn != null) {
-                                lastestCheckIn = DateFormat.format(
-                                    "yyyy-MM-dd'T'HH:mm:ss.mmm'Z'",
-                                    java.lang.Long.parseLong(app.apiCheckInUtils.lastTimeCheckIn)
-                                ).toString()
-                            }
-                            checkinText.text = lastestCheckIn
+    private fun changeButtonStateByRecordingState(app: RfcxGuardian) {
+        val state = app.sharedPrefs.getString("recordingState", null)
+        when (state) {
+            null -> {
+                startButton.isClickable = true
+                stopButton.isClickable = false
 
-                            var fileSize = ""
-                            if (audioEncodeJobService.encodedFileSize != null) {
-                                fileSize = (Integer.parseInt(audioEncodeJobService.encodedFileSize) / 1000).toString()
-                            }
-                            sizeText.text = fileSize + "kb"
-                        }
-                        sleep(50000)
-                    } catch (e: InterruptedException) {
-                        e.printStackTrace()
-                    }
-
-                }
+                startButton.alpha = 1.0f
+                stopButton.alpha = 0.5f
             }
-        }.start()
+            "true" -> {
+                startButton.isClickable = false
+                stopButton.isClickable = true
+
+                startButton.alpha = 0.5f
+                stopButton.alpha = 1.0f
+            }
+            "false" -> {
+                startButton.isClickable = true
+                stopButton.isClickable = false
+
+                startButton.alpha = 1.0f
+                stopButton.alpha = 0.5f
+            }
+        }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        val app = application as RfcxGuardian
+    private fun changeUiStatebyPrefs(app: RfcxGuardian) {
         if (app.rfcxPrefs.getPrefAsString("show_ui") == "false") {
             go_sync.visibility = View.INVISIBLE
             startButton.visibility = View.INVISIBLE
@@ -146,24 +139,85 @@ class MainActivity : Activity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        (application as RfcxGuardian).appPause()
+    private fun changeRecordingState(app: RfcxGuardian) {
+        deviceIdText.text = app.rfcxDeviceGuid.deviceGuid
+        if (app.recordingState == "true") {
+            recordingStateText.text = getString(R.string.recording_state)
+            recordingStateText.setTextColor(resources.getColor(R.color.primary))
+        } else {
+            recordingStateText.text = getString(R.string.notrecording_state)
+            recordingStateText.setTextColor(resources.getColor(R.color.text_error))
+        }
     }
 
-    companion object {
-        private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, MainActivity::class.java)
-        fun startActivity(context: Context) {
-            val intent = Intent(context, MainActivity::class.java)
-            context.startActivity(intent)
+    private fun getCheckinInformation(app: RfcxGuardian) {
+        thread = object: Thread() {
+            override fun run() {
+                try{
+                    Log.d("getInfoThread", "Started")
+                    while(!isInterrupted){
+                        runOnUiThread {
+                            var lastestCheckIn = "-"
+                            val checkinTime = app.sharedPrefs.getString("checkinTime", null)
+                            if (checkinTime != null) {
+                                lastestCheckIn = DateFormat.format(
+                                    "yyyy-MM-dd'T'HH:mm:ss.mmm'Z'",
+                                    java.lang.Long.parseLong(checkinTime)
+                                ).toString()
+                            }
+                            checkInText.text = lastestCheckIn
+
+                            var fileSize = "-"
+                            val audioSize = app.sharedPrefs.getString("fileSize", null)
+                            if (audioSize != null && audioSize != "0") {
+                                fileSize = (Integer.parseInt(audioSize)/1000).toString()
+                            }
+                            if (fileSize == "-" && audioSize == "0") {
+                                sizeText.text = fileSize
+                            } else {
+                                sizeText.text = "$fileSize kb"
+                            }
+                        }
+                        sleep(5000)
+                    }
+                }catch (e: InterruptedException){
+                    Log.d("getInfoThread", "Interrupted")
+                }
+            }
         }
+        thread?.start()
+    }
+
+override fun onResume() {
+    super.onResume()
+
+    val app = application as RfcxGuardian
+    changeUiStatebyPrefs(app)
+    changeButtonStateByRecordingState(app)
+    
+    if(app.recordingState == "true"){
+        getCheckinInformation(app)
+    }
+}
+
+override fun onPause() {
+    super.onPause()
+    thread?.interrupt()
+}
+
+companion object {
+    private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, MainActivity::class.java)
+    fun startActivity(context: Context) {
+        val intent = Intent(context, MainActivity::class.java)
+        context.startActivity(intent)
+    }
 
 //        private const val REQUEST_CODE_REPORT = 201
 //        private const val REQUEST_CODE_GOOGLE_AVAILABILITY = 100
 //        const val INTENT_FILTER_MESSAGE_BROADCAST = "${BuildConfig.APPLICATION_ID}.MESSAGE_RECEIVE"
 //        const val CONNECTIVITY_ACTION = "android.net.conn.CONNECTIVITY_CHANGE"
 //        private const val LIMIT_PER_PAGE = 12
-    }
+}
 
 
 }

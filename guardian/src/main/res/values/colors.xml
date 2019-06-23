@@ -23,4 +23,9 @@
     <color name="grey_light">#F0F0F0</color>
     <color name="grey_default">#98a0a9</color>
     <color name="grey_active">#5A6978</color>
+
+    <color name="button_default">#98a0a9</color>
+    <color name="start_button_recording">#5A6978</color>
+    <color name="stop_button_stopped">#5A6978</color>
+
 </resources>
