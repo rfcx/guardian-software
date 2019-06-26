@@ -107,6 +107,7 @@
                         android:layout_marginStart="@dimen/margin_padding_large"
                         android:layout_marginTop="@dimen/margin_padding_large"
                         android:layout_marginEnd="@dimen/margin_padding_large"
+                        android:layout_marginBottom="@dimen/margin_padding_large"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/loginButton">
@@ -168,6 +169,21 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/loginButton"
                         tools:text="Error Login" />
+
+                <TextView
+                        android:id="@+id/skipLogin"
+                        style="@style/Base.TextAppearance.AppCompat.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:drawableEnd="@drawable/selector_arrow_right"
+                        android:textSize="14sp"
+                        android:text="@string/skip_login"
+                        android:textColor="@color/text_almost_white"
+                        android:padding="@dimen/margin_padding_small"
+                        android:layout_marginTop="@dimen/text_medium"
+                        app:layout_constraintTop_toBottomOf="@id/layoutLineView"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
 
         </android.support.constraint.ConstraintLayout>
 </ScrollView>

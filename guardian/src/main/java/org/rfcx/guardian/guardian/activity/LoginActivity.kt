@@ -1,38 +1,39 @@
 package org.rfcx.guardian.guardian.activity
 
-import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import com.auth0.android.Auth0
 import com.auth0.android.authentication.AuthenticationAPIClient
 import com.auth0.android.authentication.AuthenticationException
 import com.auth0.android.callback.BaseCallback
-import com.auth0.android.provider.AuthCallback
-import com.auth0.android.provider.WebAuthProvider
 import com.auth0.android.result.Credentials
-import com.crashlytics.android.Crashlytics
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
+import com.google.android.gms.common.GooglePlayServicesRepairableException
+import com.google.android.gms.security.ProviderInstaller
 import kotlinx.android.synthetic.main.activity_login.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.entity.Err
 import org.rfcx.guardian.guardian.entity.Ok
 import org.rfcx.guardian.guardian.entity.UserAuthResponse
+import org.rfcx.guardian.guardian.manager.Constant
 import org.rfcx.guardian.guardian.manager.CredentialKeeper
 import org.rfcx.guardian.guardian.manager.CredentialVerifier
-import org.rfcx.guardian.guardian.manager.PreferenceManager
 
-class LoginActivity: AppCompatActivity() {
+
+
+class LoginActivity : AppCompatActivity() {
 
     private var isAnonymousLogin: Boolean = false
 
     private val auth0 by lazy {
         val auth0 = Auth0(this)
-        //auth0.isLoggingEnabled = true
+        auth0.isLoggingEnabled = true
         auth0.isOIDCConformant = true
         auth0
     }
@@ -44,6 +45,20 @@ class LoginActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        // enable tls1.2 for sending https request
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            try {
+                ProviderInstaller.installIfNeeded(this)
+            } catch (e: GooglePlayServicesRepairableException) {
+                Log.d("google", "please install gg service")
+                GoogleApiAvailability.getInstance()
+                    .showErrorNotification(this, e.connectionStatusCode)
+            } catch (e: GooglePlayServicesNotAvailableException) {
+                Log.d("google", "you cannot use it")
+            }
+        }
+
+        // to check if user have logined or not
         if (CredentialKeeper(this).hasValidCredentials()) {
             loginGroupView.visibility = View.INVISIBLE
 
@@ -52,6 +67,7 @@ class LoginActivity: AppCompatActivity() {
         } else {
             loginGroupView.visibility = View.VISIBLE
         }
+        loginGroupView.visibility = View.VISIBLE
 
         loginButton.setOnClickListener {
             val email = loginEmailEditText.text.toString()
@@ -59,6 +75,10 @@ class LoginActivity: AppCompatActivity() {
             if (validateInput(email, password)) {
                 doLogin(email, password)
             }
+        }
+
+        skipLogin.setOnClickListener {
+            loginAnonymously()
         }
     }
 
@@ -73,8 +93,31 @@ class LoginActivity: AppCompatActivity() {
         return true
     }
 
+    private fun loginAnonymously() {
+        Log.i("LoginActivity", "here we go")
+
+//        authentication
+//            .login(Constant().AUTH0_ANON_USERNAME, Constant().AUTH0_ANON_PASSWORD, "Username-Password-Authentication")
+//            .setAudience(getString(R.string.auth0_audience))
+//            .start(object : BaseCallback<Credentials, AuthenticationException> {
+//                override fun onSuccess(credentials: Credentials) {
+//                    loginSuccess(credentials, "anonymous")
+//                }
+//
+//                override fun onFailure(exception: AuthenticationException) {
+//                    loginFailed(exception)
+//                }
+//            })
+
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("LOGIN_STATUS", "skip")
+        startActivity(intent)
+
+    }
+
     private fun doLogin(email: String, password: String) {
         loginGroupView.visibility = View.GONE
+        skipLogin.visibility = View.INVISIBLE
         loginProgress.visibility = View.VISIBLE
         loginErrorTextView.visibility = View.INVISIBLE
 //		loginButton.isEnabled = false
@@ -89,8 +132,12 @@ class LoginActivity: AppCompatActivity() {
                 override fun onSuccess(credentials: Credentials) {
                     val result = CredentialVerifier(this@LoginActivity).verify(credentials)
                     when (result) {
-                        is Err -> { loginFailed(result.error) }
-                        is Ok -> { loginSuccess(result.value) }
+                        is Err -> {
+                            loginFailed(result.error)
+                        }
+                        is Ok -> {
+                            loginSuccess(credentials, result.value)
+                        }
                     }
                 }
 
@@ -99,8 +146,7 @@ class LoginActivity: AppCompatActivity() {
 //                    Crashlytics.logException(exception)
                     if (exception.code == "invalid_grant") {
                         loginFailed(getString(R.string.incorrect_username_password))
-                    }
-                    else {
+                    } else {
                         loginFailed(exception.description)
                         Log.d("errorlogin", exception.description)
                     }
@@ -111,6 +157,7 @@ class LoginActivity: AppCompatActivity() {
     private fun loginFailed(errorMessage: String?) {
         runOnUiThread {
             loginGroupView.visibility = View.VISIBLE
+            skipLogin.visibility = View.VISIBLE
             loginProgress.visibility = View.INVISIBLE
 
             loginButton.isEnabled = true
@@ -122,37 +169,15 @@ class LoginActivity: AppCompatActivity() {
 
     }
 
-    private fun loginSuccess(userAuthResponse: UserAuthResponse) {
+    private fun loginSuccess(credentials: Credentials, userAuthResponse: UserAuthResponse) {
 
+        Log.i("LoginActivity", "Auth0: success")
         CredentialKeeper(this@LoginActivity).save(userAuthResponse)
+        Log.d("userauth", userAuthResponse.idToken + " " + userAuthResponse.accessToken)
+        Log.d("credentials", credentials.idToken + " " + credentials.accessToken)
 
         MainActivity.startActivity(this@LoginActivity)
         finish()
-
-//        UserTouchApi().send(this, object : UserTouchApi.UserTouchCallback {
-//            override fun onSuccess() {
-//                runOnUiThread{
-//                    loginProgress.visibility = View.INVISIBLE
-//                }
-//
-//                if (userAuthResponse.isRanger) {
-//                    MainActivity.startActivity(this@LoginActivity)
-//                }
-//                else {
-////                    this@LoginActivity.startActivity(Intent(this@LoginActivity, InvitationActivity::class.java))
-//                }
-//                finish()
-//            }
-//
-//            override fun onFailed(t: Throwable?, message: String?) {
-//                runOnUiThread{
-//                    loginProgress.visibility = View.INVISIBLE
-//                    loginGroupView.visibility = View.VISIBLE
-//                }
-//                Crashlytics.logException(t)
-//                loginFailed(message ?: t?.localizedMessage)
-//            }
-//        })
     }
 
     companion object {

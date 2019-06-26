@@ -115,6 +115,9 @@
 	<string name="or">OR</string>
     <string name="recording_state">recording</string>
 	<string name="notrecording_state">not recording</string>
+    <string name="register">register</string>
+    <string name="error_common">An error occurred. Please try again.</string>
+    <string name="skip_login">SKIP</string>
 
 
 </resources>

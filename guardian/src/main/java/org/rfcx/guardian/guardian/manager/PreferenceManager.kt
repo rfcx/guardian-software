@@ -17,8 +17,8 @@ class PreferenceManager(context: Context){
                 INSTANCE ?: PreferenceManager(context).also { INSTANCE = it }
             }
 
-        private const val PREFERENCES_NAME = "Rfcx.Ranger"
-        private const val PREFIX = "org.rfcx.ranger:"
+        private const val PREFERENCES_NAME = "Rfcx.Guardian"
+        private const val PREFIX = "org.rfcx.guardian:"
 
         const val ID_TOKEN = "${PREFIX}ID_TOKEN"
         const val ACCESS_TOKEN = "${PREFIX}ACCESS_TOKEN"

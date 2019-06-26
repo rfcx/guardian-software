@@ -2,21 +2,33 @@ package org.rfcx.guardian.guardian.activity
 
 import android.text.format.DateFormat
 import android.util.Log
-import android.widget.TextView
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
+import com.google.android.gms.common.GooglePlayServicesRepairableException
+import com.google.android.gms.security.ProviderInstaller
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.RfcxGuardian
+import org.rfcx.guardian.guardian.api.RegisterApi
+import org.rfcx.guardian.guardian.entity.RegisterRequest
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 class MainActivity : Activity() {
-    var thread : Thread? = null
+    var thread: Thread? = null
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.activity_home, menu)
@@ -66,13 +78,35 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+//        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+//            try {
+//                ProviderInstaller.installIfNeeded(this)
+//            } catch (e: GooglePlayServicesRepairableException) {
+//                Log.d("google", "please install gg service")
+//                GoogleApiAvailability.getInstance()
+//                    .showErrorNotification(this, e.connectionStatusCode)
+//            } catch (e: GooglePlayServicesNotAvailableException) {
+//                Log.d("google", "you cannot use it")
+//            }
+//        }
+
         val app = application as RfcxGuardian
 
         preferencesButton.setOnClickListener { startActivity(Intent(this@MainActivity, PrefsActivity::class.java)) }
 
+        val loginStatus = intent.getStringExtra("LOGIN_STATUS")
+
+        if(loginStatus == "skip"){
+            registerButton.isEnabled = false
+        }
+        if(isGuidExisted()){
+            registerButton.isEnabled = false
+        }
+
         changeRecordingState(app)
         changeButtonStateByRecordingState(app)
         getCheckinInformation(app)
+//        createRegisterFile(app)
 
         startButton.setOnClickListener {
             app.initializeRoleServices()
@@ -95,32 +129,68 @@ class MainActivity : Activity() {
             startActivity(intent)
         }
 
+        registerButton.setOnClickListener {
+            if (isNetworkAvailable(this)) {
+                if (!isGuidExisted()) {
+                    guidLayout.visibility = View.INVISIBLE
+                    status_view.visibility = View.INVISIBLE
+                    startButton.visibility = View.INVISIBLE
+                    stopButton.visibility = View.INVISIBLE
+                    registerProgress.visibility = View.VISIBLE
 
+                    val guid = app.rfcxDeviceGuid.deviceGuid
+                    val token = app.rfcxDeviceGuid.deviceToken
+                    Log.d("GuidInfo", app.rfcxDeviceGuid.deviceGuid)
+                    Log.d("GuidInfo", app.rfcxDeviceGuid.deviceToken)
+                    RegisterApi().registerGuardian(
+                        this,
+                        RegisterRequest(guid, token),
+                        object : RegisterApi.RegisterCallback {
+                            override fun onSuccess() {
+                                createRegisterFile(app)
+                                changeRecordingState(app)
+                                deviceIdText.text = readRegisterFile()
+                                guidLayout.visibility = View.VISIBLE
+                                status_view.visibility = View.VISIBLE
+                                startButton.visibility = View.VISIBLE
+                                stopButton.visibility = View.VISIBLE
+                                registerProgress.visibility = View.INVISIBLE
+                            }
+
+                            override fun onFailed(t: Throwable?, message: String?) {
+                                guidLayout.visibility = View.VISIBLE
+                                status_view.visibility = View.VISIBLE
+                                startButton.visibility = View.VISIBLE
+                                stopButton.visibility = View.VISIBLE
+                                registerProgress.visibility = View.INVISIBLE
+                                Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+                                Log.d("register_failed", t.toString())
+                            }
+
+                        })
+                } else {
+                    registerButton.isEnabled = false
+                }
+            } else {
+                Toast.makeText(this, "There is not internet connection. Please turn it on.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun changeButtonStateByRecordingState(app: RfcxGuardian) {
         val state = app.sharedPrefs.getString("recordingState", null)
         when (state) {
             null -> {
-                startButton.isClickable = true
-                stopButton.isClickable = false
-
-                startButton.alpha = 1.0f
-                stopButton.alpha = 0.5f
+                startButton.isEnabled = true
+                stopButton.isEnabled = false
             }
             "true" -> {
-                startButton.isClickable = false
-                stopButton.isClickable = true
-
-                startButton.alpha = 0.5f
-                stopButton.alpha = 1.0f
+                startButton.isEnabled = false
+                stopButton.isEnabled = true
             }
             "false" -> {
-                startButton.isClickable = true
-                stopButton.isClickable = false
-
-                startButton.alpha = 1.0f
-                stopButton.alpha = 0.5f
+                startButton.isEnabled = true
+                stopButton.isEnabled = false
             }
         }
     }
@@ -140,7 +210,13 @@ class MainActivity : Activity() {
     }
 
     private fun changeRecordingState(app: RfcxGuardian) {
-        deviceIdText.text = app.rfcxDeviceGuid.deviceGuid
+        if (isGuidExisted()) {
+            Log.d("Guid","existed")
+            deviceIdText.text = readRegisterFile()
+        } else {
+            Log.d("Guid","not existed")
+            deviceIdText.text = "not registered"
+        }
         if (app.recordingState == "true") {
             recordingStateText.text = getString(R.string.recording_state)
             recordingStateText.setTextColor(resources.getColor(R.color.primary))
@@ -151,13 +227,13 @@ class MainActivity : Activity() {
     }
 
     private fun getCheckinInformation(app: RfcxGuardian) {
-        thread = object: Thread() {
+        thread = object : Thread() {
             override fun run() {
-                try{
+                try {
                     Log.d("getInfoThread", "Started")
-                    while(!isInterrupted){
+                    while (!isInterrupted) {
                         runOnUiThread {
-                            var lastestCheckIn = "-"
+                            var lastestCheckIn = "none"
                             val checkinTime = app.sharedPrefs.getString("checkinTime", null)
                             if (checkinTime != null) {
                                 lastestCheckIn = DateFormat.format(
@@ -170,7 +246,7 @@ class MainActivity : Activity() {
                             var fileSize = "-"
                             val audioSize = app.sharedPrefs.getString("fileSize", null)
                             if (audioSize != null && audioSize != "0") {
-                                fileSize = (Integer.parseInt(audioSize)/1000).toString()
+                                fileSize = (Integer.parseInt(audioSize) / 1000).toString()
                             }
                             if (fileSize == "-" && audioSize == "0") {
                                 sizeText.text = fileSize
@@ -180,7 +256,7 @@ class MainActivity : Activity() {
                         }
                         sleep(5000)
                     }
-                }catch (e: InterruptedException){
+                } catch (e: InterruptedException) {
                     Log.d("getInfoThread", "Interrupted")
                 }
             }
@@ -188,36 +264,71 @@ class MainActivity : Activity() {
         thread?.start()
     }
 
-override fun onResume() {
-    super.onResume()
-
-    val app = application as RfcxGuardian
-    changeUiStatebyPrefs(app)
-    changeButtonStateByRecordingState(app)
-    
-    if(app.recordingState == "true"){
-        getCheckinInformation(app)
+    private fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
     }
-}
 
-override fun onPause() {
-    super.onPause()
-    thread?.interrupt()
-}
-
-companion object {
-    private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, MainActivity::class.java)
-    fun startActivity(context: Context) {
-        val intent = Intent(context, MainActivity::class.java)
-        context.startActivity(intent)
+    private fun isGuidExisted(): Boolean {
+        val directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString()
+        val txtFile = File(directoryPath + "/register.txt")
+        return txtFile.exists()
     }
+
+    private fun createRegisterFile(app: RfcxGuardian) {
+        val externalPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+        externalPath.mkdir()
+        val file = File(externalPath, "register.txt")
+        FileOutputStream(file).use {
+            it.write(app.rfcxDeviceGuid.deviceGuid.toByteArray())
+        }
+    }
+
+    private fun readRegisterFile(): String {
+        val externalPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
+        val file = File(externalPath, "register.txt")
+        return FileInputStream(file).bufferedReader().use { it.readText() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        val app = application as RfcxGuardian
+        changeUiStatebyPrefs(app)
+        changeRecordingState(app)
+        changeButtonStateByRecordingState(app)
+
+        if (app.recordingState == "true") {
+            getCheckinInformation(app)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        thread?.interrupt()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val app = application as RfcxGuardian
+        app.rfcxServiceHandler.stopAllServices()
+        thread?.interrupt()
+    }
+
+    companion object {
+        private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, MainActivity::class.java)
+        fun startActivity(context: Context) {
+            val intent = Intent(context, MainActivity::class.java)
+            context.startActivity(intent)
+        }
 
 //        private const val REQUEST_CODE_REPORT = 201
 //        private const val REQUEST_CODE_GOOGLE_AVAILABILITY = 100
 //        const val INTENT_FILTER_MESSAGE_BROADCAST = "${BuildConfig.APPLICATION_ID}.MESSAGE_RECEIVE"
 //        const val CONNECTIVITY_ACTION = "android.net.conn.CONNECTIVITY_CHANGE"
 //        private const val LIMIT_PER_PAGE = 12
-}
+    }
 
 
 }
