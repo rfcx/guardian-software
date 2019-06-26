@@ -48,6 +48,22 @@ You will need a rooted phone to test the admin role.
 
 ## Instructions for Orange Pi 3G-IoT
 
+Before, starting any instructions here. Please read the infomation below and do it properly.
+
+1. In the Orange Pi board, There are two leds builtin, red and green. **Red** is for the **power** and **green** is for the device is **ON**. Make sure that the power that connected to the Orange Pi is **5V**. If not the leds brightness will be low and can not start the OS.
+2. The Orange Pi do not come with the **IMEI number**. You need to set it by yourself (you can set IMEI by following the instruction below)
+3. The Orange Pi is not rooted by default. You need to root it by yourself (you can root Orange Pi by following the instruction below)
+4. Before install any roles, you should set the **IMEI number first**
+5. Before using any roles, make sure there is the internet connection.
+6. **Time and date** will not be present at the first time. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** *(you need to root Orange Pi first)*
+7. The Orange Pi comes with USB debugging **Enable**.
+8. The Orange Pi comes with **auto allow the permission**.
+9. The guardian role will work If
+    1. Time/date are present.
+    2. **Sd card** is connected *(any size is okay.)*
+    3. There is internet connection
+    4. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
+
 ### Flash Android on Orange Pi (from Windows)
 
 1. You need to download and install these tools
@@ -63,6 +79,33 @@ You will need a rooted phone to test the admin role.
     4. Click "Download".
     5. Connect the Orange Pi to your computer using micro-usb cable into the Orange Pi and another side plug into your computer. *(The download process will begin after connecting the Orange Pi)*
     6. Disconnect the Orange Pi micro-usb cable after finishing.
+
+### How to set IMEI Number
+
+1. Make sure that all jumpers are on the board.
+2. First download [IMEI Writer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!fCJmCTAY) (for Windows)
+3. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
+4. Choose **USB VCOM** and **Smart Phone**
+5. Open System Config
+    1. In **Write Option** choose **IMEI**
+    2. In **IMEI Option** and **Header Option**, choose nothing
+    3. In **MD1_DB** choose **BPLGUInfoCustomAppSrcP_MT6572_S00_MOLY_WR8_W1315_MD_WG_MP_V47_1_wg_n** in *IoT03L_b1258_wg_4g2g_ry_smt_v1.1\modem* (directory of android image)
+    4. In **AP_DB** choose **APDB_MT6572_S01_KK1.MP7_** in the same directory
+    5. In the newer version There are checkboxes called **"Load AP DB from DUT"** and **"Load modem DB from DUT"**. Make sure that you uncheck these two box before the next step.
+    6. Save and then Start
+    7. Put the IMEI Number with 15 digit
+6. Make sure that Orange Pi do not connect to PC.
+7. Click OK and then connect Orange Pi to PC immediately.
+8. If there is an error, you need to re-do 5.
+
+### How to root your Orange Pi
+
+1. First, you need to download [KingoRoot app](https://www.kingoapp.com/android-root/download.htm) (for Windows)
+2. Before rooting your Orange Pi, make sure that it is connected to your PC and USB debugging is on.
+3. Start KingoRoot app. *(If it detects Orange Pi, it will show the **ROOT** button)*
+4. Press the root button to start the rooting process. You can look the progression on the KingoRoot or on your Orange Pi's screen *(through Vysor)*
+6. After the rooting process is success, your Orange Pi's screen will show the SuperUser app *(automatically installed)* with "Rooted" green text.
+7. If it tells the device is not rooted yet, you need to re-do on **3** again until it is success.
 
 ### Share Orange Pi screen using Vysor
 
@@ -100,29 +143,11 @@ Before following the instruction below. You need to download Vysor first.
 
 ![](docs/images/androidstudio2.PNG?raw=true)
 
-### How to root your Orange Pi
+### How to uninstall unused app
 
-1. First, you need to download [KingoRoot app](https://www.kingoapp.com/android-root/download.htm) (for Windows)
-2. Before rooting your Orange Pi, make sure that it is connected to your PC and USB debugging is on.
-3. Start KingoRoot app. *(If it detects Orange Pi, it will show the **ROOT** button)*
-4. Press the root button to start the rooting process. You can look the progression on the KingoRoot or on your Orange Pi's screen *(through Vysor)*
-6. After the rooting process is success, your Orange Pi's screen will show the SuperUser app *(automatically installed)* with "Rooted" green text.
-7. If it tells the device is not rooted yet, you need to re-do on **3** again until it is success.
+1. Make sure the Orange Pi is the **only one** Android device that connected.
+2. the script for uninstall is in **/script/delete-app/**
+3. you can just click on **delete_unused_app_script.bat** and wait for apps uninstalled.
 
-### How to set IMEI Number
-
-1. First download [IMEI Writer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!fCJmCTAY) (for Windows)
-2. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
-3. Choose **USB VCOM** and **Smart Phone**
-4. Open System Config
-    1. In **Write Option** choose **IMEI**
-    2. In **IMEI Option** and **Header Option**, choose nothing
-    3. In **MD1_DB** choose **BPLGUInfoCustomAppSrcP_MT6572_S00_MOLY_WR8_W1315_MD_WG_MP_V47_1_wg_n** in *IoT03L_b1258_wg_4g2g_ry_smt_v1.1\modem* (directory of android image)
-    4. In **AP_DB** choose **APDB_MT6572_S01_KK1.MP7_** in the same directory
-    5. Save and then Start
-    6. Put the IMEI Number with 15 digit
-5. Make sure that Orange Pi do not connect to PC.
-6. Click OK and then connect Orange Pi to PC immediately.
-7. If there is an error, you need to re-do 5.
 
 
