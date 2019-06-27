@@ -94,7 +94,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public String[] RfcxCoreServices = 
 		new String[] { 
 			"AudioCapture",
-			//"DeviceSystem",
+			"DeviceSystem",
 			"ApiCheckInJob",
 			"AudioEncodeJob"
 		};
