@@ -103,8 +103,10 @@ class MainActivity : Activity() {
             registerButton.isEnabled = false
         }
 
-        app.initializeRoleServices()
-        app.recordingState = "true"
+        if(app.recordingState == "false"){
+            app.initializeRoleServices()
+            app.recordingState = "true"
+        }
         changeRecordingState(app)
         changeButtonStateByRecordingState(app)
         getCheckinInformation(app)
