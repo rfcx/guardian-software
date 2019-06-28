@@ -1,7 +1,6 @@
-rfcx-guardian-android
-=====================
+# RFCx Guardian software
 
-A collection of inter-dependent Android applications which, together, operate as autonomous Rainforest Connection guardians.
+A collection of Android applications which, together, operate as autonomous Rainforest Connection guardians.
 
 ## Development environment
 
@@ -44,23 +43,23 @@ After this is complete, you do not need the setup role and can safely delete it.
 
 ### Run the admin role
 
-You will need a rooted phone to test the admin role.
+You will need a rooted phone to test the admin role. It will run without a rooted phone, but many of the functions (e.g. time sync, reboot) will not operate.
+
 
 ## Instructions for Orange Pi 3G-IoT
 
-Before, starting any instructions here. Please read the infomation below and do it properly.
+Before, starting any instructions here. Please read the information below and do it properly.
 
-1. In the Orange Pi board, There are two leds builtin, red and green. **Red** is for the **power** and **green** is for the device is **ON**. Make sure that the power that connected to the Orange Pi is **5V**. If not the leds brightness will be low and can not start the OS.
-2. The Orange Pi do not come with the **IMEI number**. You need to set it by yourself (you can set IMEI by following the instruction below)
-3. The Orange Pi is not rooted by default. You need to root it by yourself (you can root Orange Pi by following the instruction below)
-4. Before install any roles, you should set the **IMEI number first**
-5. Before using any roles, make sure there is the internet connection.
-6. **Time and date** will not be present at the first time. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** *(you need to root Orange Pi first)*
+1. On the Orange Pi board there are two LEDs, red and green. **Red** indicates the **power** is connected and **green** indicates that the device is **ON**. Make sure that the power that connected to the Orange Pi is **5V**. If not the leds brightness will be low and can not start the OS.
+2. The Orange Pi do not come with the **IMEI number**. You need to set it by yourself following the instructions below. Before install any roles, you should set the **IMEI number first**.
+3. The Orange Pi is not rooted by default. You can root it by yourself following the instruction below.
+4. Before using any roles, make sure there is the internet connection.
+5. **Time and date** will not be correct on the first time you start the device. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** *(you need to root Orange Pi first)*
 7. The Orange Pi comes with USB debugging **Enable**.
 8. The Orange Pi comes with **auto allow the permission**.
-9. The guardian role will work If
-    1. Time/date are present.
-    2. **Sd card** is connected *(any size is okay.)*
+9. The guardian role will capture audio and send to server automatically if:
+    1. The date/time is (reasonably) close to current time
+    2. **SD card** is connected *(any size is okay -- tested up to 64GB)*
     3. There is internet connection
     4. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
 
@@ -146,8 +145,5 @@ Before following the instruction below. You need to download Vysor first.
 ### How to uninstall unused app
 
 1. Make sure the Orange Pi is the **only one** Android device that connected.
-2. the script for uninstall is in **/script/delete-app/**
-3. you can just click on **delete_unused_app_script.bat** and wait for apps uninstalled.
-
-
-
+2. The script for uninstall is in **/script/delete-app/**
+3. Click on (execute) **delete_unused_app_script.bat** and wait for apps uninstalled.
