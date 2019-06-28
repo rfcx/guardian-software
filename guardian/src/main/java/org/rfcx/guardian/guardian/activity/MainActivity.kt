@@ -103,6 +103,8 @@ class MainActivity : Activity() {
             registerButton.isEnabled = false
         }
 
+        app.initializeRoleServices()
+        app.recordingState = "true"
         changeRecordingState(app)
         changeButtonStateByRecordingState(app)
         getCheckinInformation(app)
@@ -313,6 +315,7 @@ class MainActivity : Activity() {
         super.onDestroy()
         val app = application as RfcxGuardian
         app.rfcxServiceHandler.stopAllServices()
+        app.recordingState = "false"
         thread?.interrupt()
     }
 

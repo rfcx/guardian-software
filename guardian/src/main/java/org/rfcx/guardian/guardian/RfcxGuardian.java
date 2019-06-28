@@ -130,8 +130,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.deviceUtils = new DeviceUtils(getApplicationContext());
 		this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
-		initializeRoleServices();
-		setRecordingState("true");
+		startServiceByStart();
 	}
 	
 	public void onTerminate() {
@@ -147,6 +146,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 	public void appPause() {
 		
 	}
+
+	public void startServiceByStart() {
+        initializeRoleServices();
+        setRecordingState("true");
+    }
 	
 	public void initializeRoleServices() {
 		

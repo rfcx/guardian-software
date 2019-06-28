@@ -30,21 +30,10 @@ class RegisterApi {
                 }
 
                 override fun onResponse(call: Call<RegisterResponse>, response: Response<RegisterResponse>) {
-                    val result = responseParser(response)
-                    when (result) {
-                        is Ok -> {
-                            if (result.value.success) {
-                                callback.onSuccess()
-                            } else {
-                                callback.onFailed(null, "Unsuccessful")
-                                Log.d("register_failed","fail from get response")
-                            }
-                        }
-                        is Err -> {
-                            responseErrorHandler(result.error, callback, context, "RegisterApi")
-                            Log.d("register_failed","fail from cant get response")
-                            Log.d("register_failed", response.toString())
-                        }
+                    if(response.isSuccessful){
+                        callback.onSuccess()
+                    }else{
+                        callback.onFailed(null, "Unsuccessful")
                     }
                 }
             })

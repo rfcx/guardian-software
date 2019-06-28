@@ -2,14 +2,12 @@ package org.rfcx.guardian.guardian.api
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.rfcx.guardian.guardian.BuildConfig
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.entity.RegisterResponse
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
-import java.util.concurrent.TimeUnit
 
 interface ApiInterface {
     @POST("v1/guardians/register")
