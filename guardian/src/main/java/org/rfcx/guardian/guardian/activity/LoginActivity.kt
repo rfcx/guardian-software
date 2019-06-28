@@ -21,7 +21,6 @@ import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.entity.Err
 import org.rfcx.guardian.guardian.entity.Ok
 import org.rfcx.guardian.guardian.entity.UserAuthResponse
-import org.rfcx.guardian.guardian.manager.Constant
 import org.rfcx.guardian.guardian.manager.CredentialKeeper
 import org.rfcx.guardian.guardian.manager.CredentialVerifier
 
