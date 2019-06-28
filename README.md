@@ -111,7 +111,7 @@ Before following the instruction below. You need to download Vysor first.
 7. Click OK and then connect Orange Pi to PC immediately.
 8. In Vysor, go to Settings -> About Phone -> Status and scroll down to verify that IMEI number you entered during the flashing process is shown there. (If there is an error then repeat step 5).
 
-![](docs/images/checkimei.png?raw=true)
+![](docs/images/checkimei.png?raw=true =265x)
 
 ### Step 4: Root the Orange Pi
 
