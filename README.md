@@ -134,9 +134,9 @@ Before following the instruction below. You need to download Vysor first.
 1. Download the apk from *(choose the **latest version**, **armeabi-v7a** architecture, **Android 4.1+** minimum version and **any dpi** Screen DPI)*
     1. [Google Play Service](https://www.apkmirror.com/apk/google-inc/google-play-services/)
     2. [Google Play Store](https://www.apkmirror.com/apk/google-inc/google-play-store/)
-2. Go to the directory of these two placed.
-3. Open the Command Line Prompt or Terminal
-4. type **adb install name-of-apk** and click Enter
+2. Open the Command Line Prompt or Terminal.
+3. Go to the directory of these two placed.
+4. type **adb install name-of-apk** and click Enter.
 5. re-do **4** again until finished.
 
 ### Step 7: Run the application through Android Studio
