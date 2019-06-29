@@ -51,7 +51,8 @@ Before, starting any instructions here. Please read the information below and do
     1. The date/time is (reasonably) close to current time
     2. **SD card** is connected *(any size is okay -- tested up to 64GB)*
     3. There is internet connection
-    4. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
+    4. There are Google Play Store and Google Play Serives installed.
+    5. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
 
 ### Step 1: Flash Android on Orange Pi (from Windows)
 
@@ -128,7 +129,17 @@ Before following the instruction below. You need to download Vysor first.
 2. The script for uninstall is in **/script/delete-app/**
 3. Click on (execute) **delete_unused_app_script.bat** and wait for apps uninstalled.
 
-### Step 6: Run the application through Android Studio
+### Step 6: Install Google Play Store and Google Play Services
+
+1. Download the apk from *(choose the latest version and the correctly API)*
+    1. ![Google Play Service](https://www.apkmirror.com/apk/google-inc/google-play-services/)
+    2. ![Google Play Store](https://www.apkmirror.com/apk/google-inc/google-play-store/)
+2. Go to the directory of these two placed.
+3. Open the Command Line Prompt or Terminal
+4. type **adb install name-of-apk** and click Enter
+5. re-do **4** again until finished.
+
+### Step 7: Run the application through Android Studio
 
 1. Make sure the Orange Pi is connected.
 2. Open Android Studio
