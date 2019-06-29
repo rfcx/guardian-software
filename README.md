@@ -22,7 +22,7 @@ A collection of Android applications which, together, operate as autonomous Rain
 1. Connect your phone.
 2. In Android Studio, press "Run" and select the "guardian" app.
 3. You should be able to select your phone (or Orange Pi) for running the app (instead of an emulator).
-4. (If you are on Android 8 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. Then run the app again from Android Studio.
+4. (If you are on Android 8 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS). Then run the app again from Android Studio.
 5. On the app, press the “Preferences” button
 6. Set the api_url_base = `https://api.rfcx.org` (or to the staging server)
 7. Login (make sure your user account has guardianCreator role) and register the guardian -- todo: add some screenshots
@@ -132,8 +132,8 @@ Before following the instruction below. You need to download Vysor first.
 ### Step 6: Install Google Play Store and Google Play Services
 
 1. Download the apk from *(choose the latest version and the correctly API)*
-    1. ![Google Play Service](https://www.apkmirror.com/apk/google-inc/google-play-services/)
-    2. ![Google Play Store](https://www.apkmirror.com/apk/google-inc/google-play-store/)
+    1. [Google Play Service](https://www.apkmirror.com/apk/google-inc/google-play-services/)
+    2. [Google Play Store](https://www.apkmirror.com/apk/google-inc/google-play-store/)
 2. Go to the directory of these two placed.
 3. Open the Command Line Prompt or Terminal
 4. type **adb install name-of-apk** and click Enter
