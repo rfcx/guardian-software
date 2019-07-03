@@ -28,4 +28,6 @@
     <color name="start_button_recording">#5A6978</color>
     <color name="stop_button_stopped">#5A6978</color>
 
+    <color name="text_black">#000000</color>
+
 </resources>

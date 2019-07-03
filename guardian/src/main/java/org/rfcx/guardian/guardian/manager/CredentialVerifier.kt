@@ -60,6 +60,9 @@ class CredentialVerifier(val context: Context) {
                 guid.isNullOrEmpty() -> {
                     return Err(getString(R.string.an_error_occurred))
                 }
+                !roles.contains("guardianCreator") -> {
+                    return Err("You don't have guardianCreator permission")
+                }
                 else -> {
                     return Ok(UserAuthResponse(guid, email, nickname, token, credentials.accessToken, credentials.refreshToken, roles, accessibleSites, defaultSite))
                 }

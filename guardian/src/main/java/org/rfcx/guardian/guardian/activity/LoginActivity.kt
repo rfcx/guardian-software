@@ -179,6 +179,11 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+    }
+
     companion object {
         fun startActivity(context: Context) {
             context.startActivity(Intent(context, LoginActivity::class.java))

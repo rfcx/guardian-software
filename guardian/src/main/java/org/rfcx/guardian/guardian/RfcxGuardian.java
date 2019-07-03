@@ -1,7 +1,9 @@
 package org.rfcx.guardian.guardian;
 
+import java.io.File;
 import java.util.Map;
 
+import android.os.Environment;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
@@ -130,7 +132,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.deviceUtils = new DeviceUtils(getApplicationContext());
 		this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
-		startServiceByStart();
+		if(isGuidExisted()) {
+			startServiceByStart();
+		}else{
+			setRecordingState("false");
+		}
 	}
 	
 	public void onTerminate() {
@@ -151,6 +157,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         initializeRoleServices();
         setRecordingState("true");
     }
+
+	private Boolean isGuidExisted(){
+		String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString();
+		File txtFile = new File(directoryPath + "/register.txt");
+		return txtFile.exists();
+	}
 	
 	public void initializeRoleServices() {
 		

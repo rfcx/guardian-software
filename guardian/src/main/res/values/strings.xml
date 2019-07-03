@@ -107,17 +107,20 @@
 	<!-- login -->
 	<string name="email">Email</string>
 	<string name="password">Password</string>
-	<string name="login">Login</string>
+	<string name="login">L o g i n</string>
 	<string name="pls_fill_email">Please fill email</string>
 	<string name="pls_fill_password">Please fill password</string>
 	<string name="incorrect_username_password">Incorrect username or password</string>
 	<string name="an_error_occurred">Service unavailable</string>
 	<string name="or">OR</string>
-    <string name="recording_state">recording</string>
-	<string name="notrecording_state">not recording</string>
-    <string name="register">register</string>
+    <string name="recording_state">REC</string>
+	<string name="notrecording_state">STOP</string>
+    <string name="register">register guardian</string>
     <string name="error_common">An error occurred. Please try again.</string>
     <string name="skip_login">SKIP</string>
+    <string name="preferences">Preferences</string>
+	<string name="sync">sync</string>
+	<string name="logout">logout</string>
 
 
 </resources>

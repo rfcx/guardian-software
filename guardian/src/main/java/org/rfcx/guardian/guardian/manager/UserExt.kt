@@ -28,7 +28,7 @@ fun Context.getUserGuId(): String? {
 	return if (guId.isEmpty()) null else guId
 }
 
-//fun Context.getUserNickname(): String {
-//	val nickname = PreferenceManager.getInstance(this).getString(PreferenceManager.NICKNAME)
-//	return if (nickname != null && nickname.length > 0) nickname else "${getSiteName()} Ranger"
-//}
+fun Context.getUserNickname(): String {
+	val nickname = PreferenceManager.getInstance(this).getString(PreferenceManager.NICKNAME)
+	return if (nickname != null && nickname.length > 0) nickname else "undefined"
+}
