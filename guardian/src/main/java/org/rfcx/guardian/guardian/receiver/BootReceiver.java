@@ -19,6 +19,7 @@ public class BootReceiver extends BroadcastReceiver {
 		
 		// initializing rfcx application
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		app.startServiceByStart();
 		
 		// record boot time in database
 		app.rebootDb.dbRebootComplete.insert(System.currentTimeMillis());

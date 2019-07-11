@@ -33,6 +33,7 @@ class RegisterApi {
                     if(response.isSuccessful){
                         callback.onSuccess()
                     }else{
+                        Log.d("register", response.toString())
                         callback.onFailed(null, "Unsuccessful")
                     }
                 }

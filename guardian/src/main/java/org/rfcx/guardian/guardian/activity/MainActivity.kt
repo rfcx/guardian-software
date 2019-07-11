@@ -102,9 +102,6 @@ class MainActivity : AppCompatActivity() {
 
         val loginStatus = intent.getStringExtra("LOGIN_STATUS")
 
-        if (loginStatus == "skip") {
-            registerButton.isEnabled = false
-        }
         if (isGuidExisted()) {
             registerButton.isEnabled = false
         }
@@ -142,6 +139,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Please login first.", Toast.LENGTH_LONG).show()
                 } else {
                     if (!isGuidExisted()) {
+                        register_warning.visibility = View.INVISIBLE
                         record_group.visibility = View.INVISIBLE
                         start_stop_group.visibility = View.INVISIBLE
                         registerProgress.visibility = View.VISIBLE
@@ -158,6 +156,7 @@ class MainActivity : AppCompatActivity() {
                                     createRegisterFile(app)
                                     changeRecordingState(app)
                                     deviceIdText.text = readRegisterFile()
+                                    register_warning.visibility = View.INVISIBLE
                                     registerButton.visibility = View.INVISIBLE
                                     registerInfo.visibility = View.VISIBLE
                                     record_group.visibility = View.VISIBLE
@@ -168,8 +167,8 @@ class MainActivity : AppCompatActivity() {
                                 override fun onFailed(t: Throwable?, message: String?) {
                                     registerButton.visibility = View.VISIBLE
                                     registerInfo.visibility = View.INVISIBLE
-                                    record_group.visibility = View.VISIBLE
-                                    start_stop_group.visibility = View.VISIBLE
+                                    record_group.visibility = View.INVISIBLE
+                                    start_stop_group.visibility = View.INVISIBLE
                                     registerProgress.visibility = View.INVISIBLE
                                     Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
                                     Log.d("register_failed", t.toString())
@@ -236,9 +235,8 @@ class MainActivity : AppCompatActivity() {
             deviceIdText.text = readRegisterFile()
         } else {
             Log.d("Guid", "not existed")
-            deviceIdText.text = "not registered"
             record_image.setImageResource(R.drawable.not_registered_sign)
-            recordingStateText.text = ""
+            recordingStateText.text = "NOT REGISTERED"
         }
         if (app.recordingState == "true" && isGuidExisted()) {
             recordingStateText.text = getString(R.string.recording_state)
@@ -263,12 +261,19 @@ class MainActivity : AppCompatActivity() {
     }
     private fun changeRegisterState() {
         if(isGuidExisted()){
+            record_group.visibility = View.VISIBLE
+            start_stop_group.visibility = View.VISIBLE
             registerButton.visibility = View.INVISIBLE
             registerInfo.visibility = View.VISIBLE
+            register_warning.visibility = View.INVISIBLE
             deviceIdText.text = readRegisterFile()
         }else{
+            record_group.visibility = View.INVISIBLE
+            start_stop_group.visibility = View.INVISIBLE
             registerButton.visibility = View.VISIBLE
             registerInfo.visibility = View.INVISIBLE
+            register_warning.visibility = View.VISIBLE
+
         }
     }
 
@@ -358,9 +363,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        val app = application as RfcxGuardian
-        app.rfcxServiceHandler.stopAllServices()
-        app.recordingState = "false"
+//        val app = application as RfcxGuardian
+//        app.rfcxServiceHandler.stopAllServices()
+//        app.recordingState = "false"
         thread?.interrupt()
     }
 

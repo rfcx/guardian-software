@@ -132,10 +132,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 		this.deviceUtils = new DeviceUtils(getApplicationContext());
 		this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
-		if(isGuidExisted()) {
+		if(isGuidExisted()){
 			startServiceByStart();
 		}else{
 			setRecordingState("false");
+			this.rfcxServiceHandler.stopAllServices();
 		}
 	}
 	

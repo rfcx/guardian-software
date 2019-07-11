@@ -26,11 +26,14 @@
         <Button android:id="@+id/registerButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
                 android:text="@string/register"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_white"
-                android:background="@color/colorPrimary"
+                android:background="@drawable/button_style1"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -62,6 +65,16 @@
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>
 
+    <TextView
+            android:id="@+id/register_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            app:layout_constraintTop_toBottomOf="@id/register_group"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/login_group"
+            android:text="Please register the guardian."/>
 
     <android.support.constraint.ConstraintLayout
             android:id="@+id/record_group"
@@ -69,6 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginStart="10dp"
+            android:visibility="invisible"
             app:layout_constraintTop_toBottomOf="@id/register_group"
             app:layout_constraintBottom_toTopOf="@id/start_stop_group">
 
@@ -98,6 +112,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
+            android:visibility="invisible"
             app:layout_constraintTop_toBottomOf="@id/record_group"
             app:layout_constraintBottom_toTopOf="@id/login_group">
         <LinearLayout
