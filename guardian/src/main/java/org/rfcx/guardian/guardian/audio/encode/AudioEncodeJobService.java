@@ -109,17 +109,23 @@ public class AudioEncodeJobService extends Service {
 								
 							Log.i(logTag, (new StringBuilder()).append("Beginning Encode: ").append(latestQueuedAudioToEncode[1]).append(" ").append(latestQueuedAudioToEncode[2]).append("=>").append(latestQueuedAudioToEncode[6]).toString());
 
+							Log.d("encoding","incrementSingleRowAttempts");
 							app.audioEncodeDb.dbEncodeQueue.incrementSingleRowAttempts(latestQueuedAudioToEncode[1]);
-							
+
+							Log.d("encoding","postEncodeFile");
 							File postEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PostEncode(context, (long) Long.parseLong(latestQueuedAudioToEncode[1]),latestQueuedAudioToEncode[6]));
+
+							Log.d("encoding","Gzipfile");
 							File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(app.rfcxDeviceGuid.getDeviceGuid(), context, (long) Long.parseLong(latestQueuedAudioToEncode[1]),RfcxAudioUtils.getFileExtension(latestQueuedAudioToEncode[6])));
 
 							// just in case there's already a post-encoded file, delete it first
+							Log.d("encoding","check if exist");
 							if (postEncodeFile.exists()) { postEncodeFile.delete(); }
 
 							long encodeStartTime = System.currentTimeMillis();
 
 							// perform audio encoding and set encoding eventual bit rate
+							Log.d("encoding","encodeAudio");
 							int encodeBitRate = 
 								AudioEncodeUtils.encodeAudioFile(
 									preEncodeFile, 											// source file
@@ -135,7 +141,7 @@ public class AudioEncodeJobService extends Service {
 							if (encodeBitRate >= 0) {
 
 								// delete pre-encode file
-								if (preEncodeFile.exists() && postEncodeFile.exists()) { preEncodeFile.delete(); }
+//								if (preEncodeFile.exists() && postEncodeFile.exists()) { preEncodeFile.delete(); }
 
 								// generate file checksum of encoded file
 								String preZipDigest = FileUtils.sha1Hash(postEncodeFile.getAbsolutePath());

@@ -92,23 +92,27 @@ public class AudioCaptureService extends Service {
 						&& 	app.audioCaptureUtils.isAudioCaptureAllowed(app.rfcxPrefs.getPrefAsBoolean("verbose_logging"))
 						) {
 							
-						if (wavRecorder == null) {
+//						if (wavRecorder == null) {
 							// in this case, we are starting the audio capture from a stopped/pre-initialized state
 							captureTimeStamp = System.currentTimeMillis();
 							wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
+							Log.d(logTag, "wavRecoder is null");
 							wavRecorder.startRecorder();
-						} else {
-							// in this case, we are just taking a snapshot and moving capture output to a new file
-							// ( !!! THIS STILL NEEDS TO BE OPTIMIZED TO AVOID CAPTURE DOWNTIME !!! )
-							// Look in AudioCaptureWavRecorder for optimization...
-							captureTimeStamp = System.currentTimeMillis();
-							wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
-						}
+// This line is the problem of get audio corrupted for encoding
+//						} else {
+//							// in this case, we are just taking a snapshot and moving capture output to a new file
+//							// ( !!! THIS STILL NEEDS TO BE OPTIMIZED TO AVOID CAPTURE DOWNTIME !!! )
+//							// Look in AudioCaptureWavRecorder for optimization...
+//							captureTimeStamp = System.currentTimeMillis();
+//							Log.d(logTag, "wavRecoder is not null");
+//							wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
+//						}
 							
 					} else if (wavRecorder != null) {
 						// in this case, we assume that the state has changed and capture is no longer allowed... 
 						// ...but there is a capture in progress, so we take a snapshot and halt the recorder.
 						captureTimeStamp = 0;
+						Log.d(logTag, "wavRecoder come halt");
 						wavRecorder.haltRecording();
 						wavRecorder = null;
 						Log.i(logTag, "Stopping audio capture.");

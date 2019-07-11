@@ -322,8 +322,9 @@ public class AudioCaptureWavRecorder {
 	 * 
 	 */
 	public void stopRecorder() {
-		
-		if (recorderState == State.RECORDING) {
+		Log.d(logTag,recorderState.toString() );
+		//TODO: For now it just silly fixed , need to fix it better than this
+//		if (recorderState == State.RECORDING) {
 
 			audioRecorder.stop();
 
@@ -341,10 +342,10 @@ public class AudioCaptureWavRecorder {
 
 			recorderState = State.STOPPED;
 			
-		} else {
-			Log.e(logTag, "stopRecorder() called on illegal recorderState");
-			recorderState = State.ERROR;
-		}
+//		} else {
+//			Log.e(logTag, "stopRecorder() called on illegal recorderState");
+//			recorderState = State.ERROR;
+//		}
 	}
 
 	/*
