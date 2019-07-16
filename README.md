@@ -152,7 +152,7 @@ Before following the instruction below. You need to download Vysor first.
 
 ![](docs/images/androidstudio2.PNG?raw=true)
 
-### Step 8: How to debugging Orange Pi over Bluetooth instead of USB cable
+### Step 8: How to debug Orange Pi over Bluetooth instead of USB cable
 
 1. Make sure Orange Pi is connected, Bluetooth is on and set visibility timeout to **never time out**.
 2. Open Terminal or Command prompt
@@ -173,3 +173,27 @@ $ setprop persist.adb.tcp.port 4455
     6. Type `adb connect <IP>:4455` *(adb connect 192.168.44.1:4455)*
     7. **connected to IP:4455** if success.
 6. Now you can `adb shell`, and If you want to back to USB debugging, you need to type `setprop persist.adb.tcp.port ""`
+
+### Step 9: How to connect i2c and add symbolic links
+
+1. First, place Orange Pi same position as in the image.
+
+![](docs/images/i2c1.PNG?raw=true)
+
+2. This will use the most right 10 pins of the board, so you should take the pin 11-12 off or bend it into the left side.
+
+![](docs/images/i2c2.PNG?raw=true)
+
+3. Put the power wires(pack of yellow and red wires) into the most right 10 pins by the red wire should be on the right side.
+
+![](docs/images/i2c3.PNG?raw=true)
+
+4. The step to start Orange Pi is the same as before.
+
+5. You can debug Orange Pi by using micro usb or **Step 8**
+
+6. `adb shell` to shell Orange Pi
+
+7. `ln -s /sys/bus/i2c/devices/i2c-0 /dev/i2c-0` to make the symbolic link *(so that app can use the system file)*
+
+8. `chmod 666 /sys/bus/i2c/devices/i2c-* /dev/i2c-*` to change those permission.
