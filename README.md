@@ -190,7 +190,7 @@ $ setprop persist.adb.tcp.port 4455
 
 4. The step to start Orange Pi is the same as before.
 
-5. You can debug Orange Pi by using micro usb or **Step 8**
+5. You can debug Orange Pi by using micro usb or [Step 8](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-8-how-to-debug-orange-pi-over-bluetooth-instead-of-usb-cable)
 
 6. `adb shell` to shell Orange Pi
 
