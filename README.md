@@ -171,5 +171,5 @@ $ setprop persist.adb.tcp.port 4455
     4. Open Command Prompt
     5. Type `ipconfig` and copy **default gateway IP** of Bluetooth Network Connection *(probably 192.168.44.1)*
     6. Type `adb connect <IP>:4455` *(adb connect 192.168.44.1:4455)*
-    7. **connected to <IP>:4455** if success.
+    7. **connected to IP:4455** if success.
 6. Now you can `adb shell`, and If you want to back to USB debugging, you need to type `setprop persist.adb.tcp.port ""`
