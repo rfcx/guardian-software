@@ -156,12 +156,16 @@ Before following the instruction below. You need to download Vysor first.
 
 1. Make sure Orange Pi is connected, Bluetooth is on and set visibility timeout to never time out as follows.
     1. Bluetooth is *on*
+
        ![](docs/images/step8-1a.png?raw=true)
     2. Make sure the device is *Visible to all nearby*
+
        ![](docs/images/step8-1b.png?raw=true)
     3. Open the *Visibility timeout* (bottom right menu)
+
        ![](docs/images/step8-1c.png?raw=true)
     4. Set the timeout to *Never time out*
+
        ![](docs/images/step8-1d.png?raw=true)
 2. Open Terminal or Command prompt
 
