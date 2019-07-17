@@ -154,7 +154,15 @@ Before following the instruction below. You need to download Vysor first.
 
 ### Step 8: How to debug Orange Pi over Bluetooth instead of USB cable
 
-1. Make sure Orange Pi is connected, Bluetooth is on and set visibility timeout to **never time out**.
+1. Make sure Orange Pi is connected, Bluetooth is on and set visibility timeout to never time out as follows.
+    1. Bluetooth is *on*
+       ![](docs/images/step8-1a.png?raw=true)
+    2. Make sure the device is *Visible to all nearby*
+       ![](docs/images/step8-1b.png?raw=true)
+    3. Open the *Visibility timeout* (bottom right menu)
+       ![](docs/images/step8-1c.png?raw=true)
+    4. Set the timeout to *Never time out*
+       ![](docs/images/step8-1d.png?raw=true)
 2. Open Terminal or Command prompt
 
 ```
@@ -164,15 +172,19 @@ $ setprop persist.adb.tcp.port 4455
 
 3. Take USB off and start running Orange Pi from other power resources.
 4. Pair Orange Pi with Bluetooth from your machine
-5. (Windows) go to **\Control Panel\Network and Internet\Network Connections**
+5. _For Windows_, go to **\Control Panel\Network and Internet\Network Connections**
     1. Double click on **Bluetooth Network Connection**
     2. Right click on Orange Pi *(probably named as IOT03)*
     3. Connect using > Access point *(if it is **directly connect**, re-pair Orange Pi and try again)* 
     4. Open Command Prompt
     5. Type `ipconfig` and copy **default gateway IP** of Bluetooth Network Connection *(probably 192.168.44.1)*
-    6. Type `adb connect <IP>:4455` *(adb connect 192.168.44.1:4455)*
-    7. **connected to IP:4455** if success.
-6. Now you can `adb shell`, and If you want to back to USB debugging, you need to type `setprop persist.adb.tcp.port ""`
+    6. Type `adb connect <IP>:4455` *(adb connect 192.168.44.1:4455)*. It will show **connected to IP:4455** if successful.
+    _For Mac_, open Bluetooth from the System Preferences
+    1. Find the device named "IoT03" and connect.
+    2. Open Terminal, and run `ifconfig`. You should see an entry (probably `en3`) with `inet 192.168.44.160`.
+    3. Type `adb connect 192.168.44.1:4455` and it will show `connected to ...` if successful.
+6. Now you can `adb shell` or you can open Vysor.
+7. If you want to go back to USB debugging, you need to `adb shell` and then enter `setprop persist.adb.tcp.port ""`.
 
 ### Step 9: How to connect i2c and add symbolic links
 
