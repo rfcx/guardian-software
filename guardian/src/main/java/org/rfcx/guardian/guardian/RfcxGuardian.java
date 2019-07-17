@@ -52,195 +52,195 @@ import org.rfcx.guardian.guardian.receiver.ConnectivityReceiver;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
 
-	public String version;
-	
-	public static final String APP_ROLE = "Guardian";
+    public String version;
 
-	private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, RfcxGuardian.class);
-	
-	public RfcxDeviceGuid rfcxDeviceGuid = null; 
-	public RfcxPrefs rfcxPrefs = null;
-	public RfcxServiceHandler rfcxServiceHandler = null;
+    public static final String APP_ROLE = "Guardian";
 
-	public SharedPreferences sharedPrefs = null;
-	
-	// Database Handlers
-	public AudioEncodeDb audioEncodeDb = null;
-	public ApiCheckInDb apiCheckInDb = null;
-	public ApiCheckInMetaDb apiCheckInMetaDb = null;
-	public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
-	public DeviceSystemDb deviceSystemDb = null;
-	public DeviceSensorDb deviceSensorDb = null;
-	public DeviceRebootDb rebootDb = null;
-	public DeviceDataTransferDb deviceDataTransferDb = null;
-	public DeviceDiskDb deviceDiskDb = null;
-	public ArchiveDb archiveDb = null;
-	
-	// Receivers
-	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
-	
-	// Android Device Handlers
-	public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
-	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
-	public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
-	public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
+    private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, RfcxGuardian.class);
 
-	// Misc
-	public AudioCaptureUtils audioCaptureUtils = null;
-	public ApiCheckInUtils apiCheckInUtils = null;
-	public DeviceUtils deviceUtils = null;
-	public DeviceMobilePhone deviceMobilePhone = null;
-	
-	public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
-	
-	public String[] RfcxCoreServices = 
-		new String[] { 
-			"AudioCapture",
-			"DeviceSystem",
-			"ApiCheckInJob",
-			"AudioEncodeJob"
-		};
-	
-	@Override
-	public void onCreate() {
-		
-		super.onCreate();
+    public RfcxDeviceGuid rfcxDeviceGuid = null;
+    public RfcxPrefs rfcxPrefs = null;
+    public RfcxServiceHandler rfcxServiceHandler = null;
 
-		this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
-		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
-		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
-		
-		this.version = RfcxRole.getRoleVersion(this, logTag);
-		this.rfcxPrefs.writeVersionToFile(this.version);
-		
-		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-		
-		PreferenceManager.setDefaultValues(this, R.xml.prefs, true);
-		this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-		this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
-		this.syncSharedPrefs();
-		
+    public SharedPreferences sharedPrefs = null;
+
+    // Database Handlers
+    public AudioEncodeDb audioEncodeDb = null;
+    public ApiCheckInDb apiCheckInDb = null;
+    public ApiCheckInMetaDb apiCheckInMetaDb = null;
+    public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
+    public DeviceSystemDb deviceSystemDb = null;
+    public DeviceSensorDb deviceSensorDb = null;
+    public DeviceRebootDb rebootDb = null;
+    public DeviceDataTransferDb deviceDataTransferDb = null;
+    public DeviceDiskDb deviceDiskDb = null;
+    public ArchiveDb archiveDb = null;
+
+    // Receivers
+    private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
+
+    // Android Device Handlers
+    public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
+    public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
+    public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
+    public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
+
+    // Misc
+    public AudioCaptureUtils audioCaptureUtils = null;
+    public ApiCheckInUtils apiCheckInUtils = null;
+    public DeviceUtils deviceUtils = null;
+    public DeviceMobilePhone deviceMobilePhone = null;
+
+    public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
+
+    public String[] RfcxCoreServices =
+            new String[]{
+                    "AudioCapture",
+                    "DeviceSystem",
+                    "ApiCheckInJob",
+                    "AudioEncodeJob"
+            };
+
+    @Override
+    public void onCreate() {
+
+        super.onCreate();
+
+        this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
+        this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
+        this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
+
+        this.version = RfcxRole.getRoleVersion(this, logTag);
+        this.rfcxPrefs.writeVersionToFile(this.version);
+
+        this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        PreferenceManager.setDefaultValues(this, R.xml.prefs, true);
+        this.sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
+        this.syncSharedPrefs();
+
 //		setPref("enable_cutoffs_schedule_off_hours", "true");
 //		setPref("audio_schedule_off_hours", "19:00-23:45,00:05-05:55");
-		setPref("audio_battery_cutoff", "10");
-		
-		setDbHandlers();
-		setServiceHandlers();
-		
-		this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
-		this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
-		this.deviceUtils = new DeviceUtils(getApplicationContext());
-		this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
+        setPref("audio_battery_cutoff", "10");
 
-		if(isGuidExisted()){
-			startServiceByStart();
-		}else{
-			setRecordingState("false");
-			this.rfcxServiceHandler.stopAllServices();
-		}
-	}
-	
-	public void onTerminate() {
-		super.onTerminate();
-		
-		this.unregisterReceiver(connectivityReceiver);
-	}
-	
-	public void appResume() {
-		syncSharedPrefs();
-	}
-	
-	public void appPause() {
-		
-	}
+        setDbHandlers();
+        setServiceHandlers();
 
-	public void startServiceByStart() {
+        this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
+        this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
+        this.deviceUtils = new DeviceUtils(getApplicationContext());
+        this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
+
+        if (isGuidExisted()) {
+            startServiceByStart();
+        } else {
+            setRecordingState("false");
+            this.rfcxServiceHandler.stopAllServices();
+        }
+    }
+
+    public void onTerminate() {
+        super.onTerminate();
+
+        this.unregisterReceiver(connectivityReceiver);
+    }
+
+    public void appResume() {
+        syncSharedPrefs();
+    }
+
+    public void appPause() {
+
+    }
+
+    public void startServiceByStart() {
         initializeRoleServices();
         setRecordingState("true");
     }
 
-	private Boolean isGuidExisted(){
-		String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString();
-		File txtFile = new File(directoryPath + "/register.txt");
-		return txtFile.exists();
-	}
-	
-	public void initializeRoleServices() {
-		
-		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
-			
-			String[] runOnceOnlyOnLaunch = new String[] {
-					"ServiceMonitor"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
-							+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
-							,
-					"ScheduledSntpSync"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
-							+"|"+ScheduledSntpSyncService.SCHEDULED_SNTP_SYNC_CYCLE_DURATION
-			};
-			
-			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
-			System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
-			System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
-		}
-	}
+    private Boolean isGuidExisted() {
+        String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString();
+        File txtFile = new File(directoryPath + "/register.txt");
+        return txtFile.exists();
+    }
 
-	public void setRecordingState(String state){
-		String prefKey = "recordingState";
-		this.sharedPrefs.edit().putString(prefKey, state).commit();
-	}
+    public void initializeRoleServices() {
 
-	public String getRecordingState(){
-		return this.sharedPrefs.getString("recordingState", null);
-	}
-	
-	private void setDbHandlers() {
-		
-		this.audioEncodeDb = new AudioEncodeDb(this, this.version);
-		this.apiCheckInDb = new ApiCheckInDb(this, this.version);
-		this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
-		this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
-		this.deviceSystemDb = new DeviceSystemDb(this, this.version);
-		this.deviceSensorDb = new DeviceSensorDb(this, this.version);
-		this.rebootDb = new DeviceRebootDb(this, this.version);
-		this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
-		this.deviceDiskDb = new DeviceDiskDb(this, this.version);
-		this.archiveDb = new ArchiveDb(this, this.version);
+        if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
-	}
-	
-	private void setServiceHandlers() {
+            String[] runOnceOnlyOnLaunch = new String[]{
+                    "ServiceMonitor"
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
+                            + "|" + ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
+                    ,
+                    "ScheduledSntpSync"
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
+                            + "|" + ScheduledSntpSyncService.SCHEDULED_SNTP_SYNC_CYCLE_DURATION
+            };
 
-		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
-		this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
-		this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
-		this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
-		this.rfcxServiceHandler.addService("PhotoCaptureJob", PhotoCaptureJobService.class);
-		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
-		this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
-		this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
-		this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
-		this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
-		this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
-		
-	}
-	
-	@Override
-	public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
-		Log.d(logTag, "Pref changed: "+prefKey+" = "+this.sharedPrefs.getString(prefKey, null));
-		syncSharedPrefs();
-	}
-	
-	private void syncSharedPrefs() {
-		for ( Map.Entry<String,?> pref : this.sharedPrefs.getAll().entrySet() ) {
-			this.rfcxPrefs.setPref(pref.getKey(), pref.getValue().toString());
-		}
-	}
-	
-	public boolean setPref(String prefKey, String prefValue) {
-		return this.sharedPrefs.edit().putString(prefKey,prefValue).commit();
-	}
-	
-    
+            String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
+            System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
+            System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
+            this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
+        }
+    }
+
+    public void setRecordingState(String state) {
+        String prefKey = "recordingState";
+        this.sharedPrefs.edit().putString(prefKey, state).commit();
+    }
+
+    public String getRecordingState() {
+        return this.sharedPrefs.getString("recordingState", null);
+    }
+
+    private void setDbHandlers() {
+
+        this.audioEncodeDb = new AudioEncodeDb(this, this.version);
+        this.apiCheckInDb = new ApiCheckInDb(this, this.version);
+        this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
+        this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
+        this.deviceSystemDb = new DeviceSystemDb(this, this.version);
+        this.deviceSensorDb = new DeviceSensorDb(this, this.version);
+        this.rebootDb = new DeviceRebootDb(this, this.version);
+        this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
+        this.deviceDiskDb = new DeviceDiskDb(this, this.version);
+        this.archiveDb = new ArchiveDb(this, this.version);
+
+    }
+
+    private void setServiceHandlers() {
+
+        this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
+        this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
+        this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
+        this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
+        this.rfcxServiceHandler.addService("PhotoCaptureJob", PhotoCaptureJobService.class);
+        this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
+        this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
+        this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
+        this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
+        this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
+        this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
+
+    }
+
+    @Override
+    public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
+        Log.d(logTag, "Pref changed: " + prefKey + " = " + this.sharedPrefs.getString(prefKey, null));
+        syncSharedPrefs();
+    }
+
+    private void syncSharedPrefs() {
+        for (Map.Entry<String, ?> pref : this.sharedPrefs.getAll().entrySet()) {
+            this.rfcxPrefs.setPref(pref.getKey(), pref.getValue().toString());
+        }
+    }
+
+    public boolean setPref(String prefKey, String prefValue) {
+        return this.sharedPrefs.edit().putString(prefKey, prefValue).commit();
+    }
+
+
 }

@@ -289,7 +289,18 @@ class MainActivity : AppCompatActivity() {
                             val checkinTime = app.sharedPrefs.getString("checkinTime", null)
                             if (checkinTime != null) {
                                 lastestCheckIn = System.currentTimeMillis() - parseLong(checkinTime)
-                                lastestCheckinStr = (lastestCheckIn/60000).toString() + "minutes ago"
+                                val minutes = lastestCheckIn/60000
+                                if(minutes > 60L){
+                                    val hours = minutes/60
+                                    val min = minutes%60
+                                    if(min == 0L){
+                                        lastestCheckinStr = "$hours hours"
+                                    }else{
+                                        lastestCheckinStr = "$hours hours and $min minutes ago"
+                                    }
+                                }else{
+                                    lastestCheckinStr = "$minutes minutes ago"
+                                }
                             }
                             checkInText.text = lastestCheckinStr
 
