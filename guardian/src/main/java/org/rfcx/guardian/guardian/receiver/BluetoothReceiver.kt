@@ -11,7 +11,6 @@ import android.content.Intent
 import android.util.Log
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.utility.rfcx.RfcxLog
-import android.bluetooth.BluetoothManager
 
 
 
@@ -44,7 +43,7 @@ class BluetoothReceiver : BroadcastReceiver(){
 }
 class BTTethering: IntentService("EnableTethering"){
     override fun onHandleIntent(intent: Intent?) {
-        val btAdapter = BluetoothAdapter.getDefaultAdapter()
+//        val btAdapter = BluetoothAdapter.getDefaultAdapter()
         val btPan = Class.forName("android.bluetooth.BluetoothPan")
         val btPanCtor = btPan.getDeclaredConstructor(Context::class.java, BluetoothProfile.ServiceListener::class.java)
         btPanCtor.isAccessible = true

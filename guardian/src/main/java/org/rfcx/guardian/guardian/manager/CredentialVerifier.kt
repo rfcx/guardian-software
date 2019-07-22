@@ -44,7 +44,8 @@ class CredentialVerifier(val context: Context) {
             var accessibleSites: Set<String> = setOf()
             val accessibleSitesRaw = metadata["accessibleSites"]
             if (accessibleSitesRaw != null && accessibleSitesRaw is ArrayList<*> && accessibleSitesRaw.size > 0 && accessibleSitesRaw[0] is String) {
-                accessibleSites = HashSet<String>(accessibleSitesRaw as ArrayList<String>) // TODO: is there a better way to do this @anuphap @jingjoeh
+                @Suppress("UNCHECKED_CAST")
+                accessibleSites = HashSet(accessibleSitesRaw as ArrayList<String>) // TODO: is there a better way to do this @anuphap @jingjoeh
             }
 
             var roles: Set<String> = setOf()
@@ -52,7 +53,8 @@ class CredentialVerifier(val context: Context) {
             if (authorization != null && authorization is HashMap<*, *>) {
                 val rolesRaw = authorization["roles"]
                 if (rolesRaw != null && rolesRaw is ArrayList<*> && rolesRaw.size > 0 && rolesRaw[0] is String) {
-                    roles = HashSet<String>(rolesRaw as ArrayList<String>)
+                    @Suppress("UNCHECKED_CAST")
+                    roles = HashSet(rolesRaw as ArrayList<String>)
                 }
             }
 

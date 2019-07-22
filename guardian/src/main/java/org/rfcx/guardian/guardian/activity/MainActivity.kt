@@ -1,25 +1,20 @@
 package org.rfcx.guardian.guardian.activity
 
-import android.text.format.DateFormat
 import android.util.Log
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.utility.rfcx.RfcxLog
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.net.ConnectivityManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException
-import com.google.android.gms.common.GooglePlayServicesRepairableException
-import com.google.android.gms.security.ProviderInstaller
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.RegisterApi
@@ -100,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
         val app = application as RfcxGuardian
 
-        val loginStatus = intent.getStringExtra("LOGIN_STATUS")
+//        val loginStatus = intent.getStringExtra("LOGIN_STATUS")
 
         if (isGuidExisted()) {
             registerButton.isEnabled = false
@@ -240,11 +235,11 @@ class MainActivity : AppCompatActivity() {
         }
         if (app.recordingState == "true" && isGuidExisted()) {
             recordingStateText.text = getString(R.string.recording_state)
-            recordingStateText.setTextColor(resources.getColor(R.color.text_error))
+            recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_error))
             record_image.setImageResource(R.drawable.recorded_sign3)
         } else if(app.recordingState == "false" && isGuidExisted()) {
             recordingStateText.text = getString(R.string.notrecording_state)
-            recordingStateText.setTextColor(resources.getColor(R.color.text_black))
+            recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_black))
             record_image.setImageResource(R.drawable.not_record_sign3)
         }
     }
@@ -284,11 +279,10 @@ class MainActivity : AppCompatActivity() {
                     Log.d("getInfoThread", "Started")
                     while (!isInterrupted) {
                         runOnUiThread {
-                            var lastestCheckIn = 0.toLong()
                             var lastestCheckinStr = "none"
                             val checkinTime = app.sharedPrefs.getString("checkinTime", null)
                             if (checkinTime != null) {
-                                lastestCheckIn = System.currentTimeMillis() - parseLong(checkinTime)
+                                val lastestCheckIn = System.currentTimeMillis() - parseLong(checkinTime)
                                 val minutes = lastestCheckIn/60000
                                 if(minutes > 60L){
                                     val hours = minutes/60
@@ -307,7 +301,7 @@ class MainActivity : AppCompatActivity() {
                             var fileSize = "-"
                             val audioSize = app.sharedPrefs.getString("fileSize", null)
                             if (audioSize != null && audioSize != "0") {
-                                fileSize = (Integer.parseInt(audioSize) / 1000).toString()
+                                fileSize = (parseInt(audioSize) / 1000).toString()
                             }
                             if (fileSize == "-" && audioSize == "0") {
                                 sizeText.text = fileSize

@@ -18,7 +18,7 @@ interface ApiInterface {
 //    abstract fun getAllGuardians(): Call<GuardianResponse>
 
     companion object {
-        val BASE_URL = "https://api.rfcx.org/"
+            private const val BASE_URL = "https://api.rfcx.org/"
         fun create(): ApiInterface {
             val retrofit = Retrofit.Builder()
                 .baseUrl(BASE_URL)

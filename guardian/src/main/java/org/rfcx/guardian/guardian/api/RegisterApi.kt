@@ -2,8 +2,6 @@ package org.rfcx.guardian.guardian.api
 
 import android.content.Context
 import android.util.Log
-import org.rfcx.guardian.guardian.entity.Err
-import org.rfcx.guardian.guardian.entity.Ok
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.entity.RegisterResponse
 import org.rfcx.guardian.guardian.manager.getTokenID

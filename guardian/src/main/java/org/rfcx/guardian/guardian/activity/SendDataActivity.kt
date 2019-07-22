@@ -1,19 +1,14 @@
 package org.rfcx.guardian.guardian.activity
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.*
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.app.AppCompatDialogFragment
 import android.util.Log
-import android.widget.ArrayAdapter
-import android.widget.TextView
 import kotlinx.android.synthetic.main.fragment_syncguardian.*
 import org.rfcx.guardian.guardian.RfcxGuardian
 import java.io.IOException
@@ -180,10 +175,9 @@ class SendDataActivity : AppCompatActivity() {
 }
 
 
-class BluetoothServerController(activity: SendDataActivity) : Thread() {
+class BluetoothServerController(private val activity: SendDataActivity) : Thread() {
     private var cancelled: Boolean
     private val serverSocket: BluetoothServerSocket?
-    private val activity = activity
 
     init {
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
@@ -237,9 +231,9 @@ class BluetoothServer(private val activity: SendDataActivity, private val socket
             Log.i("server", "Message received")
             Log.i("server", text)
 
-            var pos = 0
+//            var pos = 0
             if (text == "guid") {
-                devices?.forEach { it ->
+                devices.forEach { it ->
                     Log.i("server", "start sending guid ${it.name}")
                     BluetoothClient(it).start()
                 }

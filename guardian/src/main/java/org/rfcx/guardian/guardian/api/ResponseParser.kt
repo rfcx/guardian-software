@@ -1,7 +1,6 @@
 package org.rfcx.guardian.guardian.api
 
 import android.content.Context
-import com.crashlytics.android.Crashlytics
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.entity.Err
 import org.rfcx.guardian.guardian.entity.ErrorResponse
