@@ -5,10 +5,10 @@ import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
@@ -22,14 +22,32 @@ import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
+import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.lang.Integer.parseInt
-import java.lang.Long.parseLong
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    var thread: Thread? = null
+    var getInfoThread: Thread? = null
+
+    override fun onResume() {
+        super.onResume()
+
+        val app = application as RfcxGuardian
+        setVisibilityByPrefs(app)
+        setUIByLogin()
+        setUIByRegister()
+        registerButton.isEnabled = !isGuidExisted()
+
+        Handler().postDelayed({
+            setUIByRecordingState(app)
+            setBtnEnableByRecordingState(app)
+            if (app.recordingState) {
+                getCheckinInformation(app)
+            }
+        },500)
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -38,38 +56,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-//        val app = application as RfcxGuardian
-
         when (item.itemId) {
 
             R.id.menu_prefs -> startActivity(Intent(this, PrefsActivity::class.java))
             R.id.menu_sync -> startActivity(Intent(this, SendDataActivity::class.java))
-//            R.id.menu_reboot -> app.deviceControlUtils.runOrTriggerDeviceControl(
-//                "reboot",
-//                app.applicationContext.contentResolver
-//            )
-//
-//            R.id.menu_relaunch -> app.deviceControlUtils.runOrTriggerDeviceControl(
-//                "relaunch",
-//                app.applicationContext.contentResolver
-//            )
-//
-//            R.id.menu_screenshot -> app.deviceControlUtils.runOrTriggerDeviceControl(
-//                "screenshot",
-//                app.applicationContext.contentResolver
-//            )
-//
-//            R.id.menu_logcat -> app.deviceControlUtils.runOrTriggerDeviceControl(
-//                "logcat",
-//                app.applicationContext.contentResolver
-//            )
-//
-//            R.id.menu_sntp -> app.deviceControlUtils.runOrTriggerDeviceControl(
-//                "datetime_sntp_sync",
-//                app.applicationContext.contentResolver
-//            )
-//
-//            R.id.menu_purge_checkins -> app.apiCheckInUtils.purgeAllCheckIns()
         }
 
         return true
@@ -79,53 +69,24 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setSupportActionBar(toolbar)
-        val toolbar = supportActionBar
-        toolbar?.title = "Guardian"
-//        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
-//            try {
-//                ProviderInstaller.installIfNeeded(this)
-//            } catch (e: GooglePlayServicesRepairableException) {
-//                Log.d("google", "please install gg service")
-//                GoogleApiAvailability.getInstance()
-//                    .showErrorNotification(this, e.connectionStatusCode)
-//            } catch (e: GooglePlayServicesNotAvailableException) {
-//                Log.d("google", "you cannot use it")
-//            }
-//        }
+        toolBarInit()
 
         val app = application as RfcxGuardian
 
-//        val loginStatus = intent.getStringExtra("LOGIN_STATUS")
-
-        if (isGuidExisted()) {
-            registerButton.isEnabled = false
-        }
-
-        changeRecordingState(app)
-        changeButtonStateByRecordingState(app)
-        getCheckinInformation(app)
-        changeLoginState()
-        changeRegisterState()
-//        createRegisterFile(app)
-
         startButton.setOnClickListener {
-            if(!isGuidExisted()){
+            if (!isGuidExisted()) {
                 Toast.makeText(this, "Please register this guardian first", Toast.LENGTH_LONG).show()
-            }else {
+            } else {
                 app.initializeRoleServices()
-                app.recordingState = "true"
-                changeRecordingState(app)
-                changeButtonStateByRecordingState(app)
+                setUIFromBtnClicked("start")
                 getCheckinInformation(app)
             }
         }
 
         stopButton.setOnClickListener {
             app.rfcxServiceHandler.stopAllServices()
-            thread?.interrupt()
-            app.recordingState = "false"
-            changeRecordingState(app)
-            changeButtonStateByRecordingState(app)
+            getInfoThread?.interrupt()
+            setUIFromBtnClicked("stop")
         }
 
         registerButton.setOnClickListener {
@@ -134,11 +95,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Please login first.", Toast.LENGTH_LONG).show()
                 } else {
                     if (!isGuidExisted()) {
-                        register_warning.visibility = View.INVISIBLE
-                        record_group.visibility = View.INVISIBLE
-                        start_stop_group.visibility = View.INVISIBLE
-                        registerProgress.visibility = View.VISIBLE
-
+                        setVisibilityBeforeRegister()
                         val guid = app.rfcxDeviceGuid.deviceGuid
                         val token = app.rfcxDeviceGuid.deviceToken
                         Log.d("GuidInfo", app.rfcxDeviceGuid.deviceGuid)
@@ -149,22 +106,13 @@ class MainActivity : AppCompatActivity() {
                             object : RegisterApi.RegisterCallback {
                                 override fun onSuccess() {
                                     createRegisterFile(app)
-                                    changeRecordingState(app)
+                                    setUIByRecordingState(app)
+                                    setVisibilityRegisterSuccess()
                                     deviceIdText.text = readRegisterFile()
-                                    register_warning.visibility = View.INVISIBLE
-                                    registerButton.visibility = View.INVISIBLE
-                                    registerInfo.visibility = View.VISIBLE
-                                    record_group.visibility = View.VISIBLE
-                                    start_stop_group.visibility = View.VISIBLE
-                                    registerProgress.visibility = View.INVISIBLE
                                 }
 
                                 override fun onFailed(t: Throwable?, message: String?) {
-                                    registerButton.visibility = View.VISIBLE
-                                    registerInfo.visibility = View.INVISIBLE
-                                    record_group.visibility = View.INVISIBLE
-                                    start_stop_group.visibility = View.INVISIBLE
-                                    registerProgress.visibility = View.INVISIBLE
+                                    setVisibilityRegisterFailed()
                                     Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
                                     Log.d("register_failed", t.toString())
                                 }
@@ -192,25 +140,41 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeButtonStateByRecordingState(app: RfcxGuardian) {
-        val state = app.sharedPrefs.getString("recordingState", null)
-        when (state) {
-            null -> {
-                startButton.isEnabled = true
-                stopButton.isEnabled = false
-            }
-            "true" -> {
+    private fun toolBarInit() {
+        val toolbar = supportActionBar
+        toolbar?.title = "Guardian"
+    }
+
+    private fun setBtnEnableByRecordingState(app: RfcxGuardian) {
+        when (app.recordingState) {
+            true -> {
                 startButton.isEnabled = false
                 stopButton.isEnabled = true
             }
-            "false" -> {
+            false -> {
                 startButton.isEnabled = true
                 stopButton.isEnabled = false
             }
         }
     }
 
-    private fun changeUiStatebyPrefs(app: RfcxGuardian) {
+    private fun setUIFromBtnClicked(button: String) {
+        if (button == "start") {
+            startButton.isEnabled = false
+            stopButton.isEnabled = true
+            recordingStateText.text = getString(R.string.recording_state)
+            recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_error))
+            record_image.setImageResource(R.drawable.recorded_sign3)
+        } else {
+            startButton.isEnabled = true
+            stopButton.isEnabled = false
+            recordingStateText.text = getString(R.string.notrecording_state)
+            recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_black))
+            record_image.setImageResource(R.drawable.not_record_sign3)
+        }
+    }
+
+    private fun setVisibilityByPrefs(app: RfcxGuardian) {
         if (app.rfcxPrefs.getPrefAsString("show_ui") == "false") {
             register_group.visibility = View.INVISIBLE
             record_group.visibility = View.INVISIBLE
@@ -224,27 +188,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeRecordingState(app: RfcxGuardian) {
-        if (isGuidExisted()) {
-            Log.d("Guid", "existed")
-            deviceIdText.text = readRegisterFile()
-        } else {
-            Log.d("Guid", "not existed")
-            record_image.setImageResource(R.drawable.not_registered_sign)
-            recordingStateText.text = "NOT REGISTERED"
-        }
-        if (app.recordingState == "true" && isGuidExisted()) {
-            recordingStateText.text = getString(R.string.recording_state)
-            recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_error))
-            record_image.setImageResource(R.drawable.recorded_sign3)
-        } else if(app.recordingState == "false" && isGuidExisted()) {
-            recordingStateText.text = getString(R.string.notrecording_state)
-            recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_black))
-            record_image.setImageResource(R.drawable.not_record_sign3)
-        }
+    private fun setUIByRecordingState(app: RfcxGuardian) {
+            if (isGuidExisted()) {
+                Log.d("Guid", "existed")
+                deviceIdText.text = readRegisterFile()
+                if (app.recordingState) {
+                    recordingStateText.text = getString(R.string.recording_state)
+                    recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_error))
+                    record_image.setImageResource(R.drawable.recorded_sign3)
+                } else {
+                    recordingStateText.text = getString(R.string.notrecording_state)
+                    recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_black))
+                    record_image.setImageResource(R.drawable.not_record_sign3)
+                }
+            } else {
+                Log.d("Guid", "not existed")
+                record_image.setImageResource(R.drawable.not_registered_sign)
+                recordingStateText.text = "NOT REGISTERED"
+            }
     }
 
-    private fun changeLoginState() {
+    private fun setUIByLogin() {
         if (this.getTokenID() == null) {
             loginButton.visibility = View.VISIBLE
             loginInfo.visibility = View.INVISIBLE
@@ -254,60 +218,62 @@ class MainActivity : AppCompatActivity() {
             userName.text = this.getUserNickname()
         }
     }
-    private fun changeRegisterState() {
-        if(isGuidExisted()){
+
+    private fun setUIByRegister() {
+        if (isGuidExisted()) {
             record_group.visibility = View.VISIBLE
             start_stop_group.visibility = View.VISIBLE
             registerButton.visibility = View.INVISIBLE
             registerInfo.visibility = View.VISIBLE
             register_warning.visibility = View.INVISIBLE
             deviceIdText.text = readRegisterFile()
-        }else{
+        } else {
             record_group.visibility = View.INVISIBLE
             start_stop_group.visibility = View.INVISIBLE
             registerButton.visibility = View.VISIBLE
             registerInfo.visibility = View.INVISIBLE
             register_warning.visibility = View.VISIBLE
-
         }
     }
 
+    private fun setVisibilityBeforeRegister() {
+        register_warning.visibility = View.INVISIBLE
+        record_group.visibility = View.INVISIBLE
+        start_stop_group.visibility = View.INVISIBLE
+        registerProgress.visibility = View.VISIBLE
+    }
+
+    private fun setVisibilityRegisterSuccess() {
+        register_warning.visibility = View.INVISIBLE
+        registerButton.visibility = View.INVISIBLE
+        registerInfo.visibility = View.VISIBLE
+        record_group.visibility = View.VISIBLE
+        start_stop_group.visibility = View.VISIBLE
+        registerProgress.visibility = View.INVISIBLE
+    }
+
+    private fun setVisibilityRegisterFailed() {
+        registerButton.visibility = View.VISIBLE
+        registerInfo.visibility = View.INVISIBLE
+        record_group.visibility = View.INVISIBLE
+        start_stop_group.visibility = View.INVISIBLE
+        registerProgress.visibility = View.INVISIBLE
+    }
+
+    //todo  get checkin time from sqlite db, put convert date to another blalba
     private fun getCheckinInformation(app: RfcxGuardian) {
-        thread = object : Thread() {
+        val checkInUtils = CheckInInformationUtils()
+        getInfoThread = object : Thread() {
             override fun run() {
                 try {
                     Log.d("getInfoThread", "Started")
                     while (!isInterrupted) {
                         runOnUiThread {
-                            var lastestCheckinStr = "none"
                             val checkinTime = app.sharedPrefs.getString("checkinTime", null)
-                            if (checkinTime != null) {
-                                val lastestCheckIn = System.currentTimeMillis() - parseLong(checkinTime)
-                                val minutes = lastestCheckIn/60000
-                                if(minutes > 60L){
-                                    val hours = minutes/60
-                                    val min = minutes%60
-                                    if(min == 0L){
-                                        lastestCheckinStr = "$hours hours"
-                                    }else{
-                                        lastestCheckinStr = "$hours hours and $min minutes ago"
-                                    }
-                                }else{
-                                    lastestCheckinStr = "$minutes minutes ago"
-                                }
-                            }
-                            checkInText.text = lastestCheckinStr
+                            checkInText.text = checkInUtils.convertTimeStampToStringFormat(checkinTime)
 
-                            var fileSize = "-"
                             val audioSize = app.sharedPrefs.getString("fileSize", null)
-                            if (audioSize != null && audioSize != "0") {
-                                fileSize = (parseInt(audioSize) / 1000).toString()
-                            }
-                            if (fileSize == "-" && audioSize == "0") {
-                                sizeText.text = fileSize
-                            } else {
-                                sizeText.text = "$fileSize kb"
-                            }
+                            sizeText.text = checkInUtils.convertFileSizeToStringFormat(audioSize)
                         }
                         sleep(5000)
                     }
@@ -316,7 +282,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        thread?.start()
+        getInfoThread?.start()
     }
 
     private fun isNetworkAvailable(context: Context): Boolean {
@@ -346,32 +312,9 @@ class MainActivity : AppCompatActivity() {
         return FileInputStream(file).bufferedReader().use { it.readText() }
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        val app = application as RfcxGuardian
-        changeUiStatebyPrefs(app)
-        changeRecordingState(app)
-        changeButtonStateByRecordingState(app)
-        changeLoginState()
-        changeRegisterState()
-
-        if (app.recordingState == "true") {
-            getCheckinInformation(app)
-        }
-    }
-
     override fun onPause() {
         super.onPause()
-        thread?.interrupt()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-//        val app = application as RfcxGuardian
-//        app.rfcxServiceHandler.stopAllServices()
-//        app.recordingState = "false"
-        thread?.interrupt()
+        getInfoThread?.interrupt()
     }
 
     companion object {
@@ -380,13 +323,5 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(context, MainActivity::class.java)
             context.startActivity(intent)
         }
-
-//        private const val REQUEST_CODE_REPORT = 201
-//        private const val REQUEST_CODE_GOOGLE_AVAILABILITY = 100
-//        const val INTENT_FILTER_MESSAGE_BROADCAST = "${BuildConfig.APPLICATION_ID}.MESSAGE_RECEIVE"
-//        const val CONNECTIVITY_ACTION = "android.net.conn.CONNECTIVITY_CHANGE"
-//        private const val LIMIT_PER_PAGE = 12
     }
-
-
 }

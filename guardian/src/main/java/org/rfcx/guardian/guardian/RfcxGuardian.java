@@ -3,7 +3,9 @@ package org.rfcx.guardian.guardian;
 import java.io.File;
 import java.util.Map;
 
+import android.content.Intent;
 import android.os.Environment;
+import org.rfcx.guardian.guardian.receiver.BluetoothConnector;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
@@ -135,7 +137,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         if (isGuidExisted()) {
             startServiceByStart();
         } else {
-            setRecordingState("false");
             this.rfcxServiceHandler.stopAllServices();
         }
     }
@@ -156,7 +157,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public void startServiceByStart() {
         initializeRoleServices();
-        setRecordingState("true");
+//        this.startService(new Intent(this, BluetoothConnector.class));
     }
 
     private Boolean isGuidExisted() {
@@ -186,13 +187,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         }
     }
 
-    public void setRecordingState(String state) {
-        String prefKey = "recordingState";
-        this.sharedPrefs.edit().putString(prefKey, state).commit();
-    }
-
-    public String getRecordingState() {
-        return this.sharedPrefs.getString("recordingState", null);
+    public Boolean getRecordingState() {
+        return rfcxServiceHandler.isRunning("AudioCapture");
     }
 
     private void setDbHandlers() {
