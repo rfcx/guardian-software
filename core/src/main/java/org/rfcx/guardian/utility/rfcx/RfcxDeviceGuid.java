@@ -3,6 +3,7 @@ package org.rfcx.guardian.utility.rfcx;
 import java.security.MessageDigest;
 import java.util.UUID;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -25,6 +26,7 @@ public class RfcxDeviceGuid {
 	private String deviceGuid;
 	private String deviceToken;
 
+	@SuppressLint("MissingPermission")
 	private void checkSetTelephonyId() {
 		try {
 			if (this.telephonyId == null) {
@@ -82,7 +84,7 @@ public class RfcxDeviceGuid {
 			    this.deviceToken = stringBuffer.toString();
 			} catch (Exception e) {
 				RfcxLog.logExc(this.logTag, e);
-//				deviceToken = ((UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()).replaceAll("-","").substring(0,40);
+				deviceToken = ((UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()).replaceAll("-","").substring(0,40);
 			}
 	    	}
 		return this.deviceToken;

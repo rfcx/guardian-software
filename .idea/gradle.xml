@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/guardian" />
             <option value="$PROJECT_DIR$/i2c" />
             <option value="$PROJECT_DIR$/setup" />
+            <option value="$PROJECT_DIR$/updater" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

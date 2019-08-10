@@ -12,6 +12,13 @@ import android.database.Cursor;
 
 public class RfcxRole {
 
+	public static final class updater {
+		public static final String AUTHORITY = "org.rfcx.guardian.updater";
+		public static final String[] PROJECTION_1 = { "role", "version" };
+		public static final String ENDPOINT_1 = "software";
+		public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
+	}
+
 	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxRole.class);
 	
 	public static final String[] 
