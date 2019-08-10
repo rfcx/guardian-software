@@ -882,10 +882,8 @@ public class ApiCheckInUtils implements MqttCallback {
 		try {
 
 			JSONObject jsonObj = new JSONObject(jsonStr);
-			//Log.d("checkinT","timestamp: "+ jsonObj.getJSONArray("meta").getJSONObject(0).getString("id"));
+
 			Log.d(logTag,jsonStr);
-			String lastTimeCheckIn = jsonObj.getJSONArray("audio").getJSONObject(0).getString("id");
-			app.sharedPrefs.edit().putString("checkinTime", lastTimeCheckIn).commit();
 			// reset/record request latency
 			this.requestSendReturned = System.currentTimeMillis();
 

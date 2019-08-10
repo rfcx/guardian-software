@@ -149,9 +149,6 @@ public class AudioEncodeJobService extends Service {
 								// GZIP encoded file into final location
 								FileUtils.gZipFile(postEncodeFile, gZippedFile);
 
-								String encodedFileSize = String.valueOf(postEncodeFile.length());
-								app.sharedPrefs.edit().putString("fileSize", encodedFileSize).commit();
-								Log.d("filesize", encodedFileSize +"");
 								// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
 								if (gZippedFile.exists()) {
 

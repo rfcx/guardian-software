@@ -1,13 +1,13 @@
 package org.rfcx.guardian.guardian.utils
 
-import java.lang.Long
+import java.io.File
 
 class CheckInInformationUtils {
 
-    fun convertTimeStampToStringFormat(timestamp: String?): String{
+    fun convertTimeStampToStringFormat(timestamp: Long?): String{
         if (timestamp != null) {
             var latestCheckInStr = ""
-            val latestCheckIn = System.currentTimeMillis() - Long.parseLong(timestamp)
+            val latestCheckIn = System.currentTimeMillis() - timestamp
             val minutes = latestCheckIn / 60000
             latestCheckInStr = if (minutes > 60L) {
                 val hours = minutes / 60
@@ -27,13 +27,15 @@ class CheckInInformationUtils {
         }
     }
 
-    fun convertFileSizeToStringFormat(fileSize: String?): String{
+    fun convertFileSizeToStringFormat(filePath: String?): String{
+
+        val fileSize = File(filePath).length()
         var audioSize = "-"
-        if (fileSize != null && fileSize != "0") {
-            audioSize = (Integer.parseInt(fileSize) / 1000).toString()
+        if (fileSize != 0L) {
+            audioSize = (fileSize / 1000).toString()
         }
 
-        return if (audioSize == "-" && fileSize == "0") {
+        return if (audioSize == "-" && fileSize == 0L) {
             audioSize
         }else{
             "$audioSize kb"

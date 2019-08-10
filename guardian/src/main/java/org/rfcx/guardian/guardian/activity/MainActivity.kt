@@ -23,6 +23,7 @@ import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
+import org.rfcx.guardian.utility.datetime.DateTimeUtils
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -72,7 +73,7 @@ class MainActivity : AppCompatActivity() {
         toolBarInit()
 
         val app = application as RfcxGuardian
-
+        
         startButton.setOnClickListener {
             if (!isGuidExisted()) {
                 Toast.makeText(this, "Please register this guardian first", Toast.LENGTH_LONG).show()
@@ -269,11 +270,12 @@ class MainActivity : AppCompatActivity() {
                     Log.d("getInfoThread", "Started")
                     while (!isInterrupted) {
                         runOnUiThread {
-                            val checkinTime = app.sharedPrefs.getString("checkinTime", null)
+                            val latestRow = app.apiCheckInDb.dbSent.latestRow
+                            val checkinTime = DateTimeUtils.getDateFromString(latestRow[0]).time
                             checkInText.text = checkInUtils.convertTimeStampToStringFormat(checkinTime)
 
-                            val audioSize = app.sharedPrefs.getString("fileSize", null)
-                            sizeText.text = checkInUtils.convertFileSizeToStringFormat(audioSize)
+                            val audioPath = latestRow[4]
+                            sizeText.text = checkInUtils.convertFileSizeToStringFormat(audioPath)
                         }
                         sleep(5000)
                     }
