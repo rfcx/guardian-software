@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
         toolBarInit()
 
         val app = application as RfcxGuardian
-        
+
         startButton.setOnClickListener {
             if (!isGuidExisted()) {
                 Toast.makeText(this, "Please register this guardian first", Toast.LENGTH_LONG).show()
@@ -271,11 +271,20 @@ class MainActivity : AppCompatActivity() {
                     while (!isInterrupted) {
                         runOnUiThread {
                             val latestRow = app.apiCheckInDb.dbSent.latestRow
-                            val checkinTime = DateTimeUtils.getDateFromString(latestRow[0]).time
-                            checkInText.text = checkInUtils.convertTimeStampToStringFormat(checkinTime)
+                            if(latestRow[0] == null){
+                                checkInText.text = checkInUtils.convertTimeStampToStringFormat(null)
+                            }else{
+                                val checkinTime = DateTimeUtils.getDateFromString(latestRow[0]).time
+                                checkInText.text = checkInUtils.convertTimeStampToStringFormat(checkinTime)
+                            }
 
-                            val audioPath = latestRow[4]
-                            sizeText.text = checkInUtils.convertFileSizeToStringFormat(audioPath)
+                            if(latestRow[4] == null){
+                                sizeText.text = checkInUtils.convertFileSizeToStringFormat(null)
+                            }else{
+                                val audioPath = latestRow[4]
+                                sizeText.text = checkInUtils.convertFileSizeToStringFormat(audioPath)
+                            }
+
                         }
                         sleep(5000)
                     }

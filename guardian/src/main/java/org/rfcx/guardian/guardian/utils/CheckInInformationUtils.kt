@@ -28,11 +28,13 @@ class CheckInInformationUtils {
     }
 
     fun convertFileSizeToStringFormat(filePath: String?): String{
-
-        val fileSize = File(filePath).length()
         var audioSize = "-"
-        if (fileSize != 0L) {
-            audioSize = (fileSize / 1000).toString()
+        var fileSize = 0L
+        if(filePath != null) {
+            fileSize = File(filePath).length()
+            if (fileSize != 0L) {
+                audioSize = (fileSize / 1000).toString()
+            }
         }
 
         return if (audioSize == "-" && fileSize == 0L) {
