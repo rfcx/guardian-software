@@ -24,7 +24,8 @@ public class ApiCheckVersionIntentService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		int prefsInstallOfflineToggleThreshold = app.rfcxPrefs.getPrefAsInt("install_offline_toggle_threshold");
+//		int prefsInstallOfflineToggleThreshold = app.rfcxPrefs.getPrefAsInt("install_offline_toggle_threshold");
+		int prefsInstallOfflineToggleThreshold = 15 * 60 * 1000;
 		
 		if (app.deviceConnectivity.isConnected()) {
 			app.rfcxServiceHandler.triggerService("ApiCheckVersion", true);

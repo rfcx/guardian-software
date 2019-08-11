@@ -107,7 +107,8 @@ public class ApiCore {
 	
 	private boolean isBatteryChargeSufficientForDownloadAndInstall(RfcxGuardian app) {
 		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("install_battery_cutoff"));
+	//	return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("install_battery_cutoff"));
+		return (batteryCharge >= 80);
 	}
 	
 }

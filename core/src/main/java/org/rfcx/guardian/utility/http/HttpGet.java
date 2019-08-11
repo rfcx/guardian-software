@@ -188,9 +188,11 @@ public class HttpGet {
 	        conn.setRequestMethod("GET");
 	        conn.setUseCaches(useCaches);
 	        conn.setDoInput(true);
-	        conn.setDoOutput(true);
+	        conn.setDoOutput(false);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
-			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
+			for (String[] keyValueHeader : this.customHttpHeaders) {
+				conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]);
+			}
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
 	            return readResponseStream(conn.getInputStream(), this.logTag);
@@ -285,7 +287,7 @@ public class HttpGet {
 		        conn.setRequestMethod("GET");
 		        conn.setUseCaches(this.useCaches);
 		        conn.setDoInput(true);
-		        conn.setDoOutput(true);
+		        conn.setDoOutput(false);
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {

@@ -1,5 +1,7 @@
 package org.rfcx.guardian.updater.activity;
 
+import android.view.View;
+import android.widget.Button;
 import org.rfcx.guardian.updater.R;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import android.app.Activity;
@@ -37,6 +39,14 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
+		final RfcxGuardian app = (RfcxGuardian) getApplication();
+		Button checkVersion = findViewById(R.id.checkVersionButton);
+		checkVersion.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				app.rfcxServiceHandler.triggerService("ApiCheckVersion",true);
+			}
+		});
 	}
 
 	@Override
