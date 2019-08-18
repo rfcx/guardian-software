@@ -3,9 +3,7 @@ package org.rfcx.guardian.guardian;
 import java.io.File;
 import java.util.Map;
 
-import android.content.Intent;
 import android.os.Environment;
-//import org.rfcx.guardian.guardian.receiver.BluetoothConnector;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
@@ -157,7 +155,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public void startServiceByStart() {
         initializeRoleServices();
-//        this.startService(new Intent(this, BluetoothConnector.class));
     }
 
     private Boolean isGuidExisted() {

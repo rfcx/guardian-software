@@ -303,23 +303,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isGuidExisted(): Boolean {
-        val directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString()
-        val txtFile = File(directoryPath + "/register.txt")
+        val path = this.filesDir.toString()+"/txt/"
+        val txtFile = File(path + "/guardian_guid.txt")
         return txtFile.exists()
     }
 
     private fun createRegisterFile(app: RfcxGuardian) {
-        val externalPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-        externalPath.mkdir()
-        val file = File(externalPath, "register.txt")
+        val path = this.filesDir.toString()+"/txt/"
+        val file = File(path, "guardian_guid.txt")
         FileOutputStream(file).use {
             it.write(app.rfcxDeviceGuid.deviceGuid.toByteArray())
         }
     }
 
     private fun readRegisterFile(): String {
-        val externalPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
-        val file = File(externalPath, "register.txt")
+        val path = this.filesDir.toString()+"/txt/"
+        val file = File(path, "guardian_guid.txt")
         return FileInputStream(file).bufferedReader().use { it.readText() }
     }
 
