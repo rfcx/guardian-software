@@ -1,1 +1,1 @@
-include ':app', ':core', ':setup', ':audio', ':i2c', ':admin', ':guardian', ':updater'
+include ':core', ':setup', ':audio', ':admin', ':guardian'
