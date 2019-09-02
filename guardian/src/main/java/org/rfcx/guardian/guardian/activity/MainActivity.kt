@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         loginButton.setOnClickListener {
-            val intent = Intent(this, LoginActivity::class.java)
+            val intent = Intent(this, LoginWebViewActivity::class.java)
             startActivity(intent)
         }
 
@@ -261,7 +261,6 @@ class MainActivity : AppCompatActivity() {
         registerProgress.visibility = View.INVISIBLE
     }
 
-    //todo  get checkin time from sqlite db, put convert date to another blalba
     private fun getCheckinInformation(app: RfcxGuardian) {
         val checkInUtils = CheckInInformationUtils()
         getInfoThread = object : Thread() {

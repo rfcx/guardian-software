@@ -79,6 +79,7 @@
                 android:label="@string/menu_prefs" />
 
         <activity android:name=".activity.SendDataActivity"></activity>
+        <activity android:name=".activity.LoginWebViewActivity"></activity>
 
 
         <!-- Services -->
