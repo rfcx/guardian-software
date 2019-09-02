@@ -9,6 +9,7 @@ import org.rfcx.guardian.utility.device.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -332,6 +333,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	}
 		
 	
+	@SuppressLint("MissingPermission")
 	private void registerListener(String sensorAbbrev) {
 		
 		if (sensorAbbrev.equalsIgnoreCase("accel") && this.allowListenerRegistration_accel) {
