@@ -1,12 +1,13 @@
 package org.rfcx.guardian.guardian.activity
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.StrictMode
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.auth0.android.result.Credentials
-import com.google.android.gms.security.ProviderInstaller
 import kotlinx.android.synthetic.main.activity_login_webview.*
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.R
@@ -19,7 +20,6 @@ import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
-import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 import javax.net.ssl.HttpsURLConnection
@@ -31,8 +31,17 @@ class LoginWebViewActivity : AppCompatActivity(){
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_webview)
 
-        loginWebView.loadUrl(baseUrl)
-        Log.d("LoginWebViewActivity", baseUrl)
+        setSupportActionBar(toolbar)
+        toolBarInit()
+
+        runOnUiThread {
+            Log.d("LoginWebViewActivity", baseUrl)
+            val webpage = Uri.parse(baseUrl)
+            val intent = Intent(Intent.ACTION_VIEW, webpage)
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            }
+        }
 
         val handler = Handler()
 
@@ -75,6 +84,11 @@ class LoginWebViewActivity : AppCompatActivity(){
             handler.post(runnable)
         }
 
+    }
+
+    private fun toolBarInit() {
+        val toolbar = supportActionBar
+        toolbar?.title = "Login"
     }
     private fun post(url: String, params: HashMap<String, String>): String{
         var response = ""
@@ -138,7 +152,7 @@ class LoginWebViewActivity : AppCompatActivity(){
     companion object{
         private const val redirectUrl = "https://rfcx-app.s3.eu-west-1.amazonaws.com/login/cli.html"
         private const val audience = "https://rfcx.org"
-        private const val scope = "openid profile"
+        private const val scope = "openid%20profile"
         private const val clientId = "CdlIIeJDapQxW29kn93wDw26fTTNyDkp"
         const val baseUrl = "https://auth.rfcx.org/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&audience=${audience}&scope=${scope}"
     }

@@ -15,6 +15,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import com.google.android.gms.security.ProviderInstaller
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.RegisterApi
@@ -92,9 +93,7 @@ class MainActivity : AppCompatActivity() {
 
         registerButton.setOnClickListener {
             if (isNetworkAvailable(this)) {
-                if (this.getTokenID() == null) {
-                    Toast.makeText(this, "Please login first.", Toast.LENGTH_LONG).show()
-                } else {
+                if (this.getTokenID() != null) {
                     if (!isGuidExisted()) {
                         setVisibilityBeforeRegister()
                         val guid = app.rfcxDeviceGuid.deviceGuid
@@ -213,9 +212,13 @@ class MainActivity : AppCompatActivity() {
         if (this.getTokenID() == null) {
             loginButton.visibility = View.VISIBLE
             loginInfo.visibility = View.INVISIBLE
+            registerButton.isEnabled = false
+            registerButton.alpha = 0.5f
         } else {
             loginButton.visibility = View.INVISIBLE
             loginInfo.visibility = View.VISIBLE
+            registerButton.isEnabled = true
+            registerButton.alpha = 1.0f
             userName.text = this.getUserNickname()
         }
     }
@@ -226,26 +229,22 @@ class MainActivity : AppCompatActivity() {
             start_stop_group.visibility = View.VISIBLE
             registerButton.visibility = View.INVISIBLE
             registerInfo.visibility = View.VISIBLE
-            register_warning.visibility = View.INVISIBLE
             deviceIdText.text = readRegisterFile()
         } else {
             record_group.visibility = View.INVISIBLE
             start_stop_group.visibility = View.INVISIBLE
             registerButton.visibility = View.VISIBLE
             registerInfo.visibility = View.INVISIBLE
-            register_warning.visibility = View.VISIBLE
         }
     }
 
     private fun setVisibilityBeforeRegister() {
-        register_warning.visibility = View.INVISIBLE
         record_group.visibility = View.INVISIBLE
         start_stop_group.visibility = View.INVISIBLE
         registerProgress.visibility = View.VISIBLE
     }
 
     private fun setVisibilityRegisterSuccess() {
-        register_warning.visibility = View.INVISIBLE
         registerButton.visibility = View.INVISIBLE
         registerInfo.visibility = View.VISIBLE
         record_group.visibility = View.VISIBLE

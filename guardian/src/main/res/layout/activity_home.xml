@@ -65,17 +65,6 @@
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>
 
-    <TextView
-            android:id="@+id/register_warning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="invisible"
-            app:layout_constraintTop_toBottomOf="@id/register_group"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/login_group"
-            android:text="Please register the guardian."/>
-
     <android.support.constraint.ConstraintLayout
             android:id="@+id/record_group"
             android:layout_width="match_parent"
@@ -184,14 +173,14 @@
         <Button
                 android:id="@+id/loginButton"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:text="@string/login"
-                android:minHeight="30dp"
-                android:background="@color/colorPrimary"
+                android:background="@drawable/button_style1"
                 android:textColor="@color/text_white"
                 android:textAllCaps="true"
                 android:textSize="15sp"
                 android:textStyle="bold"
+                android:layout_margin="20dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -203,7 +192,6 @@
                 android:orientation="horizontal"
                 android:background="@color/gray_30"
                 android:visibility="invisible"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent">

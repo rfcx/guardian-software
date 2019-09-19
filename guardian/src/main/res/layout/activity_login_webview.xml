@@ -4,27 +4,43 @@
         android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <EditText
-            android:id="@+id/codeEditText"
+    <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/colorPrimary"
+            android:theme="@style/ToolBarStyle">
+
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter the code from login on web browser"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent">
+        <EditText
+                android:id="@+id/codeEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter the code from browser"
+                android:layout_marginStart="@dimen/margin_padding_normal"
+                android:layout_marginEnd="@dimen/margin_padding_normal"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/sendButton"/>
+        <Button
+                android:id="@+id/sendButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Send"
+                android:layout_marginTop="@dimen/margin_padding_normal"
+                android:layout_marginStart="@dimen/margin_padding_normal"
+                android:layout_marginEnd="@dimen/margin_padding_normal"
+                android:textColor="@color/text_white"
+                android:background="@drawable/button_style1"
+                app:layout_constraintTop_toBottomOf="@id/codeEditText"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+    </LinearLayout>
 
-    <Button
-            android:id="@+id/sendButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Send"
-            android:layout_margin="@dimen/margin_padding_normal"
-            android:textColor="@color/text_white"
-            android:background="@drawable/button_style1"
-            app:layout_constraintTop_toBottomOf="@id/codeEditText"/>
-
-    <WebView
-            android:id="@+id/loginWebView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toBottomOf="@id/sendButton"
-            app:layout_constraintBottom_toBottomOf="parent"/>
 </android.support.constraint.ConstraintLayout>
