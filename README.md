@@ -206,7 +206,7 @@ Before following the instruction below. You need to download Vysor first.
 7. If you want to go back to USB debugging, you need to `adb shell` and then enter `setprop persist.adb.tcp.port ""`.
 
 
-### Step 9: How to connect i2c and add symbolic links
+### Step 9: How to connect i2c and load i2c module
 
 1. First, place Orange Pi same position as in the image.
 
@@ -226,6 +226,6 @@ Before following the instruction below. You need to download Vysor first.
 
 6. `adb shell` to shell Orange Pi
 
-7. `ln -s /sys/bus/i2c/devices/i2c-0 /dev/i2c-0` to make the symbolic link *(so that app can use the system file)*
+7. `insmod /system/lib/modules/i2c-dev.ko` to load i2c-dev module *(note that you need to do this step everytime Android startup)*
 
-8. `chmod 666 /sys/bus/i2c/devices/i2c-* /dev/i2c-*` to change those permission.
+8. Now i2c-0, i2c-1 will show in the /dev and any apps can be used.
