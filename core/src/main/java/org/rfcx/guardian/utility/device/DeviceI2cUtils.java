@@ -26,7 +26,7 @@ public class DeviceI2cUtils {
 	
 	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceI2cUtils.class);
 
-	private static final int i2cInterface = 0; // as in /dev/i2c-0
+	private static final int i2cInterface = 1; // as in /dev/i2c-0
 	private String i2cMainAddress = null;
 	
 	private String execI2cGet = null;
@@ -49,6 +49,7 @@ public class DeviceI2cUtils {
 			
 			for (String[] i2cRow : i2cLabelsAddressesValues) {
 				dataOutputStream.writeBytes((new StringBuilder()).append(execI2cSet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" ").append(i2cRow[2]).append(";\n").toString());
+				Log.d(logTag, (new StringBuilder()).append(execI2cSet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" ").append(i2cRow[2]).append(";\n").toString());
 				dataOutputStream.flush();
 			}
 			dataOutputStream.writeBytes("exit;\n");
@@ -105,6 +106,7 @@ public class DeviceI2cUtils {
 			
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
 				dataOutputStream.writeBytes((new StringBuilder()).append(execI2cGet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" w;\n").toString());
+				Log.d(logTag, (new StringBuilder()).append(execI2cGet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" w;\n").toString());
 				dataOutputStream.flush();
 			}
 			dataOutputStream.writeBytes("exit;\n");

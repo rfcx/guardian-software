@@ -75,12 +75,12 @@ public class DeviceSentinelService extends Service {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 					
-					if (app.sentinelPowerUtils.confirmConnection()) {
+//					if (app.sentinelPowerUtils.confirmConnection()) {
 
 						app.sentinelPowerUtils.updateSentinelPowerValues();
 						app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext(), false);
 						
-					}
+//					}
 					
 					Thread.sleep(SENTINEL_POWER_MEASUREMENT_LOOP_MS);
 				}
