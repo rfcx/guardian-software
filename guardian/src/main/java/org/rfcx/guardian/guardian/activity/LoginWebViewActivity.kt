@@ -1,12 +1,18 @@
 package org.rfcx.guardian.guardian.activity
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.StrictMode
 import android.support.v7.app.AppCompatActivity
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import com.auth0.android.result.Credentials
 import kotlinx.android.synthetic.main.activity_login_webview.*
 import org.json.JSONObject
@@ -45,7 +51,30 @@ class LoginWebViewActivity : AppCompatActivity(){
 
         val handler = Handler()
 
+        codeEditText.addTextChangedListener(object: TextWatcher{
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if(count < 0 ){
+                    sendButton.isEnabled = false
+                    sendButton.alpha = 0.5f
+                }else{
+                    sendButton.isEnabled = true
+                    sendButton.alpha = 1.0f
+                }
+            }
+        })
+
         sendButton.setOnClickListener {
+            loginProgressBar.visibility = View.VISIBLE
+            loginLayout.visibility = View.INVISIBLE
+            //dismiss keyboard
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(codeEditText.windowToken, 0)
             val runnable = Runnable {
                 val policy = StrictMode.ThreadPolicy.Builder()
                     .permitAll().build()
@@ -69,6 +98,8 @@ class LoginWebViewActivity : AppCompatActivity(){
                     when(result){
                         is Err -> {
                             Log.d("LoginWebViewActivity", "login error")
+                            loginProgressBar.visibility = View.INVISIBLE
+                            loginLayout.visibility = View.VISIBLE
                         }
                         is Ok -> {
                             CredentialKeeper(this).save(result.value)
@@ -78,6 +109,9 @@ class LoginWebViewActivity : AppCompatActivity(){
                     Log.d("LoginWebViewActivity", credentials.idToken)
                 }else{
                     Log.d("LoginWebViewActivity", "post failed")
+                    Toast.makeText(this, "code is incorrect.", Toast.LENGTH_LONG).show()
+                    loginProgressBar.visibility = View.INVISIBLE
+                    loginLayout.visibility = View.VISIBLE
                 }
                 codeEditText.text = null
             }
