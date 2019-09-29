@@ -62,10 +62,10 @@ Before, starting any instructions here. Please read the information below and do
        Choose WIN8 if you are using Windows 8 or above.
        (Some users report failures during install -- [this is the solution](https://youtu.be/3g542NRQFwg))
     2. [MTK Flash Tool](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!mCJG3DgT)
-    3. Orange Pi Android image: [IoT03_b1258_32g4g_ry_smt_v1.1.rar](https://drive.google.com/open?id=1D6_W6xdiRK8ztlIYU74NYLQubzIT9l1g)
+    3. Orange Pi Android image: [Android image](https://drive.google.com/file/d/1N3-1PmY5q3lcDaqaRWwCHR_nVeRhD1pq/view?usp=sharing)
 2. Open the MTK Flash Tool *(flash_tool)*
     1. Make sure the Orange Pi is NOT connected.
-    2. Choose the scatter-loading file **MT6572_Android_scatter** *(This is in the IoT03_b1258_32g4g_ry_smt_v1.1 folder after extracting the image.)*
+    2. Choose the scatter-loading file **MT6572_Android_scatter** *(This is in the Android_OS_for_Orange_Pi_3G-IoT/images/ folder after extracting the image.)*
     3. If this is the first time flashing the device then select "Download only". If you have flashed it before then select "Format all and download".
     4. Click "Download".
     5. Connect the Orange Pi to your computer using micro-usb cable into the Orange Pi and another side plug into your computer. *(The download process will begin after connecting the Orange Pi)*
@@ -107,7 +107,7 @@ Before following the instruction below. You need to download Vysor first.
 5. Open System Config
     1. In **Write Option** choose **IMEI**
     2. In **IMEI Option** and **Header Option**, choose nothing
-    3. In **MD1_DB** choose **BPLGUInfoCustomAppSrcP_MT6572_S00_MOLY_WR8_W1315_MD_WG_MP_V47_1_wg_n** in *IoT03L_b1258_wg_4g2g_ry_smt_v1.1\modem* (directory of android image)
+    3. In **MD1_DB** choose **BPLGUInfoCustomAppSrcP_MT6572_S00_MOLY_WR8_W1315_MD_WG_MP_V47_1_wg_n** in *Android_OS_for_Orange_Pi_3G-IoT\modem* (directory of android image)
     4. In **AP_DB** choose **APDB_MT6572_S01_KK1.MP7_** in the same directory
     5. In the newer version There are checkboxes called **"Load AP DB from DUT"** and **"Load modem DB from DUT"**. Make sure that you uncheck these two box before the next step.
     6. Save and then Start
@@ -223,9 +223,3 @@ Before following the instruction below. You need to download Vysor first.
 4. The step to start Orange Pi is the same as before.
 
 5. You can debug Orange Pi by using micro usb or [Step 8](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-8-how-to-debug-orange-pi-over-bluetooth-instead-of-usb-cable)
-
-6. `adb shell` to shell Orange Pi
-
-7. `insmod /system/lib/modules/i2c-dev.ko` to load i2c-dev module *(note that you need to do this step everytime Android startup)*
-
-8. Now i2c-0, i2c-1 will show in the /dev and any apps can be used.
