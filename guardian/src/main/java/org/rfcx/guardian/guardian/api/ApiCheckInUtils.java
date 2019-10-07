@@ -293,8 +293,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("meta_ids", metaIds);
 
 			metaDataJsonObj.put("measured_at", metaQueryTimestamp);
-
-			metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
+			//TODO make battery to i2c info
+//			metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
 			metaDataJsonObj.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
 			metaDataJsonObj.put("power", app.deviceSystemDb.dbPower.getConcatRows());
 			metaDataJsonObj.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
@@ -309,10 +309,11 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("disk_usage", app.deviceDiskDb.dbDiskUsage.getConcatRows());
 			
 			// Adding sentinel data, if they can be retrieved
-			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_get_all_rows",
+			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_latest_row",
 					"sentinel_power", app.getApplicationContext().getContentResolver());
 			metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPower));
-			
+			metaDataJsonObj.put("battery", getConcatSentinelMeta(sentinelPower));
+			Log.v(logTag, "contentprovider "+sentinelPower.toString());
 			// Saves JSON snapshot blob to database
 			app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
 			
@@ -339,7 +340,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			app.deviceSensorDb.dbGeoPosition.clearRowsBefore(deleteBefore);
 			app.deviceDiskDb.dbDiskUsage.clearRowsBefore(deleteBefore);
 
-			RfcxComm.deleteQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_delete_rows_before",
+			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
 					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
 
 		} catch (Exception e) {
@@ -354,12 +355,16 @@ public class ApiCheckInUtils implements MqttCallback {
 		for (int i = 0; i < sentinelJsonArray.length(); i++) {
 			JSONObject sentinelJsonRow = sentinelJsonArray.getJSONObject(i);
 			Iterator<String> paramLabels = sentinelJsonRow.keys();
+			int count = 0;
+			ArrayList<String> tempArray = new ArrayList<String>();
 			while (paramLabels.hasNext()) {
 				String paramLabel = paramLabels.next();
-				if ( (sentinelJsonRow.get(paramLabel) instanceof String) && (sentinelJsonRow.getString(paramLabel).length() > 0) ) {
-					sentinelMetaBlobs.add(sentinelJsonRow.getString(paramLabel));
+				if ( (sentinelJsonRow.get(paramLabel) instanceof String) && (sentinelJsonRow.getString(paramLabel).length() > 0) && count > 1) {
+					tempArray.add(sentinelJsonRow.getString(paramLabel));
 				}
+				count++;
 			}
+			sentinelMetaBlobs.add(TextUtils.join("*", tempArray));
 		}
 		
 		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
@@ -495,7 +500,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("datetime", TextUtils.join("|", new String[] { "system*"+System.currentTimeMillis(), "timezone*"+DateTimeUtils.getTimeZoneOffset() }));
 
 		// Adding messages to JSON blob
-		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver()));
+		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver()));
 
 		// Adding screenshot meta to JSON blob
 		checkInMetaJson.put("screenshots", (screenShotMeta[0] == null) ? "" :
@@ -625,7 +630,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		String[] assetMeta = new String[] { null };
 		try {
-			JSONArray latestAssetMetaArray = RfcxComm.getQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_get_latest_row",
+			JSONArray latestAssetMetaArray = RfcxComm.getQueryContentProvider("admin", "database_get_latest_row",
 					assetType, app.getApplicationContext().getContentResolver());
 			for (int i = 0; i < latestAssetMetaArray.length(); i++) {
 				JSONObject latestAssetMeta = latestAssetMetaArray.getJSONObject(i);
@@ -634,7 +639,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					assetMeta = new String[] { latestAssetMeta.getString("filepath"),
 							latestAssetMeta.getString("created_at"), latestAssetMeta.getString("timestamp"),
 							latestAssetMeta.getString("format"), latestAssetMeta.getString("digest") };
-					RfcxComm.updateQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_set_last_accessed_at", assetType + "|" + latestAssetMeta.getString("timestamp"),
+					RfcxComm.updateQueryContentProvider("admin", "database_set_last_accessed_at", assetType + "|" + latestAssetMeta.getString("timestamp"),
 							app.getApplicationContext().getContentResolver());
 					break;
 				} else {

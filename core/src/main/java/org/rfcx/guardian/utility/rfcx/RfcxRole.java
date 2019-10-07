@@ -24,9 +24,9 @@ public class RfcxRole {
 	public static final String[] 
 			
 		ALL_ROLES= new String[] { 
-			"org.rfcx.guardian.guardian",
-			"org.rfcx.org.rfcx.guardian.guardian.admin",
-			"org.rfcx.guardian.setup",
+			"guardian",
+			"admin",
+			"setup",
 			"updater"  
 		};
 	

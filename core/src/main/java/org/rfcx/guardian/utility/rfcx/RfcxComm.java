@@ -14,6 +14,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.util.Log;
 
 public class RfcxComm {
 
@@ -117,6 +118,7 @@ public class RfcxComm {
 				roleFuncUriMatchId.get(eachRole).put(roleFuncEntry.getKey().toString(), new int[] { (uriMatchIdIterator-1), uriMatchIdIterator });
 			}
 		}
+		Log.d(logTag, role);
 		return roleFuncUriMatchId.get(role.toLowerCase(Locale.US)).get(function.toLowerCase(Locale.US));
 	}
 	
@@ -152,7 +154,7 @@ public class RfcxComm {
 	}
 
 	public static String getAuthority(String role) {
-		return (new StringBuilder()).append("org.rfcx.org.rfcx.guardian.guardian.").append(role.toLowerCase(Locale.US)).toString();
+		return (new StringBuilder()).append("org.rfcx.guardian.").append(role.toLowerCase(Locale.US)).toString();
 	}
 	
 	public static String[] getProjection(String role, String function) {

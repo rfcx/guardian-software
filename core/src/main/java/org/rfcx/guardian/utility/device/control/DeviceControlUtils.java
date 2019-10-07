@@ -13,13 +13,13 @@ public class DeviceControlUtils {
 		this.appRole = appRole;
 	}
 
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceControlUtils.class);
-	private String appRole = "Utils";
+	private String logTag = "Rfcx-Guardian-DeviceControlUtils";
+	private String appRole = "Guardian";
 	
 	public boolean runOrTriggerDeviceControl(String controlCommand, ContentResolver contentResolver) {
 
 		// replace this with something that more dynamically determines whether the roles has root access
-		boolean mustUseContentProvider = appRole.equalsIgnoreCase("org.rfcx.guardian.guardian");
+		boolean mustUseContentProvider = appRole.equalsIgnoreCase("Guardian");
 			
 		if (mustUseContentProvider) {
 			try { 
@@ -29,6 +29,7 @@ public class DeviceControlUtils {
 							RfcxComm.getUri("org.rfcx.org.rfcx.guardian.guardian.admin", "control", controlCommand),
 							RfcxComm.getProjection("org.rfcx.org.rfcx.guardian.guardian.admin", "control"),
 							null, null, null);
+				Log.v(logTag, deviceControlResponse.toString());
 				return true;
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
@@ -42,7 +43,28 @@ public class DeviceControlUtils {
 		}
 		return false;
 	}
-	
+	public boolean runOrTriggerDbFromAdmin(String controlCommand, ContentResolver contentResolver) {
+
+		// replace this with something that more dynamically determines whether the roles has root access
+		boolean mustUseContentProvider = appRole.equalsIgnoreCase("Guardian");
+
+		if (mustUseContentProvider) {
+			try {
+				Log.v(logTag, "Triggering '"+controlCommand+"' via content provider.");
+				Cursor dbFetchingResponse =
+						contentResolver.query(
+								RfcxComm.getUri("admin", "database_get_latest_row", controlCommand),
+								RfcxComm.getProjection("admin", "database_get_latest_row"),
+								null, null, null);
+				Log.v(logTag, dbFetchingResponse.getCount()+"");
+				return true;
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+				return false;
+			}
+		}
+		return false;
+	}
 	
 	
 	

@@ -3,6 +3,7 @@ package org.rfcx.guardian.admin.device.sentinel;
 import java.util.Date;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -62,6 +63,10 @@ public class SentinelPowerDb {
 			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			
 			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public JSONArray getLatestRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		private List<String[]> getAllRows() {
