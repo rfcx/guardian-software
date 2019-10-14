@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         val app = application as RfcxGuardian
         setVisibilityByPrefs(app)
         setUIByLogin()
-        setUIByRegister()
+        setUIByRegister(app)
         registerButton.isEnabled = !isGuidExisted()
 
         Handler().postDelayed({
@@ -138,6 +138,14 @@ class MainActivity : AppCompatActivity() {
             finish()
             startActivity(intent)
         }
+
+        i2cSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if(isChecked){
+                app.setPref("checkin_with_i2c_battery","true")
+            }else{
+                app.setPref("checkin_with_i2c_battery","false")
+            }
+        }
     }
 
     private fun toolBarInit() {
@@ -223,18 +231,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setUIByRegister() {
+    private fun setUIByRegister(app: RfcxGuardian) {
         if (isGuidExisted()) {
             record_group.visibility = View.VISIBLE
             start_stop_group.visibility = View.VISIBLE
             registerButton.visibility = View.INVISIBLE
             registerInfo.visibility = View.VISIBLE
+            i2cSwitch.visibility = View.VISIBLE
             deviceIdText.text = readRegisterFile()
+            i2cSwitch.isChecked = app.sharedPrefs.getString("checkin_with_i2c_battery","false") == "true"
         } else {
             record_group.visibility = View.INVISIBLE
             start_stop_group.visibility = View.INVISIBLE
             registerButton.visibility = View.VISIBLE
             registerInfo.visibility = View.INVISIBLE
+            i2cSwitch.visibility = View.INVISIBLE
         }
     }
 

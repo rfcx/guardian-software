@@ -312,7 +312,11 @@ public class ApiCheckInUtils implements MqttCallback {
 			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_latest_row",
 					"sentinel_power", app.getApplicationContext().getContentResolver());
 			metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPower));
-			metaDataJsonObj.put("battery", getConcatSentinelMeta(sentinelPower));
+			if(app.sharedPrefs.getString("checkin_with_i2c_battery", "false") == "true"){
+				metaDataJsonObj.put("battery", getConcatSentinelMeta(sentinelPower));
+			}else{
+				metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
+			}
 			Log.v(logTag, "contentprovider "+sentinelPower.toString());
 			// Saves JSON snapshot blob to database
 			app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
