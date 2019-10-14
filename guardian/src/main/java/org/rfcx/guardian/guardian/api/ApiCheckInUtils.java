@@ -312,8 +312,9 @@ public class ApiCheckInUtils implements MqttCallback {
 			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_latest_row",
 					"sentinel_power", app.getApplicationContext().getContentResolver());
 			metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPower));
-			if(app.sharedPrefs.getString("checkin_with_i2c_battery", "false") == "true"){
-				metaDataJsonObj.put("battery", getConcatSentinelMeta(sentinelPower));
+			Log.v(logTag, "i2c_battery "+app.sharedPrefs.getString("checkin_with_i2c_battery", "false"));
+			if(app.sharedPrefs.getString("checkin_with_i2c_battery", "false").equals("true")){
+				metaDataJsonObj.put("battery", getConcatSentinelMetaForBattery(sentinelPower));
 			}else{
 				metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
 			}
@@ -353,9 +354,23 @@ public class ApiCheckInUtils implements MqttCallback {
 	}
 	
 	private String getConcatSentinelMeta(JSONArray sentinelJsonArray) throws JSONException {
-		
 		ArrayList<String> sentinelMetaBlobs = new ArrayList<String>();
+		for (int i = 0; i < sentinelJsonArray.length(); i++) {
+			JSONObject sentinelJsonRow = sentinelJsonArray.getJSONObject(i);
+			Iterator<String> paramLabels = sentinelJsonRow.keys();
+			while (paramLabels.hasNext()) {
+				String paramLabel = paramLabels.next();
+				if ( (sentinelJsonRow.get(paramLabel) instanceof String) && (sentinelJsonRow.getString(paramLabel).length() > 0) ) {
+					sentinelMetaBlobs.add(sentinelJsonRow.getString(paramLabel));
+				}
+			}
+		}
 		
+		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
+	}
+
+	private String getConcatSentinelMetaForBattery(JSONArray sentinelJsonArray) throws JSONException {
+		ArrayList<String> sentinelMetaBlobs = new ArrayList<String>();
 		for (int i = 0; i < sentinelJsonArray.length(); i++) {
 			JSONObject sentinelJsonRow = sentinelJsonArray.getJSONObject(i);
 			Iterator<String> paramLabels = sentinelJsonRow.keys();
@@ -370,7 +385,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 			sentinelMetaBlobs.add(TextUtils.join("*", tempArray));
 		}
-		
+
 		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
 	}
 	
