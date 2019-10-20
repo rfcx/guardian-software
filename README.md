@@ -23,12 +23,11 @@ A collection of Android applications which, together, operate as autonomous Rain
 2. In Android Studio, press "Run" and select the "guardian" app.
 3. You should be able to select your phone (or Orange Pi) for running the app (instead of an emulator).
 4. (If you are on Android 8 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS). Then run the app again from Android Studio.
-5. On the app, press the “Preferences” button
-6. Set the api_url_base = `https://api.rfcx.org` (or to the staging server)
-7. Login (make sure your user account has guardianCreator role) and register the guardian -- todo: add some screenshots
-8. Verify that the guardian has got a new guid by opening the preferences and checking `guardian_guid`
-9. Also, login to the Console -> Sites -> RFCx Lab -> check that you can see your phone (you will see the first 4 chars of the id)
-10. Open "Logcat" in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your phone.
+5. Login (make sure your user account has guardianCreator role). Once logined, copy a login code and paste on an entry section.
+6. Register the guardian
+7. If registration success, guid will show up on the screen.
+8. Also, login to the Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your phone (you will see the first 4 chars of the id)
+9. Open "Logcat" in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your phone.
 
 ### Run the admin role
 
@@ -44,15 +43,16 @@ Before, starting any instructions here. Please read the information below and do
 2. The Orange Pi do not come with the **IMEI number**. You need to set it by yourself following the instructions below. Before install any roles, you should set the **IMEI number first**.
 3. The Orange Pi is not rooted by default. You can root it by yourself following the instruction below.
 4. Before using any roles, make sure there is the internet connection.
-5. **Time and date** will not be correct on the first time you start the device. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** *(you need to root Orange Pi first)*
+5. **Time and date** will not be correct on the first time you start the device. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** *(you need to root Orange Pi first)* or insert sim card.
 7. The Orange Pi comes with USB debugging **enabled** by default.
 8. The Orange Pi comes with **auto allow the permission** (because it is Android 4.4).
 9. The guardian role will capture audio and send to server automatically if:
     1. The date/time is (reasonably) close to current time
-    2. **SD card** is connected *(any size is okay -- tested up to 64GB)*
-    3. There is internet connection
-    4. There are Google Play Store and Google Play Services installed.
-    5. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
+    2. GPS location is enabled
+    3. Guardian is registered
+    4. **SD card** is connected *(any size is okay -- tested up to 64GB)*
+    5. There is internet connection
+    6. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
 
 ### Step 1: Flash Android on Orange Pi (from Windows)
 
@@ -133,18 +133,7 @@ Before following the instruction below. You need to download Vysor first.
 2. The script for uninstall is in **/script/delete-app/**
 3. Click on (execute) **delete_unused_app_script.bat** and wait for apps uninstalled.
 
-### Step 6: Install Google Play Store and Google Play Services
-
-1. Download the apk from *(choose the **latest version**, **armeabi-v7a** architecture, **Android 4.1+** minimum version and **any dpi** Screen DPI)*
-    1. [Google Play Service](https://www.apkmirror.com/apk/google-inc/google-play-services/)
-    2. [Google Play Store](https://www.apkmirror.com/apk/google-inc/google-play-store/)
-2. Open the Command Line Prompt or Terminal.
-3. Go to the directory of these two placed.
-4. type **adb install name-of-apk** and click Enter.
-5. re-do **4** again until finished.
-
-
-### Step 7: Run the application through Android Studio
+### Step 6: Run the application through Android Studio
 
 1. Make sure the Orange Pi is connected.
 
@@ -161,7 +150,7 @@ Before following the instruction below. You need to download Vysor first.
    ![](docs/images/androidstudio2.PNG?raw=true)
 
 
-### Step 8: How to debug Orange Pi over Bluetooth instead of USB cable
+### Step 7: How to debug Orange Pi over Bluetooth instead of USB cable
 
 1. Make sure Orange Pi is connected, Bluetooth is on and set visibility timeout to never time out as follows.
     1. Bluetooth is *on*
@@ -206,7 +195,7 @@ Before following the instruction below. You need to download Vysor first.
 7. If you want to go back to USB debugging, you need to `adb shell` and then enter `setprop persist.adb.tcp.port ""`.
 
 
-### Step 9: How to connect i2c and load i2c module
+### Step 8: How to connect i2c and load i2c module
 
 1. First, place Orange Pi same position as in the image.
 
