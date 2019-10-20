@@ -3,6 +3,8 @@ package org.rfcx.guardian.guardian;
 import java.io.File;
 import java.util.Map;
 
+import android.content.Context;
+import android.location.LocationManager;
 import android.os.Environment;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
@@ -132,7 +134,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.deviceUtils = new DeviceUtils(getApplicationContext());
         this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
-        if (isGuidExisted()) {
+        if (isGuidExisted() && isLocationEnabled()) {
             startServiceByStart();
         } else {
             this.rfcxServiceHandler.stopAllServices();
@@ -186,6 +188,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public Boolean getRecordingState() {
         return rfcxServiceHandler.isRunning("AudioCapture");
+    }
+
+    public Boolean isLocationEnabled () {
+        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     private void setDbHandlers() {

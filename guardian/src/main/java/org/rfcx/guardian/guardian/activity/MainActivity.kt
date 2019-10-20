@@ -77,7 +77,11 @@ class MainActivity : AppCompatActivity() {
 
         startButton.setOnClickListener {
             if (!isGuidExisted()) {
-                Toast.makeText(this, "Please register this guardian first", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Please register this guardian first", Toast.LENGTH_LONG)
+                    .show()
+            } else if(!app.isLocationEnabled){
+                Toast.makeText(this, "Please enable gps location", Toast.LENGTH_LONG)
+                    .show()
             } else {
                 app.initializeRoleServices()
                 setUIFromBtnClicked("start")
