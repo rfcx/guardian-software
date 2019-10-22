@@ -111,6 +111,7 @@ class MainActivity : AppCompatActivity() {
                                 override fun onSuccess() {
                                     createRegisterFile(app)
                                     setUIByRecordingState(app)
+                                    setUIByRegister(app)
                                     setVisibilityRegisterSuccess()
                                     deviceIdText.text = readRegisterFile()
                                 }
