@@ -80,6 +80,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private long requestSendReturned = System.currentTimeMillis();
 
 	private String inFlightCheckInAudioId = null;
+	private String latestCheckInAudioId = null;
 	private Map<String, String[]> inFlightCheckInEntries = new HashMap<String, String[]>();
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
 
@@ -752,11 +753,13 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			if (assetType.equals("audio")) {
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(assetId);
-				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(assetId);
+				//app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(assetId);
 				app.apiCheckInDb.dbSkipped.deleteSingleRowByAudioAttachmentId(assetId);
 				app.audioEncodeDb.dbEncoded.deleteSingleRow(assetId);
+//				filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(rfcxDeviceId, context,
+//						(long) Long.parseLong(assetId), fileExtension);
 				filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(rfcxDeviceId, context,
-						(long) Long.parseLong(assetId), fileExtension);
+						(long) Long.parseLong(latestCheckInAudioId), fileExtension);
 
 			} else if (assetType.equals("screenshot")) {
 				RfcxComm.deleteQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_delete_row", "screenshots|" + assetId,
@@ -782,7 +785,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 				
 			}
-
+			//delete audio file after checkin
 			if ((filePath != null) && (new File(filePath)).exists()) { (new File(filePath)).delete(); }
 
 			Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ( (filePath != null) ? ", "+filePath.substring(1+filePath.lastIndexOf("/")) : "") );
@@ -1002,8 +1005,14 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		if ((this.inFlightCheckInEntries.get(inFlightCheckInAudioId) != null) && (this.inFlightCheckInEntries.get(inFlightCheckInAudioId)[0] != null)) {
 			String[] checkInEntry = this.inFlightCheckInEntries.get(inFlightCheckInAudioId);
-			int sentCount = app.apiCheckInDb.dbSent.insert(checkInEntry[1], checkInEntry[2], checkInEntry[3], checkInEntry[4]);
+			//delete latest instead to keep present info
+			if(latestCheckInAudioId != null){
+				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(this.latestCheckInAudioId);
+			}
+			this.latestCheckInAudioId = checkInEntry[1];
+			app.apiCheckInDb.dbSent.insert(checkInEntry[1], checkInEntry[2], checkInEntry[3], checkInEntry[4]);
 			app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInEntry[1]);
+			Log.d(logTag, "sent checkin to db :" + Arrays.toString(checkInEntry));
 		}
 	}
 	

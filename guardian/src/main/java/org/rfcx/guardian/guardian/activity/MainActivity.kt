@@ -59,7 +59,6 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
-
             R.id.menu_prefs -> startActivity(Intent(this, PrefsActivity::class.java))
         }
 
@@ -314,7 +313,6 @@ class MainActivity : AppCompatActivity() {
                                 val audioPath = latestRow[4]
                                 sizeText.text = checkInUtils.convertFileSizeToStringFormat(audioPath)
                             }
-
                         }
                         sleep(5000)
                     }
