@@ -25,7 +25,6 @@
 				android:id="@+id/i2cResultTextView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="System"
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				android:textColor="@android:color/white"/>
