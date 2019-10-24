@@ -61,7 +61,6 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
 
             R.id.menu_prefs -> startActivity(Intent(this, PrefsActivity::class.java))
-            R.id.menu_sync -> startActivity(Intent(this, SendDataActivity::class.java))
         }
 
         return true
@@ -243,14 +242,31 @@ class MainActivity : AppCompatActivity() {
             registerButton.visibility = View.INVISIBLE
             registerInfo.visibility = View.VISIBLE
             i2cSwitch.visibility = View.VISIBLE
+            permissionInfoLayout.visibility = View.VISIBLE
             deviceIdText.text = readRegisterFile()
             i2cSwitch.isChecked = app.sharedPrefs.getString("checkin_with_i2c_battery","false") == "true"
+            setPermissionStatus(app)
         } else {
             record_group.visibility = View.INVISIBLE
             start_stop_group.visibility = View.INVISIBLE
             registerButton.visibility = View.VISIBLE
             registerInfo.visibility = View.INVISIBLE
             i2cSwitch.visibility = View.INVISIBLE
+            permissionInfoLayout.visibility = View.INVISIBLE
+        }
+    }
+
+    private fun setPermissionStatus(app: RfcxGuardian){
+        if(app.isLocationEnabled){
+            gpsStatusTextView.also {
+                it.text = " on"
+                it.setTextColor(resources.getColor(R.color.primary))
+            }
+        }else{
+            gpsStatusTextView.also {
+                it.text = " off"
+                it.setTextColor(resources.getColor(R.color.grey_default))
+            }
         }
     }
 

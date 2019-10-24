@@ -165,6 +165,31 @@
         </LinearLayout>
     </LinearLayout>
 
+    <android.support.constraint.ConstraintLayout
+            android:id="@+id/permissionInfoLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_padding_normal"
+            android:visibility="invisible"
+            app:layout_constraintTop_toBottomOf="@id/register_group"
+            app:layout_constraintStart_toStartOf="parent">
+        <TextView
+                android:id="@+id/gpsPermissionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:text="GPS Location"/>
+        <TextView
+                android:id="@+id/gpsStatusTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="@id/gpsPermissionTextView"
+                app:layout_constraintStart_toEndOf="@id/gpsPermissionTextView"
+                app:layout_constraintBottom_toBottomOf="@id/gpsPermissionTextView"
+                android:text=" off"/>
+    </android.support.constraint.ConstraintLayout>
+
     <Switch
             android:id="@+id/i2cSwitch"
             android:layout_width="wrap_content"
