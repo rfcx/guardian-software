@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin.device.sentinel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +86,7 @@ public class SentinelPowerUtils {
 				this.i2cLastReadAt.get(groupName)[valueTypeIndex] = System.currentTimeMillis();
 				valueSet[3] = valueSet[0] * valueSet[1] / 1000;
 				this.i2cValues.put(groupName, valueSet);
+				Log.d(logTag, groupName + " " + Arrays.toString(valueSet));
 			}
 
 		} catch (Exception e) {
@@ -173,8 +175,32 @@ public class SentinelPowerUtils {
 				}
 			}
 		}
-		
 	}
-	
+	public ArrayList<String> saveSentinelPowerValuesToDatabaseWithResult(Context context, boolean printValuesToLog) {
+
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		ArrayList<String> result = new ArrayList<String>();
+
+		if (printValuesToLog) { Log.d(logTag, "-");  }
+
+		for (String groupName : this.i2cValues.keySet()) {
+			String[] vals = getCurrentValues(groupName);
+			if (vals != null) {
+				if (groupName.equals("battery")) {
+					app.sentinelPowerDb.dbSentinelPowerBattery.insert(new Date(), vals[0], vals[1], vals[2], vals[3]);
+				} else if (groupName.equals("input")) {
+					app.sentinelPowerDb.dbSentinelPowerInput.insert(new Date(), vals[0], vals[1], vals[2], vals[3]);
+				} else if (groupName.equals("system")) {
+					app.sentinelPowerDb.dbSentinelPowerSystem.insert(new Date(), vals[0], vals[1], vals[2], vals[3]);
+				}
+
+				if (printValuesToLog) {
+					result.add(groupName+": "+vals[0]+"mV - "+vals[1]+"mA - "+vals[2]+"deg - "+vals[3]+"mW");
+					Log.d(logTag, groupName+": "+vals[0]+"mV - "+vals[1]+"mA - "+vals[2]+"deg - "+vals[3]+"mW");
+				}
+			}
+		}
+		return result;
+	}
 	
 }

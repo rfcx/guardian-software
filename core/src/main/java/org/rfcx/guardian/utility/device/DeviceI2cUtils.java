@@ -106,7 +106,6 @@ public class DeviceI2cUtils {
 			
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
 				dataOutputStream.writeBytes((new StringBuilder()).append(execI2cGet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" w;\n").toString());
-				Log.d(logTag, (new StringBuilder()).append(execI2cGet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" w;\n").toString());
 				dataOutputStream.flush();
 			}
 			dataOutputStream.writeBytes("exit;\n");

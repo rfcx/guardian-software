@@ -3,7 +3,4 @@
     <item
             android:id="@+id/menu_prefs"
             android:title="@string/menu_prefs"/>
-    <item
-            android:id="@+id/menu_sync"
-            android:title="@string/sync"/>
 </menu>
