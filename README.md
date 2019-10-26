@@ -212,3 +212,15 @@ Before following the instruction below. You need to download Vysor first.
 4. The step to start Orange Pi is the same as before.
 
 5. You can debug Orange Pi by using micro usb or [Step 8](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-8-how-to-debug-orange-pi-over-bluetooth-instead-of-usb-cable)
+
+### Step 9: How to setup, run and test the I2C
+
+1. Orange Pi need to be rooted first *(do this step on 4.)*
+
+2. Plugin the sentinel power wires to the Orange Pi *(do this step on 8.)*
+
+3. Install admin role
+
+4. When the admin role starts *(black screen)*, press “i2c view” button in the menu *(top right)*
+
+5. The result will show on the middle of the screen, if not the screen will show **"i2c value not found"**
