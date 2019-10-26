@@ -41,9 +41,12 @@ class MainActivity : AppCompatActivity() {
                     app.applicationContext,
                     true
                 )
-                val listOfValue = result.joinToString("\n")
-                i2cResultTextView.text = listOfValue
-
+                if(result.isNotEmpty()){
+                    val listOfValue = result.joinToString("\n")
+                    i2cResultTextView.text = listOfValue
+                }else{
+                    i2cResultTextView.text = "i2c value not found"
+                }
             }
             R.id.menu_logcat -> app.rfcxServiceHandler.triggerService("LogCatCapture", true)
         }
