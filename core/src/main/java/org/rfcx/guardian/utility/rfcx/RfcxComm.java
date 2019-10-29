@@ -118,7 +118,6 @@ public class RfcxComm {
 				roleFuncUriMatchId.get(eachRole).put(roleFuncEntry.getKey().toString(), new int[] { (uriMatchIdIterator-1), uriMatchIdIterator });
 			}
 		}
-		Log.d(logTag, role);
 		return roleFuncUriMatchId.get(role.toLowerCase(Locale.US)).get(function.toLowerCase(Locale.US));
 	}
 	

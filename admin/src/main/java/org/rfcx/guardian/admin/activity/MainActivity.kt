@@ -11,13 +11,17 @@ import org.rfcx.guardian.admin.R
 import org.rfcx.guardian.admin.RfcxGuardian
 import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_home.*
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var monitorTimer: Timer
+    private var isConnected: Boolean = false
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.activity_home, menu)
@@ -36,18 +40,6 @@ class MainActivity : AppCompatActivity() {
 
             R.id.menu_sntp -> app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true)
 
-            R.id.menu_i2c_view -> {
-                val result = app.sentinelPowerUtils.saveSentinelPowerValuesToDatabaseWithResult(
-                    app.applicationContext,
-                    true
-                )
-                if(result.isNotEmpty()){
-                    val listOfValue = result.joinToString("\n")
-                    i2cResultTextView.text = listOfValue
-                }else{
-                    i2cResultTextView.text = "i2c value not found"
-                }
-            }
             R.id.menu_logcat -> app.rfcxServiceHandler.triggerService("LogCatCapture", true)
         }
         return true
@@ -57,15 +49,52 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setSupportActionBar(toolbar)
+        val app = application as RfcxGuardian
     }
 
     public override fun onResume() {
         super.onResume()
+        val app = application as RfcxGuardian
+        monitorToggle.setOnCheckedChangeListener { buttonView, isChecked ->
+            if(isChecked){
+                val timerTask = object : TimerTask() {
+                    override fun run() {
+                        runOnUiThread {
+                            isConnected = app.sentinelPowerUtils.confirmConnection()
+                            if(isConnected){
+                                i2cConnectStatusTextView.text = "connected"
+                                val result = app.sentinelPowerUtils.latestSentinelValues
+                                if (result != null) {
+                                    systemResultTextView.text = result.system.toString()
+                                    inputResultTextView.text = result.input.toString()
+                                    batteryResultTextView.text = result.battery.toString()
+                                }
+                            }else{
+                                i2cConnectStatusTextView.text = "disconnected"
+                                systemResultTextView.text = "not found"
+                                inputResultTextView.text = "not found"
+                                batteryResultTextView.text = "not found"
+                            }
+                        }
+                    }
+                }
+                monitorTimer = Timer()
+                monitorTimer.schedule(timerTask, 0, 1000)
+            }else{
+                Log.d("toggle", "$isChecked")
+                monitorTimer.cancel()
+            }
+        }
     }
 
     public override fun onPause() {
         super.onPause()
+        monitorTimer.cancel()
         (application as RfcxGuardian).appPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
 }
