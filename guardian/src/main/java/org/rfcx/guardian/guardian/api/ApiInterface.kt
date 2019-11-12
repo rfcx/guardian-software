@@ -2,6 +2,7 @@ package org.rfcx.guardian.guardian.api
 
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.rfcx.guardian.guardian.entity.GuardianResponse
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.entity.RegisterResponse
 import retrofit2.Call
@@ -14,8 +15,9 @@ interface ApiInterface {
     fun register(@Header("Authorization") authUser: String,
                  @Body guardianInfo: RegisterRequest): Call<RegisterResponse>
 
-//    @GET("v1/guardians")
-//    abstract fun getAllGuardians(): Call<GuardianResponse>
+    @GET("v2/guardians/{guid}")
+    fun isGuardianExisted(@Header("Authorization") token: String,
+                          @Path("guid") guid: String): Call<GuardianResponse>
 
     companion object {
             private const val BASE_URL = "https://api.rfcx.org/"

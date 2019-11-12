@@ -18,17 +18,21 @@ import android.widget.Toast
 import com.google.android.gms.security.ProviderInstaller
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.RfcxGuardian
+import org.rfcx.guardian.guardian.api.ApiInterface
 import org.rfcx.guardian.guardian.api.RegisterApi
+import org.rfcx.guardian.guardian.entity.GuardianResponse
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.utility.datetime.DateTimeUtils
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
     var getInfoThread: Thread? = null
@@ -48,7 +52,7 @@ class MainActivity : AppCompatActivity() {
             if (app.recordingState) {
                 getCheckinInformation(app)
             }
-        },500)
+        }, 500)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -77,7 +81,7 @@ class MainActivity : AppCompatActivity() {
             if (!isGuidExisted()) {
                 Toast.makeText(this, "Please register this guardian first", Toast.LENGTH_LONG)
                     .show()
-            } else if(!app.isLocationEnabled){
+            } else if (!app.isLocationEnabled) {
                 Toast.makeText(this, "Please enable gps location", Toast.LENGTH_LONG)
                     .show()
             } else {
@@ -107,16 +111,37 @@ class MainActivity : AppCompatActivity() {
                             RegisterRequest(guid, token),
                             object : RegisterApi.RegisterCallback {
                                 override fun onSuccess() {
-                                    createRegisterFile(app)
-                                    setUIByRecordingState(app)
-                                    setUIByRegister(app)
-                                    setVisibilityRegisterSuccess()
-                                    deviceIdText.text = readRegisterFile()
+                                    ApiInterface.create().isGuardianExisted("Bearer ${getTokenID()}", guid)
+                                        .enqueue(object :
+                                            Callback<GuardianResponse> {
+                                            override fun onFailure(
+                                                call: Call<GuardianResponse>,
+                                                t: Throwable
+                                            ) {
+                                                Toast.makeText(applicationContext, "Try again later", Toast.LENGTH_LONG).show()
+                                            }
+
+                                            override fun onResponse(
+                                                call: Call<GuardianResponse>,
+                                                response: Response<GuardianResponse>
+                                            ) {
+                                                if(response.isSuccessful){
+                                                    createRegisterFile(app)
+                                                    setUIByRecordingState(app)
+                                                    setUIByRegister(app)
+                                                    setVisibilityRegisterSuccess()
+                                                    deviceIdText.text = readRegisterFile()
+                                                }else{
+                                                    Toast.makeText(applicationContext, "Try again later", Toast.LENGTH_LONG).show()
+                                                }
+                                            }
+                                        })
                                 }
 
                                 override fun onFailed(t: Throwable?, message: String?) {
                                     setVisibilityRegisterFailed()
-                                    Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+                                    Toast.makeText(applicationContext, message, Toast.LENGTH_LONG)
+                                        .show()
                                     Log.d("register_failed", t.toString())
                                 }
 
@@ -127,7 +152,11 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                Toast.makeText(this, "There is not internet connection. Please turn it on.", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this,
+                    "There is not internet connection. Please turn it on.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -143,10 +172,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         i2cSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            if(isChecked){
-                app.setPref("checkin_with_i2c_battery","true")
-            }else{
-                app.setPref("checkin_with_i2c_battery","false")
+            if (isChecked) {
+                app.setPref("checkin_with_i2c_battery", "true")
+            } else {
+                app.setPref("checkin_with_i2c_battery", "false")
             }
         }
     }
@@ -200,23 +229,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUIByRecordingState(app: RfcxGuardian) {
-            if (isGuidExisted()) {
-                Log.d("Guid", "existed")
-                deviceIdText.text = readRegisterFile()
-                if (app.recordingState) {
-                    recordingStateText.text = getString(R.string.recording_state)
-                    recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_error))
-                    record_image.setImageResource(R.drawable.recorded_sign3)
-                } else {
-                    recordingStateText.text = getString(R.string.notrecording_state)
-                    recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_black))
-                    record_image.setImageResource(R.drawable.not_record_sign3)
-                }
+        if (isGuidExisted()) {
+            Log.d("Guid", "existed")
+            deviceIdText.text = readRegisterFile()
+            if (app.recordingState) {
+                recordingStateText.text = getString(R.string.recording_state)
+                recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_error))
+                record_image.setImageResource(R.drawable.recorded_sign3)
             } else {
-                Log.d("Guid", "not existed")
-                record_image.setImageResource(R.drawable.not_registered_sign)
-                recordingStateText.text = "NOT REGISTERED"
+                recordingStateText.text = getString(R.string.notrecording_state)
+                recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_black))
+                record_image.setImageResource(R.drawable.not_record_sign3)
             }
+        } else {
+            Log.d("Guid", "not existed")
+            record_image.setImageResource(R.drawable.not_registered_sign)
+            recordingStateText.text = "NOT REGISTERED"
+        }
     }
 
     private fun setUIByLogin() {
@@ -243,7 +272,8 @@ class MainActivity : AppCompatActivity() {
             i2cSwitch.visibility = View.VISIBLE
             permissionInfoLayout.visibility = View.VISIBLE
             deviceIdText.text = readRegisterFile()
-            i2cSwitch.isChecked = app.sharedPrefs.getString("checkin_with_i2c_battery","false") == "true"
+            i2cSwitch.isChecked =
+                app.sharedPrefs.getString("checkin_with_i2c_battery", "false") == "true"
             setPermissionStatus(app)
         } else {
             record_group.visibility = View.INVISIBLE
@@ -255,13 +285,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setPermissionStatus(app: RfcxGuardian){
-        if(app.isLocationEnabled){
+    private fun setPermissionStatus(app: RfcxGuardian) {
+        if (app.isLocationEnabled) {
             gpsStatusTextView.also {
                 it.text = " on"
                 it.setTextColor(resources.getColor(R.color.primary))
             }
-        }else{
+        } else {
             gpsStatusTextView.also {
                 it.text = " off"
                 it.setTextColor(resources.getColor(R.color.grey_default))
@@ -300,18 +330,20 @@ class MainActivity : AppCompatActivity() {
                     while (!isInterrupted) {
                         runOnUiThread {
                             val latestRow = app.apiCheckInDb.dbSent.latestRow
-                            if(latestRow[0] == null){
+                            if (latestRow[0] == null) {
                                 checkInText.text = checkInUtils.convertTimeStampToStringFormat(null)
-                            }else{
+                            } else {
                                 val checkinTime = DateTimeUtils.getDateFromString(latestRow[0]).time
-                                checkInText.text = checkInUtils.convertTimeStampToStringFormat(checkinTime)
+                                checkInText.text =
+                                    checkInUtils.convertTimeStampToStringFormat(checkinTime)
                             }
 
-                            if(latestRow[4] == null){
+                            if (latestRow[4] == null) {
                                 sizeText.text = checkInUtils.convertFileSizeToStringFormat(null)
-                            }else{
+                            } else {
                                 val audioPath = latestRow[4]
-                                sizeText.text = checkInUtils.convertFileSizeToStringFormat(audioPath)
+                                sizeText.text =
+                                    checkInUtils.convertFileSizeToStringFormat(audioPath)
                             }
                         }
                         sleep(5000)
@@ -325,19 +357,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isNetworkAvailable(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo != null && networkInfo.isConnected
     }
 
     private fun isGuidExisted(): Boolean {
-        val path = this.filesDir.toString()+"/txt/"
+        val path = this.filesDir.toString() + "/txt/"
         val txtFile = File(path + "/guardian_guid.txt")
         return txtFile.exists()
     }
 
     private fun createRegisterFile(app: RfcxGuardian) {
-        val path = this.filesDir.toString()+"/txt/"
+        val path = this.filesDir.toString() + "/txt/"
         val file = File(path, "guardian_guid.txt")
         FileOutputStream(file).use {
             it.write(app.rfcxDeviceGuid.deviceGuid.toByteArray())
@@ -345,7 +378,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readRegisterFile(): String {
-        val path = this.filesDir.toString()+"/txt/"
+        val path = this.filesDir.toString() + "/txt/"
         val file = File(path, "guardian_guid.txt")
         return FileInputStream(file).bufferedReader().use { it.readText() }
     }
