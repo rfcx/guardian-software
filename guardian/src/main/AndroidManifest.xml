@@ -79,7 +79,16 @@
                 android:label="@string/menu_prefs" />
 
         <activity android:name=".activity.SendDataActivity"></activity>
-        <activity android:name=".activity.LoginWebViewActivity"></activity>
+        <activity android:name=".activity.LoginWebViewActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data
+                        android:host="login"
+                        android:scheme="rfcx"/>
+            </intent-filter>
+        </activity>
 
 
         <!-- Services -->

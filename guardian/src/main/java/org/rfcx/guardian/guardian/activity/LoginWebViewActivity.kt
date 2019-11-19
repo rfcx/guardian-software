@@ -1,17 +1,22 @@
 package org.rfcx.guardian.guardian.activity
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.StrictMode
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
 import com.auth0.android.result.Credentials
 import kotlinx.android.synthetic.main.activity_login_webview.*
@@ -40,7 +45,13 @@ class LoginWebViewActivity : AppCompatActivity(){
         setSupportActionBar(toolbar)
         toolBarInit()
 
-        runOnUiThread {
+        val uri = intent.data
+        if(uri != null){
+            val code = uri.getQueryParameter("code")
+            if(code != null){
+                preparePost(code)
+            }
+        }else{
             Log.d("LoginWebViewActivity", baseUrl)
             val webpage = Uri.parse(baseUrl)
             val intent = Intent(Intent.ACTION_VIEW, webpage)
@@ -48,9 +59,6 @@ class LoginWebViewActivity : AppCompatActivity(){
                 startActivity(intent)
             }
         }
-
-        val handler = Handler()
-
         codeEditText.addTextChangedListener(object: TextWatcher{
             override fun afterTextChanged(s: Editable?) {
             }
@@ -70,52 +78,7 @@ class LoginWebViewActivity : AppCompatActivity(){
         })
 
         sendButton.setOnClickListener {
-            loginProgressBar.visibility = View.VISIBLE
-            loginLayout.visibility = View.INVISIBLE
-            //dismiss keyboard
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(codeEditText.windowToken, 0)
-            val runnable = Runnable {
-                val policy = StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build()
-                StrictMode.setThreadPolicy(policy)
-                val postUrl = "https://auth.rfcx.org/oauth/token"
-                val body = hashMapOf<String, String>(
-                    "grant_type" to "authorization_code",
-                    "client_id" to clientId,
-                    "code" to codeEditText.text.toString(),
-                    "redirect_uri" to redirectUrl
-                )
-
-                val postResponse = post(postUrl, body)
-                Log.d("LoginWebViewActivity", postResponse)
-                if(postResponse.isNotEmpty()){
-                    val response = JSONObject(postResponse)
-                    val idToken = response.getString("id_token")
-                    val accessToken = response.getString("access_token")
-                    val credentials = Credentials(idToken, accessToken,null, null, null)
-                    val result = CredentialVerifier(this).verify(credentials)
-                    when(result){
-                        is Err -> {
-                            Log.d("LoginWebViewActivity", "login error")
-                            loginProgressBar.visibility = View.INVISIBLE
-                            loginLayout.visibility = View.VISIBLE
-                        }
-                        is Ok -> {
-                            CredentialKeeper(this).save(result.value)
-                            finish()
-                        }
-                    }
-                    Log.d("LoginWebViewActivity", credentials.idToken)
-                }else{
-                    Log.d("LoginWebViewActivity", "post failed")
-                    Toast.makeText(this, "code is incorrect.", Toast.LENGTH_LONG).show()
-                    loginProgressBar.visibility = View.INVISIBLE
-                    loginLayout.visibility = View.VISIBLE
-                }
-                codeEditText.text = null
-            }
-            handler.post(runnable)
+            preparePost(null)
         }
 
     }
@@ -123,6 +86,57 @@ class LoginWebViewActivity : AppCompatActivity(){
     private fun toolBarInit() {
         val toolbar = supportActionBar
         toolbar?.title = "Login"
+    }
+
+    private fun preparePost(code: String?){
+        val handler = Handler()
+        loginProgressBar.visibility = View.VISIBLE
+        loginLayout.visibility = View.INVISIBLE
+        //dismiss keyboard
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(codeEditText.windowToken, 0)
+        val runnable = Runnable {
+            val policy = StrictMode.ThreadPolicy.Builder()
+                .permitAll().build()
+            StrictMode.setThreadPolicy(policy)
+            val postUrl = "https://auth.rfcx.org/oauth/token"
+            val body = hashMapOf<String, String>(
+                "grant_type" to "authorization_code",
+                "client_id" to clientId,
+                "code" to (code ?: codeEditText.text.toString()),
+                "redirect_uri" to redirectUrl
+            )
+
+            val postResponse = post(postUrl, body)
+            Log.d("LoginWebViewActivity", postResponse)
+            if(postResponse.isNotEmpty()){
+                val response = JSONObject(postResponse)
+                val idToken = response.getString("id_token")
+                val accessToken = response.getString("access_token")
+                val credentials = Credentials(idToken, accessToken,null, null, null)
+                val result = CredentialVerifier(this).verify(credentials)
+                when(result){
+                    is Err -> {
+                        Log.d("LoginWebViewActivity", "login error")
+                        loginProgressBar.visibility = View.INVISIBLE
+                        loginLayout.visibility = View.VISIBLE
+                    }
+                    is Ok -> {
+                        CredentialKeeper(this).save(result.value)
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    }
+                }
+                Log.d("LoginWebViewActivity", credentials.idToken)
+            }else{
+                Log.d("LoginWebViewActivity", "post failed")
+                Toast.makeText(this, "code is incorrect.", Toast.LENGTH_LONG).show()
+                loginProgressBar.visibility = View.INVISIBLE
+                loginLayout.visibility = View.VISIBLE
+            }
+            codeEditText.text = null
+        }
+        handler.post(runnable)
     }
     private fun post(url: String, params: HashMap<String, String>): String{
         var response = ""
@@ -184,7 +198,7 @@ class LoginWebViewActivity : AppCompatActivity(){
 
 
     companion object{
-        private const val redirectUrl = "https://rfcx-app.s3.eu-west-1.amazonaws.com/login/cli.html"
+        private const val redirectUrl = "rfcx://login"
         private const val audience = "https://rfcx.org"
         private const val scope = "openid%20profile"
         private const val clientId = "CdlIIeJDapQxW29kn93wDw26fTTNyDkp"
