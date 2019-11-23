@@ -96,7 +96,6 @@ public class AudioCaptureService extends Service {
 							// in this case, we are starting the audio capture from a stopped/pre-initialized state
 							captureTimeStamp = System.currentTimeMillis();
 							wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
-							Log.d(logTag, "wavRecoder is null");
 							wavRecorder.startRecorder();
 // This line is the problem of get audio corrupted for encoding
 //						} else {

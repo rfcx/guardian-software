@@ -76,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         toolBarInit()
 
         val app = application as RfcxGuardian
-
+        Log.d("gps", app.isLocationEnabled.toString())
         startButton.setOnClickListener {
             if (!isGuidExisted()) {
                 Toast.makeText(this, "Please register this guardian first", Toast.LENGTH_LONG)
