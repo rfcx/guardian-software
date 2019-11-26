@@ -122,7 +122,7 @@
 
         <!-- ContentProviders -->
         <provider
-                android:name=".contentprovider.GuardianContentProvider"
+                android:name="org.rfcx.guardian.guardian.contentprovider.GuardianContentProvider"
                 android:authorities="org.rfcx.guardian.guardian"
                 android:readPermission="org.rfcx.guardian.READ"
                 android:writePermission="org.rfcx.guardian.WRITE"

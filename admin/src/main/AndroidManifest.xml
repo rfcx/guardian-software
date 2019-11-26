@@ -106,7 +106,7 @@
         <!-- Content Providers -->
 
         <provider
-                android:name=".contentprovider.AdminContentProvider"
+                android:name="org.rfcx.guardian.admin.contentprovider.AdminContentProvider"
                 android:authorities="org.rfcx.guardian.admin"
                 android:readPermission="org.rfcx.guardian.READ"
                 android:writePermission="org.rfcx.guardian.WRITE"

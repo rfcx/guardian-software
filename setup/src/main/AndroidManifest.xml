@@ -81,7 +81,7 @@
 		</receiver>
 		
 		<provider 
-		    android:name=".contentprovider.SetupContentProvider"
+		    android:name="org.rfcx.guardian.setup.contentprovider.SetupContentProvider"
 			android:authorities="org.rfcx.guardian.setup"
         	android:readPermission="org.rfcx.guardian.READ"
         	android:writePermission="org.rfcx.guardian.WRITE"
