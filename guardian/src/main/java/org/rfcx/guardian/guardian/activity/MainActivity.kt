@@ -202,29 +202,28 @@ class MainActivity : AppCompatActivity() {
         if (button == "start") {
             startButton.isEnabled = false
             stopButton.isEnabled = true
-            recordingStateText.text = getString(R.string.recording_state)
-            recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_error))
-            record_image.setImageResource(R.drawable.recorded_sign3)
+            recordStatusText.text = "recording"
+            recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
         } else {
             startButton.isEnabled = true
             stopButton.isEnabled = false
-            recordingStateText.text = getString(R.string.notrecording_state)
-            recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_black))
-            record_image.setImageResource(R.drawable.not_record_sign3)
+            recordStatusText.text = "not recording"
+            recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
         }
     }
 
     private fun setVisibilityByPrefs(app: RfcxGuardian) {
         if (app.rfcxPrefs.getPrefAsString("show_ui") == "false") {
             register_group.visibility = View.INVISIBLE
-            record_group.visibility = View.INVISIBLE
             start_stop_group.visibility = View.INVISIBLE
             login_group.visibility = View.INVISIBLE
+            start_stop_button.visibility = View.INVISIBLE
         } else {
             register_group.visibility = View.VISIBLE
-            record_group.visibility = View.VISIBLE
             start_stop_group.visibility = View.VISIBLE
             login_group.visibility = View.VISIBLE
+            start_stop_button.visibility = View.VISIBLE
+
         }
     }
 
@@ -233,18 +232,14 @@ class MainActivity : AppCompatActivity() {
             Log.d("Guid", "existed")
             deviceIdText.text = readRegisterFile()
             if (app.recordingState) {
-                recordingStateText.text = getString(R.string.recording_state)
-                recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_error))
-                record_image.setImageResource(R.drawable.recorded_sign3)
+                recordStatusText.text = "recording"
+                recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
             } else {
-                recordingStateText.text = getString(R.string.notrecording_state)
-                recordingStateText.setTextColor(ContextCompat.getColor(this, R.color.text_black))
-                record_image.setImageResource(R.drawable.not_record_sign3)
+                recordStatusText.text = "not recording"
+                recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
             }
         } else {
             Log.d("Guid", "not existed")
-            record_image.setImageResource(R.drawable.not_registered_sign)
-            recordingStateText.text = "NOT REGISTERED"
         }
     }
 
@@ -252,11 +247,13 @@ class MainActivity : AppCompatActivity() {
         if (this.getTokenID() == null) {
             loginButton.visibility = View.VISIBLE
             loginInfo.visibility = View.INVISIBLE
+            start_stop_button.visibility = View.INVISIBLE
             registerButton.isEnabled = false
             registerButton.alpha = 0.5f
         } else {
             loginButton.visibility = View.INVISIBLE
             loginInfo.visibility = View.VISIBLE
+            start_stop_button.visibility = View.VISIBLE
             registerButton.isEnabled = true
             registerButton.alpha = 1.0f
             userName.text = this.getUserNickname()
@@ -265,22 +262,22 @@ class MainActivity : AppCompatActivity() {
 
     private fun setUIByRegister(app: RfcxGuardian) {
         if (isGuidExisted()) {
-            record_group.visibility = View.VISIBLE
             start_stop_group.visibility = View.VISIBLE
             registerButton.visibility = View.INVISIBLE
+            start_stop_button.visibility = View.VISIBLE
             registerInfo.visibility = View.VISIBLE
-            i2cSwitch.visibility = View.VISIBLE
+            switchView.visibility = View.VISIBLE
             permissionInfoLayout.visibility = View.VISIBLE
             deviceIdText.text = readRegisterFile()
             i2cSwitch.isChecked =
                 app.sharedPrefs.getString("checkin_with_i2c_battery", "false") == "true"
             setPermissionStatus(app)
         } else {
-            record_group.visibility = View.INVISIBLE
             start_stop_group.visibility = View.INVISIBLE
             registerButton.visibility = View.VISIBLE
+            start_stop_button.visibility = View.INVISIBLE
             registerInfo.visibility = View.INVISIBLE
-            i2cSwitch.visibility = View.INVISIBLE
+            switchView.visibility = View.INVISIBLE
             permissionInfoLayout.visibility = View.INVISIBLE
         }
     }
@@ -300,7 +297,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setVisibilityBeforeRegister() {
-        record_group.visibility = View.INVISIBLE
         start_stop_group.visibility = View.INVISIBLE
         registerProgress.visibility = View.VISIBLE
     }
@@ -308,7 +304,7 @@ class MainActivity : AppCompatActivity() {
     private fun setVisibilityRegisterSuccess() {
         registerButton.visibility = View.INVISIBLE
         registerInfo.visibility = View.VISIBLE
-        record_group.visibility = View.VISIBLE
+        start_stop_button.visibility = View.VISIBLE
         start_stop_group.visibility = View.VISIBLE
         registerProgress.visibility = View.INVISIBLE
     }
@@ -316,7 +312,7 @@ class MainActivity : AppCompatActivity() {
     private fun setVisibilityRegisterFailed() {
         registerButton.visibility = View.VISIBLE
         registerInfo.visibility = View.INVISIBLE
-        record_group.visibility = View.INVISIBLE
+        start_stop_button.visibility = View.INVISIBLE
         start_stop_group.visibility = View.INVISIBLE
         registerProgress.visibility = View.INVISIBLE
     }
