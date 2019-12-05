@@ -2,7 +2,6 @@ package org.rfcx.guardian.guardian.manager
 
 import android.content.Context
 import com.auth0.android.result.Credentials
-import com.crashlytics.android.Crashlytics
 import io.jsonwebtoken.Jwts
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.entity.Err
@@ -71,7 +70,6 @@ class CredentialVerifier(val context: Context) {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Crashlytics.logException(e)
         }
         return Err(getString(R.string.an_error_occurred))
     }
