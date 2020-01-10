@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">rfcx guardian</string>
+    <string name="app_name">RFCx Guardian</string>
 	
-    <string name="menu_prefs">prefs</string>
+    <string name="menu_prefs">Preferences</string>
 
     <string-array name="true_or_false">
 		<item>true</item>
@@ -101,7 +101,7 @@
 	<!-- login -->
 	<string name="email">Email</string>
 	<string name="password">Password</string>
-	<string name="login">L o g i n</string>
+	<string name="login">Login</string>
 	<string name="pls_fill_email">Please fill email</string>
 	<string name="pls_fill_password">Please fill password</string>
 	<string name="incorrect_username_password">Incorrect username or password</string>
@@ -110,7 +110,7 @@
     <string name="register">register guardian</string>
     <string name="error_common">An error occurred. Please try again.</string>
     <string name="skip_login">SKIP</string>
-    <string name="logout">logout</string>
+    <string name="logout">Logout</string>
 
 
 </resources>

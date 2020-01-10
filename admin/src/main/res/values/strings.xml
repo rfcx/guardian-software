@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">rfcx admin</string>
+    <string name="app_name">RFCx Admin</string>
     
 	<string name="menu_reboot">reboot</string>
 	<string name="menu_relaunch">relaunch</string>
