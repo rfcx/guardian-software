@@ -3,30 +3,15 @@
     <color name="primary">#2FB04A</color>
     <color name="colorPrimary">#2FB04A</color>
     <color name="colorPrimaryDark">#ff2c9a46</color>
-    <color name="colorAccent">#ff2c9a46</color>
 
     <!-- text colors -->
-    <color name="text_primary">#47525E</color>
-    <color name="text_secondary">#969FAA</color>
     <color name="text_error">#e41a1a</color>
     <color name="text_white">#ffffff</color>
     <color name="text_almost_white">#f0f0f0</color>
 
-    <color name="divider">#D6D6D6</color>
-    <color name="yellow">#ffdd00</color>
-    <color name="orange">#f57003</color>
-
-    <color name="transparent">@android:color/transparent</color>
-
-    <color name="grey">#D3D9E0</color>
     <color name="gray_30">#FFD6D6D6</color>
     <color name="grey_light">#F0F0F0</color>
     <color name="grey_default">#98a0a9</color>
-    <color name="grey_active">#5A6978</color>
-
-    <color name="button_default">#98a0a9</color>
-    <color name="start_button_recording">#5A6978</color>
-    <color name="stop_button_stopped">#5A6978</color>
 
     <color name="text_black">#000000</color>
 

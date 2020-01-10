@@ -4,13 +4,7 @@
     <string name="app_name">rfcx guardian</string>
 	
     <string name="menu_prefs">prefs</string>
-    <string name="menu_reboot">reboot</string>
-    <string name="menu_relaunch">relaunch</string>
-    <string name="menu_screenshot">screenshot</string>
-    <string name="menu_logcat">logcat</string>
-    <string name="menu_sntp">sntp sync</string>
-    <string name="menu_purge_checkins">purge checkins</string>
-    
+
     <string-array name="true_or_false">
 		<item>true</item>
 		<item>false</item>
@@ -113,14 +107,10 @@
 	<string name="incorrect_username_password">Incorrect username or password</string>
 	<string name="an_error_occurred">Service unavailable</string>
 	<string name="or">OR</string>
-    <string name="recording_state">REC</string>
-	<string name="notrecording_state">STOP</string>
     <string name="register">register guardian</string>
     <string name="error_common">An error occurred. Please try again.</string>
     <string name="skip_login">SKIP</string>
-    <string name="preferences">Preferences</string>
-	<string name="sync">sync</string>
-	<string name="logout">logout</string>
+    <string name="logout">logout</string>
 
 
 </resources>
