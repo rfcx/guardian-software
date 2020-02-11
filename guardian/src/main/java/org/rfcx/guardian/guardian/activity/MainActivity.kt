@@ -44,15 +44,7 @@ class MainActivity : AppCompatActivity() {
         setVisibilityByPrefs(app)
         setUIByLoginState()
         setUIByGuidState(app)
-
-        Handler().postDelayed({
-            app.startAllServices()
-            setUIByRecordingState(app)
-            setBtnEnableByRecordingState(app)
-            if (app.recordingState) {
-                getCheckinInformation(app)
-            }
-        }, 1000)
+        startServices()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -131,7 +123,8 @@ class MainActivity : AppCompatActivity() {
                                                     setUIByGuidState(app)
                                                     setVisibilityRegisterSuccess()
                                                     deviceIdText.text = readRegisterFile()
-                                                    app.startAllServices()
+                                                    startServices()
+                                                    setUIFromBtnClicked("start")
                                                 }else{
                                                     Toast.makeText(applicationContext, "Try again later", Toast.LENGTH_LONG).show()
                                                 }
@@ -184,6 +177,18 @@ class MainActivity : AppCompatActivity() {
     private fun toolBarInit() {
         val toolbar = supportActionBar
         toolbar?.title = "Guardian"
+    }
+
+    private fun startServices() {
+        val app = application as RfcxGuardian
+        Handler().postDelayed({
+            app.startAllServices()
+            setUIByRecordingState(app)
+            setBtnEnableByRecordingState(app)
+            if (app.recordingState) {
+                getCheckinInformation(app)
+            }
+        }, 1000)
     }
 
     private fun setBtnEnableByRecordingState(app: RfcxGuardian) {
