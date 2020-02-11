@@ -131,6 +131,7 @@ class MainActivity : AppCompatActivity() {
                                                     setUIByGuidState(app)
                                                     setVisibilityRegisterSuccess()
                                                     deviceIdText.text = readRegisterFile()
+                                                    app.startAllServices()
                                                 }else{
                                                     Toast.makeText(applicationContext, "Try again later", Toast.LENGTH_LONG).show()
                                                 }
