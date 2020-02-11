@@ -134,11 +134,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.deviceUtils = new DeviceUtils(getApplicationContext());
         this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
-        if (isGuidExisted() && isLocationEnabled()) {
-            startServiceByStart();
-        } else {
-            this.rfcxServiceHandler.stopAllServices();
-        }
+        startAllServices();
     }
 
     public void onTerminate() {
@@ -155,13 +151,23 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     }
 
-    public void startServiceByStart() {
-        initializeRoleServices();
+    public void startAllServices() {
+        if (isRequirementPassed()) {
+            if(!getRecordingState()){
+                initializeRoleServices();
+            }
+        } else {
+            this.rfcxServiceHandler.stopAllServices();
+        }
+    }
+
+    public boolean isRequirementPassed() {
+        return isGuidExisted() && isLocationEnabled();
     }
 
     private Boolean isGuidExisted() {
-        String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString();
-        File txtFile = new File(directoryPath + "/register.txt");
+        String directoryPath = getBaseContext().getFilesDir().toString() + "/txt/";
+        File txtFile = new File(directoryPath + "/guardian_guid.txt");
         return txtFile.exists();
     }
 
