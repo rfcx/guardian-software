@@ -35,24 +35,25 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
-    var getInfoThread: Thread? = null
+    private var getInfoThread: Thread? = null
 
     override fun onResume() {
         super.onResume()
 
         val app = application as RfcxGuardian
         setVisibilityByPrefs(app)
-        setUIByLogin()
-        setUIByRegister(app)
-        registerButton.isEnabled = !isGuidExisted()
+        setUIByLoginState()
+        setUIByGuidState(app)
 
         Handler().postDelayed({
+            app.startAllServices()
             setUIByRecordingState(app)
             setBtnEnableByRecordingState(app)
+            Log.d(logTag, app.recordingState.toString())
             if (app.recordingState) {
                 getCheckinInformation(app)
             }
-        }, 500)
+        }, 1000)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -128,7 +129,7 @@ class MainActivity : AppCompatActivity() {
                                                 if(response.isSuccessful){
                                                     createRegisterFile(app)
                                                     setUIByRecordingState(app)
-                                                    setUIByRegister(app)
+                                                    setUIByGuidState(app)
                                                     setVisibilityRegisterSuccess()
                                                     deviceIdText.text = readRegisterFile()
                                                 }else{
@@ -243,7 +244,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setUIByLogin() {
+    private fun setUIByLoginState() {
         if (this.getTokenID() == null) {
             loginButton.visibility = View.VISIBLE
             loginInfo.visibility = View.INVISIBLE
@@ -260,7 +261,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setUIByRegister(app: RfcxGuardian) {
+    private fun setUIByGuidState(app: RfcxGuardian) {
         if (isGuidExisted()) {
             start_stop_group.visibility = View.VISIBLE
             registerButton.visibility = View.INVISIBLE
