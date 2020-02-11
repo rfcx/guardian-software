@@ -166,8 +166,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     }
 
     private Boolean isGuidExisted() {
-        String directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString();
-        File txtFile = new File(directoryPath + "/register.txt");
+        String directoryPath = getBaseContext().getFilesDir().toString() + "/txt/";
+        File txtFile = new File(directoryPath + "/guardian_guid.txt");
         return txtFile.exists();
     }
 
