@@ -49,7 +49,6 @@ class MainActivity : AppCompatActivity() {
             app.startAllServices()
             setUIByRecordingState(app)
             setBtnEnableByRecordingState(app)
-            Log.d(logTag, app.recordingState.toString())
             if (app.recordingState) {
                 getCheckinInformation(app)
             }
