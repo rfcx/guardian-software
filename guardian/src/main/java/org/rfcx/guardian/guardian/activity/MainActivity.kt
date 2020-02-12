@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity() {
                                                     setUIByGuidState(app)
                                                     setVisibilityRegisterSuccess()
                                                     deviceIdText.text = readRegisterFile()
-                                                    startServices()
+                                                    app.startAllServices()
                                                     setUIFromBtnClicked("start")
                                                 }else{
                                                     Toast.makeText(applicationContext, "Try again later", Toast.LENGTH_LONG).show()
