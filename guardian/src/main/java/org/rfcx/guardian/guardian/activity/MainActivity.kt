@@ -125,6 +125,7 @@ class MainActivity : AppCompatActivity() {
                                                     deviceIdText.text = readRegisterFile()
                                                     app.startAllServices()
                                                     setUIFromBtnClicked("start")
+                                                    getCheckinInformation(app)
                                                 }else{
                                                     Toast.makeText(applicationContext, "Try again later", Toast.LENGTH_LONG).show()
                                                 }
