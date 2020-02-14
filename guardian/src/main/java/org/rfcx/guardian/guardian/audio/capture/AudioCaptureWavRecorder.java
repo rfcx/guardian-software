@@ -92,7 +92,7 @@ public class AudioCaptureWavRecorder {
 	 * 
 	 */
 	public AudioCaptureWavRecorder(boolean isUncompressed, int audioSource, int sampleRate, int channelConfig, int audioFormat) throws Exception {
-		
+
 		isRecordingUncompressed = isUncompressed;
 		if (isRecordingUncompressed) { // RECORDING_UNCOMPRESSED
 			
@@ -304,7 +304,7 @@ public class AudioCaptureWavRecorder {
 
 			captureFilePayloadSizeInBytes = 0;
 			audioRecorder.startRecording();
-			audioRecorder.read(uncompressedOutputBuffer, 0, uncompressedOutputBuffer.length);
+//			audioRecorder.read(uncompressedOutputBuffer, 0, uncompressedOutputBuffer.length);
 			recorderState = State.RECORDING;
 			
 		} else {

@@ -25,6 +25,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import org.rfcx.guardian.guardian.api.ApiAssetExchangeLogDb;
@@ -95,6 +96,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
 
+    public PowerManager.WakeLock wakelock;
+
     public String[] RfcxCoreServices =
             new String[]{
                     "AudioCapture",
@@ -107,6 +110,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void onCreate() {
 
         super.onCreate();
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getCanonicalName());
+        wakelock.acquire();
 
         this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
@@ -140,6 +147,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void onTerminate() {
         super.onTerminate();
 
+        wakelock.release();
         this.unregisterReceiver(connectivityReceiver);
     }
 
@@ -154,6 +162,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void startAllServices() {
         if (isRequirementPassed()) {
             if(!getRecordingState()){
+                Log.d(logTag,"start");
                 initializeRoleServices();
             }
         } else {
