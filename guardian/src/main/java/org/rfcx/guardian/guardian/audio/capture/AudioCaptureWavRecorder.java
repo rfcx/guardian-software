@@ -304,7 +304,6 @@ public class AudioCaptureWavRecorder {
 
 			captureFilePayloadSizeInBytes = 0;
 			audioRecorder.startRecording();
-//			audioRecorder.read(uncompressedOutputBuffer, 0, uncompressedOutputBuffer.length);
 			recorderState = State.RECORDING;
 			
 		} else {

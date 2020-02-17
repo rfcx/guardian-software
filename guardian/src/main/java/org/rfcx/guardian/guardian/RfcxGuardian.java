@@ -111,10 +111,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         super.onCreate();
 
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getCanonicalName());
-        wakelock.acquire();
-
         this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
         this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
@@ -147,7 +143,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void onTerminate() {
         super.onTerminate();
 
-        wakelock.release();
         this.unregisterReceiver(connectivityReceiver);
     }
 
@@ -162,7 +157,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void startAllServices() {
         if (isRequirementPassed()) {
             if(!getRecordingState()){
-                Log.d(logTag,"start");
                 initializeRoleServices();
             }
         } else {
