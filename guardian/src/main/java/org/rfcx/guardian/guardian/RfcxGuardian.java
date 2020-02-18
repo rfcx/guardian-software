@@ -25,6 +25,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import org.rfcx.guardian.guardian.api.ApiAssetExchangeLogDb;
@@ -94,6 +95,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public DeviceMobilePhone deviceMobilePhone = null;
 
     public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
+
+    public PowerManager.WakeLock wakelock;
 
     public String[] RfcxCoreServices =
             new String[]{
