@@ -1,22 +1,19 @@
 package org.rfcx.guardian.guardian.activity
 
-import android.util.Log
-import org.rfcx.guardian.guardian.R
-import org.rfcx.guardian.utility.rfcx.RfcxLog
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import com.google.android.gms.security.ProviderInstaller
 import kotlinx.android.synthetic.main.activity_home.*
+import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.ApiInterface
 import org.rfcx.guardian.guardian.api.RegisterApi
@@ -25,8 +22,10 @@ import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
+import org.rfcx.guardian.guardian.manager.isLoginExpired
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.utility.datetime.DateTimeUtils
+import org.rfcx.guardian.utility.rfcx.RfcxLog
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -251,7 +250,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUIByLoginState() {
-        if (this.getTokenID() == null) {
+        if (this.isLoginExpired()) {
             loginButton.visibility = View.VISIBLE
             loginInfo.visibility = View.INVISIBLE
             start_stop_button.visibility = View.INVISIBLE

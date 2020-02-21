@@ -1,22 +1,17 @@
 package org.rfcx.guardian.guardian.activity
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.StrictMode
-import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Toast
 import com.auth0.android.result.Credentials
 import kotlinx.android.synthetic.main.activity_login_webview.*
@@ -114,7 +109,7 @@ class LoginWebViewActivity : AppCompatActivity(){
                 val response = JSONObject(postResponse)
                 val idToken = response.getString("id_token")
                 val accessToken = response.getString("access_token")
-                val credentials = Credentials(idToken, accessToken,null, null, null)
+                val credentials = Credentials(idToken, accessToken,null, null, 86400000)
                 val result = CredentialVerifier(this).verify(credentials)
                 when(result){
                     is Err -> {
