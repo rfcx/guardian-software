@@ -13,13 +13,12 @@ class RegisterApi {
 
     fun registerGuardian(context: Context, guardianInfo: RegisterRequest, callback: RegisterCallback) {
         val token = context.getTokenID()
-        Log.d("token", token)
         if (token == null) {
             callback.onFailed(TokenExpireException(context), null)
             return
         }
 
-        val apiService = ApiInterface.create()
+        val apiService = ApiInterface.create(context)
         apiService.register("Bearer $token", guardianInfo)
             .enqueue(object : Callback<RegisterResponse> {
                 override fun onFailure(call: Call<RegisterResponse>, t: Throwable) {

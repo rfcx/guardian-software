@@ -15,6 +15,11 @@
 		<item>flac</item>
 	</string-array>
 
+	<string-array name="http_or_https">
+		<item>http</item>
+		<item>https</item>
+	</string-array>
+
     <string-array name="tcp_or_tls">
 		<item>tcp</item>
 		<item>tls</item>

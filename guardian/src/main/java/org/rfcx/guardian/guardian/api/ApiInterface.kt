@@ -1,7 +1,9 @@
 package org.rfcx.guardian.guardian.api
 
+import android.content.Context
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.entity.GuardianResponse
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.entity.RegisterResponse
@@ -20,23 +22,32 @@ interface ApiInterface {
                           @Path("guid") guid: String): Call<GuardianResponse>
 
     companion object {
-            private const val BASE_URL = "https://api.rfcx.org/"
-        fun create(): ApiInterface {
+        fun create(context: Context): ApiInterface {
             val retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(baseUrl(context))
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(createClient())
                 .build()
             return retrofit.create(ApiInterface::class.java)
         }
 
-        fun createClient(): OkHttpClient{
+        private fun createClient(): OkHttpClient {
             val httpLoggingInterceptor = HttpLoggingInterceptor()
             httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 
             return OkHttpClient.Builder()
                 .addInterceptor(httpLoggingInterceptor)
                 .build()
+        }
+
+        private fun baseUrl(context: Context): String {
+            val prefs = (context.getApplicationContext() as RfcxGuardian).rfcxPrefs
+            val protocol = prefs.getPrefAsString("api_protocol")
+            val host = prefs.getPrefAsString("api_host")
+            if (protocol != null && host != null) {
+                return "${protocol}://${host}/"
+            }
+            return "https://api.rfcx.org/"
         }
     }
 }
