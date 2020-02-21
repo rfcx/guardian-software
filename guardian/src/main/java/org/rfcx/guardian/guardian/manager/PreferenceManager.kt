@@ -29,11 +29,6 @@ class PreferenceManager(context: Context){
         const val ROLES = "${PREFIX}ROLES"
         const val ACCESSIBLE_SITES = "${PREFIX}ACCESSIBLE_SITES"
         const val DEFAULT_SITE = "${PREFIX}SITE"
-        const val HAS_SUBSCRIBED_TO_SELECTED_GUARDIAN_GROUP = "${PREFIX}HAS_SUBSCRIBED_TO_DEFAULT_SITE"
-        const val SHOULD_RECEIVE_EVENT_NOTIFICATIONS = "${PREFIX}SHOULD_RECEIVE_EVENT_NOTIFICATIONS"
-        const val SELECTED_GUARDIAN_GROUP = "${PREFIX}SELECTED_GUARDIAN_GROUP"
-        const val GUARDIAN_GROUPS_LAST_UPDATED = "${PREFIX}GUARDIAN_GROUPS_LAST_UPDATED"
-        const val ENABLE_LOCATION_TRACKING = "${PREFIX}ENABLE_LOCATION_TRACKING"
     }
 
     init {
@@ -59,15 +54,6 @@ class PreferenceManager(context: Context){
     fun putString(key: String, value: String) {
         sharedPreferences.edit().putString(key, value).apply()
     }
-
-//    fun <E> getObject(key: String, objClass: Class<E>): E? {
-//        val objectJson = sharedPreferences.getString(key, null) ?: return null
-//        return GsonProvider.getInstance().gson.fromJson(objectJson, objClass)
-//    }
-
-//    fun putObject(key: String, value: Any) {
-//        sharedPreferences.edit().putString(key, GsonProvider.getInstance().gson.toJson(value)).apply()
-//    }
 
     fun getDate(key: String): Date? {
         val secondsSinceEpoch = sharedPreferences.getLong(key, 0L)
