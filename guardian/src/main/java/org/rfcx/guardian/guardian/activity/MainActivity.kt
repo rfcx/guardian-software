@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                             RegisterRequest(guid, token),
                             object : RegisterApi.RegisterCallback {
                                 override fun onSuccess() {
-                                    ApiInterface.create().isGuardianExisted("Bearer ${getTokenID()}", guid)
+                                    ApiInterface.create(baseContext).isGuardianExisted("Bearer ${getTokenID()}", guid)
                                         .enqueue(object :
                                             Callback<GuardianResponse> {
                                             override fun onFailure(
