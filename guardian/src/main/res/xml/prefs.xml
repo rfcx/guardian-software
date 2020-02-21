@@ -19,7 +19,7 @@
 			android:entryValues="@array/true_or_false"
 			android:defaultValue="true" />
 
-    	<ListPreference
+	<ListPreference
 		android:key="enable_audio_capture"
 		android:title="enable_audio_capture"
 		android:dialogTitle="enable_audio_capture"
@@ -28,7 +28,7 @@
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="true" />
 
-    	<ListPreference
+	<ListPreference
 		android:key="enable_checkin_publish"
 		android:title="enable_checkin_publish"
 		android:dialogTitle="enable_checkin_publish"
@@ -54,11 +54,27 @@
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="true" />
-    
+
+	<EditTextPreference
+			android:key="api_host"
+			android:title="api_host"
+			android:summary="string - api address"
+			android:enabled="true"
+			android:defaultValue="api.rfcx.org" />
+
+	<ListPreference
+			android:key="api_protocol"
+			android:title="api_protocol"
+			android:dialogTitle="api_protocol"
+			android:summary="string - api protocol"
+			android:entries="@array/http_or_https"
+			android:entryValues="@array/http_or_https"
+			android:defaultValue="https" />
+
  	<EditTextPreference
         android:key="api_checkin_host"
         android:title="api_checkin_host"
-        android:summary="string - api address"
+        android:summary="string - checkin api address (mqtt)"
         android:enabled="true"
         android:defaultValue="checkin.rfcx.org" />
  	
@@ -66,7 +82,7 @@
 		android:key="api_checkin_protocol"
 		android:title="api_checkin_protocol"
 		android:dialogTitle="api_checkin_protocol"
-        android:summary="string - api protocol"
+        android:summary="string - checkin api protocol (mqtt)"
 		android:entries="@array/tcp_or_tls"
 		android:entryValues="@array/tcp_or_tls"
 		android:defaultValue="tcp" />
@@ -74,7 +90,7 @@
  	<EditTextPreference
         android:key="api_checkin_port"
         android:title="api_checkin_port"
-        android:summary="string - api port"
+        android:summary="string - checkin api port (mqtt)"
         android:enabled="true"
         android:defaultValue="1883" />
  	
