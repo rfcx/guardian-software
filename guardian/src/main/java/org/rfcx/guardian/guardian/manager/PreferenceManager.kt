@@ -29,7 +29,7 @@ class PreferenceManager(context: Context){
         const val ROLES = "${PREFIX}ROLES"
         const val ACCESSIBLE_SITES = "${PREFIX}ACCESSIBLE_SITES"
         const val DEFAULT_SITE = "${PREFIX}SITE"
-        const val EXPIRED_AT = "${PREFIX}EXPIRED_AT"
+        const val TOKEN_EXPIRED_AT = "${PREFIX}EXPIRED_AT"
     }
 
     init {
@@ -93,7 +93,7 @@ class PreferenceManager(context: Context){
     }
 
     fun isTokenExpired(): Boolean{
-        return System.currentTimeMillis() > getLong(EXPIRED_AT, 0L)
+        return System.currentTimeMillis() > getLong(TOKEN_EXPIRED_AT, 0L)
     }
 
 }
