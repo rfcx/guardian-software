@@ -41,7 +41,7 @@ import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
     private var getInfoThread: Thread? = null
-    private lateinit var phoneNumberRegisterDeliverReceiver: BroadcastReceiver
+    private lateinit var phoneNumberRegisterDeliverReceiver: PhoneNumberRegisterDeliverReceiver
     private lateinit var phoneNumberRegisterSentReceiver: PhoneNumberRegisterSentReceiver
     private lateinit var app: RfcxGuardian
 
