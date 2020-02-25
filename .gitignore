@@ -1,41 +1,14 @@
-# OSX Files
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
 .DS_Store
-.sync
-
-# built application files
-*.apk
-*.ap_
-
-# key store files
-*.jks
-
-# files for the dex VM
-*.dex
-
-# Java class files
-*.class
-
-# generated files
-bin/
-gen/
-
-# Local configuration file (sdk path, etc)
-local.properties
-build.xml
-proguard-project.txt
-
-# Eclipse project files
-.classpath
-
-# Repo-specific items to ignore
-!/bin/
-/tmp/
-/bin/_private/
-/bin/_sdk/
-
-# NDK built files to ignore
-rfcx-guardian-lib-audio/libs/
-rfcx-guardian-lib-audio/obj/
-
-rfcx-guardian-lib-i2c/libs/
-rfcx-guardian-lib-i2c/obj/
+/build
+/captures
+.externalNativeBuild
+audio/obj
