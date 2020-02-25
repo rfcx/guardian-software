@@ -1,22 +1,21 @@
 package org.rfcx.guardian.guardian.activity
 
-import android.util.Log
-import org.rfcx.guardian.guardian.R
-import org.rfcx.guardian.utility.rfcx.RfcxLog
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import com.google.android.gms.security.ProviderInstaller
 import kotlinx.android.synthetic.main.activity_home.*
+import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.ApiInterface
 import org.rfcx.guardian.guardian.api.RegisterApi
@@ -25,8 +24,14 @@ import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
+import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterDeliverReceiver
+import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterSentReceiver
+import org.rfcx.guardian.guardian.receiver.SmsDeliverListener
+import org.rfcx.guardian.guardian.receiver.SmsSentListener
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
+import org.rfcx.guardian.guardian.utils.PhoneNumberRegisterUtils
 import org.rfcx.guardian.utility.datetime.DateTimeUtils
+import org.rfcx.guardian.utility.rfcx.RfcxLog
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -36,15 +41,18 @@ import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
     private var getInfoThread: Thread? = null
+    private lateinit var phoneNumberRegisterDeliverReceiver: PhoneNumberRegisterDeliverReceiver
+    private lateinit var phoneNumberRegisterSentReceiver: PhoneNumberRegisterSentReceiver
+    private lateinit var app: RfcxGuardian
 
     override fun onResume() {
         super.onResume()
 
-        val app = application as RfcxGuardian
         setVisibilityByPrefs(app)
         setUIByLoginState()
         setUIByGuidState(app)
         startServices()
+        phoneRegisterSetup()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -67,15 +75,14 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolBarInit()
 
-        val app = application as RfcxGuardian
+        app = application as RfcxGuardian
+
         Log.d("gps", app.isLocationEnabled.toString())
         startButton.setOnClickListener {
             if (!isGuidExisted()) {
-                Toast.makeText(this, "Please register this guardian first", Toast.LENGTH_LONG)
-                    .show()
+                showToast("Please register this guardian first")
             } else if (!app.isLocationEnabled) {
-                Toast.makeText(this, "Please enable gps location", Toast.LENGTH_LONG)
-                    .show()
+                showToast("Please enable gps location")
             } else {
                 app.initializeRoleServices()
                 setUIFromBtnClicked("start")
@@ -103,21 +110,22 @@ class MainActivity : AppCompatActivity() {
                             RegisterRequest(guid, token),
                             object : RegisterApi.RegisterCallback {
                                 override fun onSuccess() {
-                                    ApiInterface.create(baseContext).isGuardianExisted("Bearer ${getTokenID()}", guid)
+                                    ApiInterface.create(baseContext)
+                                        .isGuardianExisted("Bearer ${getTokenID()}", guid)
                                         .enqueue(object :
                                             Callback<GuardianResponse> {
                                             override fun onFailure(
                                                 call: Call<GuardianResponse>,
                                                 t: Throwable
                                             ) {
-                                                Toast.makeText(applicationContext, "Try again later", Toast.LENGTH_LONG).show()
+                                                showToast("Try again later")
                                             }
 
                                             override fun onResponse(
                                                 call: Call<GuardianResponse>,
                                                 response: Response<GuardianResponse>
                                             ) {
-                                                if(response.isSuccessful){
+                                                if (response.isSuccessful) {
                                                     createRegisterFile(app)
                                                     setUIByRecordingState(app)
                                                     setUIByGuidState(app)
@@ -126,8 +134,8 @@ class MainActivity : AppCompatActivity() {
                                                     app.startAllServices()
                                                     setUIFromBtnClicked("start")
                                                     getCheckinInformation(app)
-                                                }else{
-                                                    Toast.makeText(applicationContext, "Try again later", Toast.LENGTH_LONG).show()
+                                                } else {
+                                                    showToast("Try again later")
                                                 }
                                             }
                                         })
@@ -135,8 +143,7 @@ class MainActivity : AppCompatActivity() {
 
                                 override fun onFailed(t: Throwable?, message: String?) {
                                     setVisibilityRegisterFailed()
-                                    Toast.makeText(applicationContext, message, Toast.LENGTH_LONG)
-                                        .show()
+                                    showToast(message ?: "register failed")
                                     Log.d("register_failed", t.toString())
                                 }
 
@@ -147,12 +154,12 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             } else {
-                Toast.makeText(
-                    this,
-                    "There is not internet connection. Please turn it on.",
-                    Toast.LENGTH_LONG
-                ).show()
+                showToast("There is not internet connection. Please turn it on.")
             }
+        }
+
+        phoneNumRegisterButton.setOnClickListener {
+            PhoneNumberRegisterUtils.sendSMS(this)
         }
 
         loginButton.setOnClickListener {
@@ -180,8 +187,44 @@ class MainActivity : AppCompatActivity() {
         toolbar?.title = "Guardian"
     }
 
+
+    private fun phoneRegisterSetup() {
+        phoneNumberRegisterDeliverReceiver =
+            PhoneNumberRegisterDeliverReceiver(object : SmsDeliverListener {
+                override fun onDelivered(isSuccess: Boolean) {
+                    if (isSuccess) {
+                        showPhoneRegisterStatus()
+                        PreferenceManager.getInstance(applicationContext).putBoolean("PHONE_REGISTER", true)
+                        showToast("registered success")
+                    } else {
+                        showToast("please try again")
+                    }
+                }
+            })
+
+        phoneNumberRegisterSentReceiver = PhoneNumberRegisterSentReceiver(object : SmsSentListener {
+            override fun onSent(message: String) {
+                showToast(message)
+            }
+        })
+
+        if (PreferenceManager.getInstance(applicationContext).getBoolean("PHONE_REGISTER", false)) {
+            showPhoneRegisterStatus()
+        }
+        registerReceiver(phoneNumberRegisterDeliverReceiver, IntentFilter("SMS_DELIVERED"))
+        registerReceiver(phoneNumberRegisterSentReceiver, IntentFilter("SMS_SENT"))
+    }
+
+    private fun showPhoneRegisterStatus() {
+        phoneNumRegisterButton.visibility = View.GONE
+        phoneNumRegisterStatusTextView.visibility = View.VISIBLE
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+    }
+
     private fun startServices() {
-        val app = application as RfcxGuardian
         Handler().postDelayed({
             app.startAllServices()
             setUIByRecordingState(app)
@@ -389,6 +432,8 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         getInfoThread?.interrupt()
+        unregisterReceiver(phoneNumberRegisterDeliverReceiver)
+        unregisterReceiver(phoneNumberRegisterSentReceiver)
     }
 
     companion object {
