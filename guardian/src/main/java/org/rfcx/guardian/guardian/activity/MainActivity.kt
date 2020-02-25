@@ -15,6 +15,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home.*
+import org.rfcx.guardian.guardian.BuildConfig
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.ApiInterface
@@ -74,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setSupportActionBar(toolbar)
-        toolBarInit()
+        initUI()
 
         app = application as RfcxGuardian
 
@@ -183,12 +184,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun initUI(){
+        toolBarInit()
+        setAppVersion()
+    }
+
     private fun toolBarInit() {
         val toolbar = supportActionBar
         toolbar?.title = "Guardian"
     }
 
-
+    private fun setAppVersion() {
+        val versionName = BuildConfig.VERSION_NAME
+        appVersionText.text = "version: $versionName"
+    }
+  
     private fun phoneRegisterSetup() {
         phoneNumberRegisterDeliverReceiver =
             PhoneNumberRegisterDeliverReceiver(object : SmsDeliverListener {
@@ -265,16 +275,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setVisibilityByPrefs(app: RfcxGuardian) {
         if (app.rfcxPrefs.getPrefAsString("show_ui") == "false") {
-            register_group.visibility = View.INVISIBLE
-            start_stop_group.visibility = View.INVISIBLE
-            login_group.visibility = View.INVISIBLE
-            start_stop_button.visibility = View.INVISIBLE
+            rootView.visibility = View.INVISIBLE
         } else {
-            register_group.visibility = View.VISIBLE
-            start_stop_group.visibility = View.VISIBLE
-            login_group.visibility = View.VISIBLE
-            start_stop_button.visibility = View.VISIBLE
-
+            rootView.visibility = View.VISIBLE
         }
     }
 
@@ -323,6 +326,7 @@ class MainActivity : AppCompatActivity() {
             i2cSwitch.isChecked =
                 app.sharedPrefs.getString("checkin_with_i2c_battery", "false") == "true"
             setPermissionStatus(app)
+            appVersionText.visibility = View.VISIBLE
         } else {
             start_stop_group.visibility = View.INVISIBLE
             registerButton.visibility = View.VISIBLE
@@ -330,6 +334,7 @@ class MainActivity : AppCompatActivity() {
             registerInfo.visibility = View.INVISIBLE
             switchView.visibility = View.INVISIBLE
             permissionInfoLayout.visibility = View.INVISIBLE
+            appVersionText.visibility = View.INVISIBLE
         }
     }
 
