@@ -147,6 +147,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="" />
+                  
                 </LinearLayout>
             </LinearLayout>
 
@@ -218,32 +219,6 @@
                     app:layout_constraintTop_toBottomOf="@id/gpsStatusTextView" />
         </android.support.constraint.ConstraintLayout>
 
-        <LinearLayout
-                android:id="@+id/switchView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_padding_normal"
-                android:layout_marginTop="@dimen/margin_padding_small"
-                android:orientation="vertical"
-                android:visibility="invisible"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/start_stop_group">
-
-            <Switch
-                    android:id="@+id/i2cSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Checkin with i2c data   " />
-
-            <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginStart="@dimen/margin_padding_normal"
-                    android:layout_marginTop="@dimen/margin_padding_small"
-                    android:background="@color/grey_light"
-                    app:layout_constraintTop_toBottomOf="@id/i2cSwitch" />
-        </LinearLayout>
-
         <TextView
                 android:id="@+id/appVersionText"
                 android:layout_width="wrap_content"
@@ -253,6 +228,81 @@
                 app:layout_constraintTop_toBottomOf="@id/switchView"
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:text="1.0.0" />
+        <TextView
+                android:id="@+id/phoneNumRegisterTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone number registration: "
+                android:textColor="@color/text_black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/gpsPermissionTextView" />
+
+        <Button
+                android:id="@+id/phoneNumRegisterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:minHeight="0dp"
+                android:text="register"
+                android:textColor="@color/text_white"
+                android:textSize="12sp"
+                android:padding="3dp"
+                app:layout_constraintBottom_toBottomOf="@id/phoneNumRegisterTextView"
+                app:layout_constraintStart_toEndOf="@id/phoneNumRegisterTextView"
+                app:layout_constraintTop_toTopOf="@id/phoneNumRegisterTextView" />
+
+        <TextView
+                android:id="@+id/phoneNumRegisterStatusTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="registered"
+                android:textColor="@color/primary"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/phoneNumRegisterTextView"
+                app:layout_constraintStart_toEndOf="@id/phoneNumRegisterTextView"
+                app:layout_constraintTop_toTopOf="@id/phoneNumRegisterTextView" />
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/margin_padding_normal"
+                android:layout_marginTop="@dimen/margin_padding_small"
+                android:background="@color/grey_light"
+                app:layout_constraintTop_toBottomOf="@id/phoneNumRegisterTextView" />
+    </android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+            android:id="@+id/switchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_padding_normal"
+            android:layout_marginTop="@dimen/margin_padding_small"
+            android:orientation="vertical"
+            android:visibility="invisible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/start_stop_group">
+
+        <Switch
+                android:id="@+id/i2cSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Checkin with i2c data   " />
+
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="@dimen/margin_padding_normal"
+                android:layout_marginTop="@dimen/margin_padding_small"
+                android:background="@color/grey_light"
+                app:layout_constraintTop_toBottomOf="@id/i2cSwitch" />
+    </LinearLayout>
+
+    <android.support.constraint.ConstraintLayout
+            android:id="@+id/login_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
                 android:id="@+id/loginButton"
@@ -327,5 +377,17 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
+
+    <ProgressBar
+            android:id="@+id/registerProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_padding_large"
+            android:theme="@style/AppTheme.LoadingProgress"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

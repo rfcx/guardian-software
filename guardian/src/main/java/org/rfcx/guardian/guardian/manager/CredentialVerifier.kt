@@ -65,7 +65,8 @@ class CredentialVerifier(val context: Context) {
                     return Err("You don't have guardianCreator permission")
                 }
                 else -> {
-                    return Ok(UserAuthResponse(guid, email, nickname, token, credentials.accessToken, credentials.refreshToken, roles, accessibleSites, defaultSite))
+                    val expireAt = credentials.expiresIn!! + System.currentTimeMillis()
+                    return Ok(UserAuthResponse(guid, email, nickname, token, credentials.accessToken, credentials.refreshToken, roles, accessibleSites, defaultSite, expireAt))
                 }
             }
         } catch (e: Exception) {
