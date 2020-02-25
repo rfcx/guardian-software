@@ -24,6 +24,7 @@ import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
+import org.rfcx.guardian.guardian.manager.isLoginExpired
 import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterDeliverReceiver
 import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterSentReceiver
 import org.rfcx.guardian.guardian.receiver.SmsDeliverListener
@@ -294,7 +295,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUIByLoginState() {
-        if (this.getTokenID() == null) {
+        if (this.isLoginExpired()) {
             loginButton.visibility = View.VISIBLE
             loginInfo.visibility = View.INVISIBLE
             start_stop_button.visibility = View.INVISIBLE
