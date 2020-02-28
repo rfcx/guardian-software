@@ -10,13 +10,8 @@ public class DeviceRoot {
         if(buildTags != null && buildTags.contains("test-keys")) {
             return true;
         } else {
-            File file = new File("/system/app/Superuser.apk");
-            if(file.exists()) {
-                return true;
-            } else {
-                file = new File("/system/xbin/su");
-                return file.exists();
-            }
+            File file = new File("/system/app/KingoUser.apk");
+            return file.exists();
         }
     }
 }
