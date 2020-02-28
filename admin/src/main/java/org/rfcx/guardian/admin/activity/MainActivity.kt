@@ -89,7 +89,9 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onPause() {
         super.onPause()
-        monitorTimer.cancel()
+        if(::monitorTimer.isInitialized){
+            monitorTimer.cancel()
+        }
         (application as RfcxGuardian).appPause()
     }
 

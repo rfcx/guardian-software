@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin;
 
+import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -86,6 +87,7 @@ public class RfcxGuardian extends Application {
 		ShellCommands.triggerNeedForRootAccess(this);
 		DeviceI2cUtils.resetI2cPermissions(this);
 		DateTimeUtils.resetDateTimeReadWritePermissions(this);
+		DeviceBluetooth.setOn();
 		
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		
@@ -95,7 +97,7 @@ public class RfcxGuardian extends Application {
 		if (DeviceHardware_Huawei_U8150.isDevice_Huawei_U8150()) {
 			DeviceHardware_Huawei_U8150.checkOrResetGPSFunctionality(this);
 		}
-		
+
 	}
 	
 	public void onTerminate() {
