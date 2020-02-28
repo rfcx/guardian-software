@@ -755,19 +755,19 @@ public class ApiCheckInUtils implements MqttCallback {
 							(long) Long.parseLong(this.latestCheckInAudioId), fileExtension);
 				}
 			} else if (assetType.equals("screenshot")) {
-				RfcxComm.deleteQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_delete_row", "screenshots|" + assetId,
+				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePath = DeviceScreenShot.getScreenShotFileLocation_Complete(rfcxDeviceId, context,
 						(long) Long.parseLong(assetId));
 
 			} else if (assetType.equals("log")) {
-				RfcxComm.deleteQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_delete_row", "logs|" + assetId,
+				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePath = DeviceLogCat.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context,
 						(long) Long.parseLong(assetId));
 
 			} else if (assetType.equals("sms")) {
-				RfcxComm.deleteQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_delete_row", "sms|" + assetId,
+				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,
 						app.getApplicationContext().getContentResolver());
 
 			} else if (assetType.equals("meta")) {
@@ -876,7 +876,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (instrType.equalsIgnoreCase("message_send")) {
 				String msgAddress = instrMeta.getString("address");
 				String msgBody = instrMeta.getString("body");
-				RfcxComm.getQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "sms_send", msgAddress + "|" + msgBody, app.getApplicationContext().getContentResolver());
+				RfcxComm.getQueryContentProvider("admin", "sms_send", msgAddress + "|" + msgBody, app.getApplicationContext().getContentResolver());
 				Log.i(logTag, logMsg + msgAddress + " | " + msgBody);
 			}
 
