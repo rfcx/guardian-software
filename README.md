@@ -36,7 +36,7 @@ You will need a rooted phone to test the admin role. It will run without a roote
 
 ## Instructions for Orange Pi 3G-IoT
 
-Before, starting any instructions here. Please read the information below and do it properly.
+Before getting started, key points to be familiar with:
 
 1. On the Orange Pi board there are two LEDs, red and green. **Red** indicates the **power** is connected and **green** indicates that the device is **ON**. Make sure that the power that connected to the Orange Pi is **5V**. If not the LEDs brightness will be low and cannot start the operating system.
 2. By default the Orange Pi comes with both COM 1 jumpers in the correct position. No need to ever change them it seems. COM 2 jumper should be ON only when flashing the device (the rest of the time it should be OFF/removed).
@@ -56,7 +56,7 @@ Before, starting any instructions here. Please read the information below and do
 
 ### Step 1: Flash Android on Orange Pi (from Windows)
 
-1. Make sure COM 2 jumper is ON.
+1. Make sure COM 2 jumper is ON. (Note: in practice we found that the jumper can be OFF for the flashing process.)
 1. You need to download and install these tools
     1. [MTK Driver Installer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!rGhSzJBL).
        Choose WIN8 if you are using Windows 8 or above.
@@ -100,9 +100,11 @@ Before following the instruction below. You need to download Vysor first.
 
 ### Step 3: Set the IMEI number
 
+Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IMEIs](https://docs.google.com/spreadsheets/d/1oQzsJxQ8KqGP7VJJja-v7-JlHIYqI_mnqq2bFSlDRSw/edit#gid=0).
+
 1. Make sure that COM 2 jumper is OFF (removed).
 2. First download [IMEI Writer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!fCJmCTAY) (for Windows)
-3. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
+3. Extract and open **SN Writer** in **SN_Writer_Tool_exe_v1.1716.00** directory
 4. Choose **USB VCOM** and **Smart Phone**
 5. Open System Config
     1. In **Write Option** choose **IMEI**
@@ -113,7 +115,7 @@ Before following the instruction below. You need to download Vysor first.
     6. Save and then Start
     7. Put the IMEI Number with 15 digit
 6. Make sure that Orange Pi do not connect to PC.
-7. Click OK and then connect Orange Pi to PC immediately.
+7. Click OK and then connect Orange Pi to PC immediately (be quick else the device will not be detected in time and you will have to disconnect/start again).
 8. In Vysor, go to Settings -> About Phone -> Status and scroll down to verify that IMEI number you entered during the flashing process is shown there. (If there is an error then repeat step 5).
 
    ![](docs/images/checkimei.png?raw=true)
@@ -121,7 +123,7 @@ Before following the instruction below. You need to download Vysor first.
 ### Step 4: Root the Orange Pi
 
 1. First, you need to download [KingoRoot app](https://www.kingoapp.com/android-root/download.htm) (for Windows)
-2. Before rooting your Orange Pi, make sure that it is connected to your PC and USB debugging is on.
+2. Before rooting your Orange Pi, make sure that it is connected to your PC and USB debugging is on (by default it is on).
 3. Start KingoRoot app. *(If it detects Orange Pi, it will show the **ROOT** button)*
 4. Press the root button to start the rooting process. You can look the progression on the KingoRoot or on your Orange Pi's screen *(through Vysor)*
 6. After the rooting process is success, your Orange Pi's screen will show the SuperUser app *(automatically installed)* with "Rooted" green text.
