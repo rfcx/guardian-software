@@ -7,12 +7,11 @@ import java.io.File;
 public class DeviceRoot {
     public static boolean isRooted() {
         String buildTags = Build.TAGS;
-        if(buildTags != null && buildTags.contains("test-keys")) {
+        if (buildTags != null && buildTags.contains("test-keys")) {
             return true;
-        } else {
-            File file = new File("/system/app/KingoUser.apk");
-            return file.exists();
         }
+        File file = new File("/system/app/KingoUser.apk");
+        return file.exists();
     }
 }
 
