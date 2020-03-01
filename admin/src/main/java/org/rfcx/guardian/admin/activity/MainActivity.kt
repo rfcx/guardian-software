@@ -19,39 +19,39 @@ import kotlinx.android.synthetic.main.activity_home.*
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-
+    
     private lateinit var monitorTimer: Timer
     private var isConnected: Boolean = false
-
+    
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.activity_home, menu)
         return true
     }
-
+    
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val app = application as RfcxGuardian
         when (item.itemId) {
-
+            
             R.id.menu_reboot -> app.rfcxServiceHandler.triggerService("RebootTrigger", true)
-
+            
             R.id.menu_relaunch -> app.rfcxServiceHandler.triggerIntentServiceImmediately("ForceRoleRelaunch")
-
+            
             R.id.menu_screenshot -> app.rfcxServiceHandler.triggerService("ScreenShotCapture", true)
-
+            
             R.id.menu_sntp -> app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true)
-
+            
             R.id.menu_logcat -> app.rfcxServiceHandler.triggerService("LogCatCapture", true)
         }
         return true
     }
-
+    
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setSupportActionBar(toolbar)
         val app = application as RfcxGuardian
     }
-
+    
     public override fun onResume() {
         super.onResume()
         val app = application as RfcxGuardian
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
+    
     public override fun onPause() {
         super.onPause()
         if (::monitorTimer.isInitialized) {
@@ -94,9 +94,9 @@ class MainActivity : AppCompatActivity() {
         }
         (application as RfcxGuardian).appPause()
     }
-
+    
     override fun onDestroy() {
         super.onDestroy()
     }
-
+    
 }
