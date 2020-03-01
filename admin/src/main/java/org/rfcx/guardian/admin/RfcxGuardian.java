@@ -43,8 +43,8 @@ public class RfcxGuardian extends Application {
 	public static final String APP_ROLE = "Admin";
 
 	private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, RfcxGuardian.class);
-    
-    public RfcxDeviceGuid rfcxDeviceGuid = null;
+
+	public RfcxDeviceGuid rfcxDeviceGuid = null; 
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
 	
@@ -60,9 +60,9 @@ public class RfcxGuardian extends Application {
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
-    
-    public String[] RfcxCoreServices =
-            new String[]{
+	
+	public String[] RfcxCoreServices = 
+			new String[] { 
 				"DeviceSentinel"
 			};
 	
@@ -87,7 +87,7 @@ public class RfcxGuardian extends Application {
 		ShellCommands.triggerNeedForRootAccess(this);
 		DeviceI2cUtils.resetI2cPermissions(this);
 		DateTimeUtils.resetDateTimeReadWritePermissions(this);
-        turnOnBluetooth();
+		turnOnBluetooth();
 		
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		
@@ -112,14 +112,14 @@ public class RfcxGuardian extends Application {
 	}
 	
 	public void appPause() {
-    
-    }
-    
-    public void turnOnBluetooth() {
-        if (rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth")) {
-            DeviceBluetooth.setOn();
-        }
-    }
+		
+	}
+	
+	private void turnOnBluetooth() {
+		if(rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth")){
+			DeviceBluetooth.setOn();
+		}
+	}
 	
 	public void initializeRoleServices() {
 		
@@ -176,5 +176,5 @@ public class RfcxGuardian extends Application {
 		
 		
 	}
- 
+    
 }
