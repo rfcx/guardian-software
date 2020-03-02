@@ -4,8 +4,11 @@ import java.io.File;
 import java.util.Map;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Environment;
+
+import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
@@ -27,6 +30,8 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import org.rfcx.guardian.guardian.api.ApiAssetExchangeLogDb;
 import org.rfcx.guardian.guardian.api.ApiCheckInDb;
@@ -200,6 +205,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     }
 
     public Boolean isLocationEnabled () {
+        if (CheckAppPermissionUtils.INSTANCE.checkLocationPermission(getApplicationContext())) {
+            return false;
+        }
         LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }

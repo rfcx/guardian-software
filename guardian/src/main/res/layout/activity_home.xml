@@ -364,19 +364,19 @@
                         app:layout_constraintEnd_toEndOf="parent" />
             </android.support.constraint.ConstraintLayout>
 
-            <ProgressBar
-                    android:id="@+id/registerProgress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_padding_large"
-                    android:theme="@style/AppTheme.LoadingProgress"
-                    android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
         </android.support.constraint.ConstraintLayout>
+
+        <ProgressBar
+                android:id="@+id/registerProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_padding_large"
+                android:theme="@style/AppTheme.LoadingProgress"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
     </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

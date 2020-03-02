@@ -26,8 +26,8 @@ public class DeviceControlUtils {
 				Log.v(logTag, "Triggering '"+controlCommand+"' via content provider.");
 				Cursor deviceControlResponse = 
 						contentResolver.query(
-							RfcxComm.getUri("org.rfcx.org.rfcx.guardian.guardian.admin", "control", controlCommand),
-							RfcxComm.getProjection("org.rfcx.org.rfcx.guardian.guardian.admin", "control"),
+							RfcxComm.getUri("admin", "control", controlCommand),
+							RfcxComm.getProjection("admin", "control"),
 							null, null, null);
 				Log.v(logTag, deviceControlResponse.toString());
 				return true;

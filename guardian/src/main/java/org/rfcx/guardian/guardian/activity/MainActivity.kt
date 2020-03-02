@@ -30,6 +30,7 @@ import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterDeliverReceiver
 import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterSentReceiver
 import org.rfcx.guardian.guardian.receiver.SmsDeliverListener
 import org.rfcx.guardian.guardian.receiver.SmsSentListener
+import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.PhoneNumberRegisterUtils
 import org.rfcx.guardian.utility.datetime.DateTimeUtils
@@ -184,7 +185,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initUI(){
+    private fun initUI() {
         toolBarInit()
         setAppVersion()
     }
@@ -198,14 +199,15 @@ class MainActivity : AppCompatActivity() {
         val versionName = BuildConfig.VERSION_NAME
         appVersionText.text = "version: $versionName"
     }
-  
+
     private fun phoneRegisterSetup() {
         phoneNumberRegisterDeliverReceiver =
             PhoneNumberRegisterDeliverReceiver(object : SmsDeliverListener {
                 override fun onDelivered(isSuccess: Boolean) {
                     if (isSuccess) {
                         showPhoneRegisterStatus()
-                        PreferenceManager.getInstance(applicationContext).putBoolean("PHONE_REGISTER", true)
+                        PreferenceManager.getInstance(applicationContext)
+                            .putBoolean("PHONE_REGISTER", true)
                         showToast("registered success")
                     } else {
                         showToast("please try again")
