@@ -98,6 +98,8 @@ public class ApiCheckInUtils implements MqttCallback {
 	private static final int healthCheckMeasurementCount = 6;
 	private long[] healthCheckInitValues = new long[healthCheckMeasurementCount];
 
+	private static List<String> metaIdSent = new ArrayList<String>();
+
 	public boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
 		// serialize audio info into JSON for checkin queue insertion
@@ -288,7 +290,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			Date metaQueryTimestampObj = new Date();
 			long metaQueryTimestamp = metaQueryTimestampObj.getTime();
-
 			JSONArray metaIds = new JSONArray();
 			metaIds.put(metaQueryTimestamp);
 			metaDataJsonObj.put("meta_ids", metaIds);
@@ -310,11 +311,12 @@ public class ApiCheckInUtils implements MqttCallback {
 			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_latest_row",
 					"sentinel_power", app.getApplicationContext().getContentResolver());
 			metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPower));
-			if(app.sharedPrefs.getString("checkin_with_i2c_battery", "false").equals("true")){
-				metaDataJsonObj.put("battery", getConcatSentinelMetaForBattery(sentinelPower));
-			}else{
+//			if(app.sharedPrefs.getString("checkin_with_i2c_battery", "false").equals("true")){
+//				metaDataJsonObj.put("battery", getConcatSentinelMetaForBattery(sentinelPower));
+//			}else{
 				metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
-			}
+				Log.d(logTag, app.deviceSystemDb.dbBattery.getConcatRows());
+//			}
 			// Saves JSON snapshot blob to database
 			app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
 
@@ -468,6 +470,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 				// mark this row as accessed in the database
 				app.apiCheckInMetaDb.dbMeta.updateLastAccessedAtByTimestamp(metaRow[1]);
+				metaIdSent.add(metaRow[1]);
 
 				// if the bundle is already contains max number of snapshots, stop here
 				if (metaJsonBundledSnapshotsIds.length() >= maxRowsToBundle) { break; }
@@ -771,7 +774,15 @@ public class ApiCheckInUtils implements MqttCallback {
 						app.getApplicationContext().getContentResolver());
 
 			} else if (assetType.equals("meta")) {
-				app.apiCheckInMetaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
+//				app.apiCheckInMetaDb.dbMeta.deleteAllRows();
+                Log.d(logTag, metaIdSent.size()+"");
+                if (!metaIdSent.isEmpty()){
+                    for (String metaId: metaIdSent){
+                        app.apiCheckInMetaDb.dbMeta.deleteSingleRowByTimestamp(metaId);
+                        Log.d(logTag, "Delete meta_id: "+metaId);
+                    }
+                    metaIdSent = new ArrayList<String>();
+                }
 
 				// ONLY TESTING THE EXCHANGE LOG WITH META FOR THE MOMENT
 
@@ -973,13 +984,13 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 
 			// parse meta info and use it to purge the data locally
-			if (jsonObj.has("meta")) {
-				JSONArray metaJson = jsonObj.getJSONArray("meta");
-				for (int i = 0; i < metaJson.length(); i++) {
-					String metaId = metaJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("meta", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), metaId, null);
-				}
-			}
+//			if (jsonObj.has("meta")) {
+//				JSONArray metaJson = jsonObj.getJSONArray("meta");
+//				for (int i = 0; i < metaJson.length(); i++) {
+//					String metaId = metaJson.getJSONObject(i).getString("id");
+					purgeSingleAsset("meta", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), "", null);
+//				}
+//			}
 
 			// parse instruction info and execute
 			if (jsonObj.has("instructions")) {

@@ -188,9 +188,10 @@ public class DbUtils {
 	}
 	
 	public void deleteRowsOlderThan(String tableName, String dateColumn, Date olderThanDate) {
+	    Long olderThanExceptLatest = olderThanDate.getTime() - 600000;
 		SQLiteDatabase db = openDb();
 		try {
-			db.execSQL("DELETE FROM "+tableName+" WHERE "+dateColumn+"<="+olderThanDate.getTime());
+			db.execSQL("DELETE FROM "+tableName+" WHERE "+dateColumn+"<="+olderThanExceptLatest);
 		} catch (Exception e) { 
 			RfcxLog.logExc(logTag, e); 
 		} finally {
@@ -207,6 +208,17 @@ public class DbUtils {
 			}
 		} catch (Exception e) { 
 			RfcxLog.logExc(logTag, e); 
+		} finally {
+			closeDb();
+		}
+	}
+
+	public void deleteTopTenRows(String tableName) {
+		SQLiteDatabase db = openDb();
+		try {
+			db.execSQL("DELETE FROM "+tableName+" WHERE created_at IN (SELECT created_at FROM "+tableName+" LIMIT 10)");
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
 		} finally {
 			closeDb();
 		}

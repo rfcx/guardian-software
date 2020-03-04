@@ -89,6 +89,14 @@ public class ApiCheckInMetaDb {
 			return rightNow;
 		}
 
+		public void deleteAllRows() {
+			this.dbUtils.deleteAllRows(TABLE);
+		}
+
+		public void deleteTopTenRows() {
+			this.dbUtils.deleteTopTenRows(TABLE);
+		}
+
 	}
 	public final DbMeta dbMeta;
 	

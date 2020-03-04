@@ -135,7 +135,7 @@ public class ApiCheckInJobService extends Service {
 					// Putting this slight delay here between cycles does mitigate some check in preparation issues, 
 					//	...but it's definitely a lame hack...
 					// Hopefully we can improve this some time.
-					Thread.sleep(500);
+					Thread.sleep(1000);
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
