@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-    <string name="app_name">rfcx updater</string>
-    <string name="menu_check_version">api check</string>
+    <string name="app_name">rfcx reboot</string>
+    <string name="menu_reboot">reboot</string>
     <string name="menu_root_command">root command</string>
 </resources>
