@@ -176,7 +176,7 @@
         android:title="checkin_archive_threshold"
         android:summary="int - count"
         android:enabled="true"
-        android:defaultValue="240" />
+        android:defaultValue="160" />
  	
  	<!-- Admin Controls -->
  	
