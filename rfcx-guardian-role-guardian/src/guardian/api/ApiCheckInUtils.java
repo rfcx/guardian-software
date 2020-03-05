@@ -368,7 +368,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		if (assetStatus.equalsIgnoreCase("purged")) { 
 			
 			assetRows = app.apiAssetExchangeLogDb.dbPurged.getLatestRowsWithLimitExcludeCreatedAt(rowLimit);
-			for (String[] assetRow : assetRows) { app.apiAssetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(assetRow[2]); }
 		
 		}/* else if (assetStatus.equalsIgnoreCase("sent")) { 
 			
@@ -473,7 +472,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		// Recording number of currently queued/skipped/stashed checkins
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson());
 		
-//		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 10));
+		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 12));
 
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
@@ -749,8 +748,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			} else if (assetType.equals("meta")) {
 				app.apiCheckInMetaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
 				
-				// ONLY TESTING THE EXCHANGE LOG WITH META FOR THE MOMENT
-				
+				// ONLY USING THE EXCHANGE LOG WITH META FOR THE MOMENT
 				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 				
 			}
@@ -952,6 +950,18 @@ public class ApiCheckInUtils implements MqttCallback {
 				for (int i = 0; i < metaJson.length(); i++) {
 					String metaId = metaJson.getJSONObject(i).getString("id");
 					purgeSingleAsset("meta", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), metaId, null);
+				}
+			}
+			
+			// parse purge confirmation array and delete entries from asset exchange log
+			if (jsonObj.has("purged")) {
+				JSONArray purgedJson = jsonObj.getJSONArray("purged");
+				for (int i = 0; i < purgedJson.length(); i++) {
+					String assetId = purgedJson.getJSONObject(i).getString("id");
+					String assetType = purgedJson.getJSONObject(i).getString("type");
+					if (assetType.equalsIgnoreCase("meta")) {
+						app.apiAssetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(assetId);
+					}
 				}
 			}
 			
