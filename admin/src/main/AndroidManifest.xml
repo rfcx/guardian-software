@@ -73,7 +73,6 @@
         <service android:name=".device.android.control.AirplaneModeEnableService" />
         <service android:name=".device.android.control.DateTimeSntpSyncJobService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
-        <service android:name=".device.android.verify.ConnectivityVerifyService"/>
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" />

@@ -1,6 +1,5 @@
 package org.rfcx.guardian.admin;
 
-import org.rfcx.guardian.admin.device.android.verify.ConnectivityVerifyService;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
@@ -66,8 +65,6 @@ public class RfcxGuardian extends Application {
 			new String[] { 
 				"DeviceSentinel"
 			};
-
-	public int connectivityTimeoutCounter = 0;
 	
 	@Override
 	public void onCreate() {
@@ -138,10 +135,6 @@ public class RfcxGuardian extends Application {
 					"ScheduledLogCatCapture"
 							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
 							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
-							,
-					"ConnectivityVerify"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
-							+"|"+(90 * 1000) // repeat 1.30 minutes
 			};
 			
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
@@ -173,8 +166,6 @@ public class RfcxGuardian extends Application {
 
 		this.rfcxServiceHandler.addService("LogCatCapture", DeviceLogCatCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledLogCatCapture", ScheduledLogCatCaptureService.class);
-
-		this.rfcxServiceHandler.addService("ConnectivityVerify", ConnectivityVerifyService.class);
 		
 		
 		
