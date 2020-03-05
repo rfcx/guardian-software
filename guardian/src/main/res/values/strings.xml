@@ -20,9 +20,9 @@
 		<item>https</item>
 	</string-array>
 
-    <string-array name="tcp_or_tls">
+    <string-array name="tcp_or_ssl">
 		<item>tcp</item>
-		<item>tls</item>
+		<item>ssl</item>
 	</string-array>
 	
     <string-array name="logcat_log_levels">

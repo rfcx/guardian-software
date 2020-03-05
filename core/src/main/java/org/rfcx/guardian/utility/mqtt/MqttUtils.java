@@ -1,9 +1,17 @@
 package org.rfcx.guardian.utility.mqtt;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.*;
+import java.security.cert.CertificateException;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -14,17 +22,22 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
+import android.content.Context;
 import android.util.Log;
+
+import org.rfcx.guardian.utility.R;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class MqttUtils implements MqttCallback {
 
-	public MqttUtils(String appRole, String guardianGuid) {
+	public MqttUtils(Context context, String appRole, String guardianGuid) {
+		this.context = context;
 		this.logTag = RfcxLog.generateLogTag(appRole, MqttUtils.class);
 		this.mqttClientId = (new StringBuilder()).append("rfcx-org.rfcx.guardian.guardian-").append(guardianGuid.toLowerCase(Locale.US)).append("-").append(appRole.toLowerCase(Locale.US)).toString();
 	}
-	
+
+	private Context context;
 	private String logTag = RfcxLog.generateLogTag("Utils", MqttUtils.class);
 	
 	private String filePath_authCertificate = null;
@@ -37,6 +50,7 @@ public class MqttUtils implements MqttCallback {
 	private String mqttBrokerProtocol = "tcp";
 	private String mqttBrokerAddress = null;
 	private String mqttBrokerUri = null;
+	private String mqttBrokerSslPassphrase = "";
 	private MqttClient mqttClient = null;
 	private List<String> mqttTopics_Subscribe = new ArrayList<String>();;
 	private MqttCallback mqttCallback = this;
@@ -45,7 +59,7 @@ public class MqttUtils implements MqttCallback {
 	
 	private long msgSendStart = System.currentTimeMillis();
 	
-	private static MqttConnectOptions getConnectOptions() {
+	private MqttConnectOptions getConnectOptions() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, KeyManagementException, UnrecoverableKeyException {
 		
 		MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
 		
@@ -62,6 +76,26 @@ public class MqttUtils implements MqttCallback {
 //		mqttConnectOptions.setUserName(userName);
 //		mqttConnectOptions.setPassword(password);
 //		mqttConnectOptions.setWill(topic, payload, qos, retained);
+
+		if (this.mqttBrokerProtocol.equalsIgnoreCase("ssl")) {
+			final char[] passphrase = this.mqttBrokerSslPassphrase.toCharArray();
+
+			// client key
+			KeyStore ks = KeyStore.getInstance("BKS");
+			ks.load(context.getResources().openRawResource(R.raw.client_key), passphrase);
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+			kmf.init(ks, passphrase);
+
+			// server certificate
+			KeyStore tks = KeyStore.getInstance("BKS");
+			tks.load(context.getResources().openRawResource(R.raw.client_cert), passphrase);
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+			tmf.init(tks);
+
+			SSLContext ctx = SSLContext.getInstance("SSLv3");
+			ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+			mqttConnectOptions.setSocketFactory(ctx.getSocketFactory());
+		}
 		
 		return mqttConnectOptions;
 	}
@@ -117,9 +151,17 @@ public class MqttUtils implements MqttCallback {
 			this.mqttClient.setTimeToWait(this.mqttActionTimeout);	
 			this.mqttClient.setCallback(this.mqttCallback);
 
+			MqttConnectOptions options;
+			try {
+				options = getConnectOptions();
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new MqttException(MqttException.REASON_CODE_UNEXPECTED_ERROR);
+			}
+
 			Log.v(logTag, "Connecting to MQTT broker: "+this.mqttBrokerUri);
-			this.mqttClient.connect(getConnectOptions());
-			
+			this.mqttClient.connect(options);
+
 			mqttBrokerConnectionLatency = System.currentTimeMillis() - mqttBrokerConnectionLastAttemptedAt;
 			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri);
 
