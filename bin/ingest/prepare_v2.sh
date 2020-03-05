@@ -2,13 +2,6 @@
 
 export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
-# export DATE_CONV_SCRIPT="$SCRIPT_DIR/_iso_to_unix_timestamp.js";
-# rm -f $DATE_CONV_SCRIPT;
-# echo "#!/usr/bin/env node" > $DATE_CONV_SCRIPT;
-# echo "var args = process.argv.slice(2);" >> $DATE_CONV_SCRIPT;
-# echo "console.log((new Date(Date.parse(args[0]))).valueOf());" >> $DATE_CONV_SCRIPT;
-# chmod a+x $DATE_CONV_SCRIPT;
-
 export GUARDIAN_GUID=$1;
 export AUDIO_DIR=$2;
 
@@ -36,17 +29,17 @@ for AUDIO_DIR_YEAR_MONTH in $AUDIO_DIR/20*; do
       
       gunzip $AUDIO_DIR_HOUR/*.$AUDIO_FORMAT.gz 2> /dev/null;
 
-      for AUDIO_FILE in $AUDIO_DIR_HOUR/*.$AUDIO_FORMAT; do
+      for AUDIO_FILEPATH in $AUDIO_DIR_HOUR/*.$AUDIO_FORMAT; do
 
-        AUDIO_DIR_TEST=`echo $AUDIO_FILE | rev | cut -d'_' -f 2 | rev`;
+        AUDIO_DIR_TEST=`echo $AUDIO_FILEPATH | rev | cut -d'_' -f 2 | rev`;
 
-        if [ $AUDIO_DIR_TEST != $AUDIO_FILE ] ; then
+        if [ $AUDIO_DIR_TEST != $AUDIO_FILEPATH ] ; then
 
-          AUDIO_FILE_BASE=$(basename -- "$AUDIO_FILE")
+          AUDIO_FILENAME=$(basename -- "$AUDIO_FILEPATH")
 
-          if (( $((${#AUDIO_FILE_BASE}+0)) > 45 )); then
+          if (( $((${#AUDIO_FILENAME}+0)) > 45 )); then
 
-            TS_BASE=`echo $AUDIO_FILE_BASE | rev | cut -d'_' -f 1 | rev`;
+            TS_BASE=`echo $AUDIO_FILENAME | rev | cut -d'_' -f 1 | rev`;
             TS_DATE=`echo $TS_BASE | cut -d'T' -f 1`;
             TS_HOUR_MIN_SEC=`echo $TS_BASE | cut -d'T' -f 2 | cut -d'.' -f 1`;
 
@@ -73,13 +66,13 @@ for AUDIO_DIR_YEAR_MONTH in $AUDIO_DIR/20*; do
 
             if [ ! -d $DEST_DIR ] ; then mkdir -p $DEST_DIR 2> /dev/null; fi;
 
-            cp $AUDIO_FILE $DEST_DIR/$TS_UNIX.$AUDIO_FORMAT;
+            cp $AUDIO_FILEPATH $DEST_DIR/$TS_UNIX.$AUDIO_FORMAT;
 
             if [ -f $DEST_DIR/$TS_UNIX.$AUDIO_FORMAT ] ; then FILE_COUNT=$((FILE_COUNT+1)); rm $AUDIO_FILE; fi;
 
           else
 
-            echo "file name problem"
+            echo "Filename could not be parsed: $AUDIO_FILENAME"
 
           fi
 
