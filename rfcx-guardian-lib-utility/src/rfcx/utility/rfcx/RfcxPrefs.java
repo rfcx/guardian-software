@@ -311,7 +311,7 @@ public class RfcxPrefs {
 			
 			put("checkin_skip_threshold", "5");
 			put("checkin_stash_threshold", "240");
-			put("checkin_archive_threshold", "240");
+			put("checkin_archive_threshold", "160");
 
 			put("admin_enable_bluetooth", "true");	
 			
