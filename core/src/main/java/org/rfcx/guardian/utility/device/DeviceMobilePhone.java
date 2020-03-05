@@ -76,7 +76,16 @@ public class DeviceMobilePhone {
 	private String getDeviceIMEI() {
 		setDeviceIMEI(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId());
 		return this.deviceIMEI;
-	}	
+	}
+
+	private Boolean getSimState() {
+		TelephonyManager tm = (TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE);
+		return !(tm.getSimState() == TelephonyManager.SIM_STATE_ABSENT);
+	}
+
+	public Boolean hasSim() {
+		return getSimState();
+	}
 	
 	public JSONObject getMobilePhoneInfoJson() {
 		List<String[]> phoneInfoList = getMobilePhoneInfo();
