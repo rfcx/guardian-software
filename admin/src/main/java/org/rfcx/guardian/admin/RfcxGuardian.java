@@ -87,7 +87,7 @@ public class RfcxGuardian extends Application {
 		ShellCommands.triggerNeedForRootAccess(this);
 		DeviceI2cUtils.resetI2cPermissions(this);
 		DateTimeUtils.resetDateTimeReadWritePermissions(this);
-		DeviceBluetooth.setOn();
+		turnOnBluetooth();
 		
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		
@@ -113,6 +113,12 @@ public class RfcxGuardian extends Application {
 	
 	public void appPause() {
 		
+	}
+	
+	private void turnOnBluetooth() {
+		if(rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth")){
+			DeviceBluetooth.setOn();
+		}
 	}
 	
 	public void initializeRoleServices() {
