@@ -708,22 +708,30 @@ public class ApiCheckInUtils implements MqttCallback {
 			} else {
 				int i = 0;
 				for (int toggleThreshold : this.failedCheckInThresholds) {
-					if ((minsSinceSuccess >= toggleThreshold) && !this.failedCheckInThresholdsReached[i]) {
-						this.failedCheckInThresholdsReached[i] = true;
-						if (toggleThreshold == this.failedCheckInThresholds[this.failedCheckInThresholds.length - 1]) {
-							// last index, force role(s) relaunch
-							Log.d(logTag, "ToggleCheck: Forced Relaunch (" + toggleThreshold
-									+ " minutes since last successful CheckIn)");
-							app.deviceControlUtils.runOrTriggerDeviceControl("relaunch",
-									app.getApplicationContext().getContentResolver());
-						} else if (!app.deviceConnectivity.isConnected()) {
-							Log.d(logTag, "ToggleCheck: Airplane Mode (" + toggleThreshold
-									+ " minutes since last successful CheckIn)");
-							app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle",
-									app.getApplicationContext().getContentResolver());
-						}
-						break;
-					}
+                    if ((minsSinceSuccess >= toggleThreshold) && !this.failedCheckInThresholdsReached[i]) {
+                        this.failedCheckInThresholdsReached[i] = true;
+                        if (toggleThreshold == this.failedCheckInThresholds[this.failedCheckInThresholds.length - 1]) {
+                            // last threshold
+                            if (!app.deviceConnectivity.isConnected() && !app.deviceMobilePhone.hasSim()) {
+                                Log.d(logTag, "Failure Threshold Reached: Forced reboot due to missing sim (" + toggleThreshold
+                                        + " minutes since last successful CheckIn)");
+                                app.deviceControlUtils.runOrTriggerDeviceControl("reboot",
+                                        app.getApplicationContext().getContentResolver());
+                            } else {
+                                Log.d(logTag, "Failure Threshold Reached: Forced Relaunch (" + toggleThreshold
+                                        + " minutes since last successful CheckIn)");
+                                app.deviceControlUtils.runOrTriggerDeviceControl("relaunch",
+                                        app.getApplicationContext().getContentResolver());
+                            }
+                        } else if (!app.deviceConnectivity.isConnected()) {
+                            // any threshold and not connected
+                            Log.d(logTag, "Failure Threshold Reached: Airplane Mode (" + toggleThreshold
+                                    + " minutes since last successful CheckIn)");
+                            app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle",
+                                    app.getApplicationContext().getContentResolver());
+                        }
+                        break;
+                    }
 					i++;
 				}
 			}
