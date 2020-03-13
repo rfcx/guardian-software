@@ -10,6 +10,6 @@ object CheckAppPermissionUtils {
         val LOCATION_FINE = android.Manifest.permission.ACCESS_FINE_LOCATION
         val resultCoarse = context.checkCallingPermission(LOCATION_COARSE)
         val resultFine = context.checkCallingPermission(LOCATION_FINE)
-        return (resultCoarse == PackageManager.PERMISSION_GRANTED) == (resultFine == PackageManager.PERMISSION_GRANTED)
+        return (resultFine == PackageManager.PERMISSION_GRANTED)
     }
 }
