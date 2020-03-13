@@ -7,7 +7,9 @@ object CheckAppPermissionUtils {
     
     fun checkLocationPermission(context: Context): Boolean {
         val LOCATION_COARSE = android.Manifest.permission.ACCESS_COARSE_LOCATION
-        val result = context.checkCallingPermission(LOCATION_COARSE)
-        return result == PackageManager.PERMISSION_GRANTED
+        val LOCATION_FINE = android.Manifest.permission.ACCESS_FINE_LOCATION
+        val resultCoarse = context.checkCallingPermission(LOCATION_COARSE)
+        val resultFine = context.checkCallingPermission(LOCATION_FINE)
+        return (resultCoarse == PackageManager.PERMISSION_GRANTED) == (resultFine == PackageManager.PERMISSION_GRANTED)
     }
 }
