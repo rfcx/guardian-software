@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/guardian" />
             <option value="$PROJECT_DIR$/setup" />
+            <option value="$PROJECT_DIR$/updater" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
