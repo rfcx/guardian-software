@@ -293,6 +293,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaIds.put(metaQueryTimestamp);
 			metaDataJsonObj.put("meta_ids", metaIds);
 			metaDataJsonObj.put("measured_at", metaQueryTimestamp);
+			
+			metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
 			metaDataJsonObj.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
 			metaDataJsonObj.put("power", app.deviceSystemDb.dbPower.getConcatRows());
 			metaDataJsonObj.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
@@ -307,14 +309,10 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("disk_usage", app.deviceDiskDb.dbDiskUsage.getConcatRows());
 
 			// Adding sentinel data, if they can be retrieved
-			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_latest_row",
+			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
 					"sentinel_power", app.getApplicationContext().getContentResolver());
 			metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPower));
-			if(app.sharedPrefs.getString("checkin_with_i2c_battery", "false").equals("true")){
-				metaDataJsonObj.put("battery", getConcatSentinelMetaForBattery(sentinelPower));
-			}else{
-				metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
-			}
+
 			// Saves JSON snapshot blob to database
 			app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
 
