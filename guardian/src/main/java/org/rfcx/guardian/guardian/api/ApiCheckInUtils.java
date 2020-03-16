@@ -293,6 +293,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaIds.put(metaQueryTimestamp);
 			metaDataJsonObj.put("meta_ids", metaIds);
 			metaDataJsonObj.put("measured_at", metaQueryTimestamp);
+			
+			metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
 			metaDataJsonObj.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
 			metaDataJsonObj.put("power", app.deviceSystemDb.dbPower.getConcatRows());
 			metaDataJsonObj.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
@@ -307,14 +309,10 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("disk_usage", app.deviceDiskDb.dbDiskUsage.getConcatRows());
 
 			// Adding sentinel data, if they can be retrieved
-			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_latest_row",
+			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
 					"sentinel_power", app.getApplicationContext().getContentResolver());
 			metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPower));
-			if(app.sharedPrefs.getString("checkin_with_i2c_battery", "false").equals("true")){
-				metaDataJsonObj.put("battery", getConcatSentinelMetaForBattery(sentinelPower));
-			}else{
-				metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
-			}
+
 			// Saves JSON snapshot blob to database
 			app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
 
@@ -392,10 +390,9 @@ public class ApiCheckInUtils implements MqttCallback {
 		if (assetStatus.equalsIgnoreCase("purged")) {
 
 			assetRows = app.apiAssetExchangeLogDb.dbPurged.getLatestRowsWithLimitExcludeCreatedAt(rowLimit);
-			for (String[] assetRow : assetRows) { app.apiAssetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(assetRow[2]); }
 
 		}/* else if (assetStatus.equalsIgnoreCase("sent")) {
-			
+
 			
 		}*/
 
@@ -497,7 +494,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		// Recording number of currently queued/skipped/stashed checkins
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson());
 
-//		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 10));
+		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 12));
 
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
@@ -709,22 +706,30 @@ public class ApiCheckInUtils implements MqttCallback {
 			} else {
 				int i = 0;
 				for (int toggleThreshold : this.failedCheckInThresholds) {
-					if ((minsSinceSuccess >= toggleThreshold) && !this.failedCheckInThresholdsReached[i]) {
-						this.failedCheckInThresholdsReached[i] = true;
-						if (toggleThreshold == this.failedCheckInThresholds[this.failedCheckInThresholds.length - 1]) {
-							// last index, force role(s) relaunch
-							Log.d(logTag, "ToggleCheck: Forced Relaunch (" + toggleThreshold
-									+ " minutes since last successful CheckIn)");
-							app.deviceControlUtils.runOrTriggerDeviceControl("relaunch",
-									app.getApplicationContext().getContentResolver());
-						} else if (!app.deviceConnectivity.isConnected()) {
-							Log.d(logTag, "ToggleCheck: Airplane Mode (" + toggleThreshold
-									+ " minutes since last successful CheckIn)");
-							app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle",
-									app.getApplicationContext().getContentResolver());
-						}
-						break;
-					}
+                    if ((minsSinceSuccess >= toggleThreshold) && !this.failedCheckInThresholdsReached[i]) {
+                        this.failedCheckInThresholdsReached[i] = true;
+                        if (toggleThreshold == this.failedCheckInThresholds[this.failedCheckInThresholds.length - 1]) {
+                            // last threshold
+                            if (!app.deviceConnectivity.isConnected() && !app.deviceMobilePhone.hasSim()) {
+                                Log.d(logTag, "Failure Threshold Reached: Forced reboot due to missing sim (" + toggleThreshold
+                                        + " minutes since last successful CheckIn)");
+                                app.deviceControlUtils.runOrTriggerDeviceControl("reboot",
+                                        app.getApplicationContext().getContentResolver());
+                            } else {
+                                Log.d(logTag, "Failure Threshold Reached: Forced Relaunch (" + toggleThreshold
+                                        + " minutes since last successful CheckIn)");
+                                app.deviceControlUtils.runOrTriggerDeviceControl("relaunch",
+                                        app.getApplicationContext().getContentResolver());
+                            }
+                        } else if (!app.deviceConnectivity.isConnected()) {
+                            // any threshold and not connected
+                            Log.d(logTag, "Failure Threshold Reached: Airplane Mode (" + toggleThreshold
+                                    + " minutes since last successful CheckIn)");
+                            app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle",
+                                    app.getApplicationContext().getContentResolver());
+                        }
+                        break;
+                    }
 					i++;
 				}
 			}
@@ -755,26 +760,25 @@ public class ApiCheckInUtils implements MqttCallback {
 							(long) Long.parseLong(this.latestCheckInAudioId), fileExtension);
 				}
 			} else if (assetType.equals("screenshot")) {
-				RfcxComm.deleteQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_delete_row", "screenshots|" + assetId,
+				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePath = DeviceScreenShot.getScreenShotFileLocation_Complete(rfcxDeviceId, context,
 						(long) Long.parseLong(assetId));
 
 			} else if (assetType.equals("log")) {
-				RfcxComm.deleteQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_delete_row", "logs|" + assetId,
+				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePath = DeviceLogCat.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context,
 						(long) Long.parseLong(assetId));
 
 			} else if (assetType.equals("sms")) {
-				RfcxComm.deleteQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "database_delete_row", "sms|" + assetId,
+				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,
 						app.getApplicationContext().getContentResolver());
 
 			} else if (assetType.equals("meta")) {
 				app.apiCheckInMetaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
 
-				// ONLY TESTING THE EXCHANGE LOG WITH META FOR THE MOMENT
-
+				// ONLY USING THE EXCHANGE LOG WITH META FOR THE MOMENT
 				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			}
@@ -876,7 +880,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (instrType.equalsIgnoreCase("message_send")) {
 				String msgAddress = instrMeta.getString("address");
 				String msgBody = instrMeta.getString("body");
-				RfcxComm.getQueryContentProvider("org.rfcx.org.rfcx.guardian.guardian.admin", "sms_send", msgAddress + "|" + msgBody, app.getApplicationContext().getContentResolver());
+				RfcxComm.getQueryContentProvider("admin", "sms_send", msgAddress + "|" + msgBody, app.getApplicationContext().getContentResolver());
 				Log.i(logTag, logMsg + msgAddress + " | " + msgBody);
 			}
 
@@ -978,6 +982,18 @@ public class ApiCheckInUtils implements MqttCallback {
 				for (int i = 0; i < metaJson.length(); i++) {
 					String metaId = metaJson.getJSONObject(i).getString("id");
 					purgeSingleAsset("meta", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), metaId, null);
+				}
+			}
+
+			// parse purge confirmation array and delete entries from asset exchange log
+			if (jsonObj.has("purged")) {
+				JSONArray purgedJson = jsonObj.getJSONArray("purged");
+				for (int i = 0; i < purgedJson.length(); i++) {
+					String assetId = purgedJson.getJSONObject(i).getString("id");
+					String assetType = purgedJson.getJSONObject(i).getString("type");
+					if (assetType.equalsIgnoreCase("meta")) {
+						app.apiAssetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(assetId);
+					}
 				}
 			}
 

@@ -22,7 +22,7 @@ public class MqttUtils implements MqttCallback {
 
 	public MqttUtils(String appRole, String guardianGuid) {
 		this.logTag = RfcxLog.generateLogTag(appRole, MqttUtils.class);
-		this.mqttClientId = (new StringBuilder()).append("rfcx-org.rfcx.guardian.guardian-").append(guardianGuid.toLowerCase(Locale.US)).append("-").append(appRole.toLowerCase(Locale.US)).toString();
+		this.mqttClientId = (new StringBuilder()).append("rfcx-guardian-").append(guardianGuid.toLowerCase(Locale.US)).append("-").append(appRole.toLowerCase(Locale.US)).toString();
 	}
 	
 	private String logTag = RfcxLog.generateLogTag("Utils", MqttUtils.class);

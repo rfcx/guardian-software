@@ -10,13 +10,12 @@ android {
         abortOnError false
     }
 
-
     defaultConfig {
         applicationId "org.rfcx.guardian.updater"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 1
-        versionName "0.4.0"
+        versionCode 3
+        versionName "0.6.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -28,7 +27,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {

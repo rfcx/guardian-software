@@ -25,9 +25,9 @@ export AUDIO_FORMAT=$3;
 export GUARDIAN_GUID=$4;
 export AUDIO_DIR=$5;
 
-if [[ "$AUDIO_FORMAT" == "m4a" ]]; then
-  AUDIO_FORMAT_ID="4";
-  AUDIO_FORMAT_SAMPLE_RATE="8000";
+if [[ "$AUDIO_FORMAT" == "flac" ]]; then
+  AUDIO_FORMAT_ID="13";
+  AUDIO_FORMAT_SAMPLE_RATE="64000";
 else
   AUDIO_FORMAT_ID="3";
   AUDIO_FORMAT_SAMPLE_RATE="12000";
@@ -40,7 +40,7 @@ for AUDIO_FILEPATH in $AUDIO_DIR/*.$AUDIO_FORMAT; do
   export AUDIO_FILENAME=`echo $AUDIO_FILEPATH | rev | cut -d'.' -f 2 | cut -d'/' -f 1 | rev`;
   export AUDIO_EXTENSION=`echo $AUDIO_FILEPATH | rev | cut -d'.' -f 1 | rev`;
   export AUDIO_SHA1=`openssl dgst -sha1 $AUDIO_FILEPATH | grep 'SHA1(' | cut -d'=' -f 2 | cut -d' ' -f 2`;
-  export AUDIO_FILESIZE=`ls -l $AUDIO_FILEPATH | cut -d' ' -f 5`;  # -f 8 for OSX, -f 5 for linux
+  export AUDIO_FILESIZE=`ls -l $AUDIO_FILEPATH | cut -d' ' -f 8`;  # -f 8 for OSX, -f 5 for linux
 
   export AUDIO_CONVERT=`ffmpeg -loglevel panic -i $AUDIO_FILEPATH -ar $AUDIO_FORMAT_SAMPLE_RATE $AUDIO_DIR/$AUDIO_FILENAME.wav`;
   export AUDIO_SAMPLE_COUNT=`soxi -s $AUDIO_DIR/$AUDIO_FILENAME.wav`;

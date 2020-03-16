@@ -123,11 +123,11 @@ public class RfcxPrefs {
 	private String readPrefFromContentProvider(String prefKey) {
 		try {
 			
-			if (!this.thisAppRole.equalsIgnoreCase("org.rfcx.guardian.guardian")) {
+			if (!this.thisAppRole.equalsIgnoreCase("guardian")) {
 			
 				Cursor prefsCursor = this.context.getContentResolver().query(
-						RfcxComm.getUri("org.rfcx.guardian.guardian", "prefs", prefKey),
-						RfcxComm.getProjection("org.rfcx.guardian.guardian", "prefs"),
+						RfcxComm.getUri("guardian", "prefs", prefKey),
+						RfcxComm.getProjection("guardian", "prefs"),
 						null, null, null);
 				
 				if ((prefsCursor != null) && (prefsCursor.getCount() > 0)) { if (prefsCursor.moveToFirst()) { try { do {
@@ -310,7 +310,7 @@ public class RfcxPrefs {
 			
 			put("checkin_skip_threshold", "5");
 			put("checkin_stash_threshold", "240");
-			put("checkin_archive_threshold", "240");
+			put("checkin_archive_threshold", "160");
 
 			put("admin_enable_bluetooth", "true");	
 			

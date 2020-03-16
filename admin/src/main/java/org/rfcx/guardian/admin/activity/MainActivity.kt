@@ -56,12 +56,12 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         val app = application as RfcxGuardian
         monitorToggle.setOnCheckedChangeListener { buttonView, isChecked ->
-            if(isChecked){
+            if (isChecked) {
                 val timerTask = object : TimerTask() {
                     override fun run() {
                         runOnUiThread {
                             isConnected = app.sentinelPowerUtils.confirmConnection()
-                            if(isConnected){
+                            if (isConnected) {
                                 i2cConnectStatusTextView.text = "connected"
                                 val result = app.sentinelPowerUtils.latestSentinelValues
                                 if (result != null) {
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity() {
                                     inputResultTextView.text = result.input.toString()
                                     batteryResultTextView.text = result.battery.toString()
                                 }
-                            }else{
+                            } else {
                                 i2cConnectStatusTextView.text = "disconnected"
                                 systemResultTextView.text = "not found"
                                 inputResultTextView.text = "not found"
@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 monitorTimer = Timer()
                 monitorTimer.schedule(timerTask, 0, 1000)
-            }else{
+            } else {
                 Log.d("toggle", "$isChecked")
                 monitorTimer.cancel()
             }
@@ -89,7 +89,9 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onPause() {
         super.onPause()
-        monitorTimer.cancel()
+        if (::monitorTimer.isInitialized) {
+            monitorTimer.cancel()
+        }
         (application as RfcxGuardian).appPause()
     }
 

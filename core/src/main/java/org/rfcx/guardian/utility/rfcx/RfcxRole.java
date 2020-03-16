@@ -54,7 +54,7 @@ public class RfcxRole {
 
 	public static boolean isRoleInstalled(Context context, String appRole) {
 		String mainAppPath = context.getFilesDir().getAbsolutePath();
-		return (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.org.rfcx.guardian.guardian."))+"/org.rfcx.org.rfcx.guardian.guardian."+appRole.toLowerCase(Locale.US))).exists();
+		return (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian."))+"/org.rfcx.guardian."+appRole.toLowerCase(Locale.US))).exists();
 	}
 	
 	public static List<String> getInstalledRoleVersions(String thisAppRole, Context context) {

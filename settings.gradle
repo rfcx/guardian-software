@@ -1,1 +1,1 @@
-include ':core', ':setup', ':audio', ':admin', ':guardian'
+include ':core', ':setup', ':audio', ':admin', ':guardian', ':updater'
