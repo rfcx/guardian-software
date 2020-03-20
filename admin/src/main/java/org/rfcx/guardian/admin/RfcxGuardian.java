@@ -1,6 +1,6 @@
 package org.rfcx.guardian.admin;
 
-import org.rfcx.guardian.admin.device.android.control.BluetoothTetherEnableService;
+import org.rfcx.guardian.admin.device.android.control.BluetoothTetheringEnableService;
 import org.rfcx.guardian.admin.receiver.BluetoothStateReceiver;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
@@ -160,7 +160,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("ScheduledReboot", ScheduledRebootService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeToggle", AirplaneModeToggleService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeEnable", AirplaneModeEnableService.class);
-		this.rfcxServiceHandler.addService("BluetoothTetherEnable", BluetoothTetherEnableService.class);
+		this.rfcxServiceHandler.addService("BluetoothTetheringEnable", BluetoothTetheringEnableService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);

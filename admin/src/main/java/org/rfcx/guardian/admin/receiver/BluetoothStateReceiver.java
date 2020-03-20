@@ -37,9 +37,8 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
 		boolean prefsAdminEnableBluetooth = app.rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth");
 
 		if (prefsAdminEnableBluetooth) {
-			DeviceBluetooth.setOn();
-			app.rfcxServiceHandler.triggerService("BluetoothTetherEnable", false);
-//			DeviceBluetooth.enableTethering(context);
+			DeviceBluetooth.setPowerOn();
+			app.rfcxServiceHandler.triggerService("BluetoothTetheringEnable", false);
 		}
 	}
 
