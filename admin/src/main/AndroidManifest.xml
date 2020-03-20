@@ -71,7 +71,7 @@
         <service android:name=".device.android.control.RebootTriggerJobService" />
         <service android:name=".device.android.control.AirplaneModeToggleService" />
         <service android:name=".device.android.control.AirplaneModeEnableService" />
-        <service android:name=".device.android.control.BluetoothTetheringEnableService" />
+        <service android:name=".device.android.control.BluetoothStateSetService" />
         <service android:name=".device.android.control.DateTimeSntpSyncJobService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
 

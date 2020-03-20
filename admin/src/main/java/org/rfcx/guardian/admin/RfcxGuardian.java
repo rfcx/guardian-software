@@ -1,6 +1,6 @@
 package org.rfcx.guardian.admin;
 
-import org.rfcx.guardian.admin.device.android.control.BluetoothTetheringEnableService;
+import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
 import org.rfcx.guardian.admin.receiver.BluetoothStateReceiver;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
@@ -88,8 +88,6 @@ public class RfcxGuardian extends Application {
 		ShellCommands.triggerNeedForRootAccess(this);
 		DeviceI2cUtils.resetI2cPermissions(this);
 		DateTimeUtils.resetDateTimeReadWritePermissions(this);
-
-		BluetoothStateReceiver.activateBluetoothIfEnabledInPrefs(this);
 		
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		
@@ -138,6 +136,10 @@ public class RfcxGuardian extends Application {
 					"ScheduledLogCatCapture"
 							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
 							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
+							,
+					"BluetoothStateSet"
+							+"|"+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
+							+"|"+"0" // no repeat
 			};
 			
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
@@ -160,7 +162,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("ScheduledReboot", ScheduledRebootService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeToggle", AirplaneModeToggleService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeEnable", AirplaneModeEnableService.class);
-		this.rfcxServiceHandler.addService("BluetoothTetheringEnable", BluetoothTetheringEnableService.class);
+		this.rfcxServiceHandler.addService("BluetoothStateSet", BluetoothStateSetService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);

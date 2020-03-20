@@ -21,25 +21,23 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
         if (intentAction.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
         		
             final int bluetoothState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-           
-            if (		(bluetoothState == BluetoothAdapter.STATE_OFF)
-            		||	(bluetoothState == BluetoothAdapter.STATE_TURNING_OFF)
-            		) {
-					activateBluetoothIfEnabledInPrefs(context);
+
+			RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+			boolean prefsAdminEnableBluetooth = app.rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth");
+
+            if (		(prefsAdminEnableBluetooth
+						&&	(/*	(bluetoothState == BluetoothAdapter.STATE_OFF)
+							||*/	(bluetoothState == BluetoothAdapter.STATE_TURNING_OFF)
+						))
+				||		(!prefsAdminEnableBluetooth
+						&&	(/*	(bluetoothState == BluetoothAdapter.STATE_ON)
+							||*/	(bluetoothState == BluetoothAdapter.STATE_TURNING_ON)
+						))
+				) {
+					app.rfcxServiceHandler.triggerService("BluetoothStateSet", false);
             }
         }
 		
-	}
-
-	public static void activateBluetoothIfEnabledInPrefs(Context context) {
-
-		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-		boolean prefsAdminEnableBluetooth = app.rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth");
-
-		if (prefsAdminEnableBluetooth) {
-			DeviceBluetooth.setPowerOn();
-			app.rfcxServiceHandler.triggerService("BluetoothTetheringEnable", false);
-		}
 	}
 
 }

@@ -14,6 +14,12 @@ public class DeviceBluetooth {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceBluetooth.class);
 
+	private Context context;
+
+	public DeviceBluetooth(Context context) {
+		this.context = context;
+	}
+
 	public static boolean isBluetoothEnabled() {
 		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (bluetoothAdapter != null) {
@@ -56,36 +62,56 @@ public class DeviceBluetooth {
 	    	}
 	}
 
+	// ADB Connection controls
+	// add some code here
 
-	// Bluetooth Tethering controls
+	// Network Name controls
+	// add some code here
 
-	public DeviceBluetooth(Context context) {
-		this.context = context;
+	// Tethering controls
+
+	Object tetherInstance = null;
+	Method isTetheringOn = null;
+	Method setTetheringOn = null;
+	Method setTetheringOff = null;
+	Object tetherMutex = new Object();
+	boolean tetherEnableOrDisable;
+
+	public void setTetheringOn() {
+		this.tetherEnableOrDisable = true;
+		setTethering();
 	}
 
-	private Context context;
-	Object instance = null;
-	Method setTetheringOn = null;
-	Method isTetheringOn = null;
-	Object mutex = new Object();
+	public void setTetheringOff() {
+		this.tetherEnableOrDisable = false;
+		setTethering();
+	}
 
-	public void enableTethering() {
+	private void setTethering() {
 
 		try {
 
 			String sClassName = "android.bluetooth.BluetoothPan";
 			Class<?> classBluetoothPan = Class.forName(sClassName);
 
-			Constructor<?> ctor = classBluetoothPan.getDeclaredConstructor(Context.class, BluetoothProfile.ServiceListener.class);
-			ctor.setAccessible(true);
-			//  Set Tethering ON
-			Class[] paramSet = new Class[1];
-			paramSet[0] = boolean.class;
+			Constructor<?> tetherConstructor = classBluetoothPan.getDeclaredConstructor(Context.class, BluetoothProfile.ServiceListener.class);
+			tetherConstructor.setAccessible(true);
 
-			synchronized (mutex) {
-				setTetheringOn = classBluetoothPan.getDeclaredMethod("setBluetoothTethering", paramSet);
+			Class[] enableTetheringParamSet = new Class[1];
+			enableTetheringParamSet[0] = boolean.class;
+
+			// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
+			Class[] disableTetheringParamSet = new Class[1];
+			disableTetheringParamSet[0] = boolean.class;
+
+			synchronized (tetherMutex) {
 				isTetheringOn = classBluetoothPan.getDeclaredMethod("isTetheringOn", null);
-				instance = ctor.newInstance(context, new BluetoothTetherServiceListener(context));
+				setTetheringOn = classBluetoothPan.getDeclaredMethod("setBluetoothTethering", enableTetheringParamSet);
+
+				// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
+				setTetheringOff = classBluetoothPan.getDeclaredMethod("setBluetoothTethering", disableTetheringParamSet);
+
+				tetherInstance = tetherConstructor.newInstance(context, new BluetoothTetherServiceListener(context, this.tetherEnableOrDisable));
 			}
 		} catch (ClassNotFoundException e) {
 			RfcxLog.logExc(logTag, e);
@@ -98,26 +124,41 @@ public class DeviceBluetooth {
 	public class BluetoothTetherServiceListener implements BluetoothProfile.ServiceListener {
 
 		private final Context context;
+		private final boolean tetherEnableOrDisable;
 
-		public BluetoothTetherServiceListener(final Context context) {
+		public BluetoothTetherServiceListener(final Context context, final boolean enableOrDisable) {
 			this.context = context;
+			this.tetherEnableOrDisable = enableOrDisable;
 		}
 
 		@Override
 		public void onServiceConnected(final int profile, final BluetoothProfile proxy) {
 
 			try {
-				synchronized (mutex) {
-					if (!(Boolean)isTetheringOn.invoke(instance, null)) {
+				synchronized (tetherMutex) {
+					if (!(Boolean)isTetheringOn.invoke(tetherInstance, null)) {
 						Log.v(logTag, "Bluetooth Tethering is disabled");
-						setTetheringOn.invoke(instance, true);
-						if ((Boolean)isTetheringOn.invoke(instance, null)) {
-							Log.v(logTag, "Activating Bluetooth Tethering");
-						} else {
-							Log.e(logTag, "Bluetooth Tethering failed to activate");
+						if (this.tetherEnableOrDisable) {
+							Log.v(logTag, "Attempting to activate Bluetooth Tethering");
+							setTetheringOn.invoke(tetherInstance, true);
+							if ((Boolean)isTetheringOn.invoke(tetherInstance, null)) {
+								Log.v(logTag, "Bluetooth Tethering has been activated");
+							} else {
+								Log.e(logTag, "Failed to activate Bluetooth Tethering");
+							}
 						}
-					} else {
+					} else if ((Boolean)isTetheringOn.invoke(tetherInstance, null)) {
 						Log.v(logTag, "Bluetooth Tethering is enabled");
+						if (!this.tetherEnableOrDisable) {
+							Log.v(logTag, "Attempting to de-activate Bluetooth Tethering");
+							// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
+							setTetheringOff.invoke(tetherInstance, true);
+							if (!(Boolean)isTetheringOn.invoke(tetherInstance, null)) {
+								Log.v(logTag, "Bluetooth Tethering has been de-activated");
+							} else {
+								Log.e(logTag, "Failed to de-activate Bluetooth Tethering");
+							}
+						}
 					}
 				}
 			} catch (InvocationTargetException e) {
