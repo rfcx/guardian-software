@@ -25,17 +25,22 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
             if (		(bluetoothState == BluetoothAdapter.STATE_OFF)
             		||	(bluetoothState == BluetoothAdapter.STATE_TURNING_OFF)
             		) {
-            	
-            		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-            		boolean prefsAdminEnableBluetooth = app.rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth");
-            		
-            		if (prefsAdminEnableBluetooth) {
-            			DeviceBluetooth.setOn();
-            		}
-            	
+					activateBluetoothIfEnabledInPrefs(context);
             }
         }
 		
+	}
+
+	public static void activateBluetoothIfEnabledInPrefs(Context context) {
+
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		boolean prefsAdminEnableBluetooth = app.rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth");
+
+		if (prefsAdminEnableBluetooth) {
+			DeviceBluetooth.setOn();
+			app.rfcxServiceHandler.triggerService("BluetoothTetherEnable", false);
+//			DeviceBluetooth.enableTethering(context);
+		}
 	}
 
 }

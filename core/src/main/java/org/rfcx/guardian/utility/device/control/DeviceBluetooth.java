@@ -1,14 +1,18 @@
 package org.rfcx.guardian.utility.device.control;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.util.Log;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+
 public class DeviceBluetooth {
 	
 	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceBluetooth.class);
-	
+
 	public static boolean isEnabled() {
 		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (bluetoothAdapter != null) {
@@ -50,5 +54,5 @@ public class DeviceBluetooth {
 	    		BluetoothAdapter.getDefaultAdapter().disable();
 	    	}
 	}
-	
+
 }

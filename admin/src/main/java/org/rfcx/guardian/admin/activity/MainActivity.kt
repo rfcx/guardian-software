@@ -16,6 +16,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_home.*
+import org.rfcx.guardian.utility.device.control.DeviceBluetooth
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -41,6 +42,7 @@ class MainActivity : AppCompatActivity() {
             R.id.menu_sntp -> app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true)
 
             R.id.menu_logcat -> app.rfcxServiceHandler.triggerService("LogCatCapture", true)
+
         }
         return true
     }
