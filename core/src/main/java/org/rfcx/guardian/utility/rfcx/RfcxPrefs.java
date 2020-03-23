@@ -94,14 +94,17 @@ public class RfcxPrefs {
 		Log.i(logTag, "Pref resynced: "+prefKey+" = "+prefValue);
 	}
 
-	public void reSyncPrefInExternalRoleViaContentProvider(String targetAppRole, String prefKey, ContentResolver contentResolver) {
-		Cursor targetAppRoleResponse =
-				contentResolver.query(
+	public void reSyncPrefInExternalRoleViaContentProvider(String targetAppRole, String prefKey, Context context) {
+		try {
+			Cursor targetAppRoleResponse =
+				context.getContentResolver().query(
 					RfcxComm.getUri(targetAppRole, "prefs_resync", prefKey),
 					RfcxComm.getProjection(targetAppRole, "prefs_resync"),
 					null, null, null);
-		Log.v(logTag, targetAppRoleResponse.toString());
-
+			Log.v(logTag, targetAppRoleResponse.toString());
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
 	}
 
 //	public void clearPrefsCache() {

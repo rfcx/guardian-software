@@ -243,7 +243,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
         Log.d(logTag, "Pref changed: " + prefKey + " = " + this.sharedPrefs.getString(prefKey, null));
         syncSharedPrefs();
-        this.rfcxPrefs.reSyncPrefInExternalRoleViaContentProvider("admin", prefKey, getContentResolver());
+        this.rfcxPrefs.reSyncPrefInExternalRoleViaContentProvider("admin", prefKey, this);
     }
 
     private void syncSharedPrefs() {

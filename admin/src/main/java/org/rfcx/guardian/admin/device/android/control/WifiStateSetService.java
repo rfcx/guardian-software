@@ -31,13 +31,14 @@ public class WifiStateSetService extends IntentService {
 		boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi");
 
 		if (prefsAdminEnableWifi) {
-			// turn power ON
+			// turn hotspot ON
 			DeviceWifi deviceWifi = new DeviceWifi(context);
-			deviceWifi.setPowerOn();
+			deviceWifi.setPowerOff(); // wifi must be turned off before hotspot is enabled
+			Log.v(logTag, "Is hotspot enabled: "+deviceWifi.isHotspotEnabled());
 		} else {
-			// turn power OFF
+			// turn hotspot OFF
 			DeviceWifi deviceWifi = new DeviceWifi(context);
-			deviceWifi.setPowerOff();
+			Log.v(logTag, "Is hotspot enabled: "+deviceWifi.isHotspotEnabled());
 
 		}
 

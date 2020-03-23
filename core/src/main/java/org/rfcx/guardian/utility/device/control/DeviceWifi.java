@@ -1,10 +1,14 @@
 package org.rfcx.guardian.utility.device.control;
 
 import android.content.Context;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class DeviceWifi {
 
@@ -50,20 +54,21 @@ public class DeviceWifi {
 		}
 	}
 
-	// ADB Connection controls
-	// add some code here
-
-	// Network Name controls
-
-	public static void setNetworkName(String networkName) {
-//		if (isBluetoothEnabled()) {
-//			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-//			if (bluetoothAdapter != null) && (!bluetoothAdapter.getName().equalsIgnoreCase(networkName)) {
-//				bluetoothAdapter.setName(networkName);
-//			}
-//		}
+	public boolean isHotspotEnabled() {
+		WifiManager wifiManager = (WifiManager) this.context.getSystemService(context.WIFI_SERVICE);
+		try {
+			Method wifiManagerMethods = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
+			wifiManagerMethods.setAccessible(true);
+			return (Boolean) wifiManagerMethods.invoke(wifiManager);
+		} catch (NoSuchMethodException e) {
+			RfcxLog.logExc(logTag, e);
+		} catch (IllegalAccessException e) {
+			RfcxLog.logExc(logTag, e);
+		} catch (InvocationTargetException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return false;
 	}
-
 
 
 }
