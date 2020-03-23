@@ -26,12 +26,12 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
 			boolean prefsAdminEnableBluetooth = app.rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth");
 
             if (		(prefsAdminEnableBluetooth
-						&&	(/*	(bluetoothState == BluetoothAdapter.STATE_OFF)
-							||*/	(bluetoothState == BluetoothAdapter.STATE_TURNING_OFF)
+						&&	(	(bluetoothState == BluetoothAdapter.STATE_TURNING_OFF)
+						//	||	(bluetoothState == BluetoothAdapter.STATE_OFF)
 						))
 				||		(!prefsAdminEnableBluetooth
-						&&	(/*	(bluetoothState == BluetoothAdapter.STATE_ON)
-							||*/	(bluetoothState == BluetoothAdapter.STATE_TURNING_ON)
+						&&	(	(bluetoothState == BluetoothAdapter.STATE_TURNING_ON)
+						//	||	(bluetoothState == BluetoothAdapter.STATE_ON)
 						))
 				) {
 					app.rfcxServiceHandler.triggerService("BluetoothStateSet", false);

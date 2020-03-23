@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
+import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
 import org.rfcx.guardian.admin.receiver.BluetoothStateReceiver;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
@@ -163,6 +164,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("AirplaneModeToggle", AirplaneModeToggleService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeEnable", AirplaneModeEnableService.class);
 		this.rfcxServiceHandler.addService("BluetoothStateSet", BluetoothStateSetService.class);
+		this.rfcxServiceHandler.addService("WifiStateSet", WifiStateSetService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);

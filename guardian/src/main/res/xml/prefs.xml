@@ -212,7 +212,7 @@
         android:enabled="true"
         android:defaultValue="30" />
  	
- 	<EditTextPreference
+ 	<ListPreference
         android:key="admin_log_capture_level"
         android:title="admin_log_capture_level"
         android:summary="string - log verbosity level"
@@ -221,7 +221,7 @@
         android:enabled="true"
         android:defaultValue="Warn" />
  	
- 	<EditTextPreference
+ 	<ListPreference
         android:key="admin_enable_log_capture"
         android:title="admin_enable_log_capture"
 		android:dialogTitle="admin_enable_log_capture"
@@ -237,7 +237,7 @@
         android:enabled="true"
         android:defaultValue="180" />
  	
- 	<EditTextPreference
+ 	<ListPreference
         android:key="admin_enable_screenshot_capture"
         android:title="admin_enable_screenshot_capture"
 		android:dialogTitle="admin_enable_screenshot_capture"
@@ -246,7 +246,7 @@
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="true" />
  	
- 	<EditTextPreference
+ 	<ListPreference
         android:key="admin_enable_bluetooth"
 		android:title="admin_enable_bluetooth"
 		android:dialogTitle="admin_enable_bluetooth"
@@ -254,6 +254,15 @@
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="true" />
+
+	<ListPreference
+		android:key="admin_enable_wifi"
+		android:title="admin_enable_wifi"
+		android:dialogTitle="admin_enable_wifi"
+		android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="false" />
  	
  	
 </PreferenceScreen>

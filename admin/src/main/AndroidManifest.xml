@@ -72,6 +72,7 @@
         <service android:name=".device.android.control.AirplaneModeToggleService" />
         <service android:name=".device.android.control.AirplaneModeEnableService" />
         <service android:name=".device.android.control.BluetoothStateSetService" />
+        <service android:name=".device.android.control.WifiStateSetService" />
         <service android:name=".device.android.control.DateTimeSntpSyncJobService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
 
@@ -103,6 +104,13 @@
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".receiver.WifiStateReceiver">
+            <intent-filter>
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
 
         <!-- Content Providers -->
 

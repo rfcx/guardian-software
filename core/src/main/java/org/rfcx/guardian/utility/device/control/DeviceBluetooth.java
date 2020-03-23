@@ -3,6 +3,7 @@ package org.rfcx.guardian.utility.device.control;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -66,7 +67,16 @@ public class DeviceBluetooth {
 	// add some code here
 
 	// Network Name controls
-	// add some code here
+
+	public static void setNetworkName(String networkName) {
+		if (isBluetoothEnabled()) {
+			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+			if (bluetoothAdapter != null) {
+				bluetoothAdapter.setName(networkName);
+				Log.v(logTag, "Bluetooth Network Name: '"+bluetoothAdapter.getName()+"'");
+			}
+		}
+	}
 
 	// Tethering controls
 
@@ -100,9 +110,10 @@ public class DeviceBluetooth {
 			Class[] enableTetheringParamSet = new Class[1];
 			enableTetheringParamSet[0] = boolean.class;
 
-			// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
+			// THIS IS PROBABLY NOT RIGHT —— NEED TO SET REAL PARAMS FOR DISABLING TETHERING
 			Class[] disableTetheringParamSet = new Class[1];
 			disableTetheringParamSet[0] = boolean.class;
+			// THIS IS PROBABLY NOT RIGHT —— NEED TO SET REAL PARAMS FOR DISABLING TETHERING
 
 			synchronized (tetherMutex) {
 				isTetheringOn = classBluetoothPan.getDeclaredMethod("isTetheringOn", null);
@@ -110,6 +121,7 @@ public class DeviceBluetooth {
 
 				// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
 				setTetheringOff = classBluetoothPan.getDeclaredMethod("setBluetoothTethering", disableTetheringParamSet);
+				// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
 
 				tetherInstance = tetherConstructor.newInstance(context, new BluetoothTetherServiceListener(context, this.tetherEnableOrDisable));
 			}
@@ -151,7 +163,6 @@ public class DeviceBluetooth {
 						Log.v(logTag, "Bluetooth Tethering is enabled");
 						if (!this.tetherEnableOrDisable) {
 							Log.v(logTag, "Attempting to de-activate Bluetooth Tethering");
-							// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
 							setTetheringOff.invoke(tetherInstance, true);
 							if (!(Boolean)isTetheringOn.invoke(tetherInstance, null)) {
 								Log.v(logTag, "Bluetooth Tethering has been de-activated");

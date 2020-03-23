@@ -7,16 +7,17 @@ import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
+import org.rfcx.guardian.utility.device.control.DeviceWifi;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-public class BluetoothStateSetService extends IntentService {
+public class WifiStateSetService extends IntentService {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, BluetoothStateSetService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, WifiStateSetService.class);
 
-	private static final String SERVICE_NAME = "BluetoothStateSet";
+	private static final String SERVICE_NAME = "WifiStateSet";
 
-	public BluetoothStateSetService() {
+	public WifiStateSetService() {
 		super(logTag);
 	}
 	
@@ -27,21 +28,16 @@ public class BluetoothStateSetService extends IntentService {
 
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
-		boolean prefsAdminEnableBluetooth = app.rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth");
+		boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi");
 
-		if (prefsAdminEnableBluetooth) {
+		if (prefsAdminEnableWifi) {
 			// turn power ON
-			DeviceBluetooth.setPowerOn();
-			// turn tethering ON
-			DeviceBluetooth deviceBluetooth = new DeviceBluetooth(context);
-			deviceBluetooth.setTetheringOn();
-
-			DeviceBluetooth.setNetworkName("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8));
-
+			DeviceWifi deviceWifi = new DeviceWifi(context);
+			deviceWifi.setPowerOn();
 		} else {
 			// turn power OFF
-			DeviceBluetooth.setPowerOff(context);
-			// we do not disable tethering, as it is not relevant when bluetooth is off
+			DeviceWifi deviceWifi = new DeviceWifi(context);
+			deviceWifi.setPowerOff();
 
 		}
 
