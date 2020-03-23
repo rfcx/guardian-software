@@ -5,7 +5,7 @@ buildscript {
     repositories {
         google()
         jcenter()
-        
+
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.1'
@@ -19,10 +19,24 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+//task script() {
+//    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+//        exec{
+//            executable "cmd"
+//            args "/c", "C:\\Users\\Linde\\Documents\\GitHub\\rfcx-guardian-android\\bin\\build-apk.sh"
+//        }
+//    } else {
+//        exec{
+//            executable "sh"
+//            args "-c", "/bin/build-apk.sh"
+//        }
+//    }
+//}
