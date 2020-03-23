@@ -4,9 +4,7 @@ import java.io.File;
 import java.util.Map;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.os.Environment;
 
 import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
@@ -30,8 +28,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import org.rfcx.guardian.guardian.api.ApiAssetExchangeLogDb;
 import org.rfcx.guardian.guardian.api.ApiCheckInDb;
@@ -130,9 +126,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
         this.syncSharedPrefs();
 
-//		setPref("enable_cutoffs_schedule_off_hours", "true");
-//		setPref("audio_schedule_off_hours", "19:00-23:45,00:05-05:55");
-        setPref("audio_battery_cutoff", "10");
+//		setSharedPref("enable_cutoffs_schedule_off_hours", "true");
+//		setSharedPref("audio_schedule_off_hours", "19:00-23:45,00:05-05:55");
+        setSharedPref("audio_battery_cutoff", "10");
 
         setDbHandlers();
         setServiceHandlers();
@@ -247,6 +243,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
         Log.d(logTag, "Pref changed: " + prefKey + " = " + this.sharedPrefs.getString(prefKey, null));
         syncSharedPrefs();
+        this.rfcxPrefs.reSyncPrefInExternalRoleViaContentProvider("admin", prefKey, getContentResolver());
     }
 
     private void syncSharedPrefs() {
@@ -255,7 +252,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         }
     }
 
-    public boolean setPref(String prefKey, String prefValue) {
+    public boolean setSharedPref(String prefKey, String prefValue) {
         return this.sharedPrefs.edit().putString(prefKey, prefValue).commit();
     }
 

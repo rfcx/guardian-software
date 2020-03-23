@@ -2,7 +2,6 @@ package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
 import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
-import org.rfcx.guardian.admin.receiver.BluetoothStateReceiver;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -175,6 +174,18 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("LogCatCapture", DeviceLogCatCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledLogCatCapture", ScheduledLogCatCaptureService.class);
 
+	}
+
+	public String onPrefReSync(String prefKey) {
+
+		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth")) {
+			rfcxServiceHandler.triggerService("BluetoothStateSet", false);
+
+		} else if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
+			rfcxServiceHandler.triggerService("WifiStateSet", false);
+
+		}
+		return this.rfcxPrefs.getPrefAsString(prefKey);
 	}
     
 }

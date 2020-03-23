@@ -45,6 +45,12 @@ public class AdminContentProvider extends ContentProvider {
                 String prefKey = uri.getLastPathSegment();
                 return RfcxComm.getProjectionCursor(appRole, "prefs", new Object[]{prefKey, app.rfcxPrefs.getPrefAsString(prefKey)});
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "prefs_resync", "*")) {
+                String prefKey = uri.getLastPathSegment();
+                app.rfcxPrefs.reSyncPref(prefKey);
+                String prefValue = app.onPrefReSync(prefKey);
+                return RfcxComm.getProjectionCursor(appRole, "prefs_resync", new Object[]{prefKey, prefValue, System.currentTimeMillis()});
+
                 // "control" function endpoints
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "reboot")) {

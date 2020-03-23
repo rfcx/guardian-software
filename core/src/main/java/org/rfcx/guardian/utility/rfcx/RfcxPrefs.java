@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
@@ -86,10 +87,30 @@ public class RfcxPrefs {
 	public void setPref(String prefKey, int prefValue) {
 		setPref(prefKey, ""+prefValue);
 	}
-	
-	public void clearPrefsCache() {
-		this.cachedPrefs = new HashMap<String, String>();
+
+	public void reSyncPref(String prefKey) {
+		this.cachedPrefs.remove(prefKey);
+		String prefValue = getPrefAsString(prefKey);
+		Log.i(logTag, "Pref resynced: "+prefKey+" = "+prefValue);
 	}
+
+	public void reSyncPrefInExternalRoleViaContentProvider(String targetAppRole, String prefKey, ContentResolver contentResolver) {
+		Cursor targetAppRoleResponse =
+				contentResolver.query(
+					RfcxComm.getUri(targetAppRole, "prefs_resync", prefKey),
+					RfcxComm.getProjection(targetAppRole, "prefs_resync"),
+					null, null, null);
+		Log.v(logTag, targetAppRoleResponse.toString());
+
+	}
+
+//	public void clearPrefsCache() {
+//		this.cachedPrefs = new HashMap<String, String>();
+//		Log.i(logTag, "Prefs cache cleared.");
+//		for (Map.Entry<String, ?> pref : this.sharedPrefs.getAll().entrySet()) {
+//			this.rfcxPrefs.setPref(pref.getKey(), pref.getValue().toString());
+//		}
+//	}
 	
 	// Reading and Writing to preference text files
 	

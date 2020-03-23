@@ -1,6 +1,5 @@
 package org.rfcx.guardian.guardian.activity
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -30,7 +29,6 @@ import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterDeliverReceiver
 import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterSentReceiver
 import org.rfcx.guardian.guardian.receiver.SmsDeliverListener
 import org.rfcx.guardian.guardian.receiver.SmsSentListener
-import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.PhoneNumberRegisterUtils
 import org.rfcx.guardian.utility.datetime.DateTimeUtils
@@ -178,9 +176,9 @@ class MainActivity : AppCompatActivity() {
 
         i2cSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
-                app.setPref("checkin_with_i2c_battery", "true")
+                app.setSharedPref("checkin_with_i2c_battery", "true")
             } else {
-                app.setPref("checkin_with_i2c_battery", "false")
+                app.setSharedPref("checkin_with_i2c_battery", "false")
             }
         }
     }
