@@ -14,7 +14,10 @@
 .externalNativeBuild
 audio/obj
 gradle/*
-!/gradle/signing
+!/gradle/signing/*
+/gradle/signing/rfcx-guardian-keystore.jks
+/gradle/signing/rfcx-guardian-keystore-alias.txt
+/gradle/signing/rfcx-guardian-keystore-password.txt
 gradlew
 gradlew.bat
 local.properties
