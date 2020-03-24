@@ -66,7 +66,7 @@ public class DeviceUtils {
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
 	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		1, 		1,		1 	};
-	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	3600,	60,		10 	};
+	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	180/*3600*/,	60,		10 	};
 	public int geoPositionUpdateIndex = 0;
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
