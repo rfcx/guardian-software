@@ -464,7 +464,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				// mark this row as accessed in the database
 				app.apiCheckInMetaDb.dbMeta.updateLastAccessedAtByTimestamp(metaRow[1]);
 
-				// if the bundle is already contains max number of snapshots, stop here
+				// if the bundle already contains max number of snapshots, stop here
 				if (metaJsonBundledSnapshotsIds.length() >= maxRowsToBundle) { break; }
 			}
 		}
@@ -990,7 +990,8 @@ public class ApiCheckInUtils implements MqttCallback {
 					String assetType = purgedJson.getJSONObject(i).getString("type");
 					if (	assetType.equalsIgnoreCase("meta")
 						|| 	assetType.equalsIgnoreCase("audio")
-						// ADD ADDITIONAL assetTypes as they become supported
+//						|| 	assetType.equalsIgnoreCase("screenshot")
+//						|| 	assetType.equalsIgnoreCase("log")
 						) {
 						app.apiAssetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(assetId);
 					}
