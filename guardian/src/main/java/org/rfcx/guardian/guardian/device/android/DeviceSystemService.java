@@ -464,9 +464,19 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				
 				List<String[]> telephonyValuesCache = this.telephonyValues;
 				this.telephonyValues = new ArrayList<String[]>();
-				
+
+				String[] prevTelephonyVals = new String[] { "", "", "", "" };
+
 				for (String[] telephonyVals : telephonyValuesCache) {
-					app.deviceSystemDb.dbTelephony.insert(new Date((long) Long.parseLong(telephonyVals[0])), (int) Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3]);
+					if (	(telephonyVals[2] != null) && (telephonyVals[3] != null) // ensure relevant values aren't just null
+						&&	(	!telephonyVals[1].equalsIgnoreCase(prevTelephonyVals[1])
+							&&	!telephonyVals[2].equalsIgnoreCase(prevTelephonyVals[2]) // ensure relevant values aren't just immediate repeats of last saved value
+							&& 	!telephonyVals[3].equalsIgnoreCase(prevTelephonyVals[3])
+							)
+						) {
+						app.deviceSystemDb.dbTelephony.insert(new Date((long) Long.parseLong(telephonyVals[0])), (int) Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3].trim());
+					}
+					prevTelephonyVals = telephonyVals;
 				}
 
 			} else if (statAbbrev.equalsIgnoreCase("datatransfer")) {
