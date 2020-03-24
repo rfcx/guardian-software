@@ -433,7 +433,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				this.cpuUsageValues = new ArrayList<int[]>();
 				
 				for (int[] cpuVals : cpuUsageValuesCache) {
-					app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1]);
+					if (cpuVals[0] <= 100) {
+						app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1]);
+					}
 				}
 				
 			} else if (statAbbrev.equalsIgnoreCase("light")) {

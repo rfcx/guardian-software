@@ -11,9 +11,10 @@ public class DeviceHardware_OrangePi_3GIOT {
 	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceHardware_OrangePi_3GIOT.class);
 	
 	public static final String DEVICE_NAME = "OrangePi 3GIOT";
+	public static final String DEVICE_NAME_INTERNAL = "alps hexing72_cwet_kk";
 		
 	public static boolean isDevice_OrangePi_3GIOT() {
-		return DeviceHardwareUtils.getDeviceHardwareName().equalsIgnoreCase(DEVICE_NAME);
+		return DeviceHardwareUtils.getDeviceHardwareName().equalsIgnoreCase(DEVICE_NAME_INTERNAL);
 	}
 
 }
