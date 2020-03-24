@@ -252,6 +252,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         }
     }
 
+    // setSharedPref is currently the preferred method for updating pref values, universally, across this role (and all roles, by contingency).
     public boolean setSharedPref(String prefKey, String prefValue) {
         return this.sharedPrefs.edit().putString(prefKey, prefValue).commit();
     }

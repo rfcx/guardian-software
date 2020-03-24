@@ -35,13 +35,13 @@ public class RfcxCameraUtils {
 	
 	private static void initializeCameraCaptureDirectories(Context context) {
 		
-		(new File(photoCaptureDir(context))).mkdirs(); FileUtils.chmod(photoCaptureDir(context), 0777);
-		(new File(photoSdCardFilesDir())).mkdirs(); FileUtils.chmod(photoSdCardFilesDir(), 0777);
-		(new File(photoFinalFilesDir(context))).mkdirs(); FileUtils.chmod(photoFinalFilesDir(context), 0777);
+		(new File(photoCaptureDir(context))).mkdirs(); FileUtils.chmod(photoCaptureDir(context),  "rw", "rw");
+		(new File(photoSdCardFilesDir())).mkdirs(); FileUtils.chmod(photoSdCardFilesDir(),  "rw", "rw");
+		(new File(photoFinalFilesDir(context))).mkdirs(); FileUtils.chmod(photoFinalFilesDir(context),  "rw", "rw");
 
-		(new File(videoCaptureDir(context))).mkdirs(); FileUtils.chmod(videoCaptureDir(context), 0777);
-		(new File(videoSdCardFilesDir())).mkdirs(); FileUtils.chmod(videoSdCardFilesDir(), 0777);
-		(new File(videoFinalFilesDir(context))).mkdirs(); FileUtils.chmod(videoFinalFilesDir(context), 0777);
+		(new File(videoCaptureDir(context))).mkdirs(); FileUtils.chmod(videoCaptureDir(context),  "rw", "rw");
+		(new File(videoSdCardFilesDir())).mkdirs(); FileUtils.chmod(videoSdCardFilesDir(),  "rw", "rw");
+		(new File(videoFinalFilesDir(context))).mkdirs(); FileUtils.chmod(videoFinalFilesDir(context),  "rw", "rw");
 	}
 	
 	private static String photoSdCardFilesDir() {

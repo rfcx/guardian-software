@@ -178,7 +178,7 @@ public class RfcxPrefs {
 	    	
 	    	if (!fileObj.exists()) {
 	        	(new File(prefsDirPath)).mkdirs();
-	        	FileUtils.chmod(prefsDirPath, 0777);
+	        	FileUtils.chmod(prefsDirPath, "rw", "rw");
 	    	} else {
 	    		fileObj.delete();
 	    	}
@@ -187,7 +187,7 @@ public class RfcxPrefs {
 	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
 	        	outFile.write(prefValue);
 	        	outFile.close();
-	        	FileUtils.chmod(filePath, 0777);
+	        	FileUtils.chmod(filePath, "rw", "rw");
 	        	writeSuccess = fileObj.exists();
         } catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
@@ -219,13 +219,13 @@ public class RfcxPrefs {
 	    	String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
 	    	File fileObj = new File(filePath);
 	    	fileObj.mkdirs();
-	    	FileUtils.chmod(context.getFilesDir().toString()+"/txt", 0755);
+	    	FileUtils.chmod(context.getFilesDir().toString()+"/txt", "rw", "rw");
 	    	if (fileObj.exists()) { fileObj.delete(); }
         try {
 	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
 	        	outFile.write(stringContents);
 	        	outFile.close();
-	        	FileUtils.chmod(filePath, 0755);
+	        	FileUtils.chmod(filePath, "rw", "rw");
         } catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
         }
@@ -263,7 +263,7 @@ public class RfcxPrefs {
 		String prefsDir = (new StringBuilder()).append(roleFilesDir.substring(0, roleFilesDir.lastIndexOf("/files")-("."+appRole).length())).append(".guardian/files/prefs").toString();
 		
 		if (appRole.equalsIgnoreCase("guardian")) {
-			(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, 0777);
+			(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, "rw", "rw");
 		}
 		
 		return prefsDir;

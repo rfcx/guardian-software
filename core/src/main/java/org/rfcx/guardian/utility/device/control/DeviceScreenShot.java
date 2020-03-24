@@ -37,10 +37,10 @@ public class DeviceScreenShot {
 	public static final String FILETYPE = "png";
 	
 	private static void initializeScreenShotDirectories(Context context) {
-		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context), 0777);
-		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(), 0777);
-		(new File(finalFilesDir(context))).mkdirs(); FileUtils.chmod(finalFilesDir(context), 0777);
-		(new File(getExecutableBinaryDir(context))).mkdirs(); FileUtils.chmod(getExecutableBinaryDir(context), 0777);
+		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context),  "rw", "rw");
+		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(),  "rw", "rw");
+		(new File(finalFilesDir(context))).mkdirs(); FileUtils.chmod(finalFilesDir(context),  "rw", "rw");
+		(new File(getExecutableBinaryDir(context))).mkdirs(); FileUtils.chmod(getExecutableBinaryDir(context),  "rw", "rw");
 	}
 	
 	private static String sdCardFilesDir() {
@@ -132,7 +132,7 @@ public class DeviceScreenShot {
     				OutputStream outputStream = new FileOutputStream(executableBinaryFilePath);
     				byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
     				inputStream.close(); outputStream.close();
-    				FileUtils.chmod(executableBinaryFilePath, 0755);
+    				FileUtils.chmod(executableBinaryFilePath,  "rwx", "rx");
     			} catch (IOException e) {
     				RfcxLog.logExc(logTag, e);
     			}

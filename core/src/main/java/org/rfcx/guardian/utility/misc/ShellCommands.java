@@ -72,7 +72,7 @@ public class ShellCommands {
 		    			BufferedWriter rootFileWriter = new BufferedWriter(new FileWriter(rootScriptPath));
 			        rootFileWriter.write((new StringBuilder()).append("#!/system/bin/sh\n").append(commandContents).append("\n").toString());
 			        rootFileWriter.close();
-			        FileUtils.chmod(rootScriptObj, 0755);
+			        FileUtils.chmod(rootScriptObj, "rwx", "rx");
 				    
 				    if (rootScriptObj.exists()) {
 				    	shellProcess = Runtime.getRuntime().exec( new String[] { "su", "-c", rootScriptPath } );
@@ -218,7 +218,7 @@ public class ShellCommands {
 //	        		+"\n"+commandContents
 //	        		+"\n");
 //	        scriptFile.close();
-//	        FileUtils.chmod(fileObj, 0755);
+//	        FileUtils.chmod(fileObj, "rwx", "rx");
 //	        
 //		    if (fileObj.exists()) {
 //		    	

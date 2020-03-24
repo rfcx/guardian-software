@@ -420,7 +420,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
 		int maxRowsToQuery = 10;
-		int maxRowsToBundle = 2;
+		int maxRowsToBundle = 4;
 
 		JSONObject metaJsonBundledSnapshotsObj = null;
 		JSONArray metaJsonBundledSnapshotsIds = new JSONArray();
