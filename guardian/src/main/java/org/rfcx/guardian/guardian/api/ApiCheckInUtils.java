@@ -391,10 +391,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			assetRows = app.apiAssetExchangeLogDb.dbPurged.getLatestRowsWithLimitExcludeCreatedAt(rowLimit);
 
-		}/* else if (assetStatus.equalsIgnoreCase("sent")) {
-
-			
-		}*/
+		}
 
 		return DbUtils.getConcatRows(assetRows);
 	}
@@ -656,7 +653,7 @@ public class ApiCheckInUtils implements MqttCallback {
 							app.getApplicationContext().getContentResolver());
 					break;
 				} else {
-					Log.e(logTag,"Skipping asset attachent: "+assetType+", "+latestAssetMeta.getString("timestamp")+" was last sent only "+Math.round(milliSecondsSinceAccessed / 1000)+" seconds ago.");
+					Log.e(logTag,"Skipping asset attachment: "+assetType+", "+latestAssetMeta.getString("timestamp")+" was last sent only "+Math.round(milliSecondsSinceAccessed / 1000)+" seconds ago.");
 				}
 			}
 		} catch (JSONException e) {
@@ -760,17 +757,21 @@ public class ApiCheckInUtils implements MqttCallback {
 					filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(rfcxDeviceId, context,
 							(long) Long.parseLong(this.latestCheckInAudioId), fileExtension);
 				}
+				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
+
 			} else if (assetType.equals("screenshot")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePath = DeviceScreenShot.getScreenShotFileLocation_Complete(rfcxDeviceId, context,
 						(long) Long.parseLong(assetId));
+				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			} else if (assetType.equals("log")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePath = DeviceLogCat.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context,
 						(long) Long.parseLong(assetId));
+				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			} else if (assetType.equals("sms")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,
@@ -778,12 +779,10 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			} else if (assetType.equals("meta")) {
 				app.apiCheckInMetaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
-
-				// ONLY USING THE EXCHANGE LOG WITH META FOR THE MOMENT
 				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			}
-			//delete audio file after checkin
+			// delete asset file after it has been purged from records
 			if ((filePath != null) && (new File(filePath)).exists()) {
 				(new File(filePath)).delete();
 				Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ( (filePath != null) ? ", "+filePath.substring(1+filePath.lastIndexOf("/")) : "") );
@@ -976,7 +975,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 
-			// parse meta info and use it to purge the data locally
+			// parse 'meta' info and use it to purge the data locally
 			if (jsonObj.has("meta")) {
 				JSONArray metaJson = jsonObj.getJSONArray("meta");
 				for (int i = 0; i < metaJson.length(); i++) {
@@ -985,14 +984,31 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 
-			// parse purge confirmation array and delete entries from asset exchange log
+			// parse 'purged' confirmation array and delete entries from asset exchange log
 			if (jsonObj.has("purged")) {
 				JSONArray purgedJson = jsonObj.getJSONArray("purged");
 				for (int i = 0; i < purgedJson.length(); i++) {
 					String assetId = purgedJson.getJSONObject(i).getString("id");
 					String assetType = purgedJson.getJSONObject(i).getString("type");
-					if (assetType.equalsIgnoreCase("meta")) {
+					if (	assetType.equalsIgnoreCase("meta")
+						|| 	assetType.equalsIgnoreCase("audio")
+						// ADD ADDITIONAL assetTypes as they become supported
+						) {
 						app.apiAssetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(assetId);
+					}
+				}
+			}
+
+			// parse 'requeue' array
+			if (jsonObj.has("requeue")) {
+				JSONArray requeueJson = jsonObj.getJSONArray("requeue");
+				for (int i = 0; i < requeueJson.length(); i++) {
+					String assetId = requeueJson.getJSONObject(i).getString("id");
+					String assetType = requeueJson.getJSONObject(i).getString("type");
+					if (	assetType.equalsIgnoreCase("audio")
+						// ADD ADDITIONAL assetTypes as they become supported
+					) {
+						// DO SOMETHING HERE... LIKE REQUEUE THE ASSETS (audio checkins)
 					}
 				}
 			}
