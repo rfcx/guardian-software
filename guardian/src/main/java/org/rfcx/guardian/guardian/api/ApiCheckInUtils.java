@@ -757,21 +757,18 @@ public class ApiCheckInUtils implements MqttCallback {
 					filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(rfcxDeviceId, context,
 							(long) Long.parseLong(this.latestCheckInAudioId), fileExtension);
 				}
-				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			} else if (assetType.equals("screenshot")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePath = DeviceScreenShot.getScreenShotFileLocation_Complete(rfcxDeviceId, context,
 						(long) Long.parseLong(assetId));
-				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			} else if (assetType.equals("log")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePath = DeviceLogCat.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context,
 						(long) Long.parseLong(assetId));
-				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			} else if (assetType.equals("sms")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,
@@ -786,6 +783,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			if ((filePath != null) && (new File(filePath)).exists()) {
 				(new File(filePath)).delete();
 				Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ( (filePath != null) ? ", "+filePath.substring(1+filePath.lastIndexOf("/")) : "") );
+				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 			}
 
 		} catch (Exception e) {
