@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
-if (project.file('../gradle/signing/signing.gradle').exists()) {
-    apply from: '../gradle/signing/signing.gradle'
+if (project.file("../gradle/signing/signing.gradle").exists() && project.file("../gradle/signing/${KEY_STORE}").exists()) {
+    apply from: "../gradle/signing/signing.gradle"
 }
 
 android {
