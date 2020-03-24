@@ -313,8 +313,8 @@ public class RfcxPrefs {
 			put("enable_cutoffs_battery", "true");
 			put("enable_cutoffs_schedule_off_hours", "true");
 
-			put("api_host", "api.rfcx.org");
-			put("api_protocol", "https");
+			put("api_rest_host", "api.rfcx.org");
+			put("api_rest_protocol", "https");
 	        put("api_checkin_host", "checkin.rfcx.org");
 	        put("api_checkin_protocol", "tcp");
 	        put("api_checkin_port", "1883");

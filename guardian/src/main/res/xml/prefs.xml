@@ -56,17 +56,17 @@
 		android:defaultValue="true" />
 
 	<EditTextPreference
-			android:key="api_host"
-			android:title="api_host"
-			android:summary="string - api address"
+			android:key="api_rest_host"
+			android:title="api_rest_host"
+			android:summary="string - rest api address"
 			android:enabled="true"
 			android:defaultValue="api.rfcx.org" />
 
 	<ListPreference
-			android:key="api_protocol"
-			android:title="api_protocol"
-			android:dialogTitle="api_protocol"
-			android:summary="string - api protocol"
+			android:key="api_rest_protocol"
+			android:title="api_rest_protocol"
+			android:dialogTitle="api_rest_protocol"
+			android:summary="string - rest api protocol"
 			android:entries="@array/http_or_https"
 			android:entryValues="@array/http_or_https"
 			android:defaultValue="https" />

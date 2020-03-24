@@ -42,8 +42,8 @@ interface ApiInterface {
 
         private fun baseUrl(context: Context): String {
             val prefs = (context.getApplicationContext() as RfcxGuardian).rfcxPrefs
-            val protocol = prefs.getPrefAsString("api_protocol")
-            val host = prefs.getPrefAsString("api_host")
+            val protocol = prefs.getPrefAsString("api_rest_protocol")
+            val host = prefs.getPrefAsString("api_rest_host")
             if (protocol != null && host != null) {
                 return "${protocol}://${host}/"
             }
