@@ -56,7 +56,7 @@ public class DeviceScreenShot {
 	}
 	
 	private static String getExecutableBinaryDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshot/bin").toString();
+		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/bin").toString();
 	}
 
 	public static String getExecutableBinaryFilePath(Context context) {
@@ -90,9 +90,9 @@ public class DeviceScreenShot {
 				String captureFilePath = DeviceScreenShot.getScreenShotFileLocation_Capture(context, captureTimestamp);
 				String finalFilePath = DeviceScreenShot.getScreenShotFileLocation_Complete(this.rfcxDeviceId, context, captureTimestamp);
 				
-				// run framebuffer binary to save screenshot to file
-				ShellCommands.executeCommandAndIgnoreOutput(executableBinaryFilePath+" "+captureFilePath);
-				
+				// as root, run framebuffer binary to save screenshot to file and set output file permissions to allow access by non-root process
+				ShellCommands.executeCommandAsRootAndIgnoreOutput(executableBinaryFilePath+" "+captureFilePath+" && chmod 0777 "+captureFilePath+";", context);
+
 				return completeCapture(captureTimestamp, captureFilePath, finalFilePath);
 				
 			} catch (Exception e) {
@@ -123,7 +123,10 @@ public class DeviceScreenShot {
 	}
 	
 	private void checkSetScreenShotBinary(Context context) {
-		
+
+		(new File(getExecutableBinaryDir(context))).mkdirs();
+		FileUtils.chmod(getExecutableBinaryDir(context),  "rwx", "rwx");
+
 		String executableBinaryFilePath = DeviceScreenShot.getExecutableBinaryFilePath(context);
 		
 		if (!(new File(executableBinaryFilePath)).exists()) {
