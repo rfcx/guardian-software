@@ -54,7 +54,7 @@ public class DeviceLogCat {
 	}
 	
 	private static String getExecutableScriptDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/logs/scr").toString(); 
+		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/scr").toString();
 	}
 
 	public static String getExecutableScriptFilePath(Context context) {
