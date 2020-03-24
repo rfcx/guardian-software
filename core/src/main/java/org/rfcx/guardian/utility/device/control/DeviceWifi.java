@@ -70,5 +70,16 @@ public class DeviceWifi {
 		return false;
 	}
 
+	public void setHotspotConfig() {
+
+	}
+
+	public void setHotspotOn() {
+
+	}
+
+	public void setHotspotOff() {
+
+	}
 
 }
