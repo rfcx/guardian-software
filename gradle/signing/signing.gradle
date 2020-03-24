@@ -1,0 +1,13 @@
+def buildType = "release"
+
+def keystoreFile = file(KEY_STORE)
+if (!keystoreFile.exists()) throw new IllegalStateException("keystore.jks file missing")
+
+android.signingConfigs.create(buildType, {
+    storeFile = file(KEY_STORE)
+    storePassword = KEY_STORE_PASSWORD
+    keyAlias = KEY_ALIAS
+    keyPassword = KEY_ALIAS_PASSWORD
+})
+
+android.buildTypes[buildType].signingConfig = android.signingConfigs[buildType]

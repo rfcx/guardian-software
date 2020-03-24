@@ -1,6 +1,9 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+if (project.file('../gradle/signing/signing.gradle').exists()) {
+    apply from: '../gradle/signing/signing.gradle'
+}
 
 android {
     compileSdkVersion 28
@@ -10,7 +13,8 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 3
-        versionName "0.6.1"
+        versionName "0.6.0"
+        setProperty("archivesBaseName", "guardian-$versionName")
 
         manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "rfcx"]
 
@@ -21,15 +25,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    splits {
-        abi {
-            enable true
-            reset()
-            include 'x86', 'armeabi-v7a', 'x86_64'
-            universalApk true
         }
     }
 }

@@ -13,7 +13,8 @@
 /captures
 .externalNativeBuild
 audio/obj
-gradle/
+gradle/*
+!/gradle/signing
 gradlew
 gradlew.bat
 local.properties
