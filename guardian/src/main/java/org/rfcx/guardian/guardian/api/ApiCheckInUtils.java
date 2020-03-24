@@ -1003,10 +1003,8 @@ public class ApiCheckInUtils implements MqttCallback {
 				for (int i = 0; i < requeueJson.length(); i++) {
 					String assetId = requeueJson.getJSONObject(i).getString("id");
 					String assetType = requeueJson.getJSONObject(i).getString("type");
-					if (	assetType.equalsIgnoreCase("audio")
-						// ADD ADDITIONAL assetTypes as they become supported
-					) {
-						// DO SOMETHING HERE... LIKE REQUEUE THE ASSETS (audio checkins)
+					if (assetType.equalsIgnoreCase("audio")) {
+						reQueueCheckIn("sent", assetId);
 					}
 				}
 			}
@@ -1036,7 +1034,6 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 			app.apiCheckInDb.dbSent.insert(checkInEntry[1], checkInEntry[2], checkInEntry[3], checkInEntry[4]);
 			app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInEntry[1]);
-			Log.d(logTag, "sent checkin to db :" + Arrays.toString(checkInEntry));
 		}
 	}
 
