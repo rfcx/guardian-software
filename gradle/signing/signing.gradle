@@ -2,7 +2,6 @@ def buildType = "release"
 
 def signingDir = "$rootDir/gradle/signing"
 def keystoreFile = file(("$signingDir/$KEY_STORE"))
-if (!keystoreFile.exists()) throw new IllegalStateException("keystore.jks file missing")
 
 android.signingConfigs.create(buildType, {
     storeFile = file(keystoreFile)
