@@ -152,7 +152,6 @@ public class AudioEncodeJobService extends Service {
 								// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
 								if (gZippedFile.exists()) {
 
-									FileUtils.chmod(gZippedFile, 0777);
 									if (postEncodeFile.exists()) { postEncodeFile.delete(); }
 									app.audioEncodeDb.dbEncoded
 										.insert(

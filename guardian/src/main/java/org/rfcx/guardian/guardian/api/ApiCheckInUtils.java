@@ -444,7 +444,8 @@ public class ApiCheckInUtils implements MqttCallback {
 					while (jsonKeys.hasNext()) {
 						String jsonKey = jsonKeys.next();
 
-						if (		(metaJsonBundledSnapshotsObj.get(jsonKey) instanceof String)
+						if (	(metaJsonBundledSnapshotsObj.get(jsonKey) instanceof String)
+							&&	metaJsonObjToAppend.has(jsonKey)
 							&&	(metaJsonObjToAppend.get(jsonKey) != null)
 							&&	(metaJsonObjToAppend.get(jsonKey) instanceof String)
 							) {
@@ -908,7 +909,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			JSONObject jsonObj = new JSONObject(jsonStr);
 
-			Log.d(logTag,jsonStr);
 			// reset/record request latency
 			this.requestSendReturned = System.currentTimeMillis();
 
