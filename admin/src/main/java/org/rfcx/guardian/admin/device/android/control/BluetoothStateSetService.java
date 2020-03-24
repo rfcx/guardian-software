@@ -3,9 +3,9 @@ package org.rfcx.guardian.admin.device.android.control;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.device.control.DeviceADB;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
@@ -33,15 +33,19 @@ public class BluetoothStateSetService extends IntentService {
 			// turn power ON
 			DeviceBluetooth.setPowerOn();
 			// turn tethering ON
-			DeviceBluetooth deviceBluetooth = new DeviceBluetooth(context);
-			deviceBluetooth.setTetheringOn();
-
+			(new DeviceBluetooth(context)).setTetheringOn();
+			// turn adb networking ON
+			DeviceADB.enableADBoverTCP(4455, context);
+			// set network name
 			DeviceBluetooth.setNetworkName("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8));
 
 		} else {
 			// turn power OFF
 			DeviceBluetooth.setPowerOff(context);
-			// we do not disable tethering, as it is not relevant when bluetooth is off
+			// We do NOT disable tethering, as it is not relevant when bluetooth is off
+			// (new DeviceBluetooth(context)).setTetheringOff();
+			// turn adb networking OFF
+			DeviceADB.disableADBoverTCP(context);
 
 		}
 

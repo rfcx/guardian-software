@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.lang.reflect.Constructor;
@@ -62,9 +64,6 @@ public class DeviceBluetooth {
 	    		BluetoothAdapter.getDefaultAdapter().disable();
 	    	}
 	}
-
-	// ADB Connection controls
-	// add some code here
 
 	// Network Name controls
 
@@ -152,6 +151,7 @@ public class DeviceBluetooth {
 						Log.v(logTag, "Bluetooth Tethering is disabled");
 						if (this.tetherEnableOrDisable) {
 							Log.v(logTag, "Attempting to activate Bluetooth Tethering");
+
 							setTetheringOn.invoke(tetherInstance, true);
 							if ((Boolean)isTetheringOn.invoke(tetherInstance, null)) {
 								Log.v(logTag, "Bluetooth Tethering has been activated");

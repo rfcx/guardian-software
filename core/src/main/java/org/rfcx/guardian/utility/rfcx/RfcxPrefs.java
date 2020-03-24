@@ -97,11 +97,14 @@ public class RfcxPrefs {
 	public void reSyncPrefInExternalRoleViaContentProvider(String targetAppRole, String prefKey, Context context) {
 		try {
 			Cursor targetAppRoleResponse =
-				context.getContentResolver().query(
+					context.getContentResolver().query(
 					RfcxComm.getUri(targetAppRole, "prefs_resync", prefKey),
 					RfcxComm.getProjection(targetAppRole, "prefs_resync"),
 					null, null, null);
-			Log.v(logTag, targetAppRoleResponse.toString());
+			if (targetAppRoleResponse != null) {
+				Log.v(logTag, targetAppRoleResponse.toString());
+				targetAppRoleResponse.close();
+			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}

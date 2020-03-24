@@ -30,6 +30,7 @@ public class DeviceControlUtils {
 							RfcxComm.getProjection("admin", "control"),
 							null, null, null);
 				Log.v(logTag, deviceControlResponse.toString());
+				deviceControlResponse.close();
 				return true;
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
@@ -57,6 +58,7 @@ public class DeviceControlUtils {
 								RfcxComm.getProjection("admin", "database_get_latest_row"),
 								null, null, null);
 				Log.v(logTag, dbFetchingResponse.getCount()+"");
+				dbFetchingResponse.close();
 				return true;
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
