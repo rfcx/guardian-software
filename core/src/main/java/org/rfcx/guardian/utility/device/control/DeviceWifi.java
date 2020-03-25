@@ -16,14 +16,15 @@ public class DeviceWifi {
 
 	public DeviceWifi(Context context) {
 		this.context = context;
+		this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 	}
 
 	private Context context;
+	private WifiManager wifiManager;
 
 	private boolean isWifiEnabled() {
-		WifiManager wifiManager = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
-		if (wifiManager != null) {
-			int wifiState = wifiManager.getWifiState();
+		if (this.wifiManager != null) {
+			int wifiState = this.wifiManager.getWifiState();
 			switch (wifiState) {
 				case WifiManager.WIFI_STATE_DISABLED:
 	            		return false;
@@ -40,26 +41,23 @@ public class DeviceWifi {
 	
 	public void setPowerOn() {
 		if (!isWifiEnabled()) {
-			WifiManager wifiManager = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
 	    	Log.v(logTag, "Activating Wifi Power");
-			wifiManager.setWifiEnabled(true);
+			this.wifiManager.setWifiEnabled(true);
 		}
 	}
 	
 	public void setPowerOff() {
 		if (isWifiEnabled()) {
-			WifiManager wifiManager = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
 			Log.v(logTag, "Deactivating Wifi Power");
-			wifiManager.setWifiEnabled(false);
+			this.wifiManager.setWifiEnabled(false);
 		}
 	}
 
 	public boolean isHotspotEnabled() {
-		WifiManager wifiManager = (WifiManager) this.context.getSystemService(context.WIFI_SERVICE);
 		try {
-			Method wifiManagerMethods = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
+			Method wifiManagerMethods = this.wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
 			wifiManagerMethods.setAccessible(true);
-			return (Boolean) wifiManagerMethods.invoke(wifiManager);
+			return (Boolean) wifiManagerMethods.invoke(this.wifiManager);
 		} catch (NoSuchMethodException e) {
 			RfcxLog.logExc(logTag, e);
 		} catch (IllegalAccessException e) {
@@ -70,16 +68,85 @@ public class DeviceWifi {
 		return false;
 	}
 
-	public void setHotspotConfig() {
+	private String hotspotName;
+	private String hotspotPassword;
+	private boolean isVisible = true;
 
+	public void setHotspotConfig(String hotspotName, String hotspotPassword, boolean isVisible) {
+		this.hotspotName = hotspotName;
+		this.hotspotPassword = hotspotPassword;
+		this.isVisible = isVisible;
 	}
 
 	public void setHotspotOn() {
-
+		setHotspot(true);
 	}
 
 	public void setHotspotOff() {
+		setHotspot(false);
+	}
+
+	public void setHotspot(boolean enableOrDisable) {
+
+		Method[] wmMethods = this.wifiManager.getClass().getDeclaredMethods();   //Get all declared methods in WifiManager class
+		boolean methodFound = false;
+		for (Method method: wmMethods){
+			if (method.getName().equals("setWifiApEnabled")) {
+
+				methodFound = true;
+
+				WifiConfiguration wifiConfig = new WifiConfiguration();
+
+				wifiConfig.SSID = this.hotspotName ;
+				wifiConfig.preSharedKey = this.hotspotPassword;
+				wifiConfig.hiddenSSID = !this.isVisible;
+
+				wifiConfig.status = WifiConfiguration.Status.ENABLED;
+				wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+				wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+				wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+				wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+				wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+				wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+				wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+
+				try {
+					if (enableOrDisable) {
+						Log.v(logTag, "Activating Wifi Hotspot");
+					} else {
+						Log.v(logTag, "De-activating Wifi Hotspot");
+					}
+					boolean apStatus = (Boolean) method.invoke(wifiManager, wifiConfig, enableOrDisable);
+					for (Method isWifiApEnabledmethod: wmMethods) {
+						if (isWifiApEnabledmethod.getName().equals("isWifiApEnabled")){
+							while(!(Boolean)isWifiApEnabledmethod.invoke(wifiManager)){ };
+							for (Method thisMethod: wmMethods){
+								if (thisMethod.getName().equals("getWifiApState")){
+									int apState = (Integer)thisMethod.invoke(wifiManager);
+									Log.v(logTag, "Wifi Hotspot Network Name: '"+wifiConfig.SSID+"' ("+wifiConfig.preSharedKey+")");
+								}
+							}
+						}
+					}
+				} catch (IllegalArgumentException e) {
+					RfcxLog.logExc(logTag, e);
+				} catch (IllegalAccessException e) {
+					RfcxLog.logExc(logTag, e);
+				} catch (InvocationTargetException e) {
+					RfcxLog.logExc(logTag, e);
+				}
+			}
+		}
+		if (!methodFound){
+			Log.e(logTag, "Failed to activate Wifi Hotspot (no method found)");
+		}
 
 	}
+
+
+
+
+
+
 
 }

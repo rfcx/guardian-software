@@ -137,7 +137,7 @@ public class RfcxPrefs {
 		    		input.close();
 		    		return txtFileContents;
 	    		} else {
-	    			Log.e(logTag, "No preference file '"+prefKey+"' exists...");
+	    			Log.v(logTag, "No preference file '"+prefKey+"' exists...");
 	    		}
 	    	} catch (FileNotFoundException e) {
 				RfcxLog.logExc(logTag, e);

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.device.control.DeviceADB;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceWifi;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -30,15 +31,20 @@ public class WifiStateSetService extends IntentService {
 		Context context = app.getApplicationContext();
 		boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi");
 
+		DeviceWifi deviceWifi = new DeviceWifi(context);
+		deviceWifi.setHotspotConfig("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8), "rfcxrfcx", true);
+
 		if (prefsAdminEnableWifi) {
 			// turn hotspot ON
-			DeviceWifi deviceWifi = new DeviceWifi(context);
 			deviceWifi.setPowerOff(); // wifi must be turned off before hotspot is enabled
-			Log.v(logTag, "Is hotspot enabled: "+deviceWifi.isHotspotEnabled());
+			deviceWifi.setHotspotOn();
+			// turn adb networking ON
+			DeviceADB.enableADBoverTCP(4455, context);
 		} else {
 			// turn hotspot OFF
-			DeviceWifi deviceWifi = new DeviceWifi(context);
-			Log.v(logTag, "Is hotspot enabled: "+deviceWifi.isHotspotEnabled());
+			deviceWifi.setHotspotOff();
+			// turn adb networking ON
+			DeviceADB.disableADBoverTCP(context);
 
 		}
 

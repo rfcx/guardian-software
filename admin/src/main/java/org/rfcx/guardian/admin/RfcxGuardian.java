@@ -130,7 +130,7 @@ public class RfcxGuardian extends Application {
 							+"|"+( 24 * 60 * 60 * 1000 ) // repeats daily
 							,
 					"ScheduledScreenShotCapture"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
+							+"|"+DateTimeUtils.nowPlusThisLong("00:00:45").getTimeInMillis() // waits forty five seconds before running
 							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_screenshot_capture_cycle") * 60 * 1000 )
 							,
 					"ScheduledLogCatCapture"
@@ -138,8 +138,12 @@ public class RfcxGuardian extends Application {
 							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
 							,
 					"BluetoothStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
-							+"|"+"0" // no repeat
+							+"|"+DateTimeUtils.nowPlusThisLong("00:00:15").getTimeInMillis() // waits fifteen seconds before running
+							+"|"+"0" 																	// no repeat
+							,
+					"WifiStateSet"
+							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
+							+"|"+"0" 																	// no repeat
 			};
 			
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];

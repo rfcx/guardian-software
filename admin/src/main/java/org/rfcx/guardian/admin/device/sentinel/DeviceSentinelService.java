@@ -17,9 +17,7 @@ public class DeviceSentinelService extends Service {
 	
 	private boolean runFlag = false;
 	private DeviceSentinelSvc deviceSentinelSvc;
-	
-	private static final long SENTINEL_POWER_MEASUREMENT_LOOP_MS = 20000;
-	
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -70,6 +68,14 @@ public class DeviceSentinelService extends Service {
 			app = (RfcxGuardian) getApplication();
 
 			try {
+
+				int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+				long sentinelPowerMeasurementLoopDuration = (long) Math.round( 2 * ( (audioCycleDuration * 1000) / 3 ));
+
+				Log.d(logTag, (new StringBuilder())
+						.append("SentinelPowerStats Capture").append(": ")
+						.append("Snapshots (all metrics) taken every ").append(Math.round(sentinelPowerMeasurementLoopDuration/1000)).append(" seconds.")
+						.toString());
 						
 				while (deviceSentinelService.runFlag) {
 
@@ -82,7 +88,7 @@ public class DeviceSentinelService extends Service {
 						
 //					}
 					
-					Thread.sleep(SENTINEL_POWER_MEASUREMENT_LOOP_MS);
+					Thread.sleep(sentinelPowerMeasurementLoopDuration);
 				}
 			
 			} catch (InterruptedException e) {
