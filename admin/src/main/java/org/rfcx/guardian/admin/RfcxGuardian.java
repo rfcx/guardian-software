@@ -2,6 +2,8 @@ package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
 import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
+import org.rfcx.guardian.utility.device.control.DeviceAndroidSystemBuildDotPropFile;
+import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -36,6 +38,7 @@ import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 public class RfcxGuardian extends Application {
 	
@@ -75,28 +78,27 @@ public class RfcxGuardian extends Application {
 		this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
 		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
 		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
-		
+
 		this.version = RfcxRole.getRoleVersion(this, logTag);
 		this.rfcxPrefs.writeVersionToFile(this.version);
 
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
-		
+
 		setDbHandlers();
 		setServiceHandlers();
-		
+
 		ShellCommands.triggerNeedForRootAccess(this);
 		DeviceI2cUtils.resetI2cPermissions(this);
 		DateTimeUtils.resetDateTimeReadWritePermissions(this);
-		
+		runHardwareSpecificModifications();
+
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
-		
+
 		initializeRoleServices();
-		
-		// fix GPS functionality for the Huawei phones
-		if (DeviceHardware_Huawei_U8150.isDevice_Huawei_U8150()) {
-			DeviceHardware_Huawei_U8150.checkOrResetGPSFunctionality(this);
-		}
+
+		// Hardware-specific hacks and modifications
+
 
 	}
 	
@@ -138,11 +140,11 @@ public class RfcxGuardian extends Application {
 							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
 							,
 					"BluetoothStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:15").getTimeInMillis() // waits fifteen seconds before running
+							+"|"+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits fifteen seconds before running
 							+"|"+"0" 																	// no repeat
 							,
 					"WifiStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
+							+"|"+DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits thirty seconds before running
 							+"|"+"0" 																	// no repeat
 			};
 			
@@ -182,14 +184,38 @@ public class RfcxGuardian extends Application {
 
 	public String onPrefReSync(String prefKey) {
 
-		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth")) {
+		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth") || prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
 			rfcxServiceHandler.triggerService("BluetoothStateSet", false);
-
-		} else if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
+		}
+		if (prefKey.equalsIgnoreCase("admin_enable_wifi") || prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
 			rfcxServiceHandler.triggerService("WifiStateSet", false);
-
 		}
 		return this.rfcxPrefs.getPrefAsString(prefKey);
+	}
+
+	private void runHardwareSpecificModifications() {
+
+		if (DeviceHardware_OrangePi_3G_IOT.isDevice_OrangePi_3G_IOT()) {
+
+            String[] propertiesAndValues = new String[] {
+                    "persist.sys.timezone=America/Los_Angeles",
+                    "net.bt.name=rfcx-"+this.rfcxDeviceGuid.getDeviceGuid().substring(0,8),
+                    "ro.product.brand=OrangePi",
+					"ro.product.manufacturer=OrangePi",
+					"ro.product.model=3GIOT",
+                    "ro.product.name=3GIOT",
+                    "ro.product.device=3GIOT",
+                    "ro.product.board=3GIOT",
+                    "ro.build.product=3GIOT",
+                    "ro.cong.xtra_support=true"
+            };
+
+	//		DeviceAndroidSystemBuildDotPropFile.updateBuildDotPropFile(propertiesAndValues, this);
+
+		} else if (DeviceHardware_Huawei_U8150.isDevice_Huawei_U8150()) {
+			DeviceHardware_Huawei_U8150.checkOrResetGPSFunctionality(this);
+		}
+
 	}
     
 }

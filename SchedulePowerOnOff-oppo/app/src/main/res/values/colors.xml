@@ -1,0 +1,12 @@
+<resources>
+
+    <color name="ampm_off">#ffe0e0e0</color>
+    <color name="ampm_on">#000000</color>
+    <color name="white">#ffffffff</color>
+    <!-- <color name="red">#ffee0000</color> -->
+    <color name="ltgrey">#000000</color>
+    <color name="window_bg">#ffffffff</color>
+    <color name="oppo_window_bg">#f2f4fa</color>
+    <color name="transparent">#00000000</color>
+    
+</resources>

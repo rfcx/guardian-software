@@ -56,20 +56,20 @@
 		android:defaultValue="true" />
 
 	<EditTextPreference
-			android:key="api_rest_host"
-			android:title="api_rest_host"
-			android:summary="string - rest api address"
-			android:enabled="true"
-			android:defaultValue="api.rfcx.org" />
+		android:key="api_rest_host"
+		android:title="api_rest_host"
+		android:summary="string - rest api address"
+		android:enabled="true"
+		android:defaultValue="api.rfcx.org" />
 
 	<ListPreference
-			android:key="api_rest_protocol"
-			android:title="api_rest_protocol"
-			android:dialogTitle="api_rest_protocol"
-			android:summary="string - rest api protocol"
-			android:entries="@array/http_or_https"
-			android:entryValues="@array/http_or_https"
-			android:defaultValue="https" />
+		android:key="api_rest_protocol"
+		android:title="api_rest_protocol"
+		android:dialogTitle="api_rest_protocol"
+		android:summary="string - rest api protocol"
+		android:entries="@array/http_or_https"
+		android:entryValues="@array/http_or_https"
+		android:defaultValue="https" />
 
  	<EditTextPreference
         android:key="api_checkin_host"
@@ -253,12 +253,21 @@
         android:summary="string - true/false"
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
-		android:defaultValue="true" />
+		android:defaultValue="false" />
 
 	<ListPreference
 		android:key="admin_enable_wifi"
 		android:title="admin_enable_wifi"
 		android:dialogTitle="admin_enable_wifi"
+		android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="false" />
+
+	<ListPreference
+		android:key="admin_enable_tcp_adb"
+		android:title="admin_enable_tcp_adb"
+		android:dialogTitle="admin_enable_tcp_adb"
 		android:summary="string - true/false"
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"

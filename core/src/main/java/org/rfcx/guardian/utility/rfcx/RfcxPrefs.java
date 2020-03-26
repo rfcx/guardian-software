@@ -339,8 +339,9 @@ public class RfcxPrefs {
 			put("checkin_stash_threshold", "240");
 			put("checkin_archive_threshold", "160");
 
-			put("admin_enable_bluetooth", "true");
+			put("admin_enable_bluetooth", "false");
 			put("admin_enable_wifi", "false");
+			put("admin_enable_tcp_adb", "false");
 
 			put("admin_log_capture_cycle", "30");
 			put("admin_log_capture_level", "warn");

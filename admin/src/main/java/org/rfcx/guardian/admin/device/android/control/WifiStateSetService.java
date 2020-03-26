@@ -38,16 +38,16 @@ public class WifiStateSetService extends IntentService {
 			// turn hotspot ON
 			deviceWifi.setPowerOff(); // wifi must be turned off before hotspot is enabled
 			deviceWifi.setHotspotOn();
-			// turn adb networking ON
-			DeviceADB.enableADBoverTCP(4455, context);
+
 		} else {
 			// turn hotspot OFF
 			deviceWifi.setHotspotOff();
-			// turn adb networking ON
-			DeviceADB.disableADBoverTCP(context);
 
 		}
 
+		// set ADB networking state
+		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean("admin_enable_tcp_adb");
+		DeviceADB.setADBoverTCP(prefsAdminEnableAdb, context);
 
 	}
 	
