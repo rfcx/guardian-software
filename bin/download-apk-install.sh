@@ -24,7 +24,7 @@ else
         echo "force relaunch of app role...";
         $ADB_BIN shell am start -n org.rfcx.guardian.$app/.activity.MainActivity;
 
-        rm $app-$1
+        rm $app-$1.apk
     done
 
 fi
