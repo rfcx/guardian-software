@@ -15,6 +15,7 @@ public class DeviceADB {
 	public static void setADBoverTCP(boolean enableOrDisable, int tcpPort, Context context) {
 		if (tcpPort <= 0) { tcpPort = DEFAULT_TCP_PORT; }
 		Log.v(logTag, ((enableOrDisable) ? "Enabling" : "Disabling") + " ADB over TCP on port "+tcpPort);
+//		ShellCommands.executeCommandAndIgnoreOutput("setprop persist.adb.tcp.port "+((enableOrDisable) ? tcpPort : "\"\""));
 		ShellCommands.executeCommandAsRootAndIgnoreOutput("setprop persist.adb.tcp.port "+((enableOrDisable) ? tcpPort : "\"\""), context);
 	}
 

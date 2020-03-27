@@ -367,7 +367,7 @@ public class FileUtils {
 	
     public static boolean isExternalStorageAvailable() {
     	
-    		int requiredFreeMegaBytes = 16;
+		int requiredFreeMegaBytes = 16;
 
         StatFs extDiskStat = new StatFs(Environment.getExternalStorageDirectory().getPath());
         double extDiskAvailSize = (double) extDiskStat.getAvailableBlocks() * (double) extDiskStat.getBlockSize();

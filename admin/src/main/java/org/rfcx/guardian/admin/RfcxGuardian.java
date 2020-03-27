@@ -7,6 +7,11 @@ import org.rfcx.guardian.admin.device.android.system.DeviceDiskDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceRebootDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSensorDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
+import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
+import org.rfcx.guardian.utility.device.DeviceBattery;
+import org.rfcx.guardian.utility.device.DeviceCPU;
+import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceAndroidSystemBuildDotPropFile;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ShellCommands;
@@ -70,13 +75,20 @@ public class RfcxGuardian extends Application {
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
-	
+
+	// Android Device Handlers
+    public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
+    public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
+    public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
+    public DeviceUtils deviceUtils = null;
+
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
 	
 	public String[] RfcxCoreServices = 
-			new String[] { 
+			new String[] {
+				"DeviceSystem",
 				"DeviceSentinel"
 			};
 	
@@ -103,6 +115,7 @@ public class RfcxGuardian extends Application {
 		DateTimeUtils.resetDateTimeReadWritePermissions(this);
 		runHardwareSpecificModifications();
 
+		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 
 		initializeRoleServices();
@@ -170,7 +183,6 @@ public class RfcxGuardian extends Application {
 		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
 		this.deviceLogCatDb = new DeviceLogCatDb(this, this.version);
-
 		this.deviceSystemDb = new DeviceSystemDb(this, this.version);
         this.deviceSensorDb = new DeviceSensorDb(this, this.version);
         this.rebootDb = new DeviceRebootDb(this, this.version);
@@ -189,6 +201,8 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
+
+		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
 
 		this.rfcxServiceHandler.addService("ScreenShotCapture", DeviceScreenShotCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledScreenShotCapture", ScheduledScreenShotCaptureService.class);

@@ -75,26 +75,26 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
     public ArchiveDb archiveDb = null;
 
-//    public DeviceSystemDb deviceSystemDb = null;
-//    public DeviceSensorDb deviceSensorDb = null;
-//    public DeviceRebootDb rebootDb = null;
-//    public DeviceDataTransferDb deviceDataTransferDb = null;
-//    public DeviceDiskDb deviceDiskDb = null;
+    public DeviceSystemDb deviceSystemDb = null; //remove
+    public DeviceSensorDb deviceSensorDb = null; //remove
+    public DeviceRebootDb rebootDb = null; //remove
+    public DeviceDataTransferDb deviceDataTransferDb = null; //remove
+    public DeviceDiskDb deviceDiskDb = null; //remove
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 
     // Android Device Handlers
-    public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
-    public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
-    public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
-    public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
+    public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE); //remove
+    public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE); //remove
+    public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE); //remove
+    public DeviceUtils deviceUtils = null; //remove
 
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
-    public DeviceUtils deviceUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
+    public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
     public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
 
@@ -127,16 +127,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
         this.syncSharedPrefs();
 
-//		setSharedPref("enable_cutoffs_schedule_off_hours", "true");
-//		setSharedPref("audio_schedule_off_hours", "19:00-23:45,00:05-05:55");
-        setSharedPref("audio_battery_cutoff", "10");
+//        setSharedPref("audio_battery_cutoff", "10");
 
         setDbHandlers();
         setServiceHandlers();
 
         this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
         this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
-        this.deviceUtils = new DeviceUtils(getApplicationContext());
+        this.deviceUtils = new DeviceUtils(getApplicationContext()); //remove
         this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
         startAllServices();
@@ -217,11 +215,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
 
-//        this.deviceSystemDb = new DeviceSystemDb(this, this.version);
-//        this.deviceSensorDb = new DeviceSensorDb(this, this.version);
-//        this.rebootDb = new DeviceRebootDb(this, this.version);
-//        this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
-//        this.deviceDiskDb = new DeviceDiskDb(this, this.version);
+        this.deviceSystemDb = new DeviceSystemDb(this, this.version); //remove
+        this.deviceSensorDb = new DeviceSensorDb(this, this.version); //remove
+        this.rebootDb = new DeviceRebootDb(this, this.version); //remove
+        this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version); //remove
+        this.deviceDiskDb = new DeviceDiskDb(this, this.version); //remove
     }
 
     private void setServiceHandlers() {
@@ -231,12 +229,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
         this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
         this.rfcxServiceHandler.addService("PhotoCaptureJob", PhotoCaptureJobService.class);
-        this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
         this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
         this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
         this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
         this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
+
+        this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
 
     }
 
