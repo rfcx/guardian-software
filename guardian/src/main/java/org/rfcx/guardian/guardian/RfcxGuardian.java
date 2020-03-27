@@ -73,12 +73,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInDb apiCheckInDb = null;
     public ApiCheckInMetaDb apiCheckInMetaDb = null;
     public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
-    public DeviceSystemDb deviceSystemDb = null;
-    public DeviceSensorDb deviceSensorDb = null;
-    public DeviceRebootDb rebootDb = null;
-    public DeviceDataTransferDb deviceDataTransferDb = null;
-    public DeviceDiskDb deviceDiskDb = null;
     public ArchiveDb archiveDb = null;
+
+//    public DeviceSystemDb deviceSystemDb = null;
+//    public DeviceSensorDb deviceSensorDb = null;
+//    public DeviceRebootDb rebootDb = null;
+//    public DeviceDataTransferDb deviceDataTransferDb = null;
+//    public DeviceDiskDb deviceDiskDb = null;
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -214,13 +215,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
         this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
-        this.deviceSystemDb = new DeviceSystemDb(this, this.version);
-        this.deviceSensorDb = new DeviceSensorDb(this, this.version);
-        this.rebootDb = new DeviceRebootDb(this, this.version);
-        this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
-        this.deviceDiskDb = new DeviceDiskDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
 
+//        this.deviceSystemDb = new DeviceSystemDb(this, this.version);
+//        this.deviceSensorDb = new DeviceSensorDb(this, this.version);
+//        this.rebootDb = new DeviceRebootDb(this, this.version);
+//        this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
+//        this.deviceDiskDb = new DeviceDiskDb(this, this.version);
     }
 
     private void setServiceHandlers() {
