@@ -2,6 +2,11 @@ package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
 import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
+import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceDiskDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceRebootDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceSensorDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
 import org.rfcx.guardian.utility.device.control.DeviceAndroidSystemBuildDotPropFile;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ShellCommands;
@@ -55,7 +60,12 @@ public class RfcxGuardian extends Application {
 	public DeviceScreenShotDb deviceScreenShotDb = null;
 	public DeviceLogCatDb deviceLogCatDb = null;
 	public SentinelPowerDb sentinelPowerDb = null;
-	
+	public DeviceSystemDb deviceSystemDb = null;
+    public DeviceSensorDb deviceSensorDb = null;
+    public DeviceRebootDb rebootDb = null;
+    public DeviceDataTransferDb deviceDataTransferDb = null;
+    public DeviceDiskDb deviceDiskDb = null;
+
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
@@ -160,6 +170,12 @@ public class RfcxGuardian extends Application {
 		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
 		this.deviceLogCatDb = new DeviceLogCatDb(this, this.version);
+
+		this.deviceSystemDb = new DeviceSystemDb(this, this.version);
+        this.deviceSensorDb = new DeviceSensorDb(this, this.version);
+        this.rebootDb = new DeviceRebootDb(this, this.version);
+        this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
+        this.deviceDiskDb = new DeviceDiskDb(this, this.version);
 	}
 
 	private void setServiceHandlers() {
