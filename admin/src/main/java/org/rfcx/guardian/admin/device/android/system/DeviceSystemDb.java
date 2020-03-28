@@ -3,7 +3,7 @@ package org.rfcx.guardian.admin.device.android.system;
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -20,7 +20,7 @@ public class DeviceSystemDb {
 		this.dbPower = new DbPower(context);
 		this.dbTelephony = new DbTelephony(context);
 		this.dbOffline = new DbOffline(context);
-		this.dbMqttBrokerConnections = new DbMqttBrokerConnections(context);
+//		this.dbMqttBrokerConnections = new DbMqttBrokerConnections(context);
 		this.dbDateTimeOffsets = new DbDateTimeOffsets(context);
 	}
 	
@@ -225,40 +225,40 @@ public class DeviceSystemDb {
 	}
 	public final DbOffline dbOffline;
 
-	public class DbMqttBrokerConnections {
-
-		final DbUtils dbUtils;
-
-		private String TABLE = "mqttbroker";
-		
-		public DbMqttBrokerConnections(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
-		}
-		
-		public int insert(Date measured_at, long connection_time, String protocol, String host, int port) {
-			
-			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, measured_at.getTime());
-			values.put(C_VALUE_1, connection_time);
-			values.put(C_VALUE_2, (new StringBuilder()).append(protocol).append("://").append(host).append(":").append(port).toString().replaceAll("\\*", "-").replaceAll("\\|","-"));
-			
-			return this.dbUtils.insertRow(TABLE, values);
-		}
-		
-		private List<String[]> getAllRows() {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
-		}
-		
-		public void clearRowsBefore(Date date) {
-			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
-		}
-		
-		public String getConcatRows() {
-			return DbUtils.getConcatRows(getAllRows());
-		}
-
-	}
-	public final DbMqttBrokerConnections dbMqttBrokerConnections;
+//	public class DbMqttBrokerConnections {
+//
+//		final DbUtils dbUtils;
+//
+//		private String TABLE = "mqttbroker";
+//
+//		public DbMqttBrokerConnections(Context context) {
+//			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+//		}
+//
+//		public int insert(Date measured_at, long connection_time, String protocol, String host, int port) {
+//
+//			ContentValues values = new ContentValues();
+//			values.put(C_MEASURED_AT, measured_at.getTime());
+//			values.put(C_VALUE_1, connection_time);
+//			values.put(C_VALUE_2, (new StringBuilder()).append(protocol).append("://").append(host).append(":").append(port).toString().replaceAll("\\*", "-").replaceAll("\\|","-"));
+//
+//			return this.dbUtils.insertRow(TABLE, values);
+//		}
+//
+//		private List<String[]> getAllRows() {
+//			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+//		}
+//
+//		public void clearRowsBefore(Date date) {
+//			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
+//		}
+//
+//		public String getConcatRows() {
+//			return DbUtils.getConcatRows(getAllRows());
+//		}
+//
+//	}
+//	public final DbMqttBrokerConnections dbMqttBrokerConnections;
 	
 	public class DbDateTimeOffsets {
 

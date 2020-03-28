@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin;
 
+import org.rfcx.guardian.admin.device.android.capture.PhotoCaptureJobService;
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
 import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
@@ -209,6 +210,8 @@ public class RfcxGuardian extends Application {
 
 		this.rfcxServiceHandler.addService("LogCatCapture", DeviceLogCatCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledLogCatCapture", ScheduledLogCatCaptureService.class);
+
+		this.rfcxServiceHandler.addService("PhotoCapture", PhotoCaptureJobService.class);
 
 	}
 

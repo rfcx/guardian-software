@@ -3,7 +3,7 @@ package org.rfcx.guardian.admin.device.android.system;
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;

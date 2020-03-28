@@ -20,7 +20,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.device.DeviceDiskUsage;
 import org.rfcx.guardian.utility.device.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
@@ -229,8 +228,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		if (app != null) {
 
 			if (innerLoopIncrement == 0) {
-				
-				boolean isAudioCaptureEnabled = app.audioCaptureUtils.isAudioCaptureAllowed(false);
+
+				// MUST FIX for cross role access
+				boolean isAudioCaptureEnabled = true; //app.audioCaptureUtils.isAudioCaptureAllowed(false);
 				int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 				
 				// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
