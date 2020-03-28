@@ -299,8 +299,6 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("power", app.deviceSystemDb.dbPower.getConcatRows());
 			metaDataJsonObj.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
 			metaDataJsonObj.put("offline", app.deviceSystemDb.dbOffline.getConcatRows());
-			metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
-			metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
 			metaDataJsonObj.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
 			metaDataJsonObj.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
 			metaDataJsonObj.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
@@ -312,6 +310,9 @@ public class ApiCheckInUtils implements MqttCallback {
 			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
 					"sentinel_power", app.getApplicationContext().getContentResolver());
 			metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPower));
+
+			metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
+			metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
 
 			// Saves JSON snapshot blob to database
 			app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
@@ -330,8 +331,6 @@ public class ApiCheckInUtils implements MqttCallback {
 			app.deviceSystemDb.dbPower.clearRowsBefore(deleteBefore);
 			app.deviceSystemDb.dbTelephony.clearRowsBefore(deleteBefore);
 			app.deviceSystemDb.dbOffline.clearRowsBefore(deleteBefore);
-			app.deviceSystemDb.dbMqttBrokerConnections.clearRowsBefore(deleteBefore);
-			app.deviceSystemDb.dbDateTimeOffsets.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbLightMeter.clearRowsBefore(deleteBefore);
 			app.deviceSensorDb.dbAccelerometer.clearRowsBefore(deleteBefore);
 			app.deviceDataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
@@ -341,6 +340,9 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
 					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+
+			app.deviceSystemDb.dbDateTimeOffsets.clearRowsBefore(deleteBefore);
+			app.deviceSystemDb.dbMqttBrokerConnections.clearRowsBefore(deleteBefore);
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -362,26 +364,27 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
 	}
-	//todo: comment the example result
-	private String getConcatSentinelMetaForBattery(JSONArray sentinelJsonArray) throws JSONException {
-		ArrayList<String> sentinelMetaBlobs = new ArrayList<String>();
-		for (int i = 0; i < sentinelJsonArray.length(); i++) {
-			JSONObject sentinelJsonRow = sentinelJsonArray.getJSONObject(i);
-			Iterator<String> paramLabels = sentinelJsonRow.keys();
-			int count = 0;
-			ArrayList<String> tempArray = new ArrayList<String>();
-			while (paramLabels.hasNext()) {
-				String paramLabel = paramLabels.next();
-				if ( (sentinelJsonRow.get(paramLabel) instanceof String) && (sentinelJsonRow.getString(paramLabel).length() > 0) && count > 1) {
-					tempArray.add(sentinelJsonRow.getString(paramLabel));
-				}
-				count++;
-			}
-			sentinelMetaBlobs.add(TextUtils.join("*", tempArray));
-		}
 
-		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
-	}
+//	//todo: comment the example result
+//	private String getConcatSentinelMetaForBattery(JSONArray sentinelJsonArray) throws JSONException {
+//		ArrayList<String> sentinelMetaBlobs = new ArrayList<String>();
+//		for (int i = 0; i < sentinelJsonArray.length(); i++) {
+//			JSONObject sentinelJsonRow = sentinelJsonArray.getJSONObject(i);
+//			Iterator<String> paramLabels = sentinelJsonRow.keys();
+//			int count = 0;
+//			ArrayList<String> tempArray = new ArrayList<String>();
+//			while (paramLabels.hasNext()) {
+//				String paramLabel = paramLabels.next();
+//				if ( (sentinelJsonRow.get(paramLabel) instanceof String) && (sentinelJsonRow.getString(paramLabel).length() > 0) && count > 1) {
+//					tempArray.add(sentinelJsonRow.getString(paramLabel));
+//				}
+//				count++;
+//			}
+//			sentinelMetaBlobs.add(TextUtils.join("*", tempArray));
+//		}
+//
+//		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
+//	}
 
 	private String getAssetExchangeLogList(String assetStatus, int rowLimit) {
 

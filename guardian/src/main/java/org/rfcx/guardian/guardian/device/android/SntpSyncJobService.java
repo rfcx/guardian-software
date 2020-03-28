@@ -87,9 +87,6 @@ public class SntpSyncJobService extends Service {
 						long nowSystem = System.currentTimeMillis();
 						long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
 						
-						app.deviceUtils.dateTimeSourceLastSyncedAt_sntp = nowSystem;
-						app.deviceUtils.dateTimeDiscrepancyFromSystemClock_sntp = (nowSntp-nowSystem);
-						
 						app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem));
 						
 						Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntp+" - System: "+nowSystem+" (System is "+Math.abs(nowSystem-nowSntp)+"ms "+

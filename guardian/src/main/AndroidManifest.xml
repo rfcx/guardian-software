@@ -27,8 +27,8 @@
     <!-- 	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" /> -->
     <!-- 	<uses-permission android:name="android.permission.SET_TIME_ZONE" /> -->
 
-    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+<!--    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />-->
+<!--    <uses-permission android:name="android.permission.WAKE_LOCK" />-->
 
     <!-- 	<uses-permission android:name="android.permission.CALL_PHONE" /> -->
     <!-- 	<uses-permission android:name="android.permission.RECEIVE_SMS" /> -->
@@ -36,12 +36,9 @@
     <!-- 	<uses-permission android:name="android.permission.WRITE_SMS"/> -->
     <!-- 	<uses-permission android:name="android.permission.READ_SMS"/> -->
 
-    <uses-permission android:name="android.permission.CAMERA" />
+<!--    <uses-permission android:name="android.permission.CAMERA" />-->
 
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS" tools:ignore="ProtectedPermissions"/>
-
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
-    <uses-feature android:name="android.hardware.Camera" android:required="false" />
 
     <uses-permission android:name="org.rfcx.guardian.READ" />
     <uses-permission android:name="org.rfcx.guardian.WRITE" />
@@ -86,10 +83,8 @@
         <!-- Services -->
         <service android:name=".audio.capture.AudioCaptureService" android:exported="false" />
         <service android:name=".audio.encode.AudioEncodeJobService" android:exported="false" />
-        <service android:name=".camera.capture.PhotoCaptureJobService" android:exported="false" />
         <service android:name=".api.ApiCheckInJobService" android:exported="false" />
         <service android:name=".archive.ApiCheckInArchiveService" android:exported="false" />
-        <service android:name=".device.android.DeviceSystemService" android:exported="false" />
         <service android:name=".device.android.SntpSyncJobService" android:exported="false" />
 
         <!-- IntentServices -->

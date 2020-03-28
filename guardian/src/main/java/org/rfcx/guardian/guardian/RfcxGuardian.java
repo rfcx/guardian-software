@@ -9,10 +9,8 @@ import android.location.LocationManager;
 import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
-import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.DeviceMobilePhone;
-import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -26,7 +24,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import org.rfcx.guardian.guardian.api.ApiAssetExchangeLogDb;
@@ -42,15 +39,8 @@ import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.guardian.audio.encode.AudioQueueEncodeService;
-import org.rfcx.guardian.guardian.camera.capture.PhotoCaptureJobService;
 import org.rfcx.guardian.guardian.device.android.SntpSyncJobService;
-import org.rfcx.guardian.guardian.device.android.DeviceDataTransferDb;
-import org.rfcx.guardian.guardian.device.android.DeviceDiskDb;
-import org.rfcx.guardian.guardian.device.android.DeviceRebootDb;
-import org.rfcx.guardian.guardian.device.android.DeviceSensorDb;
 import org.rfcx.guardian.guardian.device.android.DeviceSystemDb;
-import org.rfcx.guardian.guardian.device.android.DeviceSystemService;
-import org.rfcx.guardian.guardian.device.android.DeviceUtils;
 import org.rfcx.guardian.guardian.device.android.ScheduledSntpSyncService;
 import org.rfcx.guardian.guardian.receiver.ConnectivityReceiver;
 
@@ -74,21 +64,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInMetaDb apiCheckInMetaDb = null;
     public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
     public ArchiveDb archiveDb = null;
-
-    public DeviceSystemDb deviceSystemDb = null; //remove
-    public DeviceSensorDb deviceSensorDb = null; //remove
-    public DeviceRebootDb rebootDb = null; //remove
-    public DeviceDataTransferDb deviceDataTransferDb = null; //remove
-    public DeviceDiskDb deviceDiskDb = null; //remove
+    public DeviceSystemDb deviceSystemDb = null;
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 
     // Android Device Handlers
-    public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE); //remove
-    public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE); //remove
-    public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE); //remove
-    public DeviceUtils deviceUtils = null; //remove
+    public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
@@ -98,12 +80,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
 
-    public PowerManager.WakeLock wakelock;
-
     public String[] RfcxCoreServices =
             new String[]{
                     "AudioCapture",
-                    "DeviceSystem",
                     "ApiCheckInJob",
                     "AudioEncodeJob"
             };
@@ -134,7 +113,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
         this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
-        this.deviceUtils = new DeviceUtils(getApplicationContext()); //remove
         this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
         startAllServices();
@@ -214,12 +192,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
         this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
-
-        this.deviceSystemDb = new DeviceSystemDb(this, this.version); //remove
-        this.deviceSensorDb = new DeviceSensorDb(this, this.version); //remove
-        this.rebootDb = new DeviceRebootDb(this, this.version); //remove
-        this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version); //remove
-        this.deviceDiskDb = new DeviceDiskDb(this, this.version); //remove
+        this.deviceSystemDb = new DeviceSystemDb(this, this.version);
     }
 
     private void setServiceHandlers() {
@@ -228,14 +201,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
         this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
         this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
-        this.rfcxServiceHandler.addService("PhotoCaptureJob", PhotoCaptureJobService.class);
         this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
         this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
         this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
         this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
-
-        this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
 
     }
 
