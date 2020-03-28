@@ -88,7 +88,7 @@ public class AudioCaptureService extends Service {
 				
 				try {
 					
-					if (		confirmOrSetAudioCaptureParameters() 
+					if (confirmOrSetAudioCaptureParameters()
 						&& 	app.audioCaptureUtils.isAudioCaptureAllowed(app.rfcxPrefs.getPrefAsBoolean("verbose_logging"))
 						) {
 							
@@ -111,7 +111,7 @@ public class AudioCaptureService extends Service {
 						// in this case, we assume that the state has changed and capture is no longer allowed... 
 						// ...but there is a capture in progress, so we take a snapshot and halt the recorder.
 						captureTimeStamp = 0;
-						Log.d(logTag, "wavRecoder come halt");
+						Log.d(logTag, "halt wavRecorder");
 						wavRecorder.haltRecording();
 						wavRecorder = null;
 						Log.i(logTag, "Stopping audio capture.");
@@ -126,6 +126,8 @@ public class AudioCaptureService extends Service {
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 						Thread.sleep(loopQuarterDuration);
 					}
+
+					app.rfcxServiceHandler.triggerIntentServiceImmediately("SystemMetaSnapshot");
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);

@@ -280,11 +280,11 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 	}
 
-	private void createSystemMetaDataJsonSnapshot() throws JSONException {
-
-		JSONObject metaDataJsonObj = new JSONObject();
+	public void createSystemMetaDataJsonSnapshot() {
 
 		try {
+
+			JSONObject metaDataJsonObj = new JSONObject();
 
 			Date metaQueryTimestampObj = new Date();
 			long metaQueryTimestamp = metaQueryTimestampObj.getTime();
@@ -294,17 +294,17 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("meta_ids", metaIds);
 			metaDataJsonObj.put("measured_at", metaQueryTimestamp);
 			
-			metaDataJsonObj.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
-			metaDataJsonObj.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
-			metaDataJsonObj.put("power", app.deviceSystemDb.dbPower.getConcatRows());
-			metaDataJsonObj.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
-			metaDataJsonObj.put("offline", app.deviceSystemDb.dbOffline.getConcatRows());
-			metaDataJsonObj.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
-			metaDataJsonObj.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
-			metaDataJsonObj.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
-			metaDataJsonObj.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
-			metaDataJsonObj.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());
-			metaDataJsonObj.put("disk_usage", app.deviceDiskDb.dbDiskUsage.getConcatRows());
+			metaDataJsonObj.put("battery", ""); //app.deviceSystemDb.dbBattery.getConcatRows());
+			metaDataJsonObj.put("cpu", ""); //app.deviceSystemDb.dbCPU.getConcatRows());
+			metaDataJsonObj.put("power", ""); //app.deviceSystemDb.dbPower.getConcatRows());
+			metaDataJsonObj.put("network", ""); //app.deviceSystemDb.dbTelephony.getConcatRows());
+			metaDataJsonObj.put("offline", ""); //app.deviceSystemDb.dbOffline.getConcatRows());
+			metaDataJsonObj.put("lightmeter", ""); //app.deviceSensorDb.dbLightMeter.getConcatRows());
+			metaDataJsonObj.put("data_transfer", ""); //app.deviceDataTransferDb.dbTransferred.getConcatRows());
+			metaDataJsonObj.put("accelerometer", ""); //app.deviceSensorDb.dbAccelerometer.getConcatRows());
+			metaDataJsonObj.put("reboots", ""); //app.rebootDb.dbRebootComplete.getConcatRows());
+			metaDataJsonObj.put("geoposition", ""); //app.deviceSensorDb.dbGeoPosition.getConcatRows());
+			metaDataJsonObj.put("disk_usage", ""); //app.deviceDiskDb.dbDiskUsage.getConcatRows());
 
 			// Adding sentinel data, if they can be retrieved
 			JSONArray sentinelPower = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
@@ -319,6 +319,8 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			clearPreFlightSystemMetaData(metaQueryTimestampObj);
 
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -326,17 +328,18 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private void clearPreFlightSystemMetaData(Date deleteBefore) {
 		try {
-			app.deviceSystemDb.dbBattery.clearRowsBefore(deleteBefore);
-			app.deviceSystemDb.dbCPU.clearRowsBefore(deleteBefore);
-			app.deviceSystemDb.dbPower.clearRowsBefore(deleteBefore);
-			app.deviceSystemDb.dbTelephony.clearRowsBefore(deleteBefore);
-			app.deviceSystemDb.dbOffline.clearRowsBefore(deleteBefore);
-			app.deviceSensorDb.dbLightMeter.clearRowsBefore(deleteBefore);
-			app.deviceSensorDb.dbAccelerometer.clearRowsBefore(deleteBefore);
-			app.deviceDataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
-			app.rebootDb.dbRebootComplete.clearRowsBefore(deleteBefore);
-			app.deviceSensorDb.dbGeoPosition.clearRowsBefore(deleteBefore);
-			app.deviceDiskDb.dbDiskUsage.clearRowsBefore(deleteBefore);
+
+//			app.deviceSystemDb.dbBattery.clearRowsBefore(deleteBefore);
+//			app.deviceSystemDb.dbCPU.clearRowsBefore(deleteBefore);
+//			app.deviceSystemDb.dbPower.clearRowsBefore(deleteBefore);
+//			app.deviceSystemDb.dbTelephony.clearRowsBefore(deleteBefore);
+//			app.deviceSystemDb.dbOffline.clearRowsBefore(deleteBefore);
+//			app.deviceSensorDb.dbLightMeter.clearRowsBefore(deleteBefore);
+//			app.deviceSensorDb.dbAccelerometer.clearRowsBefore(deleteBefore);
+//			app.deviceDataTransferDb.dbTransferred.clearRowsBefore(deleteBefore);
+//			app.rebootDb.dbRebootComplete.clearRowsBefore(deleteBefore);
+//			app.deviceSensorDb.dbGeoPosition.clearRowsBefore(deleteBefore);
+//			app.deviceDiskDb.dbDiskUsage.clearRowsBefore(deleteBefore);
 
 			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
 					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
@@ -477,7 +480,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta) throws JSONException, IOException {
 
-		createSystemMetaDataJsonSnapshot();
+//		createSystemMetaDataJsonSnapshot(); // moved this to execute within AudioCapture loop, as an IntentService
 
 		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
 
