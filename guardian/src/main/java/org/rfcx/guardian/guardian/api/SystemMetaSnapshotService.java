@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.api;
 import android.app.IntentService;
 import android.content.Intent;
 
+import org.json.JSONException;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
@@ -24,8 +25,14 @@ public class SystemMetaSnapshotService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 
-		app.apiCheckInUtils.createSystemMetaDataJsonSnapshot();
-	
+		try {
+
+			app.apiCheckInUtils.createSystemMetaDataJsonSnapshot();
+
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+
 	}
 	
 	

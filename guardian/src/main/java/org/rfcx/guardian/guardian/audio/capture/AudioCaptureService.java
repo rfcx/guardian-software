@@ -121,12 +121,15 @@ public class AudioCaptureService extends Service {
 					if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
 						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueueEncode");
 					}
-					
+
 					for (int loopQuarterIteration = 0; loopQuarterIteration < 4; loopQuarterIteration++) {
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 						Thread.sleep(loopQuarterDuration);
 					}
 
+					// creating a metadata snapshot, for retrieval during CheckIn.
+					// this is unrelated to audio capture, but putting it here ensures that snapshots
+					// will continue to be taken, whether or not audio is actually being captured.
 					app.rfcxServiceHandler.triggerIntentServiceImmediately("SystemMetaSnapshot");
 					
 				} catch (Exception e) {
@@ -151,7 +154,7 @@ public class AudioCaptureService extends Service {
 			int prefsAudioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
 			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			
-			if (		(this.audioSampleRate != prefsAudioSampleRate)
+			if (	(this.audioSampleRate != prefsAudioSampleRate)
 				||	(this.audioCycleDuration != prefsAudioCycleDuration)
 				) {
 

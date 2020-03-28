@@ -9,6 +9,8 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemService.SignalStrengthListener;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
@@ -18,6 +20,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class DeviceUtils {
@@ -170,6 +173,55 @@ public class DeviceUtils {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
+	}
+
+	public static JSONArray getSystemMetaValuesAsJsonArray(Context context) {
+
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		JSONArray metaJsonArray = new JSONArray();
+		try {
+			JSONObject metaJson = new JSONObject();
+
+			metaJson.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
+			metaJson.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
+			metaJson.put("power", app.deviceSystemDb.dbPower.getConcatRows());
+			metaJson.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
+			metaJson.put("offline", app.deviceSystemDb.dbOffline.getConcatRows());
+			metaJson.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
+			metaJson.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
+			metaJson.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
+			metaJson.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
+			metaJson.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());
+			metaJson.put("disk_usage", app.deviceDiskDb.dbDiskUsage.getConcatRows());
+			metaJsonArray.put(metaJson);
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+
+		} finally {
+			return metaJsonArray;
+		}
+	}
+
+	public static int deleteSystemMetaValuesBeforeTimestamp(String timeStamp, Context context) {
+
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+
+		Date clearBefore = new Date(Long.parseLong(timeStamp));
+
+		app.deviceSystemDb.dbBattery.clearRowsBefore(clearBefore);
+		app.deviceSystemDb.dbCPU.clearRowsBefore(clearBefore);
+		app.deviceSystemDb.dbPower.clearRowsBefore(clearBefore);
+		app.deviceSystemDb.dbTelephony.clearRowsBefore(clearBefore);
+		app.deviceSystemDb.dbOffline.clearRowsBefore(clearBefore);
+		app.deviceSensorDb.dbLightMeter.clearRowsBefore(clearBefore);
+		app.deviceSensorDb.dbAccelerometer.clearRowsBefore(clearBefore);
+		app.deviceDataTransferDb.dbTransferred.clearRowsBefore(clearBefore);
+		app.rebootDb.dbRebootComplete.clearRowsBefore(clearBefore);
+		app.deviceSensorDb.dbGeoPosition.clearRowsBefore(clearBefore);
+		app.deviceDiskDb.dbDiskUsage.clearRowsBefore(clearBefore);
+
+		return 1;
 	}
 
 }
