@@ -2,12 +2,14 @@ package org.rfcx.guardian.guardian.api;
 
 import java.io.File;
 
+import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class ApiCheckInJobService extends Service {
@@ -42,7 +44,7 @@ public class ApiCheckInJobService extends Service {
 		try {
 			this.apiCheckInJob.start();
 		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
+			CrashlyticsUtils.INSTANCE.logException(logTag, e);
 		}
 		return START_NOT_STICKY;
 	}
@@ -138,7 +140,7 @@ public class ApiCheckInJobService extends Service {
 					Thread.sleep(500);
 					
 				} catch (Exception e) {
-					RfcxLog.logExc(logTag, e);
+					CrashlyticsUtils.INSTANCE.logException(logTag, e);
 					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 					apiCheckInJobInstance.runFlag = false;
 				}			

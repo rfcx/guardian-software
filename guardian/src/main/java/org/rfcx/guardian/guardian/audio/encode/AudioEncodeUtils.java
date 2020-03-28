@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.rfcx.guardian.audio.flac.FLAC_FileEncoder;
 import org.rfcx.guardian.audio.opus.OpusAudioEncoder;
+import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -46,7 +47,7 @@ public class AudioEncodeUtils {
 					
 				}
 			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
+				CrashlyticsUtils.INSTANCE.logException(logTag, e);
 			}
 		}
 		

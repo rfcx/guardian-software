@@ -1,5 +1,6 @@
 package org.rfcx.guardian.guardian.contentprovider;
 
+import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -46,7 +47,7 @@ public class GuardianContentProvider extends ContentProvider {
 			
 			
 		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
+			CrashlyticsUtils.INSTANCE.logException(logTag, e);
 		}
 		return null;
 	}
@@ -65,7 +66,7 @@ public class GuardianContentProvider extends ContentProvider {
 //			}
 			
 		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
+			CrashlyticsUtils.INSTANCE.logException(logTag, e);
 		}
 		
 		return 0;

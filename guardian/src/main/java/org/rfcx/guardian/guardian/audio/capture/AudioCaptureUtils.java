@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
@@ -165,7 +166,7 @@ public class AudioCaptureUtils {
 				if (preEncodeFile.exists()) { captureFile.delete(); }	
 				isFileMoved = preEncodeFile.exists();
 			} catch (IOException e) {
-				RfcxLog.logExc(logTag, e);
+				CrashlyticsUtils.INSTANCE.logException(logTag, e);
 			}
 		}
 		return isFileMoved;

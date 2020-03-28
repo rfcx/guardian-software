@@ -1,5 +1,6 @@
 package org.rfcx.guardian.guardian.device.android;
 
+import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.datetime.SntpClient;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -43,7 +44,7 @@ public class SntpSyncJobService extends Service {
 		try {
 			this.SntpSyncJob.start();
 		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
+			CrashlyticsUtils.INSTANCE.logException(logTag, e);
 		}
 		return START_NOT_STICKY;
 	}
@@ -96,7 +97,7 @@ public class SntpSyncJobService extends Service {
 				}
 					
 			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
+				CrashlyticsUtils.INSTANCE.logException(logTag, e);
 			} finally {
 				sntpSyncJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
