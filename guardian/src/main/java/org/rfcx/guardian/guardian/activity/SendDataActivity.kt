@@ -7,7 +7,7 @@ import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.content.*
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import kotlinx.android.synthetic.main.fragment_syncguardian.*
 import org.rfcx.guardian.guardian.RfcxGuardian
