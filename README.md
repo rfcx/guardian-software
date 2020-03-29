@@ -17,6 +17,19 @@ A collection of Android applications which, together, operate as autonomous Rain
 - Open in Android Studio
 - Perform a Gradle sync (File -> Sync Project with Gradle) and accept licences/install SDK packages (if prompted by Android Studio)
 
+#### Build Signed APKs
+
+- First need to prepare necessery files located in /gradle/signing/
+   - rfcx-guardian-keystore.jks
+   - rfcx-guardian-keystore-alias.txt
+   - rfcx-guardian-keystore-password.txt
+- Use this command after prepared
+
+   ```
+   gradlew :role:assembleRelease
+   ```
+- Output will be in /role/build/outputs/apk/release/
+
 #### Run the guardian role
 
 1. Connect your phone.
