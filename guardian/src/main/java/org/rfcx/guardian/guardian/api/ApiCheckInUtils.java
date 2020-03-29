@@ -484,12 +484,10 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 		}
 
-		return metaJsonBundledSnapshotsObj;
+		return (metaJsonBundledSnapshotsObj == null) ? new JSONObject() : metaJsonBundledSnapshotsObj;
 	}
 
-	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta) throws JSONException, IOException {
-
-//		createSystemMetaDataJsonSnapshot(); // moved this to execute within AudioCapture loop, as an IntentService
+	private String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta) throws JSONException, IOException {
 
 		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
 
@@ -543,7 +541,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	}
 
-	public byte[] packageMqttPayload(String checkInJsonString, String checkInAudioFilePath)
+	private byte[] packageMqttPayload(String checkInJsonString, String checkInAudioFilePath)
 			throws UnsupportedEncodingException, IOException, JSONException {
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

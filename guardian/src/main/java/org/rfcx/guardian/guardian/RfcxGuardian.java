@@ -6,7 +6,7 @@ import java.util.Map;
 import android.content.Context;
 import android.location.LocationManager;
 
-import org.rfcx.guardian.guardian.api.SystemMetaSnapshotService;
+import org.rfcx.guardian.guardian.api.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
@@ -175,7 +175,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     }
 
     public Boolean getRecordingState() {
-        return rfcxServiceHandler.isRunning("AudioCapture");
+        return this.rfcxServiceHandler.isRunning("AudioCapture");
     }
 
     public Boolean isLocationEnabled () {
@@ -207,7 +207,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
         this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
         this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
-        this.rfcxServiceHandler.addService("SystemMetaSnapshot", SystemMetaSnapshotService.class);
+        this.rfcxServiceHandler.addService("ApiCheckInMetaSnapshot", ApiCheckInMetaSnapshotService.class);
 
     }
 

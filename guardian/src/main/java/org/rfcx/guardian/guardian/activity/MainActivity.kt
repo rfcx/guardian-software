@@ -17,8 +17,8 @@ import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.BuildConfig
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.ApiInterface
-import org.rfcx.guardian.guardian.api.RegisterApi
+import org.rfcx.guardian.guardian.register.ApiInterface
+import org.rfcx.guardian.guardian.register.RegisterApi
 import org.rfcx.guardian.guardian.entity.GuardianResponse
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
                             object : RegisterApi.RegisterCallback {
                                 override fun onSuccess() {
                                     ApiInterface.create(baseContext)
-                                        .isGuardianExisted("Bearer ${getTokenID()}", guid)
+                                        .isGuardianRegistered("Bearer ${getTokenID()}", guid)
                                         .enqueue(object :
                                             Callback<GuardianResponse> {
                                             override fun onFailure(
@@ -174,13 +174,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        i2cSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (isChecked) {
-                app.setSharedPref("checkin_with_i2c_battery", "true")
-            } else {
-                app.setSharedPref("checkin_with_i2c_battery", "false")
-            }
-        }
     }
 
     private fun initUI() {
@@ -323,8 +316,6 @@ class MainActivity : AppCompatActivity() {
             switchView.visibility = View.VISIBLE
             permissionInfoLayout.visibility = View.VISIBLE
             deviceIdText.text = readRegisterFile()
-            i2cSwitch.isChecked =
-                app.sharedPrefs.getString("checkin_with_i2c_battery", "false") == "true"
             setPermissionStatus(app)
             appVersionText.visibility = View.VISIBLE
         } else {

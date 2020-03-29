@@ -89,8 +89,8 @@ public class RfcxGuardian extends Application {
 	
 	public String[] RfcxCoreServices = 
 			new String[] {
-				"DeviceSystem",
-				"DeviceSentinel"
+				"DeviceSystem"/*,
+				"DeviceSentinel"*/
 			};
 	
 	@Override

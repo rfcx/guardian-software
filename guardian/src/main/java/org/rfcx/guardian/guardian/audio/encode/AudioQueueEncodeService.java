@@ -62,7 +62,6 @@ public class AudioQueueEncodeService extends IntentService {
 				Log.e(logTag, "Queued audio file does not exist: "+RfcxAudioUtils.getAudioFileLocation_PreEncode(context, captureTimeStampQueue[0],captureFileExtension));
 			}
 
-		//	app.rfcxServiceHandler.triggerService("AudioEncodeJob", false);
 			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
 				
 		} catch (Exception e) {
@@ -70,7 +69,6 @@ public class AudioQueueEncodeService extends IntentService {
 			
 		} finally {
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			app.rfcxServiceHandler.stopService(SERVICE_NAME);
 		}
 		
 	}
