@@ -18,8 +18,8 @@ public class DeviceAndroidSystemBuildDotPropFile {
 
 	public static void updateBuildDotPropFile(String[] propertiesWithValues, Context context) {
 
-		String tmpFilePath = context.getFilesDir().toString()+"/tmp.build.prop";
-		String backupFilePath = context.getFilesDir().toString()+"/"+System.currentTimeMillis()+".build.prop";
+		String tmpFilePath = context.getFilesDir().toString()+"/build.prop.tmp";
+		String backupFilePath = context.getFilesDir().toString()+"/build.prop."+System.currentTimeMillis();
 
 		StringBuilder shellCmd = new StringBuilder();
 		shellCmd.append("mount -o rw,remount /dev/block/mmcblk0p1 /system;\n");

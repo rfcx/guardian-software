@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import android.app.Activity;
-import android.view.LayoutInflater;
-import android.view.View;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -26,8 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.rfcx.guardian.guardian.R;
-import org.rfcx.guardian.guardian.activity.MainActivity;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -97,6 +92,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private long[] healthCheckTargetUpperBounds = new long[healthCheckCategories.length];
 	private static final int healthCheckMeasurementCount = 6;
 	private long[] healthCheckInitValues = new long[healthCheckMeasurementCount];
+	private boolean doCheckInConditionsAllowCheckInRequeuing = false;
 
 	public boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
@@ -205,10 +201,10 @@ public class ApiCheckInUtils implements MqttCallback {
 		/* latency */		healthCheckTargetLowerBounds[0] = 0;
 							healthCheckTargetUpperBounds[0] = Math.round( 0.4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
 
-		/* queued */			healthCheckTargetLowerBounds[1] = 0;
+		/* queued */		healthCheckTargetLowerBounds[1] = 0;
 							healthCheckTargetUpperBounds[1] = 1;
 
-		/* recent */			healthCheckTargetLowerBounds[2] = 0;
+		/* recent */		healthCheckTargetLowerBounds[2] = 0;
 							healthCheckTargetUpperBounds[2] = ( healthCheckMeasurementCount / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
 
 		/* time-of-day */	healthCheckTargetLowerBounds[3] = 9;
@@ -231,7 +227,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			currAvgVals[j] = ArrayUtils.getAverageAsLong(healthCheckMonitors.get(categ));
 		}
 
-		boolean isExceptionallyHealthy = true;
+		doCheckInConditionsAllowCheckInRequeuing = true;
 		StringBuilder healthCheckLogging = new StringBuilder();
 
 		for (int j = 0; j < healthCheckCategories.length; j++) {
@@ -241,17 +237,19 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (healthCheckCategories[j].equalsIgnoreCase("recent")) { currAvgVal = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(currAvgVals[j])); }
 
 			// compare to upper lower bounds, check for pass/fail
-			if ((currAvgVal > healthCheckTargetUpperBounds[j]) || (currAvgVal < healthCheckTargetLowerBounds[j])) { isExceptionallyHealthy = false; }
+			if ((currAvgVal > healthCheckTargetUpperBounds[j]) || (currAvgVal < healthCheckTargetLowerBounds[j])) {
+				doCheckInConditionsAllowCheckInRequeuing = false;
+			}
 
-			// generat some verbose logging feedback
+			// generate some verbose logging feedback
 			healthCheckLogging.append(", ").append(healthCheckCategories[j]).append(": ").append(currAvgVal).append("/")
-							.append((healthCheckTargetLowerBounds[j] > 1) ? healthCheckTargetLowerBounds[j]+"-" : "")
-							.append(healthCheckTargetUpperBounds[j]);
+					.append((healthCheckTargetLowerBounds[j] > 1) ? healthCheckTargetLowerBounds[j] + "-" : "")
+					.append(healthCheckTargetUpperBounds[j]);
 		}
 
-		healthCheckLogging.insert(0,"ExceptionalHealthCheck (last "+healthCheckMeasurementCount+" checkins): "+( isExceptionallyHealthy ? "PASS" : "FAIL" ));
+		healthCheckLogging.insert(0,"Allow Stashed CheckIn Requeuing: "+( doCheckInConditionsAllowCheckInRequeuing ? "PASS" : "FAIL" )+". Conditions (last "+healthCheckMeasurementCount+" checkins)");
 
-		if (!isExceptionallyHealthy) {
+		if (!doCheckInConditionsAllowCheckInRequeuing) {
 			Log.w(logTag,healthCheckLogging.toString());
 		} else {
 			Log.i(logTag,healthCheckLogging.toString());
