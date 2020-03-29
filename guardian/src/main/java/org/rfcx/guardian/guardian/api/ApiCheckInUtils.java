@@ -296,18 +296,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
 			metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
-			
-//			metaDataJsonObj.put("battery", ""); //app.deviceSystemDb.dbBattery.getConcatRows());
-//			metaDataJsonObj.put("cpu", ""); //app.deviceSystemDb.dbCPU.getConcatRows());
-//			metaDataJsonObj.put("power", ""); //app.deviceSystemDb.dbPower.getConcatRows());
-//			metaDataJsonObj.put("network", ""); //app.deviceSystemDb.dbTelephony.getConcatRows());
-//			metaDataJsonObj.put("offline", ""); //app.deviceSystemDb.dbOffline.getConcatRows());
-//			metaDataJsonObj.put("lightmeter", ""); //app.deviceSensorDb.dbLightMeter.getConcatRows());
-//			metaDataJsonObj.put("data_transfer", ""); //app.deviceDataTransferDb.dbTransferred.getConcatRows());
-//			metaDataJsonObj.put("accelerometer", ""); //app.deviceSensorDb.dbAccelerometer.getConcatRows());
-//			metaDataJsonObj.put("reboots", ""); //app.rebootDb.dbRebootComplete.getConcatRows());
-//			metaDataJsonObj.put("geoposition", ""); //app.deviceSensorDb.dbGeoPosition.getConcatRows());
-//			metaDataJsonObj.put("disk_usage", ""); //app.deviceDiskDb.dbDiskUsage.getConcatRows());
 
 			// Adding system metadata, if they can be retrieved from admin role via contentprovider
 			JSONArray systemMetaJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",

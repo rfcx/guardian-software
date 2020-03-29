@@ -434,7 +434,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				this.cpuUsageValues = new ArrayList<int[]>();
 				
 				for (int[] cpuVals : cpuUsageValuesCache) {
-					if (cpuVals[0] <= 100) {
+					// make sure the values are valid
+					if ((cpuVals[0] <= 100) && (cpuVals[0] >= 0)) {
 						app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1]);
 					}
 				}
@@ -500,8 +501,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				this.batteryLevelValues = new ArrayList<int[]>();
 				
 				for (int[] batteryLevelVals : batteryLevelValuesCache) {
-					app.deviceSystemDb.dbBattery.insert(new Date(), batteryLevelVals[0], batteryLevelVals[1]);
-					app.deviceSystemDb.dbPower.insert(new Date(), batteryLevelVals[2], batteryLevelVals[3]);
+					if ((batteryLevelVals[0] <= 100) && (batteryLevelVals[0] >= 0)) {
+						app.deviceSystemDb.dbBattery.insert(new Date(), batteryLevelVals[0], batteryLevelVals[1]);
+						app.deviceSystemDb.dbPower.insert(new Date(), batteryLevelVals[2], batteryLevelVals[3]);
+					}
 				}
 				
 			} else if (statAbbrev.equalsIgnoreCase("diskusage")) {

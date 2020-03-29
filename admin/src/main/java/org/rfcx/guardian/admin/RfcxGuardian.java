@@ -229,22 +229,7 @@ public class RfcxGuardian extends Application {
 	private void runHardwareSpecificModifications() {
 
 		if (DeviceHardware_OrangePi_3G_IOT.isDevice_OrangePi_3G_IOT()) {
-
-            String[] propertiesAndValues = new String[] {
-                    "persist.sys.timezone=America/Los_Angeles",
-                    "net.bt.name=rfcx-"+this.rfcxDeviceGuid.getDeviceGuid().substring(0,8),
-                    "ro.product.brand=OrangePi",
-					"ro.product.manufacturer=OrangePi",
-					"ro.product.model=3GIOT",
-                    "ro.product.name=3GIOT",
-                    "ro.product.device=3GIOT",
-                    "ro.product.board=3GIOT",
-                    "ro.build.product=3GIOT",
-                    "ro.cong.xtra_support=true"
-            };
-
-	//		DeviceAndroidSystemBuildDotPropFile.updateBuildDotPropFile(propertiesAndValues, this);
-
+			DeviceHardware_OrangePi_3G_IOT.setDeviceDefaultState(this);
 		} else if (DeviceHardware_Huawei_U8150.isDevice_Huawei_U8150()) {
 			DeviceHardware_Huawei_U8150.checkOrResetGPSFunctionality(this);
 		}
