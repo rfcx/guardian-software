@@ -227,6 +227,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			currAvgVals[j] = ArrayUtils.getAverageAsLong(healthCheckMonitors.get(categ));
 		}
 
+		boolean displayLogging = true;
 		doCheckInConditionsAllowCheckInRequeuing = true;
 		StringBuilder healthCheckLogging = new StringBuilder();
 
@@ -245,14 +246,21 @@ public class ApiCheckInUtils implements MqttCallback {
 			healthCheckLogging.append(", ").append(healthCheckCategories[j]).append(": ").append(currAvgVal).append("/")
 					.append((healthCheckTargetLowerBounds[j] > 1) ? healthCheckTargetLowerBounds[j] + "-" : "")
 					.append(healthCheckTargetUpperBounds[j]);
+
+			if (healthCheckCategories[j].equalsIgnoreCase("time-of-day") && (currAvgVal > 24)) {
+				// In this case, we suppress logging, as we can guess that there are less than 6 checkin samples gathered
+				displayLogging = false;
+			}
 		}
 
-		healthCheckLogging.insert(0,"Allow Stashed CheckIn Requeuing: "+( doCheckInConditionsAllowCheckInRequeuing ? "PASS" : "FAIL" )+". Conditions (last "+healthCheckMeasurementCount+" checkins)");
+		healthCheckLogging.insert(0,"Stashed CheckIn Requeuing: "+( doCheckInConditionsAllowCheckInRequeuing ? "Allowed" : "Not Allowed" )+". Conditions (last "+healthCheckMeasurementCount+" checkins)");
 
-		if (!doCheckInConditionsAllowCheckInRequeuing) {
-			Log.w(logTag,healthCheckLogging.toString());
-		} else {
-			Log.i(logTag,healthCheckLogging.toString());
+		if (displayLogging) {
+			if (!doCheckInConditionsAllowCheckInRequeuing) {
+				Log.w(logTag, healthCheckLogging.toString());
+			} else {
+				Log.i(logTag, healthCheckLogging.toString());
+			}
 		}
 
 	}
