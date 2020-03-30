@@ -92,7 +92,7 @@
         <service android:name=".api.ApiQueueCheckInService" android:exported="false" />
         <service android:name=".audio.encode.AudioQueueEncodeService" android:exported="false" />
         <service android:name=".device.android.ScheduledSntpSyncService" android:exported="false" />
-        <service android:name=".api.SystemMetaSnapshotService" android:exported="false" />
+        <service android:name=".api.ApiCheckInMetaSnapshotService" android:exported="false" />
         <service android:name=".receiver.BTTethering" android:exported="false"/>
 
         <!-- Receivers -->

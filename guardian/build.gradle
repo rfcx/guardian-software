@@ -4,6 +4,10 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
+if (project.file("../gradle/signing/signing.gradle").exists() && project.file("../gradle/signing/${KEY_STORE}").exists()) {
+    apply from: "../gradle/signing/signing.gradle"
+}
+
 android {
     compileSdkVersion 28
 
@@ -13,6 +17,7 @@ android {
         targetSdkVersion 28
         versionCode 3
         versionName "0.6.1"
+        setProperty("archivesBaseName", "guardian-$versionName")
 
         manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "rfcx"]
 
@@ -23,15 +28,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-
-    splits {
-        abi {
-            enable true
-            reset()
-            include 'x86', 'armeabi-v7a', 'x86_64'
-            universalApk true
         }
     }
 }

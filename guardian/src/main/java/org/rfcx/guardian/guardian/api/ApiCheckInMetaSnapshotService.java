@@ -8,13 +8,13 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-public class SystemMetaSnapshotService extends IntentService {
+public class ApiCheckInMetaSnapshotService extends IntentService {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SystemMetaSnapshotService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInMetaSnapshotService.class);
 
-	private static final String SERVICE_NAME = "SystemMetaSnapshot";
+	private static final String SERVICE_NAME = "ApiCheckInMetaSnapshot";
 
-	public SystemMetaSnapshotService() {
+	public ApiCheckInMetaSnapshotService() {
 		super(logTag);
 	}
 	

@@ -162,7 +162,7 @@ public class ApiCheckInArchiveService extends Service {
 					StringUtils.saveStringToFile(tsvRows.toString(), archiveTarFilePath+"/_metadata.tsv");
 					archiveFileList.add(archiveTarFilePath+"/_metadata.tsv");
 
-					
+					Log.e(logTag, "Archive is not being tarred or gZipped, to avoid a resource spike.");
 //					FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath+".tar");
 //					FileUtils.gZipFile(archiveTarFilePath+".tar", archiveTarFilePath+".tar.gz");
 					

@@ -17,7 +17,7 @@ public class DeviceDiskUsage {
 	}
 
 	public static long[] getCurrentDiskUsageStats() {
-		StatFs intStat = getStatFs(Environment.getRootDirectory().getAbsolutePath());
+		StatFs intStat = getStatFs(Environment.getDataDirectory().getAbsolutePath());
 		StatFs extStat = getStatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
 		return new long[] { System.currentTimeMillis(), diskUsedBytes(intStat), diskFreeBytes(intStat), diskUsedBytes(extStat), diskFreeBytes(extStat) };
 	}

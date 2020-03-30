@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api
+package org.rfcx.guardian.guardian.register
 
 import android.content.Context
 import org.rfcx.guardian.guardian.manager.PreferenceManager

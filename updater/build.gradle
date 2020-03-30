@@ -1,4 +1,7 @@
 apply plugin: 'com.android.application'
+if (project.file("../gradle/signing/signing.gradle").exists() && project.file("../gradle/signing/${KEY_STORE}").exists()) {
+    apply from: "../gradle/signing/signing.gradle"
+}
 
 android {
     compileSdkVersion 28
@@ -16,6 +19,7 @@ android {
         targetSdkVersion 28
         versionCode 3
         versionName "0.6.1"
+        setProperty("archivesBaseName", "updater-$versionName")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

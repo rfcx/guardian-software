@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import android.app.Activity;
-import android.view.LayoutInflater;
-import android.view.View;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -26,8 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.rfcx.guardian.guardian.R;
-import org.rfcx.guardian.guardian.activity.MainActivity;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -97,6 +92,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private long[] healthCheckTargetUpperBounds = new long[healthCheckCategories.length];
 	private static final int healthCheckMeasurementCount = 6;
 	private long[] healthCheckInitValues = new long[healthCheckMeasurementCount];
+	private boolean doCheckInConditionsAllowCheckInRequeuing = false;
 
 	public boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
@@ -205,10 +201,10 @@ public class ApiCheckInUtils implements MqttCallback {
 		/* latency */		healthCheckTargetLowerBounds[0] = 0;
 							healthCheckTargetUpperBounds[0] = Math.round( 0.4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
 
-		/* queued */			healthCheckTargetLowerBounds[1] = 0;
+		/* queued */		healthCheckTargetLowerBounds[1] = 0;
 							healthCheckTargetUpperBounds[1] = 1;
 
-		/* recent */			healthCheckTargetLowerBounds[2] = 0;
+		/* recent */		healthCheckTargetLowerBounds[2] = 0;
 							healthCheckTargetUpperBounds[2] = ( healthCheckMeasurementCount / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
 
 		/* time-of-day */	healthCheckTargetLowerBounds[3] = 9;
@@ -231,7 +227,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			currAvgVals[j] = ArrayUtils.getAverageAsLong(healthCheckMonitors.get(categ));
 		}
 
-		boolean isExceptionallyHealthy = true;
+		boolean displayLogging = true;
+		doCheckInConditionsAllowCheckInRequeuing = true;
 		StringBuilder healthCheckLogging = new StringBuilder();
 
 		for (int j = 0; j < healthCheckCategories.length; j++) {
@@ -241,20 +238,29 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (healthCheckCategories[j].equalsIgnoreCase("recent")) { currAvgVal = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(currAvgVals[j])); }
 
 			// compare to upper lower bounds, check for pass/fail
-			if ((currAvgVal > healthCheckTargetUpperBounds[j]) || (currAvgVal < healthCheckTargetLowerBounds[j])) { isExceptionallyHealthy = false; }
+			if ((currAvgVal > healthCheckTargetUpperBounds[j]) || (currAvgVal < healthCheckTargetLowerBounds[j])) {
+				doCheckInConditionsAllowCheckInRequeuing = false;
+			}
 
-			// generat some verbose logging feedback
+			// generate some verbose logging feedback
 			healthCheckLogging.append(", ").append(healthCheckCategories[j]).append(": ").append(currAvgVal).append("/")
-							.append((healthCheckTargetLowerBounds[j] > 1) ? healthCheckTargetLowerBounds[j]+"-" : "")
-							.append(healthCheckTargetUpperBounds[j]);
+					.append((healthCheckTargetLowerBounds[j] > 1) ? healthCheckTargetLowerBounds[j] + "-" : "")
+					.append(healthCheckTargetUpperBounds[j]);
+
+			if (healthCheckCategories[j].equalsIgnoreCase("time-of-day") && (currAvgVal > 24)) {
+				// In this case, we suppress logging, as we can guess that there are less than 6 checkin samples gathered
+				displayLogging = false;
+			}
 		}
 
-		healthCheckLogging.insert(0,"ExceptionalHealthCheck (last "+healthCheckMeasurementCount+" checkins): "+( isExceptionallyHealthy ? "PASS" : "FAIL" ));
+		healthCheckLogging.insert(0,"Stashed CheckIn Requeuing: "+( doCheckInConditionsAllowCheckInRequeuing ? "Allowed" : "Not Allowed" )+". Conditions (last "+healthCheckMeasurementCount+" checkins)");
 
-		if (!isExceptionallyHealthy) {
-			Log.w(logTag,healthCheckLogging.toString());
-		} else {
-			Log.i(logTag,healthCheckLogging.toString());
+		if (displayLogging) {
+			if (!doCheckInConditionsAllowCheckInRequeuing) {
+				Log.w(logTag, healthCheckLogging.toString());
+			} else {
+				Log.i(logTag, healthCheckLogging.toString());
+			}
 		}
 
 	}
@@ -296,18 +302,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
 			metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
-			
-//			metaDataJsonObj.put("battery", ""); //app.deviceSystemDb.dbBattery.getConcatRows());
-//			metaDataJsonObj.put("cpu", ""); //app.deviceSystemDb.dbCPU.getConcatRows());
-//			metaDataJsonObj.put("power", ""); //app.deviceSystemDb.dbPower.getConcatRows());
-//			metaDataJsonObj.put("network", ""); //app.deviceSystemDb.dbTelephony.getConcatRows());
-//			metaDataJsonObj.put("offline", ""); //app.deviceSystemDb.dbOffline.getConcatRows());
-//			metaDataJsonObj.put("lightmeter", ""); //app.deviceSensorDb.dbLightMeter.getConcatRows());
-//			metaDataJsonObj.put("data_transfer", ""); //app.deviceDataTransferDb.dbTransferred.getConcatRows());
-//			metaDataJsonObj.put("accelerometer", ""); //app.deviceSensorDb.dbAccelerometer.getConcatRows());
-//			metaDataJsonObj.put("reboots", ""); //app.rebootDb.dbRebootComplete.getConcatRows());
-//			metaDataJsonObj.put("geoposition", ""); //app.deviceSensorDb.dbGeoPosition.getConcatRows());
-//			metaDataJsonObj.put("disk_usage", ""); //app.deviceDiskDb.dbDiskUsage.getConcatRows());
 
 			// Adding system metadata, if they can be retrieved from admin role via contentprovider
 			JSONArray systemMetaJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
@@ -484,12 +478,10 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 		}
 
-		return metaJsonBundledSnapshotsObj;
+		return (metaJsonBundledSnapshotsObj == null) ? new JSONObject() : metaJsonBundledSnapshotsObj;
 	}
 
-	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta) throws JSONException, IOException {
-
-//		createSystemMetaDataJsonSnapshot(); // moved this to execute within AudioCapture loop, as an IntentService
+	private String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta) throws JSONException, IOException {
 
 		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
 
@@ -543,7 +535,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	}
 
-	public byte[] packageMqttPayload(String checkInJsonString, String checkInAudioFilePath)
+	private byte[] packageMqttPayload(String checkInJsonString, String checkInAudioFilePath)
 			throws UnsupportedEncodingException, IOException, JSONException {
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
