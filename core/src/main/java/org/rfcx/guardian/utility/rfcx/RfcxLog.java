@@ -3,6 +3,8 @@ package org.rfcx.guardian.utility.rfcx;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 public class RfcxLog {
 	
 	public static String generateLogTag(String appRole, Class logClass) {
@@ -37,10 +39,12 @@ public class RfcxLog {
 	
 	public static void logExc(String logTag, Exception exc) {
 		Log.e( logTag, getExceptionContentAsString(exc));
+        FirebaseCrashlytics.getInstance().recordException(exc);
 	}
 	
 	public static void logThrowable(String logTag, Throwable thrw) {
 		Log.e( logTag, getThrowableContentAsString(thrw));
+        FirebaseCrashlytics.getInstance().recordException(thrw);
 	}
 
 }
