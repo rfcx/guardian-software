@@ -1,7 +1,6 @@
 package org.rfcx.guardian.guardian.audio.encode;
 
 
-import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
@@ -67,7 +66,7 @@ public class AudioQueueEncodeService extends IntentService {
 			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
 				
 		} catch (Exception e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 			
 		} finally {
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);

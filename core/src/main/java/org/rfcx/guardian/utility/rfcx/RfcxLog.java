@@ -38,15 +38,6 @@ public class RfcxLog {
 	public static void logExc(String logTag, Exception exc) {
 		Log.e( logTag, getExceptionContentAsString(exc));
 	}
-
-	/*
-	* Same as logExc but not static
-	* Add this temporary method for CrashlyticsUtils extends
-	* To make logExc in guardian module also adding recordException of FirebaseCrashlytics
-	* */
-	public void logException(String logTag, Exception exc) {
-		Log.e( logTag, getExceptionContentAsString(exc));
-	}
 	
 	public static void logThrowable(String logTag, Throwable thrw) {
 		Log.e( logTag, getThrowableContentAsString(thrw));

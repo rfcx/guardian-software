@@ -1,7 +1,6 @@
 package org.rfcx.guardian.guardian.api;
 
 
-import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
@@ -63,7 +62,7 @@ public class ApiQueueCheckInService extends IntentService {
 			app.apiCheckInUtils.stashOldestCheckIns();
 			
 		} catch (Exception e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 			
 		} finally {
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);

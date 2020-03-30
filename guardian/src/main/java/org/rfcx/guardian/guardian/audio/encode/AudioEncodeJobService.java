@@ -3,7 +3,6 @@ package org.rfcx.guardian.guardian.audio.encode;
 import java.io.File;
 import java.util.List;
 
-import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -47,7 +46,7 @@ public class AudioEncodeJobService extends Service {
 		try {
 			this.audioEncodeJob.start();
 		} catch (IllegalThreadStateException e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return START_NOT_STICKY;
 	}
@@ -182,7 +181,7 @@ public class AudioEncodeJobService extends Service {
 				}
 					
 			} catch (Exception e) {
-				CrashlyticsUtils.INSTANCE.logException(logTag, e);
+				RfcxLog.logExc(logTag, e);
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				audioEncodeJobInstance.runFlag = false;
 			}

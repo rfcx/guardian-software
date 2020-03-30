@@ -3,7 +3,6 @@ package org.rfcx.guardian.guardian.audio.capture;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.media.AudioFormat;
@@ -72,7 +71,7 @@ public class AudioCaptureWavRecorder {
 				recorderOutputFileRandomAccessWriter.write(uncompressedOutputBuffer); // Write buffer to file
 				captureFilePayloadSizeInBytes += uncompressedOutputBuffer.length;
 			} catch (IOException e) {
-				CrashlyticsUtils.INSTANCE.logException(logTag, e);
+				RfcxLog.logExc(logTag, e);
 				stopRecorder();
 				recorderState = State.ERROR;
 			}
@@ -148,7 +147,7 @@ public class AudioCaptureWavRecorder {
 				recorderOutputFilePath = outputFilePath;
 			}
 		} catch (Exception e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 			recorderState = State.ERROR;
 		}
 	}
@@ -186,7 +185,7 @@ public class AudioCaptureWavRecorder {
 				recorderState = State.ERROR;
 			}
 //		} catch (Exception e) {
-//			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+//			RfcxLog.logExc(logTag, e);
 //			recorderState = State.ERROR;
 //		}
 	}
@@ -258,7 +257,7 @@ public class AudioCaptureWavRecorder {
 				recorderOutputFileRandomAccessWriter.close(); // Remove prepared file
 				
 			} catch (IOException e) {
-				CrashlyticsUtils.INSTANCE.logException(logTag, e);
+				RfcxLog.logExc(logTag, e);
 			}
 //			(new File(recorderOutputFilePath)).delete();
 		}
@@ -287,7 +286,7 @@ public class AudioCaptureWavRecorder {
 				recorderState = State.INITIALIZING;
 			}
 		} catch (Exception e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 			recorderState = State.ERROR;
 		}
 	}
@@ -336,7 +335,7 @@ public class AudioCaptureWavRecorder {
 				recorderOutputFileRandomAccessWriter.close();
 				
 			} catch (IOException e) {
-				CrashlyticsUtils.INSTANCE.logException(logTag, e);
+				RfcxLog.logExc(logTag, e);
 				recorderState = State.ERROR;
 			}
 
@@ -366,7 +365,7 @@ public class AudioCaptureWavRecorder {
 			prepareRecorder();
 			startRecorder();
 //		} catch (Exception e) {
-//			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+//			RfcxLog.logExc(logTag, e);
 //		}
 		
 	}
@@ -377,7 +376,7 @@ public class AudioCaptureWavRecorder {
 			stopRecorder();
 			recorderOutputFileRandomAccessWriter.close();
 //		} catch (Exception e) {
-//			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+//			RfcxLog.logExc(logTag, e);
 //		}
 		
 	}

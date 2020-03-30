@@ -5,7 +5,6 @@ import android.content.Intent;
 
 import org.json.JSONException;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
@@ -31,7 +30,7 @@ public class SystemMetaSnapshotService extends IntentService {
 			app.apiCheckInUtils.createSystemMetaDataJsonSnapshot();
 
 		} catch (JSONException e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 		}
 
 	}

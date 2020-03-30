@@ -9,7 +9,6 @@ import java.util.Locale;
 
 import org.json.JSONObject;
 
-import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -67,7 +66,7 @@ public class ApiCheckInArchiveService extends Service {
 		try {
 			this.apiCheckInArchive.start();
 		} catch (IllegalThreadStateException e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return START_NOT_STICKY;
 	}
@@ -181,7 +180,7 @@ public class ApiCheckInArchiveService extends Service {
 					Log.i(logTag, "Archive complete: "+archiveTarFilePath);
 				
 				} catch (Exception e) {
-					CrashlyticsUtils.INSTANCE.logException(logTag, e);
+					RfcxLog.logExc(logTag, e);
 					
 				}
 			}

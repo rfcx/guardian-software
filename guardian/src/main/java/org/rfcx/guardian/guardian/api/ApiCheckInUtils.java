@@ -28,7 +28,6 @@ import org.json.JSONObject;
 
 import org.rfcx.guardian.guardian.R;
 import org.rfcx.guardian.guardian.activity.MainActivity;
-import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -276,7 +275,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			return queueJson.toString();
 
 		} catch (JSONException e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 			return "{}";
 		}
 	}
@@ -326,7 +325,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			clearPreFlightSystemMetaData(metaQueryTimestampObj);
 
 		} catch (Exception e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	}
 
@@ -343,7 +342,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
 
 		} catch (Exception e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	}
 
@@ -624,7 +623,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		} catch (Exception e) {
 
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 
 			String excStr = RfcxLog.getExceptionContentAsString(e);
 
@@ -673,7 +672,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 		} catch (JSONException e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return assetMeta;
 	}
@@ -690,7 +689,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				checkInThresholds[i] = Integer.parseInt(checkInThresholdsStr[i]);
 				checkInThresholdsReached[i] = false;
 			} catch (Exception e) {
-				CrashlyticsUtils.INSTANCE.logException(logTag, e);
+				RfcxLog.logExc(logTag, e);
 			}
 		}
 
@@ -803,7 +802,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 
 		} catch (Exception e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 		}
 	}
 
@@ -908,7 +907,7 @@ public class ApiCheckInUtils implements MqttCallback {
 //			}
 
 		} catch (JSONException e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 
 		}
 
@@ -1035,7 +1034,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 
 		} catch (JSONException e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 
 		}
 
@@ -1094,7 +1093,7 @@ public class ApiCheckInUtils implements MqttCallback {
 							.toString());
 
 		} catch (Exception e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 		}
 
 	}
@@ -1106,7 +1105,7 @@ public class ApiCheckInUtils implements MqttCallback {
 						.append(DateTimeUtils.timeStampDifferenceFromNowAsReadableString(this.inFlightCheckInStats.get(this.inFlightCheckInAudioId)[0]))
 						.append(" since last CheckIn publication was launched").toString());
 		} catch (Exception e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 		}
 
 		RfcxLog.logThrowable(logTag, cause);
@@ -1131,7 +1130,7 @@ public class ApiCheckInUtils implements MqttCallback {
 													app.rfcxPrefs.getPrefAsInt("api_checkin_port"));
 				}
 			} catch (MqttException e) {
-				CrashlyticsUtils.INSTANCE.logException(logTag, e);
+				RfcxLog.logExc(logTag, e);
 			}
 		} else {
 //			Log.e(logTag, "Last connection attempt was less than " + minDelayBetweenConnectionAttempts + "ms ago");

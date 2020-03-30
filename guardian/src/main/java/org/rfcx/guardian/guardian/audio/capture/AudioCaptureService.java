@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.guardian.utils.CrashlyticsUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -47,7 +46,7 @@ public class AudioCaptureService extends Service {
 		try {
 			this.audioCaptureSvc.start();
 		} catch (IllegalThreadStateException e) {
-			CrashlyticsUtils.INSTANCE.logException(logTag, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return START_NOT_STICKY;
 	}
@@ -134,7 +133,7 @@ public class AudioCaptureService extends Service {
 					app.rfcxServiceHandler.triggerIntentServiceImmediately("SystemMetaSnapshot");
 					
 				} catch (Exception e) {
-					CrashlyticsUtils.INSTANCE.logException(logTag, e);
+					RfcxLog.logExc(logTag, e);
 					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 					audioCaptureService.runFlag = false;
 				}
