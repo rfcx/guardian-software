@@ -13,7 +13,7 @@ else
         export ADB_BIN="$ANDROID_SDK_ROOT/platform-tools/adb";
 
         echo "transferring apk to device...";
-        $ADB_BIN push $SCRIPT_DIR/guardian-$1.apk data/local/tmp/$app-$1.apk;
+        $ADB_BIN push $SCRIPT_DIR/$app-$1.apk data/local/tmp/$app-$1.apk;
 
         echo "performing installation...";
         $ADB_BIN shell pm install -f -r data/local/tmp/$app-$1.apk;

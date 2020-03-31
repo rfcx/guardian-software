@@ -19,16 +19,21 @@ A collection of Android applications which, together, operate as autonomous Rain
 
 #### Build Signed APKs
 
-- First need to prepare necessery files located in /gradle/signing/
+1. First need to prepare necessery files located in /gradle/signing/
    - rfcx-guardian-keystore.jks
    - rfcx-guardian-keystore-alias.txt
    - rfcx-guardian-keystore-password.txt
-- Use this command after prepared
+2. Use this command after prepared
 
    ```
    gradlew :role:assembleRelease
    ```
-- Output will be in /role/build/outputs/apk/release/
+3. Output will be in /role/build/outputs/apk/release/
+
+#### Download apps from script
+
+1. If your Environment variables do not have **ANDROID_SDK_ROOT**, create it and point to android-sdk root path
+2. Run script **download-apk-install.sh** in /bin/
 
 #### Run the guardian role
 
