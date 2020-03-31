@@ -1,15 +1,15 @@
-package org.rfcx.guardian.guardian.device.android;
+package org.rfcx.guardian.admin.device.android.system;
 
-import java.util.Date;
-import java.util.List;
+import android.content.ContentValues;
+import android.content.Context;
 
+import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
-import android.content.ContentValues;
-import android.content.Context;
-import org.rfcx.guardian.guardian.RfcxGuardian;
+import java.util.Date;
+import java.util.List;
 
 public class DeviceSensorDb {
 	

@@ -1,6 +1,5 @@
 package org.rfcx.guardian.guardian.activity
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -18,8 +17,8 @@ import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.BuildConfig
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.ApiInterface
-import org.rfcx.guardian.guardian.api.RegisterApi
+import org.rfcx.guardian.guardian.register.ApiInterface
+import org.rfcx.guardian.guardian.register.RegisterApi
 import org.rfcx.guardian.guardian.entity.GuardianResponse
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
@@ -30,7 +29,6 @@ import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterDeliverReceiver
 import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterSentReceiver
 import org.rfcx.guardian.guardian.receiver.SmsDeliverListener
 import org.rfcx.guardian.guardian.receiver.SmsSentListener
-import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.PhoneNumberRegisterUtils
 import org.rfcx.guardian.utility.datetime.DateTimeUtils
@@ -114,7 +112,7 @@ class MainActivity : AppCompatActivity() {
                             object : RegisterApi.RegisterCallback {
                                 override fun onSuccess() {
                                     ApiInterface.create(baseContext)
-                                        .isGuardianExisted("Bearer ${getTokenID()}", guid)
+                                        .isGuardianRegistered("Bearer ${getTokenID()}", guid)
                                         .enqueue(object :
                                             Callback<GuardianResponse> {
                                             override fun onFailure(
@@ -176,13 +174,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        i2cSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (isChecked) {
-                app.setPref("checkin_with_i2c_battery", "true")
-            } else {
-                app.setPref("checkin_with_i2c_battery", "false")
-            }
-        }
     }
 
     private fun initUI() {
@@ -325,8 +316,6 @@ class MainActivity : AppCompatActivity() {
             switchView.visibility = View.VISIBLE
             permissionInfoLayout.visibility = View.VISIBLE
             deviceIdText.text = readRegisterFile()
-            i2cSwitch.isChecked =
-                app.sharedPrefs.getString("checkin_with_i2c_battery", "false") == "true"
             setPermissionStatus(app)
             appVersionText.visibility = View.VISIBLE
         } else {

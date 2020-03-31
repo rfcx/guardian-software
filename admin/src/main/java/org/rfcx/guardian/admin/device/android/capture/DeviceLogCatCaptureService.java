@@ -114,7 +114,7 @@ public class DeviceLogCatCaptureService extends Service {
 					
 					if (finalGzipFile.exists()) {
 
-						FileUtils.chmod(finalGzipFile, 0777);
+						FileUtils.chmod(finalGzipFile, "rw", "rw");
 						if (postCaptureFile.exists()) { postCaptureFile.delete(); }
 
 						app.deviceLogCatDb.dbCaptured.insert(captureCycleEndingTimeStamp+"", DeviceLogCat.FILETYPE, preGzipDigest, finalGzipFile.getAbsolutePath());

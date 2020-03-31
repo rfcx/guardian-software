@@ -1,6 +1,6 @@
 package org.rfcx.guardian.setup.device.android.control;
 
-import org.rfcx.guardian.utility.misc.ShellCommands;
+import org.rfcx.guardian.utility.device.root.DeviceReboot;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.setup.RfcxGuardian;
@@ -72,7 +72,7 @@ public class RebootTriggerJobService extends Service {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				ShellCommands.triggerRebootAsRoot(app.getApplicationContext());
+				DeviceReboot.triggerForcedRebootAsRoot(app.getApplicationContext());
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

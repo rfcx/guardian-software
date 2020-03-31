@@ -139,7 +139,7 @@ public class DeviceI2cUtils {
 		
 		String binaryDir = (new StringBuilder()).append(context.getFilesDir().toString()).append("/bin").toString();
 		(new File(binaryDir)).mkdirs(); 
-		FileUtils.chmod(binaryDir, 0777);
+		FileUtils.chmod(binaryDir,  "rwx", "rwx");
 		
 		this.execI2cGet = (new StringBuilder()).append(binaryDir).append("/i2cget").toString();
 		
@@ -149,7 +149,7 @@ public class DeviceI2cUtils {
     				OutputStream outputStream = new FileOutputStream(this.execI2cGet);
     				byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
     				inputStream.close(); outputStream.close();
-    				FileUtils.chmod(this.execI2cGet, 0755);
+    				FileUtils.chmod(this.execI2cGet,  "rwx", "rx");
     			} catch (IOException e) {
     				RfcxLog.logExc(logTag, e);
     			}
@@ -163,7 +163,7 @@ public class DeviceI2cUtils {
 				OutputStream outputStream = new FileOutputStream(this.execI2cSet);
 				byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
 				inputStream.close(); outputStream.close();
-				FileUtils.chmod(this.execI2cSet, 0755);
+				FileUtils.chmod(this.execI2cSet,  "rwx", "rx");
 			} catch (IOException e) {
 				RfcxLog.logExc(logTag, e);
 			}

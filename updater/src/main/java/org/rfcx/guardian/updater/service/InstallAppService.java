@@ -3,6 +3,7 @@ package org.rfcx.guardian.updater.service;
 import java.io.File;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
+import org.rfcx.guardian.utility.device.root.DeviceReboot;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -86,7 +87,7 @@ public class InstallAppService extends Service {
 					Log.d(TAG, "installation successful ("+app.targetAppRole+", "+app.apiCore.installVersion+"). deleting apk and rebooting...");
 					installLoopCounter = 0;
 					if (apkFile.exists()) apkFile.delete();
-					ShellCommands.triggerRebootAsRoot(app.getApplicationContext());
+					DeviceReboot.triggerForcedRebootAsRoot(app.getApplicationContext());
 				} else if (	(installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
 					installLoopCounter++;
 					app.rfcxServiceHandler.triggerService(SERVICE_NAME, true);

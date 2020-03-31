@@ -1,13 +1,4 @@
-package org.rfcx.guardian.guardian.device.android;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.rfcx.guardian.utility.device.DeviceDiskUsage;
-import org.rfcx.guardian.utility.device.DeviceMobileNetwork;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+package org.rfcx.guardian.admin.device.android.system;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -27,7 +18,16 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import org.rfcx.guardian.guardian.RfcxGuardian;
+
+import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.device.DeviceDiskUsage;
+import org.rfcx.guardian.utility.device.DeviceMobileNetwork;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class DeviceSystemService extends Service implements SensorEventListener, LocationListener {
 
@@ -228,8 +228,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		if (app != null) {
 
 			if (innerLoopIncrement == 0) {
-				
-				boolean isAudioCaptureEnabled = app.audioCaptureUtils.isAudioCaptureAllowed(false);
+
+				// MUST FIX for cross role access
+				boolean isAudioCaptureEnabled = true; //app.audioCaptureUtils.isAudioCaptureAllowed(false);
 				int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 				
 				// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
@@ -433,7 +434,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				this.cpuUsageValues = new ArrayList<int[]>();
 				
 				for (int[] cpuVals : cpuUsageValuesCache) {
-					app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1]);
+					// make sure the values are valid
+					if ((cpuVals[0] <= 100) && (cpuVals[0] >= 0)) {
+						app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1]);
+					}
 				}
 				
 			} else if (statAbbrev.equalsIgnoreCase("light")) {
@@ -464,9 +468,19 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				
 				List<String[]> telephonyValuesCache = this.telephonyValues;
 				this.telephonyValues = new ArrayList<String[]>();
-				
+
+				String[] prevTelephonyVals = new String[] { "", "", "", "" };
+
 				for (String[] telephonyVals : telephonyValuesCache) {
-					app.deviceSystemDb.dbTelephony.insert(new Date((long) Long.parseLong(telephonyVals[0])), (int) Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3]);
+					if (	(telephonyVals[2] != null) && (telephonyVals[3] != null) // ensure relevant values aren't just null
+						&&	(	!telephonyVals[1].equalsIgnoreCase(prevTelephonyVals[1])
+							&&	!telephonyVals[2].equalsIgnoreCase(prevTelephonyVals[2]) // ensure relevant values aren't just immediate repeats of last saved value
+							&& 	!telephonyVals[3].equalsIgnoreCase(prevTelephonyVals[3])
+							)
+						) {
+						app.deviceSystemDb.dbTelephony.insert(new Date((long) Long.parseLong(telephonyVals[0])), (int) Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3].trim());
+					}
+					prevTelephonyVals = telephonyVals;
 				}
 
 			} else if (statAbbrev.equalsIgnoreCase("datatransfer")) {
@@ -487,8 +501,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				this.batteryLevelValues = new ArrayList<int[]>();
 				
 				for (int[] batteryLevelVals : batteryLevelValuesCache) {
-					app.deviceSystemDb.dbBattery.insert(new Date(), batteryLevelVals[0], batteryLevelVals[1]);
-					app.deviceSystemDb.dbPower.insert(new Date(), batteryLevelVals[2], batteryLevelVals[3]);
+					if ((batteryLevelVals[0] <= 100) && (batteryLevelVals[0] >= 0)) {
+						app.deviceSystemDb.dbBattery.insert(new Date(), batteryLevelVals[0], batteryLevelVals[1]);
+						app.deviceSystemDb.dbPower.insert(new Date(), batteryLevelVals[2], batteryLevelVals[3]);
+					}
 				}
 				
 			} else if (statAbbrev.equalsIgnoreCase("diskusage")) {
@@ -559,6 +575,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	
 	@Override
 	public void onLocationChanged(Location location) {
+		Log.e(logTag, "Running onLocationChanged...");
 		if (app != null) {
 			app.deviceUtils.processAndSaveGeoPosition(location);
 		}
@@ -566,18 +583,21 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	@Override
 	public void onProviderDisabled(String provider) {
+		Log.e(logTag, "Running onProviderDisabled...");
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
+		Log.e(logTag, "Running onProviderDisabled...");
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
+		Log.e(logTag, "Running onStatusChanged...");
 		// TODO Auto-generated method stub
 		
 	}

@@ -21,10 +21,10 @@ public class RfcxAudioUtils {
 	public static final int AUDIO_CHANNEL_COUNT = 1;
 	
 	public static void initializeAudioDirectories(Context context) {
-		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context), 0777);
-		(new File(encodeDir(context))).mkdirs(); FileUtils.chmod(encodeDir(context), 0777);
-		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(), 0777);
-		(new File(finalCacheDir(context))).mkdirs(); FileUtils.chmod(finalCacheDir(context), 0777);
+		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context),  "rw", "rw");
+		(new File(encodeDir(context))).mkdirs(); FileUtils.chmod(encodeDir(context),  "rw", "rw");
+		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(),  "rw", "rw");
+		(new File(finalCacheDir(context))).mkdirs(); FileUtils.chmod(finalCacheDir(context),  "rw", "rw");
 	}
 	
 	private static String sdCardFilesDir() {

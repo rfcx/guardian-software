@@ -162,7 +162,7 @@ public class ApiCheckInArchiveService extends Service {
 					StringUtils.saveStringToFile(tsvRows.toString(), archiveTarFilePath+"/_metadata.tsv");
 					archiveFileList.add(archiveTarFilePath+"/_metadata.tsv");
 
-					
+					Log.e(logTag, "Archive is not being tarred or gZipped, to avoid a resource spike.");
 //					FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath+".tar");
 //					FileUtils.gZipFile(archiveTarFilePath+".tar", archiveTarFilePath+".tar.gz");
 					
@@ -197,9 +197,9 @@ public class ApiCheckInArchiveService extends Service {
 		sdCardArchiveDir = Environment.getExternalStorageDirectory().toString()+"/rfcx/archive";
 		archiveTarFilePath = sdCardArchiveDir+"/archive_"+rfcxDeviceId+"_"+fileDateTimeFormat.format(new Date(archiveTimestamp));
 		
-		(new File(sdCardArchiveDir)).mkdirs(); FileUtils.chmod(sdCardArchiveDir, 0777);
-		(new File(archiveTarFilePath)).mkdirs(); FileUtils.chmod(archiveTarFilePath, 0777);
-		(new File(archiveTarFilePath+"/audio")).mkdirs(); FileUtils.chmod(archiveTarFilePath+"/audio", 0777);
+		(new File(sdCardArchiveDir)).mkdirs(); FileUtils.chmod(sdCardArchiveDir, "rw", "rw");
+		(new File(archiveTarFilePath)).mkdirs(); FileUtils.chmod(archiveTarFilePath, "rw", "rw");
+		(new File(archiveTarFilePath+"/audio")).mkdirs(); FileUtils.chmod(archiveTarFilePath+"/audio", "rw", "rw");
 		
 	}
 

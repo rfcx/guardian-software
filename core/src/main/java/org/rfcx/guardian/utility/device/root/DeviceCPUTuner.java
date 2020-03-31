@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.control;
+package org.rfcx.guardian.utility.device.root;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -88,7 +88,7 @@ public class DeviceCPUTuner {
         	BufferedWriter outFile = new BufferedWriter(new FileWriter(tmpPrefsFile));
         	outFile.write(getXmlPrefString(freq_min, freq_max));
         	outFile.close();
-        	FileUtils.chmod(tmpPrefsFile, 0755);
+        	FileUtils.chmod(tmpPrefsFile,  "rw", "rw");
         	if (tmpPrefsFile.exists()) {
         		ShellCommands.executeCommandAsRoot("cp "+tmpPrefsFilePath+" "+getPrefsPath(context), context);
         	}

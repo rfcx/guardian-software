@@ -4,17 +4,14 @@ import java.io.File;
 import java.util.Map;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.os.Environment;
 
+import org.rfcx.guardian.guardian.api.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
-import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.DeviceMobilePhone;
-import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -28,10 +25,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import org.rfcx.guardian.guardian.api.ApiAssetExchangeLogDb;
 import org.rfcx.guardian.guardian.api.ApiCheckInDb;
@@ -46,15 +40,8 @@ import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.guardian.audio.encode.AudioQueueEncodeService;
-import org.rfcx.guardian.guardian.camera.capture.PhotoCaptureJobService;
 import org.rfcx.guardian.guardian.device.android.SntpSyncJobService;
-import org.rfcx.guardian.guardian.device.android.DeviceDataTransferDb;
-import org.rfcx.guardian.guardian.device.android.DeviceDiskDb;
-import org.rfcx.guardian.guardian.device.android.DeviceRebootDb;
-import org.rfcx.guardian.guardian.device.android.DeviceSensorDb;
 import org.rfcx.guardian.guardian.device.android.DeviceSystemDb;
-import org.rfcx.guardian.guardian.device.android.DeviceSystemService;
-import org.rfcx.guardian.guardian.device.android.DeviceUtils;
 import org.rfcx.guardian.guardian.device.android.ScheduledSntpSyncService;
 import org.rfcx.guardian.guardian.receiver.ConnectivityReceiver;
 
@@ -77,36 +64,26 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInDb apiCheckInDb = null;
     public ApiCheckInMetaDb apiCheckInMetaDb = null;
     public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
-    public DeviceSystemDb deviceSystemDb = null;
-    public DeviceSensorDb deviceSensorDb = null;
-    public DeviceRebootDb rebootDb = null;
-    public DeviceDataTransferDb deviceDataTransferDb = null;
-    public DeviceDiskDb deviceDiskDb = null;
     public ArchiveDb archiveDb = null;
+    public DeviceSystemDb deviceSystemDb = null;
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 
     // Android Device Handlers
     public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
-    public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
-    public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
-    public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
 
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
-    public DeviceUtils deviceUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
+    public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
     public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
-
-    public PowerManager.WakeLock wakelock;
 
     public String[] RfcxCoreServices =
             new String[]{
                     "AudioCapture",
-                    "DeviceSystem",
                     "ApiCheckInJob",
                     "AudioEncodeJob"
             };
@@ -130,16 +107,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
         this.syncSharedPrefs();
 
-//		setPref("enable_cutoffs_schedule_off_hours", "true");
-//		setPref("audio_schedule_off_hours", "19:00-23:45,00:05-05:55");
-        setPref("audio_battery_cutoff", "10");
+//        setSharedPref("audio_battery_cutoff", "10");
 
         setDbHandlers();
         setServiceHandlers();
 
         this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
         this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
-        this.deviceUtils = new DeviceUtils(getApplicationContext());
         this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
         startAllServices();
@@ -201,7 +175,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     }
 
     public Boolean getRecordingState() {
-        return rfcxServiceHandler.isRunning("AudioCapture");
+        return this.rfcxServiceHandler.isRunning("AudioCapture");
     }
 
     public Boolean isLocationEnabled () {
@@ -218,13 +192,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
         this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
-        this.deviceSystemDb = new DeviceSystemDb(this, this.version);
-        this.deviceSensorDb = new DeviceSensorDb(this, this.version);
-        this.rebootDb = new DeviceRebootDb(this, this.version);
-        this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
-        this.deviceDiskDb = new DeviceDiskDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
-
+        this.deviceSystemDb = new DeviceSystemDb(this, this.version);
     }
 
     private void setServiceHandlers() {
@@ -233,13 +202,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
         this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
         this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
-        this.rfcxServiceHandler.addService("PhotoCaptureJob", PhotoCaptureJobService.class);
-        this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
         this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
         this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
         this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
         this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
+        this.rfcxServiceHandler.addService("ApiCheckInMetaSnapshot", ApiCheckInMetaSnapshotService.class);
 
     }
 
@@ -247,6 +215,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
         Log.d(logTag, "Pref changed: " + prefKey + " = " + this.sharedPrefs.getString(prefKey, null));
         syncSharedPrefs();
+        this.rfcxPrefs.reSyncPrefInExternalRoleViaContentProvider("admin", prefKey, this);
     }
 
     private void syncSharedPrefs() {
@@ -255,7 +224,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         }
     }
 
-    public boolean setPref(String prefKey, String prefValue) {
+    // setSharedPref is currently the preferred method for updating pref values, universally, across this role (and all roles, by contingency).
+    public boolean setSharedPref(String prefKey, String prefValue) {
         return this.sharedPrefs.edit().putString(prefKey, prefValue).commit();
     }
 

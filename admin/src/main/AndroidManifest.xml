@@ -9,8 +9,8 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <!-- 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> -->
-    <!-- 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
@@ -36,11 +36,7 @@
     <uses-permission android:name="android.permission.WRITE_SMS"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
 
-
-    <!-- 	<uses-permission android:name="android.permission.CAMERA" /> -->
-
-    <!-- 	<uses-feature android:name="android.hardware.camera.autofocus" android:required="false" /> -->
-    <!-- 	<uses-feature android:name="android.hardware.Camera" android:required="false" /> -->
+<!--    <uses-permission android:name="android.permission.CAMERA" />-->
 
     <uses-permission android:name="org.rfcx.guardian.READ" />
     <uses-permission android:name="org.rfcx.guardian.WRITE" />
@@ -68,10 +64,14 @@
         <!-- Services -->
         <service android:name=".device.android.capture.DeviceScreenShotCaptureService" />
         <service android:name=".device.android.capture.DeviceLogCatCaptureService" />
+        <service android:name=".device.android.capture.PhotoCaptureJobService" />
         <service android:name=".device.android.control.RebootTriggerJobService" />
         <service android:name=".device.android.control.AirplaneModeToggleService" />
         <service android:name=".device.android.control.AirplaneModeEnableService" />
+        <service android:name=".device.android.control.BluetoothStateSetService" />
+        <service android:name=".device.android.control.WifiStateSetService" />
         <service android:name=".device.android.control.DateTimeSntpSyncJobService" />
+        <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
 
         <!-- IntentServices -->
@@ -80,6 +80,7 @@
         <service android:name=".device.android.control.ForceRoleRelaunchService" />
         <service android:name=".device.android.capture.ScheduledScreenShotCaptureService" />
         <service android:name=".device.android.capture.ScheduledLogCatCaptureService" />
+        <service android:name=".device.android.capture.ScheduledPhotoCaptureService" />
 
 
         <!-- Broadcast Receivers -->
@@ -102,6 +103,13 @@
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".receiver.WifiStateReceiver">
+            <intent-filter>
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
 
         <!-- Content Providers -->
 

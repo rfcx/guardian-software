@@ -32,6 +32,8 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"prefs", new String[] { "pref_key", "pref_value" });
 			roleFuncProj.get(role).put(
+				"prefs_resync", new String[] { "pref_key", "result", "received_at" });
+			roleFuncProj.get(role).put(
 				"control", new String[] { "command", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"sms_send", new String[] { "address|message", "result", "received_at" });

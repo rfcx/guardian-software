@@ -101,7 +101,7 @@ public class StringUtils {
     			BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
     			outFile.write(stringContents);
     			outFile.close();
-    			FileUtils.chmod(filePath, 0755);
+    			FileUtils.chmod(filePath, "rwx", "rx");
     		} catch (IOException e) {
     			RfcxLog.logExc(logTag, e);
     		}

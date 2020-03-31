@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -113,31 +112,39 @@ public class FileUtils {
     		return fileBytes;
 	}
 	
-	public static int chmod(File file, int mode) {
+	public static boolean chmod(File file, String owner_rwx, String everybody_rwx) {
 		try {
-			Class fileUtils = Class.forName("android.os.FileUtils");
-			Method setPermissions = fileUtils.getMethod("setPermissions", String.class, int.class, int.class, int.class);
-			return (Integer) setPermissions.invoke(null, file.getAbsolutePath(), mode, -1, -1);
-		} catch (ClassNotFoundException e) {
-			RfcxLog.logExc(logTag, e);
+
+			if (file.exists()) {
+
+//				Log.d(logTag, "chmod: " + owner_rwx + "-" + everybody_rwx + " " + file.getAbsolutePath());
+
+				if (owner_rwx.toLowerCase().indexOf("r") >= 0) {
+					if (everybody_rwx.toLowerCase().indexOf("r") >= 0) { file.setReadable(true, false); } else { file.setReadable(true); }
+				}
+				if (owner_rwx.toLowerCase().indexOf("w") >= 0) {
+					if (everybody_rwx.toLowerCase().indexOf("w") >= 0) { file.setWritable(true, false); } else { file.setWritable(true); }
+				}
+				if (owner_rwx.toLowerCase().indexOf("x") >= 0) {
+					if (everybody_rwx.toLowerCase().indexOf("x") >= 0) { file.setExecutable(true, false); } else { file.setExecutable(true); }
+				}
+
+				return true;
+			}
+
 		} catch (SecurityException e) {
 			RfcxLog.logExc(logTag, e);
-		} catch (NoSuchMethodException e) {
-			RfcxLog.logExc(logTag, e);
 		} catch (IllegalArgumentException e) {
-			RfcxLog.logExc(logTag, e);
-		} catch (IllegalAccessException e) {
-			RfcxLog.logExc(logTag, e);
-		} catch (InvocationTargetException e) {
 			RfcxLog.logExc(logTag, e);
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return 0;
+
+		return false;
 	}
 	
-	public static int chmod(String filePath, int mode) {
-		return chmod(new File(filePath), mode);
+	public static boolean chmod(String filePath, String owner_rwx, String everybody_rwx) {
+		return chmod(new File(filePath), owner_rwx, everybody_rwx);
 	}
 	
 	public static Date lastModifiedAt(File fileObj) {
@@ -360,7 +367,7 @@ public class FileUtils {
 	
     public static boolean isExternalStorageAvailable() {
     	
-    		int requiredFreeMegaBytes = 16;
+		int requiredFreeMegaBytes = 16;
 
         StatFs extDiskStat = new StatFs(Environment.getExternalStorageDirectory().getPath());
         double extDiskAvailSize = (double) extDiskStat.getAvailableBlocks() * (double) extDiskStat.getBlockSize();

@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin.contentprovider;
 
+import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -44,6 +45,12 @@ public class AdminContentProvider extends ContentProvider {
             } else if (RfcxComm.uriMatch(uri, appRole, "prefs", "*")) {
                 String prefKey = uri.getLastPathSegment();
                 return RfcxComm.getProjectionCursor(appRole, "prefs", new Object[]{prefKey, app.rfcxPrefs.getPrefAsString(prefKey)});
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "prefs_resync", "*")) {
+                String prefKey = uri.getLastPathSegment();
+                app.rfcxPrefs.reSyncPref(prefKey);
+                String prefValue = app.onPrefReSync(prefKey);
+                return RfcxComm.getProjectionCursor(appRole, "prefs_resync", new Object[]{prefKey, prefValue, System.currentTimeMillis()});
 
                 // "control" function endpoints
 
@@ -93,6 +100,9 @@ public class AdminContentProvider extends ContentProvider {
                 } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_power", SentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
+                } else if (pathSeg.equalsIgnoreCase("system_meta")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"system_meta", DeviceUtils.getSystemMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
+
                 } else {
                     return null;
                 }
@@ -137,6 +147,9 @@ public class AdminContentProvider extends ContentProvider {
 
                 if (pathSegTable.equalsIgnoreCase("sentinel_power")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SentinelPowerUtils.deleteSentinelPowerValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
+
+                } else if (pathSegTable.equalsIgnoreCase("system_meta")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, DeviceUtils.deleteSystemMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
                 }
 

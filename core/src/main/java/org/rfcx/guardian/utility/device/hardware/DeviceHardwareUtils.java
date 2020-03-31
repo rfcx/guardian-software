@@ -38,5 +38,24 @@ public class DeviceHardwareUtils {
 	public static String getDeviceHardwareName() {
 		return android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL;
 	}
-	
+
+	public static String getDeviceHardwareBrand() {
+		return android.os.Build.BRAND;
+	}
+
+	public static String getDeviceHardwareManufacturer() {
+		return android.os.Build.MANUFACTURER;
+	}
+
+	public static String getDeviceHardwareProduct() {
+		return android.os.Build.PRODUCT;
+	}
+
+	public static String getDeviceHardwareModel() {
+		return android.os.Build.MODEL;
+	}
+
+	public static String getDeviceHardwareRelease() {
+		return android.os.Build.VERSION.RELEASE;
+	}
 }

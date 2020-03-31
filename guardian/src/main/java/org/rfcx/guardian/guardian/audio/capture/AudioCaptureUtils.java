@@ -28,12 +28,18 @@ public class AudioCaptureUtils {
 
 	private RfcxGuardian app = null;
 	
-	public long[] captureTimeStampQueue = new long[] { 0, 0 };
+	public long[] queueCaptureTimeStamp = new long[] { 0, 0 };
+	public int[] queueCaptureSampleRate = new int[] { 0, 0 };
 
-	public boolean updateCaptureTimeStampQueue(long timeStamp) {
-		captureTimeStampQueue[0] = captureTimeStampQueue[1];
-		captureTimeStampQueue[1] = timeStamp;
-		return (captureTimeStampQueue[0] > 0);
+	public boolean updateCaptureQueue(long timeStamp, int sampleRate) {
+
+		queueCaptureTimeStamp[0] = queueCaptureTimeStamp[1];
+		queueCaptureTimeStamp[1] = timeStamp;
+
+		queueCaptureSampleRate[0] = queueCaptureSampleRate[1];
+		queueCaptureSampleRate[1] = sampleRate;
+
+		return (queueCaptureTimeStamp[0] > 0);
 	}
 	
 	public boolean isAudioCaptureHardwareSupported = false;
@@ -161,7 +167,7 @@ public class AudioCaptureUtils {
 			try {
 				File preEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PreEncode(context, timestamp,fileExtension));
 				FileUtils.copy(captureFile, preEncodeFile);
-				FileUtils.chmod(preEncodeFile, 0777);
+				FileUtils.chmod(preEncodeFile, "rw", "rw");
 				if (preEncodeFile.exists()) { captureFile.delete(); }	
 				isFileMoved = preEncodeFile.exists();
 			} catch (IOException e) {

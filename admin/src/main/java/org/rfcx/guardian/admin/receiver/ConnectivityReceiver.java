@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import org.rfcx.guardian.admin.RfcxGuardian;
 
+import java.util.Date;
+
 public class ConnectivityReceiver extends BroadcastReceiver {
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ConnectivityReceiver.class);
@@ -18,7 +20,9 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         
         int disconnectedFor = app.deviceConnectivity.updateConnectivityStateAndReportDisconnectedFor( !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) );
-        
+
+		if (disconnectedFor > 1000) { app.deviceSystemDb.dbOffline.insert(new Date(), disconnectedFor, ""); }
+
 	}
 
 }

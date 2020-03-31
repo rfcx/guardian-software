@@ -64,7 +64,7 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Registered as: " />
+                        android:text="Guardian ID: " />
 
                 <TextView
                         android:id="@+id/deviceIdText"
@@ -120,7 +120,7 @@
                             android:id="@+id/checkInTopic"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Latest checkin: "
+                            android:text="Last CheckIn time: "
                             android:textColor="@color/text_black" />
 
                     <TextView
@@ -139,7 +139,7 @@
                             android:id="@+id/sizeTopic"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="File size:"
+                            android:text="Last CheckIn size: "
                             android:textColor="@color/text_black" />
 
                     <TextView
@@ -282,19 +282,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/start_stop_group">
 
-            <Switch
-                    android:id="@+id/i2cSwitch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Checkin with i2c data   " />
-
-            <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginStart="@dimen/margin_padding_normal"
-                    android:layout_marginTop="@dimen/margin_padding_small"
-                    android:background="@color/grey_light"
-                    app:layout_constraintTop_toBottomOf="@id/i2cSwitch" />
         </LinearLayout>
 
         <android.support.constraint.ConstraintLayout

@@ -20,29 +20,29 @@ public class DeviceKeyEntry {
 	
 	private void defineKeyCodeMap() {
 		
-		Map<String, int[]> _ = new HashMap<String, int[]>();
+		Map<String, int[]> keyCodeMap = new HashMap<String, int[]>();
 		
-		_.put("0", new int[] { 7 } );
-		_.put("1", new int[] { 8 } );
-		_.put("2", new int[] { 9 } );
-		_.put("3", new int[] { 10 } );
-		_.put("4", new int[] { 11 } );
-		_.put("5", new int[] { 12 } );
-		_.put("6", new int[] { 13 } );
-		_.put("7", new int[] { 14 } );
-		_.put("8", new int[] { 15 } );
-		_.put("9", new int[] { 16 } );
+		keyCodeMap.put("0", new int[] { 7 } );
+		keyCodeMap.put("1", new int[] { 8 } );
+		keyCodeMap.put("2", new int[] { 9 } );
+		keyCodeMap.put("3", new int[] { 10 } );
+		keyCodeMap.put("4", new int[] { 11 } );
+		keyCodeMap.put("5", new int[] { 12 } );
+		keyCodeMap.put("6", new int[] { 13 } );
+		keyCodeMap.put("7", new int[] { 14 } );
+		keyCodeMap.put("8", new int[] { 15 } );
+		keyCodeMap.put("9", new int[] { 16 } );
 		
-		_.put("*", new int[] { 17 } ); // star/asterisk
-		_.put("#", new int[] { 18 } ); // pound
-		_.put("|", new int[] { 23 } ); // enter
+		keyCodeMap.put("*", new int[] { 17 } ); // star/asterisk
+		keyCodeMap.put("#", new int[] { 18 } ); // pound
+		keyCodeMap.put("|", new int[] { 23 } ); // enter
 
-		_.put("^", new int[] { 19 } ); // up
-		_.put("v", new int[] { 20 } ); // down
-		_.put("<", new int[] { 21 } ); // left
-		_.put(">", new int[] { 22 } ); // right
+		keyCodeMap.put("^", new int[] { 19 } ); // up
+		keyCodeMap.put("v", new int[] { 20 } ); // down
+		keyCodeMap.put("<", new int[] { 21 } ); // left
+		keyCodeMap.put(">", new int[] { 22 } ); // right
 		
-		this.keyCodeMap = _;
+		this.keyCodeMap = keyCodeMap;
 	}
 	
 	

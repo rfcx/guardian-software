@@ -1,11 +1,12 @@
-package org.rfcx.guardian.guardian.camera.capture;
+package org.rfcx.guardian.admin.device.android.capture;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
-import org.rfcx.guardian.guardian.RfcxGuardian;
+
+import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.camera.RfcxCameraUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -14,7 +15,7 @@ public class PhotoCaptureJobService extends Service {
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, PhotoCaptureJobService.class);
 		
-	private static final String SERVICE_NAME = "PhotoCaptureJob";
+	private static final String SERVICE_NAME = "PhotoCapture";
 	
 	private RfcxGuardian app;
 	
@@ -73,7 +74,9 @@ public class PhotoCaptureJobService extends Service {
 			
 			String photoCaptureDir = RfcxCameraUtils.photoCaptureDir(context);
 			FileUtils.deleteDirectoryContents(photoCaptureDir);
-							
+
+			Log.e(logTag, "CURRENTLY THIS SERVICE DOES ABSOLUTELY NOTHING. NO PHOTOS CAPTURED.");
+
 			while (photoCaptureJobServiceInstance.runFlag) {
 				
 				try {

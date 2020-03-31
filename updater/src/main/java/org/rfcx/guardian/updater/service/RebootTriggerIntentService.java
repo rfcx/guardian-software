@@ -1,7 +1,7 @@
 package org.rfcx.guardian.updater.service;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
-import org.rfcx.guardian.utility.misc.ShellCommands;
+import org.rfcx.guardian.utility.device.root.DeviceReboot;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
@@ -24,7 +24,7 @@ public class RebootTriggerIntentService extends IntentService {
 		sendBroadcast(intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
-		ShellCommands.triggerRebootAsRoot(context);
+		DeviceReboot.triggerForcedRebootAsRoot(context);
 	}
 
 }

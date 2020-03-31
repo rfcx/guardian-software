@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api
+package org.rfcx.guardian.guardian.register
 
 import android.content.Context
 import android.util.Log

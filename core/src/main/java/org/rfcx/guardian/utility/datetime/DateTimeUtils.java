@@ -158,4 +158,10 @@ public class DateTimeUtils {
 		Log.v(logTag, "Resetting Permissions on DateTime Alarm Handlers...");
 		ShellCommands.executeCommandAsRootAndIgnoreOutput("chmod 666 /dev/alarm;", context);
 	}
+
+//	public static void setSystemTimezone(Context context, String timezoneInTzFormat) {
+//		Log.v(logTag, "Setting System Timezone to '"+timezoneInTzFormat+"'");
+//		TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
+//		//		ShellCommands.executeCommandAsRootAndIgnoreOutput("setprop persist.sys.timezone \""+timezoneInTzFormat+"\"", context);
+//	}
 }

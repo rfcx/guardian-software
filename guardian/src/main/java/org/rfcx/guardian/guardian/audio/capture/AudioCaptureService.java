@@ -75,20 +75,20 @@ public class AudioCaptureService extends Service {
 
 			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-			app.audioCaptureUtils.captureTimeStampQueue = new long[] { 0, 0 };
+			app.audioCaptureUtils.queueCaptureTimeStamp = new long[] { 0, 0 };
 			
 			String captureDir = RfcxAudioUtils.captureDir(context);
 			FileUtils.deleteDirectoryContents(captureDir);
 			
 			AudioCaptureWavRecorder wavRecorder = null;
 
-			long captureTimeStamp = 0; // timestamp of beginning of audio clip
+			long captureTimeStamp = 0; // timestamp at beginning of capture loop
 				
 			while (audioCaptureService.runFlag) {
 				
 				try {
 					
-					if (		confirmOrSetAudioCaptureParameters() 
+					if (confirmOrSetAudioCaptureParameters()
 						&& 	app.audioCaptureUtils.isAudioCaptureAllowed(app.rfcxPrefs.getPrefAsBoolean("verbose_logging"))
 						) {
 							
@@ -97,12 +97,14 @@ public class AudioCaptureService extends Service {
 							captureTimeStamp = System.currentTimeMillis();
 							wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
 							wavRecorder.startRecorder();
+
 // This line is the problem of get audio corrupted for encoding
 //						} else {
 //							// in this case, we are just taking a snapshot and moving capture output to a new file
 //							// ( !!! THIS STILL NEEDS TO BE OPTIMIZED TO AVOID CAPTURE DOWNTIME !!! )
 //							// Look in AudioCaptureWavRecorder for optimization...
 //							captureTimeStamp = System.currentTimeMillis();
+//							captureSampleRate = audioSampleRate;
 //							Log.d(logTag, "wavRecoder is not null");
 //							wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
 //						}
@@ -111,21 +113,26 @@ public class AudioCaptureService extends Service {
 						// in this case, we assume that the state has changed and capture is no longer allowed... 
 						// ...but there is a capture in progress, so we take a snapshot and halt the recorder.
 						captureTimeStamp = 0;
-						Log.d(logTag, "wavRecoder come halt");
+						Log.d(logTag, "halt wavRecorder");
 						wavRecorder.haltRecording();
 						wavRecorder = null;
 						Log.i(logTag, "Stopping audio capture.");
 					}
 						
 					// queueing the last capture file for encoding, if there is one
-					if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
+					if (app.audioCaptureUtils.updateCaptureQueue(captureTimeStamp, audioSampleRate)) {
 						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueueEncode");
 					}
-					
+
 					for (int loopQuarterIteration = 0; loopQuarterIteration < 4; loopQuarterIteration++) {
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 						Thread.sleep(loopQuarterDuration);
 					}
+
+					// Triggering creation of a metadata snapshot, for retrieval during CheckIn.
+					// This is unrelated to audio capture, but putting it here ensures that snapshots...
+					// ...will continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
+					app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInMetaSnapshot");
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
@@ -149,7 +156,7 @@ public class AudioCaptureService extends Service {
 			int prefsAudioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
 			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			
-			if (		(this.audioSampleRate != prefsAudioSampleRate)
+			if (	(this.audioSampleRate != prefsAudioSampleRate)
 				||	(this.audioCycleDuration != prefsAudioCycleDuration)
 				) {
 

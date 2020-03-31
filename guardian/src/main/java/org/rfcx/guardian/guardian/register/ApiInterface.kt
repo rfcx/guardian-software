@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api
+package org.rfcx.guardian.guardian.register
 
 import android.content.Context
 import okhttp3.OkHttpClient
@@ -18,8 +18,8 @@ interface ApiInterface {
                  @Body guardianInfo: RegisterRequest): Call<RegisterResponse>
 
     @GET("v2/guardians/{guid}")
-    fun isGuardianExisted(@Header("Authorization") token: String,
-                          @Path("guid") guid: String): Call<GuardianResponse>
+    fun isGuardianRegistered(@Header("Authorization") token: String,
+                             @Path("guid") guid: String): Call<GuardianResponse>
 
     companion object {
         fun create(context: Context): ApiInterface {
@@ -42,8 +42,8 @@ interface ApiInterface {
 
         private fun baseUrl(context: Context): String {
             val prefs = (context.getApplicationContext() as RfcxGuardian).rfcxPrefs
-            val protocol = prefs.getPrefAsString("api_protocol")
-            val host = prefs.getPrefAsString("api_host")
+            val protocol = prefs.getPrefAsString("api_rest_protocol")
+            val host = prefs.getPrefAsString("api_rest_host")
             if (protocol != null && host != null) {
                 return "${protocol}://${host}/"
             }

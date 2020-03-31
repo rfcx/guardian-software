@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
@@ -86,10 +87,36 @@ public class RfcxPrefs {
 	public void setPref(String prefKey, int prefValue) {
 		setPref(prefKey, ""+prefValue);
 	}
-	
-	public void clearPrefsCache() {
-		this.cachedPrefs = new HashMap<String, String>();
+
+	public void reSyncPref(String prefKey) {
+		this.cachedPrefs.remove(prefKey);
+		String prefValue = getPrefAsString(prefKey);
+		Log.i(logTag, "Pref resynced: "+prefKey+" = "+prefValue);
 	}
+
+	public void reSyncPrefInExternalRoleViaContentProvider(String targetAppRole, String prefKey, Context context) {
+		try {
+			Cursor targetAppRoleResponse =
+					context.getContentResolver().query(
+					RfcxComm.getUri(targetAppRole, "prefs_resync", prefKey),
+					RfcxComm.getProjection(targetAppRole, "prefs_resync"),
+					null, null, null);
+			if (targetAppRoleResponse != null) {
+				Log.v(logTag, targetAppRoleResponse.toString());
+				targetAppRoleResponse.close();
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+	}
+
+//	public void clearPrefsCache() {
+//		this.cachedPrefs = new HashMap<String, String>();
+//		Log.i(logTag, "Prefs cache cleared.");
+//		for (Map.Entry<String, ?> pref : this.sharedPrefs.getAll().entrySet()) {
+//			this.rfcxPrefs.setPref(pref.getKey(), pref.getValue().toString());
+//		}
+//	}
 	
 	// Reading and Writing to preference text files
 	
@@ -110,7 +137,7 @@ public class RfcxPrefs {
 		    		input.close();
 		    		return txtFileContents;
 	    		} else {
-	    			Log.e(logTag, "No preference file '"+prefKey+"' exists...");
+	    			Log.v(logTag, "No preference file '"+prefKey+"' exists...");
 	    		}
 	    	} catch (FileNotFoundException e) {
 				RfcxLog.logExc(logTag, e);
@@ -154,7 +181,7 @@ public class RfcxPrefs {
 	    	
 	    	if (!fileObj.exists()) {
 	        	(new File(prefsDirPath)).mkdirs();
-	        	FileUtils.chmod(prefsDirPath, 0777);
+	        	FileUtils.chmod(prefsDirPath, "rw", "rw");
 	    	} else {
 	    		fileObj.delete();
 	    	}
@@ -163,7 +190,7 @@ public class RfcxPrefs {
 	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
 	        	outFile.write(prefValue);
 	        	outFile.close();
-	        	FileUtils.chmod(filePath, 0777);
+	        	FileUtils.chmod(filePath, "rw", "rw");
 	        	writeSuccess = fileObj.exists();
         } catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
@@ -195,13 +222,13 @@ public class RfcxPrefs {
 	    	String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
 	    	File fileObj = new File(filePath);
 	    	fileObj.mkdirs();
-	    	FileUtils.chmod(context.getFilesDir().toString()+"/txt", 0755);
+	    	FileUtils.chmod(context.getFilesDir().toString()+"/txt", "rw", "rw");
 	    	if (fileObj.exists()) { fileObj.delete(); }
         try {
 	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
 	        	outFile.write(stringContents);
 	        	outFile.close();
-	        	FileUtils.chmod(filePath, 0755);
+	        	FileUtils.chmod(filePath, "rw", "rw");
         } catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
         }
@@ -239,7 +266,7 @@ public class RfcxPrefs {
 		String prefsDir = (new StringBuilder()).append(roleFilesDir.substring(0, roleFilesDir.lastIndexOf("/files")-("."+appRole).length())).append(".guardian/files/prefs").toString();
 		
 		if (appRole.equalsIgnoreCase("guardian")) {
-			(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, 0777);
+			(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, "rw", "rw");
 		}
 		
 		return prefsDir;
@@ -253,15 +280,19 @@ public class RfcxPrefs {
 		}
 		return prefsKeys;
 	}
-	
 
 	public String getPrefsChecksum() {
 		
+		return StringUtils.getSha1HashOfString(getPrefsAsJsonArray().toString());
+	}
+
+	public JSONArray getPrefsAsJsonArray() {
+
 		List<String> prefsKeys = listPrefsKeys();
 		Collections.sort(prefsKeys);
-		
+
 		JSONArray prefsBlob = new JSONArray();
-		
+
 		for (String prefKey : prefsKeys) {
 			try {
 				JSONObject thisPref = new JSONObject();
@@ -271,9 +302,8 @@ public class RfcxPrefs {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
-		
-		return StringUtils.getSha1HashOfString(prefsBlob.toString());
-	
+
+		return prefsBlob;
 	}
 	
 	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
@@ -286,8 +316,8 @@ public class RfcxPrefs {
 			put("enable_cutoffs_battery", "true");
 			put("enable_cutoffs_schedule_off_hours", "true");
 
-			put("api_host", "api.rfcx.org");
-			put("api_protocol", "https");
+			put("api_rest_host", "api.rfcx.org");
+			put("api_rest_protocol", "https");
 	        put("api_checkin_host", "checkin.rfcx.org");
 	        put("api_checkin_protocol", "tcp");
 	        put("api_checkin_port", "1883");
@@ -312,8 +342,10 @@ public class RfcxPrefs {
 			put("checkin_stash_threshold", "240");
 			put("checkin_archive_threshold", "160");
 
-			put("admin_enable_bluetooth", "true");	
-			
+			put("admin_enable_bluetooth", "false");
+			put("admin_enable_wifi", "false");
+			put("admin_enable_tcp_adb", "false");
+
 			put("admin_log_capture_cycle", "30");
 			put("admin_log_capture_level", "warn");
 			put("admin_enable_log_capture", "true");

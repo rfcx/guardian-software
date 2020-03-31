@@ -1,8 +1,4 @@
-package org.rfcx.guardian.guardian.device.android;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+package org.rfcx.guardian.admin.device.android.system;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -12,12 +8,20 @@ import android.location.LocationManager;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.guardian.device.android.DeviceSystemService.SignalStrengthListener;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.device.android.system.DeviceSystemService.SignalStrengthListener;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 public class DeviceUtils {
 
@@ -66,7 +70,7 @@ public class DeviceUtils {
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
 	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		1, 		1,		1 	};
-	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	3600,	60,		10 	};
+	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	180/*3600*/,	60,		10 	};
 	public int geoPositionUpdateIndex = 0;
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
@@ -156,7 +160,7 @@ public class DeviceUtils {
 				}
 				
 				// only save/cache geoposition values if the GPS clock is less than 5 minutes different than the system clock
-				if (Math.abs(dateTimeDiscrepancyFromSystemClock_gps) < (5 * 60 * 1000) ) { 
+				if (Math.abs(dateTimeDiscrepancyFromSystemClock_gps) < (5 * 60 * 1000) ) {
 					
 					app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps);
 					app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);
@@ -169,6 +173,55 @@ public class DeviceUtils {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
+	}
+
+	public static JSONArray getSystemMetaValuesAsJsonArray(Context context) {
+
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		JSONArray metaJsonArray = new JSONArray();
+		try {
+			JSONObject metaJson = new JSONObject();
+
+			metaJson.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
+			metaJson.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
+			metaJson.put("power", app.deviceSystemDb.dbPower.getConcatRows());
+			metaJson.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
+			metaJson.put("offline", app.deviceSystemDb.dbOffline.getConcatRows());
+			metaJson.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
+			metaJson.put("accelerometer", app.deviceSensorDb.dbAccelerometer.getConcatRows());
+			metaJson.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
+			metaJson.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
+			metaJson.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());
+			metaJson.put("disk_usage", app.deviceDiskDb.dbDiskUsage.getConcatRows());
+			metaJsonArray.put(metaJson);
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+
+		} finally {
+			return metaJsonArray;
+		}
+	}
+
+	public static int deleteSystemMetaValuesBeforeTimestamp(String timeStamp, Context context) {
+
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+
+		Date clearBefore = new Date(Long.parseLong(timeStamp));
+
+		app.deviceSystemDb.dbBattery.clearRowsBefore(clearBefore);
+		app.deviceSystemDb.dbCPU.clearRowsBefore(clearBefore);
+		app.deviceSystemDb.dbPower.clearRowsBefore(clearBefore);
+		app.deviceSystemDb.dbTelephony.clearRowsBefore(clearBefore);
+		app.deviceSystemDb.dbOffline.clearRowsBefore(clearBefore);
+		app.deviceSensorDb.dbLightMeter.clearRowsBefore(clearBefore);
+		app.deviceSensorDb.dbAccelerometer.clearRowsBefore(clearBefore);
+		app.deviceDataTransferDb.dbTransferred.clearRowsBefore(clearBefore);
+		app.rebootDb.dbRebootComplete.clearRowsBefore(clearBefore);
+		app.deviceSensorDb.dbGeoPosition.clearRowsBefore(clearBefore);
+		app.deviceDiskDb.dbDiskUsage.clearRowsBefore(clearBefore);
+
+		return 1;
 	}
 
 }

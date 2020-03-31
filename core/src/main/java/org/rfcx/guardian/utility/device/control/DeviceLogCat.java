@@ -34,11 +34,11 @@ public class DeviceLogCat {
 	public static final String FILETYPE = "log";
 	
 	private static void initializeLogCatDirectories(Context context) {
-		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context), 0777);
-		(new File(postCaptureDir(context))).mkdirs(); FileUtils.chmod(postCaptureDir(context), 0777);
-		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(), 0777);
-		(new File(finalFilesDir(context))).mkdirs(); FileUtils.chmod(finalFilesDir(context), 0777);
-		(new File(getExecutableScriptDir(context))).mkdirs(); FileUtils.chmod(getExecutableScriptDir(context), 0777);
+		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context),  "rw", "rw");
+		(new File(postCaptureDir(context))).mkdirs(); FileUtils.chmod(postCaptureDir(context),  "rw", "rw");
+		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(),  "rw", "rw");
+		(new File(finalFilesDir(context))).mkdirs(); FileUtils.chmod(finalFilesDir(context),  "rw", "rw");
+		(new File(getExecutableScriptDir(context))).mkdirs(); FileUtils.chmod(getExecutableScriptDir(context),  "rw", "rw");
 	}
 	
 	private static String sdCardFilesDir() {
@@ -54,7 +54,7 @@ public class DeviceLogCat {
 	}
 	
 	private static String getExecutableScriptDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/logs/scr").toString(); 
+		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/scr").toString();
 	}
 
 	public static String getExecutableScriptFilePath(Context context) {
@@ -115,7 +115,7 @@ public class DeviceLogCat {
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(scriptFilePath));
 			bufferedWriter.write(scriptBody);
 			bufferedWriter.close();
-			FileUtils.chmod(scriptFilePath, 0755);
+			FileUtils.chmod(scriptFilePath,  "rwx", "rx");
 			return (new File(scriptFilePath)).canExecute();
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

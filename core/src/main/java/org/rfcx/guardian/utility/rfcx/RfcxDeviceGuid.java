@@ -36,9 +36,15 @@ public class RfcxDeviceGuid {
 			RfcxLog.logExc(this.logTag, e);
 		}
 	}
+
+	public void setDeviceGuid(String deviceGuid) {
+		RfcxPrefs.writeGuidToFile(this.context, this.logTag, deviceGuid);
+		checkSetCustomDeviceGuid();
+	}
 	
 	private void checkSetCustomDeviceGuid() {
 		String customOrPreSetDeviceGuid = RfcxPrefs.getGuidFromFile(this.context, this.logTag, this.appRole, "org.rfcx.guardian.guardian");
+		Log.e(logTag, "From file: "+customOrPreSetDeviceGuid);
 		if (customOrPreSetDeviceGuid != null) {
 			this.deviceGuid = customOrPreSetDeviceGuid;
 		}
@@ -50,7 +56,7 @@ public class RfcxDeviceGuid {
 	    		if (this.deviceGuid == null) {
 	    			checkSetTelephonyId();
 				try {
-		    			checkSetTelephonyId();
+		    		checkSetTelephonyId();
 					MessageDigest telephonyIdMd5 = MessageDigest.getInstance("MD5");
 					byte[] telephonyIdMd5Bytes = telephonyIdMd5.digest(telephonyId.getBytes("UTF-8"));
 				    StringBuffer stringBuffer = new StringBuffer("");
