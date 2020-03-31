@@ -130,8 +130,8 @@ public class AudioCaptureService extends Service {
 					}
 
 					// Triggering creation of a metadata snapshot, for retrieval during CheckIn.
-					// This is unrelated to audio capture, but putting it here ensures that snapshots
-					// ...will continue to be taken, whether or not checkins are actually being sent or audio is allowed to be captured.
+					// This is unrelated to audio capture, but putting it here ensures that snapshots...
+					// ...will continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
 					app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInMetaSnapshot");
 					
 				} catch (Exception e) {
