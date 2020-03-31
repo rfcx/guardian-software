@@ -15,6 +15,7 @@
 .externalNativeBuild
 audio/obj
 gradle/*
+gradle/wrapper/*
 !/gradle/signing/*
 /gradle/signing/rfcx-guardian-keystore.jks
 /gradle/signing/rfcx-guardian-keystore-alias.txt
