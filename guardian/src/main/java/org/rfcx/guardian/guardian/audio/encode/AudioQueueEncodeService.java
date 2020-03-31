@@ -36,30 +36,30 @@ public class AudioQueueEncodeService extends IntentService {
 			
 			long captureLoopPeriod = (long) Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
 			int encodingBitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
-			int audioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
-			String encodeCodec = app.rfcxPrefs.getPrefAsString("audio_encode_codec");
+			String encodingCodec = app.rfcxPrefs.getPrefAsString("audio_encode_codec");
 			String captureFileExtension = "wav";
 
-			long[] captureTimeStampQueue = app.audioCaptureUtils.captureTimeStampQueue;
+			long[] queueCaptureTimeStamp = app.audioCaptureUtils.queueCaptureTimeStamp;
+			int[] queueCaptureSampleRate = app.audioCaptureUtils.queueCaptureSampleRate;
 			
-			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, captureTimeStampQueue[0], captureFileExtension)) {
+			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, queueCaptureTimeStamp[0], captureFileExtension)) {
 				
-				String preEncodeFilePath = RfcxAudioUtils.getAudioFileLocation_PreEncode(context, captureTimeStampQueue[0],captureFileExtension);	
+				String preEncodeFilePath = RfcxAudioUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0],captureFileExtension);
 				
 				app.audioEncodeDb.dbEncodeQueue.insert(
-						""+captureTimeStampQueue[0],
+						""+queueCaptureTimeStamp[0],
 						captureFileExtension,
 						"-",
-						audioSampleRate,
+						queueCaptureSampleRate[0],
 						encodingBitRate,
-						encodeCodec,
+						encodingCodec,
 						captureLoopPeriod,
 						captureLoopPeriod,
 						preEncodeFilePath
 						);
 				
 			} else {
-				Log.e(logTag, "Queued audio file does not exist: "+RfcxAudioUtils.getAudioFileLocation_PreEncode(context, captureTimeStampQueue[0],captureFileExtension));
+				Log.e(logTag, "Queued audio file does not exist: "+RfcxAudioUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0],captureFileExtension));
 			}
 
 			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
