@@ -2,7 +2,7 @@ package org.rfcx.guardian.setup.service;
 
 import java.io.File;
 
-import org.rfcx.guardian.utility.device.control.DeviceReboot;
+import org.rfcx.guardian.utility.device.root.DeviceReboot;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;

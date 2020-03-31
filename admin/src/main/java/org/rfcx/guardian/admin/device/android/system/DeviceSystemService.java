@@ -575,6 +575,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	
 	@Override
 	public void onLocationChanged(Location location) {
+		Log.e(logTag, "Running onLocationChanged...");
 		if (app != null) {
 			app.deviceUtils.processAndSaveGeoPosition(location);
 		}
@@ -582,18 +583,21 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	@Override
 	public void onProviderDisabled(String provider) {
+		Log.e(logTag, "Running onProviderDisabled...");
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
+		Log.e(logTag, "Running onProviderDisabled...");
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
+		Log.e(logTag, "Running onStatusChanged...");
 		// TODO Auto-generated method stub
 		
 	}

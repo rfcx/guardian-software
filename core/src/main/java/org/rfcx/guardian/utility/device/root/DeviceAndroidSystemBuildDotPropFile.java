@@ -1,10 +1,9 @@
-package org.rfcx.guardian.utility.device.control;
+package org.rfcx.guardian.utility.device.root;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.ArrayList;
@@ -19,7 +18,8 @@ public class DeviceAndroidSystemBuildDotPropFile {
 	public static void updateBuildDotPropFile(String[] propertiesWithValues, Context context) {
 
 		String tmpFilePath = context.getFilesDir().toString()+"/build.prop.tmp";
-		String backupFilePath = context.getFilesDir().toString()+"/build.prop."+System.currentTimeMillis();
+		String backupFilePathA = "/system/build.prop."+System.currentTimeMillis();
+		String backupFilePathB = context.getFilesDir().toString()+"/build.prop."+System.currentTimeMillis();
 
 		StringBuilder shellCmd = new StringBuilder();
 		shellCmd.append("mount -o rw,remount /dev/block/mmcblk0p1 /system;\n");
@@ -37,17 +37,18 @@ public class DeviceAndroidSystemBuildDotPropFile {
 		shellCmd.append(TextUtils.join(" && ", appendCmds)).append(";\n");
 
 		shellCmd.append("chmod 0644 ").append(tmpFilePath)
-				.append(" && mv ").append(origFilePath).append(" ").append(backupFilePath)
-				.append(" && mv ").append(tmpFilePath).append(" ").append(origFilePath)
+				.append(" && mv ").append(origFilePath).append(" ").append(backupFilePathA)
+				.append(" && cp ").append(tmpFilePath).append(" ").append(origFilePath)
+				.append(" && cp ").append(backupFilePathA).append(" ").append(backupFilePathB)
+				.append(" && rm ").append(backupFilePathA).append(" ").append(tmpFilePath)
 				.append(";\n");
-
-		shellCmd.append("rm ").append(backupFilePath).append(";\n");
 
 		Log.i(logTag, "Updating System build.prop file for properties: "+TextUtils.join(" ", propertyKeys));
 
-		ShellCommands.executeCommandAsRootAndIgnoreOutput(shellCmd.toString(), context);
+		Log.e(logTag, shellCmd.toString());
+//		ShellCommands.executeCommandAsRootAndIgnoreOutput(shellCmd.toString(), context);
 
-		DeviceReboot.triggerForcedRebootAsRoot(context);
+//		DeviceReboot.triggerForcedRebootAsRoot(context);
 	}
 	
 }
