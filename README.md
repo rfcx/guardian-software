@@ -33,7 +33,7 @@ A collection of Android applications which, together, operate as autonomous Rain
 #### Download apps from script
 
 1. If your Environment variables do not have **ANDROID_SDK_ROOT**, create it and point to android-sdk root path
-2. Run script **download-apk-install.sh** in /bin/
+2. Run script with version **download-apk-install.sh 0.x.x** in /bin/
 
 #### Run the guardian role
 
