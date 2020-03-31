@@ -2,7 +2,7 @@ package org.rfcx.guardian.utility.device.hardware;
 
 import android.content.Context;
 
-import org.rfcx.guardian.utility.device.control.DeviceAndroidSystemBuildDotPropFile;
+import org.rfcx.guardian.utility.device.root.DeviceAndroidSystemBuildDotPropFile;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceHardware_OrangePi_3G_IOT {

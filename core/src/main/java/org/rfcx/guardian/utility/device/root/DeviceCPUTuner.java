@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.control;
+package org.rfcx.guardian.utility.device.root;
 
 import java.io.BufferedWriter;
 import java.io.File;

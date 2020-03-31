@@ -1,8 +1,7 @@
 package org.rfcx.guardian.updater.service;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
-import org.rfcx.guardian.utility.device.control.DeviceReboot;
-import org.rfcx.guardian.utility.misc.ShellCommands;
+import org.rfcx.guardian.utility.device.root.DeviceReboot;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;

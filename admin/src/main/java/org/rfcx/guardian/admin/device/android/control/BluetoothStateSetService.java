@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.control.DeviceADB;
+import org.rfcx.guardian.utility.device.root.DeviceADB;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;

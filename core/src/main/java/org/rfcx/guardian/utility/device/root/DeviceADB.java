@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.control;
+package org.rfcx.guardian.utility.device.root;
 
 import android.content.Context;
 import android.util.Log;
@@ -10,7 +10,7 @@ public class DeviceADB {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceADB.class);
 
-	public static final int DEFAULT_TCP_PORT = 4455;
+	public static final int DEFAULT_TCP_PORT = 7329; // RFCX (7329)
 
 	public static void setADBoverTCP(boolean enableOrDisable, int tcpPort, Context context) {
 		if (tcpPort <= 0) { tcpPort = DEFAULT_TCP_PORT; }

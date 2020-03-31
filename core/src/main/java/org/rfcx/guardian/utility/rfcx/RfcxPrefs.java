@@ -280,15 +280,19 @@ public class RfcxPrefs {
 		}
 		return prefsKeys;
 	}
-	
 
 	public String getPrefsChecksum() {
 		
+		return StringUtils.getSha1HashOfString(getPrefsAsJsonArray().toString());
+	}
+
+	public JSONArray getPrefsAsJsonArray() {
+
 		List<String> prefsKeys = listPrefsKeys();
 		Collections.sort(prefsKeys);
-		
+
 		JSONArray prefsBlob = new JSONArray();
-		
+
 		for (String prefKey : prefsKeys) {
 			try {
 				JSONObject thisPref = new JSONObject();
@@ -298,9 +302,8 @@ public class RfcxPrefs {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
-		
-		return StringUtils.getSha1HashOfString(prefsBlob.toString());
-	
+
+		return prefsBlob;
 	}
 	
 	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
