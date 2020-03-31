@@ -75,14 +75,14 @@ public class AudioCaptureService extends Service {
 
 			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-			app.audioCaptureUtils.captureTimeStampQueue = new long[] { 0, 0 };
+			app.audioCaptureUtils.queueCaptureTimeStamp = new long[] { 0, 0 };
 			
 			String captureDir = RfcxAudioUtils.captureDir(context);
 			FileUtils.deleteDirectoryContents(captureDir);
 			
 			AudioCaptureWavRecorder wavRecorder = null;
 
-			long captureTimeStamp = 0; // timestamp of beginning of audio clip
+			long captureTimeStamp = 0; // timestamp at beginning of capture loop
 				
 			while (audioCaptureService.runFlag) {
 				
@@ -97,12 +97,14 @@ public class AudioCaptureService extends Service {
 							captureTimeStamp = System.currentTimeMillis();
 							wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
 							wavRecorder.startRecorder();
+
 // This line is the problem of get audio corrupted for encoding
 //						} else {
 //							// in this case, we are just taking a snapshot and moving capture output to a new file
 //							// ( !!! THIS STILL NEEDS TO BE OPTIMIZED TO AVOID CAPTURE DOWNTIME !!! )
 //							// Look in AudioCaptureWavRecorder for optimization...
 //							captureTimeStamp = System.currentTimeMillis();
+//							captureSampleRate = audioSampleRate;
 //							Log.d(logTag, "wavRecoder is not null");
 //							wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
 //						}
@@ -118,7 +120,7 @@ public class AudioCaptureService extends Service {
 					}
 						
 					// queueing the last capture file for encoding, if there is one
-					if (app.audioCaptureUtils.updateCaptureTimeStampQueue(captureTimeStamp)) {
+					if (app.audioCaptureUtils.updateCaptureQueue(captureTimeStamp, audioSampleRate)) {
 						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueueEncode");
 					}
 
@@ -128,8 +130,8 @@ public class AudioCaptureService extends Service {
 					}
 
 					// Triggering creation of a metadata snapshot, for retrieval during CheckIn.
-					// This is unrelated to audio capture, but putting it here ensures that snapshots
-					// ...will continue to be taken, whether or not checkins are actually being sent or audio is allowed to be captured.
+					// This is unrelated to audio capture, but putting it here ensures that snapshots...
+					// ...will continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
 					app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInMetaSnapshot");
 					
 				} catch (Exception e) {

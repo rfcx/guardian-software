@@ -1,7 +1,6 @@
 package org.rfcx.guardian.admin.device.android.control;
 
-import org.rfcx.guardian.utility.device.control.DeviceReboot;
-import org.rfcx.guardian.utility.misc.ShellCommands;
+import org.rfcx.guardian.utility.device.root.DeviceReboot;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
