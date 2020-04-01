@@ -100,13 +100,13 @@ public class RebootTriggerJobService extends Service {
 //				ShellCommands.executeCommandAsRootAndIgnoreOutput("umount "+externalStorage, app.getApplicationContext());
 
 				// Triggering reboot request
-				Log.e(logTag, "Reboot: Broadcasting ACTION_REBOOT Intent...");
-				Intent requestReboot = new Intent(Intent.ACTION_REBOOT);
+				Log.e(logTag, "Reboot: Broadcasting ACTION_SHUTDOWN Intent...");
+				Intent requestReboot = new Intent(Intent.ACTION_SHUTDOWN);
 				requestReboot.putExtra("nowait", 1);
 				requestReboot.putExtra("window", 1);
 				sendBroadcast(requestReboot);
 
-				Log.e(logTag, "System should reboot momentarily...");
+				Log.e(logTag, "System should be shutting down momentarily...");
 				app.rfcxServiceHandler.stopAllServices();
 					
 			} catch (Exception e) {
