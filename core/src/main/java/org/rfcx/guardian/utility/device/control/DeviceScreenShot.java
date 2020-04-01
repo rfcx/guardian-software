@@ -91,7 +91,7 @@ public class DeviceScreenShot {
 				String finalFilePath = DeviceScreenShot.getScreenShotFileLocation_Complete(this.rfcxDeviceId, context, captureTimestamp);
 				
 				// as root, run framebuffer binary to save screenshot to file and set output file permissions to allow access by non-root process
-				ShellCommands.executeCommandAsRootAndIgnoreOutput(executableBinaryFilePath+" "+captureFilePath+" && chmod 0777 "+captureFilePath+";", context);
+				ShellCommands.executeCommandAsRootAndIgnoreOutput(executableBinaryFilePath+" "+captureFilePath+" && chmod 0777 "+captureFilePath, context);
 
 				return completeCapture(captureTimestamp, captureFilePath, finalFilePath);
 				

@@ -26,13 +26,11 @@ public class AppProcessInfo {
 
 	public static int getAppProcessId() {
 		int appPid = android.os.Process.myPid();
-		Log.e(logTag, "PID: "+appPid);
 		return appPid;
 	}
 
 	public static int getAppUserId() {
 		int appUid = android.os.Process.myUid();
-		Log.e(logTag, "UID: "+appUid);
 		return appUid;
 	}
 
@@ -48,8 +46,6 @@ public class AppProcessInfo {
 			processIds[0] = processInfoCursor.getInt(1);
 			processIds[1] = processInfoCursor.getInt(2);
 		} while (processInfoCursor.moveToNext()); } finally { processInfoCursor.close(); } } }
-
-		Log.e(logTag, "Role: "+appRole+", Pid: "+processIds[0]+", Uid: "+processIds[1]);
 
 		return processIds;
 	}
