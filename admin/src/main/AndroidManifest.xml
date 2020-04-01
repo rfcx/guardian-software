@@ -1,6 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.rfcx.guardian.admin"
-    android:sharedUserId="android.uid.system">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+            package="org.rfcx.guardian.admin" android:sharedUserId="android.uid.system">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
@@ -38,6 +37,9 @@
     <uses-permission android:name="android.permission.READ_SMS"/>
 
 <!--    <uses-permission android:name="android.permission.CAMERA" />-->
+
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" android:protectionLevel="signature" tools:ignore="ProtectedPermissions"/>
+    <uses-permission android:name="android.permission.SHUTDOWN" tools:ignore="ProtectedPermissions" />
 
     <uses-permission android:name="org.rfcx.guardian.READ" />
     <uses-permission android:name="org.rfcx.guardian.WRITE" />

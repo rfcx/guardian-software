@@ -1,11 +1,17 @@
 package org.rfcx.guardian.admin.device.android.control;
 
+import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.root.DeviceReboot;
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+
+import android.app.ActivityManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -72,7 +78,27 @@ public class RebootTriggerJobService extends Service {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				DeviceReboot.triggerForcedRebootAsRoot(app.getApplicationContext());
+//				ShellCommands.executeCommandAndIgnoreOutput("su -c \"umount "+ Environment.getExternalStorageDirectory().toString()+"\"");
+
+				Log.e(logTag, "Running ACTION_SHUTDOWN");
+				Intent requestShutdownAction = new Intent(Intent.ACTION_SHUTDOWN);
+				sendBroadcast(requestShutdownAction);
+
+				int pid = AppProcessInfo.getAppProcessId();
+				int uid = AppProcessInfo.getAppUserId();
+
+				int[] guardianIds = AppProcessInfo.getProcessInfoFromRole("guardian", app.getApplicationContext());
+
+//				ShellCommands.executeCommandAsRootAndIgnoreOutput("kill -9 "+AppProcessInfo.getAppProcessId(), app.getApplicationContext());
+
+//				Log.e(logTag, "Running ACTION_REBOOT");
+//				Intent requestReboot = new Intent(Intent.ACTION_REBOOT);
+//				requestReboot.putExtra("nowait", 1);
+//				requestReboot.putExtra("interval", 1);
+//				requestReboot.putExtra("window", 0);
+//				sendBroadcast(requestReboot);
+
+				Log.e(logTag, "Rebooting now...");
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

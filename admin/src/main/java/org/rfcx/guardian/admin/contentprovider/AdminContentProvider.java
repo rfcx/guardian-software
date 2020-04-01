@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin.contentprovider;
 
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
+import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -52,7 +53,12 @@ public class AdminContentProvider extends ContentProvider {
                 String prefValue = app.onPrefReSync(prefKey);
                 return RfcxComm.getProjectionCursor(appRole, "prefs_resync", new Object[]{prefKey, prefValue, System.currentTimeMillis()});
 
-                // "control" function endpoints
+            // "process" function endpoints
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "process", null)) {
+                return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole, AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
+
+            // "control" function endpoints
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "reboot")) {
                 app.rfcxServiceHandler.triggerService("RebootTrigger", true);

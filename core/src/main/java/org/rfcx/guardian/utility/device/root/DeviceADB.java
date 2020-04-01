@@ -1,6 +1,7 @@
 package org.rfcx.guardian.utility.device.root;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.misc.ShellCommands;

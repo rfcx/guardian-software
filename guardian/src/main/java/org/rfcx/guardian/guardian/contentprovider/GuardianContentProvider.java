@@ -1,5 +1,6 @@
 package org.rfcx.guardian.guardian.contentprovider;
 
+import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -41,7 +42,12 @@ public class GuardianContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "prefs", "*")) {
 				String prefKey = uri.getLastPathSegment();
 				return RfcxComm.getProjectionCursor(appRole, "prefs", new Object[] { prefKey, app.rfcxPrefs.getPrefAsString(prefKey) });
-				
+
+			// "process" function endpoints
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "process", null)) {
+				return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole, AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
+
 			}
 			
 			

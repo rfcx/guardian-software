@@ -109,9 +109,9 @@ public class RfcxGuardian extends Application {
 		setDbHandlers();
 		setServiceHandlers();
 
-		ShellCommands.triggerNeedForRootAccess(this);
-		DeviceI2cUtils.resetI2cPermissions(this);
-		DateTimeUtils.resetDateTimeReadWritePermissions(this);
+//		ShellCommands.triggerNeedForRootAccess(this);
+//		DeviceI2cUtils.resetI2cPermissions(this);
+//		DateTimeUtils.resetDateTimeReadWritePermissions(this); // this is not necessary if this app role is running as
 		runHardwareSpecificModifications();
 
 		this.deviceUtils = new DeviceUtils(this);

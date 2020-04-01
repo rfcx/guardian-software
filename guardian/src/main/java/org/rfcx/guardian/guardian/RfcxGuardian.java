@@ -9,6 +9,7 @@ import android.location.LocationManager;
 import org.rfcx.guardian.guardian.api.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.DeviceMobilePhone;
@@ -117,6 +118,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
         startAllServices();
+
+
+        int[] guardianIds = AppProcessInfo.getProcessInfoFromRole("admin", this);
     }
 
     public void onTerminate() {
