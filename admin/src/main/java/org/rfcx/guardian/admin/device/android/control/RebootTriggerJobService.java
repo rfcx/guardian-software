@@ -78,27 +78,32 @@ public class RebootTriggerJobService extends Service {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-//				ShellCommands.executeCommandAndIgnoreOutput("su -c \"umount "+ Environment.getExternalStorageDirectory().toString()+"\"");
+				// Halting the Guardian role
+				// This should be rewritten to use a content provider request to the guardian role
+//				int[] guardianProcessInfo = AppProcessInfo.getProcessInfoFromRole("guardian", app.getApplicationContext());
+//				Log.e(logTag, "Reboot: Forcibly killing Guardian role process (PID "+guardianProcessInfo[0]+")...");
+//				ShellCommands.executeCommandAsRootAndIgnoreOutput( "kill -9 "+guardianProcessInfo[0], app.getApplicationContext());
 
-				Log.e(logTag, "Running ACTION_SHUTDOWN");
-				Intent requestShutdownAction = new Intent(Intent.ACTION_SHUTDOWN);
-				sendBroadcast(requestShutdownAction);
+				// Unmounting external storage (optional)
+//				String externalStorage = Environment.getExternalStorageDirectory().toString();
+//				Log.e(logTag, "Reboot: Forcibly un-mounting external storage ("+externalStorage+")...");
+//				ShellCommands.executeCommandAsRootAndIgnoreOutput("umount "+externalStorage, app.getApplicationContext());
 
-				int pid = AppProcessInfo.getAppProcessId();
-				int uid = AppProcessInfo.getAppUserId();
+				// Send a broadcast for device shutdown...
+				// Is this actually good or helpful in combination with the reboot request?
+//				Log.e(logTag, "Reboot: Broadcasting ACTION_SHUTDOWN Intent...");
+//				Intent requestShutdownAction = new Intent(Intent.ACTION_SHUTDOWN);
+//				sendBroadcast(requestShutdownAction);
 
-				int[] guardianIds = AppProcessInfo.getProcessInfoFromRole("guardian", app.getApplicationContext());
+				// Triggering reboot request
+				Log.e(logTag, "Reboot: Broadcasting ACTION_REBOOT Intent...");
+				Intent requestReboot = new Intent(Intent.ACTION_REBOOT);
+				requestReboot.putExtra("nowait", 1);
+				requestReboot.putExtra("interval", 1);
+				requestReboot.putExtra("window", 0);
+				sendBroadcast(requestReboot);
 
-//				ShellCommands.executeCommandAsRootAndIgnoreOutput("kill -9 "+AppProcessInfo.getAppProcessId(), app.getApplicationContext());
-
-//				Log.e(logTag, "Running ACTION_REBOOT");
-//				Intent requestReboot = new Intent(Intent.ACTION_REBOOT);
-//				requestReboot.putExtra("nowait", 1);
-//				requestReboot.putExtra("interval", 1);
-//				requestReboot.putExtra("window", 0);
-//				sendBroadcast(requestReboot);
-
-				Log.e(logTag, "Rebooting now...");
+				Log.e(logTag, "System should reboot any moment now...");
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
