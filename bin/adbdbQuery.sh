@@ -11,7 +11,7 @@ if [ "$CATEGORY" = "list" ]; then
 	CMD="$CATEGORY";
 fi
 
-export DB_DIR="/data/data/org.rfcx.guardian.$ROLE/databases";
+export DB_DIR="/data/user/0/org.rfcx.guardian.$ROLE/databases";
 
 echo "";
 
