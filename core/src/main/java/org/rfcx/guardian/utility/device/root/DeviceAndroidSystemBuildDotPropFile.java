@@ -43,10 +43,10 @@ public class DeviceAndroidSystemBuildDotPropFile {
 
 		Log.i(logTag, "Updating System build.prop file for properties: "+TextUtils.join(" ", propertyKeys));
 
-		ShellCommands.executeCommandAsRootAndIgnoreOutput("mount -o rw,remount /dev/block/mmcblk0p1 /system", context);
-		ShellCommands.executeCommandAsRootAndIgnoreOutput((new StringBuilder()).append("cat ").append(origFilePath).append(" | grep -v -E \"").append(TextUtils.join("|", propertyKeys)).append("\" > ").append(tmpFilePath).toString(), context);
-		ShellCommands.executeCommandAsRootAndIgnoreOutput(TextUtils.join(" && ", appendCmds), context);
-		ShellCommands.executeCommandAsRootAndIgnoreOutput(moveIntoPlace.toString(), context);
+/*		ShellCommands.executeCommandAsRootAndIgnoreOutput(*/Log.w(logTag,"mount -o rw,remount /dev/block/mmcblk0p1 /system");//, context);
+/*		ShellCommands.executeCommandAsRootAndIgnoreOutput(*/Log.w(logTag,(new StringBuilder()).append("cat ").append(origFilePath).append(" | grep -v -E \"").append(TextUtils.join("|", propertyKeys)).append("\" > ").append(tmpFilePath).toString());//, context);
+/*		ShellCommands.executeCommandAsRootAndIgnoreOutput(*/Log.w(logTag,TextUtils.join(" && ", appendCmds));//, context);
+/*		ShellCommands.executeCommandAsRootAndIgnoreOutput(*/Log.w(logTag,moveIntoPlace.toString());//, context);
 
 //		DeviceReboot.triggerForcedRebootAsRoot(context);
 	}

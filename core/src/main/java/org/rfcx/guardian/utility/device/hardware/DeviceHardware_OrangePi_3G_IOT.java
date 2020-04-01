@@ -36,7 +36,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 				"ro.build.product="+DEVICE_MODEL[0]
 		};
 
-//		DeviceAndroidSystemBuildDotPropFile.updateBuildDotPropFile(propertiesAndValues, context);
+		DeviceAndroidSystemBuildDotPropFile.updateBuildDotPropFile(propertiesAndValues, context);
 
 	}
 

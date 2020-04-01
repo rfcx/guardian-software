@@ -60,6 +60,10 @@ public class AdminContentProvider extends ContentProvider {
 
             // "control" function endpoints
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) {
+                app.rfcxServiceHandler.stopAllServices();
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"kill", null, System.currentTimeMillis()});
+
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "reboot")) {
                 app.rfcxServiceHandler.triggerService("RebootTrigger", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"reboot", null, System.currentTimeMillis()});

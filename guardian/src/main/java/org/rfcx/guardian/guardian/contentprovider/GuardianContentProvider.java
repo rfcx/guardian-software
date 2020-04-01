@@ -55,8 +55,12 @@ public class GuardianContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "process", null)) {
 				return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole, AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
 
+			// "control" function endpoints
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) {
+				app.rfcxServiceHandler.stopAllServices();
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"kill", null, System.currentTimeMillis()});
 			}
-			
 			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
