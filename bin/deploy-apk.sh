@@ -4,14 +4,17 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export ROLE=$1;
 
-export APK_VERSION=`cat $SCRIPT_DIR/../rfcx-guardian-role-$ROLE/AndroidManifest.xml | grep 'android:versionName=' | cut -d'"' -f 2`;
-
 $SCRIPT_DIR/build-apk.sh $ROLE;
 
-export ADB_BIN="$ANDROID_HOME/platform-tools/adb";
+export PROJECT_DIR="$SCRIPT_DIR/..";
+export ROLE_DIR="$PROJECT_DIR/$ROLE";
+
+export APK_VERSION=`cat $ROLE_DIR/build.gradle | grep ' versionName ' | cut -d'"' -f 2`;
+
+export ADB_BIN="$ANDROID_SDK_ROOT/platform-tools/adb";
 
 echo "transferring apk to device...";
-$ADB_BIN push $SCRIPT_DIR/../tmp/$ROLE-$APK_VERSION.apk /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
+$ADB_BIN push $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
 
 echo "restarting adbd with root access...";
 $ADB_BIN root; sleep 2;
@@ -30,7 +33,7 @@ $ADB_BIN shell rm /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
 # $ADB_BIN shell "input keyevent KEYCODE_POWER";
 
 echo "force relaunch of app role...";
-$ADB_BIN shell am start -n org.rfcx.guardian.$ROLE/$ROLE.activity.MainActivity;
+$ADB_BIN shell am start -n org.rfcx.guardian.$ROLE/org.rfcx.guardian.$ROLE.activity.MainActivity;
 
 # echo "restarting adbd without root access..."
 # $ADB_BIN shell "setprop service.adb.root 0 && setprop ctl.restart adbd;";
