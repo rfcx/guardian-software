@@ -79,6 +79,9 @@ public class ApiCheckInUtils implements MqttCallback {
 	private Map<String, String[]> inFlightCheckInEntries = new HashMap<String, String[]>();
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
 
+	private int inFlightCheckInAttemptCounter = 0;
+	private int inFlightCheckInAttemptCounterLimit = 20;
+
 	private List<String> previousCheckIns = new ArrayList<String>();
 
 //	private Date preFlightStatsQueryTimestamp = new Date();
@@ -602,15 +605,15 @@ public class ApiCheckInUtils implements MqttCallback {
 				this.inFlightCheckInAudioId = audioId;
 				this.inFlightCheckInEntries.remove(audioId);
 				this.inFlightCheckInEntries.put(audioId, checkInDatabaseEntry);
+				this.inFlightCheckInAttemptCounter++;
 
 				app.apiCheckInDb.dbQueued.incrementSingleRowAttempts(audioId);
 				long msgSendStart = this.mqttCheckInClient.publishMessage("guardians/checkins", checkInPayload);
 
 				setInFlightCheckInStats(audioId, msgSendStart, 0, checkInPayload.length);
-
+				this.inFlightCheckInAttemptCounter = 0;
 			} else {
-				purgeSingleAsset("audio", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), audioId,
-						audioExt);
+				purgeSingleAsset("audio", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), audioId, audioExt);
 			}
 
 		} catch (Exception e) {
@@ -623,21 +626,18 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
 				app.rfcxServiceHandler.triggerService("ApiCheckInJob", true);
 
-			} else if (excStr.contains("UnknownHostException")) {
+			} else if (	excStr.contains("UnknownHostException")
+					||	excStr.contains("Broken pipe")
+					||	excStr.contains("Timed out waiting for a response from the server")
+					||	excStr.contains("No route to host")
+					||	excStr.contains("Host is unresolved")
+			) {
+				Log.i(logTag, "Connection has failed "+this.inFlightCheckInAttemptCounter +" times (max: "+this.inFlightCheckInAttemptCounterLimit +")");
 				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-
-			} else if (excStr.contains("Broken pipe")) {
-				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-
-			} else if (excStr.contains("Timed out waiting for a response from the server")) {
-				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-
-			} else if (excStr.contains("No route to host")) {
-				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-
-			} else if (excStr.contains("Host is unresolved")) {
-				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-
+				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
+					Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
+					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+				}
 			}
 
 		}
@@ -716,7 +716,7 @@ public class ApiCheckInUtils implements MqttCallback {
                         if (toggleThreshold == this.failedCheckInThresholds[this.failedCheckInThresholds.length - 1]) {
                             // last threshold
                             if (!app.deviceConnectivity.isConnected() && !app.deviceMobilePhone.hasSim()) {
-                                Log.d(logTag, "Failure Threshold Reached: Forced reboot due to missing sim (" + toggleThreshold
+                                Log.d(logTag, "Failure Threshold Reached: Forced reboot due to missing SIM card (" + toggleThreshold
                                         + " minutes since last successful CheckIn)");
                                 app.deviceControlUtils.runOrTriggerDeviceControl("reboot",
                                         app.getApplicationContext().getContentResolver());
