@@ -10,11 +10,11 @@ fi
 
 ADB_BIN="adb"
 if ! type "$ADB_BIN" > /dev/null; then
-	# Not found on the path so use ANDROID env var
-	ADB_BIN="$ANDROID_SDK_ROOT/platform-tools/adb.exe"
+    # Not found on the path so use ANDROID env var
+    ADB_BIN="$ANDROID_SDK_ROOT/platform-tools/adb.exe"
     echo "Not found 'adb' in PATH, using ANDROID env var(ANDROID_SDK_ROOT)...."
 	if ! type "$ADB_BIN" > /dev/null; then
-		# Not found ANDROID_SDK_ROOT in ANDROID env var
+        # Not found ANDROID_SDK_ROOT in ANDROID env var
         ADB_BIN="$ANDROID_SDK_HOME/platform-tools/adb.exe"
         echo "Not found ANDROID_SDK_ROOT, using ANDROID_SDK_HOME...."
         if ! type "$ADB_BIN" > /dev/null; then
