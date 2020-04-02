@@ -5,7 +5,7 @@ apps=("guardian" "admin" "updater")
 
 if [ -z $version ]; then
     echo "Usage: download-apk-install.sh VERSION"
-	exit 1
+    exit 1
 fi
 
 ADB_BIN="adb"
