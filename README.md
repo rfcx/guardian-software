@@ -30,11 +30,6 @@ A collection of Android applications which, together, operate as autonomous Rain
    ```
 3. Output will be in /role/build/outputs/apk/release/
 
-#### Download apps from script
-
-1. Your **PATH** should have Android SDK root path or If you have Android Studio installed then your Environment Variables also should have **ANDROID_SDK_ROOT**. If there is none of those two then you need to set it yourself.
-2. Run script with version **download-apk-install.sh 0.x.x** in /bin/
-
 ## Instructions for OrangePi 3G-IoT
 
 Before, starting any instructions here. Please read the information below and do it properly.
@@ -58,9 +53,9 @@ Before, starting any instructions here. Please read the information below and do
 
 You can install apps by 2 ways
 1. Using script in /bin/
-   1. Connect your OrangePi to your PC via usb port
-   2. Make sure that your PC has **adb** installed
-   3. Run script **download-apk-install.sh**
+   1. Your **PATH** should have Android SDK root path or If you have Android Studio installed then your Environment Variables also should have **ANDROID_SDK_ROOT**. If there is none of those two then you need to set it yourself.
+   2. Connect your OrangePi to your PC via usb port
+   3. Run script **download-apk-install.sh 0.x.x**
    4. All apps will be installed and start automatically
 2. Using Android Studio
    1. Connect your OrangePi to your PC via usb port
@@ -238,6 +233,10 @@ Before following the instruction below. You need to download Vysor first.
 There are differences for normal Android phone and OrangePi.
 - It is not rooted by default.
 - You need to enable permission for apps yourself.
+
+#### Install apps
+
+The process is same as OrangePi
 
 #### Run the guardian role
 
