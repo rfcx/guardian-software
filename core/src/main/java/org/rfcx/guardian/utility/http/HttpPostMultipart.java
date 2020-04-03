@@ -65,12 +65,14 @@ public class HttpPostMultipart {
 		
 		MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		try {
-			for (String[] keyFilepathMime : keyFilepathMimeAttachments) {
-				ContentBody contentBody = new FileBody(
-						(new File(keyFilepathMime[1])),
-						keyFilepathMime[1].substring(1+keyFilepathMime[1].lastIndexOf("/")), 
-						keyFilepathMime[2], null);
-				requestEntity.addPart(keyFilepathMime[0], contentBody);
+			if (keyFilepathMimeAttachments != null){
+				for (String[] keyFilepathMime : keyFilepathMimeAttachments) {
+					ContentBody contentBody = new FileBody(
+							(new File(keyFilepathMime[1])),
+							keyFilepathMime[1].substring(1+keyFilepathMime[1].lastIndexOf("/")),
+							keyFilepathMime[2], null);
+					requestEntity.addPart(keyFilepathMime[0], contentBody);
+				}
 			}
 			for (String[] keyValue : keyValueParameters) {
 				requestEntity.addPart(keyValue[0], new StringBody(URLEncoder.encode(keyValue[1], "UTF-8")));

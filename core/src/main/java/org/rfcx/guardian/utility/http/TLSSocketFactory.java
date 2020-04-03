@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.utils;
+package org.rfcx.guardian.utility.http;
 
 import java.io.IOException;
 import java.net.InetAddress;
