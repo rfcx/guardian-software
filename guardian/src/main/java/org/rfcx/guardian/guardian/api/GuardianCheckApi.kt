@@ -7,11 +7,11 @@ import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.utility.http.HttpGet
 
-object CheckGuardianExistedApi {
+object GuardianCheckApi {
 
     private lateinit var httpGet: HttpGet
 
-    fun isExisted(context: Context, guid: String, callback: CheckGuardianCallback) {
+    fun exists(context: Context, guid: String, callback: CheckGuardianCallback) {
         val token = context.getTokenID()
         httpGet = HttpGet(context, RfcxGuardian.APP_ROLE)
         httpGet.customHttpHeaders = listOf(arrayOf("Authorization", "Bearer ${token!!}"))
@@ -25,8 +25,7 @@ object CheckGuardianExistedApi {
                 .permitAll().build()
             StrictMode.setThreadPolicy(policy)
 
-            val response =
-                httpGet.getAsJson(postUrl, null)
+            val response = httpGet.getAsJson(postUrl, null)
 
             if (response.length() > 0) {
                 callback.onSuccess()

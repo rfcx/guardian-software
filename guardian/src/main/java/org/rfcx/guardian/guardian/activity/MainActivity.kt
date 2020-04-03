@@ -18,7 +18,7 @@ import org.rfcx.guardian.guardian.BuildConfig
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.CheckGuardianCallback
-import org.rfcx.guardian.guardian.api.CheckGuardianExistedApi
+import org.rfcx.guardian.guardian.api.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.RegisterApi
 import org.rfcx.guardian.guardian.api.RegisterCallback
 import org.rfcx.guardian.guardian.entity.RegisterRequest
@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity() {
                             object :
                                 RegisterCallback {
                                 override fun onSuccess() {
-                                    CheckGuardianExistedApi.isExisted(applicationContext, guid, object:
+                                    GuardianCheckApi.exists(applicationContext, guid, object:
                                         CheckGuardianCallback {
                                         override fun onSuccess() {
                                             createRegisterFile(app)

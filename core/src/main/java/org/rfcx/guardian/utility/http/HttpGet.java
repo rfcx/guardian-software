@@ -133,7 +133,7 @@ public class HttpGet {
 	
 	private String doGetString(String fullUrl, List<String[]> keyValueParameters) {
 		StringBuilder url = (new StringBuilder()).append(fullUrl);
-		if (keyValueParameters != null){
+		if (keyValueParameters != null) {
 			if (keyValueParameters.size() > 0) url.append("?");
 			for (String[] keyValue : keyValueParameters) {
 				url.append(keyValue[0]).append("=").append(keyValue[1]).append("&");

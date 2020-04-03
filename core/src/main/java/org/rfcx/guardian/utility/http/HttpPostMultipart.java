@@ -65,7 +65,7 @@ public class HttpPostMultipart {
 		
 		MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		try {
-			if (keyFilepathMimeAttachments != null){
+			if (keyFilepathMimeAttachments != null) {
 				for (String[] keyFilepathMime : keyFilepathMimeAttachments) {
 					ContentBody contentBody = new FileBody(
 							(new File(keyFilepathMime[1])),
