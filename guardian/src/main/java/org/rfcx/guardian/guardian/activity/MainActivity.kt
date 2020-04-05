@@ -123,6 +123,8 @@ class MainActivity : AppCompatActivity() {
                                     showToast(message ?: "register failed")
                                 }
                             })
+                    } else {
+                        showToast("Please login first.")
                     }
                 }
             } else {
