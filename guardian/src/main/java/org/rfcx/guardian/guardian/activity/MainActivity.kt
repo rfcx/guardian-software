@@ -69,9 +69,7 @@ class MainActivity : AppCompatActivity() {
         app = application as RfcxGuardian
 
         startButton.setOnClickListener {
-            if (!GuardianUtils.isGuidExisted(this)) {
-                showToast("Please register this guardian first")
-            } else if (!app.isLocationEnabled) {
+            if (!app.isLocationEnabled) {
                 showToast("Please enable gps location")
             } else {
                 app.initializeRoleServices()
@@ -104,13 +102,12 @@ class MainActivity : AppCompatActivity() {
                                         override fun onSuccess() {
                                             setVisibilityRegisterSuccess()
                                             GuardianUtils.createRegisterFile(baseContext)
+                                            app.startAllServices()
                                             setUIByRecordingState()
                                             setUIByGuidState()
-                                            app.startAllServices()
                                             setUIFromBtnClicked("start")
                                             getCheckinInformation()
-                                            deviceIdText.text =
-                                                GuardianUtils.readRegisterFile(baseContext)
+                                            deviceIdText.text = GuardianUtils.readRegisterFile(baseContext)
                                         }
 
                                         override fun onFailed(t: Throwable?, message: String?) {
