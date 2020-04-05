@@ -11,7 +11,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home.*
-import org.rfcx.guardian.guardian.BuildConfig
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.CheckGuardianCallback
@@ -63,10 +62,10 @@ class MainActivity : AppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        app = application as RfcxGuardian
+
         setSupportActionBar(toolbar)
         initUI()
-
-        app = application as RfcxGuardian
 
         startButton.setOnClickListener {
             if (!app.isLocationEnabled) {
@@ -156,8 +155,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setAppVersion() {
-        val versionName = BuildConfig.VERSION_NAME
-        appVersionText.text = "version: $versionName"
+        appVersionText.text = "version: ${app.version}"
     }
 
     private fun phoneRegisterSetup() {
@@ -318,7 +316,7 @@ class MainActivity : AppCompatActivity() {
                         sleep(5000)
                     }
                 } catch (e: InterruptedException) {
-                    RfcxLog.logExc(logTag, e)
+                    return
                 }
             }
         }
@@ -327,7 +325,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        getInfoThread?.interrupt()
+        if (getInfoThread != null){
+            getInfoThread?.interrupt()
+        }
         unregisterReceiver(phoneNumberRegisterDeliverReceiver)
         unregisterReceiver(phoneNumberRegisterSentReceiver)
     }
