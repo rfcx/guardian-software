@@ -123,9 +123,9 @@ class MainActivity : AppCompatActivity() {
                                     showToast(message ?: "register failed")
                                 }
                             })
-                    } else {
-                        showToast("Please login first.")
                     }
+                } else {
+                    showToast("Please login before register guardian.")
                 }
             } else {
                 showToast("There is not internet connection. Please turn it on.")
