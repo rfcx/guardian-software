@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
             if (!app.isLocationEnabled) {
                 showToast("Please enable gps location")
             } else {
-                app.initializeRoleServices()
+                app.startAllServices()
                 setUIFromBtnClicked("start")
                 getCheckinInformation()
             }
