@@ -94,8 +94,8 @@ public class DeviceSentinelService extends Service {
 
 					} else {
 
-						long disabledPauseLoopDuration = 3 * sentinelPowerMeasurementLoopDuration;
-						Log.d(logTag,"Sentinel Capture is disabled in Prefs. Waiting "+( Math.round(disabledPauseLoopDuration/1000) )+" before checking again.");
+						long disabledPauseLoopDuration = 4 * sentinelPowerMeasurementLoopDuration;
+						Log.d(logTag,"Sentinel Capture is disabled in Prefs. Waiting "+( Math.round(disabledPauseLoopDuration/1000) )+" seconds before next attempt.");
 						Thread.sleep(disabledPauseLoopDuration);
 					}
 				}

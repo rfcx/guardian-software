@@ -91,6 +91,7 @@ public class DeviceWifi {
 		Method[] wmMethods = this.wifiManager.getClass().getDeclaredMethods();   //Get all declared methods in WifiManager class
 		boolean methodFound = false;
 		for (Method method: wmMethods){
+
 			if (method.getName().equals("setWifiApEnabled")) {
 
 				methodFound = true;

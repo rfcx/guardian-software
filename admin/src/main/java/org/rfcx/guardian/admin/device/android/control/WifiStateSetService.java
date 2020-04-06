@@ -36,15 +36,14 @@ public class WifiStateSetService extends IntentService {
 		if (prefsAdminEnableWifi) {
 			// turn hotspot ON
 			deviceWifi.setPowerOff(); // wifi must be turned off before hotspot is enabled
-			Log.e(logTag, "Blocking WiFi hotspot function because of an apparent bug in DeviceWiFi (core library) that spikes CPU usage. This needs to be fixed...");
+//			Log.e(logTag, "Blocking WiFi hotspot function because of an apparent bug in DeviceWiFi (core library) that spikes CPU usage. This needs to be fixed...");
 			deviceWifi.setHotspotOn();
 
 		} else {
 			// turn hotspot OFF
-			deviceWifi.setPowerOn();
 			deviceWifi.setPowerOff();
-			Log.e(logTag, "Blocking WiFi hotspot function because of an apparent bug in DeviceWiFi (core library) that spikes CPU usage. This needs to be fixed...");
-//			deviceWifi.setHotspotOff();
+//			Log.e(logTag, "Blocking WiFi hotspot function because of an apparent bug in DeviceWiFi (core library) that spikes CPU usage. This needs to be fixed...");
+			deviceWifi.setHotspotOff();
 
 		}
 
