@@ -48,7 +48,7 @@ public class GuardianContentProvider extends ContentProvider {
 				String pathSegPrefKey = pathSeg.substring(0, pathSeg.indexOf("|"));
 				String pathSegPrefValue = pathSeg.substring(1 + pathSeg.indexOf("|"));
 				app.setSharedPref(pathSegPrefKey, pathSegPrefValue);
-				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{ pathSegPrefKey + "|" + app.rfcxPrefs.getPrefAsString(pathSegPrefKey), null, System.currentTimeMillis()});
+				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{ pathSegPrefKey, app.rfcxPrefs.getPrefAsString(pathSegPrefKey), System.currentTimeMillis()});
 
 			// "process" function endpoints
 

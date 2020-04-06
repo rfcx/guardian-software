@@ -85,9 +85,10 @@ public class MqttUtils implements MqttCallback {
 	
 	public long publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
 		if (confirmOrCreateConnectionToBroker(true)) {
-			Log.i(logTag, (new StringBuilder()).append("Message (").append(messageByteArray.length).append(" bytes) published to '").append(publishTopic).append("' at ").append(DateTimeUtils.getDateTime(new Date())).toString());
+			Log.i(logTag, (new StringBuilder()).append("Publishing ").append(messageByteArray.length).append(" bytes to '").append(publishTopic).append("' at ").append(DateTimeUtils.getDateTime(new Date())).toString());
 			this.msgSendStart = System.currentTimeMillis();
 			this.mqttClient.publish(publishTopic, buildMessage(messageByteArray));
+
 		} else {
 			Log.e(logTag, "Message could not be sent because connection could not be created...");
 		}
@@ -109,7 +110,7 @@ public class MqttUtils implements MqttCallback {
 		mqttBrokerConnectionLastAttemptedAt = System.currentTimeMillis();
 		mqttBrokerConnectionLatency = 0;
 		mqttBrokerSubscriptionLatency = 0;
-		
+
 		if (allowBasedOnDeviceConnectivity && ((this.mqttClient == null) || !this.mqttClient.isConnected())) {
 				
 			this.mqttClient = new MqttClient(this.mqttBrokerUri, this.mqttClientId, new MemoryPersistence());

@@ -16,6 +16,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Environment;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.SystemClock;
 import android.util.Log;
 
 public class RebootTriggerJobService extends Service {
@@ -100,13 +102,13 @@ public class RebootTriggerJobService extends Service {
 //				ShellCommands.executeCommandAsRootAndIgnoreOutput("umount "+externalStorage, app.getApplicationContext());
 
 				// Triggering reboot request
-				Log.e(logTag, "Reboot: Broadcasting ACTION_SHUTDOWN Intent...");
-				Intent requestReboot = new Intent(Intent.ACTION_SHUTDOWN);
-				requestReboot.putExtra("nowait", 1);
-				requestReboot.putExtra("window", 1);
-				sendBroadcast(requestReboot);
+				Log.e(logTag, "Reboot: Broadcasting ACTION_REBOOT Intent...");
+				Intent actionReboot = new Intent(Intent.ACTION_REBOOT);
+				actionReboot.putExtra("nowait", 1);
+				actionReboot.putExtra("window", 1);
+				sendBroadcast(actionReboot);
 
-				Log.e(logTag, "System should be shutting down momentarily...");
+				Log.e(logTag, "System should be shutting down now...");
 				app.rfcxServiceHandler.stopAllServices();
 					
 			} catch (Exception e) {

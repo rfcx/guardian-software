@@ -109,16 +109,29 @@ public class ShellCommands {
 //
 //						shellProcess.waitFor();
 //						shellOutput.close();
-						for (String commandLine : commandLines) {
-							shellProcess = Runtime.getRuntime().exec("su");
-							DataOutputStream dos = new DataOutputStream(shellProcess.getOutputStream());
-							dos.writeBytes(commandLine + "\n");
-							dos.writeBytes("exit\n");
-							dos.flush();
-							dos.close();
-							shellProcess.waitFor();
-							Log.i(logTag, "Line: " + commandLine);
-						}
+
+//						for (String commandLine : commandLines) {
+//							shellProcess = Runtime.getRuntime().exec("su");
+//							DataOutputStream dos = new DataOutputStream(shellProcess.getOutputStream());
+//							dos.writeBytes(commandLine + "\n");
+//							dos.writeBytes("exit\n");
+//							dos.flush();
+//							dos.close();
+//							shellProcess.waitFor();
+//							Log.i(logTag, "Line: " + commandLine);
+//						}
+
+						shellProcess = Runtime.getRuntime().exec(new String[] { "su", "0", tmpScriptObj.getAbsolutePath() });
+						shellProcess.waitFor();
+
+
+						//				try {
+//					Process proc = Runtime.getRuntime()
+//							.exec(new String[]{ "su", "0", "reboot", "-p" });
+//					proc.waitFor();
+//				} catch (Exception ex) {
+//					ex.printStackTrace();
+//				}
 
 
 				    }

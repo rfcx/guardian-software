@@ -98,17 +98,19 @@ public class DeviceWifi {
 				WifiConfiguration wifiConfig = new WifiConfiguration();
 
 				wifiConfig.SSID = this.hotspotName ;
-				wifiConfig.preSharedKey = this.hotspotPassword;
 				wifiConfig.hiddenSSID = !this.isVisible;
-
 				wifiConfig.status = WifiConfiguration.Status.ENABLED;
-				wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-				wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-				wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-				wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-				wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-				wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-				wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+
+				if ((this.hotspotPassword != null) && !this.hotspotPassword.equalsIgnoreCase("")) {
+					wifiConfig.preSharedKey = this.hotspotPassword;
+					wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+					wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+					wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+					wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+					wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+					wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+					wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+				}
 
 				try {
 					if (enableOrDisable) {
@@ -142,11 +144,5 @@ public class DeviceWifi {
 		}
 
 	}
-
-
-
-
-
-
 
 }

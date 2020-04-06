@@ -619,8 +619,14 @@ public class ApiCheckInUtils implements MqttCallback {
 		} catch (Exception e) {
 
 			RfcxLog.logExc(logTag, e);
+			handleCheckInPublicationExceptions(e, audioId);
+		}
+	}
 
-			String excStr = RfcxLog.getExceptionContentAsString(e);
+	private void handleCheckInPublicationExceptions(Exception inputExc, String audioId) {
+
+		try {
+			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
 
 			if (excStr.contains("Too many publishes in progress")) {
 				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
@@ -637,10 +643,13 @@ public class ApiCheckInUtils implements MqttCallback {
 				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
 					Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
 					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+					this.inFlightCheckInAttemptCounter = 0;
 				}
 			}
-
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
 		}
+
 	}
 
 	public String[] getLatestExternalAssetMeta(String assetType) {

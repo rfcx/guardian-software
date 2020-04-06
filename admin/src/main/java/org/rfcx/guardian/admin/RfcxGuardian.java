@@ -87,8 +87,8 @@ public class RfcxGuardian extends Application {
 	
 	public String[] RfcxCoreServices = 
 			new String[] {
-				"DeviceSystem",
-				"DeviceSentinel"
+				"DeviceSystem"/*,
+				"DeviceSentinel"*/
 			};
 	
 	@Override
@@ -110,13 +110,15 @@ public class RfcxGuardian extends Application {
 		setServiceHandlers();
 
 		// Android-Build-specific hacks and modifications
-//		DeviceI2cUtils.resetI2cPermissions(this);
 //		DateTimeUtils.resetDateTimeReadWritePermissions(this); // this is not necessary if this app role is running as "system"
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();
 
 		this.deviceUtils = new DeviceUtils(this);
+
+		// Sentinel Setup
+		DeviceI2cUtils.resetI2cPermissions(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 
 		initializeRoleServices();
