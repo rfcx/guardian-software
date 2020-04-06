@@ -1,10 +1,6 @@
 package org.rfcx.guardian.utility.device.control;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -13,7 +9,6 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceScreenShot {
@@ -23,7 +18,6 @@ public class DeviceScreenShot {
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
 		initializeScreenShotDirectories(context);
-		checkSetScreenShotBinary(context);
 	}
 
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceScreenShot.class);
@@ -33,10 +27,7 @@ public class DeviceScreenShot {
 	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM/yyyy-MM-dd/HH", Locale.US);
 	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US);
 
-	public static final String FILETYPE = "png";
-
-//	We are disabling fb2png in favor of the system-built screencap binary
-//	public static final String BINARY_NAME = "fb2png";
+	public static final String CAPTURE_FILETYPE = "png";
 	
 	private static void initializeScreenShotDirectories(Context context) {
 		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context),  "rw", "rw");
@@ -62,10 +53,7 @@ public class DeviceScreenShot {
 	}
 
 	public static String getExecutableBinaryFilePath(Context context) {
-	//	We are disabling fb2png in favor of the system-built screencap binary
-	//	String binPath = (new StringBuilder()).append(getExecutableBinaryDir(context)).append("/").append(BINARY_NAME).toString();
-		String binPath = "/system/bin/screencap";
-		return binPath;
+		return "/system/bin/screencap";
 	}
 	
 	public static String captureDir(Context context) {
@@ -73,11 +61,11 @@ public class DeviceScreenShot {
 	}
 	
 	public static String getScreenShotFileLocation_Capture(Context context, long timestamp) {
-		return (new StringBuilder()).append(captureDir(context)).append("/").append(timestamp).append(".png").toString(); 
+		return (new StringBuilder()).append(captureDir(context)).append("/").append(timestamp).append(".").append(CAPTURE_FILETYPE)).toString();
 	}
 
 	public static String getScreenShotFileLocation_Complete(String rfcxDeviceId, Context context, long timestamp) {
-		return (new StringBuilder()).append(finalFilesDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateTimeFormat.format(new Date(timestamp))).append(".png").toString(); 
+		return (new StringBuilder()).append(finalFilesDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateTimeFormat.format(new Date(timestamp))).append(".").append(CAPTURE_FILETYPE).toString();
 	}
 	
 	
@@ -119,34 +107,13 @@ public class DeviceScreenShot {
 	        	FileUtils.copy(captureFile, finalFile);
 	        	if (finalFile.exists()) {
 	        		captureFile.delete();
-	        		return new String[] { ""+timestamp, DeviceScreenShot.FILETYPE, FileUtils.sha1Hash(finalFilePath), finalFilePath };
+	        		return new String[] { ""+timestamp, CAPTURE_FILETYPE, FileUtils.sha1Hash(finalFilePath), finalFilePath };
 	        	}
 		    }
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
 		return null;
-	}
-	
-	private void checkSetScreenShotBinary(Context context) {
-
-		(new File(getExecutableBinaryDir(context))).mkdirs();
-		FileUtils.chmod(getExecutableBinaryDir(context),  "rwx", "rwx");
-
-		//	We are disabling fb2png in favor of the system-built screencap binary
-
-//		String executableBinaryFilePath = DeviceScreenShot.getExecutableBinaryFilePath(context);
-//		if (!(new File(executableBinaryFilePath)).exists()) {
-//			try {
-//				InputStream inputStream = context.getAssets().open("fb2png");
-//				OutputStream outputStream = new FileOutputStream(executableBinaryFilePath);
-//				byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
-//				inputStream.close(); outputStream.close();
-//				FileUtils.chmod(executableBinaryFilePath,  "rwx", "rx");
-//			} catch (IOException e) {
-//				RfcxLog.logExc(logTag, e);
-//			}
-//		}
 	}
 	
 }
