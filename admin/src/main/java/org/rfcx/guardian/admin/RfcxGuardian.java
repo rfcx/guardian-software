@@ -13,6 +13,7 @@ import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
+import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
@@ -44,10 +45,15 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 import android.app.Application;
+import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
+
+import java.io.IOException;
 
 public class RfcxGuardian extends Application {
 	
@@ -122,6 +128,8 @@ public class RfcxGuardian extends Application {
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 
 		initializeRoleServices();
+
+		setWallP();
 
 	}
 	
@@ -229,6 +237,7 @@ public class RfcxGuardian extends Application {
 
 		if (DeviceHardware_OrangePi_3G_IOT.isDevice_OrangePi_3G_IOT()) {
 			DeviceHardware_OrangePi_3G_IOT.setDeviceDefaultState(this);
+			DeviceWallpaper.setWallpaper(this, R.drawable.black);
 		} else if (DeviceHardware_Huawei_U8150.isDevice_Huawei_U8150()) {
 			DeviceHardware_Huawei_U8150.checkOrResetGPSFunctionality(this);
 		}

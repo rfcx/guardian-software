@@ -130,15 +130,15 @@ public class DeviceScreenShot {
 		String executableBinaryFilePath = DeviceScreenShot.getExecutableBinaryFilePath(context);
 		
 		if (!(new File(executableBinaryFilePath)).exists()) {
-    			try {
-    				InputStream inputStream = context.getAssets().open("fb2png");
-    				OutputStream outputStream = new FileOutputStream(executableBinaryFilePath);
-    				byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
-    				inputStream.close(); outputStream.close();
-    				FileUtils.chmod(executableBinaryFilePath,  "rwx", "rx");
-    			} catch (IOException e) {
-    				RfcxLog.logExc(logTag, e);
-    			}
+			try {
+				InputStream inputStream = context.getAssets().open("fb2png");
+				OutputStream outputStream = new FileOutputStream(executableBinaryFilePath);
+				byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
+				inputStream.close(); outputStream.close();
+				FileUtils.chmod(executableBinaryFilePath,  "rwx", "rx");
+			} catch (IOException e) {
+				RfcxLog.logExc(logTag, e);
+			}
 		}
 		
 	}
