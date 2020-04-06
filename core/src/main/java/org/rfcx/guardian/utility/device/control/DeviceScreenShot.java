@@ -61,7 +61,7 @@ public class DeviceScreenShot {
 	}
 	
 	public static String getScreenShotFileLocation_Capture(Context context, long timestamp) {
-		return (new StringBuilder()).append(captureDir(context)).append("/").append(timestamp).append(".").append(CAPTURE_FILETYPE)).toString();
+		return (new StringBuilder()).append(captureDir(context)).append("/").append(timestamp).append(".").append(CAPTURE_FILETYPE).toString();
 	}
 
 	public static String getScreenShotFileLocation_Complete(String rfcxDeviceId, Context context, long timestamp) {
