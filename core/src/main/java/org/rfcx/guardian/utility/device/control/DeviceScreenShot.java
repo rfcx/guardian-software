@@ -33,8 +33,10 @@ public class DeviceScreenShot {
 	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM/yyyy-MM-dd/HH", Locale.US);
 	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US);
 
-	public static final String BINARY_NAME = "fb2png";
 	public static final String FILETYPE = "png";
+
+//	We are disabling fb2png in favor of the system-built screencap binary
+//	public static final String BINARY_NAME = "fb2png";
 	
 	private static void initializeScreenShotDirectories(Context context) {
 		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context),  "rw", "rw");
@@ -60,7 +62,10 @@ public class DeviceScreenShot {
 	}
 
 	public static String getExecutableBinaryFilePath(Context context) {
-		return (new StringBuilder()).append(getExecutableBinaryDir(context)).append("/").append(BINARY_NAME).toString();
+	//	We are disabling fb2png in favor of the system-built screencap binary
+	//	String binPath = (new StringBuilder()).append(getExecutableBinaryDir(context)).append("/").append(BINARY_NAME).toString();
+		String binPath = "/system/bin/screencap";
+		return binPath;
 	}
 	
 	public static String captureDir(Context context) {
@@ -89,9 +94,10 @@ public class DeviceScreenShot {
 				
 				String captureFilePath = DeviceScreenShot.getScreenShotFileLocation_Capture(context, captureTimestamp);
 				String finalFilePath = DeviceScreenShot.getScreenShotFileLocation_Complete(this.rfcxDeviceId, context, captureTimestamp);
-				
-				// as root, run framebuffer binary to save screenshot to file and set output file permissions to allow access by non-root process
-				ShellCommands.executeCommandAsRootAndIgnoreOutput(executableBinaryFilePath+" "+captureFilePath+" && chmod 0777 "+captureFilePath, context);
+
+				Process shellProcess = Runtime.getRuntime().exec(new String[] { executableBinaryFilePath, captureFilePath });
+				shellProcess.waitFor();
+                FileUtils.chmod(captureFilePath,  "rw", "rw");
 
 				return completeCapture(captureTimestamp, captureFilePath, finalFilePath);
 				
@@ -127,20 +133,20 @@ public class DeviceScreenShot {
 		(new File(getExecutableBinaryDir(context))).mkdirs();
 		FileUtils.chmod(getExecutableBinaryDir(context),  "rwx", "rwx");
 
-		String executableBinaryFilePath = DeviceScreenShot.getExecutableBinaryFilePath(context);
-		
-		if (!(new File(executableBinaryFilePath)).exists()) {
-			try {
-				InputStream inputStream = context.getAssets().open("fb2png");
-				OutputStream outputStream = new FileOutputStream(executableBinaryFilePath);
-				byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
-				inputStream.close(); outputStream.close();
-				FileUtils.chmod(executableBinaryFilePath,  "rwx", "rx");
-			} catch (IOException e) {
-				RfcxLog.logExc(logTag, e);
-			}
-		}
-		
+		//	We are disabling fb2png in favor of the system-built screencap binary
+
+//		String executableBinaryFilePath = DeviceScreenShot.getExecutableBinaryFilePath(context);
+//		if (!(new File(executableBinaryFilePath)).exists()) {
+//			try {
+//				InputStream inputStream = context.getAssets().open("fb2png");
+//				OutputStream outputStream = new FileOutputStream(executableBinaryFilePath);
+//				byte[] buf = new byte[1024]; int len; while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
+//				inputStream.close(); outputStream.close();
+//				FileUtils.chmod(executableBinaryFilePath,  "rwx", "rx");
+//			} catch (IOException e) {
+//				RfcxLog.logExc(logTag, e);
+//			}
+//		}
 	}
 	
 }

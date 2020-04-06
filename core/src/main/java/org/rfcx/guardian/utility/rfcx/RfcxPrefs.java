@@ -352,7 +352,8 @@ public class RfcxPrefs {
 			
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "true");
-			
+
+			put("admin_enable_sentinel_capture", "true");
 			
 			
 	    }}

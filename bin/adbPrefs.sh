@@ -8,7 +8,11 @@ export VAL=$3;
 
 if [ "$RW" = "r" ]; then
 
-	adb shell content query --uri content://org.rfcx.guardian.guardian/prefs;
+	if [ "$KEY" = "all" ]; then
+		adb shell content query --uri content://org.rfcx.guardian.guardian/prefs;
+	else
+		adb shell content query --uri content://org.rfcx.guardian.guardian/prefs/$KEY;
+	fi
 
 elif [ "$RW" = "w" ]; then
 

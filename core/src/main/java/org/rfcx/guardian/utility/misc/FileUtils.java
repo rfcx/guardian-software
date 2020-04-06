@@ -117,7 +117,7 @@ public class FileUtils {
 
 			if (file.exists()) {
 
-//				Log.d(logTag, "chmod: " + owner_rwx + "-" + everybody_rwx + " " + file.getAbsolutePath());
+				Log.d(logTag, "chmod: " + owner_rwx + "-" + everybody_rwx + " " + file.getAbsolutePath());
 
 				if (owner_rwx.toLowerCase().indexOf("r") >= 0) {
 					if (everybody_rwx.toLowerCase().indexOf("r") >= 0) { file.setReadable(true, false); } else { file.setReadable(true); }
