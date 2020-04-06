@@ -37,9 +37,9 @@ object RegisterApi {
                 httpPostMultipart.doMultipartPost(postUrl, body, null)
 
             if (response.isNotEmpty()) {
-                callback.onSuccess()
+                callback.onRegisterSuccess()
             } else {
-                callback.onFailed(null, "Unsuccessful")
+                callback.onRegisterFailed(null, "Unsuccessful")
             }
         }
         handler.post(runnable)
@@ -47,6 +47,6 @@ object RegisterApi {
 }
 
 interface RegisterCallback {
-    fun onSuccess()
-    fun onFailed(t: Throwable?, message: String?)
+    fun onRegisterSuccess()
+    fun onRegisterFailed(t: Throwable?, message: String?)
 }

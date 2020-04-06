@@ -13,8 +13,8 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.CheckGuardianCallback
 import org.rfcx.guardian.guardian.api.GuardianCheckApi
+import org.rfcx.guardian.guardian.api.GuardianCheckCallback
 import org.rfcx.guardian.guardian.api.RegisterApi
 import org.rfcx.guardian.guardian.api.RegisterCallback
 import org.rfcx.guardian.guardian.entity.RegisterRequest
@@ -31,7 +31,7 @@ import org.rfcx.guardian.guardian.utils.GuardianUtils
 import org.rfcx.guardian.guardian.utils.PhoneNumberRegisterUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallback {
     private var getInfoThread: Thread? = null
     private lateinit var phoneNumberRegisterDeliverReceiver: PhoneNumberRegisterDeliverReceiver
     private lateinit var phoneNumberRegisterSentReceiver: PhoneNumberRegisterSentReceiver
@@ -84,48 +84,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         registerButton.setOnClickListener {
-            if (GuardianUtils.isNetworkAvailable(this)) {
-                if (this.getTokenID() != null) {
-                    if (!GuardianUtils.isGuidExisted(this)) {
-                        setVisibilityBeforeRegister()
-                        val guid = app.rfcxDeviceGuid.deviceGuid
-                        val token = app.rfcxDeviceGuid.deviceToken
-                        RegisterApi.registerGuardian(
-                            applicationContext,
-                            RegisterRequest(guid, token),
-                            object :
-                                RegisterCallback {
-                                override fun onSuccess() {
-                                    GuardianCheckApi.exists(applicationContext, guid, object :
-                                        CheckGuardianCallback {
-                                        override fun onSuccess() {
-                                            setVisibilityRegisterSuccess()
-                                            GuardianUtils.createRegisterFile(baseContext)
-                                            app.startAllServices()
-                                            setUIByRecordingState()
-                                            setUIByGuidState()
-                                            setUIFromBtnClicked("start")
-                                            getCheckinInformation()
-                                            deviceIdText.text = GuardianUtils.readRegisterFile(baseContext)
-                                        }
-
-                                        override fun onFailed(t: Throwable?, message: String?) {
-                                            showToast(message ?: "Try again later")
-                                        }
-                                    })
-                                }
-
-                                override fun onFailed(t: Throwable?, message: String?) {
-                                    showToast(message ?: "register failed")
-                                }
-                            })
-                    }
-                } else {
-                    showToast("Please login before register guardian.")
-                }
-            } else {
+            if (!GuardianUtils.isNetworkAvailable(this)) {
                 showToast("There is not internet connection. Please turn it on.")
+                return@setOnClickListener
             }
+
+            if (this.getTokenID() == null) {
+                showToast("Please login before register guardian.")
+                return@setOnClickListener
+            }
+
+            setVisibilityBeforeRegister()
+            val guid = app.rfcxDeviceGuid.deviceGuid
+            val token = app.rfcxDeviceGuid.deviceToken
+
+            RegisterApi.registerGuardian(applicationContext, RegisterRequest(guid, token), this)
         }
 
         phoneNumRegisterButton.setOnClickListener {
@@ -323,9 +296,32 @@ class MainActivity : AppCompatActivity() {
         getInfoThread?.start()
     }
 
+    override fun onRegisterSuccess() {
+        GuardianCheckApi.exists(applicationContext, app.rfcxDeviceGuid.deviceGuid, this)
+    }
+
+    override fun onRegisterFailed(t: Throwable?, message: String?) {
+        showToast(message ?: "register failed")
+    }
+
+    override fun onGuardianCheckSuccess() {
+        setVisibilityRegisterSuccess()
+        GuardianUtils.createRegisterFile(baseContext)
+        app.startAllServices()
+        setUIByRecordingState()
+        setUIByGuidState()
+        setUIFromBtnClicked("start")
+        getCheckinInformation()
+        deviceIdText.text = GuardianUtils.readRegisterFile(baseContext)
+    }
+
+    override fun onGuardianCheckFailed(t: Throwable?, message: String?) {
+        showToast(message ?: "Try again later")
+    }
+
     override fun onPause() {
         super.onPause()
-        if (getInfoThread != null){
+        if (getInfoThread != null) {
             getInfoThread?.interrupt()
         }
         unregisterReceiver(phoneNumberRegisterDeliverReceiver)
