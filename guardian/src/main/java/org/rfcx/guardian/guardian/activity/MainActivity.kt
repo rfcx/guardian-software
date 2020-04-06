@@ -17,9 +17,10 @@ import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.BuildConfig
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.register.ApiInterface
-import org.rfcx.guardian.guardian.register.RegisterApi
-import org.rfcx.guardian.guardian.entity.GuardianResponse
+import org.rfcx.guardian.guardian.api.CheckGuardianCallback
+import org.rfcx.guardian.guardian.api.GuardianCheckApi
+import org.rfcx.guardian.guardian.api.RegisterApi
+import org.rfcx.guardian.guardian.api.RegisterCallback
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
@@ -33,9 +34,6 @@ import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.PhoneNumberRegisterUtils
 import org.rfcx.guardian.utility.datetime.DateTimeUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -106,46 +104,36 @@ class MainActivity : AppCompatActivity() {
                         val token = app.rfcxDeviceGuid.deviceToken
                         Log.d("GuidInfo", app.rfcxDeviceGuid.deviceGuid)
                         Log.d("GuidInfo", app.rfcxDeviceGuid.deviceToken)
-                        RegisterApi().registerGuardian(
-                            this,
+                        RegisterApi.registerGuardian(
+                            applicationContext,
                             RegisterRequest(guid, token),
-                            object : RegisterApi.RegisterCallback {
+                            object :
+                                RegisterCallback {
                                 override fun onSuccess() {
-                                    ApiInterface.create(baseContext)
-                                        .isGuardianRegistered("Bearer ${getTokenID()}", guid)
-                                        .enqueue(object :
-                                            Callback<GuardianResponse> {
-                                            override fun onFailure(
-                                                call: Call<GuardianResponse>,
-                                                t: Throwable
-                                            ) {
-                                                showToast("Try again later")
-                                            }
+                                    GuardianCheckApi.exists(applicationContext, guid, object:
+                                        CheckGuardianCallback {
+                                        override fun onSuccess() {
+                                            createRegisterFile(app)
+                                            setUIByRecordingState(app)
+                                            setUIByGuidState(app)
+                                            setVisibilityRegisterSuccess()
+                                            deviceIdText.text = readRegisterFile()
+                                            app.startAllServices()
+                                            setUIFromBtnClicked("start")
+                                            getCheckinInformation(app)
+                                        }
 
-                                            override fun onResponse(
-                                                call: Call<GuardianResponse>,
-                                                response: Response<GuardianResponse>
-                                            ) {
-                                                if (response.isSuccessful) {
-                                                    createRegisterFile(app)
-                                                    setUIByRecordingState(app)
-                                                    setUIByGuidState(app)
-                                                    setVisibilityRegisterSuccess()
-                                                    deviceIdText.text = readRegisterFile()
-                                                    app.startAllServices()
-                                                    setUIFromBtnClicked("start")
-                                                    getCheckinInformation(app)
-                                                } else {
-                                                    showToast("Try again later")
-                                                }
-                                            }
-                                        })
+                                        override fun onFailed(t: Throwable?, message: String?) {
+                                            setVisibilityRegisterFailed()
+                                            showToast(message ?: "Try again later")
+                                        }
+
+                                    })
                                 }
 
                                 override fun onFailed(t: Throwable?, message: String?) {
                                     setVisibilityRegisterFailed()
                                     showToast(message ?: "register failed")
-                                    Log.d("register_failed", t.toString())
                                 }
 
                             })
@@ -344,7 +332,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setVisibilityBeforeRegister() {
-        start_stop_group.visibility = View.INVISIBLE
+        registerButton.visibility = View.INVISIBLE
         registerProgress.visibility = View.VISIBLE
     }
 

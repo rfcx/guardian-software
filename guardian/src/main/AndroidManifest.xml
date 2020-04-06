@@ -96,18 +96,12 @@
         <service android:name=".audio.encode.AudioQueueEncodeService" android:exported="false" />
         <service android:name=".device.android.ScheduledSntpSyncService" android:exported="false" />
         <service android:name=".api.ApiCheckInMetaSnapshotService" android:exported="false" />
-        <service android:name=".receiver.BTTethering" android:exported="false"/>
 
         <!-- Receivers -->
         <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <!-- 				<category android:name="android.intent.category.DEFAULT"/> -->
-            </intent-filter>
-        </receiver>
-        <receiver android:name=".receiver.BluetoothReceiver">
-            <intent-filter>
-                <action android:name="android.bluetooth.device.action.PAIRING_REQUEST"/>
             </intent-filter>
         </receiver>
 
