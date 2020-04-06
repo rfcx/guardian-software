@@ -16,11 +16,11 @@ export ADB_BIN="$ANDROID_SDK_ROOT/platform-tools/adb";
 echo "transferring apk to device...";
 $ADB_BIN push $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk /data/local/tmp/rfcx-$ROLE-$APK_VERSION.apk;
 
-echo "restarting adbd with root access...";
-$ADB_BIN root; sleep 2;
+# echo "restarting adbd with root access...";
+# # $ADB_BIN root; sleep 2;
 
-echo "killing app role process...";
-# $ADB_BIN shell 'kill $(ps | grep org.rfcx.guardian.$ROLE | cut -d " " -f 5);';
+# echo "killing app role process...";
+# # $ADB_BIN shell 'kill $(ps | grep org.rfcx.guardian.$ROLE | cut -d " " -f 5);';
 
 echo "performing installation...";
 # $ADB_BIN shell pm set-install-location 1;
