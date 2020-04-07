@@ -1,3 +1,5 @@
+package org.rfcx.guardian.audio.wav;
+
 // Wav file IO class
 // A.Greensted
 // http://www.labbookpages.co.uk
