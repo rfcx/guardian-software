@@ -133,7 +133,7 @@ public class AudioEncodeJobService extends Service {
 									latestQueuedAudioToEncode[6], 							// encoding codec
 									(int) Integer.parseInt(latestQueuedAudioToEncode[4]), 	// encoding sample rate
 									(int) Integer.parseInt(latestQueuedAudioToEncode[5]), 	// encoding target bitrate, if codec-supported
-									9														// encoding quality, if codec-supported
+									10											// encoding quality, if codec-supported
 								);
 
 							long encodeDuration = (System.currentTimeMillis() - encodeStartTime);
