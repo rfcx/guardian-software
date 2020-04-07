@@ -11,7 +11,7 @@ object GuardianCheckApi {
 
     private lateinit var httpGet: HttpGet
 
-    fun exists(context: Context, guid: String, callback: CheckGuardianCallback) {
+    fun exists(context: Context, guid: String, callback: GuardianCheckCallback) {
         val token = context.getTokenID()
         httpGet = HttpGet(context, RfcxGuardian.APP_ROLE)
         httpGet.customHttpHeaders = listOf(arrayOf("Authorization", "Bearer ${token!!}"))
@@ -28,16 +28,16 @@ object GuardianCheckApi {
             val response = httpGet.getAsJson(postUrl, null)
 
             if (response.length() > 0) {
-                callback.onSuccess()
+                callback.onGuardianCheckSuccess()
             } else {
-                callback.onFailed(null, "Unsuccessful")
+                callback.onGuardianCheckFailed(null, "Unsuccessful")
             }
         }
         handler.post(runnable)
     }
 }
 
-interface CheckGuardianCallback {
-    fun onSuccess()
-    fun onFailed(t: Throwable?, message: String?)
+interface GuardianCheckCallback {
+    fun onGuardianCheckSuccess()
+    fun onGuardianCheckFailed(t: Throwable?, message: String?)
 }
