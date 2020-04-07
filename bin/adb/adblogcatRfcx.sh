@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export ADB="$ANDROID_SDK_ROOT/platform-tools/adb";
+
 export BLK='\x1B[0;30m' # Black - Regular
 export RED='\x1B[0;31m' # Red
 export GRN='\x1B[0;32m' # Green
@@ -29,7 +31,7 @@ while IFS="/" read logstdn; do
 		echo -e "$LVL $CLR$TAG:$MSG$RST";
 	fi
 
-done < <(adb logcat -v brief *:V) 
+done < <($ADB logcat -v brief *:V) 
 
 
 

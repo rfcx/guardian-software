@@ -6,18 +6,18 @@ export ROLE=$1;
 
 export APKSIGNER_BIN="$ANDROID_SDK_ROOT/build-tools/28.0.3/apksigner";
 
-export KEYSTORE="$SCRIPT_DIR/_private/rfcx-platform-keystore.jks";
-export KEY_ALIAS=`cat $SCRIPT_DIR/_private/rfcx-platform-keystore-alias.txt;`;
-export KEY_PSWD=`cat $SCRIPT_DIR/_private/rfcx-platform-keystore-pswd.txt;`;
+export KEYSTORE="$SCRIPT_DIR/../_private/rfcx-platform-keystore.jks";
+export KEY_ALIAS=`cat $SCRIPT_DIR/../_private/rfcx-platform-keystore-alias.txt;`;
+export KEY_PSWD=`cat $SCRIPT_DIR/../_private/rfcx-platform-keystore-pswd.txt;`;
 
-cd $SCRIPT_DIR/../;
+cd $SCRIPT_DIR/../../;
 
 if [ ! -d tmp ]; then
   echo "creating tmp directory";
   mkdir tmp;
 fi
 
-export PROJECT_DIR="$SCRIPT_DIR/..";
+export PROJECT_DIR="$SCRIPT_DIR/../..";
 export ROLE_DIR="$PROJECT_DIR/$ROLE";
 
 export APK_VERSION=`cat $ROLE_DIR/build.gradle | grep ' versionName ' | cut -d'"' -f 2`;
@@ -52,5 +52,5 @@ $APKSIGNER_BIN sign --ks $KEYSTORE --ks-key-alias $KEY_ALIAS --ks-pass pass:$KEY
 
 export POST_CLEANUP=`rm $APK_PATH_UNSIGNED;`;
 
-cd $SCRIPT_DIR/../;
+cd $SCRIPT_DIR/../../;
 
