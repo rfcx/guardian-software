@@ -14,6 +14,7 @@ import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
+import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ShellCommands;
@@ -87,6 +88,7 @@ public class RfcxGuardian extends Application {
     public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
     public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
     public DeviceUtils deviceUtils = null;
+    public DeviceBluetooth deviceBluetooth = null;
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();

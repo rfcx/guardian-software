@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin.device.android.control;
 
 import android.app.IntentService;
+import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
 
@@ -29,12 +30,16 @@ public class BluetoothStateSetService extends IntentService {
 		Context context = app.getApplicationContext();
 		boolean prefsAdminEnableBluetooth = app.rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth");
 
-		if (prefsAdminEnableBluetooth && !DeviceBluetooth.isBluetoothEnabled()) {
+		if (app.deviceBluetooth == null) {
+			app.deviceBluetooth = new DeviceBluetooth(context);
+		}
+
+		if (prefsAdminEnableBluetooth && !app.deviceBluetooth.isBluetoothEnabled()) {
 			// turn power ON
-			DeviceBluetooth.setPowerOn();
+			app.deviceBluetooth.setPowerOn();
 
 			// wait for bluetooth to be enabled...
-			while (!DeviceBluetooth.isBluetoothEnabled()) {
+			while (!app.deviceBluetooth.isBluetoothEnabled()) {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -42,23 +47,16 @@ public class BluetoothStateSetService extends IntentService {
 				}
 			}
 			// set network name
-			DeviceBluetooth.setNetworkName("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8));
+			app.deviceBluetooth.setNetworkName("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8));
 			// turn tethering ON
-			(new DeviceBluetooth(context)).setTetheringOn();
+			app.deviceBluetooth.setTetheringOn();
 
-		} else if (DeviceBluetooth.isBluetoothEnabled()) {
+		} else if (app.deviceBluetooth.isBluetoothEnabled()) {
 			// turn tethering OFF
-		//	(new DeviceBluetooth(context)).setTetheringOff();
+		//	app.deviceBluetooth.setTetheringOff();
 			// turn power OFF
-			DeviceBluetooth.setPowerOff();
+			app.deviceBluetooth.setPowerOff();
 
-			while (DeviceBluetooth.isBluetoothEnabled()) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					RfcxLog.logExc(logTag, e);
-				}
-			}
 
 		}
 

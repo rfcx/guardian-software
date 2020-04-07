@@ -17,13 +17,15 @@ public class DeviceBluetooth {
 	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceBluetooth.class);
 
 	private Context context;
+	private BluetoothAdapter bluetoothAdapter;
 
 	public DeviceBluetooth(Context context) {
 		this.context = context;
+		this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	}
 
-	public static boolean isBluetoothEnabled() {
-		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+	public boolean isBluetoothEnabled() {
+//		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (bluetoothAdapter != null) {
 			int bluetoothState = bluetoothAdapter.getState();
 			switch (bluetoothState) {
@@ -45,30 +47,30 @@ public class DeviceBluetooth {
 //		return false;
 //	}
 	
-	public static void setPowerOn() {
+	public void setPowerOn() {
 		if (!isBluetoothEnabled()) {
-			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 			if (bluetoothAdapter != null) {
 				Log.v(logTag, "Activating Bluetooth Power");
-				BluetoothAdapter.getDefaultAdapter().enable();
+				bluetoothAdapter.enable();
 			} else {
 				Log.v(logTag, "Bluetooth hardware not present (cannot activate).");
 			}
 		}
 	}
 	
-	public static void setPowerOff() {
+	public void setPowerOff() {
 		if (isBluetoothEnabled()) {
 			Log.v(logTag, "Deactivating Bluetooth Power");
-			BluetoothAdapter.getDefaultAdapter().disable();
+			bluetoothAdapter.disable();
 		}
 	}
 
 	// Network Name controls
 
-	public static void setNetworkName(String networkName) {
+	public void setNetworkName(String networkName) {
 		if (isBluetoothEnabled()) {
-			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 			if (bluetoothAdapter != null) {
 				bluetoothAdapter.setName(networkName);
 				Log.v(logTag, "Bluetooth Network Name: '"+bluetoothAdapter.getName()+"'");
