@@ -169,7 +169,7 @@ public class ShellCommands {
 				if ((tmpScriptObj != null) && tmpScriptObj.exists()) { tmpScriptObj.delete(); }
 	    }
 
-		Log.e(logTag, "Command"+(asRoot ? "(root)" : "")+": "+ TextUtils.join(" | ",commandLines));
+		Log.e(logTag, "Exec"+(asRoot ? " (as root)" : "")+": "+ TextUtils.join(" | ",commandLines));
 
 		return outputLines;
 	}

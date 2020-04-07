@@ -46,15 +46,15 @@ public class DeviceBluetooth {
 //	}
 	
 	public static void setPowerOn() {
-	    	if (!isBluetoothEnabled()) {
-	    		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-	    		if (bluetoothAdapter != null) {
-	    			Log.v(logTag, "Activating Bluetooth Power");
-		    		BluetoothAdapter.getDefaultAdapter().enable();
-	    		} else {
-	    			Log.v(logTag, "Bluetooth hardware not present (cannot activate).");
-	    		}
-	    	}
+		if (!isBluetoothEnabled()) {
+			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+			if (bluetoothAdapter != null) {
+				Log.v(logTag, "Activating Bluetooth Power");
+				BluetoothAdapter.getDefaultAdapter().enable();
+			} else {
+				Log.v(logTag, "Bluetooth hardware not present (cannot activate).");
+			}
+		}
 	}
 	
 	public static void setPowerOff(Context context) {

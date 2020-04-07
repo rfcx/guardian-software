@@ -37,7 +37,7 @@ public class WifiStateReceiver extends BroadcastReceiver {
 							||	(wifiState == WifiManager.WIFI_STATE_ENABLED)
 						))
 				) {
-            		Log.w(logTag, "running wifistateset");
+            		Log.d(logTag, "Running WifiStateReceiver...");
 					app.rfcxServiceHandler.triggerService("WifiStateSet", false);
             }
         }

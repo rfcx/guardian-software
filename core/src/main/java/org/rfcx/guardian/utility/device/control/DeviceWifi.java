@@ -123,14 +123,15 @@ public class DeviceWifi {
 
 					for (Method isWifiApEnabledmethod : wmMethods) {
 						if (isWifiApEnabledmethod.getName().equals("isWifiApEnabled") && enableOrDisable) {
-							while (!(Boolean) isWifiApEnabledmethod.invoke(wifiManager)) {
+						//	while (!(Boolean) isWifiApEnabledmethod.invoke(wifiManager)) {
 								for (Method thisMethod : wmMethods) {
 									if (thisMethod.getName().equals("getWifiApState")) {
 										int apState = (Integer) thisMethod.invoke(wifiManager);
 										Log.v(logTag, "Wifi Hotspot Network Name: '" + wifiConfig.SSID + "' (" + wifiConfig.preSharedKey + ")");
+										break;
 									}
 								}
-							}
+						//	}
 						}
 					}
 

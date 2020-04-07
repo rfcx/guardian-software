@@ -32,10 +32,19 @@ public class BluetoothStateSetService extends IntentService {
 		if (prefsAdminEnableBluetooth) {
 			// turn power ON
 			DeviceBluetooth.setPowerOn();
+
+			// wait for bluetooth to be enabled...
+			while (!DeviceBluetooth.isBluetoothEnabled()) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					RfcxLog.logExc(logTag, e);
+				}
+			}
 			// set network name
 			DeviceBluetooth.setNetworkName("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8));
 			// turn tethering ON
-		//	(new DeviceBluetooth(context)).setTetheringOn("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8));
+			(new DeviceBluetooth(context)).setTetheringOn();
 
 		} else {
 			// turn power OFF
