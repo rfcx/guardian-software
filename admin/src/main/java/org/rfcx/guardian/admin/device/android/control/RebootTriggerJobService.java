@@ -110,7 +110,8 @@ public class RebootTriggerJobService extends Service {
 
 				Log.e(logTag, "System should be shutting down now...");
 				app.rfcxServiceHandler.stopAllServices();
-					
+
+
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
