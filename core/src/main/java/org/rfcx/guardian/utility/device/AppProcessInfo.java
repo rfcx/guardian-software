@@ -50,4 +50,8 @@ public class AppProcessInfo {
 		return processIds;
 	}
 
+//	public static void killMyProcess() {
+//		android.os.Process.killProcess(android.os.Process.myPid());
+//	}
+
 }

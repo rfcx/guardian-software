@@ -70,21 +70,6 @@ public class GuardianContentProvider extends ContentProvider {
 	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		
-		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-		
-		try {
-			
-//			if (URI_MATCHER.match(uri) == ENDPOINT_PREFS_ID) {
-//				String prefKey = uri.getLastPathSegment();
-//				app.setPref(prefKey, values.getAsString(prefKey));
-//				return 1;
-//			}
-			
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		
 		return 0;
 	}
 

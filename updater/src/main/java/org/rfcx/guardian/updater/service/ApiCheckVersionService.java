@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class ApiCheckVersionService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckVersionService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckVersionService.class);
 	
 	private static final String SERVICE_NAME = "ApiCheckVersion";
 
@@ -39,13 +39,13 @@ public class ApiCheckVersionService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(TAG, "Starting service: "+TAG);
+		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.apiCheckVersion.start();
 		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return START_STICKY;
 	}
@@ -72,27 +72,29 @@ public class ApiCheckVersionService extends Service {
 			HttpGet httpGet = new HttpGet(app.getApplicationContext(),RfcxGuardian.APP_ROLE);
 			// setting customized rfcx authentication headers (necessary for API access)
 			List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
-			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxDeviceId.getDeviceGuid() });
-			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxDeviceId.getDeviceToken() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxDeviceGuid.getDeviceGuid() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxDeviceGuid.getDeviceToken() });
 			httpGet.setCustomHttpHeaders(rfcxAuthHeaders);
 
 			try {
 				if (app.deviceConnectivity.isConnected()) {
 					if (app.apiCore.apiCheckVersionEndpoint != null) {
 						app.lastApiCheckTriggeredAt = System.currentTimeMillis();
-						String getUrl =	(((app.rfcxPrefs.getPrefAsString("api_url_base")!=null) ? app.rfcxPrefs.getPrefAsString("api_url_base") : "https://api.rfcx.org")
+						String getUrl =	app.rfcxPrefs.getPrefAsString("api_rest_protocol")
+										+ "://"
+										+ app.rfcxPrefs.getPrefAsString("api_rest_host")
 										+ app.apiCore.apiCheckVersionEndpoint
 										+ "?role="+app.APP_ROLE.toLowerCase()
 										+ "&version="+app.version
 										+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
 										+ "&timestamp="+System.currentTimeMillis()
-										);
+										;
 						
 						long sinceLastCheckIn = (System.currentTimeMillis() - app.apiCore.lastCheckInTime) / 1000;
-						Log.d(TAG, "Since last checkin: "+sinceLastCheckIn);
+						Log.d(logTag, "Since last checkin: "+sinceLastCheckIn);
 						List<JSONObject> jsonResponse = httpGet.getAsJsonList(getUrl);
 						for (JSONObject json : jsonResponse) {
-							Log.d(TAG, json.toString());
+							Log.d(logTag, json.toString());
 						}
 						for (JSONObject jsonResponseItem : jsonResponse) {
 							String appRole = jsonResponseItem.getString("role").toLowerCase();
@@ -104,13 +106,13 @@ public class ApiCheckVersionService extends Service {
 							}
 						}
 					} else {
-						Log.d(TAG, "Cancelled because apiCheckVersionEndpoint is null...");
+						Log.d(logTag, "Cancelled because apiCheckVersionEndpoint is null...");
 					}
 				} else {
-					Log.d(TAG, "Cancelled because there is no internet connectivity...");
+					Log.d(logTag, "Cancelled because there is no internet connectivity...");
 				}
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			} finally {
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);

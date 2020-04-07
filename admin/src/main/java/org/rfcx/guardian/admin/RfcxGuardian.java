@@ -176,11 +176,11 @@ public class RfcxGuardian extends Application {
 							+"|"+"0" 																	// no repeat
 							,
 					"BluetoothStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits twenty seconds before running
+							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
 							+"|"+"0" 																	// no repeat
 							,
 					"WifiStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
+							+"|"+DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minute before running
 							+"|"+"0" 																	// no repeat
 			};
 			

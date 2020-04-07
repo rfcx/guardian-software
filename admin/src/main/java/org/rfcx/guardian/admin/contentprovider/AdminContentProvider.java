@@ -191,17 +191,11 @@ public class AdminContentProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-
-        RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-
         return 0;
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-
-        RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-
         return 0;
     }
 
@@ -212,17 +206,11 @@ public class AdminContentProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-
-        RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-
         return null;
     }
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-
-        RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-
         return null;
     }
 

@@ -10,12 +10,13 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
 public class DownloadFileService extends Service {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+DownloadFileService.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DownloadFileService.class);
 	
 	private static final String SERVICE_NAME = "DownloadFile";
 
@@ -39,13 +40,13 @@ public class DownloadFileService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(TAG, "Starting service: "+TAG);
+		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
 			this.downloadFile.start();
 		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return START_STICKY;
 	}
@@ -72,26 +73,39 @@ public class DownloadFileService extends Service {
 			try {
 				String fileName = app.apiCore.installRole+"-"+app.apiCore.installVersion+".apk";
 				String url = app.apiCore.installVersionUrl;
-				String sha1 = app.apiCore.installVersionSha1;
-				Context context = app.getApplicationContext();
+				String apiSha1 = app.apiCore.installVersionSha1;
 				
 				if (httpGet.getAsFile(url, fileName)) {
-					Log.d(TAG, "Download Complete. Verifying Checksum...");
-					String filePath = context.getFilesDir().toString()+"/"+fileName;
-					String fileSha1 = FileUtils.sha1Hash(filePath);
-					Log.d(TAG, "sha1 (apicheck): "+sha1);
-					Log.d(TAG, "sha1 (download): "+fileSha1);
-					if (fileSha1.equals(sha1)) {
-						app.rfcxServiceHandler.triggerService("InstallApp", false);
+					Log.d(logTag, "Download Complete. Verifying Checksum...");
+					String downloadFilePath = app.installUtils.apkDirDownload+"/"+fileName;
+					String downloadFileSha1 = FileUtils.sha1Hash(downloadFilePath);
+					Log.d(logTag, "SHA1 Checksum (API): "+apiSha1);
+					Log.d(logTag, "SHA1 Checksum (File): "+downloadFileSha1);
+					if (downloadFileSha1.equalsIgnoreCase(apiSha1)) {
+
+						Log.d(logTag, "Moving APK to external storage...");
+						String externalFilePath = app.installUtils.apkDirExternal+"/"+fileName;
+						File externalFileObj = new File(externalFilePath);
+						if (externalFileObj.exists()) { externalFileObj.delete(); }
+						FileUtils.copy(downloadFilePath, externalFilePath);
+						FileUtils.chmod(externalFilePath,  "rw", "rw");
+
+						if (FileUtils.sha1Hash(externalFilePath).equalsIgnoreCase(downloadFileSha1)) {
+
+							(new File(downloadFilePath)).delete();
+
+							app.rfcxServiceHandler.triggerService("InstallApp", false);
+						}
+
 					} else {
-						Log.e(TAG, "Checksum mismatch");
-						(new File(filePath)).delete();
+						Log.e(logTag, "Checksum mismatch");
+						(new File(downloadFilePath)).delete();
 					}					
 				} else {
-					Log.e(TAG, "Download failed");
+					Log.e(logTag, "Download failed");
 				}
 			} catch (Exception e) {
-				RfcxLog.logExc(TAG, e);
+				RfcxLog.logExc(logTag, e);
 			} finally {
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);

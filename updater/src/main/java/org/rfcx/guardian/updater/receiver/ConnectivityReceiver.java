@@ -15,12 +15,9 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-        
-        int disconnectedFor = 
-        		app.deviceConnectivity.updateConnectivityStateAndReportDisconnectedFor(
-        			!intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false)
-        		);
-    
+
+		int disconnectedFor = app.deviceConnectivity.updateConnectivityStateAndReportDisconnectedFor( !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) );
+
 		// added to ensure that multiple checkins don't occur at each connectivity reception
 		if (app.lastApiCheckTriggeredAt < (app.deviceConnectivity.lastConnectedAt() - ( 10 * 60 * 1000 ) )) {
 			if (app.apiCore.allowTriggerCheckIn()) {

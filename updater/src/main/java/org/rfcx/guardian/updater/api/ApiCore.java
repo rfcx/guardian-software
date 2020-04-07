@@ -5,12 +5,13 @@ import java.util.List;
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.util.Log;
 
 public class ApiCore {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCore.class.getSimpleName();
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCore.class);
 
 	public long lastCheckInTime = System.currentTimeMillis();
 
@@ -46,8 +47,13 @@ public class ApiCore {
 					this.latestVersionValue = calculateVersionValue(this.latestVersion);
 				}
 			}
-		
-			String currentGuardianVersion = app.rfcxPrefs.getVersionFromFile(app.targetAppRole);
+
+			String currentGuardianVersion = RfcxRole.getRoleVersionByName(app.targetAppRole, RfcxGuardian.APP_ROLE, app.getApplicationContext());
+//			for (String roleVersion : RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())) {
+//				if (roleVersion.substring(0, roleVersion.indexOf("*")).equalsIgnoreCase(app.targetAppRole)) {
+//					currentGuardianVersion = roleVersion.substring(roleVersion.indexOf("*")+1);
+//				}
+//			}
 			int currentGuardianVersionValue = calculateVersionValue(currentGuardianVersion);
 			
 			if (	(	(this.latestVersion != null) && (currentGuardianVersion == null))
@@ -60,21 +66,21 @@ public class ApiCore {
 				this.installVersionValue = this.latestVersionValue;
 				
 				if (isBatteryChargeSufficientForDownloadAndInstall(app)) {
-					Log.d(TAG, "Latest version detected and download triggered: "+this.installVersion+" ("+this.installVersionValue+")");	
+					Log.d(logTag, "Latest version detected and download triggered: "+this.installVersion+" ("+this.installVersionValue+")");
 					app.rfcxServiceHandler.triggerService("DownloadFile", true);
 				} else {
-					Log.i(TAG, "Download & Installation disabled due to low battery level"
+					Log.i(logTag, "Download & Installation disabled due to low battery level"
 							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("install_battery_cutoff")+"%)."
 							);
 				}
 				return true;
 			} else if (!currentGuardianVersion.equals(this.latestVersion) && (currentGuardianVersionValue > this.latestVersionValue)) { 
-				Log.d(TAG,"org.rfcx.guardian."+this.latestRole+" is newer than the api version: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
+				Log.d(logTag,"org.rfcx.guardian."+this.latestRole+" is newer than the api version: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
 			} else {
-				Log.d(TAG,"org.rfcx.guardian."+this.latestRole+" is already up-to-date: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
+				Log.d(logTag,"org.rfcx.guardian."+this.latestRole+" is already up-to-date: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
 			}
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return false;
 	}
@@ -90,7 +96,7 @@ public class ApiCore {
 			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
 			return 1000*majorVersion+100*subVersion+updateVersion;
 		} catch (Exception e) {
-			RfcxLog.logExc(TAG, e);
+			RfcxLog.logExc(logTag, e);
 		}
 		return 0;
 	}
@@ -100,7 +106,7 @@ public class ApiCore {
 			lastCheckInTriggered = System.currentTimeMillis();
 			return true;
 		} else {
-			Log.d(TAG,"Skipping attempt to double check-in");
+			Log.d(logTag,"Skipping attempt to double check-in");
 			return false;
 		}
 	}

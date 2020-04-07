@@ -43,12 +43,6 @@
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" android:protectionLevel="signature" tools:ignore="ProtectedPermissions"/>
     <uses-permission android:name="android.permission.SHUTDOWN" tools:ignore="ProtectedPermissions" />
 
-    <uses-permission android:name="android.permission.ACCESS_SUPERUSER" />
-<!--    <permission android:name="android.permission.REQUEST_SUPERUSER" android:protectionLevel="signature" />-->
-<!--    <permission android:name="android.permission.REPORT_SUPERUSER" android:protectionLevel="signature" />-->
-<!--    <permission-group android:name="android.permission-group.SUPERUSER" android:priority="10000" />-->
-<!--    <permission  android:name="android.permission.ACCESS_SUPERUSER" android:permissionGroup="android.permission-group.SUPERUSER" android:protectionLevel="dangerous" />-->
-
     <uses-permission android:name="org.rfcx.guardian.READ" />
     <uses-permission android:name="org.rfcx.guardian.WRITE" />
     <permission android:name="org.rfcx.guardian.READ" android:protectionLevel="signature" />
