@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.root.DeviceADB;
@@ -33,6 +34,8 @@ public class BluetoothStateSetService extends IntentService {
 		if (app.deviceBluetooth == null) {
 			app.deviceBluetooth = new DeviceBluetooth(context);
 		}
+
+		Log.e(logTag, "BEWARE!!! The Bluetooth tether enable/disable is currently buggy. Troubleshooting needed.");
 
 		if (prefsAdminEnableBluetooth && !app.deviceBluetooth.isBluetoothEnabled()) {
 			// turn power ON
