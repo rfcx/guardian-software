@@ -29,16 +29,16 @@ public class WifiStateReceiver extends BroadcastReceiver {
             if (		(prefsAdminEnableWifi
 						&&	(
 								(wifiState == WifiManager.WIFI_STATE_DISABLING)
-							||	(wifiState == WifiManager.WIFI_STATE_DISABLED)
+				//			||	(wifiState == WifiManager.WIFI_STATE_DISABLED)
 						))
 				||		(!prefsAdminEnableWifi
 						&&	(
 								(wifiState == WifiManager.WIFI_STATE_ENABLING)
-							||	(wifiState == WifiManager.WIFI_STATE_ENABLED)
+				//			||	(wifiState == WifiManager.WIFI_STATE_ENABLED)
 						))
 				) {
-            		Log.d(logTag, "Running WifiStateReceiver...");
-					app.rfcxServiceHandler.triggerService("WifiStateSet", false);
+//            		Log.d(logTag, "Running WifiStateReceiver...");
+//					app.rfcxServiceHandler.triggerService("WifiStateSet", false);
             }
         }
 		

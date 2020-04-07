@@ -29,7 +29,7 @@ public class BluetoothStateSetService extends IntentService {
 		Context context = app.getApplicationContext();
 		boolean prefsAdminEnableBluetooth = app.rfcxPrefs.getPrefAsBoolean("admin_enable_bluetooth");
 
-		if (prefsAdminEnableBluetooth) {
+		if (prefsAdminEnableBluetooth && !DeviceBluetooth.isBluetoothEnabled()) {
 			// turn power ON
 			DeviceBluetooth.setPowerOn();
 
@@ -46,11 +46,19 @@ public class BluetoothStateSetService extends IntentService {
 			// turn tethering ON
 			(new DeviceBluetooth(context)).setTetheringOn();
 
-		} else {
+		} else if (DeviceBluetooth.isBluetoothEnabled()) {
+			// turn tethering OFF
+		//	(new DeviceBluetooth(context)).setTetheringOff();
 			// turn power OFF
-			DeviceBluetooth.setPowerOff(context);
-			// We do NOT disable tethering, as it is not relevant when bluetooth is off
-			// (new DeviceBluetooth(context)).setTetheringOff();
+			DeviceBluetooth.setPowerOff();
+
+			while (DeviceBluetooth.isBluetoothEnabled()) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					RfcxLog.logExc(logTag, e);
+				}
+			}
 
 		}
 

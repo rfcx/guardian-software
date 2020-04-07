@@ -57,23 +57,23 @@ public class DeviceBluetooth {
 		}
 	}
 	
-	public static void setPowerOff(Context context) {
-	    	if (isBluetoothEnabled()) {
-    			Log.v(logTag, "Deactivating Bluetooth Power");
-	    		BluetoothAdapter.getDefaultAdapter().disable();
-	    	}
+	public static void setPowerOff() {
+		if (isBluetoothEnabled()) {
+			Log.v(logTag, "Deactivating Bluetooth Power");
+			BluetoothAdapter.getDefaultAdapter().disable();
+		}
 	}
 
 	// Network Name controls
 
 	public static void setNetworkName(String networkName) {
-//		if (isBluetoothEnabled()) {
+		if (isBluetoothEnabled()) {
 			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 			if (bluetoothAdapter != null) {
 				bluetoothAdapter.setName(networkName);
 				Log.v(logTag, "Bluetooth Network Name: '"+bluetoothAdapter.getName()+"'");
 			}
-//		}
+		}
 	}
 
 	// Tethering controls
@@ -92,7 +92,8 @@ public class DeviceBluetooth {
 
 	public void setTetheringOff() {
 		this.tetherEnableOrDisable = false;
-		setTethering();
+		setPowerOff(); // this is kind of cheating...
+//		setTethering();
 	}
 
 	private void setTethering() {

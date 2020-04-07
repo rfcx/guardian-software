@@ -29,17 +29,19 @@ public class BluetoothStateReceiver extends BroadcastReceiver {
 
             if (		(prefsAdminEnableBluetooth
 						&&	(
-								(bluetoothState == BluetoothAdapter.STATE_TURNING_OFF)
-							||	(bluetoothState == BluetoothAdapter.STATE_OFF)
+			//					(bluetoothState == BluetoothAdapter.STATE_TURNING_OFF)
+			//				||
+								(bluetoothState == BluetoothAdapter.STATE_OFF)
 						))
 				||		(!prefsAdminEnableBluetooth
 						&&	(
-								(bluetoothState == BluetoothAdapter.STATE_TURNING_ON)
-							||	(bluetoothState == BluetoothAdapter.STATE_ON)
+			//					(bluetoothState == BluetoothAdapter.STATE_TURNING_ON)
+			//				||
+								(bluetoothState == BluetoothAdapter.STATE_ON)
 						))
 				) {
-					Log.d(logTag, "Running BluetoothStateReceiver...");
-					app.rfcxServiceHandler.triggerService("BluetoothStateSet", false);
+//					Log.d(logTag, "Running BluetoothStateReceiver... (prefs: "+prefsAdminEnableBluetooth+")");
+//					app.rfcxServiceHandler.triggerService("BluetoothStateSet", false);
             }
         }
 		
