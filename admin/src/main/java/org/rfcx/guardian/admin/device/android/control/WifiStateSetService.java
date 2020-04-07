@@ -47,10 +47,6 @@ public class WifiStateSetService extends IntentService {
 
 		}
 
-		// set ADB networking state
-		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean("admin_enable_tcp_adb");
-		DeviceADB.setADBoverTCP(prefsAdminEnableAdb, context);
-
 	}
 	
 	

@@ -27,14 +27,17 @@ public class WifiStateReceiver extends BroadcastReceiver {
 			boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi");
 
             if (		(prefsAdminEnableWifi
-						&&	(	(wifiState == WifiManager.WIFI_STATE_DISABLING)
-						//	||	(wifiState == WifiManager.WIFI_STATE_DISABLED)
+						&&	(
+								(wifiState == WifiManager.WIFI_STATE_DISABLING)
+							||	(wifiState == WifiManager.WIFI_STATE_DISABLED)
 						))
 				||		(!prefsAdminEnableWifi
-						&&	(	(wifiState == WifiManager.WIFI_STATE_ENABLING)
-						//	||	(wifiState == WifiManager.WIFI_STATE_ENABLED)
+						&&	(
+								(wifiState == WifiManager.WIFI_STATE_ENABLING)
+							||	(wifiState == WifiManager.WIFI_STATE_ENABLED)
 						))
 				) {
+            		Log.w(logTag, "running wifistateset");
 					app.rfcxServiceHandler.triggerService("WifiStateSet", false);
             }
         }

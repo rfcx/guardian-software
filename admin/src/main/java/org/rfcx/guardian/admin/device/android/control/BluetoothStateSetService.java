@@ -32,10 +32,10 @@ public class BluetoothStateSetService extends IntentService {
 		if (prefsAdminEnableBluetooth) {
 			// turn power ON
 			DeviceBluetooth.setPowerOn();
-			// turn tethering ON
-			(new DeviceBluetooth(context)).setTetheringOn();
 			// set network name
 			DeviceBluetooth.setNetworkName("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8));
+			// turn tethering ON
+		//	(new DeviceBluetooth(context)).setTetheringOn("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8));
 
 		} else {
 			// turn power OFF
@@ -44,10 +44,6 @@ public class BluetoothStateSetService extends IntentService {
 			// (new DeviceBluetooth(context)).setTetheringOff();
 
 		}
-
-		// set ADB networking state
-		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean("admin_enable_tcp_adb");
-		DeviceADB.setADBoverTCP(prefsAdminEnableAdb, context);
 
 	}
 	
