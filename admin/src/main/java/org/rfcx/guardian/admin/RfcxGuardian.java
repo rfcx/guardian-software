@@ -21,7 +21,6 @@ import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
-import org.rfcx.guardian.utility.device.hardware.DeviceHardware_Huawei_U8150;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -89,14 +88,10 @@ public class RfcxGuardian extends Application {
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
-
-//	private Activity rfcxCurrentActivity = null;
-//	public Activity getCurrentActivity() { return rfcxCurrentActivity; }
-//	public void setCurrentActivity(Activity rfcxCurrentActivity) { this.rfcxCurrentActivity = rfcxCurrentActivity; }
 	
 	public String[] RfcxCoreServices = 
 			new String[] {
-			//	"DeviceSystem",
+				"DeviceSystem",
 				"DeviceSentinel"
 			};
 	
@@ -127,10 +122,6 @@ public class RfcxGuardian extends Application {
 		// Android-Build-specific hacks and modifications
 		// This is not necessary if this app role is running as "system"
 		// DateTimeUtils.resetDateTimeReadWritePermissions(this);
-
-//		if (DeviceUtils.isAppRoleApprovedForGeoPositionAccess(this)) {
-//			ActivityCompat.requestPermissions(getCurrentActivity(), new String[] { Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION }, 32000);
-//		}
 
 		initializeRoleServices();
 	}
@@ -247,12 +238,9 @@ public class RfcxGuardian extends Application {
 
 		if (DeviceHardware_OrangePi_3G_IOT.isDevice_OrangePi_3G_IOT()) {
 
-			// Disable Sensor Listeners for sensors the don't exist on the OrangePi
+			// Disable Sensor Listeners for sensors the don't exist on the OrangePi 3G-IoT
 			this.deviceUtils.disableSensorListener("accel"); // accelerometer
 			this.deviceUtils.disableSensorListener("light");  // light meter
-
-			Log.d(logTag, "Sensor Light:"+ this.deviceUtils.isSensorListenerAllowed("light"));
-			Log.d(logTag, "Sensor Accel:"+ this.deviceUtils.isSensorListenerAllowed("accel"));
 
 			// Set Desktop Wallpaper to empty black
 			DeviceWallpaper.setWallpaper(this, R.drawable.black);

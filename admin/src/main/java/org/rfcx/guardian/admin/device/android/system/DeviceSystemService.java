@@ -266,15 +266,16 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			innerLoopIncrement = 0;
 		}
 
-		int halfLoopsBetweenAccelSensorToggle = Math.round(innerLoopsPerCaptureCycle / (DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2));
-
-		for (int i = 0; i < (DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2); i++) {
-			if (innerLoopIncrement == (i * 2 * halfLoopsBetweenAccelSensorToggle)) {
-				registerListener("accel");
-				break;
-			} else if (innerLoopIncrement == (i * halfLoopsBetweenAccelSensorToggle)) {
-				unRegisterListener("accel");
-				break;
+		if (app.deviceUtils.isSensorListenerAllowed("accel")) {
+			int halfLoopsBetweenAccelSensorToggle = Math.round(innerLoopsPerCaptureCycle / (DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2));
+			for (int i = 0; i < (DeviceUtils.accelSensorSnapshotsPerCaptureCycle * 2); i++) {
+				if (innerLoopIncrement == (i * 2 * halfLoopsBetweenAccelSensorToggle)) {
+					registerListener("accel");
+					break;
+				} else if (innerLoopIncrement == (i * halfLoopsBetweenAccelSensorToggle)) {
+					unRegisterListener("accel");
+					break;
+				}
 			}
 		}
 
@@ -393,7 +394,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				}
 
 			} else {
-				Log.e(logTag, "Listener failed to register for '" + sensorAbbrev + "'.");
+				Log.e(logTag, "No Listener registered for '" + sensorAbbrev + "' sensor...");
 			}
 
 		} catch (SecurityException e) {

@@ -159,11 +159,14 @@ public class DeviceUtils {
 	}
 
 	public static boolean isAppRoleApprovedForGeoPositionAccess(Context context) {
-
-		return (	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-				&&	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-			//	&&	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
-				);
+		if (	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+			&&	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+		//	&&	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED)
+		) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public void processAndSaveGeoPosition(Location location) {
@@ -192,15 +195,11 @@ public class DeviceUtils {
 							);
 				}
 				
-				// only save/cache geoposition values if the GPS clock is less than 5 minutes different than the system clock
+				// only save/cache datetime offset value if the GPS clock is less than 5 minutes different than the system clock
 				if (Math.abs(dateTimeDiscrepancyFromSystemClock_gps) < (5 * 60 * 1000) ) {
-					
 					app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps);
-					app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);
-					
-				} else {
-					Log.e(logTag, "Not saving GeoPosition to database...");
 				}
+				app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

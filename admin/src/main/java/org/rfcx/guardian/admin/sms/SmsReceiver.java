@@ -21,7 +21,7 @@ public class SmsReceiver extends BroadcastReceiver {
     			
     			String smsJsonString = DeviceSmsUtils.processIncomingSmsMessageAsJson(intent);
     			if (smsJsonString != null) {
-    				Log.i(logTag, "SMS Received: "+smsJsonString);
+    				Log.w(logTag, "SMS Received: "+smsJsonString);
     			}
         }
     }
