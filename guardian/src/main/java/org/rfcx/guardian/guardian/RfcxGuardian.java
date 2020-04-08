@@ -148,7 +148,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     }
 
     public boolean isRequirementPassed() {
-        return isGuidExisted() && isLocationEnabled();
+        return isGuidExisted();
     }
 
     private Boolean isGuidExisted() {
@@ -182,13 +182,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         return this.rfcxServiceHandler.isRunning("AudioCapture");
     }
 
-    public Boolean isLocationEnabled () {
-        if (CheckAppPermissionUtils.INSTANCE.checkLocationPermission(getApplicationContext())) {
-            return false;
-        }
-        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    }
 
     private void setDbHandlers() {
 

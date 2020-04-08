@@ -68,13 +68,9 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         initUI()
 
         startButton.setOnClickListener {
-            if (!app.isLocationEnabled) {
-                showToast("Please enable gps location")
-            } else {
-                app.startAllServices()
-                setUIFromBtnClicked("start")
-                getCheckinInformation()
-            }
+            app.startAllServices()
+            setUIFromBtnClicked("start")
+            getCheckinInformation()
         }
 
         stopButton.setOnClickListener {
@@ -244,24 +240,9 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             registeredView.visibility = View.VISIBLE
             registerProgress.visibility = View.INVISIBLE
             deviceIdText.text = GuardianUtils.readRegisterFile(this)
-            setPermissionStatus()
         } else {
             unregisteredView.visibility = View.VISIBLE
             registeredView.visibility = View.INVISIBLE
-        }
-    }
-
-    private fun setPermissionStatus() {
-        if (app.isLocationEnabled) {
-            gpsStatusTextView.also {
-                it.text = " on"
-                it.setTextColor(resources.getColor(R.color.primary))
-            }
-        } else {
-            gpsStatusTextView.also {
-                it.text = " off"
-                it.setTextColor(resources.getColor(R.color.grey_default))
-            }
         }
     }
 

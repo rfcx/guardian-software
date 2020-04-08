@@ -195,31 +195,13 @@
                     app:layout_constraintTop_toBottomOf="@id/registerGroup">
 
                 <TextView
-                        android:id="@+id/gpsPermissionTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="GPS Location"
-                        android:textColor="@color/text_black"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                        android:id="@+id/gpsStatusTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=" off"
-                        app:layout_constraintBottom_toBottomOf="@id/gpsPermissionTextView"
-                        app:layout_constraintStart_toEndOf="@id/gpsPermissionTextView"
-                        app:layout_constraintTop_toTopOf="@id/gpsPermissionTextView" />
-
-                <TextView
                         android:id="@+id/phoneNumRegisterTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Phone number registration: "
                         android:textColor="@color/text_black"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/gpsPermissionTextView" />
+                        app:layout_constraintTop_toBottomOf="@id/permissionInfoLayout" />
 
                 <Button
                         android:id="@+id/phoneNumRegisterButton"

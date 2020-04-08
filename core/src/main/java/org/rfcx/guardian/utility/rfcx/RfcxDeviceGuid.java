@@ -44,7 +44,6 @@ public class RfcxDeviceGuid {
 	
 	private void checkSetCustomDeviceGuid() {
 		String customOrPreSetDeviceGuid = RfcxPrefs.getGuidFromFile(this.context, this.logTag, this.appRole, "org.rfcx.guardian.guardian");
-		Log.e(logTag, "From file: "+customOrPreSetDeviceGuid);
 		if (customOrPreSetDeviceGuid != null) {
 			this.deviceGuid = customOrPreSetDeviceGuid;
 		}

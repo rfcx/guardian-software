@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var monitorTimer: Timer
     private var isConnected: Boolean = false
+//    protected val rfcxApp = application as RfcxGuardian
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.activity_home, menu)
@@ -52,11 +53,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
         setSupportActionBar(toolbar)
         val app = application as RfcxGuardian
+     //   rfcxApp.setCurrentActivity(this);
     }
 
     public override fun onResume() {
         super.onResume()
         val app = application as RfcxGuardian
+     //   rfcxApp.setCurrentActivity(this);
         monitorToggle.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
                 val timerTask = object : TimerTask() {
@@ -90,6 +93,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     public override fun onPause() {
+    //    clearReferences();
         super.onPause()
         if (::monitorTimer.isInitialized) {
             monitorTimer.cancel()
@@ -98,7 +102,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+     //   clearReferences();
         super.onDestroy()
     }
 
+//    private fun clearReferences(){
+//        var currActivity: Activity = rfcxApp.getCurrentActivity();
+//        if (this.equals(currActivity))
+//            rfcxApp.setCurrentActivity(null);
+//    }
 }

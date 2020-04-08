@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.receiver;
+package org.rfcx.guardian.admin.sms;
 
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -16,6 +16,7 @@ public class SmsReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
     		if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
     			
     			String smsJsonString = DeviceSmsUtils.processIncomingSmsMessageAsJson(intent);

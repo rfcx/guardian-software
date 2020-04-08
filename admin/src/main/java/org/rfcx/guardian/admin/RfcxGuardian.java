@@ -3,6 +3,7 @@ package org.rfcx.guardian.admin;
 import org.rfcx.guardian.admin.device.android.capture.PhotoCaptureJobService;
 import org.rfcx.guardian.admin.device.android.control.ADBSetService;
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
+import org.rfcx.guardian.admin.sms.SmsSendReceiveService;
 import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceDiskDb;
@@ -15,12 +16,9 @@ import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
-import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
-import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
-import org.rfcx.guardian.utility.device.DeviceI2cUtils;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_Huawei_U8150;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
@@ -46,16 +44,15 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelPowerDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
+
+import android.app.Activity;
 import android.app.Application;
-import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
-
-import java.io.IOException;
+import android.Manifest;
+import android.support.v4.app.ActivityCompat;
 
 public class RfcxGuardian extends Application {
 	
@@ -93,6 +90,10 @@ public class RfcxGuardian extends Application {
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
+
+//	private Activity rfcxCurrentActivity = null;
+//	public Activity getCurrentActivity() { return rfcxCurrentActivity; }
+//	public void setCurrentActivity(Activity rfcxCurrentActivity) { this.rfcxCurrentActivity = rfcxCurrentActivity; }
 	
 	public String[] RfcxCoreServices = 
 			new String[] {
@@ -127,8 +128,12 @@ public class RfcxGuardian extends Application {
 		this.deviceUtils = new DeviceUtils(this);
 
 		// Sentinel Setup
-		DeviceI2cUtils.resetI2cPermissions(this);
+		//DeviceI2cUtils.resetI2cPermissions(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
+
+//		if (DeviceUtils.isAppRoleApprovedForGeoPositionAccess(this)) {
+//			ActivityCompat.requestPermissions(getCurrentActivity(), new String[] { Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION }, 32000);
+//		}
 
 		initializeRoleServices();
 
@@ -212,6 +217,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("BluetoothStateSet", BluetoothStateSetService.class);
 		this.rfcxServiceHandler.addService("WifiStateSet", WifiStateSetService.class);
 		this.rfcxServiceHandler.addService("ADBSet", ADBSetService.class);
+        this.rfcxServiceHandler.addService("SmsSendReceive", SmsSendReceiveService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
@@ -245,7 +251,7 @@ public class RfcxGuardian extends Application {
 
 		if (DeviceHardware_OrangePi_3G_IOT.isDevice_OrangePi_3G_IOT()) {
 			DeviceHardware_OrangePi_3G_IOT.setDeviceDefaultState(this);
-			DeviceWallpaper.setWallpaper(this, R.drawable.black);
+//			DeviceWallpaper.setWallpaper(this, R.drawable.black);
 		} else if (DeviceHardware_Huawei_U8150.isDevice_Huawei_U8150()) {
 			DeviceHardware_Huawei_U8150.checkOrResetGPSFunctionality(this);
 		}

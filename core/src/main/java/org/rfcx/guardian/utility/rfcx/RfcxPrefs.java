@@ -136,8 +136,6 @@ public class RfcxPrefs {
 		    		String txtFileContents = fileContent.toString().trim();
 		    		input.close();
 		    		return txtFileContents;
-	    		} else {
-	    			Log.v(logTag, "No preference file '"+prefKey+"' exists...");
 	    		}
 	    	} catch (FileNotFoundException e) {
 				RfcxLog.logExc(logTag, e);
@@ -159,8 +157,9 @@ public class RfcxPrefs {
 				
 				if ((prefsCursor != null) && (prefsCursor.getCount() > 0)) { if (prefsCursor.moveToFirst()) { try { do {
 					if (prefsCursor.getString(prefsCursor.getColumnIndex("pref_key")).equalsIgnoreCase(prefKey)) {
-						Log.v(logTag, "Receiving pref '"+prefKey+"' via content provider...");
-						return prefsCursor.getString(prefsCursor.getColumnIndex("pref_value"));
+						String prefValue = prefsCursor.getString(prefsCursor.getColumnIndex("pref_value"));
+						Log.v(logTag, "Pref retrieved via Content Provider: '"+prefKey+"' = '"+prefValue+"'");
+						return prefValue;
 					}
 				} while (prefsCursor.moveToNext()); } finally { prefsCursor.close(); } } }
 			}

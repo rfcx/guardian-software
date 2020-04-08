@@ -1,16 +1,19 @@
 package org.rfcx.guardian.admin.device.android.system;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import android.Manifest;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemService.SignalStrengthListener;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
@@ -133,6 +136,14 @@ public class DeviceUtils {
 			
 			// this is where we would report this interim accel value to something, somewhere that would determine if the phone is moving around...			
 		}
+	}
+
+	public static boolean isAppRoleApprovedForGeoPositionAccess(Context context) {
+
+		return (	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+				&&	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+			//	&&	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
+				);
 	}
 	
 	public void processAndSaveGeoPosition(Location location) {

@@ -4,12 +4,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
+
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceSmsUtils {
@@ -39,6 +42,12 @@ public class DeviceSmsUtils {
 	public static int deleteSmsMessage(String messageAndroidId, ContentResolver contentResolver) {
 		return contentResolver.delete(Uri.parse("content://sms/"+ messageAndroidId), null, null);
 	}
+
+//	public static int deleteSmsMessage(String messageAndroidId, Context context) {
+//		int messageId = (int) Integer.parseInt(messageAndroidId);
+//		ShellCommands.executeCommandAsRootAndIgnoreOutput("/system/xbin/sqlite3 /data/data/com.providers.telephony/databases/mmssms.db DELETE FROM sms WHERE _id="+messageId+";", context);
+//		return messageId;
+//	}
 	
 	public static int sendSmsMessage(String address, String body) {
 		int rtrnInt = 0;
