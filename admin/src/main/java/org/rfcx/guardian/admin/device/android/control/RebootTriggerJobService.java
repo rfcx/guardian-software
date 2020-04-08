@@ -4,6 +4,7 @@ import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.root.DeviceReboot;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
+import org.rfcx.guardian.utility.rfcx.RfcxGarbageCollection;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
@@ -96,10 +97,8 @@ public class RebootTriggerJobService extends Service {
 					RfcxLog.logExc(logTag, e);
 				}
 
-				// Unmounting external storage (optional)
-//				String externalStorage = Environment.getExternalStorageDirectory().toString();
-//				Log.e(logTag, "Reboot: Forcibly un-mounting external storage ("+externalStorage+")...");
-//				ShellCommands.executeCommandAsRootAndIgnoreOutput("umount "+externalStorage, app.getApplicationContext());
+				// Garbage Collection
+				RfcxGarbageCollection.runAndroidGarbageCollection();
 
 				// Triggering reboot request
 				Log.e(logTag, "Reboot: Broadcasting ACTION_REBOOT Intent...");
