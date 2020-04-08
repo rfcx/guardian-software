@@ -22,7 +22,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class SentinelPowerUtils {
 
     public SentinelPowerUtils(Context context) {
-
+//        DeviceI2cUtils.resetI2cPermissions(context);
         this.deviceI2cUtils = new DeviceI2cUtils(context, sentinelPowerI2cMainAddress);
         initSentinelPowerI2cOptions();
     }

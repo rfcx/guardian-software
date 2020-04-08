@@ -2,20 +2,14 @@ package org.rfcx.guardian.admin.device.android.system;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
-import android.telephony.SignalStrength;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import android.Manifest;
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.device.android.system.DeviceSystemService.SignalStrengthListener;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
@@ -29,38 +23,62 @@ import java.util.List;
 public class DeviceUtils {
 
 	public DeviceUtils(Context context) {
-		this.app = (RfcxGuardian) context.getApplicationContext();
+		this.context = context;
 	}
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceUtils.class);
 
-	private RfcxGuardian app = null;
-	
-	public SignalStrengthListener signalStrengthListener;
-	public TelephonyManager telephonyManager;
-	public SignalStrength telephonySignalStrength;
-	public LocationManager locationManager;
-	public SensorManager sensorManager;
-	
-	public Sensor lightSensor;
-	public Sensor accelSensor;
+	private Context context;
 
-	public String geoPositionProviderInfo;
-	
-	public double lightSensorLastValue = Float.MAX_VALUE;
-	
-//	public boolean isListenerRegistered_telephony = false;
-//	public boolean isListenerRegistered_light = false;
-//	public boolean isListenerRegistered_accel = false;
-//	public boolean isListenerRegistered_geoposition = false;
+	private boolean allowListenerRegistration_telephony = true;
+	private boolean allowListenerRegistration_light = true;
+	private boolean allowListenerRegistration_accel = true;
+	private boolean allowListenerRegistration_geoposition = true;
+	private boolean allowListenerRegistration_geoposition_gps = true;
+	private boolean allowListenerRegistration_geoposition_network = true;
 
-//	public boolean allowListenerRegistration_telephony = true;
-//	public boolean allowListenerRegistration_light = true;
-//	public boolean allowListenerRegistration_accel = true;
-//	public boolean allowListenerRegistration_geolocation = true;
-//	public boolean allowListenerRegistration_geolocation_gps = true;
-//	public boolean allowListenerRegistration_geolocation_network = true;
-	
+	public boolean isSensorListenerAllowed(String sensorAbbrev) {
+		if (sensorAbbrev.equalsIgnoreCase("accel")) {
+			return this.allowListenerRegistration_accel;
+		} else if (sensorAbbrev.equalsIgnoreCase("light")) {
+			return this.allowListenerRegistration_light;
+		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+			return this.allowListenerRegistration_telephony;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
+			return this.allowListenerRegistration_geoposition;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_gps")) {
+			return this.allowListenerRegistration_geoposition_gps;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_network")) {
+			return this.allowListenerRegistration_geoposition_network;
+		} else {
+			return false;
+		}
+	}
+
+	public void allowOrDisableSensorListener(String sensorAbbrev, boolean allowOrDisable) {
+		if (sensorAbbrev.equalsIgnoreCase("accel")) {
+			this.allowListenerRegistration_accel = allowOrDisable;
+		} else if (sensorAbbrev.equalsIgnoreCase("light")) {
+			this.allowListenerRegistration_light = allowOrDisable;
+		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+			this.allowListenerRegistration_telephony = allowOrDisable;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
+			this.allowListenerRegistration_geoposition = allowOrDisable;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_gps")) {
+			this.allowListenerRegistration_geoposition_gps = allowOrDisable;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_network")) {
+			this.allowListenerRegistration_geoposition_network = allowOrDisable;
+		}
+	}
+
+	public void allowSensorListener(String sensorAbbrev) {
+		allowOrDisableSensorListener(sensorAbbrev, true);
+	}
+
+	public void disableSensorListener(String sensorAbbrev) {
+		allowOrDisableSensorListener(sensorAbbrev, false);
+	}
+
 	public long dateTimeDiscrepancyFromSystemClock_gps = 0;
 	public long dateTimeDiscrepancyFromSystemClock_sntp = 0;
 	public long dateTimeSourceLastSyncedAt_gps = 0;
@@ -125,7 +143,9 @@ public class DeviceUtils {
 		this.accelSensorSnapshotValues = new ArrayList<double[]>();
 		
 		if ((accelSensorSnapshotAverages.length == 5) && (accelSensorSnapshotAverages[4] > 0)) {
-			
+
+			RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
+
 			if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
 				Log.i(logTag, "Snapshot —— Accelerometer"
 						+" —— x: "+accelSensorSnapshotAverages[1]+", y: "+accelSensorSnapshotAverages[2]+", z: "+accelSensorSnapshotAverages[3]
@@ -149,7 +169,9 @@ public class DeviceUtils {
 	public void processAndSaveGeoPosition(Location location) {
 		if (location != null) {
 			try {
-				
+
+				RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
+
 				dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
 				dateTimeDiscrepancyFromSystemClock_gps = DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(location.getTime());
 				

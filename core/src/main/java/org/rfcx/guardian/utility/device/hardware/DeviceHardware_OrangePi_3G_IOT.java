@@ -1,16 +1,14 @@
 package org.rfcx.guardian.utility.device.hardware;
 
 import android.content.Context;
+import android.util.Log;
 
-import org.rfcx.guardian.utility.device.root.DeviceAndroidSystemBuildDotPropFile;
+import org.rfcx.guardian.utility.device.root.SystemBuildDotPropFile;
+import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceHardware_OrangePi_3G_IOT {
 
-	public DeviceHardware_OrangePi_3G_IOT(String appRole) {
-
-	}
-	
 	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceHardware_OrangePi_3G_IOT.class);
 
 	public static final String[] DEVICE_MANUFACTURER = new String[] { "OrangePi", "alps" };
@@ -25,19 +23,19 @@ public class DeviceHardware_OrangePi_3G_IOT {
 		return false;
 	}
 
-	public static void setDeviceDefaultState(Context context) {
-
-		String[] propertiesAndValues = new String[] {
-				"ro.product.brand="+DEVICE_MANUFACTURER[0],
-				"ro.product.manufacturer="+DEVICE_MANUFACTURER[0],
-				"ro.product.model="+DEVICE_MODEL[0],
-				"ro.product.name="+DEVICE_MODEL[0],
-				"ro.product.device="+DEVICE_MODEL[0],
-				"ro.build.product="+DEVICE_MODEL[0]
-		};
-
-		DeviceAndroidSystemBuildDotPropFile.updateBuildDotPropFile(propertiesAndValues, context);
-
+	public static void checkSetDeviceHardwareIdentification(Context context) {
+		if (!DeviceHardwareUtils.getDeviceHardwareManufacturer().equalsIgnoreCase(DEVICE_MANUFACTURER[0])) {
+			Log.i(logTag, "Device Hardware Identification has not yet been set. Building update script now...");
+			String[] hardwareIdentificationPropertiesAndValues = new String[]{
+					"ro.product.brand=" + DEVICE_MANUFACTURER[0],
+					"ro.product.manufacturer=" + DEVICE_MANUFACTURER[0],
+					"ro.product.model=" + DEVICE_MODEL[0],
+					"ro.product.name=" + DEVICE_MODEL[0],
+					"ro.product.device=" + DEVICE_MODEL[0],
+					"ro.build.product=" + DEVICE_MODEL[0]
+			};
+			SystemBuildDotPropFile.updateBuildDotPropFile(hardwareIdentificationPropertiesAndValues, context, true);
+		}
 	}
 
 }

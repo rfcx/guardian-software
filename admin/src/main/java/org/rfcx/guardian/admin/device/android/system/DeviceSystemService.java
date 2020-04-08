@@ -1,6 +1,5 @@
 package org.rfcx.guardian.admin.device.android.system;
 
-import android.Manifest;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -69,19 +68,11 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private List<long[]> diskUsageValues = new ArrayList<long[]>();
 	private List<int[]> cpuUsageValues = new ArrayList<int[]>();
 	private List<double[]> accelSensorValues = new ArrayList<double[]>();
-	private List<double[]> geoPositionValues = new ArrayList<double[]>();
 
 	private boolean isListenerRegistered_telephony = false;
 	private boolean isListenerRegistered_light = false;
 	private boolean isListenerRegistered_accel = false;
 	private boolean isListenerRegistered_geoposition = false;
-
-	private boolean allowListenerRegistration_telephony = true;
-	private boolean allowListenerRegistration_light = true;
-	private boolean allowListenerRegistration_accel = true;
-	private boolean allowListenerRegistration_geoposition = true;
-	private boolean allowListenerRegistration_geoposition_gps = true;
-	private boolean allowListenerRegistration_geoposition_network = true;
 
 	private void checkSetSensorManager() {
 		if (this.sensorManager == null) {
@@ -94,13 +85,13 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		if (DeviceUtils.isAppRoleApprovedForGeoPositionAccess(app.getApplicationContext())) {
 			if (this.locationManager == null) {
 				this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-				this.allowListenerRegistration_geoposition_gps = this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-				this.allowListenerRegistration_geoposition_network = this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-				if (this.allowListenerRegistration_geoposition_gps) {
+				app.deviceUtils.allowOrDisableSensorListener("geoposition_gps", this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+				app.deviceUtils.allowOrDisableSensorListener("geoposition_network", this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
+				if (app.deviceUtils.isSensorListenerAllowed("geoposition_gps")) {
 					this.geoPositionProviderInfo = LocationManager.GPS_PROVIDER;
 					Log.d(logTag, "GeoPosition will be provided via GPS.");
 					isGeoPositionAccessApproved = true;
-				} else if (this.allowListenerRegistration_geoposition_network) {
+				} else if (app.deviceUtils.isSensorListenerAllowed("geoposition_network")) {
 					this.geoPositionProviderInfo = LocationManager.NETWORK_PROVIDER;
 					Log.d(logTag, "GeoPosition will be provided via Mobile Network.");
 					isGeoPositionAccessApproved = true;
@@ -353,7 +344,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 		try {
 
-			if (sensorAbbrev.equalsIgnoreCase("accel") && this.allowListenerRegistration_accel) {
+			if (sensorAbbrev.equalsIgnoreCase("accel") && app.deviceUtils.isSensorListenerAllowed("accel")) {
 				if (!this.isListenerRegistered_accel) {
 					checkSetSensorManager();
 					if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
@@ -361,12 +352,12 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 						this.sensorManager.registerListener(this, this.accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
 						this.isListenerRegistered_accel = true;
 					} else {
-						this.allowListenerRegistration_accel = false;
+						app.deviceUtils.disableSensorListener("accel");
 						Log.d(logTag, "Disabling Listener Registration for Accelerometer because it doesn't seem to be present.");
 					}
 				}
 
-			} else if (sensorAbbrev.equalsIgnoreCase("light") && this.allowListenerRegistration_light) {
+			} else if (sensorAbbrev.equalsIgnoreCase("light") && app.deviceUtils.isSensorListenerAllowed("light")) {
 				if (!this.isListenerRegistered_light) {
 					checkSetSensorManager();
 					if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
@@ -374,12 +365,12 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 						this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
 						this.isListenerRegistered_light = true;
 					} else {
-						this.allowListenerRegistration_light = false;
+						app.deviceUtils.disableSensorListener("light");
 						Log.d(logTag, "Disabling Listener Registration for LightMeter because it doesn't seem to be present.");
 					}
 				}
 
-			} else if (sensorAbbrev.equalsIgnoreCase("telephony") && this.allowListenerRegistration_telephony) {
+			} else if (sensorAbbrev.equalsIgnoreCase("telephony") && app.deviceUtils.isSensorListenerAllowed("telephony")) {
 				if (!this.isListenerRegistered_telephony) {
 					this.signalStrengthListener = new SignalStrengthListener();
 					this.telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -387,7 +378,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					this.isListenerRegistered_telephony = true;
 				}
 
-			} else if (sensorAbbrev.equalsIgnoreCase("geoposition") && this.allowListenerRegistration_geoposition) {
+			} else if (sensorAbbrev.equalsIgnoreCase("geoposition") && app.deviceUtils.isSensorListenerAllowed("geoposition")) {
 				if (!this.isListenerRegistered_geoposition) {
 					if (checkSetLocationManager() && !this.geoPositionProviderInfo.isEmpty()) {
 						this.locationManager.requestLocationUpdates(

@@ -69,9 +69,6 @@ public class DeviceCPU {
 	}
 	
 	private static float getCurrentCPUPercentage(String logTag) {
-        if (!DeviceRoot.isRooted()) {
-            return 0;
-        }
         try {
             RandomAccessFile reader = new RandomAccessFile("/proc/stat", "r");
             String load = reader.readLine();

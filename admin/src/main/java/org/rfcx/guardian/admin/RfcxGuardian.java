@@ -16,6 +16,7 @@ import org.rfcx.guardian.utility.device.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
+import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -45,14 +46,12 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.Manifest;
-import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 public class RfcxGuardian extends Application {
 	
@@ -97,7 +96,7 @@ public class RfcxGuardian extends Application {
 	
 	public String[] RfcxCoreServices = 
 			new String[] {
-				"DeviceSystem",
+			//	"DeviceSystem",
 				"DeviceSentinel"
 			};
 	
@@ -119,24 +118,21 @@ public class RfcxGuardian extends Application {
 		setDbHandlers();
 		setServiceHandlers();
 
-		// Android-Build-specific hacks and modifications
-//		DateTimeUtils.resetDateTimeReadWritePermissions(this); // this is not necessary if this app role is running as "system"
+		this.deviceUtils = new DeviceUtils(this);
+		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();
 
-		this.deviceUtils = new DeviceUtils(this);
-
-		// Sentinel Setup
-		//DeviceI2cUtils.resetI2cPermissions(this);
-		this.sentinelPowerUtils = new SentinelPowerUtils(this);
+		// Android-Build-specific hacks and modifications
+		// This is not necessary if this app role is running as "system"
+		// DateTimeUtils.resetDateTimeReadWritePermissions(this);
 
 //		if (DeviceUtils.isAppRoleApprovedForGeoPositionAccess(this)) {
 //			ActivityCompat.requestPermissions(getCurrentActivity(), new String[] { Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION }, 32000);
 //		}
 
 		initializeRoleServices();
-
 	}
 	
 	public void onTerminate() {
@@ -250,10 +246,21 @@ public class RfcxGuardian extends Application {
 	private void runHardwareSpecificModifications() {
 
 		if (DeviceHardware_OrangePi_3G_IOT.isDevice_OrangePi_3G_IOT()) {
-			DeviceHardware_OrangePi_3G_IOT.setDeviceDefaultState(this);
-//			DeviceWallpaper.setWallpaper(this, R.drawable.black);
-		} else if (DeviceHardware_Huawei_U8150.isDevice_Huawei_U8150()) {
-			DeviceHardware_Huawei_U8150.checkOrResetGPSFunctionality(this);
+
+			// Disable Sensor Listeners for sensors the don't exist on the OrangePi
+			this.deviceUtils.disableSensorListener("accel"); // accelerometer
+			this.deviceUtils.disableSensorListener("light");  // light meter
+
+			Log.d(logTag, "Sensor Light:"+ this.deviceUtils.isSensorListenerAllowed("light"));
+			Log.d(logTag, "Sensor Accel:"+ this.deviceUtils.isSensorListenerAllowed("accel"));
+
+			// Set Desktop Wallpaper to empty black
+			DeviceWallpaper.setWallpaper(this, R.drawable.black);
+
+			// Rename Device Hardware with /system/build.prop.
+			// Only occurs once, on initial launch, and requires reboot once complete.
+			DeviceHardware_OrangePi_3G_IOT.checkSetDeviceHardwareIdentification(this);
+
 		}
 
 	}
