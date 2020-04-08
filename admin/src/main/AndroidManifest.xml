@@ -162,16 +162,8 @@
                 <!-- <category android:name="android.intent.category.DEFAULT" /> -->
             </intent-filter>
         </receiver>
-        <receiver android:name=".receiver.BluetoothStateReceiver">
-            <intent-filter>
-                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
-            </intent-filter>
-        </receiver>
-        <receiver android:name=".receiver.WifiStateReceiver">
-            <intent-filter>
-                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
-            </intent-filter>
-        </receiver> <!-- Content Providers -->
+
+        <!-- Content Providers -->
         <provider
                 android:name=".contentprovider.AdminContentProvider"
                 android:authorities="org.rfcx.guardian.admin"

@@ -1041,7 +1041,6 @@ public class ApiCheckInUtils implements MqttCallback {
 					String assetType = requeueJson.getJSONObject(i).getString("type");
 					if (assetType.equalsIgnoreCase("audio")) {
 						reQueueAudioAssetForCheckIn("sent", assetId);
-
 					}
 				}
 			}

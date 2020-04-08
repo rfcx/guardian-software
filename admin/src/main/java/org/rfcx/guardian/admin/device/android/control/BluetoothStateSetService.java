@@ -35,9 +35,12 @@ public class BluetoothStateSetService extends IntentService {
 			app.deviceBluetooth = new DeviceBluetooth(context);
 		}
 
-		Log.e(logTag, "BEWARE!!! The Bluetooth tether enable/disable is currently buggy. Troubleshooting needed.");
-
 		if (prefsAdminEnableBluetooth && !app.deviceBluetooth.isBluetoothEnabled()) {
+
+			Log.e(logTag, "DISCLAIMER:"
+					+"\nBluetooth tethering (via RFCx) is currently UNSTABLE and is not recommended for anything other than testing or troubleshooting."
+					+"\nFor wireless tethering, please use WiFi.");
+
 			// turn power ON
 			app.deviceBluetooth.setPowerOn();
 
@@ -51,15 +54,16 @@ public class BluetoothStateSetService extends IntentService {
 			}
 			// set network name
 			app.deviceBluetooth.setNetworkName("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8));
+
 			// turn tethering ON
-			app.deviceBluetooth.setTetheringOn();
+			Log.e(logTag, "Bluetooth has been powered on but tethering will NOT be enabled at this time (see disclaimer above).");
+			//app.deviceBluetooth.setTetheringOn();
 
 		} else if (app.deviceBluetooth.isBluetoothEnabled()) {
 			// turn tethering OFF
 		//	app.deviceBluetooth.setTetheringOff();
 			// turn power OFF
 			app.deviceBluetooth.setPowerOff();
-
 
 		}
 

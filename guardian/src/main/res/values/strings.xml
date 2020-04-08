@@ -91,20 +91,20 @@
 	</string-array>
 	
     <string-array name="audio_encode_bitrate_values">
-		<item>4000</item>
-		<item>8000</item>
-		<item>12000</item>
-		<item>16000</item>
-		<item>20000</item>
-		<item>24000</item>
-		<item>32000</item>
-		<item>40000</item>
-		<item>48000</item>
-		<item>64000</item>
-		<item>80000</item>
-		<item>96000</item>
-		<item>112000</item>
-		<item>128000</item>
+		<item>4096</item>
+		<item>8192</item>
+		<item>12288</item>
+		<item>16384</item>
+		<item>20480</item>
+		<item>24576</item>
+		<item>32768</item>
+		<item>40960</item>
+		<item>49152</item>
+		<item>65536</item>
+		<item>81920</item>
+		<item>98304</item>
+		<item>114688</item>
+		<item>131072</item>
 	</string-array>
 
 	<!-- login -->
