@@ -199,8 +199,35 @@ Before following the instruction below. You need to download Vysor first.
 
 7. If you want to go back to USB debugging, you need to `adb shell` and then enter `setprop persist.adb.tcp.port ""`.
 
+### Step 6: How to debug OrangePi over Wifi Hotspot
 
-### Step 6: How to connect i2c and load i2c module
+1. Require guardian and admin role installed.
+
+2. Start guardian role app.
+
+3. Open **Preferences setting** at top right menu
+
+4. Set **admin_enable_wifi** and **admin_enable_tcp_adb** to true
+
+   ![](docs/images/pref_setting.PNG?raw=true)
+
+5. Wifi hotspot will enable and tcp port will change to 7329. Wifi hotspot name will named as rfcx-{guid} and password is rfcxrfcx
+
+6. Then take USB cable off and power OrangePi with external power source
+
+7. Connect your PC to OrangePi Wifi hotspot
+
+8. Now you can debug your OrangePi using its IP (default is 192.168.43.1)
+
+   ```
+   adb connect 192.168.43.1:7329
+   ```
+
+9. Then you can see the screen using Vysor
+
+
+
+### Step 7: How to connect i2c and load i2c module
 
 1. First, place OrangePi same position as in the image.
 
@@ -218,9 +245,9 @@ Before following the instruction below. You need to download Vysor first.
 
 5. You can debug OrangePi by using Bluetooth on [Step 5](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-5-how-to-debug-orange-pi-over-bluetooth-instead-of-usb-cable)
 
-### Step 7: How to setup, run and test the I2C
+### Step 8: How to setup, run and test the I2C
 
-1. Plugin the sentinel power wires to the OrangePi on [Step 6](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-6-how-to-connect-i2c-and-load-i2c-module)
+1. Plugin the sentinel power wires to the OrangePi on [Step 7](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-7-how-to-connect-i2c-and-load-i2c-module)
 
 2. Install admin role
 
