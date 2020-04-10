@@ -9,15 +9,15 @@ import java.io.FileOutputStream
 
 object GuardianUtils {
 
-    fun isGuidExisted(context: Context): Boolean {
+    fun isGuardianRegistered(context: Context): Boolean {
         val path = context.filesDir.toString() + "/txt/"
-        val txtFile = File(path + "/guardian_guid.txt")
+        val txtFile = File(path + "/registered_at.txt")
         return txtFile.exists()
     }
 
     fun createRegisterFile(context: Context) {
         val path = context.filesDir.toString() + "/txt/"
-        val file = File(path, "guardian_guid.txt")
+        val file = File(path, "registered_at.txt")
         FileOutputStream(file).use {
             val app = context.applicationContext as RfcxGuardian
             it.write(app.rfcxDeviceGuid.deviceGuid.toByteArray())
@@ -26,7 +26,13 @@ object GuardianUtils {
 
     fun readRegisterFile(context: Context): String {
         val path = context.filesDir.toString() + "/txt/"
-        val file = File(path, "guardian_guid.txt")
+        val file = File(path, "registered_at.txt")
+        return FileInputStream(file).bufferedReader().use { it.readText() }
+    }
+
+    fun readGuardianGuid(context: Context): String {
+        val path = context.filesDir.toString() + "/txt/"
+        val file = File(path, "guid.txt")
         return FileInputStream(file).bufferedReader().use { it.readText() }
     }
 

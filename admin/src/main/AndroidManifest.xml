@@ -81,7 +81,7 @@
         <!-- Services -->
         <service android:name=".device.android.capture.DeviceScreenShotCaptureService" />
         <service android:name=".device.android.capture.DeviceLogCatCaptureService" />
-        <service android:name=".device.android.capture.PhotoCaptureJobService" />
+        <service android:name=".device.android.capture.CameraPhotoCaptureService" />
         <service android:name=".device.android.control.RebootTriggerJobService" />
         <service android:name=".device.android.control.AirplaneModeToggleService" />
         <service android:name=".device.android.control.AirplaneModeEnableService" />
@@ -98,7 +98,7 @@
         <service android:name=".device.android.capture.ScheduledScreenShotCaptureService" />
         <service android:name=".device.android.capture.ScheduledLogCatCaptureService" />
         <service android:name=".device.android.capture.ScheduledPhotoCaptureService" />
-        <service android:name=".device.android.control.ADBSetService" /> <!--  -->
+        <service android:name=".device.android.control.ADBStateSetService" /> <!--  -->
         <!-- START: SMS settings -->
         <!--  -->
         <service

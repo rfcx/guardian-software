@@ -1,7 +1,9 @@
 package org.rfcx.guardian.admin;
 
-import org.rfcx.guardian.admin.device.android.capture.PhotoCaptureJobService;
-import org.rfcx.guardian.admin.device.android.control.ADBSetService;
+import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
+import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.DeviceSmsMessageDb;
+import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
 import org.rfcx.guardian.admin.sms.SmsSendReceiveService;
 import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
@@ -46,10 +48,12 @@ import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 
 import android.app.Application;
+import android.bluetooth.BluetoothClass;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.provider.Telephony;
 import android.util.Log;
 
 public class RfcxGuardian extends Application {
@@ -65,6 +69,7 @@ public class RfcxGuardian extends Application {
 	public RfcxServiceHandler rfcxServiceHandler = null;
 	
 	public DeviceScreenShotDb deviceScreenShotDb = null;
+	public CameraCaptureDb cameraCaptureDb = null;
 	public DeviceLogCatDb deviceLogCatDb = null;
 	public SentinelPowerDb sentinelPowerDb = null;
 	public DeviceSystemDb deviceSystemDb = null;
@@ -72,6 +77,7 @@ public class RfcxGuardian extends Application {
     public DeviceRebootDb rebootDb = null;
     public DeviceDataTransferDb deviceDataTransferDb = null;
     public DeviceDiskDb deviceDiskDb = null;
+    public DeviceSmsMessageDb deviceSmsMessageDb = null;
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	
@@ -124,6 +130,7 @@ public class RfcxGuardian extends Application {
 		// DateTimeUtils.resetDateTimeReadWritePermissions(this);
 
 		initializeRoleServices();
+
 	}
 	
 	public void onTerminate() {
@@ -163,7 +170,7 @@ public class RfcxGuardian extends Application {
 							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
 							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
 							,
-					"ADBSet"
+					"ADBStateSet"
 							+"|"+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
 							+"|"+"0" 																	// no repeat
 							,
@@ -187,29 +194,34 @@ public class RfcxGuardian extends Application {
 		
 		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
+		this.cameraCaptureDb = new CameraCaptureDb(this, this.version);
 		this.deviceLogCatDb = new DeviceLogCatDb(this, this.version);
 		this.deviceSystemDb = new DeviceSystemDb(this, this.version);
         this.deviceSensorDb = new DeviceSensorDb(this, this.version);
         this.rebootDb = new DeviceRebootDb(this, this.version);
         this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
         this.deviceDiskDb = new DeviceDiskDb(this, this.version);
+        this.deviceSmsMessageDb = new DeviceSmsMessageDb(this, this.version);
 	}
 
 	private void setServiceHandlers() {
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
-		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);
-		this.rfcxServiceHandler.addService("ScheduledReboot", ScheduledRebootService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeToggle", AirplaneModeToggleService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeEnable", AirplaneModeEnableService.class);
+
 		this.rfcxServiceHandler.addService("BluetoothStateSet", BluetoothStateSetService.class);
 		this.rfcxServiceHandler.addService("WifiStateSet", WifiStateSetService.class);
-		this.rfcxServiceHandler.addService("ADBSet", ADBSetService.class);
+		this.rfcxServiceHandler.addService("ADBStateSet", ADBStateSetService.class);
+
         this.rfcxServiceHandler.addService("SmsSendReceive", SmsSendReceiveService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
-		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
 
+		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);
+		this.rfcxServiceHandler.addService("ScheduledReboot", ScheduledRebootService.class);
+
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
+		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 
 		this.rfcxServiceHandler.addService("ScreenShotCapture", DeviceScreenShotCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledScreenShotCapture", ScheduledScreenShotCaptureService.class);
@@ -217,7 +229,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("LogCatCapture", DeviceLogCatCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledLogCatCapture", ScheduledLogCatCaptureService.class);
 
-		this.rfcxServiceHandler.addService("PhotoCapture", PhotoCaptureJobService.class);
+		this.rfcxServiceHandler.addService("CameraPhotoCapture", CameraPhotoCaptureService.class);
 
 	}
 
@@ -225,11 +237,10 @@ public class RfcxGuardian extends Application {
 
 		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth") || prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
 			rfcxServiceHandler.triggerService("BluetoothStateSet", false);
-			rfcxServiceHandler.triggerService("ADBSet", false);
-		}
-		if (prefKey.equalsIgnoreCase("admin_enable_wifi") || prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
+			rfcxServiceHandler.triggerService("ADBStateSet", false);
+		} else if (prefKey.equalsIgnoreCase("admin_enable_wifi") || prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
 			rfcxServiceHandler.triggerService("WifiStateSet", false);
-			rfcxServiceHandler.triggerService("ADBSet", false);
+			rfcxServiceHandler.triggerService("ADBStateSet", false);
 		}
 		return this.rfcxPrefs.getPrefAsString(prefKey);
 	}

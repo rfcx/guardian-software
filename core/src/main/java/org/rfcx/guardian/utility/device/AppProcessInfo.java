@@ -50,6 +50,10 @@ public class AppProcessInfo {
 		return processIds;
 	}
 
+	public static String getPackageName(Context context) {
+		return context.getPackageName();
+	}
+
 //	public static void killMyProcess() {
 //		android.os.Process.killProcess(android.os.Process.myPid());
 //	}

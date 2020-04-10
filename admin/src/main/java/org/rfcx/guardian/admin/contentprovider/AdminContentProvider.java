@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin.contentprovider;
 
+import org.json.JSONArray;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
@@ -15,6 +16,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AdminContentProvider extends ContentProvider {
 
@@ -105,7 +110,11 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSeg = uri.getLastPathSegment();
 
                 if (pathSeg.equalsIgnoreCase("sms")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sms", DeviceSmsUtils.getSmsMessagesAsJsonArray(app.getApplicationContext().getContentResolver()).toString(), System.currentTimeMillis()});
+                    List<JSONArray> smsJsonArrays =  new ArrayList<JSONArray>();
+                    smsJsonArrays.add(DeviceSmsUtils.getSmsMessagesFromSystemAsJsonArray(app.getApplicationContext().getContentResolver()));
+                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray(app.deviceSmsMessageDb.dbSmsReceived.getAllRows()));
+                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray(app.deviceSmsMessageDb.dbSmsSent.getAllRows()));
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sms", DeviceSmsUtils.combineSmsMessageJsonArrays(smsJsonArrays).toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_power", SentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
@@ -138,7 +147,10 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSegId = pathSeg.substring(1 + pathSeg.indexOf("|"));
 
                 if (pathSegTable.equalsIgnoreCase("sms")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, DeviceSmsUtils.deleteSmsMessage(pathSegId, app.getApplicationContext().getContentResolver()), System.currentTimeMillis()});
+                    int deleteFromSystem = DeviceSmsUtils.deleteSmsMessageFromSystem(pathSegId, app.getApplicationContext().getContentResolver());
+                    int deleteFromReceivedDatabase = app.deviceSmsMessageDb.dbSmsReceived.deleteSingleRowByMessageId(pathSegId);
+                    int deleteFromSentDatabase = app.deviceSmsMessageDb.dbSmsSent.deleteSingleRowByMessageId(pathSegId);
+                    return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, ( deleteFromSystem + deleteFromReceivedDatabase + deleteFromSentDatabase ), System.currentTimeMillis()});
 
                 } else if (pathSegTable.equalsIgnoreCase("screenshots")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, app.deviceScreenShotDb.dbCaptured.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis()});

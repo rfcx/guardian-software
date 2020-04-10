@@ -3,11 +3,7 @@ package org.rfcx.guardian.guardian;
 import java.io.File;
 import java.util.Map;
 
-import android.content.Context;
-import android.location.LocationManager;
-
 import org.rfcx.guardian.guardian.api.ApiCheckInMetaSnapshotService;
-import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceBattery;
@@ -117,7 +113,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
         this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
-        startAllServices();
+        launchRoleServices();
 
 
         int[] guardianIds = AppProcessInfo.getProcessInfoFromRole("admin", this);
@@ -137,23 +133,23 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     }
 
-    public void startAllServices() {
-        if (isRequirementPassed()) {
-            if(!getRecordingState()){
+    public void launchRoleServices() {
+        if (isGuardianRegistered()) {
+       //     if(!getRecordingState()){
                 initializeRoleServices();
-            }
+       //     }
         } else {
             this.rfcxServiceHandler.stopAllServices();
         }
     }
 
-    public boolean isRequirementPassed() {
-        return isGuidExisted();
+    public Boolean getRecordingState() {
+        return this.rfcxServiceHandler.isRunning("AudioCapture");
     }
 
-    private Boolean isGuidExisted() {
+    private boolean isGuardianRegistered() {
         String directoryPath = getBaseContext().getFilesDir().toString() + "/txt/";
-        File txtFile = new File(directoryPath + "/guardian_guid.txt");
+        File txtFile = new File(directoryPath + "/registered_at.txt");
         return txtFile.exists();
     }
 
@@ -177,11 +173,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
         }
     }
-
-    public Boolean getRecordingState() {
-        return this.rfcxServiceHandler.isRunning("AudioCapture");
-    }
-
 
     private void setDbHandlers() {
 

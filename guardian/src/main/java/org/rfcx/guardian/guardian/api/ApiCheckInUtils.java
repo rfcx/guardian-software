@@ -377,37 +377,12 @@ public class ApiCheckInUtils implements MqttCallback {
 		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
 	}
 
-//	//todo: comment the example result
-//	private String getConcatSentinelMetaForBattery(JSONArray sentinelJsonArray) throws JSONException {
-//		ArrayList<String> sentinelMetaBlobs = new ArrayList<String>();
-//		for (int i = 0; i < sentinelJsonArray.length(); i++) {
-//			JSONObject sentinelJsonRow = sentinelJsonArray.getJSONObject(i);
-//			Iterator<String> paramLabels = sentinelJsonRow.keys();
-//			int count = 0;
-//			ArrayList<String> tempArray = new ArrayList<String>();
-//			while (paramLabels.hasNext()) {
-//				String paramLabel = paramLabels.next();
-//				if ( (sentinelJsonRow.get(paramLabel) instanceof String) && (sentinelJsonRow.getString(paramLabel).length() > 0) && count > 1) {
-//					tempArray.add(sentinelJsonRow.getString(paramLabel));
-//				}
-//				count++;
-//			}
-//			sentinelMetaBlobs.add(TextUtils.join("*", tempArray));
-//		}
-//
-//		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
-//	}
-
 	private String getAssetExchangeLogList(String assetStatus, int rowLimit) {
 
 		List<String[]> assetRows = new ArrayList<String[]>();
-
 		if (assetStatus.equalsIgnoreCase("purged")) {
-
 			assetRows = app.apiAssetExchangeLogDb.dbPurged.getLatestRowsWithLimitExcludeCreatedAt(rowLimit);
-
 		}
-
 		return DbUtils.getConcatRows(assetRows);
 	}
 
@@ -468,7 +443,6 @@ public class ApiCheckInUtils implements MqttCallback {
 							} else {
 								metaJsonBundledSnapshotsObj.put(jsonKey, origStr+newStr);
 							}
-
 						}
 					}
 				}
@@ -764,7 +738,6 @@ public class ApiCheckInUtils implements MqttCallback {
 	private void purgeSingleAsset(String assetType, String rfcxDeviceId, Context context, String assetId) {
 
 		try {
-	//		String filePath = null;
 			List<String> filePaths =  new ArrayList<String>();
 
 			if (assetType.equals("audio")) {

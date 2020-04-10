@@ -11,16 +11,16 @@ import org.rfcx.guardian.utility.camera.RfcxCameraUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-public class PhotoCaptureJobService extends Service {
+public class CameraPhotoCaptureService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, PhotoCaptureJobService.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, CameraPhotoCaptureService.class);
 		
-	private static final String SERVICE_NAME = "PhotoCapture";
+	private static final String SERVICE_NAME = "CameraPhotoCapture";
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private PhotoCaptureJobSvc photoCaptureJobSvc;
+	private CameraPhotoCaptureSvc cameraPhotoCaptureSvc;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,7 +30,7 @@ public class PhotoCaptureJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.photoCaptureJobSvc = new PhotoCaptureJobSvc();
+		this.cameraPhotoCaptureSvc = new CameraPhotoCaptureSvc();
 		app = (RfcxGuardian) getApplication();
 	}
 
@@ -41,7 +41,7 @@ public class PhotoCaptureJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.photoCaptureJobSvc.start();
+			this.cameraPhotoCaptureSvc.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -53,19 +53,19 @@ public class PhotoCaptureJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.photoCaptureJobSvc.interrupt();
-		this.photoCaptureJobSvc = null;
+		this.cameraPhotoCaptureSvc.interrupt();
+		this.cameraPhotoCaptureSvc = null;
 	}
 
-	private class PhotoCaptureJobSvc extends Thread {
+	private class CameraPhotoCaptureSvc extends Thread {
 
-		public PhotoCaptureJobSvc() {
-			super("PhotoCaptureJobService-PhotoCaptureJobSvc");
+		public CameraPhotoCaptureSvc() {
+			super("PhotoCaptureService-PhotoCaptureSvc");
 		}
 
 		@Override
 		public void run() {
-			PhotoCaptureJobService photoCaptureJobServiceInstance = PhotoCaptureJobService.this;
+			CameraPhotoCaptureService cameraPhotoCaptureServiceInstance = CameraPhotoCaptureService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
@@ -77,7 +77,7 @@ public class PhotoCaptureJobService extends Service {
 
 			Log.e(logTag, "CURRENTLY THIS SERVICE DOES ABSOLUTELY NOTHING. NO PHOTOS CAPTURED.");
 
-			while (photoCaptureJobServiceInstance.runFlag) {
+			while (cameraPhotoCaptureServiceInstance.runFlag) {
 				
 				try {
 					
@@ -90,12 +90,12 @@ public class PhotoCaptureJobService extends Service {
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
 					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-					photoCaptureJobServiceInstance.runFlag = false;
+					cameraPhotoCaptureServiceInstance.runFlag = false;
 				}
 			}
 			
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			photoCaptureJobServiceInstance.runFlag = false;
+			cameraPhotoCaptureServiceInstance.runFlag = false;
 			
 			Log.v(logTag, "Stopping service: "+logTag);
 				

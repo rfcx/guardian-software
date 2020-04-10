@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         initUI()
 
         startButton.setOnClickListener {
-            app.startAllServices()
+            app.launchRoleServices()
             setUIFromBtnClicked("start")
             getCheckinInformation()
         }
@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
 
     private fun startServices() {
         Handler().postDelayed({
-            app.startAllServices()
+            app.launchRoleServices()
             setUIByRecordingState()
             setBtnEnableByRecordingState()
             if (app.recordingState) {
@@ -211,8 +211,8 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     }
 
     private fun setUIByRecordingState() {
-        if (GuardianUtils.isGuidExisted(this)) {
-            deviceIdText.text = GuardianUtils.readRegisterFile(this)
+        if (GuardianUtils.isGuardianRegistered(this)) {
+            deviceIdText.text = GuardianUtils.readGuardianGuid(this)
             if (app.recordingState) {
                 recordStatusText.text = "recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
@@ -235,11 +235,11 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     }
 
     private fun setUIByGuidState() {
-        if (GuardianUtils.isGuidExisted(this)) {
+        if (GuardianUtils.isGuardianRegistered(this)) {
             unregisteredView.visibility = View.INVISIBLE
             registeredView.visibility = View.VISIBLE
             registerProgress.visibility = View.INVISIBLE
-            deviceIdText.text = GuardianUtils.readRegisterFile(this)
+            deviceIdText.text = GuardianUtils.readGuardianGuid(this)
         } else {
             unregisteredView.visibility = View.VISIBLE
             registeredView.visibility = View.INVISIBLE
@@ -288,12 +288,12 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     override fun onGuardianCheckSuccess() {
         setVisibilityRegisterSuccess()
         GuardianUtils.createRegisterFile(baseContext)
-        app.startAllServices()
+        app.launchRoleServices()
         setUIByRecordingState()
         setUIByGuidState()
         setUIFromBtnClicked("start")
         getCheckinInformation()
-        deviceIdText.text = GuardianUtils.readRegisterFile(baseContext)
+        deviceIdText.text = GuardianUtils.readGuardianGuid(baseContext)
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {
