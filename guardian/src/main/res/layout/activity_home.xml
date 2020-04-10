@@ -201,7 +201,8 @@
                         android:text="Phone number registration: "
                         android:textColor="@color/text_black"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/permissionInfoLayout" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <Button
                         android:id="@+id/phoneNumRegisterButton"
