@@ -102,7 +102,7 @@
         <!-- START: SMS settings -->
         <!--  -->
         <service
-                android:name=".sms.SmsSendReceiveService"
+                android:name=".sms.SmsDispatchService"
                 android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
             <intent-filter>
                 <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />

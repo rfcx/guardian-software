@@ -19,6 +19,7 @@ import android.view.MenuItem
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils
+import org.rfcx.guardian.admin.sms.SmsScheduler
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth
 import java.util.*
 
@@ -36,15 +37,15 @@ class MainActivity : AppCompatActivity() {
         val app = application as RfcxGuardian
         when (item.itemId) {
 
-            R.id.menu_reboot -> app.rfcxServiceHandler.triggerService("RebootTrigger", true)
-
-            R.id.menu_relaunch -> app.rfcxServiceHandler.triggerIntentServiceImmediately("ForceRoleRelaunch")
+            R.id.menu_relaunch ->  SmsScheduler.addImmediateSmsToQueue("+14153359205", "Message that you might like: "+System.currentTimeMillis(), app.applicationContext) //app.rfcxServiceHandler.triggerIntentServiceImmediately("ForceRoleRelaunch")
 
             R.id.menu_screenshot -> app.rfcxServiceHandler.triggerService("ScreenShotCapture", true)
 
             R.id.menu_sntp -> app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true)
 
             R.id.menu_logcat -> app.rfcxServiceHandler.triggerService("LogCatCapture", true)
+
+            R.id.menu_reboot -> app.rfcxServiceHandler.triggerService("RebootTrigger", true)
 
         }
         return true

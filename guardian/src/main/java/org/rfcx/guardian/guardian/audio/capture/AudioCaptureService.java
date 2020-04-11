@@ -143,7 +143,7 @@ public class AudioCaptureService extends Service {
 			
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 			audioCaptureService.runFlag = false;
-			
+
 			Log.v(logTag, "Stopping service: "+logTag);
 				
 		}

@@ -87,8 +87,7 @@ public class AudioEncodeJobService extends Service {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 									
-					// only proceed with encode process if there is a valid queued audio file in the database
-					if (latestQueuedAudioToEncode[0] != null) {
+
 						
 						File preEncodeFile = new File(latestQueuedAudioToEncode[9]);
 						

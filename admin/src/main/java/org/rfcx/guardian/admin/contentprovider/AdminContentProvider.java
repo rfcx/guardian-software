@@ -16,7 +16,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,8 +111,8 @@ public class AdminContentProvider extends ContentProvider {
                 if (pathSeg.equalsIgnoreCase("sms")) {
                     List<JSONArray> smsJsonArrays =  new ArrayList<JSONArray>();
                     smsJsonArrays.add(DeviceSmsUtils.getSmsMessagesFromSystemAsJsonArray(app.getApplicationContext().getContentResolver()));
-                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray(app.deviceSmsMessageDb.dbSmsReceived.getAllRows()));
-                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray(app.deviceSmsMessageDb.dbSmsSent.getAllRows()));
+                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray(app.smsMessageDb.dbSmsReceived.getAllRows()));
+                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray(app.smsMessageDb.dbSmsSent.getAllRows()));
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sms", DeviceSmsUtils.combineSmsMessageJsonArrays(smsJsonArrays).toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
@@ -148,8 +147,8 @@ public class AdminContentProvider extends ContentProvider {
 
                 if (pathSegTable.equalsIgnoreCase("sms")) {
                     int deleteFromSystem = DeviceSmsUtils.deleteSmsMessageFromSystem(pathSegId, app.getApplicationContext().getContentResolver());
-                    int deleteFromReceivedDatabase = app.deviceSmsMessageDb.dbSmsReceived.deleteSingleRowByMessageId(pathSegId);
-                    int deleteFromSentDatabase = app.deviceSmsMessageDb.dbSmsSent.deleteSingleRowByMessageId(pathSegId);
+                    int deleteFromReceivedDatabase = app.smsMessageDb.dbSmsReceived.deleteSingleRowByMessageId(pathSegId);
+                    int deleteFromSentDatabase = app.smsMessageDb.dbSmsSent.deleteSingleRowByMessageId(pathSegId);
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, ( deleteFromSystem + deleteFromReceivedDatabase + deleteFromSentDatabase ), System.currentTimeMillis()});
 
                 } else if (pathSegTable.equalsIgnoreCase("screenshots")) {

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.device.android.capture;
+package org.rfcx.guardian.admin.sms;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,16 +12,16 @@ import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import java.util.Date;
 import java.util.List;
 
-public class DeviceSmsMessageDb {
+public class SmsMessageDb {
 
-	public DeviceSmsMessageDb(Context context, String appVersion) {
+	public SmsMessageDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbSmsReceived = new DbSmsReceived(context);
 		this.dbSmsSent = new DbSmsSent(context);
 		this.dbSmsQueued = new DbSmsQueued(context);
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSmsMessageDb.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SmsMessageDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "sms";
 	static final String C_CREATED_AT = "created_at";
@@ -100,11 +100,11 @@ public class DeviceSmsMessageDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(String timestamp, String address, String body, String message_id) {
+		public int insert(long timestamp, String address, String body, String message_id) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_TIMESTAMP, timestamp);
+			values.put(C_TIMESTAMP, timestamp+"");
 			values.put(C_ADDRESS, address);
 			values.put(C_BODY, body);
 			values.put(C_MESSAGE_ID, message_id);
@@ -145,11 +145,11 @@ public class DeviceSmsMessageDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(String timestamp, String address, String body, String message_id) {
+		public int insert(long timestamp, String address, String body, String message_id) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_TIMESTAMP, timestamp);
+			values.put(C_TIMESTAMP, timestamp+"");
 			values.put(C_ADDRESS, address);
 			values.put(C_BODY, body);
 			values.put(C_MESSAGE_ID, message_id);

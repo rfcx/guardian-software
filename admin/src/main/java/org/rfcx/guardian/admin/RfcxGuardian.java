@@ -2,10 +2,10 @@ package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
 import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.DeviceSmsMessageDb;
+import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
-import org.rfcx.guardian.admin.sms.SmsSendReceiveService;
+import org.rfcx.guardian.admin.sms.SmsDispatchService;
 import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceDiskDb;
@@ -48,13 +48,10 @@ import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 
 import android.app.Application;
-import android.bluetooth.BluetoothClass;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.provider.Telephony;
-import android.util.Log;
 
 public class RfcxGuardian extends Application {
 	
@@ -77,7 +74,7 @@ public class RfcxGuardian extends Application {
     public DeviceRebootDb rebootDb = null;
     public DeviceDataTransferDb deviceDataTransferDb = null;
     public DeviceDiskDb deviceDiskDb = null;
-    public DeviceSmsMessageDb deviceSmsMessageDb = null;
+    public SmsMessageDb smsMessageDb = null;
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	
@@ -98,7 +95,8 @@ public class RfcxGuardian extends Application {
 	public String[] RfcxCoreServices = 
 			new String[] {
 				"DeviceSystem",
-				"DeviceSentinel"
+				"DeviceSentinel",
+				"SmsDispatch"
 			};
 	
 	@Override
@@ -201,7 +199,7 @@ public class RfcxGuardian extends Application {
         this.rebootDb = new DeviceRebootDb(this, this.version);
         this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
         this.deviceDiskDb = new DeviceDiskDb(this, this.version);
-        this.deviceSmsMessageDb = new DeviceSmsMessageDb(this, this.version);
+        this.smsMessageDb = new SmsMessageDb(this, this.version);
 	}
 
 	private void setServiceHandlers() {
@@ -213,7 +211,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("WifiStateSet", WifiStateSetService.class);
 		this.rfcxServiceHandler.addService("ADBStateSet", ADBStateSetService.class);
 
-        this.rfcxServiceHandler.addService("SmsSendReceive", SmsSendReceiveService.class);
+        this.rfcxServiceHandler.addService("SmsDispatch", SmsDispatchService.class);
 		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
 

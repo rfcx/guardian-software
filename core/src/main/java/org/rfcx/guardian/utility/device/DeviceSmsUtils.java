@@ -92,6 +92,10 @@ public class DeviceSmsUtils {
 		}
 		return rtrnInt;
 	}
+
+	public static String generateMessageId() {
+		return ((int) (Math.random() * 100000 + 1)) + "";
+	}
 	
 	public static JSONArray processIncomingSmsMessageAsJson(Intent intent) {
 		
