@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -20,6 +20,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
+import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import android.content.Context;
@@ -40,17 +41,13 @@ public class MqttUtils implements MqttCallback {
 	private Context context;
 	private String logTag = RfcxLog.generateLogTag("Utils", MqttUtils.class);
 	
-	private String filePath_authCertificate = null;
-	private String filePath_authPrivateKey = null;
-	
 	private int mqttQos = 2; // QoS - Send message exactly once
-
 	private String mqttClientId = null;
 	private int mqttBrokerPort = 1883;
 	private String mqttBrokerProtocol = "tcp";
 	private String mqttBrokerAddress = null;
 	private String mqttBrokerUri = null;
-	private String mqttBrokerSslPassphrase = "";
+	private String keystorePassphrase = "tr33PROtect10n"; // TODO make this a preference for added security
 	private MqttClient mqttClient = null;
 	private List<String> mqttTopics_Subscribe = new ArrayList<String>();;
 	private MqttCallback mqttCallback = this;
@@ -59,45 +56,26 @@ public class MqttUtils implements MqttCallback {
 	
 	private long msgSendStart = System.currentTimeMillis();
 	
-	private MqttConnectOptions getConnectOptions() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, KeyManagementException, UnrecoverableKeyException {
+	private MqttConnectOptions getConnectOptions() throws MqttSecurityException {
 		
-		MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
+		MqttConnectOptions options = new MqttConnectOptions();
 		
 		// More info on options here:
 		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html
-		
-		mqttConnectOptions.setCleanSession(true); // If false, both the client and server will maintain state across restarts of the client, the server and the connection.
-		mqttConnectOptions.setConnectionTimeout(20); // in seconds
-		mqttConnectOptions.setKeepAliveInterval(40); // in seconds
-		mqttConnectOptions.setAutomaticReconnect(false); // automatically attempt to reconnect to the server if the connection is lost
-		mqttConnectOptions.setMaxInflight(1); // limits how many messages can be sent without receiving acknowledgments
-//		mqttConnectOptions.setSSLProperties(props);
-//		mqttConnectOptions.setSSLHostnameVerifier(hostnameVerifier);
-//		mqttConnectOptions.setUserName(userName);
-//		mqttConnectOptions.setPassword(password);
-//		mqttConnectOptions.setWill(topic, payload, qos, retained);
+
+		options.setCleanSession(true); // If false, both the client and server will maintain state across restarts of the client, the server and the connection.
+		options.setConnectionTimeout(20); // in seconds
+		options.setKeepAliveInterval(40); // in seconds
+		options.setAutomaticReconnect(false); // automatically attempt to reconnect to the server if the connection is lost
+		options.setMaxInflight(1); // limits how many messages can be sent without receiving acknowledgments
 
 		if (this.mqttBrokerProtocol.equalsIgnoreCase("ssl")) {
-			final char[] passphrase = this.mqttBrokerSslPassphrase.toCharArray();
-
-			// client key
-			KeyStore ks = KeyStore.getInstance("BKS");
-			ks.load(context.getResources().openRawResource(R.raw.client_key), passphrase);
-			KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-			kmf.init(ks, passphrase);
-
-			// server certificate
-			KeyStore tks = KeyStore.getInstance("BKS");
-			tks.load(context.getResources().openRawResource(R.raw.client_cert), passphrase);
-			TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-			tmf.init(tks);
-
-			SSLContext ctx = SSLContext.getInstance("SSLv3");
-			ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-			mqttConnectOptions.setSocketFactory(ctx.getSocketFactory());
+			// Requires res/raw/server.bks (see bin/convert-mqtt-certs.sh)
+			InputStream keystore = context.getResources().openRawResource(R.raw.server);
+			options.setSocketFactory(getSSLSocketFactory(keystore, keystorePassphrase));
 		}
 		
-		return mqttConnectOptions;
+		return options;
 	}
 	
 	public void setActionTimeout(long timeToWaitInMillis) {
@@ -128,14 +106,16 @@ public class MqttUtils implements MqttCallback {
 		return this.msgSendStart;
 	}
 	
-	public void setOrResetBroker(String mqttBrokerProtocol, int mqttBrokerPort, String mqttBrokerAddress) {
-		this.mqttBrokerProtocol = mqttBrokerProtocol;
-		this.mqttBrokerPort = mqttBrokerPort; 
-		this.mqttBrokerAddress = mqttBrokerAddress;
-		
-		String _mqttBrokerUri = ((new StringBuilder()).append(this.mqttBrokerProtocol).append("://").append(this.mqttBrokerAddress).append(":").append(this.mqttBrokerPort)).toString();
-		if (!_mqttBrokerUri.equals(this.mqttBrokerUri) && (this.mqttClient != null) && this.mqttClient.isConnected()) { closeConnection(); }
-		this.mqttBrokerUri = _mqttBrokerUri;
+	public void setOrResetBroker(String protocol, int port, String address) {
+		mqttBrokerProtocol = protocol;
+		mqttBrokerPort = port;
+		mqttBrokerAddress = address;
+
+		String newUri = mqttBrokerProtocol + "://" + mqttBrokerAddress + ":" + mqttBrokerPort;
+		if (!newUri.equals(mqttBrokerUri) && (mqttClient != null) && mqttClient.isConnected()) {
+			closeConnection();
+		}
+		mqttBrokerUri = newUri;
 	}
 	
 	public boolean confirmOrCreateConnectionToBroker(boolean allowBasedOnDeviceConnectivity) throws MqttException {
@@ -205,7 +185,7 @@ public class MqttUtils implements MqttCallback {
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken deliveryToken) {
 		long checkInDuration = System.currentTimeMillis() - this.msgSendStart;
-		Log.i(this.logTag, "Delivery Complete: "+Math.round(checkInDuration/1000)+"s");
+		Log.i(this.logTag, "Delivery Complete: "+(checkInDuration/1000)+"s");
 	}
 	
 	@Override
@@ -213,5 +193,19 @@ public class MqttUtils implements MqttCallback {
 		Log.e(this.logTag, "Connection Lost");
 		RfcxLog.logThrowable(logTag, cause);
 	}
-		
+
+	private SSLSocketFactory getSSLSocketFactory(InputStream keyStore, String passphrase) throws MqttSecurityException {
+		try {
+			KeyStore ts = KeyStore.getInstance("BKS");
+			ts.load(keyStore, passphrase.toCharArray());
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
+			tmf.init(ts);
+			TrustManager[] tm = tmf.getTrustManagers();
+			SSLContext ctx = SSLContext.getInstance("TLSv1");
+			ctx.init(null, tm, null);
+			return ctx.getSocketFactory();
+		} catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException | KeyManagementException e) {
+			throw new MqttSecurityException(e);
+		}
+	}
 }
