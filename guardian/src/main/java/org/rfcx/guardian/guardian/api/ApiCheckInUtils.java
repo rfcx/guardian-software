@@ -50,7 +50,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		this.requestTimeOutLength = 2 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
 		initializeFailedCheckInThresholds();
 
-		this.mqttCheckInClient = new MqttUtils(RfcxGuardian.APP_ROLE, this.app.rfcxDeviceGuid.getDeviceGuid());
+		this.mqttCheckInClient = new MqttUtils(context, RfcxGuardian.APP_ROLE, this.app.rfcxDeviceGuid.getDeviceGuid());
 
 		this.subscribeBaseTopic = (new StringBuilder()).append("guardians/").append(this.app.rfcxDeviceGuid.getDeviceGuid().toLowerCase(Locale.US)).append("/").append(RfcxGuardian.APP_ROLE.toLowerCase(Locale.US)).toString();
 		//this.mqttCheckInClient.addSubscribeTopic(this.subscribeBaseTopic + "/instructions");

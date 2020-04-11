@@ -30,12 +30,12 @@ A collection of Android applications which, together, operate as autonomous Rain
    ```
 3. Output will be in /role/build/outputs/apk/release/
 
-## Instructions for OrangePi 3G-IoT
+## Instructions for Orange Pi 3G-IoT
 
-Before, starting any instructions here. Please read the information below and do it properly.
+Before getting started, key points to be familiar with:
 
-1. On the OrangePi board there are two LEDs, red and green. **Red** indicates the **power** is connected and **green** indicates that the device is **ON**. Make sure that the power that connected to the OrangePi is **5V**. If not the LEDs brightness will be low and cannot start the operating system.
-2. By default the OrangePi comes with both COM 1 jumpers in the correct position. No need to ever change them it seems. COM 2 jumper should be ON only when flashing the device (the rest of the time it should be OFF/removed).
+1. On the Orange Pi board there are two LEDs, red and green. **Red** indicates the **power** is connected and **green** indicates that the device is **ON**. Make sure that the power that connected to the Orange Pi is **5V**. If not the LEDs brightness will be low and cannot start the operating system.
+2. By default the Orange Pi comes with both COM 1 jumpers in the correct position. No need to ever change them it seems. COM 2 jumper should be ON only when flashing the device (the rest of the time it should be OFF/removed).
 3. The OrangePi do not come with the **IMEI number**. You need to set it by yourself following the instructions below. Before install any roles, you should set the **IMEI number first**.
 4. Before using any roles, make sure there is the internet connection.
 5. **Time and date** will not be correct on the first time you start the device. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** or insert sim card.
@@ -76,29 +76,29 @@ OrangePi has already been rooted so you do not need to do anything extra to run 
 
 ### Step 1: Flash Android on OrangePi (using Windows)
 
-1. Make sure COM 2 jumper is ON.
-2. You need to download and install these tools
+1. Make sure COM 2 jumper is ON. (Note: in practice we found that the jumper can be OFF for the flashing process.)
+1. You need to download and install these tools
     1. [MTK Driver Installer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!rGhSzJBL).
        Choose WIN8 if you are using Windows 8 or above.
        (Some users report failures during install -- [this is the solution](https://youtu.be/3g542NRQFwg))
     2. [MTK Flash Tool](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!mCJG3DgT)
     3. OrangePi Android image: [Android image](https://drive.google.com/open?id=1e1VURZPoVHO6rs8vYpY5xiZ15EwzDtmu)
 3. Open the MTK Flash Tool *(flash_tool)*
-    1. Make sure the OrangePi is NOT connected.
+    1. Make sure the Orange Pi is NOT connected.
     2. Choose the scatter-loading file **MT6572_Android_scatter** *(This is in the Android_OS_for_Orange_Pi_3G-IoT/images/ folder after extracting the image.)*
     3. If this is the first time flashing the device then select "Download only". If you have flashed it before then select "Format all and download".
     4. Click "Download".
-    5. Connect the OrangePi to your computer using micro-usb cable into the OrangePi and another side plug into your computer. *(The download process will begin after connecting the OrangePi)*
-    6. Disconnect the OrangePi micro-usb cable after finishing.
+    5. Connect the Orange Pi to your computer using micro-usb cable into the Orange Pi and another side plug into your computer. *(The download process will begin after connecting the Orange Pi)*
+    6. Disconnect the Orange Pi micro-usb cable after finishing.
     
-### Step 2: Share OrangePi screen using Vysor
+### Step 2: Share Orange Pi screen using Vysor
 
 Before following the instruction below. You need to download Vysor first.
 
 - Google Chrome Extension: https://chrome.google.com/webstore/detail/vysor/gidgenkbbabolejbgbpnhbimgjbffefm
 - Normal program: https://www.vysor.io/download/
 
-1. After you flashed the OrangePi and disconnect the usb cable. Please make sure that you remove jumper cap from COM2 and the arrange jumper cap of COM1 as shown in the picture. *(the middle iron of jumper cap also must be the same as in the picture)*
+1. After you flashed the Orange Pi and disconnect the usb cable. Please make sure that you remove jumper cap from COM2 and the arrange jumper cap of COM1 as shown in the picture. *(the middle iron of jumper cap also must be the same as in the picture)*
 
    ![](docs/images/vysor1.PNG?raw=true)
 
@@ -114,15 +114,17 @@ Before following the instruction below. You need to download Vysor first.
 
    ![](docs/images/vysor2.PNG?raw=true)
 
-7. Click view to show the OrangePi screen
+7. Click view to show the Orange Pi screen
 
 (Debugging: green led means powered off, red led means powered on.)
 
 ### Step 3: Set the IMEI number
 
+Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IMEIs](https://docs.google.com/spreadsheets/d/1oQzsJxQ8KqGP7VJJja-v7-JlHIYqI_mnqq2bFSlDRSw/edit#gid=0).
+
 1. Make sure that COM 2 jumper is OFF (removed).
 2. First download [IMEI Writer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!fCJmCTAY) (for Windows)
-3. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
+3. Extract and open **SN Writer** in **SN_Writer_Tool_exe_v1.1716.00** directory
 4. Choose **USB VCOM** and **Smart Phone**
 5. Open System Config
     1. In **Write Option** choose **IMEI**
@@ -132,15 +134,15 @@ Before following the instruction below. You need to download Vysor first.
     5. In the newer version There are checkboxes called **"Load AP DB from DUT"** and **"Load modem DB from DUT"**. Make sure that you uncheck these two box before the next step.
     6. Save and then Start
     7. Put the IMEI Number with 15 digit
-6. Make sure that OrangePi do not connect to PC.
-7. Click OK and then connect OrangePi to PC immediately.
+6. Make sure that Orange Pi do not connect to PC.
+7. Click OK and then connect Orange Pi to PC immediately (be quick else the device will not be detected in time and you will have to disconnect/start again).
 8. In Vysor, go to Settings -> About Phone -> Status and scroll down to verify that IMEI number you entered during the flashing process is shown there. (If there is an error then repeat step 5).
 
    ![](docs/images/checkimei.png?raw=true)
 
 ### Step 4: Run the application through Android Studio
 
-1. Make sure the OrangePi is connected.
+1. Make sure the Orange Pi is connected.
 
 2. Open Android Studio
 
@@ -157,7 +159,7 @@ Before following the instruction below. You need to download Vysor first.
 
 ### Step 5: How to debug OrangePi over Bluetooth instead of USB cable
 
-1. Make sure OrangePi is connected, Bluetooth is on and set visibility timeout to never time out as follows.
+1. Make sure Orange Pi is connected, Bluetooth is on and set visibility timeout to never time out as follows.
     1. Bluetooth is *on*
 
        ![](docs/images/step8-1a.png?raw=true)
@@ -178,14 +180,14 @@ Before following the instruction below. You need to download Vysor first.
    $ setprop persist.adb.tcp.port 4455
    ```
 
-3. Take USB off and start running OrangePi from other power resources.
+3. Take USB off and start running Orange Pi from other power resources.
 
-4. Pair OrangePi with Bluetooth from your machine
+4. Pair Orange Pi with Bluetooth from your machine
 
 5. _For Windows_, go to **\Control Panel\Network and Internet\Network Connections**
     1. Double click on **Bluetooth Network Connection**
-    2. Right click on OrangePi *(probably named as IOT03)*
-    3. Connect using > Access point *(if it is **directly connect**, re-pair OrangePi and try again)* 
+    2. Right click on Orange Pi *(probably named as IOT03)*
+    3. Connect using > Access point *(if it is **directly connect**, re-pair Orange Pi and try again)* 
     4. Open Command Prompt
     5. Type `ipconfig` and copy **default gateway IP** of Bluetooth Network Connection *(probably 192.168.44.1)*
     6. Type `adb connect <IP>:4455` *(adb connect 192.168.44.1:4455)*. It will show **connected to IP:4455** if successful.
@@ -229,7 +231,7 @@ Before following the instruction below. You need to download Vysor first.
 
 ### Step 7: How to connect i2c and load i2c module
 
-1. First, place OrangePi same position as in the image.
+1. First, place Orange Pi same position as in the image.
 
    ![](docs/images/i2c1.PNG?raw=true)
 
@@ -241,7 +243,7 @@ Before following the instruction below. You need to download Vysor first.
 
    ![](docs/images/i2c3.PNG?raw=true)
 
-4. The step to start OrangePi is the same as before.
+4. The step to start Orange Pi is the same as before.
 
 5. You can debug OrangePi by using Bluetooth on [Step 5](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-5-how-to-debug-orange-pi-over-bluetooth-instead-of-usb-cable)
 

@@ -83,8 +83,8 @@
 		android:title="api_checkin_protocol"
 		android:dialogTitle="api_checkin_protocol"
         android:summary="string - checkin api protocol (mqtt)"
-		android:entries="@array/tcp_or_tls"
-		android:entryValues="@array/tcp_or_tls"
+		android:entries="@array/tcp_or_ssl"
+		android:entryValues="@array/tcp_or_ssl"
 		android:defaultValue="tcp" />
     
  	<EditTextPreference
@@ -93,7 +93,14 @@
         android:summary="string - checkin api port (mqtt)"
         android:enabled="true"
         android:defaultValue="1883" />
- 	
+
+	<EditTextPreference
+			android:key="api_checkin_ssl_passphrase"
+			android:title="api_checkin_ssl_passphrase"
+			android:summary="string - checkin api passphrase"
+			android:enabled="true"
+			android:defaultValue="false" />
+
  	<EditTextPreference
         android:key="api_ntp_host"
         android:title="api_ntp_host"
