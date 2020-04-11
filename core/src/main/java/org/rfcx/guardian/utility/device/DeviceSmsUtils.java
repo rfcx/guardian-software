@@ -45,13 +45,13 @@ public class DeviceSmsUtils {
 		return msgJsonArray;
 	}
 
-	public static JSONArray formatSmsMessagesFromDatabaseAsJsonArray(List<String[]> smsDbRows) {
+	public static JSONArray formatSmsMessagesFromDatabaseAsJsonArray(String msgType, List<String[]> smsDbRows) {
 
 		JSONArray msgJsonArray = new JSONArray();
 		for (String[] smsDbRow : smsDbRows) {
 			try {
 				JSONObject msgJson = new JSONObject();
-				msgJson.put("received_at", smsDbRow[1]);
+				msgJson.put(msgType+"_at", smsDbRow[1]);
 				msgJson.put("address", smsDbRow[2]);
 				msgJson.put("body", smsDbRow[3]);
 				msgJson.put("android_id", smsDbRow[4]);

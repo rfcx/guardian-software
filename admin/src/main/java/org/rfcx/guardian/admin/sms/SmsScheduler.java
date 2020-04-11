@@ -49,4 +49,22 @@ public class SmsScheduler {
 
 	}
 
+	public static boolean queueStuffUp(Context context) {
+
+		long thisTime = System.currentTimeMillis();
+		addScheduledSmsToQueue(thisTime, "+14153359205", "Message that you might like 1: "+thisTime, context);
+
+		thisTime = thisTime+45000;
+		addScheduledSmsToQueue(thisTime, "+14153359205", "Message that you might like 2: "+thisTime, context);
+
+		thisTime = thisTime+45000;
+		addScheduledSmsToQueue(thisTime, "+14153359205", "Message that you might like 3: "+thisTime, context);
+
+		thisTime = thisTime+45000;
+		addScheduledSmsToQueue(thisTime, "+14153359205", "Message that you might like 4: "+thisTime, context);
+
+		return true;
+	}
+
+
 }

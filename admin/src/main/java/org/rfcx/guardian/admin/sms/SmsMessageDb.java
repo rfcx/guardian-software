@@ -162,6 +162,10 @@ public class SmsMessageDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 
+		public List<String[]> getRowsInOrderOfTimestamp() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP+" ASC");
+		}
+
 		public JSONArray getLatestRowAsJsonArray() {
 			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
 		}

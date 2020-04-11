@@ -2,6 +2,7 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.json.JSONArray;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
+import org.rfcx.guardian.admin.sms.SmsScheduler;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -100,7 +101,7 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSeg = uri.getLastPathSegment();
                 String pathSegAddress = pathSeg.substring(0, pathSeg.indexOf("|"));
                 String pathSegMessage = pathSeg.substring(1 + pathSeg.indexOf("|"));
-                DeviceSmsUtils.sendSmsMessage(pathSegAddress, pathSegMessage);
+                SmsScheduler.addImmediateSmsToQueue(pathSegAddress, pathSegMessage, app.getApplicationContext());
                 return RfcxComm.getProjectionCursor(appRole, "sms_send", new Object[]{pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
 
                 // "database" function endpoints
@@ -111,8 +112,8 @@ public class AdminContentProvider extends ContentProvider {
                 if (pathSeg.equalsIgnoreCase("sms")) {
                     List<JSONArray> smsJsonArrays =  new ArrayList<JSONArray>();
                     smsJsonArrays.add(DeviceSmsUtils.getSmsMessagesFromSystemAsJsonArray(app.getApplicationContext().getContentResolver()));
-                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray(app.smsMessageDb.dbSmsReceived.getAllRows()));
-                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray(app.smsMessageDb.dbSmsSent.getAllRows()));
+                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray("received", app.smsMessageDb.dbSmsReceived.getAllRows()));
+                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray("sent",app.smsMessageDb.dbSmsSent.getAllRows()));
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sms", DeviceSmsUtils.combineSmsMessageJsonArrays(smsJsonArrays).toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {

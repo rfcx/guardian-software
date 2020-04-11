@@ -32,8 +32,6 @@ public class SmsReceiver extends BroadcastReceiver {
 					app.smsMessageDb.dbSmsReceived.insert(smsObj.getString("received_at"), smsObj.getString("address"), smsObj.getString("body"), msgId);
 					Log.w(logTag, "SMS Received (ID "+msgId+"): From "+smsObj.getString("address")+" at "+smsObj.getString("received_at")+": \""+smsObj.getString("body")+"\"");
 
-				//	DeviceSmsUtils.sendSmsMessage("+14153359205", "Hello! This is a test: "+System.currentTimeMillis());
-
 				} catch (JSONException e) {
 					RfcxLog.logExc(logTag, e);
 				}

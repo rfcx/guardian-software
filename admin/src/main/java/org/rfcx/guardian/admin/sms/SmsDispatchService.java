@@ -23,9 +23,8 @@ public class SmsDispatchService extends Service {
 	private boolean runFlag = false;
 	private SmsDispatch smsDispatch;
 
-	private long smsDispatchCycleDuration = 60000;
-	private long loopQuarterDuration = (smsDispatchCycleDuration / 4);
-	
+	private long smsDispatchCycleDuration = 30000;
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -81,7 +80,7 @@ public class SmsDispatchService extends Service {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-					List<String[]> smsQueuedForDispatch = app.smsMessageDb.dbSmsQueued.getAllRows();
+					List<String[]> smsQueuedForDispatch = app.smsMessageDb.dbSmsQueued.getRowsInOrderOfTimestamp();
 
 					for (String[] smsForDispatch : smsQueuedForDispatch) {
 
@@ -107,11 +106,7 @@ public class SmsDispatchService extends Service {
 						}
 					}
 
-					for (int loopQuarterIteration = 0; loopQuarterIteration < 4; loopQuarterIteration++) {
-						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-						Thread.sleep(loopQuarterDuration);
-					}
-
+					Thread.sleep(smsDispatchCycleDuration);
 
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);

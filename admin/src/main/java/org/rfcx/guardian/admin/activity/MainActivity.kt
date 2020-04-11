@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         val app = application as RfcxGuardian
         when (item.itemId) {
 
-            R.id.menu_relaunch ->  SmsScheduler.addImmediateSmsToQueue("+14153359205", "Message that you might like: "+System.currentTimeMillis(), app.applicationContext) //app.rfcxServiceHandler.triggerIntentServiceImmediately("ForceRoleRelaunch")
+            R.id.menu_sms ->  SmsScheduler.queueStuffUp( app.applicationContext) //app.rfcxServiceHandler.triggerIntentServiceImmediately("ForceRoleRelaunch")
 
             R.id.menu_screenshot -> app.rfcxServiceHandler.triggerService("ScreenShotCapture", true)
 
