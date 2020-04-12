@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -103,49 +104,56 @@ public class AudioCaptureUtils {
 		return (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_schedule_off_hours"));
 	}
 	
-	public boolean isAudioCaptureAllowed(boolean verboseLogging) {
+	public boolean isAudioCaptureAllowed() {
 		
 		boolean limitBasedOnBatteryLevel = limitBasedOnBatteryLevel();
 		boolean limitBasedOnTimeOfDay = limitBasedOnTimeOfDay();
 		boolean limitBasedOnExternalStorage = !FileUtils.isExternalStorageAvailable();
 		boolean limitBasedOnLackOfHardwareSupport = !this.isAudioCaptureHardwareSupported;
-		
-		if (verboseLogging) {
-			
-			String msgNoCapture = null;
-			
-			if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
-				msgNoCapture = "it being explicitly disabled ('enable_audio_capture' is set to false).";
-				
-			} else if (limitBasedOnTimeOfDay) {
-				msgNoCapture = "current time of day/night"
-							+" (off hours: '"+app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")+"'.";
-				
-			} else if (limitBasedOnBatteryLevel) {
-				msgNoCapture = "low battery level"
-							+" (current: "+this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)+"%,"
-							+" required: "+this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")+"%).";
-			
-			} else if (limitBasedOnExternalStorage) {
-				msgNoCapture = "a lack of external storage."
-						/*	+" (current: "+DeviceDiskUsage.getInternalDiskFreeMegaBytes()+"MB,"
-							+" required: "+requiredAvailableInternalDiskSpace+"MB)."*/;
-				
-			} else if (limitBasedOnLackOfHardwareSupport) {
-				msgNoCapture = "lack of hardware support for capture sample rate: "
-							+Math.round(app.rfcxPrefs.getPrefAsInt("audio_sample_rate")/1000)+" kHz.";
-				
-			}
-			
-			if (msgNoCapture != null) { Log.d(logTag, DateTimeUtils.getDateTime()+" - AudioCapture not allowed due to "+msgNoCapture); }
-			
+
+		// we set this to true, and cycle through conditions that might make it false
+		// we then return the resulting true/false value
+		boolean isAudioCaptureAllowedUnderKnownConditions = true;
+		StringBuilder msgNoCapture = new StringBuilder();
+
+		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
+			msgNoCapture.append("it being explicitly disabled ('enable_audio_capture' is set to false).");
+			isAudioCaptureAllowedUnderKnownConditions = false;
+
+		} else if (limitBasedOnTimeOfDay) {
+			msgNoCapture.append("current time of day/night")
+						.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")).append("'.");
+			isAudioCaptureAllowedUnderKnownConditions = false;
+
+		} else if (limitBasedOnBatteryLevel) {
+			msgNoCapture.append("low battery level")
+						.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
+						.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")).append("%).");
+			isAudioCaptureAllowedUnderKnownConditions = false;
+
+		} else if (limitBasedOnExternalStorage) {
+			msgNoCapture.append("a lack of external storage.")
+					//	.append(" (current: ").append(DeviceDiskUsage.getInternalDiskFreeMegaBytes()).append("MB)")
+						.append(" (required: ").append(requiredAvailableInternalDiskSpace).append("MB).");
+			isAudioCaptureAllowedUnderKnownConditions = false;
+
+		} else if (limitBasedOnLackOfHardwareSupport) {
+			msgNoCapture.append("lack of hardware support for capture sample rate: ")
+						.append(Math.round(app.rfcxPrefs.getPrefAsInt("audio_sample_rate")/1000)).append(" kHz.");
+			isAudioCaptureAllowedUnderKnownConditions = false;
+
 		}
-		
-		return 		this.app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")
-				&&	!limitBasedOnTimeOfDay 
-				&& 	!limitBasedOnBatteryLevel 
-				&& 	!limitBasedOnExternalStorage 
-				&& 	!limitBasedOnLackOfHardwareSupport;
+
+		if (!isAudioCaptureAllowedUnderKnownConditions) {
+			Log.d(logTag, msgNoCapture.insert(0, DateTimeUtils.getDateTime()+" - AudioCapture not allowed due to ").toString());
+		}
+
+		return isAudioCaptureAllowedUnderKnownConditions;
+//		return 		this.app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")
+//				&&	!limitBasedOnTimeOfDay
+//				&& 	!limitBasedOnBatteryLevel
+//				&& 	!limitBasedOnExternalStorage
+//				&& 	!limitBasedOnLackOfHardwareSupport;
 	}
 	
 	public static String getCaptureFilePath(String captureDir, long timestamp, String fileExtension) {

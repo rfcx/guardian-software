@@ -18,7 +18,7 @@ public class RfcxServiceHandler {
 
 	public RfcxServiceHandler(Context context, String appRole) {
 		this.context = context;
-		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxServiceHandler");
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxSvcHandler");
 	}	
 
 	Context context;
@@ -157,8 +157,8 @@ public class RfcxServiceHandler {
 				} else {
 					triggerService(serviceItem, forceReTrigger);
 				}
-			}		 
-			
+			}
+			setAbsoluteRunState(sequenceName, true);
 		} else {
 			Log.w(logTag, (new StringBuilder()).append("ServiceSequence '").append(sequenceName).append("' has already run.").toString());
 		}

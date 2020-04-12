@@ -1,6 +1,5 @@
 package org.rfcx.guardian.admin;
 
-
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
@@ -30,7 +29,7 @@ public class ServiceMonitor extends IntentService {
 		
 		if (app.rfcxServiceHandler.isRunning(SERVICE_NAME)) {
 			
-			app.rfcxServiceHandler.triggerServiceSequence( "ServiceMonitorSequence", app.RfcxCoreServices, false, SERVICE_MONITOR_CYCLE_DURATION );
+			app.rfcxServiceHandler.triggerServiceSequence( "ServiceMonitorSequence", app.RfcxCoreServices, false, SERVICE_MONITOR_CYCLE_DURATION);
 		}
 		
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);

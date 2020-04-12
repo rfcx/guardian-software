@@ -509,7 +509,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				TextUtils.join("*", new String[] { logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4] })
 				);
 
-		if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { Log.d(logTag,checkInMetaJson.toString()); }
+		Log.d(logTag,checkInMetaJson.toString());
 
 		return checkInMetaJson.toString();
 
@@ -979,8 +979,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					String assetId = requeueJson.getJSONObject(i).getString("id");
 					String assetType = requeueJson.getJSONObject(i).getString("type");
 					if (assetType.equalsIgnoreCase("audio")) {
-					//	reQueueAudioAssetForCheckIn("sent", assetId);
-						Log.w(logTag, "requeue: "+assetId);
+						reQueueAudioAssetForCheckIn("sent", assetId);
 					}
 				}
 			}

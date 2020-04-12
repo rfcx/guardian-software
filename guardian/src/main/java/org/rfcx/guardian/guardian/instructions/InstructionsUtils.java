@@ -38,6 +38,7 @@ public class InstructionsUtils {
 						String instrId = instrObj.getString("id");
 						String instrType = instrObj.getString("type");
 						String instrCommand = instrObj.getString("command");
+						long instrExecuteAt = (long) Long.parseLong(instrObj.getString("execute_at"));
 						JSONObject instrMetaObj = instrObj.getJSONObject("meta");
 
 

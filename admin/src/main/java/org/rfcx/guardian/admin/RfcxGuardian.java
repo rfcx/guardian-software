@@ -146,10 +146,22 @@ public class RfcxGuardian extends Application {
 
 	}
 
+
+	public boolean doConditionsPermitRoleServices() {
+//		if (isGuardianRegistered()) {
+//			if (!this.rfcxServiceHandler.isRunning("AudioCapture")) {
+				return true;
+//			}
+//		} else {
+//			this.rfcxServiceHandler.stopAllServices();
+//		}
+//		return false;
+	}
+
 	
 	public void initializeRoleServices() {
 		
-		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+		if (doConditionsPermitRoleServices() && !this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 			
 			String[] runOnceOnlyOnLaunch = new String[] {
 					"ServiceMonitor"
@@ -184,7 +196,7 @@ public class RfcxGuardian extends Application {
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
 			System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
 			System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
+			this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, false, 0);
 		}
 	}
 	

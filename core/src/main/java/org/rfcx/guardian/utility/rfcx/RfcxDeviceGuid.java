@@ -8,6 +8,9 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+
 public class RfcxDeviceGuid {
 
 	public RfcxDeviceGuid(Context context, String appRole) {

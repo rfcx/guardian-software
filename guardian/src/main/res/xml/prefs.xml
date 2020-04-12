@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
-	<ListPreference
-		android:key="verbose_logging"
-		android:title="verbose_logging"
-		android:dialogTitle="verbose_logging"
-        android:summary="string - true/false"
-		android:entries="@array/true_or_false"
-		android:entryValues="@array/true_or_false"
-		android:defaultValue="true" />
 
 	<ListPreference
 		android:key="show_ui"

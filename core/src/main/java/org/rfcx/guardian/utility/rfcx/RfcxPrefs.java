@@ -308,8 +308,6 @@ public class RfcxPrefs {
 	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
 	    new HashMap<String, String>() {{
 
-			put("verbose_logging", "true");
-
 			put("enable_audio_capture", "true");
 			put("enable_checkin_publish", "true");
 			put("enable_cutoffs_battery", "true");

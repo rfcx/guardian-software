@@ -8,7 +8,6 @@ import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
@@ -120,10 +119,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.instructionsUtils = new InstructionsUtils(getApplicationContext());
         this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
-        launchRoleServices();
+        initializeRoleServices();
 
-
-        int[] guardianIds = AppProcessInfo.getProcessInfoFromRole("admin", this);
     }
 
     public void onTerminate() {
@@ -136,23 +133,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         syncSharedPrefs();
     }
 
-    public void appPause() {
+    public void appPause() { }
 
-    }
 
-    public void launchRoleServices() {
-        if (isGuardianRegistered()) {
-       //     if(!getRecordingState()){
-                initializeRoleServices();
-       //     }
-        } else {
-            this.rfcxServiceHandler.stopAllServices();
-        }
-    }
-
-    public Boolean getRecordingState() {
-        return this.rfcxServiceHandler.isRunning("AudioCapture");
-    }
 
     private boolean isGuardianRegistered() {
         String directoryPath = getBaseContext().getFilesDir().toString() + "/txt/";
@@ -160,9 +143,20 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         return txtFile.exists();
     }
 
+    public boolean doConditionsPermitRoleServices() {
+        if (isGuardianRegistered()) {
+  //          if (!this.rfcxServiceHandler.isRunning("AudioCapture")) {
+                return true;
+  //          }
+        } else {
+            this.rfcxServiceHandler.stopAllServices();
+        }
+        return false;
+    }
+
     public void initializeRoleServices() {
 
-        if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+        if (doConditionsPermitRoleServices() && !this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[]{
                     "ServiceMonitor"
@@ -177,7 +171,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
             System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
             System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-            this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
+            this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, false, 0);
         }
     }
 

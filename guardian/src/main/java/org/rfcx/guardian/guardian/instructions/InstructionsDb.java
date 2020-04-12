@@ -22,12 +22,13 @@ public class InstructionsDb {
 	static final String C_CREATED_AT = "created_at";
 	static final String C_INSTRUCTION_ID = "instruction_id";
 	static final String C_TYPE = "type";
+	static final String C_COMMAND = "command";
 	static final String C_EXECUTE_AT = "execute_at";
 	static final String C_META = "meta";
 	static final String C_ATTEMPTS = "attempts";
 	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
 
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_INSTRUCTION_ID, C_TYPE, C_EXECUTE_AT, C_META, C_ATTEMPTS, C_LAST_ACCESSED_AT };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_INSTRUCTION_ID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_META, C_ATTEMPTS, C_LAST_ACCESSED_AT };
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -35,6 +36,7 @@ public class InstructionsDb {
 			.append("(").append(C_CREATED_AT).append(" INTEGER")
 			.append(", ").append(C_INSTRUCTION_ID).append(" TEXT")
 			.append(", ").append(C_TYPE).append(" TEXT")
+			.append(", ").append(C_COMMAND).append(" TEXT")
 			.append(", ").append(C_EXECUTE_AT).append(" INTEGER")
 			.append(", ").append(C_META).append(" TEXT")
 			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
@@ -55,12 +57,13 @@ public class InstructionsDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(String instructionId, String instructionType, long executeAtOrAfter, String instructionMeta) {
+		public int insert(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String instructionMeta) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_INSTRUCTION_ID, instructionId);
 			values.put(C_TYPE, instructionType);
+			values.put(C_COMMAND, instructionType);
 			values.put(C_EXECUTE_AT, executeAtOrAfter);
 			values.put(C_META, instructionMeta);
 			values.put(C_ATTEMPTS, 0);

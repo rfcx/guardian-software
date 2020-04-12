@@ -20,7 +20,7 @@ public class InstructionsExecutionService extends Service {
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private InstructionsExecution instructionsExecution;
+	private InstructionsExecutionSvc instructionsExecutionSvc;
 
 	private long instructionsExecutionCycleDuration = 20000;
 
@@ -32,7 +32,7 @@ public class InstructionsExecutionService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.instructionsExecution = new InstructionsExecution();
+		this.instructionsExecutionSvc = new InstructionsExecutionSvc();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -43,7 +43,7 @@ public class InstructionsExecutionService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.instructionsExecution.start();
+			this.instructionsExecutionSvc.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -55,16 +55,14 @@ public class InstructionsExecutionService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.instructionsExecution.interrupt();
-		this.instructionsExecution = null;
+		this.instructionsExecutionSvc.interrupt();
+		this.instructionsExecutionSvc = null;
 	}
 	
 	
-	private class InstructionsExecution extends Thread {
+	private class InstructionsExecutionSvc extends Thread {
 		
-		public InstructionsExecution() {
-			super("InstructionsExecutionService-InstructionsExecution");
-		}
+		public InstructionsExecutionSvc() { super("InstructionsExecutionService-InstructionsExecutionSvc"); }
 		
 		@Override
 		public void run() {

@@ -85,9 +85,9 @@
                     android:id="@+id/start_stop_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_padding_small"
+                    android:layout_marginTop="62dp"
                     android:orientation="vertical"
-                    app:layout_constraintTop_toBottomOf="@id/permissionInfoLayout">
+                    app:layout_constraintTop_toBottomOf="@+id/registerGroup">
 
                 <LinearLayout
                         android:id="@+id/status_view"
@@ -185,58 +185,6 @@
                         android:layout_height="wrap_content"
                         android:text="stop" />
             </LinearLayout>
-
-            <android.support.constraint.ConstraintLayout
-                    android:id="@+id/permissionInfoLayout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_padding_normal"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/registerGroup">
-
-                <TextView
-                        android:id="@+id/phoneNumRegisterTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Phone number registration: "
-                        android:textColor="@color/text_black"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
-
-                <Button
-                        android:id="@+id/phoneNumRegisterButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@color/colorPrimary"
-                        android:minHeight="0dp"
-                        android:padding="3dp"
-                        android:text="register"
-                        android:textColor="@color/text_white"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="@id/phoneNumRegisterTextView"
-                        app:layout_constraintStart_toEndOf="@id/phoneNumRegisterTextView"
-                        app:layout_constraintTop_toTopOf="@id/phoneNumRegisterTextView" />
-
-                <TextView
-                        android:id="@+id/phoneNumRegisterStatusTextView"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="registered"
-                        android:textColor="@color/primary"
-                        android:visibility="gone"
-                        app:layout_constraintBottom_toBottomOf="@id/phoneNumRegisterTextView"
-                        app:layout_constraintStart_toEndOf="@id/phoneNumRegisterTextView"
-                        app:layout_constraintTop_toTopOf="@id/phoneNumRegisterTextView" />
-
-                <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginStart="@dimen/margin_padding_normal"
-                        android:layout_marginTop="@dimen/margin_padding_small"
-                        android:background="@color/grey_light"
-                        app:layout_constraintTop_toBottomOf="@id/phoneNumRegisterTextView" />
-            </android.support.constraint.ConstraintLayout>
 
             <TextView
                     android:id="@+id/appVersionText"

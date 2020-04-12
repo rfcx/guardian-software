@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.device.root.SystemBuildDotPropFile;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceHardware_OrangePi_3G_IOT {

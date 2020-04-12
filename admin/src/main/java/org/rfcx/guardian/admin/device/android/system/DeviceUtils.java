@@ -146,13 +146,12 @@ public class DeviceUtils {
 
 			RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
 
-			if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
-				Log.i(logTag, "Snapshot —— Accelerometer"
-						+" —— x: "+accelSensorSnapshotAverages[1]+", y: "+accelSensorSnapshotAverages[2]+", z: "+accelSensorSnapshotAverages[3]
-						+" —— "+Math.round(accelSensorSnapshotAverages[4])+" sample(s)"
-						+" —— "+DateTimeUtils.getDateTime((long) Math.round(accelSensorSnapshotAverages[0]))
-						);
-			}
+			Log.i(logTag, "Snapshot —— Accelerometer"
+					+" —— x: "+accelSensorSnapshotAverages[1]+", y: "+accelSensorSnapshotAverages[2]+", z: "+accelSensorSnapshotAverages[3]
+					+" —— "+Math.round(accelSensorSnapshotAverages[4])+" sample(s)"
+					+" —— "+DateTimeUtils.getDateTime((long) Math.round(accelSensorSnapshotAverages[0]))
+					);
+
 			
 			// this is where we would report this interim accel value to something, somewhere that would determine if the phone is moving around...			
 		}
@@ -185,15 +184,13 @@ public class DeviceUtils {
 						location.getAltitude(),
 						(double) location.getTime()
 					};
-				
-				if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
-					Log.i(logTag, "Snapshot —— GeoPosition"
-							+" —— Lat: "+geoPos[1]+", Lng: "+geoPos[2]+", Alt: "+Math.round(geoPos[4])+" meters"
-							+" —— Accuracy: "+Math.round(geoPos[3])+" meters"
-							+" —— "+DateTimeUtils.getDateTime(dateTimeSourceLastSyncedAt_gps)
-							+" —— Clock Discrepancy: "+dateTimeDiscrepancyFromSystemClock_gps+" ms"
-							);
-				}
+
+				Log.i(logTag, "Snapshot —— GeoPosition"
+						+" —— Lat: "+geoPos[1]+", Lng: "+geoPos[2]+", Alt: "+Math.round(geoPos[4])+" meters"
+						+" —— Accuracy: "+Math.round(geoPos[3])+" meters"
+						+" —— "+DateTimeUtils.getDateTime(dateTimeSourceLastSyncedAt_gps)
+						+" —— Clock Discrepancy: "+dateTimeDiscrepancyFromSystemClock_gps+" ms"
+						);
 
 				app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps);
 				app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);

@@ -88,9 +88,7 @@ public class AudioCaptureService extends Service {
 				
 				try {
 					
-					if (confirmOrSetAudioCaptureParameters()
-						&& 	app.audioCaptureUtils.isAudioCaptureAllowed(app.rfcxPrefs.getPrefAsBoolean("verbose_logging"))
-						) {
+					if (confirmOrSetAudioCaptureParameters() && app.audioCaptureUtils.isAudioCaptureAllowed()) {
 							
 //						if (wavRecorder == null) {
 							// in this case, we are starting the audio capture from a stopped/pre-initialized state
