@@ -31,7 +31,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class FileUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", FileUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "FileUtils");
 	
 	public static String sha1Hash(String filePath) {
 		try {

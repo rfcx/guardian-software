@@ -17,7 +17,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class StringUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", StringUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "StringUtils");
 	
 	private static final char[] lowerCaseAlphanumericRef = "abcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
 	private static final char[] upperLowerCaseAlphanumericRef = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();

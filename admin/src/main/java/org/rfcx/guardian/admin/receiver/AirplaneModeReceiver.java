@@ -12,7 +12,7 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 
 public class AirplaneModeReceiver extends BroadcastReceiver {
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AirplaneModeReceiver.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AirplaneModeReceiver");
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {

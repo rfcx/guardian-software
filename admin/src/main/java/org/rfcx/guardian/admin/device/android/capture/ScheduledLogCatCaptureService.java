@@ -8,10 +8,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ScheduledLogCatCaptureService extends IntentService {
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledLogCatCaptureService.class);
-	
+
 	private static final String SERVICE_NAME = "ScheduledLogCatCapture";
+	
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledLogCatCaptureService.class.getSimpleName());
 		
 	public ScheduledLogCatCaptureService() {
 		super(logTag);

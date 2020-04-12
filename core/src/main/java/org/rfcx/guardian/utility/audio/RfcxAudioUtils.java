@@ -12,7 +12,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class RfcxAudioUtils {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxAudioUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "RfcxAudioUtils");
 
 	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM/yyyy-MM-dd/HH", Locale.US);
 	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US);

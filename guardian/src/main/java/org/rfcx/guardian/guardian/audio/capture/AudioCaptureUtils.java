@@ -24,7 +24,7 @@ public class AudioCaptureUtils {
 		RfcxAudioUtils.initializeAudioDirectories(context);
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioCaptureUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCaptureUtils");
 
 	private RfcxGuardian app = null;
 	

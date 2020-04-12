@@ -24,7 +24,7 @@ public class DeviceI2cUtils {
 		checkSetI2cBinaries(context);
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceI2cUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceI2cUtils");
 
 	private static final int i2cInterface = 1; // as in /dev/i2c-0
 	private String i2cMainAddress = null;

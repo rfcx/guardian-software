@@ -21,7 +21,6 @@ public class SmsMessageDb {
 		this.dbSmsQueued = new DbSmsQueued(context);
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SmsMessageDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "sms";
 	static final String C_CREATED_AT = "created_at";

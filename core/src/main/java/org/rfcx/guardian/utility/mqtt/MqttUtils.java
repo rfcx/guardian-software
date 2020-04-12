@@ -21,11 +21,11 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class MqttUtils implements MqttCallback {
 
 	public MqttUtils(String appRole, String guardianGuid) {
-		this.logTag = RfcxLog.generateLogTag(appRole, MqttUtils.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "MqttUtils");
 		this.mqttClientId = (new StringBuilder()).append("rfcx-guardian-").append(guardianGuid.toLowerCase(Locale.US)).append("-").append(appRole.toLowerCase(Locale.US)).toString();
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", MqttUtils.class);
+	private String logTag;
 	
 	private String filePath_authCertificate = null;
 	private String filePath_authPrivateKey = null;

@@ -9,7 +9,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceHardware_OrangePi_3G_IOT {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceHardware_OrangePi_3G_IOT.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceHardware_OrangePi_3G_IOT");
 
 	public static final String[] DEVICE_MANUFACTURER = new String[] { "OrangePi", "alps" };
 	public static final String[] DEVICE_MODEL = new String[] { "3G_IOT", "hexing72_cwet_kk" };

@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 
 public class DeviceBluetooth {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceBluetooth.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceBluetooth");
 
 	private Context context;
 	private BluetoothAdapter bluetoothAdapter;

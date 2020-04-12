@@ -23,9 +23,9 @@ import android.util.Log;
 
 public class RebootTriggerJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, RebootTriggerJobService.class);
-	
 	private static final String SERVICE_NAME = "RebootTrigger";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, RebootTriggerJobService.class.getSimpleName());
 	
 	private RfcxGuardian app;
 	

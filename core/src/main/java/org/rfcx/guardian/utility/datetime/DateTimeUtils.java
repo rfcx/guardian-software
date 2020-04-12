@@ -19,7 +19,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DateTimeUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DateTimeUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DateTimeUtils");
 	
 	private static final Locale DEFAULT_LOCALE = Locale.getDefault();
 	private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", DEFAULT_LOCALE);

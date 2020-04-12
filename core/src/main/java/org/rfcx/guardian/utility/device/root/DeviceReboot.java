@@ -11,7 +11,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceReboot {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceReboot.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceReboot");
 
 
 

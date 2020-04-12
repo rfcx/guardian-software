@@ -10,9 +10,9 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ADBStateSetService extends IntentService {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ADBStateSetService.class);
-
 	private static final String SERVICE_NAME = "ADBStateSet";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ADBStateSetService.class.getSimpleName());
 
 	public ADBStateSetService() {
 		super(logTag);

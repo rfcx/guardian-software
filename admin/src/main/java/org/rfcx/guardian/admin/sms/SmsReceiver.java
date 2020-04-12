@@ -14,7 +14,7 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 
 public class SmsReceiver extends BroadcastReceiver {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SmsReceiver.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SmsReceiver");
 	
     @Override
     public void onReceive(Context context, Intent intent) {

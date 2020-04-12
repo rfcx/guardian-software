@@ -15,7 +15,7 @@ import android.net.Uri;
 
 public class UpdaterContentProvider extends ContentProvider {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, UpdaterContentProvider.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ContentProvider");
 
 	private static final String appRole = RfcxGuardian.APP_ROLE;
 

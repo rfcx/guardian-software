@@ -15,7 +15,7 @@ import java.io.IOException;
 
 public class DeviceWallpaper {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceWallpaper.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceWallpaper");
 
 
 

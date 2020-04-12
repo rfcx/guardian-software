@@ -1,6 +1,6 @@
 package org.rfcx.guardian.admin.device.android.capture;
 
-import org.rfcx.guardian.utility.device.control.DeviceLogCat;
+import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -16,9 +16,9 @@ import android.util.Log;
 
 public class DeviceLogCatCaptureService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceLogCatCaptureService.class);
-	
 	private static final String SERVICE_NAME = "LogCatCapture";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceLogCatCaptureService.class.getSimpleName());
 	
 	private RfcxGuardian app;
 	

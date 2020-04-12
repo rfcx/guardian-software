@@ -14,9 +14,9 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSensorDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
-import org.rfcx.guardian.utility.device.DeviceBattery;
-import org.rfcx.guardian.utility.device.DeviceCPU;
-import org.rfcx.guardian.utility.device.DeviceNetworkStats;
+import org.rfcx.guardian.utility.device.capture.DeviceBattery;
+import org.rfcx.guardian.utility.device.capture.DeviceCPU;
+import org.rfcx.guardian.utility.device.capture.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
@@ -38,7 +38,7 @@ import org.rfcx.guardian.admin.device.android.capture.ScheduledScreenShotCapture
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeEnableService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledRebootService;
-import org.rfcx.guardian.admin.device.android.control.DateTimeSntpSyncJobService;
+import org.rfcx.guardian.admin.device.android.control.SntpSyncJobService;
 import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
 import org.rfcx.guardian.admin.device.android.control.RebootTriggerJobService;
 import org.rfcx.guardian.admin.device.sentinel.DeviceSentinelService;
@@ -212,7 +212,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("ADBStateSet", ADBStateSetService.class);
 
         this.rfcxServiceHandler.addService("SmsDispatch", SmsDispatchService.class);
-		this.rfcxServiceHandler.addService("DateTimeSntpSyncJob", DateTimeSntpSyncJobService.class);
+		this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
 
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);

@@ -24,7 +24,7 @@ public class ShellCommands {
 	}
 	private Context context = null;
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", ShellCommands.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "ShellCommands");
 	
 	private static List<String> executeCommandInShell(String[] commandLines, boolean asRoot, Context context) {
 

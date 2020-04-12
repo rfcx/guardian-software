@@ -11,14 +11,14 @@ import android.util.Log;
 public class RfcxDeviceGuid {
 
 	public RfcxDeviceGuid(Context context, String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, RfcxDeviceGuid.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxDeviceGuid");
 		this.context = context;
 		this.appRole = appRole;
 		checkSetTelephonyId();
 		checkSetCustomDeviceGuid();
 	}
 
-	private String logTag = RfcxLog.generateLogTag("Utils", RfcxDeviceGuid.class);
+	private String logTag;
 
 	private Context context;
 	private String appRole;

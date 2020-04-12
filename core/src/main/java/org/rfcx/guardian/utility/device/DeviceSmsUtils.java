@@ -21,7 +21,7 @@ import java.util.List;
 
 public class DeviceSmsUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceSmsUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceSmsUtils");
 	
 	public static JSONArray getSmsMessagesFromSystemAsJsonArray(ContentResolver contentResolver) {
 		

@@ -22,8 +22,7 @@ public class DeviceSystemDb {
 		this.dbOffline = new DbOffline(context);
 		this.dbDateTimeOffsets = new DbDateTimeOffsets(context);
 	}
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSystemDb.class);
+
 	private int VERSION = 1;
 	static final String DATABASE = "device";
 	static final String C_MEASURED_AT = "measured_at";

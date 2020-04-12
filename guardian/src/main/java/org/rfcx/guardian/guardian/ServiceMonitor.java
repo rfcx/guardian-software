@@ -1,6 +1,5 @@
 package org.rfcx.guardian.guardian;
 
-
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
@@ -8,10 +7,10 @@ import android.app.IntentService;
 import android.content.Intent;
 
 public class ServiceMonitor extends IntentService {
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ServiceMonitor.class);
-	
+
 	private static final String SERVICE_NAME = "ServiceMonitor";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ServiceMonitor.class.getSimpleName());
 	
 	public static final long SERVICE_MONITOR_CYCLE_DURATION = 600000;
 	// Please note that services that register as 'active' less frequently than this cycle duration will be forced to retrigger.

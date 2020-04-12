@@ -12,9 +12,9 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class ApiCheckInJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInJobService.class);
-	
 	private static final String SERVICE_NAME = "ApiCheckInJob";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInJobService.class.getSimpleName());
 	
 	private RfcxGuardian app;
 	

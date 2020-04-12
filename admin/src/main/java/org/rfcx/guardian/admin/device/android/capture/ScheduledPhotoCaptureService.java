@@ -10,9 +10,9 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ScheduledPhotoCaptureService extends IntentService {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledPhotoCaptureService.class);
-
 	private static final String SERVICE_NAME = "ScheduledPhotoCapture";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledPhotoCaptureService.class.getSimpleName());
 
 	public ScheduledPhotoCaptureService() {
 		super(logTag);

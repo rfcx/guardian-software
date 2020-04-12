@@ -7,7 +7,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class MathUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", MathUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "MathUtils");
 	
 	public static double limitValueToSpecificDecimalPlaces(double val, int decimalPlaces) {
 		double _val = 0;

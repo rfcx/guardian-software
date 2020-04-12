@@ -11,13 +11,13 @@
 		android:defaultValue="true" />
 
 	<ListPreference
-			android:key="show_ui"
-			android:title="show_ui"
-			android:dialogTitle="show_ui"
-			android:summary="string - true/false"
-			android:entries="@array/true_or_false"
-			android:entryValues="@array/true_or_false"
-			android:defaultValue="true" />
+		android:key="show_ui"
+		android:title="show_ui"
+		android:dialogTitle="show_ui"
+		android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="true" />
 
 	<ListPreference
 		android:key="enable_audio_capture"
@@ -100,6 +100,13 @@
         android:summary="string - hostname"
         android:enabled="true"
         android:defaultValue="time.apple.com" />
+
+	<EditTextPreference
+		android:key="api_sms_address"
+		android:title="api_sms_address"
+		android:summary="string - phone number/code"
+		android:enabled="true"
+		android:defaultValue="14153359205" />
  	
  	<EditTextPreference
         android:key="reboot_forced_daily_at"

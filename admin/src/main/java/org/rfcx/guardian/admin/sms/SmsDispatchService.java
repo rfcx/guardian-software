@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -14,9 +15,9 @@ import java.util.List;
 
 public class SmsDispatchService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SmsDispatchService.class);
-	
 	private static final String SERVICE_NAME = "SmsDispatch";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SmsDispatchService.class.getSimpleName());
 	
 	private RfcxGuardian app;
 	
@@ -101,7 +102,7 @@ public class SmsDispatchService extends Service {
 								app.smsMessageDb.dbSmsSent.insert(rightNow, msgAddress, msgBody, msgId);
 								app.smsMessageDb.dbSmsQueued.deleteSingleRowByMessageId(msgId);
 
-								Log.w(logTag, "SMS Sent (ID " + msgId + "): To " + msgAddress + " at " + rightNow + ": \"" + msgBody + "\"");
+								Log.w(logTag, "SMS Sent (ID " + msgId + "): To " + msgAddress + " at " + DateTimeUtils.getDateTime(rightNow) + ": \"" + msgBody + "\"");
 							}
 						}
 					}

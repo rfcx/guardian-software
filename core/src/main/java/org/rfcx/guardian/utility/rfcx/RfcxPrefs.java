@@ -28,13 +28,13 @@ import org.rfcx.guardian.utility.misc.StringUtils;
 public class RfcxPrefs {
 
 	public RfcxPrefs(Context context, String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, RfcxPrefs.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxPrefs");
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
 		this.prefsDirPath = setOrCreatePrefsDirectory(context, appRole);
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", RfcxPrefs.class);
+	private String logTag;
 	
 	private Context context = null;
 	private String thisAppRole = null;
@@ -321,6 +321,7 @@ public class RfcxPrefs {
 	        put("api_checkin_protocol", "tcp");
 	        put("api_checkin_port", "1883");
 	        put("api_ntp_host", "time.apple.com");
+			put("api_sms_address", "14153359205");
 	        
 			put("reboot_forced_daily_at", "23:54:00");
 			

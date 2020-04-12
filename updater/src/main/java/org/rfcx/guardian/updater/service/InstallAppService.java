@@ -3,9 +3,7 @@ package org.rfcx.guardian.updater.service;
 import java.io.File;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
-import org.rfcx.guardian.utility.device.root.DeviceReboot;
 import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -17,9 +15,9 @@ import android.util.Log;
 
 public class InstallAppService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, InstallAppService.class);
-	
 	private static final String SERVICE_NAME = "InstallApp";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, InstallAppService.class.getSimpleName());
 
 	private RfcxGuardian app;
 	
@@ -73,7 +71,7 @@ public class InstallAppService extends Service {
 		public void run() {
 			InstallAppService installAppService = InstallAppService.this;
 			boolean successfullyInstalled = false;
-			String apkFilePath = app.installUtils.apkDirExternal+"/"+app.apiCore.installRole+"-"+app.apiCore.installVersion+".apk";
+			String apkFilePath = app.installUtils.apkDirExternal+"/"+app.apiCheckVersionUtils.installRole+"-"+app.apiCheckVersionUtils.installVersion+".apk";
 			try {
 //				ShellCommands.killProcessByName("org.rfcx.guardian."+app.targetAppRole,"."+RfcxGuardian.APP_ROLE, app.getApplicationContext());
 				successfullyInstalled = installApk(app.targetAppRole, app.getApplicationContext(),apkFilePath);
@@ -85,15 +83,15 @@ public class InstallAppService extends Service {
 				File apkFile = (new File(apkFilePath));
 				
 				if (successfullyInstalled) {
-					Log.d(logTag, "installation successful ("+app.targetAppRole+", "+app.apiCore.installVersion+"). deleting apk and rebooting...");
+					Log.d(logTag, "installation successful ("+app.targetAppRole+", "+app.apiCheckVersionUtils.installVersion+"). deleting apk and rebooting...");
 					installLoopCounter = 0;
 //					if (apkFile.exists()) apkFile.delete();
 //				DeviceReboot.triggerForcedRebootAsRoot(app.getApplicationContext());
-				} else if (	(installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCore.installVersionSha1)) {
+				} else if (	(installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCheckVersionUtils.installVersionSha1)) {
 					installLoopCounter++;
 					app.rfcxServiceHandler.triggerService(SERVICE_NAME, true);
 				} else {
-					Log.d(logTag, "installation failed ("+app.targetAppRole+", "+app.apiCore.installVersion+").  deleting apk...");
+					Log.d(logTag, "installation failed ("+app.targetAppRole+", "+app.apiCheckVersionUtils.installVersion+").  deleting apk...");
 					installLoopCounter = 0;
 //					if (apkFile.exists()) apkFile.delete();
 				}
@@ -111,7 +109,7 @@ public class InstallAppService extends Service {
 		try {
 
 			String[] installCommands = new String[] { "/system/bin/pm", "install", "-r", apkFilePath };
-			if (app.apiCore.installVersion == null) installCommands = new String[] { "/system/bin/pm", "install", apkFilePath };
+			if (app.apiCheckVersionUtils.installVersion == null) installCommands = new String[] { "/system/bin/pm", "install", apkFilePath };
 
 			Process shellProcess = Runtime.getRuntime().exec(installCommands);
 			shellProcess.waitFor();

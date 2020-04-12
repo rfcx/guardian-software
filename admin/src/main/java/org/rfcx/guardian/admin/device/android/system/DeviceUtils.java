@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import android.Manifest;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceCPU;
+import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -26,7 +26,7 @@ public class DeviceUtils {
 		this.context = context;
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceUtils");
 
 	private Context context;
 

@@ -19,7 +19,7 @@ public class RfcxRole {
 		public static final String URI_1 = "content://"+AUTHORITY+"/"+ENDPOINT_1;
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxRole.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "RfcxRole");
 	
 	public static final String[] 
 			

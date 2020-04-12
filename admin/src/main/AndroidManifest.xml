@@ -87,7 +87,7 @@
         <service android:name=".device.android.control.AirplaneModeEnableService" />
         <service android:name=".device.android.control.BluetoothStateSetService" />
         <service android:name=".device.android.control.WifiStateSetService" />
-        <service android:name=".device.android.control.DateTimeSntpSyncJobService" />
+        <service android:name=".device.android.control.SntpSyncJobService" />
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
 

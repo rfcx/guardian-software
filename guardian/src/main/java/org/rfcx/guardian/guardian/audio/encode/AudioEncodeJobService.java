@@ -16,9 +16,9 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class AudioEncodeJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioEncodeJobService.class);
-	
 	private static final String SERVICE_NAME = "AudioEncodeJob";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioEncodeJobService.class.getSimpleName());
 	
 	private RfcxGuardian app;
 	

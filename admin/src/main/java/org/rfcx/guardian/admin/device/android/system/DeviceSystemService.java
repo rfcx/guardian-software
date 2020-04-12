@@ -19,8 +19,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.DeviceDiskUsage;
-import org.rfcx.guardian.utility.device.DeviceMobileNetwork;
+import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
+import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -30,9 +30,9 @@ import java.util.List;
 
 public class DeviceSystemService extends Service implements SensorEventListener, LocationListener {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSystemService.class);
-
 	private static final String SERVICE_NAME = "DeviceSystem";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSystemService.class.getSimpleName());
 
 	private RfcxGuardian app;
 

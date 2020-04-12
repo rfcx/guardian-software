@@ -19,7 +19,6 @@ public class DeviceRebootDb {
 		this.dbRebootAttempt = new DbRebootAttempt(context);
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceRebootDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "reboot";
 	static final String C_CREATED_AT = "created_at";

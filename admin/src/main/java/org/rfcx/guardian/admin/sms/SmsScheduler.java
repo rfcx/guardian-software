@@ -1,29 +1,16 @@
 package org.rfcx.guardian.admin.sms;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceCPU;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 public class SmsScheduler {
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SmsScheduler.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SmsScheduler");
 
 	public static boolean addScheduledSmsToQueue(long sendAtOrAfter, String sendTo, String msgBody, Context context) {
 
@@ -37,7 +24,7 @@ public class SmsScheduler {
 
 			app.smsMessageDb.dbSmsQueued.insert(sendAtOrAfter, sendTo, msgBody, msgId);
 
-			Log.w(logTag, "SMS Queued (ID " + msgId + "): To " + sendTo + " at " + sendAtOrAfter + ": \"" + msgBody + "\"");
+			Log.w(logTag, "SMS Queued (ID " + msgId + "): To " + sendTo + " at " + DateTimeUtils.getDateTime(sendAtOrAfter) + ": \"" + msgBody + "\"");
 		}
 
 		return isQueued;
@@ -49,19 +36,14 @@ public class SmsScheduler {
 
 	}
 
-	public static boolean queueStuffUp(Context context) {
+	public static boolean testSmsQueue(String address, long delayInterval, int smsCount, Context context) {
 
 		long thisTime = System.currentTimeMillis();
-		addScheduledSmsToQueue(thisTime, "+14153359205", "Message that you might like 1: "+thisTime, context);
 
-		thisTime = thisTime+45000;
-		addScheduledSmsToQueue(thisTime, "+14153359205", "Message that you might like 2: "+thisTime, context);
-
-		thisTime = thisTime+45000;
-		addScheduledSmsToQueue(thisTime, "+14153359205", "Message that you might like 3: "+thisTime, context);
-
-		thisTime = thisTime+45000;
-		addScheduledSmsToQueue(thisTime, "+14153359205", "Message that you might like 4: "+thisTime, context);
+		for (int i = 1; i <= smsCount; i++) {
+			addScheduledSmsToQueue(thisTime, address, i+") SMS Test Message: " + DateTimeUtils.getDateTime(thisTime), context);
+			thisTime = thisTime + (delayInterval*1000);
+		}
 
 		return true;
 	}

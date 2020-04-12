@@ -13,7 +13,7 @@ import java.util.List;
 
 public class SystemBuildDotPropFile {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", SystemBuildDotPropFile.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "SystemBuildDotPropFile");
 
 	private static final String origFilePath = "/system/build.prop";
 

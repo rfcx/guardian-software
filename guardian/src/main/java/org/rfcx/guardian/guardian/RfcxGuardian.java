@@ -6,9 +6,9 @@ import java.util.Map;
 import org.rfcx.guardian.guardian.api.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
-import org.rfcx.guardian.utility.device.DeviceBattery;
+import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
-import org.rfcx.guardian.utility.device.DeviceMobilePhone;
+import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -48,7 +48,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public static final String APP_ROLE = "Guardian";
 
-    private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, RfcxGuardian.class);
+    private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, "RfcxGuardian");
 
     public RfcxDeviceGuid rfcxDeviceGuid = null;
     public RfcxPrefs rfcxPrefs = null;

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device;
+package org.rfcx.guardian.utility.device.capture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.telephony.TelephonyManager;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
@@ -24,7 +25,7 @@ public class DeviceMobilePhone {
 	private String deviceIMSI = null;
 	private String deviceIMEI = null;
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceHardwareUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceHardwareUtils");
 	
 	public void setSimPhoneNumber(String simPhoneNumber) {
 		if (		(simPhoneNumber != null) 
@@ -58,21 +59,25 @@ public class DeviceMobilePhone {
 		}
 	}
 	
+	@SuppressLint("MissingPermission")
 	private String getSimSerial() {
 		setSimSerial(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getSimSerialNumber());
 		return this.simSerial;
-	}	
-	
+	}
+
+	@SuppressLint("MissingPermission")
 	private String getSimPhoneNumber() {
 		setSimPhoneNumber(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number());
 		return this.simPhoneNumber;
-	}	
-	
+	}
+
+	@SuppressLint("MissingPermission")
 	private String getDeviceIMSI() {
 		setDeviceIMSI(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getSubscriberId());
 		return this.deviceIMSI;
-	}	
+	}
 
+	@SuppressLint("MissingPermission")
 	private String getDeviceIMEI() {
 		setDeviceIMEI(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId());
 		return this.deviceIMEI;

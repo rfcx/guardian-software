@@ -9,11 +9,11 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceControlUtils {
 	 
 	public DeviceControlUtils(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceControlUtils.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceControlUtils");
 		this.appRole = appRole;
 	}
 
-	private String logTag = "Rfcx-Guardian-DeviceControlUtils";
+	private String logTag;
 	private String appRole = "Guardian";
 	
 	public boolean runOrTriggerDeviceControl(String controlCommand, ContentResolver contentResolver) {

@@ -24,9 +24,9 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class ApiCheckInArchiveService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInArchiveService.class);
-	
 	private static final String SERVICE_NAME = "ApiCheckInArchive";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInArchiveService.class.getSimpleName());
 	
 	private RfcxGuardian app;
 

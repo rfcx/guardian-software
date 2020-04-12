@@ -17,8 +17,7 @@ public class DeviceDiskDb {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbDiskUsage = new DbDiskUsage(context);
 	}
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceDiskDb.class);
+
 	private int VERSION = 1;
 	static final String DATABASE = "disk";
 	static final String C_LABEL = "label";

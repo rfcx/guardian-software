@@ -10,7 +10,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceHardwareUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceHardwareUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceHardwareUtils");
 	
 	public static JSONObject getDeviceHardwareInfoJson() {
 		List<String[]> hardwareInfoList = getDeviceHardwareInfo();

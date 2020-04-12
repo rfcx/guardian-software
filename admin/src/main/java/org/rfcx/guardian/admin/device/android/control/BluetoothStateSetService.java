@@ -14,9 +14,9 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class BluetoothStateSetService extends IntentService {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, BluetoothStateSetService.class);
-
 	private static final String SERVICE_NAME = "BluetoothStateSet";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, BluetoothStateSetService.class.getSimpleName());
 
 	public BluetoothStateSetService() {
 		super(logTag);

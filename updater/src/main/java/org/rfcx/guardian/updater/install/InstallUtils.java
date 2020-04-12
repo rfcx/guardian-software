@@ -15,7 +15,7 @@ import java.util.List;
 
 public class InstallUtils {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, InstallUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstallUtils");
 
 	public InstallUtils(Context context) {
 

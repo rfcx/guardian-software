@@ -29,8 +29,8 @@ import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.control.DeviceLogCat;
-import org.rfcx.guardian.utility.device.control.DeviceScreenShot;
+import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
+import org.rfcx.guardian.utility.device.capture.DeviceScreenShot;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.mqtt.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -63,7 +63,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		confirmOrCreateConnectionToBroker();
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInUtils");
 
 	private RfcxGuardian app;
 	private MqttUtils mqttCheckInClient = null;

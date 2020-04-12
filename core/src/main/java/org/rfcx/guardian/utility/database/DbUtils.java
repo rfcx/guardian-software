@@ -19,7 +19,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DbUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DbUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DbUtils");
 
 	private static final int DEFAULT_ROWOFFSET = 0;
 	private static final int DEFAULT_ROWLIMIT = 1000;

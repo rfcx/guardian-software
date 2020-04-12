@@ -15,11 +15,11 @@ public class InstallUtils {
 	public InstallUtils (Context context, String appRole) {
 		this.context = context;
 		this.appRole = appRole;
-		this.logTag = RfcxLog.generateLogTag(appRole, InstallUtils.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "InstallUtils");
 	}
 	
 	private Context context;
-	private String logTag = RfcxLog.generateLogTag("Utils", InstallUtils.class);
+	private String logTag;
 	private String appRole = "Utils";
 	
 	private Map<String, String[]> downloadQueue = new HashMap<String, String[]>();

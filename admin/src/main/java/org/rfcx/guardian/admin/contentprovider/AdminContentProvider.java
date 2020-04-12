@@ -23,7 +23,7 @@ import java.util.List;
 
 public class AdminContentProvider extends ContentProvider {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AdminContentProvider.class);
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ContentProvider");
 
     private static final String appRole = RfcxGuardian.APP_ROLE;
 
@@ -93,9 +93,9 @@ public class AdminContentProvider extends ContentProvider {
                 app.rfcxServiceHandler.triggerService("AirplaneModeEnable", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_enable", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "datetime_sntp_sync")) {
-                app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);
-                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"datetime_sntp_sync", null, System.currentTimeMillis()});
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "sntp_sync")) {
+                app.rfcxServiceHandler.triggerService("SntpSyncJob", true);
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"sntp_sync", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "sms_send", "*")) {
                 String pathSeg = uri.getLastPathSegment();

@@ -9,7 +9,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class ArrayUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", ArrayUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "ArrayUtils");
 	
 	public static double[] castFloatArrayToDoubleArray(float[] arr) {
 		double[] _arr = new double[arr.length];

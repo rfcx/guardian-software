@@ -13,9 +13,9 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class WifiStateSetService extends IntentService {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, WifiStateSetService.class);
-
 	private static final String SERVICE_NAME = "WifiStateSet";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, WifiStateSetService.class.getSimpleName());
 
 	public WifiStateSetService() {
 		super(logTag);
