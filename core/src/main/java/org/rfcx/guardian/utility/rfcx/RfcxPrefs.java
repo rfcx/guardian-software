@@ -319,7 +319,7 @@ public class RfcxPrefs {
 	        put("api_checkin_protocol", "tcp");
 	        put("api_checkin_port", "1883");
 	        put("api_ntp_host", "time.apple.com");
-			put("api_sms_address", "14153359205");
+			put("api_sms_address", "14154803657");
 	        
 			put("reboot_forced_daily_at", "23:54:00");
 			

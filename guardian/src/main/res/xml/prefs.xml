@@ -97,7 +97,7 @@
 		android:title="api_sms_address"
 		android:summary="string - phone number/code"
 		android:enabled="true"
-		android:defaultValue="14153359205" />
+		android:defaultValue="14154803657" />
  	
  	<EditTextPreference
         android:key="reboot_forced_daily_at"
