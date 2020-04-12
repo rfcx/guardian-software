@@ -88,6 +88,7 @@
         <service android:name=".api.ApiCheckInJobService" android:exported="false" />
         <service android:name=".archive.ApiCheckInArchiveService" android:exported="false" />
         <service android:name=".device.android.SntpSyncJobService" android:exported="false" />
+        <service android:name=".instructions.InstructionsExecutionService" android:exported="false" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" android:exported="false" />

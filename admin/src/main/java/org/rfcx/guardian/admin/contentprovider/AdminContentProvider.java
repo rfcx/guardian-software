@@ -97,12 +97,14 @@ public class AdminContentProvider extends ContentProvider {
                 app.rfcxServiceHandler.triggerService("SntpSyncJob", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"sntp_sync", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "sms_send", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "sms_queue", "*")) {
                 String pathSeg = uri.getLastPathSegment();
-                String pathSegAddress = pathSeg.substring(0, pathSeg.indexOf("|"));
-                String pathSegMessage = pathSeg.substring(1 + pathSeg.indexOf("|"));
-                SmsScheduler.addImmediateSmsToQueue(pathSegAddress, pathSegMessage, app.getApplicationContext());
-                return RfcxComm.getProjectionCursor(appRole, "sms_send", new Object[]{pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
+                String pathSegSendAt = pathSeg.substring(0, pathSeg.indexOf("|"));
+                String pathSegAfterSendAt = pathSeg.substring(pathSegSendAt.length()+1);
+                String pathSegAddress = pathSegAfterSendAt.substring(0, pathSegAfterSendAt.indexOf("|"));
+                String pathSegMessage = pathSegAfterSendAt.substring(1 + pathSegAfterSendAt.indexOf("|"));
+                SmsScheduler.addScheduledSmsToQueue((long) Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext());
+                return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{pathSegSendAt + "|" + pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
 
                 // "database" function endpoints
 

@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.Map;
 
 import org.rfcx.guardian.guardian.api.ApiCheckInMetaSnapshotService;
+import org.rfcx.guardian.guardian.instructions.InstructionsDb;
+import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
+import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
@@ -62,6 +65,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInMetaDb apiCheckInMetaDb = null;
     public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
     public ArchiveDb archiveDb = null;
+    public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
 
     // Receivers
@@ -73,6 +77,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
+    public InstructionsUtils instructionsUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
@@ -82,7 +87,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             new String[]{
                     "AudioCapture",
                     "ApiCheckInJob",
-                    "AudioEncodeJob"
+                    "AudioEncodeJob",
+                    "InstructionsExecution"
             };
 
     @Override
@@ -111,6 +117,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
         this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
+        this.instructionsUtils = new InstructionsUtils(getApplicationContext());
         this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
 
         launchRoleServices();
@@ -181,6 +188,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
         this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
+        this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
     }
 
@@ -196,6 +204,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
         this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
         this.rfcxServiceHandler.addService("ApiCheckInMetaSnapshot", ApiCheckInMetaSnapshotService.class);
+        this.rfcxServiceHandler.addService("InstructionsExecution", InstructionsExecutionService.class);
 
     }
 
