@@ -233,11 +233,13 @@ public class RfcxGuardian extends Application {
 
 	public String onPrefReSync(String prefKey) {
 
-		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth") || prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
+		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth")) {
 			rfcxServiceHandler.triggerService("BluetoothStateSet", false);
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
-		} else if (prefKey.equalsIgnoreCase("admin_enable_wifi") || prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
+		} else if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
 			rfcxServiceHandler.triggerService("WifiStateSet", false);
+			rfcxServiceHandler.triggerService("ADBStateSet", false);
+		} else if (prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
 		}
 		return this.rfcxPrefs.getPrefAsString(prefKey);
