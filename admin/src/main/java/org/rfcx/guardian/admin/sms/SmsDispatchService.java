@@ -24,7 +24,7 @@ public class SmsDispatchService extends Service {
 	private boolean runFlag = false;
 	private SmsDispatch smsDispatch;
 
-	private long smsDispatchCycleDuration = 30000;
+	private long smsDispatchCycleDuration = 20000;
 
 	@Override
 	public IBinder onBind(Intent intent) {
