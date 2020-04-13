@@ -20,8 +20,7 @@ public class SentinelPowerDb {
 		this.dbSentinelPowerInput = new DbSentinelPowerInput(context);
 		this.dbSentinelPowerSystem = new DbSentinelPowerSystem(context);
 	}
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SentinelPowerDb.class);
+
 	private int VERSION = 1;
 	static final String DATABASE = "sentinel-power";
 	static final String C_MEASURED_AT = "measured_at";

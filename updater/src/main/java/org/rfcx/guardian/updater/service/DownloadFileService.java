@@ -8,17 +8,15 @@ import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
 public class DownloadFileService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DownloadFileService.class);
-	
 	private static final String SERVICE_NAME = "DownloadFile";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DownloadFileService");
 
 	private RfcxGuardian app;
 	
@@ -71,9 +69,9 @@ public class DownloadFileService extends Service {
 			DownloadFileService downloadFileService = DownloadFileService.this;
 			HttpGet httpGet = new HttpGet(app.getApplicationContext(), RfcxGuardian.APP_ROLE);
 			try {
-				String fileName = app.apiCore.installRole+"-"+app.apiCore.installVersion+".apk";
-				String url = app.apiCore.installVersionUrl;
-				String apiSha1 = app.apiCore.installVersionSha1;
+				String fileName = app.apiCheckVersionUtils.installRole+"-"+app.apiCheckVersionUtils.installVersion+".apk";
+				String url = app.apiCheckVersionUtils.installVersionUrl;
+				String apiSha1 = app.apiCheckVersionUtils.installVersionSha1;
 				
 				if (httpGet.getAsFile(url, fileName)) {
 					Log.d(logTag, "Download Complete. Verifying Checksum...");

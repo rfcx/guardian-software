@@ -34,12 +34,12 @@ public class MqttUtils implements MqttCallback {
 
 	public MqttUtils(Context context, String appRole, String guardianGuid) {
 		this.context = context;
-		this.logTag = RfcxLog.generateLogTag(appRole, MqttUtils.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "MqttUtils");
 		this.mqttClientId = (new StringBuilder()).append("rfcx-guardian-").append(guardianGuid.toLowerCase(Locale.US)).append("-").append(appRole.toLowerCase(Locale.US)).toString();
 	}
 
 	private Context context;
-	private String logTag = RfcxLog.generateLogTag("Utils", MqttUtils.class);
+	private String logTag;
 	
 	private int mqttQos = 2; // QoS - Send message exactly once
 	private String mqttClientId = null;
@@ -93,11 +93,11 @@ public class MqttUtils implements MqttCallback {
 	
 	public long mqttBrokerConnectionLastAttemptedAt = System.currentTimeMillis();
 	public long mqttBrokerConnectionLatency = 0;
-	public long mqttBrokerSubscriptionLatency = 0;
+	private long mqttBrokerSubscriptionLatency = 0;
 	
 	public long publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
 		if (confirmOrCreateConnectionToBroker(true)) {
-			Log.i(logTag, (new StringBuilder()).append("Publishing ").append(messageByteArray.length).append(" bytes to '").append(publishTopic).append("' at ").append(DateTimeUtils.getDateTime(new Date())).toString());
+			Log.i(logTag, "Publishing " + messageByteArray.length + " bytes to '" + publishTopic + "' at " + DateTimeUtils.getDateTime(new Date()));
 			this.msgSendStart = System.currentTimeMillis();
 			this.mqttClient.publish(publishTopic, buildMessage(messageByteArray));
 
@@ -162,7 +162,7 @@ public class MqttUtils implements MqttCallback {
 		this.mqttCallback = mqttCallback;
 	}
 	
-	public void closeConnection() {
+	private void closeConnection() {
 		try {
 			this.mqttClient.disconnect();
 			Log.v(logTag, "MQTT client disconnected");	

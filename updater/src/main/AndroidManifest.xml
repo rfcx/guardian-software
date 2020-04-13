@@ -56,7 +56,7 @@
         android:name="org.rfcx.guardian.updater.RfcxGuardian"
         >
 
-        <service android:name="org.rfcx.guardian.updater.service.ApiCheckVersionIntentService" />
+        <service android:name="org.rfcx.guardian.updater.service.ApiCheckVersionTrigger" />
         <service android:name="org.rfcx.guardian.updater.service.DownloadFileService" />
         <service android:name="org.rfcx.guardian.updater.service.ApiCheckVersionService" />
         <service android:name="org.rfcx.guardian.updater.service.InstallAppService" />

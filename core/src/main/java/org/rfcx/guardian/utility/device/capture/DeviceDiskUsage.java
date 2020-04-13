@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device;
+package org.rfcx.guardian.utility.device.capture;
 
 import android.os.Environment;
 import android.os.StatFs;
@@ -7,10 +7,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceDiskUsage {
 	
 	public DeviceDiskUsage(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceDiskUsage.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceDiskUsage");
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceDiskUsage.class);
+	private String logTag;
 
 	private static StatFs getStatFs(String absolutePath){
 		return new StatFs(absolutePath);

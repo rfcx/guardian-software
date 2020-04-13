@@ -9,9 +9,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceSentinelService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSentinelService.class);
-	
 	private static final String SERVICE_NAME = "DeviceSentinel";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceSentinelService");
 	
 	private RfcxGuardian app;
 	

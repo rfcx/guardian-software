@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device;
+package org.rfcx.guardian.utility.device.capture;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,10 +9,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceBattery {
 	
 	public DeviceBattery(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceBattery.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceBattery");
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceBattery.class);
+	private String logTag;
 	
 	private Intent getIntent(Context context, Intent intent) {
 		return (intent == null) ? intent = context.getApplicationContext().registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED)) : intent;

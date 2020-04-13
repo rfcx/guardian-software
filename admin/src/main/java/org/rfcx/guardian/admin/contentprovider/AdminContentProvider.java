@@ -2,6 +2,7 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.json.JSONArray;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
+import org.rfcx.guardian.admin.sms.SmsUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -16,14 +17,13 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AdminContentProvider extends ContentProvider {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AdminContentProvider.class);
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ContentProvider");
 
     private static final String appRole = RfcxGuardian.APP_ROLE;
 
@@ -93,16 +93,18 @@ public class AdminContentProvider extends ContentProvider {
                 app.rfcxServiceHandler.triggerService("AirplaneModeEnable", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_enable", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "datetime_sntp_sync")) {
-                app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);
-                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"datetime_sntp_sync", null, System.currentTimeMillis()});
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "sntp_sync")) {
+                app.rfcxServiceHandler.triggerService("SntpSyncJob", true);
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"sntp_sync", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "sms_send", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "sms_queue", "*")) {
                 String pathSeg = uri.getLastPathSegment();
-                String pathSegAddress = pathSeg.substring(0, pathSeg.indexOf("|"));
-                String pathSegMessage = pathSeg.substring(1 + pathSeg.indexOf("|"));
-                DeviceSmsUtils.sendSmsMessage(pathSegAddress, pathSegMessage);
-                return RfcxComm.getProjectionCursor(appRole, "sms_send", new Object[]{pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
+                String pathSegSendAt = pathSeg.substring(0, pathSeg.indexOf("|"));
+                String pathSegAfterSendAt = pathSeg.substring(pathSegSendAt.length()+1);
+                String pathSegAddress = pathSegAfterSendAt.substring(0, pathSegAfterSendAt.indexOf("|"));
+                String pathSegMessage = pathSegAfterSendAt.substring(1 + pathSegAfterSendAt.indexOf("|"));
+                SmsUtils.addScheduledSmsToQueue((long) Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext());
+                return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{pathSegSendAt + "|" + pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
 
                 // "database" function endpoints
 
@@ -112,8 +114,8 @@ public class AdminContentProvider extends ContentProvider {
                 if (pathSeg.equalsIgnoreCase("sms")) {
                     List<JSONArray> smsJsonArrays =  new ArrayList<JSONArray>();
                     smsJsonArrays.add(DeviceSmsUtils.getSmsMessagesFromSystemAsJsonArray(app.getApplicationContext().getContentResolver()));
-                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray(app.deviceSmsMessageDb.dbSmsReceived.getAllRows()));
-                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray(app.deviceSmsMessageDb.dbSmsSent.getAllRows()));
+                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray("received", app.smsMessageDb.dbSmsReceived.getAllRows()));
+                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray("sent",app.smsMessageDb.dbSmsSent.getAllRows()));
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sms", DeviceSmsUtils.combineSmsMessageJsonArrays(smsJsonArrays).toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
@@ -148,8 +150,8 @@ public class AdminContentProvider extends ContentProvider {
 
                 if (pathSegTable.equalsIgnoreCase("sms")) {
                     int deleteFromSystem = DeviceSmsUtils.deleteSmsMessageFromSystem(pathSegId, app.getApplicationContext().getContentResolver());
-                    int deleteFromReceivedDatabase = app.deviceSmsMessageDb.dbSmsReceived.deleteSingleRowByMessageId(pathSegId);
-                    int deleteFromSentDatabase = app.deviceSmsMessageDb.dbSmsSent.deleteSingleRowByMessageId(pathSegId);
+                    int deleteFromReceivedDatabase = app.smsMessageDb.dbSmsReceived.deleteSingleRowByMessageId(pathSegId);
+                    int deleteFromSentDatabase = app.smsMessageDb.dbSmsSent.deleteSingleRowByMessageId(pathSegId);
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, ( deleteFromSystem + deleteFromReceivedDatabase + deleteFromSentDatabase ), System.currentTimeMillis()});
 
                 } else if (pathSegTable.equalsIgnoreCase("screenshots")) {

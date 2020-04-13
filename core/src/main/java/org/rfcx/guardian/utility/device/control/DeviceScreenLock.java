@@ -10,10 +10,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceScreenLock {
 	
 	public DeviceScreenLock(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceScreenLock.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceScreenLock");
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceScreenLock.class);
+	private String logTag;
 	
 	private WakeLock wakeLock = null;
 	private KeyguardManager.KeyguardLock keyguardLock = null;
@@ -29,7 +29,7 @@ public class DeviceScreenLock {
 				PowerManager.FULL_WAKE_LOCK
 		        | PowerManager.ACQUIRE_CAUSES_WAKEUP
 		        | PowerManager.ON_AFTER_RELEASE,
-		        "RfcxWakeLock");
+		        "Rfcx:DeviceWakeLock");
 		this.wakeLock.acquire();
 		Log.d(this.logTag,"KeyGuardLock disabled & WakeLock set.");
 	}

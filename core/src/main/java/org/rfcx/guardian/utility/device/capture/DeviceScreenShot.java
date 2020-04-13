@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.control;
+package org.rfcx.guardian.utility.device.capture;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -14,13 +14,13 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceScreenShot {
 	
 	public DeviceScreenShot(Context context, String appRole, String rfcxDeviceId) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceScreenShot.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceScreenShot");
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
 		initializeScreenShotDirectories(context);
 	}
 
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceScreenShot.class);
+	private String logTag;
 	private String appRole = "Utils";
 	private String rfcxDeviceId = null;
 	

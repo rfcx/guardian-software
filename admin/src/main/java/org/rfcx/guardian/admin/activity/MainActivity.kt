@@ -1,25 +1,15 @@
 package org.rfcx.guardian.admin.activity
 
-import android.content.Intent
-import android.os.Handler
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
-import android.view.View
-import android.widget.Button
 import org.rfcx.guardian.admin.R
 
 import org.rfcx.guardian.admin.RfcxGuardian
-import android.app.Activity
 import android.os.Bundle
-import android.support.v4.app.ActivityCompat
 import android.util.Log
 import android.view.Menu
-import android.Manifest
 import android.view.MenuItem
-import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_home.*
-import org.rfcx.guardian.admin.device.android.system.DeviceUtils
-import org.rfcx.guardian.utility.device.control.DeviceBluetooth
+import org.rfcx.guardian.admin.sms.SmsUtils
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -36,15 +26,15 @@ class MainActivity : AppCompatActivity() {
         val app = application as RfcxGuardian
         when (item.itemId) {
 
-            R.id.menu_reboot -> app.rfcxServiceHandler.triggerService("RebootTrigger", true)
-
-            R.id.menu_relaunch -> app.rfcxServiceHandler.triggerIntentServiceImmediately("ForceRoleRelaunch")
+            R.id.menu_sms ->  SmsUtils.testSmsQueue("+"+app.rfcxPrefs.getPrefAsString("api_sms_address"), 75, 5, app.applicationContext)
 
             R.id.menu_screenshot -> app.rfcxServiceHandler.triggerService("ScreenShotCapture", true)
 
-            R.id.menu_sntp -> app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true)
+            R.id.menu_sntp -> app.rfcxServiceHandler.triggerService("SntpSyncJob", true)
 
             R.id.menu_logcat -> app.rfcxServiceHandler.triggerService("LogCatCapture", true)
+
+            R.id.menu_reboot -> app.rfcxServiceHandler.triggerService("RebootTrigger", true)
 
         }
         return true

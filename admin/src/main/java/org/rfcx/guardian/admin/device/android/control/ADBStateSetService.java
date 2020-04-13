@@ -4,15 +4,15 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.root.DeviceADB;
+import org.rfcx.guardian.utility.device.control.DeviceADB;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ADBStateSetService extends IntentService {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ADBStateSetService.class);
-
 	private static final String SERVICE_NAME = "ADBStateSet";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ADBStateSetService");
 
 	public ADBStateSetService() {
 		super(logTag);

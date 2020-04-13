@@ -15,9 +15,9 @@ import android.util.Log;
 
 public class ApiCheckVersionService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckVersionService.class);
-	
 	private static final String SERVICE_NAME = "ApiCheckVersion";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckVersionService");
 
 	private RfcxGuardian app;
 	
@@ -72,25 +72,25 @@ public class ApiCheckVersionService extends Service {
 			HttpGet httpGet = new HttpGet(app.getApplicationContext(),RfcxGuardian.APP_ROLE);
 			// setting customized rfcx authentication headers (necessary for API access)
 			List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
-			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxDeviceGuid.getDeviceGuid() });
-			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxDeviceGuid.getDeviceToken() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxGuardianIdentity.getGuid() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxGuardianIdentity.getAuthToken() });
 			httpGet.setCustomHttpHeaders(rfcxAuthHeaders);
 
 			try {
 				if (app.deviceConnectivity.isConnected()) {
-					if (app.apiCore.apiCheckVersionEndpoint != null) {
+					if (app.apiCheckVersionUtils.apiCheckVersionEndpoint != null) {
 						app.lastApiCheckTriggeredAt = System.currentTimeMillis();
 						String getUrl =	app.rfcxPrefs.getPrefAsString("api_rest_protocol")
 										+ "://"
 										+ app.rfcxPrefs.getPrefAsString("api_rest_host")
-										+ app.apiCore.apiCheckVersionEndpoint
+										+ app.apiCheckVersionUtils.apiCheckVersionEndpoint
 										+ "?role="+app.APP_ROLE.toLowerCase()
 										+ "&version="+app.version
 										+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
 										+ "&timestamp="+System.currentTimeMillis()
 										;
 						
-						long sinceLastCheckIn = (System.currentTimeMillis() - app.apiCore.lastCheckInTime) / 1000;
+						long sinceLastCheckIn = (System.currentTimeMillis() - app.apiCheckVersionUtils.lastCheckInTime) / 1000;
 						Log.d(logTag, "Since last checkin: "+sinceLastCheckIn);
 						List<JSONObject> jsonResponse = httpGet.getAsJsonList(getUrl);
 						for (JSONObject json : jsonResponse) {
@@ -100,7 +100,7 @@ public class ApiCheckVersionService extends Service {
 							String appRole = jsonResponseItem.getString("role").toLowerCase();
 							if (!appRole.equals(RfcxGuardian.APP_ROLE)) {
 								app.targetAppRole = appRole;
-								if (app.apiCore.apiCheckVersionFollowUp(app,appRole,jsonResponse)) {
+								if (app.apiCheckVersionUtils.apiCheckVersionFollowUp(app,appRole,jsonResponse)) {
 									break;
 								}
 							}

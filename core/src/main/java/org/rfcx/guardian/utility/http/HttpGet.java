@@ -27,11 +27,11 @@ public class HttpGet {
 		
 	public HttpGet(Context context, String appRole) {
 		this.context = context;
-		this.logTag = RfcxLog.generateLogTag(appRole, HttpGet.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "HttpGet");
 	}
 	
 	private Context context;
-	private String logTag = RfcxLog.generateLogTag("Utils", HttpGet.class);
+	private String logTag;
 	
 	private static final String DOWNLOAD_TIME_LABEL = "Download time: ";
 	

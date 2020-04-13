@@ -14,7 +14,7 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class GuardianContentProvider extends ContentProvider {
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, GuardianContentProvider.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ContentProvider");
 
 	private static final String appRole = RfcxGuardian.APP_ROLE;
 

@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import android.Manifest;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceCPU;
+import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -26,7 +26,7 @@ public class DeviceUtils {
 		this.context = context;
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceUtils");
 
 	private Context context;
 
@@ -90,8 +90,8 @@ public class DeviceUtils {
 	
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
-	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		1, 		1,		1 	};
-	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	180/*3600*/,	60,		10 	};
+	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {	1, 		1,		1 	};
+	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 		1800,	60,		10 	};
 	public int geoPositionUpdateIndex = 0;
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
@@ -146,13 +146,12 @@ public class DeviceUtils {
 
 			RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
 
-			if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
-				Log.i(logTag, "Snapshot —— Accelerometer"
-						+" —— x: "+accelSensorSnapshotAverages[1]+", y: "+accelSensorSnapshotAverages[2]+", z: "+accelSensorSnapshotAverages[3]
-						+" —— "+Math.round(accelSensorSnapshotAverages[4])+" sample(s)"
-						+" —— "+DateTimeUtils.getDateTime((long) Math.round(accelSensorSnapshotAverages[0]))
-						);
-			}
+			Log.i(logTag, "Snapshot —— Accelerometer"
+					+" —— x: "+accelSensorSnapshotAverages[1]+", y: "+accelSensorSnapshotAverages[2]+", z: "+accelSensorSnapshotAverages[3]
+					+" —— "+Math.round(accelSensorSnapshotAverages[4])+" sample(s)"
+					+" —— "+DateTimeUtils.getDateTime((long) Math.round(accelSensorSnapshotAverages[0]))
+					);
+
 			
 			// this is where we would report this interim accel value to something, somewhere that would determine if the phone is moving around...			
 		}
@@ -185,20 +184,15 @@ public class DeviceUtils {
 						location.getAltitude(),
 						(double) location.getTime()
 					};
-				
-				if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
-					Log.i(logTag, "Snapshot —— GeoPosition"
-							+" —— Lat: "+geoPos[1]+", Lng: "+geoPos[2]+", Alt: "+Math.round(geoPos[4])+" meters"
-							+" —— Accuracy: "+Math.round(geoPos[3])+" meters"
-							+" —— "+DateTimeUtils.getDateTime(dateTimeSourceLastSyncedAt_gps)
-							+" —— Clock Discrepancy: "+dateTimeDiscrepancyFromSystemClock_gps+" ms"
-							);
-				}
-				
-				// only save/cache datetime offset value if the GPS clock is less than 5 minutes different than the system clock
-				if (Math.abs(dateTimeDiscrepancyFromSystemClock_gps) < (5 * 60 * 1000) ) {
-					app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps);
-				}
+
+				Log.i(logTag, "Snapshot —— GeoPosition"
+						+" —— Lat: "+geoPos[1]+", Lng: "+geoPos[2]+", Alt: "+Math.round(geoPos[4])+" meters"
+						+" —— Accuracy: "+Math.round(geoPos[3])+" meters"
+						+" —— "+DateTimeUtils.getDateTime(dateTimeSourceLastSyncedAt_gps)
+						+" —— Clock Discrepancy: "+dateTimeDiscrepancyFromSystemClock_gps+" ms"
+						);
+
+				app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps);
 				app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);
 					
 			} catch (Exception e) {

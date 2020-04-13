@@ -19,8 +19,7 @@ public class DeviceSensorDb {
 		this.dbAccelerometer = new DbAccelerometer(context);
 		this.dbGeoPosition = new DbGeoPosition(context);
 	}
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSensorDb.class);
+
 	private int VERSION = 1;
 	static final String DATABASE = "device";
 	static final String C_MEASURED_AT = "measured_at";

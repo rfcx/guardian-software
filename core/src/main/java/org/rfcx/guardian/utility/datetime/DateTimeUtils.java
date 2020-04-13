@@ -12,14 +12,16 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
 
+import android.app.AlarmManager;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DateTimeUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DateTimeUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DateTimeUtils");
 	
 	private static final Locale DEFAULT_LOCALE = Locale.getDefault();
 	private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", DEFAULT_LOCALE);
@@ -164,20 +166,21 @@ public class DateTimeUtils {
 		ShellCommands.executeCommandAsRootAndIgnoreOutput("chmod 666 /dev/alarm;", context);
 	}
 
-	public static void setSystemTimezone(String timezoneInTzFormat) {
-
-		for (String validTz : validTzTimezones) {
+	public static void setSystemTimezone(String timezoneInTzFormat, Context context) {
+		for (String validTz : TimeZone.getAvailableIDs()) {
 			if (validTz.equalsIgnoreCase(timezoneInTzFormat)) {
 				Log.v(logTag, "Setting System Timezone to '"+timezoneInTzFormat+"'");
-				TimeZone.setDefault(TimeZone.getTimeZone(validTz));
+				AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+				alarmManager.setTimeZone(validTz);
 				break;
 			}
 		}
 	}
 
-	private static final String[] validTzTimezones = new String[] {
-			"America/New_York",
-			"America/Los_Angeles",
-			"America/Sao_Paulo"
-	};
+	public static void listValidTimezones() {
+		for (String validTz : TimeZone.getAvailableIDs()) {
+			Log.v(logTag, validTz);
+		}
+	}
+
 }

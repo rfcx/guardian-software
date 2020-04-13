@@ -18,7 +18,6 @@ public class CameraCaptureDb {
 		this.dbPhotoCaptured = new DbPhotoCaptured(context);
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, CameraCaptureDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "camera";
 	static final String C_CREATED_AT = "created_at";

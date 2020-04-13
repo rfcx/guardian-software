@@ -10,7 +10,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class BootReceiver extends BroadcastReceiver {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, BootReceiver.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "BootReceiver");
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {

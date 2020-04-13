@@ -20,7 +20,7 @@ object GuardianUtils {
         val file = File(path, "registered_at.txt")
         FileOutputStream(file).use {
             val app = context.applicationContext as RfcxGuardian
-            it.write(app.rfcxDeviceGuid.deviceGuid.toByteArray())
+            it.write(app.rfcxGuardianIdentity.guid.toByteArray())
         }
     }
 

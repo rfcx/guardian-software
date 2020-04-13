@@ -12,7 +12,7 @@ import java.util.Date;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ConnectivityReceiver.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ConnectivityReceiver");
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {

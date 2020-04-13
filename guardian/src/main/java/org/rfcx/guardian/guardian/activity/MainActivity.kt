@@ -1,7 +1,6 @@
 package org.rfcx.guardian.guardian.activity
 
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
@@ -22,19 +21,12 @@ import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.manager.isLoginExpired
-import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterDeliverReceiver
-import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterSentReceiver
-import org.rfcx.guardian.guardian.receiver.SmsDeliverListener
-import org.rfcx.guardian.guardian.receiver.SmsSentListener
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
-import org.rfcx.guardian.guardian.utils.PhoneNumberRegisterUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallback {
     private var getInfoThread: Thread? = null
-    private lateinit var phoneNumberRegisterDeliverReceiver: PhoneNumberRegisterDeliverReceiver
-    private lateinit var phoneNumberRegisterSentReceiver: PhoneNumberRegisterSentReceiver
     private lateinit var app: RfcxGuardian
 
     override fun onResume() {
@@ -44,7 +36,6 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         setUIByLoginState()
         setUIByGuidState()
         startServices()
-        phoneRegisterSetup()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -68,7 +59,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         initUI()
 
         startButton.setOnClickListener {
-            app.launchRoleServices()
+            app.initializeRoleServices()
             setUIFromBtnClicked("start")
             getCheckinInformation()
         }
@@ -91,14 +82,10 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             }
 
             setVisibilityBeforeRegister()
-            val guid = app.rfcxDeviceGuid.deviceGuid
-            val token = app.rfcxDeviceGuid.deviceToken
+            val guid = app.rfcxGuardianIdentity.guid
+            val token = app.rfcxGuardianIdentity.authToken
 
             RegisterApi.registerGuardian(applicationContext, RegisterRequest(guid, token), this)
-        }
-
-        phoneNumRegisterButton.setOnClickListener {
-            PhoneNumberRegisterUtils.sendSMS(this)
         }
 
         loginButton.setOnClickListener {
@@ -127,38 +114,6 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         appVersionText.text = "version: ${app.version}"
     }
 
-    private fun phoneRegisterSetup() {
-        phoneNumberRegisterDeliverReceiver =
-            PhoneNumberRegisterDeliverReceiver(object : SmsDeliverListener {
-                override fun onDelivered(isSuccess: Boolean) {
-                    if (isSuccess) {
-                        showPhoneRegisterStatus()
-                        PreferenceManager.getInstance(applicationContext)
-                            .putBoolean("PHONE_REGISTER", true)
-                        showToast("registered success")
-                    } else {
-                        showToast("please try again")
-                    }
-                }
-            })
-
-        phoneNumberRegisterSentReceiver = PhoneNumberRegisterSentReceiver(object : SmsSentListener {
-            override fun onSent(message: String) {
-                showToast(message)
-            }
-        })
-
-        if (PreferenceManager.getInstance(applicationContext).getBoolean("PHONE_REGISTER", false)) {
-            showPhoneRegisterStatus()
-        }
-        registerReceiver(phoneNumberRegisterDeliverReceiver, IntentFilter("SMS_DELIVERED"))
-        registerReceiver(phoneNumberRegisterSentReceiver, IntentFilter("SMS_SENT"))
-    }
-
-    private fun showPhoneRegisterStatus() {
-        phoneNumRegisterButton.visibility = View.GONE
-        phoneNumRegisterStatusTextView.visibility = View.VISIBLE
-    }
 
     private fun showToast(message: String) {
         Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
@@ -166,17 +121,17 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
 
     private fun startServices() {
         Handler().postDelayed({
-            app.launchRoleServices()
+            app.initializeRoleServices()
             setUIByRecordingState()
             setBtnEnableByRecordingState()
-            if (app.recordingState) {
+            if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
                 getCheckinInformation()
             }
         }, 1000)
     }
 
     private fun setBtnEnableByRecordingState() {
-        when (app.recordingState) {
+        when (app.rfcxServiceHandler.isRunning("AudioCapture")) {
             true -> {
                 startButton.isEnabled = false
                 stopButton.isEnabled = true
@@ -213,7 +168,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     private fun setUIByRecordingState() {
         if (GuardianUtils.isGuardianRegistered(this)) {
             deviceIdText.text = GuardianUtils.readGuardianGuid(this)
-            if (app.recordingState) {
+            if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
                 recordStatusText.text = "recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
             } else {
@@ -256,6 +211,11 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         unregisteredView.visibility = View.INVISIBLE
     }
 
+    private fun setVisibilityRegisterFail() {
+        registerButton.visibility = View.VISIBLE
+        registerProgress.visibility = View.INVISIBLE
+    }
+
     private fun getCheckinInformation() {
         val checkInUtils = CheckInInformationUtils()
         getInfoThread = object : Thread() {
@@ -278,17 +238,18 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     }
 
     override fun onRegisterSuccess() {
-        GuardianCheckApi.exists(applicationContext, app.rfcxDeviceGuid.deviceGuid, this)
+        GuardianCheckApi.exists(applicationContext, app.rfcxGuardianIdentity.guid, this)
     }
 
     override fun onRegisterFailed(t: Throwable?, message: String?) {
+        setVisibilityRegisterFail()
         showToast(message ?: "register failed")
     }
 
     override fun onGuardianCheckSuccess() {
         setVisibilityRegisterSuccess()
         GuardianUtils.createRegisterFile(baseContext)
-        app.launchRoleServices()
+        app.initializeRoleServices()
         setUIByRecordingState()
         setUIByGuidState()
         setUIFromBtnClicked("start")
@@ -297,6 +258,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {
+        setVisibilityRegisterFail()
         showToast(message ?: "Try again later")
     }
 
@@ -305,8 +267,6 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         if (getInfoThread != null) {
             getInfoThread?.interrupt()
         }
-        unregisterReceiver(phoneNumberRegisterDeliverReceiver)
-        unregisterReceiver(phoneNumberRegisterSentReceiver)
     }
 
     companion object {

@@ -4,22 +4,24 @@ import org.rfcx.guardian.utility.datetime.SntpClient;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+
+import android.app.AlarmManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
 
-public class DateTimeSntpSyncJobService extends Service {
+public class SntpSyncJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DateTimeSntpSyncJobService.class);
-	
-	private static final String SERVICE_NAME = "DateTimeSntpSyncJob";
+	private static final String SERVICE_NAME = "SntpSyncJob";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SntpSyncJobService");
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private DateTimeSntpSyncJob dateTimeSntpSyncJob;
+	private SntpSyncJob sntpSyncJob;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,7 +32,7 @@ public class DateTimeSntpSyncJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.dateTimeSntpSyncJob = new DateTimeSntpSyncJob();
+		this.sntpSyncJob = new SntpSyncJob();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -41,7 +43,7 @@ public class DateTimeSntpSyncJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.dateTimeSntpSyncJob.start();
+			this.sntpSyncJob.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -53,20 +55,20 @@ public class DateTimeSntpSyncJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.dateTimeSntpSyncJob.interrupt();
-		this.dateTimeSntpSyncJob = null;
+		this.sntpSyncJob.interrupt();
+		this.sntpSyncJob = null;
 	}
 	
 	
-	private class DateTimeSntpSyncJob extends Thread {
+	private class SntpSyncJob extends Thread {
 		
-		public DateTimeSntpSyncJob() {
-			super("DateTimeSntpSyncJobService-DateTimeSntpSyncJob");
+		public SntpSyncJob() {
+			super("SntpSyncJobService-SntpSyncJob");
 		}
 		
 		@Override
 		public void run() {
-			DateTimeSntpSyncJobService dateTimeSntpSyncJobInstance = DateTimeSntpSyncJobService.this;
+			SntpSyncJobService sntpSyncJobInstance = SntpSyncJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			
@@ -96,7 +98,7 @@ public class DateTimeSntpSyncJobService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				dateTimeSntpSyncJobInstance.runFlag = false;
+				sntpSyncJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}

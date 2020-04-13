@@ -13,14 +13,13 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class RfcxCameraUtils {
 	
 	public RfcxCameraUtils(Context context, String appRole, String rfcxDeviceId) {
-		this.logTag = RfcxLog.generateLogTag(appRole, RfcxCameraUtils.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxCameraUtils");
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
-		
 		initializeCameraCaptureDirectories(context);
 	}
 
-	private String logTag = RfcxLog.generateLogTag("Utils", RfcxCameraUtils.class);
+	private String logTag;
 	private String appRole = "Utils";
 	private String rfcxDeviceId = null;
 	

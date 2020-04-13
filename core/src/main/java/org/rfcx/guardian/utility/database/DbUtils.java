@@ -19,7 +19,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DbUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DbUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DbUtils");
 
 	private static final int DEFAULT_ROWOFFSET = 0;
 	private static final int DEFAULT_ROWLIMIT = 1000;
@@ -101,8 +101,9 @@ public class DbUtils {
 	public static List<String[]> getRows(SQLiteDatabase db, String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy, int rowOffset, int rowLimit) {
 		
 		ArrayList<String[]> rowList = new ArrayList<String[]>();
-		try { 
-			Cursor cursor = db.query(tableName, tableColumns, selection, selectionArgs, null, null, (orderBy != null) ? orderBy+" "+DEFAULT_ORDER : null, ""+(rowOffset+rowLimit));
+		try {
+			if (orderBy != null) { orderBy = (orderBy.substring(orderBy.length()-4).equalsIgnoreCase(" ASC") || orderBy.substring(orderBy.length()-5).equalsIgnoreCase(" DESC")) ? orderBy : (orderBy+" "+DEFAULT_ORDER); }
+			Cursor cursor = db.query(tableName, tableColumns, selection, selectionArgs, null, null, orderBy, ""+(rowOffset+rowLimit));
 			if ((cursor != null) && (cursor.getCount() > rowOffset) && cursor.moveToPosition(rowOffset)) {
 				do { 
 					rowList.add( cursorToStringArray( cursor, tableColumns.length ) );

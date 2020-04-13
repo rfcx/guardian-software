@@ -22,8 +22,7 @@ public class DeviceSystemDb {
 		this.dbMqttBrokerConnections = new DbMqttBrokerConnections(context);
 		this.dbDateTimeOffsets = new DbDateTimeOffsets(context);
 	}
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSystemDb.class);
+
 	private int VERSION = 1;
 	static final String DATABASE = "device";
 	static final String C_MEASURED_AT = "measured_at";
@@ -40,7 +39,7 @@ public class DeviceSystemDb {
 			.append(")");
 		return sbOut.toString();
 	}
-	
+
 //	public class DbCPU {
 //
 //		final DbUtils dbUtils;
@@ -75,8 +74,8 @@ public class DeviceSystemDb {
 //
 //	}
 //	public final DbCPU dbCPU;
-	
-	
+
+
 //	public class DbBattery {
 //
 //		final DbUtils dbUtils;
@@ -150,7 +149,7 @@ public class DeviceSystemDb {
 //
 //	}
 //	public final DbPower dbPower;
-	
+
 //	public class DbTelephony {
 //
 //		final DbUtils dbUtils;
@@ -258,7 +257,7 @@ public class DeviceSystemDb {
 
 	}
 	public final DbMqttBrokerConnections dbMqttBrokerConnections;
-	
+
 	public class DbDateTimeOffsets {
 
 		final DbUtils dbUtils;

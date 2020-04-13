@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device;
+package org.rfcx.guardian.utility.device.capture;
 
 import android.net.TrafficStats;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -6,7 +6,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceNetworkStats {
 	
 	public DeviceNetworkStats(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceNetworkStats.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceNetworkStats");
 	}
 	
 	private String logTag = RfcxLog.generateLogTag("Utils", DeviceNetworkStats.class);

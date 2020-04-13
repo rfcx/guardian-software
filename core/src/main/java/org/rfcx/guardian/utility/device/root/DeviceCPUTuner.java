@@ -15,12 +15,12 @@ public class DeviceCPUTuner {
 	
 	public DeviceCPUTuner(Context context, String appRole) {
 		this.context = context;
-		this.logTag = RfcxLog.generateLogTag("Utils", DeviceCPUTuner.class);
+		this.logTag = RfcxLog.generateLogTag("Utils", "DeviceCPUTuner");
 //		this.shellCommands = new ShellCommands(context);
 	}
 	
 	private Context context;
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceCPUTuner.class);
+	private String logTag;
 //	private ShellCommands shellCommands;
 	
 	public void writeConfiguration(int freq_min, int freq_max) {

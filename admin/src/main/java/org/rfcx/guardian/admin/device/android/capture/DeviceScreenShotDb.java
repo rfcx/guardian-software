@@ -18,7 +18,6 @@ public class DeviceScreenShotDb {
 		this.dbCaptured = new DbCaptured(context);
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceScreenShotDb.class);
 	private int VERSION = 1;
 	static final String DATABASE = "screenshots";
 	static final String C_CREATED_AT = "created_at";

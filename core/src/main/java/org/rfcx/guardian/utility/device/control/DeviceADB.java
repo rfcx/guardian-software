@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.root;
+package org.rfcx.guardian.utility.device.control;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -9,7 +9,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceADB {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceADB.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceADB");
 
 	public static final int DEFAULT_TCP_PORT = 7329; // RFCX (7329)
 

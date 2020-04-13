@@ -21,7 +21,7 @@ import java.util.List;
 
 public class DeviceSmsUtils {
 	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceSmsUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceSmsUtils");
 	
 	public static JSONArray getSmsMessagesFromSystemAsJsonArray(ContentResolver contentResolver) {
 		
@@ -45,13 +45,13 @@ public class DeviceSmsUtils {
 		return msgJsonArray;
 	}
 
-	public static JSONArray formatSmsMessagesFromDatabaseAsJsonArray(List<String[]> smsDbRows) {
+	public static JSONArray formatSmsMessagesFromDatabaseAsJsonArray(String msgType, List<String[]> smsDbRows) {
 
 		JSONArray msgJsonArray = new JSONArray();
 		for (String[] smsDbRow : smsDbRows) {
 			try {
 				JSONObject msgJson = new JSONObject();
-				msgJson.put("received_at", smsDbRow[1]);
+				msgJson.put(msgType+"_at", smsDbRow[1]);
 				msgJson.put("address", smsDbRow[2]);
 				msgJson.put("body", smsDbRow[3]);
 				msgJson.put("android_id", smsDbRow[4]);
@@ -91,6 +91,10 @@ public class DeviceSmsUtils {
 			RfcxLog.logExc(logTag, e);
 		}
 		return rtrnInt;
+	}
+
+	public static String generateMessageId() {
+		return ((int) (Math.random() * 100000 + 1)) + "";
 	}
 	
 	public static JSONArray processIncomingSmsMessageAsJson(Intent intent) {

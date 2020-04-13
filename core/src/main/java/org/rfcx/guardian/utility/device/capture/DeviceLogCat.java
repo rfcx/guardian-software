@@ -1,5 +1,5 @@
 
-package org.rfcx.guardian.utility.device.control;
+package org.rfcx.guardian.utility.device.capture;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,14 +16,14 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceLogCat {
 	
 	public DeviceLogCat(Context context, String appRole, String rfcxDeviceId, String logLevel) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceLogCat.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceLogCat");
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
 		initializeLogCatDirectories(context);
 		saveExecutableScript(context, logLevel);
 	}
 
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceLogCat.class);
+	private String logTag;
 	private String appRole = "Utils";
 	private String rfcxDeviceId = null;
 	

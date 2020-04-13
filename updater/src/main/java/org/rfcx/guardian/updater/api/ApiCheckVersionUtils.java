@@ -9,9 +9,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.util.Log;
 
-public class ApiCore {
+public class ApiCheckVersionUtils {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCore.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckVersionUtils");
 
 	public long lastCheckInTime = System.currentTimeMillis();
 

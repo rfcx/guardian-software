@@ -1,20 +1,21 @@
 package org.rfcx.guardian.updater.service;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-public class ApiCheckVersionIntentService extends IntentService {
+public class ApiCheckVersionTrigger extends IntentService {
 
-	private static final String TAG = "Rfcx-"+RfcxGuardian.APP_ROLE+"-"+ApiCheckVersionIntentService.class.getSimpleName();
-	
-	private static final String SERVICE_NAME = "ApiCheckVersionIntentService";
+	private static final String SERVICE_NAME = "ApiCheckVersionTrigger";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckVersionTrigger");
 		
-	public ApiCheckVersionIntentService() {
-		super(TAG);
+	public ApiCheckVersionTrigger() {
+		super(logTag);
 	}
 
 	@Override
@@ -32,11 +33,11 @@ public class ApiCheckVersionIntentService extends IntentService {
 		} else if (	(app.deviceConnectivity.lastDisconnectedAt() > app.deviceConnectivity.lastConnectedAt())
 				&& 	((app.deviceConnectivity.lastDisconnectedAt()-app.deviceConnectivity.lastConnectedAt()) > prefsInstallOfflineToggleThreshold)
 				) {
-			Log.e(TAG, "Disconnected for more than " + Math.round( prefsInstallOfflineToggleThreshold / ( 60 * 1000 ) ) + " minutes.");
+			Log.e(logTag, "Disconnected for more than " + Math.round( prefsInstallOfflineToggleThreshold / ( 60 * 1000 ) ) + " minutes.");
 			// nothing happens here
 			// in order to ensure no conflict with other apps running in parallel
 		} else {
-			Log.d(TAG,"Disconnected for less than " + Math.round( prefsInstallOfflineToggleThreshold / ( 60 * 1000 ) ) + " minutes.");
+			Log.d(logTag,"Disconnected for less than " + Math.round( prefsInstallOfflineToggleThreshold / ( 60 * 1000 ) ) + " minutes.");
 		}
 	}
 

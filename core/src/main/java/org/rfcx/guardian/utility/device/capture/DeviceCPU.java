@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device;
+package org.rfcx.guardian.utility.device.capture;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -9,10 +9,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceCPU {
 	
 	public DeviceCPU(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceCPU.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceCPU");
 	}
 
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceCPU.class);
+	private String logTag;
 	
 	private int reportingSampleCount = 60;
 	

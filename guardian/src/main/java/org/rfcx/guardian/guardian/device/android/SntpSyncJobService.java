@@ -12,9 +12,9 @@ import android.util.Log;
 
 public class SntpSyncJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SntpSyncJobService.class);
-	
 	private static final String SERVICE_NAME = "SntpSyncJob";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SntpSyncJobService");
 	
 	private RfcxGuardian app;
 	

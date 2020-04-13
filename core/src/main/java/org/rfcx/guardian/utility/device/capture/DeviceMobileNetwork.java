@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device;
+package org.rfcx.guardian.utility.device.capture;
 
 import java.util.Date;
 
@@ -9,10 +9,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceMobileNetwork {
 	
 	public DeviceMobileNetwork(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceMobileNetwork.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceMobileNetwork");
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceMobileNetwork.class);
+	private String logTag;
 	
 	public static String[] getMobileNetworkSummary(TelephonyManager telephonyManager, SignalStrength signalStrength) {
 		

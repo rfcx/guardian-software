@@ -13,9 +13,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class CameraPhotoCaptureService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, CameraPhotoCaptureService.class);
-		
 	private static final String SERVICE_NAME = "CameraPhotoCapture";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CameraPhotoCaptureService");
 	
 	private RfcxGuardian app;
 	

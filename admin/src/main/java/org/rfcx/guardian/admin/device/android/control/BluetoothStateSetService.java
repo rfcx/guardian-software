@@ -1,22 +1,20 @@
 package org.rfcx.guardian.admin.device.android.control;
 
 import android.app.IntentService;
-import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.root.DeviceADB;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class BluetoothStateSetService extends IntentService {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, BluetoothStateSetService.class);
-
 	private static final String SERVICE_NAME = "BluetoothStateSet";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "BluetoothStateSetService");
 
 	public BluetoothStateSetService() {
 		super(logTag);
@@ -53,7 +51,7 @@ public class BluetoothStateSetService extends IntentService {
 				}
 			}
 			// set network name
-			app.deviceBluetooth.setNetworkName("rfcx-"+app.rfcxDeviceGuid.getDeviceGuid().substring(0,8));
+			app.deviceBluetooth.setNetworkName("rfcx-"+app.rfcxGuardianIdentity.getGuid().substring(0,8));
 
 			// turn tethering ON
 			Log.e(logTag, "Bluetooth has been powered on but tethering will NOT be enabled at this time (see disclaimer above).");

@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 
 public class DeviceWifi {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceWifi.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceWifi");
 
 	public DeviceWifi(Context context) {
 		this.context = context;

@@ -22,7 +22,7 @@ public class AppProcessInfo {
 	
 	private Context context;
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", AppProcessInfo.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "AppProcessInfo");
 
 	public static int getAppProcessId() {
 		int appPid = android.os.Process.myPid();
