@@ -279,6 +279,15 @@
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="true" />
+
+	<ListPreference
+			android:key="admin_system_timezone"
+			android:title="admin_system_timezone"
+			android:dialogTitle="admin_system_timezone"
+			android:summary="string - Region/Zone"
+			android:entries="@array/tz_timezones"
+			android:entryValues="@array/tz_timezones"
+			android:defaultValue="[ Not Set ]" />
  	
  	
 </PreferenceScreen>
