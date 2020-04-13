@@ -2,7 +2,7 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.json.JSONArray;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
-import org.rfcx.guardian.admin.sms.SmsScheduler;
+import org.rfcx.guardian.admin.sms.SmsUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -103,7 +103,7 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSegAfterSendAt = pathSeg.substring(pathSegSendAt.length()+1);
                 String pathSegAddress = pathSegAfterSendAt.substring(0, pathSegAfterSendAt.indexOf("|"));
                 String pathSegMessage = pathSegAfterSendAt.substring(1 + pathSegAfterSendAt.indexOf("|"));
-                SmsScheduler.addScheduledSmsToQueue((long) Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext());
+                SmsUtils.addScheduledSmsToQueue((long) Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext());
                 return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{pathSegSendAt + "|" + pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
 
                 // "database" function endpoints

@@ -9,7 +9,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_home.*
-import org.rfcx.guardian.admin.sms.SmsScheduler
+import org.rfcx.guardian.admin.sms.SmsUtils
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         val app = application as RfcxGuardian
         when (item.itemId) {
 
-            R.id.menu_sms ->  SmsScheduler.testSmsQueue("+"+app.rfcxPrefs.getPrefAsString("api_sms_address"), 75, 5, app.applicationContext)
+            R.id.menu_sms ->  SmsUtils.testSmsQueue("+"+app.rfcxPrefs.getPrefAsString("api_sms_address"), 75, 5, app.applicationContext)
 
             R.id.menu_screenshot -> app.rfcxServiceHandler.triggerService("ScreenShotCapture", true)
 
