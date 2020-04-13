@@ -76,11 +76,11 @@ Before, starting any instructions here. Please read the information below and do
 
 1. Make sure COM 2 jumper is ON.
 1. You need to download and install these tools
-    1. [MTK Driver Installer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!rGhSzJBL).
+    1. [MTK Driver Installer](https://drive.google.com/open?id=15GXkFqZ95ilu482SXAiOPlxm878otwu9).
        Choose WIN8 if you are using Windows 8 or above.
        (Some users report failures during install -- [this is the solution](https://youtu.be/3g542NRQFwg))
-    2. [MTK Flash Tool](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!mCJG3DgT)
-    3. Orange Pi Android image: [Android image](https://drive.google.com/file/d/1qqZdEtqlC_wr-OBakuJpUZa7Twzy5ABh/view?usp=sharing)
+    2. [MTK Flash Tool](https://drive.google.com/open?id=1VXU-Jb5A8cFco3Q6uYht684pxjnp0pJd)
+    3. Orange Pi Android image: [Android image](https://drive.google.com/open?id=1vaF4ccuwoh-fFRWvOI8vAc726caIPDEF)
 2. Open the MTK Flash Tool *(flash_tool)*
     1. Make sure the Orange Pi is NOT connected.
     2. Choose the scatter-loading file **MT6572_Android_scatter** *(This is in the Android_OS_for_Orange_Pi_3G-IoT/images/ folder after extracting the image.)*
@@ -119,7 +119,7 @@ Before following the instruction below. You need to download Vysor first.
 ### Step 3: Set the IMEI number
 
 1. Make sure that COM 2 jumper is OFF (removed).
-2. First download [IMEI Writer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!fCJmCTAY) (for Windows)
+2. First download [IMEI Writer](https://drive.google.com/open?id=1JBEbILcHHfWM3Yz4e4J9Yc5Leix9m1uI) (for Windows)
 3. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
 4. Choose **USB VCOM** and **Smart Phone**
 5. Open System Config
@@ -136,16 +136,7 @@ Before following the instruction below. You need to download Vysor first.
 
    ![](docs/images/checkimei.png?raw=true)
 
-### Step 4: Root the Orange Pi
-
-1. First, you need to download [KingoRoot app](https://www.kingoapp.com/android-root/download.htm) (for Windows)
-2. Before rooting your Orange Pi, make sure that it is connected to your PC and USB debugging is on.
-3. Start KingoRoot app. *(If it detects Orange Pi, it will show the **ROOT** button)*
-4. Press the root button to start the rooting process. You can look the progression on the KingoRoot or on your Orange Pi's screen *(through Vysor)*
-6. After the rooting process is success, your Orange Pi's screen will show the SuperUser app *(automatically installed)* with "Rooted" green text.
-7. If it tells the device is not rooted yet, you need to re-do on **3** again until it is success.
-
-### Step 5: Run the application through Android Studio
+### Step 4: Run the application through Android Studio
 
 1. Make sure the Orange Pi is connected.
 
@@ -162,7 +153,7 @@ Before following the instruction below. You need to download Vysor first.
    ![](docs/images/androidstudio2.PNG?raw=true)
 
 
-### Step 6: How to debug Orange Pi over Bluetooth instead of USB cable
+### Step 5: How to debug Orange Pi over Bluetooth instead of USB cable
 
 1. Make sure Orange Pi is connected, Bluetooth is on and set visibility timeout to never time out as follows.
     1. Bluetooth is *on*
@@ -207,7 +198,7 @@ Before following the instruction below. You need to download Vysor first.
 7. If you want to go back to USB debugging, you need to `adb shell` and then enter `setprop persist.adb.tcp.port ""`.
 
 
-### Step 7: How to connect i2c and load i2c module
+### Step 6: How to connect i2c and load i2c module
 
 1. First, place Orange Pi same position as in the image.
 
@@ -225,7 +216,7 @@ Before following the instruction below. You need to download Vysor first.
 
 5. You can debug Orange Pi by using micro usb on [Step 6](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-7-how-to-debug-orange-pi-over-bluetooth-instead-of-usb-cable)
 
-### Step 8: How to setup, run and test the I2C
+### Step 7: How to setup, run and test the I2C
 
 1. Orange Pi need to be rooted first on [Step 4](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-4-root-the-orange-pi)
 
