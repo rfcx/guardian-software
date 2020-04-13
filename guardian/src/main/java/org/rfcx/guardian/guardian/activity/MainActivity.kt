@@ -211,6 +211,11 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         unregisteredView.visibility = View.INVISIBLE
     }
 
+    private fun setVisibilityRegisterFail() {
+        registerButton.visibility = View.VISIBLE
+        registerProgress.visibility = View.INVISIBLE
+    }
+
     private fun getCheckinInformation() {
         val checkInUtils = CheckInInformationUtils()
         getInfoThread = object : Thread() {
@@ -237,6 +242,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     }
 
     override fun onRegisterFailed(t: Throwable?, message: String?) {
+        setVisibilityRegisterFail()
         showToast(message ?: "register failed")
     }
 
@@ -252,6 +258,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {
+        setVisibilityRegisterFail()
         showToast(message ?: "Try again later")
     }
 
