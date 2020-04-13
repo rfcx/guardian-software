@@ -12,7 +12,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
+import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -52,7 +52,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, "RfcxGuardian");
 
-    public RfcxDeviceGuid rfcxDeviceGuid = null;
+    public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
     public RfcxServiceHandler rfcxServiceHandler = null;
 
@@ -95,7 +95,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         super.onCreate();
 
-        this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
+        this.rfcxGuardianIdentity = new RfcxGuardianIdentity(this, APP_ROLE);
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
         this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 

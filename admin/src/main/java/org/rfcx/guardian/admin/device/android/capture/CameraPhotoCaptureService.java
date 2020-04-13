@@ -15,7 +15,7 @@ public class CameraPhotoCaptureService extends Service {
 
 	private static final String SERVICE_NAME = "CameraPhotoCapture";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, CameraPhotoCaptureService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CameraPhotoCaptureService");
 	
 	private RfcxGuardian app;
 	

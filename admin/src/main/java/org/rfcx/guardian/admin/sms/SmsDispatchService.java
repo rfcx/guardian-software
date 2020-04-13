@@ -17,7 +17,7 @@ public class SmsDispatchService extends Service {
 
 	private static final String SERVICE_NAME = "SmsDispatch";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SmsDispatchService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SmsDispatchService");
 	
 	private RfcxGuardian app;
 	

@@ -11,7 +11,7 @@ public class ScheduledLogCatCaptureService extends IntentService {
 
 	private static final String SERVICE_NAME = "ScheduledLogCatCapture";
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledLogCatCaptureService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledLogCatCaptureService");
 		
 	public ScheduledLogCatCaptureService() {
 		super(logTag);

@@ -13,7 +13,7 @@ public class ApiQueueCheckInService extends IntentService {
 
 	private static final String SERVICE_NAME = "ApiQueueCheckIn";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiQueueCheckInService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiQueueCheckInService");
 		
 	public ApiQueueCheckInService() {
 		super(logTag);

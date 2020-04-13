@@ -17,7 +17,7 @@ public class InstallAppService extends Service {
 
 	private static final String SERVICE_NAME = "InstallApp";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, InstallAppService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstallAppService");
 
 	private RfcxGuardian app;
 	

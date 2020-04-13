@@ -11,7 +11,7 @@ public class ScheduledScreenShotCaptureService extends IntentService {
 
 	private static final String SERVICE_NAME = "ScheduledScreenShotCapture";
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledScreenShotCaptureService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledScreenShotCaptureService");
 		
 	public ScheduledScreenShotCaptureService() {
 		super(logTag);

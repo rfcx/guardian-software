@@ -14,7 +14,7 @@ public class AudioCaptureService extends Service {
 
 	private static final String SERVICE_NAME = "AudioCapture";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioCaptureService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCaptureService");
 	
 	private RfcxGuardian app;
 	

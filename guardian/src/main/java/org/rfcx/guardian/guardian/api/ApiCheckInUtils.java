@@ -51,9 +51,9 @@ public class ApiCheckInUtils implements MqttCallback {
 		this.requestTimeOutLength = 2 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
 		initializeFailedCheckInThresholds();
 
-		this.mqttCheckInClient = new MqttUtils(RfcxGuardian.APP_ROLE, this.app.rfcxDeviceGuid.getDeviceGuid());
+		this.mqttCheckInClient = new MqttUtils(RfcxGuardian.APP_ROLE, this.app.rfcxGuardianIdentity.getGuid());
 
-		this.subscribeBaseTopic = "guardians/" + this.app.rfcxDeviceGuid.getDeviceGuid().toLowerCase(Locale.US) + "/" + RfcxGuardian.APP_ROLE.toLowerCase(Locale.US);
+		this.subscribeBaseTopic = "guardians/" + this.app.rfcxGuardianIdentity.getGuid().toLowerCase(Locale.US) + "/" + RfcxGuardian.APP_ROLE.toLowerCase(Locale.US);
 		this.mqttCheckInClient.addSubscribeTopic(this.subscribeBaseTopic + "/instructions");
 		this.mqttCheckInClient.addSubscribeTopic(this.subscribeBaseTopic + "/checkins");
 
@@ -153,7 +153,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		if (checkInStatus.equalsIgnoreCase("sent")) {
 
 			Log.e(logTag, "Re-queueing of 'sent' audio assets is currently disabled. This asset will be purged instead.");
-			purgeSingleAsset("audio", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), audioId);
+			purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
 		//	If we want to re-enable re-queueing of 'sent' assets, delete the above lines and un-comment the line below...
 		//	checkInToReQueue = app.apiCheckInDb.dbSent.getSingleRowByAudioAttachmentId(audioId);
 
@@ -467,7 +467,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
 
 		// Adding Guardian GUID
-		checkInMetaJson.put("guardian_guid", this.app.rfcxDeviceGuid.getDeviceGuid());
+		checkInMetaJson.put("guardian_guid", this.app.rfcxGuardianIdentity.getGuid());
 
 		// Adding Audio JSON fields from checkin table
 		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
@@ -523,12 +523,12 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		String[] screenShotMeta = getLatestExternalAssetMeta("screenshots");
 		if ((screenShotMeta[0] != null) && !(new File(screenShotMeta[0])).exists()) {
-			purgeSingleAsset("screenshot", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), screenShotMeta[2]);
+			purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotMeta[2]);
 		}
 
 		String[] logFileMeta = getLatestExternalAssetMeta("logs");
 		if ((logFileMeta[0] != null) && !(new File(logFileMeta[0])).exists()) {
-			purgeSingleAsset("log", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), logFileMeta[2]);
+			purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logFileMeta[2]);
 		}
 
 		byte[] jsonBlobAsBytes = StringUtils.gZipStringToByteArray(buildCheckInJson(checkInJsonString, screenShotMeta, logFileMeta));
@@ -589,7 +589,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				setInFlightCheckInStats(audioId, msgSendStart, 0, checkInPayload.length);
 				this.inFlightCheckInAttemptCounter = 0;
 			} else {
-				purgeSingleAsset("audio", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), audioId);
+				purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
 			}
 
 		} catch (Exception e) {
@@ -792,7 +792,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	public void purgeAllCheckIns() {
 
-		String deviceGuid = app.rfcxDeviceGuid.getDeviceGuid();
+		String deviceGuid = app.rfcxGuardianIdentity.getGuid();
 		Context context = app.getApplicationContext();
 		String defaultAudioCodec = app.rfcxPrefs.getPrefAsString("audio_encode_codec");
 
@@ -880,7 +880,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (jsonObj.has("audio")) {
 				JSONArray audioJson = jsonObj.getJSONArray("audio");
 				String audioId = audioJson.getJSONObject(0).getString("id");
-				purgeSingleAsset("audio", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), audioId);
+				purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
 				this.latestCheckInAudioId = audioId;
 
 				if (jsonObj.has("checkin_id")) {
@@ -911,7 +911,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray screenShotJson = jsonObj.getJSONArray("screenshots");
 				for (int i = 0; i < screenShotJson.length(); i++) {
 					String screenShotId = screenShotJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("screenshot", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), screenShotId);
+					purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotId);
 				}
 			}
 
@@ -920,7 +920,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray logsJson = jsonObj.getJSONArray("logs");
 				for (int i = 0; i < logsJson.length(); i++) {
 					String logId = logsJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("log", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), logId);
+					purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logId);
 				}
 			}
 
@@ -929,7 +929,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray messagesJson = jsonObj.getJSONArray("messages");
 				for (int i = 0; i < messagesJson.length(); i++) {
 					String smsId = messagesJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("sms", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), smsId);
+					purgeSingleAsset("sms", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), smsId);
 				}
 			}
 
@@ -938,7 +938,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray metaJson = jsonObj.getJSONArray("meta");
 				for (int i = 0; i < metaJson.length(); i++) {
 					String metaId = metaJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("meta", app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), metaId);
+					purgeSingleAsset("meta", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), metaId);
 				}
 			}
 
@@ -950,7 +950,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					if (receivedObj.has("type") && receivedObj.has("id")) {
 						String assetId = receivedObj.getString("id");
 						String assetType = receivedObj.getString("type");
-						purgeSingleAsset(assetType, app.rfcxDeviceGuid.getDeviceGuid(), app.getApplicationContext(), assetId);
+						purgeSingleAsset(assetType, app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), assetId);
 					}
 				}
 			}

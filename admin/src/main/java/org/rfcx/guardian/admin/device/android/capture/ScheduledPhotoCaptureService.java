@@ -12,7 +12,7 @@ public class ScheduledPhotoCaptureService extends IntentService {
 
 	private static final String SERVICE_NAME = "ScheduledPhotoCapture";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledPhotoCaptureService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledPhotoCaptureService");
 
 	public ScheduledPhotoCaptureService() {
 		super(logTag);

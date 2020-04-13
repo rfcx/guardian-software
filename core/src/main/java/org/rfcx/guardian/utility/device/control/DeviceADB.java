@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.root;
+package org.rfcx.guardian.utility.device.control;
 
 import android.content.Context;
 import android.text.TextUtils;

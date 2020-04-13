@@ -25,7 +25,7 @@ public class RebootTriggerJobService extends Service {
 
 	private static final String SERVICE_NAME = "RebootTrigger";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, RebootTriggerJobService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "RebootTriggerJobService");
 	
 	private RfcxGuardian app;
 	

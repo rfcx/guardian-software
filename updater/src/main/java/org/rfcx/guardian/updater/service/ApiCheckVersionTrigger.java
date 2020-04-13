@@ -12,7 +12,7 @@ public class ApiCheckVersionTrigger extends IntentService {
 
 	private static final String SERVICE_NAME = "ApiCheckVersionTrigger";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckVersionTrigger.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckVersionTrigger");
 		
 	public ApiCheckVersionTrigger() {
 		super(logTag);

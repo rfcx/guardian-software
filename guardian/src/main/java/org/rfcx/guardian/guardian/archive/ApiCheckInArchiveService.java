@@ -26,7 +26,7 @@ public class ApiCheckInArchiveService extends Service {
 
 	private static final String SERVICE_NAME = "ApiCheckInArchive";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInArchiveService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInArchiveService");
 	
 	private RfcxGuardian app;
 
@@ -94,7 +94,7 @@ public class ApiCheckInArchiveService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 			
-			rfcxDeviceId = app.rfcxDeviceGuid.getDeviceGuid();
+			rfcxDeviceId = app.rfcxGuardianIdentity.getGuid();
 			archiveTimestamp = System.currentTimeMillis();
 			
 			setAndInitializeArchiveDirectories();

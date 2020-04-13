@@ -15,7 +15,7 @@ public class DeviceScreenShotCaptureService extends Service {
 
 	private static final String SERVICE_NAME = "ScreenShotCapture";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceScreenShotCaptureService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceScreenShotCaptureService");
 	
 	private RfcxGuardian app;
 	
@@ -71,7 +71,7 @@ public class DeviceScreenShotCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 			
-			DeviceScreenShot deviceScreenShot = new DeviceScreenShot(context, RfcxGuardian.APP_ROLE, app.rfcxDeviceGuid.getDeviceGuid());
+			DeviceScreenShot deviceScreenShot = new DeviceScreenShot(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
 			DeviceScreenLock deviceScreenLock = new DeviceScreenLock(RfcxGuardian.APP_ROLE);
 			
 			try {

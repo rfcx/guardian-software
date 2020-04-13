@@ -18,12 +18,13 @@ import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
+import org.rfcx.guardian.utility.device.control.DeviceNetworkName;
 import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
+import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -61,7 +62,7 @@ public class RfcxGuardian extends Application {
 
 	private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, RfcxGuardian.class);
 
-	public RfcxDeviceGuid rfcxDeviceGuid = null; 
+	public RfcxGuardianIdentity rfcxGuardianIdentity = null;
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
 	
@@ -104,7 +105,7 @@ public class RfcxGuardian extends Application {
 
 		super.onCreate();
 
-		this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
+		this.rfcxGuardianIdentity = new RfcxGuardianIdentity(this, APP_ROLE);
 		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
 		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 
@@ -117,6 +118,7 @@ public class RfcxGuardian extends Application {
 		setDbHandlers();
 		setServiceHandlers();
 
+		DeviceNetworkName.setName("rfcx-"+this.rfcxGuardianIdentity.getGuid(), this);
 		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 

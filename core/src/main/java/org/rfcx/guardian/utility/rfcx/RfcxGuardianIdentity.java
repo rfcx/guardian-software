@@ -8,17 +8,14 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+public class RfcxGuardianIdentity {
 
-public class RfcxDeviceGuid {
-
-	public RfcxDeviceGuid(Context context, String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxDeviceGuid");
+	public RfcxGuardianIdentity(Context context, String appRole) {
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxGuardianIdentity");
 		this.context = context;
 		this.appRole = appRole;
 		checkSetTelephonyId();
-		checkSetCustomDeviceGuid();
+		checkSetCustomGuid();
 	}
 
 	private String logTag;
@@ -26,8 +23,8 @@ public class RfcxDeviceGuid {
 	private Context context;
 	private String appRole;
 	private String telephonyId;
-	private String deviceGuid;
-	private String deviceToken;
+	private String guid;
+	private String authToken;
 
 	@SuppressLint("MissingPermission")
 	private void checkSetTelephonyId() {
@@ -40,22 +37,22 @@ public class RfcxDeviceGuid {
 		}
 	}
 
-	public void setDeviceGuid(String deviceGuid) {
-		RfcxPrefs.writeGuidToFile(this.context, this.logTag, deviceGuid);
-		checkSetCustomDeviceGuid();
+	public void setGuid(String guid) {
+		RfcxPrefs.writeGuidToFile(this.context, this.logTag, guid);
+		checkSetCustomGuid();
 	}
 	
-	private void checkSetCustomDeviceGuid() {
-		String customOrPreSetDeviceGuid = RfcxPrefs.getGuidFromFile(this.context, this.logTag, this.appRole, "org.rfcx.guardian.guardian");
-		if (customOrPreSetDeviceGuid != null) {
-			this.deviceGuid = customOrPreSetDeviceGuid;
+	private void checkSetCustomGuid() {
+		String customOrPreSetGuid = RfcxPrefs.getGuidFromFile(this.context, this.logTag, this.appRole, "org.rfcx.guardian.guardian");
+		if (customOrPreSetGuid != null) {
+			this.guid = customOrPreSetGuid;
 		}
 	}
 	
-    public String getDeviceGuid() {
-	    	if (this.deviceGuid == null) {
-	    		checkSetCustomDeviceGuid();
-	    		if (this.deviceGuid == null) {
+    public String getGuid() {
+	    	if (this.guid == null) {
+	    		checkSetCustomGuid();
+	    		if (this.guid == null) {
 	    			checkSetTelephonyId();
 				try {
 		    		checkSetTelephonyId();
@@ -65,21 +62,21 @@ public class RfcxDeviceGuid {
 				    for (int i = 0; i < telephonyIdMd5Bytes.length; i++) {
 				    		stringBuffer.append(Integer.toString((telephonyIdMd5Bytes[i] & 0xff) + 0x100, 16).substring(1));
 				    }
-				    this.deviceGuid = stringBuffer.toString().substring(0,12);
-				    RfcxPrefs.writeGuidToFile(this.context, this.logTag, this.deviceGuid);
+				    this.guid = stringBuffer.toString().substring(0,12);
+				    RfcxPrefs.writeGuidToFile(this.context, this.logTag, this.guid);
 				} catch (Exception e) {
 					RfcxLog.logExc(this.logTag, e);
 					String randomGuid = (UUID.randomUUID()).toString();
-					deviceGuid = randomGuid.substring(1+randomGuid.lastIndexOf("-"));
-					Log.d("guid",deviceGuid);
+					guid = randomGuid.substring(1+randomGuid.lastIndexOf("-"));
+					Log.d("guid", guid);
 				}
 	    		}
 	    	}
-	    	return this.deviceGuid;
+	    	return this.guid;
     }
     
-    public String getDeviceToken() {
-	    	if (this.deviceToken == null) {
+    public String getAuthToken() {
+	    	if (this.authToken == null) {
 	    		checkSetTelephonyId();
 			try {
 				MessageDigest telephonyIdSha1 = MessageDigest.getInstance("SHA-1");
@@ -89,13 +86,13 @@ public class RfcxDeviceGuid {
 			    for (int i = 0; i < telephonyIdSha1Bytes.length; i++) {
 			    		stringBuffer.append(Integer.toString((telephonyIdSha1Bytes[i] & 0xff) + 0x100, 16).substring(1));
 			    }
-			    this.deviceToken = stringBuffer.toString();
+			    this.authToken = stringBuffer.toString();
 			} catch (Exception e) {
 				RfcxLog.logExc(this.logTag, e);
-				deviceToken = ((UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()).replaceAll("-","").substring(0,40);
+				authToken = ((UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()).replaceAll("-","").substring(0,40);
 			}
 	    	}
-		return this.deviceToken;
+		return this.authToken;
     }
 
 }

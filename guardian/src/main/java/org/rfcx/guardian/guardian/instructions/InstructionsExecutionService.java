@@ -15,7 +15,7 @@ public class InstructionsExecutionService extends Service {
 
 	private static final String SERVICE_NAME = "InstructionsExecution";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, InstructionsExecutionService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstructionsExecutionService");
 	
 	private RfcxGuardian app;
 	

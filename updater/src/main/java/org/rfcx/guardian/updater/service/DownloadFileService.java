@@ -16,7 +16,7 @@ public class DownloadFileService extends Service {
 
 	private static final String SERVICE_NAME = "DownloadFile";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DownloadFileService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DownloadFileService");
 
 	private RfcxGuardian app;
 	

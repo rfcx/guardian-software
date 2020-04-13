@@ -1,7 +1,6 @@
 package org.rfcx.guardian.guardian.activity
 
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.content.ContextCompat
@@ -83,8 +82,8 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             }
 
             setVisibilityBeforeRegister()
-            val guid = app.rfcxDeviceGuid.deviceGuid
-            val token = app.rfcxDeviceGuid.deviceToken
+            val guid = app.rfcxGuardianIdentity.guid
+            val token = app.rfcxGuardianIdentity.authToken
 
             RegisterApi.registerGuardian(applicationContext, RegisterRequest(guid, token), this)
         }
@@ -234,7 +233,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     }
 
     override fun onRegisterSuccess() {
-        GuardianCheckApi.exists(applicationContext, app.rfcxDeviceGuid.deviceGuid, this)
+        GuardianCheckApi.exists(applicationContext, app.rfcxGuardianIdentity.guid, this)
     }
 
     override fun onRegisterFailed(t: Throwable?, message: String?) {

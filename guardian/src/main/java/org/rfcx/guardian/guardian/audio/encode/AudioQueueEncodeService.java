@@ -16,7 +16,7 @@ public class AudioQueueEncodeService extends IntentService {
 
 	private static final String SERVICE_NAME = "AudioQueueEncode";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioQueueEncodeService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioQueueEncodeService");
 		
 	public AudioQueueEncodeService() {
 		super(logTag);

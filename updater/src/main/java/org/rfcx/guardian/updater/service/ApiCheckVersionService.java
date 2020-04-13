@@ -17,7 +17,7 @@ public class ApiCheckVersionService extends Service {
 
 	private static final String SERVICE_NAME = "ApiCheckVersion";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckVersionService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckVersionService");
 
 	private RfcxGuardian app;
 	
@@ -72,8 +72,8 @@ public class ApiCheckVersionService extends Service {
 			HttpGet httpGet = new HttpGet(app.getApplicationContext(),RfcxGuardian.APP_ROLE);
 			// setting customized rfcx authentication headers (necessary for API access)
 			List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
-			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxDeviceGuid.getDeviceGuid() });
-			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxDeviceGuid.getDeviceToken() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxGuardianIdentity.getGuid() });
+			rfcxAuthHeaders.add(new String[] { "x-auth-token", app.rfcxGuardianIdentity.getAuthToken() });
 			httpGet.setCustomHttpHeaders(rfcxAuthHeaders);
 
 			try {

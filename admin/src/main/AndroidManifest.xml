@@ -15,27 +15,22 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
 
     <!-- <uses-permission android:name="android.permission.RECORD_AUDIO" /> -->
     <!-- <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" /> -->
-    <uses-permission
-            android:name="android.permission.READ_LOGS"
-            tools:ignore="ProtectedPermissions" />
-    <uses-permission
-            android:name="android.permission.WRITE_SETTINGS"
-            tools:ignore="ProtectedPermissions" />
-    <uses-permission
-            android:name="android.permission.SET_TIME_ZONE"
-            tools:ignore="ProtectedPermissions" />
-    <uses-permission
-            android:name="android.permission.SHUTDOWN"
-            tools:ignore="ProtectedPermissions" />
+
+    <uses-permission android:name="android.permission.READ_LOGS" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.SET_TIME_ZONE" tools:ignore="ProtectedPermissions" />
+    <uses-permission android:name="android.permission.SHUTDOWN" tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_MMS" />
@@ -43,28 +38,25 @@
     <uses-permission android:name="android.permission.WRITE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission
-            android:name="android.permission.INTERACT_ACROSS_USERS_FULL"
-            android:protectionLevel="signature"
-            tools:ignore="ProtectedPermissions" />
+
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" android:protectionLevel="signature" tools:ignore="ProtectedPermissions" />
+
     <uses-permission android:name="org.rfcx.guardian.READ" />
     <uses-permission android:name="org.rfcx.guardian.WRITE" />
-
-    <permission
-            android:name="org.rfcx.guardian.READ"
-            android:protectionLevel="signature" />
-    <permission
-            android:name="org.rfcx.guardian.WRITE"
-            android:protectionLevel="signature" />
+    <permission android:name="org.rfcx.guardian.READ" android:protectionLevel="signature" />
+    <permission android:name="org.rfcx.guardian.WRITE" android:protectionLevel="signature" />
 
     <application
+            android:label="@string/app_name"
             android:name=".RfcxGuardian"
             android:allowBackup="true"
             android:icon="@drawable/ic_launcher_admin"
-            android:label="@string/app_name"
             android:theme="@style/AppTheme">
+
+        <!-- Activities -->
 
         <activity
                 android:name=".activity.MainActivity"
@@ -72,7 +64,6 @@
                 android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -98,9 +89,11 @@
         <service android:name=".device.android.capture.ScheduledScreenShotCaptureService" />
         <service android:name=".device.android.capture.ScheduledLogCatCaptureService" />
         <service android:name=".device.android.capture.ScheduledPhotoCaptureService" />
-        <service android:name=".device.android.control.ADBStateSetService" /> <!--  -->
+        <service android:name=".device.android.control.ADBStateSetService" />
+
+        <!--                     -->
         <!-- START: SMS settings -->
-        <!--  -->
+        <!--                     -->
         <service
                 android:name=".sms.SmsDispatchService"
                 android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
@@ -153,13 +146,10 @@
         <!-- END: SMS settings  -->
         <!--                    -->
 
-
-
-        <!-- Broadcast Receivers -->
+        <!-- Receivers -->
         <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <!-- <category android:name="android.intent.category.DEFAULT" /> -->
             </intent-filter>
         </receiver>
 
@@ -167,9 +157,10 @@
         <provider
                 android:name=".contentprovider.AdminContentProvider"
                 android:authorities="org.rfcx.guardian.admin"
-                android:exported="true"
                 android:readPermission="org.rfcx.guardian.READ"
-                android:writePermission="org.rfcx.guardian.WRITE" />
+                android:writePermission="org.rfcx.guardian.WRITE"
+                android:exported="true" />
+
     </application>
 
 </manifest>

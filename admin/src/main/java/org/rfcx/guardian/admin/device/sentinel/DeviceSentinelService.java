@@ -11,7 +11,7 @@ public class DeviceSentinelService extends Service {
 
 	private static final String SERVICE_NAME = "DeviceSentinel";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSentinelService.class.getSimpleName());
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceSentinelService");
 	
 	private RfcxGuardian app;
 	
