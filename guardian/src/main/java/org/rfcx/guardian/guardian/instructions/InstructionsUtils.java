@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class InstructionsUtils {
@@ -20,21 +19,24 @@ public class InstructionsUtils {
 
 	private RfcxGuardian app = null;
 
-	public void processInstructionMessage(byte[] messagePayload) {
+	public void processInstructionJson(String jsonStr) {
+		try {
+			processInstructionJson(new JSONObject(jsonStr));
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+	}
 
-		String jsonStr = StringUtils.UnGZipByteArrayToString(messagePayload);
-		Log.i(logTag, "Instructions: " + jsonStr);
+	public void processInstructionJson(JSONObject jsonObj) {
 
 		try {
-
-			JSONObject jsonObj = new JSONObject(jsonStr);
-
 			if (jsonObj.has("instructions")) {
-				JSONArray instructionsArr = jsonObj.getJSONArray("instructions");
-				for (int i = 0; i < instructionsArr.length(); i++) {
-					JSONObject instrObj = instructionsArr.getJSONObject(i);
-
+				JSONArray instrArr = jsonObj.getJSONArray("instructions");
+				for (int i = 0; i < instrArr.length(); i++) {
+					JSONObject instrObj = instrArr.getJSONObject(i);
 					if (instrObj.has("id")) {
+						Log.d(logTag, "Instruction: "+instrObj.toString());
+
 						String instrId = instrObj.getString("id");
 						String instrType = instrObj.getString("type");
 						String instrCommand = instrObj.getString("command");

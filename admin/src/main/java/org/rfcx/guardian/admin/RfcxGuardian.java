@@ -48,17 +48,11 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 
-import android.app.AlarmManager;
 import android.app.Application;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.text.TextUtils;
-import android.util.Log;
-
-import java.util.TimeZone;
 
 public class RfcxGuardian extends Application {
 	
@@ -258,13 +252,17 @@ public class RfcxGuardian extends Application {
 		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth")) {
 			rfcxServiceHandler.triggerService("BluetoothStateSet", false);
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
+
 		} else if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
 			rfcxServiceHandler.triggerService("WifiStateSet", false);
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
+
 		} else if (prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
+
 		} else if (prefKey.equalsIgnoreCase("admin_system_timezone")) {
 			DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString("admin_system_timezone"), this);
+
 		}
 		return this.rfcxPrefs.getPrefAsString(prefKey);
 	}

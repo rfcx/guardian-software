@@ -114,10 +114,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         setDbHandlers();
         setServiceHandlers();
 
-        this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
-        this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
-        this.instructionsUtils = new InstructionsUtils(getApplicationContext());
-        this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
+        this.audioCaptureUtils = new AudioCaptureUtils(this);
+        this.apiCheckInUtils = new ApiCheckInUtils(this);
+        this.instructionsUtils = new InstructionsUtils(this);
+        this.deviceMobilePhone = new DeviceMobilePhone(this);
 
         initializeRoleServices();
 

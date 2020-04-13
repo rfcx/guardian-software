@@ -863,9 +863,8 @@ public class ApiCheckInUtils implements MqttCallback {
 	}
 
 
-	private void processCheckInResponseMessage(byte[] messagePayload) {
+	private void processCheckInResponseMessage(String jsonStr) {
 
-		String jsonStr = StringUtils.UnGZipByteArrayToString(messagePayload);
 		Log.i(logTag, "Response: " + jsonStr);
 		try {
 
@@ -986,6 +985,12 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 
+			// parse 'instruction' array
+			if (jsonObj.has("instructions")) {
+				app.instructionsUtils.processInstructionJson(jsonObj);
+			}
+
+
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 
@@ -1023,11 +1028,11 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		// this is a checkin response message
 		if (messageTopic.equalsIgnoreCase(this.subscribeBaseTopic + "/checkins")) {
-			processCheckInResponseMessage(mqttMessage.getPayload());
+			processCheckInResponseMessage(StringUtils.UnGZipByteArrayToString(mqttMessage.getPayload()));
 
 		// this is an instruction message
 		} else if (messageTopic.equalsIgnoreCase(this.subscribeBaseTopic + "/instructions")) {
-		    app.instructionsUtils.processInstructionMessage(mqttMessage.getPayload());
+		    app.instructionsUtils.processInstructionJson(StringUtils.UnGZipByteArrayToString(mqttMessage.getPayload()));
 
 		}
 	}
