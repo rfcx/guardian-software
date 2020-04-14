@@ -85,7 +85,7 @@
                     android:id="@+id/start_stop_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="62dp"
+                    android:layout_marginTop="@dimen/margin_padding_normal"
                     android:orientation="vertical"
                     app:layout_constraintTop_toBottomOf="@+id/registerGroup">
 
