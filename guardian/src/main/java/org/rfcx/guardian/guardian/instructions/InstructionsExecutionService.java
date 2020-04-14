@@ -91,18 +91,25 @@ public class InstructionsExecutionService extends Service {
 							if (executeAtOrAfter <= rightNow) {
 
 								String guid = queuedRow[1];
+								long receivedAt = (long) Long.parseLong(queuedRow[0]);
 								String type = queuedRow[2];
 								String command = queuedRow[3];
-								int execAttempts = ((int) Integer.parseInt(queuedRow[6]))+1;
 								JSONObject metaJson = new JSONObject(queuedRow[5]);
 								JSONObject responseJson = new JSONObject();
 
-								// Execute the instruction
+								if (app.instructionsDb.dbExecutedInstructions.getCountByGuid(guid) == 0) {
+									app.instructionsDb.dbQueuedInstructions.incrementSingleRowAttemptsByGuid(guid);
+									int execAttempts = ((int) Integer.parseInt(queuedRow[6])) + 1;
 
-								app.instructionsDb.dbExecutedInstructions.findByGuidOrCreate(guid, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJson.toString(), execAttempts);
-								app.instructionsDb.dbQueuedInstructions.deleteSingleRowByInstructionGuid(guid);
+									// Execute the instruction
 
-								Log.w(logTag, "Instruction Executed: " + guid + ", Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
+									app.instructionsDb.dbExecutedInstructions.findByGuidOrCreate(guid, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJson.toString(), execAttempts, receivedAt);
+									app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(guid);
+									Log.w(logTag, "Instruction "+guid+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
+								} else {
+									Log.w(logTag, "Instruction "+guid+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
+									app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(guid);
+								}
 							}
 						}
 					}

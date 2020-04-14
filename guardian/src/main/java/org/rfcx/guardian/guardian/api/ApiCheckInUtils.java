@@ -150,7 +150,8 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		// fetch check-in entry from relevant table, if it exists...
 		if (checkInStatus.equalsIgnoreCase("sent")) {
-			checkInToReQueue = app.apiCheckInDb.dbSent.getSingleRowByAudioAttachmentId(audioId);
+			purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
+		//	checkInToReQueue = app.apiCheckInDb.dbSent.getSingleRowByAudioAttachmentId(audioId);
 		} else if (checkInStatus.equalsIgnoreCase("stashed")) {
 			checkInToReQueue = app.apiCheckInDb.dbStashed.getSingleRowByAudioAttachmentId(audioId);
 		} else if (checkInStatus.equalsIgnoreCase("skipped")) {
@@ -421,6 +422,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					JSONObject executedObj = new JSONObject();
 					executedObj.put("guid", executedRow[1]);
 					executedObj.put("executed_at", executedRow[0]);
+					executedObj.put("received_at", executedRow[7]);
 					executedObj.put("attempts", executedRow[6]);
 					executedObj.put("response", executedRow[5]);
 					executedInstrArr.put(executedObj);
@@ -802,6 +804,10 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.apiCheckInMetaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
 				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
+			} else if (assetType.equals("instruction")) {
+				app.instructionsDb.dbExecutedInstructions.deleteSingleRowByGuid(assetId);
+				app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(assetId);
+
 			}
 
 			boolean isPurgeReported = false;
@@ -1006,9 +1012,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			// parse 'instructions' array
 			if (jsonObj.has("instructions")) {
-				app.instructionsUtils.processInstructionJson(
-						(new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions"))
-				);
+				app.instructionsUtils.processInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
 			}
 
 			// parse 'requeue' array
