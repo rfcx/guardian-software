@@ -34,15 +34,18 @@ public class InstructionsUtils {
 				JSONArray instrArr = jsonObj.getJSONArray("instructions");
 				for (int i = 0; i < instrArr.length(); i++) {
 					JSONObject instrObj = instrArr.getJSONObject(i);
-					if (instrObj.has("id")) {
-						String instrId = instrObj.getString("id");
+					if (instrObj.has("guid")) {
+						String instrGuid = instrObj.getString("guid");
 						String instrType = instrObj.getString("type");
 						String instrCommand = instrObj.getString("command");
 						JSONObject instrMetaObj = instrObj.getJSONObject("meta");
-						long instrExecuteAt = (instrObj.getString("execute_at").equalsIgnoreCase("0")) ? System.currentTimeMillis() : (long) Long.parseLong(instrObj.getString("execute_at"));
+						long instrExecuteAt = (long) Long.parseLong(instrObj.getString("execute_at"));
 
-						Log.i(logTag, "Instruction Received: ID: "+instrId+", "+instrType+", "+instrCommand+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
-						
+						this.app.instructionsDb.dbQueuedInstructions.findByGuidOrCreate(instrGuid, instrType, instrCommand, ((instrExecuteAt == 0) ? System.currentTimeMillis() : instrExecuteAt ), instrMetaObj.toString());
+
+//						Log.i(logTag, "Instruction Received: Guid: "+instrGuid+", "+instrType+", "+instrCommand+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
+
+
 					}
 				}
 			}

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -79,26 +80,29 @@ public class InstructionsExecutionService extends Service {
 
 					List<String[]> instructionsQueuedForExecution = app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution();
 
-					for (String[] instructionForExecution : instructionsQueuedForExecution) {
+					for (String[] queuedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
 
 						// only proceed with execution process if there is a valid queued instruction in the database
-						if (instructionForExecution[0] != null) {
+						if (queuedRow[0] != null) {
 
-							long executeAtOrAfter = (long) Long.parseLong(instructionForExecution[3]);
+							long executeAtOrAfter = (long) Long.parseLong(queuedRow[4]);
 							long rightNow = System.currentTimeMillis();
 
 							if (executeAtOrAfter <= rightNow) {
 
-//								String msgId = smsForDispatch[4];
-//								String msgAddress = smsForDispatch[2];
-//								String msgBody = smsForDispatch[3];
-//
-//								DeviceSmsUtils.sendSmsMessage(msgAddress, msgBody);
-//
-//								app.smsMessageDb.dbSmsSent.insert(rightNow, msgAddress, msgBody, msgId);
-//								app.smsMessageDb.dbSmsQueued.deleteSingleRowByMessageId(msgId);
-//
-//								Log.w(logTag, "SMS Sent (ID " + msgId + "): To " + msgAddress + " at " + DateTimeUtils.getDateTime(rightNow) + ": \"" + msgBody + "\"");
+								String guid = queuedRow[1];
+								String type = queuedRow[2];
+								String command = queuedRow[3];
+								int execAttempts = ((int) Integer.parseInt(queuedRow[6]))+1;
+								JSONObject metaJson = new JSONObject(queuedRow[5]);
+								JSONObject responseJson = new JSONObject();
+
+								// Execute the instruction
+
+								app.instructionsDb.dbExecutedInstructions.findByGuidOrCreate(guid, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJson.toString(), execAttempts);
+								app.instructionsDb.dbQueuedInstructions.deleteSingleRowByInstructionGuid(guid);
+
+								Log.w(logTag, "Instruction Executed: " + guid + ", Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
 							}
 						}
 					}

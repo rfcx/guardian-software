@@ -147,27 +147,21 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		boolean isReQueued = false;
 		String[] checkInToReQueue = new String[] {};
-		String[] reQueuedCheckIn = new String[] {};
 
 		// fetch check-in entry from relevant table, if it exists...
 		if (checkInStatus.equalsIgnoreCase("sent")) {
-
-			Log.e(logTag, "Re-queueing of 'sent' audio assets is currently disabled. This asset will be purged instead.");
-			purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
-		//	If we want to re-enable re-queueing of 'sent' assets, delete the above lines and un-comment the line below...
-		//	checkInToReQueue = app.apiCheckInDb.dbSent.getSingleRowByAudioAttachmentId(audioId);
-
+			checkInToReQueue = app.apiCheckInDb.dbSent.getSingleRowByAudioAttachmentId(audioId);
 		} else if (checkInStatus.equalsIgnoreCase("stashed")) {
 			checkInToReQueue = app.apiCheckInDb.dbStashed.getSingleRowByAudioAttachmentId(audioId);
 		} else if (checkInStatus.equalsIgnoreCase("skipped")) {
 			checkInToReQueue = app.apiCheckInDb.dbSkipped.getSingleRowByAudioAttachmentId(audioId);
 		}
 
-		// if it exists, add entry to checkin table
-		if (checkInToReQueue[0] != null) {
+		// if this array has been populated, indicating that the source row exists, then add entry to checkin table
+		if ((checkInToReQueue.length > 0) && (checkInToReQueue[0] != null)) {
 
 			int queuedCount = app.apiCheckInDb.dbQueued.insert(checkInToReQueue[1], checkInToReQueue[2], checkInToReQueue[3], checkInToReQueue[4]);
-			reQueuedCheckIn = app.apiCheckInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId);
+			String[] reQueuedCheckIn = app.apiCheckInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId);
 
 			// if successfully inserted into queue table (and verified), delete from original table
 			if (reQueuedCheckIn[0] != null) {
@@ -186,14 +180,14 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 
 		if (isReQueued) {
-			Log.i(logTag, "CheckIn Successfully ReQueued: "+audioId);
+			Log.i(logTag, "CheckIn Successfully ReQueued: "+checkInStatus+", "+audioId);
 		} else {
-			Log.e(logTag, "CheckIn Failed to ReQueue: "+audioId);
+			Log.e(logTag, "CheckIn Failed to ReQueue: "+checkInStatus+", "+audioId);
 		}
 
 	}
 
-	private void setupRecentActivityHealthCheck() {
+	private void setupRecentCheckInHealthCheck() {
 
 		// fill initial array with garbage (very high) values to ensure that checks will fail until we have the required number of checkins to compare
 		Arrays.fill(healthCheckInitValues, Math.round(Long.MAX_VALUE / healthCheckMeasurementCount));
@@ -218,9 +212,9 @@ public class ApiCheckInUtils implements MqttCallback {
 							healthCheckTargetUpperBounds[3] = 15;
 	}
 
-	private void runRecentActivityHealthCheck(long[] inputValues) {
+	private void runRecentCheckInHealthCheck(long[] inputValues) {
 
-		if (!healthCheckMonitors.containsKey(healthCheckCategories[0])) { setupRecentActivityHealthCheck(); }
+		if (!healthCheckMonitors.containsKey(healthCheckCategories[0])) { setupRecentCheckInHealthCheck(); }
 
 		long[] currAvgVals = new long[healthCheckCategories.length]; Arrays.fill(currAvgVals, 0);
 
@@ -405,6 +399,41 @@ public class ApiCheckInUtils implements MqttCallback {
 		return TextUtils.join("|", new String[] { _queued.toString(), _sent.toString(), _skipped.toString(), _stashed.toString() });
 	}
 
+	private JSONObject getLocalInstructionsStatusInfoJson() {
+
+		JSONObject instrObj = new JSONObject();
+		try {
+
+			JSONArray receivedInstrArr = new JSONArray();
+			for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
+				if (receivedRow[0] != null) {
+					JSONObject receivedObj = new JSONObject();
+					receivedObj.put("guid", receivedRow[1]);
+					receivedObj.put("received_at", receivedRow[0]);
+					receivedInstrArr.put(receivedObj);
+				}
+			}
+			instrObj.put("received", receivedInstrArr);
+
+			JSONArray executedInstrArr = new JSONArray();
+			for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
+				if (executedRow[0] != null) {
+					JSONObject executedObj = new JSONObject();
+					executedObj.put("guid", executedRow[1]);
+					executedObj.put("executed_at", executedRow[0]);
+					executedObj.put("attempts", executedRow[6]);
+					executedObj.put("response", executedRow[5]);
+					executedInstrArr.put(executedObj);
+				}
+			}
+			instrObj.put("executed", executedInstrArr);
+
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return instrObj;
+	}
+
 	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
 		int maxRowsToQuery = 10;
@@ -481,6 +510,8 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson());
 
 		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 12));
+
+		checkInMetaJson.put("instructions", getLocalInstructionsStatusInfoJson());
 
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
@@ -892,7 +923,7 @@ public class ApiCheckInUtils implements MqttCallback {
 							Calendar rightNow = GregorianCalendar.getInstance();
 							rightNow.setTime(new Date());
 
-							runRecentActivityHealthCheck(new long[]{
+							runRecentCheckInHealthCheck(new long[]{
 									/* latency */    	checkInStats[1],
 									/* queued */       	(long) app.apiCheckInDb.dbQueued.getCount(),
 									/* recent */        checkInStats[0],
@@ -973,6 +1004,13 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 
+			// parse 'instructions' array
+			if (jsonObj.has("instructions")) {
+				app.instructionsUtils.processInstructionJson(
+						(new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions"))
+				);
+			}
+
 			// parse 'requeue' array
 			if (jsonObj.has("requeue")) {
 				JSONArray requeueJson = jsonObj.getJSONArray("requeue");
@@ -983,11 +1021,6 @@ public class ApiCheckInUtils implements MqttCallback {
 						reQueueAudioAssetForCheckIn("sent", assetId);
 					}
 				}
-			}
-
-			// parse 'instruction' array
-			if (jsonObj.has("instructions")) {
-				app.instructionsUtils.processInstructionJson(jsonObj);
 			}
 
 
