@@ -1,10 +1,11 @@
 package org.rfcx.guardian.guardian.utils
 
+import org.rfcx.guardian.utility.datetime.DateTimeUtils
 import java.io.File
 
 class CheckInInformationUtils {
 
-    fun convertTimeStampToStringFormat(timestamp: Long?): String{
+    private fun convertTimeStampToStringFormat(timestamp: Long?): String {
         if (timestamp != null) {
             var latestCheckInStr = ""
             val latestCheckIn = System.currentTimeMillis() - timestamp
@@ -22,15 +23,15 @@ class CheckInInformationUtils {
             }
 
             return latestCheckInStr
-        }else{
+        } else {
             return "none"
         }
     }
 
-    fun convertFileSizeToStringFormat(filePath: String?): String{
+    private fun convertFileSizeToStringFormat(filePath: String?): String {
         var audioSize = "-"
         var fileSize = 0L
-        if(filePath != null) {
+        if (filePath != null) {
             fileSize = File(filePath).length()
             if (fileSize != 0L) {
                 audioSize = (fileSize / 1000).toString()
@@ -39,8 +40,25 @@ class CheckInInformationUtils {
 
         return if (audioSize == "-" && fileSize == 0L) {
             audioSize
-        }else{
+        } else {
             "$audioSize kb"
+        }
+    }
+
+    fun getCheckinTime(date: String?): String {
+        return if (date == null) {
+            convertTimeStampToStringFormat(null)
+        } else {
+            val checkinTime = DateTimeUtils.getDateFromString(date).time
+            convertTimeStampToStringFormat(checkinTime)
+        }
+    }
+
+    fun getFileSize(path: String?): String {
+        return if (path == null) {
+            convertFileSizeToStringFormat(null)
+        } else {
+            convertFileSizeToStringFormat(path)
         }
     }
 }

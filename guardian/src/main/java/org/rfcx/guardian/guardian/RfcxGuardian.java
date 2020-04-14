@@ -3,17 +3,16 @@ package org.rfcx.guardian.guardian;
 import java.io.File;
 import java.util.Map;
 
-import android.content.Context;
-import android.location.LocationManager;
-
 import org.rfcx.guardian.guardian.api.ApiCheckInMetaSnapshotService;
-import org.rfcx.guardian.guardian.utils.CheckAppPermissionUtils;
+import org.rfcx.guardian.guardian.instructions.InstructionsDb;
+import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
+import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceBattery;
+import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
-import org.rfcx.guardian.utility.device.DeviceMobilePhone;
+import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxDeviceGuid;
+import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -51,9 +50,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public static final String APP_ROLE = "Guardian";
 
-    private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, RfcxGuardian.class);
+    private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, "RfcxGuardian");
 
-    public RfcxDeviceGuid rfcxDeviceGuid = null;
+    public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
     public RfcxServiceHandler rfcxServiceHandler = null;
 
@@ -65,6 +64,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInMetaDb apiCheckInMetaDb = null;
     public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
     public ArchiveDb archiveDb = null;
+    public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
 
     // Receivers
@@ -76,6 +76,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
+    public InstructionsUtils instructionsUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
@@ -85,7 +86,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             new String[]{
                     "AudioCapture",
                     "ApiCheckInJob",
-                    "AudioEncodeJob"
+                    "AudioEncodeJob",
+                    "InstructionsExecution"
             };
 
     @Override
@@ -93,7 +95,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         super.onCreate();
 
-        this.rfcxDeviceGuid = new RfcxDeviceGuid(this, APP_ROLE);
+        this.rfcxGuardianIdentity = new RfcxGuardianIdentity(this, APP_ROLE);
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
         this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 
@@ -112,11 +114,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         setDbHandlers();
         setServiceHandlers();
 
-        this.audioCaptureUtils = new AudioCaptureUtils(getApplicationContext());
-        this.apiCheckInUtils = new ApiCheckInUtils(getApplicationContext());
-        this.deviceMobilePhone = new DeviceMobilePhone(getApplicationContext());
+        this.audioCaptureUtils = new AudioCaptureUtils(this);
+        this.apiCheckInUtils = new ApiCheckInUtils(this);
+        this.instructionsUtils = new InstructionsUtils(this);
+        this.deviceMobilePhone = new DeviceMobilePhone(this);
 
-        startAllServices();
+        initializeRoleServices();
+
     }
 
     public void onTerminate() {
@@ -129,33 +133,30 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         syncSharedPrefs();
     }
 
-    public void appPause() {
+    public void appPause() { }
 
+
+
+    private boolean isGuardianRegistered() {
+        String directoryPath = getBaseContext().getFilesDir().toString() + "/txt/";
+        File txtFile = new File(directoryPath + "/registered_at.txt");
+        return txtFile.exists();
     }
 
-    public void startAllServices() {
-        if (isRequirementPassed()) {
-            if(!getRecordingState()){
-                initializeRoleServices();
-            }
+    public boolean doConditionsPermitRoleServices() {
+        if (isGuardianRegistered()) {
+  //          if (!this.rfcxServiceHandler.isRunning("AudioCapture")) {
+                return true;
+  //          }
         } else {
             this.rfcxServiceHandler.stopAllServices();
         }
-    }
-
-    public boolean isRequirementPassed() {
-        return isGuidExisted() && isLocationEnabled();
-    }
-
-    private Boolean isGuidExisted() {
-        String directoryPath = getBaseContext().getFilesDir().toString() + "/txt/";
-        File txtFile = new File(directoryPath + "/guardian_guid.txt");
-        return txtFile.exists();
+        return false;
     }
 
     public void initializeRoleServices() {
 
-        if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+        if (doConditionsPermitRoleServices() && !this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[]{
                     "ServiceMonitor"
@@ -170,20 +171,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
             System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
             System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-            this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
+            this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, false, 0);
         }
-    }
-
-    public Boolean getRecordingState() {
-        return this.rfcxServiceHandler.isRunning("AudioCapture");
-    }
-
-    public Boolean isLocationEnabled () {
-        if (CheckAppPermissionUtils.INSTANCE.checkLocationPermission(getApplicationContext())) {
-            return false;
-        }
-        LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     private void setDbHandlers() {
@@ -193,6 +182,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
         this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
+        this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
     }
 
@@ -208,6 +198,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
         this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
         this.rfcxServiceHandler.addService("ApiCheckInMetaSnapshot", ApiCheckInMetaSnapshotService.class);
+        this.rfcxServiceHandler.addService("InstructionsExecution", InstructionsExecutionService.class);
 
     }
 

@@ -18,8 +18,7 @@ public class ApiAssetExchangeLogDb {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbPurged = new DbPurged(context);
 	}
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiAssetExchangeLogDb.class);
+
 	private int VERSION = 1;
 	static final String DATABASE = "asset-exchange-log";
 	static final String C_CREATED_AT = "created_at";

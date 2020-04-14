@@ -27,11 +27,11 @@ public class HttpGet {
 		
 	public HttpGet(Context context, String appRole) {
 		this.context = context;
-		this.logTag = RfcxLog.generateLogTag(appRole, HttpGet.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "HttpGet");
 	}
 	
 	private Context context;
-	private String logTag = RfcxLog.generateLogTag("Utils", HttpGet.class);
+	private String logTag;
 	
 	private static final String DOWNLOAD_TIME_LABEL = "Download time: ";
 	
@@ -133,9 +133,11 @@ public class HttpGet {
 	
 	private String doGetString(String fullUrl, List<String[]> keyValueParameters) {
 		StringBuilder url = (new StringBuilder()).append(fullUrl);
-		if (keyValueParameters.size() > 0) url.append("?");
-		for (String[] keyValue : keyValueParameters) {
-			url.append(keyValue[0]).append("=").append(keyValue[1]).append("&");
+		if (keyValueParameters != null) {
+			if (keyValueParameters.size() > 0) url.append("?");
+			for (String[] keyValue : keyValueParameters) {
+				url.append(keyValue[0]).append("=").append(keyValue[1]).append("&");
+			}
 		}
 		Log.v(logTag,"HTTP GET: "+url.toString());
 		return executeGet(url.toString());

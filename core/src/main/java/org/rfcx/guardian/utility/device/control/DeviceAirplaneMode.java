@@ -9,10 +9,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceAirplaneMode {
 
 	public DeviceAirplaneMode(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceAirplaneMode.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceAirplaneMode");
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceAirplaneMode.class);
+	private String logTag;
 	
 	public static boolean isEnabled(Context context) {
 		return Settings.System.getInt(context.getContentResolver(), Settings.System.AIRPLANE_MODE_ON, 0) == 1;

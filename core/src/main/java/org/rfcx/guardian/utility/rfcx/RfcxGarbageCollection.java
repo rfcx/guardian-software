@@ -2,18 +2,18 @@ package org.rfcx.guardian.utility.rfcx;
 
 import android.content.Context;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
-import org.rfcx.guardian.utility.device.control.DeviceLogCat;
+import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
 import org.rfcx.guardian.utility.misc.FileUtils;
 
 public class RfcxGarbageCollection {
 	
 	public RfcxGarbageCollection(Context context, String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, RfcxGarbageCollection.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxGarbageCollection");
 		this.context = context;
 		this.appRole = appRole;
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", RfcxGarbageCollection.class);
+	private String logTag;
 	
 	private Context context;
 	private String appRole;

@@ -1,5 +1,6 @@
 package org.rfcx.guardian.guardian.contentprovider;
 
+import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -13,7 +14,7 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class GuardianContentProvider extends ContentProvider {
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, GuardianContentProvider.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ContentProvider");
 
 	private static final String appRole = RfcxGuardian.APP_ROLE;
 
@@ -41,9 +42,25 @@ public class GuardianContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "prefs", "*")) {
 				String prefKey = uri.getLastPathSegment();
 				return RfcxComm.getProjectionCursor(appRole, "prefs", new Object[] { prefKey, app.rfcxPrefs.getPrefAsString(prefKey) });
-				
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "prefs_set", "*")) {
+				String pathSeg = uri.getLastPathSegment();
+				String pathSegPrefKey = pathSeg.substring(0, pathSeg.indexOf("|"));
+				String pathSegPrefValue = pathSeg.substring(1 + pathSeg.indexOf("|"));
+				app.setSharedPref(pathSegPrefKey, pathSegPrefValue);
+				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{ pathSegPrefKey, pathSegPrefValue, System.currentTimeMillis()});
+
+			// "process" function endpoints
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "process", null)) {
+				return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole, AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
+
+			// "control" function endpoints
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) {
+				app.rfcxServiceHandler.stopAllServices();
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"kill", null, System.currentTimeMillis()});
 			}
-			
 			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -53,21 +70,6 @@ public class GuardianContentProvider extends ContentProvider {
 	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		
-		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-		
-		try {
-			
-//			if (URI_MATCHER.match(uri) == ENDPOINT_PREFS_ID) {
-//				String prefKey = uri.getLastPathSegment();
-//				app.setPref(prefKey, values.getAsString(prefKey));
-//				return 1;
-//			}
-			
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		
 		return 0;
 	}
 

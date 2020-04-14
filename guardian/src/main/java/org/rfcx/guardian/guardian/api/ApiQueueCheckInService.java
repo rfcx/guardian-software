@@ -1,6 +1,5 @@
 package org.rfcx.guardian.guardian.api;
 
-
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
@@ -11,10 +10,10 @@ import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class ApiQueueCheckInService extends IntentService {
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiQueueCheckInService.class);
-	
+
 	private static final String SERVICE_NAME = "ApiQueueCheckIn";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiQueueCheckInService");
 		
 	public ApiQueueCheckInService() {
 		super(logTag);

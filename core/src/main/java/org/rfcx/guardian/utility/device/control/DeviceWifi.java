@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 
 public class DeviceWifi {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceWifi.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceWifi");
 
 	public DeviceWifi(Context context) {
 		this.context = context;
@@ -91,6 +91,7 @@ public class DeviceWifi {
 		Method[] wmMethods = this.wifiManager.getClass().getDeclaredMethods();   //Get all declared methods in WifiManager class
 		boolean methodFound = false;
 		for (Method method: wmMethods){
+
 			if (method.getName().equals("setWifiApEnabled")) {
 
 				methodFound = true;
@@ -98,17 +99,19 @@ public class DeviceWifi {
 				WifiConfiguration wifiConfig = new WifiConfiguration();
 
 				wifiConfig.SSID = this.hotspotName ;
-				wifiConfig.preSharedKey = this.hotspotPassword;
 				wifiConfig.hiddenSSID = !this.isVisible;
-
 				wifiConfig.status = WifiConfiguration.Status.ENABLED;
-				wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-				wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-				wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-				wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-				wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-				wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-				wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+
+				if ((this.hotspotPassword != null) && !this.hotspotPassword.equalsIgnoreCase("")) {
+					wifiConfig.preSharedKey = this.hotspotPassword;
+					wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+					wifiConfig.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+					wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+					wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+					wifiConfig.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+					wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+					wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+				}
 
 				try {
 					if (enableOrDisable) {
@@ -117,17 +120,21 @@ public class DeviceWifi {
 						Log.v(logTag, "De-activating Wifi Hotspot");
 					}
 					boolean apStatus = (Boolean) method.invoke(wifiManager, wifiConfig, enableOrDisable);
-					for (Method isWifiApEnabledmethod: wmMethods) {
-						if (isWifiApEnabledmethod.getName().equals("isWifiApEnabled")){
-							while(!(Boolean)isWifiApEnabledmethod.invoke(wifiManager)){ };
-							for (Method thisMethod: wmMethods){
-								if (thisMethod.getName().equals("getWifiApState")){
-									int apState = (Integer)thisMethod.invoke(wifiManager);
-									Log.v(logTag, "Wifi Hotspot Network Name: '"+wifiConfig.SSID+"' ("+wifiConfig.preSharedKey+")");
+
+					for (Method isWifiApEnabledmethod : wmMethods) {
+						if (isWifiApEnabledmethod.getName().equals("isWifiApEnabled") && enableOrDisable) {
+						//	while (!(Boolean) isWifiApEnabledmethod.invoke(wifiManager)) {
+								for (Method thisMethod : wmMethods) {
+									if (thisMethod.getName().equals("getWifiApState")) {
+										int apState = (Integer) thisMethod.invoke(wifiManager);
+										Log.v(logTag, "Wifi Hotspot Network Name: '" + wifiConfig.SSID + "' (" + wifiConfig.preSharedKey + ")");
+										break;
+									}
 								}
-							}
+						//	}
 						}
 					}
+
 				} catch (IllegalArgumentException e) {
 					RfcxLog.logExc(logTag, e);
 				} catch (IllegalAccessException e) {
@@ -142,11 +149,5 @@ public class DeviceWifi {
 		}
 
 	}
-
-
-
-
-
-
 
 }

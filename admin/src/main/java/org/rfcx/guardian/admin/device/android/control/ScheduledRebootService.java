@@ -7,10 +7,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ScheduledRebootService extends IntentService {
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledRebootService.class);
-	
+
 	private static final String SERVICE_NAME = "ScheduledReboot";
+	
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledRebootService");
 		
 	public ScheduledRebootService() {
 		super(logTag);

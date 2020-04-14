@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    
+
 	<ListPreference
-		android:key="verbose_logging"
-		android:title="verbose_logging"
-		android:dialogTitle="verbose_logging"
-        android:summary="string - true/false"
+		android:key="show_ui"
+		android:title="show_ui"
+		android:dialogTitle="show_ui"
+		android:summary="string - true/false"
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="true" />
-
-	<ListPreference
-			android:key="show_ui"
-			android:title="show_ui"
-			android:dialogTitle="show_ui"
-			android:summary="string - true/false"
-			android:entries="@array/true_or_false"
-			android:entryValues="@array/true_or_false"
-			android:defaultValue="true" />
 
 	<ListPreference
 		android:key="enable_audio_capture"
@@ -100,6 +91,13 @@
         android:summary="string - hostname"
         android:enabled="true"
         android:defaultValue="time.apple.com" />
+
+	<EditTextPreference
+		android:key="api_sms_address"
+		android:title="api_sms_address"
+		android:summary="string - phone number/code"
+		android:enabled="true"
+		android:defaultValue="14154803657" />
  	
  	<EditTextPreference
         android:key="reboot_forced_daily_at"
@@ -272,6 +270,24 @@
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
 		android:defaultValue="false" />
+
+	<ListPreference
+		android:key="admin_enable_sentinel_capture"
+		android:title="admin_enable_sentinel_capture"
+		android:dialogTitle="admin_enable_sentinel_capture"
+		android:summary="string - true/false"
+		android:entries="@array/true_or_false"
+		android:entryValues="@array/true_or_false"
+		android:defaultValue="true" />
+
+	<ListPreference
+			android:key="admin_system_timezone"
+			android:title="admin_system_timezone"
+			android:dialogTitle="admin_system_timezone"
+			android:summary="string - Region/Zone"
+			android:entries="@array/tz_timezones"
+			android:entryValues="@array/tz_timezones"
+			android:defaultValue="[ Not Set ]" />
  	
  	
 </PreferenceScreen>

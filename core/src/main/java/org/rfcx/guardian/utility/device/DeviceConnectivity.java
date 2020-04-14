@@ -5,10 +5,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceConnectivity {
 	
 	public DeviceConnectivity(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceConnectivity.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceConnectivity");
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceConnectivity.class);
+	private String logTag;
 	
 	private boolean isConnected = false;
 	private long lastConnectedAt = System.currentTimeMillis();

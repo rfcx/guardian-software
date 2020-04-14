@@ -21,7 +21,7 @@ public class AudioCaptureWavRecorder {
 		return captureWavRecorderResult;
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioCaptureWavRecorder.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCaptureWavRecorder");
 
 	// 	INITIALIZING : recorder is initializing; 
 	//	READY : recorder has been initialized, recorder not yet started

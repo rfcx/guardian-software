@@ -11,9 +11,9 @@ import android.util.Log;
 
 public class AirplaneModeToggleService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AirplaneModeToggleService.class);
-	
 	private static final String SERVICE_NAME = "AirplaneModeToggle";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AirplaneModeToggleService");
 	
 	private RfcxGuardian app;
 	

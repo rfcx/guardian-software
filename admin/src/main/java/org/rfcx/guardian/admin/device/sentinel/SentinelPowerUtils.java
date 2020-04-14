@@ -22,12 +22,12 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class SentinelPowerUtils {
 
     public SentinelPowerUtils(Context context) {
-
+//        DeviceI2cUtils.resetI2cPermissions(context);
         this.deviceI2cUtils = new DeviceI2cUtils(context, sentinelPowerI2cMainAddress);
         initSentinelPowerI2cOptions();
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, SentinelPowerUtils.class);
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelPowerUtils");
 
     private DeviceI2cUtils deviceI2cUtils = null;
     private static final String sentinelPowerI2cMainAddress = "0x68";

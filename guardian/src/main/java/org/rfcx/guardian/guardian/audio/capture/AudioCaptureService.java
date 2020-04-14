@@ -12,9 +12,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class AudioCaptureService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioCaptureService.class);
-	
 	private static final String SERVICE_NAME = "AudioCapture";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCaptureService");
 	
 	private RfcxGuardian app;
 	
@@ -88,9 +88,7 @@ public class AudioCaptureService extends Service {
 				
 				try {
 					
-					if (confirmOrSetAudioCaptureParameters()
-						&& 	app.audioCaptureUtils.isAudioCaptureAllowed(app.rfcxPrefs.getPrefAsBoolean("verbose_logging"))
-						) {
+					if (confirmOrSetAudioCaptureParameters() && app.audioCaptureUtils.isAudioCaptureAllowed()) {
 							
 //						if (wavRecorder == null) {
 							// in this case, we are starting the audio capture from a stopped/pre-initialized state
@@ -143,7 +141,7 @@ public class AudioCaptureService extends Service {
 			
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 			audioCaptureService.runFlag = false;
-			
+
 			Log.v(logTag, "Stopping service: "+logTag);
 				
 		}

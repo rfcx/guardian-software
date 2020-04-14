@@ -1,19 +1,31 @@
 package org.rfcx.guardian.admin.device.android.control;
 
+import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.root.DeviceReboot;
+import org.rfcx.guardian.utility.misc.ShellCommands;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
+import org.rfcx.guardian.utility.rfcx.RfcxGarbageCollection;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+
+import android.app.ActivityManager;
 import android.app.Service;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.os.Environment;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.SystemClock;
 import android.util.Log;
 
 public class RebootTriggerJobService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, RebootTriggerJobService.class);
-	
 	private static final String SERVICE_NAME = "RebootTrigger";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "RebootTriggerJobService");
 	
 	private RfcxGuardian app;
 	
@@ -72,8 +84,33 @@ public class RebootTriggerJobService extends Service {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				DeviceReboot.triggerForcedRebootAsRoot(app.getApplicationContext());
-					
+				// Halting the Guardian role services
+				Log.e(logTag, "Reboot: Requesting that Guardian role stop all services...");
+				try {
+					Cursor killGuardianSvcs = app.getApplicationContext().getContentResolver().query(
+						RfcxComm.getUri("guardian", "control", "kill"),
+						RfcxComm.getProjection("guardian", "control"),
+						null, null, null);
+					Log.v(logTag, killGuardianSvcs.toString());
+					killGuardianSvcs.close();
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e);
+				}
+
+				// Garbage Collection
+				RfcxGarbageCollection.runAndroidGarbageCollection();
+
+				// Triggering reboot request
+				Log.e(logTag, "Reboot: Broadcasting ACTION_REBOOT Intent...");
+				Intent actionReboot = new Intent(Intent.ACTION_REBOOT);
+				actionReboot.putExtra("nowait", 1);
+				actionReboot.putExtra("window", 1);
+				sendBroadcast(actionReboot);
+
+				Log.e(logTag, "System should be shutting down now...");
+				app.rfcxServiceHandler.stopAllServices();
+
+
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {

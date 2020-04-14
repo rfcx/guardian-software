@@ -1,6 +1,7 @@
 package org.rfcx.guardian.utility.device.root;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
 import android.util.Log;
 
@@ -10,15 +11,18 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceReboot {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceReboot.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceReboot");
 
 
 
 
 	public static boolean triggerForcedRebootAsRoot(Context context) {
+
+		RfcxGarbageCollection.runAndroidGarbageCollection();
+
 		int rebootPreDelay = 3;
 		Log.v(logTag, "Attempting graceful reboot... then after "+rebootPreDelay+" seconds, killing RFCx processes and forcing reboot...");
-		RfcxGarbageCollection.runAndroidGarbageCollection();
+
 		ShellCommands.executeCommandAsRoot(""
 						+"am start -a android.intent.action.REBOOT; "
 						+"am broadcast android.intent.action.ACTION_SHUTDOWN; "
@@ -28,6 +32,7 @@ public class DeviceReboot {
 						+" && reboot; "
 						+"sleep "+rebootPreDelay+" && reboot; "
 				, context);
+
 		return true;
 	}
 

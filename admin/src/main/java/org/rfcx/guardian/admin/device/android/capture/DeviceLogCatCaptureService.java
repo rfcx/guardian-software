@@ -1,6 +1,6 @@
 package org.rfcx.guardian.admin.device.android.capture;
 
-import org.rfcx.guardian.utility.device.control.DeviceLogCat;
+import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -16,9 +16,9 @@ import android.util.Log;
 
 public class DeviceLogCatCaptureService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceLogCatCaptureService.class);
-	
 	private static final String SERVICE_NAME = "LogCatCapture";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceLogCatCaptureService");
 	
 	private RfcxGuardian app;
 	
@@ -74,7 +74,7 @@ public class DeviceLogCatCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 			
-			DeviceLogCat deviceLogCat = new DeviceLogCat(context, RfcxGuardian.APP_ROLE, app.rfcxDeviceGuid.getDeviceGuid(), app.rfcxPrefs.getPrefAsString("admin_log_capture_level"));
+			DeviceLogCat deviceLogCat = new DeviceLogCat(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid(), app.rfcxPrefs.getPrefAsString("admin_log_capture_level"));
 			String scriptFilePath = DeviceLogCat.getExecutableScriptFilePath(context);
 
 			// removing older files if they're left in the capture directory
@@ -104,7 +104,7 @@ public class DeviceLogCatCaptureService extends Service {
 					Log.e(logTag, "could not find captured log file: "+postCaptureFilePath);
 				} else {
 					
-					File finalGzipFile = new File(DeviceLogCat.getLogFileLocation_Complete_PostZip(app.rfcxDeviceGuid.getDeviceGuid(), context, captureCycleEndingTimeStamp ));
+					File finalGzipFile = new File(DeviceLogCat.getLogFileLocation_Complete_PostZip(app.rfcxGuardianIdentity.getGuid(), context, captureCycleEndingTimeStamp ));
 					
 					if (finalGzipFile.exists()) { finalGzipFile.delete(); }
 					

@@ -3,7 +3,6 @@ package org.rfcx.guardian.utility.device.control;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.misc.ShellCommands;
@@ -15,16 +14,18 @@ import java.lang.reflect.Method;
 
 public class DeviceBluetooth {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", DeviceBluetooth.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceBluetooth");
 
 	private Context context;
+	private BluetoothAdapter bluetoothAdapter;
 
 	public DeviceBluetooth(Context context) {
 		this.context = context;
+		this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	}
 
-	public static boolean isBluetoothEnabled() {
-		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+	public boolean isBluetoothEnabled() {
+//		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (bluetoothAdapter != null) {
 			int bluetoothState = bluetoothAdapter.getState();
 			switch (bluetoothState) {
@@ -46,30 +47,30 @@ public class DeviceBluetooth {
 //		return false;
 //	}
 	
-	public static void setPowerOn() {
-	    	if (!isBluetoothEnabled()) {
-	    		BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-	    		if (bluetoothAdapter != null) {
-	    			Log.v(logTag, "Activating Bluetooth Power");
-		    		BluetoothAdapter.getDefaultAdapter().enable();
-	    		} else {
-	    			Log.v(logTag, "Bluetooth hardware not present (cannot activate).");
-	    		}
-	    	}
+	public void setPowerOn() {
+		if (!isBluetoothEnabled()) {
+//			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+			if (bluetoothAdapter != null) {
+				Log.v(logTag, "Activating Bluetooth Power");
+				bluetoothAdapter.enable();
+			} else {
+				Log.v(logTag, "Bluetooth hardware not present (cannot activate).");
+			}
+		}
 	}
 	
-	public static void setPowerOff(Context context) {
-	    	if (isBluetoothEnabled()) {
-    			Log.v(logTag, "Deactivating Bluetooth Power");
-	    		BluetoothAdapter.getDefaultAdapter().disable();
-	    	}
+	public void setPowerOff() {
+		if (isBluetoothEnabled()) {
+			Log.v(logTag, "Deactivating Bluetooth Power");
+			bluetoothAdapter.disable();
+		}
 	}
 
 	// Network Name controls
 
-	public static void setNetworkName(String networkName) {
+	public void setNetworkName(String networkName) {
 		if (isBluetoothEnabled()) {
-			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//			BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 			if (bluetoothAdapter != null) {
 				bluetoothAdapter.setName(networkName);
 				Log.v(logTag, "Bluetooth Network Name: '"+bluetoothAdapter.getName()+"'");
@@ -93,7 +94,8 @@ public class DeviceBluetooth {
 
 	public void setTetheringOff() {
 		this.tetherEnableOrDisable = false;
-		setTethering();
+		setPowerOff(); // this is kind of cheating...
+//		setTethering();
 	}
 
 	private void setTethering() {
@@ -116,11 +118,14 @@ public class DeviceBluetooth {
 
 			synchronized (tetherMutex) {
 				isTetheringOn = classBluetoothPan.getDeclaredMethod("isTetheringOn", null);
-				setTetheringOn = classBluetoothPan.getDeclaredMethod("setBluetoothTethering", enableTetheringParamSet);
 
-				// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
-				setTetheringOff = classBluetoothPan.getDeclaredMethod("setBluetoothTethering", disableTetheringParamSet);
-				// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
+				if (this.tetherEnableOrDisable) {
+					setTetheringOn = classBluetoothPan.getDeclaredMethod("setBluetoothTethering", enableTetheringParamSet);
+				} else {
+					// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
+					setTetheringOff = classBluetoothPan.getDeclaredMethod("setBluetoothTethering", disableTetheringParamSet);
+					// THIS IS PROBABLY NOT RIGHT —— NEED TO KNOW PARAMS FOR DISABLING TETHERING
+				}
 
 				tetherInstance = tetherConstructor.newInstance(context, new BluetoothTetherServiceListener(context, this.tetherEnableOrDisable));
 			}
@@ -129,7 +134,6 @@ public class DeviceBluetooth {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
-
 	}
 
 	public class BluetoothTetherServiceListener implements BluetoothProfile.ServiceListener {

@@ -9,9 +9,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceSentinelService extends Service {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceSentinelService.class);
-	
 	private static final String SERVICE_NAME = "DeviceSentinel";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceSentinelService");
 	
 	private RfcxGuardian app;
 	
@@ -80,15 +80,24 @@ public class DeviceSentinelService extends Service {
 				while (deviceSentinelService.runFlag) {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-					
-//					if (app.sentinelPowerUtils.confirmConnection()) {
+
+					if (app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_capture")) {
+
+//						if (app.sentinelPowerUtils.confirmConnection()) {
 
 						app.sentinelPowerUtils.updateSentinelPowerValues();
 						app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(app.getApplicationContext(), false);
-						
-//					}
-					
-					Thread.sleep(sentinelPowerMeasurementLoopDuration);
+
+//						}
+
+						Thread.sleep(sentinelPowerMeasurementLoopDuration);
+
+					} else {
+
+						long disabledPauseLoopDuration = 4 * sentinelPowerMeasurementLoopDuration;
+						Log.d(logTag,"Sentinel Capture is disabled in Prefs. Waiting "+( Math.round(disabledPauseLoopDuration/1000) )+" seconds before next attempt.");
+						Thread.sleep(disabledPauseLoopDuration);
+					}
 				}
 			
 			} catch (InterruptedException e) {
@@ -98,39 +107,6 @@ public class DeviceSentinelService extends Service {
 			}
 		}		
 	}
-	
-//	
-//	
-//	private void saveSystemStatValuesToDatabase(String statAbbreviation) {
-//		
-//		try {
-//			
-//			if (statAbbreviation.equalsIgnoreCase("cpu")) {
-//				
-//				List<int[]> cpuUsageValuesCache = this.cpuUsageValues;
-//				this.cpuUsageValues = new ArrayList<int[]>();
-//				
-//				for (int[] cpuVals : cpuUsageValuesCache) {
-//					app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1]);
-//				}
-//				
-//			} else if (statAbbreviation.equalsIgnoreCase("battery")) {
-//				
-//				List<int[]> batteryLevelValuesCache = this.batteryLevelValues;
-//				this.batteryLevelValues = new ArrayList<int[]>();
-//				
-//				for (int[] batteryLevelVals : batteryLevelValuesCache) {
-//					app.deviceSystemDb.dbBattery.insert(new Date(), batteryLevelVals[0], batteryLevelVals[1]);
-//					app.deviceSystemDb.dbPower.insert(new Date(), batteryLevelVals[2], batteryLevelVals[3]);
-//				}
-//				
-//			} else {
-//				Log.e(logTag, "Value info for '"+statAbbreviation+"' could not be saved to database.");
-//			}
-//			
-//		} catch (Exception e) {
-//			RfcxLog.logExc(logTag, e);
-//		}
-//	}
+
 	
 }

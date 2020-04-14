@@ -5,12 +5,14 @@ import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.utility.rfcx.RfcxGarbageCollection;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -22,14 +24,19 @@ public class ShellCommands {
 	}
 	private Context context = null;
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", ShellCommands.class);
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "ShellCommands");
 	
-	
-	private static List<String> executeCommandInShell(String commandContents, boolean asRoot, Context context) {
+	private static List<String> executeCommandInShell(String[] commandLines, boolean asRoot, Context context) {
 
 		List<String> outputLines = new ArrayList<String>(); 
 		
 		File rootScriptObj = null;
+		File tmpScriptObj = null;
+
+		// In case the file directory for the application is not accessible to the parts of the system that run the scripts.
+		String accessibleDir = Environment.getExternalStorageDirectory().toString()+"/rfcx/scr";
+		(new File(accessibleDir)).mkdirs(); FileUtils.chmod(accessibleDir,  "rw", "rw");
+		tmpScriptObj = new File(accessibleDir+"/script-root-"+System.currentTimeMillis()+".sh");
 		
 		try {
 
@@ -68,194 +75,189 @@ public class ShellCommands {
 			    		} catch (Exception e) {
 			    			RfcxLog.logExc(logTag, e);
 			    		}
-				    
-		    			BufferedWriter rootFileWriter = new BufferedWriter(new FileWriter(rootScriptPath));
-			        rootFileWriter.write((new StringBuilder()).append("#!/system/bin/sh\n").append(commandContents).append("\n").toString());
+
+			    	StringBuilder commandContent = (new StringBuilder()).append("#!/system/bin/sh\n");
+			    	for (String commandLine : commandLines) {
+						commandContent/*.append("su -c ")*/.append(commandLine).append(";\n");
+					}
+
+					BufferedWriter rootFileWriter = new BufferedWriter(new FileWriter(rootScriptPath));
+					rootFileWriter.write(commandContent.toString());
 			        rootFileWriter.close();
+
 			        FileUtils.chmod(rootScriptObj, "rwx", "rx");
-				    
+					FileUtils.copy(rootScriptObj, tmpScriptObj);
+					FileUtils.chmod(tmpScriptObj, "rwx", "rx");
+
 				    if (rootScriptObj.exists()) {
-				    	shellProcess = Runtime.getRuntime().exec( new String[] { "su", "-c", rootScriptPath } );
+
+////						shellProcess = Runtime.getRuntime().exec("/system/xbin/su");
+//						shellProcess = Runtime.getRuntime().exec("/system/bin/sh");
+//						DataOutputStream shellOutput = new DataOutputStream(shellProcess.getOutputStream());
+//						shellReader = new BufferedReader (new InputStreamReader(shellProcess.getInputStream()));
+//
+//                        for (String commandLine : commandLines) {
+//                        	Log.i(logTag, "Line: "+commandLine);
+//                            shellOutput.writeBytes("su -c "+commandLine+";\n");
+//                            shellOutput.flush();
+//                        }
+////						shellOutput.writeBytes(tmpScriptObj.getAbsolutePath()+";\n");
+////						shellOutput.flush();
+//
+//						shellOutput.writeBytes("exit;\n");
+//						shellOutput.flush();
+//
+//						shellProcess.waitFor();
+//						shellOutput.close();
+
+//						for (String commandLine : commandLines) {
+//							shellProcess = Runtime.getRuntime().exec("su");
+//							DataOutputStream dos = new DataOutputStream(shellProcess.getOutputStream());
+//							dos.writeBytes(commandLine + "\n");
+//							dos.writeBytes("exit\n");
+//							dos.flush();
+//							dos.close();
+//							shellProcess.waitFor();
+//							Log.i(logTag, "Line: " + commandLine);
+//						}
+
+						shellProcess = Runtime.getRuntime().exec(new String[] { "su", "0", tmpScriptObj.getAbsolutePath() });
 						shellProcess.waitFor();
-						shellReader = new BufferedReader (new InputStreamReader(shellProcess.getInputStream()));
-			    	    }
+
+
+						//				try {
+//					Process proc = Runtime.getRuntime()
+//							.exec(new String[]{ "su", "0", "reboot", "-p" });
+//					proc.waitFor();
+//				} catch (Exception ex) {
+//					ex.printStackTrace();
+//				}
+
+
+				    }
 				}
 			
 			} else {
 				
-				shellProcess = Runtime.getRuntime().exec("sh");	
+				shellProcess = Runtime.getRuntime().exec("sh");
 				DataOutputStream shellOutput = new DataOutputStream(shellProcess.getOutputStream());
 				shellReader = new BufferedReader (new InputStreamReader(shellProcess.getInputStream()));
-				
-	    			shellOutput.writeBytes(commandContents+";\n");
-		    		shellOutput.flush();
 
-				shellOutput.writeBytes("exit;\n");
-				shellOutput.flush();
-			}
-			
-			
-			String shellLineContent;
-			while ((shellLineContent = shellReader.readLine()) != null) { 
-				String thisLine = shellLineContent.trim();
-				if (thisLine.length() > 0) {
-					outputLines.add(thisLine);
+				for (String commandLine : commandLines) {
+					Log.i(logTag, "Line: "+commandLine);
+					shellOutput.writeBytes(commandLine+"\n");
 				}
+				shellOutput.writeBytes("exit\n");
+				shellOutput.flush();
+				shellOutput.close();
+				shellProcess.waitFor();
 			}
+
+			
+//			String shellLineContent;
+//			while ((shellLineContent = shellReader.readLine()) != null) {
+//				String thisLine = shellLineContent.trim();
+//				if (thisLine.length() > 0) {
+//					outputLines.add(thisLine);
+//				}
+//			}
 			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 	    } finally {
 	    		if ((rootScriptObj != null) && rootScriptObj.exists()) { rootScriptObj.delete(); }
+				if ((tmpScriptObj != null) && tmpScriptObj.exists()) { tmpScriptObj.delete(); }
 	    }
-		
-		
+
+		Log.e(logTag, "Exec"+(asRoot ? " (as root)" : "")+": "+ TextUtils.join(" | ",commandLines));
+
 		return outputLines;
 	}
 
 	
-	private static boolean executeCommandAsRoot_ReturnBoolean(String commandContents, String ifOutputContainThisStringReturnTrue, Context context) {
+	private static boolean executeCommandAsRoot_ReturnBoolean(String[] commandContents, String ifOutputContainThisStringReturnTrue, Context context) {
 		List<String> outputLines = executeCommandInShell(commandContents, true, context);
 		for (String outputLine : outputLines) {
 			if (outputLine.trim().equalsIgnoreCase(ifOutputContainThisStringReturnTrue.trim())) { return true; }
 		}
 		return false;
 	}
+
+	private static boolean executeCommandAsRoot_ReturnBoolean(String commandContents, String ifOutputContainThisStringReturnTrue, Context context) {
+		return executeCommandAsRoot_ReturnBoolean(new String[] { commandContents }, ifOutputContainThisStringReturnTrue, context);
+	}
 	
-	private static boolean executeCommand_ReturnBoolean(String commandContents, String ifOutputContainThisStringReturnTrue) {
+	private static boolean executeCommand_ReturnBoolean(String[] commandContents, String ifOutputContainThisStringReturnTrue) {
 		List<String> outputLines = executeCommandInShell(commandContents, false, null);
 		for (String outputLine : outputLines) {
 			if (outputLine.trim().equalsIgnoreCase(ifOutputContainThisStringReturnTrue.trim())) { return true; }
 		}
 		return false;
 	}
-	
-	public static List<String> executeCommand(String commandContents) {
+
+	private static boolean executeCommand_ReturnBoolean(String commandContents, String ifOutputContainThisStringReturnTrue) {
+		return executeCommand_ReturnBoolean(new String[] { commandContents }, ifOutputContainThisStringReturnTrue);
+	}
+
+	public static List<String> executeCommand(String[] commandContents) {
 		return executeCommandInShell(commandContents, false, null);
 	}
 
-	public static List<String> executeCommandAsRoot(String commandContents, Context context) { 
+	public static List<String> executeCommand(String commandContents) {
+		return executeCommandInShell(new String[] { commandContents }, false, null);
+	}
+
+	public static List<String> executeCommandAsRoot(String[] commandContents, Context context) {
 		return executeCommandInShell(commandContents, true, context);
 	}
 
-	public static void executeCommandAndIgnoreOutput(String commandContents) { 
+	public static List<String> executeCommandAsRoot(String commandContents, Context context) {
+		return executeCommandInShell(new String[] { commandContents }, true, context);
+	}
+
+	public static void executeCommandAndIgnoreOutput(String[] commandContents) {
 		executeCommandInShell(commandContents, false, null);
 	}
 
-	public static void executeCommandAsRootAndIgnoreOutput(String commandContents, Context context) { 
+	public static void executeCommandAndIgnoreOutput(String commandContents) {
+		executeCommandInShell(new String[] { commandContents }, false, null);
+	}
+
+	public static void executeCommandAsRootAndIgnoreOutput(String[] commandContents, Context context) {
 		executeCommandInShell(commandContents, true, context);
 	}
-	
-	public static boolean executeCommandAndSearchOutput(String commandContents, String outputSearchString) { 
+
+	public static void executeCommandAsRootAndIgnoreOutput(String commandContents, Context context) {
+		executeCommandInShell(new String[] { commandContents }, true, context);
+	}
+
+	public static boolean executeCommandAndSearchOutput(String[] commandContents, String outputSearchString) {
 		return executeCommand_ReturnBoolean(commandContents, outputSearchString);
 	}
 
-	public static boolean executeCommandAsRootAndSearchOutput(String commandContents, String outputSearchString, Context context) { 
+	public static boolean executeCommandAndSearchOutput(String commandContents, String outputSearchString) {
+		return executeCommand_ReturnBoolean(new String[] { commandContents }, outputSearchString);
+	}
+
+	public static boolean executeCommandAsRootAndSearchOutput(String[] commandContents, String outputSearchString, Context context) {
 		return executeCommandAsRoot_ReturnBoolean(commandContents, outputSearchString, context);
 	}
+
+	public static boolean executeCommandAsRootAndSearchOutput(String commandContents, String outputSearchString, Context context) {
+		return executeCommandAsRoot_ReturnBoolean(new String[] { commandContents }, outputSearchString, context);
+	}
 	
-	
-	
-	
-	
+
+	// this does not work on the orange pi, which does not have a "cut" installation
 	public static void killProcessByName(String searchTerm, String excludeTerm, Context context) {
 		Log.i(logTag, "Attempting to kill process associated with search term '"+searchTerm+"'.");
 		String grepExclude = (excludeTerm != null) ? " grep -v "+excludeTerm+" |" : "";
-		executeCommandAsRootAndIgnoreOutput("kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)", context);
+		executeCommandInShell(new String[] { "kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)" }, true, context);
 	}
 	
 	public static void triggerNeedForRootAccess(Context context) {
-		executeCommandInShell("pm list features", true, context);
+		executeCommandInShell(new String[] { "pm list features" }, true, context);
 	}
-	
-//	public static boolean triggerRebootAsRoot(Context context) {
-//
-//		RfcxGarbageCollection.runAndroidGarbageCollection();
-//
-//		int rebootPreDelay = 3;
-//
-//		Log.v(logTag, "Attempting graceful reboot... then after "+rebootPreDelay+" seconds, killing RFCx processes and forcing reboot...");
-//
-//		executeCommandAsRoot(""
-//				+"am start -a android.intent.action.REBOOT; "
-//				+"am broadcast android.intent.action.ACTION_SHUTDOWN; "
-//				+"sleep "+rebootPreDelay
-//					+" && kill $(ps | grep org.rfcx.org.rfcx.guardian.guardian | cut -d \" \" -f 5)"
-//					+" && umount -vl "+Environment.getExternalStorageDirectory().toString()
-//					+" && reboot; "
-//				+"sleep "+rebootPreDelay+" && reboot; "
-//			, context);
-//		return true;
-//	}
-	
-	
-	
-	
-	
-	
-	
-//	private static List<String> executeCommandInShell(String commandContents, String ifOutputContainThisStringReturnTrue, boolean asRoot, Context context, String logTag) {
-//
-//	    List<String> standardOutStringLines = new ArrayList<String>();
-//	    standardOutStringLines.add("false");
-//	    
-//		String filePath = context.getFilesDir().toString()+"/scr/script"+(asRoot ? "-root" : "")+".sh";
-//	    (new File(filePath.substring(0,filePath.lastIndexOf("/")))).mkdirs();
-//	    File fileObj = new File(filePath);
-//	    	
-//	    if (fileObj.exists()) { 
-//	    		long waitToExecute = 500;
-//	    		Log.e(logTag,"OTHER SCRIPT IS RUNNING SO WAITING "+waitToExecute+"ms BEFORE STARTING..."); 
-//	//    		try { Thread.sleep(waitToExecute); } catch (InterruptedException e) { RfcxLog.logExc(logTag, e); }
-//		}
-//	    
-//	    try {
-//
-//		    Process commandProcess = null;
-//	    		BufferedWriter scriptFile = new BufferedWriter(new FileWriter(filePath));
-//	        scriptFile.write(
-//	        		"#!/system/bin/sh"
-//	        		+"\n"+commandContents
-//	        		+"\n");
-//	        scriptFile.close();
-//	        FileUtils.chmod(fileObj, "rwx", "rx");
-//	        
-//		    if (fileObj.exists()) {
-//		    	
-//		    		if (asRoot) { commandProcess = Runtime.getRuntime().exec(new String[] { "su", "-c", filePath }); }
-//		    		else { commandProcess = Runtime.getRuntime().exec(new String[] { filePath }); }
-//		    		
-//				commandProcess.waitFor();
-//					
-//				BufferedReader bufferedReaderOutput = new BufferedReader (new InputStreamReader(commandProcess.getInputStream())); 
-//				String eachLine_BufferedReaderOutput; while ((eachLine_BufferedReaderOutput = bufferedReaderOutput.readLine()) != null) {
-//					standardOutStringLines.add(eachLine_BufferedReaderOutput.trim());
-//					if (eachLine_BufferedReaderOutput.equalsIgnoreCase(ifOutputContainThisStringReturnTrue)) {
-//						standardOutStringLines.set(0, "true");
-//					}
-//				} bufferedReaderOutput.close();
-//				
-////					BufferedReader bufferedReaderError = new BufferedReader (new InputStreamReader(commandProcess.getErrorStream())); 
-////					String eachLine_BufferedReaderError; while ((eachLine_BufferedReaderError = bufferedReaderError.readLine()) != null) {
-////						standardOutStringLines.add(eachLine_BufferedReaderError.trim());
-////					} bufferedReaderError.close();
-//				
-//				if (ifOutputContainThisStringReturnTrue == null) { standardOutStringLines.set(0, (commandProcess.exitValue() == 1) ? "true" : "false"); }
-//				commandProcess.destroy();
-//
-//		    } else {
-//		    		Log.e(logTag,"Shell script could not be located for execution");
-//		    }
-//	    } catch (Exception e) {
-//			RfcxLog.logExc(logTag, e);
-//	    } finally {
-//	    		if (fileObj.exists()) { fileObj.delete(); }
-//	    }
-//	    
-//		    
-//	    return standardOutStringLines;
-//	}
-	
-	
+
 	
 }

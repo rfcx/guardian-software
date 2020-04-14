@@ -10,9 +10,9 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ApiCheckInMetaSnapshotService extends IntentService {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInMetaSnapshotService.class);
-
 	private static final String SERVICE_NAME = "ApiCheckInMetaSnapshot";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInMetaSnapshotService");
 
 	public ApiCheckInMetaSnapshotService() {
 		super(logTag);

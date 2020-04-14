@@ -22,15 +22,7 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		switch (item.getItemId()) {
-		
-		case R.id.menu_check_version:
-			app.rfcxServiceHandler.triggerService("ApiCheckVersion",true);
-			break;
 
-		case R.id.menu_root_command:
-			ShellCommands.triggerNeedForRootAccess(getApplicationContext());
-			break;
-			
 		}
 		return true;
 	}

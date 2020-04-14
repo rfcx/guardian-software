@@ -13,10 +13,10 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 
 public class AudioQueueEncodeService extends IntentService {
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AudioQueueEncodeService.class);
-	
+
 	private static final String SERVICE_NAME = "AudioQueueEncode";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioQueueEncodeService");
 		
 	public AudioQueueEncodeService() {
 		super(logTag);

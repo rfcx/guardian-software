@@ -6,11 +6,13 @@ import android.util.Log;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class RfcxLog {
-	
+
 	public static String generateLogTag(String appRole, Class logClass) {
-		
 		return (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(logClass.getSimpleName()).toString();
-		
+	}
+
+	public static String generateLogTag(String appRole, String logClassName) {
+		return (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(logClassName).toString();
 	}
 	
 	public static String getExceptionContentAsString(Exception exc) {

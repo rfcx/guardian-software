@@ -28,13 +28,13 @@ import org.rfcx.guardian.utility.misc.StringUtils;
 public class RfcxPrefs {
 
 	public RfcxPrefs(Context context, String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, RfcxPrefs.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxPrefs");
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
 		this.prefsDirPath = setOrCreatePrefsDirectory(context, appRole);
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", RfcxPrefs.class);
+	private String logTag;
 	
 	private Context context = null;
 	private String thisAppRole = null;
@@ -136,8 +136,6 @@ public class RfcxPrefs {
 		    		String txtFileContents = fileContent.toString().trim();
 		    		input.close();
 		    		return txtFileContents;
-	    		} else {
-	    			Log.v(logTag, "No preference file '"+prefKey+"' exists...");
 	    		}
 	    	} catch (FileNotFoundException e) {
 				RfcxLog.logExc(logTag, e);
@@ -159,8 +157,9 @@ public class RfcxPrefs {
 				
 				if ((prefsCursor != null) && (prefsCursor.getCount() > 0)) { if (prefsCursor.moveToFirst()) { try { do {
 					if (prefsCursor.getString(prefsCursor.getColumnIndex("pref_key")).equalsIgnoreCase(prefKey)) {
-						Log.v(logTag, "Receiving pref '"+prefKey+"' via content provider...");
-						return prefsCursor.getString(prefsCursor.getColumnIndex("pref_value"));
+						String prefValue = prefsCursor.getString(prefsCursor.getColumnIndex("pref_value"));
+						Log.v(logTag, "Pref retrieved via Content Provider: '"+prefKey+"' = '"+prefValue+"'");
+						return prefValue;
 					}
 				} while (prefsCursor.moveToNext()); } finally { prefsCursor.close(); } } }
 			}
@@ -309,8 +308,6 @@ public class RfcxPrefs {
 	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
 	    new HashMap<String, String>() {{
 
-			put("verbose_logging", "true");
-
 			put("enable_audio_capture", "true");
 			put("enable_checkin_publish", "true");
 			put("enable_cutoffs_battery", "true");
@@ -322,6 +319,7 @@ public class RfcxPrefs {
 	        put("api_checkin_protocol", "tcp");
 	        put("api_checkin_port", "1883");
 	        put("api_ntp_host", "time.apple.com");
+			put("api_sms_address", "14154803657");
 	        
 			put("reboot_forced_daily_at", "23:54:00");
 			
@@ -352,7 +350,10 @@ public class RfcxPrefs {
 			
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "true");
-			
+
+			put("admin_enable_sentinel_capture", "true");
+
+			put("admin_system_timezone", "[ Not Set ]");
 			
 			
 	    }}

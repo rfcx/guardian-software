@@ -1,20 +1,17 @@
 package org.rfcx.guardian.admin.device.android.system;
 
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
+import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
-import android.telephony.SignalStrength;
-import android.telephony.TelephonyManager;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import android.Manifest;
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.device.android.system.DeviceSystemService.SignalStrengthListener;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.DeviceCPU;
+import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -26,38 +23,62 @@ import java.util.List;
 public class DeviceUtils {
 
 	public DeviceUtils(Context context) {
-		this.app = (RfcxGuardian) context.getApplicationContext();
+		this.context = context;
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, DeviceUtils.class);
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceUtils");
 
-	private RfcxGuardian app = null;
-	
-	public SignalStrengthListener signalStrengthListener;
-	public TelephonyManager telephonyManager;
-	public SignalStrength telephonySignalStrength;
-	public LocationManager locationManager;
-	public SensorManager sensorManager;
-	
-	public Sensor lightSensor;
-	public Sensor accelSensor;
+	private Context context;
 
-	public String geoPositionProviderInfo;
-	
-	public double lightSensorLastValue = Float.MAX_VALUE;
-	
-//	public boolean isListenerRegistered_telephony = false;
-//	public boolean isListenerRegistered_light = false;
-//	public boolean isListenerRegistered_accel = false;
-//	public boolean isListenerRegistered_geoposition = false;
+	private boolean allowListenerRegistration_telephony = true;
+	private boolean allowListenerRegistration_light = true;
+	private boolean allowListenerRegistration_accel = true;
+	private boolean allowListenerRegistration_geoposition = true;
+	private boolean allowListenerRegistration_geoposition_gps = true;
+	private boolean allowListenerRegistration_geoposition_network = true;
 
-//	public boolean allowListenerRegistration_telephony = true;
-//	public boolean allowListenerRegistration_light = true;
-//	public boolean allowListenerRegistration_accel = true;
-//	public boolean allowListenerRegistration_geolocation = true;
-//	public boolean allowListenerRegistration_geolocation_gps = true;
-//	public boolean allowListenerRegistration_geolocation_network = true;
-	
+	public boolean isSensorListenerAllowed(String sensorAbbrev) {
+		if (sensorAbbrev.equalsIgnoreCase("accel")) {
+			return this.allowListenerRegistration_accel;
+		} else if (sensorAbbrev.equalsIgnoreCase("light")) {
+			return this.allowListenerRegistration_light;
+		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+			return this.allowListenerRegistration_telephony;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
+			return this.allowListenerRegistration_geoposition;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_gps")) {
+			return this.allowListenerRegistration_geoposition_gps;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_network")) {
+			return this.allowListenerRegistration_geoposition_network;
+		} else {
+			return false;
+		}
+	}
+
+	public void allowOrDisableSensorListener(String sensorAbbrev, boolean allowOrDisable) {
+		if (sensorAbbrev.equalsIgnoreCase("accel")) {
+			this.allowListenerRegistration_accel = allowOrDisable;
+		} else if (sensorAbbrev.equalsIgnoreCase("light")) {
+			this.allowListenerRegistration_light = allowOrDisable;
+		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
+			this.allowListenerRegistration_telephony = allowOrDisable;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
+			this.allowListenerRegistration_geoposition = allowOrDisable;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_gps")) {
+			this.allowListenerRegistration_geoposition_gps = allowOrDisable;
+		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_network")) {
+			this.allowListenerRegistration_geoposition_network = allowOrDisable;
+		}
+	}
+
+	public void allowSensorListener(String sensorAbbrev) {
+		allowOrDisableSensorListener(sensorAbbrev, true);
+	}
+
+	public void disableSensorListener(String sensorAbbrev) {
+		allowOrDisableSensorListener(sensorAbbrev, false);
+	}
+
 	public long dateTimeDiscrepancyFromSystemClock_gps = 0;
 	public long dateTimeDiscrepancyFromSystemClock_sntp = 0;
 	public long dateTimeSourceLastSyncedAt_gps = 0;
@@ -69,8 +90,8 @@ public class DeviceUtils {
 	
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
-	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {		1, 		1,		1 	};
-	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 	180/*3600*/,	60,		10 	};
+	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {	1, 		1,		1 	};
+	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 		1800,	60,		10 	};
 	public int geoPositionUpdateIndex = 0;
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
@@ -122,23 +143,37 @@ public class DeviceUtils {
 		this.accelSensorSnapshotValues = new ArrayList<double[]>();
 		
 		if ((accelSensorSnapshotAverages.length == 5) && (accelSensorSnapshotAverages[4] > 0)) {
-			
-			if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
-				Log.i(logTag, "Snapshot —— Accelerometer"
-						+" —— x: "+accelSensorSnapshotAverages[1]+", y: "+accelSensorSnapshotAverages[2]+", z: "+accelSensorSnapshotAverages[3]
-						+" —— "+Math.round(accelSensorSnapshotAverages[4])+" sample(s)"
-						+" —— "+DateTimeUtils.getDateTime((long) Math.round(accelSensorSnapshotAverages[0]))
-						);
-			}
+
+			RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
+
+			Log.i(logTag, "Snapshot —— Accelerometer"
+					+" —— x: "+accelSensorSnapshotAverages[1]+", y: "+accelSensorSnapshotAverages[2]+", z: "+accelSensorSnapshotAverages[3]
+					+" —— "+Math.round(accelSensorSnapshotAverages[4])+" sample(s)"
+					+" —— "+DateTimeUtils.getDateTime((long) Math.round(accelSensorSnapshotAverages[0]))
+					);
+
 			
 			// this is where we would report this interim accel value to something, somewhere that would determine if the phone is moving around...			
+		}
+	}
+
+	public static boolean isAppRoleApprovedForGeoPositionAccess(Context context) {
+		if (	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+			&&	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+		//	&&	(ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED)
+		) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 	
 	public void processAndSaveGeoPosition(Location location) {
 		if (location != null) {
 			try {
-				
+
+				RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
+
 				dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
 				dateTimeDiscrepancyFromSystemClock_gps = DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(location.getTime());
 				
@@ -149,25 +184,16 @@ public class DeviceUtils {
 						location.getAltitude(),
 						(double) location.getTime()
 					};
-				
-				if (app.rfcxPrefs.getPrefAsBoolean("verbose_logging")) { 
-					Log.i(logTag, "Snapshot —— GeoPosition"
-							+" —— Lat: "+geoPos[1]+", Lng: "+geoPos[2]+", Alt: "+Math.round(geoPos[4])+" meters"
-							+" —— Accuracy: "+Math.round(geoPos[3])+" meters"
-							+" —— "+DateTimeUtils.getDateTime(dateTimeSourceLastSyncedAt_gps)
-							+" —— Clock Discrepancy: "+dateTimeDiscrepancyFromSystemClock_gps+" ms"
-							);
-				}
-				
-				// only save/cache geoposition values if the GPS clock is less than 5 minutes different than the system clock
-				if (Math.abs(dateTimeDiscrepancyFromSystemClock_gps) < (5 * 60 * 1000) ) {
-					
-					app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps);
-					app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);
-					
-				} else {
-					Log.e(logTag, "Not saving GeoPosition to database...");
-				}
+
+				Log.i(logTag, "Snapshot —— GeoPosition"
+						+" —— Lat: "+geoPos[1]+", Lng: "+geoPos[2]+", Alt: "+Math.round(geoPos[4])+" meters"
+						+" —— Accuracy: "+Math.round(geoPos[3])+" meters"
+						+" —— "+DateTimeUtils.getDateTime(dateTimeSourceLastSyncedAt_gps)
+						+" —— Clock Discrepancy: "+dateTimeDiscrepancyFromSystemClock_gps+" ms"
+						);
+
+				app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps);
+				app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

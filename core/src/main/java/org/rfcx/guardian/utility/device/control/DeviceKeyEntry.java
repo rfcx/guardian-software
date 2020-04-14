@@ -10,11 +10,11 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceKeyEntry {
 
 	public DeviceKeyEntry(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, DeviceKeyEntry.class);
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceKeyEntry");
 		defineKeyCodeMap();
 	}
 
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceKeyEntry.class);
+	private String logTag;
 	
 	private Map<String, int[]> keyCodeMap = new HashMap<String, int[]>();
 	

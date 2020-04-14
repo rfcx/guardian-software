@@ -1,6 +1,9 @@
 package org.rfcx.guardian.admin.contentprovider;
 
+import org.json.JSONArray;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
+import org.rfcx.guardian.admin.sms.SmsUtils;
+import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -15,9 +18,12 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AdminContentProvider extends ContentProvider {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, AdminContentProvider.class);
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ContentProvider");
 
     private static final String appRole = RfcxGuardian.APP_ROLE;
 
@@ -52,7 +58,16 @@ public class AdminContentProvider extends ContentProvider {
                 String prefValue = app.onPrefReSync(prefKey);
                 return RfcxComm.getProjectionCursor(appRole, "prefs_resync", new Object[]{prefKey, prefValue, System.currentTimeMillis()});
 
-                // "control" function endpoints
+            // "process" function endpoints
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "process", null)) {
+                return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole, AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
+
+            // "control" function endpoints
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) {
+                app.rfcxServiceHandler.stopAllServices();
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"kill", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "reboot")) {
                 app.rfcxServiceHandler.triggerService("RebootTrigger", true);
@@ -78,16 +93,18 @@ public class AdminContentProvider extends ContentProvider {
                 app.rfcxServiceHandler.triggerService("AirplaneModeEnable", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_enable", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "datetime_sntp_sync")) {
-                app.rfcxServiceHandler.triggerService("DateTimeSntpSyncJob", true);
-                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"datetime_sntp_sync", null, System.currentTimeMillis()});
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "sntp_sync")) {
+                app.rfcxServiceHandler.triggerService("SntpSyncJob", true);
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"sntp_sync", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "sms_send", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "sms_queue", "*")) {
                 String pathSeg = uri.getLastPathSegment();
-                String pathSegAddress = pathSeg.substring(0, pathSeg.indexOf("|"));
-                String pathSegMessage = pathSeg.substring(1 + pathSeg.indexOf("|"));
-                DeviceSmsUtils.sendSmsMessage(pathSegAddress, pathSegMessage);
-                return RfcxComm.getProjectionCursor(appRole, "sms_send", new Object[]{pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
+                String pathSegSendAt = pathSeg.substring(0, pathSeg.indexOf("|"));
+                String pathSegAfterSendAt = pathSeg.substring(pathSegSendAt.length()+1);
+                String pathSegAddress = pathSegAfterSendAt.substring(0, pathSegAfterSendAt.indexOf("|"));
+                String pathSegMessage = pathSegAfterSendAt.substring(1 + pathSegAfterSendAt.indexOf("|"));
+                SmsUtils.addScheduledSmsToQueue((long) Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext());
+                return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{pathSegSendAt + "|" + pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
 
                 // "database" function endpoints
 
@@ -95,7 +112,11 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSeg = uri.getLastPathSegment();
 
                 if (pathSeg.equalsIgnoreCase("sms")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sms", DeviceSmsUtils.getSmsMessagesAsJsonArray(app.getApplicationContext().getContentResolver()).toString(), System.currentTimeMillis()});
+                    List<JSONArray> smsJsonArrays =  new ArrayList<JSONArray>();
+                    smsJsonArrays.add(DeviceSmsUtils.getSmsMessagesFromSystemAsJsonArray(app.getApplicationContext().getContentResolver()));
+                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray("received", app.smsMessageDb.dbSmsReceived.getAllRows()));
+                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray("sent",app.smsMessageDb.dbSmsSent.getAllRows()));
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sms", DeviceSmsUtils.combineSmsMessageJsonArrays(smsJsonArrays).toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_power", SentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
@@ -128,7 +149,10 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSegId = pathSeg.substring(1 + pathSeg.indexOf("|"));
 
                 if (pathSegTable.equalsIgnoreCase("sms")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, DeviceSmsUtils.deleteSmsMessage(pathSegId, app.getApplicationContext().getContentResolver()), System.currentTimeMillis()});
+                    int deleteFromSystem = DeviceSmsUtils.deleteSmsMessageFromSystem(pathSegId, app.getApplicationContext().getContentResolver());
+                    int deleteFromReceivedDatabase = app.smsMessageDb.dbSmsReceived.deleteSingleRowByMessageId(pathSegId);
+                    int deleteFromSentDatabase = app.smsMessageDb.dbSmsSent.deleteSingleRowByMessageId(pathSegId);
+                    return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, ( deleteFromSystem + deleteFromReceivedDatabase + deleteFromSentDatabase ), System.currentTimeMillis()});
 
                 } else if (pathSegTable.equalsIgnoreCase("screenshots")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, app.deviceScreenShotDb.dbCaptured.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis()});
@@ -181,17 +205,11 @@ public class AdminContentProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-
-        RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-
         return 0;
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-
-        RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-
         return 0;
     }
 
@@ -202,17 +220,11 @@ public class AdminContentProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-
-        RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-
         return null;
     }
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-
-        RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-
         return null;
     }
 

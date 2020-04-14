@@ -1,59 +1,42 @@
 package org.rfcx.guardian.guardian.activity
 
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Handler
-import androidx.core.content.ContextCompat
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_home.*
-import org.rfcx.guardian.guardian.BuildConfig
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.register.ApiInterface
-import org.rfcx.guardian.guardian.register.RegisterApi
-import org.rfcx.guardian.guardian.entity.GuardianResponse
+import org.rfcx.guardian.guardian.api.GuardianCheckApi
+import org.rfcx.guardian.guardian.api.GuardianCheckCallback
+import org.rfcx.guardian.guardian.api.RegisterApi
+import org.rfcx.guardian.guardian.api.RegisterCallback
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.manager.isLoginExpired
-import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterDeliverReceiver
-import org.rfcx.guardian.guardian.receiver.PhoneNumberRegisterSentReceiver
-import org.rfcx.guardian.guardian.receiver.SmsDeliverListener
-import org.rfcx.guardian.guardian.receiver.SmsSentListener
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
-import org.rfcx.guardian.guardian.utils.PhoneNumberRegisterUtils
-import org.rfcx.guardian.utility.datetime.DateTimeUtils
+import org.rfcx.guardian.guardian.utils.GuardianUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallback {
     private var getInfoThread: Thread? = null
-    private lateinit var phoneNumberRegisterDeliverReceiver: PhoneNumberRegisterDeliverReceiver
-    private lateinit var phoneNumberRegisterSentReceiver: PhoneNumberRegisterSentReceiver
     private lateinit var app: RfcxGuardian
 
     override fun onResume() {
         super.onResume()
 
-        setVisibilityByPrefs(app)
+        setVisibilityByPrefs()
         setUIByLoginState()
-        setUIByGuidState(app)
+        setUIByGuidState()
         startServices()
-        phoneRegisterSetup()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -62,33 +45,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
         when (item.itemId) {
             R.id.menu_prefs -> startActivity(Intent(this, PrefsActivity::class.java))
         }
-
         return true
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        app = application as RfcxGuardian
+
         setSupportActionBar(toolbar)
         initUI()
 
-        app = application as RfcxGuardian
-
-        Log.d("gps", app.isLocationEnabled.toString())
         startButton.setOnClickListener {
-            if (!isGuidExisted()) {
-                showToast("Please register this guardian first")
-            } else if (!app.isLocationEnabled) {
-                showToast("Please enable gps location")
-            } else {
-                app.initializeRoleServices()
-                setUIFromBtnClicked("start")
-                getCheckinInformation(app)
-            }
+            app.initializeRoleServices()
+            setUIFromBtnClicked("start")
+            getCheckinInformation()
         }
 
         stopButton.setOnClickListener {
@@ -98,69 +72,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         registerButton.setOnClickListener {
-            if (isNetworkAvailable(this)) {
-                if (this.getTokenID() != null) {
-                    if (!isGuidExisted()) {
-                        setVisibilityBeforeRegister()
-                        val guid = app.rfcxDeviceGuid.deviceGuid
-                        val token = app.rfcxDeviceGuid.deviceToken
-                        Log.d("GuidInfo", app.rfcxDeviceGuid.deviceGuid)
-                        Log.d("GuidInfo", app.rfcxDeviceGuid.deviceToken)
-                        RegisterApi().registerGuardian(
-                            this,
-                            RegisterRequest(guid, token),
-                            object : RegisterApi.RegisterCallback {
-                                override fun onSuccess() {
-                                    ApiInterface.create(baseContext)
-                                        .isGuardianRegistered("Bearer ${getTokenID()}", guid)
-                                        .enqueue(object :
-                                            Callback<GuardianResponse> {
-                                            override fun onFailure(
-                                                call: Call<GuardianResponse>,
-                                                t: Throwable
-                                            ) {
-                                                showToast("Try again later")
-                                            }
-
-                                            override fun onResponse(
-                                                call: Call<GuardianResponse>,
-                                                response: Response<GuardianResponse>
-                                            ) {
-                                                if (response.isSuccessful) {
-                                                    createRegisterFile(app)
-                                                    setUIByRecordingState(app)
-                                                    setUIByGuidState(app)
-                                                    setVisibilityRegisterSuccess()
-                                                    deviceIdText.text = readRegisterFile()
-                                                    app.startAllServices()
-                                                    setUIFromBtnClicked("start")
-                                                    getCheckinInformation(app)
-                                                } else {
-                                                    showToast("Try again later")
-                                                }
-                                            }
-                                        })
-                                }
-
-                                override fun onFailed(t: Throwable?, message: String?) {
-                                    setVisibilityRegisterFailed()
-                                    showToast(message ?: "register failed")
-                                    Log.d("register_failed", t.toString())
-                                }
-
-                            })
-                    } else {
-                        registerButton.visibility = View.INVISIBLE
-                        registerInfo.visibility = View.VISIBLE
-                    }
-                }
-            } else {
+            if (!GuardianUtils.isNetworkAvailable(this)) {
                 showToast("There is not internet connection. Please turn it on.")
+                return@setOnClickListener
             }
-        }
 
-        phoneNumRegisterButton.setOnClickListener {
-            PhoneNumberRegisterUtils.sendSMS(this)
+            if (this.getTokenID() == null) {
+                showToast("Please login before register guardian.")
+                return@setOnClickListener
+            }
+
+            setVisibilityBeforeRegister()
+            val guid = app.rfcxGuardianIdentity.guid
+            val token = app.rfcxGuardianIdentity.authToken
+
+            RegisterApi.registerGuardian(applicationContext, RegisterRequest(guid, token), this)
         }
 
         loginButton.setOnClickListener {
@@ -173,7 +99,6 @@ class MainActivity : AppCompatActivity() {
             finish()
             startActivity(intent)
         }
-
     }
 
     private fun initUI() {
@@ -187,42 +112,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setAppVersion() {
-        val versionName = BuildConfig.VERSION_NAME
-        appVersionText.text = "version: $versionName"
+        appVersionText.text = "version: ${app.version}"
     }
 
-    private fun phoneRegisterSetup() {
-        phoneNumberRegisterDeliverReceiver =
-            PhoneNumberRegisterDeliverReceiver(object : SmsDeliverListener {
-                override fun onDelivered(isSuccess: Boolean) {
-                    if (isSuccess) {
-                        showPhoneRegisterStatus()
-                        PreferenceManager.getInstance(applicationContext)
-                            .putBoolean("PHONE_REGISTER", true)
-                        showToast("registered success")
-                    } else {
-                        showToast("please try again")
-                    }
-                }
-            })
-
-        phoneNumberRegisterSentReceiver = PhoneNumberRegisterSentReceiver(object : SmsSentListener {
-            override fun onSent(message: String) {
-                showToast(message)
-            }
-        })
-
-        if (PreferenceManager.getInstance(applicationContext).getBoolean("PHONE_REGISTER", false)) {
-            showPhoneRegisterStatus()
-        }
-        registerReceiver(phoneNumberRegisterDeliverReceiver, IntentFilter("SMS_DELIVERED"))
-        registerReceiver(phoneNumberRegisterSentReceiver, IntentFilter("SMS_SENT"))
-    }
-
-    private fun showPhoneRegisterStatus() {
-        phoneNumRegisterButton.visibility = View.GONE
-        phoneNumRegisterStatusTextView.visibility = View.VISIBLE
-    }
 
     private fun showToast(message: String) {
         Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
@@ -230,17 +122,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun startServices() {
         Handler().postDelayed({
-            app.startAllServices()
-            setUIByRecordingState(app)
-            setBtnEnableByRecordingState(app)
-            if (app.recordingState) {
-                getCheckinInformation(app)
+            app.initializeRoleServices()
+            setUIByRecordingState()
+            setBtnEnableByRecordingState()
+            if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
+                getCheckinInformation()
             }
         }, 1000)
     }
 
-    private fun setBtnEnableByRecordingState(app: RfcxGuardian) {
-        when (app.recordingState) {
+    private fun setBtnEnableByRecordingState() {
+        when (app.rfcxServiceHandler.isRunning("AudioCapture")) {
             true -> {
                 startButton.isEnabled = false
                 stopButton.isEnabled = true
@@ -266,178 +158,119 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setVisibilityByPrefs(app: RfcxGuardian) {
-        if (app.rfcxPrefs.getPrefAsString("show_ui") == "false") {
-            rootView.visibility = View.INVISIBLE
-        } else {
+    private fun setVisibilityByPrefs() {
+        if (app.rfcxPrefs.getPrefAsString("show_ui") == "true") {
             rootView.visibility = View.VISIBLE
+        } else {
+            rootView.visibility = View.INVISIBLE
         }
     }
 
-    private fun setUIByRecordingState(app: RfcxGuardian) {
-        if (isGuidExisted()) {
-            Log.d("Guid", "existed")
-            deviceIdText.text = readRegisterFile()
-            if (app.recordingState) {
+    private fun setUIByRecordingState() {
+        if (GuardianUtils.isGuardianRegistered(this)) {
+            deviceIdText.text = GuardianUtils.readGuardianGuid(this)
+            if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
                 recordStatusText.text = "recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
             } else {
                 recordStatusText.text = "not recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
             }
-        } else {
-            Log.d("Guid", "not existed")
         }
     }
 
     private fun setUIByLoginState() {
         if (this.isLoginExpired()) {
-            loginButton.visibility = View.VISIBLE
             loginInfo.visibility = View.INVISIBLE
-            start_stop_button.visibility = View.INVISIBLE
-            registerButton.isEnabled = false
-            registerButton.alpha = 0.5f
+            loginButton.visibility = View.VISIBLE
         } else {
-            loginButton.visibility = View.INVISIBLE
             loginInfo.visibility = View.VISIBLE
-            start_stop_button.visibility = View.VISIBLE
-            registerButton.isEnabled = true
-            registerButton.alpha = 1.0f
+            loginButton.visibility = View.INVISIBLE
             userName.text = this.getUserNickname()
         }
     }
 
-    private fun setUIByGuidState(app: RfcxGuardian) {
-        if (isGuidExisted()) {
-            start_stop_group.visibility = View.VISIBLE
-            registerButton.visibility = View.INVISIBLE
-            start_stop_button.visibility = View.VISIBLE
-            registerInfo.visibility = View.VISIBLE
-            switchView.visibility = View.VISIBLE
-            permissionInfoLayout.visibility = View.VISIBLE
-            deviceIdText.text = readRegisterFile()
-            setPermissionStatus(app)
-            appVersionText.visibility = View.VISIBLE
+    private fun setUIByGuidState() {
+        if (GuardianUtils.isGuardianRegistered(this)) {
+            unregisteredView.visibility = View.INVISIBLE
+            registeredView.visibility = View.VISIBLE
+            registerProgress.visibility = View.INVISIBLE
+            deviceIdText.text = GuardianUtils.readGuardianGuid(this)
         } else {
-            start_stop_group.visibility = View.INVISIBLE
-            registerButton.visibility = View.VISIBLE
-            start_stop_button.visibility = View.INVISIBLE
-            registerInfo.visibility = View.INVISIBLE
-            switchView.visibility = View.INVISIBLE
-            permissionInfoLayout.visibility = View.INVISIBLE
-            appVersionText.visibility = View.INVISIBLE
-        }
-    }
-
-    private fun setPermissionStatus(app: RfcxGuardian) {
-        if (app.isLocationEnabled) {
-            gpsStatusTextView.also {
-                it.text = " on"
-                it.setTextColor(resources.getColor(R.color.primary))
-            }
-        } else {
-            gpsStatusTextView.also {
-                it.text = " off"
-                it.setTextColor(resources.getColor(R.color.grey_default))
-            }
+            unregisteredView.visibility = View.VISIBLE
+            registeredView.visibility = View.INVISIBLE
         }
     }
 
     private fun setVisibilityBeforeRegister() {
-        start_stop_group.visibility = View.INVISIBLE
+        registerButton.visibility = View.INVISIBLE
         registerProgress.visibility = View.VISIBLE
     }
 
     private fun setVisibilityRegisterSuccess() {
-        registerButton.visibility = View.INVISIBLE
-        registerInfo.visibility = View.VISIBLE
-        start_stop_button.visibility = View.VISIBLE
-        start_stop_group.visibility = View.VISIBLE
-        registerProgress.visibility = View.INVISIBLE
+        registeredView.visibility = View.VISIBLE
+        unregisteredView.visibility = View.INVISIBLE
     }
 
-    private fun setVisibilityRegisterFailed() {
+    private fun setVisibilityRegisterFail() {
         registerButton.visibility = View.VISIBLE
-        registerInfo.visibility = View.INVISIBLE
-        start_stop_button.visibility = View.INVISIBLE
-        start_stop_group.visibility = View.INVISIBLE
         registerProgress.visibility = View.INVISIBLE
     }
 
-    private fun getCheckinInformation(app: RfcxGuardian) {
+    private fun getCheckinInformation() {
         val checkInUtils = CheckInInformationUtils()
         getInfoThread = object : Thread() {
             override fun run() {
                 try {
-                    Log.d("getInfoThread", "Started")
                     while (!isInterrupted) {
                         runOnUiThread {
                             val latestRow = app.apiCheckInDb.dbSent.latestRow
-                            if (latestRow[0] == null) {
-                                checkInText.text = checkInUtils.convertTimeStampToStringFormat(null)
-                            } else {
-                                val checkinTime = DateTimeUtils.getDateFromString(latestRow[0]).time
-                                checkInText.text =
-                                    checkInUtils.convertTimeStampToStringFormat(checkinTime)
-                            }
-
-                            if (latestRow[4] == null) {
-                                sizeText.text = checkInUtils.convertFileSizeToStringFormat(null)
-                            } else {
-                                val audioPath = latestRow[4]
-                                sizeText.text =
-                                    checkInUtils.convertFileSizeToStringFormat(audioPath)
-                            }
+                            checkInText.text = checkInUtils.getCheckinTime(latestRow[0])
+                            sizeText.text = checkInUtils.getFileSize(latestRow[4])
                         }
                         sleep(5000)
                     }
                 } catch (e: InterruptedException) {
-                    Log.d("getInfoThread", "Interrupted")
+                    return
                 }
             }
         }
         getInfoThread?.start()
     }
 
-    private fun isNetworkAvailable(context: Context): Boolean {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val networkInfo = connectivityManager.activeNetworkInfo
-        return networkInfo != null && networkInfo.isConnected
+    override fun onRegisterSuccess() {
+        GuardianCheckApi.exists(applicationContext, app.rfcxGuardianIdentity.guid, this)
     }
 
-    private fun isGuidExisted(): Boolean {
-        val path = this.filesDir.toString() + "/txt/"
-        val txtFile = File(path + "/guardian_guid.txt")
-        return txtFile.exists()
+    override fun onRegisterFailed(t: Throwable?, message: String?) {
+        setVisibilityRegisterFail()
+        showToast(message ?: "register failed")
     }
 
-    private fun createRegisterFile(app: RfcxGuardian) {
-        val path = this.filesDir.toString() + "/txt/"
-        val file = File(path, "guardian_guid.txt")
-        FileOutputStream(file).use {
-            it.write(app.rfcxDeviceGuid.deviceGuid.toByteArray())
-        }
+    override fun onGuardianCheckSuccess() {
+        setVisibilityRegisterSuccess()
+        GuardianUtils.createRegisterFile(baseContext)
+        app.initializeRoleServices()
+        setUIByRecordingState()
+        setUIByGuidState()
+        setUIFromBtnClicked("start")
+        getCheckinInformation()
+        deviceIdText.text = GuardianUtils.readGuardianGuid(baseContext)
     }
 
-    private fun readRegisterFile(): String {
-        val path = this.filesDir.toString() + "/txt/"
-        val file = File(path, "guardian_guid.txt")
-        return FileInputStream(file).bufferedReader().use { it.readText() }
+    override fun onGuardianCheckFailed(t: Throwable?, message: String?) {
+        setVisibilityRegisterFail()
+        showToast(message ?: "Try again later")
     }
 
     override fun onPause() {
         super.onPause()
-        getInfoThread?.interrupt()
-        unregisterReceiver(phoneNumberRegisterDeliverReceiver)
-        unregisterReceiver(phoneNumberRegisterSentReceiver)
+        if (getInfoThread != null) {
+            getInfoThread?.interrupt()
+        }
     }
 
     companion object {
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, MainActivity::class.java)
-        fun startActivity(context: Context) {
-            val intent = Intent(context, MainActivity::class.java)
-            context.startActivity(intent)
-        }
     }
 }

@@ -17,8 +17,7 @@ public class ApiCheckInMetaDb {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbMeta = new DbMeta(context);
 	}
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInMetaDb.class);
+
 	private int VERSION = 1;
 	static final String DATABASE = "checkin";
 	static final String C_CREATED_AT = "created_at";

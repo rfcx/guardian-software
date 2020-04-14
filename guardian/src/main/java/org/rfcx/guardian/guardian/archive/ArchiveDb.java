@@ -16,8 +16,7 @@ public class ArchiveDb {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.dbCheckInArchive = new DbCheckInArchive(context);
 	}
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ArchiveDb.class);
+
 	private int VERSION = 1;
 	static final String DATABASE = "archive";
 	static final String C_ARCHIVED_AT = "archived_at";

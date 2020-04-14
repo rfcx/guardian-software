@@ -21,8 +21,7 @@ public class ApiCheckInDb {
 		this.dbSkipped = new DbSkipped(context);
 		this.dbStashed = new DbStashed(context);
 	}
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ApiCheckInDb.class);
+
 	private int VERSION = 1;
 	static final String DATABASE = "checkin";
 	static final String C_CREATED_AT = "created_at";

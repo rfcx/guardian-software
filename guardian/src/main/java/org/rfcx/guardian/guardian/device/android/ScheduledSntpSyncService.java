@@ -7,10 +7,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ScheduledSntpSyncService extends IntentService {
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, ScheduledSntpSyncService.class);
-	
+
 	private static final String SERVICE_NAME = "ScheduledSntpSync";
+
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledSntpSyncService");
 	
 	public static final long SCHEDULED_SNTP_SYNC_CYCLE_DURATION = ( 30 * 60 * 1000 ); // every 30 minutes
 		

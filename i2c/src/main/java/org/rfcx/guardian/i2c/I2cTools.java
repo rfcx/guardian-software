@@ -6,7 +6,7 @@ public class I2cTools {
 		this.i2cInterface = i2cInterface;
 	}
 	
-	private static final String logTag = "Rfcx-I2c-"+I2cTools.class.getSimpleName();
+	private static final String logTag = "Rfcx-I2c-I2cTools";
 	private int i2cInterface = 0;
 		
 	public String i2cGet(String i2cMainAddress, String i2cSubAddress) {
