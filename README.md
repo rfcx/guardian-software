@@ -224,17 +224,21 @@ Before following the instruction below. You need to download Vysor first.
 
 5. Wifi hotspot will enable and tcp port will change to 7329. Wifi hotspot name will named as rfcx-{guid} and password is rfcxrfcx
 
-6. Then take USB cable off and power OrangePi with external power source
+6. Go to Settings > more > Tethering & portable hotspot > Wifi hotspot > Keep Wifi hotspot on > Change to **Always**
 
-7. Connect your PC to OrangePi Wifi hotspot
+   ![](docs/images/wifi_hotspot.PNG?raw=true)
 
-8. Now you can debug your OrangePi using its IP (default is 192.168.43.1)
+7. Then take USB cable off and power OrangePi with external power source
+
+8. Connect your PC to OrangePi Wifi hotspot
+
+9. Now you can debug your OrangePi using its IP (default is 192.168.43.1)
 
    ```
    adb connect 192.168.43.1:7329
    ```
 
-9. Then you can see the screen using Vysor
+10. Then you can see the screen using Vysor
 
 
 
