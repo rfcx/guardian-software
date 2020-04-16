@@ -23,12 +23,23 @@ A collection of Android applications which, together, operate as autonomous Rain
    - rfcx-guardian-keystore.jks
    - rfcx-guardian-keystore-alias.txt
    - rfcx-guardian-keystore-password.txt
+   - rfcx-platform-keystore.jks
+   - rfcx-platform-keystore-alias.txt
+   - rfcx-platform-keystore-password.txt
 2. Use this command after prepared
+
+   For specific role
 
    ```
    gradlew :role:assembleRelease
    ```
-3. Output will be in /role/build/outputs/apk/release/
+
+   For all roles
+   
+   ```
+   gradlew assembleRelease
+   ```
+3. Output will be in /{role}/build/outputs/apk/release/
 
 ## Instructions for OrangePi 3G-IoT
 
@@ -243,11 +254,11 @@ Before following the instruction below. You need to download Vysor first.
 
 4. The step to start OrangePi is the same as before.
 
-5. You can debug OrangePi by using Bluetooth on [Step 5](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-5-how-to-debug-orange-pi-over-bluetooth-instead-of-usb-cable)
+5. You can debug OrangePi by using Bluetooth on [Step 5](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-5-how-to-debug-orangepi-over-bluetooth-instead-of-usb-cable) or [Step 6](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-6-how-to-debug-orangepi-over-wifi-hotspot)
 
 ### Step 8: How to setup, run and test the I2C
 
-1. Plugin the sentinel power wires to the OrangePi on [Step 7](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-7-how-to-connect-i2c-and-load-i2c-module)
+1. Plugin the sentinel power wires to the OrangePi on [Step 7](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-7-how-to-connect-i2c-and-load-i2c-module)
 
 2. Install admin role
 
