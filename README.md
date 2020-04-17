@@ -50,9 +50,12 @@ Before, starting any instructions here. Please read the information below and do
 3. The OrangePi do not come with the **IMEI number**. You need to set it by yourself following the instructions below. Before install any roles, you should set the **IMEI number first**.
 4. Before using any roles, make sure there is the internet connection.
 5. **Time and date** will not be correct on the first time you start the device. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** or insert sim card.
-6. The OrangePi comes with USB debugging **enabled** by default.
-7. The OrangePi comes with **auto allow the permission** (because it is Android 4.4.2).
-8. The guardian role will capture audio and send to server automatically if:
+6. **Timezone automatically** need to uncheck so that Admin role can change it.
+7. **Default Write Disk** need to set to **Phone Storage** although sd card is installed.
+8. **Default SMS app** need to set to Admin role.
+9. The OrangePi comes with USB debugging **enabled** by default.
+10. The OrangePi comes with **auto allow the permission** (because it is Android 4.4.2).
+11. The guardian role will capture audio and send to server automatically if:
     1. The date/time is (reasonably) close to current time
     2. GPS location is enabled
     3. Guardian is registered
@@ -224,7 +227,7 @@ Before following the instruction below. You need to download Vysor first.
 
 5. Wifi hotspot will enable and tcp port will change to 7329. Wifi hotspot name will named as rfcx-{guid} and password is rfcxrfcx
 
-6. Go to Settings > more > Tethering & portable hotspot > Wifi hotspot > Keep Wifi hotspot on > Change to **Always**
+6. Go to Settings > Wireless & Networks - **More...** > Tethering & portable hotspot > Wifi hotspot > Keep Wifi hotspot on > Change to **Always**
 
    ![](docs/images/wifi_hotspot.PNG?raw=true)
 
@@ -240,9 +243,28 @@ Before following the instruction below. You need to download Vysor first.
 
 10. Then you can see the screen using Vysor
 
+### Step 7: How to set Default SMS app to Admin role
+
+1. Require Admin role installed
+
+2. Go to Settings > Wireless & Networks - **More...** > Default SMS app > Choose **RFCx Admin**
+
+   ![](docs/images/sms_to_admin.PNG?raw=true)
+
+### Step 8: How to set Default Write Disk to Phone storage
+
+1. Go to Settings > Device - **Storage** > Choose Default Write Disk - **Phone storage**
+
+   ![](docs/images/write_disk.PNG?raw=true)
+
+### Step 9: How to set Timezone automatically to off
+
+1. Go to Setting > System - **Date & Time** > Uncheck **Automatic time zone**
+
+   ![](docs/images/timezone_off.PNG?raw=true)
 
 
-### Step 7: How to connect i2c and load i2c module
+### Step 10: How to connect i2c and load i2c module
 
 1. First, place OrangePi same position as in the image.
 
@@ -262,7 +284,7 @@ Before following the instruction below. You need to download Vysor first.
 
 ### Step 8: How to setup, run and test the I2C
 
-1. Plugin the sentinel power wires to the OrangePi on [Step 7](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-7-how-to-connect-i2c-and-load-i2c-module)
+1. Plugin the sentinel power wires to the OrangePi on [Step 10](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-10-how-to-connect-i2c-and-load-i2c-module)
 
 2. Install admin role
 
