@@ -3,12 +3,14 @@ package org.rfcx.guardian.admin.device.android.system;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import android.Manifest;
+
+import androidx.core.app.ActivityCompat;
+
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;

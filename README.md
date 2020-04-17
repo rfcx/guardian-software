@@ -23,12 +23,23 @@ A collection of Android applications which, together, operate as autonomous Rain
    - rfcx-guardian-keystore.jks
    - rfcx-guardian-keystore-alias.txt
    - rfcx-guardian-keystore-password.txt
+   - rfcx-platform-keystore.jks
+   - rfcx-platform-keystore-alias.txt
+   - rfcx-platform-keystore-password.txt
 2. Use this command after prepared
+
+   For specific role
 
    ```
    gradlew :role:assembleRelease
    ```
-3. Output will be in /role/build/outputs/apk/release/
+
+   For all roles
+   
+   ```
+   gradlew assembleRelease
+   ```
+3. Output will be in /{role}/build/outputs/apk/release/
 
 ## Instructions for Orange Pi 3G-IoT
 
@@ -39,9 +50,12 @@ Before getting started, key points to be familiar with:
 3. The OrangePi do not come with the **IMEI number**. You need to set it by yourself following the instructions below. Before install any roles, you should set the **IMEI number first**.
 4. Before using any roles, make sure there is the internet connection.
 5. **Time and date** will not be correct on the first time you start the device. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** or insert sim card.
-6. The OrangePi comes with USB debugging **enabled** by default.
-7. The OrangePi comes with **auto allow the permission** (because it is Android 4.4.2).
-8. The guardian role will capture audio and send to server automatically if:
+6. **Timezone automatically** need to uncheck so that Admin role can change it.
+7. **Default Write Disk** need to set to **Phone Storage** although sd card is installed.
+8. **Default SMS app** need to set to Admin role.
+9. The OrangePi comes with USB debugging **enabled** by default.
+10. The OrangePi comes with **auto allow the permission** (because it is Android 4.4.2).
+11. The guardian role will capture audio and send to server automatically if:
     1. The date/time is (reasonably) close to current time
     2. GPS location is enabled
     3. Guardian is registered
@@ -215,21 +229,44 @@ Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IM
 
 5. Wifi hotspot will enable and tcp port will change to 7329. Wifi hotspot name will named as rfcx-{guid} and password is rfcxrfcx
 
-6. Then take USB cable off and power OrangePi with external power source
+6. Go to Settings > Wireless & Networks - **More...** > Tethering & portable hotspot > Wifi hotspot > Keep Wifi hotspot on > Change to **Always**
 
-7. Connect your PC to OrangePi Wifi hotspot
+   ![](docs/images/wifi_hotspot.PNG?raw=true)
 
-8. Now you can debug your OrangePi using its IP (default is 192.168.43.1)
+7. Then take USB cable off and power OrangePi with external power source
+
+8. Connect your PC to OrangePi Wifi hotspot
+
+9. Now you can debug your OrangePi using its IP (default is 192.168.43.1)
 
    ```
    adb connect 192.168.43.1:7329
    ```
 
-9. Then you can see the screen using Vysor
+10. Then you can see the screen using Vysor
+
+### Step 7: How to set Default SMS app to Admin role
+
+1. Require Admin role installed
+
+2. Go to Settings > Wireless & Networks - **More...** > Default SMS app > Choose **RFCx Admin**
+
+   ![](docs/images/sms_to_admin.PNG?raw=true)
+
+### Step 8: How to set Default Write Disk to Phone storage
+
+1. Go to Settings > Device - **Storage** > Choose Default Write Disk - **Phone storage**
+
+   ![](docs/images/write_disk.PNG?raw=true)
+
+### Step 9: How to set Timezone automatically to off
+
+1. Go to Setting > System - **Date & Time** > Uncheck **Automatic time zone**
+
+   ![](docs/images/timezone_off.PNG?raw=true)
 
 
-
-### Step 7: How to connect i2c and load i2c module
+### Step 10: How to connect i2c and load i2c module
 
 1. First, place Orange Pi same position as in the image.
 
@@ -245,11 +282,11 @@ Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IM
 
 4. The step to start Orange Pi is the same as before.
 
-5. You can debug OrangePi by using Bluetooth on [Step 5](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-5-how-to-debug-orange-pi-over-bluetooth-instead-of-usb-cable)
+5. You can debug OrangePi by using Bluetooth on [Step 5](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-5-how-to-debug-orangepi-over-bluetooth-instead-of-usb-cable) or [Step 6](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-6-how-to-debug-orangepi-over-wifi-hotspot)
 
 ### Step 8: How to setup, run and test the I2C
 
-1. Plugin the sentinel power wires to the OrangePi on [Step 7](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-7-how-to-connect-i2c-and-load-i2c-module)
+1. Plugin the sentinel power wires to the OrangePi on [Step 10](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-10-how-to-connect-i2c-and-load-i2c-module)
 
 2. Install admin role
 

@@ -1,6 +1,5 @@
 package org.rfcx.guardian.admin.activity
 
-import android.support.v7.app.AppCompatActivity
 import org.rfcx.guardian.admin.R
 
 import org.rfcx.guardian.admin.RfcxGuardian
@@ -8,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.admin.sms.SmsUtils
 import java.util.*
