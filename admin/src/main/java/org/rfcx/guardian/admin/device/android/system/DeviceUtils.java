@@ -152,7 +152,6 @@ public class DeviceUtils {
 					+" —— "+DateTimeUtils.getDateTime((long) Math.round(accelSensorSnapshotAverages[0]))
 					);
 
-			
 			// this is where we would report this interim accel value to something, somewhere that would determine if the phone is moving around...			
 		}
 	}

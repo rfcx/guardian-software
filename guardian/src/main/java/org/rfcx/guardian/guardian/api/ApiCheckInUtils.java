@@ -543,6 +543,9 @@ public class ApiCheckInUtils implements MqttCallback {
 				TextUtils.join("*", new String[] { logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4] })
 				);
 
+		// Adding photos meta to JSON blob
+		checkInMetaJson.put("photos","");
+
 		Log.d(logTag,checkInMetaJson.toString());
 
 		return checkInMetaJson.toString();
