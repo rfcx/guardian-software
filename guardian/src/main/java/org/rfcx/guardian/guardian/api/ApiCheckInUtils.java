@@ -438,11 +438,12 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
-		int maxRowsToQuery = 10;
 		int maxRowsToBundle = 4;
+		int maxRowsToQuery = maxRowsToBundle+2;
 
 		JSONObject metaJsonBundledSnapshotsObj = null;
 		JSONArray metaJsonBundledSnapshotsIds = new JSONArray();
+		long metaMeasuredAtValue = 0;
 
 		for (String[] metaRow : app.apiCheckInMetaDb.dbMeta.getLatestRowsWithLimit(maxRowsToQuery)) {
 
@@ -475,6 +476,14 @@ public class ApiCheckInUtils implements MqttCallback {
 							} else {
 								metaJsonBundledSnapshotsObj.put(jsonKey, origStr+newStr);
 							}
+                            Log.e(logTag, jsonKey);
+							if (jsonKey.equalsIgnoreCase("measured_at")) {
+                                long measuredAt = (long) Long.parseLong(newStr);
+								Log.e(logTag, "measured_at: "+DateTimeUtils.getDateTime(measuredAt));
+								if (measuredAt > metaMeasuredAtValue) {
+									metaMeasuredAtValue = measuredAt;
+								}
+							}
 						}
 					}
 				}
@@ -490,7 +499,13 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 		}
 
-		return (metaJsonBundledSnapshotsObj == null) ? new JSONObject() : metaJsonBundledSnapshotsObj;
+		// if no meta data was available to bundle, then we create an empty object
+		if (metaJsonBundledSnapshotsObj == null) { metaJsonBundledSnapshotsObj = new JSONObject(); }
+
+		// use highest measured_at value, or if empty, set to current time
+		metaJsonBundledSnapshotsObj.put("measured_at", ((metaMeasuredAtValue == 0) ? System.currentTimeMillis() : metaMeasuredAtValue) );
+
+		return metaJsonBundledSnapshotsObj;
 	}
 
 	private String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta) throws JSONException, IOException {
