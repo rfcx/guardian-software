@@ -3,10 +3,13 @@ package org.rfcx.guardian.guardian.activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -26,6 +29,7 @@ import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
+
 class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallback {
     private var getInfoThread: Thread? = null
     private lateinit var app: RfcxGuardian
@@ -33,6 +37,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     override fun onResume() {
         super.onResume()
 
+        setConfiguration()
         setVisibilityByPrefs()
         setUIByLoginState()
         setUIByGuidState()
@@ -60,6 +65,10 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         initUI()
 
         startButton.setOnClickListener {
+            if (!GuardianUtils.isNetworkAvailable(this)) {
+                showToast("There is not internet connection. Please turn it on.")
+                return@setOnClickListener
+            }
             app.initializeRoleServices()
             setUIFromBtnClicked("start")
             getCheckinInformation()
@@ -115,6 +124,53 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         appVersionText.text = "version: ${app.version}"
     }
 
+    private fun setConfiguration() {
+        val sampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate")
+        rgSampleRate.check(
+            when (sampleRate) {
+                8000 -> R.id.rb8Hz
+                12000 -> R.id.rb12Hz
+                24000 -> R.id.rb24Hz
+                else -> R.id.rb48Hz
+            }
+        )
+        rgSampleRate.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rb8Hz -> app.setSharedPref("audio_sample_rate", "8000")
+                R.id.rb12Hz -> app.setSharedPref("audio_sample_rate", "12000")
+                R.id.rb24Hz -> app.setSharedPref("audio_sample_rate", "24000")
+                R.id.rb48Hz -> app.setSharedPref("audio_sample_rate", "48000")
+            }
+        }
+
+        val fileFormat = app.rfcxPrefs.getPrefAsString("audio_encode_codec")
+        rgFileFormat.check(
+            when (fileFormat) {
+                "opus" -> R.id.rbOpus
+                else -> R.id.rbFlac
+            }
+        )
+        rgFileFormat.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rbOpus -> app.setSharedPref("audio_encode_codec", "opus")
+                R.id.rbFlac -> app.setSharedPref("audio_encode_codec", "flac")
+            }
+        }
+
+        val duration = app.rfcxPrefs.getPrefAsString("audio_cycle_duration")
+        durationEditText.setText(duration)
+        durationEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                app.setSharedPref("audio_cycle_duration", s.toString())
+            }
+        })
+    }
 
     private fun showToast(message: String) {
         Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
@@ -150,11 +206,13 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             stopButton.isEnabled = true
             recordStatusText.text = "recording"
             recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
+            setConfigurationByRecordingState(true)
         } else {
             startButton.isEnabled = true
             stopButton.isEnabled = false
             recordStatusText.text = "not recording"
             recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
+            setConfigurationByRecordingState(false)
         }
     }
 
@@ -172,10 +230,32 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
                 recordStatusText.text = "recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
+                setConfigurationByRecordingState(true)
             } else {
                 recordStatusText.text = "not recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
+                setConfigurationByRecordingState(false)
             }
+        }
+    }
+
+    private fun setConfigurationByRecordingState(state: Boolean) {
+        if (state) {
+            configurationLayout.alpha = 0.5f
+            setRadioGroupState(false, rgSampleRate)
+            setRadioGroupState(false, rgFileFormat)
+            durationEditText.isEnabled = false
+        } else {
+            configurationLayout.alpha = 1.0f
+            setRadioGroupState(true, rgSampleRate)
+            setRadioGroupState(true, rgFileFormat)
+            durationEditText.isEnabled = true
+        }
+    }
+
+    private fun setRadioGroupState(state: Boolean, radioGroup: RadioGroup) {
+        for (i in 0 until radioGroup.childCount) {
+            radioGroup.getChildAt(i).isEnabled = state
         }
     }
 

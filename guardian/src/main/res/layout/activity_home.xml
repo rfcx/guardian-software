@@ -4,6 +4,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#FFFFFF"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
         android:orientation="horizontal"
         tools:context=".activity.MainActivity">
 
@@ -47,8 +49,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/registeredView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="invisible">
+                android:layout_height="match_parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/registerGroup"
@@ -161,6 +162,125 @@
                         android:layout_marginStart="@dimen/margin_padding_normal"
                         android:layout_marginTop="@dimen/margin_padding_small"
                         android:background="@color/grey_light" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/configurationLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/margin_padding_normal">
+
+                    <TextView
+                            android:id="@+id/sampleRateTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sample rate"
+                            android:textColor="@color/text_black"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    <RadioGroup
+                            android:id="@+id/rgSampleRate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/sampleRateTextView">
+
+                        <RadioButton
+                                android:id="@+id/rb8Hz"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="8Hz"
+                                android:textSize="12sp" />
+
+                        <RadioButton
+                                android:id="@+id/rb12Hz"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="12Hz"
+                                android:textSize="12sp" />
+
+                        <RadioButton
+                                android:id="@+id/rb24Hz"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="24Hz"
+                                android:textSize="12sp" />
+
+                        <RadioButton
+                                android:id="@+id/rb48Hz"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="48Hz"
+                                android:textSize="12sp" />
+                    </RadioGroup>
+
+                    <TextView
+                            android:id="@+id/fileFormatTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="File format"
+                            android:textColor="@color/text_black"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/rgSampleRate" />
+
+                    <RadioGroup
+                            android:id="@+id/rgFileFormat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/fileFormatTextView">
+
+                        <RadioButton
+                                android:id="@+id/rbOpus"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="opus"
+                                android:textSize="12sp" />
+
+                        <RadioButton
+                                android:id="@+id/rbFlac"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="flac"
+                                android:textSize="12sp" />
+                    </RadioGroup>
+
+                    <TextView
+                            android:id="@+id/durationTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Duration"
+                            android:textColor="@color/text_black"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/rgFileFormat" />
+
+                    <EditText
+                            android:id="@+id/durationEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingEnd="@dimen/margin_padding_normal"
+                            android:textSize="12sp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/durationTextView" />
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="seconds"
+                            android:textColor="@color/text_black"
+                            app:layout_constraintBottom_toBottomOf="@id/durationEditText"
+                            app:layout_constraintStart_toEndOf="@id/durationEditText"
+                            app:layout_constraintTop_toTopOf="@id/durationEditText" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginStart="@dimen/margin_padding_normal"
+                        android:layout_marginTop="@dimen/margin_padding_small"
+                        android:background="@color/grey_light" />
             </LinearLayout>
 
             <LinearLayout
@@ -190,7 +310,8 @@
                     android:id="@+id/appVersionText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_padding_small"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="@dimen/margin_padding_small"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/switchView"
                     tools:text="1.0.0" />
