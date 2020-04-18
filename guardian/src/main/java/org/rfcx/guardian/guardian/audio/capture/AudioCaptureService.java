@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -21,9 +22,11 @@ public class AudioCaptureService extends Service {
 	private boolean runFlag = false;
 	private AudioCaptureSvc audioCaptureSvc;
 
-	private int audioCycleDuration = 0; 
-	private long loopQuarterDuration = 0;
+	private int audioCycleDuration = 0;
 	private int audioSampleRate = 0;
+
+	private long innerLoopIterationDuration = 0;
+	private static final int innerLoopIterationCount = 4;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -87,8 +90,10 @@ public class AudioCaptureService extends Service {
 			while (audioCaptureService.runFlag) {
 				
 				try {
-					
-					if (confirmOrSetAudioCaptureParameters() && app.audioCaptureUtils.isAudioCaptureAllowed()) {
+
+					boolean isCaptureAllowed = app.audioCaptureUtils.isAudioCaptureAllowed(true);
+
+					if (confirmOrSetAudioCaptureParameters() && isCaptureAllowed) {
 							
 //						if (wavRecorder == null) {
 							// in this case, we are starting the audio capture from a stopped/pre-initialized state
@@ -122,13 +127,16 @@ public class AudioCaptureService extends Service {
 						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueueEncode");
 					}
 
-					for (int loopQuarterIteration = 0; loopQuarterIteration < 4; loopQuarterIteration++) {
+					// If capture is not allowed, we extend the capture cycle duration by a factor of AudioCaptureUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
+					int currInnerLoopIterationCount = ( (isCaptureAllowed) ? innerLoopIterationCount : (AudioCaptureUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf * innerLoopIterationCount ) );
+					// This ensures that the service registers as active more frequently than the capture loop duration
+					for (int innerLoopIteration = 0; innerLoopIteration < currInnerLoopIterationCount; innerLoopIteration++) {
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-						Thread.sleep(loopQuarterDuration);
+						Thread.sleep(innerLoopIterationDuration);
 					}
 
 					// Triggering creation of a metadata snapshot, for retrieval during CheckIn.
-					// This is unrelated to audio capture, but putting it here ensures that snapshots...
+					// This is not directly related to audio capture, but putting it here ensures that snapshots...
 					// ...will continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
 					app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInMetaSnapshot");
 					
@@ -160,7 +168,7 @@ public class AudioCaptureService extends Service {
 
 				this.audioSampleRate = prefsAudioSampleRate;
 				this.audioCycleDuration = prefsAudioCycleDuration;
-				loopQuarterDuration = (long) Math.round( (prefsAudioCycleDuration * 1000) / 4 );
+				innerLoopIterationDuration = (long) Math.round( (prefsAudioCycleDuration * 1000) / innerLoopIterationCount );
 				
 				Log.d(logTag, (new StringBuilder())
 						.append("Audio Capture Params: ")
@@ -174,6 +182,24 @@ public class AudioCaptureService extends Service {
 		
 		return true;
 	}
+
+//	private int triggerOrSkipOuterLoopBehavior(int outerLoopIncrement, int outerLoopCaptureCount) {
+//
+//		outerLoopIncrement++;
+//
+//		if (outerLoopIncrement >= outerLoopCaptureCount) {
+//			outerLoopIncrement = 0;
+//		}
+//
+//		if (outerLoopIncrement == 1) {
+//			//	Log.e(logTag, "RUNNING OUTER LOOP LOGIC...");
+//
+//		} else {
+//
+//		}
+//
+//		return outerLoopIncrement;
+//	}
 	
 	
 }

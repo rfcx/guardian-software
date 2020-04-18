@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
@@ -45,8 +46,16 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private int innerLoopsPerCaptureCycle = 1;
 	private long innerLoopDelayRemainderInMilliseconds = 0;
 
+	// Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
+	// This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
+	private double captureCycleLastDurationPercentageMultiplier = 0.98;
+	private long captureCycleLastStartTime = 0;
+	private long[] captureCycleMeasuredDurations = new long[] { 0, 0, 0 };
+	private double[] captureCyclePercentageMultipliers = new double[] { 0, 0, 0 };
+
 	private int outerLoopIncrement = 0;
 	private int outerLoopCaptureCount = 0;
+	private boolean isReducedCaptureModeActive = true;
 
 	private SignalStrengthListener signalStrengthListener;
 	private TelephonyManager telephonyManager;
@@ -166,13 +175,13 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 				try {
 
-					confirmOrSetSystemCaptureParameters();
+					confirmOrSetCaptureParameters();
 
 					// Sample CPU Stats
 					app.deviceCPU.update();
 
 					// Sample Inner Loop Stats (Accelerometer)
-					innerLoopIncrement = triggerOrSkipInnerLoopSensorMeasurement(innerLoopIncrement, innerLoopsPerCaptureCycle);
+					innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
 
 					if (innerLoopIncrement < innerLoopsPerCaptureCycle) {
 
@@ -180,10 +189,12 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 					} else {
 
+//						Log.e(logTag, SERVICE_NAME+" - "+ DateTimeUtils.getDateTime());
+
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-						// Sample Outer Loop Stats (GeoPosition)
-						outerLoopIncrement = triggerOrSkipOuterLoopSensorMeasurements(outerLoopIncrement, outerLoopCaptureCount);
+						// Outer Loop Behavior
+						outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
 
 						// capture and cache cpu usage info
 						cpuUsageValues.add(app.deviceCPU.getCurrentStats());
@@ -223,19 +234,19 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	}
 
 
-	private boolean confirmOrSetSystemCaptureParameters() {
+	private boolean confirmOrSetCaptureParameters() {
 
 		if (app != null) {
 
 			if (innerLoopIncrement == 0) {
 
-				// MUST FIX for cross role access
-				boolean isAudioCaptureEnabled = true; //app.audioCaptureUtils.isAudioCaptureAllowed(false);
+				this.captureCycleLastStartTime = System.currentTimeMillis();
+
 				int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 
 				// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
-				// however, we slow the capture cycle to 4x the normal duration
-				int prefsReferenceCycleDuration = isAudioCaptureEnabled ? audioCycleDuration : (4 * audioCycleDuration);
+				// however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
+				int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? audioCycleDuration : (audioCycleDuration * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf);
 
 				if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 
@@ -243,12 +254,11 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					this.innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
 					this.outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
 					app.deviceCPU.setReportingSampleCount(this.innerLoopsPerCaptureCycle);
-					this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration);
+					long samplingOperationDuration = DeviceCPU.SAMPLE_DURATION_MILLISECONDS;
+					this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
 
-					Log.d(logTag, (new StringBuilder())
-							.append("SystemStats Capture").append(isAudioCaptureEnabled ? "" : " (currently limited)").append(": ")
-							.append("Snapshots (all metrics) taken every ").append(Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000)).append(" seconds.")
-							.toString());
+					Log.d(logTag, "SystemStats Capture" + (this.isReducedCaptureModeActive ? "" : " (currently limited)") + ": " +
+							"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
 				}
 			}
 
@@ -259,7 +269,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		return true;
 	}
 
-	private int triggerOrSkipInnerLoopSensorMeasurement(int innerLoopIncrement, int innerLoopsPerCaptureCycle) {
+
+	private int triggerOrSkipInnerLoopBehavior(int innerLoopIncrement, int innerLoopsPerCaptureCycle) {
 
 		innerLoopIncrement++;
 		if (innerLoopIncrement > innerLoopsPerCaptureCycle) {
@@ -280,10 +291,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		}
 
 		return innerLoopIncrement;
-
 	}
 
-	private int triggerOrSkipOuterLoopSensorMeasurements(int outerLoopIncrement, int outerLoopCaptureCount) {
+	private int triggerOrSkipOuterLoopBehavior(int outerLoopIncrement, int outerLoopCaptureCount) {
 
 		outerLoopIncrement++;
 
@@ -292,7 +302,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		}
 
 		if (outerLoopIncrement == 1) {
-			//	Log.e(logTag, "RUNNING OUTER LOOP LOGIC...");
+
+			isReducedCaptureModeActive = DeviceUtils.isReducedCaptureModeActive(app.getApplicationContext());
+
+		//	Log.e(logTag, "RUN OUTER LOOP BEHAVIOR...");
 
 		} else {
 
@@ -535,8 +548,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			RfcxLog.logExc(logTag, e);
 		}
 	}
-
-	
 
 	
 /*

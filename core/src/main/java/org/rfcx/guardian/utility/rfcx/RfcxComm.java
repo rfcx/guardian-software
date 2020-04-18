@@ -36,6 +36,8 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"prefs_set", new String[] { "pref_key", "pref_value", "received_at" });
 			roleFuncProj.get(role).put(
+				"status", new String[] { "target", "result", "received_at" });
+			roleFuncProj.get(role).put(
 				"process", new String[] { "name", "pid", "uid" });
 			roleFuncProj.get(role).put(
 				"control", new String[] { "command", "result", "received_at" });

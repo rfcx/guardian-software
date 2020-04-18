@@ -6,6 +6,7 @@ import android.location.Location;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import android.Manifest;
 
@@ -15,6 +16,7 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.ArrayList;
@@ -89,18 +91,30 @@ public class DeviceUtils {
 	public static final long captureLoopIncrementFullDurationInMilliseconds = 1000;
 	public static final long captureCycleMinimumAllowedDurationInMilliseconds = 20000;
 	public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
+	public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 2;
 	
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
 	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {	1, 		1,		1 	};
-	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 	new long[] { 		1800,	60,		10 	};
+	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 		new long[] {	1800,	60,		10 	};
 	public int geoPositionUpdateIndex = 0;
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
 
 	private List<double[]> recentValuesAccelSensor = new ArrayList<double[]>();
 	private List<double[]> recentValuesGeoLocation = new ArrayList<double[]>();
-	
+
+
+	public static boolean isReducedCaptureModeActive(Context context) {
+		try {
+			JSONObject audioCaptureStatusJson = RfcxComm.getQueryContentProvider("guardian", "status", "audio_capture", context.getContentResolver()).getJSONObject(0);
+			return audioCaptureStatusJson.getBoolean("is_allowed");
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return false;
+	}
+
 	public static long getCaptureCycleDuration(int audioCycleDurationInSeconds) {
 		long captureCycleDuration = (long) Math.round( audioCycleDurationInSeconds * 1000 * captureCycleDurationRatioComparedToAudioCycleDuration );
 		if (captureCycleDuration < captureCycleMinimumAllowedDurationInMilliseconds) { 
@@ -113,12 +127,13 @@ public class DeviceUtils {
 		return Math.round( getCaptureCycleDuration(audioCycleDurationInSeconds) / captureLoopIncrementFullDurationInMilliseconds );
 	}
 	
-	public static long getInnerLoopDelayRemainder(int audioCycleDurationInSeconds) {
-		return (long) ( Math.round( getCaptureCycleDuration(audioCycleDurationInSeconds) / getInnerLoopsPerCaptureCycle(audioCycleDurationInSeconds) ) - DeviceCPU.SAMPLE_DURATION_MILLISECONDS );
+	public static long getInnerLoopDelayRemainder(int audioCycleDurationInSeconds, double captureCycleDurationPercentageMultiplier, long samplingOperationDuration) {
+		return (long) ( Math.round( ( getCaptureCycleDuration(audioCycleDurationInSeconds) / getInnerLoopsPerCaptureCycle(audioCycleDurationInSeconds) ) - samplingOperationDuration ) * captureCycleDurationPercentageMultiplier );
 	}
 	
 	public static int getOuterLoopCaptureCount(int audioCycleDurationInSeconds) {
-		return (int) ( Math.round( geoPositionMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
+//		return (int) ( Math.round( geoPositionMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
+		return 2;
 	}
 	
 	public static double[] generateAverageAccelValues(List<double[]> accelValues) {
