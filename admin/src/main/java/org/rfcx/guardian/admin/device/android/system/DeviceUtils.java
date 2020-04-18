@@ -107,8 +107,8 @@ public class DeviceUtils {
 
 	public static boolean isReducedCaptureModeActive(Context context) {
 		try {
-			JSONObject audioCaptureStatusJson = RfcxComm.getQueryContentProvider("guardian", "status", "audio_capture", context.getContentResolver()).getJSONObject(0);
-			return audioCaptureStatusJson.getBoolean("is_allowed");
+			return RfcxComm.getQueryContentProvider("guardian", "status", "audio_capture", context.getContentResolver())
+					.getJSONObject(0).getBoolean("is_allowed");
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 		}

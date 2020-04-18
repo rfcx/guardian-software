@@ -82,7 +82,7 @@ public class InstructionsExecutionService extends Service {
 
 					for (String[] queuedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
 
-						// only proceed with execution process if there is a valid queued instruction in the database
+						// only proceed with execution process if there is a valid queued instruction in the local database
 						if (queuedRow[0] != null) {
 
 							long executeAtOrAfter = (long) Long.parseLong(queuedRow[4]);
