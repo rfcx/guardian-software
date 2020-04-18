@@ -84,22 +84,22 @@ public class DeviceUtils {
 	}
 
 	public long dateTimeDiscrepancyFromSystemClock_gps = 0;
-	public long dateTimeDiscrepancyFromSystemClock_sntp = 0;
 	public long dateTimeSourceLastSyncedAt_gps = 0;
+	public long dateTimeDiscrepancyFromSystemClock_sntp = 0;
 	public long dateTimeSourceLastSyncedAt_sntp = 0;
 	
 	public static final long captureLoopIncrementFullDurationInMilliseconds = 1000;
 	public static final long captureCycleMinimumAllowedDurationInMilliseconds = 20000;
 	public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
+
 	public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 2;
-	
-	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
 	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {	1, 		1,		1 	};
 	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 		new long[] {	1800,	60,		10 	};
 	public int geoPositionUpdateIndex = 0;
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
+	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
 	private List<double[]> recentValuesAccelSensor = new ArrayList<double[]>();
 	private List<double[]> recentValuesGeoLocation = new ArrayList<double[]>();
@@ -107,8 +107,13 @@ public class DeviceUtils {
 
 	public static boolean isReducedCaptureModeActive(Context context) {
 		try {
-			return RfcxComm.getQueryContentProvider("guardian", "status", "audio_capture", context.getContentResolver())
-					.getJSONObject(0).getBoolean("is_allowed");
+			JSONArray jsonArray = RfcxComm.getQueryContentProvider("guardian", "status", "audio_capture", context.getContentResolver());
+			if (jsonArray.length() > 0) {
+				JSONObject jsonObject = jsonArray.getJSONObject(0);
+				if (jsonObject.has("is_allowed")) {
+					return jsonObject.getBoolean(("is_allowed"));
+				}
+			}
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 		}

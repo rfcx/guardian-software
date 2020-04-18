@@ -94,29 +94,16 @@ public class AudioCaptureService extends Service {
 					boolean isCaptureAllowed = app.audioCaptureUtils.isAudioCaptureAllowed(true);
 
 					if (confirmOrSetAudioCaptureParameters() && isCaptureAllowed) {
-							
-//						if (wavRecorder == null) {
-							// in this case, we are starting the audio capture from a stopped/pre-initialized state
-							captureTimeStamp = System.currentTimeMillis();
-							wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
-							wavRecorder.startRecorder();
 
-// This line is the problem of get audio corrupted for encoding
-//						} else {
-//							// in this case, we are just taking a snapshot and moving capture output to a new file
-//							// ( !!! THIS STILL NEEDS TO BE OPTIMIZED TO AVOID CAPTURE DOWNTIME !!! )
-//							// Look in AudioCaptureWavRecorder for optimization...
-//							captureTimeStamp = System.currentTimeMillis();
-//							captureSampleRate = audioSampleRate;
-//							Log.d(logTag, "wavRecoder is not null");
-//							wavRecorder.swapOutputFile(AudioCaptureUtils.getCaptureFilePath(captureDir, captureTimeStamp, "wav"));
-//						}
+						// in this case, we are starting the audio capture from a stopped/pre-initialized state
+						captureTimeStamp = System.currentTimeMillis();
+						wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
+						wavRecorder.startRecorder();
 							
 					} else if (wavRecorder != null) {
 						// in this case, we assume that the state has changed and capture is no longer allowed... 
 						// ...but there is a capture in progress, so we take a snapshot and halt the recorder.
 						captureTimeStamp = 0;
-						Log.d(logTag, "halt wavRecorder");
 						wavRecorder.haltRecording();
 						wavRecorder = null;
 						Log.i(logTag, "Stopping audio capture.");
@@ -128,16 +115,16 @@ public class AudioCaptureService extends Service {
 					}
 
 					// If capture is not allowed, we extend the capture cycle duration by a factor of AudioCaptureUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-					int currInnerLoopIterationCount = ( (isCaptureAllowed) ? innerLoopIterationCount : (AudioCaptureUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf * innerLoopIterationCount ) );
+					int currInnerLoopIterationCount = isCaptureAllowed ? innerLoopIterationCount : (AudioCaptureUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf * innerLoopIterationCount);
 					// This ensures that the service registers as active more frequently than the capture loop duration
 					for (int innerLoopIteration = 0; innerLoopIteration < currInnerLoopIterationCount; innerLoopIteration++) {
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 						Thread.sleep(innerLoopIterationDuration);
 					}
 
-					// Triggering creation of a metadata snapshot, for retrieval during CheckIn.
-					// This is not directly related to audio capture, but putting it here ensures that snapshots...
-					// ...will continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
+					// Triggering creation of a metadata snapshot.
+					// This is not directly related to audio capture, but putting it here ensures that snapshots will...
+					// ...continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
 					app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInMetaSnapshot");
 					
 				} catch (Exception e) {
@@ -170,10 +157,7 @@ public class AudioCaptureService extends Service {
 				this.audioCycleDuration = prefsAudioCycleDuration;
 				innerLoopIterationDuration = (long) Math.round( (prefsAudioCycleDuration * 1000) / innerLoopIterationCount );
 				
-				Log.d(logTag, (new StringBuilder())
-						.append("Audio Capture Params: ")
-						.append(prefsAudioCycleDuration).append(" seconds, ")
-						.append(Math.round(prefsAudioSampleRate/1000)).append(" kHz").toString());
+				Log.d(logTag, "Audio Capture Params: " + prefsAudioCycleDuration + " seconds, " + prefsAudioSampleRate + " Hz");
 			}
 			
 		} else {
@@ -183,23 +167,6 @@ public class AudioCaptureService extends Service {
 		return true;
 	}
 
-//	private int triggerOrSkipOuterLoopBehavior(int outerLoopIncrement, int outerLoopCaptureCount) {
-//
-//		outerLoopIncrement++;
-//
-//		if (outerLoopIncrement >= outerLoopCaptureCount) {
-//			outerLoopIncrement = 0;
-//		}
-//
-//		if (outerLoopIncrement == 1) {
-//			//	Log.e(logTag, "RUNNING OUTER LOOP LOGIC...");
-//
-//		} else {
-//
-//		}
-//
-//		return outerLoopIncrement;
-//	}
 	
 	
 }

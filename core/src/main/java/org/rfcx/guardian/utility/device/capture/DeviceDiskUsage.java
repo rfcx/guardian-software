@@ -5,12 +5,6 @@ import android.os.StatFs;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceDiskUsage {
-	
-	public DeviceDiskUsage(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceDiskUsage");
-	}
-	
-	private String logTag;
 
 	private static StatFs getStatFs(String absolutePath){
 		return new StatFs(absolutePath);
@@ -22,9 +16,9 @@ public class DeviceDiskUsage {
 		return new long[] { System.currentTimeMillis(), diskUsedBytes(intStat), diskFreeBytes(intStat), diskUsedBytes(extStat), diskFreeBytes(extStat) };
 	}
 	
-	private static long diskTotalBytes(StatFs statFs) {
-		return (((long) statFs.getBlockCount()) * ((long) statFs.getBlockSize()));
-	}
+//	private static long diskTotalBytes(StatFs statFs) {
+//		return (((long) statFs.getBlockCount()) * ((long) statFs.getBlockSize()));
+//	}
 
 	private static long diskFreeBytes(StatFs statFs) {
 		return (((long) statFs.getAvailableBlocks()) * ((long) statFs.getBlockSize()));
@@ -34,14 +28,20 @@ public class DeviceDiskUsage {
 		return ( ((long) (statFs.getBlockCount()) * ((long) statFs.getBlockSize())) - (((long) statFs.getAvailableBlocks()) * ((long) statFs.getBlockSize())) );
 	}
 
-	
-//	public static int getInternalDiskFreeMegaBytes() {
-//		return Math.round(diskFreeBytes(getStats(false)) / (1024 * 1024));
-//	}
-//	
-//	public static int getExternalDiskFreeMegaBytes() {
-//		return Math.round(diskFreeBytes(getStats(true)) / (1024 * 1024));
-//	}
+	private static long getInternalDiskFreeBytes() {
+		return diskFreeBytes(getStatFs(Environment.getDataDirectory().getAbsolutePath()));
+	}
 
+	private static long getExternalDiskFreeBytes() {
+		return diskFreeBytes(getStatFs(Environment.getExternalStorageDirectory().getAbsolutePath()));
+	}
+
+	public static int getInternalDiskFreeMegaBytes() {
+		return Math.round(getInternalDiskFreeBytes() / (1024 * 1024));
+	}
+
+//	public static int getExternalDiskFreeMegaBytes() {
+//		return Math.round(getExternalDiskFreeBytes() / (1024 * 1024));
+//	}
 
 }
