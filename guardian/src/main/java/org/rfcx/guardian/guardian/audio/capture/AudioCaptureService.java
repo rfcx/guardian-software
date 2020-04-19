@@ -83,6 +83,13 @@ public class AudioCaptureService extends Service {
 			AudioCaptureWavRecorder wavRecorder = null;
 
 			long captureTimeStamp = 0; // timestamp at beginning of capture loop
+
+			String[] recordedList = app.diagnosticDb.dbRecordedDiagnostic.getLatestRow();
+			String[] syncedList = app.diagnosticDb.dbSyncedDiagnostic.getLatestRow();
+			if (recordedList[0] == null && syncedList[0] == null) {
+				app.diagnosticDb.dbRecordedDiagnostic.insert();
+				app.diagnosticDb.dbSyncedDiagnostic.insert();
+			}
 				
 			while (audioCaptureService.runFlag) {
 				

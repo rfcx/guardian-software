@@ -97,6 +97,18 @@ public class DbUtils {
 		}
 		return rowCount;
 	}
+
+	public void updateFirstRow(String table, ContentValues values) {
+		SQLiteDatabase db = openDb();
+		try {
+			String where = "rowid=(SELECT MIN(rowid) FROM " + table + ")";
+			db.update(table, values, where, null);
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		} finally {
+			closeDb();
+		}
+	}
 	
 	public static List<String[]> getRows(SQLiteDatabase db, String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy, int rowOffset, int rowLimit) {
 		

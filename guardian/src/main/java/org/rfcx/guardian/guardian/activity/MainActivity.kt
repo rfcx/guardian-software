@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -76,6 +75,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
 
         stopButton.setOnClickListener {
             app.rfcxServiceHandler.stopAllServices()
+            app.rfcxServiceHandler.setAbsoluteRunState("OnLaunchServiceSequence", false)
             getInfoThread?.interrupt()
             setUIFromBtnClicked("stop")
         }
@@ -275,10 +275,12 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             unregisteredView.visibility = View.INVISIBLE
             registeredView.visibility = View.VISIBLE
             registerProgress.visibility = View.INVISIBLE
+            registerInfo.visibility = View.VISIBLE
             deviceIdText.text = GuardianUtils.readGuardianGuid(this)
         } else {
             unregisteredView.visibility = View.VISIBLE
             registeredView.visibility = View.INVISIBLE
+            registerInfo.visibility = View.INVISIBLE
         }
     }
 
@@ -307,6 +309,13 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
                             val latestRow = app.apiCheckInDb.dbSent.latestRow
                             checkInText.text = checkInUtils.getCheckinTime(latestRow[0])
                             sizeText.text = checkInUtils.getFileSize(latestRow[4])
+
+                            val recordedList = app.diagnosticDb.dbRecordedDiagnostic.latestRow
+                            val syncedList = app.diagnosticDb.dbSyncedDiagnostic.latestRow
+                            recordTimeText.text =
+                                app.diagnosticUtils.secondToTime(recordedList[2].toInt())
+                            fileRecordedSyncedText.text = "${syncedList[1]} / ${recordedList[1]}"
+
                         }
                         sleep(5000)
                     }

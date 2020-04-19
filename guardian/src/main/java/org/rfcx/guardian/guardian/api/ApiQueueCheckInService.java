@@ -46,7 +46,8 @@ public class ApiQueueCheckInService extends IntentService {
 					};
 				
 				app.apiCheckInUtils.addCheckInToQueue(audioInfo, encodedAudio[9]);
-	
+
+				app.diagnosticUtils.updateRecordedDiagnostic();
 			}
 
 

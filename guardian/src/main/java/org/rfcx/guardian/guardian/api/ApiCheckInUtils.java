@@ -1045,6 +1045,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 
+			app.diagnosticUtils.updateSyncedDiagnostic();
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
