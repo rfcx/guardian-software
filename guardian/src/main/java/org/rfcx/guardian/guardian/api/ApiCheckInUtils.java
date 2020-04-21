@@ -476,7 +476,6 @@ public class ApiCheckInUtils implements MqttCallback {
 							} else {
 								metaJsonBundledSnapshotsObj.put(jsonKey, origStr+newStr);
 							}
-                            Log.e(logTag, jsonKey);
 							if (jsonKey.equalsIgnoreCase("measured_at")) {
                                 long measuredAt = (long) Long.parseLong(newStr);
 								Log.e(logTag, "measured_at: "+DateTimeUtils.getDateTime(measuredAt));
