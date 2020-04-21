@@ -131,14 +131,22 @@ public class AdminContentProvider extends ContentProvider {
             } else if (RfcxComm.uriMatch(uri, appRole, "database_get_latest_row", "*")) {
                 String pathSeg = uri.getLastPathSegment();
 
-                if (pathSeg.equalsIgnoreCase("screenshots")) {
+
+                if (pathSeg.equalsIgnoreCase("sentinel_power")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"sentinel_power", app.sentinelPowerDb.dbSentinelPowerBattery.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("screenshots")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"screenshots", app.deviceScreenShotDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("logs")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"logs", app.deviceLogCatDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
 
-                } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
-					return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"sentinel_power", app.sentinelPowerDb.dbSentinelPowerBattery.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
+                } else if (pathSeg.equalsIgnoreCase("photos")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"photos", app.cameraCaptureDb.dbPhotos.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("videos")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"videos", app.cameraCaptureDb.dbVideos.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
+
                 } else {
                     return null;
                 }
@@ -159,6 +167,12 @@ public class AdminContentProvider extends ContentProvider {
 
                 } else if (pathSegTable.equalsIgnoreCase("logs")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, app.deviceLogCatDb.dbCaptured.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis()});
+
+                } else if (pathSegTable.equalsIgnoreCase("photos")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, app.cameraCaptureDb.dbPhotos.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis()});
+
+                } else if (pathSegTable.equalsIgnoreCase("videos")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, app.cameraCaptureDb.dbVideos.deleteSingleRowByTimestamp(pathSegId), System.currentTimeMillis()});
 
                 } else {
                     return null;
@@ -187,6 +201,12 @@ public class AdminContentProvider extends ContentProvider {
 
                 } else if (pathSegTable.equalsIgnoreCase("logs")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_set_last_accessed_at", new Object[]{pathSeg, app.deviceLogCatDb.dbCaptured.updateLastAccessedAtByTimestamp(pathSegId), System.currentTimeMillis()});
+
+                } else if (pathSegTable.equalsIgnoreCase("photos")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_set_last_accessed_at", new Object[]{pathSeg, app.cameraCaptureDb.dbPhotos.updateLastAccessedAtByTimestamp(pathSegId), System.currentTimeMillis()});
+
+                } else if (pathSegTable.equalsIgnoreCase("videos")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_set_last_accessed_at", new Object[]{pathSeg, app.cameraCaptureDb.dbVideos.updateLastAccessedAtByTimestamp(pathSegId), System.currentTimeMillis()});
 
                 } else {
                     return null;

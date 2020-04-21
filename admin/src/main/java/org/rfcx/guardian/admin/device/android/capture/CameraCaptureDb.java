@@ -4,9 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.json.JSONArray;
-import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -15,7 +13,8 @@ public class CameraCaptureDb {
 
 	public CameraCaptureDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.dbPhotoCaptured = new DbPhotoCaptured(context);
+		this.dbPhotos = new DbPhotos(context);
+		this.dbVideos = new DbVideos(context);
 	}
 
 	private int VERSION = 1;
@@ -41,13 +40,13 @@ public class CameraCaptureDb {
 		return sbOut.toString();
 	}
 	
-	public class DbPhotoCaptured {
+	public class DbPhotos {
 
 		final DbUtils dbUtils;
 
-		private String TABLE = "photo-captured";
+		private String TABLE = "photos";
 		
-		public DbPhotoCaptured(Context context) {
+		public DbPhotos(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
@@ -82,6 +81,52 @@ public class CameraCaptureDb {
 		}
 
 	}
-	public final DbPhotoCaptured dbPhotoCaptured;
+	public final DbPhotos dbPhotos;
+
+
+
+
+	public class DbVideos {
+
+		final DbUtils dbUtils;
+
+		private String TABLE = "videos";
+
+		public DbVideos(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+		}
+
+		public int insert(String timestamp, String format, String digest, String filepath) {
+
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, (new Date()).getTime());
+			values.put(C_TIMESTAMP, timestamp);
+			values.put(C_FORMAT, format);
+			values.put(C_DIGEST, digest);
+			values.put(C_FILEPATH, filepath);
+			values.put(C_LAST_ACCESSED_AT, 0);
+
+			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public JSONArray getLatestRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
+		}
+
+		public int deleteSingleRowByTimestamp(String timestamp) {
+			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
+			return 0;
+		}
+
+		public long updateLastAccessedAtByTimestamp(String timestamp) {
+			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_TIMESTAMP, timestampValue);
+			return rightNow;
+		}
+
+	}
+	public final DbVideos dbVideos;
 	
 }

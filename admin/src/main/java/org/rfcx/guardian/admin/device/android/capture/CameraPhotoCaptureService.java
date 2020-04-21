@@ -60,7 +60,7 @@ public class CameraPhotoCaptureService extends Service {
 	private class CameraPhotoCaptureSvc extends Thread {
 
 		public CameraPhotoCaptureSvc() {
-			super("PhotoCaptureService-PhotoCaptureSvc");
+			super("CameraPhotoCaptureService-CameraPhotoCaptureSvc");
 		}
 
 		@Override
