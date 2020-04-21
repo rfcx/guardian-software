@@ -46,20 +46,20 @@ public class SentinelPowerUtils {
 
         this.i2cValueIndex = new String[]{"voltage", "current", "temperature", "power"};
 
-        //													 voltage   current   temp
-        this.i2cAddresses.put("battery", new String[]{"0x3a", "0x3d", null});
-        this.i2cAddresses.put("input", new String[]{"0x3b", "0x3e", null});
-        this.i2cAddresses.put("system", new String[]{"0x3c", null, "0x3f"});
+        //										        voltage     current     temp
+        this.i2cAddresses.put("battery", new String[]{  "0x3a",     "0x3d",     null    });
+        this.i2cAddresses.put("input", new String[]{    "0x3b",     "0x3e",     null    });
+        this.i2cAddresses.put("system", new String[]{   "0x3c",     null,       "0x3f"  });
 
-        //												  voltage   current		temp
-        this.i2cLastReadAt.put("battery", new long[]{0, 0, 0});
-        this.i2cLastReadAt.put("input", new long[]{0, 0, 0});
-        this.i2cLastReadAt.put("system", new long[]{0, 0, 0});
+        //										        voltage     current     temp
+        this.i2cLastReadAt.put("battery", new long[]{   0,          0,          0   });
+        this.i2cLastReadAt.put("input", new long[]{     0,          0,          0   });
+        this.i2cLastReadAt.put("system", new long[]{    0,          0,          0   });
 
-        //												voltage		current 		temp			power
-        this.i2cValues.put("battery", new double[]{0, 0, 0, 0});
-        this.i2cValues.put("input", new double[]{0, 0, 0, 0});
-        this.i2cValues.put("system", new double[]{0, 0, 0, 0});
+        //												voltage		current 	temp		power
+        this.i2cValues.put("battery", new double[]{     0,          0,          0,          0   });
+        this.i2cValues.put("input", new double[]{       0,          0,          0,          0   });
+        this.i2cValues.put("system", new double[]{      0,          0,          0,          0   });
 
     }
 

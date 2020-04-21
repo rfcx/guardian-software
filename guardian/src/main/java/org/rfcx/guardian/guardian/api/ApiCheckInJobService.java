@@ -2,6 +2,7 @@ package org.rfcx.guardian.guardian.api;
 
 import java.io.File;
 
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -89,7 +90,7 @@ public class ApiCheckInJobService extends Service {
 						Thread.sleep( prefsAudioCycleDuration / 2 );
 						
 					} else if (prefsEnableBatteryCutoffs && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
-						Log.v(logTag, "CheckIns currently disabled due to low battery level"
+						Log.v(logTag, DateTimeUtils.getDateTime()+" CheckIn not allowed due to low battery level"
 							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+prefsCheckInBatteryCutoff+"%)."
 							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration * 2 ) / 1000 ) ) + " seconds before next attempt.");
 						Thread.sleep( prefsAudioCycleDuration * 2 );

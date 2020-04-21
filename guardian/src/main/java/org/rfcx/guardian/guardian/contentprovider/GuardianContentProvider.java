@@ -1,5 +1,7 @@
 package org.rfcx.guardian.guardian.contentprovider;
 
+import org.json.JSONArray;
+import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -48,7 +50,17 @@ public class GuardianContentProvider extends ContentProvider {
 				String pathSegPrefKey = pathSeg.substring(0, pathSeg.indexOf("|"));
 				String pathSegPrefValue = pathSeg.substring(1 + pathSeg.indexOf("|"));
 				app.setSharedPref(pathSegPrefKey, pathSegPrefValue);
-				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{ pathSegPrefKey, pathSegPrefValue, System.currentTimeMillis()});
+				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{pathSegPrefKey, pathSegPrefValue, System.currentTimeMillis()});
+
+			// get status of services
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) {
+				String statusTarget = uri.getLastPathSegment();
+				JSONArray statusResultJsonArray = new JSONArray();
+				if (statusTarget.equalsIgnoreCase("audio_capture")) {
+					statusResultJsonArray = app.audioCaptureUtils.getAudioCaptureStatusAsJsonArray();
+				}
+				return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusResultJsonArray.toString(), System.currentTimeMillis()});
 
 			// "process" function endpoints
 

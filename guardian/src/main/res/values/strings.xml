@@ -38,6 +38,7 @@
 		<item>12 kHz</item>
 		<item>16 kHz</item>
 		<item>24 kHz</item>
+		<item>44.1 kHz</item>
 		<item>48 kHz</item>
 	</string-array>
 	
@@ -46,6 +47,7 @@
 		<item>12000</item>
 		<item>16000</item>
 		<item>24000</item>
+		<item>44100</item>
 		<item>48000</item>
 	</string-array>
 	

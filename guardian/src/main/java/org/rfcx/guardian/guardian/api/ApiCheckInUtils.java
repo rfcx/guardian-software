@@ -1032,12 +1032,12 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.instructionsUtils.processInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
 			}
 
-			// parse 'requeue' array
-			if (jsonObj.has("requeue")) {
-				JSONArray requeueJson = jsonObj.getJSONArray("requeue");
-				for (int i = 0; i < requeueJson.length(); i++) {
-					String assetId = requeueJson.getJSONObject(i).getString("id");
-					String assetType = requeueJson.getJSONObject(i).getString("type");
+			// parse 'unconfirmed' array
+			if (jsonObj.has("unconfirmed")) {
+				JSONArray unconfirmedJson = jsonObj.getJSONArray("unconfirmed");
+				for (int i = 0; i < unconfirmedJson.length(); i++) {
+					String assetId = unconfirmedJson.getJSONObject(i).getString("id");
+					String assetType = unconfirmedJson.getJSONObject(i).getString("type");
 					if (assetType.equalsIgnoreCase("audio")) {
 						reQueueAudioAssetForCheckIn("sent", assetId);
 					}

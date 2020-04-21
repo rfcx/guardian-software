@@ -41,12 +41,12 @@ public class DeviceBattery {
 		return ( getIntent(context,intent).getIntExtra(BatteryManager.EXTRA_STATUS, -1) == BatteryManager.BATTERY_STATUS_FULL );
 	}
 	
-	private boolean isBatteryDischarging(Context context, Intent intent) {
-		return ( getIntent(context,intent).getIntExtra(BatteryManager.EXTRA_STATUS, -1) == BatteryManager.BATTERY_STATUS_DISCHARGING );
+	private boolean isBatteryCharging(Context context, Intent intent) {
+		return ( getIntent(context,intent).getIntExtra(BatteryManager.EXTRA_STATUS, -1) == BatteryManager.BATTERY_STATUS_CHARGING );
 	}
 
-	private boolean isBatteryCharging(Context context, Intent intent) {
-		return !isBatteryDischarging(context, intent);
+	private boolean isBatteryDischarging(Context context, Intent intent) {
+		return !isBatteryCharging(context, intent);
 	}
 	
 }
