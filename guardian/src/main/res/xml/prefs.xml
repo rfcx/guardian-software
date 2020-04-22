@@ -267,7 +267,7 @@
 		android:summary="string - true/false"
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
-		android:defaultValue="false" />
+		android:defaultValue="true" />
 
 	<ListPreference
 		android:key="admin_enable_tcp_adb"
@@ -276,7 +276,7 @@
 		android:summary="string - true/false"
 		android:entries="@array/true_or_false"
 		android:entryValues="@array/true_or_false"
-		android:defaultValue="false" />
+		android:defaultValue="true" />
 
 	<ListPreference
 		android:key="admin_enable_sentinel_capture"
