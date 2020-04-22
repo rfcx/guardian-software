@@ -282,6 +282,9 @@ public class RfcxGuardian extends Application {
 			this.deviceUtils.disableSensorListener("accel"); // accelerometer
 			this.deviceUtils.disableSensorListener("light");  // light meter
 
+			// Disable Sensor Measurements that are invalid on the OrangePi 3G-IoT
+			this.deviceUtils.allowMeasurement_battery_temperature = false;
+
 			// Set Desktop Wallpaper to empty black
 			DeviceWallpaper.setWallpaper(this, R.drawable.black);
 

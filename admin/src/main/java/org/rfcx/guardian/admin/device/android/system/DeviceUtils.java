@@ -22,7 +22,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DeviceUtils {
 
@@ -33,6 +35,11 @@ public class DeviceUtils {
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceUtils");
 
 	private Context context;
+
+	public boolean allowMeasurement_battery_percentage = true;
+	public boolean allowMeasurement_battery_temperature = true;
+	public boolean allowMeasurement_battery_is_charging = true;
+	public boolean allowMeasurement_battery_is_fully_charged = true;
 
 	private boolean allowListenerRegistration_telephony = true;
 	private boolean allowListenerRegistration_light = true;
