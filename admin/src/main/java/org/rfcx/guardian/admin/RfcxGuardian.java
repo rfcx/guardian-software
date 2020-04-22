@@ -2,6 +2,7 @@ package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
 import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
@@ -188,11 +189,11 @@ public class RfcxGuardian extends Application {
 							+"|"+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
 							+"|"+"0" 																	// no repeat
 							,
-					"BluetoothStateSet"
+					"WifiStateSet"
 							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
 							+"|"+"0" 																	// no repeat
 							,
-					"WifiStateSet"
+					"BluetoothStateSet"
 							+"|"+DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minute before running
 							+"|"+"0" 																	// no repeat
 			};
@@ -244,6 +245,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("ScheduledLogCatCapture", ScheduledLogCatCaptureService.class);
 
 		this.rfcxServiceHandler.addService("CameraPhotoCapture", CameraPhotoCaptureService.class);
+		this.rfcxServiceHandler.addService("CameraVideoCapture", CameraVideoCaptureService.class);
 
 	}
 

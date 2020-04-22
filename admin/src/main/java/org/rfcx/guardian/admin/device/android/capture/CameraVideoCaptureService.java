@@ -11,16 +11,16 @@ import org.rfcx.guardian.utility.camera.RfcxCameraUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-public class CameraPhotoCaptureService extends Service {
+public class CameraVideoCaptureService extends Service {
 
-	private static final String SERVICE_NAME = "CameraPhotoCapture";
+	private static final String SERVICE_NAME = "CameraVideoCapture";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CameraPhotoCaptureService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CameraVideoCaptureService");
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private CameraPhotoCapture cameraPhotoCapture;
+	private CameraVideoCapture cameraVideoCapture;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,7 +30,7 @@ public class CameraPhotoCaptureService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.cameraPhotoCapture = new CameraPhotoCapture();
+		this.cameraVideoCapture = new CameraVideoCapture();
 		app = (RfcxGuardian) getApplication();
 	}
 
@@ -41,7 +41,7 @@ public class CameraPhotoCaptureService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.cameraPhotoCapture.start();
+			this.cameraVideoCapture.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -53,48 +53,48 @@ public class CameraPhotoCaptureService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.cameraPhotoCapture.interrupt();
-		this.cameraPhotoCapture = null;
+		this.cameraVideoCapture.interrupt();
+		this.cameraVideoCapture = null;
 	}
 
-	private class CameraPhotoCapture extends Thread {
+	private class CameraVideoCapture extends Thread {
 
-		public CameraPhotoCapture() {
-			super("CameraPhotoCaptureService-CameraPhotoCapture");
+		public CameraVideoCapture() {
+			super("CameraVideoCaptureService-CameraVideoCapture");
 		}
 
 		@Override
 		public void run() {
-			CameraPhotoCaptureService cameraPhotoCaptureInstance = CameraPhotoCaptureService.this;
+			CameraVideoCaptureService cameraVideoCaptureInstance = CameraVideoCaptureService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
 			RfcxCameraUtils rfcxCameraUtils = new RfcxCameraUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
-			String photoCaptureDir = RfcxCameraUtils.photoCaptureDir(context);
-			FileUtils.deleteDirectoryContents(photoCaptureDir);
+			String videoCaptureDir = RfcxCameraUtils.videoCaptureDir(context);
+			FileUtils.deleteDirectoryContents(videoCaptureDir);
 
 			try {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				if (	 confirmOrSetCameraPhotoCaptureParameters() ) {
+				if (	 confirmOrSetCameraVideoCaptureParameters() ) {
 
 					Log.e(logTag, "CURRENTLY THIS SERVICE DOES ABSOLUTELY NOTHING. IT'S JUST A WRAPPER.");
-					Log.e(logTag, "NO PHOTO CAPTURED. PLEASE ADD THE REQUIRED FUNCTIONALITY.");
+					Log.e(logTag, "NO VIDEO CAPTURED. PLEASE ADD THE REQUIRED FUNCTIONALITY.");
 
 				}
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				cameraPhotoCaptureInstance.runFlag = false;
+				cameraVideoCaptureInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}
 		}
 	}
 	
-	private boolean confirmOrSetCameraPhotoCaptureParameters() {
+	private boolean confirmOrSetCameraVideoCaptureParameters() {
 		
 		if (app != null) {
 			
