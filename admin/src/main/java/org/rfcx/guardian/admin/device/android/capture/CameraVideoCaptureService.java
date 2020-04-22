@@ -72,7 +72,9 @@ public class CameraVideoCaptureService extends Service {
 
 			RfcxCameraUtils rfcxCameraUtils = new RfcxCameraUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
 			String videoCaptureDir = RfcxCameraUtils.videoCaptureDir(context);
-			FileUtils.deleteDirectoryContents(videoCaptureDir);
+
+			// removing older files if they're left in the capture directory
+			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(videoCaptureDir, 60);
 
 			try {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
