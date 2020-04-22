@@ -23,7 +23,10 @@ public class ForceRoleRelaunchService extends IntentService {
 		Intent intent = new Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
 		sendBroadcast(intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
 
-		Log.e(logTag, "ROLE RELAUNCH NEEDS TO BE RE-WRITTEN BECAUSE 'ps' AND 'cut' DID NOT WORK ON ORANGE PI. AT THIS TIME THIS COMMAND DOES NOTHING.");
+		Log.e(logTag, "!!!!!!");
+		Log.e(logTag, "ROLE RELAUNCH NEEDS TO BE RE-WRITTEN BECAUSE 'ps' AND 'cut' DID NOT WORK ON ORANGE PI.");
+		Log.e(logTag, "AT THIS TIME THIS COMMAND DOES NOTHING.");
+		Log.e(logTag, "!!!!!!");
 //		DeviceAndroidApps.killAndReLaunchGuardianAppRoles(new String[] { "org.rfcx.guardian.guardian", "org/rfcx/guardian/admin"}, ((RfcxGuardian) getApplication()).getApplicationContext());
 	}
 	

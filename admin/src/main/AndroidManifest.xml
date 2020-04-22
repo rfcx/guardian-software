@@ -85,12 +85,13 @@
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" />
-        <service android:name=".device.android.control.ScheduledRebootService" />
+        <service android:name=".device.android.control.ADBStateSetService" />
         <service android:name=".device.android.control.ForceRoleRelaunchService" />
+        <service android:name=".device.android.control.ScheduledRebootService" />
         <service android:name=".device.android.capture.ScheduledScreenShotCaptureService" />
         <service android:name=".device.android.capture.ScheduledLogCatCaptureService" />
-        <service android:name=".device.android.capture.ScheduledPhotoCaptureService" />
-        <service android:name=".device.android.control.ADBStateSetService" />
+        <service android:name=".device.android.capture.ScheduledCameraPhotoCaptureService" />
+        <service android:name=".device.android.capture.ScheduledCameraVideoCaptureService" />
 
         <!--                     -->
         <!-- START: SMS settings -->
