@@ -575,7 +575,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	}
 
-	private byte[] packageMqttPayload(String checkInJsonString, String checkInAudioFilePath)
+	private byte[] packageMqttCheckInPayload(String checkInJsonString, String checkInAudioFilePath)
 			throws UnsupportedEncodingException, IOException, JSONException {
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -659,7 +659,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		try {
 
-			byte[] checkInPayload = packageMqttPayload(audioJson, audioPath);
+			byte[] checkInPayload = packageMqttCheckInPayload(audioJson, audioPath);
 
 			if ((new File(audioPath)).exists()) {
 
