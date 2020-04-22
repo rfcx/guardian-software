@@ -231,7 +231,6 @@ public class DeviceUtils {
 
 			metaJson.put("battery", app.deviceSystemDb.dbBattery.getConcatRows());
 			metaJson.put("cpu", app.deviceSystemDb.dbCPU.getConcatRows());
-			metaJson.put("power", app.deviceSystemDb.dbPower.getConcatRows());
 			metaJson.put("network", app.deviceSystemDb.dbTelephony.getConcatRows());
 			metaJson.put("offline", app.deviceSystemDb.dbOffline.getConcatRows());
 			metaJson.put("lightmeter", app.deviceSensorDb.dbLightMeter.getConcatRows());
@@ -258,7 +257,6 @@ public class DeviceUtils {
 
 		app.deviceSystemDb.dbBattery.clearRowsBefore(clearBefore);
 		app.deviceSystemDb.dbCPU.clearRowsBefore(clearBefore);
-		app.deviceSystemDb.dbPower.clearRowsBefore(clearBefore);
 		app.deviceSystemDb.dbTelephony.clearRowsBefore(clearBefore);
 		app.deviceSystemDb.dbOffline.clearRowsBefore(clearBefore);
 		app.deviceSensorDb.dbLightMeter.clearRowsBefore(clearBefore);

@@ -525,8 +525,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				
 				for (int[] batteryLevelVals : batteryLevelValuesCache) {
 					if ((batteryLevelVals[0] <= 100) && (batteryLevelVals[0] >= 0)) {
-						app.deviceSystemDb.dbBattery.insert(new Date(), batteryLevelVals[0], batteryLevelVals[1]);
-						app.deviceSystemDb.dbPower.insert(new Date(), batteryLevelVals[2], batteryLevelVals[3]);
+						app.deviceSystemDb.dbBattery.insert(new Date(), batteryLevelVals[0], batteryLevelVals[1], batteryLevelVals[2], batteryLevelVals[3]);
 					}
 				}
 				
