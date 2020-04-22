@@ -73,7 +73,7 @@ public class DeviceScreenShotCaptureService extends Service {
 			
 			DeviceScreenShot deviceScreenShot = new DeviceScreenShot(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
 			DeviceScreenLock deviceScreenLock = new DeviceScreenLock(RfcxGuardian.APP_ROLE);
-			
+
 			try {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
@@ -83,8 +83,8 @@ public class DeviceScreenShotCaptureService extends Service {
 				
 				String[] saveScreenShot = deviceScreenShot.launchCapture(context);
 				if (saveScreenShot != null) { 
-					app.deviceScreenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3]);
-					Log.i(logTag, "ScreenShot saved: "+saveScreenShot[3]);
+					app.deviceScreenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3], saveScreenShot[4], saveScreenShot[5]);
+					Log.i(logTag, "ScreenShot saved: "+saveScreenShot[5]);
 				}
 				Thread.sleep(1500);
 					

@@ -25,8 +25,10 @@ public class DeviceLogCatDb {
 	static final String C_FORMAT = "format";
 	static final String C_DIGEST = "digest";
 	static final String C_FILEPATH = "filepath";
+	static final String C_WIDTH = "width";
+	static final String C_HEIGHT = "height";
 	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_FILEPATH, C_LAST_ACCESSED_AT };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_FILEPATH, C_WIDTH, C_HEIGHT, C_LAST_ACCESSED_AT };
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -36,6 +38,8 @@ public class DeviceLogCatDb {
 			.append(", ").append(C_FORMAT).append(" TEXT")
 			.append(", ").append(C_DIGEST).append(" TEXT")
 			.append(", ").append(C_FILEPATH).append(" TEXT")
+			.append(", ").append(C_WIDTH).append(" INTEGER")
+			.append(", ").append(C_HEIGHT).append(" INTEGER")
 			.append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
 			.append(")");
 		return sbOut.toString();
@@ -59,6 +63,8 @@ public class DeviceLogCatDb {
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			values.put(C_FILEPATH, filepath);
+			values.put(C_WIDTH, 0);
+			values.put(C_HEIGHT, 0);
 			values.put(C_LAST_ACCESSED_AT, 0);
 			
 			return this.dbUtils.insertRow(TABLE, values);

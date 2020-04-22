@@ -24,8 +24,10 @@ public class CameraCaptureDb {
 	static final String C_FORMAT = "format";
 	static final String C_DIGEST = "digest";
 	static final String C_FILEPATH = "filepath";
+	static final String C_WIDTH = "width";
+	static final String C_HEIGHT = "height";
 	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_FILEPATH, C_LAST_ACCESSED_AT };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_FILEPATH, C_WIDTH, C_HEIGHT, C_LAST_ACCESSED_AT };
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -35,6 +37,8 @@ public class CameraCaptureDb {
 			.append(", ").append(C_FORMAT).append(" TEXT")
 			.append(", ").append(C_DIGEST).append(" TEXT")
 			.append(", ").append(C_FILEPATH).append(" TEXT")
+			.append(", ").append(C_WIDTH).append(" INTEGER")
+			.append(", ").append(C_HEIGHT).append(" INTEGER")
 			.append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
 			.append(")");
 		return sbOut.toString();
@@ -50,7 +54,7 @@ public class CameraCaptureDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public int insert(String timestamp, String format, String digest, String filepath) {
+		public int insert(String timestamp, String format, String digest, int width, int height, String filepath) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -58,6 +62,8 @@ public class CameraCaptureDb {
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			values.put(C_FILEPATH, filepath);
+			values.put(C_WIDTH, width);
+			values.put(C_HEIGHT, height);
 			values.put(C_LAST_ACCESSED_AT, 0);
 			
 			return this.dbUtils.insertRow(TABLE, values);
@@ -96,7 +102,7 @@ public class CameraCaptureDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(String timestamp, String format, String digest, String filepath) {
+		public int insert(String timestamp, String format, String digest, int width, int height, String filepath) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -104,6 +110,8 @@ public class CameraCaptureDb {
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			values.put(C_FILEPATH, filepath);
+			values.put(C_WIDTH, width);
+			values.put(C_HEIGHT, height);
 			values.put(C_LAST_ACCESSED_AT, 0);
 
 			return this.dbUtils.insertRow(TABLE, values);

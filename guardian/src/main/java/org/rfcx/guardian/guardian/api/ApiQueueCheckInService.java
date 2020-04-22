@@ -32,20 +32,19 @@ public class ApiQueueCheckInService extends IntentService {
 				
 			for (String[] encodedAudio : app.audioEncodeDb.dbEncoded.getRowsWithLimit(10)) {
 				
-				String[] audioInfo = new String[] {
-						encodedAudio[0], // "created_at"
-						encodedAudio[1], //"timestamp"
-						encodedAudio[2], //"format"
-						encodedAudio[3], //"digest"
-						encodedAudio[4], //"samplerate"
-						encodedAudio[5], //"bitrate"
-						encodedAudio[6], //"codec"
-						(RfcxAudioUtils.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr"), //"cbr_or_vbr"
-						encodedAudio[8], //"encode_duration"
-						"16bit" // sampleprecision in bits
-					};
-				
-				app.apiCheckInUtils.addCheckInToQueue(audioInfo, encodedAudio[9]);
+				app.apiCheckInUtils.addCheckInToQueue(
+						new String[] {
+								encodedAudio[0], // created_at
+								encodedAudio[1], //	timestamp
+								encodedAudio[2], //	format
+								encodedAudio[3], //	digest
+								encodedAudio[4], //	sample rate
+								encodedAudio[5], //	bitrate
+								encodedAudio[6], //	codec
+								(RfcxAudioUtils.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr"), //	cbr or vbr
+								encodedAudio[8], // encode duration
+								"16bit" 		 // sample precision, in bits
+						}, encodedAudio[9]);
 
 				app.diagnosticUtils.updateRecordedDiagnostic();
 			}

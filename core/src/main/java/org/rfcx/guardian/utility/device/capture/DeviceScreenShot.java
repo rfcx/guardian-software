@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -77,7 +78,7 @@ public class DeviceScreenShot {
 		if ((new File(executableBinaryFilePath)).exists()) {
 			
 			try {
-				
+
 				long captureTimestamp = System.currentTimeMillis();
 				
 				String captureFilePath = DeviceScreenShot.getScreenShotFileLocation_Capture(context, captureTimestamp);
@@ -87,7 +88,7 @@ public class DeviceScreenShot {
 				shellProcess.waitFor();
                 FileUtils.chmod(captureFilePath,  "rw", "rw");
 
-				return completeCapture(captureTimestamp, captureFilePath, finalFilePath);
+				return completeCapture(captureTimestamp, captureFilePath, finalFilePath, context.getResources().getDisplayMetrics().widthPixels, context.getResources().getDisplayMetrics().heightPixels );
 				
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
@@ -98,7 +99,7 @@ public class DeviceScreenShot {
 		return null;
 	}
 	
-	public String[] completeCapture(long timestamp, String captureFilePath, String finalFilePath) {
+	public String[] completeCapture(long timestamp, String captureFilePath, String finalFilePath, int width, int height) {
 		try {
 			File captureFile = new File(captureFilePath);
 			File finalFile = new File(finalFilePath);
@@ -107,7 +108,7 @@ public class DeviceScreenShot {
 	        	FileUtils.copy(captureFile, finalFile);
 	        	if (finalFile.exists()) {
 	        		captureFile.delete();
-	        		return new String[] { ""+timestamp, CAPTURE_FILETYPE, FileUtils.sha1Hash(finalFilePath), finalFilePath };
+	        		return new String[] { ""+timestamp, CAPTURE_FILETYPE, FileUtils.sha1Hash(finalFilePath), ""+width, ""+height, finalFilePath };
 	        	}
 		    }
 		} catch (Exception e) {
@@ -115,5 +116,6 @@ public class DeviceScreenShot {
 		}
 		return null;
 	}
-	
+
+
 }

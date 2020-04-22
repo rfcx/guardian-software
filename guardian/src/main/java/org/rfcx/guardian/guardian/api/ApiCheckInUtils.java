@@ -183,6 +183,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		// if this array has been populated, indicating that the source row exists, then add entry to checkin table
 		if ((checkInToReQueue.length > 0) && (checkInToReQueue[0] != null)) {
 
+
 			int queuedCount = app.apiCheckInDb.dbQueued.insert(checkInToReQueue[1], checkInToReQueue[2], checkInToReQueue[3], checkInToReQueue[4]);
 			String[] reQueuedCheckIn = app.apiCheckInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId);
 
@@ -550,7 +551,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		// Adding screenshot meta to JSON blob
 		checkInMetaJson.put("screenshots", (screenShotMeta[0] == null) ? "" :
-				TextUtils.join("*", new String[] { screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4] })
+				TextUtils.join("*", new String[] { screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6] })
 				);
 
 		// Adding logs meta to JSON blob
@@ -560,12 +561,12 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		// Adding photos meta to JSON blob
 		checkInMetaJson.put("photos",(photoFileMeta[0] == null) ? "" :
-                TextUtils.join("*", new String[] { photoFileMeta[1], photoFileMeta[2], photoFileMeta[3], photoFileMeta[4] })
+                TextUtils.join("*", new String[] { photoFileMeta[1], photoFileMeta[2], photoFileMeta[3], photoFileMeta[4], photoFileMeta[5], photoFileMeta[6] })
         );
 
 		// Adding videos meta to JSON blob
 		checkInMetaJson.put("videos",(photoFileMeta[0] == null) ? "" :
-				TextUtils.join("*", new String[] { videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4] })
+				TextUtils.join("*", new String[] { videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6] })
 		);
 
 		Log.d(logTag,checkInMetaJson.toString());
@@ -653,7 +654,6 @@ public class ApiCheckInUtils implements MqttCallback {
 	void sendMqttCheckIn(String[] checkInDatabaseEntry) {
 
 		String audioId = checkInDatabaseEntry[1].substring(0, checkInDatabaseEntry[1].lastIndexOf("."));
-		String audioExt = checkInDatabaseEntry[1].substring(1 + checkInDatabaseEntry[1].lastIndexOf("."));
 		String audioPath = checkInDatabaseEntry[4];
 		String audioJson = checkInDatabaseEntry[2];
 
@@ -725,7 +725,8 @@ public class ApiCheckInUtils implements MqttCallback {
 				if (milliSecondsSinceAccessed > this.requestTimeOutLength) {
 					assetMeta = new String[] { latestAssetMeta.getString("filepath"),
 							latestAssetMeta.getString("created_at"), latestAssetMeta.getString("timestamp"),
-							latestAssetMeta.getString("format"), latestAssetMeta.getString("digest") };
+							latestAssetMeta.getString("format"), latestAssetMeta.getString("digest"),
+							latestAssetMeta.getString("width"), latestAssetMeta.getString("height") };
 					RfcxComm.updateQueryContentProvider("admin", "database_set_last_accessed_at", assetType + "|" + latestAssetMeta.getString("timestamp"),
 							app.getApplicationContext().getContentResolver());
 					break;
@@ -1126,6 +1127,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 			if ((checkInEntry != null) && (checkInEntry[0] != null)) {
 				app.apiCheckInDb.dbSent.insert(checkInEntry[1], checkInEntry[2], checkInEntry[3], checkInEntry[4]);
+				app.apiCheckInDb.dbSent.incrementSingleRowAttempts(checkInEntry[1]);
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInEntry[1]);
 			}
 		}
