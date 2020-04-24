@@ -226,10 +226,11 @@
                                 android:layout_margin="@dimen/margin_padding_normal">
 
                             <TextView
-                                    android:id="@+id/audioInfoText"
+                                    android:id="@+id/audioSettingsText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    app:layout_constraintEnd_toEndOf="parent"
+                                    android:text="Audio settings"
+                                    android:textColor="@color/text_black"
                                     app:layout_constraintStart_toStartOf="parent"
                                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -238,44 +239,43 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="settings"
-                                    app:layout_constraintTop_toBottomOf="@id/audioInfoText"
-                                    app:layout_constraintStart_toStartOf="parent"/>
+                                    app:layout_constraintTop_toBottomOf="@id/audioSettingsText"
+                                    app:layout_constraintStart_toStartOf="@id/audioSettingsText"
+                                    app:layout_constraintEnd_toEndOf="@id/audioSettingsText"/>
 
                             <TextView
                                     android:id="@+id/durationTextView"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Duration"
+                                    android:text="Duration cycle"
+                                    android:layout_marginStart="@dimen/margin_padding_normal"
                                     android:textColor="@color/text_black"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toBottomOf="@id/audioSettingButton" />
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    app:layout_constraintStart_toEndOf="@id/audioSettingsText"/>
 
-                            <EditText
-                                    android:id="@+id/durationEditText"
+                            <Button
+                                    android:id="@+id/durationButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:paddingEnd="@dimen/margin_padding_normal"
-                                    android:textSize="12sp"
-                                    android:clickable="true"
-                                    android:focusable="false"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toBottomOf="@id/durationTextView" />
+                                    android:text="duration"
+                                    app:layout_constraintTop_toBottomOf="@id/durationTextView"
+                                    app:layout_constraintStart_toStartOf="@id/durationTextView"
+                                    app:layout_constraintEnd_toEndOf="@id/durationTextView"/>
 
                             <TextView
+                                    android:id="@+id/audioInfoText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="seconds"
-                                    android:textColor="@color/text_black"
-                                    app:layout_constraintBottom_toBottomOf="@id/durationEditText"
-                                    app:layout_constraintStart_toEndOf="@id/durationEditText"
-                                    app:layout_constraintTop_toTopOf="@id/durationEditText" />
+                                    app:layout_constraintTop_toBottomOf="@id/durationButton"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"/>
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
                                 android:layout_marginStart="@dimen/margin_padding_normal"
-                                android:layout_marginTop="@dimen/margin_padding_small"
                                 android:background="@color/grey_light" />
                     </LinearLayout>
 

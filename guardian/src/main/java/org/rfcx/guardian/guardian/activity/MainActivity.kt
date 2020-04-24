@@ -156,8 +156,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             }).show()
         }
 
-        durationEditText.setText(duration)
-        durationEditText.setOnClickListener {
+        durationButton.setOnClickListener {
             DurationPickerDialog.build(this, object : OnDurationSet {
                 override fun onSet(duration: Int) {
                     app.setSharedPref("audio_cycle_duration", duration.toString())
@@ -330,10 +329,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             "audio_sample_rate" -> sampleRate = app.rfcxPrefs.getPrefAsInt(prefKey)
             "audio_encode_codec" -> fileFormat = app.rfcxPrefs.getPrefAsString(prefKey)
             "audio_encode_bitrate" -> bitRate = app.rfcxPrefs.getPrefAsInt(prefKey)
-            "audio_cycle_duration" -> {
-                duration = app.rfcxPrefs.getPrefAsString(prefKey)
-                durationEditText.setText(duration.toString())
-            }
+            "audio_cycle_duration" -> duration = app.rfcxPrefs.getPrefAsString(prefKey)
         }
         audioInfoText.text = "${sampleRate!! / 1000}Hz, ${fileFormat}, ${bitRate!! / 1000}kbps, ${duration}secs"
         Log.d(logTag, "Audio settings: ${sampleRate!! / 1000}Hz, ${fileFormat}, ${bitRate!! / 1000}kbps, ${duration}secs")
