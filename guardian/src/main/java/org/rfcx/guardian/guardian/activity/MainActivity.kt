@@ -79,22 +79,29 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
 
         sharedPrefs = android.preference.PreferenceManager.getDefaultSharedPreferences(this)
 
-        startButton.setOnClickListener {
-            if (!GuardianUtils.isNetworkAvailable(this)) {
-                showToast("There is not internet connection. Please turn it on.")
-                return@setOnClickListener
-            }
-            app.initializeRoleServices()
-            setUIFromBtnClicked("start")
-            getCheckinInformation()
+        audioCaptureButton.setOnClickListener {
+            val isAudioCaptureOn = app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")
+            app.setSharedPref("enable_audio_capture", (!isAudioCaptureOn).toString().toLowerCase())
+            audioCaptureButton.text = if (!isAudioCaptureOn) "stop" else "record"
+            setUIByRecordingState()
         }
 
-        stopButton.setOnClickListener {
-            app.rfcxServiceHandler.stopAllServices()
-            app.rfcxServiceHandler.setAbsoluteRunState("OnLaunchServiceSequence", false)
-            getInfoThread?.interrupt()
-            setUIFromBtnClicked("stop")
-        }
+//        startButton.setOnClickListener {
+//            if (!GuardianUtils.isNetworkAvailable(this)) {
+//                showToast("There is not internet connection. Please turn it on.")
+//                return@setOnClickListener
+//            }
+//            app.initializeRoleServices()
+//            setUIFromBtnClicked("start")
+//            getCheckinInformation()
+//        }
+//
+//        stopButton.setOnClickListener {
+//            app.rfcxServiceHandler.stopAllServices()
+//            app.rfcxServiceHandler.setAbsoluteRunState("OnLaunchServiceSequence", false)
+//            getInfoThread?.interrupt()
+//            setUIFromBtnClicked("stop")
+//        }
 
         registerButton.setOnClickListener {
             if (!GuardianUtils.isNetworkAvailable(this)) {
@@ -220,12 +227,14 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     private fun setUIByRecordingState() {
         if (GuardianUtils.isGuardianRegistered(this)) {
             deviceIdText.text = GuardianUtils.readGuardianGuid(this)
-            if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
+            if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
                 recordStatusText.text = "recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
+                audioCaptureButton.text = "stop"
             } else {
                 recordStatusText.text = "not recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
+                audioCaptureButton.text = "record"
             }
         }
     }

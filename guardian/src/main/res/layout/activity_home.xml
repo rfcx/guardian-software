@@ -130,6 +130,14 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="" />
+
+                                <Button
+                                        android:id="@+id/audioCaptureButton"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="@dimen/margin_padding_small"
+                                        android:minHeight="0dp"
+                                        android:text="start"/>
                             </LinearLayout>
 
                             <LinearLayout
