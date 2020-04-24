@@ -182,38 +182,10 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         Handler().postDelayed({
             app.initializeRoleServices()
             setUIByRecordingState()
-            setBtnEnableByRecordingState()
             if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
                 getCheckinInformation()
             }
         }, 1000)
-    }
-
-    private fun setBtnEnableByRecordingState() {
-        when (app.rfcxServiceHandler.isRunning("AudioCapture")) {
-            true -> {
-                startButton.isEnabled = false
-                stopButton.isEnabled = true
-            }
-            false -> {
-                startButton.isEnabled = true
-                stopButton.isEnabled = false
-            }
-        }
-    }
-
-    private fun setUIFromBtnClicked(button: String) {
-        if (button == "start") {
-            startButton.isEnabled = false
-            stopButton.isEnabled = true
-            recordStatusText.text = "recording"
-            recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
-        } else {
-            startButton.isEnabled = true
-            stopButton.isEnabled = false
-            recordStatusText.text = "not recording"
-            recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
-        }
     }
 
     private fun setVisibilityByPrefs() {
@@ -257,6 +229,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             registerProgress.visibility = View.INVISIBLE
             registerInfo.visibility = View.VISIBLE
             loginButton.visibility = View.GONE
+            loginInfo.visibility = View.GONE
             deviceIdText.text = GuardianUtils.readGuardianGuid(this)
         } else {
             unregisteredView.visibility = View.VISIBLE
@@ -323,7 +296,6 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         app.initializeRoleServices()
         setUIByRecordingState()
         setUIByGuidState()
-        setUIFromBtnClicked("start")
         getCheckinInformation()
         deviceIdText.text = GuardianUtils.readGuardianGuid(baseContext)
     }
@@ -341,7 +313,6 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             "audio_cycle_duration" -> duration = app.rfcxPrefs.getPrefAsString(prefKey)
         }
         audioInfoText.text = "${sampleRate!! / 1000}Hz, ${fileFormat}, ${bitRate!! / 1000}kbps, ${duration}secs"
-        Log.d(logTag, "Audio settings: ${sampleRate!! / 1000}Hz, ${fileFormat}, ${bitRate!! / 1000}kbps, ${duration}secs")
     }
 
     override fun onPause() {

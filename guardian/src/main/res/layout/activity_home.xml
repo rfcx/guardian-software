@@ -287,29 +287,6 @@
                                 android:background="@color/grey_light" />
                     </LinearLayout>
 
-                    <LinearLayout
-                            android:id="@+id/start_stop_button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/margin_padding_normal"
-                            android:orientation="horizontal"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/appVersionText">
-
-                        <Button
-                                android:id="@+id/startButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="start" />
-
-                        <Button
-                                android:id="@+id/stopButton"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="stop" />
-                    </LinearLayout>
-
                     <TextView
                             android:id="@+id/appVersionText"
                             android:layout_width="wrap_content"
