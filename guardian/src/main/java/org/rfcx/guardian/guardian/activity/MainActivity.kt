@@ -29,8 +29,7 @@ import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.manager.isLoginExpired
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
-import org.rfcx.guardian.guardian.view.DurationPickerDialog
-import org.rfcx.guardian.guardian.view.OnDurationSet
+import org.rfcx.guardian.guardian.view.*
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 
@@ -143,48 +142,29 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
 
     private fun setConfiguration() {
         sampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate")
-        rgSampleRate.check(
-            when (sampleRate) {
-                8000 -> R.id.rb8Hz
-                12000 -> R.id.rb12Hz
-                24000 -> R.id.rb24Hz
-                else -> R.id.rb48Hz
-            }
-        )
-        rgSampleRate.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.rb8Hz -> app.setSharedPref("audio_sample_rate", "8000")
-                R.id.rb12Hz -> app.setSharedPref("audio_sample_rate", "12000")
-                R.id.rb24Hz -> app.setSharedPref("audio_sample_rate", "24000")
-                R.id.rb48Hz -> app.setSharedPref("audio_sample_rate", "48000")
-            }
-        }
-
         fileFormat = app.rfcxPrefs.getPrefAsString("audio_encode_codec")
-        rgFileFormat.check(
-            when (fileFormat) {
-                "opus" -> R.id.rbOpus
-                else -> R.id.rbFlac
-            }
-        )
-        rgFileFormat.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.rbOpus -> app.setSharedPref("audio_encode_codec", "opus")
-                R.id.rbFlac -> app.setSharedPref("audio_encode_codec", "flac")
-            }
+        bitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate")
+        duration = app.rfcxPrefs.getPrefAsString("audio_cycle_duration")
+
+        audioSettingButton.setOnClickListener {
+            AudioSettingsDialog.build(this, object : OnAudioSettingsSet {
+                override fun onSet(settings: AudioSettings) {
+                    app.setSharedPref("audio_sample_rate", settings.sampleRate.toString())
+                    app.setSharedPref("audio_encode_bitrate", settings.bitRate.toString())
+                    app.setSharedPref("audio_encode_codec", settings.fileFormat)
+                }
+            }).show()
         }
 
-        duration = app.rfcxPrefs.getPrefAsString("audio_cycle_duration")
         durationEditText.setText(duration)
         durationEditText.setOnClickListener {
-            DurationPickerDialog.build(this, object : OnDurationSet{
+            DurationPickerDialog.build(this, object : OnDurationSet {
                 override fun onSet(duration: Int) {
                     app.setSharedPref("audio_cycle_duration", duration.toString())
                 }
             }).show()
         }
 
-        bitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate")
         audioInfoText.text = "${sampleRate!! / 1000}Hz, ${fileFormat}, ${bitRate!! / 1000}kbps, ${duration}secs"
     }
 
@@ -222,13 +202,11 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             stopButton.isEnabled = true
             recordStatusText.text = "recording"
             recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
-            setConfigurationByRecordingState(true)
         } else {
             startButton.isEnabled = true
             stopButton.isEnabled = false
             recordStatusText.text = "not recording"
             recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
-            setConfigurationByRecordingState(false)
         }
     }
 
@@ -246,32 +224,10 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
                 recordStatusText.text = "recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
-                setConfigurationByRecordingState(true)
             } else {
                 recordStatusText.text = "not recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
-                setConfigurationByRecordingState(false)
             }
-        }
-    }
-
-    private fun setConfigurationByRecordingState(state: Boolean) {
-        if (state) {
-            configurationLayout.alpha = 0.5f
-            setRadioGroupState(false, rgSampleRate)
-            setRadioGroupState(false, rgFileFormat)
-            durationEditText.isEnabled = false
-        } else {
-            configurationLayout.alpha = 1.0f
-            setRadioGroupState(true, rgSampleRate)
-            setRadioGroupState(true, rgFileFormat)
-            durationEditText.isEnabled = true
-        }
-    }
-
-    private fun setRadioGroupState(state: Boolean, radioGroup: RadioGroup) {
-        for (i in 0 until radioGroup.childCount) {
-            radioGroup.getChildAt(i).isEnabled = state
         }
     }
 
@@ -370,7 +326,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, prefKey: String?) {
-        when(prefKey) {
+        when (prefKey) {
             "audio_sample_rate" -> sampleRate = app.rfcxPrefs.getPrefAsInt(prefKey)
             "audio_encode_codec" -> fileFormat = app.rfcxPrefs.getPrefAsString(prefKey)
             "audio_encode_bitrate" -> bitRate = app.rfcxPrefs.getPrefAsInt(prefKey)
