@@ -226,13 +226,22 @@
                                 android:layout_margin="@dimen/margin_padding_normal">
 
                             <TextView
+                                    android:id="@+id/audioInfoText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
                                     android:id="@+id/sampleRateTextView"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/margin_padding_small"
                                     android:text="Sample rate"
                                     android:textColor="@color/text_black"
                                     app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toTopOf="parent" />
+                                    app:layout_constraintTop_toBottomOf="@id/audioInfoText" />
 
                             <RadioGroup
                                     android:id="@+id/rgSampleRate"
@@ -318,6 +327,9 @@
                                     android:layout_height="wrap_content"
                                     android:paddingEnd="@dimen/margin_padding_normal"
                                     android:textSize="12sp"
+                                    android:clickable="true"
+                                    android:focusable="false"
+                                    android:enabled="false"
                                     app:layout_constraintStart_toStartOf="parent"
                                     app:layout_constraintTop_toBottomOf="@id/durationTextView" />
 

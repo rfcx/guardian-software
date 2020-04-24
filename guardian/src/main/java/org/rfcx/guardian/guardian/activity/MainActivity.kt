@@ -1,10 +1,13 @@
 package org.rfcx.guardian.guardian.activity
 
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -26,15 +29,27 @@ import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.manager.isLoginExpired
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
+import org.rfcx.guardian.guardian.view.DurationPickerDialog
+import org.rfcx.guardian.guardian.view.OnDurationSet
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 
-class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallback {
+class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallback, OnSharedPreferenceChangeListener {
     private var getInfoThread: Thread? = null
     private lateinit var app: RfcxGuardian
 
+    //Audio settings
+    private var sampleRate: Int? = null
+    private var fileFormat: String? = null
+    private var bitRate: Int? = null
+    private var duration: String? = null
+
+    private lateinit var sharedPrefs: SharedPreferences
+
     override fun onResume() {
         super.onResume()
+
+        sharedPrefs.registerOnSharedPreferenceChangeListener(this)
 
         setConfiguration()
         setVisibilityByPrefs()
@@ -62,6 +77,8 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
 
         setSupportActionBar(toolbar)
         initUI()
+
+        sharedPrefs = android.preference.PreferenceManager.getDefaultSharedPreferences(this)
 
         startButton.setOnClickListener {
             if (!GuardianUtils.isNetworkAvailable(this)) {
@@ -125,7 +142,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
     }
 
     private fun setConfiguration() {
-        val sampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate")
+        sampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate")
         rgSampleRate.check(
             when (sampleRate) {
                 8000 -> R.id.rb8Hz
@@ -143,7 +160,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             }
         }
 
-        val fileFormat = app.rfcxPrefs.getPrefAsString("audio_encode_codec")
+        fileFormat = app.rfcxPrefs.getPrefAsString("audio_encode_codec")
         rgFileFormat.check(
             when (fileFormat) {
                 "opus" -> R.id.rbOpus
@@ -157,19 +174,18 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             }
         }
 
-        val duration = app.rfcxPrefs.getPrefAsString("audio_cycle_duration")
+        duration = app.rfcxPrefs.getPrefAsString("audio_cycle_duration")
         durationEditText.setText(duration)
-        durationEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-            }
+        durationEditText.setOnClickListener {
+            DurationPickerDialog.build(this, object : OnDurationSet{
+                override fun onSet(duration: Int) {
+                    app.setSharedPref("audio_cycle_duration", duration.toString())
+                }
+            }).show()
+        }
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                app.setSharedPref("audio_cycle_duration", s.toString())
-            }
-        })
+        bitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate")
+        audioInfoText.text = "${sampleRate!! / 1000}Hz, ${fileFormat}, ${bitRate!! / 1000}kbps, ${duration}secs"
     }
 
     private fun showToast(message: String) {
@@ -265,7 +281,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             loginButton.visibility = View.VISIBLE
         } else {
             loginInfo.visibility = View.VISIBLE
-            loginButton.visibility = View.INVISIBLE
+            loginButton.visibility = View.GONE
             userName.text = this.getUserNickname()
         }
     }
@@ -276,6 +292,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             registeredView.visibility = View.VISIBLE
             registerProgress.visibility = View.INVISIBLE
             registerInfo.visibility = View.VISIBLE
+            loginButton.visibility = View.GONE
             deviceIdText.text = GuardianUtils.readGuardianGuid(this)
         } else {
             unregisteredView.visibility = View.VISIBLE
@@ -313,7 +330,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
                             val recordedList = app.diagnosticDb.dbRecordedDiagnostic.latestRow
                             val syncedList = app.diagnosticDb.dbSyncedDiagnostic.latestRow
                             recordTimeText.text =
-                                app.diagnosticUtils.secondToTime(recordedList[2].toInt())
+                                app.diagnosticUtils.secondToTime(recordedList[2]?.toInt())
                             fileRecordedSyncedText.text = "${syncedList[1]} / ${recordedList[1]}"
 
                         }
@@ -352,14 +369,30 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         showToast(message ?: "Try again later")
     }
 
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, prefKey: String?) {
+        when(prefKey) {
+            "audio_sample_rate" -> sampleRate = app.rfcxPrefs.getPrefAsInt(prefKey)
+            "audio_encode_codec" -> fileFormat = app.rfcxPrefs.getPrefAsString(prefKey)
+            "audio_encode_bitrate" -> bitRate = app.rfcxPrefs.getPrefAsInt(prefKey)
+            "audio_cycle_duration" -> {
+                duration = app.rfcxPrefs.getPrefAsString(prefKey)
+                durationEditText.setText(duration.toString())
+            }
+        }
+        audioInfoText.text = "${sampleRate!! / 1000}Hz, ${fileFormat}, ${bitRate!! / 1000}kbps, ${duration}secs"
+        Log.d(logTag, "Audio settings: ${sampleRate!! / 1000}Hz, ${fileFormat}, ${bitRate!! / 1000}kbps, ${duration}secs")
+    }
+
     override fun onPause() {
         super.onPause()
         if (getInfoThread != null) {
             getInfoThread?.interrupt()
         }
+        sharedPrefs.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     companion object {
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, MainActivity::class.java)
     }
+
 }
