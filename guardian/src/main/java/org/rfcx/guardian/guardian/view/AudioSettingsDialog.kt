@@ -39,7 +39,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
 
     //sample rate, bitrate data
     private val sampleRateList = listOf(8000, 12000, 16000, 24000, 44100, 48000)
-    private val bitRateList = listOf(4000, 8000, 12000, 16000, 20000, 24000, 32000, 40000, 48000, 64000, 80000, 96000, 112000, 128000)
+    private val bitRateList = listOf(4096, 8192, 12288, 16384, 20480, 24576, 32768, 40960, 49152, 65536, 81920, 98304, 114688, 131072)
 
     private var fileFormat = ""
 
@@ -75,8 +75,12 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
 
         if (remainFileFormat == "opus") {
             opusRadio.isChecked = true
+            bitRatePicker.visibility = View.VISIBLE
+            bitRateLabel.visibility = View.VISIBLE
         } else {
             flacRadio.isChecked = true
+            bitRatePicker.visibility = View.GONE
+            bitRateLabel.visibility = View.GONE
         }
 
         sampleRatePicker.value = sampleRateList.indexOf(remainSampleRate)

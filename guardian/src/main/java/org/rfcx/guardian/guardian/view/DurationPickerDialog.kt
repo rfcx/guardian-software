@@ -20,9 +20,9 @@ class DurationPickerDialog(context: Context) : AlertDialog(context) {
     }
 
     private fun setPickerValues() {
-        secondPicker.minValue = 1
+        secondPicker.minValue = 0
         secondPicker.maxValue = 60
-        minutePicker.minValue = 1
+        minutePicker.minValue = 0
         minutePicker.maxValue = 60
 
         val app = context.applicationContext as RfcxGuardian
@@ -49,5 +49,5 @@ class DurationPickerDialog(context: Context) : AlertDialog(context) {
 }
 
 interface OnDurationSet {
-    fun onSet(duration: Int)
+    fun onSet(seconds: Int)
 }
