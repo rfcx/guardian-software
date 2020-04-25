@@ -2,7 +2,7 @@ package org.rfcx.guardian.guardian.utils
 
 object AudioSettingUtils {
 
-    private val sampleRateDisplayList = arrayOf("8 kHz", "12 kHz", "16 kHz", "24 kHz", "44.1 kHz", "48 kHz")
+    private val sampleRateDisplayList = arrayOf("8 kHz", "12 kHz", "16 kHz", "20 kHz", "24 kHz", "44.1 kHz", "48 kHz")
     private val bitRateDisplayList = arrayOf(
         "4 kbps",
         "8 kbps",

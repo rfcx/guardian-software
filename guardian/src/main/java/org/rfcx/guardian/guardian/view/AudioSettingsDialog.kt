@@ -19,7 +19,7 @@ data class AudioSettings(
 
 class AudioSettingsDialog(context: Context) : AlertDialog(context) {
     //sample rate, bitrate display
-    private val sampleRateDisplayList = arrayOf("8 kHz", "12 kHz", "16 kHz", "24 kHz", "44.1 kHz", "48 kHz")
+    private val sampleRateDisplayList = arrayOf("8 kHz", "12 kHz", "16 kHz", "20 kHz", "24 kHz", "44.1 kHz", "48 kHz")
     private val bitRateDisplayList = arrayOf(
         "4 kbps",
         "8 kbps",
