@@ -144,7 +144,7 @@ public class DiagnosticDb {
 
         public int insert() {
             ContentValues values = new ContentValues();
-            values.put(C_CREATED_AT, 0);
+            values.put(C_CREATED_AT, DateTimeUtils.getDateTime());
             values.put(C_FILE_SIZE, 0);
 
             return this.dbUtils.insertRow(TABLE, values);
@@ -152,7 +152,7 @@ public class DiagnosticDb {
 
         public void updateCheckinInfo(long size) {
             ContentValues values = new ContentValues();
-            values.put(C_CREATED_AT, (DateTimeUtils.getDateTime()));
+            values.put(C_CREATED_AT, DateTimeUtils.getDateTime());
             values.put(C_FILE_SIZE, size);
 
             this.dbUtils.updateFirstRow(TABLE, values);
