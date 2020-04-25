@@ -34,7 +34,7 @@ import org.rfcx.guardian.guardian.view.*
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 
-class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallback, OnSharedPreferenceChangeListener {
+class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallback {
     private var getInfoThread: Thread? = null
     private lateinit var app: RfcxGuardian
 
@@ -48,8 +48,6 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
 
     override fun onResume() {
         super.onResume()
-
-        sharedPrefs.registerOnSharedPreferenceChangeListener(this)
 
         setConfiguration()
         setVisibilityByPrefs()
@@ -77,8 +75,6 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
 
         setSupportActionBar(toolbar)
         initUI()
-
-        sharedPrefs = android.preference.PreferenceManager.getDefaultSharedPreferences(this)
 
         audioCaptureButton.setOnClickListener {
             val isAudioCaptureOn = app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")
@@ -140,21 +136,30 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         audioSettingButton.setOnClickListener {
             AudioSettingsDialog.build(this, object : OnAudioSettingsSet {
                 override fun onSet(settings: AudioSettings) {
-                    app.setSharedPref("audio_sample_rate", settings.sampleRate.toString())
-                    app.setSharedPref("audio_encode_bitrate", settings.bitRate.toString())
-                    app.setSharedPref("audio_encode_codec", settings.fileFormat)
+                    sampleRate = settings.sampleRate
+                    bitRate = settings.bitRate
+                    fileFormat = settings.fileFormat
+                    app.setSharedPref("audio_sample_rate", sampleRate.toString())
+                    app.setSharedPref("audio_encode_bitrate", bitRate.toString())
+                    app.setSharedPref("audio_encode_codec", fileFormat)
+                    updateAudioSettingsInfo()
                 }
             }).show()
         }
 
         durationButton.setOnClickListener {
             DurationPickerDialog.build(this, object : OnDurationSet {
-                override fun onSet(duration: Int) {
-                    app.setSharedPref("audio_cycle_duration", duration.toString())
+                override fun onSet(seconds: Int) {
+                    duration = seconds.toString()
+                    app.setSharedPref("audio_cycle_duration", duration)
+                    updateAudioSettingsInfo()
                 }
             }).show()
         }
+        updateAudioSettingsInfo()
+    }
 
+    private fun updateAudioSettingsInfo() {
         audioInfoText.text = "${AudioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${AudioSettingUtils.getBitRateLabel(bitRate!!)}, ${duration}secs"
     }
 
@@ -289,22 +294,11 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
         showToast(message ?: "Try again later")
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, prefKey: String?) {
-        when (prefKey) {
-            "audio_sample_rate" -> sampleRate = app.rfcxPrefs.getPrefAsInt(prefKey)
-            "audio_encode_codec" -> fileFormat = app.rfcxPrefs.getPrefAsString(prefKey)
-            "audio_encode_bitrate" -> bitRate = app.rfcxPrefs.getPrefAsInt(prefKey)
-            "audio_cycle_duration" -> duration = app.rfcxPrefs.getPrefAsString(prefKey)
-        }
-        audioInfoText.text = "${AudioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${AudioSettingUtils.getBitRateLabel(bitRate!!)}, ${duration}secs"
-    }
-
     override fun onPause() {
         super.onPause()
         if (getInfoThread != null) {
             getInfoThread?.interrupt()
         }
-        sharedPrefs.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     companion object {

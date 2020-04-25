@@ -49,5 +49,5 @@ class DurationPickerDialog(context: Context) : AlertDialog(context) {
 }
 
 interface OnDurationSet {
-    fun onSet(duration: Int)
+    fun onSet(seconds: Int)
 }
