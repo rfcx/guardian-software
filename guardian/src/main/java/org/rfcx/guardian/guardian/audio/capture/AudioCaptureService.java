@@ -89,9 +89,15 @@ public class AudioCaptureService extends Service {
 
 			String[] recordedList = app.diagnosticDb.dbRecordedDiagnostic.getLatestRow();
 			String[] syncedList = app.diagnosticDb.dbSyncedDiagnostic.getLatestRow();
-			if (recordedList[0] == null && syncedList[0] == null) {
+			String[] checkinInfoList = app.diagnosticDb.dbCheckinInfoDiagnostic.getLatestRow();
+			if (recordedList[0] == null) {
 				app.diagnosticDb.dbRecordedDiagnostic.insert();
+			}
+			if (syncedList[0] == null) {
 				app.diagnosticDb.dbSyncedDiagnostic.insert();
+			}
+			if (checkinInfoList[0] == null) {
+				app.diagnosticDb.dbCheckinInfoDiagnostic.insert();
 			}
 				
 			while (audioCaptureService.runFlag) {

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -15,18 +16,22 @@ public class DiagnosticDb {
         this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
         this.dbRecordedDiagnostic = new DbRecordedDiagnostic(context);
         this.dbSyncedDiagnostic = new DbSyncedDiagnostic(context);
+        this.dbCheckinInfoDiagnostic = new DbCheckinInfoDiagnostic(context);
     }
 
     private int VERSION = 1;
     static final String DATABASE = "instructions";
 
     static final String C_CREATED_AT = "created_at";
-    static final String C_RECORDED = "recorded";
+    static final String C_RECORDED = "recorded"; // local record
     static final String C_AMOUNT_OF_TIME = "amount_of_time";
-    static final String C_SYNCED = "synced";
+    static final String C_SYNCED = "synced"; // synced record
+
+    static final String C_FILE_SIZE = "file_size";
 
     private static final String[] ALL_RECORDED_COLUMNS = new String[]{C_CREATED_AT, C_RECORDED, C_AMOUNT_OF_TIME};
     private static final String[] ALL_SYNCED_COLUMNS = new String[]{C_CREATED_AT, C_SYNCED, C_AMOUNT_OF_TIME};
+    private static final String[] ALL_CHECKIN_INFO_COLUMNS = new String[]{C_CREATED_AT, C_FILE_SIZE};
 
     private String createRecordedColumnString(String tableName) {
         StringBuilder sbOut = new StringBuilder();
@@ -44,6 +49,15 @@ public class DiagnosticDb {
                 .append("(").append(C_CREATED_AT).append(" INTEGER")
                 .append(", ").append(C_SYNCED).append(" INTEGER")
                 .append(", ").append(C_AMOUNT_OF_TIME).append(" INTEGER")
+                .append(")");
+        return sbOut.toString();
+    }
+
+    private String createCheckinInfoColumnString(String tableName) {
+        StringBuilder sbOut = new StringBuilder();
+        sbOut.append("CREATE TABLE ").append(tableName)
+                .append("(").append(C_CREATED_AT).append(" INTEGER")
+                .append(", ").append(C_FILE_SIZE).append(" LONG")
                 .append(")");
         return sbOut.toString();
     }
@@ -81,7 +95,6 @@ public class DiagnosticDb {
         }
 
     }
-
     public final DbRecordedDiagnostic dbRecordedDiagnostic;
 
     public class DbSyncedDiagnostic {
@@ -117,6 +130,38 @@ public class DiagnosticDb {
         }
 
     }
-
     public final DbSyncedDiagnostic dbSyncedDiagnostic;
+
+    public class DbCheckinInfoDiagnostic {
+
+        final DbUtils dbUtils;
+
+        private String TABLE = "checkin_info";
+
+        public DbCheckinInfoDiagnostic(Context context) {
+            this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createCheckinInfoColumnString(TABLE));
+        }
+
+        public int insert() {
+            ContentValues values = new ContentValues();
+            values.put(C_CREATED_AT, 0);
+            values.put(C_FILE_SIZE, 0);
+
+            return this.dbUtils.insertRow(TABLE, values);
+        }
+
+        public void updateCheckinInfo(long size) {
+            ContentValues values = new ContentValues();
+            values.put(C_CREATED_AT, (DateTimeUtils.getDateTime()));
+            values.put(C_FILE_SIZE, size);
+
+            this.dbUtils.updateFirstRow(TABLE, values);
+        }
+
+        public String[] getLatestRow() {
+            return this.dbUtils.getSingleRow(TABLE, ALL_CHECKIN_INFO_COLUMNS, null, null, C_CREATED_AT, 0);
+        }
+
+    }
+    public final DbCheckinInfoDiagnostic dbCheckinInfoDiagnostic;
 }

@@ -260,9 +260,9 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
                 try {
                     while (!isInterrupted) {
                         runOnUiThread {
-                            val latestRow = app.apiCheckInDb.dbSent.latestRow
+                            val latestRow = app.diagnosticDb.dbCheckinInfoDiagnostic.latestRow
                             checkInText.text = checkInUtils.getCheckinTime(latestRow[0])
-                            sizeText.text = checkInUtils.getFileSize(latestRow[4])
+                            sizeText.text = checkInUtils.getFileSize(latestRow[1])
 
                             val recordedList = app.diagnosticDb.dbRecordedDiagnostic.latestRow
                             val syncedList = app.diagnosticDb.dbSyncedDiagnostic.latestRow

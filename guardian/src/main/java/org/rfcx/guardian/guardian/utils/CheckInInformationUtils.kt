@@ -28,14 +28,11 @@ class CheckInInformationUtils {
         }
     }
 
-    private fun convertFileSizeToStringFormat(filePath: String?): String {
+    private fun convertFileSizeToStringFormat(size: String?): String {
         var audioSize = "-"
         var fileSize = 0L
-        if (filePath != null) {
-            fileSize = File(filePath).length()
-            if (fileSize != 0L) {
-                audioSize = (fileSize / 1000).toString()
-            }
+        if (size != null) {
+            audioSize = (size.toLong() / 1000).toString()
         }
 
         return if (audioSize == "-" && fileSize == 0L) {
@@ -54,11 +51,11 @@ class CheckInInformationUtils {
         }
     }
 
-    fun getFileSize(path: String?): String {
-        return if (path == null) {
+    fun getFileSize(size: String?): String {
+        return if (size == null) {
             convertFileSizeToStringFormat(null)
         } else {
-            convertFileSizeToStringFormat(path)
+            convertFileSizeToStringFormat(size)
         }
     }
 }

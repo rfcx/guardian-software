@@ -77,7 +77,6 @@ public class ApiCheckInUtils implements MqttCallback {
 	private long requestSendReturned = System.currentTimeMillis();
 
 	private String inFlightCheckInAudioId = null;
-	private String latestCheckInAudioId = null;
 	private Map<String, String[]> inFlightCheckInEntries = new HashMap<String, String[]>();
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
 
@@ -875,6 +874,9 @@ public class ApiCheckInUtils implements MqttCallback {
 			// delete asset file after it has been purged from records
 			for (String filePath : filePaths) {
 				if ((filePath != null) && (new File(filePath)).exists()) {
+					long fileSize = new File(filePath).length();
+					app.diagnosticDb.dbCheckinInfoDiagnostic.updateCheckinInfo(fileSize);
+					Log.d(logTag, "Updating checkin infomation: File size " + fileSize);
 					(new File(filePath)).delete();
 					app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 					Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ", " + filePath.substring(1 + filePath.lastIndexOf("/")));
@@ -978,7 +980,6 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray audioJson = jsonObj.getJSONArray("audio");
 				String audioId = audioJson.getJSONObject(0).getString("id");
 				purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
-				this.latestCheckInAudioId = audioId;
 
 				if (jsonObj.has("checkin_id")) {
 					String checkInId = jsonObj.getString("checkin_id");
@@ -1121,10 +1122,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		if ((this.inFlightCheckInEntries.get(inFlightCheckInAudioId) != null) && (this.inFlightCheckInEntries.get(inFlightCheckInAudioId)[0] != null)) {
 			String[] checkInEntry = this.inFlightCheckInEntries.get(inFlightCheckInAudioId);
-			//delete latest instead to keep present info
-			if (this.latestCheckInAudioId != null){
-				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(this.latestCheckInAudioId);
-			}
 			if ((checkInEntry != null) && (checkInEntry[0] != null)) {
 				app.apiCheckInDb.dbSent.insert(checkInEntry[1], checkInEntry[2], checkInEntry[3], checkInEntry[4]);
 				app.apiCheckInDb.dbSent.incrementSingleRowAttempts(checkInEntry[1]);
