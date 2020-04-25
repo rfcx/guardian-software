@@ -137,7 +137,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="@dimen/margin_padding_small"
                                         android:minHeight="0dp"
-                                        android:text="start"/>
+                                        android:text="start" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -247,37 +247,37 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="settings"
-                                    app:layout_constraintTop_toBottomOf="@id/audioSettingsText"
+                                    app:layout_constraintEnd_toEndOf="@id/audioSettingsText"
                                     app:layout_constraintStart_toStartOf="@id/audioSettingsText"
-                                    app:layout_constraintEnd_toEndOf="@id/audioSettingsText"/>
+                                    app:layout_constraintTop_toBottomOf="@id/audioSettingsText" />
 
                             <TextView
                                     android:id="@+id/durationTextView"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Duration cycle"
                                     android:layout_marginStart="@dimen/margin_padding_normal"
+                                    android:text="Duration cycle"
                                     android:textColor="@color/text_black"
-                                    app:layout_constraintTop_toTopOf="parent"
-                                    app:layout_constraintStart_toEndOf="@id/audioSettingsText"/>
+                                    app:layout_constraintStart_toEndOf="@id/audioSettingsText"
+                                    app:layout_constraintTop_toTopOf="parent" />
 
                             <Button
                                     android:id="@+id/durationButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="duration"
-                                    app:layout_constraintTop_toBottomOf="@id/durationTextView"
+                                    app:layout_constraintEnd_toEndOf="@id/durationTextView"
                                     app:layout_constraintStart_toStartOf="@id/durationTextView"
-                                    app:layout_constraintEnd_toEndOf="@id/durationTextView"/>
+                                    app:layout_constraintTop_toBottomOf="@id/durationTextView" />
 
                             <TextView
                                     android:id="@+id/audioInfoText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    app:layout_constraintTop_toBottomOf="@id/durationButton"
                                     app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
                                     app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintEnd_toEndOf="parent"/>
+                                    app:layout_constraintTop_toBottomOf="@id/durationButton" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <View

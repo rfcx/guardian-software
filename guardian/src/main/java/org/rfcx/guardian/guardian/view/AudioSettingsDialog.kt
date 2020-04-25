@@ -19,7 +19,7 @@ data class AudioSettings(
 
 class AudioSettingsDialog(context: Context) : AlertDialog(context) {
     //sample rate, bitrate display
-    private val sampleRateDisplayList = arrayOf("8 kHz", "12 kHz", "16 kHz", "24 kHz", "44.1 kHz", "48 kHz")
+    private val sampleRateDisplayList = arrayOf("8 kHz", "12 kHz", "16 kHz", "20 kHz", "24 kHz", "44.1 kHz", "48 kHz")
     private val bitRateDisplayList = arrayOf(
         "4 kbps",
         "8 kbps",
@@ -38,7 +38,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
     )
 
     //sample rate, bitrate data
-    private val sampleRateList = listOf(8000, 12000, 16000, 24000, 44100, 48000)
+    private val sampleRateList = listOf(8000, 12000, 16000, 20000, 24000, 44100, 48000)
     private val bitRateList = listOf(4096, 8192, 12288, 16384, 20480, 24576, 32768, 40960, 49152, 65536, 81920, 98304, 114688, 131072)
 
     private var fileFormat = ""
@@ -49,6 +49,8 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
     private lateinit var sampleRatePicker: NumberPicker
     private lateinit var bitRatePicker: NumberPicker
     private lateinit var bitRateLabel: TextView
+
+    private lateinit var app: RfcxGuardian
 
     private fun initDialog() {
         view = layoutInflater.inflate(R.layout.audio_settings_picker_popup, null) as ConstraintLayout
@@ -67,7 +69,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
         bitRatePicker.maxValue = bitRateDisplayList.size - 1
         bitRatePicker.displayedValues = bitRateDisplayList
 
-        val app = context.applicationContext as RfcxGuardian
+        app = context.applicationContext as RfcxGuardian
         val remainFileFormat = app.rfcxPrefs.getPrefAsString("audio_encode_codec")
         fileFormat = remainFileFormat
         val remainSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate")
@@ -98,6 +100,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
             } else {
                 bitRatePicker.visibility = View.GONE
                 bitRateLabel.visibility = View.GONE
+                bitRatePicker.value = bitRateList.indexOf(app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate"))
                 fileFormat = "flac"
             }
         }
