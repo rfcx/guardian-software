@@ -2,16 +2,11 @@ package org.rfcx.guardian.guardian.activity
 
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.os.Handler
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -161,7 +156,8 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun updateAudioSettingsInfo() {
-        audioInfoText.text = "${AudioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${AudioSettingUtils.getBitRateLabel(bitRate!!)}, ${duration}secs"
+        audioInfoText.text =
+            "${AudioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${AudioSettingUtils.getBitRateLabel(bitRate!!)}, ${duration}secs"
     }
 
     private fun showToast(message: String) {
