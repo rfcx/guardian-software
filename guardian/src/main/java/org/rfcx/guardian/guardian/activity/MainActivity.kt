@@ -27,6 +27,7 @@ import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.manager.isLoginExpired
+import org.rfcx.guardian.guardian.utils.AudioSettingUtils
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
 import org.rfcx.guardian.guardian.view.*
@@ -154,7 +155,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             }).show()
         }
 
-        audioInfoText.text = "${sampleRate!! / 1000}Hz, ${fileFormat}, ${bitRate!! / 1000}kbps, ${duration}secs"
+        audioInfoText.text = "${AudioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${AudioSettingUtils.getBitRateLabel(bitRate!!)}, ${duration}secs"
     }
 
     private fun showToast(message: String) {
@@ -295,7 +296,7 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             "audio_encode_bitrate" -> bitRate = app.rfcxPrefs.getPrefAsInt(prefKey)
             "audio_cycle_duration" -> duration = app.rfcxPrefs.getPrefAsString(prefKey)
         }
-        audioInfoText.text = "${sampleRate!! / 1000}Hz, ${fileFormat}, ${bitRate!! / 1000}kbps, ${duration}secs"
+        audioInfoText.text = "${AudioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${AudioSettingUtils.getBitRateLabel(bitRate!!)}, ${duration}secs"
     }
 
     override fun onPause() {
