@@ -86,23 +86,6 @@ class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallbac
             setUIByRecordingState()
         }
 
-//        startButton.setOnClickListener {
-//            if (!GuardianUtils.isNetworkAvailable(this)) {
-//                showToast("There is not internet connection. Please turn it on.")
-//                return@setOnClickListener
-//            }
-//            app.initializeRoleServices()
-//            setUIFromBtnClicked("start")
-//            getCheckinInformation()
-//        }
-//
-//        stopButton.setOnClickListener {
-//            app.rfcxServiceHandler.stopAllServices()
-//            app.rfcxServiceHandler.setAbsoluteRunState("OnLaunchServiceSequence", false)
-//            getInfoThread?.interrupt()
-//            setUIFromBtnClicked("stop")
-//        }
-
         registerButton.setOnClickListener {
             if (!GuardianUtils.isNetworkAvailable(this)) {
                 showToast("There is not internet connection. Please turn it on.")
