@@ -251,6 +251,7 @@
                                     app:layout_constraintStart_toStartOf="@id/audioSettingsText"
                                     app:layout_constraintEnd_toEndOf="@id/audioSettingsText"/>
 
+
                             <TextView
                                     android:id="@+id/durationTextView"
                                     android:layout_width="wrap_content"

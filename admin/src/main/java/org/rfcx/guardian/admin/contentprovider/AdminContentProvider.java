@@ -2,6 +2,7 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.json.JSONArray;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
+import org.rfcx.guardian.admin.device.sentinel.SentinelSensorUtils;
 import org.rfcx.guardian.admin.sms.SmsUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
@@ -121,6 +122,9 @@ public class AdminContentProvider extends ContentProvider {
                 } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_power", SentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
+                } else if (pathSeg.equalsIgnoreCase("sentinel_sensor")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_sensor", SentinelSensorUtils.getSentinelSensorValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
+
                 } else if (pathSeg.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"system_meta", DeviceUtils.getSystemMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
@@ -132,10 +136,7 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSeg = uri.getLastPathSegment();
 
 
-                if (pathSeg.equalsIgnoreCase("sentinel_power")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"sentinel_power", app.sentinelPowerDb.dbSentinelPowerBattery.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
-
-                } else if (pathSeg.equalsIgnoreCase("screenshots")) {
+                if (pathSeg.equalsIgnoreCase("screenshots")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"screenshots", app.deviceScreenShotDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("logs")) {
@@ -185,6 +186,9 @@ public class AdminContentProvider extends ContentProvider {
 
                 if (pathSegTable.equalsIgnoreCase("sentinel_power")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SentinelPowerUtils.deleteSentinelPowerValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
+
+                } else if (pathSegTable.equalsIgnoreCase("sentinel_sensor")) {
+                        return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SentinelSensorUtils.deleteSentinelSensorValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
                 } else if (pathSegTable.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, DeviceUtils.deleteSystemMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});

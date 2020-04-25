@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api
+package org.rfcx.guardian.guardian.api.http
 
 import android.content.Context
 import android.os.Handler

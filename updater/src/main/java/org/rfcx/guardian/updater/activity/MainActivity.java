@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
 		checkVersion.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				app.rfcxServiceHandler.triggerService("ApiCheckVersion",true);
+				app.apiCheckVersionUtils.attemptToTriggerCheckIn();
 			}
 		});
 	}

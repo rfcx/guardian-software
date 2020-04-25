@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api;
+package org.rfcx.guardian.guardian.api.checkin;
 
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;

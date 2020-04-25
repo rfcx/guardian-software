@@ -13,7 +13,11 @@ public class DeviceConnectivity {
 	private boolean isConnected = false;
 	private long lastConnectedAt = System.currentTimeMillis();
 	private long lastDisconnectedAt = System.currentTimeMillis();
-	
+
+	public void updateConnectivityState(boolean isConnected) {
+		this.isConnected = isConnected;
+	}
+
 	public int updateConnectivityStateAndReportDisconnectedFor(boolean isConnected) {
 		this.isConnected = isConnected;
 		if (isConnected) {

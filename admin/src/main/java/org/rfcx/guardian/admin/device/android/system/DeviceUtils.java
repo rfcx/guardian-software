@@ -36,11 +36,6 @@ public class DeviceUtils {
 
 	private Context context;
 
-	public boolean allowMeasurement_battery_percentage = true;
-	public boolean allowMeasurement_battery_temperature = true;
-	public boolean allowMeasurement_battery_is_charging = true;
-	public boolean allowMeasurement_battery_is_fully_charged = true;
-
 	private boolean allowListenerRegistration_telephony = true;
 	private boolean allowListenerRegistration_light = true;
 	private boolean allowListenerRegistration_accel = true;
@@ -90,11 +85,15 @@ public class DeviceUtils {
 		allowOrDisableSensorListener(sensorAbbrev, false);
 	}
 
-	public long dateTimeDiscrepancyFromSystemClock_gps = 0;
-	public long dateTimeSourceLastSyncedAt_gps = 0;
-	public long dateTimeDiscrepancyFromSystemClock_sntp = 0;
-	public long dateTimeSourceLastSyncedAt_sntp = 0;
-	
+	public boolean allowMeasurement_battery_percentage = true;
+	public boolean allowMeasurement_battery_temperature = true;
+	public boolean allowMeasurement_battery_is_charging = true;
+	public boolean allowMeasurement_battery_is_fully_charged = true;
+
+	//
+	// Static constant values for adjusting and tuning the system service behavior
+	//
+
 	public static final long captureLoopIncrementFullDurationInMilliseconds = 1000;
 	public static final long captureCycleMinimumAllowedDurationInMilliseconds = 20000;
 	public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
@@ -202,8 +201,8 @@ public class DeviceUtils {
 
 				RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
 
-				dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
-				dateTimeDiscrepancyFromSystemClock_gps = DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(location.getTime());
+				long dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
+				long dateTimeDiscrepancyFromSystemClock_gps = DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(location.getTime());
 				
 				double[] geoPos = new double[] { 
 						(double) dateTimeSourceLastSyncedAt_gps,
@@ -260,7 +259,7 @@ public class DeviceUtils {
 
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
-		Date clearBefore = new Date(Long.parseLong(timeStamp));
+		Date clearBefore = new Date((long) Long.parseLong(timeStamp));
 
 		app.deviceSystemDb.dbBattery.clearRowsBefore(clearBefore);
 		app.deviceSystemDb.dbCPU.clearRowsBefore(clearBefore);
