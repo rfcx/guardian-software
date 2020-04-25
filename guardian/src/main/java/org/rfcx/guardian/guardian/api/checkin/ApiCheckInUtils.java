@@ -1038,6 +1038,15 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 
+			// parse 'meta' info and use it to purge the data locally
+			if (jsonObj.has("meta")) {
+				JSONArray metaJson = jsonObj.getJSONArray("meta");
+				for (int i = 0; i < metaJson.length(); i++) {
+					String metaId = metaJson.getJSONObject(i).getString("id");
+					purgeSingleAsset("meta", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), metaId);
+				}
+			}
+
 			// parse photo info and use it to purge the data locally
 			if (jsonObj.has("photos")) {
 				JSONArray photosJson = jsonObj.getJSONArray("photos");
@@ -1053,28 +1062,6 @@ public class ApiCheckInUtils implements MqttCallback {
 				for (int i = 0; i < videosJson.length(); i++) {
 					String videoId = videosJson.getJSONObject(i).getString("id");
 					purgeSingleAsset("video", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), videoId);
-				}
-			}
-
-			// parse 'meta' info and use it to purge the data locally
-			if (jsonObj.has("meta")) {
-				JSONArray metaJson = jsonObj.getJSONArray("meta");
-				for (int i = 0; i < metaJson.length(); i++) {
-					String metaId = metaJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("meta", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), metaId);
-				}
-			}
-
-			// parse generic 'received' info and use it to purge the data locally
-			if (jsonObj.has("received")) {
-				JSONArray receivedJson = jsonObj.getJSONArray("received");
-				for (int i = 0; i < receivedJson.length(); i++) {
-					JSONObject receivedObj = receivedJson.getJSONObject(i);
-					if (receivedObj.has("type") && receivedObj.has("id")) {
-						String assetId = receivedObj.getString("id");
-						String assetType = receivedObj.getString("type");
-						purgeSingleAsset(assetType, app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), assetId);
-					}
 				}
 			}
 
@@ -1099,9 +1086,17 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 
-			// parse 'instructions' array
-			if (jsonObj.has("instructions")) {
-				app.instructionsUtils.processInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
+			// parse generic 'received' info and use it to purge the data locally
+			if (jsonObj.has("received")) {
+				JSONArray receivedJson = jsonObj.getJSONArray("received");
+				for (int i = 0; i < receivedJson.length(); i++) {
+					JSONObject receivedObj = receivedJson.getJSONObject(i);
+					if (receivedObj.has("type") && receivedObj.has("id")) {
+						String assetId = receivedObj.getString("id");
+						String assetType = receivedObj.getString("type");
+						purgeSingleAsset(assetType, app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), assetId);
+					}
+				}
 			}
 
 			// parse 'unconfirmed' array
@@ -1114,6 +1109,11 @@ public class ApiCheckInUtils implements MqttCallback {
 						reQueueAudioAssetForCheckIn("sent", assetId);
 					}
 				}
+			}
+
+			// parse 'instructions' array
+			if (jsonObj.has("instructions")) {
+				app.instructionsUtils.processInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
 			}
 
 			app.diagnosticUtils.updateSyncedDiagnostic();
