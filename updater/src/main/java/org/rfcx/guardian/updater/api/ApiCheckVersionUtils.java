@@ -7,14 +7,22 @@ import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
+import android.content.Context;
 import android.util.Log;
 
 public class ApiCheckVersionUtils {
 
+	public ApiCheckVersionUtils(Context context) {
+		this.app = (RfcxGuardian) context.getApplicationContext();
+	}
+
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckVersionUtils");
+
+	private RfcxGuardian app;
 
 	public long lastCheckInTime = System.currentTimeMillis();
 
+	public static final long minimumAllowedIntervalBetweenCheckIns = 30; // in minutes
 	private long lastCheckInTriggered = 0;
 	
 	public String apiCheckVersionEndpoint = null;
@@ -91,9 +99,9 @@ public class ApiCheckVersionUtils {
 	
 	private static int calculateVersionValue(String versionName) {
 		try {
-			int majorVersion = (int) Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
-			int subVersion = (int) Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
-			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
+			int majorVersion = Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
+			int subVersion = Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
+			int updateVersion = Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
 			return 1000*majorVersion+100*subVersion+updateVersion;
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -101,20 +109,33 @@ public class ApiCheckVersionUtils {
 		return 0;
 	}
 	
-	public boolean allowTriggerCheckIn() {
-		if ((System.currentTimeMillis() - lastCheckInTriggered) > 1000) {
-			lastCheckInTriggered = System.currentTimeMillis();
-			return true;
-		} else {
-			Log.d(logTag,"Skipping attempt to double check-in");
-			return false;
+	private boolean isCheckInAllowed() {
+		if (app != null) {
+			if (app.deviceConnectivity.isConnected()) {
+				long timeElapsedSinceLastCheckIn = System.currentTimeMillis() - this.lastCheckInTriggered;
+				if (timeElapsedSinceLastCheckIn > (this.minimumAllowedIntervalBetweenCheckIns * (60 * 1000))) {
+					this.lastCheckInTriggered = System.currentTimeMillis();
+					return true;
+				} else {
+					Log.e(logTag, "Update CheckIn blocked. Minimum allowed interval has not yet elapsed. (required: " + this.minimumAllowedIntervalBetweenCheckIns + "mins, elapsed: " + Math.round(timeElapsedSinceLastCheckIn / (60 * 1000)) + "mins)");
+				}
+			} else {
+				Log.e(logTag, "Update CheckIn blocked. No internet connectivity.");
+			}
+		}
+		return false;
+	}
+
+	public void attemptToTriggerCheckIn() {
+		if (isCheckInAllowed()) {
+			app.rfcxServiceHandler.triggerService("ApiCheckVersion", false);
 		}
 	}
 	
 	private boolean isBatteryChargeSufficientForDownloadAndInstall(RfcxGuardian app) {
 		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 	//	return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("install_battery_cutoff"));
-		return (batteryCharge >= 80);
+		return (batteryCharge >= 50);
 	}
 	
 }

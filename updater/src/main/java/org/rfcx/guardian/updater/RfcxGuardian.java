@@ -35,7 +35,7 @@ public class RfcxGuardian extends Application {
 
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 
-    public ApiCheckVersionUtils apiCheckVersionUtils = new ApiCheckVersionUtils();
+    public ApiCheckVersionUtils apiCheckVersionUtils = null;
     public InstallUtils installUtils = null;
 
     // for checking battery level
@@ -64,7 +64,8 @@ public class RfcxGuardian extends Application {
 
         this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        apiCheckVersionUtils.setApiCheckVersionEndpoint(this.rfcxGuardianIdentity.getGuid());
+        this.apiCheckVersionUtils = new ApiCheckVersionUtils(this);
+        this.apiCheckVersionUtils.setApiCheckVersionEndpoint(this.rfcxGuardianIdentity.getGuid());
 
         this.installUtils = new InstallUtils(this);
 
@@ -94,7 +95,7 @@ public class RfcxGuardian extends Application {
             String[] runOnceOnlyOnLaunch = new String[] {
                     "ApiCheckVersionTrigger"
                             +"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
-                            +"|"+3600000 // repeats hourly
+                            +"|"+ ( ( 2 * this.apiCheckVersionUtils.minimumAllowedIntervalBetweenCheckIns ) * ( 60 * 1000 ) ) // repeats hourly
             };
 
             String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];

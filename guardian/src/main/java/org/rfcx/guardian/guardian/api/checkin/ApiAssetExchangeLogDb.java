@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api;
+package org.rfcx.guardian.guardian.api.checkin;
 
 import java.util.ArrayList;
 import java.util.Date;

@@ -5,6 +5,7 @@ import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
+import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
@@ -73,6 +74,7 @@ public class RfcxGuardian extends Application {
 	public CameraCaptureDb cameraCaptureDb = null;
 	public DeviceLogCatDb deviceLogCatDb = null;
 	public SentinelPowerDb sentinelPowerDb = null;
+	public SentinelSensorDb sentinelSensorDb = null;
 	public DeviceSystemDb deviceSystemDb = null;
     public DeviceSensorDb deviceSensorDb = null;
     public DeviceRebootDb rebootDb = null;
@@ -210,6 +212,7 @@ public class RfcxGuardian extends Application {
 	private void setDbHandlers() {
 		
 		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
+		this.sentinelSensorDb = new SentinelSensorDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
 		this.cameraCaptureDb = new CameraCaptureDb(this, this.version);
 		this.deviceLogCatDb = new DeviceLogCatDb(this, this.version);

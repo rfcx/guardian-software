@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api;
+package org.rfcx.guardian.guardian.api.checkin;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -306,15 +306,20 @@ public class ApiCheckInUtils implements MqttCallback {
 			metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
 			metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
 
-			// Adding system metadata, if they can be retrieved from admin role via contentprovider
+			// Adding system metadata, if they can be retrieved from admin role via content provider
 			JSONArray systemMetaJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
 					"system_meta", app.getApplicationContext().getContentResolver());
 			metaDataJsonObj = addConcatSystemMetaParams(metaDataJsonObj, systemMetaJsonArray);
 
-			// Adding sentinel data, if they can be retrieved from admin role via contentprovider
+			// Adding sentinel power data, if they can be retrieved from admin role via content provider
 			JSONArray sentinelPowerJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
 					"sentinel_power", app.getApplicationContext().getContentResolver());
 			metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPowerJsonArray));
+
+			// Adding sentinel sensor data, if they can be retrieved from admin role via content provider
+			JSONArray sentinelSensorJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
+					"sentinel_sensor", app.getApplicationContext().getContentResolver());
+			metaDataJsonObj.put("sentinel_sensor", getConcatSentinelMeta(sentinelSensorJsonArray));
 
 			// Saves JSON snapshot blob to database
 			app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
@@ -337,6 +342,9 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
 					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+
+			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
+					"sentinel_sensor|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

@@ -18,10 +18,10 @@ import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.GuardianCheckApi
-import org.rfcx.guardian.guardian.api.GuardianCheckCallback
-import org.rfcx.guardian.guardian.api.RegisterApi
-import org.rfcx.guardian.guardian.api.RegisterCallback
+import org.rfcx.guardian.guardian.api.http.GuardianCheckApi
+import org.rfcx.guardian.guardian.api.http.GuardianCheckCallback
+import org.rfcx.guardian.guardian.api.http.RegisterApi
+import org.rfcx.guardian.guardian.api.http.RegisterCallback
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
@@ -34,7 +34,8 @@ import org.rfcx.guardian.guardian.view.*
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 
-class MainActivity : AppCompatActivity(), RegisterCallback, GuardianCheckCallback {
+class MainActivity : AppCompatActivity(),
+    RegisterCallback, GuardianCheckCallback {
     private var getInfoThread: Thread? = null
     private lateinit var app: RfcxGuardian
 

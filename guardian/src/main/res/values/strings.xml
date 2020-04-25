@@ -37,6 +37,7 @@
 		<item>8 kHz</item>
 		<item>12 kHz</item>
 		<item>16 kHz</item>
+		<item>20 kHz</item>
 		<item>24 kHz</item>
 		<item>44.1 kHz</item>
 		<item>48 kHz</item>
@@ -46,6 +47,7 @@
 		<item>8000</item>
 		<item>12000</item>
 		<item>16000</item>
+		<item>20000</item>
 		<item>24000</item>
 		<item>44100</item>
 		<item>48000</item>
@@ -82,6 +84,7 @@
 		<item>16 kbps</item>
 		<item>20 kbps</item>
 		<item>24 kbps</item>
+		<item>28 kbps</item>
 		<item>32 kbps</item>
 		<item>40 kbps</item>
 		<item>48 kbps</item>
@@ -99,6 +102,7 @@
 		<item>16384</item>
 		<item>20480</item>
 		<item>24576</item>
+		<item>28672</item>
 		<item>32768</item>
 		<item>40960</item>
 		<item>49152</item>
