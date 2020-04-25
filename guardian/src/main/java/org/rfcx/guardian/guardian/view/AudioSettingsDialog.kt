@@ -50,6 +50,8 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
     private lateinit var bitRatePicker: NumberPicker
     private lateinit var bitRateLabel: TextView
 
+    private lateinit var app: RfcxGuardian
+
     private fun initDialog() {
         view = layoutInflater.inflate(R.layout.audio_settings_picker_popup, null) as ConstraintLayout
         sampleRatePicker = view.findViewById(R.id.sampleRatePicker)
@@ -67,7 +69,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
         bitRatePicker.maxValue = bitRateDisplayList.size - 1
         bitRatePicker.displayedValues = bitRateDisplayList
 
-        val app = context.applicationContext as RfcxGuardian
+        app = context.applicationContext as RfcxGuardian
         val remainFileFormat = app.rfcxPrefs.getPrefAsString("audio_encode_codec")
         fileFormat = remainFileFormat
         val remainSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate")
@@ -98,6 +100,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
             } else {
                 bitRatePicker.visibility = View.GONE
                 bitRateLabel.visibility = View.GONE
+                bitRatePicker.value = bitRateList.indexOf(app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate"))
                 fileFormat = "flac"
             }
         }
