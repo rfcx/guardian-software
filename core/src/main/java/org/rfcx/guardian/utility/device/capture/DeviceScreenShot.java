@@ -38,14 +38,14 @@ public class DeviceScreenShot {
 	}
 	
 	private static String sdCardFilesDir() {
-		return (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/screenshot").toString(); 
+		return (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/screenshots").toString();
 	}
 	
 	private static String finalFilesDir(Context context) {
 		if ((new File(sdCardFilesDir())).isDirectory()) {
 			return sdCardFilesDir();
 		} else {
-			return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshot/final").toString();
+			return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshots/final").toString();
 		}
 	}
 	
@@ -58,7 +58,7 @@ public class DeviceScreenShot {
 	}
 	
 	public static String captureDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshot/capture").toString();
+		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshots/capture").toString();
 	}
 	
 	public static String getScreenShotFileLocation_Capture(Context context, long timestamp) {

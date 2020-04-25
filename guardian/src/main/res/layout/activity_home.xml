@@ -243,31 +243,45 @@
                                     app:layout_constraintTop_toBottomOf="@id/sampleRateTextView">
 
                                 <RadioButton
-                                        android:id="@+id/rb8Hz"
+                                        android:id="@+id/rb8kHz"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="8Hz"
+                                        android:text="8kHz"
                                         android:textSize="12sp" />
 
                                 <RadioButton
-                                        android:id="@+id/rb12Hz"
+                                        android:id="@+id/rb12kHz"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="12Hz"
+                                        android:text="12kHz"
                                         android:textSize="12sp" />
 
                                 <RadioButton
-                                        android:id="@+id/rb24Hz"
+                                        android:id="@+id/rb16kHz"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="24Hz"
+                                        android:text="16kHz"
                                         android:textSize="12sp" />
 
                                 <RadioButton
-                                        android:id="@+id/rb48Hz"
+                                        android:id="@+id/rb20kHz"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="48Hz"
+                                        android:text="20kHz"
+                                        android:textSize="12sp" />
+
+                                <RadioButton
+                                        android:id="@+id/rb24kHz"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="24kHz"
+                                        android:textSize="12sp" />
+
+                                <RadioButton
+                                        android:id="@+id/rb48kHz"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="48kHz"
                                         android:textSize="12sp" />
                             </RadioGroup>
 

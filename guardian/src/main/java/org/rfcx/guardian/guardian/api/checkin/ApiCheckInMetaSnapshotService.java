@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api;
+package org.rfcx.guardian.guardian.api.checkin;
 
 import android.app.IntentService;
 import android.content.Intent;
