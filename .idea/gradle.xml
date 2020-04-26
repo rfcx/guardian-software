@@ -11,12 +11,12 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/admin" />
-            <option value="$PROJECT_DIR$/audio" />
-            <option value="$PROJECT_DIR$/core" />
-            <option value="$PROJECT_DIR$/guardian" />
-            <option value="$PROJECT_DIR$/i2c" />
-            <option value="$PROJECT_DIR$/updater" />
+            <option value="$PROJECT_DIR$/lib-audio" />
+            <option value="$PROJECT_DIR$/lib-core" />
+            <option value="$PROJECT_DIR$/lib-i2c" />
+            <option value="$PROJECT_DIR$/role-admin" />
+            <option value="$PROJECT_DIR$/role-guardian" />
+            <option value="$PROJECT_DIR$/role-updater" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
