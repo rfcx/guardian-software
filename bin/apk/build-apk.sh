@@ -18,7 +18,7 @@ if [ ! -d tmp ]; then
 fi
 
 export PROJECT_DIR="$SCRIPT_DIR/../..";
-export ROLE_DIR="$PROJECT_DIR/$ROLE";
+export ROLE_DIR="$PROJECT_DIR/role-$ROLE";
 
 export APK_VERSION=`cat $ROLE_DIR/build.gradle | grep ' versionName ' | cut -d'"' -f 2`;
 
@@ -36,9 +36,9 @@ cd $PROJECT_DIR;
 echo "building apk...";
 
 if [[ "$APK_TYPE" = "debug" ]]; then
-	gradlew :$ROLE:assembleDebug;
+	gradlew :role-$ROLE:assembleDebug;
 elif [ "$APK_TYPE" = "release" ]; then
-	gradlew :$ROLE:assembleRelease;
+	gradlew :role-$ROLE:assembleRelease;
 fi
 
 export APK_PATH_UNSIGNED="$ROLE_DIR/build/outputs/apk/$APK_TYPE/$ROLE-$APK_VERSION-$APK_TYPE-unsigned.apk";
