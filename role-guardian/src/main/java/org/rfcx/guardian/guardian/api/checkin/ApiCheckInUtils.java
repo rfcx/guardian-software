@@ -1169,6 +1169,9 @@ public class ApiCheckInUtils implements MqttCallback {
 	public void deliveryComplete(IMqttDeliveryToken deliveryToken) {
 
 		try {
+
+		//	MqttMessage deliveredMessage = deliveryToken.getMessage();
+
 			moveCheckInEntryToSentDatabase(this.inFlightCheckInAudioId);
 
 			long msgSendDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.inFlightCheckInStats.get(this.inFlightCheckInAudioId)[0]));
@@ -1180,7 +1183,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
-
 	}
 
 	@Override
@@ -1196,7 +1198,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		RfcxLog.logThrowable(logTag, cause);
 
 		confirmOrCreateConnectionToBroker();
-
 	}
 
 	public void confirmOrCreateConnectionToBroker() {
@@ -1219,6 +1220,22 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 		} else {
 //			Log.e(logTag, "Last connection attempt was less than " + minDelayBetweenConnectionAttempts + "ms ago");
+		}
+	}
+
+
+	void sendMqttPing() {
+
+		try {
+
+			byte[] pingPayload = new byte[] {}; //packageMqttCheckInPayload(audioJson, audioPath);
+
+			long pingSendStart = this.mqttCheckInClient.publishMessage("guardians/pings", pingPayload);
+
+		} catch (Exception e) {
+
+			RfcxLog.logExc(logTag, e);
+//			handleCheckInPublicationExceptions(e, audioId);
 		}
 	}
 
