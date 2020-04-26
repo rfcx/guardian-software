@@ -9,7 +9,7 @@ export ROLE=$1;
 $SCRIPT_DIR/build-apk.sh $ROLE;
 
 export PROJECT_DIR="$SCRIPT_DIR/../..";
-export ROLE_DIR="$PROJECT_DIR/$ROLE";
+export ROLE_DIR="$PROJECT_DIR/role-$ROLE";
 
 export APK_VERSION=`cat $ROLE_DIR/build.gradle | grep ' versionName ' | cut -d'"' -f 2`;
 
