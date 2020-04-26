@@ -54,7 +54,7 @@ public class AudioCaptureUtils {
 
 		if (!this.isAudioCaptureHardwareSupported) {
 
-			int[] defaultSampleRateOptions = new int[]{8000, 12000, 16000, 24000, 44100, 48000};
+			int[] defaultSampleRateOptions = new int[]{ 8000, 12000, 16000, 24000, 48000 };
 			int originalSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
 			int verifiedOrUpdatedSampleRate = originalSampleRate;
 

@@ -18,7 +18,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
@@ -56,9 +55,9 @@ public class RfcxPrefs {
 		} else if ((tmpPrefValue = readPrefFromContentProvider(prefKey)) != null) {
 			this.cachedPrefs.put(prefKey, tmpPrefValue);
 			return this.cachedPrefs.get(prefKey);
-		} else if (this.defaultPrefs.containsKey(prefKey)) {
-			Log.e(logTag, "Unable to read pref '"+prefKey+"', falling back to default value '"+this.defaultPrefs.get(prefKey)+"'...");
-			return this.defaultPrefs.get(prefKey);
+		} else if (defaultPrefs.containsKey(prefKey)) {
+			Log.e(logTag, "Unable to read pref '"+prefKey+"', falling back to default value '"+ defaultPrefs.get(prefKey)+"'...");
+			return defaultPrefs.get(prefKey);
 		} else {
 			return null;
 		}
@@ -91,7 +90,7 @@ public class RfcxPrefs {
 	public void reSyncPref(String prefKey) {
 		this.cachedPrefs.remove(prefKey);
 		String prefValue = getPrefAsString(prefKey);
-		Log.i(logTag, "Pref resynced: "+prefKey+" = "+prefValue);
+		Log.i(logTag, "Pref ReSynced: "+prefKey+" = "+prefValue);
 	}
 
 	public void reSyncPrefInExternalRoleViaContentProvider(String targetAppRole, String prefKey, Context context) {
@@ -209,11 +208,11 @@ public class RfcxPrefs {
 		writeToGuardianRoleTxtFile(this.context, this.logTag, "guid", deviceGuid);
 	}
 
-	public static void writeGuidToFile(Context context, String logTag, String deviceGuid) {
+	static void writeGuidToFile(Context context, String logTag, String deviceGuid) {
 		writeToGuardianRoleTxtFile(context, logTag, "guid", deviceGuid);
 	}
 	
-	public static String getGuidFromFile(Context context, String logTag, String thisAppRole, String targetAppRole) {
+	static String getGuidFromFile(Context context, String logTag, String thisAppRole, String targetAppRole) {
 		return readFromGuardianRoleTxtFile(context, logTag, thisAppRole, targetAppRole.toLowerCase(Locale.US), "guid");
 	}
 
@@ -233,13 +232,13 @@ public class RfcxPrefs {
         }
 	}
 	
-	public static String readFromGuardianRoleTxtFile(Context context, String logTag, String thisAppRole, String targetAppRole, String fileNameNoExt) {
+	static String readFromGuardianRoleTxtFile(Context context, String logTag, String thisAppRole, String targetAppRole, String fileNameNoExt) {
 	    	try {
 	    		String mainAppPath = context.getFilesDir().getAbsolutePath();
 	    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+thisAppRole).length()))+"."+targetAppRole+"/files/txt",fileNameNoExt+".txt");
 	    		if (txtFile.exists()) {
 					FileInputStream input = new FileInputStream(txtFile);
-					StringBuffer fileContent = new StringBuffer("");
+					StringBuilder fileContent = new StringBuilder();
 					byte[] buffer = new byte[256];
 					while (input.read(buffer) != -1) {
 					    fileContent.append(new String(buffer));
@@ -251,10 +250,10 @@ public class RfcxPrefs {
 //	    			Log.e(logTag, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+targetAppRole+"...");
 	    		}
 	    	} catch (FileNotFoundException e) {
-			RfcxLog.logExc(logTag, e);
+				RfcxLog.logExc(logTag, e);
 	    	} catch (IOException e) {
-			RfcxLog.logExc(logTag, e);
-		}
+				RfcxLog.logExc(logTag, e);
+			}
 	    	return null;
 	}
 
@@ -262,7 +261,7 @@ public class RfcxPrefs {
 	private static String setOrCreatePrefsDirectory(Context context, String appRole) {
 		
 		String roleFilesDir = context.getFilesDir().toString();
-		String prefsDir = (new StringBuilder()).append(roleFilesDir.substring(0, roleFilesDir.lastIndexOf("/files")-("."+appRole).length())).append(".guardian/files/prefs").toString();
+		String prefsDir = roleFilesDir.substring(0, roleFilesDir.lastIndexOf("/files") - ("." + appRole).length()) + ".guardian/files/prefs";
 		
 		if (appRole.equalsIgnoreCase("guardian")) {
 			(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, "rw", "rw");
