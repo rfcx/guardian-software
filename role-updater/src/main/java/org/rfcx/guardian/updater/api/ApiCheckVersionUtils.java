@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -117,10 +118,12 @@ public class ApiCheckVersionUtils {
 					this.lastCheckInTriggered = System.currentTimeMillis();
 					return true;
 				} else {
-					Log.e(logTag, "Update CheckIn blocked. Minimum allowed interval has not yet elapsed. (required: " + this.minimumAllowedIntervalBetweenCheckIns + "mins, elapsed: " + Math.round(timeElapsedSinceLastCheckIn / (60 * 1000)) + "mins)");
+					Log.e(logTag, "Update CheckIn blocked b/c minimum allowed interval has not yet elapsed"
+									+" - Elapsed: " + DateTimeUtils.milliSecondDurationAsReadableString(timeElapsedSinceLastCheckIn)
+									+" - Required: " + this.minimumAllowedIntervalBetweenCheckIns + " minutes");
 				}
 			} else {
-				Log.e(logTag, "Update CheckIn blocked. No internet connectivity.");
+				Log.e(logTag, "Update CheckIn blocked b/c there is no internet connectivity.");
 			}
 		}
 		return false;
