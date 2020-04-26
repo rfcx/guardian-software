@@ -40,9 +40,9 @@ class MainActivity : AppCompatActivity(),
     private lateinit var app: RfcxGuardian
 
     //Audio settings
-    private var sampleRate: Int? = null
+    private var sampleRate: String? = null
     private var fileFormat: String? = null
-    private var bitRate: Int? = null
+    private var bitRate: String? = null
     private var duration: String? = null
 
     private lateinit var sharedPrefs: SharedPreferences
@@ -129,9 +129,9 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun setConfiguration() {
-        sampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate")
+        sampleRate = app.rfcxPrefs.getPrefAsString("audio_sample_rate")
         fileFormat = app.rfcxPrefs.getPrefAsString("audio_encode_codec")
-        bitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate")
+        bitRate = app.rfcxPrefs.getPrefAsString("audio_encode_bitrate")
         duration = app.rfcxPrefs.getPrefAsString("audio_cycle_duration")
 
         audioSettingButton.setOnClickListener {
@@ -140,8 +140,8 @@ class MainActivity : AppCompatActivity(),
                     sampleRate = settings.sampleRate
                     bitRate = settings.bitRate
                     fileFormat = settings.fileFormat
-                    app.setSharedPref("audio_sample_rate", sampleRate.toString())
-                    app.setSharedPref("audio_encode_bitrate", bitRate.toString())
+                    app.setSharedPref("audio_sample_rate", sampleRate)
+                    app.setSharedPref("audio_encode_bitrate", bitRate)
                     app.setSharedPref("audio_encode_codec", fileFormat)
                     updateAudioSettingsInfo()
                 }
@@ -161,7 +161,8 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun updateAudioSettingsInfo() {
-        audioInfoText.text = "${AudioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${AudioSettingUtils.getBitRateLabel(bitRate!!)}, ${duration}secs"
+        val audioSettingUtils = AudioSettingUtils(this)
+        audioInfoText.text = "${audioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${audioSettingUtils.getBitRateLabel(bitRate!!)}, ${duration}secs"
     }
 
     private fun showToast(message: String) {
