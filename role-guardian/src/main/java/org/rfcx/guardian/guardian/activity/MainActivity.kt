@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
+import org.rfcx.guardian.guardian.api.checkin.ApiCheckInUtils
 import org.rfcx.guardian.guardian.api.http.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.http.GuardianCheckCallback
 import org.rfcx.guardian.guardian.api.http.RegisterApi
@@ -251,9 +252,10 @@ class MainActivity : AppCompatActivity(),
                 try {
                     while (!isInterrupted) {
                         runOnUiThread {
-                            val latestRow = app.apiCheckInDb.dbSent.latestRow
-                            checkInText.text = checkInUtils.getCheckinTime(latestRow[0])
-                            sizeText.text = checkInUtils.getFileSize(latestRow[4])
+                            val latestCheckinTimestamp = ApiCheckInUtils.latestCheckinTimestamp
+                            val latestFileSize = ApiCheckInUtils.latestFileSize
+                            checkInText.text = checkInUtils.getCheckinTime(latestCheckinTimestamp)
+                            sizeText.text = checkInUtils.getFileSize(latestFileSize)
 
                             val recordedList = app.diagnosticDb.dbRecordedDiagnostic.latestRow
                             val syncedList = app.diagnosticDb.dbSyncedDiagnostic.latestRow
