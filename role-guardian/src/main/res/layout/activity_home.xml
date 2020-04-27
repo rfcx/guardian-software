@@ -60,15 +60,15 @@
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Guardian ID: " />
+                    android:text="@string/register_guid" />
 
             <TextView
                     android:id="@+id/deviceIdText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="xxxxxxxxx"
                     android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    tools:text="xxxxxxxx" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -122,7 +122,7 @@
                                         android:id="@+id/recordStatusTopic"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="Record status: "
+                                        android:text="@string/record_status"
                                         android:textColor="@color/text_black" />
 
                                 <TextView
@@ -137,7 +137,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="@dimen/margin_padding_small"
                                         android:minHeight="0dp"
-                                        android:text="start"/>
+                                        android:text="@string/audio_capture_start" />
                             </LinearLayout>
 
                             <LinearLayout
@@ -149,7 +149,7 @@
                                         android:id="@+id/checkInTopic"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="Last CheckIn time: "
+                                        android:text="@string/checkin_info_last_checkin_time"
                                         android:textColor="@color/text_black" />
 
                                 <TextView
@@ -168,7 +168,7 @@
                                         android:id="@+id/sizeTopic"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="Last CheckIn size: "
+                                        android:text="@string/checkin_info_last_checkin_size"
                                         android:textColor="@color/text_black" />
 
                                 <TextView
@@ -189,7 +189,8 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="Recorded time: "
-                                        android:textColor="@color/text_black" />
+                                        android:textColor="@color/text_black"
+                                        tools:ignore="HardcodedText" />
 
                                 <TextView
                                         android:id="@+id/recordTimeText"
@@ -208,7 +209,7 @@
                                         android:id="@+id/fileTopic"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="Synced / Local files: "
+                                        android:text="@string/synced_local_files"
                                         android:textColor="@color/text_black" />
 
                                 <TextView
@@ -237,48 +238,50 @@
                                     android:id="@+id/audioSettingsText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Audio settings"
+                                    android:text="@string/audio_settings"
                                     android:textColor="@color/text_black"
                                     app:layout_constraintStart_toStartOf="parent"
                                     app:layout_constraintTop_toTopOf="parent" />
 
-                            <Button
+
+                            <TextView
+                                    android:id="@+id/audioSettingsInfoText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@id/audioSettingsText"
+                                    tools:text="12 khz, opus, 12 kbps" />
+
+                            <TextView
                                     android:id="@+id/audioSettingButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="settings"
-                                    app:layout_constraintTop_toBottomOf="@id/audioSettingsText"
-                                    app:layout_constraintStart_toStartOf="@id/audioSettingsText"
-                                    app:layout_constraintEnd_toEndOf="@id/audioSettingsText"/>
+                                    android:layout_marginStart="@dimen/margin_padding_small"
+                                    android:text="@string/audio_settings_edit"
+                                    android:textColor="@color/text_blue"
+                                    app:layout_constraintBottom_toBottomOf="@id/audioSettingsInfoText"
+                                    app:layout_constraintStart_toEndOf="@id/audioSettingsInfoText"
+                                    app:layout_constraintTop_toTopOf="@id/audioSettingsInfoText" />
 
 
                             <TextView
-                                    android:id="@+id/durationTextView"
+                                    android:id="@+id/durationInfoText"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="Duration cycle"
-                                    android:layout_marginStart="@dimen/margin_padding_normal"
-                                    android:textColor="@color/text_black"
-                                    app:layout_constraintTop_toTopOf="parent"
-                                    app:layout_constraintStart_toEndOf="@id/audioSettingsText"/>
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toBottomOf="@+id/audioSettingsInfoText"
+                                    tools:text="90 seconds per files" />
 
-                            <Button
+                            <TextView
                                     android:id="@+id/durationButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="duration"
-                                    app:layout_constraintTop_toBottomOf="@id/durationTextView"
-                                    app:layout_constraintStart_toStartOf="@id/durationTextView"
-                                    app:layout_constraintEnd_toEndOf="@id/durationTextView"/>
-
-                            <TextView
-                                    android:id="@+id/audioInfoText"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    app:layout_constraintTop_toBottomOf="@id/durationButton"
-                                    app:layout_constraintBottom_toBottomOf="parent"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintEnd_toEndOf="parent"/>
+                                    android:layout_marginStart="@dimen/margin_padding_small"
+                                    android:text="@string/audio_settings_edit"
+                                    android:textColor="@color/text_blue"
+                                    app:layout_constraintBottom_toBottomOf="@id/durationInfoText"
+                                    app:layout_constraintStart_toEndOf="@id/durationInfoText"
+                                    app:layout_constraintTop_toTopOf="@id/durationInfoText" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <View
@@ -368,16 +371,16 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Logged in as: "
+                        android:text="@string/login_info_as"
                         android:textSize="15sp" />
 
                 <TextView
                         android:id="@+id/userName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="xxxxxxxxx"
                         android:textSize="15sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="xxxxxxxx" />
             </LinearLayout>
 
             <Button
