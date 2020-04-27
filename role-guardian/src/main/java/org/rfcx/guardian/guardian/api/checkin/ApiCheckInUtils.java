@@ -100,6 +100,10 @@ public class ApiCheckInUtils implements MqttCallback {
 	private long[] healthCheckInitValues = new long[healthCheckMeasurementCount];
 	private boolean doCheckInConditionsAllowCheckInRequeuing = false;
 
+	public static long latestFileSize = 0L;
+	public static String latestCheckinTimestamp = "";
+	public static int totalSyncedAudio = 0;
+
 	boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
 		// serialize audio info into JSON for checkin queue insertion
@@ -892,6 +896,9 @@ public class ApiCheckInUtils implements MqttCallback {
 			// delete asset file after it has been purged from records
 			for (String filePath : filePaths) {
 				if ((filePath != null) && (new File(filePath)).exists()) {
+					long fileSize = new File(filePath).length();
+					latestFileSize = fileSize;
+					latestCheckinTimestamp = DateTimeUtils.getDateTime();
 					(new File(filePath)).delete();
 					app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 					Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ", " + filePath.substring(1 + filePath.lastIndexOf("/")));
@@ -1125,7 +1132,8 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.instructionsUtils.processInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
 			}
 
-			app.diagnosticUtils.updateSyncedDiagnostic();
+			// increase total of synced audio when get the response from mqtt sending
+			totalSyncedAudio += 1;
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);

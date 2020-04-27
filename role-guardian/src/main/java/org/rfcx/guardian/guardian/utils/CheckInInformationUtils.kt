@@ -28,17 +28,12 @@ class CheckInInformationUtils {
         }
     }
 
-    private fun convertFileSizeToStringFormat(filePath: String?): String {
+    private fun convertFileSizeToStringFormat(size: Long?): String {
         var audioSize = "-"
-        var fileSize = 0L
-        if (filePath != null) {
-            fileSize = File(filePath).length()
-            if (fileSize != 0L) {
-                audioSize = (fileSize / 1000).toString()
-            }
+        if (size != null && size != 0L) {
+            audioSize = (size.toLong() / 1000).toString()
         }
-
-        return if (audioSize == "-" && fileSize == 0L) {
+        return if (audioSize == "-" || size == 0L) {
             audioSize
         } else {
             "$audioSize kb"
@@ -46,7 +41,7 @@ class CheckInInformationUtils {
     }
 
     fun getCheckinTime(date: String?): String {
-        return if (date == null) {
+        return if (date == null || date == "") {
             convertTimeStampToStringFormat(null)
         } else {
             val checkinTime = DateTimeUtils.getDateFromString(date).time
@@ -54,11 +49,11 @@ class CheckInInformationUtils {
         }
     }
 
-    fun getFileSize(path: String?): String {
-        return if (path == null) {
+    fun getFileSize(size: Long?): String {
+        return if (size == null || size == 0L) {
             convertFileSizeToStringFormat(null)
         } else {
-            convertFileSizeToStringFormat(path)
+            convertFileSizeToStringFormat(size)
         }
     }
 }
