@@ -42,6 +42,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.w3c.dom.Text;
 
 public class ApiCheckInUtils implements MqttCallback {
 
@@ -392,19 +393,20 @@ public class ApiCheckInUtils implements MqttCallback {
 		return DbUtils.getConcatRows(assetRows);
 	}
 
-	private String getCheckInStatusInfoForJson() {
+	private String getCheckInStatusInfoForJson(boolean includeAssetIdLists) {
 
 		StringBuilder _queued = (new StringBuilder()).append("queued").append("*").append(app.apiCheckInDb.dbQueued.getCount());
 		StringBuilder _sent = (new StringBuilder()).append("sent").append("*").append(app.apiCheckInDb.dbSent.getCount());
 		StringBuilder _skipped = (new StringBuilder()).append("skipped").append("*").append(app.apiCheckInDb.dbSkipped.getCount());
 		StringBuilder _stashed = (new StringBuilder()).append("stashed").append("*").append(app.apiCheckInDb.dbStashed.getCount());
 
-//		long sendIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
-
-		for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(10)) {
-//			long diff = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(checkInEntry[0])));
-//			Log.e(logTag, "Difference ("+checkInEntry[1]+") "+ Math.round((diff / 1000) / 60) );
-			_sent.append("*").append(_checkIn[1].substring(0, _checkIn[1].lastIndexOf(".")));
+		if (includeAssetIdLists) {
+			long sendIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+			for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(10)) {
+				long diff = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(_checkIn[0])));
+				Log.e(logTag, "Difference (" + _checkIn[1] + ") " + DateTimeUtils.milliSecondDurationAsReadableString(diff));
+				_sent.append("*").append(_checkIn[1].substring(0, _checkIn[1].lastIndexOf(".")));
+			}
 		}
 
 		return TextUtils.join("|", new String[] { _queued.toString(), _sent.toString(), _skipped.toString(), _stashed.toString() });
@@ -523,6 +525,10 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		// Adding Guardian GUID
 		checkInMetaJson.put("guardian_guid", this.app.rfcxGuardianIdentity.getGuid());
+		JSONObject guardianObj = new JSONObject();
+		guardianObj.put("guid", this.app.rfcxGuardianIdentity.getGuid());
+		guardianObj.put("token", "");
+		checkInMetaJson.put("guardian", guardianObj);
 
 		// Adding Audio JSON fields from checkin table
 		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
@@ -533,7 +539,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
 
 		// Recording number of currently queued/skipped/stashed checkins
-		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson());
+		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson(true));
 
 		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 12));
 
@@ -718,7 +724,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
-
 	}
 
 	private String[] getLatestExternalAssetMeta(String assetType) {
@@ -1170,17 +1175,25 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		try {
 
-		//	MqttMessage deliveredMessage = deliveryToken.getMessage();
+			if (deliveryToken.getTopics().length > 0) {
 
-			moveCheckInEntryToSentDatabase(this.inFlightCheckInAudioId);
+				String msgTopic = deliveryToken.getTopics()[0];
+				Log.i(logTag, "Completed delivery to '"+msgTopic+"' at "+DateTimeUtils.getDateTime(new Date()));
 
-			long msgSendDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.inFlightCheckInStats.get(this.inFlightCheckInAudioId)[0]));
+				if (msgTopic.equalsIgnoreCase("guardians/checkins")) {
 
-			setInFlightCheckInStats(this.inFlightCheckInAudioId, 0, msgSendDuration, 0);
+					moveCheckInEntryToSentDatabase(this.inFlightCheckInAudioId);
+					long msgSendDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.inFlightCheckInStats.get(this.inFlightCheckInAudioId)[0]));
+					setInFlightCheckInStats(this.inFlightCheckInAudioId, 0, msgSendDuration, 0);
+					Log.i(logTag, "CheckIn delivery time: " + DateTimeUtils.milliSecondDurationAsReadableString(msgSendDuration, true));
+				}
 
-			Log.i(logTag,"CheckIn delivery time: " + DateTimeUtils.milliSecondDurationAsReadableString(msgSendDuration, true));
+			} else {
+				Log.e(logTag, "Message was delivered, but the topic could not be determined.");
+			}
 
 		} catch (Exception e) {
+		    Log.e(logTag, "deliveryComplete");
 			RfcxLog.logExc(logTag, e);
 		}
 	}
@@ -1219,24 +1232,91 @@ public class ApiCheckInUtils implements MqttCallback {
 				RfcxLog.logExc(logTag, e);
 			}
 		} else {
-//			Log.e(logTag, "Last connection attempt was less than " + minDelayBetweenConnectionAttempts + "ms ago");
+//			Log.e(logTag, "Last broker connection attempt was less than " + DateTimeUtils.milliSecondDurationAsReadableString(minDelayBetweenConnectionAttempts) + " ago");
 		}
 	}
 
 
-	void sendMqttPing() {
+	// Ping Messages
+
+	public void sendMqttPing() {
 
 		try {
 
-			byte[] pingPayload = new byte[] {}; //packageMqttCheckInPayload(audioJson, audioPath);
-
-			long pingSendStart = this.mqttCheckInClient.publishMessage("guardians/pings", pingPayload);
+			long pingSendStart = this.mqttCheckInClient.publishMessage("guardians/pings", packageMqttPingPayload(buildPingJson()));
 
 		} catch (Exception e) {
 
 			RfcxLog.logExc(logTag, e);
-//			handleCheckInPublicationExceptions(e, audioId);
+			handlePingPublicationExceptions(e);
 		}
 	}
+
+	private byte[] packageMqttPingPayload(String pingJsonString) throws UnsupportedEncodingException, IOException, JSONException {
+
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+		// Build JSON blob
+		byte[] jsonBlobAsBytes = StringUtils.gZipStringToByteArray(pingJsonString);
+		String jsonBlobMetaSection = String.format(Locale.US, "%012d", jsonBlobAsBytes.length);
+		byteArrayOutputStream.write(jsonBlobMetaSection.getBytes(StandardCharsets.UTF_8));
+		byteArrayOutputStream.write(jsonBlobAsBytes);
+
+		byteArrayOutputStream.close();
+
+		return byteArrayOutputStream.toByteArray();
+	}
+
+	private String buildPingJson() throws JSONException, IOException {
+
+		JSONObject pingObj = new JSONObject();
+
+		JSONObject guardianObj = new JSONObject();
+		guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid()); // this should not be hardware based, eventually
+		guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken()); // this should not be hardware based, eventually
+		pingObj.put("guardian", guardianObj);
+
+		pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
+		pingObj.put("instructions", getLocalInstructionsStatusInfoJson());
+		pingObj.put("hardware", DeviceHardwareUtils.getDeviceHardwareInfoJson());
+		pingObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
+		pingObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
+		pingObj.put("checkins", getCheckInStatusInfoForJson(false));
+
+		JSONObject outputJsonObj = new JSONObject();
+		outputJsonObj.put("ping", pingObj);
+
+//		Log.d(logTag, outputJsonObj.toString());
+
+		return outputJsonObj.toString();
+	}
+
+    private void handlePingPublicationExceptions(Exception inputExc) {
+
+        try {
+            String excStr = RfcxLog.getExceptionContentAsString(inputExc);
+
+            if (excStr.contains("Too many publishes in progress")) {
+//                app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
+//                app.rfcxServiceHandler.triggerService("ApiCheckInJob", true);
+
+            } else if (	excStr.contains("UnknownHostException")
+                    ||	excStr.contains("Broken pipe")
+                    ||	excStr.contains("Timed out waiting for a response from the server")
+                    ||	excStr.contains("No route to host")
+                    ||	excStr.contains("Host is unresolved")
+            ) {
+//                Log.i(logTag, "Connection has failed "+this.inFlightCheckInAttemptCounter +" times (max: "+this.inFlightCheckInAttemptCounterLimit +")");
+//                app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
+//                if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
+//                    Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
+//                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+//                    this.inFlightCheckInAttemptCounter = 0;
+//                }
+            }
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
+    }
 
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.rfcx.guardian.guardian.api.checkin.ApiCheckInMetaSnapshotService;
+import org.rfcx.guardian.guardian.api.checkin.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.diagnostic.DiagnosticDb;
 import org.rfcx.guardian.guardian.diagnostic.DiagnosticUtils;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
@@ -171,6 +172,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     "ScheduledSntpSync"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
                             + "|" + ScheduledSntpSyncService.SCHEDULED_SNTP_SYNC_CYCLE_DURATION
+                    ,
+                    "ScheduledApiPing"
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
+                            + "|" + ScheduledApiPingService.SCHEDULED_API_PING_CYCLE_DURATION
             };
 
             String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
@@ -197,16 +202,21 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
         this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
+
         this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
         this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
+
         this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
         this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
-        this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
+
+        this.rfcxServiceHandler.addService("ScheduledApiPing", ScheduledApiPingService.class);
+
         this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
         this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
+
+        this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
         this.rfcxServiceHandler.addService("ApiCheckInMetaSnapshot", ApiCheckInMetaSnapshotService.class);
         this.rfcxServiceHandler.addService("InstructionsExecution", InstructionsExecutionService.class);
-
     }
 
     @Override

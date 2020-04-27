@@ -107,7 +107,7 @@ public class ApiCheckInJobService extends Service {
 							
 							if (latestQueuedCheckIn[0] != null) {
 								
-								if (((int) Integer.parseInt(latestQueuedCheckIn[3])) > prefsCheckInSkipThreshold) {
+								if ((Integer.parseInt(latestQueuedCheckIn[3])) > prefsCheckInSkipThreshold) {
 									
 									Log.d(logTag,"Skipping CheckIn "+latestQueuedCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
 									app.apiCheckInDb.dbSkipped.insert(latestQueuedCheckIn[0], latestQueuedCheckIn[1], latestQueuedCheckIn[2], latestQueuedCheckIn[3], latestQueuedCheckIn[4]);

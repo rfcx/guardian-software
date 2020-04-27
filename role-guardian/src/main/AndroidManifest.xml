@@ -91,6 +91,7 @@
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" android:exported="false" />
         <service android:name=".api.checkin.ApiQueueCheckInService" android:exported="false" />
+        <service android:name=".api.checkin.ScheduledApiPingService" android:exported="false" />
         <service android:name=".audio.encode.AudioQueueEncodeService" android:exported="false" />
         <service android:name=".device.android.ScheduledSntpSyncService" android:exported="false" />
         <service android:name=".api.checkin.ApiCheckInMetaSnapshotService" android:exported="false" />

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
+import android.text.TextUtils;
+
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceBattery {
@@ -25,6 +27,17 @@ public class DeviceBattery {
 				(isBatteryCharging(context, intent)) ? 1 : 0,
 				(isBatteryCharged(context, intent)) ? 1 : 0
 		};
+	}
+
+	public String getBatteryStateAsConcatString(Context context, Intent intent) {
+		String[] batteryState = new String[] {
+				""+System.currentTimeMillis(),
+				""+getBatteryChargePercentage(context, intent),
+				""+getBatteryTemperature(context, intent),
+				""+((isBatteryCharging(context, intent)) ? 1 : 0),
+				""+((isBatteryCharged(context, intent)) ? 1 : 0)
+		};
+		return TextUtils.join("*", batteryState);
 	}
 	
 	public int getBatteryChargePercentage(Context context, Intent intent) {

@@ -345,7 +345,7 @@ public class RfcxPrefs {
 
 			put("admin_log_capture_cycle", "30");
 			put("admin_log_capture_level", "warn");
-			put("admin_enable_log_capture", "true");
+			put("admin_enable_log_capture", "false");
 			
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "true");

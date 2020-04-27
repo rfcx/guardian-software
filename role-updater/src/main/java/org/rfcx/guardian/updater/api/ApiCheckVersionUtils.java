@@ -117,7 +117,7 @@ public class ApiCheckVersionUtils {
 				if (timeElapsedSinceLastCheckIn > (this.minimumAllowedIntervalBetweenCheckIns * (60 * 1000))) {
 					this.lastCheckInTriggered = System.currentTimeMillis();
 					return true;
-				} else {
+				} else if (timeElapsedSinceLastCheckIn > 60000) {
 					Log.e(logTag, "Update CheckIn blocked b/c minimum allowed interval has not yet elapsed"
 									+" - Elapsed: " + DateTimeUtils.milliSecondDurationAsReadableString(timeElapsedSinceLastCheckIn)
 									+" - Required: " + this.minimumAllowedIntervalBetweenCheckIns + " minutes");
