@@ -2,16 +2,11 @@ package org.rfcx.guardian.guardian.activity
 
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.os.Handler
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -19,10 +14,12 @@ import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.checkin.ApiCheckInUtils
+import org.rfcx.guardian.guardian.api.checkin.ApiQueueCheckInService
 import org.rfcx.guardian.guardian.api.http.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.http.GuardianCheckCallback
 import org.rfcx.guardian.guardian.api.http.RegisterApi
 import org.rfcx.guardian.guardian.api.http.RegisterCallback
+import org.rfcx.guardian.guardian.diagnostic.DiagnosticUtils
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
@@ -45,8 +42,6 @@ class MainActivity : AppCompatActivity(),
     private var fileFormat: String? = null
     private var bitRate: String? = null
     private var duration: String? = null
-
-    private lateinit var sharedPrefs: SharedPreferences
 
     override fun onResume() {
         super.onResume()
@@ -163,7 +158,8 @@ class MainActivity : AppCompatActivity(),
 
     private fun updateAudioSettingsInfo() {
         val audioSettingUtils = AudioSettingUtils(this)
-        audioInfoText.text = "${audioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${audioSettingUtils.getBitRateLabel(bitRate!!)}, ${duration}secs"
+        audioSettingsInfoText.text = "${audioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${audioSettingUtils.getBitRateLabel(bitRate!!)}"
+        durationInfoText.text = "$duration seconds per file"
     }
 
     private fun showToast(message: String) {
@@ -257,11 +253,11 @@ class MainActivity : AppCompatActivity(),
                             checkInText.text = checkInUtils.getCheckinTime(latestCheckinTimestamp)
                             sizeText.text = checkInUtils.getFileSize(latestFileSize)
 
-                            val recordedList = app.diagnosticDb.dbRecordedDiagnostic.latestRow
-                            val syncedList = app.diagnosticDb.dbSyncedDiagnostic.latestRow
-                            recordTimeText.text =
-                                app.diagnosticUtils.secondToTime(recordedList[2]?.toInt())
-                            fileRecordedSyncedText.text = "${syncedList[1]} / ${recordedList[1]}"
+                            val totalLocalAudio = ApiQueueCheckInService.totalLocalAudio
+                            val totalSyncedAudio = ApiCheckInUtils.totalSyncedAudio
+                            val totalRecordedTime = ApiQueueCheckInService.totalRecordedTime
+                            recordTimeText.text = DiagnosticUtils.secondToTime(totalRecordedTime)
+                            fileRecordedSyncedText.text = "$totalSyncedAudio / $totalLocalAudio"
 
                         }
                         sleep(5000)
