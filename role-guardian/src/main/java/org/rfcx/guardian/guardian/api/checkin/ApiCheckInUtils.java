@@ -399,6 +399,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		StringBuilder _sent = (new StringBuilder()).append("sent").append("*").append(app.apiCheckInDb.dbSent.getCount());
 		StringBuilder _skipped = (new StringBuilder()).append("skipped").append("*").append(app.apiCheckInDb.dbSkipped.getCount());
 		StringBuilder _stashed = (new StringBuilder()).append("stashed").append("*").append(app.apiCheckInDb.dbStashed.getCount());
+		StringBuilder _archived = (new StringBuilder()).append("archived").append("*").append(app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount());
 
 		if (includeAssetIdLists) {
 			long reportAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
@@ -412,7 +413,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 		}
 
-		return TextUtils.join("|", new String[] { _queued.toString(), _sent.toString(), _skipped.toString(), _stashed.toString() });
+		return TextUtils.join("|", new String[] { _queued.toString(), _sent.toString(), _skipped.toString(), _stashed.toString(), _archived.toString() });
 	}
 
 	private JSONObject getLocalInstructionsStatusInfoJson() {
@@ -1278,6 +1279,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken()); // this should not be hardware based, eventually
 		pingObj.put("guardian", guardianObj);
 
+		pingObj.put("measured_at", System.currentTimeMillis());
 		pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
 		pingObj.put("instructions", getLocalInstructionsStatusInfoJson());
 		pingObj.put("hardware", DeviceHardwareUtils.getDeviceHardwareInfoJson());
@@ -1288,7 +1290,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		JSONObject outputJsonObj = new JSONObject();
 		outputJsonObj.put("ping", pingObj);
 
-//		Log.d(logTag, outputJsonObj.toString());
+		Log.d(logTag, outputJsonObj.toString());
 
 		return outputJsonObj.toString();
 	}

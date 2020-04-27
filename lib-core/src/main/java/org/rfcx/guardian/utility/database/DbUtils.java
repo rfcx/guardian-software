@@ -251,6 +251,26 @@ public class DbUtils {
 		}
 	}
 
+	public static int getSumOfNumericColumnValues(SQLiteDatabase db, String tableName, String selection, String[] selectionArgs) {
+		int sum = 0;
+		try {
+			for (String[] singleRow : getRows(db, tableName, new String[] { "SUM("+selection+")" }, selection, selectionArgs, null, 0, 1)) {
+				sum = (int) Integer.parseInt(singleRow[0]);
+				break;
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return sum;
+	}
+
+	public int getSumOfNumericColumnValues(String tableName, String selection, String[] selectionArgs) {
+		SQLiteDatabase db = openDb();
+		int sum = getSumOfNumericColumnValues(db, tableName, selection, selectionArgs);
+		closeDb();
+		return sum;
+	}
+
 	public static int getCount(SQLiteDatabase db, String tableName, String selection, String[] selectionArgs) {
 		int count = 0;
 		try { 

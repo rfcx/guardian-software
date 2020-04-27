@@ -75,6 +75,16 @@ public class ArchiveDb {
 			return DbUtils.getConcatRows(getAllRows());
 		}
 
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
+
+		public int getInnerRecordCumulativeCount() {
+			return this.dbUtils.getSumOfNumericColumnValues(TABLE, C_RECORD_COUNT, null);
+		}
+
+
+
 	}
 	public final DbCheckInArchive dbCheckInArchive;
 	
