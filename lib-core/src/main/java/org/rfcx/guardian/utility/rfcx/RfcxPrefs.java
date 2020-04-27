@@ -197,31 +197,16 @@ public class RfcxPrefs {
 	}
 	
 	public void writeVersionToFile(String versionName) {
-		writeToGuardianRoleTxtFile(this.context, this.logTag, "version",versionName);
-	}
-	
-	public String getVersionFromFile(String targetAppRole) {
-		return readFromGuardianRoleTxtFile(this.context, this.logTag, this.thisAppRole, targetAppRole.toLowerCase(Locale.US), "version");
-	}
-	
-	public void writeGuidToFile(String deviceGuid) {
-		writeToGuardianRoleTxtFile(this.context, this.logTag, "guid", deviceGuid);
+		writeToGuardianRoleTxtFile(this.context, this.logTag, "version", versionName);
 	}
 
-	static void writeGuidToFile(Context context, String logTag, String deviceGuid) {
-		writeToGuardianRoleTxtFile(context, logTag, "guid", deviceGuid);
-	}
-	
-	static String getGuidFromFile(Context context, String logTag, String thisAppRole, String targetAppRole) {
-		return readFromGuardianRoleTxtFile(context, logTag, thisAppRole, targetAppRole.toLowerCase(Locale.US), "guid");
-	}
 
-	private static void writeToGuardianRoleTxtFile(Context context, String logTag, String fileNameNoExt, String stringContents) {
-	    	String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
-	    	File fileObj = new File(filePath);
-	    	fileObj.mkdirs();
-	    	FileUtils.chmod(context.getFilesDir().toString()+"/txt", "rw", "rw");
-	    	if (fileObj.exists()) { fileObj.delete(); }
+	public static void writeToGuardianRoleTxtFile(Context context, String logTag, String fileNameNoExt, String stringContents) {
+		String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
+		File fileObj = new File(filePath);
+		fileObj.mkdirs();
+		FileUtils.chmod(context.getFilesDir().toString()+"/txt", "rw", "rw");
+		if (fileObj.exists()) { fileObj.delete(); }
         try {
 	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
 	        	outFile.write(stringContents);
@@ -232,12 +217,15 @@ public class RfcxPrefs {
         }
 	}
 	
-	static String readFromGuardianRoleTxtFile(Context context, String logTag, String thisAppRole, String targetAppRole, String fileNameNoExt) {
+	public static String readFromGuardianRoleTxtFile(Context context, String logTag, String thisAppRole, String targetAppRole, String fileNameNoExt) {
 	    	try {
-	    		String mainAppPath = context.getFilesDir().getAbsolutePath();
-	    		File txtFile = new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/files")-(("."+thisAppRole).length()))+"."+targetAppRole+"/files/txt",fileNameNoExt+".txt");
-	    		if (txtFile.exists()) {
-					FileInputStream input = new FileInputStream(txtFile);
+	    		String appFilesDir = context.getFilesDir().getAbsolutePath();
+	    		File txtFileObj = new File(appFilesDir+"/txt/"+fileNameNoExt+".txt");
+	    		if (!thisAppRole.equalsIgnoreCase(targetAppRole)) {
+					txtFileObj = new File(appFilesDir.substring(0,appFilesDir.lastIndexOf("/files")-(("."+thisAppRole.toLowerCase(Locale.US)).length()))+"."+targetAppRole.toLowerCase(Locale.US)+"/files/txt/"+fileNameNoExt+".txt");
+	    		}
+	    		if (txtFileObj.exists()) {
+					FileInputStream input = new FileInputStream(txtFileObj);
 					StringBuilder fileContent = new StringBuilder();
 					byte[] buffer = new byte[256];
 					while (input.read(buffer) != -1) {
@@ -247,7 +235,7 @@ public class RfcxPrefs {
 		    		input.close();
 		    		return txtFileContents.isEmpty() ? null : txtFileContents;
 	    		} else {
-//	    			Log.e(logTag, "No file '"+fileNameNoExt+"' saved by org.rfcx.guardian."+targetAppRole+"...");
+	    		//	Log.e(logTag, "No file '"+fileNameNoExt+"' saved at "+txtFileObj.getAbsolutePath());
 	    		}
 	    	} catch (FileNotFoundException e) {
 				RfcxLog.logExc(logTag, e);

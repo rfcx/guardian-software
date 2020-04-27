@@ -52,6 +52,13 @@ public class GuardianContentProvider extends ContentProvider {
 				app.setSharedPref(pathSegPrefKey, pathSegPrefValue);
 				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{pathSegPrefKey, pathSegPrefValue, System.currentTimeMillis()});
 
+			// get guardian identity info
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "identity", "*")) {
+				String identityKey = uri.getLastPathSegment();
+				String identityValue = (identityKey.equalsIgnoreCase("token")) ? app.rfcxGuardianIdentity.getAuthToken() : app.rfcxGuardianIdentity.getGuid();
+				return RfcxComm.getProjectionCursor(appRole, "identity", new Object[] { identityKey, identityValue });
+
 			// get status of services
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) {

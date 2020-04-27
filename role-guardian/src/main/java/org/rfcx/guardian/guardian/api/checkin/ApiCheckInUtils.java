@@ -286,6 +286,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				Log.w(logTag, healthCheckLogging.toString());
 			} else {
 				Log.i(logTag, healthCheckLogging.toString());
+				// this is where we could choose to reload stashed checkins into the queue
 			}
 		}
 
@@ -395,11 +396,11 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private String getCheckInStatusInfoForJson(boolean includeAssetIdLists) {
 
-		StringBuilder _queued = (new StringBuilder()).append("queued").append("*").append(app.apiCheckInDb.dbQueued.getCount());
-		StringBuilder _sent = (new StringBuilder()).append("sent").append("*").append(app.apiCheckInDb.dbSent.getCount());
-		StringBuilder _skipped = (new StringBuilder()).append("skipped").append("*").append(app.apiCheckInDb.dbSkipped.getCount());
-		StringBuilder _stashed = (new StringBuilder()).append("stashed").append("*").append(app.apiCheckInDb.dbStashed.getCount());
-		StringBuilder _archived = (new StringBuilder()).append("archived").append("*").append(app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount());
+		StringBuilder queuedStatus = (new StringBuilder()).append("queued").append("*").append(app.apiCheckInDb.dbQueued.getCount());
+		StringBuilder sentStatus = (new StringBuilder()).append("sent").append("*").append(app.apiCheckInDb.dbSent.getCount());
+		StringBuilder skippedStatus = (new StringBuilder()).append("skipped").append("*").append(app.apiCheckInDb.dbSkipped.getCount());
+		StringBuilder stashedStatus = (new StringBuilder()).append("stashed").append("*").append(app.apiCheckInDb.dbStashed.getCount());
+		StringBuilder archivedStatus = (new StringBuilder()).append("archived").append("*").append(app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount());
 
 		if (includeAssetIdLists) {
 			long reportAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
@@ -408,12 +409,12 @@ public class ApiCheckInUtils implements MqttCallback {
 				long diff = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(assetId)));
 			//	Log.e(logTag, "Difference (" + assetId + ") " + DateTimeUtils.milliSecondDurationAsReadableString(diff));
 				if (diff > reportAssetIdIfOlderThan) {
-					_sent.append("*").append(assetId);
+					sentStatus.append("*").append(assetId);
 				}
 			}
 		}
 
-		return TextUtils.join("|", new String[] { _queued.toString(), _sent.toString(), _skipped.toString(), _stashed.toString(), _archived.toString() });
+		return TextUtils.join("|", new String[] { queuedStatus.toString(), sentStatus.toString(), skippedStatus.toString(), stashedStatus.toString(), archivedStatus.toString() });
 	}
 
 	private JSONObject getLocalInstructionsStatusInfoJson() {
@@ -1290,7 +1291,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		JSONObject outputJsonObj = new JSONObject();
 		outputJsonObj.put("ping", pingObj);
 
-		Log.d(logTag, outputJsonObj.toString());
+//		Log.d(logTag, outputJsonObj.toString());
 
 		return outputJsonObj.toString();
 	}

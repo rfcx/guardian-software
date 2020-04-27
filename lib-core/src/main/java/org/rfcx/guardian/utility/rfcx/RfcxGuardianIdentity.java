@@ -1,12 +1,10 @@
 package org.rfcx.guardian.utility.rfcx;
 
-import java.security.MessageDigest;
-import java.util.UUID;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.telephony.TelephonyManager;
+import android.database.Cursor;
 import android.util.Log;
+
+import org.rfcx.guardian.utility.misc.StringUtils;
 
 public class RfcxGuardianIdentity {
 
@@ -14,85 +12,103 @@ public class RfcxGuardianIdentity {
 		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxGuardianIdentity");
 		this.context = context;
 		this.appRole = appRole;
-		checkSetTelephonyId();
-		checkSetCustomGuid();
+		checkSetPreDefinedGuid();
 	}
 
 	private String logTag;
 
 	private Context context;
 	private String appRole;
-	private String telephonyId;
 	private String guid;
 	private String authToken;
 
-	@SuppressLint("MissingPermission")
-	private void checkSetTelephonyId() {
-		try {
-			if (this.telephonyId == null) {
-				this.telephonyId = ((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId().toString();
+	private void checkSetPreDefinedGuid() {
+		String fromContentProvider = readIdentityInfoFromContentProvider("guid");
+		if (fromContentProvider != null) {
+			Log.e(logTag, "Predefined Guardian Guid retrieved from content provider");
+			this.guid = fromContentProvider;
+			RfcxPrefs.writeToGuardianRoleTxtFile(this.context, this.logTag, "guid", this.guid);
+		} else {
+			String fromTxtFile = RfcxPrefs.readFromGuardianRoleTxtFile(this.context, this.logTag, this.appRole, this.appRole, "guid");
+			if (fromTxtFile != null) {
+				Log.e(logTag, "Predefined Guardian Guid retrieved from file");
+				this.guid = fromTxtFile;
 			}
-		} catch (Exception e) {
-			RfcxLog.logExc(this.logTag, e);
+		}
+	}
+
+	private void checkSetPreDefinedAuthToken() {
+		String fromContentProvider = readIdentityInfoFromContentProvider("token");
+		if (fromContentProvider != null) {
+			Log.e(logTag, "Predefined Auth Token retrieved from content provider");
+			this.authToken = fromContentProvider;
+			RfcxPrefs.writeToGuardianRoleTxtFile(this.context, this.logTag, "token", this.authToken);
+		} else {
+			String fromTxtFile = RfcxPrefs.readFromGuardianRoleTxtFile(this.context, this.logTag, this.appRole, this.appRole, "token");
+			if (fromTxtFile != null) {
+				Log.e(logTag, "Predefined Auth Token retrieved from file");
+				this.authToken = fromTxtFile;
+			}
 		}
 	}
 
 	public void setGuid(String guid) {
-		RfcxPrefs.writeGuidToFile(this.context, this.logTag, guid);
-		checkSetCustomGuid();
+		RfcxPrefs.writeToGuardianRoleTxtFile(this.context, this.logTag, "guid", guid);
+		this.guid = guid;
 	}
-	
-	private void checkSetCustomGuid() {
-		String customOrPreSetGuid = RfcxPrefs.getGuidFromFile(this.context, this.logTag, this.appRole, "org.rfcx.guardian.guardian");
-		if (customOrPreSetGuid != null) {
-			this.guid = customOrPreSetGuid;
-		}
+
+	public void setAuthToken(String authToken) {
+		RfcxPrefs.writeToGuardianRoleTxtFile(this.context, this.logTag, "token", authToken);
+		this.authToken = authToken;
 	}
 	
     public String getGuid() {
-	    	if (this.guid == null) {
-	    		checkSetCustomGuid();
-	    		if (this.guid == null) {
-	    			checkSetTelephonyId();
-				try {
-		    		checkSetTelephonyId();
-					MessageDigest telephonyIdMd5 = MessageDigest.getInstance("MD5");
-					byte[] telephonyIdMd5Bytes = telephonyIdMd5.digest(telephonyId.getBytes("UTF-8"));
-				    StringBuffer stringBuffer = new StringBuffer("");
-				    for (int i = 0; i < telephonyIdMd5Bytes.length; i++) {
-				    		stringBuffer.append(Integer.toString((telephonyIdMd5Bytes[i] & 0xff) + 0x100, 16).substring(1));
-				    }
-				    this.guid = stringBuffer.toString().substring(0,12);
-				    RfcxPrefs.writeGuidToFile(this.context, this.logTag, this.guid);
-				} catch (Exception e) {
-					RfcxLog.logExc(this.logTag, e);
-					String randomGuid = (UUID.randomUUID()).toString();
-					guid = randomGuid.substring(1+randomGuid.lastIndexOf("-"));
-					Log.d("guid", guid);
-				}
-	    		}
-	    	}
-	    	return this.guid;
+		if (this.guid == null) {
+			checkSetPreDefinedGuid();
+			if (this.guid == null) {
+				Log.e(logTag, "Failed to find pre-defined guid.");
+				setGuid(StringUtils.randomAlphanumericString(12, false));
+				Log.e(logTag, "New Guardian Guid generated: "+this.guid);
+			}
+		}
+		return this.guid;
     }
     
     public String getAuthToken() {
-	    	if (this.authToken == null) {
-	    		checkSetTelephonyId();
-			try {
-				MessageDigest telephonyIdSha1 = MessageDigest.getInstance("SHA-1");
-				telephonyIdSha1.update(telephonyId.getBytes("UTF-8"));
-				byte[] telephonyIdSha1Bytes = telephonyIdSha1.digest();
-			    StringBuffer stringBuffer = new StringBuffer("");
-			    for (int i = 0; i < telephonyIdSha1Bytes.length; i++) {
-			    		stringBuffer.append(Integer.toString((telephonyIdSha1Bytes[i] & 0xff) + 0x100, 16).substring(1));
-			    }
-			    this.authToken = stringBuffer.toString();
-			} catch (Exception e) {
-				RfcxLog.logExc(this.logTag, e);
-				authToken = ((UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()+(UUID.randomUUID()).toString()).replaceAll("-","").substring(0,40);
+		if (this.authToken == null) {
+			checkSetPreDefinedAuthToken();
+			if (this.authToken == null) {
+				Log.e(logTag, "Failed to find pre-defined auth token.");
+				Log.e(logTag, "Auth token cannot be generated by the guardian itself. Please re-register this device.");
 			}
-	    	}
+		}
 		return this.authToken;
     }
+
+
+	private String readIdentityInfoFromContentProvider(String identityKey) {
+		try {
+
+			if (!this.appRole.equalsIgnoreCase("guardian")) {
+
+				Cursor identityCursor = this.context.getContentResolver().query(
+						RfcxComm.getUri("guardian", "identity", identityKey),
+						RfcxComm.getProjection("guardian", "identity"),
+						null, null, null);
+
+				if ((identityCursor != null) && (identityCursor.getCount() > 0)) { if (identityCursor.moveToFirst()) { try { do {
+					if (identityCursor.getString(identityCursor.getColumnIndex("identity_key")).equalsIgnoreCase(identityKey)) {
+						String identityValue = identityCursor.getString(identityCursor.getColumnIndex("identity_value"));
+//						Log.v(logTag, "Guardian Identity retrieved via Content Provider: '"+identityKey+"' = '"+identityValue+"'");
+						return identityValue;
+					}
+				} while (identityCursor.moveToNext()); } finally { identityCursor.close(); } } }
+			}
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return null;
+	}
 
 }
