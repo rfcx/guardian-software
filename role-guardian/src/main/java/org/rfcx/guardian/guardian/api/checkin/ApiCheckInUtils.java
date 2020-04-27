@@ -401,11 +401,14 @@ public class ApiCheckInUtils implements MqttCallback {
 		StringBuilder _stashed = (new StringBuilder()).append("stashed").append("*").append(app.apiCheckInDb.dbStashed.getCount());
 
 		if (includeAssetIdLists) {
-			long sendIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+			long reportAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
 			for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(10)) {
-				long diff = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(_checkIn[0])));
-				Log.e(logTag, "Difference (" + _checkIn[1] + ") " + DateTimeUtils.milliSecondDurationAsReadableString(diff));
-				_sent.append("*").append(_checkIn[1].substring(0, _checkIn[1].lastIndexOf(".")));
+				String assetId = _checkIn[1].substring(0, _checkIn[1].lastIndexOf("."));
+				long diff = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(assetId)));
+			//	Log.e(logTag, "Difference (" + assetId + ") " + DateTimeUtils.milliSecondDurationAsReadableString(diff));
+				if (diff > reportAssetIdIfOlderThan) {
+					_sent.append("*").append(assetId);
+				}
 			}
 		}
 
@@ -523,11 +526,10 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
 
-		// Adding Guardian GUID
-		checkInMetaJson.put("guardian_guid", this.app.rfcxGuardianIdentity.getGuid());
+		// Adding Guardian GUID and Auth Token
 		JSONObject guardianObj = new JSONObject();
 		guardianObj.put("guid", this.app.rfcxGuardianIdentity.getGuid());
-		guardianObj.put("token", "");
+		guardianObj.put("token", this.app.rfcxGuardianIdentity.getAuthToken());
 		checkInMetaJson.put("guardian", guardianObj);
 
 		// Adding Audio JSON fields from checkin table
