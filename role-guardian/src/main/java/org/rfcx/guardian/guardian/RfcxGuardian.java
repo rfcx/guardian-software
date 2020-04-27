@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.rfcx.guardian.guardian.api.checkin.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.api.checkin.ScheduledApiPingService;
-import org.rfcx.guardian.guardian.diagnostic.DiagnosticDb;
 import org.rfcx.guardian.guardian.diagnostic.DiagnosticUtils;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -69,7 +68,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ArchiveDb archiveDb = null;
     public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
-    public DiagnosticDb diagnosticDb = null;
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -81,7 +79,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioCaptureUtils audioCaptureUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
     public InstructionsUtils instructionsUtils = null;
-    public DiagnosticUtils diagnosticUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
@@ -123,7 +120,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
-        this.diagnosticUtils = new DiagnosticUtils(this);
 
         initializeRoleServices();
 
@@ -194,7 +190,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.archiveDb = new ArchiveDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
-        this.diagnosticDb = new DiagnosticDb(this, this.version);
 
     }
 

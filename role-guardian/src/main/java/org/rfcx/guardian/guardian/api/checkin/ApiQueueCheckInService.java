@@ -14,6 +14,9 @@ public class ApiQueueCheckInService extends IntentService {
 	private static final String SERVICE_NAME = "ApiQueueCheckIn";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiQueueCheckInService");
+
+	public static int totalLocalAudio = 0;
+	public static int totalRecordedTime = 0;
 		
 	public ApiQueueCheckInService() {
 		super(logTag);
@@ -46,7 +49,9 @@ public class ApiQueueCheckInService extends IntentService {
 								"16bit" 		 // sample precision, in bits
 						}, encodedAudio[9]);
 
-				app.diagnosticUtils.updateRecordedDiagnostic();
+				// increase total of local audio when finish sending audio to queue
+				totalLocalAudio += 1;
+				totalRecordedTime += app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			}
 
 

@@ -102,6 +102,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	public static long latestFileSize = 0L;
 	public static String latestCheckinTimestamp = "";
+	public static int totalSyncedAudio = 0;
 
 	boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
@@ -1130,7 +1131,8 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.instructionsUtils.processInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
 			}
 
-			app.diagnosticUtils.updateSyncedDiagnostic();
+			// increase total of synced audio when get the response from mqtt sending
+			totalSyncedAudio += 1;
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
