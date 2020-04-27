@@ -176,7 +176,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		// fetch check-in entry from relevant table, if it exists...
 		if (checkInStatus.equalsIgnoreCase("sent")) {
-		//	purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
 			checkInToReQueue = app.apiCheckInDb.dbSent.getSingleRowByAudioAttachmentId(audioId);
 		} else if (checkInStatus.equalsIgnoreCase("stashed")) {
 			checkInToReQueue = app.apiCheckInDb.dbStashed.getSingleRowByAudioAttachmentId(audioId);
@@ -290,6 +289,10 @@ public class ApiCheckInUtils implements MqttCallback {
 			} else {
 				Log.i(logTag, healthCheckLogging.toString());
 				// this is where we could choose to reload stashed checkins into the queue
+				if (app.apiCheckInDb.dbStashed.getCount() > 0) {
+					String[] lastStashedCheckIn = app.apiCheckInDb.dbStashed.getLatestRow();
+					reQueueAudioAssetForCheckIn("stashed", lastStashedCheckIn[1]);
+				}
 			}
 		}
 
