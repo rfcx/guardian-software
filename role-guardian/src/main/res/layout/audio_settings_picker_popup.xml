@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="260dp">
+
+    <RadioGroup
+            android:id="@+id/fileFormatRg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_padding_small"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+                android:id="@+id/opusRb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="opus"
+                android:textSize="12sp" />
+
+        <RadioButton
+                android:id="@+id/flacRb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="flac"
+                android:textSize="12sp" />
+    </RadioGroup>
+
+    <LinearLayout
+            android:id="@+id/audioSettingsLabelLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="@dimen/margin_padding_small"
+            app:layout_constraintTop_toBottomOf="@id/fileFormatRg">
+
+        <TextView
+                android:id="@+id/sampleRateLabel"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/margin_padding_small"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="sample rate"
+                android:textSize="16sp" />
+
+        <TextView
+                android:id="@+id/bitRateLabel"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/margin_padding_small"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="bitrate"
+                android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            app:layout_constraintTop_toBottomOf="@id/audioSettingsLabelLayout">
+
+        <NumberPicker
+                android:id="@+id/sampleRatePicker"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+        <NumberPicker
+                android:id="@+id/bitRatePicker"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

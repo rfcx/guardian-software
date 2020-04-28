@@ -17,18 +17,30 @@ A collection of Android applications which, together, operate as autonomous Rain
 - Open in Android Studio
 - Perform a Gradle sync (File -> Sync Project with Gradle) and accept licences/install SDK packages (if prompted by Android Studio)
 
-#### Build Signed APKs
+#### Build Signed APKs (need Android Studio installed)
 
 1. First need to prepare necessery files located in /gradle/signing/
    - rfcx-guardian-keystore.jks
    - rfcx-guardian-keystore-alias.txt
    - rfcx-guardian-keystore-password.txt
+   - rfcx-platform-keystore.jks
+   - rfcx-platform-keystore-alias.txt
+   - rfcx-platform-keystore-password.txt
 2. Use this command after prepared
+
+   For specific role
 
    ```
    gradlew :role:assembleRelease
    ```
-3. Output will be in /role/build/outputs/apk/release/
+   
+   For all roles
+   
+   ```
+   gradlew assembleRelease
+   ```
+   
+3. Output will be in /{role}/build/outputs/apk/release/
 
 #### Download apps from script
 
@@ -51,20 +63,21 @@ A collection of Android applications which, together, operate as autonomous Rain
 
 You will need a rooted phone to test the admin role. It will run without a rooted phone, but many of the functions (e.g. time sync, reboot) will not operate.
 
-
 ## Instructions for Orange Pi 3G-IoT
 
-Before, starting any instructions here. Please read the information below and do it properly.
+Before getting started, key points to be familiar with:
 
 1. On the Orange Pi board there are two LEDs, red and green. **Red** indicates the **power** is connected and **green** indicates that the device is **ON**. Make sure that the power that connected to the Orange Pi is **5V**. If not the LEDs brightness will be low and cannot start the operating system.
 2. By default the Orange Pi comes with both COM 1 jumpers in the correct position. No need to ever change them it seems. COM 2 jumper should be ON only when flashing the device (the rest of the time it should be OFF/removed).
-2. The Orange Pi do not come with the **IMEI number**. You need to set it by yourself following the instructions below. Before install any roles, you should set the **IMEI number first**.
-3. The Orange Pi is not rooted by default. You can root it by yourself following the instruction below.
+3. The OrangePi do not come with the **IMEI number**. You need to set it by yourself following the instructions below. Before install any roles, you should set the **IMEI number first**.
 4. Before using any roles, make sure there is the internet connection.
-5. **Time and date** will not be correct on the first time you start the device. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** *(you need to root Orange Pi first)* or insert sim card.
-7. The Orange Pi comes with USB debugging **enabled** by default.
-8. The Orange Pi comes with **auto allow the permission** (because it is Android 4.4).
-9. The guardian role will capture audio and send to server automatically if:
+5. **Time and date** will not be correct on the first time you start the device. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** or insert sim card.
+6. **Timezone automatically** need to uncheck so that Admin role can change it.
+7. **Default Write Disk** need to set to **Phone Storage** although sd card is installed.
+8. **Default SMS app** need to set to Admin role.
+9. The OrangePi comes with USB debugging **enabled** by default.
+10. The OrangePi comes with **auto allow the permission** (because it is Android 4.4.2).
+11. The guardian role will capture audio and send to server automatically if:
     1. The date/time is (reasonably) close to current time
     2. GPS location is enabled
     3. Guardian is registered
@@ -72,9 +85,34 @@ Before, starting any instructions here. Please read the information below and do
     5. There is internet connection
     6. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
 
-### Step 1: Flash Android on Orange Pi (from Windows)
+#### Install apps
 
-1. Make sure COM 2 jumper is ON.
+You can install apps by 2 ways
+1. Using script in /bin/
+   1. Your **PATH** should have Android SDK root path or If you have Android Studio installed then your Environment Variables also should have **ANDROID_SDK_ROOT**. If there is none of those two then you need to set it yourself.
+   2. Connect your OrangePi to your PC via usb port
+   3. Run script **download-apk-install.sh 0.x.x**
+   4. All apps will be installed and start automatically
+2. Using Android Studio
+   1. Connect your OrangePi to your PC via usb port
+   2. In Android Studio, select the **guardian|admin|updater** app and press **Run**.
+   3. The app will be installed and start automatically
+
+#### Run the guardian role
+
+1. Login (make sure your user account has guardianCreator role). Once logined, the browser will be redirected to the app automatically.
+2. Register the guardian.
+3. If registration success, guid will show up on the screen and the audio capture service will start.
+4. Also, login to the Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your OrangePi (you will see the first 4 chars of the id)
+5. Open **Logcat** in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your OrangePi.
+
+#### Run the admin role
+
+OrangePi has already been rooted so you do not need to do anything extra to run admin role.
+
+### Step 1: Flash Android on OrangePi (using Windows)
+
+1. Make sure COM 2 jumper is ON. (Note: in practice we found that the jumper can be OFF for the flashing process.)
 1. You need to download and install these tools
     1. [MTK Driver Installer](https://drive.google.com/open?id=15GXkFqZ95ilu482SXAiOPlxm878otwu9).
        Choose WIN8 if you are using Windows 8 or above.
@@ -118,6 +156,8 @@ Before following the instruction below. You need to download Vysor first.
 
 ### Step 3: Set the IMEI number
 
+Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IMEIs](https://docs.google.com/spreadsheets/d/1oQzsJxQ8KqGP7VJJja-v7-JlHIYqI_mnqq2bFSlDRSw/edit#gid=0).
+
 1. Make sure that COM 2 jumper is OFF (removed).
 2. First download [IMEI Writer](https://drive.google.com/open?id=1JBEbILcHHfWM3Yz4e4J9Yc5Leix9m1uI) (for Windows)
 3. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
@@ -131,7 +171,7 @@ Before following the instruction below. You need to download Vysor first.
     6. Save and then Start
     7. Put the IMEI Number with 15 digit
 6. Make sure that Orange Pi do not connect to PC.
-7. Click OK and then connect Orange Pi to PC immediately.
+7. Click OK and then connect Orange Pi to PC immediately (be quick else the device will not be detected in time and you will have to disconnect/start again).
 8. In Vysor, go to Settings -> About Phone -> Status and scroll down to verify that IMEI number you entered during the flashing process is shown there. (If there is an error then repeat step 5).
 
    ![](docs/images/checkimei.png?raw=true)
@@ -142,7 +182,7 @@ Before following the instruction below. You need to download Vysor first.
 
 2. Open Android Studio
 
-3. Click the "Run" button to see if the device connected. *(If Vysor sees the device, Android Studio should detect it too.)*
+3. Click the **Run** button to see if the device connected. *(If Vysor sees the device, Android Studio should detect it too.)*
 
    ![](docs/images/androidstudio1.PNG?raw=true)
 
@@ -152,8 +192,7 @@ Before following the instruction below. You need to download Vysor first.
 
    ![](docs/images/androidstudio2.PNG?raw=true)
 
-
-### Step 5: How to debug Orange Pi over Bluetooth instead of USB cable
+### Step 5: How to debug OrangePi over Bluetooth instead of USB cable
 
 1. Make sure Orange Pi is connected, Bluetooth is on and set visibility timeout to never time out as follows.
     1. Bluetooth is *on*
@@ -197,8 +236,57 @@ Before following the instruction below. You need to download Vysor first.
 
 7. If you want to go back to USB debugging, you need to `adb shell` and then enter `setprop persist.adb.tcp.port ""`.
 
+### Step 6: How to debug OrangePi over Wifi Hotspot
 
-### Step 6: How to connect i2c and load i2c module
+1. Require guardian and admin role installed.
+
+2. Start guardian role app.
+
+3. Open **Preferences setting** at top right menu
+
+4. Set **admin_enable_wifi** and **admin_enable_tcp_adb** to true
+
+   ![](docs/images/pref_setting.PNG?raw=true)
+
+5. Wifi hotspot will enable and tcp port will change to 7329. Wifi hotspot name will named as rfcx-{guid} and password is rfcxrfcx
+
+6. Go to Settings > Wireless & Networks - **More...** > Tethering & portable hotspot > Wifi hotspot > Keep Wifi hotspot on > Change to **Always**
+
+   ![](docs/images/wifi_hotspot.PNG?raw=true)
+
+7. Then take USB cable off and power OrangePi with external power source
+
+8. Connect your PC to OrangePi Wifi hotspot
+
+9. Now you can debug your OrangePi using its IP (default is 192.168.43.1)
+
+   ```
+   adb connect 192.168.43.1:7329
+   ```
+
+10. Then you can see the screen using Vysor
+
+### Step 7: How to set Default SMS app to Admin role
+
+1. Require Admin role installed
+
+2. Go to Settings > Wireless & Networks - **More...** > Default SMS app > Choose **RFCx Admin**
+
+   ![](docs/images/sms_to_admin.PNG?raw=true)
+
+### Step 8: How to set Default Write Disk to Phone storage
+
+1. Go to Settings > Device - **Storage** > Choose Default Write Disk - **Phone storage**
+
+   ![](docs/images/write_disk.PNG?raw=true)
+
+### Step 9: How to set Timezone automatically to off
+
+1. Go to Setting > System - **Date & Time** > Uncheck **Automatic time zone**
+
+   ![](docs/images/timezone_off.PNG?raw=true)
+
+### Step 10: How to connect i2c and load i2c module
 
 1. First, place Orange Pi same position as in the image.
 
@@ -214,16 +302,34 @@ Before following the instruction below. You need to download Vysor first.
 
 4. The step to start Orange Pi is the same as before.
 
-5. You can debug Orange Pi by using micro usb on [Step 6](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-7-how-to-debug-orange-pi-over-bluetooth-instead-of-usb-cable)
+5. You can debug OrangePi by using Bluetooth on [Step 5](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-5-how-to-debug-orangepi-over-bluetooth-instead-of-usb-cable) or [Step 6](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-6-how-to-debug-orangepi-over-wifi-hotspot)
 
 ### Step 7: How to setup, run and test the I2C
 
-1. Orange Pi need to be rooted first on [Step 4](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-4-root-the-orange-pi)
+1. Plugin the sentinel power wires to the OrangePi on [Step 10](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-10-how-to-connect-i2c-and-load-i2c-module)
 
-2. Plugin the sentinel power wires to the Orange Pi on [Step 7](https://github.com/rfcx/rfcx-guardian-android/tree/android-studio#step-8-how-to-connect-i2c-and-load-i2c-module)
+2. Install admin role
 
-3. Install admin role
+3. When the admin role starts, switch **monitor** to **ON** in the screen
 
-4. When the admin role starts *(black screen)*, press “i2c view” button in the menu *(top right)*
+4. The result will be monitored real-time and can stop by switch it to **OFF**
 
-5. The result will show on the middle of the screen, if not the screen will show **"i2c value not found"**
+## Instructions for Android phone
+
+There are differences for normal Android phone and OrangePi.
+- It is not rooted by default.
+- You need to enable permission for apps yourself.
+
+#### Install apps
+
+The process is same as OrangePi
+
+#### Run the guardian role
+
+The process is same as OrangePi but you need to enable Permission yourself by
+- (If you are on Android 8 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS) then run the app again.
+
+#### Run the admin role
+
+You will need a rooted phone to test the admin role. It will run without a rooted phone, but many of the functions (e.g. time sync, reboot) will not operate.
+Also allow all permission is required.

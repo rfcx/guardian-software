@@ -1,0 +1,30 @@
+{
+  "buildFiles": [
+    "/Users/rfcx/code/guardian-android/i2c/jni/Android.mk",
+    "/Users/rfcx/code/guardian-android/i2c/jni/Application.mk"
+  ],
+  "cleanCommands": [
+    "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/lib clean"
+  ],
+  "buildTargetsCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/lib {LIST_OF_TARGETS_TO_BUILD}",
+  "libraries": {
+    "i2c-tools-release-armeabi-v7a": {
+      "artifactName": "i2c-tools",
+      "buildCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/lib /Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/libi2c-tools.a",
+      "abi": "armeabi-v7a",
+      "output": "/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/libi2c-tools.a"
+    },
+    "i2cget-release-armeabi-v7a": {
+      "artifactName": "i2cget",
+      "buildCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/lib /Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cget",
+      "abi": "armeabi-v7a",
+      "output": "/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cget"
+    },
+    "i2cset-release-armeabi-v7a": {
+      "artifactName": "i2cset",
+      "buildCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/lib /Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cset",
+      "abi": "armeabi-v7a",
+      "output": "/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cset"
+    }
+  }
+}

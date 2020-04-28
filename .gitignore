@@ -14,13 +14,20 @@
 /captures
 .externalNativeBuild
 audio/obj
+i2c/.cxx
 gradle/*
 gradle/wrapper/*
-!/gradle/signing/*
+!/gradle/signing
 /gradle/signing/rfcx-guardian-keystore.jks
 /gradle/signing/rfcx-guardian-keystore-alias.txt
 /gradle/signing/rfcx-guardian-keystore-password.txt
+/gradle/signing/rfcx-platform-keystore.jks
+/gradle/signing/rfcx-platform-keystore-alias.txt
+/gradle/signing/rfcx-platform-keystore-password.txt
 gradlew
 gradlew.bat
 local.properties
+
+/tmp
+/bin/_private
 

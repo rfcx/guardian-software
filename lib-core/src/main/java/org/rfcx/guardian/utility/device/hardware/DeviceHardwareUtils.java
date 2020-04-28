@@ -1,0 +1,61 @@
+package org.rfcx.guardian.utility.device.hardware;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
+public class DeviceHardwareUtils {
+	
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceHardwareUtils");
+	
+	public static JSONObject getDeviceHardwareInfoJson() {
+		List<String[]> hardwareInfoList = getDeviceHardwareInfo();
+		JSONObject hardwareInfoJson = new JSONObject();
+		for (int i = 0; i < hardwareInfoList.size(); i++) {
+			try {
+				hardwareInfoJson.put(hardwareInfoList.get(i)[0], hardwareInfoList.get(i)[1]);
+			} catch (JSONException e) {
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+		return hardwareInfoJson;
+	}
+	
+	private static List<String[]> getDeviceHardwareInfo() {
+		List<String[]> hardwareInfo = new ArrayList<String[]>();
+		hardwareInfo.add(new String[] { "brand", android.os.Build.BRAND });
+		hardwareInfo.add(new String[] { "manufacturer", android.os.Build.MANUFACTURER });
+		hardwareInfo.add(new String[] { "product", android.os.Build.PRODUCT });
+		hardwareInfo.add(new String[] { "model", android.os.Build.MODEL });
+		hardwareInfo.add(new String[] { "android", android.os.Build.VERSION.RELEASE });
+		return hardwareInfo;
+	}
+	
+	public static String getDeviceHardwareName() {
+		return android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL;
+	}
+
+	public static String getDeviceHardwareBrand() {
+		return android.os.Build.BRAND;
+	}
+
+	public static String getDeviceHardwareManufacturer() {
+		return android.os.Build.MANUFACTURER;
+	}
+
+	public static String getDeviceHardwareProduct() {
+		return android.os.Build.PRODUCT;
+	}
+
+	public static String getDeviceHardwareModel() {
+		return android.os.Build.MODEL;
+	}
+
+	public static String getDeviceHardwareRelease() {
+		return android.os.Build.VERSION.RELEASE;
+	}
+}
