@@ -8,6 +8,8 @@ import android.content.Context;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 public class RfcxGuardianIdentity {
 
 	public RfcxGuardianIdentity(Context context, String appRole) {
@@ -72,6 +74,7 @@ public class RfcxGuardianIdentity {
 				}
 	    		}
 	    	}
+	    	FirebaseCrashlytics.getInstance().setUserId(this.guid);
 	    	return this.guid;
     }
     
