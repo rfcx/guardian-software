@@ -4,13 +4,16 @@ import java.io.File;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
+import org.w3c.dom.Text;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class InstallAppService extends Service {
@@ -75,7 +78,7 @@ public class InstallAppService extends Service {
 			String apkFilePath = app.installUtils.apkDirExternal+"/"+app.apiCheckVersionUtils.installRole+"-"+app.apiCheckVersionUtils.installVersion+".apk";
 			try {
 //				ShellCommands.killProcessByName("org.rfcx.guardian."+app.targetAppRole,"."+RfcxGuardian.APP_ROLE, app.getApplicationContext());
-				isSuccessfullyInstalled = installApk(app.targetAppRole, app.getApplicationContext(), apkFilePath);
+				isSuccessfullyInstalled = installApk(app.targetAppRole, app.apiCheckVersionUtils.installVersion, app.getApplicationContext(), apkFilePath);
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
@@ -83,18 +86,20 @@ public class InstallAppService extends Service {
 			} finally {
 				
 				if (isSuccessfullyInstalled) {
-					Log.d(logTag, "Installation Successful:"+app.targetAppRole+", "+app.apiCheckVersionUtils.installVersion);
+					Log.d(logTag, "Installation Successful: "+app.targetAppRole+", "+app.apiCheckVersionUtils.installVersion);
 					installLoopCounter = 0;
 //					Log.d(logTag, "Rebooting system now...");
 //					app.rfcxServiceHandler.triggerService("RebootTrigger", true);
-				} else if (	(installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCheckVersionUtils.installVersionSha1)) {
-					installLoopCounter++;
-					app.rfcxServiceHandler.triggerService(SERVICE_NAME, true);
+//				} else if (	(installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCheckVersionUtils.installVersionSha1)) {
+//					installLoopCounter++;
+//					app.rfcxServiceHandler.triggerService(SERVICE_NAME, true);
 				} else {
 					Log.e(logTag, "Installation Failed: "+app.targetAppRole+", "+app.apiCheckVersionUtils.installVersion);
 					installLoopCounter = 0;
-					if ((new File(apkFilePath)).exists()) (new File(apkFilePath)).delete();
+					app.apiCheckVersionUtils.lastCheckInTriggered = 0;
 				}
+
+				if ((new File(apkFilePath)).exists()) (new File(apkFilePath)).delete();
 
 				app.apiCheckVersionUtils.lastCheckInTriggered = 0;
 
@@ -104,26 +109,23 @@ public class InstallAppService extends Service {
 		}
 	}
 	
-	private boolean installApk(String targetAppRole, Context context, String apkFilePath) {
+	private boolean installApk(String targetAppRole, String targetAppNewVersion, Context context, String apkFilePath) {
 
-		File apkFileObj = new File(apkFilePath);
 		Log.d(logTag, "Installing APK: "+apkFilePath);
 		try {
 
 			String[] installCommands = new String[] { "/system/bin/pm", "install", "-r", apkFilePath };
 			if (app.apiCheckVersionUtils.installVersion == null) installCommands = new String[] { "/system/bin/pm", "install", apkFilePath };
 
-			Process shellProcess = Runtime.getRuntime().exec(installCommands);
-			shellProcess.waitFor();
+			ShellCommands.executeCommand(TextUtils.join(" ", installCommands));
 
-			String targetAppVersion = RfcxRole.getRoleVersionByName(targetAppRole, RfcxGuardian.APP_ROLE, context);
-			Log.e(logTag, "Installed App Version: "+targetAppVersion);
+			String currentAppVersion = RfcxRole.getRoleVersionByName(targetAppRole, RfcxGuardian.APP_ROLE, context);
+			Log.e(logTag, "Current App Version Installed: "+currentAppVersion);
 
-			if (apkFileObj.exists()) { apkFileObj.delete(); }
-			return (targetAppVersion != null);
+			return (currentAppVersion == targetAppNewVersion);
+
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
-			if (apkFileObj.exists()) { apkFileObj.delete(); }
 		} finally {
 		}
 		return false;
