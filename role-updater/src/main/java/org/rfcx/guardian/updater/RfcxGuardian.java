@@ -43,7 +43,6 @@ public class RfcxGuardian extends Application {
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
     public long lastApiCheckTriggeredAt = System.currentTimeMillis();
-    public static final String targetAppRoleApiEndpoint = "all";
     public String targetAppRole = "";
 
     public String[] RfcxCoreServices =
@@ -95,7 +94,7 @@ public class RfcxGuardian extends Application {
             String[] runOnceOnlyOnLaunch = new String[] {
                     "ApiCheckVersionTrigger"
                             +"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
-                            +"|"+ ( ( 2 * this.apiCheckVersionUtils.minimumAllowedIntervalBetweenCheckIns ) * ( 60 * 1000 ) ) // repeats hourly
+                            +"|"+ ( ( 2 * ApiCheckVersionUtils.minimumAllowedIntervalBetweenCheckIns ) * ( 60 * 1000 ) ) // repeats hourly
             };
 
             String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
