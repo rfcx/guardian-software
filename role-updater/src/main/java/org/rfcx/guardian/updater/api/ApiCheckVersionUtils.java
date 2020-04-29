@@ -110,17 +110,17 @@ public class ApiCheckVersionUtils {
 		return 0;
 	}
 	
-	private boolean isCheckInAllowed() {
+	private boolean isCheckInAllowed(boolean printLoggingFeedbackIfBlocked) {
 		if (app != null) {
 			if (app.deviceConnectivity.isConnected()) {
 				long timeElapsedSinceLastCheckIn = System.currentTimeMillis() - this.lastCheckInTriggered;
-				if (timeElapsedSinceLastCheckIn > (this.minimumAllowedIntervalBetweenCheckIns * (60 * 1000))) {
+				if (timeElapsedSinceLastCheckIn > (minimumAllowedIntervalBetweenCheckIns * (60 * 1000))) {
 					this.lastCheckInTriggered = System.currentTimeMillis();
 					return true;
-				} else if (timeElapsedSinceLastCheckIn > 60000) {
+				} else if (printLoggingFeedbackIfBlocked) {
 					Log.e(logTag, "Update CheckIn blocked b/c minimum allowed interval has not yet elapsed"
 									+" - Elapsed: " + DateTimeUtils.milliSecondDurationAsReadableString(timeElapsedSinceLastCheckIn)
-									+" - Required: " + this.minimumAllowedIntervalBetweenCheckIns + " minutes");
+									+" - Required: " + minimumAllowedIntervalBetweenCheckIns + " minutes");
 				}
 			} else {
 				Log.e(logTag, "Update CheckIn blocked b/c there is no internet connectivity.");
@@ -129,8 +129,8 @@ public class ApiCheckVersionUtils {
 		return false;
 	}
 
-	public void attemptToTriggerCheckIn() {
-		if (isCheckInAllowed()) {
+	public void attemptToTriggerCheckIn(boolean printLoggingFeedbackIfBlocked) {
+		if (isCheckInAllowed(printLoggingFeedbackIfBlocked)) {
 			app.rfcxServiceHandler.triggerService("ApiCheckVersion", false);
 		}
 	}

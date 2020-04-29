@@ -18,7 +18,7 @@ export APK_VERSION=`cat $ROLE_DIR/build.gradle | grep ' versionName ' | cut -d'"
 
 # echo ""; echo "RFCx $ROLE ($APK_VERSION)";
 
-$SCRIPT_DIR/build-apk.sh $ROLE;
+# $SCRIPT_DIR/build-apk.sh $ROLE;
 
 echo "generating sha1 digest...";
 export SHA1=`openssl dgst -sha1 $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk | grep 'SHA1(' | cut -d'=' -f 2 | cut -d' ' -f 2`;

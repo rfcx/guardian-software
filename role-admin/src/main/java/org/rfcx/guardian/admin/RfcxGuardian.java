@@ -46,7 +46,7 @@ import org.rfcx.guardian.admin.device.android.control.AirplaneModeEnableService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledRebootService;
 import org.rfcx.guardian.admin.device.android.control.SntpSyncJobService;
 import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
-import org.rfcx.guardian.admin.device.android.control.RebootTriggerJobService;
+import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
 import org.rfcx.guardian.admin.device.sentinel.DeviceSentinelService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelPowerDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelPowerUtils;
@@ -240,7 +240,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
 
-		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerJobService.class);
+		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerService.class);
 		this.rfcxServiceHandler.addService("ScheduledReboot", ScheduledRebootService.class);
 
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);

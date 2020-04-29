@@ -1,36 +1,26 @@
-package org.rfcx.guardian.admin.device.android.control;
+package org.rfcx.guardian.updater.service;
 
-import org.rfcx.guardian.utility.device.AppProcessInfo;
-import org.rfcx.guardian.utility.device.root.DeviceReboot;
-import org.rfcx.guardian.utility.misc.ShellCommands;
+import android.app.Service;
+import android.content.Intent;
+import android.database.Cursor;
+import android.os.IBinder;
+import android.util.Log;
+
+import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxGarbageCollection;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
-
-import android.app.ActivityManager;
-import android.app.Service;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.os.Environment;
-import android.os.IBinder;
-import android.os.PowerManager;
-import android.os.SystemClock;
-import android.util.Log;
-
-public class RebootTriggerJobService extends Service {
+public class RebootTriggerService extends Service {
 
 	private static final String SERVICE_NAME = "RebootTrigger";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "RebootTriggerJobService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "RebootTriggerService");
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private RebootTriggerJob rebootTriggerJob;
+	private RebootTrigger rebootTrigger;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -40,7 +30,7 @@ public class RebootTriggerJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.rebootTriggerJob = new RebootTriggerJob();
+		this.rebootTrigger = new RebootTrigger();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -51,7 +41,7 @@ public class RebootTriggerJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.rebootTriggerJob.start();
+			this.rebootTrigger.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -63,20 +53,20 @@ public class RebootTriggerJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.rebootTriggerJob.interrupt();
-		this.rebootTriggerJob = null;
+		this.rebootTrigger.interrupt();
+		this.rebootTrigger = null;
 	}
 	
 	
-	private class RebootTriggerJob extends Thread {
+	private class RebootTrigger extends Thread {
 		
-		public RebootTriggerJob() {
-			super("RebootTriggerJobService-RebootTriggerJob");
+		public RebootTrigger() {
+			super("RebootTriggerService-RebootTrigger");
 		}
 		
 		@Override
 		public void run() {
-			RebootTriggerJobService rebootTriggerJobInstance = RebootTriggerJobService.this;
+			RebootTriggerService rebootTriggerInstance = RebootTriggerService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			
@@ -93,6 +83,19 @@ public class RebootTriggerJobService extends Service {
 						null, null, null);
 					Log.v(logTag, killGuardianSvcs.toString());
 					killGuardianSvcs.close();
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e);
+				}
+
+				// Halting the Admin role services
+				Log.e(logTag, "Reboot: Requesting that Admin role stop all services...");
+				try {
+					Cursor killAdminSvcs = app.getApplicationContext().getContentResolver().query(
+							RfcxComm.getUri("admin", "control", "kill"),
+							RfcxComm.getProjection("admin", "control"),
+							null, null, null);
+					Log.v(logTag, killAdminSvcs.toString());
+					killAdminSvcs.close();
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
 				}
@@ -114,7 +117,7 @@ public class RebootTriggerJobService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				rebootTriggerJobInstance.runFlag = false;
+				rebootTriggerInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}
