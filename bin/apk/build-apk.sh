@@ -10,15 +10,15 @@ export KEYSTORE="$SCRIPT_DIR/../_private/rfcx-platform-keystore.jks";
 export KEY_ALIAS=`cat $SCRIPT_DIR/../_private/rfcx-platform-keystore-alias.txt;`;
 export KEY_PSWD=`cat $SCRIPT_DIR/../_private/rfcx-platform-keystore-pswd.txt;`;
 
-cd $SCRIPT_DIR/../../;
-
-if [ ! -d tmp ]; then
-  echo "creating tmp directory";
-  mkdir tmp;
-fi
-
 export PROJECT_DIR="$SCRIPT_DIR/../..";
 export ROLE_DIR="$PROJECT_DIR/role-$ROLE";
+
+cd $PROJECT_DIR;
+
+if [ ! -d $PROJECT_DIR/tmp ]; then
+  echo "creating tmp directory";
+  mkdir $PROJECT_DIR/tmp;
+fi
 
 export APK_VERSION=`cat $ROLE_DIR/build.gradle | grep ' versionName ' | cut -d'"' -f 2`;
 
