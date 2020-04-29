@@ -33,13 +33,35 @@ A collection of Android applications which, together, operate as autonomous Rain
    ```
    gradlew :role:assembleRelease
    ```
-
+   
    For all roles
    
    ```
    gradlew assembleRelease
    ```
+   
 3. Output will be in /{role}/build/outputs/apk/release/
+
+#### Download apps from script
+
+1. If your Environment variables do not have **ANDROID_SDK_ROOT**, create it and point to android-sdk root path
+2. Run script with version **download-apk-install.sh 0.x.x** in /bin/
+
+#### Run the guardian role
+
+1. Connect your phone.
+2. In Android Studio, press "Run" and select the "guardian" app.
+3. You should be able to select your phone (or Orange Pi) for running the app (instead of an emulator).
+4. (If you are on Android 8 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS). Then run the app again from Android Studio.
+5. Login (make sure your user account has guardianCreator role). Once logined, copy a login code and paste on an entry section.
+6. Register the guardian
+7. If registration success, guid will show up on the screen.
+8. Also, login to the Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your phone (you will see the first 4 chars of the id)
+9. Open "Logcat" in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your phone.
+
+### Run the admin role
+
+You will need a rooted phone to test the admin role. It will run without a rooted phone, but many of the functions (e.g. time sync, reboot) will not operate.
 
 ## Instructions for Orange Pi 3G-IoT
 
@@ -92,12 +114,12 @@ OrangePi has already been rooted so you do not need to do anything extra to run 
 
 1. Make sure COM 2 jumper is ON. (Note: in practice we found that the jumper can be OFF for the flashing process.)
 1. You need to download and install these tools
-    1. [MTK Driver Installer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!rGhSzJBL).
+    1. [MTK Driver Installer](https://drive.google.com/open?id=15GXkFqZ95ilu482SXAiOPlxm878otwu9).
        Choose WIN8 if you are using Windows 8 or above.
        (Some users report failures during install -- [this is the solution](https://youtu.be/3g542NRQFwg))
-    2. [MTK Flash Tool](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!mCJG3DgT)
-    3. OrangePi Android image: [Android image](https://drive.google.com/open?id=1e1VURZPoVHO6rs8vYpY5xiZ15EwzDtmu)
-3. Open the MTK Flash Tool *(flash_tool)*
+    2. [MTK Flash Tool](https://drive.google.com/open?id=1VXU-Jb5A8cFco3Q6uYht684pxjnp0pJd)
+    3. Orange Pi Android image: [Android image](https://drive.google.com/open?id=1vaF4ccuwoh-fFRWvOI8vAc726caIPDEF)
+2. Open the MTK Flash Tool *(flash_tool)*
     1. Make sure the Orange Pi is NOT connected.
     2. Choose the scatter-loading file **MT6572_Android_scatter** *(This is in the Android_OS_for_Orange_Pi_3G-IoT/images/ folder after extracting the image.)*
     3. If this is the first time flashing the device then select "Download only". If you have flashed it before then select "Format all and download".
@@ -137,8 +159,8 @@ Before following the instruction below. You need to download Vysor first.
 Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IMEIs](https://docs.google.com/spreadsheets/d/1oQzsJxQ8KqGP7VJJja-v7-JlHIYqI_mnqq2bFSlDRSw/edit#gid=0).
 
 1. Make sure that COM 2 jumper is OFF (removed).
-2. First download [IMEI Writer](https://mega.nz/#F!WGwUhAZJ!xcc_4wd_UG_0OLruixz3ww!fCJmCTAY) (for Windows)
-3. Extract and open **SN Writer** in **SN_Writer_Tool_exe_v1.1716.00** directory
+2. First download [IMEI Writer](https://drive.google.com/open?id=1JBEbILcHHfWM3Yz4e4J9Yc5Leix9m1uI) (for Windows)
+3. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
 4. Choose **USB VCOM** and **Smart Phone**
 5. Open System Config
     1. In **Write Option** choose **IMEI**
@@ -169,7 +191,6 @@ Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IM
 5. You should also see the device running in Vysor and receive the logcat messages on the Android Studio.
 
    ![](docs/images/androidstudio2.PNG?raw=true)
-
 
 ### Step 5: How to debug OrangePi over Bluetooth instead of USB cable
 
@@ -265,7 +286,6 @@ Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IM
 
    ![](docs/images/timezone_off.PNG?raw=true)
 
-
 ### Step 10: How to connect i2c and load i2c module
 
 1. First, place Orange Pi same position as in the image.
@@ -284,7 +304,7 @@ Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IM
 
 5. You can debug OrangePi by using Bluetooth on [Step 5](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-5-how-to-debug-orangepi-over-bluetooth-instead-of-usb-cable) or [Step 6](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-6-how-to-debug-orangepi-over-wifi-hotspot)
 
-### Step 8: How to setup, run and test the I2C
+### Step 7: How to setup, run and test the I2C
 
 1. Plugin the sentinel power wires to the OrangePi on [Step 10](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-10-how-to-connect-i2c-and-load-i2c-module)
 
