@@ -116,7 +116,7 @@ OrangePi has already been rooted so you do not need to do anything extra to run 
 1. You need to download and install these tools
     1. [MTK Driver Installer](https://drive.google.com/open?id=15GXkFqZ95ilu482SXAiOPlxm878otwu9).
        Choose WIN8 if you are using Windows 8 or above.
-       (Some users report failures during install -- [this is the solution](https://youtu.be/3g542NRQFwg))
+       (Some users report failures during install -- [this is the solution](https://drive.google.com/file/d/1zfUcaQk06CXQBbLr59rt83pD5sLO7pnP/view))
     2. [MTK Flash Tool](https://drive.google.com/open?id=1VXU-Jb5A8cFco3Q6uYht684pxjnp0pJd)
     3. Orange Pi Android image: [Android image](https://drive.google.com/open?id=1vaF4ccuwoh-fFRWvOI8vAc726caIPDEF)
 2. Open the MTK Flash Tool *(flash_tool)*
