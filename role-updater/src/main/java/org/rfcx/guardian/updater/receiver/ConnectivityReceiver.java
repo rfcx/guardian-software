@@ -19,7 +19,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
 		app.deviceConnectivity.updateConnectivityState( !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) );
 
-		app.apiCheckVersionUtils.attemptToTriggerCheckIn(false);
+		app.apiCheckVersionUtils.attemptToTriggerCheckIn(false,false);
 
 	}
 

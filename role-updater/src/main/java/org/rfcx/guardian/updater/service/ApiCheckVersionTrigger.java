@@ -24,7 +24,7 @@ public class ApiCheckVersionTrigger extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 
-		app.apiCheckVersionUtils.attemptToTriggerCheckIn(true);
+		app.apiCheckVersionUtils.attemptToTriggerCheckIn(false, true);
 
 	}
 

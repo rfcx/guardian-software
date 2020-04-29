@@ -128,8 +128,8 @@ public class ApiCheckVersionUtils {
 		return false;
 	}
 
-	public void attemptToTriggerCheckIn(boolean printLoggingFeedbackIfBlocked) {
-		if (isCheckInAllowed(printLoggingFeedbackIfBlocked)) {
+	public void attemptToTriggerCheckIn(boolean forceRequest, boolean printLoggingFeedbackIfBlocked) {
+		if (forceRequest || isCheckInAllowed(printLoggingFeedbackIfBlocked)) {
 			app.rfcxServiceHandler.triggerService("ApiCheckVersion", false);
 		}
 	}
