@@ -6,6 +6,7 @@ import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
+import org.rfcx.guardian.admin.device.sentinel.SentinelSensorUtils;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
@@ -64,7 +65,7 @@ public class RfcxGuardian extends Application {
 	
 	public static final String APP_ROLE = "Admin";
 
-	private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, RfcxGuardian.class);
+	private static final String logTag = RfcxLog.generateLogTag(APP_ROLE, "RfcxGuardian");
 
 	public RfcxGuardianIdentity rfcxGuardianIdentity = null;
 	public RfcxPrefs rfcxPrefs = null;
@@ -83,6 +84,7 @@ public class RfcxGuardian extends Application {
     public SmsMessageDb smsMessageDb = null;
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
+	public SentinelSensorUtils sentinelSensorUtils = null;
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -126,6 +128,7 @@ public class RfcxGuardian extends Application {
 		DeviceNetworkName.setName("rfcx-"+this.rfcxGuardianIdentity.getGuid(), this);
 		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
+		this.sentinelSensorUtils = new SentinelSensorUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();

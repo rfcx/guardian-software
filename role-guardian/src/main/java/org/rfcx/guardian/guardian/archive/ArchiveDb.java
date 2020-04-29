@@ -5,9 +5,8 @@ import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
-import org.rfcx.guardian.guardian.RfcxGuardian;
+
 import org.rfcx.guardian.utility.database.DbUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 public class ArchiveDb {
@@ -80,7 +79,7 @@ public class ArchiveDb {
 		}
 
 		public int getInnerRecordCumulativeCount() {
-			return this.dbUtils.getSumOfNumericColumnValues(TABLE, C_RECORD_COUNT, null);
+			return this.dbUtils.getSumOfColumn(TABLE, C_RECORD_COUNT, null, null);
 		}
 
 

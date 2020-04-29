@@ -251,12 +251,14 @@ public class DbUtils {
 		}
 	}
 
-	public static int getSumOfNumericColumnValues(SQLiteDatabase db, String tableName, String selection, String[] selectionArgs) {
+	public static int getSumOfColumn(SQLiteDatabase db, String tableName, String sumColumn, String selection, String[] selectionArgs) {
 		int sum = 0;
 		try {
-			for (String[] singleRow : getRows(db, tableName, new String[] { "SUM("+selection+")" }, selection, selectionArgs, null, 0, 1)) {
-				sum = (int) Integer.parseInt(singleRow[0]);
-				break;
+			for (String[] singleRow : getRows(db, tableName, new String[] { "SUM("+sumColumn+")" }, selection, selectionArgs, null, 0, 1)) {
+				if (singleRow[0] != null) {
+					sum = Integer.parseInt(singleRow[0]);
+					break;
+				}
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -264,9 +266,9 @@ public class DbUtils {
 		return sum;
 	}
 
-	public int getSumOfNumericColumnValues(String tableName, String selection, String[] selectionArgs) {
+	public int getSumOfColumn(String tableName, String sumColumn, String selection, String[] selectionArgs) {
 		SQLiteDatabase db = openDb();
-		int sum = getSumOfNumericColumnValues(db, tableName, selection, selectionArgs);
+		int sum = getSumOfColumn(db, tableName, sumColumn, selection, selectionArgs);
 		closeDb();
 		return sum;
 	}
@@ -275,7 +277,7 @@ public class DbUtils {
 		int count = 0;
 		try { 
 			for (String[] singleRow : getRows(db, tableName, new String[] { "COUNT(*)" }, selection, selectionArgs, null, 0, 1)) {
-				count = (int) Integer.parseInt(singleRow[0]);
+				count = Integer.parseInt(singleRow[0]);
 				break;
 			}
 		} catch (Exception e) { 
