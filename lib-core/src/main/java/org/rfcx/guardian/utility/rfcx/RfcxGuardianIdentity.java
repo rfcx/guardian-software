@@ -24,13 +24,13 @@ public class RfcxGuardianIdentity {
 	private void checkSetPreDefinedGuid() {
 		String fromContentProvider = readIdentityInfoFromContentProvider("guid");
 		if (fromContentProvider != null) {
-			Log.e(logTag, "Predefined Guardian Guid retrieved from content provider");
+			Log.v(logTag, "Predefined Guardian Guid retrieved via content provider");
 			this.guid = fromContentProvider;
 			RfcxPrefs.writeToGuardianRoleTxtFile(this.context, this.logTag, "guid", this.guid);
 		} else {
 			String fromTxtFile = RfcxPrefs.readFromGuardianRoleTxtFile(this.context, this.logTag, this.appRole, this.appRole, "guid");
 			if (fromTxtFile != null) {
-				Log.e(logTag, "Predefined Guardian Guid retrieved from file");
+				Log.v(logTag, "Predefined Guardian Guid retrieved from file");
 				this.guid = fromTxtFile;
 			}
 		}
@@ -39,13 +39,13 @@ public class RfcxGuardianIdentity {
 	private void checkSetPreDefinedAuthToken() {
 		String fromContentProvider = readIdentityInfoFromContentProvider("token");
 		if (fromContentProvider != null) {
-			Log.e(logTag, "Predefined Auth Token retrieved from content provider");
+			Log.v(logTag, "Predefined Auth Token retrieved via content provider");
 			this.authToken = fromContentProvider;
 			RfcxPrefs.writeToGuardianRoleTxtFile(this.context, this.logTag, "token", this.authToken);
 		} else {
 			String fromTxtFile = RfcxPrefs.readFromGuardianRoleTxtFile(this.context, this.logTag, this.appRole, this.appRole, "token");
 			if (fromTxtFile != null) {
-				Log.e(logTag, "Predefined Auth Token retrieved from file");
+				Log.v(logTag, "Predefined Auth Token retrieved from file");
 				this.authToken = fromTxtFile;
 			}
 		}
