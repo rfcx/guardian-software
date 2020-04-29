@@ -70,31 +70,33 @@ public class InstallAppService extends Service {
 		@Override
 		public void run() {
 			InstallAppService installAppService = InstallAppService.this;
-			boolean successfullyInstalled = false;
+
+			boolean isSuccessfullyInstalled = false;
 			String apkFilePath = app.installUtils.apkDirExternal+"/"+app.apiCheckVersionUtils.installRole+"-"+app.apiCheckVersionUtils.installVersion+".apk";
 			try {
 //				ShellCommands.killProcessByName("org.rfcx.guardian."+app.targetAppRole,"."+RfcxGuardian.APP_ROLE, app.getApplicationContext());
-				successfullyInstalled = installApk(app.targetAppRole, app.getApplicationContext(),apkFilePath);
+				isSuccessfullyInstalled = installApk(app.targetAppRole, app.getApplicationContext(), apkFilePath);
+
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
+
 			} finally {
 				
-			//	String apkFilePath = app.getApplicationContext().getFilesDir().getAbsolutePath()+"/"+apkFileName;
-				File apkFile = (new File(apkFilePath));
-				
-				if (successfullyInstalled) {
-					Log.d(logTag, "installation successful ("+app.targetAppRole+", "+app.apiCheckVersionUtils.installVersion+"). deleting apk and rebooting...");
+				if (isSuccessfullyInstalled) {
+					Log.d(logTag, "Installation Successful:"+app.targetAppRole+", "+app.apiCheckVersionUtils.installVersion);
 					installLoopCounter = 0;
-//					if (apkFile.exists()) apkFile.delete();
-//				DeviceReboot.triggerForcedRebootAsRoot(app.getApplicationContext());
+//					Log.d(logTag, "Rebooting system now...");
+//					app.rfcxServiceHandler.triggerService("RebootTrigger", true);
 				} else if (	(installLoopCounter < 1) && FileUtils.sha1Hash(apkFilePath).equals(app.apiCheckVersionUtils.installVersionSha1)) {
 					installLoopCounter++;
 					app.rfcxServiceHandler.triggerService(SERVICE_NAME, true);
 				} else {
-					Log.d(logTag, "installation failed ("+app.targetAppRole+", "+app.apiCheckVersionUtils.installVersion+").  deleting apk...");
+					Log.e(logTag, "Installation Failed: "+app.targetAppRole+", "+app.apiCheckVersionUtils.installVersion);
 					installLoopCounter = 0;
-//					if (apkFile.exists()) apkFile.delete();
+					if ((new File(apkFilePath)).exists()) (new File(apkFilePath)).delete();
 				}
+
+				app.apiCheckVersionUtils.lastCheckInTriggered = 0;
 
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);

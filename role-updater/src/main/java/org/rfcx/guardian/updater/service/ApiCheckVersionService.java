@@ -89,19 +89,31 @@ public class ApiCheckVersionService extends Service {
 										+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
 										+ "&timestamp="+System.currentTimeMillis()
 										;
-						
+
 						long sinceLastCheckIn = (System.currentTimeMillis() - app.apiCheckVersionUtils.lastCheckInTime) / 1000;
 						Log.d(logTag, "Since last checkin: "+sinceLastCheckIn);
-						List<JSONObject> jsonResponse = httpGet.getAsJsonList(getUrl);
-						for (JSONObject json : jsonResponse) {
-							Log.d(logTag, json.toString());
+
+						List<JSONObject> jsonResponse = null;
+						try {
+							jsonResponse = httpGet.getAsJsonList(getUrl);
+						} catch (Exception e) {
+							RfcxLog.logExc(logTag, e);
 						}
-						for (JSONObject jsonResponseItem : jsonResponse) {
-							String appRole = jsonResponseItem.getString("role").toLowerCase();
-							if (!appRole.equals(RfcxGuardian.APP_ROLE)) {
-								app.targetAppRole = appRole;
-								if (app.apiCheckVersionUtils.apiCheckVersionFollowUp(app,appRole,jsonResponse)) {
-									break;
+
+						if (jsonResponse == null) {
+							Log.e(logTag, "Version check API request failed...");
+							app.apiCheckVersionUtils.lastCheckInTriggered = 0;
+						} else {
+							for (JSONObject jsonObj : jsonResponse) {
+								Log.d(logTag, jsonObj.toString());
+							}
+							for (JSONObject jsonResponseItem : jsonResponse) {
+								String appRole = jsonResponseItem.getString("role").toLowerCase();
+								if (!appRole.equals(RfcxGuardian.APP_ROLE)) {
+									app.targetAppRole = appRole;
+									if (app.apiCheckVersionUtils.apiCheckVersionFollowUp(app, appRole, jsonResponse)) {
+										break;
+									}
 								}
 							}
 						}

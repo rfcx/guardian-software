@@ -21,10 +21,9 @@ public class ApiCheckVersionUtils {
 
 	private RfcxGuardian app;
 
-	public long lastCheckInTime = System.currentTimeMillis();
-
 	public static final long minimumAllowedIntervalBetweenCheckIns = 30; // in minutes
-	private long lastCheckInTriggered = 0;
+	public long lastCheckInTriggered = 0;
+	public long lastCheckInTime = System.currentTimeMillis();
 	
 	public String apiCheckVersionEndpoint = null;
 	public String targetAppRoleApiEndpoint = "all";
