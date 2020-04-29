@@ -3,7 +3,6 @@ package org.rfcx.guardian.utility.rfcx;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
-
 import org.rfcx.guardian.utility.misc.StringUtils;
 
 public class RfcxGuardianIdentity {

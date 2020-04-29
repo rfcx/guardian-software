@@ -16,7 +16,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 3
-        versionName "0.6.4"
+        versionName "0.6.5"
         setProperty("archivesBaseName", "admin-$versionName")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
