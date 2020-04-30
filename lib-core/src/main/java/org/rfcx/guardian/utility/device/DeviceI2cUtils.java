@@ -48,8 +48,8 @@ public class DeviceI2cUtils {
 //			BufferedReader lineReader = new BufferedReader (new InputStreamReader(i2cShellProc.getInputStream()));
 			
 			for (String[] i2cRow : i2cLabelsAddressesValues) {
-				dataOutputStream.writeBytes((new StringBuilder()).append(execI2cSet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" ").append(i2cRow[2]).append(";\n").toString());
-				Log.d(logTag, (new StringBuilder()).append(execI2cSet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" ").append(i2cRow[2]).append(";\n").toString());
+				dataOutputStream.writeBytes(execI2cSet + " -y " + i2cInterface + " " + i2cMainAddress + " " + i2cRow[1] + " " + i2cRow[2] + ";\n");
+				Log.d(logTag, execI2cSet + " -y " + i2cInterface + " " + i2cMainAddress + " " + i2cRow[1] + " " + i2cRow[2] + ";\n");
 				dataOutputStream.flush();
 			}
 			dataOutputStream.writeBytes("exit;\n");
@@ -105,7 +105,7 @@ public class DeviceI2cUtils {
 			BufferedReader lineReader = new BufferedReader (new InputStreamReader(i2cShellProc.getInputStream()));
 			
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
-				dataOutputStream.writeBytes((new StringBuilder()).append(execI2cGet).append(" -y ").append(i2cInterface).append(" ").append(i2cMainAddress).append(" ").append(i2cRow[1]).append(" w;\n").toString());
+				dataOutputStream.writeBytes(execI2cGet + " -y " + i2cInterface + " " + i2cMainAddress + " " + i2cRow[1] + " w;\n");
 				dataOutputStream.flush();
 			}
 			dataOutputStream.writeBytes("exit;\n");
@@ -137,11 +137,11 @@ public class DeviceI2cUtils {
 	
 	private void checkSetI2cBinaries(Context context) {
 		
-		String binaryDir = (new StringBuilder()).append(context.getFilesDir().toString()).append("/bin").toString();
+		String binaryDir = context.getFilesDir().toString() + "/bin";
 		(new File(binaryDir)).mkdirs(); 
 		FileUtils.chmod(binaryDir,  "rwx", "rwx");
 		
-		this.execI2cGet = (new StringBuilder()).append(binaryDir).append("/i2cget").toString();
+		this.execI2cGet = binaryDir + "/i2cget";
 		
 		if (!(new File(this.execI2cGet)).exists()) {
     			try {
@@ -155,7 +155,7 @@ public class DeviceI2cUtils {
     			}
 		}
 
-		this.execI2cSet = (new StringBuilder()).append(binaryDir).append("/i2cset").toString();
+		this.execI2cSet = binaryDir + "/i2cset";
 
 		if (!(new File(this.execI2cSet)).exists()) {
 			try {
