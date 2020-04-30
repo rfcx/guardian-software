@@ -63,7 +63,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		this.mqttCheckInClient.setCallback(this);
 		this.mqttCheckInClient.setActionTimeout(this.requestTimeOutLength);
 
-		confirmOrCreateConnectionToBroker();
+		confirmOrCreateConnectionToBroker(true);
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInUtils");
@@ -694,7 +694,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				this.inFlightCheckInAttemptCounter++;
 
 				app.apiCheckInDb.dbQueued.incrementSingleRowAttempts(audioId);
-				long msgSendStart = this.mqttCheckInClient.publishMessage("guardians/checkins", checkInPayload);
+				long msgSendStart = publishMessageOnConfirmedConnection("guardians/checkins", checkInPayload);
 
 				setInFlightCheckInStats(audioId, msgSendStart, 0, checkInPayload.length);
 				this.inFlightCheckInAttemptCounter = 0;
@@ -1225,14 +1225,14 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		RfcxLog.logThrowable(logTag, cause);
 
-		confirmOrCreateConnectionToBroker();
+		confirmOrCreateConnectionToBroker(false);
 	}
 
-	public void confirmOrCreateConnectionToBroker() {
+	public void confirmOrCreateConnectionToBroker(boolean overrideDelayBetweenAttempts) {
 
 		long minDelayBetweenConnectionAttempts = 10000;
 
-		if (mqttCheckInClient.mqttBrokerConnectionLastAttemptedAt < (app.deviceConnectivity.lastConnectedAt() - minDelayBetweenConnectionAttempts)) {
+		if (overrideDelayBetweenAttempts || (mqttCheckInClient.mqttBrokerConnectionLastAttemptedAt < (app.deviceConnectivity.lastConnectedAt() - minDelayBetweenConnectionAttempts))) {
 			try {
 				mqttCheckInClient.confirmOrCreateConnectionToBroker(this.app.deviceConnectivity.isConnected());
 				if (mqttCheckInClient.mqttBrokerConnectionLatency > 0) {
@@ -1251,6 +1251,11 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 	}
 
+	private long publishMessageOnConfirmedConnection(String publishTopic, byte[] messageByteArray) throws MqttException {
+		confirmOrCreateConnectionToBroker(true);
+		return this.mqttCheckInClient.publishMessage(publishTopic, messageByteArray);
+	}
+
 
 	// Ping Messages
 
@@ -1258,7 +1263,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		try {
 
-			long pingSendStart = this.mqttCheckInClient.publishMessage("guardians/pings", packageMqttPingPayload(buildPingJson()));
+			long pingSendStart = publishMessageOnConfirmedConnection("guardians/pings", packageMqttPingPayload(buildPingJson()));
 
 		} catch (Exception e) {
 

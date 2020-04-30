@@ -111,8 +111,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
         this.syncSharedPrefs();
 
-//        setSharedPref("audio_battery_cutoff", "10");
-
         setDbHandlers();
         setServiceHandlers();
 
@@ -140,9 +138,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 
     private boolean isGuardianRegistered() {
-        String directoryPath = getBaseContext().getFilesDir().toString() + "/txt/";
-        File txtFile = new File(directoryPath + "/registered_at.txt");
-        return txtFile.exists();
+        return RfcxPrefs.doesGuardianRoleTxtFileExist(this, "registered_at");
     }
 
     public boolean doConditionsPermitRoleServices() {
@@ -218,13 +214,20 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
         Log.d(logTag, "Pref changed: " + prefKey + " = " + this.sharedPrefs.getString(prefKey, null));
         syncSharedPrefs();
-        this.rfcxPrefs.reSyncPrefInExternalRoleViaContentProvider("admin", prefKey, this);
-        this.rfcxPrefs.reSyncPrefInExternalRoleViaContentProvider("updater", prefKey, this);
+        reSyncPrefAcrossRoles(prefKey);
     }
 
     private void syncSharedPrefs() {
         for (Map.Entry<String, ?> pref : this.sharedPrefs.getAll().entrySet()) {
             this.rfcxPrefs.setPref(pref.getKey(), pref.getValue().toString());
+        }
+    }
+
+    private void reSyncPrefAcrossRoles(String prefKey) {
+        for (String roleName : RfcxRole.ALL_ROLES) {
+            if (!roleName.equalsIgnoreCase(APP_ROLE)) {
+                this.rfcxPrefs.reSyncPrefInExternalRoleViaContentProvider(roleName.toLowerCase(), prefKey, this);
+            }
         }
     }
 

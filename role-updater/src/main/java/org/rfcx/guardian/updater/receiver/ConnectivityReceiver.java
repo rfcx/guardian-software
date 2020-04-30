@@ -17,7 +17,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 		
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
-		app.deviceConnectivity.updateConnectivityState( !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) );
+		app.deviceConnectivity.updateConnectivityState(intent);
 
 		app.apiCheckVersionUtils.attemptToTriggerCheckIn(false,false);
 

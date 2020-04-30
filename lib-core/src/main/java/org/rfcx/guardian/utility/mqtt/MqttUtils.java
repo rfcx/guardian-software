@@ -157,6 +157,10 @@ public class MqttUtils implements MqttCallback {
 				
 		return allowBasedOnDeviceConnectivity && this.mqttClient.isConnected();
 	}
+
+	public boolean isConnected() {
+		return ((this.mqttClient != null) && this.mqttClient.isConnected());
+	}
 	
 	public void setCallback(MqttCallback mqttCallback) {
 		this.mqttCallback = mqttCallback;

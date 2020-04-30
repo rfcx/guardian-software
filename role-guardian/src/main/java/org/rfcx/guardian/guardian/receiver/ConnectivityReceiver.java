@@ -19,9 +19,9 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 		
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         
-        int disconnectedFor = app.deviceConnectivity.updateConnectivityStateAndReportDisconnectedFor( !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false) );
+        app.deviceConnectivity.updateConnectivityState(intent);
 
-        app.apiCheckInUtils.confirmOrCreateConnectionToBroker();
+        app.apiCheckInUtils.confirmOrCreateConnectionToBroker(false);
         
 	}
 

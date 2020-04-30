@@ -245,6 +245,10 @@ public class RfcxPrefs {
 	    	return null;
 	}
 
+	public static boolean doesGuardianRoleTxtFileExist(Context context, String fileNameNoExt) {
+		return (new File(context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt")).exists();
+	}
+
 	
 	private static String setOrCreatePrefsDirectory(Context context, String appRole) {
 		

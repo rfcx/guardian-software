@@ -1,5 +1,8 @@
 package org.rfcx.guardian.utility.device;
 
+import android.content.Intent;
+import android.net.ConnectivityManager;
+
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceConnectivity {
@@ -16,6 +19,15 @@ public class DeviceConnectivity {
 
 	public void updateConnectivityState(boolean isConnected) {
 		this.isConnected = isConnected;
+		if (isConnected) {
+			this.lastConnectedAt = System.currentTimeMillis();
+		} else {
+			this.lastDisconnectedAt = System.currentTimeMillis();
+		}
+	}
+
+	public void updateConnectivityState(Intent intent) {
+		updateConnectivityState(!intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false));
 	}
 
 	public int updateConnectivityStateAndReportDisconnectedFor(boolean isConnected) {
@@ -28,6 +40,10 @@ public class DeviceConnectivity {
 			this.lastDisconnectedAt = System.currentTimeMillis();
 			return 0;
 		}
+	}
+
+	public int updateConnectivityStateAndReportDisconnectedFor(Intent intent) {
+		return updateConnectivityStateAndReportDisconnectedFor(!intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false));
 	}
 	
 	public boolean isConnected() {
