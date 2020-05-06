@@ -40,6 +40,11 @@
 #include "private/ogg_mapping.h"
 #include "private/macros.h"
 
+#ifdef flac_max
+#undef flac_max
+#endif
+#define flac_max(x,y) ((x)>(y)?(x):(y))
+
 
 /***********************************************************************
  *

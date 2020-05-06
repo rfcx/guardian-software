@@ -47,3 +47,19 @@ LOCAL_SHARED_LIBRARIES = libopus libogg
 LOCAL_LDLIBS := -llog
 
 include $(BUILD_SHARED_LIBRARY)
+
+#
+# flac wrapper
+#
+include $(CLEAR_VARS)
+LOCAL_C_INCLUDES    := \
+$(LOCAL_PATH)/flac-$(FLAC_VERSION)/include \
+$(LOCAL_PATH)/libogg-$(OGG_VERSION)/include
+
+LOCAL_MODULE := flacenc
+LOCAL_SRC_FILES := flacenc.cpp util.cpp
+LOCAL_SHARED_LIBRARIES = libflac libogg
+
+LOCAL_LDLIBS := -llog
+
+include $(BUILD_SHARED_LIBRARY)
