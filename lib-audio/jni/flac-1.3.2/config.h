@@ -110,7 +110,7 @@
 #define PACKAGE_TARNAME ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION ""
+#define PACKAGE_VERSION "1.3.2"
 
 /* The size of a `void*', as computed by sizeof. */
 #define SIZEOF_VOIDP 4
@@ -119,7 +119,7 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "1.2.1"
+#define VERSION "1.3.2"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */

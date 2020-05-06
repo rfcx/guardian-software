@@ -11,7 +11,7 @@ src/libFLAC/md5.c \
 src/libFLAC/memory.c \
 src/libFLAC/metadata_iterators.c \
 src/libFLAC/metadata_object.c \
-src/libFLAC/ogg_decoder.aspect.c \
+src/libFLAC/ogg_decoder_aspect.c \
 src/libFLAC/ogg_encoder_aspect.c \
 src/libFLAC/ogg_helper.c \
 src/libFLAC/ogg_mapping.c \
