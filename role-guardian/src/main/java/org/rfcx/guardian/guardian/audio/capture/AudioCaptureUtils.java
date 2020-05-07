@@ -6,6 +6,7 @@ import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.rfcx.guardian.guardian.audio.encode.AudioEncodeUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -62,6 +63,8 @@ public class AudioCaptureUtils {
 				if ((defaultSampleRateOptions[i] >= originalSampleRate)
 						&& (AudioRecord.getMinBufferSize(defaultSampleRateOptions[i], AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT) > 0)
 				) {
+					AudioEncodeUtils.bufferSize = AudioRecord.getMinBufferSize(defaultSampleRateOptions[i], AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
+
 					verifiedOrUpdatedSampleRate = defaultSampleRateOptions[i];
 					this.isAudioCaptureHardwareSupported = true;
 					break;

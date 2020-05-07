@@ -23,7 +23,7 @@ namespace {
  * Constants
  **/
     static char const * const FLACStreamEncoder_classname   = "org.rfcx.guardian.audio.flac.FLACStreamEncoder";
-    static char const * const FLACStreamEncoder_mObject     = "org.rfcx.guardian.audio.flac.mObject";
+    static char const * const FLACStreamEncoder_mObject     = "mObject";
 
     static char const * const IllegalArgumentException_classname  = "java.lang.IllegalArgumentException";
 
