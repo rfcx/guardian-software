@@ -591,7 +591,7 @@ namespace {
 
 extern "C" {
 
-void
+JNIEXPORT void JNICALL
 Java_org_rfcx_guardian_audio_flac_FLACStreamEncoder_init(JNIEnv * env, jobject obj,
                                             jstring outfile, jint sample_rate, jint channels, jint bits_per_sample)
 {
@@ -614,7 +614,7 @@ Java_org_rfcx_guardian_audio_flac_FLACStreamEncoder_init(JNIEnv * env, jobject o
 
 
 
-void
+JNIEXPORT void JNICALL
 Java_org_rfcx_guardian_audio_flac_FLACStreamEncoder_deinit(JNIEnv * env, jobject obj)
 {
     FLACStreamEncoder * encoder = get_encoder(env, obj);
@@ -623,8 +623,7 @@ Java_org_rfcx_guardian_audio_flac_FLACStreamEncoder_deinit(JNIEnv * env, jobject
 }
 
 
-
-jint
+JNIEXPORT jint JNICALL
 Java_org_rfcx_guardian_audio_flac_FLACStreamEncoder_write(JNIEnv * env, jobject obj,
                                              jobject buffer, jint bufsize)
 {
@@ -646,8 +645,7 @@ Java_org_rfcx_guardian_audio_flac_FLACStreamEncoder_write(JNIEnv * env, jobject 
 }
 
 
-
-void
+JNIEXPORT void JNICALL
 Java_fm_audioboo_jni_FLACStreamEncoder_flush(JNIEnv * env, jobject obj)
 {
     FLACStreamEncoder * encoder = get_encoder(env, obj);
