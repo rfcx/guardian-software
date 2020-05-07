@@ -268,6 +268,7 @@ namespace {
                 // so forth is to use a separate code path here. In this, we'll flush the
                 // current write buffer to the FIFO, and immediately append a new
                 // FIFO entry that's as large as bufsize32.
+                aj::log(ANDROID_LOG_DEBUG, LTAG, "Bufsize32 > m_write_buffer_size");
                 flush_to_fifo();
 
                 m_write_buffer = new FLAC__int32[bufsize32];
@@ -409,7 +410,7 @@ namespace {
                 return;
             }
 
-            //aj::log(ANDROID_LOG_DEBUG, LTAG, "Flushing to FIFO.");
+            aj::log(ANDROID_LOG_DEBUG, LTAG, "Flushing to FIFO.");
 
             write_fifo_t * next = new write_fifo_t(m_write_buffer,
                                                    m_write_buffer_offset);
@@ -423,7 +424,7 @@ namespace {
             else {
                 m_fifo = next;
             }
-            //aj::log(ANDROID_LOG_DEBUG, LTAG, "FIFO: %p, new entry: %p", m_fifo, next);
+            aj::log(ANDROID_LOG_DEBUG, LTAG, "FIFO: %p, new entry: %p", m_fifo, next);
             pthread_mutex_unlock(&m_fifo_mutex);
         }
 
@@ -437,7 +438,7 @@ namespace {
         {
             FLAC__int32 * buf = m_write_buffer + m_write_buffer_offset;
 
-            //aj::log(ANDROID_LOG_DEBUG, LTAG, "Writing at %p[%d] = %p", m_write_buffer, m_write_buffer_offset, buf);
+            aj::log(ANDROID_LOG_DEBUG, LTAG, "Writing at %p[%d] = %p", m_write_buffer, m_write_buffer_offset, buf);
             if (8 == m_bits_per_sample) {
                 copyBuffer<int8_t>(buf, buffer, bufsize);
                 m_write_buffer_offset += bufsize32;
