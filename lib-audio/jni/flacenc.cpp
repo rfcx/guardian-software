@@ -255,12 +255,12 @@ namespace {
          **/
         int write(char * buffer, int bufsize)
         {
-            //aj::log(ANDROID_LOG_DEBUG, LTAG, "Asked to write buffer of size %d", bufsize);
+            aj::log(ANDROID_LOG_DEBUG, LTAG, "Asked to write buffer of size %d", bufsize);
 
             // We have 8 or 16 bit pcm in the buffer, but FLAC expects 32 bit samples,
             // where some of the 32 bits are unused.
             int bufsize32 = bufsize / (m_bits_per_sample / 8);
-            //aj::log(ANDROID_LOG_DEBUG, LTAG, "Required size: %d", bufsize32);
+            aj::log(ANDROID_LOG_DEBUG, LTAG, "Required size: %d", bufsize32);
 
             // Protect from overly large buffers on the JNI side.
             if (bufsize32 > m_write_buffer_size) {
@@ -332,8 +332,8 @@ namespace {
 
                     write_fifo_t * current = fifo;
                     while (current) {
-                        //aj::log(ANDROID_LOG_DEBUG, LTAG, "Encoding current entry %p, buffer %p, size %d",
-                        //    current, current->m_buffer, current->m_buffer_fill_size);
+                        aj::log(ANDROID_LOG_DEBUG, LTAG, "Encoding current entry %p, buffer %p, size %d",
+                            current, current->m_buffer, current->m_buffer_fill_size);
 
                         // Encode!
                         FLAC__bool ok = FLAC__stream_encoder_process_interleaved(m_encoder,
@@ -572,6 +572,7 @@ namespace {
     {
         assert(sizeof(jlong) >= sizeof(FLACStreamEncoder *));
 
+        aj::log(ANDROID_LOG_DEBUG, LTAG, "Setting FLAC encoder");
         // Do the JNI dance for setting the mObject field
         jlong encoder_value = reinterpret_cast<jlong>(encoder);
         jclass cls = env->FindClass(FLACStreamEncoder_classname);
