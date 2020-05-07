@@ -268,7 +268,7 @@ namespace {
                 // so forth is to use a separate code path here. In this, we'll flush the
                 // current write buffer to the FIFO, and immediately append a new
                 // FIFO entry that's as large as bufsize32.
-                aj::log(ANDROID_LOG_DEBUG, LTAG, "Bufsize32 > m_write_buffer_size");
+                aj::log(ANDROID_LOG_DEBUG, LTAG, "bufsize32 > m_write_buffer_size");
                 flush_to_fifo();
 
                 m_write_buffer = new FLAC__int32[bufsize32];
@@ -444,6 +444,7 @@ namespace {
                 m_write_buffer_offset += bufsize32;
             }
             else if (16 == m_bits_per_sample) {
+                aj::log(ANDROID_LOG_DEBUG, LTAG, "Copying at %p[%d] = %p", m_write_buffer, m_write_buffer_offset, buf);
                 copyBuffer<int16_t>(buf, buffer, bufsize);
                 m_write_buffer_offset += bufsize32;
             }
