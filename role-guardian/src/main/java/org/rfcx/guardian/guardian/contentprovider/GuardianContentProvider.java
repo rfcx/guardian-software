@@ -55,9 +55,8 @@ public class GuardianContentProvider extends ContentProvider {
 			// get guardian identity info
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "identity", "*")) {
-				String identityKey = uri.getLastPathSegment();
-				String identityValue = (identityKey.equalsIgnoreCase("token")) ? app.rfcxGuardianIdentity.getAuthToken() : app.rfcxGuardianIdentity.getGuid();
-				return RfcxComm.getProjectionCursor(appRole, "identity", new Object[] { identityKey, identityValue });
+				String idKey = uri.getLastPathSegment();
+				return RfcxComm.getProjectionCursor(appRole, "identity", new Object[] { idKey, app.rfcxGuardianIdentity.getIdentityValue(idKey) });
 
 			// get status of services
 

@@ -63,7 +63,7 @@ public class ApiQueueCheckInService extends IntentService {
 			}
 
 			// if the queued table has grown beyond the maximum threshold, stash the oldest checkins 
-			app.apiCheckInUtils.stashOldestCheckIns();
+			app.apiCheckInUtils.stashOrArchiveOldestCheckIns();
 			
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

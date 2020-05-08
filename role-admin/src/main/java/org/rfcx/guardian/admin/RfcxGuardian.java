@@ -58,6 +58,7 @@ import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 public class RfcxGuardian extends Application {
 	
@@ -117,7 +118,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 
 		this.version = RfcxRole.getRoleVersion(this, logTag);
-		this.rfcxPrefs.writeVersionToFile(this.version);
+		RfcxRole.writeVersionToFile(this, logTag, this.version);
 
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
@@ -260,7 +261,7 @@ public class RfcxGuardian extends Application {
 
 	}
 
-	public String onPrefReSync(String prefKey) {
+	public void onPrefReSync(String prefKey) {
 
 		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth")) {
 			rfcxServiceHandler.triggerService("BluetoothStateSet", false);
@@ -276,8 +277,10 @@ public class RfcxGuardian extends Application {
 		} else if (prefKey.equalsIgnoreCase("admin_system_timezone")) {
 			DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString("admin_system_timezone"), this);
 
+		} else if (prefKey.equalsIgnoreCase("reboot_forced_daily_at")) {
+			Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
+
 		}
-		return this.rfcxPrefs.getPrefAsString(prefKey);
 	}
 
 	private void runHardwareSpecificModifications() {

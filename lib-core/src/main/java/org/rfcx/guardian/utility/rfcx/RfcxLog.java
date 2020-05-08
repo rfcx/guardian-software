@@ -39,9 +39,14 @@ public class RfcxLog {
 		return thrwMsg.toString();
 	}
 	
-	public static void logExc(String logTag, Exception exc) {
-		Log.e( logTag, getExceptionContentAsString(exc));
+	public static void logExc(String logTag, Exception exc, String optionalExtraTag) {
+		String extraTag = ( (optionalExtraTag == null) || (optionalExtraTag.length() == 0) ) ? "" : ("Tag: " + optionalExtraTag + " ||| ");
+		Log.e( logTag, extraTag + getExceptionContentAsString(exc) );
         FirebaseCrashlytics.getInstance().recordException(exc);
+	}
+
+	public static void logExc(String logTag, Exception exc) {
+		logExc(logTag, exc, null);
 	}
 	
 	public static void logThrowable(String logTag, Throwable thrw) {

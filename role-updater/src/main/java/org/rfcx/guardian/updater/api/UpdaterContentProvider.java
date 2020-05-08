@@ -46,8 +46,16 @@ public class UpdaterContentProvider extends ContentProvider {
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "prefs_resync", "*")) {
 				String prefKey = uri.getLastPathSegment();
-				app.rfcxPrefs.reSyncPref(prefKey);
-				return RfcxComm.getProjectionCursor(appRole, "prefs_resync", new Object[]{prefKey, app.rfcxPrefs.getPrefAsString(prefKey), System.currentTimeMillis()});
+				app.rfcxPrefs.reSyncPrefs(prefKey);
+                app.onPrefReSync(prefKey);
+				return RfcxComm.getProjectionCursor(appRole, "prefs_resync", new Object[]{ prefKey, System.currentTimeMillis() });
+
+				// guardian identity endpoints
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "identity_resync", "*")) {
+				String idKey = uri.getLastPathSegment();
+				app.rfcxGuardianIdentity.reSyncGuardianIdentity();
+				return RfcxComm.getProjectionCursor(appRole, "identity_resync", new Object[]{ idKey, System.currentTimeMillis() });
 
 				// "process" function endpoints
 

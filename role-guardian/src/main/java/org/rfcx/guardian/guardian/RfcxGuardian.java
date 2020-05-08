@@ -102,7 +102,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
-        this.rfcxPrefs.writeVersionToFile(this.version);
+        RfcxRole.writeVersionToFile(this, logTag, this.version);
 
         this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -118,6 +118,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
+
+        reSyncIdentityAcrossRoles();
+        reSyncPrefAcrossRoles("all");
 
         initializeRoleServices();
 
@@ -215,6 +218,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         Log.d(logTag, "Pref changed: " + prefKey + " = " + this.sharedPrefs.getString(prefKey, null));
         syncSharedPrefs();
         reSyncPrefAcrossRoles(prefKey);
+        onPrefReSync(prefKey);
     }
 
     private void syncSharedPrefs() {
@@ -236,5 +240,16 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         return this.sharedPrefs.edit().putString(prefKey, prefValue).commit();
     }
 
+    private void reSyncIdentityAcrossRoles() {
+        for (String roleName : RfcxRole.ALL_ROLES) {
+            if (!roleName.equalsIgnoreCase(APP_ROLE)) {
+                this.rfcxGuardianIdentity.reSyncIdentityInExternalRoleViaContentProvider(roleName.toLowerCase(), this);
+            }
+        }
+    }
+
+    public void onPrefReSync(String prefKey) {
+
+    }
 
 }

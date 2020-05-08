@@ -35,7 +35,7 @@ public class MqttUtils implements MqttCallback {
 	public MqttUtils(Context context, String appRole, String guardianGuid) {
 		this.context = context;
 		this.logTag = RfcxLog.generateLogTag(appRole, "MqttUtils");
-		this.mqttClientId = (new StringBuilder()).append("rfcx-guardian-").append(guardianGuid.toLowerCase(Locale.US)).append("-").append(appRole.toLowerCase(Locale.US)).toString();
+		this.mqttClientId = "rfcx-guardian-" + guardianGuid.toLowerCase(Locale.US) + "-" + appRole.toLowerCase(Locale.US);
 	}
 
 	private Context context;
@@ -84,7 +84,7 @@ public class MqttUtils implements MqttCallback {
 		// The timeout is used on methods that block while the action is in progress.
 		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttClient.html#setTimeToWait-long-
 		this.mqttActionTimeout = timeToWaitInMillis;
-		Log.v(logTag, "MQTT client action timeout set to: "+Math.round(this.mqttActionTimeout/1000)+" seconds");
+		Log.v(logTag, "MQTT client action timeout set to: "+DateTimeUtils.milliSecondDurationAsReadableString(this.mqttActionTimeout, true));
 	}
 	
 	public void addSubscribeTopic(String subscribeTopic) {
@@ -93,7 +93,7 @@ public class MqttUtils implements MqttCallback {
 	
 	public long mqttBrokerConnectionLastAttemptedAt = System.currentTimeMillis();
 	public long mqttBrokerConnectionLatency = 0;
-	private long mqttBrokerSubscriptionLatency = 0;
+	public long mqttBrokerSubscriptionLatency = 0;
 	
 	public long publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
 		if (confirmOrCreateConnectionToBroker(true)) {
@@ -190,7 +190,7 @@ public class MqttUtils implements MqttCallback {
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken deliveryToken) {
 		long checkInDuration = System.currentTimeMillis() - this.msgSendStart;
-		Log.i(this.logTag, "Delivery Complete: "+(checkInDuration/1000)+"s");
+		Log.i(this.logTag, "Delivery Complete: "+DateTimeUtils.milliSecondDurationAsReadableString(checkInDuration, true));
 	}
 	
 	@Override

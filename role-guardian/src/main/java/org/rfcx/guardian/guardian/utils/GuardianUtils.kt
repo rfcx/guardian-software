@@ -11,30 +11,24 @@ object GuardianUtils {
 
     fun isGuardianRegistered(context: Context): Boolean {
         val path = context.filesDir.toString() + "/txt/"
-        val txtFile = File(path + "/registered_at.txt")
+        val txtFile = File(path + "/registered_at")
         return txtFile.exists()
     }
 
     fun createRegisterFile(context: Context) {
         val path = context.filesDir.toString() + "/txt/"
-        val file = File(path, "registered_at.txt")
+        val file = File(path, "registered_at")
         FileOutputStream(file).use {
             val app = context.applicationContext as RfcxGuardian
             it.write(app.rfcxGuardianIdentity.guid.toByteArray())
         }
     }
 
-    fun readRegisterFile(context: Context): String {
-        val path = context.filesDir.toString() + "/txt/"
-        val file = File(path, "registered_at.txt")
-        return FileInputStream(file).bufferedReader().use { it.readText() }
-    }
-
-    fun readGuardianGuid(context: Context): String {
-        val path = context.filesDir.toString() + "/txt/"
-        val file = File(path, "guid.txt")
-        return FileInputStream(file).bufferedReader().use { it.readText() }
-    }
+//    fun readGuardianGuid(context: Context): String {
+//        val path = context.filesDir.toString() + "/txt/"
+//        val file = File(path, "guid")
+//        return FileInputStream(file).bufferedReader().use { it.readText() }
+//    }
 
     fun isNetworkAvailable(context: Context): Boolean {
         val connectivityManager =

@@ -23,7 +23,7 @@ public class InstructionsExecutionService extends Service {
 	private boolean runFlag = false;
 	private InstructionsExecutionSvc instructionsExecutionSvc;
 
-	private long instructionsExecutionCycleDuration = 15000;
+	private long instructionsExecutionCycleDuration = 10000;
 
 	@Override
 	public IBinder onBind(Intent intent) {

@@ -93,9 +93,8 @@ class MainActivity : AppCompatActivity(),
 
             setVisibilityBeforeRegister()
             val guid = app.rfcxGuardianIdentity.guid
-            val token = app.rfcxGuardianIdentity.authToken
 
-            RegisterApi.registerGuardian(applicationContext, RegisterRequest(guid, token), this)
+            RegisterApi.registerGuardian(applicationContext, RegisterRequest(guid), this)
         }
 
         loginButton.setOnClickListener {
@@ -186,7 +185,7 @@ class MainActivity : AppCompatActivity(),
 
     private fun setUIByRecordingState() {
         if (GuardianUtils.isGuardianRegistered(this)) {
-            deviceIdText.text = GuardianUtils.readGuardianGuid(this)
+            deviceIdText.text = app.rfcxGuardianIdentity.guid
             if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
                 recordStatusText.text = "recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
@@ -218,7 +217,7 @@ class MainActivity : AppCompatActivity(),
             registerInfo.visibility = View.VISIBLE
             loginButton.visibility = View.GONE
             loginInfo.visibility = View.GONE
-            deviceIdText.text = GuardianUtils.readGuardianGuid(this)
+            deviceIdText.text = app.rfcxGuardianIdentity.guid
         } else {
             unregisteredView.visibility = View.VISIBLE
             registeredView.visibility = View.INVISIBLE
@@ -270,7 +269,7 @@ class MainActivity : AppCompatActivity(),
         getInfoThread?.start()
     }
 
-    override fun onRegisterSuccess() {
+    override fun onRegisterSuccess(t: Throwable?, response: String?) {
         GuardianCheckApi.exists(applicationContext, app.rfcxGuardianIdentity.guid, this)
     }
 
@@ -286,7 +285,7 @@ class MainActivity : AppCompatActivity(),
         setUIByRecordingState()
         setUIByGuidState()
         getCheckinInformation()
-        deviceIdText.text = GuardianUtils.readGuardianGuid(baseContext)
+        deviceIdText.text = app.rfcxGuardianIdentity.guid
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {

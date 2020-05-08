@@ -21,10 +21,9 @@ object RegisterApi {
         httpPostMultipart.customHttpHeaders = listOf(arrayOf("Authorization", "Bearer ${token!!}"))
 
         val url = ApiRest.baseUrl(context)
-        val postUrl = "${url}v1/guardians/register"
+        val postUrl = "${url}v2/guardians/register"
         val body = listOf(
-            arrayOf("guid", guardianInfo.guid),
-            arrayOf("token", guardianInfo.token)
+            arrayOf("guid", guardianInfo.guid)
         )
 
         val handler = Handler()
@@ -37,7 +36,7 @@ object RegisterApi {
                 httpPostMultipart.doMultipartPost(postUrl, body, null)
 
             if (response.isNotEmpty()) {
-                callback.onRegisterSuccess()
+                callback.onRegisterSuccess(null, response)
             } else {
                 callback.onRegisterFailed(null, "Unsuccessful")
             }
@@ -47,6 +46,6 @@ object RegisterApi {
 }
 
 interface RegisterCallback {
-    fun onRegisterSuccess()
+    fun onRegisterSuccess(t: Throwable?, response: String?)
     fun onRegisterFailed(t: Throwable?, message: String?)
 }

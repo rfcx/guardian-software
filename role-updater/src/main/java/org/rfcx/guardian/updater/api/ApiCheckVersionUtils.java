@@ -14,67 +14,55 @@ import android.util.Log;
 public class ApiCheckVersionUtils {
 
 	public ApiCheckVersionUtils(Context context) {
+		this.context = context;
 		this.app = (RfcxGuardian) context.getApplicationContext();
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckVersionUtils");
 
+	private Context context;
 	private RfcxGuardian app;
 
 	public static final long minimumAllowedIntervalBetweenCheckIns = 30; // in minutes
 	public long lastCheckInTriggered = 0;
 	public long lastCheckInTime = System.currentTimeMillis();
-	
-	public String apiCheckVersionEndpoint = null;
-	public String targetAppRoleApiEndpoint = "all";
 
-	public String latestRole = null;
-	public String latestVersion = null;
-	private String latestVersionUrl = null;
-	private String latestVersionSha1 = null;
-	private int latestVersionValue = 0;
-
-	public String installRole = null;
-	public String installVersion = null;
-	public String installVersionUrl = null;
-	public String installVersionSha1 = null;
-	private int installVersionValue = 0;
-	
-	public boolean apiCheckVersionFollowUp(RfcxGuardian app, String targetRole, List<JSONObject> jsonList) {
+	public boolean apiCheckVersionFollowUp(String targetRole, List<JSONObject> jsonList) {
 		
 		this.lastCheckInTime = System.currentTimeMillis();
+
+		String focusRole = null;
+		String focusVersion = null;
+		String focusReleaseDate = null;
+		String focusSha1 = null;
+		String focusUrl = null;
+		int focusVersionValue = 0;
 		
 		try {
 		
 			for (JSONObject jsonListItem : jsonList) {
 				if (jsonListItem.getString("role").equals(targetRole.toLowerCase())) {
-					this.latestRole = jsonListItem.getString("role");
-					this.latestVersion = jsonListItem.getString("version");
-					this.latestVersionUrl = jsonListItem.getString("url");
-					this.latestVersionSha1 = jsonListItem.getString("sha1");
-					this.latestVersionValue = calculateVersionValue(this.latestVersion);
+					focusRole = jsonListItem.getString("role");
+					focusVersion = jsonListItem.getString("version");
+					focusReleaseDate = jsonListItem.getString("released");
+					focusSha1 = jsonListItem.getString("sha1");
+					focusUrl= jsonListItem.getString("url");
+					focusVersionValue = RfcxRole.getRoleVersionValue(focusVersion);
+					break;
 				}
 			}
 
-			String currentGuardianVersion = RfcxRole.getRoleVersionByName(app.targetAppRole, RfcxGuardian.APP_ROLE, app.getApplicationContext());
-//			for (String roleVersion : RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())) {
-//				if (roleVersion.substring(0, roleVersion.indexOf("*")).equalsIgnoreCase(app.targetAppRole)) {
-//					currentGuardianVersion = roleVersion.substring(roleVersion.indexOf("*")+1);
-//				}
-//			}
-			int currentGuardianVersionValue = calculateVersionValue(currentGuardianVersion);
+			String installedVersion = RfcxRole.getRoleVersionByName(targetRole, RfcxGuardian.APP_ROLE, context);
+			int installedVersionValue = calculateVersionValue(installedVersion);
 			
-			if (	(	(this.latestVersion != null) && (currentGuardianVersion == null))
-				||	(!currentGuardianVersion.equals(this.latestVersion) && (currentGuardianVersionValue < this.latestVersionValue))
+			if (	(	(focusVersion != null) && (installedVersion == null))
+				||	(!installedVersion.equals(focusVersion) && (installedVersionValue < focusVersionValue))
 				) {
-				this.installRole = this.latestRole;
-				this.installVersion = this.latestVersion;
-				this.installVersionUrl = this.latestVersionUrl;
-				this.installVersionSha1 = this.latestVersionSha1;
-				this.installVersionValue = this.latestVersionValue;
+
+				app.installUtils.setInstallConfig(focusRole, focusVersion, focusReleaseDate, focusUrl, focusSha1, focusVersionValue);
 				
-				if (isBatteryChargeSufficientForDownloadAndInstall(app)) {
-					Log.d(logTag, "Latest version detected and download triggered: "+this.installVersion+" ("+this.installVersionValue+")");
+				if (isBatteryChargeSufficientForDownloadAndInstall()) {
+					Log.d(logTag, "Latest version detected and download triggered: "+focusVersion+" ("+focusVersionValue+")");
 					app.rfcxServiceHandler.triggerService("DownloadFile", true);
 				} else {
 					Log.i(logTag, "Download & Installation disabled due to low battery level"
@@ -82,20 +70,17 @@ public class ApiCheckVersionUtils {
 							);
 				}
 				return true;
-			} else if (!currentGuardianVersion.equals(this.latestVersion) && (currentGuardianVersionValue > this.latestVersionValue)) { 
-				Log.d(logTag,"org.rfcx.guardian."+this.latestRole+" is newer than the api version: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
+			} else if (!installedVersion.equals(focusVersion) && (installedVersionValue > focusVersionValue)) {
+				Log.d(logTag,"org.rfcx.guardian."+focusRole+" is newer than the api version: "+installedVersion+" ("+installedVersionValue+")");
 			} else {
-				Log.d(logTag,"org.rfcx.guardian."+this.latestRole+" is already up-to-date: "+currentGuardianVersion+" ("+currentGuardianVersionValue+")");
+				Log.d(logTag,"org.rfcx.guardian."+focusRole+" is already up-to-date: "+installedVersion+" ("+installedVersionValue+")");
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
 		return false;
 	}
-	
-	public void setApiCheckVersionEndpoint(String guardianId) {
-		this.apiCheckVersionEndpoint = "/v1/guardians/"+guardianId+"/software/"+this.targetAppRoleApiEndpoint;
-	}
+
 	
 	private static int calculateVersionValue(String versionName) {
 		try {
@@ -134,8 +119,8 @@ public class ApiCheckVersionUtils {
 		}
 	}
 	
-	private boolean isBatteryChargeSufficientForDownloadAndInstall(RfcxGuardian app) {
-		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
+	private boolean isBatteryChargeSufficientForDownloadAndInstall() {
+		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(context, null);
 	//	return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("install_battery_cutoff"));
 		return (batteryCharge >= 50);
 	}
