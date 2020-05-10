@@ -71,19 +71,17 @@ Before getting started, key points to be familiar with:
 2. By default the Orange Pi comes with both COM 1 jumpers in the correct position. No need to ever change them it seems. COM 2 jumper should be ON only when flashing the device (the rest of the time it should be OFF/removed).
 3. The OrangePi do not come with the **IMEI number**. You need to set it by yourself following the instructions below. Before install any roles, you should set the **IMEI number first**.
 4. Before using any roles, make sure there is the internet connection.
-5. **Time and date** will not be correct on the first time you start the device. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** or insert sim card.
-6. **Timezone automatically** need to uncheck so that Admin role can change it.
-7. **Default Write Disk** need to set to **Phone Storage** although sd card is installed.
-8. **Default SMS app** need to set to Admin role.
-9. The OrangePi comes with USB debugging **enabled** by default.
-10. The OrangePi comes with **auto allow the permission** (because it is Android 4.4.2).
-11. The guardian role will capture audio and send to server automatically if:
+5. **Timezone automatically** need to uncheck so that Admin role can change it.
+6. **Default Write Disk** need to set to **Phone Storage** although sd card is installed.
+7. **Default SMS app** need to set to Admin role.
+8. The OrangePi comes with USB debugging **enabled** by default.
+9. The OrangePi comes with **auto allow the permission** (because it is Android 4.4.2).
+10. The guardian role will capture audio and send to server automatically if:
     1. The date/time is (reasonably) close to current time
-    2. GPS location is enabled
-    3. Guardian is registered
-    4. **SD card** is connected *(any size is okay -- tested up to 64GB)*
-    5. There is internet connection
-    6. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
+    2. Guardian is registered
+    3. **SD card** is connected *(any size is okay -- tested up to 64GB)*
+    4. There is internet connection
+    5. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
 
 #### Install apps
 
