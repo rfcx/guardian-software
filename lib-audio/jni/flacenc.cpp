@@ -255,7 +255,7 @@ namespace {
          **/
         int write(char * buffer, int bufsize)
         {
-            aj::log(ANDROID_LOG_DEBUG, LTAG, "Asked to write buffer of size %d", bufsize);
+//            aj::log(ANDROID_LOG_DEBUG, LTAG, "Asked to write buffer of size %d", bufsize);
 
             // We have 8 or 16 bit pcm in the buffer, but FLAC expects 32 bit samples,
             // where some of the 32 bits are unused.
@@ -268,7 +268,7 @@ namespace {
                 // so forth is to use a separate code path here. In this, we'll flush the
                 // current write buffer to the FIFO, and immediately append a new
                 // FIFO entry that's as large as bufsize32.
-                aj::log(ANDROID_LOG_DEBUG, LTAG, "bufsize32 > m_write_buffer_size");
+//                aj::log(ANDROID_LOG_DEBUG, LTAG, "bufsize32 > m_write_buffer_size");
                 flush_to_fifo();
 
                 m_write_buffer = new FLAC__int32[bufsize32];
@@ -373,10 +373,10 @@ namespace {
 
             //aj::log(ANDROID_LOG_DEBUG, LTAG, "Writer thread dies.");
             for (long i=0;i<50; i++){
-                aj::log(ANDROID_LOG_DEBUG, LTAG,".");
+//                aj::log(ANDROID_LOG_DEBUG, LTAG,".");
                 usleep(5000);
             }
-            aj::log(ANDROID_LOG_DEBUG, LTAG, "slept.");
+//            aj::log(ANDROID_LOG_DEBUG, LTAG, "slept.");
             return NULL;
         }
 
@@ -410,7 +410,7 @@ namespace {
                 return;
             }
 
-            aj::log(ANDROID_LOG_DEBUG, LTAG, "Flushing to FIFO.");
+//            aj::log(ANDROID_LOG_DEBUG, LTAG, "Flushing to FIFO.");
 
             write_fifo_t * next = new write_fifo_t(m_write_buffer,
                                                    m_write_buffer_offset);
@@ -424,7 +424,7 @@ namespace {
             else {
                 m_fifo = next;
             }
-            aj::log(ANDROID_LOG_DEBUG, LTAG, "FIFO: %p, new entry: %p", m_fifo, next);
+//            aj::log(ANDROID_LOG_DEBUG, LTAG, "FIFO: %p, new entry: %p", m_fifo, next);
             pthread_mutex_unlock(&m_fifo_mutex);
         }
 
@@ -444,7 +444,7 @@ namespace {
                 m_write_buffer_offset += bufsize32;
             }
             else if (16 == m_bits_per_sample) {
-                aj::log(ANDROID_LOG_DEBUG, LTAG, "Copying at %p[%d] = %p", m_write_buffer, m_write_buffer_offset, buf);
+//                aj::log(ANDROID_LOG_DEBUG, LTAG, "Copying at %p[%d] = %p", m_write_buffer, m_write_buffer_offset, buf);
                 copyBuffer<int16_t>(buf, buffer, bufsize);
                 m_write_buffer_offset += bufsize32;
             }
@@ -464,12 +464,16 @@ namespace {
          * As a side effect, m_max_amplitude, m_average_sum and m_average_count are
          * modified.
          **/
+         //TODO: find out why error
         template <typename sized_sampleT>
         void copyBuffer(FLAC__int32 * outbuf, char * inbuf, int inbufsize)
         {
+//            aj::log(ANDROID_LOG_DEBUG, LTAG, "Copying with 16bit");
+//            aj::log(ANDROID_LOG_DEBUG, LTAG, "Copying with %s",inbuf);
             sized_sampleT * inbuf_sized = reinterpret_cast<sized_sampleT *>(inbuf);
             for (int i = 0 ; i < inbufsize / sizeof(sized_sampleT) ; ++i) {
                 sized_sampleT cur = inbuf_sized[i];
+//                aj::log(ANDROID_LOG_DEBUG, LTAG, "using inbuf_sized[%d]",i);
 
                 // Convert sized sample to int32
                 outbuf[i] = cur;
@@ -478,9 +482,12 @@ namespace {
                 if (cur < 0) {
                     // Need to lose precision here, the positive value range is lower than
                     // the negative value range in a signed integer.
+//                    aj::log(ANDROID_LOG_DEBUG, LTAG, "- cur");
                     cur = -(cur + 1);
                 }
-                float amp = static_cast<float>(cur) / aj::type_traits<sized_sampleT>::MAX;
+//                aj::log(ANDROID_LOG_DEBUG, LTAG, "try to static cast and divide int16");
+                float amp = static_cast<float>(cur) / INT16_MAX;
+//                aj::log(ANDROID_LOG_DEBUG, LTAG, "static_cast");
 
                 // Store max amplitude
                 if (amp > m_max_amplitude) {
@@ -644,6 +651,7 @@ Java_org_rfcx_guardian_audio_flac_FLACStreamEncoder_write(JNIEnv * env, jobject 
     }
 
     char * buf = static_cast<char *>(env->GetDirectBufferAddress(buffer));
+
     return encoder->write(buf, bufsize);
 }
 
