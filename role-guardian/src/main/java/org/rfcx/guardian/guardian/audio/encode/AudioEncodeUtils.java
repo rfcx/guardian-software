@@ -1,26 +1,21 @@
 package org.rfcx.guardian.guardian.audio.encode;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import android.content.Context;
+import android.util.Log;
 
 import org.rfcx.guardian.audio.flac.FLACStreamEncoder;
-import org.rfcx.guardian.audio.flac.FLAC_FileEncoder;
 import org.rfcx.guardian.audio.opus.OpusAudioEncoder;
+import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import android.content.Context;
-import android.util.Log;
-import org.rfcx.guardian.guardian.RfcxGuardian;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AudioEncodeUtils {
 
