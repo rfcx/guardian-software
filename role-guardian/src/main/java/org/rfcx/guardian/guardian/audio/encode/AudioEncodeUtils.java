@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.rfcx.guardian.audio.flac.FLACStreamEncoder;
@@ -43,7 +44,8 @@ public class AudioEncodeUtils {
 
 					FLACStreamEncoder flacStreamEncoder = new FLACStreamEncoder();
 					ByteBuffer byteBuffer = audioToByteBuffer(preEncodeFile);
-					String encStatus = flacStreamEncoder.encode(postEncodeFile, encodeSampleRate, RfcxAudioUtils.AUDIO_CHANNEL_COUNT, RfcxAudioUtils.AUDIO_SAMPLE_SIZE, byteBuffer, bufferSize);
+					int buffersize = byteBuffer.position();
+					String encStatus = flacStreamEncoder.encode(postEncodeFile, encodeSampleRate, RfcxAudioUtils.AUDIO_CHANNEL_COUNT, RfcxAudioUtils.AUDIO_SAMPLE_SIZE, byteBuffer, buffersize);
 
 					if (encStatus.equalsIgnoreCase("OK")) { encodeOutputBitRate = 0; }
 					Log.d(logTag, "FLAC Encoding Complete: "+encStatus);
@@ -73,16 +75,15 @@ public class AudioEncodeUtils {
 	}
 
 	private static ByteBuffer audioToByteBuffer(File audio) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		BufferedInputStream in = new BufferedInputStream(new FileInputStream(audio));
+		FileInputStream in = new FileInputStream(audio);
 
-		int read;
-		byte[] buff = new byte[1024];
-		while ((read = in.read(buff)) > 0) {
-			out.write(buff, 0, read);
-		}
-		out.flush();
-		return ByteBuffer.wrap(out.toByteArray());
+		byte[] buff = new byte[(int)audio.length()];
+		in.read(buff, 0, buff.length);
+		Log.d("FLAC_ENCODER", buff.length+"");
+		ByteBuffer byteBuffer = ByteBuffer.allocateDirect(buff.length);
+		byteBuffer.put(buff);
+		Log.d("FLAC_ENCODER", byteBuffer.limit()+"");
+		return byteBuffer;
 	}
 
 }
