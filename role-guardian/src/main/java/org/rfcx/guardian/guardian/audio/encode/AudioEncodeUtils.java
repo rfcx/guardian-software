@@ -20,7 +20,6 @@ import java.util.List;
 public class AudioEncodeUtils {
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioEncodeUtils");
-	public static int bufferSize = 0;
 
 	public static int encodeAudioFile(File preEncodeFile, File postEncodeFile, String encodeCodec, int encodeSampleRate, int encodeBitRate, int encodeQuality) {
 
