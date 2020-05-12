@@ -1,13 +1,12 @@
 package org.rfcx.guardian.audio.flac;
 
-import android.util.Log;
-
 import org.rfcx.guardian.audio.EncodeStatus;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class FLACStreamEncoder {
 
@@ -35,12 +34,13 @@ public class FLACStreamEncoder {
 
     private ByteBuffer audioToByteBuffer(File audio) throws IOException {
         FileInputStream stream = new FileInputStream(audio);
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect((int) audio.length());
-        stream.skip(44);
-        while (stream.available() > 0) {
-            byteBuffer.put((byte) stream.read());
-        }
-        Log.d("FLAC_ENCODER", byteBuffer.limit() + "");
+
+        byte[] buff = new byte[(int)audio.length()];
+        stream.read(buff, 0, buff.length);
+        byte[] modBuff = Arrays.copyOfRange(buff, 44, buff.length);
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(modBuff.length);
+        byteBuffer.put(modBuff);
+
         return byteBuffer;
     }
 
