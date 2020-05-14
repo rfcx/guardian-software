@@ -119,7 +119,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.instructionsUtils = new InstructionsUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
 
-        reSyncIdentityAcrossRoles();
+    //    reSyncIdentityAcrossRoles();
         reSyncPrefAcrossRoles("all");
 
         initializeRoleServices();
@@ -141,7 +141,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 
     private boolean isGuardianRegistered() {
-        return RfcxPrefs.doesGuardianRoleTxtFileExist(this, "registered_at");
+        return (this.rfcxGuardianIdentity.getAuthToken() != null);
     }
 
     public boolean doConditionsPermitRoleServices() {

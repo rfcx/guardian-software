@@ -24,7 +24,7 @@ import java.util.List;
 
 public class AdminContentProvider extends ContentProvider {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ContentProvider");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AdminContentProvider");
 
     private static final String appRole = RfcxGuardian.APP_ROLE;
 
@@ -63,7 +63,7 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "identity_resync", "*")) {
                 String idKey = uri.getLastPathSegment();
-                app.rfcxGuardianIdentity.reSyncGuardianIdentity();
+                //app.rfcxGuardianIdentity.reSyncGuardianIdentity();
                 return RfcxComm.getProjectionCursor(appRole, "identity_resync", new Object[]{ idKey, System.currentTimeMillis() });
 
             // "process" function endpoints
@@ -229,7 +229,7 @@ public class AdminContentProvider extends ContentProvider {
             return null;
 
         } catch (Exception e) {
-            RfcxLog.logExc(logTag, e);
+            RfcxLog.logExc(logTag, e, "AdminContentProvider");
         }
         return null;
     }

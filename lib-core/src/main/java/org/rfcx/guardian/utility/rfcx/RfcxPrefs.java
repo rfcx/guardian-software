@@ -172,7 +172,7 @@ public class RfcxPrefs {
 
 		if (!fileObj.exists()) {
 			(new File(prefsDirPath)).mkdirs();
-			FileUtils.chmod(prefsDirPath, "rw", "");
+			FileUtils.chmod(prefsDirPath, "rw", "rw");
 		} else {
 			fileObj.delete();
 		}
@@ -181,7 +181,7 @@ public class RfcxPrefs {
 			BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
 			outFile.write(prefValue);
 			outFile.close();
-			FileUtils.chmod(filePath, "rw", "");
+			FileUtils.chmod(filePath, "rw", "rw");
 			writeSuccess = fileObj.exists();
         } catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
@@ -358,8 +358,8 @@ public class RfcxPrefs {
 			put("checkin_archive_threshold", "160");
 
 			put("admin_enable_bluetooth", "false");
-			put("admin_enable_wifi", "true");
-			put("admin_enable_tcp_adb", "true");
+			put("admin_enable_wifi", "false");
+			put("admin_enable_tcp_adb", "false");
 
 			put("admin_log_capture_cycle", "30");
 			put("admin_log_capture_level", "warn");
@@ -368,7 +368,7 @@ public class RfcxPrefs {
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "true");
 
-			put("admin_enable_sentinel_capture", "true");
+			put("admin_enable_sentinel_capture", "false");
 
 			put("admin_system_timezone", "[ Not Set ]");
 			

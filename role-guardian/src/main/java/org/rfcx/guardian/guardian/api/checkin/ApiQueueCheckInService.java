@@ -50,13 +50,13 @@ public class ApiQueueCheckInService extends IntentService {
 						}, encodedAudio[9]);
 
 				// increase total of local audio when finish sending audio to queue
-				totalLocalAudio += 1;
-				totalRecordedTime += app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+//				totalLocalAudio += 1;
+//				totalRecordedTime += app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			}
 
 
-			if (!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) { 
-				Log.v(logTag, "No CheckIn triggered because org.rfcx.guardian.guardian is in offline mode.");
+			if (!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) {
+				Log.v(logTag, "CheckIn publication is explicitly disabled.");
 			} else {
 				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", 3 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
 				app.apiCheckInUtils.updateFailedCheckInThresholds();

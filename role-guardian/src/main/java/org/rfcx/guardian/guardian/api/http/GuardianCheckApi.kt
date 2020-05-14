@@ -28,7 +28,7 @@ object GuardianCheckApi {
             val response = httpGet.getAsJson(postUrl, null)
 
             if (response.length() > 0) {
-                callback.onGuardianCheckSuccess()
+                callback.onGuardianCheckSuccess(null, response.getString("token"))
             } else {
                 callback.onGuardianCheckFailed(null, "Unsuccessful")
             }
@@ -38,6 +38,6 @@ object GuardianCheckApi {
 }
 
 interface GuardianCheckCallback {
-    fun onGuardianCheckSuccess()
+    fun onGuardianCheckSuccess(t: Throwable?, authToken: String?)
     fun onGuardianCheckFailed(t: Throwable?, message: String?)
 }

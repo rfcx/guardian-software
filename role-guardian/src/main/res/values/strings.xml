@@ -27,8 +27,8 @@
 	<string name="prefs_value_default_audio_cycle_duration">90</string>
 	<string name="prefs_value_default_audio_schedule_off_hours">23:56-23:58,23:58-00:00</string>
 	<string name="prefs_value_default_audio_encode_codec">opus</string>
-	<string name="prefs_value_default_audio_encode_bitrate">16384</string>
-	<string name="prefs_value_default_audio_sample_rate">12000</string>
+	<string name="prefs_value_default_audio_encode_bitrate">24576</string>
+	<string name="prefs_value_default_audio_sample_rate">24000</string>
 
 	<string name="prefs_value_default_checkin_battery_cutoff">90</string>
 	<string name="prefs_value_default_audio_battery_cutoff">80</string>
@@ -45,12 +45,12 @@
 	<string name="prefs_value_default_admin_enable_screenshot_capture">true</string>
 	<string name="prefs_value_default_admin_screenshot_capture_cycle">180</string>
 
-	<string name="prefs_value_default_admin_enable_tcp_adb">true</string>
-	<string name="prefs_value_default_admin_enable_wifi">true</string>
+	<string name="prefs_value_default_admin_enable_tcp_adb">false</string>
+	<string name="prefs_value_default_admin_enable_wifi">false</string>
 	<string name="prefs_value_default_admin_enable_bluetooth">false</string>
 
 	<string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>
-	<string name="prefs_value_default_admin_enable_sentinel_capture">true</string>
+	<string name="prefs_value_default_admin_enable_sentinel_capture">false</string>
 
     <string-array name="prefs_values_true_or_false">
 		<item>true</item>

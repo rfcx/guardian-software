@@ -278,9 +278,9 @@ class MainActivity : AppCompatActivity(),
         showToast(message ?: "register failed")
     }
 
-    override fun onGuardianCheckSuccess() {
+    override fun onGuardianCheckSuccess(t: Throwable?, authToken: String?) {
+        app.rfcxGuardianIdentity.authToken = authToken;
         setVisibilityRegisterSuccess()
-        GuardianUtils.createRegisterFile(baseContext)
         app.initializeRoleServices()
         setUIByRecordingState()
         setUIByGuidState()

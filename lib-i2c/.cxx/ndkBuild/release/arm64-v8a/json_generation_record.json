@@ -2,19 +2,19 @@
   {
     "level": "INFO",
     "message": "Start JSON generation. Platform version: 19 min SDK version: arm64-v8a",
-    "file": "/Users/rfcx/code/guardian-android/i2c/jni/Android.mk",
+    "file": "/Users/rfcx/code/guardian-android/lib-i2c/jni/Android.mk",
     "tag": "release|arm64-v8a"
   },
   {
     "level": "INFO",
-    "message": "JSON \u0027/Users/rfcx/code/guardian-android/i2c/.cxx/ndkBuild/release/arm64-v8a/android_gradle_build.json\u0027 was up-to-date",
-    "file": "/Users/rfcx/code/guardian-android/i2c/jni/Android.mk",
+    "message": "JSON \u0027/Users/rfcx/code/guardian-android/lib-i2c/.cxx/ndkBuild/release/arm64-v8a/android_gradle_build.json\u0027 was up-to-date",
+    "file": "/Users/rfcx/code/guardian-android/lib-i2c/jni/Android.mk",
     "tag": "release|arm64-v8a"
   },
   {
     "level": "INFO",
     "message": "JSON generation completed without problems",
-    "file": "/Users/rfcx/code/guardian-android/i2c/jni/Android.mk",
+    "file": "/Users/rfcx/code/guardian-android/lib-i2c/jni/Android.mk",
     "tag": "release|arm64-v8a"
   }
 ]

@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import android.content.Context;
 import android.util.Log;
@@ -26,7 +28,7 @@ public class DeviceI2cUtils {
 	
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceI2cUtils");
 
-	private static final int i2cInterface = 1; // as in /dev/i2c-0
+	public static final int i2cInterface = 1; // a number, as in /dev/i2c-0 or /dev/i2c-1 or /dev/i2c-2
 	private String i2cMainAddress = null;
 	
 	private String execI2cGet = null;
@@ -45,25 +47,16 @@ public class DeviceI2cUtils {
 		try {
 			Process i2cShellProc = Runtime.getRuntime().exec("sh");
 			DataOutputStream dataOutputStream = new DataOutputStream(i2cShellProc.getOutputStream());
-//			BufferedReader lineReader = new BufferedReader (new InputStreamReader(i2cShellProc.getInputStream()));
-			
+			BufferedReader lineReader = new BufferedReader (new InputStreamReader(i2cShellProc.getInputStream()));
+
 			for (String[] i2cRow : i2cLabelsAddressesValues) {
-				dataOutputStream.writeBytes(execI2cSet + " -y " + i2cInterface + " " + i2cMainAddress + " " + i2cRow[1] + " " + i2cRow[2] + ";\n");
-				Log.d(logTag, execI2cSet + " -y " + i2cInterface + " " + i2cMainAddress + " " + i2cRow[1] + " " + i2cRow[2] + ";\n");
+				String cmdLine = execI2cSet + " -y " + i2cInterface + " " + i2cMainAddress + " " + i2cRow[1] + " " + i2cRow[2] + " w;\n";
+				//	Log.d(logTag, cmdLine);
+				dataOutputStream.writeBytes(cmdLine);
 				dataOutputStream.flush();
 			}
 			dataOutputStream.writeBytes("exit;\n");
 			dataOutputStream.flush();
-			
-//			String lineContent; int lineIndex = 0; 
-//			while ((lineContent = lineReader.readLine()) != null) { 
-//				String thisLine = lineContent.trim();
-//				if (thisLine.length() > 0) {
-//					String thisLineValueAsString = (parseAsHex) ? Long.parseLong(thisLine.substring(1+thisLine.indexOf("x")), 16)+"" : thisLine;
-//					i2cLabelsAndOutputValues.add(new String[] { i2cLabelsAddressesValues.get(lineIndex)[0], thisLineValueAsString } );
-//					lineIndex++;
-//				}
-//			}
 		} catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -105,7 +98,9 @@ public class DeviceI2cUtils {
 			BufferedReader lineReader = new BufferedReader (new InputStreamReader(i2cShellProc.getInputStream()));
 			
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
-				dataOutputStream.writeBytes(execI2cGet + " -y " + i2cInterface + " " + i2cMainAddress + " " + i2cRow[1] + " w;\n");
+				String cmdLine = execI2cGet + " -y " + i2cInterface + " " + i2cMainAddress + " " + i2cRow[1] + " w;\n";
+			//	Log.d(logTag, cmdLine);
+				dataOutputStream.writeBytes(cmdLine);
 				dataOutputStream.flush();
 			}
 			dataOutputStream.writeBytes("exit;\n");
@@ -115,12 +110,17 @@ public class DeviceI2cUtils {
 			while ((lineContent = lineReader.readLine()) != null) { 
 				String thisLine = lineContent.trim();
 				if (thisLine.length() > 0) {
-					String thisLineValueAsString = (parseAsHex) ? Long.parseLong(thisLine.substring(1+thisLine.indexOf("x")), 16)+"" : thisLine;
+					String thisLineValueAsString = thisLine;
+					if (parseAsHex && thisLine.substring(0,2).equalsIgnoreCase("0x")) {
+						thisLineValueAsString = twosComp(thisLine.substring(1+thisLine.indexOf("x")))+""; //Long.parseLong(thisLine.substring(1+thisLine.indexOf("x")), 16)+"";
+					} else if (parseAsHex) {
+						thisLineValueAsString = null;
+					}
 					i2cLabelsAndOutputValues.add(new String[] { i2cLabelsAndSubAddresses.get(lineIndex)[0], thisLineValueAsString } );
 					lineIndex++;
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
 		return i2cLabelsAndOutputValues;
@@ -176,7 +176,52 @@ public class DeviceI2cUtils {
 		ShellCommands.executeCommandAsRootAndIgnoreOutput("chmod 666 /dev/i2c-"+i2cInterface+";", context);
 	}
 
-	
-	
+
+
+	public static Integer twosComp(String str) {
+		Integer num = Integer.valueOf(str.toUpperCase(Locale.US), 16);
+		return (num > 32767) ? num - 65536 : num;
+	}
+
+
+	private static Number hexToDec(String hex)  {
+		if (hex == null) {
+			throw new NullPointerException("hexToDec: hex String is null.");
+		}
+
+		// You may want to do something different with the empty string.
+		if (hex.equals("")) { return Byte.valueOf("0"); }
+
+		// If you want to pad "FFF" to "0FFF" do it here.
+
+		hex = hex.toUpperCase();
+
+		// Check if high bit is set.
+		boolean isNegative =
+				hex.startsWith("8") || hex.startsWith("9") ||
+				hex.startsWith("A") || hex.startsWith("B") ||
+				hex.startsWith("C") || hex.startsWith("D") ||
+				hex.startsWith("E") || hex.startsWith("F");
+
+		BigInteger temp;
+
+		if (isNegative) {
+			// Negative number
+			temp = new BigInteger(hex, 16);
+			BigInteger subtrahend = BigInteger.ONE.shiftLeft(hex.length() * 4);
+			temp = temp.subtract(subtrahend);
+		} else {
+			// Positive number
+			temp = new BigInteger(hex, 16);
+		}
+
+		// Cut BigInteger down to size.
+		if (hex.length() <= 2) { return (Byte)temp.byteValue(); }
+		if (hex.length() <= 4) { return (Short)temp.shortValue(); }
+		if (hex.length() <= 8) { return (Integer)temp.intValue(); }
+		if (hex.length() <= 16) { return (Long)temp.longValue(); }
+		return temp;
+	}
+
 	
 }

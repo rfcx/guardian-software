@@ -4,14 +4,14 @@
   "buildSettings": {
     "environmentVariables": []
   },
-  "cxxBuildFolder": "/Users/rfcx/code/guardian-android/i2c/.cxx/ndkBuild/debug/x86_64",
+  "cxxBuildFolder": "/Users/rfcx/code/guardian-android/lib-i2c/.cxx/ndkBuild/debug/x86_64",
   "info": {
     "abi": "X86_64",
     "bitness": 64,
     "deprecated": false,
     "default": true
   },
-  "originalCxxBuildFolder": "/Users/rfcx/code/guardian-android/i2c/.cxx/ndkBuild/debug/x86_64",
+  "originalCxxBuildFolder": "/Users/rfcx/code/guardian-android/lib-i2c/.cxx/ndkBuild/debug/x86_64",
   "variant": {
     "buildSystemArgumentList": [],
     "buildTargetSet": [],
@@ -22,12 +22,12 @@
     "module": {
       "buildSystem": "NDK_BUILD",
       "cmakeToolchainFile": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/build/cmake/android.toolchain.cmake",
-      "cxxFolder": "/Users/rfcx/code/guardian-android/i2c/.cxx",
-      "gradleModulePathName": ":i2c",
-      "intermediatesFolder": "/Users/rfcx/code/guardian-android/i2c/build/intermediates",
-      "makeFile": "/Users/rfcx/code/guardian-android/i2c/jni/Android.mk",
-      "moduleBuildFile": "/Users/rfcx/code/guardian-android/i2c/build.gradle",
-      "moduleRootFolder": "/Users/rfcx/code/guardian-android/i2c",
+      "cxxFolder": "/Users/rfcx/code/guardian-android/lib-i2c/.cxx",
+      "gradleModulePathName": ":lib-i2c",
+      "intermediatesFolder": "/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates",
+      "makeFile": "/Users/rfcx/code/guardian-android/lib-i2c/jni/Android.mk",
+      "moduleBuildFile": "/Users/rfcx/code/guardian-android/lib-i2c/build.gradle",
+      "moduleRootFolder": "/Users/rfcx/code/guardian-android/lib-i2c",
       "ndkDefaultAbiList": [
         "ARMEABI_V7A",
         "ARM64_V8A",
@@ -111,7 +111,7 @@
         "SYSTEM": {}
       }
     },
-    "objFolder": "/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/debug/obj/local",
+    "objFolder": "/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/debug/obj/local",
     "variantName": "debug",
     "validAbiList": [
       "ARMEABI_V7A",

@@ -31,15 +31,8 @@ public class DateTimeUtils {
 		return TIMEZONE_FORMAT.format(Calendar.getInstance(TimeZone.getTimeZone("GMT"), DEFAULT_LOCALE).getTime());
 	}
 	
-	public static String getDateTime() {
-		Date date = new Date();
-		return DATETIME_FORMAT.format(date);
-	}
-	
-	public static String getDateTime(Date date) {
-		return DATETIME_FORMAT.format(date);
-	}
-	
+	public static String getDateTime() { return DATETIME_FORMAT.format(new Date()); }
+	public static String getDateTime(Date date) { return DATETIME_FORMAT.format(date); }
 	public static String getDateTime(long date) {
 		return DATETIME_FORMAT.format(new Date(date));
 	}

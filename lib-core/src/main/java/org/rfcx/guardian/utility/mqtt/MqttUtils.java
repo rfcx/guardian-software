@@ -41,7 +41,7 @@ public class MqttUtils implements MqttCallback {
 	private Context context;
 	private String logTag;
 	
-	private int mqttQos = 2; // QoS - Send message exactly once
+	private int mqttQos = 1; // QoS - 1 - Send message at least once
 	private String mqttClientId = null;
 	private int mqttBrokerPort = 1883;
 	private String mqttBrokerProtocol = "tcp";
@@ -97,10 +97,9 @@ public class MqttUtils implements MqttCallback {
 	
 	public long publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
 		if (confirmOrCreateConnectionToBroker(true)) {
-			Log.i(logTag, "Publishing " + messageByteArray.length + " bytes to '" + publishTopic + "' at " + DateTimeUtils.getDateTime(new Date()));
+			Log.i(logTag, "Publishing " + messageByteArray.length + " bytes to '" + publishTopic + "' at " + DateTimeUtils.getDateTime());
 			this.msgSendStart = System.currentTimeMillis();
 			this.mqttClient.publish(publishTopic, buildMessage(messageByteArray));
-
 		} else {
 			Log.e(logTag, "Message could not be sent because connection could not be created...");
 		}
@@ -126,7 +125,7 @@ public class MqttUtils implements MqttCallback {
 		mqttBrokerSubscriptionLatency = 0;
 
 		if (allowBasedOnDeviceConnectivity && ((this.mqttClient == null) || !this.mqttClient.isConnected())) {
-				
+
 			this.mqttClient = new MqttClient(this.mqttBrokerUri, this.mqttClientId, new MemoryPersistence());
 			
 			this.mqttClient.setTimeToWait(this.mqttActionTimeout);	
@@ -136,7 +135,7 @@ public class MqttUtils implements MqttCallback {
 			try {
 				options = getConnectOptions();
 			} catch (Exception e) {
-				e.printStackTrace();
+				RfcxLog.logExc(logTag, e, "confirmOrCreateConnectionToBroker");
 				throw new MqttException(MqttException.REASON_CODE_UNEXPECTED_ERROR);
 			}
 

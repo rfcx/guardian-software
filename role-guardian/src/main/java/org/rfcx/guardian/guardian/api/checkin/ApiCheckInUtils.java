@@ -82,7 +82,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
 
 	private int inFlightCheckInAttemptCounter = 0;
-	private int inFlightCheckInAttemptCounterLimit = 20;
+	private int inFlightCheckInAttemptCounterLimit = 12;
 
 	private List<String> previousCheckIns = new ArrayList<String>();
 
@@ -99,7 +99,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private long[] healthCheckInitValues = new long[healthCheckMeasurementCount];
 	private boolean doCheckInConditionsAllowCheckInRequeuing = false;
 
-	public static long latestFileSize = 0L;
+	public static long latestFileSize = 0;
 	public static String latestCheckinTimestamp = "";
 	public static int totalSyncedAudio = 0;
 
@@ -568,7 +568,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
 
 		// Hardware info
-		checkInMetaJson.put("hardware", DeviceHardwareUtils.getDeviceHardwareInfoJson());
+		checkInMetaJson.put("hardware", DeviceHardwareUtils.getInfoAsJson());
 
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
@@ -614,22 +614,22 @@ public class ApiCheckInUtils implements MqttCallback {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
 		String[] screenShotMeta = getLatestExternalAssetMeta("screenshots");
-		if ((screenShotMeta[0] != null) && !(new File(screenShotMeta[0])).exists()) {
+		if ((screenShotMeta[0] != null) && !FileUtils.exists(screenShotMeta[0])) {
 			purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotMeta[2]);
 		}
 
 		String[] logFileMeta = getLatestExternalAssetMeta("logs");
-		if ((logFileMeta[0] != null) && !(new File(logFileMeta[0])).exists()) {
+		if ((logFileMeta[0] != null) && !FileUtils.exists(logFileMeta[0])) {
 			purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logFileMeta[2]);
 		}
 
         String[] photoFileMeta = getLatestExternalAssetMeta("photos");
-        if ((photoFileMeta[0] != null) && !(new File(photoFileMeta[0])).exists()) {
+        if ((photoFileMeta[0] != null) && !FileUtils.exists(photoFileMeta[0])) {
             purgeSingleAsset("photo", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), photoFileMeta[2]);
         }
 
 		String[] videoFileMeta = getLatestExternalAssetMeta("videos");
-		if ((videoFileMeta[0] != null) && !(new File(videoFileMeta[0])).exists()) {
+		if ((videoFileMeta[0] != null) && !FileUtils.exists(videoFileMeta[0])) {
 			purgeSingleAsset("video", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), videoFileMeta[2]);
 		}
 
@@ -640,7 +640,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		byteArrayOutputStream.write(jsonBlobAsBytes);
 
 		byte[] audioFileAsBytes = new byte[0];
-		if ((new File(checkInAudioFilePath)).exists()) {
+		if (FileUtils.exists(checkInAudioFilePath)) {
 			audioFileAsBytes = FileUtils.fileAsByteArray(checkInAudioFilePath);
 		}
 		String audioFileMetaSection = String.format(Locale.US, "%012d", audioFileAsBytes.length);
@@ -648,7 +648,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		byteArrayOutputStream.write(audioFileAsBytes);
 
 		byte[] screenShotFileAsBytes = new byte[0];
-		if ((screenShotMeta[0] != null) && (new File(screenShotMeta[0])).exists()) {
+		if (FileUtils.exists(screenShotMeta[0])) {
 			screenShotFileAsBytes = FileUtils.fileAsByteArray(screenShotMeta[0]);
 		}
 		String screenShotFileMetaSection = String.format(Locale.US, "%012d", screenShotFileAsBytes.length);
@@ -656,7 +656,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		byteArrayOutputStream.write(screenShotFileAsBytes);
 
 		byte[] logFileAsBytes = new byte[0];
-		if ((logFileMeta[0] != null) && (new File(logFileMeta[0])).exists()) {
+		if (FileUtils.exists(logFileMeta[0])) {
 			logFileAsBytes = FileUtils.fileAsByteArray(logFileMeta[0]);
 		}
 		String logFileMetaSection = String.format(Locale.US, "%012d", logFileAsBytes.length);
@@ -664,7 +664,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		byteArrayOutputStream.write(logFileAsBytes);
 
         byte[] photoFileAsBytes = new byte[0];
-        if ((photoFileMeta[0] != null) && (new File(photoFileMeta[0])).exists()) {
+        if (FileUtils.exists(photoFileMeta[0])) {
             photoFileAsBytes = FileUtils.fileAsByteArray(photoFileMeta[0]);
         }
         String photoFileMetaSection = String.format(Locale.US, "%012d", photoFileAsBytes.length);
@@ -672,7 +672,7 @@ public class ApiCheckInUtils implements MqttCallback {
         byteArrayOutputStream.write(photoFileAsBytes);
 
 		byte[] videoFileAsBytes = new byte[0];
-		if ((videoFileMeta[0] != null) && (new File(videoFileMeta[0])).exists()) {
+		if (FileUtils.exists(videoFileMeta[0])) {
 			videoFileAsBytes = FileUtils.fileAsByteArray(videoFileMeta[0]);
 		}
 		String videoFileMetaSection = String.format(Locale.US, "%012d", videoFileAsBytes.length);
@@ -907,8 +907,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			// delete asset file after it has been purged from records
 			for (String filePath : filePaths) {
 				if ((filePath != null) && (new File(filePath)).exists()) {
-					latestFileSize = (new File(filePath)).length();
-					latestCheckinTimestamp = DateTimeUtils.getDateTime();
+//					latestFileSize = (new File(filePath)).length();
+//					latestCheckinTimestamp = DateTimeUtils.getDateTime();
 					FileUtils.delete(filePath);
 					app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 					Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ", " + filePath.substring(1 + filePath.lastIndexOf("/")));
@@ -1141,7 +1141,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 
 			// increase total of synced audio when get the response from mqtt sending
-			totalSyncedAudio += 1;
+//			totalSyncedAudio += 1;
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
@@ -1181,7 +1181,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	public void messageArrived(String messageTopic, MqttMessage mqttMessage) throws Exception {
 
 		byte[] messagePayload = mqttMessage.getPayload();
-		Log.i(logTag, "Received "+messagePayload.length+" bytes on '"+messageTopic+"' at "+DateTimeUtils.getDateTime(new Date()));
+		Log.i(logTag, "Received "+messagePayload.length+" bytes on '"+messageTopic+"' at "+DateTimeUtils.getDateTime());
 
 		// this is a checkin response message
 		if (messageTopic.equalsIgnoreCase(this.subscribeBaseTopic + "/checkins")) {
@@ -1202,7 +1202,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (deliveryToken.getTopics().length > 0) {
 
 				String msgTopic = deliveryToken.getTopics()[0];
-				Log.i(logTag, "Completed delivery to '"+msgTopic+"' at "+DateTimeUtils.getDateTime(new Date()));
+				Log.i(logTag, "Completed delivery to '"+msgTopic+"' at "+DateTimeUtils.getDateTime());
 
 				if (msgTopic.equalsIgnoreCase("guardians/checkins")) {
 
@@ -1311,7 +1311,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		pingObj.put("measured_at", System.currentTimeMillis());
 		pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
 		pingObj.put("instructions", getLocalInstructionsStatusInfoJson());
-		pingObj.put("hardware", DeviceHardwareUtils.getDeviceHardwareInfoJson());
+		pingObj.put("hardware", DeviceHardwareUtils.getInfoAsJson());
 		pingObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
 		pingObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 		pingObj.put("checkins", getCheckInStatusInfoForJson(false));

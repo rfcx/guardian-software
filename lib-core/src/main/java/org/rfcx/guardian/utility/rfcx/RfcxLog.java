@@ -42,7 +42,11 @@ public class RfcxLog {
 	public static void logExc(String logTag, Exception exc, String optionalExtraTag) {
 		String extraTag = ( (optionalExtraTag == null) || (optionalExtraTag.length() == 0) ) ? "" : ("Tag: " + optionalExtraTag + " ||| ");
 		Log.e( logTag, extraTag + getExceptionContentAsString(exc) );
-        FirebaseCrashlytics.getInstance().recordException(exc);
+		try {
+			FirebaseCrashlytics.getInstance().recordException(exc);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void logExc(String logTag, Exception exc) {
@@ -51,7 +55,11 @@ public class RfcxLog {
 	
 	public static void logThrowable(String logTag, Throwable thrw) {
 		Log.e( logTag, getThrowableContentAsString(thrw));
-        FirebaseCrashlytics.getInstance().recordException(thrw);
+		try {
+			FirebaseCrashlytics.getInstance().recordException(thrw);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

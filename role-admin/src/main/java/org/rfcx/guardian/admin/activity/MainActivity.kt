@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         val app = application as RfcxGuardian
         when (item.itemId) {
 
-            R.id.menu_sms ->  SmsUtils.testSmsQueue("+"+app.rfcxPrefs.getPrefAsString("api_sms_address"), 75, 5, app.applicationContext)
+            R.id.menu_sms ->  SmsUtils.testSmsQueue(app.rfcxPrefs.getPrefAsString("api_sms_address"), 75, 5, app.applicationContext)
 
             R.id.menu_screenshot -> app.rfcxServiceHandler.triggerService("ScreenShotCapture", true)
 
@@ -58,21 +58,12 @@ class MainActivity : AppCompatActivity() {
                 val timerTask = object : TimerTask() {
                     override fun run() {
                         runOnUiThread {
-                            isConnected = app.sentinelPowerUtils.confirmConnection()
-                            if (isConnected) {
-                                i2cConnectStatusTextView.text = "connected"
-                                val result = app.sentinelPowerUtils.latestSentinelValues
-                                if (result != null) {
-                                    systemResultTextView.text = result.system.toString()
-                                    inputResultTextView.text = result.input.toString()
-                                    batteryResultTextView.text = result.battery.toString()
-                                }
-                            } else {
-                                i2cConnectStatusTextView.text = "disconnected"
-                                systemResultTextView.text = "not found"
-                                inputResultTextView.text = "not found"
-                                batteryResultTextView.text = "not found"
-                            }
+
+                            i2cConnectStatusTextView.text = "disconnected"
+                            systemResultTextView.text = "not found"
+                            inputResultTextView.text = "not found"
+                            batteryResultTextView.text = "not found"
+
                         }
                     }
                 }
