@@ -15,7 +15,7 @@ public class FLACStreamEncoder {
         init(outputFilePath, sampleRate, channels, bitsPerSample);
 
         ByteBuffer byteBuffer = audioToByteBuffer(inputFile);
-        int bufferSize = byteBuffer.position();
+        int bufferSize = byteBuffer.limit();
 
         int result = write(byteBuffer, bufferSize);
         return getEncodeStatus(result, bufferSize);
