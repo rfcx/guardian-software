@@ -3,10 +3,10 @@ package org.rfcx.guardian.audio.flac;
 import org.rfcx.guardian.audio.EncodeStatus;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
+import java.nio.channels.FileChannel;
 
 public class FLACStreamEncoder {
 
@@ -33,13 +33,13 @@ public class FLACStreamEncoder {
     }
 
     private ByteBuffer audioToByteBuffer(File audio) throws IOException {
-        FileInputStream stream = new FileInputStream(audio);
+        RandomAccessFile randomAccessFile = new RandomAccessFile(audio, "rw");
+        FileChannel fileChannel = randomAccessFile.getChannel();
 
-        byte[] buff = new byte[(int)audio.length()];
-        stream.read(buff, 0, buff.length);
-        byte[] modBuff = Arrays.copyOfRange(buff, 44, buff.length);
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(modBuff.length);
-        byteBuffer.put(modBuff);
+        ByteBuffer byteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 44, fileChannel.size() - 44);
+
+        fileChannel.close();
+        randomAccessFile.close();
 
         return byteBuffer;
     }
