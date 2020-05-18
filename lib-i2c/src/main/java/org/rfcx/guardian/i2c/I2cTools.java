@@ -1,27 +1,36 @@
 package org.rfcx.guardian.i2c;
 
 public class I2cTools {
-	
-	public I2cTools(int i2cInterface) {
-		this.i2cInterface = i2cInterface;
-	}
-	
-	private static final String logTag = "Rfcx-I2c-I2cTools";
-	private int i2cInterface = 0;
-		
-	public String i2cGet(String i2cMainAddress, String i2cSubAddress) {
-		
-		return "i2c-return-"+i2cGetNative(this.i2cInterface, Integer.parseInt(i2cMainAddress,16), Integer.parseInt(i2cSubAddress,16));
-		
-	}
 
-    public native static int i2cGetNative(int i2cInterface, int i2cMainAddress, int i2cSubAddress);
-    
+    public int i2cInit(int number) {
+        return i2cOpenAdaptor(number);
+    }
+
+    public String i2cGet(int i2cAdapter, int mainAddress, int dataAddress) {
+        if (i2cSetSlave(i2cAdapter, mainAddress)) {
+            int value = i2cReadByte(i2cAdapter, (byte) dataAddress);
+            if (value < 0) {
+                return "Read Failed";
+            }
+            return String.format("0x%x", value);
+        }
+        return "Set Slave Failed";
+    }
+
+    public void i2cDeInit(int i2cAdapter) {
+        i2cClose(i2cAdapter);
+    }
+
+
+    private native int i2cOpenAdaptor(int adaptorNumber);
+
+    private native boolean i2cSetSlave(int i2cFD, int adress);
+
+    private native int i2cReadByte(int i2cFD, byte add);
+
+    private native void i2cClose(int i2cFD);
+
     static {
-//            System.loadLibrary("i2c-tools");
-        System.loadLibrary("i2cget");
-        System.loadLibrary("i2cset");
-    } 
-	
-	
+        System.loadLibrary("i2c");
+    }
 }
