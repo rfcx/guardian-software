@@ -67,6 +67,15 @@
 #include "share/alloc.h"
 #include "share/private.h"
 
+#ifdef flac_min
+#undef flac_min
+#endif
+#define flac_min(x,y) ((x)<(y)?(x):(y))
+#ifdef flac_max
+#undef flac_max
+#endif
+#define flac_max(x,y) ((x)>(y)?(x):(y))
+
 
 /* Exact Rice codeword length calculation is off by default.  The simple
  * (and fast) estimation (of how many bits a residual value will be

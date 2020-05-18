@@ -54,6 +54,15 @@
 #include "private/memory.h"
 #include "private/macros.h"
 
+#ifdef flac_min
+#undef flac_min
+#endif
+#define flac_min(x,y) ((x)<(y)?(x):(y))
+#ifdef flac_max
+#undef flac_max
+#endif
+#define flac_max(x,y) ((x)>(y)?(x):(y))
+
 
 /* technically this should be in an "export.c" but this is convenient enough */
 FLAC_API int FLAC_API_SUPPORTS_OGG_FLAC = FLAC__HAS_OGG;
