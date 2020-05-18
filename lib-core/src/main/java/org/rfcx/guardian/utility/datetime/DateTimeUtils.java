@@ -46,7 +46,7 @@ public class DateTimeUtils {
 		return null;
 	}
 	
-	public static Calendar nextOccurenceOf(int hour, int minute, int second) {
+	public static Calendar nextOccurrenceOf(int hour, int minute, int second) {
 		Calendar rightNow = Calendar.getInstance();
 		Calendar calendar = Calendar.getInstance();
 		calendar.set(Calendar.HOUR_OF_DAY, hour);
@@ -58,13 +58,13 @@ public class DateTimeUtils {
 		return calendar;
 	}
 	
-	public static Calendar nextOccurenceOf(String HH_MM_SS) {
+	public static Calendar nextOccurrenceOf(String HH_MM_SS) {
 		String[] timePieces = HH_MM_SS.split(":");
-		int hour = (int) Integer.parseInt(timePieces[0]);
-		int minute = (int) Integer.parseInt(timePieces[1]);
+		int hour = Integer.parseInt(timePieces[0]);
+		int minute = Integer.parseInt(timePieces[1]);
 		int second = 0;
-		if (timePieces.length == 3) { second = (int) Integer.parseInt(timePieces[2]); }
-		return nextOccurenceOf(hour,minute,second);
+		if (timePieces.length == 3) { second = Integer.parseInt(timePieces[2]); }
+		return nextOccurrenceOf(hour,minute,second);
 	}
 	
 	public static Calendar nowPlusThisLong(int hours, int minutes, int seconds) {
@@ -76,10 +76,10 @@ public class DateTimeUtils {
 
 	public static Calendar nowPlusThisLong(String HH_MM_SS) {
 		String[] timePieces = HH_MM_SS.split(":");
-		int hours = (int) Integer.parseInt(timePieces[0]);
-		int minutes = (int) Integer.parseInt(timePieces[1]);
+		int hours = Integer.parseInt(timePieces[0]);
+		int minutes = Integer.parseInt(timePieces[1]);
 		int seconds = 0;
-		if (timePieces.length == 3) { seconds = (int) Integer.parseInt(timePieces[2]); }
+		if (timePieces.length == 3) { seconds = Integer.parseInt(timePieces[2]); }
 		return nowPlusThisLong(hours,minutes,seconds);
 	}
 
@@ -102,20 +102,23 @@ public class DateTimeUtils {
 	}
 	
 	public static String milliSecondDurationAsReadableString(long milliSeconds, boolean displayEvenIfZero) {
-		StringBuilder rtrnStr = new StringBuilder();
+		StringBuilder tmStr = new StringBuilder();
 		
 		int hours = (int) Math.floor( milliSeconds / 3600000 );
-		if (hours > 0) { rtrnStr.append(hours).append(" hour").append((hours != 1) ? "s" : ""); }
+		if (hours > 0) { tmStr.append(hours).append(" hour").append((hours != 1) ? "s" : ""); }
 		
 		int minutes = (int) Math.floor( (milliSeconds - (hours * 3600000)) / 60000 );
-		if (minutes > 0) { rtrnStr.append((hours > 0) ? ", " : "").append(minutes).append(" minute").append((minutes != 1) ? "s" : ""); }
+		if (minutes > 0) { tmStr.append((hours > 0) ? ", " : "").append(minutes).append(" minute").append((minutes != 1) ? "s" : ""); }
 		
-		int seconds = Math.round((milliSeconds - (hours * 3600000) - (minutes * 60000)) / 1000);
+		int seconds = (int) Math.floor((milliSeconds - (hours * 3600000) - (minutes * 60000)) / 1000);
+		int subSeconds = Math.round((milliSeconds - (hours * 3600000) - (minutes * 60000) - (seconds * 1000)) / 100);
 		if (((hours+minutes) == 0) || (seconds > 0) || displayEvenIfZero) {
-			rtrnStr.append(((hours > 0) || (minutes > 0)) ? ", " : "").append(seconds).append(" second").append((seconds != 1) ? "s" : "");
+			tmStr.append(((hours > 0) || (minutes > 0)) ? ", " : "").append(seconds).append(
+				((seconds < 10) && !(displayEvenIfZero && (seconds == 0) && (subSeconds == 0))) ? "."+subSeconds : ""
+			).append(" seconds");
 		}
 		
-		return rtrnStr.toString();
+		return tmStr.toString();
 	}
 	
 	public static String milliSecondDurationAsReadableString(long milliSeconds) {
@@ -140,16 +143,16 @@ public class DateTimeUtils {
 	public static boolean isTimeStampWithinTimeRange(Date timeStamp, String start_HH_MM_SS, String end_HH_MM_SS) {
 		
 		String[] startTimePieces = start_HH_MM_SS.split(":");
-		int startHour = (int) Integer.parseInt(startTimePieces[0]);
-		int startMinute = (int) Integer.parseInt(startTimePieces[1]);
+		int startHour = Integer.parseInt(startTimePieces[0]);
+		int startMinute = Integer.parseInt(startTimePieces[1]);
 		int startSecond = 0;
-		if (startTimePieces.length == 3) { startSecond = (int) Integer.parseInt(startTimePieces[2]); }
+		if (startTimePieces.length == 3) { startSecond = Integer.parseInt(startTimePieces[2]); }
 		
 		String[] endTimePieces = end_HH_MM_SS.split(":");
-		int endHour = (int) Integer.parseInt(endTimePieces[0]);
-		int endMinute = (int) Integer.parseInt(endTimePieces[1]);
+		int endHour = Integer.parseInt(endTimePieces[0]);
+		int endMinute = Integer.parseInt(endTimePieces[1]);
 		int endSecond = 0;
-		if (endTimePieces.length == 3) { endSecond = (int) Integer.parseInt(endTimePieces[2]); }
+		if (endTimePieces.length == 3) { endSecond = Integer.parseInt(endTimePieces[2]); }
 		
 		return isTimeStampWithinTimeRange(timeStamp, startHour, startMinute, startSecond, endHour, endMinute, endSecond);
 	}

@@ -189,6 +189,8 @@ public class DeviceSentinelService extends Service {
 					long samplingOperationDuration = 0;
 					this.innerLoopDelayRemainderInMilliseconds = SentinelPowerUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
 
+					app.sentinelPowerUtils.setOrResetSentinelPowerChip();
+
 					Log.d(logTag, "SentinelStats Capture" + (this.isReducedCaptureModeActive ? "" : " (currently limited)") + ": " +
 							"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
 				}

@@ -182,7 +182,7 @@ public class RfcxGuardian extends Application {
 							+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
 							,
 					"ScheduledReboot"
-							+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
+							+"|"+DateTimeUtils.nextOccurrenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
 							+"|"+( 24 * 60 * 60 * 1000 ) // repeats daily
 							,
 					"ScheduledScreenShotCapture"

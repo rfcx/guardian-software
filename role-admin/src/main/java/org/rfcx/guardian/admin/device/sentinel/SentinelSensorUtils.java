@@ -26,7 +26,7 @@ public class SentinelSensorUtils {
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelSensorUtils");
 
     private DeviceI2cUtils deviceI2cUtils = null;
-    private static final String sentinelSensorI2cMainAddress = "0x68";
+    private static final String sentinelSensorI2cMainAddress = "0x40";
 
     private String[] i2cValueIndex = new String[]{};
     private Map<String, double[]> i2cValues = new HashMap<String, double[]>();

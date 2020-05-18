@@ -38,6 +38,8 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"identity", new String[] { "identity_key", "identity_value" });
 			roleFuncProj.get(role).put(
+				"identity_set", new String[] { "identity_key", "identity_value", "received_at" });
+			roleFuncProj.get(role).put(
 				"identity_resync", new String[] { "identity_key", "received_at" });
 			roleFuncProj.get(role).put(
 				"status", new String[] { "target", "result", "received_at" });

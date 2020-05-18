@@ -731,6 +731,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					||	excStr.contains("Timed out waiting for a response from the server")
 					||	excStr.contains("No route to host")
 					||	excStr.contains("Host is unresolved")
+					||	excStr.contains("Unable to connect to server")
 			) {
 				Log.i(logTag, "Connection has failed "+this.inFlightCheckInAttemptCounter +" times (max: "+this.inFlightCheckInAttemptCounterLimit +")");
 				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);

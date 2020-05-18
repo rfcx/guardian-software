@@ -48,15 +48,22 @@ public class GuardianContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "prefs_set", "*")) {
 				String pathSeg = uri.getLastPathSegment();
 				String pathSegPrefKey = pathSeg.substring(0, pathSeg.indexOf("|"));
-				String pathSegPrefValue = pathSeg.substring(1 + pathSeg.indexOf("|"));
-				app.setSharedPref(pathSegPrefKey, pathSegPrefValue);
-				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{pathSegPrefKey, pathSegPrefValue, System.currentTimeMillis()});
+				String pathSegPrefVal = pathSeg.substring(1 + pathSeg.indexOf("|"));
+				app.setSharedPref(pathSegPrefKey, pathSegPrefVal);
+				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{pathSegPrefKey, pathSegPrefVal, System.currentTimeMillis()});
 
-			// get guardian identity info
+			// guardian identity info
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "identity", "*")) {
 				String idKey = uri.getLastPathSegment();
 				return RfcxComm.getProjectionCursor(appRole, "identity", new Object[] { idKey, app.rfcxGuardianIdentity.getIdentityValue(idKey) });
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "identity_set", "*")) {
+				String pathSeg = uri.getLastPathSegment();
+				String pathSegIdKey = pathSeg.substring(0, pathSeg.indexOf("|"));
+				String pathSegIdVal = pathSeg.substring(1 + pathSeg.indexOf("|"));
+				app.rfcxGuardianIdentity.setIdentityValue(pathSegIdKey, pathSegIdVal);
+				return RfcxComm.getProjectionCursor(appRole, "identity_set", new Object[]{pathSegIdKey, pathSegIdVal, System.currentTimeMillis()});
 
 			// get status of services
 

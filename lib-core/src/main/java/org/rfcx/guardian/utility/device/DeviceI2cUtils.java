@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeoutException;
 
 import android.content.Context;
 import android.util.Log;
@@ -33,6 +34,8 @@ public class DeviceI2cUtils {
 	
 	private String execI2cGet = null;
 	private String execI2cSet = null;
+
+	private static final long i2cCommandTimeout = 2000;
 	
 	
 	// i2cSET
@@ -47,7 +50,7 @@ public class DeviceI2cUtils {
 		try {
 			Process i2cShellProc = Runtime.getRuntime().exec("sh");
 			DataOutputStream dataOutputStream = new DataOutputStream(i2cShellProc.getOutputStream());
-			BufferedReader lineReader = new BufferedReader (new InputStreamReader(i2cShellProc.getInputStream()));
+		//	BufferedReader lineReader = new BufferedReader (new InputStreamReader(i2cShellProc.getInputStream()));
 
 			for (String[] i2cRow : i2cLabelsAddressesValues) {
 				String cmdLine = execI2cSet + " -y " + i2cInterface + " " + i2cMainAddress + " " + i2cRow[1] + " " + i2cRow[2] + " w;\n";
@@ -57,7 +60,25 @@ public class DeviceI2cUtils {
 			}
 			dataOutputStream.writeBytes("exit;\n");
 			dataOutputStream.flush();
-		} catch (IOException e) {
+
+			I2cWorker i2cWorker = new I2cWorker(i2cShellProc);
+			i2cWorker.start();
+
+			try {
+				i2cWorker.join(i2cCommandTimeout);
+				if (i2cWorker.exit == null) {
+					throw (new TimeoutException());
+				}
+			} catch (InterruptedException interruptedException) {
+				i2cWorker.interrupt();
+				Thread.currentThread().interrupt();
+				throw interruptedException;
+			} finally {
+				i2cShellProc.destroy(); //i2cShellProc.destroyForcibly();
+			}
+
+
+		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
 		return true;
@@ -93,10 +114,11 @@ public class DeviceI2cUtils {
 
 		List<String[]> i2cLabelsAndOutputValues = new ArrayList<String[]>(); 
 		try {
+
 			Process i2cShellProc = Runtime.getRuntime().exec("sh");
 			DataOutputStream dataOutputStream = new DataOutputStream(i2cShellProc.getOutputStream());
 			BufferedReader lineReader = new BufferedReader (new InputStreamReader(i2cShellProc.getInputStream()));
-			
+
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
 				String cmdLine = execI2cGet + " -y " + i2cInterface + " " + i2cMainAddress + " " + i2cRow[1] + " w;\n";
 			//	Log.d(logTag, cmdLine);
@@ -105,7 +127,7 @@ public class DeviceI2cUtils {
 			}
 			dataOutputStream.writeBytes("exit;\n");
 			dataOutputStream.flush();
-			
+
 			String lineContent; int lineIndex = 0; 
 			while ((lineContent = lineReader.readLine()) != null) { 
 				String thisLine = lineContent.trim();
@@ -120,6 +142,23 @@ public class DeviceI2cUtils {
 					lineIndex++;
 				}
 			}
+
+			I2cWorker i2cWorker = new I2cWorker(i2cShellProc);
+			i2cWorker.start();
+
+			try {
+				i2cWorker.join(i2cCommandTimeout);
+				if (i2cWorker.exit == null) {
+					throw (new TimeoutException());
+				}
+			} catch (InterruptedException interruptedException) {
+				i2cWorker.interrupt();
+				Thread.currentThread().interrupt();
+				throw interruptedException;
+			} finally {
+				i2cShellProc.destroy(); //i2cShellProc.destroyForcibly();
+			}
+
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -223,5 +262,21 @@ public class DeviceI2cUtils {
 		return temp;
 	}
 
-	
+
+	private static class I2cWorker extends Thread {
+		private final Process process;
+		private Integer exit;
+		private I2cWorker(Process process) {
+			this.process = process;
+		}
+		public void run() {
+			try {
+				exit = process.waitFor();
+			} catch (InterruptedException ignore) {
+				return;
+			}
+		}
+	}
+
+
 }

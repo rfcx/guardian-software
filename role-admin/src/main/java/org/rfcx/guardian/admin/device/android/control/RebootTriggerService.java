@@ -91,12 +91,20 @@ public class RebootTriggerService extends Service {
 				// Garbage Collection
 				RfcxGarbageCollection.runAndroidGarbageCollection();
 
-				// Triggering reboot request
+				// Triggering ACTION_REBOOT
 				Log.e(logTag, "Reboot: Broadcasting ACTION_REBOOT Intent...");
 				Intent actionReboot = new Intent(Intent.ACTION_REBOOT);
 				actionReboot.putExtra("nowait", 1);
 				actionReboot.putExtra("window", 1);
 				sendBroadcast(actionReboot);
+
+				// Triggering ACTION_REQUEST_SHUTDOWN
+//				Log.e(logTag, "Reboot: Broadcasting ACTION_REQUEST_SHUTDOWN Intent...");
+//				Intent actionReboot = new Intent("android.intent.action.ACTION_REQUEST_SHUTDOWN");
+//				actionReboot.putExtra("android.intent.extra.KEY_CONFIRM", false);
+//				actionReboot.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+//				actionReboot.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//				startActivity(actionReboot);
 
 				Log.e(logTag, "System should be shutting down now...");
 				app.rfcxServiceHandler.stopAllServices();
