@@ -97,6 +97,16 @@ typedef FLAC__uint64 brword;
  * also depends on the CPU cache size and other factors; some twiddling
  * may be necessary to squeeze out the best performance.
  */
+
+#ifdef flac_min
+#undef flac_min
+#endif
+#define flac_min(x,y) ((x)<(y)?(x):(y))
+#ifdef flac_max
+#undef flac_max
+#endif
+#define flac_max(x,y) ((x)>(y)?(x):(y))
+
 static const unsigned FLAC__BITREADER_DEFAULT_CAPACITY = 65536u / FLAC__BITS_PER_WORD; /* in words */
 
 struct FLAC__BitReader {

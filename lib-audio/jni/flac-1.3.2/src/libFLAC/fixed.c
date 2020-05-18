@@ -42,6 +42,15 @@
 #include "private/macros.h"
 #include "FLAC/assert.h"
 
+#ifdef flac_min
+#undef flac_min
+#endif
+#define flac_min(x,y) ((x)<(y)?(x):(y))
+#ifdef flac_max
+#undef flac_max
+#endif
+#define flac_max(x,y) ((x)>(y)?(x):(y))
+
 #ifdef local_abs
 #undef local_abs
 #endif
