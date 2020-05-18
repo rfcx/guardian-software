@@ -117,7 +117,6 @@ public class DateTimeUtils {
 				((seconds < 10) && !(displayEvenIfZero && (seconds == 0) && (subSeconds == 0))) ? "."+subSeconds : ""
 			).append(" seconds");
 		}
-		
 		return tmStr.toString();
 	}
 	
