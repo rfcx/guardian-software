@@ -7,7 +7,7 @@
 #define BUFFER_SIZE 64
 
 JNIEXPORT jint JNICALL
-Java_com_bbbandroidHAL_i2c_MainActivity_i2cOpenAdaptor(JNIEnv *env, jobject this,
+Java_org_rfcx_guardian_i2c_I2cTools_i2cOpenAdaptor(JNIEnv *env, jobject this,
                                                             jint adaptorNumber) {
     jint ret;
     ret = i2cOpenAdaptor(adaptorNumber);
@@ -25,7 +25,7 @@ Java_com_bbbandroidHAL_i2c_MainActivity_i2cOpenAdaptor(JNIEnv *env, jobject this
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_bbbandroidHAL_i2c_MainActivity_i2cSetSlave(JNIEnv *env, jobject this, jint i2cFD,
+Java_org_rfcx_guardian_i2c_I2cTools_i2cSetSlave(JNIEnv *env, jobject this, jint i2cFD,
                                                              jint address) {
     jint ret;
     ret = i2cSetSlave(i2cFD, address);
@@ -43,7 +43,7 @@ Java_com_bbbandroidHAL_i2c_MainActivity_i2cSetSlave(JNIEnv *env, jobject this, j
 }
 
 JNIEXPORT jint JNICALL
-Java_com_bbbandroidHAL_i2c_MainActivity_i2cReadByte(JNIEnv *env, jobject this, jint i2cFD,
+Java_org_rfcx_guardian_i2c_I2cTools_i2cReadByte(JNIEnv *env, jobject this, jint i2cFD,
                                                          jbyte add) {
     jint ret;
     ret = i2cReadByte(i2cFD, add);
@@ -61,7 +61,7 @@ Java_com_bbbandroidHAL_i2c_MainActivity_i2cReadByte(JNIEnv *env, jobject this, j
 }
 
 JNIEXPORT void JNICALL
-Java_com_bbbandroidHAL_i2c_MainActivity_i2cClose(JNIEnv *env, jobject this, jint i2cFD) {
+Java_org_rfcx_guardian_i2c_I2cTools_i2cClose(JNIEnv *env, jobject this, jint i2cFD) {
     i2cClose(i2cFD);
 
     __android_log_print(ANDROID_LOG_DEBUG, TAG, "i2cClose(%d, bytearray) succeeded",
