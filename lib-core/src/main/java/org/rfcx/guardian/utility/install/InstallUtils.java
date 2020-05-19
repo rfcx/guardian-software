@@ -5,97 +5,89 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.content.Context;
+import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.utility.http.HttpGet;
 import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 public class InstallUtils {
-	
-	public InstallUtils (Context context, String appRole) {
-		this.context = context;
-		this.appRole = appRole;
+
+	public InstallUtils(Context context, String appRole) {
+
 		this.logTag = RfcxLog.generateLogTag(appRole, "InstallUtils");
+		this.context = context;
+		this.thisAppRole = appRole;
+
+		this.apkDirDownload = context.getFilesDir().toString();
+		this.apkDirExternal = Environment.getExternalStorageDirectory().toString()+"/rfcx/apk";;
+
+		(new File(this.apkDirDownload)).mkdirs(); FileUtils.chmod(this.apkDirDownload,  "rw", "rw");
+		(new File(this.apkDirExternal)).mkdirs(); FileUtils.chmod(this.apkDirExternal,  "rw", "rw");
 	}
-	
+
 	private Context context;
 	private String logTag;
-	private String appRole = "Utils";
-	
-	private Map<String, String[]> downloadQueue = new HashMap<String, String[]>();
-	private Map<String, String[]> installQueue = new HashMap<String, String[]>();
-	
-	public void scanThroughDownloadEntries() {
-	   for (Map.Entry<String, String[]> queueEntry : downloadQueue.entrySet()) { 
-	    	Log.i(this.logTag, "Key = " + queueEntry.getKey() + ", Value = " + queueEntry.getValue()[0]);
-	    }   
+	private String thisAppRole;
+	public String apkDirDownload;
+	public String apkDirExternal;
+	public String apkFileName = null;
+	public String apkPathDownload = null;
+	public String apkPathExternal = null;
+
+
+	public String installRole = null;
+	public String installVersion = null;
+	public String installReleasedAt = null;
+	public String installVersionUrl = null;
+	public String installVersionSha1 = null;
+	public int installVersionValue = 0;
+
+	public void setInstallConfig(String role, String version, String releasedAt, String url, String sha1, int versionValue) {
+		this.installRole = role;
+		this.installVersion = version;
+		this.installReleasedAt = releasedAt;
+		this.installVersionUrl = url + (url.contains("?") ? "&" : "?") + "released="+releasedAt;
+		this.installVersionSha1 = sha1;
+		this.installVersionValue = versionValue;
+
+
+		this.apkFileName = this.installRole+"-"+this.installVersion+".apk";
+		this.apkPathDownload = this.apkDirDownload+"/"+this.apkFileName;
+		this.apkPathExternal = this.apkDirExternal+"/"+this.apkFileName;
 	}
-	
-	public boolean downloadAndVerify(String fileUrl, String fileName, String fileCheckSum) {
-		
-		if ((new HttpGet(this.context, this.appRole)).getAsFile(fileUrl, fileName)) {
-			Log.d(this.logTag, "Download Complete. Verifying CheckSum...");
-			return verifyFileCheckSum(fileName, fileCheckSum);
-		} else {
-			Log.e(this.logTag, "Download of file failed...");
+
+	public boolean installApkAndVerify() {
+
+		try {
+			Log.d(logTag, "Installing APK: "+apkPathExternal);
+
+			// Before installation attempt, check version of target role, to determine if it even exists
+			String targetRoleCurrentVersion = RfcxRole.getRoleVersionByName(installRole, thisAppRole, context);
+
+			String[] installCommands = new String[] { "/system/bin/pm", "install", "-r", apkPathExternal };
+			if (targetRoleCurrentVersion == null) installCommands = new String[] { "/system/bin/pm", "install", apkPathExternal };
+
+			ShellCommands.executeCommand(TextUtils.join(" ", installCommands));
+
+			// After installation attempt, check version of target role, to determine if it was successfully installed (and that it launches)
+			targetRoleCurrentVersion = RfcxRole.getRoleVersionByName(installRole, thisAppRole, context);
+
+			if (targetRoleCurrentVersion == null) {
+				return false;
+			} else {
+				Log.i(logTag, "Current role version installed: "+installRole+", " + targetRoleCurrentVersion + " (attempted: " + installVersion+")");
+				return (targetRoleCurrentVersion.equalsIgnoreCase(installVersion));
+			}
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
 		}
 		return false;
 	}
-	
-	private boolean verifyFileCheckSum(String fileName, String fileCheckSum) {
-		
-		String filePath = (new StringBuilder()).append(this.context.getFilesDir().toString()).append("/").append(fileName).toString();
-		String fileSha1 = FileUtils.sha1Hash(filePath);
-		Log.d(this.logTag, "Checksum (expected): "+fileCheckSum);
-		Log.d(this.logTag, "Checksum (download): "+fileSha1);
-		if (!fileSha1.equals(fileCheckSum)) { (new File(filePath)).delete(); }
-		return fileSha1.equals(fileCheckSum);
-	}
-	
-//	private static boolean installApk(Context context, String apkFileName, boolean forceReInstallFlag) {
-//		
-////		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-//		File apkFile = new File(context.getFilesDir().getPath(), apkFileName);
-//		String apkFilePath = apkFile.getAbsolutePath();
-//		String reInstallFlag = (app.apiCore.installVersion == null) ? "" : " -r";
-//		if (forceReInstallFlag) reInstallFlag = " -r";
-//		Log.d(TAG, "installing "+apkFilePath);
-//		try {
-//			boolean isInstalled = ShellCommands.executeCommand(
-//					"pm install -f"+reInstallFlag+" "+apkFilePath,
-//					"Success",true,context);
-//			if (apkFile.exists()) { apkFile.delete(); }
-//			return isInstalled;
-//		} catch (Exception e) {
-//			RfcxLog.logExc(logTag, e);
-//			if (apkFile.exists()) { apkFile.delete(); }
-//		} finally {
-//		}
-//		return false;
-//		
-//	}
-	
-	
-	public void addToDownloadQueue(String roleName, String[] roleMeta) {
-		removeFromDownloadQueue(roleName);
-		this.downloadQueue.put(roleName, roleMeta);
-	}
 
-	public void removeFromDownloadQueue(String roleName) {
-		if (this.downloadQueue.containsKey(roleName)) {
-			this.downloadQueue.remove(roleName);
-		}
-	}
-	
-	public void addToInstallQueue(String roleName, String[] roleMeta) {
-		removeFromInstallQueue(roleName);
-		this.installQueue.put(roleName, roleMeta);
-	}
-
-	public void removeFromInstallQueue(String roleName) {
-		if (this.installQueue.containsKey(roleName)) {
-			this.installQueue.remove(roleName);
-		}
-	}
 	
 }

@@ -78,7 +78,7 @@
 		</receiver>
 		
 		<provider 
-		    android:name="org.rfcx.guardian.updater.api.UpdaterContentProvider"
+		    android:name="org.rfcx.guardian.updater.contentprovider.UpdaterContentProvider"
 			android:authorities="org.rfcx.guardian.updater"
         	android:readPermission="org.rfcx.guardian.READ"
         	android:writePermission="org.rfcx.guardian.WRITE"

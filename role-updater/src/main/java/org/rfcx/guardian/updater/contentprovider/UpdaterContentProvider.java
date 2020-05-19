@@ -1,4 +1,4 @@
-package org.rfcx.guardian.updater.api;
+package org.rfcx.guardian.updater.contentprovider;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
@@ -15,7 +15,7 @@ import android.net.Uri;
 
 public class UpdaterContentProvider extends ContentProvider {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ContentProvider");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "UpdaterContentProvider");
 
 	private static final String appRole = RfcxGuardian.APP_ROLE;
 
@@ -46,13 +46,21 @@ public class UpdaterContentProvider extends ContentProvider {
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "prefs_resync", "*")) {
 				String prefKey = uri.getLastPathSegment();
-				app.rfcxPrefs.reSyncPref(prefKey);
-				return RfcxComm.getProjectionCursor(appRole, "prefs_resync", new Object[]{prefKey, app.rfcxPrefs.getPrefAsString(prefKey), System.currentTimeMillis()});
+				app.rfcxPrefs.reSyncPrefs(prefKey);
+                app.onPrefReSync(prefKey);
+				return RfcxComm.getProjectionCursor(appRole, "prefs_resync", new Object[]{ prefKey, System.currentTimeMillis() });
+
+				// guardian identity endpoints
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "identity_resync", "*")) {
+				String idKey = uri.getLastPathSegment();
+				//app.rfcxGuardianIdentity.reSyncGuardianIdentity();
+				return RfcxComm.getProjectionCursor(appRole, "identity_resync", new Object[]{ idKey, System.currentTimeMillis() });
 
 				// "process" function endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "process", null)) {
-				return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole, AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
+				return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole.toLowerCase(), AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
 
 				// "control" function endpoints
 
@@ -67,7 +75,7 @@ public class UpdaterContentProvider extends ContentProvider {
 			}
 
 		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
+			RfcxLog.logExc(logTag, e, "UpdaterContentProvider");
 		}
 		return null;
 	}

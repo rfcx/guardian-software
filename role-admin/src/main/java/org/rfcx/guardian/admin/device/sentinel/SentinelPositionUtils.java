@@ -1,7 +1,6 @@
 package org.rfcx.guardian.admin.device.sentinel;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,24 +8,23 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.DeviceI2cUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class SentinelSensorUtils {
+public class SentinelPositionUtils {
 
-    public SentinelSensorUtils(Context context) {
-        this.deviceI2cUtils = new DeviceI2cUtils(context, sentinelSensorI2cMainAddress);
-        initSentinelSensorI2cOptions();
+    public SentinelPositionUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+        this.deviceI2cUtils = new DeviceI2cUtils(context, sentinelPositionI2cMainAddress);
+        initSentinelPositionI2cOptions();
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelSensorUtils");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelPositionUtils");
 
+    RfcxGuardian app;
     private DeviceI2cUtils deviceI2cUtils = null;
-    private static final String sentinelSensorI2cMainAddress = "0x68";
+    private static final String sentinelPositionI2cMainAddress = "0x1e";
 
     private String[] i2cValueIndex = new String[]{};
     private Map<String, double[]> i2cValues = new HashMap<String, double[]>();
@@ -38,7 +36,7 @@ public class SentinelSensorUtils {
         return ((isConnected != null) && (Long.parseLong(isConnected) > 0));
     }
 
-    private void initSentinelSensorI2cOptions() {
+    private void initSentinelPositionI2cOptions() {
 
 //        this.i2cValueIndex = new String[]{"voltage", "current", "temperature", "power"};
 //
@@ -127,30 +125,30 @@ public class SentinelSensorUtils {
 //        return (valSum == 0) ? null : new String[]{"" + Math.round(sensorVals[0]), "" + Math.round(sensorVals[1]), "" + Math.round(sensorVals[2]), "" + Math.round(sensorVals[3])};
 //    }
 
-    public static JSONArray getSentinelSensorValuesAsJsonArray(Context context) {
+    public static JSONArray getSentinelPositionValuesAsJsonArray(Context context) {
 
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-        JSONArray sensorJsonArray = new JSONArray();
+        JSONArray positionJsonArray = new JSONArray();
         try {
             JSONObject sensorJson = new JSONObject();
-            sensorJson.put("enclosure", app.sentinelSensorDb.dbSentinelSensorEnclosure.getConcatRowsWithLabelPrepended("enclosure"));
-            sensorJsonArray.put(sensorJson);
+            sensorJson.put("enclosure", app.sentinelPositionDb.dbSentinelPositionEnclosure.getConcatRowsWithLabelPrepended("enclosure"));
+            positionJsonArray.put(sensorJson);
 
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
 
         } finally {
-            return sensorJsonArray;
+            return positionJsonArray;
         }
     }
 
-    public static int deleteSentinelSensorValuesBeforeTimestamp(String timeStamp, Context context) {
+    public static int deleteSentinelPositionValuesBeforeTimestamp(String timeStamp, Context context) {
 
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
         Date clearBefore = new Date(Long.parseLong(timeStamp));
 
-        app.sentinelSensorDb.dbSentinelSensorEnclosure.clearRowsBefore(clearBefore);
+        app.sentinelPositionDb.dbSentinelPositionEnclosure.clearRowsBefore(clearBefore);
 
         return 1;
     }

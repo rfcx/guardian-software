@@ -5,27 +5,74 @@
 	
     <string name="menu_prefs">Preferences</string>
 
-    <string-array name="true_or_false">
+	<string name="prefs_value_default_show_ui">true</string>
+	<string name="prefs_value_default_enable_audio_capture">true</string>
+	<string name="prefs_value_default_enable_checkin_publish">true</string>
+	<string name="prefs_value_default_enable_cutoffs_battery">true</string>
+	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">true</string>
+
+	<string name="prefs_value_default_api_rest_host">api.rfcx.org</string>
+	<string name="prefs_value_default_api_rest_protocol">https</string>
+
+	<string name="prefs_value_default_api_checkin_host">checkin.rfcx.org</string>
+	<string name="prefs_value_default_api_checkin_protocol">tcp</string>
+	<string name="prefs_value_default_api_checkin_port">1883</string>
+	<string name="prefs_value_default_api_checkin_ssl_passphrase">false</string>
+
+	<string name="prefs_value_default_api_ntp_host">time.apple.com</string>
+	<string name="prefs_value_default_api_sms_address">+14154803657</string>
+
+	<string name="prefs_value_default_reboot_forced_daily_at">23:54:00</string>
+
+	<string name="prefs_value_default_audio_cycle_duration">90</string>
+	<string name="prefs_value_default_audio_schedule_off_hours">23:56-23:58,23:58-00:00</string>
+	<string name="prefs_value_default_audio_encode_codec">opus</string>
+	<string name="prefs_value_default_audio_encode_bitrate">24576</string>
+	<string name="prefs_value_default_audio_sample_rate">24000</string>
+
+	<string name="prefs_value_default_checkin_battery_cutoff">90</string>
+	<string name="prefs_value_default_audio_battery_cutoff">80</string>
+
+	<string name="prefs_value_default_checkin_failure_thresholds">10,20,30,40,50,60,70,80,90</string>
+	<string name="prefs_value_default_checkin_skip_threshold">5</string>
+	<string name="prefs_value_default_checkin_stash_threshold">240</string>
+	<string name="prefs_value_default_checkin_archive_threshold">160</string>
+
+	<string name="prefs_value_default_admin_enable_log_capture">false</string>
+	<string name="prefs_value_default_admin_log_capture_level">Warn</string>
+	<string name="prefs_value_default_admin_log_capture_cycle">30</string>
+
+	<string name="prefs_value_default_admin_enable_screenshot_capture">true</string>
+	<string name="prefs_value_default_admin_screenshot_capture_cycle">180</string>
+
+	<string name="prefs_value_default_admin_enable_tcp_adb">false</string>
+	<string name="prefs_value_default_admin_enable_wifi">false</string>
+	<string name="prefs_value_default_admin_enable_bluetooth">false</string>
+
+	<string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>
+	<string name="prefs_value_default_admin_enable_sentinel_capture">false</string>
+
+    <string-array name="prefs_values_true_or_false">
 		<item>true</item>
 		<item>false</item>
 	</string-array>
 	
-    <string-array name="opus_or_flac">
+    <string-array name="prefs_values_opus_or_flac">
 		<item>opus</item>
 		<item>flac</item>
 	</string-array>
 
-	<string-array name="http_or_https">
+	<string-array name="prefs_values_http_or_https">
 		<item>http</item>
 		<item>https</item>
 	</string-array>
 
-    <string-array name="tcp_or_ssl">
+    <string-array name="prefs_values_tcp_or_ssl">
 		<item>tcp</item>
 		<item>ssl</item>
 	</string-array>
 	
-    <string-array name="logcat_log_levels">
+    <string-array name="prefs_values_logcat_log_levels">
 		<item>Error</item>
 		<item>Warn</item>
 		<item>Info</item>
@@ -33,7 +80,7 @@
 		<item>Verbose</item>
 	</string-array>
 	
-    <string-array name="audio_sample_rate_labels">
+    <string-array name="prefs_labels_audio_sample_rate">
 		<item>8 kHz</item>
 		<item>12 kHz</item>
 		<item>16 kHz</item>
@@ -41,7 +88,7 @@
 		<item>48 kHz</item>
 	</string-array>
 	
-    <string-array name="audio_sample_rate_values">
+    <string-array name="prefs_values_audio_sample_rate">
 		<item>8000</item>
 		<item>12000</item>
 		<item>16000</item>
@@ -49,7 +96,7 @@
 		<item>48000</item>
 	</string-array>
 	
-    <string-array name="percent_labels">
+    <string-array name="prefs_labels_percent">
 		<item>90 %</item>
 		<item>80 %</item>
 		<item>70 %</item>
@@ -61,7 +108,7 @@
 		<item>10 %</item>
 	</string-array>
 	
-    <string-array name="percent_values">
+    <string-array name="prefs_values_percent">
 		<item>90</item>
 		<item>80</item>
 		<item>70</item>
@@ -73,7 +120,7 @@
 		<item>10</item>
 	</string-array>
     
-    <string-array name="audio_encode_bitrate_labels">
+    <string-array name="prefs_labels_audio_encode_bitrate">
 		<item>4 kbps</item>
 		<item>8 kbps</item>
 		<item>12 kbps</item>
@@ -91,7 +138,7 @@
 		<item>128 kbps</item>
 	</string-array>
 	
-    <string-array name="audio_encode_bitrate_values">
+    <string-array name="prefs_values_audio_encode_bitrate">
 		<item>4096</item>
 		<item>8192</item>
 		<item>12288</item>

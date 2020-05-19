@@ -30,7 +30,7 @@ public class RfcxPrefs {
 		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxPrefs");
 		this.thisAppRole = appRole.toLowerCase(Locale.US);
 		this.context = context;
-		this.prefsDirPath = setOrCreatePrefsDirectory(context, appRole);
+		this.prefsDirPath = setOrCreatePrefsDirectory(context);
 	}
 	
 	private String logTag;
@@ -45,18 +45,19 @@ public class RfcxPrefs {
 	
 	public String getPrefAsString(String prefKey) {
 		
-		String tmpPrefValue = null;
+		String newPrefValue = null;
 		
 		if (this.cachedPrefs.containsKey(prefKey)) {
 			return this.cachedPrefs.get(prefKey);
-		} else if ((tmpPrefValue = readPrefFromFile(prefKey)) != null) {
-			this.cachedPrefs.put(prefKey, tmpPrefValue);
+		} else if ((newPrefValue = readPrefFromContentProvider(prefKey)) != null) {
+			this.cachedPrefs.put(prefKey, newPrefValue);
+			writePrefToFile(prefKey, newPrefValue);
 			return this.cachedPrefs.get(prefKey);
-		} else if ((tmpPrefValue = readPrefFromContentProvider(prefKey)) != null) {
-			this.cachedPrefs.put(prefKey, tmpPrefValue);
+		} else if ((newPrefValue = readPrefFromFile(prefKey)) != null) {
+			this.cachedPrefs.put(prefKey, newPrefValue);
 			return this.cachedPrefs.get(prefKey);
 		} else if (defaultPrefs.containsKey(prefKey)) {
-			Log.e(logTag, "Unable to read pref '"+prefKey+"', falling back to default value '"+ defaultPrefs.get(prefKey)+"'...");
+			Log.e(logTag, "Unable to read pref '"+prefKey+"'. Reverting to default value '"+ defaultPrefs.get(prefKey)+"'.");
 			return defaultPrefs.get(prefKey);
 		} else {
 			return null;
@@ -64,17 +65,19 @@ public class RfcxPrefs {
 	}
 
 	public int getPrefAsInt(String prefKey) {
-		return (int) Integer.parseInt(getPrefAsString(prefKey));
+		return Integer.parseInt(getPrefAsString(prefKey));
 	}
 
 	public long getPrefAsLong(String prefKey) {
-		return (long) Long.parseLong(getPrefAsString(prefKey));
+		return Long.parseLong(getPrefAsString(prefKey));
 	}
 
-	public boolean getPrefAsBoolean(String prefKey) {
-		return getPrefAsString(prefKey).equalsIgnoreCase("true");
-	}
-	
+	public boolean getPrefAsBoolean(String prefKey) { return getPrefAsString(prefKey).equalsIgnoreCase("true"); }
+
+	//
+	// Set Pref Values
+	//
+
 	public void setPref(String prefKey, String prefValue) {
 		this.cachedPrefs.remove(prefKey);
 		this.cachedPrefs.put(prefKey, prefValue);
@@ -87,10 +90,32 @@ public class RfcxPrefs {
 		setPref(prefKey, ""+prefValue);
 	}
 
-	public void reSyncPref(String prefKey) {
+    public void setPref(String prefKey, long prefValue) {
+        setPref(prefKey, ""+prefValue);
+    }
+
+    public void setPref(String prefKey, boolean prefValue) { setPref(prefKey, prefValue ? "true" : "false"); }
+
+    //
+    // [Re]Sync Pref Values
+    //
+
+	private void reSyncSinglePref(String prefKey) {
 		this.cachedPrefs.remove(prefKey);
 		String prefValue = getPrefAsString(prefKey);
-		Log.i(logTag, "Pref ReSynced: "+prefKey+" = "+prefValue);
+	}
+
+	public void reSyncPrefs(String prefKey) {
+		Log.v(logTag, "Pref ReSync Triggered: '"+prefKey+"'");
+		for (String thisKey : listPrefsKeys()) {
+			if (	(	prefKey.equalsIgnoreCase("all")
+					||	prefKey.equalsIgnoreCase(thisKey)
+					)
+				&&	this.cachedPrefs.containsKey(thisKey)
+				) {
+				reSyncSinglePref(thisKey);
+			}
+		}
 	}
 
 	public void reSyncPrefInExternalRoleViaContentProvider(String targetAppRole, String prefKey, Context context) {
@@ -101,7 +126,7 @@ public class RfcxPrefs {
 					RfcxComm.getProjection(targetAppRole, "prefs_resync"),
 					null, null, null);
 			if (targetAppRoleResponse != null) {
-				Log.v(logTag, targetAppRoleResponse.toString());
+			//	Log.v(logTag, targetAppRoleResponse.toString());
 				targetAppRoleResponse.close();
 			}
 		} catch (Exception e) {
@@ -109,20 +134,14 @@ public class RfcxPrefs {
 		}
 	}
 
-//	public void clearPrefsCache() {
-//		this.cachedPrefs = new HashMap<String, String>();
-//		Log.i(logTag, "Prefs cache cleared.");
-//		for (Map.Entry<String, ?> pref : this.sharedPrefs.getAll().entrySet()) {
-//			this.rfcxPrefs.setPref(pref.getKey(), pref.getValue().toString());
-//		}
-//	}
-	
-	// Reading and Writing to preference text files
+    //
+    // Read/Write pref values to txt files
+    //
 	
 	private String readPrefFromFile(String prefKey) {
 		try {
 			
-	    		String filePath = (new StringBuilder()).append(prefsDirPath).append("/").append(prefKey.toLowerCase(Locale.US)).append(".txt").toString();
+	    		String filePath = prefsDirPath + "/" + prefKey.toLowerCase(Locale.US);
 	        	File fileObj = new File(filePath);
 	        	
 	    		if (fileObj.exists()) {
@@ -144,74 +163,47 @@ public class RfcxPrefs {
     	return null;
 	}
 	
-	private String readPrefFromContentProvider(String prefKey) {
-		try {
-			
-			if (!this.thisAppRole.equalsIgnoreCase("guardian")) {
-			
-				Cursor prefsCursor = this.context.getContentResolver().query(
-						RfcxComm.getUri("guardian", "prefs", prefKey),
-						RfcxComm.getProjection("guardian", "prefs"),
-						null, null, null);
-				
-				if ((prefsCursor != null) && (prefsCursor.getCount() > 0)) { if (prefsCursor.moveToFirst()) { try { do {
-					if (prefsCursor.getString(prefsCursor.getColumnIndex("pref_key")).equalsIgnoreCase(prefKey)) {
-						String prefValue = prefsCursor.getString(prefsCursor.getColumnIndex("pref_value"));
-						Log.v(logTag, "Pref retrieved via Content Provider: '"+prefKey+"' = '"+prefValue+"'");
-						return prefValue;
-					}
-				} while (prefsCursor.moveToNext()); } finally { prefsCursor.close(); } } }
-			}
-			
-	    	} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-	    	}
-    		return null;
-	}
-	
-	
 	private boolean writePrefToFile(String prefKey, String prefValue) {
 		
 		boolean writeSuccess = false;
 		
-	    	String filePath = prefsDirPath+"/"+prefKey.toLowerCase(Locale.US)+".txt";
-	    	File fileObj = new File(filePath);
-	    	
-	    	if (!fileObj.exists()) {
-	        	(new File(prefsDirPath)).mkdirs();
-	        	FileUtils.chmod(prefsDirPath, "rw", "rw");
-	    	} else {
-	    		fileObj.delete();
-	    	}
+		String filePath = prefsDirPath+"/"+prefKey.toLowerCase(Locale.US);
+		File fileObj = new File(filePath);
+
+		if (!fileObj.exists()) {
+			(new File(prefsDirPath)).mkdirs();
+			FileUtils.chmod(prefsDirPath, "rw", "rw");
+		} else {
+			fileObj.delete();
+		}
 	    	
         try {
-	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
-	        	outFile.write(prefValue);
-	        	outFile.close();
-	        	FileUtils.chmod(filePath, "rw", "rw");
-	        	writeSuccess = fileObj.exists();
+			BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
+			outFile.write(prefValue);
+			outFile.close();
+			FileUtils.chmod(filePath, "rw", "rw");
+			writeSuccess = fileObj.exists();
         } catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
         }
         return writeSuccess;
 	}
-	
-	public void writeVersionToFile(String versionName) {
-		writeToGuardianRoleTxtFile(this.context, this.logTag, "version", versionName);
-	}
-
 
 	public static void writeToGuardianRoleTxtFile(Context context, String logTag, String fileNameNoExt, String stringContents) {
-		String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt+".txt";
+		writeToGuardianRoleTxtFile(context, logTag, fileNameNoExt, stringContents, false);
+	}
+
+	public static void writeToGuardianRoleTxtFile(Context context, String logTag, String fileNameNoExt, String stringContents, boolean isPrivate) {
+		String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt;
 		File fileObj = new File(filePath);
 		fileObj.mkdirs();
-		FileUtils.chmod(context.getFilesDir().toString()+"/txt", "rw", "rw");
-		if (fileObj.exists()) { fileObj.delete(); }
+		FileUtils.chmod(context.getFilesDir().toString()+"/txt", "rw", isPrivate ? "" : "rw");
+		FileUtils.delete(fileObj);
         try {
-	        	BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
-	        	outFile.write(stringContents);
-	        	outFile.close();
-	        	FileUtils.chmod(filePath, "rw", "rw");
+			BufferedWriter outFile = new BufferedWriter(new FileWriter(filePath));
+			outFile.write(stringContents);
+			outFile.close();
+			FileUtils.chmod(filePath, "rw", isPrivate ? "" : "rw");
         } catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
         }
@@ -220,9 +212,9 @@ public class RfcxPrefs {
 	public static String readFromGuardianRoleTxtFile(Context context, String logTag, String thisAppRole, String targetAppRole, String fileNameNoExt) {
 	    	try {
 	    		String appFilesDir = context.getFilesDir().getAbsolutePath();
-	    		File txtFileObj = new File(appFilesDir+"/txt/"+fileNameNoExt+".txt");
+	    		File txtFileObj = new File(appFilesDir+"/txt/"+fileNameNoExt);
 	    		if (!thisAppRole.equalsIgnoreCase(targetAppRole)) {
-					txtFileObj = new File(appFilesDir.substring(0,appFilesDir.lastIndexOf("/files")-(("."+thisAppRole.toLowerCase(Locale.US)).length()))+"."+targetAppRole.toLowerCase(Locale.US)+"/files/txt/"+fileNameNoExt+".txt");
+					txtFileObj = new File(appFilesDir.substring(0,appFilesDir.lastIndexOf("/files")-(("."+thisAppRole.toLowerCase(Locale.US)).length()))+"."+targetAppRole.toLowerCase(Locale.US)+"/files/txt/"+fileNameNoExt);
 	    		}
 	    		if (txtFileObj.exists()) {
 					FileInputStream input = new FileInputStream(txtFileObj);
@@ -245,20 +237,54 @@ public class RfcxPrefs {
 	    	return null;
 	}
 
+	public static boolean doesGuardianRoleTxtFileExist(Context context, String fileNameNoExt) {
+		return (new File(context.getFilesDir().toString()+"/txt/"+fileNameNoExt)).exists();
+	}
 	
-	private static String setOrCreatePrefsDirectory(Context context, String appRole) {
+	private static String setOrCreatePrefsDirectory(Context context) {
 		
-		String roleFilesDir = context.getFilesDir().toString();
-		String prefsDir = roleFilesDir.substring(0, roleFilesDir.lastIndexOf("/files") - ("." + appRole).length()) + ".guardian/files/prefs";
-		
-		if (appRole.equalsIgnoreCase("guardian")) {
-			(new File(prefsDir)).mkdirs(); FileUtils.chmod(prefsDir, "rw", "rw");
-		}
+		String prefsDir = context.getFilesDir().toString()+"/prefs";
+
+		(new File(prefsDir)).mkdirs();
+		FileUtils.chmod(prefsDir, "rw", "rw");
 		
 		return prefsDir;
 		
 	}
-	
+
+    //
+    // Retrieve pref value from guardian role via content provider
+    //
+
+    private String readPrefFromContentProvider(String prefKey) {
+        try {
+
+            if (!this.thisAppRole.equalsIgnoreCase("guardian")) {
+
+                Cursor prefsCursor = this.context.getContentResolver().query(
+                        RfcxComm.getUri("guardian", "prefs", prefKey),
+                        RfcxComm.getProjection("guardian", "prefs"),
+                        null, null, null);
+
+                if ((prefsCursor != null) && (prefsCursor.getCount() > 0)) { if (prefsCursor.moveToFirst()) { try { do {
+                    if (prefsCursor.getString(prefsCursor.getColumnIndex("pref_key")).equalsIgnoreCase(prefKey)) {
+                        String prefValue = prefsCursor.getString(prefsCursor.getColumnIndex("pref_value"));
+                        Log.v(logTag, "Pref retrieved via Content Provider: '"+prefKey+"' = '"+prefValue+"'");
+                        return prefValue;
+                    }
+                } while (prefsCursor.moveToNext()); } finally { prefsCursor.close(); } } }
+            }
+
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return null;
+    }
+
+    //
+    // Get formatted prefs
+    //
+
 	public static List<String> listPrefsKeys() {
 		List<String> prefsKeys = new ArrayList<String>();
 		for (Entry prefKeyEntry : defaultPrefs.entrySet()) {
@@ -268,7 +294,6 @@ public class RfcxPrefs {
 	}
 
 	public String getPrefsChecksum() {
-		
 		return StringUtils.getSha1HashOfString(getPrefsAsJsonArray().toString());
 	}
 
@@ -291,12 +316,17 @@ public class RfcxPrefs {
 
 		return prefsBlob;
 	}
+
+    //
+    // Prefs default/fallback values. Should be kept in sync with the prefs.xml file in guardian role resources
+    //
 	
 	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
 	    new HashMap<String, String>() {{
 
 			put("enable_audio_capture", "true");
 			put("enable_checkin_publish", "true");
+
 			put("enable_cutoffs_battery", "true");
 			put("enable_cutoffs_schedule_off_hours", "true");
 
@@ -306,7 +336,7 @@ public class RfcxPrefs {
 	        put("api_checkin_protocol", "tcp");
 	        put("api_checkin_port", "1883");
 	        put("api_ntp_host", "time.apple.com");
-			put("api_sms_address", "14154803657");
+			put("api_sms_address", "+14154803657");
 	        
 			put("reboot_forced_daily_at", "23:54:00");
 			
@@ -328,8 +358,8 @@ public class RfcxPrefs {
 			put("checkin_archive_threshold", "160");
 
 			put("admin_enable_bluetooth", "false");
-			put("admin_enable_wifi", "true");
-			put("admin_enable_tcp_adb", "true");
+			put("admin_enable_wifi", "false");
+			put("admin_enable_tcp_adb", "false");
 
 			put("admin_log_capture_cycle", "30");
 			put("admin_log_capture_level", "warn");
@@ -338,7 +368,7 @@ public class RfcxPrefs {
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "true");
 
-			put("admin_enable_sentinel_capture", "true");
+			put("admin_enable_sentinel_capture", "false");
 
 			put("admin_system_timezone", "[ Not Set ]");
 			

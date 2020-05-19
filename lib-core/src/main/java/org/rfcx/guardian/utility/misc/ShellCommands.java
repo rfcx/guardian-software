@@ -8,12 +8,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGarbageCollection;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -34,7 +37,7 @@ public class ShellCommands {
 		File tmpScriptObj = null;
 
 		// In case the file directory for the application is not accessible to the parts of the system that run the scripts.
-		String accessibleDir = Environment.getExternalStorageDirectory().toString()+"/rfcx/scr";
+		String accessibleDir = Environment.getExternalStorageDirectory().toString()+"/rfcx/scripts";
 		(new File(accessibleDir)).mkdirs(); FileUtils.chmod(accessibleDir,  "rw", "rw");
 		tmpScriptObj = new File(accessibleDir+"/script-root-"+System.currentTimeMillis()+".sh");
 		
@@ -62,11 +65,11 @@ public class ShellCommands {
 			    		try {
 			    			int delayLoop = 0;
 			    			while (rootScriptObj.exists() && (delayLoop < maxLoops)) {
-				    			if (delayLoop == 0) { Log.e(logTag,"Another script is running... delaying execution for up to "+Math.round(deleteOldScriptFileIfOlderThan/1000)+" seconds."); }
+				    			if (delayLoop == 0) { Log.e(logTag,"Another script is running... delaying execution for up to "+ DateTimeUtils.milliSecondDurationAsReadableString(deleteOldScriptFileIfOlderThan)+"."); }
 			    				delayLoop++;
 			    				long msSinceModified = FileUtils.millisecondsSinceLastModified(rootScriptObj);
 				    			if (msSinceModified > deleteOldScriptFileIfOlderThan) { 
-				    				Log.e(logTag,"Deleting old script file... ("+Math.round(msSinceModified/1000)+" seconds old)");
+				    				Log.e(logTag,"Deleting old script file... ("+DateTimeUtils.milliSecondDurationAsReadableString(msSinceModified)+" old)");
 				    				rootScriptObj.delete();
 				    			} else {
 				    				 Thread.sleep(loopDelay);

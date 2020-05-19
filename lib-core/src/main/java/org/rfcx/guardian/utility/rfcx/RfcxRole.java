@@ -51,10 +51,10 @@ public class RfcxRole {
 		return 0;
 	}
 
-	public static boolean isRoleInstalled(Context context, String appRole) {
-		String mainAppPath = context.getFilesDir().getAbsolutePath();
-		return (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian."))+"/org.rfcx.guardian."+appRole.toLowerCase(Locale.US))).exists();
-	}
+//	public static boolean isRoleInstalled(Context context, String appRole) {
+//		String mainAppPath = context.getFilesDir().getAbsolutePath();
+//		return (new File(mainAppPath.substring(0,mainAppPath.lastIndexOf("/org.rfcx.guardian."))+"/org.rfcx.guardian."+appRole.toLowerCase(Locale.US))).exists();
+//	}
 
 	public static String getRoleVersionByName(String appRole, String thisAppRole, Context context) {
 
@@ -118,6 +118,10 @@ public class RfcxRole {
 		}
 		
 		return softwareVersions;
+	}
+
+	public static void writeVersionToFile(Context context, String logTag, String versionName) {
+		RfcxPrefs.writeToGuardianRoleTxtFile(context, logTag, "version", versionName);
 	}
 	
 }

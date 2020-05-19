@@ -12,8 +12,8 @@ public class DeviceHardwareUtils {
 	
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceHardwareUtils");
 	
-	public static JSONObject getDeviceHardwareInfoJson() {
-		List<String[]> hardwareInfoList = getDeviceHardwareInfo();
+	public static JSONObject getInfoAsJson() {
+		List<String[]> hardwareInfoList = getInfo();
 		JSONObject hardwareInfoJson = new JSONObject();
 		for (int i = 0; i < hardwareInfoList.size(); i++) {
 			try {
@@ -25,37 +25,39 @@ public class DeviceHardwareUtils {
 		return hardwareInfoJson;
 	}
 	
-	private static List<String[]> getDeviceHardwareInfo() {
+	private static List<String[]> getInfo() {
 		List<String[]> hardwareInfo = new ArrayList<String[]>();
-		hardwareInfo.add(new String[] { "brand", android.os.Build.BRAND });
-		hardwareInfo.add(new String[] { "manufacturer", android.os.Build.MANUFACTURER });
-		hardwareInfo.add(new String[] { "product", android.os.Build.PRODUCT });
-		hardwareInfo.add(new String[] { "model", android.os.Build.MODEL });
-		hardwareInfo.add(new String[] { "android", android.os.Build.VERSION.RELEASE });
+		hardwareInfo.add(new String[] { "brand", getBrand() });
+		hardwareInfo.add(new String[] { "manufacturer", getManufacturer() });
+		hardwareInfo.add(new String[] { "product", getProduct() });
+		hardwareInfo.add(new String[] { "model", getModel() });
+		hardwareInfo.add(new String[] { "android", getRelease() });
+		hardwareInfo.add(new String[] { "build", getBuildNumber() });
 		return hardwareInfo;
 	}
 	
-	public static String getDeviceHardwareName() {
-		return android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL;
-	}
+	public static String getName() { return getManufacturer() + " " + getModel(); }
 
-	public static String getDeviceHardwareBrand() {
+	public static String getBrand() {
 		return android.os.Build.BRAND;
 	}
 
-	public static String getDeviceHardwareManufacturer() {
+	public static String getManufacturer() {
 		return android.os.Build.MANUFACTURER;
 	}
 
-	public static String getDeviceHardwareProduct() {
+	public static String getProduct() {
 		return android.os.Build.PRODUCT;
 	}
 
-	public static String getDeviceHardwareModel() {
-		return android.os.Build.MODEL;
-	}
+	public static String getModel() { return android.os.Build.MODEL; }
 
-	public static String getDeviceHardwareRelease() {
+	public static String getRelease() {
 		return android.os.Build.VERSION.RELEASE;
 	}
+
+	public static String getBuildNumber() {
+		return android.os.Build.DISPLAY;
+	}
+
 }

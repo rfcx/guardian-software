@@ -2,7 +2,8 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.json.JSONArray;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
-import org.rfcx.guardian.admin.device.sentinel.SentinelSensorUtils;
+import org.rfcx.guardian.admin.device.sentinel.SentinelEnvironmentUtils;
+import org.rfcx.guardian.admin.device.sentinel.SentinelPositionUtils;
 import org.rfcx.guardian.admin.sms.SmsUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
@@ -24,7 +25,7 @@ import java.util.List;
 
 public class AdminContentProvider extends ContentProvider {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ContentProvider");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AdminContentProvider");
 
     private static final String appRole = RfcxGuardian.APP_ROLE;
 
@@ -55,14 +56,21 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "prefs_resync", "*")) {
                 String prefKey = uri.getLastPathSegment();
-                app.rfcxPrefs.reSyncPref(prefKey);
-                String prefValue = app.onPrefReSync(prefKey);
-                return RfcxComm.getProjectionCursor(appRole, "prefs_resync", new Object[]{prefKey, prefValue, System.currentTimeMillis()});
+                app.rfcxPrefs.reSyncPrefs(prefKey);
+                app.onPrefReSync(prefKey);
+                return RfcxComm.getProjectionCursor(appRole, "prefs_resync", new Object[]{ prefKey, System.currentTimeMillis() });
+
+            // guardian identity endpoints
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "identity_resync", "*")) {
+                String idKey = uri.getLastPathSegment();
+                //app.rfcxGuardianIdentity.reSyncGuardianIdentity();
+                return RfcxComm.getProjectionCursor(appRole, "identity_resync", new Object[]{ idKey, System.currentTimeMillis() });
 
             // "process" function endpoints
 
             } else if (RfcxComm.uriMatch(uri, appRole, "process", null)) {
-                return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole, AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
+                return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole.toLowerCase(), AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
 
             // "control" function endpoints
 
@@ -122,8 +130,11 @@ public class AdminContentProvider extends ContentProvider {
                 } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_power", SentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
-                } else if (pathSeg.equalsIgnoreCase("sentinel_sensor")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_sensor", SentinelSensorUtils.getSentinelSensorValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
+                } else if (pathSeg.equalsIgnoreCase("sentinel_environment")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_environment", SentinelEnvironmentUtils.getSentinelEnvironmentValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("sentinel_position")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_position", SentinelPositionUtils.getSentinelPositionValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"system_meta", DeviceUtils.getSystemMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
@@ -187,8 +198,11 @@ public class AdminContentProvider extends ContentProvider {
                 if (pathSegTable.equalsIgnoreCase("sentinel_power")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SentinelPowerUtils.deleteSentinelPowerValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
-                } else if (pathSegTable.equalsIgnoreCase("sentinel_sensor")) {
-                        return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SentinelSensorUtils.deleteSentinelSensorValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
+                } else if (pathSegTable.equalsIgnoreCase("sentinel_environment")) {
+                        return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SentinelEnvironmentUtils.deleteSentinelEnvironmentValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
+
+                } else if (pathSegTable.equalsIgnoreCase("sentinel_position")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SentinelPositionUtils.deleteSentinelPositionValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
                 } else if (pathSegTable.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, DeviceUtils.deleteSystemMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
@@ -222,7 +236,7 @@ public class AdminContentProvider extends ContentProvider {
             return null;
 
         } catch (Exception e) {
-            RfcxLog.logExc(logTag, e);
+            RfcxLog.logExc(logTag, e, "AdminContentProvider");
         }
         return null;
     }
