@@ -10,15 +10,15 @@ import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import java.util.Date;
 import java.util.List;
 
-public class SentinelSensorDb {
+public class SentinelEnvironmentDb {
 
-	public SentinelSensorDb(Context context, String appVersion) {
+	public SentinelEnvironmentDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.dbSentinelSensorEnclosure = new DbSentinelSensorEnclosure(context);
+		this.dbSentinelEnvironmentEnclosure = new DbSentinelEnvironmentEnclosure(context);
 	}
 
 	private int VERSION = 1;
-	static final String DATABASE = "sentinel-sensor";
+	static final String DATABASE = "sentinel-environment";
 	static final String C_MEASURED_AT = "measured_at";
 	static final String C_VALUE_1 = "value_1";
 	static final String C_VALUE_2 = "value_2";
@@ -38,13 +38,13 @@ public class SentinelSensorDb {
 		return sbOut.toString();
 	}
 	
-	public class DbSentinelSensorEnclosure {
+	public class DbSentinelEnvironmentEnclosure {
 
 		final DbUtils dbUtils;
 
 		private String TABLE = "enclosure";
 		
-		public DbSentinelSensorEnclosure(Context context) {
+		public DbSentinelEnvironmentEnclosure(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
@@ -81,7 +81,7 @@ public class SentinelSensorDb {
 		}
 
 	}
-	public final DbSentinelSensorEnclosure dbSentinelSensorEnclosure;
+	public final DbSentinelEnvironmentEnclosure dbSentinelEnvironmentEnclosure;
 	
 	
 

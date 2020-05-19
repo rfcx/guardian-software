@@ -170,7 +170,7 @@ public class DeviceSentinelService extends Service {
 
 			if (innerLoopIncrement == 0) {
 
-				this.isSentinelCaptureAllowed = app.sentinelPowerUtils.isSentinelCaptureAllowed();
+				this.isSentinelCaptureAllowed = app.sentinelPowerUtils.isCaptureAllowed();
 
 				this.captureCycleLastStartTime = System.currentTimeMillis();
 
@@ -183,11 +183,11 @@ public class DeviceSentinelService extends Service {
 				if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 
 					this.referenceCycleDuration = prefsReferenceCycleDuration;
-					this.innerLoopsPerCaptureCycle = SentinelPowerUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
-					this.outerLoopCaptureCount = SentinelPowerUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
+					this.innerLoopsPerCaptureCycle = SentinelUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
+					this.outerLoopCaptureCount = SentinelUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
 
 					long samplingOperationDuration = 0;
-					this.innerLoopDelayRemainderInMilliseconds = SentinelPowerUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
+					this.innerLoopDelayRemainderInMilliseconds = SentinelUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
 
 					app.sentinelPowerUtils.setOrResetSentinelPowerChip();
 

@@ -36,12 +36,8 @@ public class SentinelPowerUtils {
     private static final String sentinelPowerI2cMainAddress = "0x68";
 
     private String[] i2cValueIndex = new String[]{};
-    private Map<String, double[]> i2cTempValues = new HashMap<>();
+    private Map<String, double[]> i2cTmpValues = new HashMap<>();
     private Map<String, String[]> i2cAddresses = new HashMap<String, String[]>();
-
-    public static final long captureLoopIncrementFullDurationInMilliseconds = 10000;
-    public static final long captureCycleMinimumAllowedDurationInMilliseconds = 20000;
-    public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 
     private List<double[]> powerBatteryValues = new ArrayList<>();
     private List<double[]> powerInputValues = new ArrayList<>();
@@ -49,7 +45,7 @@ public class SentinelPowerUtils {
 
     private boolean verboseLogging = false;
 
-    public boolean isSentinelCaptureAllowed() {
+    public boolean isCaptureAllowed() {
 
         boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_capture");
         boolean isI2cHandlerAccessible = false;
@@ -78,7 +74,7 @@ public class SentinelPowerUtils {
 
     public void setOrResetSentinelPowerChip() {
 
-        if (isSentinelCaptureAllowed()) {
+        if (isCaptureAllowed()) {
 
             List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
             i2cLabelsAddressesValues.add(new String[]{"force_meas_sys_on", "0x14", "0xffff"});
@@ -90,30 +86,30 @@ public class SentinelPowerUtils {
     }
 
     private void resetI2cTempValues() {
-        resetI2cTempValue("battery");
-        resetI2cTempValue("input");
-        resetI2cTempValue("system");
+        resetI2cTmpValue("battery");
+        resetI2cTmpValue("input");
+        resetI2cTmpValue("system");
     }
 
-    private void resetI2cTempValue(String statAbbr) {
+    private void resetI2cTmpValue(String statAbbr) {
         											/*	voltage		current 	temp		power       captured_at     */
-        this.i2cTempValues.put(statAbbr, new double[]{     0,          0,          0,          0,           0           });
+        this.i2cTmpValues.put(statAbbr, new double[]{     0,          0,          0,          0,           0           });
     }
 
     private void cacheI2cTempValues() {
         StringBuilder logStr = new StringBuilder();
         long rightNow = System.currentTimeMillis();
-        double[] battVals = this.i2cTempValues.get("battery");
+        double[] battVals = this.i2cTmpValues.get("battery");
         if (ArrayUtils.getAverageAsDouble(battVals) != 0) {
             powerBatteryValues.add(new double[] { battVals[0], battVals[1], battVals[2], battVals[3], rightNow });
             logStr.append(" battery: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(battVals)));
         }
-        double[] inpVals = this.i2cTempValues.get("input");
+        double[] inpVals = this.i2cTmpValues.get("input");
         if (ArrayUtils.getAverageAsDouble(inpVals) != 0) {
             powerInputValues.add(new double[] { inpVals[0], inpVals[1], inpVals[2], inpVals[3], rightNow });
             logStr.append(" input: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(inpVals)));
         }
-        double[] sysVals = this.i2cTempValues.get("system");
+        double[] sysVals = this.i2cTmpValues.get("system");
         if (ArrayUtils.getAverageAsDouble(sysVals) != 0) {
             powerSystemValues.add(new double[] { sysVals[0], sysVals[1], sysVals[2], sysVals[3], rightNow });
             logStr.append(" system: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(sysVals)));
@@ -144,7 +140,7 @@ public class SentinelPowerUtils {
             for (String[] i2cLabeledOutput : this.deviceI2cUtils.i2cGet(buildI2cQueryList(), true)) {
                 String groupName = i2cLabeledOutput[0].substring(0, i2cLabeledOutput[0].indexOf("-"));
                 String valueType = i2cLabeledOutput[0].substring(1 + i2cLabeledOutput[0].indexOf("-"));
-                double[] valueSet = this.i2cTempValues.get(groupName);
+                double[] valueSet = this.i2cTmpValues.get(groupName);
                 int valueTypeIndex = 0;
                 for (int i = 0; i < this.i2cValueIndex.length; i++) {
                     if (this.i2cValueIndex[i].equals(valueType)) {
@@ -154,7 +150,7 @@ public class SentinelPowerUtils {
                 }
                 valueSet[valueTypeIndex] = (i2cLabeledOutput[1] == null) ? 0 : applyValueModifier(i2cLabeledOutput[0], Long.parseLong(i2cLabeledOutput[1]));
                 valueSet[3] = valueSet[0] * valueSet[1] / 1000;
-                this.i2cTempValues.put(groupName, valueSet);
+                this.i2cTmpValues.put(groupName, valueSet);
             }
             calculateMissingSystemPowerValues();
             cacheI2cTempValues();
@@ -165,12 +161,12 @@ public class SentinelPowerUtils {
     }
 
     private void calculateMissingSystemPowerValues() {
-        double[] battVals = this.i2cTempValues.get("battery");
-        double[] inpVals = this.i2cTempValues.get("input");
-        double[] sysVals = this.i2cTempValues.get("system");
+        double[] battVals = this.i2cTmpValues.get("battery");
+        double[] inpVals = this.i2cTmpValues.get("input");
+        double[] sysVals = this.i2cTmpValues.get("system");
         sysVals[3] = (inpVals[3] - battVals[3]);
         sysVals[1] = (1000 * sysVals[3] / sysVals[0]);
-        this.i2cTempValues.put("system", sysVals);
+        this.i2cTmpValues.put("system", sysVals);
     }
 
     private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
@@ -246,27 +242,6 @@ public class SentinelPowerUtils {
         long[] sysVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
         this.powerSystemValues = new ArrayList<>();
         app.sentinelPowerDb.dbSentinelPowerSystem.insert(sysVals[4], sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
-    }
-
-    public static long getCaptureCycleDuration(int audioCycleDurationInSeconds) {
-        long captureCycleDuration = Math.round( audioCycleDurationInSeconds * 1000 * captureCycleDurationRatioComparedToAudioCycleDuration );
-        if (captureCycleDuration < captureCycleMinimumAllowedDurationInMilliseconds) {
-            captureCycleDuration = captureCycleMinimumAllowedDurationInMilliseconds;
-        }
-        return captureCycleDuration;
-    }
-
-    public static int getInnerLoopsPerCaptureCycle(int audioCycleDurationInSeconds) {
-        return Math.round( getCaptureCycleDuration(audioCycleDurationInSeconds) / captureLoopIncrementFullDurationInMilliseconds );
-    }
-
-    public static int getOuterLoopCaptureCount(int audioCycleDurationInSeconds) {
-//		return (int) ( Math.round( geoPositionMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
-        return 10;
-    }
-
-    public static long getInnerLoopDelayRemainder(int audioCycleDurationInSeconds, double captureCycleDurationPercentageMultiplier, long samplingOperationDuration) {
-        return (long) ( Math.round( ( getCaptureCycleDuration(audioCycleDurationInSeconds) / getInnerLoopsPerCaptureCycle(audioCycleDurationInSeconds) ) - samplingOperationDuration ) * captureCycleDurationPercentageMultiplier );
     }
 
 

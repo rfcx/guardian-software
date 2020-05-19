@@ -309,46 +309,45 @@ public class ApiCheckInUtils implements MqttCallback {
 	void createSystemMetaDataJsonSnapshot() throws JSONException {
 
 		JSONObject metaDataJsonObj = new JSONObject();
+		Date metaQueryTimestampObj = new Date();
+		long metaQueryTimestamp = metaQueryTimestampObj.getTime();
 
-		try {
+		JSONArray metaIds = new JSONArray();
+		metaIds.put(metaQueryTimestamp);
+		metaDataJsonObj.put("meta_ids", metaIds);
+		metaDataJsonObj.put("measured_at", metaQueryTimestamp);
 
-			Date metaQueryTimestampObj = new Date();
-			long metaQueryTimestamp = metaQueryTimestampObj.getTime();
+		metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
+		metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
 
-			JSONArray metaIds = new JSONArray();
-			metaIds.put(metaQueryTimestamp);
-			metaDataJsonObj.put("meta_ids", metaIds);
-			metaDataJsonObj.put("measured_at", metaQueryTimestamp);
+		// Adding connection data from previous checkins
+		metaDataJsonObj.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
 
-			metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
-			metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
+		// Adding system metadata, if they can be retrieved from admin role via content provider
+		JSONArray systemMetaJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
+				"system_meta", app.getApplicationContext().getContentResolver());
+		metaDataJsonObj = addConcatSystemMetaParams(metaDataJsonObj, systemMetaJsonArray);
 
-			// Adding connection data from previous checkins
-			metaDataJsonObj.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
+		// Adding sentinel power data, if they can be retrieved from admin role via content provider
+		JSONArray sentinelPowerJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
+				"sentinel_power", app.getApplicationContext().getContentResolver());
+		metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPowerJsonArray));
 
-			// Adding system metadata, if they can be retrieved from admin role via content provider
-			JSONArray systemMetaJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-					"system_meta", app.getApplicationContext().getContentResolver());
-			metaDataJsonObj = addConcatSystemMetaParams(metaDataJsonObj, systemMetaJsonArray);
+		// Adding sentinel environment data, if they can be retrieved from admin role via content provider
+		JSONArray sentinelEnvironmentJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
+				"sentinel_environment", app.getApplicationContext().getContentResolver());
+		metaDataJsonObj.put("sentinel_environment", getConcatSentinelMeta(sentinelEnvironmentJsonArray));
 
-			// Adding sentinel power data, if they can be retrieved from admin role via content provider
-			JSONArray sentinelPowerJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-					"sentinel_power", app.getApplicationContext().getContentResolver());
-			metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPowerJsonArray));
+		// Adding sentinel position data, if they can be retrieved from admin role via content provider
+		JSONArray sentinelPositionJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
+				"sentinel_position", app.getApplicationContext().getContentResolver());
+		metaDataJsonObj.put("sentinel_position", getConcatSentinelMeta(sentinelPositionJsonArray));
 
-			// Adding sentinel sensor data, if they can be retrieved from admin role via content provider
-			JSONArray sentinelSensorJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-					"sentinel_sensor", app.getApplicationContext().getContentResolver());
-			metaDataJsonObj.put("sentinel_sensor", getConcatSentinelMeta(sentinelSensorJsonArray));
+		// Saves JSON snapshot blob to database
+		app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
 
-			// Saves JSON snapshot blob to database
-			app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
+		clearPrePackageMetaData(metaQueryTimestampObj);
 
-			clearPrePackageMetaData(metaQueryTimestampObj);
-
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
 	}
 
 	private void clearPrePackageMetaData(Date deleteBefore) {
@@ -365,7 +364,10 @@ public class ApiCheckInUtils implements MqttCallback {
 					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
 
 			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
-					"sentinel_sensor|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+					"sentinel_environment|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+
+			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
+					"sentinel_position|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -684,21 +686,21 @@ public class ApiCheckInUtils implements MqttCallback {
 		return byteArrayOutputStream.toByteArray();
 	}
 
-	void sendMqttCheckIn(String[] checkInDatabaseEntry) {
+	void sendMqttCheckIn(String[] checkInDbEntry) {
 
-		String audioId = checkInDatabaseEntry[1].substring(0, checkInDatabaseEntry[1].lastIndexOf("."));
-		String audioPath = checkInDatabaseEntry[4];
-		String audioJson = checkInDatabaseEntry[2];
+		String audioId = checkInDbEntry[1].substring(0, checkInDbEntry[1].lastIndexOf("."));
+		String audioPath = checkInDbEntry[4];
+		String audioJson = checkInDbEntry[2];
 
 		try {
 
-			byte[] checkInPayload = packageMqttCheckInPayload(audioJson, audioPath);
+			if (FileUtils.exists(audioPath)) {
 
-			if ((new File(audioPath)).exists()) {
+				byte[] checkInPayload = packageMqttCheckInPayload(audioJson, audioPath);
 
 				this.inFlightCheckInAudioId = audioId;
 				this.inFlightCheckInEntries.remove(audioId);
-				this.inFlightCheckInEntries.put(audioId, checkInDatabaseEntry);
+				this.inFlightCheckInEntries.put(audioId, checkInDbEntry);
 				this.inFlightCheckInAttemptCounter++;
 
 				app.apiCheckInDb.dbQueued.incrementSingleRowAttempts(audioId);
@@ -706,6 +708,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 				setInFlightCheckInStats(audioId, msgSendStart, 0, checkInPayload.length);
 				this.inFlightCheckInAttemptCounter = 0;
+
 			} else {
 				purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
 			}
@@ -1210,6 +1213,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					moveCheckInEntryToSentDatabase(this.inFlightCheckInAudioId);
 					long msgSendDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.inFlightCheckInStats.get(this.inFlightCheckInAudioId)[0]));
 					setInFlightCheckInStats(this.inFlightCheckInAudioId, 0, msgSendDuration, 0);
+//					this.inFlightCheckInAudioId = null;
 					Log.i(logTag, "CheckIn delivery time: " + DateTimeUtils.milliSecondDurationAsReadableString(msgSendDuration, true));
 				}
 

@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.api.checkin;
 import java.io.File;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
@@ -69,6 +70,8 @@ public class ApiCheckInJobService extends Service {
 			ApiCheckInJobService apiCheckInJobInstance = ApiCheckInJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
+			long lastCheckInEndTime = System.currentTimeMillis();
+			String lastCheckInId = null;
 				
 			while (		apiCheckInJobInstance.runFlag
 					&&	app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish") 
@@ -79,7 +82,7 @@ public class ApiCheckInJobService extends Service {
 
 				try {
 						
-					long prefsAudioCycleDuration = (long) Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
+					long prefsAudioCycleDuration = Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
 					int prefsCheckInSkipThreshold = app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold");
 					boolean prefsEnableBatteryCutoffs = app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery");
 					int prefsCheckInBatteryCutoff = app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff");
@@ -106,22 +109,34 @@ public class ApiCheckInJobService extends Service {
 						for (String[] latestQueuedCheckIn : app.apiCheckInDb.dbQueued.getLatestRowsWithLimit(1) ) {
 							
 							if (latestQueuedCheckIn[0] != null) {
-								
+
 								if ((Integer.parseInt(latestQueuedCheckIn[3])) >= prefsCheckInSkipThreshold) {
 									
 									Log.d(logTag,"Skipping CheckIn "+latestQueuedCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
 									app.apiCheckInDb.dbSkipped.insert(latestQueuedCheckIn[0], latestQueuedCheckIn[1], latestQueuedCheckIn[2], latestQueuedCheckIn[3], latestQueuedCheckIn[4]);
 									app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
 									
-								} else if (!(new File(latestQueuedCheckIn[4])).exists()) {
+								} else if (!FileUtils.exists(latestQueuedCheckIn[4])) {
 									
 									Log.d(logTag,"Disqualifying CheckIn because audio file could not be found.");
 									app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
 									
 								} else {
-									
-									// Publish CheckIn to API
-									app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
+
+									// This conditional helps avoid double checkins that might occur before a checkin publication has been registered as complete
+									if (	!latestQueuedCheckIn[1].equalsIgnoreCase(lastCheckInId)
+										|| 	(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(lastCheckInEndTime) > 2000 )
+									) {
+										// Publish CheckIn to API
+										app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
+										lastCheckInEndTime = System.currentTimeMillis();
+
+									} else {
+										Thread.sleep(500);
+									}
+
+									lastCheckInId = latestQueuedCheckIn[1];
+
 								}
 								
 							} else {
@@ -132,11 +147,6 @@ public class ApiCheckInJobService extends Service {
 					}
 					
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-					
-					// Putting this slight delay here between cycles does mitigate some check in preparation issues, 
-					//	...but it's definitely a lame hack...
-					// Hopefully we can improve this some time.
-					Thread.sleep(500);
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);

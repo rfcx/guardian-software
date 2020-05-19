@@ -114,7 +114,7 @@ public class DateTimeUtils {
 		int subSeconds = Math.round((milliSeconds - (hours * 3600000) - (minutes * 60000) - (seconds * 1000)) / 100);
 		if (((hours+minutes) == 0) || (seconds > 0) || displayEvenIfZero) {
 			tmStr.append(((hours > 0) || (minutes > 0)) ? ", " : "").append(seconds).append(
-				((seconds < 10) && !(displayEvenIfZero && (seconds == 0) && (subSeconds == 0))) ? "."+subSeconds : ""
+				(((hours+minutes) == 0) && (seconds < 10) && !(displayEvenIfZero && (seconds == 0) && (subSeconds == 0))) ? "."+subSeconds : ""
 			).append(" seconds");
 		}
 		return tmStr.toString();

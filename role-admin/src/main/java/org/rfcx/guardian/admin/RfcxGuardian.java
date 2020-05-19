@@ -5,8 +5,10 @@ import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
-import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
-import org.rfcx.guardian.admin.device.sentinel.SentinelSensorUtils;
+import org.rfcx.guardian.admin.device.sentinel.SentinelEnvironmentDb;
+import org.rfcx.guardian.admin.device.sentinel.SentinelEnvironmentUtils;
+import org.rfcx.guardian.admin.device.sentinel.SentinelPositionDb;
+import org.rfcx.guardian.admin.device.sentinel.SentinelPositionUtils;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
@@ -76,16 +78,14 @@ public class RfcxGuardian extends Application {
 	public CameraCaptureDb cameraCaptureDb = null;
 	public DeviceLogCatDb deviceLogCatDb = null;
 	public SentinelPowerDb sentinelPowerDb = null;
-	public SentinelSensorDb sentinelSensorDb = null;
+	public SentinelEnvironmentDb sentinelEnvironmentDb = null;
+	public SentinelPositionDb sentinelPositionDb = null;
 	public DeviceSystemDb deviceSystemDb = null;
     public DeviceSensorDb deviceSensorDb = null;
     public DeviceRebootDb rebootDb = null;
     public DeviceDataTransferDb deviceDataTransferDb = null;
     public DeviceDiskDb deviceDiskDb = null;
     public SmsMessageDb smsMessageDb = null;
-
-	public SentinelPowerUtils sentinelPowerUtils = null;
-	public SentinelSensorUtils sentinelSensorUtils = null;
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -96,6 +96,10 @@ public class RfcxGuardian extends Application {
     public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
     public DeviceUtils deviceUtils = null;
     public DeviceBluetooth deviceBluetooth = null;
+
+	public SentinelPowerUtils sentinelPowerUtils = null;
+	public SentinelEnvironmentUtils sentinelEnvironmentUtils = null;
+	public SentinelPositionUtils sentinelPositionUtils = null;
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -129,7 +133,8 @@ public class RfcxGuardian extends Application {
 		DeviceNetworkName.setName("rfcx-"+this.rfcxGuardianIdentity.getGuid(), this);
 		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
-		this.sentinelSensorUtils = new SentinelSensorUtils(this);
+		this.sentinelEnvironmentUtils = new SentinelEnvironmentUtils(this);
+		this.sentinelPositionUtils = new SentinelPositionUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();
@@ -216,7 +221,8 @@ public class RfcxGuardian extends Application {
 	private void setDbHandlers() {
 		
 		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
-		this.sentinelSensorDb = new SentinelSensorDb(this, this.version);
+		this.sentinelEnvironmentDb = new SentinelEnvironmentDb(this, this.version);
+		this.sentinelPositionDb = new SentinelPositionDb(this, this.version);
 		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
 		this.cameraCaptureDb = new CameraCaptureDb(this, this.version);
 		this.deviceLogCatDb = new DeviceLogCatDb(this, this.version);
