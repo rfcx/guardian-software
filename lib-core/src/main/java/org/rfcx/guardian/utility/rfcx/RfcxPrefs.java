@@ -359,7 +359,7 @@ public class RfcxPrefs {
 
 			put("admin_enable_bluetooth", "false");
 			put("admin_enable_wifi", "false");
-			put("admin_enable_tcp_adb", "false");
+			put("admin_enable_tcp_adb", "true");
 
 			put("admin_log_capture_cycle", "30");
 			put("admin_log_capture_level", "warn");

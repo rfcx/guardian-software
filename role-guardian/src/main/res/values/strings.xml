@@ -44,7 +44,7 @@
 	<string name="prefs_value_default_admin_enable_screenshot_capture">true</string>
 	<string name="prefs_value_default_admin_screenshot_capture_cycle">180</string>
 
-	<string name="prefs_value_default_admin_enable_tcp_adb">false</string>
+	<string name="prefs_value_default_admin_enable_tcp_adb">true</string>
 	<string name="prefs_value_default_admin_enable_wifi">false</string>
 	<string name="prefs_value_default_admin_enable_bluetooth">false</string>
 

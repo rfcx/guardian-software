@@ -301,6 +301,7 @@ class MainActivity : AppCompatActivity(),
         deviceIdText.text = " $deviceIdTxt"
         Log.i(logTag, "onGuardianCheckSuccess: Successfully Verified Registration")
         showToast("Successfully Verified Registration")
+        app.apiCheckInUtils.sendMqttPing()
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {
