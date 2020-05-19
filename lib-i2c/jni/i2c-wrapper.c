@@ -49,10 +49,10 @@ Java_org_rfcx_guardian_i2c_I2cTools_i2cWriteByte(JNIEnv *env, jobject this, jint
 	ret = i2cWriteByte(i2cAdapter, mainAddress, address) ;
 
 	if ( ret == -1 ) {
-		__android_log_print(ANDROID_LOG_ERROR, BBBANDROID_NATIVE_TAG, "i2cWriteByte(%d, %d) failed!", (unsigned int) i2cAdapter, (unsigned int) address);
+		__android_log_print(ANDROID_LOG_ERROR, TAG, "i2cWriteByte(%d, %d) failed!", (unsigned int) i2cAdapter, (unsigned int) address);
 		return JNI_FALSE;
 	} else {
-		__android_log_print(ANDROID_LOG_DEBUG, BBBANDROID_NATIVE_TAG, "i2cWriteByte(%d, %d) succeeded", (unsigned int) i2cAdapter, (unsigned int) address);
+		__android_log_print(ANDROID_LOG_DEBUG, TAG, "i2cWriteByte(%d, %d) succeeded", (unsigned int) i2cAdapter, (unsigned int) address);
 	}
 
 	return JNI_TRUE;
