@@ -58,25 +58,7 @@ Java_org_rfcx_guardian_i2c_I2cTools_i2cWriteByte(JNIEnv *env, jobject this, jint
 	return JNI_TRUE;
 }
 
-
-JNIEXPORT jint JNICALL
-Java_org_rfcx_guardian_i2c_I2cTools_i2cReadByte(JNIEnv *env, jobject this, jint i2cAdapter,
-                                                         jbyte address) {
-    jint ret;
-    ret = i2cReadByte(i2cAdapter, address);
-
-    if (ret == -1) {
-        __android_log_print(ANDROID_LOG_ERROR, TAG, "i2cReadByte(%d, %d) failed!",
-                            (unsigned int) i2cAdapter, (unsigned int) address);
-        return -1;
-    } else {
-        __android_log_print(ANDROID_LOG_DEBUG, TAG, "i2cReadByte(%d, %d) succeeded",
-                            (unsigned int) i2cAdapter, (unsigned int) address);
-    }
-
-    return ret;
-}
-
+JNIEXPORT jboolean JNICALL
 Java_org_rfcx_guardian_i2c_I2cTools_i2cWriteBytes(JNIEnv *env, jobject this, jint i2cAdapter,jbyte address, jint length, jbyteArray byteArray)
 {
 	jint ret;
@@ -103,6 +85,24 @@ Java_org_rfcx_guardian_i2c_I2cTools_i2cWriteBytes(JNIEnv *env, jobject this, jin
 	}
 
 	return JNI_TRUE;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_rfcx_guardian_i2c_I2cTools_i2cReadByte(JNIEnv *env, jobject this, jint i2cAdapter,
+                                                         jbyte address) {
+    jint ret;
+    ret = i2cReadByte(i2cAdapter, address);
+
+    if (ret == -1) {
+        __android_log_print(ANDROID_LOG_ERROR, TAG, "i2cReadByte(%d, %d) failed!",
+                            (unsigned int) i2cAdapter, (unsigned int) address);
+        return -1;
+    } else {
+        __android_log_print(ANDROID_LOG_DEBUG, TAG, "i2cReadByte(%d, %d) succeeded",
+                            (unsigned int) i2cAdapter, (unsigned int) address);
+    }
+
+    return ret;
 }
 
 JNIEXPORT void JNICALL
