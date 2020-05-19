@@ -3,7 +3,7 @@ package org.rfcx.guardian.i2c;
 public class I2cTools {
 
     public int i2cInit(int number) {
-        return i2cOpenAdaptor(number);
+        return i2cOpenAdapter(number);
     }
 
     public String i2cGet(int i2cAdapter, int mainAddress, int dataAddress, boolean returnDecimal) throws Exception {
@@ -29,14 +29,14 @@ public class I2cTools {
         return Integer.decode(hex);
     }
 
+    
+    private native int i2cOpenAdapter(int adapterNumber);
 
-    private native int i2cOpenAdaptor(int adaptorNumber);
+    private native boolean i2cSetSlave(int i2cAdapter, int address);
 
-    private native boolean i2cSetSlave(int i2cFD, int adress);
+    private native int i2cReadByte(int i2cAdapter, byte address);
 
-    private native int i2cReadByte(int i2cFD, byte add);
-
-    private native void i2cClose(int i2cFD);
+    private native void i2cClose(int i2cAdapter);
 
     static {
         System.loadLibrary("i2c");
