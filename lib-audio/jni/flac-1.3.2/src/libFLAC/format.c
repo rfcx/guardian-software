@@ -44,6 +44,15 @@
 #include "private/format.h"
 #include "private/macros.h"
 
+#ifdef flac_min
+#undef flac_min
+#endif
+#define flac_min(x,y) ((x)<(y)?(x):(y))
+#ifdef flac_max
+#undef flac_max
+#endif
+#define flac_max(x,y) ((x)>(y)?(x):(y))
+
 /* PACKAGE_VERSION should come from configure */
 FLAC_API const char *FLAC__VERSION_STRING = PACKAGE_VERSION;
 
