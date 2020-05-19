@@ -10,7 +10,7 @@ JNIEXPORT jint JNICALL
 Java_org_rfcx_guardian_i2c_I2cTools_i2cOpenAdapter(JNIEnv *env, jobject this,
                                                             jint adapterNumber) {
     jint ret;
-    ret = i2cOpenAdaptor(adapterNumber);
+    ret = i2cOpenAdapter(adapterNumber);
 
     if (ret == -1) {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "i2cOpenAdaptor(%d) failed!",
