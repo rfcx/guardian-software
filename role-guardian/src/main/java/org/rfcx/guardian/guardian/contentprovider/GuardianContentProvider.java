@@ -78,7 +78,7 @@ public class GuardianContentProvider extends ContentProvider {
 			// "process" function endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "process", null)) {
-				return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole, AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
+				return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole.toLowerCase(), AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
 
 			// "control" function endpoints
 

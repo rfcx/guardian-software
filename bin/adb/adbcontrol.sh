@@ -4,9 +4,11 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export ADB="$ANDROID_SDK_ROOT/platform-tools/adb";
 
-export ACTION=$1;
+export CNTL=$1;
+export KEY=$2;
+export VAL=$3;
 
-if [ "$ACTION" = "help" ]; then
+if [ "$CNTL" = "help" ]; then
 
 	echo "";
 	echo "This allows you to interact simply with the control content providers of the RFCx roles.";
@@ -19,41 +21,15 @@ if [ "$ACTION" = "help" ]; then
 	echo "";
 	exit
 
-elif [ "$ACTION" = "reboot" ]; then
+elif [ "$CNTL" = "reboot" || "$CNTL" = "kill" || "$CNTL" = "relaunch" || "$CNTL" = "screenshot" || "$CNTL" = "logcat" || "$CNTL" = "airplanemode_toggle" || "$CNTL" = "airplanemode_enable" || "$CNTL" = "sntp_sync" ]; then
 	
-	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/reboot
+	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/$CNTL
 	
-elif [ "$ACTION" = "kill" ]; then
+elif [ "$CNTL" = "identity_set" ]; then
 
-	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/kill
-	
-elif [ "$ACTION" = "relaunch" ]; then
-
-	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/relaunch
-	
-elif [ "$ACTION" = "screenshot" ]; then
-
-	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/screenshot
-	
-elif [ "$ACTION" = "logcat" ]; then
-
-	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/logcat
-	
-elif [ "$ACTION" = "airplanemode_toggle" ]; then
-
-	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/airplanemode_toggle
-	
-elif [ "$ACTION" = "airplanemode_enable" ]; then
-
-	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/airplanemode_enable
-	
-elif [ "$ACTION" = "sntp_sync" ]; then
-
-	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/sntp_sync
+	$ADB shell content query --uri content://org.rfcx.guardian.guardian/identity_set/$KEY%7C$VAL;
 
 fi
-
-
 
 
 

@@ -58,7 +58,7 @@ public class SentinelPowerUtils {
         if (isNotExplicitlyDisabled) {
             isI2cHandlerAccessible = (new File("/dev/i2c-"+DeviceI2cUtils.i2cInterface)).canRead();
             if (isI2cHandlerAccessible) {
-                String i2cConnectAttempt = this.deviceI2cUtils.i2cGetAsString("0x43", true);
+                String i2cConnectAttempt = this.deviceI2cUtils.i2cGetAsString("0x4a", true);
                 isI2cPowerChipConnected = ((i2cConnectAttempt != null) && (DeviceI2cUtils.twosComp(i2cConnectAttempt) > 0));
             }
         }

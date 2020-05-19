@@ -14,9 +14,6 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var monitorTimer: Timer
-    private var isConnected: Boolean = false
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.activity_home, menu)
         return true
@@ -44,43 +41,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setSupportActionBar(toolbar)
-        val app = application as RfcxGuardian
     }
 
     public override fun onResume() {
         super.onResume()
-        val app = application as RfcxGuardian
-
-
-
-        monitorToggle.setOnCheckedChangeListener { buttonView, isChecked ->
-            if (isChecked) {
-                val timerTask = object : TimerTask() {
-                    override fun run() {
-                        runOnUiThread {
-
-                            i2cConnectStatusTextView.text = "disconnected"
-                            systemResultTextView.text = "not found"
-                            inputResultTextView.text = "not found"
-                            batteryResultTextView.text = "not found"
-
-                        }
-                    }
-                }
-                monitorTimer = Timer()
-                monitorTimer.schedule(timerTask, 0, 1000)
-            } else {
-                Log.d("toggle", "$isChecked")
-                monitorTimer.cancel()
-            }
-        }
+        (application as RfcxGuardian).appResume()
     }
 
     public override fun onPause() {
         super.onPause()
-        if (::monitorTimer.isInitialized) {
-            monitorTimer.cancel()
-        }
         (application as RfcxGuardian).appPause()
     }
 
