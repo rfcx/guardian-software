@@ -10,7 +10,7 @@ JNIEXPORT jint JNICALL
 Java_org_rfcx_guardian_i2c_I2cTools_i2cOpenAdapter(JNIEnv *env, jobject this,
                                                             jint adapterNumber) {
     jint ret;
-    ret = i2cOpenAdaptor(adapterNumber);
+    ret = i2cOpenAdapter(adapterNumber);
 
     if (ret == -1) {
         __android_log_print(ANDROID_LOG_ERROR, TAG, "i2cOpenAdaptor(%d) failed!",
@@ -40,6 +40,22 @@ Java_org_rfcx_guardian_i2c_I2cTools_i2cSetSlave(JNIEnv *env, jobject this, jint 
     }
 
     return JNI_TRUE;
+}
+
+JNIEXPORT jboolean JNICALL
+Java_org_rfcx_guardian_i2c_I2cTools_i2cWriteByte(JNIEnv *env, jobject this, jint i2cAdapter, jbyte mainAddress, jbyte address)
+{
+	jint ret;
+	ret = i2cWriteByte(i2cAdapter, mainAddress, address) ;
+
+	if ( ret == -1 ) {
+		__android_log_print(ANDROID_LOG_ERROR, TAG, "i2cWriteByte(%d, %d) failed!", (unsigned int) i2cAdapter, (unsigned int) address);
+		return JNI_FALSE;
+	} else {
+		__android_log_print(ANDROID_LOG_DEBUG, TAG, "i2cWriteByte(%d, %d) succeeded", (unsigned int) i2cAdapter, (unsigned int) address);
+	}
+
+	return JNI_TRUE;
 }
 
 JNIEXPORT jint JNICALL

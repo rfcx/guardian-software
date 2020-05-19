@@ -21,6 +21,14 @@ public class I2cTools {
         return i2cGet(i2cAdapter, hexStringToInt(mainAddress), hexStringToInt(dataAddress), returnDecimal);
     }
 
+    public boolean i2cSet(int i2cAdapter, int mainAddress, int dataAddress) {
+        return i2cWriteByte(i2cAdapter, mainAddress, (byte) dataAddress);
+    }
+
+    public boolean i2cSet(int i2cAdapter, String mainAddress, String dataAddress) {
+        return i2cSet(i2cAdapter, hexStringToInt(mainAddress), hexStringToInt(dataAddress));
+    }
+
     public void i2cDeInit(int i2cAdapter) {
         i2cClose(i2cAdapter);
     }
@@ -33,6 +41,8 @@ public class I2cTools {
     private native int i2cOpenAdapter(int adapterNumber);
 
     private native boolean i2cSetSlave(int i2cAdapter, int address);
+
+    private native boolean i2cWriteByte(int i2cAdapter, int mainAddress, byte address);
 
     private native int i2cReadByte(int i2cAdapter, byte address);
 
