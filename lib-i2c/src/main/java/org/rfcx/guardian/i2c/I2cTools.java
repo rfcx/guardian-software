@@ -1,27 +1,44 @@
 package org.rfcx.guardian.i2c;
 
 public class I2cTools {
-	
-	public I2cTools(int i2cInterface) {
-		this.i2cInterface = i2cInterface;
-	}
-	
-	private static final String logTag = "Rfcx-I2c-I2cTools";
-	private int i2cInterface = 0;
-		
-	public String i2cGet(String i2cMainAddress, String i2cSubAddress) {
-		
-		return "i2c-return-"+i2cGetNative(this.i2cInterface, Integer.parseInt(i2cMainAddress,16), Integer.parseInt(i2cSubAddress,16));
-		
-	}
 
-    public native static int i2cGetNative(int i2cInterface, int i2cMainAddress, int i2cSubAddress);
-    
+    public int i2cInit(int number) {
+        return i2cOpenAdapter(number);
+    }
+
+    public String i2cGet(int i2cAdapter, int mainAddress, int dataAddress, boolean returnDecimal) throws Exception {
+        if (i2cSetSlave(i2cAdapter, mainAddress)) {
+            int value = i2cReadByte(i2cAdapter, (byte) dataAddress);
+            if (value < 0) {
+                throw new Exception("Read Failed");
+            }
+            return (returnDecimal) ? value+"" : String.format("0x%x", value);
+        }
+        throw new Exception("Set Slave Failed");
+    }
+
+    public String i2cGet(int i2cAdapter, String mainAddress, String dataAddress, boolean returnDecimal) throws Exception {
+        return i2cGet(i2cAdapter, hexStringToInt(mainAddress), hexStringToInt(dataAddress), returnDecimal);
+    }
+
+    public void i2cDeInit(int i2cAdapter) {
+        i2cClose(i2cAdapter);
+    }
+
+    private int hexStringToInt(String hex) {
+        return Integer.decode(hex);
+    }
+
+
+    private native int i2cOpenAdapter(int adapterNumber);
+
+    private native boolean i2cSetSlave(int i2cAdapter, int address);
+
+    private native int i2cReadByte(int i2cAdapter, byte address);
+
+    private native void i2cClose(int i2cAdapter);
+
     static {
-//            System.loadLibrary("i2c-tools");
-        System.loadLibrary("i2cget");
-        System.loadLibrary("i2cset");
-    } 
-	
-	
+        System.loadLibrary("i2c");
+    }
 }
