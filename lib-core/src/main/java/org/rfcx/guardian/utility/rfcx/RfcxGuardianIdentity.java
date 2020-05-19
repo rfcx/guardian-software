@@ -85,9 +85,9 @@ public class RfcxGuardianIdentity {
 		this.authToken = authToken;
 	}
 
-	public void setKeystorePassPhrase(String authToken) {
+	public void setKeystorePassPhrase(String keystorePassPhrase) {
 		RfcxPrefs.writeToGuardianRoleTxtFile(this.context, this.logTag, "keystore_passphrase", authToken, true);
-		this.authToken = authToken;
+		this.keystorePassPhrase = keystorePassPhrase;
 	}
 
 	public String getIdentityValue(String idKey) {

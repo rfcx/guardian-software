@@ -85,13 +85,6 @@
         android:enabled="true"
         android:defaultValue="@string/prefs_value_default_api_checkin_port" />
 
-	<EditTextPreference
-			android:key="api_checkin_ssl_passphrase"
-			android:title="api_checkin_ssl_passphrase"
-			android:summary="string - checkin api passphrase"
-			android:enabled="true"
-			android:defaultValue="@string/prefs_value_default_api_checkin_ssl_passphrase" />
-
  	<EditTextPreference
         android:key="api_ntp_host"
         android:title="api_ntp_host"

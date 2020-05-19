@@ -17,7 +17,6 @@
 	<string name="prefs_value_default_api_checkin_host">checkin.rfcx.org</string>
 	<string name="prefs_value_default_api_checkin_protocol">tcp</string>
 	<string name="prefs_value_default_api_checkin_port">1883</string>
-	<string name="prefs_value_default_api_checkin_ssl_passphrase">false</string>
 
 	<string name="prefs_value_default_api_ntp_host">time.apple.com</string>
 	<string name="prefs_value_default_api_sms_address">+14154803657</string>

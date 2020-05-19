@@ -47,7 +47,7 @@ public class MqttUtils implements MqttCallback {
 	private String mqttBrokerProtocol = "tcp";
 	private String mqttBrokerAddress = null;
 	private String mqttBrokerUri = null;
-	private String keystorePassphrase = "tr33PROtect10n"; // TODO make this a preference for added security
+	private String mqttBrokerKeystorePassphrase = null;
 	private MqttClient mqttClient = null;
 	private List<String> mqttTopics_Subscribe = new ArrayList<String>();;
 	private MqttCallback mqttCallback = this;
@@ -72,7 +72,7 @@ public class MqttUtils implements MqttCallback {
 		if (this.mqttBrokerProtocol.equalsIgnoreCase("ssl")) {
 			// Requires res/raw/server.bks (see bin/convert-mqtt-certs.sh)
 			InputStream keystore = context.getResources().openRawResource(R.raw.server);
-			options.setSocketFactory(getSSLSocketFactory(keystore, keystorePassphrase));
+			options.setSocketFactory(getSSLSocketFactory(keystore, mqttBrokerKeystorePassphrase));
 		}
 		
 		return options;
@@ -106,10 +106,11 @@ public class MqttUtils implements MqttCallback {
 		return this.msgSendStart;
 	}
 	
-	public void setOrResetBroker(String protocol, int port, String address) {
+	public void setOrResetBroker(String protocol, int port, String address, String keystorePassphrase) {
 		mqttBrokerProtocol = protocol;
 		mqttBrokerPort = port;
 		mqttBrokerAddress = address;
+		mqttBrokerKeystorePassphrase = keystorePassphrase;
 
 		String newUri = mqttBrokerProtocol + "://" + mqttBrokerAddress + ":" + mqttBrokerPort;
 		if (!newUri.equals(mqttBrokerUri) && (mqttClient != null) && mqttClient.isConnected()) {

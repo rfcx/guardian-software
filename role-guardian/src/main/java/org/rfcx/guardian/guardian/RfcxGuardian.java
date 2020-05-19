@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian;
 import java.io.File;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.checkin.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.api.checkin.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.diagnostic.DiagnosticUtils;
@@ -14,6 +15,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
+import org.rfcx.guardian.utility.install.RegisterUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -142,6 +144,25 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     private boolean isGuardianRegistered() {
         return (this.rfcxGuardianIdentity.getAuthToken() != null);
+    }
+
+    public boolean saveGuardianRegistration(String regJsonStr) {
+        boolean isSaved = false;
+
+        try {
+            JSONObject regJsonObj = RegisterUtils.parseRegisterJson(regJsonStr);
+
+            if (regJsonObj.has("guid") && regJsonObj.has("token")) {
+                this.rfcxGuardianIdentity.setAuthToken(regJsonObj.getString("token"));
+                this.rfcxGuardianIdentity.setKeystorePassPhrase(regJsonObj.getString("keystore_passphrase"));
+            } else {
+                Log.e(logTag, "doesn't have token or guid");
+            }
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
+
+        return isSaved;
     }
 
     public boolean doConditionsPermitRoleServices() {

@@ -107,7 +107,8 @@ public class ApiCheckInUtils implements MqttCallback {
 		this.mqttCheckInClient.setOrResetBroker(
 				this.app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
 				this.app.rfcxPrefs.getPrefAsInt("api_checkin_port"),
-				this.app.rfcxPrefs.getPrefAsString("api_checkin_host"));
+				this.app.rfcxPrefs.getPrefAsString("api_checkin_host"),
+				this.app.rfcxGuardianIdentity.getKeystorePassphrase());
 	}
 
 
