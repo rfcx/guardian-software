@@ -6,19 +6,27 @@ public class I2cTools {
         return i2cOpenAdaptor(number);
     }
 
-    public String i2cGet(int i2cAdapter, int mainAddress, int dataAddress) {
+    public String i2cGet(int i2cAdapter, int mainAddress, int dataAddress, boolean returnDecimal) throws Exception {
         if (i2cSetSlave(i2cAdapter, mainAddress)) {
             int value = i2cReadByte(i2cAdapter, (byte) dataAddress);
             if (value < 0) {
-                return "Read Failed";
+                throw new Exception("Read Failed");
             }
-            return String.format("0x%x", value);
+            return (returnDecimal) ? value+"" : String.format("0x%x", value);
         }
-        return "Set Slave Failed";
+        throw new Exception("Set Slave Failed");
+    }
+
+    public String i2cGet(int i2cAdapter, String mainAddress, String dataAddress, boolean returnDecimal) throws Exception {
+        return i2cGet(i2cAdapter, hexStringToInt(mainAddress), hexStringToInt(dataAddress), returnDecimal);
     }
 
     public void i2cDeInit(int i2cAdapter) {
         i2cClose(i2cAdapter);
+    }
+
+    private int hexStringToInt(String hex) {
+        return Integer.decode(hex);
     }
 
 
