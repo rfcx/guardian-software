@@ -76,8 +76,4 @@ Java_org_rfcx_guardian_i2c_I2cTools_i2cReadWord(JNIEnv *env, jobject this, jint 
 JNIEXPORT void JNICALL
 Java_org_rfcx_guardian_i2c_I2cTools_i2cClose(JNIEnv *env, jobject this, jint i2cAdapter) {
     i2cClose(i2cAdapter);
-
-    __android_log_print(ANDROID_LOG_DEBUG, TAG, "i2cClose(%d) succeeded",
-                        (unsigned int) i2cAdapter);
-
 }
