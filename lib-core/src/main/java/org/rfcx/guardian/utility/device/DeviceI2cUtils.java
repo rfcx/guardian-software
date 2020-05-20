@@ -52,8 +52,7 @@ public class DeviceI2cUtils {
 					throw new Exception("I2c Initialize failed");
 				}
 
-				String[] dataArray = {i2cRow[0], i2cRow[1]};
-				result = i2cTools.i2cSetManyValues(i2cAdapter, i2cMainAddress, dataArray);
+				result = i2cTools.i2cSet(i2cAdapter, i2cMainAddress, i2cRow[1], i2cRow[2], true);
 
 				i2cTools.i2cDeInit(i2cAdapter);
 
@@ -101,7 +100,7 @@ public class DeviceI2cUtils {
 			}
 
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
-				String i2cValue = i2cTools.i2cGet(i2cAdapter, i2cMainAddress, i2cRow[1], false);
+				String i2cValue = i2cTools.i2cGet(i2cAdapter, i2cMainAddress, i2cRow[1], false, true);
 				i2cValues.add(i2cValue);
 			}
 
