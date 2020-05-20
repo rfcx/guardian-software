@@ -52,14 +52,13 @@ int i2cWriteByte(int i2cAdapter, unsigned char address, unsigned char byte)
 	return 0;
 }
 
-int i2cWriteBytes(int i2cAdapter, unsigned char address, int length, uint8_t *bytes)
-{
-	if(i2c_smbus_write_i2c_block_data(i2cAdapter, address, length, bytes) < 0)
-	{
-		return -1;
-	}
+int i2cWriteWord(int i2cAdapter, unsigned char address, unsigned short word) {
 
-	return 0;
+    if(i2c_smbus_write_word_data(i2cAdapter, address, word)){
+        return -1;
+    }
+
+    return 0;
 }
 
 int i2cReadByte(int i2cAdapter, unsigned char address) {
@@ -72,6 +71,16 @@ int i2cReadByte(int i2cAdapter, unsigned char address) {
     }
 
     return byte;
+}
+
+int i2cReadWord(int i2cAdapter, unsigned char address) {
+    int value;
+
+    if ((value = i2c_smbus_read_word_data(i2cAdapter, address)) < 0) {
+        return -1;
+    }
+
+    return value;
 }
 
 void i2cClose(int i2cAdapter) {
