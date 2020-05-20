@@ -1,26 +1,19 @@
 package org.rfcx.guardian.utility.device;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.rfcx.guardian.i2c.I2cTools;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeoutException;
 
 public class DeviceI2cUtils {
 
 	public DeviceI2cUtils(Context context, String i2cMainAddress) {
 		this.i2cMainAddress = i2cMainAddress;
-//		checkSetI2cBinaries(context);
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceI2cUtils");
@@ -28,12 +21,6 @@ public class DeviceI2cUtils {
 	public static final int i2cInterface = 1; // a number, as in /dev/i2c-0 or /dev/i2c-1 or /dev/i2c-2
 
 	private String i2cMainAddress = null;
-
-	private String execI2cGet = null;
-	private String execI2cSet = null;
-
-	private static final long i2cCommandTimeout = 2000;
-
 
 	// i2cSET
 
@@ -52,8 +39,7 @@ public class DeviceI2cUtils {
 					throw new Exception("I2c Initialize failed");
 				}
 
-				String[] dataArray = {i2cRow[0], i2cRow[1]};
-				result = i2cTools.i2cSetManyValues(i2cAdapter, i2cMainAddress, dataArray);
+				result = i2cTools.i2cSet(i2cAdapter, i2cMainAddress, i2cRow[1], i2cRow[2], true);
 
 				i2cTools.i2cDeInit(i2cAdapter);
 
@@ -101,7 +87,7 @@ public class DeviceI2cUtils {
 			}
 
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
-				String i2cValue = i2cTools.i2cGet(i2cAdapter, i2cMainAddress, i2cRow[1], false);
+				String i2cValue = i2cTools.i2cGet(i2cAdapter, i2cMainAddress, i2cRow[1], false, true);
 				i2cValues.add(i2cValue);
 				Log.e(logTag, i2cRow[1]+" = "+i2cValue);
 			}
