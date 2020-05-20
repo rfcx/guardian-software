@@ -1,26 +1,19 @@
 package org.rfcx.guardian.utility.device;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.rfcx.guardian.i2c.I2cTools;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeoutException;
 
 public class DeviceI2cUtils {
 
 	public DeviceI2cUtils(Context context, String i2cMainAddress) {
 		this.i2cMainAddress = i2cMainAddress;
-//		checkSetI2cBinaries(context);
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceI2cUtils");
@@ -28,12 +21,6 @@ public class DeviceI2cUtils {
 	public static final int i2cInterface = 1; // a number, as in /dev/i2c-0 or /dev/i2c-1 or /dev/i2c-2
 
 	private String i2cMainAddress = null;
-
-	private String execI2cGet = null;
-	private String execI2cSet = null;
-
-	private static final long i2cCommandTimeout = 2000;
-
 
 	// i2cSET
 
