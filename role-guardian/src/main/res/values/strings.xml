@@ -49,7 +49,7 @@
 	<string name="prefs_value_default_admin_enable_bluetooth">false</string>
 
 	<string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>
-	<string name="prefs_value_default_admin_enable_sentinel_capture">false</string>
+	<string name="prefs_value_default_admin_enable_sentinel_capture">true</string>
 
     <string-array name="prefs_values_true_or_false">
 		<item>true</item>

@@ -348,8 +348,8 @@ public class RfcxPrefs {
 			put("audio_battery_cutoff", "80");
 			
 			put("audio_encode_codec", "opus");
-			put("audio_encode_bitrate", "16384");
-			put("audio_sample_rate", "12000");
+			put("audio_encode_bitrate", "24576");
+			put("audio_sample_rate", "24000");
 
 			put("checkin_failure_thresholds", "10,20,30,40,50,60,70,80,90");
 			
@@ -368,7 +368,7 @@ public class RfcxPrefs {
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "true");
 
-			put("admin_enable_sentinel_capture", "false");
+			put("admin_enable_sentinel_capture", "true");
 
 			put("admin_system_timezone", "[ Not Set ]");
 			

@@ -21,7 +21,7 @@ if [ "$CNTL" = "help" ]; then
 	echo "";
 	exit
 
-elif [ "$CNTL" = "reboot" || "$CNTL" = "kill" || "$CNTL" = "relaunch" || "$CNTL" = "screenshot" || "$CNTL" = "logcat" || "$CNTL" = "airplanemode_toggle" || "$CNTL" = "airplanemode_enable" || "$CNTL" = "sntp_sync" ]; then
+ elif [ "$CNTL" = "reboot" ]; then # || "$CNTL" = "kill" || "$CNTL" = "relaunch" || "$CNTL" = "screenshot" || "$CNTL" = "logcat" || "$CNTL" = "airplanemode_toggle" || "$CNTL" = "airplanemode_enable" || "$CNTL" = "sntp_sync" ]; then
 	
 	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/$CNTL
 	
