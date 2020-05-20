@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class SentinelUtils {
 
-    public static final long captureLoopIncrementFullDurationInMilliseconds = 3000;
+    public static final long captureLoopIncrementFullDurationInMilliseconds = 12000;
     public static final long captureCycleMinimumAllowedDurationInMilliseconds = 20000;
     public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 

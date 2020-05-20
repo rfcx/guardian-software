@@ -43,7 +43,7 @@ public class SentinelPowerUtils {
     private List<double[]> powerInputValues = new ArrayList<>();
     private List<double[]> powerSystemValues = new ArrayList<>();
 
-    private boolean verboseLogging = false;
+    private boolean verboseLogging = true;
 
     public boolean isCaptureAllowed() {
 
@@ -76,9 +76,9 @@ public class SentinelPowerUtils {
 
         if (isCaptureAllowed()) {
 
-            List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
-            i2cLabelsAddressesValues.add(new String[]{"force_meas_sys_on", "0x14", "0xffff"});
-            this.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues);
+//            List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
+//            i2cLabelsAddressesValues.add(new String[]{"force_meas_sys_on", "0x14", "0xffff"});
+//            this.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues);
 
         } else {
             Log.e(logTag, "Skipping setOrResetSentinelPowerChip() because Sentinel capture is not allowed or not possible.");

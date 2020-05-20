@@ -103,20 +103,22 @@ public class DeviceI2cUtils {
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
 				String i2cValue = i2cTools.i2cGet(i2cAdapter, i2cMainAddress, i2cRow[1], false);
 				i2cValues.add(i2cValue);
+				Log.e(logTag, i2cRow[1]+" = "+i2cValue);
 			}
+			i2cTools.i2cDeInit(i2cAdapter);
 
 			int lineIndex = 0;
 			for (String value: i2cValues) {
 				String thisLineValueAsString = value;
 				if (parseAsHex && value.substring(0,2).equalsIgnoreCase("0x")) {
-					thisLineValueAsString = twosComp(value.substring(1+value.indexOf("x")))+""; //Long.parseLong(thisLine.substring(1+thisLine.indexOf("x")), 16)+"";
+					thisLineValueAsString = hexToDec(value.substring(1+value.indexOf("x")))+"";/*twosComp(value.substring(1+value.indexOf("x")))+"";*/ //Long.parseLong(value.substring(1+value.indexOf("x")), 16)+"";
+					Log.e(logTag, value+" = "+thisLineValueAsString);
 				} else if (parseAsHex) {
 					thisLineValueAsString = null;
 				}
 				i2cLabelsAndOutputValues.add(new String[] { i2cLabelsAndSubAddresses.get(lineIndex)[0], thisLineValueAsString } );
 				lineIndex++;
 			}
-			i2cTools.i2cDeInit(i2cAdapter);
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -139,6 +141,7 @@ public class DeviceI2cUtils {
 		if (hex.equals("")) { return Byte.valueOf("0"); }
 
 		// If you want to pad "FFF" to "0FFF" do it here.
+//		hex = hex+"FFF";
 
 		hex = hex.toUpperCase();
 
