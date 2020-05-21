@@ -8,7 +8,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class DeviceI2cUtils {
 
@@ -36,7 +35,7 @@ public class DeviceI2cUtils {
 			try {
 				int i2cAdapter = i2cTools.i2cInit(i2cInterface);
 				if (i2cAdapter < 0) {
-					throw new Exception("I2c Initialize failed");
+					throw new Exception("I2c Initialization Failed");
 				}
 
 				result = i2cTools.i2cSet(i2cAdapter, i2cMainAddress, i2cRow[1], i2cRow[2], true);
@@ -83,26 +82,24 @@ public class DeviceI2cUtils {
 		try {
 			int i2cAdapter = i2cTools.i2cInit(i2cInterface);
 			if (i2cAdapter < 0) {
-				throw new Exception("I2c Initialize failed");
+				throw new Exception("I2c Initialization Failed");
 			}
 
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
 				String i2cValue = i2cTools.i2cGet(i2cAdapter, i2cMainAddress, i2cRow[1], false, true);
 				i2cValues.add(i2cValue);
-				Log.e(logTag, i2cRow[1]+" = "+i2cValue);
 			}
 			i2cTools.i2cDeInit(i2cAdapter);
 
 			int lineIndex = 0;
-			for (String value: i2cValues) {
-				String thisLineValueAsString = value;
-				if (parseAsHex && value.substring(0,2).equalsIgnoreCase("0x")) {
-					thisLineValueAsString = hexToDec(value.substring(1+value.indexOf("x")))+"";/*twosComp(value.substring(1+value.indexOf("x")))+"";*/ //Long.parseLong(value.substring(1+value.indexOf("x")), 16)+"";
-					Log.e(logTag, value+" = "+thisLineValueAsString);
+			for (String i2cValue: i2cValues) {
+				String i2cStrValue = i2cValue;
+				if (parseAsHex && i2cValue.substring(0,2).equalsIgnoreCase("0x")) {
+					i2cStrValue = twosComplementHexToDec(i2cValue.substring(1+i2cValue.indexOf("x")))+"";
 				} else if (parseAsHex) {
-					thisLineValueAsString = null;
+					i2cStrValue = null;
 				}
-				i2cLabelsAndOutputValues.add(new String[] { i2cLabelsAndSubAddresses.get(lineIndex)[0], thisLineValueAsString } );
+				i2cLabelsAndOutputValues.add(new String[] { i2cLabelsAndSubAddresses.get(lineIndex)[0], i2cStrValue } );
 				lineIndex++;
 			}
 
@@ -112,50 +109,42 @@ public class DeviceI2cUtils {
 		return i2cLabelsAndOutputValues;
 	}
 
-	public static Integer twosComp(String str) {
-		Integer num = Integer.valueOf(str.toUpperCase(Locale.US), 16);
-		return (num > 32767) ? num - 65536 : num;
-	}
+	private static Number twosComplementHexToDec(String hexStr)  {
 
-
-	private static Number hexToDec(String hex)  {
-		if (hex == null) {
-			throw new NullPointerException("hexToDec: hex String is null.");
+		if (hexStr == null) {
+			throw new NullPointerException("twosComplementHexToDec: hex String is null.");
 		}
 
-		// You may want to do something different with the empty string.
-		if (hex.equals("")) { return Byte.valueOf("0"); }
+		if (hexStr.equals("")) { return Byte.valueOf("0"); }
 
 		// If you want to pad "FFF" to "0FFF" do it here.
 //		hex = hex+"FFF";
 
-		hex = hex.toUpperCase();
+		hexStr = hexStr.toUpperCase();
 
-		// Check if high bit is set.
-		boolean isNegative =
-				hex.startsWith("8") || hex.startsWith("9") ||
-				hex.startsWith("A") || hex.startsWith("B") ||
-				hex.startsWith("C") || hex.startsWith("D") ||
-				hex.startsWith("E") || hex.startsWith("F");
+		BigInteger numVal;
 
-		BigInteger temp;
-
-		if (isNegative) {
+		//	Check if high bit is set.
+		if (	hexStr.startsWith("8") || hexStr.startsWith("9")
+			||	hexStr.startsWith("A") || hexStr.startsWith("B")
+			||	hexStr.startsWith("C") || hexStr.startsWith("D")
+			||	hexStr.startsWith("E") || hexStr.startsWith("F")
+		) {
 			// Negative number
-			temp = new BigInteger(hex, 16);
-			BigInteger subtrahend = BigInteger.ONE.shiftLeft(hex.length() * 4);
-			temp = temp.subtract(subtrahend);
+			numVal = new BigInteger(hexStr, 16);
+			BigInteger subtrahend = BigInteger.ONE.shiftLeft(hexStr.length() * 4);
+			numVal = numVal.subtract(subtrahend);
 		} else {
 			// Positive number
-			temp = new BigInteger(hex, 16);
+			numVal = new BigInteger(hexStr, 16);
 		}
 
-		// Cut BigInteger down to size.
-		if (hex.length() <= 2) { return (Byte)temp.byteValue(); }
-		if (hex.length() <= 4) { return (Short)temp.shortValue(); }
-		if (hex.length() <= 8) { return (Integer)temp.intValue(); }
-		if (hex.length() <= 16) { return (Long)temp.longValue(); }
-		return temp;
+		// Cut BigInteger down to size and return value
+		if (hexStr.length() <= 2) { return numVal.byteValue(); }
+		if (hexStr.length() <= 4) { return numVal.shortValue(); }
+		if (hexStr.length() <= 8) { return numVal.intValue(); }
+		if (hexStr.length() <= 16) { return numVal.longValue(); }
+		return numVal;
 	}
 
 }

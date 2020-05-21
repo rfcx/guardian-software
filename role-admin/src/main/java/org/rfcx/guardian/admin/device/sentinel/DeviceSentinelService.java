@@ -178,7 +178,7 @@ public class DeviceSentinelService extends Service {
 
 				// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
 				// however, we slow the capture cycle by the multiple indicated in SentinelPowerUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-				int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? audioCycleDuration : (audioCycleDuration * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf);
+				int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? audioCycleDuration : (audioCycleDuration * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf);
 
 				if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 
@@ -192,7 +192,7 @@ public class DeviceSentinelService extends Service {
 					app.sentinelPowerUtils.setOrResetSentinelPowerChip();
 
 					Log.d(logTag, "SentinelStats Capture" + (this.isReducedCaptureModeActive ? "" : " (currently limited)") + ": " +
-							"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
+							"Snapshots (all metrics) taken every " + Math.round(SentinelUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
 				}
 			}
 

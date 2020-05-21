@@ -40,8 +40,8 @@ public class SentinelPowerUtils {
     private Map<String, String[]> i2cAddresses = new HashMap<String, String[]>();
 
     private List<double[]> powerBatteryValues = new ArrayList<>();
-    private List<double[]> powerInputValues = new ArrayList<>();
     private List<double[]> powerSystemValues = new ArrayList<>();
+    private List<double[]> powerInputValues = new ArrayList<>();
 
     private boolean verboseLogging = true;
 
@@ -66,8 +66,8 @@ public class SentinelPowerUtils {
         this.i2cValueIndex = new String[]{"voltage", "current", "temperature", "power"};
         //										        voltage     current     temp
         this.i2cAddresses.put("battery", new String[]{  "0x3a",     "0x3d",     null  });
-        this.i2cAddresses.put("input", new String[]{    "0x3b",     "0x3e",     null  });
         this.i2cAddresses.put("system", new String[]{   "0x3c",     null,       "0x3f"  });
+        this.i2cAddresses.put("input", new String[]{    "0x3b",     "0x3e",     null  });
 
         resetI2cTempValues();
     }
@@ -87,8 +87,8 @@ public class SentinelPowerUtils {
 
     private void resetI2cTempValues() {
         resetI2cTmpValue("battery");
-        resetI2cTmpValue("input");
         resetI2cTmpValue("system");
+        resetI2cTmpValue("input");
     }
 
     private void resetI2cTmpValue(String statAbbr) {
@@ -102,19 +102,19 @@ public class SentinelPowerUtils {
         double[] battVals = this.i2cTmpValues.get("battery");
         if (ArrayUtils.getAverageAsDouble(battVals) != 0) {
             powerBatteryValues.add(new double[] { battVals[0], battVals[1], battVals[2], battVals[3], rightNow });
-            logStr.append(" battery: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(battVals)));
-        }
-        double[] inpVals = this.i2cTmpValues.get("input");
-        if (ArrayUtils.getAverageAsDouble(inpVals) != 0) {
-            powerInputValues.add(new double[] { inpVals[0], inpVals[1], inpVals[2], inpVals[3], rightNow });
-            logStr.append(" input: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(inpVals)));
+            logStr.append("battery: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(battVals)));
         }
         double[] sysVals = this.i2cTmpValues.get("system");
         if (ArrayUtils.getAverageAsDouble(sysVals) != 0) {
             powerSystemValues.add(new double[] { sysVals[0], sysVals[1], sysVals[2], sysVals[3], rightNow });
             logStr.append(" system: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(sysVals)));
         }
-        if (verboseLogging) { Log.d(logTag, logStr.toString()); }
+        double[] inpVals = this.i2cTmpValues.get("input");
+        if (ArrayUtils.getAverageAsDouble(inpVals) != 0) {
+            powerInputValues.add(new double[] { inpVals[0], inpVals[1], inpVals[2], inpVals[3], rightNow });
+            logStr.append(" input: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(inpVals)));
+        }
+     //   if (verboseLogging) { Log.d(logTag, logStr.toString()); }
     }
 
     private List<String[]> buildI2cQueryList() {
@@ -162,8 +162,8 @@ public class SentinelPowerUtils {
 
     private void calculateMissingSystemPowerValues() {
         double[] battVals = this.i2cTmpValues.get("battery");
-        double[] inpVals = this.i2cTmpValues.get("input");
         double[] sysVals = this.i2cTmpValues.get("system");
+        double[] inpVals = this.i2cTmpValues.get("input");
         sysVals[3] = (inpVals[3] - battVals[3]);
         sysVals[1] = (1000 * sysVals[3] / sysVals[0]);
         this.i2cTmpValues.put("system", sysVals);
@@ -173,22 +173,22 @@ public class SentinelPowerUtils {
         double modifiedValue = 0;
 
         // this is a test to see if this is how i2c handles negative values...
-        if (i2cRawValue > 32767) { i2cRawValue = i2cRawValue - 65535; }
+//        if (i2cRawValue > 32767) { i2cRawValue = i2cRawValue - 65535; }
 
         if (i2cLabel.equals("battery-voltage")) {
             modifiedValue = i2cRawValue * 0.192264;
         } else if (i2cLabel.equals("battery-current")) {
             modifiedValue = i2cRawValue * (0.00146487 / 0.003); // hardcoded resistor value R[SNSB] = 0.003 ohms
 
-        } else if (i2cLabel.equals("input-voltage")) {
-            modifiedValue = i2cRawValue * 1.648;
-        } else if (i2cLabel.equals("input-current")) {
-            modifiedValue = i2cRawValue * (0.00146487 / 0.005); // hardcoded resistor value R[SNSI] = 0.005 ohms
-
         } else if (i2cLabel.equals("system-voltage")) {
             modifiedValue = i2cRawValue * 1.648;
         } else if (i2cLabel.equals("system-temperature")) {
             modifiedValue = (i2cRawValue - 12010) / 45.6;
+
+        } else if (i2cLabel.equals("input-voltage")) {
+            modifiedValue = i2cRawValue * 1.648;
+        } else if (i2cLabel.equals("input-current")) {
+            modifiedValue = i2cRawValue * (0.00146487 / 0.005); // hardcoded resistor value R[SNSI] = 0.005 ohms
 
         } else {
             Log.d(logTag, "No known value modifier for i2c label '" + i2cLabel + "'.");
@@ -204,8 +204,8 @@ public class SentinelPowerUtils {
             JSONObject powerJson = new JSONObject();
 
             powerJson.put("battery", app.sentinelPowerDb.dbSentinelPowerBattery.getConcatRowsWithLabelPrepended("battery"));
-            powerJson.put("input", app.sentinelPowerDb.dbSentinelPowerInput.getConcatRowsWithLabelPrepended("input"));
             powerJson.put("system", app.sentinelPowerDb.dbSentinelPowerSystem.getConcatRowsWithLabelPrepended("system"));
+            powerJson.put("input", app.sentinelPowerDb.dbSentinelPowerInput.getConcatRowsWithLabelPrepended("input"));
             powerJsonArray.put(powerJson);
 
         } catch (Exception e) {
@@ -223,25 +223,32 @@ public class SentinelPowerUtils {
         Date clearBefore = new Date(Long.parseLong(timeStamp));
 
         app.sentinelPowerDb.dbSentinelPowerBattery.clearRowsBefore(clearBefore);
-        app.sentinelPowerDb.dbSentinelPowerInput.clearRowsBefore(clearBefore);
         app.sentinelPowerDb.dbSentinelPowerSystem.clearRowsBefore(clearBefore);
+        app.sentinelPowerDb.dbSentinelPowerInput.clearRowsBefore(clearBefore);
 
         return 1;
     }
 
     public void saveSentinelPowerValuesToDatabase() {
 
-        long[] battVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
-        this.powerBatteryValues = new ArrayList<>();
-        app.sentinelPowerDb.dbSentinelPowerBattery.insert(battVals[4], battVals[0], battVals[1], battVals[2], battVals[3]);
+        StringBuilder logStr = new StringBuilder("Snapshot -");
 
-        long[] inpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
-        this.powerInputValues = new ArrayList<>();
-        app.sentinelPowerDb.dbSentinelPowerInput.insert(inpVals[4], inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
+        long[] battVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
+        app.sentinelPowerDb.dbSentinelPowerBattery.insert(battVals[4], battVals[0], battVals[1], battVals[2], battVals[3]);
+        battVals[4] = this.powerBatteryValues.size(); logStr.append(" battery: ").append(Arrays.toString(battVals));
+        this.powerBatteryValues = new ArrayList<>();
 
         long[] sysVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
-        this.powerSystemValues = new ArrayList<>();
         app.sentinelPowerDb.dbSentinelPowerSystem.insert(sysVals[4], sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
+        sysVals[4] = this.powerSystemValues.size(); logStr.append(" system: ").append(Arrays.toString(sysVals));
+        this.powerSystemValues = new ArrayList<>();
+
+        long[] inpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
+        app.sentinelPowerDb.dbSentinelPowerInput.insert(inpVals[4], inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
+        inpVals[4] = this.powerInputValues.size(); logStr.append(" input: ").append(Arrays.toString(inpVals));
+        this.powerInputValues = new ArrayList<>();
+
+        if (verboseLogging) { Log.d(logTag, logStr.toString()); }
     }
 
 
