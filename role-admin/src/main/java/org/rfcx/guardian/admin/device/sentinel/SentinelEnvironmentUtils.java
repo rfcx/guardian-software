@@ -16,7 +16,7 @@ public class SentinelEnvironmentUtils {
 
     public SentinelEnvironmentUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
-        this.deviceI2cUtils = new DeviceI2cUtils(context, sentinelEnvironmentI2cMainAddress);
+        this.deviceI2cUtils = new DeviceI2cUtils(sentinelEnvironmentI2cMainAddress);
         initSentinelEnvironmentI2cOptions();
     }
 

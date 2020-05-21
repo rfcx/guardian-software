@@ -16,7 +16,7 @@ public class SentinelPositionUtils {
 
     public SentinelPositionUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
-        this.deviceI2cUtils = new DeviceI2cUtils(context, sentinelPositionI2cMainAddress);
+        this.deviceI2cUtils = new DeviceI2cUtils(sentinelPositionI2cMainAddress);
         initSentinelPositionI2cOptions();
     }
 

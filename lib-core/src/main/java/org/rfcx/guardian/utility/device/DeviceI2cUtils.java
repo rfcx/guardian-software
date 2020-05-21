@@ -11,7 +11,7 @@ import java.util.List;
 
 public class DeviceI2cUtils {
 
-	public DeviceI2cUtils(Context context, String i2cMainAddress) {
+	public DeviceI2cUtils(String i2cMainAddress) {
 		this.i2cMainAddress = i2cMainAddress;
 	}
 
@@ -145,6 +145,10 @@ public class DeviceI2cUtils {
 		if (hexStr.length() <= 8) { return numVal.intValue(); }
 		if (hexStr.length() <= 16) { return numVal.longValue(); }
 		return numVal;
+	}
+
+	public static long twosComplementHexToDecAsLong(String hexStr)  {
+		return (long) twosComplementHexToDec(hexStr);
 	}
 
 }

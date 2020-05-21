@@ -24,7 +24,7 @@ public class SentinelPowerUtils {
 
     public SentinelPowerUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
-        this.deviceI2cUtils = new DeviceI2cUtils(context, sentinelPowerI2cMainAddress);
+        this.deviceI2cUtils = new DeviceI2cUtils(sentinelPowerI2cMainAddress);
         initSentinelPowerI2cOptions();
         setOrResetSentinelPowerChip();
     }
@@ -55,7 +55,7 @@ public class SentinelPowerUtils {
             isI2cHandlerAccessible = (new File("/dev/i2c-"+DeviceI2cUtils.i2cInterface)).canRead();
             if (isI2cHandlerAccessible) {
                 String i2cConnectAttempt = this.deviceI2cUtils.i2cGetAsString("0x4a", true);
-                isI2cPowerChipConnected = ((i2cConnectAttempt != null) && (DeviceI2cUtils.twosComp(i2cConnectAttempt) > 0));
+                isI2cPowerChipConnected = ((i2cConnectAttempt != null) && (DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt) > 0));
             }
         }
         return isNotExplicitlyDisabled && isI2cHandlerAccessible && isI2cPowerChipConnected;
