@@ -154,9 +154,6 @@ public class DeviceSentinelService extends Service {
 		// run these on specific outer loop iterations
 		if (outerLoopIncrement == 1) {
 
-			if (this.isSentinelCaptureAllowed) {
-				app.sentinelPowerUtils.setOrResetSentinelPowerChip();
-			}
 
 		} else {
 

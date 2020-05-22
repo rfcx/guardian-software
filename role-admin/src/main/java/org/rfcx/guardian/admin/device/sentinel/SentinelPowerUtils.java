@@ -43,7 +43,7 @@ public class SentinelPowerUtils {
     private List<double[]> powerInputValues = new ArrayList<>();
     private List<double[]> powerSystemValues = new ArrayList<>();
 
-    private boolean verboseLogging = true;
+    private boolean verboseLogging = false;
 
     public boolean isCaptureAllowed() {
 
@@ -103,19 +103,29 @@ public class SentinelPowerUtils {
         double[] sysVals = this.i2cTmpValues.get("system");
         if (ArrayUtils.getAverageAsDouble(sysVals) != 0) {
             powerSystemValues.add(new double[] { sysVals[0], sysVals[1], sysVals[2], sysVals[3], rightNow });
-            logStr.append(" system: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(sysVals)));
+            if (verboseLogging) {
+                long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(sysVals);
+                logStr.append("[ temp: ").append(sVals[2]).append(" C").append(" ]");
+                logStr.append(" [ system: ").append(sVals[0]).append(" mV, ").append(sVals[1]).append(" mA, ").append(sVals[3]).append(" mW").append(" ]");
+            }
         }
         double[] battVals = this.i2cTmpValues.get("battery");
         if (ArrayUtils.getAverageAsDouble(battVals) != 0) {
             powerBatteryValues.add(new double[] { battVals[0], battVals[1], battVals[2], battVals[3], rightNow });
-            logStr.append(" battery: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(battVals)));
+            if (verboseLogging) {
+                long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(battVals);
+                logStr.append(" [ battery: ").append(bVals[0]).append(" mV, ").append(bVals[1]).append(" mA, ").append(bVals[3]).append(" mW").append(" ]");
+            }
         }
         double[] inpVals = this.i2cTmpValues.get("input");
         if (ArrayUtils.getAverageAsDouble(inpVals) != 0) {
             powerInputValues.add(new double[] { inpVals[0], inpVals[1], inpVals[2], inpVals[3], rightNow });
-            logStr.append(" input: "+Arrays.toString(ArrayUtils.roundArrayValuesAndCastToLong(inpVals)));
+            if (verboseLogging) {
+                long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(inpVals);
+                logStr.append(" [ input: ").append(iVals[0]).append(" mV, ").append(iVals[1]).append(" mA, ").append(iVals[3]).append(" mW").append(" ]");
+            }
         }
-     //   if (verboseLogging) { Log.d(logTag, logStr.toString()); }
+        if (verboseLogging) { Log.d(logTag, logStr.toString()); }
     }
 
     private List<String[]> buildI2cQueryList() {
@@ -233,24 +243,30 @@ public class SentinelPowerUtils {
 
     public void saveSentinelPowerValuesToDatabase() {
 
-        StringBuilder logStr = new StringBuilder("Snapshot -");
+        int sampleCount = Math.round((this.powerSystemValues.size()+this.powerBatteryValues.size()+this.powerInputValues.size())/3);
 
-        long[] sysVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
-        app.sentinelPowerDb.dbSentinelPowerSystem.insert(sysVals[4], sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
-        sysVals[4] = this.powerSystemValues.size(); logStr.append(" system: ").append(Arrays.toString(sysVals));
-        this.powerSystemValues = new ArrayList<>();
+        if (sampleCount > 0) {
 
-        long[] battVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
-        app.sentinelPowerDb.dbSentinelPowerBattery.insert(battVals[4], battVals[0], battVals[1], battVals[2], battVals[3]);
-        battVals[4] = this.powerBatteryValues.size(); logStr.append(" battery: ").append(Arrays.toString(battVals));
-        this.powerBatteryValues = new ArrayList<>();
+            StringBuilder logStr = (new StringBuilder("Saved Average (of ")).append(sampleCount).append(" samples)");
 
-        long[] inpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
-        app.sentinelPowerDb.dbSentinelPowerInput.insert(inpVals[4], inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
-        inpVals[4] = this.powerInputValues.size(); logStr.append(" input: ").append(Arrays.toString(inpVals));
-        this.powerInputValues = new ArrayList<>();
+            long[] sysVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
+            this.powerSystemValues = new ArrayList<>();
+            app.sentinelPowerDb.dbSentinelPowerSystem.insert(sysVals[4], sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
+            logStr.append(" [ temp: ").append(sysVals[2]).append(" C").append(" ]");
+            logStr.append(" [ system: ").append(sysVals[0]).append(" mV, ").append(sysVals[1]).append(" mA, ").append(sysVals[3]).append(" mW").append(" ]");
 
-        if (verboseLogging) { Log.d(logTag, logStr.toString()); }
+            long[] battVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
+            this.powerBatteryValues = new ArrayList<>();
+            app.sentinelPowerDb.dbSentinelPowerBattery.insert(battVals[4], battVals[0], battVals[1], battVals[2], battVals[3]);
+            logStr.append(" [ battery: ").append(battVals[0]).append(" mV, ").append(battVals[1]).append(" mA, ").append(battVals[3]).append(" mW").append(" ]");
+
+            long[] inpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
+            this.powerInputValues = new ArrayList<>();
+            app.sentinelPowerDb.dbSentinelPowerInput.insert(inpVals[4], inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
+            logStr.append(" [ input: ").append(inpVals[0]).append(" mV, ").append(inpVals[1]).append(" mA, ").append(inpVals[3]).append(" mW").append(" ]");
+
+            Log.d(logTag, logStr.toString());
+        }
     }
 
 
