@@ -125,20 +125,20 @@ public class DeviceI2cUtils {
 		BigInteger numVal;
 
 		//	Check if high bit is set.
-		if (	hexStr.startsWith("8") || hexStr.startsWith("9")
-			||	hexStr.startsWith("A") || hexStr.startsWith("B")
-			||	hexStr.startsWith("C") || hexStr.startsWith("D")
-			||	hexStr.startsWith("E") || hexStr.startsWith("F")
-		) {
-			// Negative number
-			numVal = new BigInteger(hexStr, 16);
-			BigInteger subtrahend = BigInteger.ONE.shiftLeft(hexStr.length() * 4);
-			numVal = numVal.subtract(subtrahend);
-		} else {
+//		if (	hexStr.startsWith("8") || hexStr.startsWith("9")
+//			||	hexStr.startsWith("A") || hexStr.startsWith("B")
+//			||	hexStr.startsWith("C") || hexStr.startsWith("D")
+//			||	hexStr.startsWith("E") || hexStr.startsWith("F")
+//		) {
+//			// Negative number
+//			numVal = new BigInteger(hexStr, 16);
+//			BigInteger subtrahend = BigInteger.ONE.shiftLeft(hexStr.length() * 4);
+//			numVal = numVal.subtract(subtrahend);
+//		} else {
 			// Positive number
 			numVal = new BigInteger(hexStr, 16);
-		}
-
+//		}
+//
 		// Cut BigInteger down to size and return value
 		if (hexStr.length() <= 2) { return numVal.byteValue(); }
 		if (hexStr.length() <= 4) { return numVal.shortValue(); }
@@ -148,7 +148,7 @@ public class DeviceI2cUtils {
 	}
 
 	public static long twosComplementHexToDecAsLong(String hexStr)  {
-		return (long) twosComplementHexToDec(hexStr);
+		return Long.parseLong(twosComplementHexToDec(hexStr)+"");
 	}
 
 }

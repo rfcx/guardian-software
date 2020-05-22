@@ -148,6 +148,7 @@ public class DeviceSentinelService extends Service {
 		// run this on every loop, if allowed
 		if (this.isSentinelCaptureAllowed) {
 			app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase();
+			app.sentinelPowerUtils.setOrResetSentinelPowerChip();
 		}
 
 		// run these on specific outer loop iterations
