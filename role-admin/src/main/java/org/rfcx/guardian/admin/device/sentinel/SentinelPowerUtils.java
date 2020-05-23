@@ -77,7 +77,7 @@ public class SentinelPowerUtils {
         if (isCaptureAllowed()) {
 
             List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
-            i2cLabelsAddressesValues.add(new String[]{"force_meas_sys_on", "0x14", "0x0011"});
+            i2cLabelsAddressesValues.add(new String[]{"force_meas_sys_on", "0x14", "0x0039"});  //000111001
             this.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues);
 
         } else {

@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class SentinelUtils {
 
-    public static final long captureLoopIncrementFullDurationInMilliseconds = 1500;
+    public static final long captureLoopIncrementFullDurationInMilliseconds = 1200;
     public static final long captureCycleMinimumAllowedDurationInMilliseconds = 20000;
     public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 
@@ -40,7 +40,7 @@ public class SentinelUtils {
 
     public static int getOuterLoopCaptureCount(int audioCycleDurationInSeconds) {
 //		return (int) ( Math.round( geoPositionMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
-        return 10;
+        return 2;
     }
 
     public static long getInnerLoopDelayRemainder(int audioCycleDurationInSeconds, double captureCycleDurationPercentageMultiplier, long samplingOperationDuration) {
