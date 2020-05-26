@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin.activity
 
+import android.content.Intent
 import org.rfcx.guardian.admin.R
 
 import org.rfcx.guardian.admin.RfcxGuardian
@@ -9,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_home.*
+import org.rfcx.guardian.admin.sms.ComposeSmsActivity
 import org.rfcx.guardian.admin.sms.SmsUtils
 import java.util.*
 
@@ -35,6 +37,8 @@ class MainActivity : AppCompatActivity() {
             R.id.menu_logcat -> app.rfcxServiceHandler.triggerService("LogCatCapture", true)
 
             R.id.menu_reboot -> app.rfcxServiceHandler.triggerService("RebootTrigger", true)
+
+            R.id.menu_sms_activity -> startActivity(Intent(this, ComposeSmsActivity::class.java))
 
         }
         return true
