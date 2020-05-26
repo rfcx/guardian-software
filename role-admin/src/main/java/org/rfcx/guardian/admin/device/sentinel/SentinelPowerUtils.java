@@ -2,7 +2,6 @@ package org.rfcx.guardian.admin.device.sentinel;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +68,7 @@ public class SentinelPowerUtils {
         this.i2cAddresses.put("battery", new String[]{  "0x3a",     "0x3d",     null  });
         this.i2cAddresses.put("input", new String[]{    "0x3b",     "0x3e",     null  });
 
-        resetI2cTempValues();
+        resetI2cTmpValues();
     }
 
     public void setOrResetSentinelPowerChip() {
@@ -85,7 +84,7 @@ public class SentinelPowerUtils {
         }
     }
 
-    private void resetI2cTempValues() {
+    private void resetI2cTmpValues() {
         resetI2cTmpValue("system");
         resetI2cTmpValue("battery");
         resetI2cTmpValue("input");
@@ -96,7 +95,7 @@ public class SentinelPowerUtils {
         this.i2cTmpValues.put(statAbbr, new double[]{     0,          0,          0,          0,           0           });
     }
 
-    private void cacheI2cTempValues() {
+    private void cacheI2cTmpValues() {
         StringBuilder logStr = new StringBuilder();
         long rightNow = System.currentTimeMillis();
 
@@ -146,7 +145,7 @@ public class SentinelPowerUtils {
     public void updateSentinelPowerValues() {
         try {
 
-            resetI2cTempValues();
+            resetI2cTmpValues();
 
             for (String[] i2cLabeledOutput : this.deviceI2cUtils.i2cGet(buildI2cQueryList(), true)) {
                 String groupName = i2cLabeledOutput[0].substring(0, i2cLabeledOutput[0].indexOf("-"));
@@ -164,7 +163,7 @@ public class SentinelPowerUtils {
                 this.i2cTmpValues.put(groupName, valueSet);
             }
             calculateMissingSystemPowerValues();
-            cacheI2cTempValues();
+            cacheI2cTmpValues();
 
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
@@ -208,6 +207,34 @@ public class SentinelPowerUtils {
         return modifiedValue;
     }
 
+    public void saveSentinelPowerValuesToDatabase() {
+
+        int sampleCount = Math.round((this.powerSystemValues.size()+this.powerBatteryValues.size()+this.powerInputValues.size())/3);
+
+        if (sampleCount > 0) {
+
+            StringBuilder logStr = (new StringBuilder("Saved Average (of ")).append(sampleCount).append(" samples)");
+
+            long[] sysVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
+            this.powerSystemValues = new ArrayList<>();
+            app.sentinelPowerDb.dbSentinelPowerSystem.insert(sysVals[4], sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
+            logStr.append(" [ temp: ").append(sysVals[2]).append(" C").append(" ]");
+            logStr.append(" [ system: ").append(sysVals[0]).append(" mV, ").append(sysVals[1]).append(" mA, ").append(sysVals[3]).append(" mW").append(" ]");
+
+            long[] battVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
+            this.powerBatteryValues = new ArrayList<>();
+            app.sentinelPowerDb.dbSentinelPowerBattery.insert(battVals[4], battVals[0], battVals[1], battVals[2], battVals[3]);
+            logStr.append(" [ battery: ").append(battVals[0]).append(" mV, ").append(battVals[1]).append(" mA, ").append(battVals[3]).append(" mW").append(" ]");
+
+            long[] inpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
+            this.powerInputValues = new ArrayList<>();
+            app.sentinelPowerDb.dbSentinelPowerInput.insert(inpVals[4], inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
+            logStr.append(" [ input: ").append(inpVals[0]).append(" mV, ").append(inpVals[1]).append(" mA, ").append(inpVals[3]).append(" mW").append(" ]");
+
+            Log.d(logTag, logStr.toString());
+        }
+    }
+
     public static JSONArray getSentinelPowerValuesAsJsonArray(Context context) {
 
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
@@ -239,34 +266,6 @@ public class SentinelPowerUtils {
         app.sentinelPowerDb.dbSentinelPowerInput.clearRowsBefore(clearBefore);
 
         return 1;
-    }
-
-    public void saveSentinelPowerValuesToDatabase() {
-
-        int sampleCount = Math.round((this.powerSystemValues.size()+this.powerBatteryValues.size()+this.powerInputValues.size())/3);
-
-        if (sampleCount > 0) {
-
-            StringBuilder logStr = (new StringBuilder("Saved Average (of ")).append(sampleCount).append(" samples)");
-
-            long[] sysVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
-            this.powerSystemValues = new ArrayList<>();
-            app.sentinelPowerDb.dbSentinelPowerSystem.insert(sysVals[4], sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
-            logStr.append(" [ temp: ").append(sysVals[2]).append(" C").append(" ]");
-            logStr.append(" [ system: ").append(sysVals[0]).append(" mV, ").append(sysVals[1]).append(" mA, ").append(sysVals[3]).append(" mW").append(" ]");
-
-            long[] battVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
-            this.powerBatteryValues = new ArrayList<>();
-            app.sentinelPowerDb.dbSentinelPowerBattery.insert(battVals[4], battVals[0], battVals[1], battVals[2], battVals[3]);
-            logStr.append(" [ battery: ").append(battVals[0]).append(" mV, ").append(battVals[1]).append(" mA, ").append(battVals[3]).append(" mW").append(" ]");
-
-            long[] inpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
-            this.powerInputValues = new ArrayList<>();
-            app.sentinelPowerDb.dbSentinelPowerInput.insert(inpVals[4], inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
-            logStr.append(" [ input: ").append(inpVals[0]).append(" mV, ").append(inpVals[1]).append(" mA, ").append(inpVals[3]).append(" mW").append(" ]");
-
-            Log.d(logTag, logStr.toString());
-        }
     }
 
 

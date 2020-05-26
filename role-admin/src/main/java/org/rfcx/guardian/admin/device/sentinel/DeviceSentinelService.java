@@ -130,6 +130,10 @@ public class DeviceSentinelService extends Service {
 		//	Log.e(logTag, "RUN INNER LOOP BEHAVIOR...");
 		if (this.isSentinelCaptureAllowed) {
 			app.sentinelPowerUtils.updateSentinelPowerValues();
+
+			if (innerLoopIncrement % 2 == 0) {
+				app.sentinelAccelerometerUtils.updateSentinelAccelValues();
+			}
 		}
 
 		return innerLoopIncrement;
@@ -149,6 +153,8 @@ public class DeviceSentinelService extends Service {
 		if (this.isSentinelCaptureAllowed) {
 			app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase();
 			app.sentinelPowerUtils.setOrResetSentinelPowerChip();
+
+			app.sentinelAccelerometerUtils.saveSentinelAccelValuesToDatabase();
 		}
 
 		// run these on specific outer loop iterations

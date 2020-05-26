@@ -334,15 +334,10 @@ public class ApiCheckInUtils implements MqttCallback {
 				"sentinel_power", app.getApplicationContext().getContentResolver());
 		metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPowerJsonArray));
 
-		// Adding sentinel environment data, if they can be retrieved from admin role via content provider
-		JSONArray sentinelEnvironmentJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-				"sentinel_environment", app.getApplicationContext().getContentResolver());
-		metaDataJsonObj.put("sentinel_environment", getConcatSentinelMeta(sentinelEnvironmentJsonArray));
-
-		// Adding sentinel position data, if they can be retrieved from admin role via content provider
-		JSONArray sentinelPositionJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-				"sentinel_position", app.getApplicationContext().getContentResolver());
-		metaDataJsonObj.put("sentinel_position", getConcatSentinelMeta(sentinelPositionJsonArray));
+		// Adding sentinel sensor data, if they can be retrieved from admin role via content provider
+		JSONArray sentinelSensorJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
+				"sentinel_sensor", app.getApplicationContext().getContentResolver());
+		metaDataJsonObj.put("sentinel_sensor", getConcatSentinelMeta(sentinelSensorJsonArray));
 
 		// Saves JSON snapshot blob to database
 		app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
@@ -365,10 +360,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
 
 			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
-					"sentinel_environment|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
-
-			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
-					"sentinel_position|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+					"sentinel_sensor|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

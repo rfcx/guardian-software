@@ -1,24 +1,17 @@
 package org.rfcx.guardian.admin.device.sentinel;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.DeviceI2cUtils;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class SentinelUtils {
+
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelUtils");
 
     public static final long captureLoopIncrementFullDurationInMilliseconds = 1200;
     public static final long captureCycleMinimumAllowedDurationInMilliseconds = 20000;
@@ -47,5 +40,35 @@ public class SentinelUtils {
         return (long) ( Math.round( ( getCaptureCycleDuration(audioCycleDurationInSeconds) / getInnerLoopsPerCaptureCycle(audioCycleDurationInSeconds) ) - samplingOperationDuration ) * captureCycleDurationPercentageMultiplier );
     }
 
+
+    public static JSONArray getSentinelSensorValuesAsJsonArray(Context context) {
+
+        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+        JSONArray accelJsonArray = new JSONArray();
+        try {
+            JSONObject sensorJson = new JSONObject();
+            sensorJson.put("accelerometer", app.sentinelSensorDb.dbAccelerometer.getConcatRowsWithLabelPrepended("accelerometer"));
+            sensorJson.put("compass", app.sentinelSensorDb.dbCompass.getConcatRowsWithLabelPrepended("compass"));
+            accelJsonArray.put(sensorJson);
+
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+
+        } finally {
+            return accelJsonArray;
+        }
+    }
+
+    public static int deleteSentinelSensorValuesBeforeTimestamp(String timeStamp, Context context) {
+
+        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+
+        Date clearBefore = new Date(Long.parseLong(timeStamp));
+
+        app.sentinelSensorDb.dbAccelerometer.clearRowsBefore(clearBefore);
+        app.sentinelSensorDb.dbCompass.clearRowsBefore(clearBefore);
+
+        return 1;
+    }
 
 }
