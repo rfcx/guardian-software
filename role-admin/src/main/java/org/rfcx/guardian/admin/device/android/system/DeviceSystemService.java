@@ -22,6 +22,7 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
+import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -184,9 +185,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
 
 					if (innerLoopIncrement < innerLoopsPerCaptureCycle) {
-
-						Thread.sleep(innerLoopDelayRemainderInMilliseconds);
-
+						if (innerLoopDelayRemainderInMilliseconds > 0) {
+							Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+						}
 					} else {
 
 //						Log.e(logTag, SERVICE_NAME+" - "+ DateTimeUtils.getDateTime());

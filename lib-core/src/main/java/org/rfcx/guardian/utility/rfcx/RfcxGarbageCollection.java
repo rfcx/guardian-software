@@ -2,7 +2,9 @@ package org.rfcx.guardian.utility.rfcx;
 
 import android.content.Context;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
+import org.rfcx.guardian.utility.camera.RfcxCameraUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
+import org.rfcx.guardian.utility.device.capture.DeviceScreenShot;
 import org.rfcx.guardian.utility.misc.FileUtils;
 
 public class RfcxGarbageCollection {
@@ -32,6 +34,9 @@ public class RfcxGarbageCollection {
 		String[] captureDirectories = new String[] {
 				DeviceLogCat.captureDir(context),
 				DeviceLogCat.postCaptureDir(context),
+				DeviceScreenShot.captureDir(context),
+				RfcxCameraUtils.photoCaptureDir(context),
+				RfcxCameraUtils.videoCaptureDir(context),
 				RfcxAudioUtils.captureDir(context),
 				RfcxAudioUtils.encodeDir(context)
 		};

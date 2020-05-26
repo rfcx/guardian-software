@@ -17,7 +17,7 @@ object GuardianCheckApi {
         httpGet.customHttpHeaders = listOf(arrayOf("Authorization", "Bearer ${token!!}"))
 
         val url = ApiRest.baseUrl(context)
-        val postUrl = "${url}v2/guardians/${guid}"
+        val getUrl = "${url}v2/guardians/${guid}"
 
         val handler = Handler()
         val runnable = Runnable {
@@ -25,10 +25,10 @@ object GuardianCheckApi {
                 .permitAll().build()
             StrictMode.setThreadPolicy(policy)
 
-            val response = httpGet.getAsJson(postUrl, null)
+            val response = httpGet.getAsJson(getUrl, null).toString()
 
-            if (response.length() > 0) {
-                callback.onGuardianCheckSuccess()
+            if (response.isNotEmpty()) {
+                callback.onGuardianCheckSuccess(null, response)
             } else {
                 callback.onGuardianCheckFailed(null, "Unsuccessful")
             }
@@ -38,6 +38,6 @@ object GuardianCheckApi {
 }
 
 interface GuardianCheckCallback {
-    fun onGuardianCheckSuccess()
+    fun onGuardianCheckSuccess(t: Throwable?, response: String?)
     fun onGuardianCheckFailed(t: Throwable?, message: String?)
 }

@@ -5,8 +5,9 @@ import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
+import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
-import org.rfcx.guardian.admin.device.sentinel.SentinelSensorUtils;
+import org.rfcx.guardian.admin.device.sentinel.SentinelAccelerometerUtils;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
@@ -58,6 +59,7 @@ import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 public class RfcxGuardian extends Application {
 	
@@ -82,9 +84,6 @@ public class RfcxGuardian extends Application {
     public DeviceDataTransferDb deviceDataTransferDb = null;
     public DeviceDiskDb deviceDiskDb = null;
     public SmsMessageDb smsMessageDb = null;
-
-	public SentinelPowerUtils sentinelPowerUtils = null;
-	public SentinelSensorUtils sentinelSensorUtils = null;
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -95,6 +94,10 @@ public class RfcxGuardian extends Application {
     public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
     public DeviceUtils deviceUtils = null;
     public DeviceBluetooth deviceBluetooth = null;
+
+	public SentinelPowerUtils sentinelPowerUtils = null;
+	public SentinelCompassUtils sentinelCompassUtils = null;
+	public SentinelAccelerometerUtils sentinelAccelerometerUtils = null;
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -117,7 +120,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 
 		this.version = RfcxRole.getRoleVersion(this, logTag);
-		this.rfcxPrefs.writeVersionToFile(this.version);
+		RfcxRole.writeVersionToFile(this, logTag, this.version);
 
 		this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 		this.registerReceiver(airplaneModeReceiver, new IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED));
@@ -128,7 +131,8 @@ public class RfcxGuardian extends Application {
 		DeviceNetworkName.setName("rfcx-"+this.rfcxGuardianIdentity.getGuid(), this);
 		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
-		this.sentinelSensorUtils = new SentinelSensorUtils(this);
+		this.sentinelCompassUtils = new SentinelCompassUtils(this);
+		this.sentinelAccelerometerUtils = new SentinelAccelerometerUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();
@@ -181,7 +185,7 @@ public class RfcxGuardian extends Application {
 							+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
 							,
 					"ScheduledReboot"
-							+"|"+DateTimeUtils.nextOccurenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
+							+"|"+DateTimeUtils.nextOccurrenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
 							+"|"+( 24 * 60 * 60 * 1000 ) // repeats daily
 							,
 					"ScheduledScreenShotCapture"
@@ -260,7 +264,7 @@ public class RfcxGuardian extends Application {
 
 	}
 
-	public String onPrefReSync(String prefKey) {
+	public void onPrefReSync(String prefKey) {
 
 		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth")) {
 			rfcxServiceHandler.triggerService("BluetoothStateSet", false);
@@ -276,8 +280,10 @@ public class RfcxGuardian extends Application {
 		} else if (prefKey.equalsIgnoreCase("admin_system_timezone")) {
 			DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString("admin_system_timezone"), this);
 
+		} else if (prefKey.equalsIgnoreCase("reboot_forced_daily_at")) {
+			Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
+
 		}
-		return this.rfcxPrefs.getPrefAsString(prefKey);
 	}
 
 	private void runHardwareSpecificModifications() {

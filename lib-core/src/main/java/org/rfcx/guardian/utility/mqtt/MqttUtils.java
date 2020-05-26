@@ -35,19 +35,19 @@ public class MqttUtils implements MqttCallback {
 	public MqttUtils(Context context, String appRole, String guardianGuid) {
 		this.context = context;
 		this.logTag = RfcxLog.generateLogTag(appRole, "MqttUtils");
-		this.mqttClientId = (new StringBuilder()).append("rfcx-guardian-").append(guardianGuid.toLowerCase(Locale.US)).append("-").append(appRole.toLowerCase(Locale.US)).toString();
+		this.mqttClientId = "rfcx-guardian-" + guardianGuid.toLowerCase(Locale.US) + "-" + appRole.toLowerCase(Locale.US);
 	}
 
 	private Context context;
 	private String logTag;
 	
-	private int mqttQos = 2; // QoS - Send message exactly once
+	private int mqttQos = 1; // QoS - 1 - Send message at least once
 	private String mqttClientId = null;
 	private int mqttBrokerPort = 1883;
 	private String mqttBrokerProtocol = "tcp";
 	private String mqttBrokerAddress = null;
 	private String mqttBrokerUri = null;
-	private String keystorePassphrase = "tr33PROtect10n"; // TODO make this a preference for added security
+	private String mqttBrokerKeystorePassphrase = null;
 	private MqttClient mqttClient = null;
 	private List<String> mqttTopics_Subscribe = new ArrayList<String>();;
 	private MqttCallback mqttCallback = this;
@@ -72,7 +72,7 @@ public class MqttUtils implements MqttCallback {
 		if (this.mqttBrokerProtocol.equalsIgnoreCase("ssl")) {
 			// Requires res/raw/server.bks (see bin/convert-mqtt-certs.sh)
 			InputStream keystore = context.getResources().openRawResource(R.raw.server);
-			options.setSocketFactory(getSSLSocketFactory(keystore, keystorePassphrase));
+			options.setSocketFactory(getSSLSocketFactory(keystore, mqttBrokerKeystorePassphrase));
 		}
 		
 		return options;
@@ -84,7 +84,7 @@ public class MqttUtils implements MqttCallback {
 		// The timeout is used on methods that block while the action is in progress.
 		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttClient.html#setTimeToWait-long-
 		this.mqttActionTimeout = timeToWaitInMillis;
-		Log.v(logTag, "MQTT client action timeout set to: "+Math.round(this.mqttActionTimeout/1000)+" seconds");
+		Log.v(logTag, "MQTT client action timeout set to: "+DateTimeUtils.milliSecondDurationAsReadableString(this.mqttActionTimeout, true));
 	}
 	
 	public void addSubscribeTopic(String subscribeTopic) {
@@ -93,24 +93,24 @@ public class MqttUtils implements MqttCallback {
 	
 	public long mqttBrokerConnectionLastAttemptedAt = System.currentTimeMillis();
 	public long mqttBrokerConnectionLatency = 0;
-	private long mqttBrokerSubscriptionLatency = 0;
+	public long mqttBrokerSubscriptionLatency = 0;
 	
 	public long publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
 		if (confirmOrCreateConnectionToBroker(true)) {
-			Log.i(logTag, "Publishing " + messageByteArray.length + " bytes to '" + publishTopic + "' at " + DateTimeUtils.getDateTime(new Date()));
+			Log.i(logTag, "Publishing " + messageByteArray.length + " bytes to '" + publishTopic + "' at " + DateTimeUtils.getDateTime());
 			this.msgSendStart = System.currentTimeMillis();
 			this.mqttClient.publish(publishTopic, buildMessage(messageByteArray));
-
 		} else {
 			Log.e(logTag, "Message could not be sent because connection could not be created...");
 		}
 		return this.msgSendStart;
 	}
 	
-	public void setOrResetBroker(String protocol, int port, String address) {
+	public void setOrResetBroker(String protocol, int port, String address, String keystorePassphrase) {
 		mqttBrokerProtocol = protocol;
 		mqttBrokerPort = port;
 		mqttBrokerAddress = address;
+		mqttBrokerKeystorePassphrase = keystorePassphrase;
 
 		String newUri = mqttBrokerProtocol + "://" + mqttBrokerAddress + ":" + mqttBrokerPort;
 		if (!newUri.equals(mqttBrokerUri) && (mqttClient != null) && mqttClient.isConnected()) {
@@ -126,7 +126,7 @@ public class MqttUtils implements MqttCallback {
 		mqttBrokerSubscriptionLatency = 0;
 
 		if (allowBasedOnDeviceConnectivity && ((this.mqttClient == null) || !this.mqttClient.isConnected())) {
-				
+
 			this.mqttClient = new MqttClient(this.mqttBrokerUri, this.mqttClientId, new MemoryPersistence());
 			
 			this.mqttClient.setTimeToWait(this.mqttActionTimeout);	
@@ -136,7 +136,7 @@ public class MqttUtils implements MqttCallback {
 			try {
 				options = getConnectOptions();
 			} catch (Exception e) {
-				e.printStackTrace();
+				RfcxLog.logExc(logTag, e, "confirmOrCreateConnectionToBroker");
 				throw new MqttException(MqttException.REASON_CODE_UNEXPECTED_ERROR);
 			}
 
@@ -144,7 +144,7 @@ public class MqttUtils implements MqttCallback {
 			this.mqttClient.connect(options);
 
 			mqttBrokerConnectionLatency = System.currentTimeMillis() - mqttBrokerConnectionLastAttemptedAt;
-			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri);
+			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri+" (QoS: "+this.mqttQos+")");
 
 			mqttBrokerSubscriptionLatency = 0;
 			for (String subscribeTopic : this.mqttTopics_Subscribe) {
@@ -156,6 +156,10 @@ public class MqttUtils implements MqttCallback {
 		}
 				
 		return allowBasedOnDeviceConnectivity && this.mqttClient.isConnected();
+	}
+
+	public boolean isConnected() {
+		return ((this.mqttClient != null) && this.mqttClient.isConnected());
 	}
 	
 	public void setCallback(MqttCallback mqttCallback) {
@@ -186,7 +190,7 @@ public class MqttUtils implements MqttCallback {
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken deliveryToken) {
 		long checkInDuration = System.currentTimeMillis() - this.msgSendStart;
-		Log.i(this.logTag, "Delivery Complete: "+(checkInDuration/1000)+"s");
+		Log.i(this.logTag, "Delivery Complete: "+DateTimeUtils.milliSecondDurationAsReadableString(checkInDuration, true));
 	}
 	
 	@Override

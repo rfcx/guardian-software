@@ -217,7 +217,10 @@ public class FileUtils {
 			delete(filePath);
 		}
 	}
-	
+
+	public static boolean exists(String filePath) {
+		return (filePath != null) && (new File(filePath)).exists();
+	}
 
 	public static void deleteDirectoryContents(String directoryFilePath) {
 		File directory = new File(directoryFilePath);

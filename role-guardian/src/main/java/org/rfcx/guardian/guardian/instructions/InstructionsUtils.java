@@ -39,7 +39,7 @@ public class InstructionsUtils {
 						String instrType = instrObj.getString("type");
 						String instrCommand = instrObj.getString("command");
 						JSONObject instrMetaObj = instrObj.getJSONObject("meta");
-						long instrExecuteAt = (long) Long.parseLong(instrObj.getString("execute_at"));
+						long instrExecuteAt = Long.parseLong(instrObj.getString("execute_at"));
 
 						this.app.instructionsDb.dbQueuedInstructions.findByGuidOrCreate(instrGuid, instrType, instrCommand, ((instrExecuteAt == 0) ? System.currentTimeMillis() : instrExecuteAt ), instrMetaObj.toString());
 

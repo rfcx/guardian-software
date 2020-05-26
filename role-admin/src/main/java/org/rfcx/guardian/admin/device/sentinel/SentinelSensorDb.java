@@ -14,7 +14,8 @@ public class SentinelSensorDb {
 
 	public SentinelSensorDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.dbSentinelSensorEnclosure = new DbSentinelSensorEnclosure(context);
+		this.dbAccelerometer = new DbAccelerometer(context);
+		this.dbCompass = new DbCompass(context);
 	}
 
 	private int VERSION = 1;
@@ -38,20 +39,20 @@ public class SentinelSensorDb {
 		return sbOut.toString();
 	}
 	
-	public class DbSentinelSensorEnclosure {
+	public class DbAccelerometer {
 
 		final DbUtils dbUtils;
 
-		private String TABLE = "enclosure";
+		private String TABLE = "accelerometer";
 		
-		public DbSentinelSensorEnclosure(Context context) {
+		public DbAccelerometer(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public int insert(Date measured_at, String value_1, String value_2, String value_3, String value_4) {
+		public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {
 			
 			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, measured_at.getTime());
+			values.put(C_MEASURED_AT, measured_at);
 			values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
 			values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
@@ -81,7 +82,56 @@ public class SentinelSensorDb {
 		}
 
 	}
-	public final DbSentinelSensorEnclosure dbSentinelSensorEnclosure;
+	public final DbAccelerometer dbAccelerometer;
+
+
+
+
+
+	public class DbCompass {
+
+		final DbUtils dbUtils;
+
+		private String TABLE = "compass";
+
+		public DbCompass(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+		}
+
+		public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {
+
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, measured_at);
+			values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
+
+			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public JSONArray getLatestRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
+		}
+
+		private List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
+
+		public void clearRowsBefore(Date date) {
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
+		}
+
+		public String getConcatRows() {
+			return DbUtils.getConcatRows(getAllRows());
+		}
+
+		public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
+			return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
+		}
+
+	}
+	public final DbCompass dbCompass;
 	
 	
 

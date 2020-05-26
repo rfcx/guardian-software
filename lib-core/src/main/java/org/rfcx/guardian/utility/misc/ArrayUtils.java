@@ -12,14 +12,23 @@ public class ArrayUtils {
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "ArrayUtils");
 	
 	public static double[] castFloatArrayToDoubleArray(float[] arr) {
+		if (arr == null) { arr = new float[]{}; }
 		double[] _arr = new double[arr.length];
 		for (int i = 0; i < arr.length; i++) { _arr[i] = (double) arr[i]; }
 		return _arr;
 	}
 	
 	public static float[] castDoubleArrayToFloatArray(double[] arr) {
+		if (arr == null) { arr = new double[]{}; }
 		float[] _arr = new float[arr.length];
 		for (int i = 0; i < arr.length; i++) { _arr[i] = (float) arr[i]; }
+		return _arr;
+	}
+
+	public static String[] castLongArrayToStringArray(long[] arr) {
+		if (arr == null) { arr = new long[]{}; }
+		String[] _arr = new String[arr.length];
+		for (int i = 0; i < arr.length; i++) { _arr[i] =  ""+arr[i]; }
 		return _arr;
 	}
 	
@@ -45,6 +54,7 @@ public class ArrayUtils {
 	}
 	
 	public static long[] roundArrayValuesAndCastToLong(double[] arr) {
+		if (arr == null) { arr = new double[]{}; }
 		long[] newArr = new long[arr.length];
 		for (int i = 0; i < arr.length; i++) { newArr[i] = (long) Math.round(arr[i]); }
 		return newArr;

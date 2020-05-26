@@ -127,7 +127,7 @@ public class DeviceUtils {
 	}
 
 	public static long getCaptureCycleDuration(int audioCycleDurationInSeconds) {
-		long captureCycleDuration = (long) Math.round( audioCycleDurationInSeconds * 1000 * captureCycleDurationRatioComparedToAudioCycleDuration );
+		long captureCycleDuration = Math.round( audioCycleDurationInSeconds * 1000 * captureCycleDurationRatioComparedToAudioCycleDuration );
 		if (captureCycleDuration < captureCycleMinimumAllowedDurationInMilliseconds) { 
 			captureCycleDuration = captureCycleMinimumAllowedDurationInMilliseconds;
 		}
