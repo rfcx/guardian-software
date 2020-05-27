@@ -8,6 +8,7 @@ import org.rfcx.guardian.utility.device.DeviceI2cUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +45,22 @@ public class SentinelAccelerometerUtils {
 
         resetI2cTmpValues();
 
+    }
+
+    public boolean isCaptureAllowed() {
+
+        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_capture");
+        boolean isI2cHandlerAccessible = false;
+        boolean isI2cAccelChipConnected = false;
+
+        if (isNotExplicitlyDisabled) {
+            isI2cHandlerAccessible = (new File("/dev/i2c-"+DeviceI2cUtils.i2cInterface)).canRead();
+            if (isI2cHandlerAccessible) {
+                String i2cConnectAttempt = this.deviceI2cUtils.i2cGetAsString("0x00", true);
+                isI2cAccelChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
+            }
+        }
+        return isNotExplicitlyDisabled && isI2cHandlerAccessible && isI2cAccelChipConnected;
     }
 
     private void resetI2cTmpValues() {

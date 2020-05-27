@@ -59,7 +59,7 @@ public class SentinelCompassUtils {
             isI2cHandlerAccessible = (new File("/dev/i2c-"+DeviceI2cUtils.i2cInterface)).canRead();
             if (isI2cHandlerAccessible) {
                 String i2cConnectAttempt = this.deviceI2cUtils.i2cGetAsString("0x4f", true);
-                isI2cCompassChipConnected = ((i2cConnectAttempt != null) && (DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt) > 0));
+                isI2cCompassChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
             }
         }
         return isNotExplicitlyDisabled && isI2cHandlerAccessible && isI2cCompassChipConnected;
