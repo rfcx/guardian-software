@@ -205,13 +205,13 @@ public class SentinelPowerUtils {
         return modifiedValue;
     }
 
-    public void saveSentinelPowerValuesToDatabase() {
+    public void saveSentinelPowerValuesToDatabase(boolean printValuesToLog) {
 
         int sampleCount = Math.round((this.powerSystemValues.size()+this.powerBatteryValues.size()+this.powerInputValues.size())/3);
 
         if (sampleCount > 0) {
 
-            StringBuilder logStr = (new StringBuilder("Saved Average (of ")).append(sampleCount).append(" samples)");
+            StringBuilder logStr = (new StringBuilder("Average of ")).append(sampleCount).append(" samples");
 
             long[] sysVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
             this.powerSystemValues = new ArrayList<>();
@@ -229,7 +229,9 @@ public class SentinelPowerUtils {
             app.sentinelPowerDb.dbSentinelPowerInput.insert(inpVals[4], inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
             logStr.append(" [ input: ").append(inpVals[0]).append(" mV, ").append(inpVals[1]).append(" mA, ").append(inpVals[3]).append(" mW").append(" ]");
 
-            Log.d(logTag, logStr.toString());
+            if (printValuesToLog) {
+                Log.d(logTag, logStr.toString());
+            }
         }
     }
 

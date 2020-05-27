@@ -144,13 +144,13 @@ public class SentinelAccelerometerUtils {
         return modifiedValue;
     }
 
-    public void saveSentinelAccelValuesToDatabase() {
+    public void saveSentinelAccelValuesToDatabase(boolean printValuesToLog) {
 
         int sampleCount = this.accelValues.size();
 
         if (sampleCount > 0) {
 
-            StringBuilder logStr = (new StringBuilder("Saved Average (of ")).append(sampleCount).append(" samples)");
+            StringBuilder logStr = (new StringBuilder("Average of ")).append(sampleCount).append(" samples");
 
             long[] accVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.accelValues));
             this.accelValues = new ArrayList<>();
@@ -158,7 +158,9 @@ public class SentinelAccelerometerUtils {
 //            logStr.append(" [ temp: ").append(accVals[3]).append(" C").append(" ]");
             logStr.append(" [ accelerometer: x ").append(accVals[0]).append(", y ").append(accVals[1]).append(", z ").append(accVals[2]).append(" ]");
 
-            Log.d(logTag, logStr.toString());
+            if (printValuesToLog) {
+                Log.d(logTag, logStr.toString());
+            }
         }
     }
 

@@ -160,13 +160,13 @@ public class SentinelCompassUtils {
         return modifiedValue;
     }
 
-    public void saveSentinelCompassValuesToDatabase() {
+    public void saveSentinelCompassValuesToDatabase(boolean printValuesToLog) {
 
         int sampleCount = this.compassValues.size();
 
         if (sampleCount > 0) {
 
-            StringBuilder logStr = (new StringBuilder("Saved Average (of ")).append(sampleCount).append(" samples)");
+            StringBuilder logStr = (new StringBuilder("Average of ")).append(sampleCount).append(" samples");
 
             long[] cmpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.compassValues));
             this.compassValues = new ArrayList<>();
@@ -174,7 +174,9 @@ public class SentinelCompassUtils {
     //        logStr.append(" [ temp: ").append(cmpVals[3]).append(" C").append(" ]");
             logStr.append(" [ compass: x ").append(cmpVals[0]).append(", y ").append(cmpVals[1]).append(", z ").append(cmpVals[2]).append(" ]");
 
-            Log.d(logTag, logStr.toString());
+            if (printValuesToLog) {
+                Log.d(logTag, logStr.toString());
+            }
         }
     }
 

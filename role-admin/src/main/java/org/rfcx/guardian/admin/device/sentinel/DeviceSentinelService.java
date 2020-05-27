@@ -163,18 +163,18 @@ public class DeviceSentinelService extends Service {
 
 		// run this on every loop, if allowed
 		if (this.isSentinelPowerCaptureAllowed) {
-			app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase();
+			app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(true);
 			app.sentinelPowerUtils.setOrResetSentinelPowerChip();
 		}
 
 		// run this on every loop, if allowed
 		if (this.isSentinelAccelCaptureAllowed) {
-			app.sentinelAccelerometerUtils.saveSentinelAccelValuesToDatabase();
+			app.sentinelAccelerometerUtils.saveSentinelAccelValuesToDatabase(false);
 		}
 
 		// run this on every loop, if allowed
 		if (this.isSentinelCompassCaptureAllowed) {
-			app.sentinelCompassUtils.saveSentinelCompassValuesToDatabase();
+			app.sentinelCompassUtils.saveSentinelCompassValuesToDatabase(false);
 			app.sentinelCompassUtils.setOrResetSentinelCompassChip();
 		}
 
