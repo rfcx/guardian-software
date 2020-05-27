@@ -26,6 +26,9 @@ public class DeviceSentinelService extends Service {
 	private int innerLoopsPerCaptureCycle = 1;
 	private long innerLoopDelayRemainderInMilliseconds = 0;
 
+	private int innerLoopsPerCaptureCycle_Accelerometer = 0;
+	private int innerLoopsPerCaptureCycle_Compass = 0;
+
 	// Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
 	// This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
 	private double captureCycleLastDurationPercentageMultiplier = 0.98;
@@ -129,10 +132,15 @@ public class DeviceSentinelService extends Service {
 
 		//	Log.e(logTag, "RUN INNER LOOP BEHAVIOR...");
 		if (this.isSentinelCaptureAllowed) {
+
 			app.sentinelPowerUtils.updateSentinelPowerValues();
 
-			if (innerLoopIncrement % 2 == 0) {
+			if (innerLoopIncrement % this.innerLoopsPerCaptureCycle_Accelerometer == 0) {
 				app.sentinelAccelerometerUtils.updateSentinelAccelValues();
+			}
+
+			if (innerLoopIncrement % this.innerLoopsPerCaptureCycle_Compass == 0) {
+				app.sentinelCompassUtils.updateSentinelCompassValues();
 			}
 		}
 
@@ -151,8 +159,12 @@ public class DeviceSentinelService extends Service {
 
 		// run this on every loop, if allowed
 		if (this.isSentinelCaptureAllowed) {
+
 			app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase();
 			app.sentinelPowerUtils.setOrResetSentinelPowerChip();
+
+			app.sentinelCompassUtils.saveSentinelCompassValuesToDatabase();
+			app.sentinelCompassUtils.setOrResetSentinelCompassChip();
 
 			app.sentinelAccelerometerUtils.saveSentinelAccelValuesToDatabase();
 		}
@@ -194,6 +206,9 @@ public class DeviceSentinelService extends Service {
 					this.innerLoopDelayRemainderInMilliseconds = SentinelUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
 
 					app.sentinelPowerUtils.setOrResetSentinelPowerChip();
+					app.sentinelCompassUtils.setOrResetSentinelCompassChip();
+					this.innerLoopsPerCaptureCycle_Compass = Math.round(this.innerLoopsPerCaptureCycle / SentinelCompassUtils.samplesTakenPerCaptureCycle);
+					this.innerLoopsPerCaptureCycle_Accelerometer = Math.round(this.innerLoopsPerCaptureCycle / SentinelAccelerometerUtils.samplesTakenPerCaptureCycle);
 
 					Log.d(logTag, "SentinelStats Capture" + (this.isReducedCaptureModeActive ? "" : " (currently limited)") + ": " +
 							"Snapshots (all metrics) taken every " + Math.round(SentinelUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");

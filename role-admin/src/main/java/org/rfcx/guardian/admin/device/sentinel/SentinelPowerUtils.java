@@ -172,10 +172,8 @@ public class SentinelPowerUtils {
 
     private void calculateMissingSystemPowerValues() {
         double[] sysVals = this.i2cTmpValues.get("system");
-        double[] battVals = this.i2cTmpValues.get("battery");
-        double[] inpVals = this.i2cTmpValues.get("input");
-        sysVals[3] = (inpVals[3] - battVals[3]);
-        sysVals[1] = (1000 * sysVals[3] / sysVals[0]);
+        sysVals[3] = this.i2cTmpValues.get("input")[3] - this.i2cTmpValues.get("battery")[3];
+        sysVals[1] = 1000 * sysVals[3] / sysVals[0];
         this.i2cTmpValues.put("system", sysVals);
     }
 

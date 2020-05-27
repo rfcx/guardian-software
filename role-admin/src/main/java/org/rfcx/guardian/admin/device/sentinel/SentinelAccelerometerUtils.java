@@ -23,6 +23,8 @@ public class SentinelAccelerometerUtils {
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelAccelerometerUtils");
 
+    public static final long samplesTakenPerCaptureCycle = 15;
+
     RfcxGuardian app;
     private DeviceI2cUtils deviceI2cUtils = null;
     private static final String sentinelAccelI2cMainAddress = "0x18";
@@ -37,15 +39,14 @@ public class SentinelAccelerometerUtils {
 
     private void initSentinelAccelI2cOptions() {
 
-        this.i2cValueIndex = new String[]{                      "x",        "y",        "z",        "temp"     };
-        //										                x           y           z           temp
-        this.i2cAddresses.put("accel", new String[]{   "0x04",     "0x06",      "0x02",     "0x08"  });
+        this.i2cValueIndex = new String[]{             "x",        "y",        "z",        "temp"     };
+        this.i2cAddresses.put("accel", new String[]{   "0x04",     "0x06",      "0x02",     null  });
 
-        resetI2cTempValues();
+        resetI2cTmpValues();
 
     }
 
-    private void resetI2cTempValues() {
+    private void resetI2cTmpValues() {
         resetI2cTmpValue("accel");
     }
 
@@ -63,8 +64,8 @@ public class SentinelAccelerometerUtils {
             accelValues.add(new double[] { accVals[0], accVals[1], accVals[2], accVals[3], rightNow });
             if (verboseLogging) {
                 long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(accVals);
-                logStr.append("[ temp: ").append(sVals[3]).append(" C").append(" ]");
-                logStr.append(" [ accelerometer: x ").append(sVals[0]).append(", y ").append(sVals[1]).append(", z ").append(sVals[2]).append(" ]");
+        //        logStr.append("[ temp: ").append(sVals[3]).append(" C").append(" ] ");
+                logStr.append("[ accelerometer: x ").append(sVals[0]).append(", y ").append(sVals[1]).append(", z ").append(sVals[2]).append(" ]");
             }
         }
         if (verboseLogging) { Log.d(logTag, logStr.toString()); }
@@ -88,7 +89,7 @@ public class SentinelAccelerometerUtils {
     public void updateSentinelAccelValues() {
         try {
 
-            resetI2cTempValues();
+            resetI2cTmpValues();
 
             for (String[] i2cLabeledOutput : this.deviceI2cUtils.i2cGet(buildI2cQueryList(), true)) {
                 String groupName = i2cLabeledOutput[0].substring(0, i2cLabeledOutput[0].indexOf("-"));
@@ -114,13 +115,7 @@ public class SentinelAccelerometerUtils {
     private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
         double modifiedValue = 0;
 
-        if (i2cLabel.equals("accel-x")) {
-            modifiedValue = 976.5625*i2cRawValue/16384;
-
-        } else if (i2cLabel.equals("accel-y")) {
-            modifiedValue = 976.5625*i2cRawValue/16384;
-
-        } else if (i2cLabel.equals("accel-z")) {
+        if (i2cLabel.equals("accel-x") || i2cLabel.equals("accel-y") || i2cLabel.equals("accel-z")) {
             modifiedValue = 976.5625*i2cRawValue/16384;
 
         } else if (i2cLabel.equals("accel-temp")) {
@@ -143,7 +138,7 @@ public class SentinelAccelerometerUtils {
             long[] accVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.accelValues));
             this.accelValues = new ArrayList<>();
             app.sentinelSensorDb.dbAccelerometer.insert(accVals[4], accVals[0]+"", accVals[1]+"", accVals[2]+"", accVals[3]+"");
-            logStr.append(" [ temp: ").append(accVals[3]).append(" C").append(" ]");
+//            logStr.append(" [ temp: ").append(accVals[3]).append(" C").append(" ]");
             logStr.append(" [ accelerometer: x ").append(accVals[0]).append(", y ").append(accVals[1]).append(", z ").append(accVals[2]).append(" ]");
 
             Log.d(logTag, logStr.toString());
