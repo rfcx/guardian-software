@@ -62,6 +62,7 @@ public class AudioCaptureUtils {
 				if ((defaultSampleRateOptions[i] >= originalSampleRate)
 						&& (AudioRecord.getMinBufferSize(defaultSampleRateOptions[i], AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT) > 0)
 				) {
+
 					verifiedOrUpdatedSampleRate = defaultSampleRateOptions[i];
 					this.isAudioCaptureHardwareSupported = true;
 					break;

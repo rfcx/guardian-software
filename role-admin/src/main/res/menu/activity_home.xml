@@ -15,12 +15,7 @@
         android:orderInCategory="3"
 	    android:title="@string/menu_sntp"
 	    />
-    <item
-	    android:id="@+id/menu_i2c_view"
-        android:orderInCategory="4"
-	    android:title="@string/menu_i2c_view"
-	    />
-    <item
+	<item
 	    android:id="@+id/menu_logcat"
         android:orderInCategory="5"
 	    android:title="@string/menu_logcat"

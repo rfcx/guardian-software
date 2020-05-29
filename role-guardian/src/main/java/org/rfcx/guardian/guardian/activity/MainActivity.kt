@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -11,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_home.*
+import org.json.JSONObject
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.checkin.ApiCheckInUtils
@@ -29,6 +31,7 @@ import org.rfcx.guardian.guardian.utils.AudioSettingUtils
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
 import org.rfcx.guardian.guardian.view.*
+import org.rfcx.guardian.utility.install.RegisterUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 
@@ -93,9 +96,8 @@ class MainActivity : AppCompatActivity(),
 
             setVisibilityBeforeRegister()
             val guid = app.rfcxGuardianIdentity.guid
-            val token = app.rfcxGuardianIdentity.authToken
 
-            RegisterApi.registerGuardian(applicationContext, RegisterRequest(guid, token), this)
+            RegisterApi.registerGuardian(applicationContext, RegisterRequest(guid), this)
         }
 
         loginButton.setOnClickListener {
@@ -186,13 +188,14 @@ class MainActivity : AppCompatActivity(),
 
     private fun setUIByRecordingState() {
         if (GuardianUtils.isGuardianRegistered(this)) {
-            deviceIdText.text = GuardianUtils.readGuardianGuid(this)
+            var deviceIdTxt = app.rfcxGuardianIdentity.guid
+            deviceIdText.text = " $deviceIdTxt"
             if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
-                recordStatusText.text = "recording"
+                recordStatusText.text = " recording"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
                 audioCaptureButton.text = "stop"
             } else {
-                recordStatusText.text = "not recording"
+                recordStatusText.text = " stopped"
                 recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
                 audioCaptureButton.text = "record"
             }
@@ -206,7 +209,8 @@ class MainActivity : AppCompatActivity(),
         } else {
             loginInfo.visibility = View.VISIBLE
             loginButton.visibility = View.GONE
-            userName.text = this.getUserNickname()
+            val userNameTxt = this.getUserNickname()
+            userName.text = " $userNameTxt"
         }
     }
 
@@ -218,7 +222,8 @@ class MainActivity : AppCompatActivity(),
             registerInfo.visibility = View.VISIBLE
             loginButton.visibility = View.GONE
             loginInfo.visibility = View.GONE
-            deviceIdText.text = GuardianUtils.readGuardianGuid(this)
+            val deviceIdTxt = app.rfcxGuardianIdentity.guid
+            deviceIdText.text = " $deviceIdTxt"
         } else {
             unregisteredView.visibility = View.VISIBLE
             registeredView.visibility = View.INVISIBLE
@@ -250,14 +255,17 @@ class MainActivity : AppCompatActivity(),
                         runOnUiThread {
                             val latestCheckinTimestamp = ApiCheckInUtils.latestCheckinTimestamp
                             val latestFileSize = ApiCheckInUtils.latestFileSize
-                            checkInText.text = checkInUtils.getCheckinTime(latestCheckinTimestamp)
-                            sizeText.text = checkInUtils.getFileSize(latestFileSize)
+                            val checkInTime = checkInUtils.getCheckinTime(latestCheckinTimestamp)
+                            checkInText.text = " $checkInTime"
+                            val fileSize = checkInUtils.getFileSize(latestFileSize)
+                            sizeText.text = " $fileSize"
 
                             val totalLocalAudio = ApiQueueCheckInService.totalLocalAudio
                             val totalSyncedAudio = ApiCheckInUtils.totalSyncedAudio
                             val totalRecordedTime = ApiQueueCheckInService.totalRecordedTime
-                            recordTimeText.text = DiagnosticUtils.secondToTime(totalRecordedTime)
-                            fileRecordedSyncedText.text = "$totalSyncedAudio / $totalLocalAudio"
+                            val totalRecordedTimeTxt = DiagnosticUtils.secondToTime(totalRecordedTime)
+                            recordTimeText.text = " $totalRecordedTimeTxt"
+                            fileRecordedSyncedText.text = " $totalSyncedAudio / $totalLocalAudio"
 
                         }
                         sleep(5000)
@@ -270,28 +278,36 @@ class MainActivity : AppCompatActivity(),
         getInfoThread?.start()
     }
 
-    override fun onRegisterSuccess() {
+    override fun onRegisterSuccess(t: Throwable?, response: String?) {
+        app.saveGuardianRegistration(response);
+        Log.i(logTag, "onRegisterSuccess: Successfully Registered")
+        showToast("Successfully Registered")
         GuardianCheckApi.exists(applicationContext, app.rfcxGuardianIdentity.guid, this)
     }
 
     override fun onRegisterFailed(t: Throwable?, message: String?) {
         setVisibilityRegisterFail()
-        showToast(message ?: "register failed")
+        Log.e(logTag, "onRegisterFailed: $message")
+        showToast(message ?: "Registration Failed. Please try again or contact us for support.")
     }
 
-    override fun onGuardianCheckSuccess() {
+    override fun onGuardianCheckSuccess(t: Throwable?, response: String?) {
         setVisibilityRegisterSuccess()
-        GuardianUtils.createRegisterFile(baseContext)
         app.initializeRoleServices()
         setUIByRecordingState()
         setUIByGuidState()
         getCheckinInformation()
-        deviceIdText.text = GuardianUtils.readGuardianGuid(baseContext)
+        val deviceIdTxt = app.rfcxGuardianIdentity.guid
+        deviceIdText.text = " $deviceIdTxt"
+        Log.i(logTag, "onGuardianCheckSuccess: Successfully Verified Registration")
+        showToast("Successfully Verified Registration")
+        app.apiCheckInUtils.sendMqttPing()
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {
         setVisibilityRegisterFail()
-        showToast(message ?: "Try again later")
+        Log.e(logTag, "onGuardianCheckFailed: $message")
+        showToast(message ?: "Failed to verify registration. Please try again or contact us for support.")
     }
 
     override fun onPause() {

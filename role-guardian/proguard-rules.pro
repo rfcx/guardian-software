@@ -22,3 +22,7 @@
 
 -keep class io.jsonwebtoken.impl.** { *; }
 -keep interface io.jsonwebtoken.impl.** { *; }
+-keep class org.rfcx.guardian.audio.flac.FLACStreamEncoder { *; }
+-keepclassmembers class org.rfcx.guardian.audio.flac.FLACStreamEncoder {
+    private <fields>;
+}

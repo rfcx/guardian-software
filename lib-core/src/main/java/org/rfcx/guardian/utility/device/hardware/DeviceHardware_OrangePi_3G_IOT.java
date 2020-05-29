@@ -14,8 +14,8 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	public static final String[] DEVICE_MODEL = new String[] { "3G_IOT", "hexing72_cwet_kk" };
 		
 	public static boolean isDevice_OrangePi_3G_IOT() {
-		for (String manufacturer : DEVICE_MANUFACTURER) { if (DeviceHardwareUtils.getDeviceHardwareManufacturer().equalsIgnoreCase(manufacturer)) {
-			for (String model : DEVICE_MODEL) { if (DeviceHardwareUtils.getDeviceHardwareModel().equalsIgnoreCase(model)) {
+		for (String manufacturer : DEVICE_MANUFACTURER) { if (DeviceHardwareUtils.getManufacturer().equalsIgnoreCase(manufacturer)) {
+			for (String model : DEVICE_MODEL) { if (DeviceHardwareUtils.getModel().equalsIgnoreCase(model)) {
 				return true;
 			} }
 		} }
@@ -23,7 +23,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	}
 
 	public static void checkSetDeviceHardwareIdentification(Context context) {
-		if (!DeviceHardwareUtils.getDeviceHardwareManufacturer().equalsIgnoreCase(DEVICE_MANUFACTURER[0])) {
+		if (!DeviceHardwareUtils.getManufacturer().equalsIgnoreCase(DEVICE_MANUFACTURER[0])) {
 			Log.i(logTag, "Device Hardware Identification has not yet been set. Building update script now...");
 			String[] hardwareIdentificationPropertiesAndValues = new String[]{
 					"ro.product.brand=" + DEVICE_MANUFACTURER[0],

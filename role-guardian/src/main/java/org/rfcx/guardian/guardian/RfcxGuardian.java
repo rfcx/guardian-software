@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian;
 import java.io.File;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.checkin.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.api.checkin.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.diagnostic.DiagnosticUtils;
@@ -14,6 +15,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
+import org.rfcx.guardian.utility.install.RegisterUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -102,7 +104,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
-        this.rfcxPrefs.writeVersionToFile(this.version);
+        RfcxRole.writeVersionToFile(this, logTag, this.version);
 
         this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
@@ -111,8 +113,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.sharedPrefs.registerOnSharedPreferenceChangeListener(this);
         this.syncSharedPrefs();
 
-//        setSharedPref("audio_battery_cutoff", "10");
-
         setDbHandlers();
         setServiceHandlers();
 
@@ -120,6 +120,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
+
+    //    reSyncIdentityAcrossRoles();
+        reSyncPrefAcrossRoles("all");
 
         initializeRoleServices();
 
@@ -140,9 +143,26 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 
     private boolean isGuardianRegistered() {
-        String directoryPath = getBaseContext().getFilesDir().toString() + "/txt/";
-        File txtFile = new File(directoryPath + "/registered_at.txt");
-        return txtFile.exists();
+        return (this.rfcxGuardianIdentity.getAuthToken() != null);
+    }
+
+    public boolean saveGuardianRegistration(String regJsonStr) {
+        boolean isSaved = false;
+
+        try {
+            JSONObject regJsonObj = RegisterUtils.parseRegisterJson(regJsonStr);
+
+            if (regJsonObj.has("guid") && regJsonObj.has("token")) {
+                this.rfcxGuardianIdentity.setAuthToken(regJsonObj.getString("token"));
+                this.rfcxGuardianIdentity.setKeystorePassPhrase(regJsonObj.getString("keystore_passphrase"));
+            } else {
+                Log.e(logTag, "doesn't have token or guid");
+            }
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
+
+        return isSaved;
     }
 
     public boolean doConditionsPermitRoleServices() {
@@ -218,7 +238,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
         Log.d(logTag, "Pref changed: " + prefKey + " = " + this.sharedPrefs.getString(prefKey, null));
         syncSharedPrefs();
-        this.rfcxPrefs.reSyncPrefInExternalRoleViaContentProvider("admin", prefKey, this);
+        reSyncPrefAcrossRoles(prefKey);
+        onPrefReSync(prefKey);
     }
 
     private void syncSharedPrefs() {
@@ -227,10 +248,29 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         }
     }
 
+    private void reSyncPrefAcrossRoles(String prefKey) {
+        for (String roleName : RfcxRole.ALL_ROLES) {
+            if (!roleName.equalsIgnoreCase(APP_ROLE)) {
+                this.rfcxPrefs.reSyncPrefInExternalRoleViaContentProvider(roleName.toLowerCase(), prefKey, this);
+            }
+        }
+    }
+
     // setSharedPref is currently the preferred method for updating pref values, universally, across this role (and all roles, by contingency).
     public boolean setSharedPref(String prefKey, String prefValue) {
         return this.sharedPrefs.edit().putString(prefKey, prefValue).commit();
     }
 
+    private void reSyncIdentityAcrossRoles() {
+        for (String roleName : RfcxRole.ALL_ROLES) {
+            if (!roleName.equalsIgnoreCase(APP_ROLE)) {
+                this.rfcxGuardianIdentity.reSyncIdentityInExternalRoleViaContentProvider(roleName.toLowerCase(), this);
+            }
+        }
+    }
+
+    public void onPrefReSync(String prefKey) {
+
+    }
 
 }

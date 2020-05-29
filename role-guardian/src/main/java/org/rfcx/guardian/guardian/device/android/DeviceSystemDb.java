@@ -45,12 +45,12 @@ public class DeviceSystemDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(Date measured_at, long connection_time, String protocol, String host, int port) {
+		public int insert(Date measured_at, long connection_latency, long subscription_latency, String protocol, String host, int port) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
-			values.put(C_VALUE_1, connection_time);
-			values.put(C_VALUE_2, (new StringBuilder()).append(protocol).append("://").append(host).append(":").append(port).toString().replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_1, connection_latency+"*"+subscription_latency);
+			values.put(C_VALUE_2, (protocol + "://" + host + ":" + port).replaceAll("\\*", "-").replaceAll("\\|","-"));
 
 			return this.dbUtils.insertRow(TABLE, values);
 		}

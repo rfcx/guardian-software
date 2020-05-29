@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.http.HttpGet;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -69,7 +70,7 @@ public class ApiCheckVersionService extends Service {
 		public void run() {
 			ApiCheckVersionService apiCheckVersionService = ApiCheckVersionService.this;
 
-			HttpGet httpGet = new HttpGet(app.getApplicationContext(),RfcxGuardian.APP_ROLE);
+			HttpGet httpGet = new HttpGet(app.getApplicationContext(), RfcxGuardian.APP_ROLE);
 			// setting customized rfcx authentication headers (necessary for API access)
 			List<String[]> rfcxAuthHeaders = new ArrayList<String[]>();
 			rfcxAuthHeaders.add(new String[] { "x-auth-user", "guardian/"+app.rfcxGuardianIdentity.getGuid() });
@@ -78,35 +79,40 @@ public class ApiCheckVersionService extends Service {
 
 			try {
 				if (app.deviceConnectivity.isConnected()) {
-					if (app.apiCheckVersionUtils.apiCheckVersionEndpoint != null) {
-						app.lastApiCheckTriggeredAt = System.currentTimeMillis();
-						String getUrl =	app.rfcxPrefs.getPrefAsString("api_rest_protocol")
-										+ "://"
-										+ app.rfcxPrefs.getPrefAsString("api_rest_host")
-										+ app.apiCheckVersionUtils.apiCheckVersionEndpoint
-										+ "?role="+app.APP_ROLE.toLowerCase()
-										+ "&version="+app.version
-										+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
-										+ "&timestamp="+System.currentTimeMillis()
-										;
-						
-						long sinceLastCheckIn = (System.currentTimeMillis() - app.apiCheckVersionUtils.lastCheckInTime) / 1000;
-						Log.d(logTag, "Since last checkin: "+sinceLastCheckIn);
-						List<JSONObject> jsonResponse = httpGet.getAsJsonList(getUrl);
-						for (JSONObject json : jsonResponse) {
-							Log.d(logTag, json.toString());
-						}
+					String getUrl =	app.rfcxPrefs.getPrefAsString("api_rest_protocol")
+									+ "://"
+									+ app.rfcxPrefs.getPrefAsString("api_rest_host")
+									+"/v1/guardians/"+app.rfcxGuardianIdentity.getGuid()+"/software/all"
+									+ "?role="+RfcxGuardian.APP_ROLE.toLowerCase()
+									+ "&version="+ app.version
+									+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
+									+ "&timestamp="+System.currentTimeMillis()
+									;
+
+					Log.d(logTag, "Time elapsed since last update checkin: "+ DateTimeUtils.milliSecondDurationAsReadableString((System.currentTimeMillis() - app.apiCheckVersionUtils.lastCheckInTime)));
+
+					List<JSONObject> jsonResponse = null;
+					try {
+						jsonResponse = httpGet.getAsJsonList(getUrl);
+					} catch (Exception e) {
+						RfcxLog.logExc(logTag, e);
+					}
+
+					if (jsonResponse == null) {
+						Log.e(logTag, "Version check API request failed...");
+						app.apiCheckVersionUtils.lastCheckInTriggered = 0;
+					} else {
+//							for (JSONObject jsonObj : jsonResponse) {
+//								Log.d(logTag, jsonObj.toString());
+//							}
 						for (JSONObject jsonResponseItem : jsonResponse) {
-							String appRole = jsonResponseItem.getString("role").toLowerCase();
-							if (!appRole.equals(RfcxGuardian.APP_ROLE)) {
-								app.targetAppRole = appRole;
-								if (app.apiCheckVersionUtils.apiCheckVersionFollowUp(app,appRole,jsonResponse)) {
+							String targetAppRole = jsonResponseItem.getString("role").toLowerCase();
+							if (!targetAppRole.equals(RfcxGuardian.APP_ROLE)) {
+								if (app.apiCheckVersionUtils.apiCheckVersionFollowUp(targetAppRole, jsonResponse)) {
 									break;
 								}
 							}
 						}
-					} else {
-						Log.d(logTag, "Cancelled because apiCheckVersionEndpoint is null...");
 					}
 				} else {
 					Log.d(logTag, "Cancelled because there is no internet connectivity...");

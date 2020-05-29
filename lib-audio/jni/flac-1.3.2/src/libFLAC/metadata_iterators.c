@@ -53,6 +53,15 @@
 #include "private/macros.h"
 #include "private/memory.h"
 
+#ifdef flac_min
+#undef flac_min
+#endif
+#define flac_min(x,y) ((x)<(y)?(x):(y))
+#ifdef flac_max
+#undef flac_max
+#endif
+#define flac_max(x,y) ((x)>(y)?(x):(y))
+
 /* Alias the first (in share/alloc.h) to the second (in src/libFLAC/memory.c). */
 #define safe_malloc_mul_2op_ safe_malloc_mul_2op_p
 

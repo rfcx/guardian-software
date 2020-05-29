@@ -56,10 +56,11 @@
         android:name="org.rfcx.guardian.updater.RfcxGuardian"
         >
 
-        <service android:name="org.rfcx.guardian.updater.service.ApiCheckVersionTrigger" />
-        <service android:name="org.rfcx.guardian.updater.service.DownloadFileService" />
-        <service android:name="org.rfcx.guardian.updater.service.ApiCheckVersionService" />
-        <service android:name="org.rfcx.guardian.updater.service.InstallAppService" />
+        <service android:name=".service.ApiCheckVersionTrigger" />
+        <service android:name=".service.DownloadFileService" />
+        <service android:name=".service.ApiCheckVersionService" />
+        <service android:name=".service.InstallAppService" />
+		<service android:name=".service.RebootTriggerService" />
 
         <activity
             android:name="org.rfcx.guardian.updater.activity.MainActivity"
@@ -77,7 +78,7 @@
 		</receiver>
 		
 		<provider 
-		    android:name="org.rfcx.guardian.updater.api.UpdaterContentProvider"
+		    android:name="org.rfcx.guardian.updater.contentprovider.UpdaterContentProvider"
 			android:authorities="org.rfcx.guardian.updater"
         	android:readPermission="org.rfcx.guardian.READ"
         	android:writePermission="org.rfcx.guardian.WRITE"

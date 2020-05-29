@@ -134,18 +134,18 @@ public class ApiCheckInArchiveService extends Service {
 						JSONObject audioJson = new JSONObject(checkIn[2]);
 						String[] audioMeta = audioJson.getString("audio").split("\\*");
 						
-						long measuredAt = (long) Long.parseLong(audioMeta[1]);
+						long measuredAt = Long.parseLong(audioMeta[1]);
 						
-						String tsvRow = (new StringBuilder())
-							/* measured_at */	.append(metaDateTimeFormat.format(new Date(measuredAt))).append("\t") 					
-							/* queued_at */		.append(metaDateTimeFormat.format(new Date((long) Long.parseLong(audioJson.getString("queued_at"))))).append("\t")
-							/* filename */		.append(unGzFileName).append("\t") 					
-							/* format */			.append(audioMeta[2]).append("\t") 																		
-							/* sha1checksum */	.append(audioMeta[3]).append("\t") 																			
-							/* samplerate */		.append(audioMeta[4]).append("\t") 																		
-							/* bitrate */		.append(audioMeta[5]).append("\t") 											
-							/* encode_duration */.append(audioMeta[8])
-							.append("\n").toString();
+						String tsvRow = ""
+							/* measured_at */ 		+metaDateTimeFormat.format(new Date(measuredAt)) + "\t"
+							/* queued_at */			+metaDateTimeFormat.format(new Date(Long.parseLong(audioJson.getString("queued_at")))) + "\t"
+							/* filename */			+unGzFileName + "\t"
+							/* format */			+audioMeta[2] + "\t"
+							/* sha1checksum */		+audioMeta[3] + "\t"
+							/* samplerate */		+audioMeta[4] + "\t"
+							/* bitrate */			+audioMeta[5] + "\t"
+							/* encode_duration */	+audioMeta[8]
+													+"\n";
 						
 						// UnGZip audio files into position
 						FileUtils.gUnZipFile(checkIn[4], archiveTarFilePath+"/audio/"+unGzFileName);
@@ -159,12 +159,12 @@ public class ApiCheckInArchiveService extends Service {
 						if (measuredAt > newestCheckInTimestamp) { newestCheckInTimestamp = measuredAt; }
 					}
 					
-					StringUtils.saveStringToFile(tsvRows.toString(), archiveTarFilePath+"/_metadata.tsv");
-					archiveFileList.add(archiveTarFilePath+"/_metadata.tsv");
+					StringUtils.saveStringToFile(tsvRows.toString(), archiveTarFilePath+"/_metadata_audio.tsv");
+					archiveFileList.add(archiveTarFilePath+"/_metadata_audio.tsv");
 
-					Log.e(logTag, "Archive is not being tarred or gZipped, to avoid a resource spike.");
-//					FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath+".tar");
-//					FileUtils.gZipFile(archiveTarFilePath+".tar", archiveTarFilePath+".tar.gz");
+					Log.i(logTag, "Archiving: "+archiveTarFilePath);
+					FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath+".tar");
+					FileUtils.gZipFile(archiveTarFilePath+".tar", archiveTarFilePath+".tar.gz");
 					
 					int archiveFileSize = 0;
 					app.archiveDb.dbCheckInArchive.insert(new Date(archiveTimestamp), new Date(oldestCheckInTimestamp), new Date(newestCheckInTimestamp), checkInsBeyondArchiveThreshold.size(), archiveFileSize, archiveTarFilePath);
@@ -174,8 +174,8 @@ public class ApiCheckInArchiveService extends Service {
 						FileUtils.delete(checkIn[4]);
 						app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(checkIn[1]);
 					}
-//					FileUtils.delete(archiveTarFilePath);
-//					FileUtils.delete(archiveTarFilePath+".tar");
+					FileUtils.delete(archiveTarFilePath);
+					FileUtils.delete(archiveTarFilePath+".tar");
 					
 					Log.i(logTag, "Archive complete: "+archiveTarFilePath);
 				

@@ -74,6 +74,15 @@ typedef FLAC__uint64 bwword;
 
 #endif
 
+#ifdef flac_min
+#undef flac_min
+#endif
+#define flac_min(x,y) ((x)<(y)?(x):(y))
+#ifdef flac_max
+#undef flac_max
+#endif
+#define flac_max(x,y) ((x)>(y)?(x):(y))
+
 /*
  * The default capacity here doesn't matter too much.  The buffer always grows
  * to hold whatever is written to it.  Usually the encoder will stop adding at

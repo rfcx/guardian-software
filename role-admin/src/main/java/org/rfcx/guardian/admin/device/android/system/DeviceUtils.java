@@ -101,7 +101,7 @@ public class DeviceUtils {
 	public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 2;
 
 	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {	1, 		1,		1 	};
-	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 		new long[] {	1800,	60,		10 	};
+	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 		new long[] {	720,	60,		10 	};
 	public int geoPositionUpdateIndex = 0;
 	
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
@@ -127,7 +127,7 @@ public class DeviceUtils {
 	}
 
 	public static long getCaptureCycleDuration(int audioCycleDurationInSeconds) {
-		long captureCycleDuration = (long) Math.round( audioCycleDurationInSeconds * 1000 * captureCycleDurationRatioComparedToAudioCycleDuration );
+		long captureCycleDuration = Math.round( audioCycleDurationInSeconds * 1000 * captureCycleDurationRatioComparedToAudioCycleDuration );
 		if (captureCycleDuration < captureCycleMinimumAllowedDurationInMilliseconds) { 
 			captureCycleDuration = captureCycleMinimumAllowedDurationInMilliseconds;
 		}

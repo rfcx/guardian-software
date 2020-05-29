@@ -1,15 +1,16 @@
 package org.rfcx.guardian.updater;
 
 import org.rfcx.guardian.updater.api.ApiCheckVersionUtils;
-import org.rfcx.guardian.updater.install.InstallUtils;
 import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.updater.service.ApiCheckVersionTrigger;
 import org.rfcx.guardian.updater.service.ApiCheckVersionService;
 import org.rfcx.guardian.updater.service.DownloadFileService;
 import org.rfcx.guardian.updater.service.InstallAppService;
+import org.rfcx.guardian.updater.service.RebootTriggerService;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
+import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -42,10 +43,6 @@ public class RfcxGuardian extends Application {
     public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
-    public long lastApiCheckTriggeredAt = System.currentTimeMillis();
-    public static final String targetAppRoleApiEndpoint = "all";
-    public String targetAppRole = "";
-
     public String[] RfcxCoreServices =
             new String[]{
             };
@@ -60,14 +57,13 @@ public class RfcxGuardian extends Application {
         this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
-        this.rfcxPrefs.writeVersionToFile(this.version);
+        RfcxRole.writeVersionToFile(this, logTag, this.version);
 
         this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         this.apiCheckVersionUtils = new ApiCheckVersionUtils(this);
-        this.apiCheckVersionUtils.setApiCheckVersionEndpoint(this.rfcxGuardianIdentity.getGuid());
 
-        this.installUtils = new InstallUtils(this);
+        this.installUtils = new InstallUtils(this, APP_ROLE);
 
         setDbHandlers();
         setServiceHandlers();
@@ -95,7 +91,7 @@ public class RfcxGuardian extends Application {
             String[] runOnceOnlyOnLaunch = new String[] {
                     "ApiCheckVersionTrigger"
                             +"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
-                            +"|"+ ( ( 2 * this.apiCheckVersionUtils.minimumAllowedIntervalBetweenCheckIns ) * ( 60 * 1000 ) ) // repeats hourly
+                            +"|"+ ( ( 2 * ApiCheckVersionUtils.minimumAllowedIntervalBetweenCheckIns ) * ( 60 * 1000 ) ) // repeats hourly
             };
 
             String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
@@ -115,7 +111,11 @@ public class RfcxGuardian extends Application {
         this.rfcxServiceHandler.addService("ApiCheckVersion", ApiCheckVersionService.class);
         this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
         this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
+        this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerService.class);
     }
 
+    public void onPrefReSync(String prefKey) {
+
+    }
 
 }

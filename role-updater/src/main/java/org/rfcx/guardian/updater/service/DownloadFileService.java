@@ -8,6 +8,7 @@ import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -19,7 +20,7 @@ public class DownloadFileService extends Service {
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DownloadFileService");
 
 	private RfcxGuardian app;
-	
+
 	private boolean runFlag = false;
 	private DownloadFile downloadFile;
 	
@@ -32,7 +33,7 @@ public class DownloadFileService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		this.downloadFile = new DownloadFile();
-		app = (RfcxGuardian) getApplication();
+        app = (RfcxGuardian) getApplication();
 	}
 
 	@Override
@@ -67,40 +68,37 @@ public class DownloadFileService extends Service {
 		@Override
 		public void run() {
 			DownloadFileService downloadFileService = DownloadFileService.this;
+
 			HttpGet httpGet = new HttpGet(app.getApplicationContext(), RfcxGuardian.APP_ROLE);
+
 			try {
-				String fileName = app.apiCheckVersionUtils.installRole+"-"+app.apiCheckVersionUtils.installVersion+".apk";
-				String url = app.apiCheckVersionUtils.installVersionUrl;
-				String apiSha1 = app.apiCheckVersionUtils.installVersionSha1;
-				
-				if (httpGet.getAsFile(url, fileName)) {
-					Log.d(logTag, "Download Complete. Verifying Checksum...");
-					String downloadFilePath = app.installUtils.apkDirDownload+"/"+fileName;
-					String downloadFileSha1 = FileUtils.sha1Hash(downloadFilePath);
-					Log.d(logTag, "SHA1 Checksum (API): "+apiSha1);
-					Log.d(logTag, "SHA1 Checksum (File): "+downloadFileSha1);
-					if (downloadFileSha1.equalsIgnoreCase(apiSha1)) {
 
-						Log.d(logTag, "Moving APK to external storage...");
-						String externalFilePath = app.installUtils.apkDirExternal+"/"+fileName;
-						File externalFileObj = new File(externalFilePath);
-						if (externalFileObj.exists()) { externalFileObj.delete(); }
-						FileUtils.copy(downloadFilePath, externalFilePath);
-						FileUtils.chmod(externalFilePath,  "rw", "rw");
+				if (httpGet.getAsFile(app.installUtils.installVersionUrl, app.installUtils.apkFileName)) {
 
-						if (FileUtils.sha1Hash(externalFilePath).equalsIgnoreCase(downloadFileSha1)) {
+					Log.d(logTag, "APK download complete. Verifying downloaded checksum...");
+					String downloadFileSha1 = FileUtils.sha1Hash(app.installUtils.apkPathDownload);
+					Log.d(logTag, "APK file SHA1 checksum : "+downloadFileSha1 +" (expected: "+app.installUtils.installVersionSha1);
 
-							(new File(downloadFilePath)).delete();
+					if (downloadFileSha1.equalsIgnoreCase(app.installUtils.installVersionSha1)) {
 
+						Log.d(logTag, "Checksum passed. Moving APK file to external storage...");
+						FileUtils.delete(app.installUtils.apkPathExternal);
+						FileUtils.copy(app.installUtils.apkPathDownload, app.installUtils.apkPathExternal);
+						FileUtils.chmod(app.installUtils.apkPathExternal,  "rw", "rw");
+
+						if (FileUtils.sha1Hash(app.installUtils.apkPathExternal).equalsIgnoreCase(downloadFileSha1)) {
+
+							FileUtils.delete(app.installUtils.apkPathDownload);
 							app.rfcxServiceHandler.triggerService("InstallApp", false);
 						}
 
 					} else {
-						Log.e(logTag, "Checksum mismatch");
-						(new File(downloadFilePath)).delete();
-					}					
+						Log.e(logTag, "Checksum failed. Skipping installation and deleting apk download.");
+						FileUtils.delete(app.installUtils.apkPathDownload);
+					}
 				} else {
-					Log.e(logTag, "Download failed");
+					Log.e(logTag, "Download failed.");
+                    FileUtils.delete(app.installUtils.apkPathDownload);
 				}
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
