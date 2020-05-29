@@ -116,7 +116,7 @@ OrangePi has already been rooted so you do not need to do anything extra to run 
        Choose WIN8 if you are using Windows 8 or above.
        (Some users report failures during install -- [this is the solution](https://youtu.be/3g542NRQFwg))
     2. [MTK Flash Tool](https://drive.google.com/open?id=1VXU-Jb5A8cFco3Q6uYht684pxjnp0pJd)
-    3. Orange Pi Android image: [Android Image Downloads](https://drive.google.com/open?id=1N0C_qYKcDNs4J4nvJBg0qHr6xXDQj6Pz)
+    3. Orange Pi Android image: [Android Image Downloads](https://bit.ly/rfcx-3giot-img)
 2. Open the MTK Flash Tool *(flash_tool)*
     1. Make sure the Orange Pi is NOT connected.
     2. Choose the scatter-loading file **MT6572_Android_scatter** *(This is in the Android_OS_for_Orange_Pi_3G-IoT/images/ folder after extracting the image.)*
