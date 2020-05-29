@@ -69,7 +69,7 @@ Before getting started, key points to be familiar with:
 
 1. On the Orange Pi board there are two LEDs, red and green. **Red** indicates the **power** is connected and **green** indicates that the device is **ON**. Make sure that the power that connected to the Orange Pi is **5V**. If not the LEDs brightness will be low and cannot start the operating system.
 2. By default the Orange Pi comes with both COM 1 jumpers in the correct position. No need to ever change them it seems. COM 2 jumper should be ON only when flashing the device (the rest of the time it should be OFF/removed).
-3. The OrangePi do not come with the **IMEI number**. You need to set it by yourself following the instructions below. Before install any roles, you should set the **IMEI number first**.
+3. The OrangePi does not come with a pre-set **IMEI number**. You will need to set it yourself by following the instructions below.
 4. Before using any roles, make sure there is the internet connection.
 5. **Timezone automatically** need to uncheck so that Admin role can change it.
 6. **Default Write Disk** need to set to **Phone Storage** although sd card is installed.
@@ -154,7 +154,7 @@ Before following the instruction below. You need to download Vysor first.
 
 ### Step 3: Set the IMEI number
 
-Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IMEIs](https://docs.google.com/spreadsheets/d/1oQzsJxQ8KqGP7VJJja-v7-JlHIYqI_mnqq2bFSlDRSw/edit#gid=0).
+Before you start, you will need to generate a suitable IMEI number. Please use this [Online IMEI Generator](https://static.rfcx.org/tools/imei/generator.html) to create a valid value.
 
 1. Make sure that COM 2 jumper is OFF (removed).
 2. First download [IMEI Writer](https://drive.google.com/open?id=1JBEbILcHHfWM3Yz4e4J9Yc5Leix9m1uI) (for Windows)
