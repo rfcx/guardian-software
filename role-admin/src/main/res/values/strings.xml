@@ -5,8 +5,7 @@
 
     <string name="menu_sms">sms</string>
     <string name="menu_screenshot">screenshot</string>
-    <string name="menu_sntp">sntp</string>
-    <string name="menu_i2c_view">i2c view</string>
+    <string name="menu_sntp">sntp sync</string>
     <string name="menu_logcat">logcat</string>
     <string name="menu_reboot">reboot</string>
 

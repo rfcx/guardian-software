@@ -76,13 +76,12 @@ public class RebootTriggerService extends Service {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
 				// Halting the Guardian role services
-				Log.e(logTag, "Reboot: Requesting that Guardian role stop all services...");
+				Log.d(logTag, "Reboot: Requesting that Guardian role stop all services...");
 				try {
 					Cursor killGuardianSvcs = app.getApplicationContext().getContentResolver().query(
 						RfcxComm.getUri("guardian", "control", "kill"),
 						RfcxComm.getProjection("guardian", "control"),
 						null, null, null);
-					Log.v(logTag, killGuardianSvcs.toString());
 					killGuardianSvcs.close();
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
@@ -91,14 +90,22 @@ public class RebootTriggerService extends Service {
 				// Garbage Collection
 				RfcxGarbageCollection.runAndroidGarbageCollection();
 
-				// Triggering reboot request
-				Log.e(logTag, "Reboot: Broadcasting ACTION_REBOOT Intent...");
+				// Triggering ACTION_REBOOT
+				Log.d(logTag, "Reboot: Broadcasting ACTION_REBOOT Intent...");
 				Intent actionReboot = new Intent(Intent.ACTION_REBOOT);
 				actionReboot.putExtra("nowait", 1);
 				actionReboot.putExtra("window", 1);
 				sendBroadcast(actionReboot);
 
-				Log.e(logTag, "System should be shutting down now...");
+				// Triggering ACTION_REQUEST_SHUTDOWN
+//				Log.d(logTag, "Shutdown: Broadcasting ACTION_REQUEST_SHUTDOWN Intent...");
+//				Intent actionReboot = new Intent("android.intent.action.ACTION_REQUEST_SHUTDOWN");
+//				actionReboot.putExtra("android.intent.extra.KEY_CONFIRM", false);
+//				actionReboot.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+//				actionReboot.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//				startActivity(actionReboot);
+
+				Log.d(logTag, "System should be shutting down now...");
 				app.rfcxServiceHandler.stopAllServices();
 
 

@@ -1,71 +1,71 @@
 {
   "buildFiles": [
-    "/Users/rfcx/code/guardian-android/i2c/jni/Android.mk",
-    "/Users/rfcx/code/guardian-android/i2c/jni/Application.mk"
+    "/Users/rfcx/code/guardian-android/lib-i2c/jni/Android.mk",
+    "/Users/rfcx/code/guardian-android/lib-i2c/jni/Application.mk"
   ],
   "cleanCommands": [
-    "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/lib clean"
+    "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/lib-i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/lib-i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/lib clean"
   ],
-  "buildTargetsCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/lib {LIST_OF_TARGETS_TO_BUILD}",
+  "buildTargetsCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/lib-i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/lib-i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/lib {LIST_OF_TARGETS_TO_BUILD}",
   "libraries": {
     "i2c-tools-release-armeabi-v7a": {
-      "buildCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/lib /Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/libi2c-tools.a",
+      "buildCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/lib-i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/lib-i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/lib /Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/libi2c-tools.a",
       "toolchain": "toolchain-armeabi-v7a",
       "abi": "armeabi-v7a",
       "artifactName": "i2c-tools",
       "files": [
         {
-          "src": "/Users/rfcx/code/guardian-android/i2c/jni/tools/i2cbusses.c",
-          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/i2c/jni -I/Users/rfcx/code/guardian-android/i2c/jni//include -I/Users/rfcx/code/guardian-android/i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
+          "src": "/Users/rfcx/code/guardian-android/lib-i2c/jni/tools/i2cbusses.c",
+          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/lib-i2c/jni -I/Users/rfcx/code/guardian-android/lib-i2c/jni//include -I/Users/rfcx/code/guardian-android/lib-i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
         },
         {
-          "src": "/Users/rfcx/code/guardian-android/i2c/jni/tools/util.c",
-          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/i2c/jni -I/Users/rfcx/code/guardian-android/i2c/jni//include -I/Users/rfcx/code/guardian-android/i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
+          "src": "/Users/rfcx/code/guardian-android/lib-i2c/jni/tools/util.c",
+          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/lib-i2c/jni -I/Users/rfcx/code/guardian-android/lib-i2c/jni//include -I/Users/rfcx/code/guardian-android/lib-i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
         }
       ],
-      "output": "/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/libi2c-tools.a"
+      "output": "/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/libi2c-tools.a"
     },
     "i2cget-release-armeabi-v7a": {
-      "buildCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/lib /Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cget",
+      "buildCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/lib-i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/lib-i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/lib /Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cget",
       "toolchain": "toolchain-armeabi-v7a",
       "abi": "armeabi-v7a",
       "artifactName": "i2cget",
       "files": [
         {
-          "src": "/Users/rfcx/code/guardian-android/i2c/jni/tools/i2cbusses.c",
-          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/i2c/jni -I/Users/rfcx/code/guardian-android/i2c/jni//include -I/Users/rfcx/code/guardian-android/i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
+          "src": "/Users/rfcx/code/guardian-android/lib-i2c/jni/tools/i2cbusses.c",
+          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/lib-i2c/jni -I/Users/rfcx/code/guardian-android/lib-i2c/jni//include -I/Users/rfcx/code/guardian-android/lib-i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
         },
         {
-          "src": "/Users/rfcx/code/guardian-android/i2c/jni/tools/i2cget.c",
-          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/i2c/jni -I/Users/rfcx/code/guardian-android/i2c/jni//include -I/Users/rfcx/code/guardian-android/i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
+          "src": "/Users/rfcx/code/guardian-android/lib-i2c/jni/tools/i2cget.c",
+          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/lib-i2c/jni -I/Users/rfcx/code/guardian-android/lib-i2c/jni//include -I/Users/rfcx/code/guardian-android/lib-i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
         },
         {
-          "src": "/Users/rfcx/code/guardian-android/i2c/jni/tools/util.c",
-          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/i2c/jni -I/Users/rfcx/code/guardian-android/i2c/jni//include -I/Users/rfcx/code/guardian-android/i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
+          "src": "/Users/rfcx/code/guardian-android/lib-i2c/jni/tools/util.c",
+          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/lib-i2c/jni -I/Users/rfcx/code/guardian-android/lib-i2c/jni//include -I/Users/rfcx/code/guardian-android/lib-i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
         }
       ],
-      "output": "/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cget"
+      "output": "/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cget"
     },
     "i2cset-release-armeabi-v7a": {
-      "buildCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/lib /Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cset",
+      "buildCommand": "/Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/ndk-build NDK_PROJECT_PATH\u003dnull APP_BUILD_SCRIPT\u003d/Users/rfcx/code/guardian-android/lib-i2c/jni/Android.mk NDK_APPLICATION_MK\u003d/Users/rfcx/code/guardian-android/lib-i2c/jni/Application.mk APP_ABI\u003darmeabi-v7a NDK_ALL_ABIS\u003darmeabi-v7a NDK_DEBUG\u003d0 APP_PLATFORM\u003dandroid-19 NDK_OUT\u003d/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj NDK_LIBS_OUT\u003d/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/lib /Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cset",
       "toolchain": "toolchain-armeabi-v7a",
       "abi": "armeabi-v7a",
       "artifactName": "i2cset",
       "files": [
         {
-          "src": "/Users/rfcx/code/guardian-android/i2c/jni/tools/i2cbusses.c",
-          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/i2c/jni -I/Users/rfcx/code/guardian-android/i2c/jni//include -I/Users/rfcx/code/guardian-android/i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
+          "src": "/Users/rfcx/code/guardian-android/lib-i2c/jni/tools/i2cbusses.c",
+          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/lib-i2c/jni -I/Users/rfcx/code/guardian-android/lib-i2c/jni//include -I/Users/rfcx/code/guardian-android/lib-i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
         },
         {
-          "src": "/Users/rfcx/code/guardian-android/i2c/jni/tools/i2cset.c",
-          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/i2c/jni -I/Users/rfcx/code/guardian-android/i2c/jni//include -I/Users/rfcx/code/guardian-android/i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
+          "src": "/Users/rfcx/code/guardian-android/lib-i2c/jni/tools/i2cset.c",
+          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/lib-i2c/jni -I/Users/rfcx/code/guardian-android/lib-i2c/jni//include -I/Users/rfcx/code/guardian-android/lib-i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
         },
         {
-          "src": "/Users/rfcx/code/guardian-android/i2c/jni/tools/util.c",
-          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/i2c/jni -I/Users/rfcx/code/guardian-android/i2c/jni//include -I/Users/rfcx/code/guardian-android/i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
+          "src": "/Users/rfcx/code/guardian-android/lib-i2c/jni/tools/util.c",
+          "flags": "-target armv7-none-linux-androideabi19 -fdata-sections -ffunction-sections -fstack-protector-strong -funwind-tables -no-canonical-prefixes --sysroot /Users/rfcx/Library/Android/sdk/ndk/20.0.5594570/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -g -Wno-invalid-command-line-argument -Wno-unused-command-line-argument -fno-addrsig -fpic -march\u003darmv7-a -mthumb -Oz -DNDEBUG -I/Users/rfcx/code/guardian-android/lib-i2c/jni -I/Users/rfcx/code/guardian-android/lib-i2c/jni//include -I/Users/rfcx/code/guardian-android/lib-i2c/jni -DANDROID -Wa,--noexecstack -Wformat -Werror\u003dformat-security"
         }
       ],
-      "output": "/Users/rfcx/code/guardian-android/i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cset"
+      "output": "/Users/rfcx/code/guardian-android/lib-i2c/build/intermediates/ndkBuild/release/obj/local/armeabi-v7a/i2cset"
     }
   },
   "toolchains": {

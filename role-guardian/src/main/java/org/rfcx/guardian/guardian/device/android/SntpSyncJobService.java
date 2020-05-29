@@ -81,9 +81,9 @@ public class SntpSyncJobService extends Service {
 				} else {
 				
 					SntpClient sntpClient = new SntpClient();
-					String dateTimeNtpHost = app.rfcxPrefs.getPrefAsString("api_ntp_host");
+					String ntpHost = app.rfcxPrefs.getPrefAsString("api_ntp_host");
 					
-					if (sntpClient.requestTime(dateTimeNtpHost, 15000) && sntpClient.requestTime(dateTimeNtpHost, 15000)) {
+					if (sntpClient.requestTime(ntpHost, 15000) && sntpClient.requestTime(ntpHost, 15000)) {
 						long nowSystem = System.currentTimeMillis();
 						long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
 						

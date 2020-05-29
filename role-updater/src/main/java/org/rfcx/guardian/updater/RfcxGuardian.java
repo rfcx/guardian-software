@@ -1,7 +1,6 @@
 package org.rfcx.guardian.updater;
 
 import org.rfcx.guardian.updater.api.ApiCheckVersionUtils;
-import org.rfcx.guardian.updater.install.InstallUtils;
 import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
 import org.rfcx.guardian.updater.service.ApiCheckVersionTrigger;
 import org.rfcx.guardian.updater.service.ApiCheckVersionService;
@@ -11,6 +10,7 @@ import org.rfcx.guardian.updater.service.RebootTriggerService;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
+import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -43,9 +43,6 @@ public class RfcxGuardian extends Application {
     public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
-    public long lastApiCheckTriggeredAt = System.currentTimeMillis();
-    public String targetAppRole = "";
-
     public String[] RfcxCoreServices =
             new String[]{
             };
@@ -60,14 +57,13 @@ public class RfcxGuardian extends Application {
         this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
-        this.rfcxPrefs.writeVersionToFile(this.version);
+        RfcxRole.writeVersionToFile(this, logTag, this.version);
 
         this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         this.apiCheckVersionUtils = new ApiCheckVersionUtils(this);
-        this.apiCheckVersionUtils.setApiCheckVersionEndpoint(this.rfcxGuardianIdentity.getGuid());
 
-        this.installUtils = new InstallUtils(this);
+        this.installUtils = new InstallUtils(this, APP_ROLE);
 
         setDbHandlers();
         setServiceHandlers();
@@ -118,5 +114,8 @@ public class RfcxGuardian extends Application {
         this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerService.class);
     }
 
+    public void onPrefReSync(String prefKey) {
+
+    }
 
 }
