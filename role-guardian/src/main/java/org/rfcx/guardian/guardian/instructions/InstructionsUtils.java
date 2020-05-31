@@ -55,6 +55,7 @@ public class InstructionsUtils {
 
 						Log.i(logTag, "Instruction Received: Guid: "+instrGuid+", "+instrType+", "+instrCmd+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
 
+						this.app.apiCheckInUtils.sendMqttPing(false, new String[]{ "instructions" } );
 					}
 				}
 			}

@@ -1299,8 +1299,17 @@ public class ApiCheckInUtils implements MqttCallback {
 		guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
 		pingObj.put("guardian", guardianObj);
 
-		pingObj.put("measured_at", System.currentTimeMillis());
-		pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
+		boolean includeMeasuredAt = false;
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "battery")) {
+			pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
+			includeMeasuredAt = true;
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {
+			pingObj.put("checkins", getCheckInStatusInfoForJson(false));
+			includeMeasuredAt = true;
+		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "instructions")) {
 			pingObj.put("instructions", getLocalInstructionsStatusInfoJson());
@@ -1318,10 +1327,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			pingObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 		}
 
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {
-			pingObj.put("checkins", getCheckInStatusInfoForJson(false));
-		}
-
+		if (includeMeasuredAt) { pingObj.put("measured_at", System.currentTimeMillis()); }
 		Log.d(logTag, pingObj.toString());
 		return pingObj.toString();
 	}
