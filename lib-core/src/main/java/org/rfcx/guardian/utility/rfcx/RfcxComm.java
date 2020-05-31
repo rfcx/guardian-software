@@ -46,6 +46,8 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"process", new String[] { "name", "pid", "uid" });
 			roleFuncProj.get(role).put(
+				"ping", new String[] { "sent_at" });
+			roleFuncProj.get(role).put(
 				"control", new String[] { "command", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"sms_queue", new String[] { "send_at|address|message", "result", "received_at" });

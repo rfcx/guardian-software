@@ -8,8 +8,10 @@ import android.util.Log;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.util.Date;
 import java.util.List;
 
 public class InstructionsExecutionService extends Service {
@@ -78,20 +80,18 @@ public class InstructionsExecutionService extends Service {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-					List<String[]> instructionsQueuedForExecution = app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution();
-
 					for (String[] queuedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
 
 						// only proceed with execution process if there is a valid queued instruction in the local database
 						if (queuedRow[0] != null) {
 
-							long executeAtOrAfter = (long) Long.parseLong(queuedRow[4]);
+							long executeAtOrAfter = Long.parseLong(queuedRow[4]);
 							long rightNow = System.currentTimeMillis();
 
 							if (executeAtOrAfter <= rightNow) {
 
 								String guid = queuedRow[1];
-								long receivedAt = (long) Long.parseLong(queuedRow[0]);
+								long receivedAt = Long.parseLong(queuedRow[0]);
 								String type = queuedRow[2];
 								String command = queuedRow[3];
 								JSONObject metaJson = new JSONObject(queuedRow[5]);
@@ -99,7 +99,7 @@ public class InstructionsExecutionService extends Service {
 
 								if (app.instructionsDb.dbExecutedInstructions.getCountByGuid(guid) == 0) {
 									app.instructionsDb.dbQueuedInstructions.incrementSingleRowAttemptsByGuid(guid);
-									int execAttempts = ((int) Integer.parseInt(queuedRow[6])) + 1;
+									int execAttempts = (Integer.parseInt(queuedRow[6])) + 1;
 
 									// Execute the instruction
 
@@ -110,6 +110,8 @@ public class InstructionsExecutionService extends Service {
 									Log.w(logTag, "Instruction "+guid+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
 									app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(guid);
 								}
+
+								app.apiCheckInUtils.sendMqttPing(false, new String[]{ "instructions" } );
 							}
 						}
 					}

@@ -20,15 +20,15 @@ public class InstructionsUtils {
 
 	private RfcxGuardian app = null;
 
-	public void processInstructionJson(String jsonStr) {
+	public void processReceivedInstructionJson(String jsonStr) {
 		try {
-			processInstructionJson(new JSONObject(jsonStr));
+			processReceivedInstructionJson(new JSONObject(jsonStr));
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 		}
 	}
 
-	public void processInstructionJson(JSONObject jsonObj) {
+	public void processReceivedInstructionJson(JSONObject jsonObj) {
 		try {
 			if (jsonObj.has("instructions")) {
 				JSONArray instrArr = jsonObj.getJSONArray("instructions");
@@ -38,13 +38,16 @@ public class InstructionsUtils {
 						String instrGuid = instrObj.getString("guid");
 						String instrType = instrObj.getString("type");
 						String instrCommand = instrObj.getString("command");
-						JSONObject instrMetaObj = instrObj.getJSONObject("meta");
-						long instrExecuteAt = Long.parseLong(instrObj.getString("execute_at"));
+						JSONObject instrMetaObj = new JSONObject(instrObj.getString("meta"));
 
-						this.app.instructionsDb.dbQueuedInstructions.findByGuidOrCreate(instrGuid, instrType, instrCommand, ((instrExecuteAt == 0) ? System.currentTimeMillis() : instrExecuteAt ), instrMetaObj.toString());
+						long instrExecuteAt = System.currentTimeMillis();
+						if (instrObj.getString("execute_at").length() > 0) {
+							instrExecuteAt = Long.parseLong(instrObj.getString("execute_at"));
+						}
 
-//						Log.i(logTag, "Instruction Received: Guid: "+instrGuid+", "+instrType+", "+instrCommand+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
+						this.app.instructionsDb.dbQueuedInstructions.findByGuidOrCreate(instrGuid, instrType, instrCommand, instrExecuteAt, instrMetaObj.toString());
 
+						Log.i(logTag, "Instruction Received: Guid: "+instrGuid+", "+instrType+", "+instrCommand+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
 
 					}
 				}

@@ -80,7 +80,14 @@ public class GuardianContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "process", null)) {
 				return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole.toLowerCase(), AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
 
-			// "control" function endpoints
+			// "send ping" function
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "ping", "*")) {
+				String pingField = uri.getLastPathSegment();
+				app.apiCheckInUtils.sendMqttPing(pingField.equalsIgnoreCase("all"), new String[]{ pingField } );
+				return RfcxComm.getProjectionCursor(appRole, "ping", new Object[] { System.currentTimeMillis() });
+
+				// "control" function endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) {
 				app.rfcxServiceHandler.stopAllServices();

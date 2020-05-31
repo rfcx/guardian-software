@@ -75,7 +75,9 @@ public class ApiCheckInJobService extends Service {
 				
 			while (		apiCheckInJobInstance.runFlag
 					&&	app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish") 
-					&& 	(app.apiCheckInDb.dbQueued.getCount() > 0)
+					&& 	(	(app.apiCheckInDb.dbQueued.getCount() > 0)
+						||	!app.apiCheckInUtils.isConnectedToBroker()
+						)
 				) {
 
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
@@ -143,6 +145,12 @@ public class ApiCheckInJobService extends Service {
 								
 								Log.d(logTag, "Queued checkin entry in database was invalid.");
 							}
+						}
+
+						if (!app.apiCheckInUtils.isConnectedToBroker()) {
+							Log.e(logTag, "Broker not connected. Delaying 10 seconds and trying again...");
+							Thread.sleep(10000);
+							app.apiCheckInUtils.confirmOrCreateConnectionToBroker(true);
 						}
 					}
 					
