@@ -333,8 +333,8 @@ public class RfcxPrefs {
 			put("api_rest_host", "api.rfcx.org");
 			put("api_rest_protocol", "https");
 	        put("api_checkin_host", "checkin.rfcx.org");
-	        put("api_checkin_protocol", "tcp");
-	        put("api_checkin_port", "1883");
+	        put("api_checkin_protocol", "ssl");
+	        put("api_checkin_port", "8883");
 	        put("api_ntp_host", "time.apple.com");
 			put("api_sms_address", "+14154803657");
 	        

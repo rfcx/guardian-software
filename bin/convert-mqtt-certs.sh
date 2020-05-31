@@ -17,4 +17,4 @@ fi
 SERVER_CERT=$1 # ../../rfcx-api/bin/mosquitto/certs/server.crt
 PASSPHRASE=$2
 
-keytool -import -alias mqttbroker -file $SERVER_CERT -keystore $PROJECT_DIR/lib-core/src/main/res/raw/server.bks  -storetype BKS -storepass $PASSPHRASE -providerClass org.bouncycastle.jce.provider.BouncyCastleProvider -providerpath $PROJECT_DIR/bin/tools/bcprov-ext-jdk15to18-165.jar
+keytool -import -alias mqttbroker -file $SERVER_CERT -keystore $PROJECT_DIR/lib-core/src/main/res/raw/rfcx_mqtt_broker.bks  -storetype BKS -storepass $PASSPHRASE -providerClass org.bouncycastle.jce.provider.BouncyCastleProvider -providerpath $PROJECT_DIR/bin/tools/bcprov-ext-jdk15to18-165.jar

@@ -34,7 +34,7 @@ import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
 import org.rfcx.guardian.utility.device.capture.DeviceScreenShot;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
-import org.rfcx.guardian.utility.mqtt.MqttUtils;
+import org.rfcx.guardian.utility.network.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -712,16 +712,17 @@ public class ApiCheckInUtils implements MqttCallback {
 		try {
 			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
 
-			if (excStr.contains("Too many publishes in progress")) {
+			/*if (excStr.contains("Too many publishes in progress")) {
 				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
 				app.rfcxServiceHandler.triggerService("ApiCheckInJob", true);
 
-			} else if (	excStr.contains("UnknownHostException")
+			} else*/ if (	excStr.contains("UnknownHostException")
 					||	excStr.contains("Broken pipe")
 					||	excStr.contains("Timed out waiting for a response from the server")
 					||	excStr.contains("No route to host")
 					||	excStr.contains("Host is unresolved")
 					||	excStr.contains("Unable to connect to server")
+					||	excStr.contains("Too many publishes in progress")
 			) {
 				Log.i(logTag, "Connection has failed "+this.inFlightCheckInAttemptCounter +" times (max: "+this.inFlightCheckInAttemptCounterLimit +")");
 				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
