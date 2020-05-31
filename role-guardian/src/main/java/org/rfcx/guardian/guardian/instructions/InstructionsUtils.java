@@ -10,6 +10,8 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.util.Iterator;
+
 public class InstructionsUtils {
 
 	public InstructionsUtils(Context context) {
@@ -37,17 +39,21 @@ public class InstructionsUtils {
 					if (instrObj.has("guid")) {
 						String instrGuid = instrObj.getString("guid");
 						String instrType = instrObj.getString("type");
-						String instrCommand = instrObj.getString("command");
-						JSONObject instrMetaObj = new JSONObject(instrObj.getString("meta"));
+						String instrCmd = instrObj.getString("cmd");
 
-						long instrExecuteAt = System.currentTimeMillis();
-						if (instrObj.getString("execute_at").length() > 0) {
-							instrExecuteAt = Long.parseLong(instrObj.getString("execute_at"));
+						JSONObject instrMetaObj = new JSONObject();
+						if (instrObj.getString("meta").length() > 0) {
+							instrMetaObj = new JSONObject(instrObj.getString("meta"));
 						}
 
-						this.app.instructionsDb.dbQueuedInstructions.findByGuidOrCreate(instrGuid, instrType, instrCommand, instrExecuteAt, instrMetaObj.toString());
+						long instrExecuteAt = System.currentTimeMillis();
+						if (instrObj.getString("at").length() > 0) {
+							instrExecuteAt = Long.parseLong(instrObj.getString("at"));
+						}
 
-						Log.i(logTag, "Instruction Received: Guid: "+instrGuid+", "+instrType+", "+instrCommand+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
+						this.app.instructionsDb.dbQueuedInstructions.findByGuidOrCreate(instrGuid, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString());
+
+						Log.i(logTag, "Instruction Received: Guid: "+instrGuid+", "+instrType+", "+instrCmd+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
 
 					}
 				}
@@ -58,6 +64,37 @@ public class InstructionsUtils {
 			RfcxLog.logExc(logTag, e);
 
 		}
+	}
+
+
+	public String executeInstruction(String instrType, String instrCmd, JSONObject instrMeta) {
+
+		JSONObject responseJson = new JSONObject();
+
+		// Set Pref[s]
+		if (instrType.equalsIgnoreCase("set") && instrCmd.equalsIgnoreCase("prefs")) {
+			try {
+				JSONObject prefsKeysVals = instrMeta;
+				Iterator<String> prefsKeys = prefsKeysVals.keys();
+				while (prefsKeys.hasNext()) {
+					String prefKey = prefsKeys.next();
+					if (prefsKeysVals.getString(prefKey) instanceof String) {
+						app.setSharedPref(prefKey.toLowerCase(), prefsKeysVals.getString(prefKey).toLowerCase());
+					}
+				}
+			} catch (JSONException e) {
+				RfcxLog.logExc(logTag, e);
+			}
+
+		// Execute Control Command
+		} else if (instrType.equalsIgnoreCase("ctrl")) {
+
+			app.deviceControlUtils.runOrTriggerDeviceControl(instrCmd, app.getApplicationContext().getContentResolver());
+
+		}
+
+
+		return responseJson.toString();
 	}
 
 }
