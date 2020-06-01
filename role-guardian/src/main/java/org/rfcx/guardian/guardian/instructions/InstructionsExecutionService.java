@@ -8,11 +8,7 @@ import android.util.Log;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import java.util.Date;
-import java.util.List;
 
 public class InstructionsExecutionService extends Service {
 
@@ -95,6 +91,7 @@ public class InstructionsExecutionService extends Service {
 								String type = queuedRow[2];
 								String command = queuedRow[3];
 								JSONObject metaJson = new JSONObject(queuedRow[5]);
+								String protocol = queuedRow[8];
 
 								if (app.instructionsDb.dbExecutedInstructions.getCountByGuid(guid) == 0) {
 									app.instructionsDb.dbQueuedInstructions.incrementSingleRowAttemptsByGuid(guid);
@@ -103,15 +100,21 @@ public class InstructionsExecutionService extends Service {
 									// Execute the instruction
 									String responseJsonStr = app.instructionsUtils.executeInstruction(type, command, metaJson);
 
-									app.instructionsDb.dbExecutedInstructions.findByGuidOrCreate(guid, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt);
+									app.instructionsDb.dbExecutedInstructions.findByGuidOrCreate(guid, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt, protocol);
 									app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(guid);
-									Log.w(logTag, "Instruction "+guid+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
+									Log.w(logTag, "Instruction ("+protocol+") "+guid+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
 								} else {
-									Log.w(logTag, "Instruction "+guid+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
+									Log.w(logTag, "Instruction ("+protocol+") "+guid+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
 									app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(guid);
 								}
 
-								app.apiCheckInUtils.sendMqttPing(false, new String[]{ "instructions" } );
+								if (protocol.equalsIgnoreCase("mqtt")) {
+									app.apiCheckInUtils.sendMqttPing(false, new String[]{"instructions"});
+
+								} else if (protocol.equalsIgnoreCase("sms")) {
+									Log.e(logTag, "Send SMS Instruction Response: "+ app.instructionsUtils.getSingleInstructionInfoAsSerializedString(guid) );
+
+								}
 							}
 						}
 					}

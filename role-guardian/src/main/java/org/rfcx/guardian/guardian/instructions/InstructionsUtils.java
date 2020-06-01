@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.instructions;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -37,6 +38,7 @@ public class InstructionsUtils {
 				for (int i = 0; i < instrArr.length(); i++) {
 					JSONObject instrObj = instrArr.getJSONObject(i);
 					if (instrObj.has("guid")) {
+
 						String instrGuid = instrObj.getString("guid");
 						String instrType = instrObj.getString("type");
 						String instrCmd = instrObj.getString("cmd");
@@ -51,20 +53,99 @@ public class InstructionsUtils {
 							instrExecuteAt = Long.parseLong(instrObj.getString("at"));
 						}
 
-						this.app.instructionsDb.dbQueuedInstructions.findByGuidOrCreate(instrGuid, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString());
+						String protocol = "mqtt";
+						if (instrObj.has("protocol")) {
+							protocol = instrObj.getString("protocol");
+						}
 
-						Log.i(logTag, "Instruction Received: Guid: "+instrGuid+", "+instrType+", "+instrCmd+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
+						this.app.instructionsDb.dbQueuedInstructions.findByGuidOrCreate(instrGuid, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString(), protocol);
 
-						this.app.apiCheckInUtils.sendMqttPing(false, new String[]{ "instructions" } );
+						Log.i(logTag, "Instruction Received ("+protocol+"): "+instrGuid+", "+instrType+", "+instrCmd+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
+
+						if (protocol.equalsIgnoreCase("mqtt")) {
+							this.app.apiCheckInUtils.sendMqttPing(false, new String[]{"instructions"});
+
+						} else if (protocol.equalsIgnoreCase("sms")) {
+							Log.e(logTag, "Send SMS Instruction Response: "+ getSingleInstructionInfoAsSerializedString(instrGuid) );
+
+						}
 					}
 				}
 			}
-
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 
 		}
+	}
+
+	public String getSingleInstructionInfoAsSerializedString(String instrGuid) {
+
+		String[] instrInfo = new String[]{
+				app.rfcxGuardianIdentity.getGuid(),
+				"in",
+				"",		// guid
+				"",		// received_at
+				"",		// executed_at
+				"",		// attempts
+				""		// response
+		};
+
+		for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
+			if ((receivedRow[0] != null) && instrGuid.equalsIgnoreCase(receivedRow[1])) {
+				instrInfo[2] = receivedRow[1];	// guid
+				instrInfo[3] = receivedRow[0];	// received_at
+				break;
+			}
+		}
+
+		for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
+			if ((executedRow[0] != null) && instrGuid.equalsIgnoreCase(executedRow[1])) {
+				instrInfo[2] = executedRow[1];    // guid
+				instrInfo[3] = executedRow[7];    // received_at
+				instrInfo[4] = executedRow[0];    // executed_at
+				instrInfo[5] = executedRow[6];    // attempts
+				instrInfo[6] = executedRow[5];    // response
+				break;
+			}
+		}
+		return TextUtils.join("|", instrInfo);
+	}
+
+	public JSONObject getInstructionsInfoAsJson() {
+
+		JSONObject instrObj = new JSONObject();
+		try {
+
+			JSONArray receivedInstrArr = new JSONArray();
+			for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
+				if (receivedRow[0] != null) {
+					JSONObject receivedObj = new JSONObject();
+					receivedObj.put("guid", receivedRow[1]);
+					receivedObj.put("received_at", receivedRow[0]);
+					receivedInstrArr.put(receivedObj);
+				}
+			}
+			instrObj.put("received", receivedInstrArr);
+
+			JSONArray executedInstrArr = new JSONArray();
+			for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
+				if (executedRow[0] != null) {
+					JSONObject executedObj = new JSONObject();
+					executedObj.put("guid", executedRow[1]);
+					executedObj.put("received_at", executedRow[7]);
+					executedObj.put("executed_at", executedRow[0]);
+					executedObj.put("attempts", executedRow[6]);
+					executedObj.put("response", executedRow[5]);
+					executedInstrArr.put(executedObj);
+				}
+			}
+			instrObj.put("executed", executedInstrArr);
+
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return instrObj;
 	}
 
 

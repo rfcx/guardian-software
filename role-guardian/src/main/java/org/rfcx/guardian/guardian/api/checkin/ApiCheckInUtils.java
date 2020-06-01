@@ -424,42 +424,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		return TextUtils.join("|", new String[] { queuedStatus.toString(), sentStatus.toString(), skippedStatus.toString(), stashedStatus.toString(), archivedStatus.toString() });
 	}
 
-	private JSONObject getLocalInstructionsStatusInfoJson() {
-
-		JSONObject instrObj = new JSONObject();
-		try {
-
-			JSONArray receivedInstrArr = new JSONArray();
-			for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
-				if (receivedRow[0] != null) {
-					JSONObject receivedObj = new JSONObject();
-					receivedObj.put("guid", receivedRow[1]);
-					receivedObj.put("received_at", receivedRow[0]);
-					receivedInstrArr.put(receivedObj);
-				}
-			}
-			instrObj.put("received", receivedInstrArr);
-
-			JSONArray executedInstrArr = new JSONArray();
-			for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
-				if (executedRow[0] != null) {
-					JSONObject executedObj = new JSONObject();
-					executedObj.put("guid", executedRow[1]);
-					executedObj.put("executed_at", executedRow[0]);
-					executedObj.put("received_at", executedRow[7]);
-					executedObj.put("attempts", executedRow[6]);
-					executedObj.put("response", executedRow[5]);
-					executedInstrArr.put(executedObj);
-				}
-			}
-			instrObj.put("executed", executedInstrArr);
-
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return instrObj;
-	}
-
 	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
 		int maxRowsToBundle = 4;
@@ -551,7 +515,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 12));
 
-		checkInMetaJson.put("instructions", getLocalInstructionsStatusInfoJson());
+		checkInMetaJson.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
 
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
@@ -1313,7 +1277,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "instructions")) {
-			pingObj.put("instructions", getLocalInstructionsStatusInfoJson());
+			pingObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "hardware")) {

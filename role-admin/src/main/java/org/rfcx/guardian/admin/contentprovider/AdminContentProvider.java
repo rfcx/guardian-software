@@ -32,28 +32,29 @@ public class AdminContentProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
         RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
+        String logFuncVal = "";
 
         try {
 
             // get role "version" endpoints
 
-            if (RfcxComm.uriMatch(uri, appRole, "version", null)) {
+            if (RfcxComm.uriMatch(uri, appRole, "version", null)) { logFuncVal = "version";
                 return RfcxComm.getProjectionCursor(appRole, "version", new Object[]{appRole, RfcxRole.getRoleVersion(app.getApplicationContext(), logTag)});
 
                 // "prefs" function endpoints
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "prefs", null)) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "prefs", null)) { logFuncVal = "prefs";
                 MatrixCursor cursor = RfcxComm.getProjectionCursor(appRole, "prefs", null);
                 for (String prefKey : app.rfcxPrefs.listPrefsKeys()) {
                     cursor.addRow(new Object[]{prefKey, app.rfcxPrefs.getPrefAsString(prefKey)});
                 }
                 return cursor;
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "prefs", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "prefs", "*")) { logFuncVal = "prefs-*";
                 String prefKey = uri.getLastPathSegment();
                 return RfcxComm.getProjectionCursor(appRole, "prefs", new Object[]{prefKey, app.rfcxPrefs.getPrefAsString(prefKey)});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "prefs_resync", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "prefs_resync", "*")) { logFuncVal = "prefs_resync-*";
                 String prefKey = uri.getLastPathSegment();
                 app.rfcxPrefs.reSyncPrefs(prefKey);
                 app.onPrefReSync(prefKey);
@@ -61,62 +62,62 @@ public class AdminContentProvider extends ContentProvider {
 
             // guardian identity endpoints
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "identity_resync", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "identity_resync", "*")) { logFuncVal = "identity_resync-*";
                 String idKey = uri.getLastPathSegment();
                 //app.rfcxGuardianIdentity.reSyncGuardianIdentity();
                 return RfcxComm.getProjectionCursor(appRole, "identity_resync", new Object[]{ idKey, System.currentTimeMillis() });
 
             // "process" function endpoints
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "process", null)) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "process", null)) { logFuncVal = "process";
                 return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole.toLowerCase(), AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
 
             // "control" function endpoints
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) { logFuncVal = "control-kill";
                 app.rfcxServiceHandler.stopAllServices();
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"kill", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "reboot")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "reboot")) { logFuncVal = "control-reboot";
                 app.rfcxServiceHandler.triggerService("RebootTrigger", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"reboot", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "relaunch")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "relaunch")) { logFuncVal = "control-relaunch";
                 app.rfcxServiceHandler.triggerIntentServiceImmediately("ForceRoleRelaunch");
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"relaunch", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "screenshot")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "screenshot")) { logFuncVal = "control-screenshot";
                 app.rfcxServiceHandler.triggerService("ScreenShotCapture", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"screenshot", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "logcat")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "logcat")) { logFuncVal = "control-logcat";
                 app.rfcxServiceHandler.triggerService("LogCatCapture", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"logcat", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_toggle")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_toggle")) { logFuncVal = "control-airplanemode_toggle";
                 app.rfcxServiceHandler.triggerService("AirplaneModeToggle", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_toggle", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_enable")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_enable")) { logFuncVal = "control-airplanemode_enable";
                 app.rfcxServiceHandler.triggerService("AirplaneModeEnable", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_enable", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "sntp_sync")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "sntp_sync")) { logFuncVal = "control-sntp_sync";
                 app.rfcxServiceHandler.triggerService("SntpSyncJob", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"sntp_sync", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "sms_queue", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "sms_queue", "*")) { logFuncVal = "sms_queue-*";
                 String pathSeg = uri.getLastPathSegment();
                 String pathSegSendAt = pathSeg.substring(0, pathSeg.indexOf("|"));
                 String pathSegAfterSendAt = pathSeg.substring(pathSegSendAt.length()+1);
                 String pathSegAddress = pathSegAfterSendAt.substring(0, pathSegAfterSendAt.indexOf("|"));
                 String pathSegMessage = pathSegAfterSendAt.substring(1 + pathSegAfterSendAt.indexOf("|"));
-                SmsUtils.addScheduledSmsToQueue((long) Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext());
+                SmsUtils.addScheduledSmsToQueue(Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext());
                 return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{pathSegSendAt + "|" + pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
 
                 // "database" function endpoints
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "database_get_all_rows", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "database_get_all_rows", "*")) { logFuncVal = "database_get_all_rows-*";
                 String pathSeg = uri.getLastPathSegment();
 
                 if (pathSeg.equalsIgnoreCase("sms")) {
@@ -139,7 +140,7 @@ public class AdminContentProvider extends ContentProvider {
                     return null;
                 }
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "database_get_latest_row", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "database_get_latest_row", "*")) { logFuncVal = "database_get_latest_row-*";
                 String pathSeg = uri.getLastPathSegment();
 
 
@@ -159,7 +160,7 @@ public class AdminContentProvider extends ContentProvider {
                     return null;
                 }
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "database_delete_row", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "database_delete_row", "*")) { logFuncVal = "database_delete_row-*";
                 String pathSeg = uri.getLastPathSegment();
                 String pathSegTable = pathSeg.substring(0, pathSeg.indexOf("|"));
                 String pathSegId = pathSeg.substring(1 + pathSeg.indexOf("|"));
@@ -186,7 +187,7 @@ public class AdminContentProvider extends ContentProvider {
                     return null;
                 }
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "database_delete_rows_before", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "database_delete_rows_before", "*")) { logFuncVal = "database_delete_rows_before-*";
                 String pathSeg = uri.getLastPathSegment();
                 String pathSegTable = pathSeg.substring(0, pathSeg.indexOf("|"));
                 String pathSegTimeStamp = pathSeg.substring(1 + pathSeg.indexOf("|"));
@@ -202,7 +203,7 @@ public class AdminContentProvider extends ContentProvider {
 
                 }
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "database_set_last_accessed_at", "*")) {
+            } else if (RfcxComm.uriMatch(uri, appRole, "database_set_last_accessed_at", "*")) { logFuncVal = "database_set_last_accessed_at-*";
                 String pathSeg = uri.getLastPathSegment();
                 String pathSegTable = pathSeg.substring(0, pathSeg.indexOf("|"));
                 String pathSegId = pathSeg.substring(1 + pathSeg.indexOf("|"));
@@ -229,7 +230,7 @@ public class AdminContentProvider extends ContentProvider {
             return null;
 
         } catch (Exception e) {
-            RfcxLog.logExc(logTag, e, "AdminContentProvider");
+            RfcxLog.logExc(logTag, e, "AdminContentProvider - "+logFuncVal);
         }
         return null;
     }

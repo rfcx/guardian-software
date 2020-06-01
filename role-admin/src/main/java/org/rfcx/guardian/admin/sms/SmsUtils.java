@@ -1,11 +1,17 @@
 package org.rfcx.guardian.admin.sms;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class SmsUtils {
@@ -27,10 +33,49 @@ public class SmsUtils {
 
 	// Incoming Message Tools
 
-	public static void processIncomingSms(String fromAddress, String msgBody, Context context) {
+	public static void processIncomingSms(JSONObject smsObj, Context context) throws JSONException {
 
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 		String apiSmsAddress = app.rfcxPrefs.getPrefAsString("api_sms_address");
+
+		if (!smsObj.getString("address").equalsIgnoreCase(apiSmsAddress)) {
+			// In this case, since message did not arrive from the specified API SMS address, we just save the message.
+			String msgId = DeviceSmsUtils.generateMessageId();
+			app.smsMessageDb.dbSmsReceived.insert(smsObj.getString("received_at"), smsObj.getString("address"), smsObj.getString("body"), msgId);
+			Log.w(logTag, "SMS Received (ID " + msgId + "): From " + smsObj.getString("address") + " at " + smsObj.getString("received_at") + ": \"" + smsObj.getString("body") + "\"");
+
+		} else {
+			// In this case, the message arrived from the API SMS address, so we attempt to parse it
+			String msgFull = smsObj.getString("body");
+			if (msgFull.contains("|")) {
+				String[] msgParts = msgFull.split("\\|");
+				if (msgParts[0].equalsIgnoreCase(app.rfcxGuardianIdentity.getGuid())) {
+					if (msgParts[1].equalsIgnoreCase("in")) {
+
+						JSONObject instrObj = new JSONObject();
+						instrObj.put("guid",msgParts[2]);
+						instrObj.put("type",msgParts[3]);
+						instrObj.put("cmd",msgParts[4]);
+						instrObj.put("meta",msgParts[5]);
+						instrObj.put("at",msgParts[6]);
+						instrObj.put("protocol","sms");
+
+						JSONArray jsonArr = new JSONArray();
+						jsonArr.put(instrObj);
+
+						JSONObject instrSendArr = (new JSONObject()).put("instructions",jsonArr);
+
+						// This message is an instruction
+						Cursor sendInstr = app.getApplicationContext().getContentResolver().query(
+							RfcxComm.getUri("guardian", "instructions", instrSendArr.toString()),
+							RfcxComm.getProjection("guardian", "instructions"),
+							null, null, null);
+						sendInstr.close();
+
+					}
+				}
+			}
+		}
 
 	}
 

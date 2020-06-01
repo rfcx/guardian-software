@@ -27,10 +27,7 @@ public class SmsReceiver extends BroadcastReceiver {
 			for (int i = 0; i < smsJsonArray.length(); i++) {
 				try {
 
-					JSONObject smsObj = smsJsonArray.getJSONObject(i);
-					String msgId = DeviceSmsUtils.generateMessageId();
-					app.smsMessageDb.dbSmsReceived.insert(smsObj.getString("received_at"), smsObj.getString("address"), smsObj.getString("body"), msgId);
-					Log.w(logTag, "SMS Received (ID "+msgId+"): From "+smsObj.getString("address")+" at "+smsObj.getString("received_at")+": \""+smsObj.getString("body")+"\"");
+					SmsUtils.processIncomingSms(smsJsonArray.getJSONObject(i), context);
 
 				} catch (JSONException e) {
 					RfcxLog.logExc(logTag, e);
