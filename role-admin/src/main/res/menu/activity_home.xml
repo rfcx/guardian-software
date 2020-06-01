@@ -28,6 +28,6 @@
 	<item
 			android:id="@+id/menu_sms_activity"
 			android:orderInCategory="7"
-			android:title="Compose sms activity" />
+			android:title="Compose Sms" />
 
 </menu>

@@ -14,11 +14,19 @@ public class SmsUtils {
 
 
 	public static boolean testSmsQueue(String address, long delayInterval, int smsCount, Context context) {
+		return sendSms(address, "", delayInterval, smsCount, context);
+	}
 
+	//with user's defined message
+	public static boolean processSendingSms(String address, String message, long delayInterval, int smsCount, Context context) {
+		return sendSms(address, message, delayInterval, smsCount, context);
+	}
+
+	private static boolean sendSms(String address, String message, long delayInterval, int smsCount, Context context) {
 		long thisTime = System.currentTimeMillis();
 
 		for (int i = 1; i <= smsCount; i++) {
-			addScheduledSmsToQueue(thisTime, address, i+") SMS Test Message: " + DateTimeUtils.getDateTime(thisTime), context);
+			addScheduledSmsToQueue(thisTime, address, i+") SMS Test Message: " + ((!message.isEmpty()) ? message: DateTimeUtils.getDateTime(thisTime)), context);
 			thisTime = thisTime + (delayInterval*1000);
 		}
 

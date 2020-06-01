@@ -18,8 +18,7 @@ class ComposeSmsActivity : AppCompatActivity() {
 
         val app = application as RfcxGuardian
 
-
-        smsMsgEditText.addTextChangedListener(object : TextWatcher{
+        smsMsgEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(editable: Editable?) {}
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -33,7 +32,13 @@ class ComposeSmsActivity : AppCompatActivity() {
         sendMsgButton.setOnClickListener {
             //message for sending
             val msg = smsMsgEditText.text.toString()
-            SmsUtils.testSmsQueue("+"+app.rfcxPrefs.getPrefAsString("api_sms_address"), 75, 1, app.applicationContext)
+            SmsUtils.processSendingSms(
+                "+" + app.rfcxPrefs.getPrefAsString("api_sms_address"),
+                msg,
+                75,
+                1,
+                app.applicationContext
+            )
             smsMsgEditText.text = null
         }
     }
