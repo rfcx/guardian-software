@@ -28,8 +28,9 @@ public class InstructionsDb {
 	static final String C_JSON = "json";
 	static final String C_ATTEMPTS = "attempts";
 	static final String C_TIMESTAMP_EXTRA = "timestamp_extra";
+	static final String C_RECEIVED_BY = "received_by";
 
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_GUID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_GUID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA, C_RECEIVED_BY };
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -42,6 +43,7 @@ public class InstructionsDb {
 			.append(", ").append(C_JSON).append(" TEXT")
 			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
 			.append(", ").append(C_TIMESTAMP_EXTRA).append(" INTEGER")
+			.append(", ").append(C_RECEIVED_BY).append(" TEXT")
 			.append(")");
 		return sbOut.toString();
 	}
@@ -58,7 +60,7 @@ public class InstructionsDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(String instructionGuid, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson) {
+		public int insert(String instructionGuid, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson, String receivedBy) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -69,11 +71,12 @@ public class InstructionsDb {
 			values.put(C_JSON, metaJson);
 			values.put(C_ATTEMPTS, 0);
 			values.put(C_TIMESTAMP_EXTRA, (new Date()).getTime());
+			values.put(C_RECEIVED_BY, receivedBy);
 
 			return this.dbUtils.insertRow(TABLE, values);
 		}
 
-		public int findByGuidOrCreate(String instructionGuid, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson) {
+		public int findByGuidOrCreate(String instructionGuid, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson, String receivedBy) {
 
 			if (getCountByGuid(instructionGuid) == 0) {
 				ContentValues values = new ContentValues();
@@ -85,6 +88,7 @@ public class InstructionsDb {
 				values.put(C_JSON, metaJson);
 				values.put(C_ATTEMPTS, 0);
 				values.put(C_TIMESTAMP_EXTRA, (new Date()).getTime());
+				values.put(C_RECEIVED_BY, receivedBy);
 				this.dbUtils.insertRow(TABLE, values);
 			}
 			return getCountByGuid(instructionGuid);
@@ -126,7 +130,7 @@ public class InstructionsDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(String instructionGuid, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra) {
+		public int insert(String instructionGuid, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra, String receivedBy) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -137,11 +141,12 @@ public class InstructionsDb {
 			values.put(C_JSON, responseJson);
 			values.put(C_ATTEMPTS, attempts);
 			values.put(C_TIMESTAMP_EXTRA, timestampExtra);
+			values.put(C_RECEIVED_BY, receivedBy);
 
 			return this.dbUtils.insertRow(TABLE, values);
 		}
 
-		public int findByGuidOrCreate(String instructionGuid, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra) {
+		public int findByGuidOrCreate(String instructionGuid, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra, String receivedBy) {
 
 			if (getCountByGuid(instructionGuid) == 0) {
 				ContentValues values = new ContentValues();
@@ -153,6 +158,7 @@ public class InstructionsDb {
 				values.put(C_JSON, responseJson);
 				values.put(C_ATTEMPTS, attempts);
 				values.put(C_TIMESTAMP_EXTRA, timestampExtra);
+				values.put(C_RECEIVED_BY, receivedBy);
 				this.dbUtils.insertRow(TABLE, values);
 			}
 			return getCountByGuid(instructionGuid);

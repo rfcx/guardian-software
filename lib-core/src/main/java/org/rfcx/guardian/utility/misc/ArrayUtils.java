@@ -10,6 +10,17 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class ArrayUtils {
 	
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "ArrayUtils");
+
+	public static boolean doesStringArrayContainString(String[] strArr, String strInd) {
+		boolean doesContain = false;
+		for (String sInd : strArr) {
+			if (sInd.equalsIgnoreCase(strInd)) {
+				doesContain = true;
+				break;
+			}
+		}
+		return doesContain;
+	}
 	
 	public static double[] castFloatArrayToDoubleArray(float[] arr) {
 		if (arr == null) { arr = new float[]{}; }

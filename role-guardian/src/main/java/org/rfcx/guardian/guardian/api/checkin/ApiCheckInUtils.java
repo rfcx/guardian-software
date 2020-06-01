@@ -34,7 +34,7 @@ import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
 import org.rfcx.guardian.utility.device.capture.DeviceScreenShot;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
-import org.rfcx.guardian.utility.mqtt.MqttUtils;
+import org.rfcx.guardian.utility.network.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -54,9 +54,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		this.mqttCheckInClient = new MqttUtils(context, RfcxGuardian.APP_ROLE, this.app.rfcxGuardianIdentity.getGuid());
 
-		this.subscribeBaseTopic = "guardians/" + this.app.rfcxGuardianIdentity.getGuid().toLowerCase(Locale.US) + "/" + RfcxGuardian.APP_ROLE.toLowerCase(Locale.US);
-		this.mqttCheckInClient.addSubscribeTopic(this.subscribeBaseTopic + "/instructions");
-		this.mqttCheckInClient.addSubscribeTopic(this.subscribeBaseTopic + "/checkins");
+		this.mqttCheckInClient.addSubscribeTopic(this.app.rfcxGuardianIdentity.getGuid()+"/cmd");
 
 		setOrResetBrokerConfig();
 		this.mqttCheckInClient.setCallback(this);
@@ -72,8 +70,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private long requestTimeOutLength = 0;
 
-	private String subscribeBaseTopic = null;
-
 	private long requestSendReturned = System.currentTimeMillis();
 
 	private String inFlightCheckInAudioId = null;
@@ -82,11 +78,9 @@ public class ApiCheckInUtils implements MqttCallback {
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
 
 	private int inFlightCheckInAttemptCounter = 0;
-	private int inFlightCheckInAttemptCounterLimit = 12;
+	private int inFlightCheckInAttemptCounterLimit = 6;
 
 	private List<String> previousCheckIns = new ArrayList<String>();
-
-//	private Date preFlightStatsQueryTimestamp = new Date();
 
 	private int[] failedCheckInThresholds = new int[0];
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
@@ -430,42 +424,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		return TextUtils.join("|", new String[] { queuedStatus.toString(), sentStatus.toString(), skippedStatus.toString(), stashedStatus.toString(), archivedStatus.toString() });
 	}
 
-	private JSONObject getLocalInstructionsStatusInfoJson() {
-
-		JSONObject instrObj = new JSONObject();
-		try {
-
-			JSONArray receivedInstrArr = new JSONArray();
-			for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
-				if (receivedRow[0] != null) {
-					JSONObject receivedObj = new JSONObject();
-					receivedObj.put("guid", receivedRow[1]);
-					receivedObj.put("received_at", receivedRow[0]);
-					receivedInstrArr.put(receivedObj);
-				}
-			}
-			instrObj.put("received", receivedInstrArr);
-
-			JSONArray executedInstrArr = new JSONArray();
-			for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
-				if (executedRow[0] != null) {
-					JSONObject executedObj = new JSONObject();
-					executedObj.put("guid", executedRow[1]);
-					executedObj.put("executed_at", executedRow[0]);
-					executedObj.put("received_at", executedRow[7]);
-					executedObj.put("attempts", executedRow[6]);
-					executedObj.put("response", executedRow[5]);
-					executedInstrArr.put(executedObj);
-				}
-			}
-			instrObj.put("executed", executedInstrArr);
-
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return instrObj;
-	}
-
 	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
 		int maxRowsToBundle = 4;
@@ -557,7 +515,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 12));
 
-		checkInMetaJson.put("instructions", getLocalInstructionsStatusInfoJson());
+		checkInMetaJson.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
 
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
@@ -718,16 +676,17 @@ public class ApiCheckInUtils implements MqttCallback {
 		try {
 			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
 
-			if (excStr.contains("Too many publishes in progress")) {
+			/*if (excStr.contains("Too many publishes in progress")) {
 				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
 				app.rfcxServiceHandler.triggerService("ApiCheckInJob", true);
 
-			} else if (	excStr.contains("UnknownHostException")
+			} else*/ if (	excStr.contains("UnknownHostException")
 					||	excStr.contains("Broken pipe")
 					||	excStr.contains("Timed out waiting for a response from the server")
 					||	excStr.contains("No route to host")
 					||	excStr.contains("Host is unresolved")
 					||	excStr.contains("Unable to connect to server")
+					||	excStr.contains("Too many publishes in progress")
 			) {
 				Log.i(logTag, "Connection has failed "+this.inFlightCheckInAttemptCounter +" times (max: "+this.inFlightCheckInAttemptCounterLimit +")");
 				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
@@ -993,7 +952,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private void processCheckInResponseMessage(String jsonStr) {
 
-		Log.i(logTag, "CheckIn Response: " + jsonStr);
+		Log.i(logTag, "Received: " + jsonStr);
 		try {
 
 			JSONObject jsonObj = new JSONObject(jsonStr);
@@ -1134,7 +1093,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			// parse 'instructions' array
 			if (jsonObj.has("instructions")) {
-				app.instructionsUtils.processInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
+				app.instructionsUtils.processReceivedInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
 			}
 
 			// increase total of synced audio when get the response from mqtt sending
@@ -1181,12 +1140,8 @@ public class ApiCheckInUtils implements MqttCallback {
 		Log.i(logTag, "Received "+messagePayload.length+" bytes on '"+messageTopic+"' at "+DateTimeUtils.getDateTime());
 
 		// this is a checkin response message
-		if (messageTopic.equalsIgnoreCase(this.subscribeBaseTopic + "/checkins")) {
+		if (messageTopic.equalsIgnoreCase(this.app.rfcxGuardianIdentity.getGuid()+"/cmd")) {
 			processCheckInResponseMessage(StringUtils.UnGZipByteArrayToString(messagePayload));
-
-		// this is an instruction message
-		} else if (messageTopic.equalsIgnoreCase(this.subscribeBaseTopic + "/instructions")) {
-		    app.instructionsUtils.processInstructionJson(StringUtils.UnGZipByteArrayToString(messagePayload));
 
 		}
 	}
@@ -1266,14 +1221,17 @@ public class ApiCheckInUtils implements MqttCallback {
 		return this.mqttCheckInClient.publishMessage(publishTopic, messageByteArray);
 	}
 
+	public boolean isConnectedToBroker() {
+		return mqttCheckInClient.isConnected();
+	}
 
 	// Ping Messages
 
-	public void sendMqttPing() {
+	public void sendMqttPing(boolean includeAllExtraFields, String[] includeExtraFields) {
 
 		try {
 
-			long pingSendStart = publishMessageOnConfirmedConnection("guardians/pings", packageMqttPingPayload(buildPingJson()));
+			long pingSendStart = publishMessageOnConfirmedConnection("guardians/pings", packageMqttPingPayload(buildPingJson(includeAllExtraFields, includeExtraFields)));
 
 		} catch (Exception e) {
 
@@ -1297,7 +1255,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		return byteArrayOutputStream.toByteArray();
 	}
 
-	private String buildPingJson() throws JSONException, IOException {
+	private String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields) throws JSONException, IOException {
 
 		JSONObject pingObj = new JSONObject();
 
@@ -1306,20 +1264,37 @@ public class ApiCheckInUtils implements MqttCallback {
 		guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
 		pingObj.put("guardian", guardianObj);
 
-		pingObj.put("measured_at", System.currentTimeMillis());
-		pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
-		pingObj.put("instructions", getLocalInstructionsStatusInfoJson());
-		pingObj.put("hardware", DeviceHardwareUtils.getInfoAsJson());
-		pingObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
-		pingObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
-		pingObj.put("checkins", getCheckInStatusInfoForJson(false));
+		boolean includeMeasuredAt = false;
 
-		JSONObject outputJsonObj = new JSONObject();
-		outputJsonObj.put("ping", pingObj);
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "battery")) {
+			pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
+			includeMeasuredAt = true;
+		}
 
-//		Log.d(logTag, outputJsonObj.toString());
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {
+			pingObj.put("checkins", getCheckInStatusInfoForJson(false));
+			includeMeasuredAt = true;
+		}
 
-		return outputJsonObj.toString();
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "instructions")) {
+			pingObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "hardware")) {
+			pingObj.put("hardware", DeviceHardwareUtils.getInfoAsJson());
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "phone")) {
+			pingObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "software")) {
+			pingObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
+		}
+
+		if (includeMeasuredAt) { pingObj.put("measured_at", System.currentTimeMillis()); }
+		Log.d(logTag, pingObj.toString());
+		return pingObj.toString();
 	}
 
     private void handlePingPublicationExceptions(Exception inputExc) {

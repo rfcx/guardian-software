@@ -18,7 +18,6 @@ public class DeviceSystemDb {
 		this.dbCPU = new DbCPU(context);
 		this.dbBattery = new DbBattery(context);
 		this.dbTelephony = new DbTelephony(context);
-		this.dbOffline = new DbOffline(context);
 		this.dbDateTimeOffsets = new DbDateTimeOffsets(context);
 	}
 
@@ -148,41 +147,6 @@ public class DeviceSystemDb {
 
 	}
 	public final DbTelephony dbTelephony;
-
-	public class DbOffline {
-
-		final DbUtils dbUtils;
-
-		private String TABLE = "offline";
-		
-		public DbOffline(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
-		}
-		
-		public int insert(Date measured_at, long offline_period, String carrier_name) {
-			
-			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, measured_at.getTime());
-			values.put(C_VALUE_1, offline_period);
-			values.put(C_VALUE_2, carrier_name.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			
-			return this.dbUtils.insertRow(TABLE, values);
-		}
-		
-		private List<String[]> getAllRows() {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
-		}
-		
-		public void clearRowsBefore(Date date) {
-			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
-		}
-		
-		public String getConcatRows() {
-			return DbUtils.getConcatRows(getAllRows());
-		}
-
-	}
-	public final DbOffline dbOffline;
 	
 	public class DbDateTimeOffsets {
 

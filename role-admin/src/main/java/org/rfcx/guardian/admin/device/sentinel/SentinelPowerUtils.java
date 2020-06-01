@@ -44,6 +44,8 @@ public class SentinelPowerUtils {
 
     private boolean verboseLogging = false;
 
+    public boolean isInputPowerAtZero = false;
+
     public boolean isCaptureAllowed() {
 
         boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_capture");
@@ -162,7 +164,7 @@ public class SentinelPowerUtils {
                 valueSet[3] = valueSet[0] * valueSet[1] / 1000;
                 this.i2cTmpValues.put(groupName, valueSet);
             }
-            calculateMissingSystemPowerValues();
+            calculateMissingPowerValues();
             cacheI2cTmpValues();
 
         } catch (Exception e) {
@@ -170,11 +172,16 @@ public class SentinelPowerUtils {
         }
     }
 
-    private void calculateMissingSystemPowerValues() {
+    private void calculateMissingPowerValues() {
+
         double[] sysVals = this.i2cTmpValues.get("system");
-        sysVals[3] = this.i2cTmpValues.get("input")[3] - this.i2cTmpValues.get("battery")[3];
+        double[] inpVals = this.i2cTmpValues.get("input");
+
+        sysVals[3] = inpVals[3] - this.i2cTmpValues.get("battery")[3];
         sysVals[1] = 1000 * sysVals[3] / sysVals[0];
         this.i2cTmpValues.put("system", sysVals);
+
+        this.isInputPowerAtZero = !(Math.round(inpVals[3]) > 0);
     }
 
     private static double applyValueModifier(String i2cLabel, long i2cRawValue) {

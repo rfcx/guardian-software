@@ -15,8 +15,8 @@
 	<string name="prefs_value_default_api_rest_protocol">https</string>
 
 	<string name="prefs_value_default_api_checkin_host">checkin.rfcx.org</string>
-	<string name="prefs_value_default_api_checkin_protocol">tcp</string>
-	<string name="prefs_value_default_api_checkin_port">1883</string>
+	<string name="prefs_value_default_api_checkin_protocol">ssl</string>
+	<string name="prefs_value_default_api_checkin_port">8883</string>
 
 	<string name="prefs_value_default_api_ntp_host">time.apple.com</string>
 	<string name="prefs_value_default_api_sms_address">+14154803657</string>
@@ -26,7 +26,7 @@
 	<string name="prefs_value_default_audio_cycle_duration">90</string>
 	<string name="prefs_value_default_audio_schedule_off_hours">23:56-23:58,23:58-00:00</string>
 	<string name="prefs_value_default_audio_encode_codec">opus</string>
-	<string name="prefs_value_default_audio_encode_bitrate">24576</string>
+	<string name="prefs_value_default_audio_encode_bitrate">28672</string>
 	<string name="prefs_value_default_audio_sample_rate">24000</string>
 
 	<string name="prefs_value_default_checkin_battery_cutoff">90</string>

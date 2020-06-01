@@ -333,8 +333,8 @@ public class RfcxPrefs {
 			put("api_rest_host", "api.rfcx.org");
 			put("api_rest_protocol", "https");
 	        put("api_checkin_host", "checkin.rfcx.org");
-	        put("api_checkin_protocol", "tcp");
-	        put("api_checkin_port", "1883");
+	        put("api_checkin_protocol", "ssl");
+	        put("api_checkin_port", "8883");
 	        put("api_ntp_host", "time.apple.com");
 			put("api_sms_address", "+14154803657");
 	        
@@ -348,7 +348,7 @@ public class RfcxPrefs {
 			put("audio_battery_cutoff", "80");
 			
 			put("audio_encode_codec", "opus");
-			put("audio_encode_bitrate", "24576");
+			put("audio_encode_bitrate", "28672");
 			put("audio_sample_rate", "24000");
 
 			put("checkin_failure_thresholds", "10,20,30,40,50,60,70,80,90");

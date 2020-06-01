@@ -20,14 +20,18 @@ if [ "$CNTL" = "help" ]; then
 
 	echo "";
 	exit
-
- elif [ "$CNTL" = "reboot" ]; then # || "$CNTL" = "kill" || "$CNTL" = "relaunch" || "$CNTL" = "screenshot" || "$CNTL" = "logcat" || "$CNTL" = "airplanemode_toggle" || "$CNTL" = "airplanemode_enable" || "$CNTL" = "sntp_sync" ]; then
-	
-	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/$CNTL
 	
 elif [ "$CNTL" = "identity_set" ]; then
 
 	$ADB shell content query --uri content://org.rfcx.guardian.guardian/identity_set/$KEY%7C$VAL;
+
+elif [ "$CNTL" = "ping" ]; then
+
+	$ADB shell content query --uri content://org.rfcx.guardian.guardian/ping/$KEY;
+
+else
+
+	$ADB shell content query --uri content://org.rfcx.guardian.admin/control/$CNTL
 
 fi
 

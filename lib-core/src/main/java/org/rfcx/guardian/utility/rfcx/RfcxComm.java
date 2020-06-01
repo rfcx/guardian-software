@@ -42,9 +42,13 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"identity_resync", new String[] { "identity_key", "received_at" });
 			roleFuncProj.get(role).put(
+				"instructions", new String[] { "instructions_json", "received_at" });
+			roleFuncProj.get(role).put(
 				"status", new String[] { "target", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"process", new String[] { "name", "pid", "uid" });
+			roleFuncProj.get(role).put(
+				"ping", new String[] { "sent_at" });
 			roleFuncProj.get(role).put(
 				"control", new String[] { "command", "result", "received_at" });
 			roleFuncProj.get(role).put(

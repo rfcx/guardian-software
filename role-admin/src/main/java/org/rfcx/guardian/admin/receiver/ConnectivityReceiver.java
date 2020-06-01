@@ -21,8 +21,6 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         
         int disconnectedFor = app.deviceConnectivity.updateConnectivityStateAndReportDisconnectedFor(intent);
 
-		if (disconnectedFor > 1000) { app.deviceSystemDb.dbOffline.insert(new Date(), disconnectedFor, ""); }
-
 	}
 
 }

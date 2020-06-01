@@ -1,14 +1,12 @@
 package org.rfcx.guardian.utility.install;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
-import org.rfcx.guardian.utility.http.HttpGet;
+
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
