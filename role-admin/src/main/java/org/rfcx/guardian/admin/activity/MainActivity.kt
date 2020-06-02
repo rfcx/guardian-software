@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         val app = application as RfcxGuardian
         when (item.itemId) {
 
-            R.id.menu_sms ->  SmsUtils.testSmsQueue(app.rfcxPrefs.getPrefAsString("api_sms_address"), 75, 5, app.applicationContext)
+            R.id.menu_sms_activity -> startActivity(Intent(this, ComposeSmsActivity::class.java))
 
             R.id.menu_screenshot -> app.rfcxServiceHandler.triggerService("ScreenShotCapture", true)
 
@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity() {
 
             R.id.menu_reboot -> app.rfcxServiceHandler.triggerService("RebootTrigger", true)
 
-            R.id.menu_sms_activity -> startActivity(Intent(this, ComposeSmsActivity::class.java))
 
         }
         return true

@@ -27,13 +27,7 @@ class ComposeSmsActivity : AppCompatActivity(), TextWatcher {
             //message for sending
             val msg = smsMsgEditText.text.toString()
             val number = smsNumberEditText.text.toString()
-            SmsUtils.processSendingSms(
-                number,
-                msg,
-                75,
-                1,
-                app.applicationContext
-            )
+            SmsUtils.addImmediateSmsToQueue(number, msg, app.applicationContext)
             smsMsgEditText.text = null
             smsNumberEditText.text = null
         }
