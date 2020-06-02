@@ -69,21 +69,19 @@ Before getting started, key points to be familiar with:
 
 1. On the Orange Pi board there are two LEDs, red and green. **Red** indicates the **power** is connected and **green** indicates that the device is **ON**. Make sure that the power that connected to the Orange Pi is **5V**. If not the LEDs brightness will be low and cannot start the operating system.
 2. By default the Orange Pi comes with both COM 1 jumpers in the correct position. No need to ever change them it seems. COM 2 jumper should be ON only when flashing the device (the rest of the time it should be OFF/removed).
-3. The OrangePi do not come with the **IMEI number**. You need to set it by yourself following the instructions below. Before install any roles, you should set the **IMEI number first**.
+3. The OrangePi does not come with a pre-set **IMEI number**. You will need to set it yourself by following the instructions below.
 4. Before using any roles, make sure there is the internet connection.
-5. **Time and date** will not be correct on the first time you start the device. You need to set it to the present in **Setting Menu** or use the *Sntp service* on the **admin role** or insert sim card.
-6. **Timezone automatically** need to uncheck so that Admin role can change it.
-7. **Default Write Disk** need to set to **Phone Storage** although sd card is installed.
-8. **Default SMS app** need to set to Admin role.
-9. The OrangePi comes with USB debugging **enabled** by default.
-10. The OrangePi comes with **auto allow the permission** (because it is Android 4.4.2).
-11. The guardian role will capture audio and send to server automatically if:
+5. **Timezone automatically** need to uncheck so that Admin role can change it.
+6. **Default Write Disk** need to set to **Phone Storage** although sd card is installed.
+7. **Default SMS app** need to set to Admin role.
+8. The OrangePi comes with USB debugging **enabled** by default.
+9. The OrangePi comes with **auto allow the permission** (because it is Android 4.4.2).
+10. The guardian role will capture audio and send to server automatically if:
     1. The date/time is (reasonably) close to current time
-    2. GPS location is enabled
-    3. Guardian is registered
-    4. **SD card** is connected *(any size is okay -- tested up to 64GB)*
-    5. There is internet connection
-    6. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
+    2. Guardian is registered
+    3. **SD card** is connected *(any size is okay -- tested up to 64GB)*
+    4. There is internet connection
+    5. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
 
 #### Install apps
 
@@ -118,7 +116,7 @@ OrangePi has already been rooted so you do not need to do anything extra to run 
        Choose WIN8 if you are using Windows 8 or above.
        (Some users report failures during install -- [this is the solution](https://drive.google.com/file/d/1zfUcaQk06CXQBbLr59rt83pD5sLO7pnP/view))
     2. [MTK Flash Tool](https://drive.google.com/open?id=1VXU-Jb5A8cFco3Q6uYht684pxjnp0pJd)
-    3. Orange Pi Android image: [Android image](https://drive.google.com/open?id=1vaF4ccuwoh-fFRWvOI8vAc726caIPDEF)
+    3. Orange Pi Android image: [Android Image Downloads](https://bit.ly/rfcx-3giot-img)
 2. Open the MTK Flash Tool *(flash_tool)*
     1. Make sure the Orange Pi is NOT connected.
     2. Choose the scatter-loading file **MT6572_Android_scatter** *(This is in the Android_OS_for_Orange_Pi_3G-IoT/images/ folder after extracting the image.)*
@@ -156,7 +154,7 @@ Before following the instruction below. You need to download Vysor first.
 
 ### Step 3: Set the IMEI number
 
-Before you start, pick a suitable IMEI number. RFCx Guardians have a [list of IMEIs](https://docs.google.com/spreadsheets/d/1oQzsJxQ8KqGP7VJJja-v7-JlHIYqI_mnqq2bFSlDRSw/edit#gid=0).
+Before you start, you will need to generate a suitable IMEI number. Please use this [Online IMEI Generator](https://static.rfcx.org/tools/imei/generator.html) to create a valid value.
 
 1. Make sure that COM 2 jumper is OFF (removed).
 2. First download [IMEI Writer](https://drive.google.com/open?id=1JBEbILcHHfWM3Yz4e4J9Yc5Leix9m1uI) (for Windows)
