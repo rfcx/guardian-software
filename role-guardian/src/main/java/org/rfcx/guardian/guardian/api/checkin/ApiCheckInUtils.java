@@ -78,7 +78,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
 
 	private int inFlightCheckInAttemptCounter = 0;
-	private int inFlightCheckInAttemptCounterLimit = 6;
+	private int inFlightCheckInAttemptCounterLimit = 10;
 
 	private List<String> previousCheckIns = new ArrayList<String>();
 
