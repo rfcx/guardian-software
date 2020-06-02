@@ -11,35 +11,31 @@ import kotlinx.android.synthetic.main.activity_compose_sms.*
 import org.rfcx.guardian.admin.R
 import org.rfcx.guardian.admin.RfcxGuardian
 
-class ComposeSmsActivity : AppCompatActivity() {
+class ComposeSmsActivity : AppCompatActivity(), TextWatcher {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_compose_sms)
 
         val app = application as RfcxGuardian
 
-        smsMsgEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(editable: Editable?) {}
+        smsMsgEditText.addTextChangedListener(this)
+        smsNumberEditText.addTextChangedListener(this)
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                sendMsgButton.isEnabled = !p0.isNullOrBlank()
-            }
-
-        })
+        smsNumberEditText.setText("${app.rfcxPrefs.getPrefAsString("api_sms_address")}")
 
         sendMsgButton.setOnClickListener {
             //message for sending
             val msg = smsMsgEditText.text.toString()
+            val number = smsNumberEditText.text.toString()
             SmsUtils.processSendingSms(
-                "+" + app.rfcxPrefs.getPrefAsString("api_sms_address"),
+                number,
                 msg,
                 75,
                 1,
                 app.applicationContext
             )
             smsMsgEditText.text = null
+            smsNumberEditText.text = null
         }
     }
 
@@ -67,7 +63,23 @@ class ComposeSmsActivity : AppCompatActivity() {
             notDefaultAppText.visibility = View.GONE
 
             smsMsgEditText.visibility = View.VISIBLE
+            smsNumberEditText.visibility = View.VISIBLE
             sendMsgButton.visibility = View.VISIBLE
         }
+    }
+
+    override fun afterTextChanged(p0: Editable?) {
+    }
+
+    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+    }
+
+    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        sendMsgButton.isEnabled = !p0.isNullOrBlank()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
     }
 }
