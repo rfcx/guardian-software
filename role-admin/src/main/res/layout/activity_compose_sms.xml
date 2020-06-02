@@ -7,21 +7,29 @@
         tools:context=".sms.ComposeSmsActivity">
 
     <EditText
+            android:id="@+id/smsNumberEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:visibility="gone"
+            android:hint="@string/sms_phone_number"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
             android:id="@+id/smsMsgEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:hint="@string/sms_message"
+            app:layout_constraintTop_toBottomOf="@id/smsNumberEditText" />
 
     <Button
             android:id="@+id/sendMsgButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send sms"
+            android:text="@string/send_sms_button"
             android:visibility="invisible"
             android:enabled="false"
             app:layout_constraintEnd_toEndOf="parent"
@@ -32,7 +40,7 @@
             android:id="@+id/notDefaultAppText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Not default app"
+            android:text="@string/not_default_app"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -42,7 +50,7 @@
             android:id="@+id/changeDefaultAppButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Change default app"
+            android:text="@string/change_default_app"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/notDefaultAppText" />

@@ -8,5 +8,10 @@
     <string name="menu_sntp">sntp sync</string>
     <string name="menu_logcat">logcat</string>
     <string name="menu_reboot">reboot</string>
+    <string name="sms_phone_number">Phone Number</string>
+    <string name="sms_message">Message</string>
+    <string name="send_sms_button">Send sms</string>
+    <string name="not_default_app">Not default app</string>
+    <string name="change_default_app">Change default app</string>
 
 </resources>
