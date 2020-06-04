@@ -32,7 +32,7 @@
 	<string name="prefs_value_default_checkin_battery_cutoff">90</string>
 	<string name="prefs_value_default_audio_battery_cutoff">80</string>
 
-	<string name="prefs_value_default_checkin_failure_thresholds">10,20,30,40,50,60,70,80,90</string>
+	<string name="prefs_value_default_checkin_failure_thresholds">12,24,36,48,60,75,90</string>
 	<string name="prefs_value_default_checkin_skip_threshold">5</string>
 	<string name="prefs_value_default_checkin_stash_threshold">240</string>
 	<string name="prefs_value_default_checkin_archive_threshold">160</string>

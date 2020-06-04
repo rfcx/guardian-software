@@ -78,7 +78,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
 
 	private int inFlightCheckInAttemptCounter = 0;
-	private int inFlightCheckInAttemptCounterLimit = 10;
+	private int inFlightCheckInAttemptCounterLimit = 6;
 
 	private List<String> previousCheckIns = new ArrayList<String>();
 
@@ -676,11 +676,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		try {
 			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
 
-			/*if (excStr.contains("Too many publishes in progress")) {
-				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-				app.rfcxServiceHandler.triggerService("ApiCheckInJob", true);
-
-			} else*/ if (	excStr.contains("UnknownHostException")
+			if (	excStr.contains("UnknownHostException")
 					||	excStr.contains("Broken pipe")
 					||	excStr.contains("Timed out waiting for a response from the server")
 					||	excStr.contains("No route to host")
@@ -785,12 +781,13 @@ public class ApiCheckInUtils implements MqttCallback {
                                 app.deviceControlUtils.runOrTriggerDeviceControl("relaunch",
                                         app.getApplicationContext().getContentResolver());
                             }
-                        } else if (!app.deviceConnectivity.isConnected()) {
-                            // any threshold and not connected
+                        } else { //} else if (!app.deviceConnectivity.isConnected()) {
+                            // any threshold // and not connected
                             Log.d(logTag, "Failure Threshold Reached: Airplane Mode (" + toggleThreshold
                                     + " minutes since last successful CheckIn)");
                             app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle",
                                     app.getApplicationContext().getContentResolver());
+                            this.inFlightCheckInAttemptCounter = 0;
                         }
                         break;
                     }
