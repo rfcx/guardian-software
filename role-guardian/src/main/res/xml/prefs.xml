@@ -288,6 +288,15 @@
 			android:entries="@array/tz_timezones"
 			android:entryValues="@array/tz_timezones"
 			android:defaultValue="@string/prefs_value_default_admin_system_timezone" />
+
+	<ListPreference
+			android:key="admin_enable_ssh_server"
+			android:title="admin_ssh_server_state"
+			android:dialogTitle="admin_ssh_server_state"
+			android:summary="string - On/Off"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_ssh_server" />
  	
  	
 </PreferenceScreen>
