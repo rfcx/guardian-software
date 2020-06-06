@@ -7,11 +7,11 @@ object SSHServerUtils {
 
     fun startServer(context: Context) {
         //start sshd < cli
-        ShellCommands.executeCommand("start sshd")
+        ShellCommands.executeCommandAsRoot("start sshd", context)
     }
 
     fun stopServer(context: Context) {
         //stop sshd < cli
-        ShellCommands.executeCommand("stop sshd")
+        ShellCommands.executeCommandAsRoot("stop sshd", context)
     }
 }

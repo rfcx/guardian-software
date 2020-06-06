@@ -29,6 +29,7 @@ class SSHServerControlService : Service() {
     override fun onCreate() {
         super.onCreate()
 
+        app = application as RfcxGuardian
         sshServerControl = SSHServerControl()
     }
 
@@ -57,7 +58,6 @@ class SSHServerControlService : Service() {
         override fun run() {
             super.run()
 
-            app = application as RfcxGuardian
             try {
                 val state = app!!.rfcxPrefs.getPrefAsBoolean("admin_enable_ssh_server")
                 if (state) {
