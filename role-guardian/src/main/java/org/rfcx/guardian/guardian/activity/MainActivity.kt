@@ -279,7 +279,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onRegisterSuccess(t: Throwable?, response: String?) {
-        app.saveGuardianRegistration(response);
+        app.saveGuardianRegistration(response)
         Log.i(logTag, "onRegisterSuccess: Successfully Registered")
         showToast("Successfully Registered")
         GuardianCheckApi.exists(applicationContext, app.rfcxGuardianIdentity.guid, this)

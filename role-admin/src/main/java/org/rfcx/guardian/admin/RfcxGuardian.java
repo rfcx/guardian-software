@@ -5,6 +5,7 @@ import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
+import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelerometerUtils;
@@ -262,6 +263,8 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("CameraVideoCapture", CameraVideoCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledCameraVideoCapture", ScheduledCameraVideoCaptureService.class);
 
+		this.rfcxServiceHandler.addService("SSHServerControl", SSHServerControlService.class);
+
 	}
 
 	public void onPrefReSync(String prefKey) {
@@ -283,6 +286,8 @@ public class RfcxGuardian extends Application {
 		} else if (prefKey.equalsIgnoreCase("reboot_forced_daily_at")) {
 			Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
 
+		} else if (prefKey.equalsIgnoreCase("admin_enable_ssh_server")) {
+			rfcxServiceHandler.triggerService("SSHServerControl", false);
 		}
 	}
 

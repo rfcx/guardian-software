@@ -371,6 +371,8 @@ public class RfcxPrefs {
 			put("admin_enable_sentinel_capture", "true");
 
 			put("admin_system_timezone", "[ Not Set ]");
+
+			put("admin_enable_ssh_server", "false");
 			
 			
 	    }}
