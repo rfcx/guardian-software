@@ -297,6 +297,15 @@
 			android:entries="@array/prefs_values_true_or_false"
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_ssh_server" />
+
+	<ListPreference
+			android:key="admin_enable_wifi_socket"
+			android:title="admin_wifi_socket_state"
+			android:dialogTitle="admin_wifi_socket_state"
+			android:summary="string - On/Off"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_ssh_server"/>
  	
  	
 </PreferenceScreen>

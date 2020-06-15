@@ -373,6 +373,7 @@ public class RfcxPrefs {
 			put("admin_system_timezone", "[ Not Set ]");
 
 			put("admin_enable_ssh_server", "false");
+			put("admin_enable_wifi_socket", "false");
 			
 			
 	    }}
