@@ -9,12 +9,12 @@ if (project.file("../gradle/signing/platform_signing.gradle").exists() && projec
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId "org.rfcx.guardian.guardian"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 3
         versionName "0.6.9"
         setProperty("archivesBaseName", "guardian-$versionName")
