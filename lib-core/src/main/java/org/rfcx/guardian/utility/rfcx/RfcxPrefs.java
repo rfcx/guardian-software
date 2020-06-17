@@ -351,7 +351,7 @@ public class RfcxPrefs {
 			put("audio_encode_bitrate", "28672");
 			put("audio_sample_rate", "24000");
 
-			put("checkin_failure_thresholds", "12,24,36,48,60,75,90");
+			put("checkin_failure_thresholds", "12,25,40,60,80");
 			
 			put("checkin_skip_threshold", "5");
 			put("checkin_stash_threshold", "240");
