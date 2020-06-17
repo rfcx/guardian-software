@@ -26,3 +26,6 @@
 -keepclassmembers class org.rfcx.guardian.audio.flac.FLACStreamEncoder {
     private <fields>;
 }
+-keep class org.eclipse.paho.client.mqttv3.** {*;}
+-keep class org.eclipse.paho.android.service.** { *; }
+-keepclasseswithmembers class org.eclipse.paho.** {*;}
