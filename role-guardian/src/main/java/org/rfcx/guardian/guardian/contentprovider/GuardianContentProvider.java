@@ -30,21 +30,21 @@ public class GuardianContentProvider extends ContentProvider {
 		String logFuncVal = "";
 		
 		try {
-			
+
 			// get role "version" endpoints
-			
+
 			if (RfcxComm.uriMatch(uri, appRole, "version", null)) { logFuncVal = "version";
 				return RfcxComm.getProjectionCursor(appRole, "version", new Object[] { appRole, RfcxRole.getRoleVersion(app.getApplicationContext(), logTag) });
-			
+
 			// "prefs" function endpoints
-			
+
 			} else if (RfcxComm.uriMatch(uri, appRole, "prefs", null)) { logFuncVal = "prefs";
 				MatrixCursor cursor = RfcxComm.getProjectionCursor(appRole, "prefs", null);
 				for (String prefKey : app.rfcxPrefs.listPrefsKeys()) {
 					cursor.addRow(new Object[] { prefKey, app.rfcxPrefs.getPrefAsString(prefKey) });
 				}
 				return cursor;
-				
+
 			} else if (RfcxComm.uriMatch(uri, appRole, "prefs", "*")) { logFuncVal = "prefs-*";
 				String prefKey = uri.getLastPathSegment();
 				return RfcxComm.getProjectionCursor(appRole, "prefs", new Object[] { prefKey, app.rfcxPrefs.getPrefAsString(prefKey) });
@@ -103,6 +103,17 @@ public class GuardianContentProvider extends ContentProvider {
 				JSONObject instrObj = new JSONObject(uri.getLastPathSegment());
 				app.instructionsUtils.processReceivedInstructionJson(instrObj);
 				return RfcxComm.getProjectionCursor(appRole, "instructions", new Object[]{ instrObj.toString(), System.currentTimeMillis() });
+
+			// "get configuration" function
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "configuration", "*")) {
+				logFuncVal = "configuration-*";
+				String configurationTarget = uri.getLastPathSegment();
+				JSONArray configurationResultJsonArray = new JSONArray();
+				if (configurationTarget.equalsIgnoreCase("configuration")) {
+					configurationResultJsonArray = app.wifiCommunicationUtils.getCurrentConfigurationAsJson();
+				}
+				return RfcxComm.getProjectionCursor(appRole, "status", new Object[]{configurationTarget, configurationResultJsonArray.toString(), System.currentTimeMillis()});
 			}
 			
 		} catch (Exception e) {

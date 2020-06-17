@@ -2,8 +2,10 @@ package org.rfcx.guardian.admin.device.android.wifi
 
 import android.content.Context
 import android.util.Log
+import org.json.JSONException
 import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.io.DataInputStream
 import java.io.DataOutputStream
@@ -51,6 +53,16 @@ object WifiCommunicationUtils {
                             "diagnostic" -> {
                             }
                             "configure" -> {
+                                try {
+                                    val jsonArray = RfcxComm.getQueryContentProvider("guardian", "configuration", "configuration", context.contentResolver)
+                                    if (jsonArray.length() > 0) {
+                                        val jsonObject = jsonArray.getJSONObject(0)
+                                        streamOut.writeUTF(jsonObject.toString())
+                                        streamOut.flush()
+                                    }
+                                } catch (e: JSONException) {
+                                    Log.e(LOGTAG, e.toString())
+                                }
                             }
                         }
                     }
