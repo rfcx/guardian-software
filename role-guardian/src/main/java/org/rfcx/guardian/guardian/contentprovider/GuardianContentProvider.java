@@ -113,7 +113,7 @@ public class GuardianContentProvider extends ContentProvider {
 				if (configurationTarget.equalsIgnoreCase("configuration")) {
 					configurationResultJsonArray = app.wifiCommunicationUtils.getCurrentConfigurationAsJson();
 				}
-				return RfcxComm.getProjectionCursor(appRole, "status", new Object[]{configurationTarget, configurationResultJsonArray.toString(), System.currentTimeMillis()});
+				return RfcxComm.getProjectionCursor(appRole, "configuration", new Object[]{configurationTarget, configurationResultJsonArray.toString(), System.currentTimeMillis() });
 			}
 			
 		} catch (Exception e) {

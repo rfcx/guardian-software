@@ -57,7 +57,8 @@ object WifiCommunicationUtils {
                                     val jsonArray = RfcxComm.getQueryContentProvider("guardian", "configuration", "configuration", context.contentResolver)
                                     if (jsonArray.length() > 0) {
                                         val jsonObject = jsonArray.getJSONObject(0)
-                                        streamOut.writeUTF(jsonObject.toString())
+                                        val configurationJson = JSONObject().put("configure", jsonObject)
+                                        streamOut.writeUTF(configurationJson.toString())
                                         streamOut.flush()
                                     }
                                 } catch (e: JSONException) {

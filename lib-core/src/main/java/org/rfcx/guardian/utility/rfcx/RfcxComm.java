@@ -63,6 +63,8 @@ public class RfcxComm {
 				"database_delete_rows_before", new String[] { "table|timestamp", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"database_set_last_accessed_at", new String[] { "table|id", "result", "received_at" });
+			roleFuncProj.get(role).put(
+					"configuration", new String[] { "target", "result", "received_at" });
 		}
 		return roleFuncProj;
 	}
