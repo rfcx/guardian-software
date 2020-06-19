@@ -4,7 +4,6 @@ import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 class WifiCommunicationUtils(context: Context) {
@@ -37,5 +36,13 @@ class WifiCommunicationUtils(context: Context) {
         } finally {
             return configurationJsonArray
         }
+    }
+
+    fun getPrefsChangesAsJson(): JSONArray {
+        val jsonArray = JSONArray()
+        val jsonObject = JSONObject()
+        jsonObject.put("result", "success")
+        jsonArray.put(jsonObject)
+        return  jsonArray
     }
 }

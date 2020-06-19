@@ -39,11 +39,11 @@ object WifiCommunicationUtils {
                         Log.d("ServerSocket", "Receiving data from Client: $data")
 
                         val command = data.split(":")[0]
-                        val receiveJson = JSONObject(data).get("command")
+                        val receiveJson = JSONObject(data)
 
                         //send response back
                         val streamOut = DataOutputStream(socket.getOutputStream())
-                        when (command) {
+                        when (receiveJson.get("command")) {
                             "prefs" -> {
                             }
                             "connection" -> {
@@ -65,30 +65,36 @@ object WifiCommunicationUtils {
                                     Log.e(LOGTAG, e.toString())
                                 }
                             }
-                            "sync" -> {
-                                val jsonArray = JSONArray(receiveJson)
-                                var prefResponse = JSONArray()
-                                var syncResponse = ""
-                                try {
-                                    for (i in 0 until jsonArray.length()) {
-                                        val pref = jsonArray.get(i)
-                                        prefResponse = RfcxComm.getQueryContentProvider("guardian", "prefs_set", pref.toString(), context.contentResolver)
+                            else -> {
+                                val commandObject = JSONObject(receiveJson.get("command").toString())
+                                val commandKey = commandObject.keys().asSequence().toList()[0]
+                                when(commandKey){
+                                    "sync" -> {
+                                        val jsonArray = commandObject.getJSONArray("sync")
+                                        var prefResponse = JSONArray()
+                                        var syncResponse = ""
+                                        try {
+                                            for (i in 0 until jsonArray.length()) {
+                                                val pref = jsonArray.get(i)
+                                                Log.d(LOGTAG, pref.toString())
+                                                prefResponse = RfcxComm.getQueryContentProvider("guardian", "prefs_set", pref.toString(), context.contentResolver)
+                                            }
+                                            if (prefResponse.length() > 0) {
+                                                syncResponse = getSyncResponse("success")
+                                            }
+                                        } catch (e: JSONException) {
+                                            Log.e(LOGTAG, e.toString())
+                                            syncResponse = getSyncResponse("failed")
+                                        } finally {
+                                            streamOut.writeUTF(syncResponse)
+                                            streamOut.flush()
+                                        }
                                     }
-                                    if (prefResponse.length() > 0) {
-                                        syncResponse = getSyncResponse("success")
-                                    }
-                                } catch (e: JSONException) {
-                                    Log.e(LOGTAG, e.toString())
-                                    syncResponse = getSyncResponse("failed")
-                                } finally {
-                                    streamOut.writeUTF(syncResponse)
-                                    streamOut.flush()
                                 }
                             }
                         }
                     }
                     streamInput.close()
-
                 }
             } catch (e: Exception) {
                 Log.e(LOGTAG, e.toString())
