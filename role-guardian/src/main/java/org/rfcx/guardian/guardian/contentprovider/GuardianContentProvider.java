@@ -52,7 +52,7 @@ public class GuardianContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "prefs_set", "*")) { logFuncVal = "prefs_set-*";
 				String pathSeg = uri.getLastPathSegment();
 				String pathSegPrefKey = pathSeg.substring(0, pathSeg.indexOf("|"));
-				String pathSegPrefVal = pathSeg.substring(1 + pathSeg.indexOf("|"));
+				String pathSegPrefVal = pathSeg.substring(1+pathSeg.indexOf("|") + pathSeg.length());
 				app.setSharedPref(pathSegPrefKey, pathSegPrefVal);
 				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{pathSegPrefKey, pathSegPrefVal, System.currentTimeMillis()});
 
