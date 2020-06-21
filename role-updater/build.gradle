@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
-if (project.file("../gradle/signing/platform_signing.gradle").exists() && project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists()) {
+if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properties.containsKey("jksPath")) {
     apply from: "../gradle/signing/platform_signing.gradle"
 }
 
