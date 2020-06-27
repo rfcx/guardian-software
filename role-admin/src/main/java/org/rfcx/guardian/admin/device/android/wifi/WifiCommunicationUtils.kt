@@ -25,6 +25,7 @@ object WifiCommunicationUtils {
     fun startServerSocket(context: Context) {
         serverThread = Thread(Runnable {
             try {
+                val app = context.applicationContext as RfcxGuardian
 
                 serverSocket = ServerSocket(9999)
 
@@ -45,6 +46,14 @@ object WifiCommunicationUtils {
                         val streamOut = DataOutputStream(socket.getOutputStream())
                         when (receiveJson.get("command")) {
                             "prefs" -> {
+                                try {
+                                    val jsonArray = app.rfcxPrefs.prefsAsJsonArray
+                                    val prefsJson = JSONObject().put("prefs", jsonArray)
+                                    streamOut.writeUTF(prefsJson.toString())
+                                    streamOut.flush()
+                                } catch (e: JSONException) {
+                                    Log.e(LOGTAG, e.toString())
+                                }
                             }
                             "connection" -> {
                                 streamOut.writeUTF(getConnectionResponse())
