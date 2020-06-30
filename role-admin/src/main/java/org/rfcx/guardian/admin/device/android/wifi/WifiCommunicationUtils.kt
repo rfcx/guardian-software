@@ -2,6 +2,7 @@ package org.rfcx.guardian.admin.device.android.wifi
 
 import android.content.Context
 import android.util.Log
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
@@ -24,6 +25,7 @@ object WifiCommunicationUtils {
     fun startServerSocket(context: Context) {
         serverThread = Thread(Runnable {
             try {
+                val app = context.applicationContext as RfcxGuardian
 
                 serverSocket = ServerSocket(9999)
 
@@ -37,14 +39,21 @@ object WifiCommunicationUtils {
                     if (!data.isNullOrBlank()) {
                         Log.d("ServerSocket", "Receiving data from Client: $data")
 
+                        val command = data.split(":")[0]
                         val receiveJson = JSONObject(data)
-                        val jsonIterator = receiveJson.keys()
-                        jsonIterator.next()
 
                         //send response back
                         val streamOut = DataOutputStream(socket.getOutputStream())
                         when (receiveJson.get("command")) {
                             "prefs" -> {
+                                try {
+                                    val jsonArray = app.rfcxPrefs.prefsAsJsonArray
+                                    val prefsJson = JSONObject().put("prefs", jsonArray)
+                                    streamOut.writeUTF(prefsJson.toString())
+                                    streamOut.flush()
+                                } catch (e: JSONException) {
+                                    Log.e(LOGTAG, e.toString())
+                                }
                             }
                             "connection" -> {
                                 streamOut.writeUTF(getConnectionResponse())
@@ -65,10 +74,36 @@ object WifiCommunicationUtils {
                                     Log.e(LOGTAG, e.toString())
                                 }
                             }
+                            else -> {
+                                val commandObject = JSONObject(receiveJson.get("command").toString())
+                                val commandKey = commandObject.keys().asSequence().toList()[0]
+                                when(commandKey){
+                                    "sync" -> {
+                                        val jsonArray = commandObject.getJSONArray("sync")
+                                        var prefResponse = JSONArray()
+                                        var syncResponse = ""
+                                        try {
+                                            for (i in 0 until jsonArray.length()) {
+                                                val pref = jsonArray.get(i)
+                                                Log.d(LOGTAG, pref.toString())
+                                                prefResponse = RfcxComm.getQueryContentProvider("guardian", "prefs_set", pref.toString(), context.contentResolver)
+                                            }
+                                            if (prefResponse.length() > 0) {
+                                                syncResponse = getSyncResponse("success")
+                                            }
+                                        } catch (e: JSONException) {
+                                            Log.e(LOGTAG, e.toString())
+                                            syncResponse = getSyncResponse("failed")
+                                        } finally {
+                                            streamOut.writeUTF(syncResponse)
+                                            streamOut.flush()
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     streamInput.close()
-
                 }
             } catch (e: Exception) {
                 Log.e(LOGTAG, e.toString())
@@ -90,6 +125,15 @@ object WifiCommunicationUtils {
         val status = JSONObject()
         status.put("status", "success")
         response.put("connection", status)
+
+        return response.toString()
+    }
+
+    private fun getSyncResponse(result: String): String {
+        val response = JSONObject()
+        val status = JSONObject()
+        status.put("status", result)
+        response.put("sync", status)
 
         return response.toString()
     }

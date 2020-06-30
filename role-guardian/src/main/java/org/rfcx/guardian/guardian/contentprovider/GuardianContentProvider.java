@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.contentprovider;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
+import org.rfcx.guardian.guardian.wificommunication.WifiCommunicationUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -54,7 +55,7 @@ public class GuardianContentProvider extends ContentProvider {
 				String pathSegPrefKey = pathSeg.substring(0, pathSeg.indexOf("|"));
 				String pathSegPrefVal = pathSeg.substring(1 + pathSeg.indexOf("|"));
 				app.setSharedPref(pathSegPrefKey, pathSegPrefVal);
-				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{pathSegPrefKey, pathSegPrefVal, System.currentTimeMillis()});
+				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{pathSegPrefKey, pathSegPrefVal, app.wifiCommunicationUtils.getPrefsChangesAsJson(), System.currentTimeMillis()});
 
 			// guardian identity info
 
