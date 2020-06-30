@@ -34,7 +34,7 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"prefs_resync", new String[] { "pref_key", "received_at" });
 			roleFuncProj.get(role).put(
-				"prefs_set", new String[] { "pref_key", "pref_value", "received_at" });
+				"prefs_set", new String[] { "pref_key", "pref_value", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"identity", new String[] { "identity_key", "identity_value" });
 			roleFuncProj.get(role).put(
@@ -63,6 +63,8 @@ public class RfcxComm {
 				"database_delete_rows_before", new String[] { "table|timestamp", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"database_set_last_accessed_at", new String[] { "table|id", "result", "received_at" });
+			roleFuncProj.get(role).put(
+					"configuration", new String[] { "target", "result", "received_at" });
 		}
 		return roleFuncProj;
 	}
