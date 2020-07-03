@@ -50,8 +50,8 @@ public class ApiQueueCheckInService extends IntentService {
 						}, encodedAudio[9]);
 
 				// increase total of local audio when finish sending audio to queue
-//				totalLocalAudio += 1;
-//				totalRecordedTime += app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+				totalLocalAudio += 1;
+				totalRecordedTime += app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			}
 
 

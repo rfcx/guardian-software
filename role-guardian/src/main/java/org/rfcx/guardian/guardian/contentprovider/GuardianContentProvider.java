@@ -115,6 +115,16 @@ public class GuardianContentProvider extends ContentProvider {
 					configurationResultJsonArray = app.wifiCommunicationUtils.getCurrentConfigurationAsJson();
 				}
 				return RfcxComm.getProjectionCursor(appRole, "configuration", new Object[]{configurationTarget, configurationResultJsonArray.toString(), System.currentTimeMillis() });
+
+			// "get diagnostic" function
+			} else if (RfcxComm.uriMatch(uri, appRole, "diagnostic", "*")) {
+				logFuncVal = "diagnostic-*";
+				String diagnosticTarget = uri.getLastPathSegment();
+				JSONArray diagnosticResultJsonArray = new JSONArray();
+				if (diagnosticTarget.equalsIgnoreCase("diagnostic")) {
+					diagnosticResultJsonArray = app.wifiCommunicationUtils.getDiagnosticAsJson();
+				}
+				return RfcxComm.getProjectionCursor(appRole, "configuration", new Object[]{diagnosticTarget, diagnosticResultJsonArray.toString(), System.currentTimeMillis()});
 			}
 			
 		} catch (Exception e) {

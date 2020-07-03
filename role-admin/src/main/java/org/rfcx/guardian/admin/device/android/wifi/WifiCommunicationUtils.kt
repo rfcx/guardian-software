@@ -60,6 +60,28 @@ object WifiCommunicationUtils {
                                 streamOut.flush()
                             }
                             "diagnostic" -> {
+                                try {
+                                    val diagnosticJson = JSONObject()
+                                    val diagnosticJsonArray = RfcxComm.getQueryContentProvider("guardian", "diagnostic", "diagnostic", context.contentResolver)
+                                    if (diagnosticJsonArray.length() > 0) {
+                                        val jsonObject = diagnosticJsonArray.getJSONObject(0)
+                                        diagnosticJson.put("diagnostic", jsonObject)
+                                    }
+
+                                    val configureJsonArray = RfcxComm.getQueryContentProvider("guardian", "configuration", "configuration", context.contentResolver)
+                                    if (configureJsonArray.length() > 0) {
+                                        val jsonObject = configureJsonArray.getJSONObject(0)
+                                        diagnosticJson.put("configure", jsonObject)
+                                    }
+
+                                    val jsonArray = app.rfcxPrefs.prefsAsJsonArray
+                                    diagnosticJson.put("prefs", jsonArray)
+
+                                    streamOut.writeUTF(diagnosticJson.toString())
+                                    streamOut.flush()
+                                } catch (e: JSONException) {
+                                    Log.e(LOGTAG, e.toString())
+                                }
                             }
                             "configure" -> {
                                 try {
