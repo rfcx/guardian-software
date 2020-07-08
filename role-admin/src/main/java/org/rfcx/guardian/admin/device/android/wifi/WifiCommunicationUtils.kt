@@ -6,6 +6,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.admin.device.android.system.DeviceSystemService
 import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.io.DataInputStream
@@ -70,6 +71,17 @@ object WifiCommunicationUtils {
                                         streamOut.writeUTF(configurationJson.toString())
                                         streamOut.flush()
                                     }
+                                } catch (e: JSONException) {
+                                    Log.e(LOGTAG, e.toString())
+                                }
+                            }
+                            "signal" -> {
+                                val signal = DeviceSystemService.getSignalStrength().gsmSignalStrength // strength values (0-31, 99) as defined in TS 27.007 8.5,
+                                val signalValue = (-113 + (2 * signal)) // converting signal strength to decibel-milliwatts (dBm)
+                                try {
+                                    val signalJson = JSONObject().put("signal", signalValue)
+                                    streamOut.writeUTF(signalJson.toString())
+                                    streamOut.flush()
                                 } catch (e: JSONException) {
                                     Log.e(LOGTAG, e.toString())
                                 }

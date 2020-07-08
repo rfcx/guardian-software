@@ -84,6 +84,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private boolean isListenerRegistered_accel = false;
 	private boolean isListenerRegistered_geoposition = false;
 
+	//For companion
+	private static SignalStrength signalStrengthCompanion;
+
 	private void checkSetSensorManager() {
 		if (this.sensorManager == null) {
 			this.sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -564,8 +567,13 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			super.onSignalStrengthsChanged(signalStrength);
 			telephonySignalStrength = signalStrength;
+			signalStrengthCompanion = signalStrength;
 			cacheSnapshotValues("telephony", new double[]{});
 		}
+	}
+
+	public static SignalStrength getSignalStrength() {
+		return signalStrengthCompanion;
 	}
 	
 /*
