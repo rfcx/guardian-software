@@ -78,8 +78,11 @@ object WifiCommunicationUtils {
                             "signal" -> {
                                 val signal = DeviceSystemService.getSignalStrength().gsmSignalStrength // strength values (0-31, 99) as defined in TS 27.007 8.5,
                                 val signalValue = (-113 + (2 * signal)) // converting signal strength to decibel-milliwatts (dBm)
+                                val isSimCardInserted = app.deviceMobilePhone.hasSim()
                                 try {
-                                    val signalJson = JSONObject().put("signal", signalValue)
+                                    val signalJson = JSONObject()
+                                    signalJson.put("signal", signalValue)
+                                    signalJson.put("sim_card", isSimCardInserted)
                                     streamOut.writeUTF(signalJson.toString())
                                     streamOut.flush()
                                 } catch (e: JSONException) {
