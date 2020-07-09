@@ -81,9 +81,11 @@ object WifiCommunicationUtils {
                                 val isSimCardInserted = app.deviceMobilePhone.hasSim()
                                 try {
                                     val signalJson = JSONObject()
-                                    signalJson.put("signal", signalValue)
-                                    signalJson.put("sim_card", isSimCardInserted)
-                                    streamOut.writeUTF(signalJson.toString())
+                                        .put("signal", signalValue)
+                                        .put("sim_card", isSimCardInserted)
+                                    val signalInfoJson = JSONObject()
+                                        .put("signal_info", signalJson)
+                                    streamOut.writeUTF(signalInfoJson.toString())
                                     streamOut.flush()
                                 } catch (e: JSONException) {
                                     Log.e(LOGTAG, e.toString())
