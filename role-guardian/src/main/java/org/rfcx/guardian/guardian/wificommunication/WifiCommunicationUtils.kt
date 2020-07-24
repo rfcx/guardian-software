@@ -1,6 +1,8 @@
 package org.rfcx.guardian.guardian.wificommunication
 
 import android.content.Context
+import android.util.Base64
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
@@ -44,5 +46,18 @@ class WifiCommunicationUtils(context: Context) {
         jsonObject.put("result", "success")
         jsonArray.put(jsonObject)
         return  jsonArray
+    }
+
+    fun getAudioBufferAsJson(): JSONArray? {
+        if (app.audioCaptureUtils.isAudioChanged) {
+            val jsonArray = JSONArray()
+            val jsonObject = JSONObject()
+            val audioBufferPair = app.audioCaptureUtils.audioBuffer
+            jsonObject.put("buffer", Base64.encodeToString(audioBufferPair.first, Base64.DEFAULT))
+            jsonObject.put("read_size", audioBufferPair.second)
+            jsonArray.put(jsonObject)
+            return  jsonArray
+        }
+        return JSONArray()
     }
 }

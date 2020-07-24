@@ -173,7 +173,7 @@ class MainActivity : AppCompatActivity(),
             app.initializeRoleServices()
             setUIByRecordingState()
             if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
-                getCheckinInformation()
+                //getCheckinInformation()
             }
         }, 1000)
     }

@@ -115,6 +115,17 @@ public class GuardianContentProvider extends ContentProvider {
 					configurationResultJsonArray = app.wifiCommunicationUtils.getCurrentConfigurationAsJson();
 				}
 				return RfcxComm.getProjectionCursor(appRole, "configuration", new Object[]{configurationTarget, configurationResultJsonArray.toString(), System.currentTimeMillis() });
+
+			// "get audio buffer" function
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "microphone_test", "*")) {
+				logFuncVal = "microphone_test-*";
+				String microphoneTarget = uri.getLastPathSegment();
+				JSONArray microphoneResultJsonArray = new JSONArray();
+				if (microphoneTarget.equalsIgnoreCase("microphone_test")) {
+					microphoneResultJsonArray = app.wifiCommunicationUtils.getAudioBufferAsJson();
+				}
+				return RfcxComm.getProjectionCursor(appRole, "microphone_test", new Object[]{microphoneTarget, microphoneResultJsonArray.toString(), System.currentTimeMillis() });
 			}
 			
 		} catch (Exception e) {

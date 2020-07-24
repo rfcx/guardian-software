@@ -9,6 +9,8 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder.AudioSource;
 import android.util.Log;
+import android.util.Pair;
+
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class AudioCaptureWavRecorder {
@@ -38,7 +40,11 @@ public class AudioCaptureWavRecorder {
 	private String recorderOutputFilePath = null;
 	private RandomAccessFile recorderOutputFileRandomAccessWriter;
 	private int recorderFileOutputFramePeriod; // Number of frames written to file on each output (only in uncompressed mode)
-	private byte[] uncompressedOutputBuffer; // Buffer for output (only in uncompressed mode)
+	public byte[] uncompressedOutputBuffer; // Buffer for output (only in uncompressed mode)
+
+	public byte[] audioBufferForCompanion;
+	private Boolean isAudioChanged = false;
+	public int readSize;
 
 	// The interval in which the recorded samples are output to the file used only in uncompressed mode
 	private static final int TIMER_INTERVAL_UNCOMPRESSED = 120; 
@@ -66,9 +72,10 @@ public class AudioCaptureWavRecorder {
 	private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
 		
 		public void onPeriodicNotification(AudioRecord recorder) {
-			audioRecorder.read(uncompressedOutputBuffer, 0, uncompressedOutputBuffer.length); // Fill buffer
+			readSize = audioRecorder.read(uncompressedOutputBuffer, 0, uncompressedOutputBuffer.length); // Fill buffer
 			try {
 				recorderOutputFileRandomAccessWriter.write(uncompressedOutputBuffer); // Write buffer to file
+				isAudioChanged = true;
 				captureFilePayloadSizeInBytes += uncompressedOutputBuffer.length;
 			} catch (IOException e) {
 				RfcxLog.logExc(logTag, e);
@@ -81,6 +88,18 @@ public class AudioCaptureWavRecorder {
 			// NOT USED
 		}
 	};
+
+	/*
+	 * Method for getting audio buffer for companion
+	 */
+	public Pair<byte[], Integer> getAudioBuffer() {
+		isAudioChanged = false;
+		return new Pair<>(uncompressedOutputBuffer, readSize);
+	}
+
+	public Boolean isAudioChanged() {
+		return isAudioChanged;
+	}
 
 	/**
 	 * Default constructor
@@ -114,7 +133,9 @@ public class AudioCaptureWavRecorder {
 
 			recorderFileOutputFramePeriod = sampleRate * TIMER_INTERVAL_UNCOMPRESSED / 1000;
 			captureBufferSize = recorderFileOutputFramePeriod * 2 * captureSampleSizeInBits * captureChannelCount / 8;
-			
+
+			audioBufferForCompanion = new byte[AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)];
+
 			if (captureBufferSize < AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)) { 
 				
 				// Check to make sure buffer size is not smaller than the smallest allowed one

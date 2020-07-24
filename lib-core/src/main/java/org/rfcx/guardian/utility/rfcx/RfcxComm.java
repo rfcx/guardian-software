@@ -65,6 +65,8 @@ public class RfcxComm {
 				"database_set_last_accessed_at", new String[] { "table|id", "result", "received_at" });
 			roleFuncProj.get(role).put(
 					"configuration", new String[] { "target", "result", "received_at" });
+			roleFuncProj.get(role).put(
+					"microphone_test", new String[] { "target", "result", "received_at" });
 		}
 		return roleFuncProj;
 	}
