@@ -24,6 +24,7 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
+import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.capture.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceNetworkName;
@@ -96,6 +97,8 @@ public class RfcxGuardian extends Application {
     public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
     public DeviceUtils deviceUtils = null;
     public DeviceBluetooth deviceBluetooth = null;
+	public DeviceMobilePhone deviceMobilePhone = null;
+
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelCompassUtils sentinelCompassUtils = null;
@@ -231,6 +234,7 @@ public class RfcxGuardian extends Application {
         this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
         this.deviceDiskDb = new DeviceDiskDb(this, this.version);
         this.smsMessageDb = new SmsMessageDb(this, this.version);
+		this.deviceMobilePhone = new DeviceMobilePhone(this);
 	}
 
 	private void setServiceHandlers() {
