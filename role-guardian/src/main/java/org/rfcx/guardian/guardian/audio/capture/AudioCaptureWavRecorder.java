@@ -42,7 +42,6 @@ public class AudioCaptureWavRecorder {
 	private int recorderFileOutputFramePeriod; // Number of frames written to file on each output (only in uncompressed mode)
 	public byte[] uncompressedOutputBuffer; // Buffer for output (only in uncompressed mode)
 
-	public byte[] audioBufferForCompanion;
 	private Boolean isAudioChanged = false;
 	public int readSize;
 
@@ -133,9 +132,6 @@ public class AudioCaptureWavRecorder {
 
 			recorderFileOutputFramePeriod = sampleRate * TIMER_INTERVAL_UNCOMPRESSED / 1000;
 			captureBufferSize = recorderFileOutputFramePeriod * 2 * captureSampleSizeInBits * captureChannelCount / 8;
-
-			audioBufferForCompanion = new byte[AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)];
-
 			if (captureBufferSize < AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)) { 
 				
 				// Check to make sure buffer size is not smaller than the smallest allowed one
