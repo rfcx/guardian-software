@@ -53,7 +53,7 @@ class WifiCommunicationUtils(context: Context) {
             val jsonArray = JSONArray()
             val jsonObject = JSONObject()
             val audioBufferPair = app.audioCaptureUtils.audioBuffer
-            jsonObject.put("buffer", Base64.encodeToString(audioBufferPair.first, Base64.DEFAULT))
+            jsonObject.put("buffer", Base64.encodeToString(audioBufferPair.first, Base64.NO_WRAP))
             jsonObject.put("read_size", audioBufferPair.second)
             jsonArray.put(jsonObject)
             return  jsonArray

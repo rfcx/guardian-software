@@ -53,7 +53,8 @@ class WifiCommunicationService : Service() {
         wifiCommunication = null
     }
 
-    inner class WifiCommunication : Thread("WifiCommunicationService-WifiCommunication") {
+    inner class WifiCommunication : Thread("WifiCommunicationService-WifiCommunication"),
+        WifiCommunicationUtils.SocketConnectionListener {
 
         override fun run() {
             super.run()
@@ -61,7 +62,7 @@ class WifiCommunicationService : Service() {
             try {
                 val state = app!!.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi_socket")
                 if (state) {
-                    WifiCommunicationUtils.startServerSocket(applicationContext)
+                    WifiCommunicationUtils.startServerSocket(applicationContext, this)
                 } else {
                     WifiCommunicationUtils.stopServerSocket()
                 }
@@ -72,6 +73,15 @@ class WifiCommunicationService : Service() {
                 app!!.rfcxServiceHandler.setRunState(SERVICE_NAME, false)
                 app!!.rfcxServiceHandler.stopService(SERVICE_NAME)
             }
+        }
+
+        override fun onStarted() {
+            /* not used */
+        }
+
+        override fun onFailed() {
+            WifiCommunicationUtils.stopServerSocket()
+            WifiCommunicationUtils.startServerSocket(applicationContext, this)
         }
     }
 

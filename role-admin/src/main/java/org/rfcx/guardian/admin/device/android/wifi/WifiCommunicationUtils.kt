@@ -25,9 +25,8 @@ object WifiCommunicationUtils {
     private lateinit var streamInput: DataInputStream
     private lateinit var serverThread: Thread
 
-    private var isMicTesting = false
-
-    fun startServerSocket(context: Context) {
+    fun startServerSocket(context: Context, listener: SocketConnectionListener) {
+        var isMicTesting = false
         serverThread = Thread(Runnable {
             try {
                 val app = context.applicationContext as RfcxGuardian
@@ -36,6 +35,7 @@ object WifiCommunicationUtils {
                 serverSocket.reuseAddress = true
                 serverSocket.bind(InetSocketAddress(9999))
 
+                listener.onStarted()
                 while (true) {
                     socket = serverSocket.accept()
 
@@ -150,6 +150,7 @@ object WifiCommunicationUtils {
                 }
             } catch (e: Exception) {
                 Log.e(LOGTAG, e.toString())
+                listener.onFailed()
             }
         })
 
@@ -179,5 +180,10 @@ object WifiCommunicationUtils {
         response.put("sync", status)
 
         return response.toString()
+    }
+
+    interface SocketConnectionListener {
+        fun onStarted()
+        fun onFailed()
     }
 }
