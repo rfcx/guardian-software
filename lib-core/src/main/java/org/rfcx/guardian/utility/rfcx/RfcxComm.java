@@ -67,6 +67,8 @@ public class RfcxComm {
 					"configuration", new String[] { "target", "result", "received_at" });
 			roleFuncProj.get(role).put(
 					"microphone_test", new String[] { "target", "result", "received_at" });
+			roleFuncProj.get(role).put(
+					"diagnostic", new String[] { "target", "result", "received_at" });
 		}
 		return roleFuncProj;
 	}

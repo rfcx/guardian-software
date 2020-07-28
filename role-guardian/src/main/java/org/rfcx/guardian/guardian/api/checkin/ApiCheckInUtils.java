@@ -94,6 +94,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private boolean doCheckInConditionsAllowCheckInRequeuing = false;
 
 	public static long latestFileSize = 0;
+	public static long totalFileSize = 0;
 	public static String latestCheckinTimestamp = "";
 	public static int totalSyncedAudio = 0;
 
@@ -860,7 +861,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			// delete asset file after it has been purged from records
 			for (String filePath : filePaths) {
 				if ((filePath != null) && (new File(filePath)).exists()) {
-//					latestFileSize = (new File(filePath)).length();
+					latestFileSize = (new File(filePath)).length();
+					totalFileSize += latestFileSize;
 //					latestCheckinTimestamp = DateTimeUtils.getDateTime();
 					FileUtils.delete(filePath);
 					app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);

@@ -7,6 +7,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.admin.device.android.system.DeviceSystemService
 import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.io.DataInputStream
@@ -67,6 +68,28 @@ object WifiCommunicationUtils {
                                 streamOut.flush()
                             }
                             "diagnostic" -> {
+                                try {
+                                    val diagnosticJson = JSONObject()
+                                    val diagnosticJsonArray = RfcxComm.getQueryContentProvider("guardian", "diagnostic", "diagnostic", context.contentResolver)
+                                    if (diagnosticJsonArray.length() > 0) {
+                                        val jsonObject = diagnosticJsonArray.getJSONObject(0)
+                                        diagnosticJson.put("diagnostic", jsonObject)
+                                    }
+
+                                    val configureJsonArray = RfcxComm.getQueryContentProvider("guardian", "configuration", "configuration", context.contentResolver)
+                                    if (configureJsonArray.length() > 0) {
+                                        val jsonObject = configureJsonArray.getJSONObject(0)
+                                        diagnosticJson.put("configure", jsonObject)
+                                    }
+
+                                    val jsonArray = app.rfcxPrefs.prefsAsJsonArray
+                                    diagnosticJson.put("prefs", jsonArray)
+
+                                    streamOut.writeUTF(diagnosticJson.toString())
+                                    streamOut.flush()
+                                } catch (e: JSONException) {
+                                    Log.e(LOGTAG, e.toString())
+                                }
                             }
                             "configure" -> {
                                 try {
@@ -102,11 +125,30 @@ object WifiCommunicationUtils {
                                             val audioJsonObject = jsonArray.getJSONObject(0)
                                             if (tempByte != audioJsonObject.getString("buffer")) {
                                                 tempByte = audioJsonObject.getString("buffer")
-                                                val jsonObject = JSONObject().put("microphone_test", audioJsonObject)
+                                                val jsonObject = JSONObject().put(
+                                                    "microphone_test",
+                                                    audioJsonObject
+                                                )
                                                 streamOut.writeUTF(jsonObject.toString())
                                             }
                                         }
                                     }
+                                } catch (e: JSONException) {
+                                    Log.e(LOGTAG, e.toString())
+                                }
+                            }
+                            "signal" -> {
+                                val signal = DeviceSystemService.getSignalStrength().gsmSignalStrength // strength values (0-31, 99) as defined in TS 27.007 8.5,
+                                val signalValue = (-113 + (2 * signal)) // converting signal strength to decibel-milliwatts (dBm)
+                                val isSimCardInserted = app.deviceMobilePhone.hasSim()
+                                try {
+                                    val signalJson = JSONObject()
+                                        .put("signal", signalValue)
+                                        .put("sim_card", isSimCardInserted)
+                                    val signalInfoJson = JSONObject()
+                                        .put("signal_info", signalJson)
+                                    streamOut.writeUTF(signalInfoJson.toString())
+                                    streamOut.flush()
                                 } catch (e: JSONException) {
                                     Log.e(LOGTAG, e.toString())
                                 }
