@@ -32,19 +32,19 @@ object SocketManager {
     private var app: RfcxGuardian? = null
 
     private var isMicTesting: Boolean = false
+    private var isSignalTesting: Boolean = false
 
     fun startServerSocket(context: Context) {
         this.context = context
         app = context.applicationContext as RfcxGuardian
         serverThread = Thread(Runnable {
             try {
-                serverSocket = ServerSocket()
+                serverSocket = ServerSocket(9999)
                 serverSocket?.reuseAddress = true
-                serverSocket?.bind(InetSocketAddress(9999))
 
-                startInComingMessageThread()
                 while (true) {
                     socket = serverSocket?.accept()
+                    startInComingMessageThread()
                 }
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
@@ -97,18 +97,25 @@ object SocketManager {
     }
 
     fun stopServerSocket() {
-        //stop server thread
-        serverThread?.interrupt()
-        serverThread = null
-
         //stop incoming message thread
         inComingMessageThread?.interrupt()
         inComingMessageThread = null
 
-        socket?.close()
+        //stop server thread
+        serverThread?.interrupt()
+        serverThread = null
+
         streamInput?.close()
+        streamInput = null
+
         streamOutput?.close()
+        streamOutput = null
+
+        socket?.close()
+        socket = null
+
         serverSocket?.close()
+        serverSocket = null
     }
 
     private fun sendPrefsMessage() {
@@ -204,6 +211,7 @@ object SocketManager {
                         audioJsonObject
                     )
                     streamOutput?.writeUTF(jsonObject.toString())
+                    streamOutput?.flush()
                 }
             }
         } catch (e: Exception) {
@@ -212,23 +220,31 @@ object SocketManager {
     }
 
     private fun sendSignalMessage() {
-        val signalJsonArray =
-            RfcxComm.getQueryContentProvider("admin", "signal", "signal", context?.contentResolver)
-        if (signalJsonArray.length() > 0) {
-            val signalStrength = signalJsonArray.getJSONObject(0).getInt("signal")
-            val signalValue =
-                (-113 + (2 * signalStrength)) // converting signal strength to decibel-milliwatts (dBm)
-            val isSimCardInserted = app?.deviceMobilePhone?.hasSim()
-            try {
-                val signalJson = JSONObject()
-                    .put("signal", signalValue)
-                    .put("sim_card", isSimCardInserted)
-                val signalInfoJson = JSONObject()
-                    .put("signal_info", signalJson)
-                streamOutput?.writeUTF(signalInfoJson.toString())
-                streamOutput?.flush()
-            } catch (e: Exception) {
-                RfcxLog.logExc(LOGTAG, e)
+        isSignalTesting = !isSignalTesting
+        while (isSignalTesting) {
+            val signalJsonArray =
+                RfcxComm.getQueryContentProvider(
+                    "admin",
+                    "signal",
+                    "signal",
+                    context?.contentResolver
+                )
+            if (signalJsonArray.length() > 0) {
+                val signalStrength = signalJsonArray.getJSONObject(0).getInt("signal")
+                val signalValue =
+                    (-113 + (2 * signalStrength)) // converting signal strength to decibel-milliwatts (dBm)
+                val isSimCardInserted = app?.deviceMobilePhone?.hasSim()
+                try {
+                    val signalJson = JSONObject()
+                        .put("signal", signalValue)
+                        .put("sim_card", isSimCardInserted)
+                    val signalInfoJson = JSONObject()
+                        .put("signal_info", signalJson)
+                    streamOutput?.writeUTF(signalInfoJson.toString())
+                    streamOutput?.flush()
+                } catch (e: Exception) {
+                    RfcxLog.logExc(LOGTAG, e)
+                }
             }
         }
     }
