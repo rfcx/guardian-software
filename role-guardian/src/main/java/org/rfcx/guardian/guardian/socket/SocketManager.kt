@@ -22,8 +22,6 @@ object SocketManager {
     private var serverThread: Thread? = null
     private var socket: Socket? = null
 
-    private var inComingMessageThread: Thread? = null
-
     private var streamInput: DataInputStream? = null
 
     private var streamOutput: DataOutputStream? = null
@@ -44,19 +42,7 @@ object SocketManager {
 
                 while (true) {
                     socket = serverSocket?.accept()
-                    startInComingMessageThread()
-                }
-            } catch (e: Exception) {
-                RfcxLog.logExc(LOGTAG, e)
-            }
-        })
-        serverThread?.start()
-    }
 
-    private fun startInComingMessageThread() {
-        inComingMessageThread = Thread(Runnable {
-            try {
-                while (true) {
                     streamInput = DataInputStream(socket?.getInputStream())
                     val message = streamInput?.readUTF()
 
@@ -93,14 +79,10 @@ object SocketManager {
                 RfcxLog.logExc(LOGTAG, e)
             }
         })
-        inComingMessageThread?.start()
+        serverThread?.start()
     }
 
     fun stopServerSocket() {
-        //stop incoming message thread
-        inComingMessageThread?.interrupt()
-        inComingMessageThread = null
-
         //stop server thread
         serverThread?.interrupt()
         serverThread = null
