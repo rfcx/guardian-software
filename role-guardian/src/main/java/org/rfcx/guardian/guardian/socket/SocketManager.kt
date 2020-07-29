@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Base64
 import android.util.Log
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.utility.rfcx.RfcxComm
@@ -118,8 +117,8 @@ object SocketManager {
             val prefsJson = JSONObject().put("prefs", prefsJsonArray)
             streamOutput?.writeUTF(prefsJson.toString())
             streamOutput?.flush()
-        } catch (e: JSONException) {
-            Log.e(LOGTAG, e.toString())
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
         }
     }
 
@@ -127,8 +126,8 @@ object SocketManager {
         try {
             streamOutput?.writeUTF(getConnectionResponse())
             streamOutput?.flush()
-        } catch (e: JSONException) {
-            Log.e(LOGTAG, e.toString())
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
         }
     }
 
@@ -162,8 +161,8 @@ object SocketManager {
 
             streamOutput?.writeUTF(diagnosticJson.toString())
             streamOutput?.flush()
-        } catch (e: JSONException) {
-            Log.e(LOGTAG, e.toString())
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
         }
     }
 
@@ -182,8 +181,8 @@ object SocketManager {
                 streamOutput?.writeUTF(configurationJson.toString())
                 streamOutput?.flush()
             }
-        } catch (e: JSONException) {
-            Log.e(LOGTAG, e.toString())
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
         }
     }
 
@@ -207,8 +206,8 @@ object SocketManager {
                     streamOutput?.writeUTF(jsonObject.toString())
                 }
             }
-        } catch (e: JSONException) {
-            Log.e(LOGTAG, e.toString())
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
         }
     }
 
@@ -228,8 +227,8 @@ object SocketManager {
                     .put("signal_info", signalJson)
                 streamOutput?.writeUTF(signalInfoJson.toString())
                 streamOutput?.flush()
-            } catch (e: JSONException) {
-                Log.e(LOGTAG, e.toString())
+            } catch (e: Exception) {
+                RfcxLog.logExc(LOGTAG, e)
             }
         }
     }
@@ -251,8 +250,8 @@ object SocketManager {
             if (prefResponse.length() > 0) {
                 syncResponse = getSyncResponse("success")
             }
-        } catch (e: JSONException) {
-            Log.e(LOGTAG, e.toString())
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
             syncResponse = getSyncResponse("failed")
         } finally {
             streamOutput?.writeUTF(syncResponse)
