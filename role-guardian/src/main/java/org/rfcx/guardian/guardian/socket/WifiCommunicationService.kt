@@ -25,6 +25,7 @@ class WifiCommunicationService : IntentService("WifiCommunication") {
         val state = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi_socket")
         try {
             if (state) {
+                SocketManager.stopServerSocket()
                 SocketManager.startServerSocket(applicationContext)
             } else {
                 SocketManager.stopServerSocket()
