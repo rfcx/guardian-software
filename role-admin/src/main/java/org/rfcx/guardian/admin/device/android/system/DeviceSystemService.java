@@ -18,6 +18,8 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
@@ -574,6 +576,22 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	public static SignalStrength getSignalStrength() {
 		return signalStrengthCompanion;
+	}
+
+	public static JSONArray getSignalStrengthAsJsonArray() {
+		JSONArray signalJsonArray = new JSONArray();
+		try {
+			JSONObject signalJson = new JSONObject();
+
+			signalJson.put("signal", signalStrengthCompanion.getGsmSignalStrength());
+			signalJsonArray.put(signalJson);
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+
+		} finally {
+			return signalJsonArray;
+		}
 	}
 	
 /*
