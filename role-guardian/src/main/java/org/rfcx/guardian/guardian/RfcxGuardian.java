@@ -1,16 +1,14 @@
 package org.rfcx.guardian.guardian;
 
-import java.io.File;
 import java.util.Map;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.checkin.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.api.checkin.ScheduledApiPingService;
-import org.rfcx.guardian.guardian.diagnostic.DiagnosticUtils;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
-import org.rfcx.guardian.guardian.wificommunication.WifiCommunicationUtils;
+import org.rfcx.guardian.guardian.socket.WifiCommunicationUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;

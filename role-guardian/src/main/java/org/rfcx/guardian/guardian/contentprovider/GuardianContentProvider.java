@@ -2,8 +2,6 @@ package org.rfcx.guardian.guardian.contentprovider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
-import org.rfcx.guardian.guardian.wificommunication.WifiCommunicationUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -14,7 +12,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
