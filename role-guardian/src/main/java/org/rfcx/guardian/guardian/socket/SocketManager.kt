@@ -18,190 +18,232 @@ object SocketManager {
 
     private val LOGTAG = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SocketManager")
 
-    private lateinit var serverSocket: ServerSocket
-    private lateinit var socket: Socket
-    private lateinit var streamInput: DataInputStream
-    private lateinit var serverThread: Thread
+    private var serverSocket: ServerSocket? = null
+    private var serverThread: Thread? = null
+    private var socket: Socket? = null
+
+    private var inComingMessageThread: Thread? = null
+
+    private var streamInput: DataInputStream? = null
+
+    private var streamOutput: DataOutputStream? = null
+
+    private var context: Context? = null
+    private var app: RfcxGuardian? = null
+
+    private var isMicTesting: Boolean = false
 
     fun startServerSocket(context: Context) {
-        var isMicTesting = false
+        this.context = context
+        app = context.applicationContext as RfcxGuardian
         serverThread = Thread(Runnable {
             try {
-                val app = context.applicationContext as RfcxGuardian
-
                 serverSocket = ServerSocket()
-                serverSocket.reuseAddress = true
-                serverSocket.bind(InetSocketAddress(9999))
+                serverSocket?.reuseAddress = true
+                serverSocket?.bind(InetSocketAddress(9999))
 
+                startInComingMessageThread()
                 while (true) {
-                    socket = serverSocket.accept()
+                    socket = serverSocket?.accept()
+                }
+            } catch (e: Exception) {
+                RfcxLog.logExc(LOGTAG, e)
+            }
+        })
+        serverThread?.start()
+    }
 
-                    streamInput = DataInputStream(socket.getInputStream())
+    private fun startInComingMessageThread() {
+        inComingMessageThread = Thread(Runnable {
+            try {
+                while (true) {
+                    streamInput = DataInputStream(socket?.getInputStream())
+                    val message = streamInput?.readUTF()
 
-                    val data = streamInput.readUTF()
+                    if (!message.isNullOrBlank()) {
+                        Log.d("ServerSocket", "Receiving data from Client: $message")
 
-                    if (!data.isNullOrBlank()) {
-                        Log.d("ServerSocket", "Receiving data from Client: $data")
-
-                        val command = data.split(":")[0]
-                        val receiveJson = JSONObject(data)
+                        val receiveJson = JSONObject(message)
 
                         //send response back
-                        val streamOut = DataOutputStream(socket.getOutputStream())
+                        streamOutput = DataOutputStream(socket?.getOutputStream())
                         when (receiveJson.get("command")) {
-                            "prefs" -> {
-                                try {
-                                    val jsonArray = app.rfcxPrefs.prefsAsJsonArray
-                                    val prefsJson = JSONObject().put("prefs", jsonArray)
-                                    streamOut.writeUTF(prefsJson.toString())
-                                    streamOut.flush()
-                                } catch (e: JSONException) {
-                                    Log.e(LOGTAG, e.toString())
-                                }
-                            }
-                            "connection" -> {
-                                streamOut.writeUTF(getConnectionResponse())
-                                streamOut.flush()
-                            }
-                            "diagnostic" -> {
-                                try {
-                                    val diagnosticJson = JSONObject()
-                                    val diagnosticJsonArray = RfcxComm.getQueryContentProvider("guardian", "diagnostic", "diagnostic", context.contentResolver)
-                                    if (diagnosticJsonArray.length() > 0) {
-                                        val jsonObject = diagnosticJsonArray.getJSONObject(0)
-                                        diagnosticJson.put("diagnostic", jsonObject)
-                                    }
-
-                                    val configureJsonArray = RfcxComm.getQueryContentProvider("guardian", "configuration", "configuration", context.contentResolver)
-                                    if (configureJsonArray.length() > 0) {
-                                        val jsonObject = configureJsonArray.getJSONObject(0)
-                                        diagnosticJson.put("configure", jsonObject)
-                                    }
-
-                                    val jsonArray = app.rfcxPrefs.prefsAsJsonArray
-                                    diagnosticJson.put("prefs", jsonArray)
-
-                                    streamOut.writeUTF(diagnosticJson.toString())
-                                    streamOut.flush()
-                                } catch (e: JSONException) {
-                                    Log.e(LOGTAG, e.toString())
-                                }
-                            }
-                            "configure" -> {
-                                try {
-                                    val jsonArray = RfcxComm.getQueryContentProvider(
-                                        "guardian",
-                                        "configuration",
-                                        "configuration",
-                                        context.contentResolver
-                                    )
-                                    if (jsonArray.length() > 0) {
-                                        val jsonObject = jsonArray.getJSONObject(0)
-                                        val configurationJson =
-                                            JSONObject().put("configure", jsonObject)
-                                        streamOut.writeUTF(configurationJson.toString())
-                                        streamOut.flush()
-                                    }
-                                } catch (e: JSONException) {
-                                    Log.e(LOGTAG, e.toString())
-                                }
-                            }
-                            "microphone_test" -> {
-                                isMicTesting = !isMicTesting
-                                var tempByte = ""
-                                try {
-                                    while (isMicTesting) {
-                                        val jsonArray = RfcxComm.getQueryContentProvider(
-                                            "guardian",
-                                            "microphone_test",
-                                            "microphone_test",
-                                            context.contentResolver
-                                        )
-                                        if (jsonArray.length() > 0) {
-                                            val audioJsonObject = jsonArray.getJSONObject(0)
-                                            if (tempByte != audioJsonObject.getString("buffer")) {
-                                                tempByte = audioJsonObject.getString("buffer")
-                                                val jsonObject = JSONObject().put(
-                                                    "microphone_test",
-                                                    audioJsonObject
-                                                )
-                                                streamOut.writeUTF(jsonObject.toString())
-                                            }
-                                        }
-                                    }
-                                } catch (e: JSONException) {
-                                    Log.e(LOGTAG, e.toString())
-                                }
-                            }
-                            "signal" -> {
-                                val signalJsonArray = RfcxComm.getQueryContentProvider("admin", "signal", "signal", context.contentResolver)
-                                if (signalJsonArray.length() > 0) {
-                                    val signalStrength = signalJsonArray.getJSONObject(0).getInt("signal")
-                                    val signalValue = (-113 + (2 * signalStrength)) // converting signal strength to decibel-milliwatts (dBm)
-                                    val isSimCardInserted = app.deviceMobilePhone.hasSim()
-                                    try {
-                                        val signalJson = JSONObject()
-                                            .put("signal", signalValue)
-                                            .put("sim_card", isSimCardInserted)
-                                        val signalInfoJson = JSONObject()
-                                            .put("signal_info", signalJson)
-                                        streamOut.writeUTF(signalInfoJson.toString())
-                                        streamOut.flush()
-                                    } catch (e: JSONException) {
-                                        Log.e(LOGTAG, e.toString())
-                                    }
-                                }
-                            }
+                            "prefs" -> sendPrefsMessage()
+                            "connection" -> sendConnectionMessage()
+                            "diagnostic" -> sendDiagnosticMessage()
+                            "configure" -> sendConfigurationMessage()
+                            "microphone_test" -> sendMicrophoneTestMessage()
+                            "signal" -> sendSignalMessage()
                             else -> {
                                 val commandObject =
                                     JSONObject(receiveJson.get("command").toString())
                                 val commandKey = commandObject.keys().asSequence().toList()[0]
                                 when (commandKey) {
-                                    "sync" -> {
-                                        val jsonArray = commandObject.getJSONArray("sync")
-                                        var prefResponse = JSONArray()
-                                        var syncResponse = ""
-                                        try {
-                                            for (i in 0 until jsonArray.length()) {
-                                                val pref = jsonArray.get(i)
-                                                Log.d(LOGTAG, pref.toString())
-                                                prefResponse = RfcxComm.getQueryContentProvider(
-                                                    "guardian",
-                                                    "prefs_set",
-                                                    pref.toString(),
-                                                    context.contentResolver
-                                                )
-                                            }
-                                            if (prefResponse.length() > 0) {
-                                                syncResponse = getSyncResponse("success")
-                                            }
-                                        } catch (e: JSONException) {
-                                            Log.e(LOGTAG, e.toString())
-                                            syncResponse = getSyncResponse("failed")
-                                        } finally {
-                                            streamOut.writeUTF(syncResponse)
-                                            streamOut.flush()
-                                        }
-                                    }
+                                    "sync" -> sendSyncConfigurationMessage(commandObject.getJSONArray("sync"))
                                 }
                             }
                         }
                     }
-                    streamInput.close()
                 }
             } catch (e: Exception) {
-                Log.e(LOGTAG, e.toString())
+                RfcxLog.logExc(LOGTAG, e)
             }
         })
-
-        serverThread.start()
+        inComingMessageThread?.start()
     }
 
     fun stopServerSocket() {
-        serverThread.interrupt()
-        socket.close()
-        streamInput.close()
-        serverSocket.close()
+        //stop server thread
+        serverThread?.interrupt()
+        serverThread = null
+
+        //stop incoming message thread
+        inComingMessageThread?.interrupt()
+        inComingMessageThread = null
+
+        socket?.close()
+        streamInput?.close()
+        streamOutput?.close()
+        serverSocket?.close()
+    }
+
+    private fun sendPrefsMessage() {
+        try {
+            val prefsJsonArray = app?.rfcxPrefs?.prefsAsJsonArray
+            val prefsJson = JSONObject().put("prefs", prefsJsonArray)
+            streamOutput?.writeUTF(prefsJson.toString())
+            streamOutput?.flush()
+        } catch (e: JSONException) {
+            Log.e(LOGTAG, e.toString())
+        }
+    }
+
+    private fun sendConnectionMessage() {
+        try {
+            streamOutput?.writeUTF(getConnectionResponse())
+            streamOutput?.flush()
+        } catch (e: JSONException) {
+            Log.e(LOGTAG, e.toString())
+        }
+    }
+
+    private fun sendDiagnosticMessage() {
+        try {
+            val diagnosticJson = JSONObject()
+            val diagnosticJsonArray = RfcxComm.getQueryContentProvider("guardian", "diagnostic", "diagnostic", context?.contentResolver)
+            if (diagnosticJsonArray.length() > 0) {
+                val jsonObject = diagnosticJsonArray.getJSONObject(0)
+                diagnosticJson.put("diagnostic", jsonObject)
+            }
+
+            val configureJsonArray = RfcxComm.getQueryContentProvider("guardian", "configuration", "configuration", context?.contentResolver)
+            if (configureJsonArray.length() > 0) {
+                val jsonObject = configureJsonArray.getJSONObject(0)
+                diagnosticJson.put("configure", jsonObject)
+            }
+
+            val prefsJsonArray = app?.rfcxPrefs?.prefsAsJsonArray
+            diagnosticJson.put("prefs", prefsJsonArray)
+
+            streamOutput?.writeUTF(diagnosticJson.toString())
+            streamOutput?.flush()
+        } catch (e: JSONException) {
+            Log.e(LOGTAG, e.toString())
+        }
+    }
+
+    private fun sendConfigurationMessage() {
+        try {
+            val jsonArray = RfcxComm.getQueryContentProvider(
+                "guardian",
+                "configuration",
+                "configuration",
+                context?.contentResolver
+            )
+            if (jsonArray.length() > 0) {
+                val jsonObject = jsonArray.getJSONObject(0)
+                val configurationJson =
+                    JSONObject().put("configure", jsonObject)
+                streamOutput?.writeUTF(configurationJson.toString())
+                streamOutput?.flush()
+            }
+        } catch (e: JSONException) {
+            Log.e(LOGTAG, e.toString())
+        }
+    }
+
+    private fun sendMicrophoneTestMessage() {
+        isMicTesting = !isMicTesting
+        var tempByte = ""
+        try {
+            while (isMicTesting) {
+                val jsonArray = RfcxComm.getQueryContentProvider(
+                    "guardian",
+                    "microphone_test",
+                    "microphone_test",
+                    context?.contentResolver
+                )
+                if (jsonArray.length() > 0) {
+                    val audioJsonObject = jsonArray.getJSONObject(0)
+                    if (tempByte != audioJsonObject.getString("buffer")) {
+                        tempByte = audioJsonObject.getString("buffer")
+                        val jsonObject = JSONObject().put(
+                            "microphone_test",
+                            audioJsonObject
+                        )
+                        streamOutput?.writeUTF(jsonObject.toString())
+                    }
+                }
+            }
+        } catch (e: JSONException) {
+            Log.e(LOGTAG, e.toString())
+        }
+    }
+
+    private fun sendSignalMessage() {
+        val signalJsonArray = RfcxComm.getQueryContentProvider("admin", "signal", "signal", context?.contentResolver)
+        if (signalJsonArray.length() > 0) {
+            val signalStrength = signalJsonArray.getJSONObject(0).getInt("signal")
+            val signalValue = (-113 + (2 * signalStrength)) // converting signal strength to decibel-milliwatts (dBm)
+            val isSimCardInserted = app?.deviceMobilePhone?.hasSim()
+            try {
+                val signalJson = JSONObject()
+                    .put("signal", signalValue)
+                    .put("sim_card", isSimCardInserted)
+                val signalInfoJson = JSONObject()
+                    .put("signal_info", signalJson)
+                streamOutput?.writeUTF(signalInfoJson.toString())
+                streamOutput?.flush()
+            } catch (e: JSONException) {
+                Log.e(LOGTAG, e.toString())
+            }
+        }
+    }
+
+    private fun sendSyncConfigurationMessage(syncJSONArray: JSONArray) {
+        var prefResponse = JSONArray()
+        var syncResponse = ""
+        try {
+            for (i in 0 until syncJSONArray.length()) {
+                val pref = syncJSONArray.get(i)
+                Log.d(LOGTAG, pref.toString())
+                prefResponse = RfcxComm.getQueryContentProvider(
+                    "guardian",
+                    "prefs_set",
+                    pref.toString(),
+                    context?.contentResolver
+                )
+            }
+            if (prefResponse.length() > 0) {
+                syncResponse = getSyncResponse("success")
+            }
+        } catch (e: JSONException) {
+            Log.e(LOGTAG, e.toString())
+            syncResponse = getSyncResponse("failed")
+        } finally {
+            streamOutput?.writeUTF(syncResponse)
+            streamOutput?.flush()
+        }
     }
 
     private fun getConnectionResponse(): String {
