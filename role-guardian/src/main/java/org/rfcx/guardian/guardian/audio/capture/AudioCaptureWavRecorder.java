@@ -46,7 +46,7 @@ public class AudioCaptureWavRecorder {
 	public int readSize;
 
 	// The interval in which the recorded samples are output to the file used only in uncompressed mode
-	private static final int TIMER_INTERVAL_UNCOMPRESSED = 480;
+	private static final int TIMER_INTERVAL_UNCOMPRESSED = 120;
 
 	// Number of channels, sample rate, sample size(size in bits), buffer size, audio source, sample size (see AudioFormat)
 	private short captureChannelCount;
