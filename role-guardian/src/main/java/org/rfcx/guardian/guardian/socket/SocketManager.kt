@@ -16,14 +16,14 @@ import java.net.Socket
 
 object SocketManager {
 
-    private val LOGTAG = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "WifiCommunicationUtils")
+    private val LOGTAG = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SocketManager")
 
     private lateinit var serverSocket: ServerSocket
     private lateinit var socket: Socket
     private lateinit var streamInput: DataInputStream
     private lateinit var serverThread: Thread
 
-    fun startServerSocket(context: Context, listener: SocketConnectionListener) {
+    fun startServerSocket(context: Context) {
         var isMicTesting = false
         serverThread = Thread(Runnable {
             try {
@@ -33,7 +33,6 @@ object SocketManager {
                 serverSocket.reuseAddress = true
                 serverSocket.bind(InetSocketAddress(9999))
 
-                listener.onStarted()
                 while (true) {
                     socket = serverSocket.accept()
 
@@ -192,7 +191,6 @@ object SocketManager {
                 }
             } catch (e: Exception) {
                 Log.e(LOGTAG, e.toString())
-                listener.onFailed()
             }
         })
 
@@ -222,10 +220,5 @@ object SocketManager {
         response.put("sync", status)
 
         return response.toString()
-    }
-
-    interface SocketConnectionListener {
-        fun onStarted()
-        fun onFailed()
     }
 }
