@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.socket
 
 import android.content.Context
+import android.util.Base64
 import android.util.Log
 import org.json.JSONArray
 import org.json.JSONException
@@ -79,7 +80,11 @@ object SocketManager {
                                     JSONObject(receiveJson.get("command").toString())
                                 val commandKey = commandObject.keys().asSequence().toList()[0]
                                 when (commandKey) {
-                                    "sync" -> sendSyncConfigurationMessage(commandObject.getJSONArray("sync"))
+                                    "sync" -> sendSyncConfigurationMessage(
+                                        commandObject.getJSONArray(
+                                            "sync"
+                                        )
+                                    )
                                 }
                             }
                         }
@@ -130,13 +135,23 @@ object SocketManager {
     private fun sendDiagnosticMessage() {
         try {
             val diagnosticJson = JSONObject()
-            val diagnosticJsonArray = RfcxComm.getQueryContentProvider("guardian", "diagnostic", "diagnostic", context?.contentResolver)
+            val diagnosticJsonArray = RfcxComm.getQueryContentProvider(
+                "guardian",
+                "diagnostic",
+                "diagnostic",
+                context?.contentResolver
+            )
             if (diagnosticJsonArray.length() > 0) {
                 val jsonObject = diagnosticJsonArray.getJSONObject(0)
                 diagnosticJson.put("diagnostic", jsonObject)
             }
 
-            val configureJsonArray = RfcxComm.getQueryContentProvider("guardian", "configuration", "configuration", context?.contentResolver)
+            val configureJsonArray = RfcxComm.getQueryContentProvider(
+                "guardian",
+                "configuration",
+                "configuration",
+                context?.contentResolver
+            )
             if (configureJsonArray.length() > 0) {
                 val jsonObject = configureJsonArray.getJSONObject(0)
                 diagnosticJson.put("configure", jsonObject)
@@ -177,22 +192,19 @@ object SocketManager {
         var tempByte = ""
         try {
             while (isMicTesting) {
-                val jsonArray = RfcxComm.getQueryContentProvider(
-                    "guardian",
-                    "microphone_test",
-                    "microphone_test",
-                    context?.contentResolver
-                )
-                if (jsonArray.length() > 0) {
-                    val audioJsonObject = jsonArray.getJSONObject(0)
-                    if (tempByte != audioJsonObject.getString("buffer")) {
-                        tempByte = audioJsonObject.getString("buffer")
-                        val jsonObject = JSONObject().put(
-                            "microphone_test",
-                            audioJsonObject
-                        )
-                        streamOutput?.writeUTF(jsonObject.toString())
-                    }
+                val audioPair = app?.audioCaptureUtils?.audioBuffer
+                val audioString = Base64.encodeToString(audioPair!!.first, Base64.NO_WRAP)
+                val audioReadSize = audioPair.second
+                if (tempByte != audioString) {
+                    tempByte = audioString
+                    val audioJsonObject = JSONObject()
+                        .put("buffer", tempByte)
+                        .put("read_size", audioReadSize)
+                    val jsonObject = JSONObject().put(
+                        "microphone_test",
+                        audioJsonObject
+                    )
+                    streamOutput?.writeUTF(jsonObject.toString())
                 }
             }
         } catch (e: JSONException) {
@@ -201,10 +213,12 @@ object SocketManager {
     }
 
     private fun sendSignalMessage() {
-        val signalJsonArray = RfcxComm.getQueryContentProvider("admin", "signal", "signal", context?.contentResolver)
+        val signalJsonArray =
+            RfcxComm.getQueryContentProvider("admin", "signal", "signal", context?.contentResolver)
         if (signalJsonArray.length() > 0) {
             val signalStrength = signalJsonArray.getJSONObject(0).getInt("signal")
-            val signalValue = (-113 + (2 * signalStrength)) // converting signal strength to decibel-milliwatts (dBm)
+            val signalValue =
+                (-113 + (2 * signalStrength)) // converting signal strength to decibel-milliwatts (dBm)
             val isSimCardInserted = app?.deviceMobilePhone?.hasSim()
             try {
                 val signalJson = JSONObject()
