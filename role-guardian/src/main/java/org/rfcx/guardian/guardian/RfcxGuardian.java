@@ -196,7 +196,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                             + "|" + ScheduledApiPingService.SCHEDULED_API_PING_CYCLE_DURATION
                     ,
                     "WifiCommunication"
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits two minutes before running
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minutes before running
                             + "|" + "0"                                                                    // no repeat
             };
 

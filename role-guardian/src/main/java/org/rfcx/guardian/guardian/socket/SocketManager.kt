@@ -29,8 +29,6 @@ object SocketManager {
     private var context: Context? = null
     private var app: RfcxGuardian? = null
 
-    private var isMicTesting: Boolean = false
-
     fun startServerSocket(context: Context) {
         this.context = context
         app = context.applicationContext as RfcxGuardian
@@ -41,6 +39,7 @@ object SocketManager {
 
                 while (true) {
                     socket = serverSocket?.accept()
+                    socket?.tcpNoDelay = true
 
                     streamInput = DataInputStream(socket?.getInputStream())
                     val message = streamInput?.readUTF()
@@ -175,27 +174,20 @@ object SocketManager {
     }
 
     private fun sendMicrophoneTestMessage() {
-        isMicTesting = !isMicTesting
-        var tempByte = ""
         try {
-            while (isMicTesting) {
-                val audioPair = app?.audioCaptureUtils?.audioBuffer
-                if (audioPair != null) {
-                    val audioString = Base64.encodeToString(audioPair.first, Base64.NO_WRAP)
-                    val audioReadSize = audioPair.second
-                    if (tempByte != audioString) {
-                        tempByte = audioString
-                        val audioJsonObject = JSONObject()
-                            .put("buffer", tempByte)
-                            .put("read_size", audioReadSize)
-                        val jsonObject = JSONObject().put(
-                            "microphone_test",
-                            audioJsonObject
-                        )
-                        streamOutput?.writeUTF(jsonObject.toString())
-                        streamOutput?.flush()
-                    }
-                }
+            val audioPair = app?.audioCaptureUtils?.audioBuffer
+            if (audioPair != null) {
+                val audioString = Base64.encodeToString(audioPair.first, Base64.DEFAULT)
+                val audioReadSize = audioPair.second
+                val audioJsonObject = JSONObject()
+                    .put("buffer", audioString)
+                    .put("read_size", audioReadSize)
+                val jsonObject = JSONObject().put(
+                    "microphone_test",
+                    audioJsonObject
+                )
+                streamOutput?.writeUTF(jsonObject.toString())
+                streamOutput?.flush()
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
