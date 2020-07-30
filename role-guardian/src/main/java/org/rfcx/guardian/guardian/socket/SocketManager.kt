@@ -2,7 +2,6 @@ package org.rfcx.guardian.guardian.socket
 
 import android.content.Context
 import android.util.Base64
-import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
@@ -10,7 +9,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
 
@@ -45,7 +43,6 @@ object SocketManager {
                     val message = streamInput?.readUTF()
 
                     if (!message.isNullOrBlank()) {
-                        Log.d("ServerSocket", "Receiving data from Client: $message")
 
                         val receiveJson = JSONObject(message)
 
@@ -227,7 +224,6 @@ object SocketManager {
         try {
             for (i in 0 until syncJSONArray.length()) {
                 val pref = syncJSONArray.get(i)
-                Log.d(LOGTAG, pref.toString())
                 prefResponse = RfcxComm.getQueryContentProvider(
                     "guardian",
                     "prefs_set",
