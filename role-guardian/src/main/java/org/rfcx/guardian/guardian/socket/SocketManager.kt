@@ -30,7 +30,6 @@ object SocketManager {
     private var app: RfcxGuardian? = null
 
     private var isMicTesting: Boolean = false
-    private var isSignalTesting: Boolean = false
 
     fun startServerSocket(context: Context) {
         this.context = context
@@ -181,19 +180,21 @@ object SocketManager {
         try {
             while (isMicTesting) {
                 val audioPair = app?.audioCaptureUtils?.audioBuffer
-                val audioString = Base64.encodeToString(audioPair!!.first, Base64.NO_WRAP)
-                val audioReadSize = audioPair.second
-                if (tempByte != audioString) {
-                    tempByte = audioString
-                    val audioJsonObject = JSONObject()
-                        .put("buffer", tempByte)
-                        .put("read_size", audioReadSize)
-                    val jsonObject = JSONObject().put(
-                        "microphone_test",
-                        audioJsonObject
-                    )
-                    streamOutput?.writeUTF(jsonObject.toString())
-                    streamOutput?.flush()
+                if (audioPair != null) {
+                    val audioString = Base64.encodeToString(audioPair.first, Base64.NO_WRAP)
+                    val audioReadSize = audioPair.second
+                    if (tempByte != audioString) {
+                        tempByte = audioString
+                        val audioJsonObject = JSONObject()
+                            .put("buffer", tempByte)
+                            .put("read_size", audioReadSize)
+                        val jsonObject = JSONObject().put(
+                            "microphone_test",
+                            audioJsonObject
+                        )
+                        streamOutput?.writeUTF(jsonObject.toString())
+                        streamOutput?.flush()
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -202,31 +203,28 @@ object SocketManager {
     }
 
     private fun sendSignalMessage() {
-        isSignalTesting = !isSignalTesting
-        while (isSignalTesting) {
-            val signalJsonArray =
-                RfcxComm.getQueryContentProvider(
-                    "admin",
-                    "signal",
-                    "signal",
-                    context?.contentResolver
-                )
-            if (signalJsonArray.length() > 0) {
-                val signalStrength = signalJsonArray.getJSONObject(0).getInt("signal")
-                val signalValue =
-                    (-113 + (2 * signalStrength)) // converting signal strength to decibel-milliwatts (dBm)
-                val isSimCardInserted = app?.deviceMobilePhone?.hasSim()
-                try {
-                    val signalJson = JSONObject()
-                        .put("signal", signalValue)
-                        .put("sim_card", isSimCardInserted)
-                    val signalInfoJson = JSONObject()
-                        .put("signal_info", signalJson)
-                    streamOutput?.writeUTF(signalInfoJson.toString())
-                    streamOutput?.flush()
-                } catch (e: Exception) {
-                    RfcxLog.logExc(LOGTAG, e)
-                }
+        val signalJsonArray =
+            RfcxComm.getQueryContentProvider(
+                "admin",
+                "signal",
+                "signal",
+                context?.contentResolver
+            )
+        if (signalJsonArray.length() > 0) {
+            val signalStrength = signalJsonArray.getJSONObject(0).getInt("signal")
+            val signalValue =
+                (-113 + (2 * signalStrength)) // converting signal strength to decibel-milliwatts (dBm)
+            val isSimCardInserted = app?.deviceMobilePhone?.hasSim()
+            try {
+                val signalJson = JSONObject()
+                    .put("signal", signalValue)
+                    .put("sim_card", isSimCardInserted)
+                val signalInfoJson = JSONObject()
+                    .put("signal_info", signalJson)
+                streamOutput?.writeUTF(signalInfoJson.toString())
+                streamOutput?.flush()
+            } catch (e: Exception) {
+                RfcxLog.logExc(LOGTAG, e)
             }
         }
     }
