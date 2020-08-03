@@ -2,8 +2,6 @@ package org.rfcx.guardian.guardian.contentprovider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
-import org.rfcx.guardian.guardian.wificommunication.WifiCommunicationUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -14,7 +12,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
@@ -116,7 +113,19 @@ public class GuardianContentProvider extends ContentProvider {
 				}
 				return RfcxComm.getProjectionCursor(appRole, "configuration", new Object[]{configurationTarget, configurationResultJsonArray.toString(), System.currentTimeMillis() });
 
+			// "get audio buffer" function
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "microphone_test", "*")) {
+				logFuncVal = "microphone_test-*";
+				String microphoneTarget = uri.getLastPathSegment();
+				JSONArray microphoneResultJsonArray = new JSONArray();
+				if (microphoneTarget.equalsIgnoreCase("microphone_test")) {
+					microphoneResultJsonArray = app.wifiCommunicationUtils.getAudioBufferAsJson();
+				}
+				return RfcxComm.getProjectionCursor(appRole, "microphone_test", new Object[]{microphoneTarget, microphoneResultJsonArray.toString(), System.currentTimeMillis() });
+
 			// "get diagnostic" function
+
 			} else if (RfcxComm.uriMatch(uri, appRole, "diagnostic", "*")) {
 				logFuncVal = "diagnostic-*";
 				String diagnosticTarget = uri.getLastPathSegment();

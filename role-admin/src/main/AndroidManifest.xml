@@ -83,7 +83,6 @@
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
         <service android:name=".device.android.ssh.SSHServerControlService" />
-        <service android:name=".device.android.wifi.WifiCommunicationService" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" />

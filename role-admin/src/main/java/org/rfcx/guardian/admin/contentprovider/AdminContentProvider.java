@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin.contentprovider;
 
 import org.json.JSONArray;
+import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
 import org.rfcx.guardian.admin.sms.SmsUtils;
@@ -224,6 +225,8 @@ public class AdminContentProvider extends ContentProvider {
                     return null;
                 }
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "signal", "*")) { logFuncVal = "signal-*";
+                return RfcxComm.getProjectionCursor(appRole, "signal", new Object[]{DeviceSystemService.getSignalStrengthAsJsonArray()});
             }
 
 

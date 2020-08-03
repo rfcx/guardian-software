@@ -1,16 +1,15 @@
 package org.rfcx.guardian.guardian;
 
-import java.io.File;
 import java.util.Map;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.checkin.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.api.checkin.ScheduledApiPingService;
-import org.rfcx.guardian.guardian.diagnostic.DiagnosticUtils;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
-import org.rfcx.guardian.guardian.wificommunication.WifiCommunicationUtils;
+import org.rfcx.guardian.guardian.socket.WifiCommunicationService;
+import org.rfcx.guardian.guardian.socket.WifiCommunicationUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -195,6 +194,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     "ScheduledApiPing"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
                             + "|" + ScheduledApiPingService.SCHEDULED_API_PING_CYCLE_DURATION
+                    ,
+                    "WifiCommunication"
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minutes before running
+                            + "|" + "0"                                                                    // no repeat
             };
 
             String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
@@ -235,6 +238,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
         this.rfcxServiceHandler.addService("ApiCheckInMetaSnapshot", ApiCheckInMetaSnapshotService.class);
         this.rfcxServiceHandler.addService("InstructionsExecution", InstructionsExecutionService.class);
+
+        this.rfcxServiceHandler.addService("WifiCommunication", WifiCommunicationService.class);
     }
 
     @Override
@@ -273,7 +278,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     }
 
     public void onPrefReSync(String prefKey) {
-
+        if (prefKey.equalsIgnoreCase("admin_enable_wifi_socket")) {
+            rfcxServiceHandler.triggerService("WifiCommunication", false);
+        }
     }
 
 }

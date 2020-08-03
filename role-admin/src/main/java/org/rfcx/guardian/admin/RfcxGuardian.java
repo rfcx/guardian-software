@@ -6,7 +6,6 @@ import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
-import org.rfcx.guardian.admin.device.android.wifi.WifiCommunicationService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelerometerUtils;
@@ -269,7 +268,6 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("ScheduledCameraVideoCapture", ScheduledCameraVideoCaptureService.class);
 
 		this.rfcxServiceHandler.addService("SSHServerControl", SSHServerControlService.class);
-		this.rfcxServiceHandler.addService("WifiCommunication", WifiCommunicationService.class);
 
 	}
 
@@ -294,8 +292,6 @@ public class RfcxGuardian extends Application {
 
 		} else if (prefKey.equalsIgnoreCase("admin_enable_ssh_server")) {
 			rfcxServiceHandler.triggerService("SSHServerControl", false);
-		} else if (prefKey.equalsIgnoreCase("admin_enable_wifi_socket")) {
-			rfcxServiceHandler.triggerService("WifiCommunication", false);
 		}
 	}
 
