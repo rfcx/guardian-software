@@ -175,16 +175,31 @@ object SocketManager {
             val audioPair = app?.audioCaptureUtils?.audioBuffer
             if (audioPair != null) {
                 val audioString = Base64.encodeToString(audioPair.first, Base64.DEFAULT)
-                val audioReadSize = audioPair.second
-                val audioJsonObject = JSONObject()
-                    .put("buffer", audioString)
-                    .put("read_size", audioReadSize)
-                val jsonObject = JSONObject().put(
-                    "microphone_test",
-                    audioJsonObject
-                )
-                streamOutput?.writeUTF(jsonObject.toString())
-                streamOutput?.flush()
+                if (audioString.length <= 65535) {
+                    val audioReadSize = audioPair.second
+                    val audioJsonObject = JSONObject()
+                        .put("amount", 1)
+                        .put("number", 1)
+                        .put("buffer", audioString)
+                        .put("read_size", audioReadSize)
+                    val jsonObject = JSONObject().put("microphone_test", audioJsonObject)
+                    streamOutput?.writeUTF(jsonObject.toString())
+                    streamOutput?.flush()
+                } else {
+                    val audioChunks = audioPair.first.toSmallChunk(10)
+                    audioChunks.forEachIndexed { index, audio ->
+                        val readSize = audio.size
+                        val audioChunkString = Base64.encodeToString(audio, Base64.DEFAULT)
+                        val audioJsonObject = JSONObject()
+                            .put("amount", audioChunks.size)
+                            .put("number", index + 1) // make it real number
+                            .put("buffer", audioChunkString)
+                            .put("read_size", readSize)
+                        val jsonObject = JSONObject().put("microphone_test", audioJsonObject)
+                        streamOutput?.writeUTF(jsonObject.toString())
+                        streamOutput?.flush()
+                    }
+                }
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
@@ -259,5 +274,16 @@ object SocketManager {
         response.put("sync", status)
 
         return response.toString()
+    }
+
+    private fun ByteArray.toSmallChunk(number: Int): List<ByteArray> {
+        val numberOfChunk = this.size / number
+        val resultChunk = arrayListOf<ByteArray>()
+        var i = 0
+        while (i < this.size) {
+            resultChunk.add(this.copyOfRange(i, kotlin.math.min(this.size, i + numberOfChunk)))
+            i += numberOfChunk
+        }
+        return resultChunk
     }
 }
