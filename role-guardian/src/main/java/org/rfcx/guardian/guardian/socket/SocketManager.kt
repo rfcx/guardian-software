@@ -175,28 +175,28 @@ object SocketManager {
             val audioPair = app?.audioCaptureUtils?.audioBuffer
             if (audioPair != null) {
                 val audioString = Base64.encodeToString(audioPair.first, Base64.DEFAULT)
-                if (audioString.length <= 65535) {
-                    val audioReadSize = audioPair.second
-                    val audioJsonObject = JSONObject()
-                        .put("amount", 1)
-                        .put("number", 1)
-                        .put("buffer", audioString)
-                        .put("read_size", audioReadSize)
-                    val jsonObject = JSONObject().put("microphone_test", audioJsonObject)
-                    streamOutput?.writeUTF(jsonObject.toString())
+                val audioReadSize = audioPair.second
+                val audioJsonObject = JSONObject()
+                    .put("amount", 1)
+                    .put("number", 1)
+                    .put("buffer", audioString)
+                    .put("read_size", audioReadSize)
+                val micTestObject = JSONObject().put("microphone_test", audioJsonObject)
+                if (micTestObject.toString().length <= 65535) {
+                    streamOutput?.writeUTF(micTestObject.toString())
                     streamOutput?.flush()
                 } else {
                     val audioChunks = audioPair.first.toSmallChunk(10)
                     audioChunks.forEachIndexed { index, audio ->
                         val readSize = audio.size
                         val audioChunkString = Base64.encodeToString(audio, Base64.DEFAULT)
-                        val audioJsonObject = JSONObject()
+                        val audioChunkJsonObject = JSONObject()
                             .put("amount", audioChunks.size)
                             .put("number", index + 1) // make it real number
                             .put("buffer", audioChunkString)
                             .put("read_size", readSize)
-                        val jsonObject = JSONObject().put("microphone_test", audioJsonObject)
-                        streamOutput?.writeUTF(jsonObject.toString())
+                        val micTestChunkObject = JSONObject().put("microphone_test", audioChunkJsonObject)
+                        streamOutput?.writeUTF(micTestChunkObject.toString())
                         streamOutput?.flush()
                     }
                 }
