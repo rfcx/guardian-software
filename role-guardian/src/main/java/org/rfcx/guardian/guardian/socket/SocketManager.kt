@@ -296,7 +296,7 @@ object SocketManager {
     }
 
     enum class CheckInState(val value: String) {
-        NOT_PUBLISHED("not_publish"), PUBLISHING("publishing"), PUBLISHED(
+        NOT_PUBLISHED("not published"), PUBLISHING("publishing"), PUBLISHED(
             "published"
         )
     }
