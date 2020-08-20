@@ -27,6 +27,8 @@ object SocketManager {
     private var context: Context? = null
     private var app: RfcxGuardian? = null
 
+    private var requireCheckInTest = false
+
     fun startServerSocket(context: Context) {
         this.context = context
         app = context.applicationContext as RfcxGuardian
@@ -55,6 +57,14 @@ object SocketManager {
                             "configure" -> sendConfigurationMessage()
                             "microphone_test" -> sendMicrophoneTestMessage()
                             "signal" -> sendSignalMessage()
+                            "checkin" -> {
+                                requireCheckInTest = if (!requireCheckInTest) {
+                                    sendCheckInTestMessage(CheckInState.NOT_PUBLISHED)
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
                             else -> {
                                 val commandObject =
                                     JSONObject(receiveJson.get("command").toString())
@@ -243,6 +253,30 @@ object SocketManager {
         }
     }
 
+    fun sendCheckInTestMessage(state: CheckInState, deliveryTime: String? = null) {
+        try {
+            if (state == CheckInState.NOT_PUBLISHED || requireCheckInTest) {
+                val checkInJson = JSONObject()
+                    .put("api_url", getFullCheckInUrl())
+                    .put("state", state.value)
+                    .put("delivery_time", deliveryTime)
+                val checkInTestJson = JSONObject()
+                    .put("checkin", checkInJson)
+                streamOutput?.writeUTF(checkInTestJson.toString())
+                streamOutput?.flush()
+            }
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
+        }
+    }
+
+    private fun getFullCheckInUrl(): String {
+        val protocol = app?.rfcxPrefs?.getPrefAsString("api_checkin_protocol") ?: "ssl"
+        val host = app?.rfcxPrefs?.getPrefAsString("api_checkin_host") ?: "checkin.rfcx.org"
+        val port = app?.rfcxPrefs?.getPrefAsString("api_checkin_port") ?: "8883"
+        return "$protocol://$host:$port"
+    }
+
     private fun getConnectionResponse(): String {
         val response = JSONObject()
         val status = JSONObject()
@@ -259,5 +293,11 @@ object SocketManager {
         response.put("sync", status)
 
         return response.toString()
+    }
+
+    enum class CheckInState(val value: String) {
+        NOT_PUBLISHED("not_publish"), PUBLISHING("publishing"), PUBLISHED(
+            "published"
+        )
     }
 }

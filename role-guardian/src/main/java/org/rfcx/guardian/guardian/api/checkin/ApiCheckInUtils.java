@@ -24,6 +24,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.rfcx.guardian.guardian.socket.SocketManager;
 import org.rfcx.guardian.utility.camera.RfcxCameraUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -1161,7 +1162,9 @@ public class ApiCheckInUtils implements MqttCallback {
 					long msgSendDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.inFlightCheckInStats.get(this.inFlightCheckInAudioId)[0]));
 					setInFlightCheckInStats(this.inFlightCheckInAudioId, 0, msgSendDuration, 0);
 //					this.inFlightCheckInAudioId = null;
-					Log.i(logTag, "CheckIn delivery time: " + DateTimeUtils.milliSecondDurationAsReadableString(msgSendDuration, true));
+					String deliveryTimeReadable = DateTimeUtils.milliSecondDurationAsReadableString(msgSendDuration, true);
+					SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHED, deliveryTimeReadable);
+					Log.i(logTag, "CheckIn delivery time: " + deliveryTimeReadable);
 				}
 
 			} else {
@@ -1217,6 +1220,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private long publishMessageOnConfirmedConnection(String publishTopic, byte[] messageByteArray) throws MqttException {
 		confirmOrCreateConnectionToBroker(true);
+		SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHING, null);
 		return this.mqttCheckInClient.publishMessage(publishTopic, messageByteArray);
 	}
 
