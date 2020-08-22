@@ -46,22 +46,6 @@
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_enable_cutoffs_schedule_off_hours" />
 
-	<EditTextPreference
-		android:key="api_rest_host"
-		android:title="api_rest_host"
-		android:summary="string - rest api address"
-		android:enabled="true"
-		android:defaultValue="@string/prefs_value_default_api_rest_host" />
-
-	<ListPreference
-		android:key="api_rest_protocol"
-		android:title="api_rest_protocol"
-		android:dialogTitle="api_rest_protocol"
-		android:summary="string - rest api protocol"
-		android:entries="@array/prefs_values_http_or_https"
-		android:entryValues="@array/prefs_values_http_or_https"
-		android:defaultValue="@string/prefs_value_default_api_rest_protocol" />
-
  	<EditTextPreference
         android:key="api_checkin_host"
         android:title="api_checkin_host"
@@ -93,6 +77,22 @@
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_enable_checkin_authentication" />
+
+	<EditTextPreference
+		android:key="api_rest_host"
+		android:title="api_rest_host"
+		android:summary="string - rest api address"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_rest_host" />
+
+	<ListPreference
+		android:key="api_rest_protocol"
+		android:title="api_rest_protocol"
+		android:dialogTitle="api_rest_protocol"
+		android:summary="string - rest api protocol"
+		android:entries="@array/prefs_values_http_or_https"
+		android:entryValues="@array/prefs_values_http_or_https"
+		android:defaultValue="@string/prefs_value_default_api_rest_protocol" />
 
  	<EditTextPreference
         android:key="api_ntp_host"
@@ -209,6 +209,13 @@
         android:summary="int - count"
         android:enabled="true"
         android:defaultValue="@string/prefs_value_default_checkin_archive_threshold" />
+
+	<EditTextPreference
+		android:key="checkin_meta_bundle_limit"
+		android:title="checkin_meta_bundle_limit"
+		android:summary="int - count"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_meta_bundle_limit" />
  	
  	<!-- Admin Controls -->
  	

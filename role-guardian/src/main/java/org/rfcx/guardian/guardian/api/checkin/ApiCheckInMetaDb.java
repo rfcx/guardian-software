@@ -88,6 +88,10 @@ public class ApiCheckInMetaDb {
 			return rightNow;
 		}
 
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
+
 	}
 	public final DbMeta dbMeta;
 	

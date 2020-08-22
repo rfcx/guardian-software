@@ -330,13 +330,13 @@ public class RfcxPrefs {
 			put("enable_cutoffs_battery", "true");
 			put("enable_cutoffs_schedule_off_hours", "true");
 
-			put("api_rest_host", "api.rfcx.org");
-			put("api_rest_protocol", "https");
-
 			put("api_checkin_host", "checkins.rfcx.org");
 	        put("api_checkin_protocol", "ssl");
 	        put("api_checkin_port", "8883");
 			put("enable_checkin_authentication", "true");
+
+            put("api_rest_host", "api.rfcx.org");
+            put("api_rest_protocol", "https");
 
 	        put("api_ntp_host", "time.apple.com");
 			put("api_sms_address", "+14154803657");
@@ -359,6 +359,8 @@ public class RfcxPrefs {
 			put("checkin_skip_threshold", "5");
 			put("checkin_stash_threshold", "240");
 			put("checkin_archive_threshold", "160");
+
+			put("checkin_meta_bundle_limit", "6");
 
 			put("admin_enable_bluetooth", "false");
 			put("admin_enable_wifi", "false");
