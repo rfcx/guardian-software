@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -55,7 +54,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		initializeFailedCheckInThresholds();
 
 		this.mqttCheckInClient = new MqttUtils(context, RfcxGuardian.APP_ROLE, this.app.rfcxGuardianIdentity.getGuid());
-
 		this.mqttCheckInClient.addSubscribeTopic(this.app.rfcxGuardianIdentity.getGuid()+"/cmd");
 
 		setOrResetBrokerConfig();
@@ -87,13 +85,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private int[] failedCheckInThresholds = new int[0];
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
 
-	private Map<String, long[]> healthCheckMonitors = new HashMap<String, long[]>();
-	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent", "time-of-day" };
-	private long[] healthCheckTargetLowerBounds = new long[healthCheckCategories.length];
-	private long[] healthCheckTargetUpperBounds = new long[healthCheckCategories.length];
-	private static final int healthCheckMeasurementCount = 6;
-	private long[] healthCheckInitValues = new long[healthCheckMeasurementCount];
-	private boolean doCheckInConditionsAllowCheckInRequeuing = false;
+	private ApiCheckInHealthUtils apiCheckInHealthUtils = new ApiCheckInHealthUtils();
 
 	public static long latestFileSize = 0;
 	public static long totalFileSize = 0;
@@ -256,88 +248,18 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	}
 
-	private void setupRecentCheckInHealthCheck() {
+	private void reQueueStashedCheckInIfAllowedByHealthCheck(long[] inputValues) {
 
-		// fill initial array with garbage (very high) values to ensure that checks will fail until we have the required number of checkins to compare
-		Arrays.fill(healthCheckInitValues, Math.round(Long.MAX_VALUE / healthCheckMeasurementCount));
-
-		// initialize categories with initial arrays (to be filled incrementally with real data)
-		for (String healthCheckCategory : healthCheckCategories) {
-			if (!healthCheckMonitors.containsKey(healthCheckCategory)) { healthCheckMonitors.put(healthCheckCategory, healthCheckInitValues); }
+		if (	apiCheckInHealthUtils.validateRecentCheckInHealthCheck(
+					app.rfcxPrefs.getPrefAsLong("audio_cycle_duration"),
+					new long[] { 9, 16 },	// time-of-day bounds
+					inputValues
+				)
+			&& 	(app.apiCheckInDb.dbStashed.getCount() > 0)
+			) {
+			String[] lastStashedCheckIn = app.apiCheckInDb.dbStashed.getLatestRow();
+			reQueueAudioAssetForCheckIn("stashed", lastStashedCheckIn[1]);
 		}
-
-		// set parameters (bounds) for health check pass or fail
-
-		/* latency */		healthCheckTargetLowerBounds[0] = 0;
-							healthCheckTargetUpperBounds[0] = Math.round( 0.4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
-
-		/* queued */		healthCheckTargetLowerBounds[1] = 0;
-							healthCheckTargetUpperBounds[1] = 1;
-
-		/* recent */		healthCheckTargetLowerBounds[2] = 0;
-							healthCheckTargetUpperBounds[2] = ( healthCheckMeasurementCount / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
-
-		/* time-of-day */	healthCheckTargetLowerBounds[3] = 9;
-							healthCheckTargetUpperBounds[3] = 15;
-	}
-
-	private void runRecentCheckInHealthCheck(long[] inputValues) {
-
-		if (!healthCheckMonitors.containsKey(healthCheckCategories[0])) { setupRecentCheckInHealthCheck(); }
-
-		long[] currAvgVals = new long[healthCheckCategories.length]; Arrays.fill(currAvgVals, 0);
-
-		for (int j = 0; j < healthCheckCategories.length; j++) {
-			String categ = healthCheckCategories[j];
-			long[] arraySnapshot = new long[healthCheckMeasurementCount];
-			arraySnapshot[0] = inputValues[j];
-			for (int i = (healthCheckMeasurementCount-1); i > 0; i--) { arraySnapshot[i] = healthCheckMonitors.get(categ)[i-1]; }
-			healthCheckMonitors.remove(healthCheckCategories[j]);
-			healthCheckMonitors.put(healthCheckCategories[j], arraySnapshot);
-			currAvgVals[j] = ArrayUtils.getAverageAsLong(healthCheckMonitors.get(categ));
-		}
-
-		boolean displayLogging = true;
-		doCheckInConditionsAllowCheckInRequeuing = true;
-		StringBuilder healthCheckLogging = new StringBuilder();
-
-		for (int j = 0; j < healthCheckCategories.length; j++) {
-
-			long currAvgVal = currAvgVals[j];
-			// some average values require modification before comparison to upper/lower bounds...
-			if (healthCheckCategories[j].equalsIgnoreCase("recent")) { currAvgVal = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(currAvgVals[j])); }
-
-			// compare to upper lower bounds, check for pass/fail
-			if ((currAvgVal > healthCheckTargetUpperBounds[j]) || (currAvgVal < healthCheckTargetLowerBounds[j])) {
-				doCheckInConditionsAllowCheckInRequeuing = false;
-			}
-
-			// generate some verbose logging feedback
-			healthCheckLogging.append(", ").append(healthCheckCategories[j]).append(": ").append(currAvgVal).append("/")
-					.append((healthCheckTargetLowerBounds[j] > 1) ? healthCheckTargetLowerBounds[j] + "-" : "")
-					.append(healthCheckTargetUpperBounds[j]);
-
-			if (healthCheckCategories[j].equalsIgnoreCase("time-of-day") && (currAvgVal > 24)) {
-				// In this case, we suppress logging, as we can guess that there are less than 6 checkin samples gathered
-				displayLogging = false;
-			}
-		}
-
-		healthCheckLogging.insert(0,"Stashed CheckIn Requeuing: "+( doCheckInConditionsAllowCheckInRequeuing ? "Allowed" : "Not Allowed" )+". Conditions (last "+healthCheckMeasurementCount+" checkins)");
-
-		if (displayLogging) {
-			if (!doCheckInConditionsAllowCheckInRequeuing) {
-				Log.w(logTag, healthCheckLogging.toString());
-			} else {
-				Log.i(logTag, healthCheckLogging.toString());
-				// this is where we could choose to reload stashed checkins into the queue
-				if (app.apiCheckInDb.dbStashed.getCount() > 0) {
-					String[] lastStashedCheckIn = app.apiCheckInDb.dbStashed.getLatestRow();
-					reQueueAudioAssetForCheckIn("stashed", lastStashedCheckIn[1]);
-				}
-			}
-		}
-
 	}
 
 	void createSystemMetaDataJsonSnapshot() throws JSONException {
@@ -1021,7 +943,7 @@ public class ApiCheckInUtils implements MqttCallback {
 							Calendar rightNow = GregorianCalendar.getInstance();
 							rightNow.setTime(new Date());
 
-							runRecentCheckInHealthCheck(new long[]{
+							reQueueStashedCheckInIfAllowedByHealthCheck(new long[]{
 									/* latency */    	checkInStats[1],
 									/* queued */       	(long) app.apiCheckInDb.dbQueued.getCount(),
 									/* recent */        checkInStats[0],
