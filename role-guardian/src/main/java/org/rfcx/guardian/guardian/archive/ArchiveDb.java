@@ -45,8 +45,8 @@ public class ArchiveDb {
 
 		private String TABLE = "checkins";
 		
-		public DbCheckInArchive(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+		public DbCheckInArchive(Context context) {													// SUPPRESSING DROP TABLE ON UPGRADE
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), true);
 		}
 		
 		public int insert(Date archived_at, Date archive_begins_at, Date archive_ends_at, int record_count, int filesize, String filepath) {

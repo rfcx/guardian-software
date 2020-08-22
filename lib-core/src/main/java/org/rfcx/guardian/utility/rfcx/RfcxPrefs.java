@@ -360,7 +360,7 @@ public class RfcxPrefs {
 			put("checkin_stash_threshold", "240");
 			put("checkin_archive_threshold", "160");
 
-			put("checkin_meta_bundle_limit", "6");
+			put("checkin_meta_bundle_limit", "8");
 
 			put("admin_enable_bluetooth", "false");
 			put("admin_enable_wifi", "false");
@@ -371,7 +371,7 @@ public class RfcxPrefs {
 			put("admin_enable_log_capture", "false");
 			
 			put("admin_screenshot_capture_cycle", "180");
-			put("admin_enable_screenshot_capture", "true");
+			put("admin_enable_screenshot_capture", "false");
 
 			put("admin_enable_sentinel_capture", "true");
 

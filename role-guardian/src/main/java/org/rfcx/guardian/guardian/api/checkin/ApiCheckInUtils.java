@@ -427,7 +427,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					"meta*" + app.apiCheckInMetaDb.dbMeta.getCount(),
 					"skipped*" + app.apiCheckInDb.dbSkipped.getCount(),
 					"stashed*" + app.apiCheckInDb.dbStashed.getCount(),
-					"archived*" + app.apiCheckInDb.dbQueued.getCount()
+					"archived*" + app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount()
 				});
 	}
 
