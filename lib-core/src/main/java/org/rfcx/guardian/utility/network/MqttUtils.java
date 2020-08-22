@@ -48,6 +48,8 @@ public class MqttUtils implements MqttCallback {
 	private String mqttBrokerAddress = null;
 	private String mqttBrokerUri = null;
 	private String mqttBrokerKeystorePassphrase = null;
+	private String mqttBrokerAuthUserName = null;
+	private String mqttBrokerAuthPassword = null;
 	private MqttClient mqttClient = null;
 	private List<String> mqttTopics_Subscribe = new ArrayList<String>();;
 	private MqttCallback mqttCallback = this;
@@ -72,6 +74,11 @@ public class MqttUtils implements MqttCallback {
 		if (this.mqttBrokerProtocol.equalsIgnoreCase("ssl")) {
 			InputStream brokerKeystore = context.getResources().openRawResource(R.raw.rfcx_mqtt_broker);
 			connectOptions.setSocketFactory(getSSLSocketFactory(brokerKeystore, mqttBrokerKeystorePassphrase));
+		}
+
+		if ((this.mqttBrokerAuthUserName != null) && (this.mqttBrokerAuthPassword != null)) {
+			connectOptions.setUserName(this.mqttBrokerAuthUserName);
+			connectOptions.setPassword(this.mqttBrokerAuthPassword.toCharArray());
 		}
 		
 		return connectOptions;
@@ -105,11 +112,13 @@ public class MqttUtils implements MqttCallback {
 		return this.msgSendStart;
 	}
 	
-	public void setOrResetBroker(String protocol, int port, String address, String keystorePassphrase) {
+	public void setOrResetBroker(String protocol, int port, String address, String keystorePassphrase, String authUserName, String authPassword) {
 		this.mqttBrokerProtocol = protocol;
 		this.mqttBrokerPort = port;
 		this.mqttBrokerAddress = address;
 		this.mqttBrokerKeystorePassphrase = keystorePassphrase;
+		this.mqttBrokerAuthUserName = authUserName;
+		this.mqttBrokerAuthPassword = authPassword;
 
 		String newUri = this.mqttBrokerProtocol + "://" + this.mqttBrokerAddress + ":" + this.mqttBrokerPort;
 		if (!newUri.equals(this.mqttBrokerUri) && (this.mqttClient != null) && this.mqttClient.isConnected()) {
@@ -143,7 +152,10 @@ public class MqttUtils implements MqttCallback {
 			this.mqttClient.connect(options);
 
 			mqttBrokerConnectionLatency = System.currentTimeMillis() - mqttBrokerConnectionLastAttemptedAt;
-			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri+" (QoS: "+this.mqttQos+")");
+			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri
+                                +" (QoS: "+this.mqttQos+")"
+                                +((this.mqttBrokerAuthUserName != null) ? " (User: "+this.mqttBrokerAuthUserName+")" : "")
+            );
 
 			mqttBrokerSubscriptionLatency = 0;
 			for (String subscribeTopic : this.mqttTopics_Subscribe) {

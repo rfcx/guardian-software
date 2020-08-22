@@ -104,9 +104,13 @@ public class ApiCheckInUtils implements MqttCallback {
 				this.app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
 				this.app.rfcxPrefs.getPrefAsInt("api_checkin_port"),
 				this.app.rfcxPrefs.getPrefAsString("api_checkin_host"),
-				this.app.rfcxGuardianIdentity.getKeystorePassphrase());
+				this.app.rfcxGuardianIdentity.getKeystorePassphrase(),
+//				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? null : "guardian-"+this.app.rfcxGuardianIdentity.getGuid(),
+//				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? null : this.app.rfcxGuardianIdentity.getAuthToken()
+				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? null : "rfcx-guardian",
+				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? null : "1AbgQrSrK91KH2hyn5TSY4SFp"
+		);
 	}
-
 
 	boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
@@ -405,37 +409,38 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private String getCheckInStatusInfoForJson(boolean includeAssetIdLists) {
 
-		StringBuilder queuedStatus = (new StringBuilder()).append("queued").append("*").append(app.apiCheckInDb.dbQueued.getCount());
-		StringBuilder sentStatus = (new StringBuilder()).append("sent").append("*").append(app.apiCheckInDb.dbSent.getCount());
-		StringBuilder skippedStatus = (new StringBuilder()).append("skipped").append("*").append(app.apiCheckInDb.dbSkipped.getCount());
-		StringBuilder stashedStatus = (new StringBuilder()).append("stashed").append("*").append(app.apiCheckInDb.dbStashed.getCount());
-		StringBuilder archivedStatus = (new StringBuilder()).append("archived").append("*").append(app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount());
-
+		StringBuilder sentIdList = new StringBuilder();
 		if (includeAssetIdLists) {
 			long reportAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
-			for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(10)) {
+			for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(15)) {
 				String assetId = _checkIn[1].substring(0, _checkIn[1].lastIndexOf("."));
-				long diff = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(assetId)));
-			//	Log.e(logTag, "Difference (" + assetId + ") " + DateTimeUtils.milliSecondDurationAsReadableString(diff));
-				if (diff > reportAssetIdIfOlderThan) {
-					sentStatus.append("*").append(assetId);
+				if (reportAssetIdIfOlderThan < Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(assetId)))) {
+					sentIdList.append("*").append(assetId);
 				}
 			}
 		}
 
-		return TextUtils.join("|", new String[] { queuedStatus.toString(), sentStatus.toString(), skippedStatus.toString(), stashedStatus.toString(), archivedStatus.toString() });
+		return TextUtils.join("|",
+				new String[] {
+					"sent*" + app.apiCheckInDb.dbSent.getCount() + sentIdList.toString(),
+					"queued*" + app.apiCheckInDb.dbQueued.getCount(),
+					"meta*" + app.apiCheckInMetaDb.dbMeta.getCount(),
+					"skipped*" + app.apiCheckInDb.dbSkipped.getCount(),
+					"stashed*" + app.apiCheckInDb.dbStashed.getCount(),
+					"archived*" + app.apiCheckInDb.dbQueued.getCount()
+				});
 	}
 
 	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
-		int maxRowsToBundle = 4;
-		int maxRowsToQuery = maxRowsToBundle+2;
+		int maxMetaRowsToBundle = this.app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit");
+		int maxMetaRowsToQuery = maxMetaRowsToBundle + 2;
 
 		JSONObject metaJsonBundledSnapshotsObj = null;
 		JSONArray metaJsonBundledSnapshotsIds = new JSONArray();
 		long metaMeasuredAtValue = 0;
 
-		for (String[] metaRow : app.apiCheckInMetaDb.dbMeta.getLatestRowsWithLimit(maxRowsToQuery)) {
+		for (String[] metaRow : app.apiCheckInMetaDb.dbMeta.getLatestRowsWithLimit(maxMetaRowsToQuery)) {
 
 			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(metaRow[3])));
 
@@ -484,7 +489,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.apiCheckInMetaDb.dbMeta.updateLastAccessedAtByTimestamp(metaRow[1]);
 
 				// if the bundle already contains max number of snapshots, stop here
-				if (metaJsonBundledSnapshotsIds.length() >= maxRowsToBundle) { break; }
+				if (metaJsonBundledSnapshotsIds.length() >= maxMetaRowsToBundle) { break; }
 			}
 		}
 
@@ -500,12 +505,6 @@ public class ApiCheckInUtils implements MqttCallback {
 	private String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta, String[] photoFileMeta, String[] videoFileMeta) throws JSONException, IOException {
 
 		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
-
-		// Adding Guardian GUID and Auth Token
-		JSONObject guardianObj = new JSONObject();
-		guardianObj.put("guid", this.app.rfcxGuardianIdentity.getGuid());
-		guardianObj.put("token", this.app.rfcxGuardianIdentity.getAuthToken());
-		checkInMetaJson.put("guardian", guardianObj);
 
 		// Adding Audio JSON fields from checkin table
 		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
@@ -558,6 +557,12 @@ public class ApiCheckInUtils implements MqttCallback {
 		);
 
 		Log.d(logTag,checkInMetaJson.toString());
+
+        // Adding Guardian GUID and Auth Token
+        JSONObject guardianObj = new JSONObject();
+        guardianObj.put("guid", this.app.rfcxGuardianIdentity.getGuid());
+        guardianObj.put("token", this.app.rfcxGuardianIdentity.getAuthToken());
+        checkInMetaJson.put("guardian", guardianObj);
 
 		return checkInMetaJson.toString();
 
