@@ -152,7 +152,10 @@ public class MqttUtils implements MqttCallback {
 			this.mqttClient.connect(options);
 
 			mqttBrokerConnectionLatency = System.currentTimeMillis() - mqttBrokerConnectionLastAttemptedAt;
-			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri+" (QoS: "+this.mqttQos+")");
+			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri
+                                +" (QoS: "+this.mqttQos+")"
+                                +((this.mqttBrokerAuthUserName != null) ? " (User: "+this.mqttBrokerAuthUserName+")" : "")
+            );
 
 			mqttBrokerSubscriptionLatency = 0;
 			for (String subscribeTopic : this.mqttTopics_Subscribe) {
