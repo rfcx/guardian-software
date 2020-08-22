@@ -20,7 +20,7 @@ public class DeviceLogCat {
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
 		initializeLogCatDirectories(context);
-		saveExecutableScript(context, logLevel);
+		saveLogExecutableScript(context, logLevel);
 	}
 
 	private String logTag;
@@ -34,55 +34,56 @@ public class DeviceLogCat {
 	public static final String FILETYPE = "log";
 	
 	private static void initializeLogCatDirectories(Context context) {
-		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context),  "rw", "rw");
-		(new File(postCaptureDir(context))).mkdirs(); FileUtils.chmod(postCaptureDir(context),  "rw", "rw");
-		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(),  "rw", "rw");
-		(new File(finalFilesDir(context))).mkdirs(); FileUtils.chmod(finalFilesDir(context),  "rw", "rw");
-		(new File(getExecutableScriptDir(context))).mkdirs(); FileUtils.chmod(getExecutableScriptDir(context),  "rw", "rw");
+
+		FileUtils.initializeDirectoryRecursively(logSdCardDir(), true);
+		FileUtils.initializeDirectoryRecursively(logCaptureDir(context), false);
+		FileUtils.initializeDirectoryRecursively(logPostCaptureDir(context), false);
+		FileUtils.initializeDirectoryRecursively(logFinalDir(context), false);
+		FileUtils.initializeDirectoryRecursively(getLogExecutableScriptDir(context), false);
 	}
 	
-	private static String sdCardFilesDir() {
-		return (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/logs").toString(); 
+	private static String logSdCardDir() {
+		return Environment.getExternalStorageDirectory().toString() + "/rfcx/logs";
 	}
 	
-	private static String finalFilesDir(Context context) {
-		if ((new File(sdCardFilesDir())).isDirectory()) {
-			return sdCardFilesDir();
-		} else {
-			return (new StringBuilder()).append(context.getFilesDir().toString()).append("/logs/final").toString();
-		}
+	private static String logFinalDir(Context context) {
+		return context.getFilesDir().toString() + "/logs/final";
 	}
 	
-	private static String getExecutableScriptDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/scr").toString();
+	private static String getLogExecutableScriptDir(Context context) {
+		return context.getFilesDir().toString() + "/scr";
 	}
 
-	public static String getExecutableScriptFilePath(Context context) {
-		return (new StringBuilder()).append(getExecutableScriptDir(context)).append("/").append(SCRIPT_NAME).toString(); 
+	public static String getLogExecutableScriptFilePath(Context context) {
+		return getLogExecutableScriptDir(context) + "/" + SCRIPT_NAME;
 	}
 	
-	public static String captureDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/logs/capture").toString(); 
+	public static String logCaptureDir(Context context) {
+		return context.getFilesDir().toString() + "/logs/capture";
 	}
 	
-	public static String postCaptureDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/logs/complete").toString(); 
+	public static String logPostCaptureDir(Context context) {
+		return context.getFilesDir().toString() + "/logs/complete";
 	}
 	
 	public static String getLogFileLocation_Capture(Context context, long timestamp) {
-		return (new StringBuilder()).append(captureDir(context)).append("/").append(timestamp).append(".").append(FILETYPE).toString(); 
+		return logCaptureDir(context) + "/" + timestamp + "." + FILETYPE;
 	}
 	
 	public static String getLogFileLocation_PostCapture(Context context, long timestamp) {
-		return (new StringBuilder()).append(postCaptureDir(context)).append("/_").append(timestamp).append(".").append(FILETYPE).toString(); 
+		return logPostCaptureDir(context) + "/_" + timestamp + "." + FILETYPE;
 	}
 
 	public static String getLogFileLocation_Complete_PostZip(String rfcxDeviceId, Context context, long timestamp) {
-		return (new StringBuilder()).append(finalFilesDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateTimeFormat.format(new Date(timestamp))).append(".").append(FILETYPE).append(".gz").toString(); 
+		return logFinalDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + FILETYPE + ".gz";
+	}
+
+	public static String getLogFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {
+		return logSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + FILETYPE + ".gz";
 	}
 	
 	
-	public boolean saveExecutableScript(Context context, String logLevel) {
+	public boolean saveLogExecutableScript(Context context, String logLevel) {
 		
 		String scriptBody = (new StringBuilder())
 			.append("#!/system/bin/sh").append("\n")
@@ -111,7 +112,7 @@ public class DeviceLogCat {
 			.toString();
 		
 		try {
-			String scriptFilePath = getExecutableScriptFilePath(context);
+			String scriptFilePath = getLogExecutableScriptFilePath(context);
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(scriptFilePath));
 			bufferedWriter.write(scriptBody);
 			bufferedWriter.close();

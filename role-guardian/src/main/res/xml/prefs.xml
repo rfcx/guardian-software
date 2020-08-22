@@ -190,25 +190,32 @@
         android:defaultValue="@string/prefs_value_default_checkin_failure_thresholds" />
  	 	
  	<EditTextPreference
-        android:key="checkin_skip_threshold"
-        android:title="checkin_skip_threshold"
+        android:key="checkin_failure_limit"
+        android:title="checkin_failure_limit"
         android:summary="int - count"
         android:enabled="true"
-        android:defaultValue="@string/prefs_value_default_checkin_skip_threshold" />
+        android:defaultValue="@string/prefs_value_default_checkin_failure_limit" />
  	
  	<EditTextPreference
-        android:key="checkin_stash_threshold"
-        android:title="checkin_stash_threshold"
+        android:key="checkin_queue_limit"
+        android:title="checkin_queue_limit"
         android:summary="int - count"
         android:enabled="true"
-        android:defaultValue="@string/prefs_value_default_checkin_stash_threshold" />
+        android:defaultValue="@string/prefs_value_default_checkin_queue_limit" />
+
+	<EditTextPreference
+		android:key="checkin_stash_filesize_buffer"
+		android:title="checkin_stash_filesize_buffer"
+		android:summary="int - megabytes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_stash_filesize_buffer" />
  	
  	<EditTextPreference
-        android:key="checkin_archive_threshold"
-        android:title="checkin_archive_threshold"
-        android:summary="int - count"
+        android:key="checkin_archive_filesize_target"
+        android:title="checkin_archive_filesize_target"
+        android:summary="int - megabytes"
         android:enabled="true"
-        android:defaultValue="@string/prefs_value_default_checkin_archive_threshold" />
+        android:defaultValue="@string/prefs_value_default_checkin_archive_filesize_target" />
 
 	<EditTextPreference
 		android:key="checkin_meta_bundle_limit"
@@ -288,13 +295,22 @@
 		android:defaultValue="@string/prefs_value_default_admin_enable_tcp_adb" />
 
 	<ListPreference
-		android:key="admin_enable_sentinel_capture"
-		android:title="admin_enable_sentinel_capture"
-		android:dialogTitle="admin_enable_sentinel_capture"
+		android:key="admin_enable_sentinel_power"
+		android:title="admin_enable_sentinel_power"
+		android:dialogTitle="admin_enable_sentinel_power"
 		android:summary="string - true/false"
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_capture" />
+		android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_power" />
+
+	<ListPreference
+		android:key="admin_enable_sentinel_sensor"
+		android:title="admin_enable_sentinel_sensor"
+		android:dialogTitle="admin_enable_sentinel_sensor"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_sensor" />
 
 	<ListPreference
 			android:key="admin_system_timezone"

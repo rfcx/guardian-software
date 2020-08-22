@@ -40,8 +40,19 @@ public class DeviceDiskUsage {
 		return Math.round(getInternalDiskFreeBytes() / (1024 * 1024));
 	}
 
-//	public static int getExternalDiskFreeMegaBytes() {
-//		return Math.round(getExternalDiskFreeBytes() / (1024 * 1024));
-//	}
+	public static int getExternalDiskFreeMegaBytes() {
+		return Math.round(getExternalDiskFreeBytes() / (1024 * 1024));
+	}
+
+	public static boolean isExternalStorageMounted() {
+		String extStorageState = Environment.getExternalStorageState();
+		return Environment.MEDIA_MOUNTED.equals(extStorageState) || Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState);
+	}
+
+	public static boolean isExternalStorageWritable() {
+		String extStorageState = Environment.getExternalStorageState();
+		return Environment.MEDIA_MOUNTED.equals(extStorageState);
+	}
+
 
 }

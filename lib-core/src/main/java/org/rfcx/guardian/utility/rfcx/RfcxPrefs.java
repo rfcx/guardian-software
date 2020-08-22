@@ -356,9 +356,11 @@ public class RfcxPrefs {
 
 			put("checkin_failure_thresholds", "12,25,40,60,80");
 			
-			put("checkin_skip_threshold", "5");
-			put("checkin_stash_threshold", "240");
-			put("checkin_archive_threshold", "160");
+			put("checkin_failure_limit", "5");
+			put("checkin_queue_limit", "240");
+
+			put("checkin_stash_filesize_buffer", "12");
+			put("checkin_archive_filesize_target", "32");
 
 			put("checkin_meta_bundle_limit", "8");
 
@@ -373,7 +375,8 @@ public class RfcxPrefs {
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "false");
 
-			put("admin_enable_sentinel_capture", "true");
+			put("admin_enable_sentinel_power", "true");
+			put("admin_enable_sentinel_sensor", "true");
 
 			put("admin_system_timezone", "[ Not Set ]");
 

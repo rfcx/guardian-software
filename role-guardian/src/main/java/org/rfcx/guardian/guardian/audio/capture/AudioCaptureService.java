@@ -7,7 +7,6 @@ import android.os.IBinder;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -80,7 +79,7 @@ public class AudioCaptureService extends Service {
 
 			app.audioCaptureUtils.queueCaptureTimeStamp = new long[] { 0, 0 };
 			
-			String captureDir = RfcxAudioUtils.captureDir(context);
+			String captureDir = RfcxAudioUtils.audioCaptureDir(context);
 			FileUtils.deleteDirectoryContents(captureDir);
 			
 			AudioCaptureWavRecorder wavRecorder = null;

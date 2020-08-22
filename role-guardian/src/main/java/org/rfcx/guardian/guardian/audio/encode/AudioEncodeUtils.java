@@ -60,6 +60,6 @@ public class AudioEncodeUtils {
 			audioQueuedForEncode.add(queuedRow[9]);
 		}
 
-		FileUtils.deleteDirectoryContents(RfcxAudioUtils.encodeDir(context), audioQueuedForEncode);
+		FileUtils.deleteDirectoryContents(RfcxAudioUtils.audioEncodeDir(context), audioQueuedForEncode);
 	}
 }

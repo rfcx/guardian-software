@@ -49,7 +49,7 @@ public class SentinelAccelerometerUtils {
 
     public boolean isCaptureAllowed() {
 
-        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_capture");
+        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_sensor");
         boolean isI2cHandlerAccessible = false;
         boolean isI2cAccelChipConnected = false;
 

@@ -200,7 +200,7 @@ public class AudioCaptureUtils {
 
 	public static boolean reLocateAudioCaptureFile(Context context, long timestamp, String fileExtension) {
 		boolean isFileMoved = false;
-		File captureFile = new File(getCaptureFilePath(RfcxAudioUtils.captureDir(context),timestamp,fileExtension));
+		File captureFile = new File(getCaptureFilePath(RfcxAudioUtils.audioCaptureDir(context),timestamp,fileExtension));
 		if (captureFile.exists()) {
 			try {
 				File preEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PreEncode(context, timestamp,fileExtension));

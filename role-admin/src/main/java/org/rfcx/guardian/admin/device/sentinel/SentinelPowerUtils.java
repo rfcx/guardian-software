@@ -48,7 +48,7 @@ public class SentinelPowerUtils {
 
     public boolean isCaptureAllowed() {
 
-        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_capture");
+        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_power");
         boolean isI2cHandlerAccessible = false;
         boolean isI2cPowerChipConnected = false;
 

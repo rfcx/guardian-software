@@ -268,12 +268,12 @@ public class DbUtils {
 		}
 	}
 
-	public static int getSumOfColumn(SQLiteDatabase db, String tableName, String sumColumn, String selection, String[] selectionArgs) {
-		int sum = 0;
+	public static long getSumOfColumn(SQLiteDatabase db, String tableName, String sumColumn, String selection, String[] selectionArgs) {
+		long sum = 0;
 		try {
 			for (String[] singleRow : getRows(db, tableName, new String[] { "SUM("+sumColumn+")" }, selection, selectionArgs, null, 0, 1)) {
 				if (singleRow[0] != null) {
-					sum = Integer.parseInt(singleRow[0]);
+					sum = Long.parseLong(singleRow[0]);
 					break;
 				}
 			}
@@ -283,9 +283,9 @@ public class DbUtils {
 		return sum;
 	}
 
-	public int getSumOfColumn(String tableName, String sumColumn, String selection, String[] selectionArgs) {
+	public long getSumOfColumn(String tableName, String sumColumn, String selection, String[] selectionArgs) {
 		SQLiteDatabase db = openDb();
-		int sum = getSumOfColumn(db, tableName, sumColumn, selection, selectionArgs);
+		long sum = getSumOfColumn(db, tableName, sumColumn, selection, selectionArgs);
 		closeDb();
 		return sum;
 	}

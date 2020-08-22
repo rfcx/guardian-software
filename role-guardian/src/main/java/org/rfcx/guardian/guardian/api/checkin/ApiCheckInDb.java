@@ -5,12 +5,10 @@ import java.util.List;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.database.DbUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentValues;
 import android.content.Context;
-import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class ApiCheckInDb {
 
@@ -29,7 +27,9 @@ public class ApiCheckInDb {
 	static final String C_JSON = "json";
 	static final String C_ATTEMPTS = "attempts";
 	static final String C_FILEPATH = "filepath";
-	public static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON, C_ATTEMPTS, C_FILEPATH };
+	static final String C_AUDIO_DURATION = "audio_duration";
+	static final String C_AUDIO_FILESIZE = "audio_filesize";
+	public static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON, C_ATTEMPTS, C_FILEPATH, C_AUDIO_DURATION, C_AUDIO_FILESIZE};
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -39,6 +39,8 @@ public class ApiCheckInDb {
 			.append(", ").append(C_JSON).append(" TEXT")
 			.append(", ").append(C_ATTEMPTS).append(" TEXT")
 			.append(", ").append(C_FILEPATH).append(" TEXT")
+			.append(", ").append(C_AUDIO_DURATION).append(" INTEGER")
+			.append(", ").append(C_AUDIO_FILESIZE).append(" INTEGER")
 			.append(")");
 		return sbOut.toString();
 	}
@@ -53,7 +55,7 @@ public class ApiCheckInDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public int insert(String audio, String json, String attempts, String filepath) {
+		public int insert(String audio, String json, String attempts, String filepath, String audioDuration, String audioFileSize) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -61,6 +63,8 @@ public class ApiCheckInDb {
 			values.put(C_JSON, json);
 			values.put(C_ATTEMPTS, attempts);
 			values.put(C_FILEPATH, filepath);
+			values.put(C_AUDIO_DURATION, Long.parseLong(audioDuration));
+			values.put(C_AUDIO_FILESIZE, Long.parseLong(audioFileSize));
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}
@@ -111,6 +115,14 @@ public class ApiCheckInDb {
 		
 		public void deleteAllRows() {
 			this.dbUtils.deleteAllRows(TABLE);
+		}
+
+		public long getCumulativeFileSizeForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_AUDIO_FILESIZE, null, null);
+		}
+
+		public long getCumulativeDurationForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_AUDIO_DURATION, null, null);
 		}
 
 	}
@@ -126,7 +138,7 @@ public class ApiCheckInDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public int insert(String created_at, String audio, String json, String attempts, String filepath) {
+		public int insert(String created_at, String audio, String json, String attempts, String filepath, String audioDuration, String audioFileSize) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, created_at);
@@ -134,6 +146,8 @@ public class ApiCheckInDb {
 			values.put(C_JSON, json);
 			values.put(C_ATTEMPTS, attempts);
 			values.put(C_FILEPATH, filepath);
+			values.put(C_AUDIO_DURATION, Long.parseLong(audioDuration));
+			values.put(C_AUDIO_FILESIZE, Long.parseLong(audioFileSize));
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}
@@ -184,6 +198,14 @@ public class ApiCheckInDb {
 		
 		public void deleteAllRows() {
 			this.dbUtils.deleteAllRows(TABLE);
+		}
+
+		public long getCumulativeFileSizeForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_AUDIO_FILESIZE, null, null);
+		}
+
+		public long getCumulativeDurationForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_AUDIO_DURATION, null, null);
 		}
 
 	}
@@ -199,7 +221,7 @@ public class ApiCheckInDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public int insert(String audio, String json, String attempts, String filepath) {
+		public int insert(String audio, String json, String attempts, String filepath, String audioDuration, String audioFileSize) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, DateTimeUtils.getDateTime());
@@ -207,6 +229,8 @@ public class ApiCheckInDb {
 			values.put(C_JSON, json);
 			values.put(C_ATTEMPTS, attempts);
 			values.put(C_FILEPATH, filepath);
+			values.put(C_AUDIO_DURATION, Long.parseLong(audioDuration));
+			values.put(C_AUDIO_FILESIZE, Long.parseLong(audioFileSize));
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}
@@ -257,6 +281,14 @@ public class ApiCheckInDb {
 		
 		public void deleteAllRows() {
 			this.dbUtils.deleteAllRows(TABLE);
+		}
+
+		public long getCumulativeFileSizeForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_AUDIO_FILESIZE, null, null);
+		}
+
+		public long getCumulativeDurationForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_AUDIO_DURATION, null, null);
 		}
 
 	}
@@ -272,7 +304,7 @@ public class ApiCheckInDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public int insert(String audio, String json, String attempts, String filepath) {
+		public int insert(String audio, String json, String attempts, String filepath, String audioDuration, String audioFileSize) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, DateTimeUtils.getDateTime());
@@ -280,6 +312,8 @@ public class ApiCheckInDb {
 			values.put(C_JSON, json);
 			values.put(C_ATTEMPTS, attempts);
 			values.put(C_FILEPATH, filepath);
+			values.put(C_AUDIO_DURATION, Long.parseLong(audioDuration));
+			values.put(C_AUDIO_FILESIZE, Long.parseLong(audioFileSize));
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}
@@ -330,6 +364,14 @@ public class ApiCheckInDb {
 		
 		public void deleteAllRows() {
 			this.dbUtils.deleteAllRows(TABLE);
+		}
+
+		public long getCumulativeFileSizeForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_AUDIO_FILESIZE, null, null);
+		}
+
+		public long getCumulativeDurationForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_AUDIO_DURATION, null, null);
 		}
 
 	}

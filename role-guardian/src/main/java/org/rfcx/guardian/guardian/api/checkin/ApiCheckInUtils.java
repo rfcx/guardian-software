@@ -26,6 +26,7 @@ import org.json.JSONObject;
 
 import org.rfcx.guardian.guardian.socket.SocketManager;
 import org.rfcx.guardian.utility.camera.RfcxCameraUtils;
+import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -112,15 +113,17 @@ public class ApiCheckInUtils implements MqttCallback {
 		);
 	}
 
-	boolean addCheckInToQueue(String[] audioInfo, String filepath) {
+	boolean addCheckInToQueue(String[] audioInfo, String filePath) {
 
 		// serialize audio info into JSON for checkin queue insertion
 		String queueJson = generateCheckInQueueJson(audioInfo);
 
-		// add audio info to checkin queue
-		int queuedCount = app.apiCheckInDb.dbQueued.insert(audioInfo[1] + "." + audioInfo[2], queueJson, "0", filepath);
+		long audioFileSize = FileUtils.getFileSizeInBytes(filePath);
 
-		Log.d(logTag, "Queued (1/" + queuedCount + "): " + queueJson + " | " + filepath);
+		// add audio info to checkin queue
+		int queuedCount = app.apiCheckInDb.dbQueued.insert(audioInfo[1] + "." + audioInfo[2], queueJson, "0", filePath, audioInfo[10], audioFileSize+"");
+
+		Log.d(logTag, "Queued (1/" + queuedCount + "): " + queueJson + " | " + audioInfo[10] + " | " + audioFileSize + " | " + filePath);
 
 		// once queued, remove database reference from encode role
 		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1]);
@@ -151,29 +154,59 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	void stashOrArchiveOldestCheckIns() {
 
-		int stashThreshold = app.rfcxPrefs.getPrefAsInt("checkin_stash_threshold");
-		int archiveThreshold = app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold");
+		int queueLimit = app.rfcxPrefs.getPrefAsInt("checkin_queue_limit");
 
-		if (app.apiCheckInDb.dbQueued.getCount() > stashThreshold) {
+		long stashFileSizeBufferInBytes = app.rfcxPrefs.getPrefAsLong("checkin_stash_filesize_buffer")*1024*1024;
+		long archiveFileSizeTargetInBytes = app.rfcxPrefs.getPrefAsLong("checkin_archive_filesize_target")*1024*1024;
 
-			List<String[]> checkInsBeyondStashThreshold = app.apiCheckInDb.dbQueued.getRowsWithOffset(stashThreshold, archiveThreshold);
+		if (app.apiCheckInDb.dbQueued.getCount() > queueLimit) {
+
+			List<String[]> checkInsBeyondQueueLimit = app.apiCheckInDb.dbQueued.getRowsWithOffset(queueLimit, queueLimit);
 
 			// string list for reporting stashed checkins to the log
-			List<String> stashList = new ArrayList<String>();
+			List<String> stashSuccessList = new ArrayList<String>();
+			List<String> stashFailureList = new ArrayList<String>();
 			int stashCount = 0;
 
 			// cycle through stashable checkins and move them to the new table/database
-			for (String[] checkInsToStash : checkInsBeyondStashThreshold) {
-				stashCount = app.apiCheckInDb.dbStashed.insert(checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], checkInsToStash[4]);
+			for (String[] checkInsToStash : checkInsBeyondQueueLimit) {
+
+				if (!DeviceDiskUsage.isExternalStorageWritable()) {
+					stashFailureList.add(checkInsToStash[1]);
+
+				} else {
+					String stashFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
+							app.rfcxGuardianIdentity.getGuid(),
+							Long.parseLong(checkInsToStash[1].substring(0, checkInsToStash[1].lastIndexOf("."))),
+							checkInsToStash[1].substring(checkInsToStash[1].lastIndexOf(".") + 1));
+					try {
+						FileUtils.copy(checkInsToStash[4], stashFilePath);
+					} catch (IOException e) {
+						RfcxLog.logExc(logTag, e);
+					}
+
+					if (FileUtils.exists(stashFilePath) && (FileUtils.getFileSizeInBytes(stashFilePath) == Long.parseLong(checkInsToStash[6]))) {
+						stashCount = app.apiCheckInDb.dbStashed.insert(checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], stashFilePath, checkInsToStash[5], checkInsToStash[6]);
+						stashSuccessList.add(checkInsToStash[1]);
+					} else {
+						stashFailureList.add(checkInsToStash[1]);
+					}
+				}
+
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInsToStash[1]);
-				stashList.add(checkInsToStash[1]);
+				FileUtils.delete(checkInsToStash[4]);
 			}
 
-			// report in the logs
-			Log.i(logTag, "Stashed CheckIns (" + stashCount + " total in database): " + TextUtils.join(" ", stashList));
+			if (stashFailureList.size() > 0) {
+				Log.e(logTag, stashFailureList.size() + " CheckIn(s) failed to be Stashed (" + TextUtils.join(" ", stashFailureList) + ").");
+			}
+
+			if (stashSuccessList.size() > 0) {
+				Log.i(logTag, stashSuccessList.size() + " CheckIn(s) moved to Stash (" + TextUtils.join(" ", stashSuccessList) + "). Total in Stash: " + stashCount + " CheckIns, " + Math.round(app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() / 1024) + " kB.");
+			}
 		}
 
-		if (app.apiCheckInDb.dbStashed.getCount() >= archiveThreshold) {
+		if (app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() >= (stashFileSizeBufferInBytes + archiveFileSizeTargetInBytes)) {
 			app.rfcxServiceHandler.triggerService("ApiCheckInArchive", false);
 		}
 	}
@@ -196,7 +229,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		if ((checkInToReQueue.length > 0) && (checkInToReQueue[0] != null)) {
 
 
-			int queuedCount = app.apiCheckInDb.dbQueued.insert(checkInToReQueue[1], checkInToReQueue[2], checkInToReQueue[3], checkInToReQueue[4]);
+			int queuedCount = app.apiCheckInDb.dbQueued.insert(checkInToReQueue[1], checkInToReQueue[2], checkInToReQueue[3], checkInToReQueue[4], checkInToReQueue[5], checkInToReQueue[6]);
 			String[] reQueuedCheckIn = app.apiCheckInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId);
 
 			// if successfully inserted into queue table (and verified), delete from original table
@@ -827,27 +860,32 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(assetId);
 				for (String fileExtension : new String[] { "opus", "flac" }) {
 					filePaths.add(RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
+					filePaths.add(RfcxAudioUtils.getAudioFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId), fileExtension));
 				}
 
 			} else if (assetType.equals("screenshot")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePaths.add(DeviceScreenShot.getScreenShotFileLocation_Complete(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(DeviceScreenShot.getScreenShotFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("photo")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "photos|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePaths.add(RfcxCameraUtils.getPhotoFileLocation_Complete_PostGZip(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxCameraUtils.getPhotoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("video")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "videos|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePaths.add(RfcxCameraUtils.getVideoFileLocation_Complete_PostGZip(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxCameraUtils.getVideoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("log")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePaths.add(DeviceLogCat.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(DeviceLogCat.getLogFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("sms")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,
@@ -1121,7 +1159,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 			if ((checkInEntry != null) && (checkInEntry[0] != null)) {
 				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(checkInEntry[1]);
-				app.apiCheckInDb.dbSent.insert(checkInEntry[1], checkInEntry[2], checkInEntry[3], checkInEntry[4]);
+				app.apiCheckInDb.dbSent.insert(checkInEntry[1], checkInEntry[2], checkInEntry[3], checkInEntry[4], checkInEntry[5], checkInEntry[6]);
 				app.apiCheckInDb.dbSent.incrementSingleRowAttempts(checkInEntry[1]);
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInEntry[1]);
 			}

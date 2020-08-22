@@ -52,7 +52,7 @@ public class SentinelCompassUtils {
         // It seems that the magnetic field from an input charging current disrupts compass measurements.
         boolean isInputPowerAtZero = app.sentinelPowerUtils.isInputPowerAtZero;
 
-        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_capture");
+        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_sensor");
         boolean isI2cHandlerAccessible = false;
         boolean isI2cCompassChipConnected = false;
 

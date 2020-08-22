@@ -46,7 +46,8 @@ public class ApiQueueCheckInService extends IntentService {
 								encodedAudio[6], //	codec
 								(RfcxAudioUtils.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr"), //	cbr or vbr
 								encodedAudio[8], // encode duration
-								"16bit" 		 // sample precision, in bits
+								"16bit", 		 // sample precision, in bits
+								encodedAudio[7] // capture duration
 						}, encodedAudio[9]);
 
 				// increase total of local audio when finish sending audio to queue

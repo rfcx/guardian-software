@@ -49,7 +49,7 @@ public class ArchiveDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), true);
 		}
 		
-		public int insert(Date archived_at, Date archive_begins_at, Date archive_ends_at, int record_count, int filesize, String filepath) {
+		public int insert(Date archived_at, Date archive_begins_at, Date archive_ends_at, int record_count, long filesize, String filepath) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_ARCHIVED_AT, archived_at.getTime());
@@ -78,8 +78,12 @@ public class ArchiveDb {
 			return this.dbUtils.getCount(TABLE, null, null);
 		}
 
-		public int getInnerRecordCumulativeCount() {
+		public long getInnerRecordCumulativeCount() {
 			return this.dbUtils.getSumOfColumn(TABLE, C_RECORD_COUNT, null, null);
+		}
+
+		public long getCumulativeFileSizeForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_FILESIZE, null, null);
 		}
 
 
