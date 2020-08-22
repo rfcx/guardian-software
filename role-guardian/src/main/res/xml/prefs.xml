@@ -85,6 +85,15 @@
         android:enabled="true"
         android:defaultValue="@string/prefs_value_default_api_checkin_port" />
 
+	<ListPreference
+		android:key="enable_checkin_authentication"
+		android:title="enable_checkin_authentication"
+		android:dialogTitle="enable_checkin_authentication"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_enable_checkin_authentication" />
+
  	<EditTextPreference
         android:key="api_ntp_host"
         android:title="api_ntp_host"

@@ -103,9 +103,13 @@ public class ApiCheckInUtils implements MqttCallback {
 				this.app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
 				this.app.rfcxPrefs.getPrefAsInt("api_checkin_port"),
 				this.app.rfcxPrefs.getPrefAsString("api_checkin_host"),
-				this.app.rfcxGuardianIdentity.getKeystorePassphrase());
+				this.app.rfcxGuardianIdentity.getKeystorePassphrase(),
+//				app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? "guardian-"+this.app.rfcxGuardianIdentity.getGuid() : null,
+//				app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? this.app.rfcxGuardianIdentity.getAuthToken() : null
+				app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? "rfcx-guardian" : null,
+				app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? "1AbgQrSrK91KH2hyn5TSY4SFp" : null
+		);
 	}
-
 
 	boolean addCheckInToQueue(String[] audioInfo, String filepath) {
 
@@ -500,12 +504,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
 
-		// Adding Guardian GUID and Auth Token
-		JSONObject guardianObj = new JSONObject();
-		guardianObj.put("guid", this.app.rfcxGuardianIdentity.getGuid());
-		guardianObj.put("token", this.app.rfcxGuardianIdentity.getAuthToken());
-		checkInMetaJson.put("guardian", guardianObj);
-
 		// Adding Audio JSON fields from checkin table
 		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
 		checkInMetaJson.put("queued_at", checkInJsonObj.getLong("queued_at"));
@@ -557,6 +555,12 @@ public class ApiCheckInUtils implements MqttCallback {
 		);
 
 		Log.d(logTag,checkInMetaJson.toString());
+
+        // Adding Guardian GUID and Auth Token
+        JSONObject guardianObj = new JSONObject();
+        guardianObj.put("guid", this.app.rfcxGuardianIdentity.getGuid());
+        guardianObj.put("token", this.app.rfcxGuardianIdentity.getAuthToken());
+        checkInMetaJson.put("guardian", guardianObj);
 
 		return checkInMetaJson.toString();
 
