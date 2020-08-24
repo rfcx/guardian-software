@@ -1,58 +1,58 @@
-package org.rfcx.guardian.guardian.api.checkin;
+package org.rfcx.guardian.guardian.api.mqtt;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.utility.database.DbUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentValues;
 import android.content.Context;
-import org.rfcx.guardian.guardian.RfcxGuardian;
 
-public class ApiAssetExchangeLogDb {
+public class ApiCheckInMetaDb {
 
-	public ApiAssetExchangeLogDb(Context context, String appVersion) {
+	public ApiCheckInMetaDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.dbPurged = new DbPurged(context);
+		this.dbMeta = new DbMeta(context);
 	}
 
 	private int VERSION = 1;
-	static final String DATABASE = "asset-exchange-log";
+	static final String DATABASE = "checkin";
 	static final String C_CREATED_AT = "created_at";
-	static final String C_ASSET_TYPE = "asset_type";
 	static final String C_TIMESTAMP = "timestamp";
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_ASSET_TYPE, C_TIMESTAMP };
+	static final String C_JSON = "json";
+	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_JSON, C_LAST_ACCESSED_AT };
 	
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName)
 			.append("(").append(C_CREATED_AT).append(" INTEGER")
-			.append(", ").append(C_ASSET_TYPE).append(" TEXT")
 			.append(", ").append(C_TIMESTAMP).append(" TEXT")
+			.append(", ").append(C_JSON).append(" TEXT")
+			.append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
 			.append(")");
 		return sbOut.toString();
 	}
 	
-	public class DbPurged {
+	public class DbMeta {
 
 		final DbUtils dbUtils;
 
-		private String TABLE = "purged";
+		private String TABLE = "meta";
 		
-		public DbPurged(Context context) {
+		public DbMeta(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public int insert(String asset_type, String timestamp) {
+		public int insert(long timestamp, String json) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_ASSET_TYPE, asset_type);
 			values.put(C_TIMESTAMP, timestamp);
+			values.put(C_JSON, json);
+			values.put(C_LAST_ACCESSED_AT, 0);
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}
@@ -73,31 +73,25 @@ public class ApiAssetExchangeLogDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, maxRows);
 		}
 		
-		public List<String[]> getLatestRowsWithLimitExcludeCreatedAt(int maxRows) {
-			List<String[]> rowsWithAllFields = this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, maxRows);
-			List<String[]> rowsWithoutCreatedAt = new ArrayList<String[]>();
-			for (String[] singleRow : rowsWithAllFields) {
-				rowsWithoutCreatedAt.add(new String[] { singleRow[1], singleRow[2] });
-			}
-			return rowsWithoutCreatedAt;
-		}
-		
 		public int deleteSingleRowByTimestamp(String timestamp) {
 			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
 			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
 			return 0;
 		}
 		
-		public String getConcatRows() {
-			return DbUtils.getConcatRows(getAllRows());
+		public long updateLastAccessedAtByTimestamp(String timestamp) {
+			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_TIMESTAMP, timestampValue);
+			return rightNow;
 		}
-		
-		public String getConcatRowsWithLimit(int maxRows) {
-			return DbUtils.getConcatRows(getLatestRowsWithLimit(maxRows));
+
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
 		}
 
 	}
-	public final DbPurged dbPurged;
+	public final DbMeta dbMeta;
 	
 	
 }

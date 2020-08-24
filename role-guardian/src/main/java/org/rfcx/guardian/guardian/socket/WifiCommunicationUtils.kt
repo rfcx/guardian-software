@@ -5,8 +5,8 @@ import android.util.Base64
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.checkin.ApiCheckInUtils
-import org.rfcx.guardian.guardian.api.checkin.ApiQueueCheckInService
+import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInUtils
+import org.rfcx.guardian.guardian.api.mqtt.ApiQueueCheckInService
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 class WifiCommunicationUtils(private val context: Context) {

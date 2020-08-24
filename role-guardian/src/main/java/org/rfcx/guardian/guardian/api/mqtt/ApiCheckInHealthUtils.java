@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.checkin;
+package org.rfcx.guardian.guardian.api.mqtt;
 
 import android.util.Log;
 
@@ -24,6 +24,8 @@ public class ApiCheckInHealthUtils {
 	private boolean doCheckInConditionsAllowCheckInRequeuing = false;
 
 	private long lastKnownAudioCaptureDuration = 0;
+	private long lastKnownTimeOfDayLowerBound = 0;
+	private long lastKnownTimeOfDayUpperBound = 0;
 
 	private void resetRecentCheckInHealthMonitors() {
 		healthCheckMonitors = new HashMap<String, long[]>();
@@ -33,15 +35,20 @@ public class ApiCheckInHealthUtils {
 		doCheckInConditionsAllowCheckInRequeuing = false;
 	}
 
-	private void setOrResetRecentCheckInHealthCheck(long prefsAudioCycleDuration, long[] timeOfDayBounds) {
+	private void setOrResetRecentCheckInHealthCheck(long prefsAudioCycleDuration, long prefsTimeOfDayLowerBound, long prefsTimeOfDayUpperBound) {
 
 		if (	!healthCheckMonitors.containsKey(healthCheckCategories[0])
 			|| 	(lastKnownAudioCaptureDuration != prefsAudioCycleDuration)
-			) {
+			|| 	(lastKnownTimeOfDayLowerBound != prefsTimeOfDayLowerBound)
+			|| 	(lastKnownTimeOfDayUpperBound != prefsTimeOfDayUpperBound)
+		) {
 
 			Log.v(logTag, "Resetting RecentCheckInHealthCheck metrics...");
 
 			lastKnownAudioCaptureDuration = prefsAudioCycleDuration;
+			lastKnownTimeOfDayLowerBound = prefsTimeOfDayLowerBound;
+			lastKnownTimeOfDayUpperBound = prefsTimeOfDayUpperBound;
+
 			resetRecentCheckInHealthMonitors();
 
 			// fill initial array with garbage (very high) values to ensure that checks will fail until we have the required number of checkins to compare
@@ -63,21 +70,24 @@ public class ApiCheckInHealthUtils {
 			/* recent */		healthCheckTargetLowerBounds[2] = 0;
 								healthCheckTargetUpperBounds[2] = ( healthCheckMeasurementCount / 2 ) * (lastKnownAudioCaptureDuration * 1000);
 
-			/* time-of-day */	healthCheckTargetLowerBounds[3] = timeOfDayBounds[0];
-								healthCheckTargetUpperBounds[3] = timeOfDayBounds[1];
+			/* time-of-day */	healthCheckTargetLowerBounds[3] = lastKnownTimeOfDayLowerBound;
+								healthCheckTargetUpperBounds[3] = lastKnownTimeOfDayUpperBound;
 		}
 	}
 
-	public boolean validateRecentCheckInHealthCheck(long prefsAudioCycleDuration, long[] timeOfDayBounds, long[] inputValues) {
+	public boolean validateRecentCheckInHealthCheck(long prefsAudioCycleDuration, String prefsTimeOfDayBounds, long[] currentCheckInStats) {
 
-		setOrResetRecentCheckInHealthCheck(prefsAudioCycleDuration, timeOfDayBounds);
+		setOrResetRecentCheckInHealthCheck(	prefsAudioCycleDuration,
+											Long.parseLong(prefsTimeOfDayBounds.split(",")[0]),
+											Long.parseLong(prefsTimeOfDayBounds.split(",")[1])
+										);
 
 		long[] currAvgVals = new long[healthCheckCategories.length]; Arrays.fill(currAvgVals, 0);
 
 		for (int j = 0; j < healthCheckCategories.length; j++) {
 			String categ = healthCheckCategories[j];
 			long[] arraySnapshot = new long[healthCheckMeasurementCount];
-			arraySnapshot[0] = inputValues[j];
+			arraySnapshot[0] = currentCheckInStats[j];
 			for (int i = (healthCheckMeasurementCount-1); i > 0; i--) { arraySnapshot[i] = healthCheckMonitors.get(categ)[i-1]; }
 			healthCheckMonitors.remove(healthCheckCategories[j]);
 			healthCheckMonitors.put(healthCheckCategories[j], arraySnapshot);

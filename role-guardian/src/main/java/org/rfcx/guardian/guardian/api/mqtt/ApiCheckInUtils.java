@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.checkin;
+package org.rfcx.guardian.guardian.api.mqtt;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -115,7 +115,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		// add audio info to checkin queue
 		int queuedCount = app.apiCheckInDb.dbQueued.insert(audioInfo[1] + "." + audioInfo[2], queueJson, "0", filePath, audioInfo[10], audioFileSize+"");
 
-		Log.d(logTag, "Queued (1/" + queuedCount + "): " + queueJson + " | " + audioInfo[10] + " | " + audioFileSize + " | " + filePath);
+		Log.d(logTag, "Queued (1/" + queuedCount + "): " + audioInfo[1] + ", " + Math.round(audioFileSize/1024) + "kB, " + filePath);
 
 		// once queued, remove database reference from encode role
 		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1]);
@@ -248,17 +248,16 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	}
 
-	private void reQueueStashedCheckInIfAllowedByHealthCheck(long[] inputValues) {
+	private void reQueueStashedCheckInIfAllowedByHealthCheck(long[] currentCheckInStats) {
 
 		if (	apiCheckInHealthUtils.validateRecentCheckInHealthCheck(
 					app.rfcxPrefs.getPrefAsLong("audio_cycle_duration"),
-					new long[] { 9, 16 },	// time-of-day bounds
-					inputValues
+					app.rfcxPrefs.getPrefAsString("checkin_requeue_bounds_hours"),
+					currentCheckInStats
 				)
 			&& 	(app.apiCheckInDb.dbStashed.getCount() > 0)
-			) {
-			String[] lastStashedCheckIn = app.apiCheckInDb.dbStashed.getLatestRow();
-			reQueueAudioAssetForCheckIn("stashed", lastStashedCheckIn[1]);
+		) {
+			reQueueAudioAssetForCheckIn("stashed", app.apiCheckInDb.dbStashed.getLatestRow()[1]);
 		}
 	}
 
@@ -471,8 +470,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 12));
 
-		checkInMetaJson.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
-
 		// Telephony and SIM card info
 		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
 
@@ -483,23 +480,28 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 
 		// Adding checksum of current prefs values
-		checkInMetaJson.put("prefs", app.rfcxPrefs.getPrefsChecksum());
+		checkInMetaJson.put("prefs", app.rfcxPrefs.buildCheckInPrefsJsonObj(new String[]{ "api_ntp_host" }));
 
 		// Adding device location timezone offset
 		checkInMetaJson.put("datetime", TextUtils.join("|", new String[] { "system*"+System.currentTimeMillis(), "timezone*"+DateTimeUtils.getTimeZoneOffset() }));
+
+		// Adding instructions, if there are any
+		if (app.instructionsUtils.getInstructionsCount() > 0) {
+			checkInMetaJson.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+		}
 
 		// Adding messages to JSON blob
 		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver()));
 
 		// Adding screenshot meta to JSON blob
-		checkInMetaJson.put("screenshots", (screenShotMeta[0] == null) ? "" :
-				TextUtils.join("*", new String[] { screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6] })
-				);
+		checkInMetaJson.put("screenshots",  (screenShotMeta[0] == null) ? "" :
+				TextUtils.join("*", new String[]{screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6] })
+		);
 
 		// Adding logs meta to JSON blob
 		checkInMetaJson.put("logs", (logFileMeta[0] == null) ? "" :
 				TextUtils.join("*", new String[] { logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4] })
-				);
+		);
 
 		// Adding photos meta to JSON blob
 		checkInMetaJson.put("photos",(photoFileMeta[0] == null) ? "" :
@@ -507,7 +509,7 @@ public class ApiCheckInUtils implements MqttCallback {
         );
 
 		// Adding videos meta to JSON blob
-		checkInMetaJson.put("videos",(photoFileMeta[0] == null) ? "" :
+		checkInMetaJson.put("videos",(videoFileMeta[0] == null) ? "" :
 				TextUtils.join("*", new String[] { videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6] })
 		);
 
@@ -818,8 +820,8 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			} else if (assetType.equals("instruction")) {
-				app.instructionsDb.dbExecutedInstructions.deleteSingleRowByGuid(assetId);
-				app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(assetId);
+				app.instructionsDb.dbExecutedInstructions.deleteSingleRowById(assetId);
+				app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(assetId);
 
 			}
 
@@ -1056,6 +1058,17 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 
+			// parse 'prefs' array
+			if (jsonObj.has("prefs")) {
+				JSONArray prefsJson = jsonObj.getJSONArray("prefs");
+				for (int i = 0; i < prefsJson.length(); i++) {
+					JSONObject prefObj = prefsJson.getJSONObject(i);
+					if (prefObj.has("key") && prefObj.has("val")) {
+						app.setSharedPref(prefObj.getString("key").toLowerCase(), prefObj.getString("val"));
+					}
+				}
+			}
+
 			// parse 'instructions' array
 			if (jsonObj.has("instructions")) {
 				app.instructionsUtils.processReceivedInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
@@ -1227,11 +1240,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		JSONObject pingObj = new JSONObject();
 
-		JSONObject guardianObj = new JSONObject();
-		guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
-		guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
-		pingObj.put("guardian", guardianObj);
-
 		boolean includeMeasuredAt = false;
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "battery")) {
@@ -1261,7 +1269,14 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 
 		if (includeMeasuredAt) { pingObj.put("measured_at", System.currentTimeMillis()); }
+
 		Log.d(logTag, pingObj.toString());
+
+		JSONObject guardianObj = new JSONObject();
+		guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
+		guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
+		pingObj.put("guardian", guardianObj);
+
 		return pingObj.toString();
 	}
 

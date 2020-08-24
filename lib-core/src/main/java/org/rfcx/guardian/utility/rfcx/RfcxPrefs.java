@@ -20,7 +20,10 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
+
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 
@@ -294,7 +297,26 @@ public class RfcxPrefs {
 	}
 
 	public String getPrefsChecksum() {
-		return StringUtils.getSha1HashOfString(getPrefsAsJsonArray().toString());
+		List<String> prefsKeys = listPrefsKeys();
+		Collections.sort(prefsKeys);
+		List<String> prefsKeysVals = new ArrayList<String>();
+		for (String prefKey : prefsKeys) {
+			prefsKeysVals.add(TextUtils.join("*", new String[] { prefKey, getPrefAsString(prefKey) } ));
+		}
+		String prefsBlob = TextUtils.join("|", prefsKeysVals);
+		return StringUtils.getSha1HashOfString(prefsBlob);
+	}
+
+	public JSONObject buildCheckInPrefsJsonObj(String[] includeTheseKeys) {
+		JSONObject prefsObj = new JSONObject();
+		try {
+			prefsObj.put("sha1", getPrefsChecksum());
+			prefsObj.put("cnt", listPrefsKeys().size());
+			prefsObj.put("vals", getPrefsAsJsonObj(includeTheseKeys));
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return prefsObj;
 	}
 
 	public JSONArray getPrefsAsJsonArray() {
@@ -313,9 +335,38 @@ public class RfcxPrefs {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
-
+		Log.e(logTag, prefsBlob.toString());
 		return prefsBlob;
 	}
+
+	public JSONObject getPrefsAsJsonObj(boolean includeAllKeys, String[] includeTheseKeys) {
+
+		List<String> prefsKeys = listPrefsKeys();
+		Collections.sort(prefsKeys);
+
+		JSONObject prefsObj = new JSONObject();
+
+		for (String prefKey : prefsKeys) {
+			if (includeAllKeys || ArrayUtils.doesStringArrayContainString(includeTheseKeys, prefKey)) {
+				try {
+					prefsObj.put(prefKey, getPrefAsString(prefKey));
+				} catch (JSONException e) {
+					RfcxLog.logExc(logTag, e);
+				}
+			}
+		}
+
+		return prefsObj;
+	}
+
+	public JSONObject getPrefsAsJsonObj() {
+		return getPrefsAsJsonObj(true, new String[] {} );
+	}
+
+	public JSONObject getPrefsAsJsonObj(String[] includeTheseKeys) {
+		return getPrefsAsJsonObj(false, includeTheseKeys );
+	}
+
 
     //
     // Prefs default/fallback values. Should be kept in sync with the prefs.xml file in guardian role resources
@@ -345,7 +396,7 @@ public class RfcxPrefs {
 			
 			put("audio_cycle_duration", "90");
 			
-			put("audio_schedule_off_hours", "00:10-00:15,00:15-00:20");
+			put("audio_schedule_off_hours", "23:56-23:58,23:58-00:00");
 
 			put("checkin_battery_cutoff", "90");
 			put("audio_battery_cutoff", "80");
@@ -361,6 +412,8 @@ public class RfcxPrefs {
 
 			put("checkin_stash_filesize_buffer", "12");
 			put("checkin_archive_filesize_target", "32");
+
+			put("checkin_requeue_bounds_hours", "9,15");
 
 			put("checkin_meta_bundle_limit", "8");
 

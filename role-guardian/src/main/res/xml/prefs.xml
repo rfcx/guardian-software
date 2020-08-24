@@ -218,6 +218,13 @@
         android:defaultValue="@string/prefs_value_default_checkin_archive_filesize_target" />
 
 	<EditTextPreference
+		android:key="checkin_requeue_bounds_hours"
+		android:title="checkin_requeue_bounds_hours"
+		android:summary="string - hours, comma separated"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_requeue_bounds_hours" />
+
+	<EditTextPreference
 		android:key="checkin_meta_bundle_limit"
 		android:title="checkin_meta_bundle_limit"
 		android:summary="int - count"

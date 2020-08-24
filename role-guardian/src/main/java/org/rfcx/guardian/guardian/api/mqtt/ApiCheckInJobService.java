@@ -1,6 +1,4 @@
-package org.rfcx.guardian.guardian.api.checkin;
-
-import java.io.File;
+package org.rfcx.guardian.guardian.api.mqtt;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;

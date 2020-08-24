@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.checkin;
+package org.rfcx.guardian.guardian.api.mqtt;
 
 import java.util.Date;
 import java.util.List;
