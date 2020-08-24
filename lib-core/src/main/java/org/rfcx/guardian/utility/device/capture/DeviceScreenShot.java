@@ -7,7 +7,6 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.os.Environment;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -31,49 +30,44 @@ public class DeviceScreenShot {
 	public static final String CAPTURE_FILETYPE = "png";
 	
 	private static void initializeScreenShotDirectories(Context context) {
-		(new File(captureDir(context))).mkdirs(); FileUtils.chmod(captureDir(context),  "rw", "rw");
-		(new File(sdCardFilesDir())).mkdirs(); FileUtils.chmod(sdCardFilesDir(),  "rw", "rw");
-		(new File(finalFilesDir(context))).mkdirs(); FileUtils.chmod(finalFilesDir(context),  "rw", "rw");
-		(new File(getExecutableBinaryDir(context))).mkdirs(); FileUtils.chmod(getExecutableBinaryDir(context),  "rw", "rw");
+
+		FileUtils.initializeDirectoryRecursively(screenShotSdCardDir(), true);
+		FileUtils.initializeDirectoryRecursively(screenShotCaptureDir(context), false);
+		FileUtils.initializeDirectoryRecursively(screenShotfinalDir(context), false);
 	}
 	
-	private static String sdCardFilesDir() {
-		return (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/screenshots").toString();
+	private static String screenShotSdCardDir() {
+		return Environment.getExternalStorageDirectory().toString() + "/rfcx/screenshots";
 	}
 	
-	private static String finalFilesDir(Context context) {
-		if ((new File(sdCardFilesDir())).isDirectory()) {
-			return sdCardFilesDir();
-		} else {
-			return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshots/final").toString();
-		}
-	}
-	
-	private static String getExecutableBinaryDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/bin").toString();
+	private static String screenShotfinalDir(Context context) {
+		return context.getFilesDir().toString() + "/screenshots/final";
 	}
 
-	public static String getExecutableBinaryFilePath(Context context) {
+	public static String getScreenShotExecutableBinaryFilePath(Context context) {
 		return "/system/bin/screencap";
 	}
 	
-	public static String captureDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/screenshots/capture").toString();
+	public static String screenShotCaptureDir(Context context) {
+		return context.getFilesDir().toString() + "/screenshots/capture";
 	}
 	
 	public static String getScreenShotFileLocation_Capture(Context context, long timestamp) {
-		return (new StringBuilder()).append(captureDir(context)).append("/").append(timestamp).append(".").append(CAPTURE_FILETYPE).toString();
+		return screenShotCaptureDir(context) + "/" + timestamp + "." + CAPTURE_FILETYPE;
 	}
 
 	public static String getScreenShotFileLocation_Complete(String rfcxDeviceId, Context context, long timestamp) {
-		return (new StringBuilder()).append(finalFilesDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateTimeFormat.format(new Date(timestamp))).append(".").append(CAPTURE_FILETYPE).toString();
+		return screenShotfinalDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + CAPTURE_FILETYPE;
 	}
-	
+
+	public static String getScreenShotFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {
+		return screenShotSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + CAPTURE_FILETYPE;
+	}
 	
 	
 	public String[] launchCapture(Context context) {
 		
-		String executableBinaryFilePath = DeviceScreenShot.getExecutableBinaryFilePath(context);
+		String executableBinaryFilePath = DeviceScreenShot.getScreenShotExecutableBinaryFilePath(context);
 		
 		if ((new File(executableBinaryFilePath)).exists()) {
 			

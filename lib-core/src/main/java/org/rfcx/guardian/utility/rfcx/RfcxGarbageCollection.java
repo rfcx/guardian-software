@@ -32,13 +32,13 @@ public class RfcxGarbageCollection {
 	public static void runRfcxGarbageCollection(Context context) {
 		
 		String[] captureDirectories = new String[] {
-				DeviceLogCat.captureDir(context),
-				DeviceLogCat.postCaptureDir(context),
-				DeviceScreenShot.captureDir(context),
+				DeviceLogCat.logCaptureDir(context),
+				DeviceLogCat.logPostCaptureDir(context),
+				DeviceScreenShot.screenShotCaptureDir(context),
 				RfcxCameraUtils.photoCaptureDir(context),
 				RfcxCameraUtils.videoCaptureDir(context),
-				RfcxAudioUtils.captureDir(context),
-				RfcxAudioUtils.encodeDir(context)
+				RfcxAudioUtils.audioCaptureDir(context),
+				RfcxAudioUtils.audioEncodeDir(context)
 		};
 		
 		int expirationAgeInDays = 2; // delete files older than two days old

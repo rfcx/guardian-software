@@ -28,78 +28,76 @@ public class RfcxCameraUtils {
 
 	private static final String photoFileType = "jpg";
 	private static final String videoFileType = "mp4";
-
-	private static final String photoDirName = "photos";
-	private static final String videoDirName = "videos";
 	
 	private static void initializeCameraCaptureDirectories(Context context) {
-		
-		(new File(photoCaptureDir(context))).mkdirs(); FileUtils.chmod(photoCaptureDir(context),  "rw", "rw");
-		(new File(photoSdCardFilesDir())).mkdirs(); FileUtils.chmod(photoSdCardFilesDir(),  "rw", "rw");
-		(new File(photoFinalFilesDir(context))).mkdirs(); FileUtils.chmod(photoFinalFilesDir(context),  "rw", "rw");
 
-		(new File(videoCaptureDir(context))).mkdirs(); FileUtils.chmod(videoCaptureDir(context),  "rw", "rw");
-		(new File(videoSdCardFilesDir())).mkdirs(); FileUtils.chmod(videoSdCardFilesDir(),  "rw", "rw");
-		(new File(videoFinalFilesDir(context))).mkdirs(); FileUtils.chmod(videoFinalFilesDir(context),  "rw", "rw");
+		FileUtils.initializeDirectoryRecursively(photoSdCardDir(), true);
+		FileUtils.initializeDirectoryRecursively(videoSdCardDir(), true);
+
+		FileUtils.initializeDirectoryRecursively(photoCaptureDir(context), false);
+		FileUtils.initializeDirectoryRecursively(videoCaptureDir(context), false);
+
+		FileUtils.initializeDirectoryRecursively(photoFinalDir(context), false);
+		FileUtils.initializeDirectoryRecursively(videoFinalDir(context), false);
 	}
 	
-	private static String photoSdCardFilesDir() {
-		return (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/").append(photoDirName).toString(); 
+	private static String photoSdCardDir() {
+		return Environment.getExternalStorageDirectory().toString() + "/rfcx/photos";
 	}
 	
-	private static String photoFinalFilesDir(Context context) {
-		if ((new File(photoSdCardFilesDir())).isDirectory()) {
-			return photoSdCardFilesDir();
-		} else {
-			return (new StringBuilder()).append(context.getFilesDir().toString()).append("/").append(photoDirName).append("/final").toString();
-		}
+	private static String photoFinalDir(Context context) {
+		return context.getFilesDir().toString() + "/photos/final";
 	}
 	
 	public static String photoCaptureDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/").append(photoDirName).append("/capture").toString(); 
+		return context.getFilesDir().toString() + "/photos/capture";
 	}
 	
 	public static String getPhotoFileLocation_Capture(Context context, long timestamp) {
-		return (new StringBuilder()).append(photoCaptureDir(context)).append("/").append(timestamp).append(".").append(photoFileType).toString(); 
+		return photoCaptureDir(context) + "/" + timestamp + "." + photoFileType;
 	}
 
 	public static String getPhotoFileLocation_PostCapture(Context context, long timestamp) {
-		return (new StringBuilder()).append(photoCaptureDir(context)).append("/_").append(timestamp).append(".").append(photoFileType).toString(); 
+		return photoCaptureDir(context) + "/_" + timestamp + "." + photoFileType;
 	}
 		
 	public static String getPhotoFileLocation_Complete_PostGZip(String rfcxDeviceId, Context context, long timestamp) {
-		return (new StringBuilder()).append(photoFinalFilesDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateTimeFormat.format(new Date(timestamp))).append(".").append(photoFileType).append(".gz").toString(); 
+		return photoFinalDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + photoFileType + ".gz";
+	}
+
+	public static String getPhotoFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {
+		return photoSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + photoFileType + ".gz";
 	}
 
 
 	
 	
-	private static String videoSdCardFilesDir() {
-		return (new StringBuilder()).append(Environment.getExternalStorageDirectory().toString()).append("/rfcx/").append(videoDirName).toString(); 
+	private static String videoSdCardDir() {
+		return Environment.getExternalStorageDirectory().toString() + "/rfcx/videos";
 	}
 	
-	private static String videoFinalFilesDir(Context context) {
-		if ((new File(videoSdCardFilesDir())).isDirectory()) {
-			return videoSdCardFilesDir();
-		} else {
-			return (new StringBuilder()).append(context.getFilesDir().toString()).append("/").append(videoDirName).append("/final").toString();
-		}
+	private static String videoFinalDir(Context context) {
+		return context.getFilesDir().toString() + "/videos/final";
 	}
 	
 	public static String videoCaptureDir(Context context) {
-		return (new StringBuilder()).append(context.getFilesDir().toString()).append("/").append(videoDirName).append("/capture").toString(); 
+		return context.getFilesDir().toString() + "/videos/capture";
 	}
 	
 	public static String getVideoFileLocation_Capture(Context context, long timestamp) {
-		return (new StringBuilder()).append(videoCaptureDir(context)).append("/").append(timestamp).append(".").append(videoFileType).toString(); 
+		return videoCaptureDir(context) + "/" + timestamp + "." + videoFileType;
 	}
 
 	public static String getVideoFileLocation_PostCapture(Context context, long timestamp) {
-		return (new StringBuilder()).append(videoCaptureDir(context)).append("/_").append(timestamp).append(".").append(videoFileType).toString(); 
+		return videoCaptureDir(context) + "/_" + timestamp + "." + videoFileType;
 	}
 		
 	public static String getVideoFileLocation_Complete_PostGZip(String rfcxDeviceId, Context context, long timestamp) {
-		return (new StringBuilder()).append(videoFinalFilesDir(context)).append("/").append(dirDateFormat.format(new Date(timestamp))).append("/").append(rfcxDeviceId).append("_").append(fileDateTimeFormat.format(new Date(timestamp))).append(".").append(videoFileType).append(".gz").toString(); 
+		return videoFinalDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + videoFileType + ".gz";
+	}
+
+	public static String getVideoFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {
+		return videoSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + videoFileType + ".gz";
 	}
 	
 	

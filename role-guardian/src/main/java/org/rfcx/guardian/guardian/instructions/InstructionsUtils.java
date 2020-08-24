@@ -37,9 +37,9 @@ public class InstructionsUtils {
 				JSONArray instrArr = jsonObj.getJSONArray("instructions");
 				for (int i = 0; i < instrArr.length(); i++) {
 					JSONObject instrObj = instrArr.getJSONObject(i);
-					if (instrObj.has("guid")) {
+					if (instrObj.has("id")) {
 
-						String instrGuid = instrObj.getString("guid");
+						String instrId = instrObj.getString("id");
 						String instrType = instrObj.getString("type");
 						String instrCmd = instrObj.getString("cmd");
 
@@ -58,15 +58,15 @@ public class InstructionsUtils {
 							protocol = instrObj.getString("protocol");
 						}
 
-						this.app.instructionsDb.dbQueuedInstructions.findByGuidOrCreate(instrGuid, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString(), protocol);
+						this.app.instructionsDb.dbQueuedInstructions.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString(), protocol);
 
-						Log.i(logTag, "Instruction Received ("+protocol+"): "+instrGuid+", "+instrType+", "+instrCmd+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
+						Log.i(logTag, "Instruction Received ("+protocol+"): "+instrId+", "+instrType+", "+instrCmd+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
 
 						if (protocol.equalsIgnoreCase("mqtt")) {
 							this.app.apiCheckInUtils.sendMqttPing(false, new String[]{"instructions"});
 
 						} else if (protocol.equalsIgnoreCase("sms")) {
-							Log.e(logTag, "Send SMS Instruction Response: "+ getSingleInstructionInfoAsSerializedString(instrGuid) );
+							Log.e(logTag, "Send SMS Instruction Response: "+ getSingleInstructionInfoAsSerializedString(instrId) );
 
 						}
 					}
@@ -79,12 +79,12 @@ public class InstructionsUtils {
 		}
 	}
 
-	public String getSingleInstructionInfoAsSerializedString(String instrGuid) {
+	public String getSingleInstructionInfoAsSerializedString(String instrId) {
 
 		String[] instrInfo = new String[]{
 				app.rfcxGuardianIdentity.getGuid(),
 				"in",
-				"",		// guid
+				"",		// instr_id
 				"",		// received_at
 				"",		// executed_at
 				"",		// attempts
@@ -92,16 +92,16 @@ public class InstructionsUtils {
 		};
 
 		for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
-			if ((receivedRow[0] != null) && instrGuid.equalsIgnoreCase(receivedRow[1])) {
-				instrInfo[2] = receivedRow[1];	// guid
+			if ((receivedRow[0] != null) && instrId.equalsIgnoreCase(receivedRow[1])) {
+				instrInfo[2] = receivedRow[1];	// instr_id
 				instrInfo[3] = receivedRow[0];	// received_at
 				break;
 			}
 		}
 
 		for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
-			if ((executedRow[0] != null) && instrGuid.equalsIgnoreCase(executedRow[1])) {
-				instrInfo[2] = executedRow[1];    // guid
+			if ((executedRow[0] != null) && instrId.equalsIgnoreCase(executedRow[1])) {
+				instrInfo[2] = executedRow[1];    // instr_id
 				instrInfo[3] = executedRow[7];    // received_at
 				instrInfo[4] = executedRow[0];    // executed_at
 				instrInfo[5] = executedRow[6];    // attempts
@@ -121,7 +121,7 @@ public class InstructionsUtils {
 			for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
 				if (receivedRow[0] != null) {
 					JSONObject receivedObj = new JSONObject();
-					receivedObj.put("guid", receivedRow[1]);
+					receivedObj.put("id", receivedRow[1]);
 					receivedObj.put("received_at", receivedRow[0]);
 					receivedInstrArr.put(receivedObj);
 				}
@@ -132,7 +132,7 @@ public class InstructionsUtils {
 			for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
 				if (executedRow[0] != null) {
 					JSONObject executedObj = new JSONObject();
-					executedObj.put("guid", executedRow[1]);
+					executedObj.put("id", executedRow[1]);
 					executedObj.put("received_at", executedRow[7]);
 					executedObj.put("executed_at", executedRow[0]);
 					executedObj.put("attempts", executedRow[6]);
@@ -146,6 +146,10 @@ public class InstructionsUtils {
 			RfcxLog.logExc(logTag, e);
 		}
 		return instrObj;
+	}
+
+	public int getInstructionsCount() {
+		return app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution().size()+app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution().size();
 	}
 
 

@@ -1,11 +1,9 @@
-package org.rfcx.guardian.guardian.api.checkin;
+package org.rfcx.guardian.guardian.api.mqtt;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 

@@ -16,7 +16,7 @@ if [ "$CNTL" = "help" ]; then
 	echo "Usage: adbcontrol.sh {[ACTION]}";
 	echo "";
 	echo "Allowed Actions:";
-	echo "reboot kill relaunch screenshot logcat airplanemode_toggle airplanemode_enable sntp_sync";
+	echo "ping reboot kill relaunch screenshot logcat airplanemode_toggle airplanemode_enable sntp_sync";
 
 	echo "";
 	exit
@@ -27,7 +27,7 @@ elif [ "$CNTL" = "identity_set" ]; then
 
 elif [ "$CNTL" = "ping" ]; then
 
-	$ADB shell content query --uri content://org.rfcx.guardian.guardian/ping/$KEY;
+	$ADB shell content query --uri content://org.rfcx.guardian.guardian/ping/ping;
 
 else
 

@@ -86,33 +86,33 @@ public class InstructionsExecutionService extends Service {
 
 							if (executeAtOrAfter <= rightNow) {
 
-								String guid = queuedRow[1];
+								String instrId = queuedRow[1];
 								long receivedAt = Long.parseLong(queuedRow[0]);
 								String type = queuedRow[2];
 								String command = queuedRow[3];
 								JSONObject metaJson = new JSONObject(queuedRow[5]);
 								String protocol = queuedRow[8];
 
-								if (app.instructionsDb.dbExecutedInstructions.getCountByGuid(guid) == 0) {
-									app.instructionsDb.dbQueuedInstructions.incrementSingleRowAttemptsByGuid(guid);
+								if (app.instructionsDb.dbExecutedInstructions.getCountById(instrId) == 0) {
+									app.instructionsDb.dbQueuedInstructions.incrementSingleRowAttemptsById(instrId);
 									int execAttempts = (Integer.parseInt(queuedRow[6])) + 1;
 
 									// Execute the instruction
 									String responseJsonStr = app.instructionsUtils.executeInstruction(type, command, metaJson);
 
-									app.instructionsDb.dbExecutedInstructions.findByGuidOrCreate(guid, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt, protocol);
-									app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(guid);
-									Log.w(logTag, "Instruction ("+protocol+") "+guid+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
+									app.instructionsDb.dbExecutedInstructions.findByIdOrCreate(instrId, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt, protocol);
+									app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(instrId);
+									Log.w(logTag, "Instruction ("+protocol+") "+instrId+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
 								} else {
-									Log.w(logTag, "Instruction ("+protocol+") "+guid+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
-									app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(guid);
+									Log.w(logTag, "Instruction ("+protocol+") "+instrId+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
+									app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(instrId);
 								}
 
 								if (protocol.equalsIgnoreCase("mqtt")) {
 									app.apiCheckInUtils.sendMqttPing(false, new String[]{"instructions"});
 
 								} else if (protocol.equalsIgnoreCase("sms")) {
-									Log.e(logTag, "Send SMS Instruction Response: "+ app.instructionsUtils.getSingleInstructionInfoAsSerializedString(guid) );
+									Log.e(logTag, "Send SMS Instruction Response: "+ app.instructionsUtils.getSingleInstructionInfoAsSerializedString(instrId) );
 
 								}
 							}
