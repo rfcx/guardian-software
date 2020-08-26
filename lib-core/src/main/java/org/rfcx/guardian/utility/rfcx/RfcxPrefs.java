@@ -384,7 +384,7 @@ public class RfcxPrefs {
 			put("api_checkin_host", "checkins.rfcx.org");
 	        put("api_checkin_protocol", "ssl");
 	        put("api_checkin_port", "8883");
-			put("enable_checkin_authentication", "true");
+			put("enable_checkin_auth", "true");
 
             put("api_rest_host", "api.rfcx.org");
             put("api_rest_protocol", "https");
@@ -406,9 +406,9 @@ public class RfcxPrefs {
 			put("audio_sample_rate", "24000");
 
 			put("checkin_failure_thresholds", "12,25,40,60,80");
-			
 			put("checkin_failure_limit", "5");
-			put("checkin_queue_limit", "240");
+
+			put("checkin_queue_filesize_limit", "80");
 
 			put("checkin_stash_filesize_buffer", "12");
 			put("checkin_archive_filesize_target", "32");
@@ -424,6 +424,8 @@ public class RfcxPrefs {
 			put("admin_log_capture_cycle", "30");
 			put("admin_log_capture_level", "warn");
 			put("admin_enable_log_capture", "false");
+
+			put("admin_gps_capture_cycle", "15");
 			
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "false");

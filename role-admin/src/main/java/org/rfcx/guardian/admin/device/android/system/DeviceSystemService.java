@@ -403,8 +403,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					if (checkSetLocationManager() && !this.geoPositionProviderInfo.isEmpty()) {
 						this.locationManager.requestLocationUpdates(
 								this.geoPositionProviderInfo,
-								DeviceUtils.geoPositionMinTimeElapsedBetweenUpdatesInSeconds[app.deviceUtils.geoPositionUpdateIndex] * 1000,
-								DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters[app.deviceUtils.geoPositionUpdateIndex],
+								( app.rfcxPrefs.getPrefAsLong("admin_gps_capture_cycle") * 60 * 1000 ),
+								DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters,
 								this);
 						this.isListenerRegistered_geoposition = true;
 					} else {
@@ -627,7 +627,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	
 	@Override
 	public void onLocationChanged(Location location) {
-		Log.e(logTag, "Running onLocationChanged...");
+	//	Log.e(logTag, "Running onLocationChanged...");
 		if (app != null) {
 			app.deviceUtils.processAndSaveGeoPosition(location);
 		}
@@ -635,21 +635,21 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		Log.e(logTag, "Running onProviderDisabled...");
+	//	Log.e(logTag, "Running onProviderDisabled...");
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		Log.e(logTag, "Running onProviderDisabled...");
+	//	Log.e(logTag, "Running onProviderDisabled...");
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		Log.e(logTag, "Running onStatusChanged...");
+	//	Log.e(logTag, "Running onStatusChanged...");
 		// TODO Auto-generated method stub
 		
 	}

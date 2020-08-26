@@ -98,10 +98,10 @@ public class ApiCheckInUtils implements MqttCallback {
 				this.app.rfcxPrefs.getPrefAsInt("api_checkin_port"),
 				this.app.rfcxPrefs.getPrefAsString("api_checkin_host"),
 				this.app.rfcxGuardianIdentity.getKeystorePassphrase(),
-//				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? null : "guardian-"+this.app.rfcxGuardianIdentity.getGuid(),
-//				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? null : this.app.rfcxGuardianIdentity.getAuthToken()
-				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? null : "rfcx-guardian",
-				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_authentication") ? null : "1AbgQrSrK91KH2hyn5TSY4SFp"
+//				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : this.app.rfcxGuardianIdentity.getGuid(),
+//				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : this.app.rfcxGuardianIdentity.getAuthToken()
+				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : "rfcx-guardian",
+				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : "1AbgQrSrK91KH2hyn5TSY4SFp"
 		);
 	}
 
@@ -115,7 +115,10 @@ public class ApiCheckInUtils implements MqttCallback {
 		// add audio info to checkin queue
 		int queuedCount = app.apiCheckInDb.dbQueued.insert(audioInfo[1] + "." + audioInfo[2], queueJson, "0", filePath, audioInfo[10], audioFileSize+"");
 
-		Log.d(logTag, "Queued (1/" + queuedCount + "): " + audioInfo[1] + ", " + Math.round(audioFileSize/1024) + "kB, " + filePath);
+		long queuedLimitMb = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit");
+		long queuedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows()+"")/(queuedLimitMb*1024*1024))));
+
+		Log.d(logTag, "Queued " + audioInfo[1] + " (#" + queuedCount + ", "+queuedLimitPct+"% of "+queuedLimitMb+"MB limit): " + Math.round(audioFileSize/1024) + "kB, " + filePath);
 
 		// once queued, remove database reference from encode role
 		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1]);
@@ -146,14 +149,20 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	void stashOrArchiveOldestCheckIns() {
 
-		int queueLimit = app.rfcxPrefs.getPrefAsInt("checkin_queue_limit");
-
+		long queueFileSizeLimitInBytes = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit")*1024*1024;
 		long stashFileSizeBufferInBytes = app.rfcxPrefs.getPrefAsLong("checkin_stash_filesize_buffer")*1024*1024;
 		long archiveFileSizeTargetInBytes = app.rfcxPrefs.getPrefAsLong("checkin_archive_filesize_target")*1024*1024;
 
-		if (app.apiCheckInDb.dbQueued.getCount() > queueLimit) {
+		if (app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows() >= queueFileSizeLimitInBytes) {
 
-			List<String[]> checkInsBeyondQueueLimit = app.apiCheckInDb.dbQueued.getRowsWithOffset(queueLimit, queueLimit);
+			long queuedFileSizeSumBeforeLimit = 0;
+			int queuedCountBeforeLimit = 0;
+
+			for (String[] checkInCycle : app.apiCheckInDb.dbQueued.getRowsWithOffset(0,5000)) {
+				queuedFileSizeSumBeforeLimit += Long.parseLong(checkInCycle[6]);
+				if (queuedFileSizeSumBeforeLimit >= queueFileSizeLimitInBytes) { break; }
+				queuedCountBeforeLimit++;
+			}
 
 			// string list for reporting stashed checkins to the log
 			List<String> stashSuccessList = new ArrayList<String>();
@@ -161,7 +170,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			int stashCount = 0;
 
 			// cycle through stashable checkins and move them to the new table/database
-			for (String[] checkInsToStash : checkInsBeyondQueueLimit) {
+			for (String[] checkInsToStash : app.apiCheckInDb.dbQueued.getRowsWithOffset(queuedCountBeforeLimit, 16)) {
 
 				if (!DeviceDiskUsage.isExternalStorageWritable()) {
 					stashFailureList.add(checkInsToStash[1]);

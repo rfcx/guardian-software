@@ -72,7 +72,7 @@ public class ApiCheckInDb {
 		public List<String[]> getAllRows() {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
-		
+
 		public List<String[]> getRowsWithOffset(int rowOffset, int rowLimit) {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, rowOffset, rowLimit);
 		}

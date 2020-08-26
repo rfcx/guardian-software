@@ -100,10 +100,8 @@ public class DeviceUtils {
 
 	public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 2;
 
-	public static final long[] geoPositionMinDistanceChangeBetweenUpdatesInMeters = 	new long[] {	1, 		1,		1 	};
-	public static final long[] geoPositionMinTimeElapsedBetweenUpdatesInSeconds = 		new long[] {	720,	60,		10 	};
-	public int geoPositionUpdateIndex = 0;
-	
+	public static final long geoPositionMinDistanceChangeBetweenUpdatesInMeters = 1;
+
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 

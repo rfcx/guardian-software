@@ -70,13 +70,13 @@
         android:defaultValue="@string/prefs_value_default_api_checkin_port" />
 
 	<ListPreference
-		android:key="enable_checkin_authentication"
-		android:title="enable_checkin_authentication"
-		android:dialogTitle="enable_checkin_authentication"
+		android:key="enable_checkin_auth"
+		android:title="enable_checkin_auth"
+		android:dialogTitle="enable_checkin_auth"
 		android:summary="string - true/false"
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_enable_checkin_authentication" />
+		android:defaultValue="@string/prefs_value_default_enable_checkin_auth" />
 
 	<EditTextPreference
 		android:key="api_rest_host"
@@ -195,13 +195,13 @@
         android:summary="int - count"
         android:enabled="true"
         android:defaultValue="@string/prefs_value_default_checkin_failure_limit" />
- 	
- 	<EditTextPreference
-        android:key="checkin_queue_limit"
-        android:title="checkin_queue_limit"
-        android:summary="int - count"
-        android:enabled="true"
-        android:defaultValue="@string/prefs_value_default_checkin_queue_limit" />
+
+	<EditTextPreference
+		android:key="checkin_queue_filesize_limit"
+		android:title="checkin_queue_filesize_limit"
+		android:summary="int - megabytes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_queue_filesize_limit" />
 
 	<EditTextPreference
 		android:key="checkin_stash_filesize_buffer"
@@ -257,6 +257,13 @@
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_admin_enable_log_capture" />
+
+	<EditTextPreference
+		android:key="admin_gps_capture_cycle"
+		android:title="admin_gps_capture_cycle"
+		android:summary="int - minutes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_admin_gps_capture_cycle" />
  	
  	<EditTextPreference
         android:key="admin_screenshot_capture_cycle"
