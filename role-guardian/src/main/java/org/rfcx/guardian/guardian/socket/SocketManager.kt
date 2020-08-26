@@ -187,14 +187,29 @@ object SocketManager {
                 val audioString = Base64.encodeToString(audioPair.first, Base64.DEFAULT)
                 val audioReadSize = audioPair.second
                 val audioJsonObject = JSONObject()
+                    .put("amount", 1)
+                    .put("number", 1)
                     .put("buffer", audioString)
                     .put("read_size", audioReadSize)
-                val jsonObject = JSONObject().put(
-                    "microphone_test",
-                    audioJsonObject
-                )
-                streamOutput?.writeUTF(jsonObject.toString())
-                streamOutput?.flush()
+                val micTestObject = JSONObject().put("microphone_test", audioJsonObject)
+                if (micTestObject.toString().length <= 65535) {
+                    streamOutput?.writeUTF(micTestObject.toString())
+                    streamOutput?.flush()
+                } else {
+                    val audioChunks = audioPair.first.toSmallChunk(10)
+                    audioChunks.forEachIndexed { index, audio ->
+                        val readSize = audio.size
+                        val audioChunkString = Base64.encodeToString(audio, Base64.DEFAULT)
+                        val audioChunkJsonObject = JSONObject()
+                            .put("amount", audioChunks.size)
+                            .put("number", index + 1) // make it real number
+                            .put("buffer", audioChunkString)
+                            .put("read_size", readSize)
+                        val micTestChunkObject = JSONObject().put("microphone_test", audioChunkJsonObject)
+                        streamOutput?.writeUTF(micTestChunkObject.toString())
+                        streamOutput?.flush()
+                    }
+                }
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
@@ -295,6 +310,17 @@ object SocketManager {
         return response.toString()
     }
 
+    private fun ByteArray.toSmallChunk(number: Int): List<ByteArray> {
+        val numberOfChunk = this.size / number
+        val resultChunk = arrayListOf<ByteArray>()
+        var i = 0
+        while (i < this.size) {
+            resultChunk.add(this.copyOfRange(i, kotlin.math.min(this.size, i + numberOfChunk)))
+            i += numberOfChunk
+        }
+        return resultChunk
+    }
+  
     enum class CheckInState(val value: String) {
         NOT_PUBLISHED("not published"), PUBLISHING("publishing"), PUBLISHED(
             "published"
