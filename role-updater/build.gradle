@@ -21,7 +21,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 3
-        versionName "0.6.10"
+        versionName "0.7.0"
         setProperty("archivesBaseName", "updater-$versionName")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
