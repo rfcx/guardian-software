@@ -1,6 +1,7 @@
 package org.rfcx.guardian.updater.service;
 
 import org.rfcx.guardian.updater.RfcxGuardian;
+import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -70,12 +71,21 @@ public class InstallAppService extends Service {
 			InstallAppService installAppService = InstallAppService.this;
 
 			try {
-				if (app.installUtils.installApkAndVerify()) {
-					Log.d(logTag, "Installation Successful: "+app.installUtils.installRole+", "+app.installUtils.installVersion);
-	//					Log.d(logTag, "Rebooting system now...");
-	//					app.rfcxServiceHandler.triggerService("RebootTrigger", true);
+
+				String installedVersion = RfcxRole.getRoleVersionByName(app.installUtils.installRole, RfcxGuardian.APP_ROLE, app.getApplicationContext());
+				int installedVersionValue = InstallUtils.calculateVersionValue(installedVersion);
+				int versionValueToInstall = InstallUtils.calculateVersionValue(app.installUtils.installVersion);
+
+				if (versionValueToInstall > installedVersionValue) {
+					if (app.installUtils.installApkAndVerify()) {
+						Log.d(logTag, "Installation Successful: " + app.installUtils.installRole + ", " + app.installUtils.installVersion);
+						//	Log.d(logTag, "Rebooting system now...");
+						//	app.rfcxServiceHandler.triggerService("RebootTrigger", true);
+					} else {
+						Log.e(logTag, "Installation Failed: " + app.installUtils.installRole + ", " + app.installUtils.installVersion);
+					}
 				} else {
-					Log.e(logTag, "Installation Failed: "+app.installUtils.installRole+", "+app.installUtils.installVersion);
+					Log.e(logTag, "Installation Cancelled: Newer version already installed. " + app.installUtils.installRole + ", (installed: "+installedVersion+", attempted: " + app.installUtils.installVersion+")");
 				}
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
