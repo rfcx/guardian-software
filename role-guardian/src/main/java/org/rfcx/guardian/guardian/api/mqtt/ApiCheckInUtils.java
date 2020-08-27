@@ -38,6 +38,7 @@ import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.network.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import android.content.Context;
 import android.text.TextUtils;
@@ -87,6 +88,9 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private ApiCheckInHealthUtils apiCheckInHealthUtils = new ApiCheckInHealthUtils();
 
+	public String prefsSha1FullApiSync = null;
+	public long prefsTimestampLastFullApiSync = 0;
+
 	public static long latestFileSize = 0;
 	public static long totalFileSize = 0;
 	public static String latestCheckinTimestamp = "";
@@ -118,7 +122,8 @@ public class ApiCheckInUtils implements MqttCallback {
 		long queuedLimitMb = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit");
 		long queuedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows()+"")/(queuedLimitMb*1024*1024))));
 
-		Log.d(logTag, "Queued " + audioInfo[1] + " (#" + queuedCount + ", "+queuedLimitPct+"% of "+queuedLimitMb+"MB limit): " + Math.round(audioFileSize/1024) + "kB, " + filePath);
+		Log.d(logTag, "Queued " + audioInfo[1] + ", " + Math.round(audioFileSize/1024) + "kB "
+						+  "(1 of " + queuedCount + " queued, "+queuedLimitPct+"% of "+queuedLimitMb+"MB limit) " + filePath);
 
 		// once queued, remove database reference from encode role
 		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1]);
@@ -394,6 +399,31 @@ public class ApiCheckInUtils implements MqttCallback {
 				});
 	}
 
+
+	private JSONObject buildCheckInPrefsJsonObj() {
+
+		JSONObject prefsObj = new JSONObject();
+		try {
+
+			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.prefsTimestampLastFullApiSync));
+			String prefsSha1 = app.rfcxPrefs.getPrefsChecksum();
+			prefsObj.put("sha1", prefsSha1);
+
+			if (	(this.prefsSha1FullApiSync != null)
+				&&	!this.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
+				&& 	(milliSecondsSinceAccessed > this.requestTimeOutLength)
+			) {
+				Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent.");
+				prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
+				this.prefsTimestampLastFullApiSync = System.currentTimeMillis();
+			}
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return prefsObj;
+	}
+
+
 	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
 		int maxMetaRowsToBundle = this.app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit");
@@ -488,7 +518,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 
 		// Adding checksum of current prefs values
-		checkInMetaJson.put("prefs", app.rfcxPrefs.buildCheckInPrefsJsonObj(new String[]{ "api_ntp_host" }));
+		checkInMetaJson.put("prefs", buildCheckInPrefsJsonObj());
 
 		// Adding device location timezone offset
 		checkInMetaJson.put("datetime", TextUtils.join("|", new String[] { "system*"+System.currentTimeMillis(), "timezone*"+DateTimeUtils.getTimeZoneOffset() }));
@@ -1070,9 +1100,9 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (jsonObj.has("prefs")) {
 				JSONArray prefsJson = jsonObj.getJSONArray("prefs");
 				for (int i = 0; i < prefsJson.length(); i++) {
-					JSONObject prefObj = prefsJson.getJSONObject(i);
-					if (prefObj.has("key") && prefObj.has("val")) {
-						app.setSharedPref(prefObj.getString("key").toLowerCase(), prefObj.getString("val"));
+					JSONObject prefsObj = prefsJson.getJSONObject(i);
+					if (prefsObj.has("sha1")) {
+						this.prefsSha1FullApiSync = prefsObj.getString("sha1").toLowerCase();
 					}
 				}
 			}
@@ -1262,6 +1292,10 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "instructions")) {
 			pingObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {
+			pingObj.put("prefs", buildCheckInPrefsJsonObj());
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "hardware")) {

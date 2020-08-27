@@ -10,8 +10,11 @@ import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class InstructionsUtils {
 
@@ -157,9 +160,13 @@ public class InstructionsUtils {
 
 		JSONObject responseJson = new JSONObject();
 
-		// Set Pref[s]
-		if (instrType.equalsIgnoreCase("set") && instrCmd.equalsIgnoreCase("prefs")) {
-			try {
+		try {
+
+			// Set Pref[s]
+			if (	instrType.equalsIgnoreCase("set")
+				&& 	instrCmd.equalsIgnoreCase("prefs")
+			) {
+
 				JSONObject prefsKeysVals = instrMeta;
 				Iterator<String> prefsKeys = prefsKeysVals.keys();
 				while (prefsKeys.hasNext()) {
@@ -168,15 +175,18 @@ public class InstructionsUtils {
 						app.setSharedPref(prefKey.toLowerCase(), prefsKeysVals.getString(prefKey).toLowerCase());
 					}
 				}
-			} catch (JSONException e) {
-				RfcxLog.logExc(logTag, e);
+
+
+
+			// Execute Control Command
+			} else if (instrType.equalsIgnoreCase("ctrl")) {
+
+				app.deviceControlUtils.runOrTriggerDeviceControl(instrCmd, app.getApplicationContext().getContentResolver());
+
 			}
 
-		// Execute Control Command
-		} else if (instrType.equalsIgnoreCase("ctrl")) {
-
-			app.deviceControlUtils.runOrTriggerDeviceControl(instrCmd, app.getApplicationContext().getContentResolver());
-
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
 		}
 
 

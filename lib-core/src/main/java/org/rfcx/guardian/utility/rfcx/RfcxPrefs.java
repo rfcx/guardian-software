@@ -307,18 +307,6 @@ public class RfcxPrefs {
 		return StringUtils.getSha1HashOfString(prefsBlob);
 	}
 
-	public JSONObject buildCheckInPrefsJsonObj(String[] includeTheseKeys) {
-		JSONObject prefsObj = new JSONObject();
-		try {
-			prefsObj.put("sha1", getPrefsChecksum());
-			prefsObj.put("cnt", listPrefsKeys().size());
-			prefsObj.put("vals", getPrefsAsJsonObj(includeTheseKeys));
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return prefsObj;
-	}
-
 	public JSONArray getPrefsAsJsonArray() {
 
 		List<String> prefsKeys = listPrefsKeys();
