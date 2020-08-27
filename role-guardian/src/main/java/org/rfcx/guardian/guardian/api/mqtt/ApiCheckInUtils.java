@@ -81,8 +81,6 @@ public class ApiCheckInUtils implements MqttCallback {
 	private int inFlightCheckInAttemptCounter = 0;
 	private int inFlightCheckInAttemptCounterLimit = 6;
 
-	private List<String> previousCheckIns = new ArrayList<String>();
-
 	private int[] failedCheckInThresholds = new int[0];
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
 
@@ -290,7 +288,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
 
 		// Adding connection data from previous checkins
-		metaDataJsonObj.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
+		metaDataJsonObj.put("previous_checkins", app.apiCheckInStatsDb.dbStats.getConcatRows());
 
 		// Adding system metadata, if they can be retrieved from admin role via content provider
 		JSONArray systemMetaJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
@@ -319,7 +317,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			app.deviceSystemDb.dbDateTimeOffsets.clearRowsBefore(deleteBefore);
 			app.deviceSystemDb.dbMqttBrokerConnections.clearRowsBefore(deleteBefore);
-			this.previousCheckIns = new ArrayList<String>();
+			app.apiCheckInStatsDb.dbStats.clearRowsBefore(deleteBefore);
 
 			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
 					"system_meta|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
@@ -979,7 +977,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					if (checkInId.length() > 0) {
 						long[] checkInStats = this.inFlightCheckInStats.get(audioId);
 						if (checkInStats != null) {
-							this.previousCheckIns.add( checkInId + "*" + checkInStats[1] + "*" + checkInStats[2] );
+							app.apiCheckInStatsDb.dbStats.insert(checkInId, checkInStats[1], checkInStats[2]);
 							Calendar rightNow = GregorianCalendar.getInstance();
 							rightNow.setTime(new Date());
 

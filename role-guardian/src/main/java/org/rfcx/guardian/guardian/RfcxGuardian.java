@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInMetaSnapshotService;
+import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInStatsDb;
 import org.rfcx.guardian.guardian.api.mqtt.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -66,6 +67,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioEncodeDb audioEncodeDb = null;
     public ApiCheckInDb apiCheckInDb = null;
     public ApiCheckInMetaDb apiCheckInMetaDb = null;
+    public ApiCheckInStatsDb apiCheckInStatsDb = null;
     public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
     public ArchiveDb archiveDb = null;
     public InstructionsDb instructionsDb = null;
@@ -212,6 +214,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.audioEncodeDb = new AudioEncodeDb(this, this.version);
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
+        this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
         this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
