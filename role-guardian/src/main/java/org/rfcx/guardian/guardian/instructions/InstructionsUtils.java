@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.instructions;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -9,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -176,14 +178,45 @@ public class InstructionsUtils {
 					}
 				}
 
-
-
 			// Execute Control Command
 			} else if (instrType.equalsIgnoreCase("ctrl")) {
 
 				app.deviceControlUtils.runOrTriggerDeviceControl(instrCmd, app.getApplicationContext().getContentResolver());
 
-			}
+			// Execute Send Command
+            } else if (instrType.equalsIgnoreCase("send")) {
+
+                if (instrCmd.equalsIgnoreCase("ping")) {
+
+                    JSONArray inclFieldsArr = instrMeta.getJSONArray("include");
+                    String[] inclFields = new String[inclFieldsArr.length()];
+                    for (int i = 0; i < inclFieldsArr.length(); i++) {
+                        inclFields[i] = inclFieldsArr.getString(i).toLowerCase();
+                    }
+                    app.apiCheckInUtils.sendMqttPing(false, inclFields);
+
+                } else if (instrCmd.equalsIgnoreCase("sms")) {
+
+					try {
+						String sendAt = instrMeta.has("at") ? ""+Long.parseLong(instrMeta.getString("at")) : ""+System.currentTimeMillis();
+						String sendTo = instrMeta.has("to") ? instrMeta.getString("to") : app.rfcxPrefs.getPrefAsString("api_sms_address");
+						String msgBody = instrMeta.has("body") ? instrMeta.getString("body") : "";
+						String msgBlob = TextUtils.join("|", new String[]{ sendAt, sendTo, msgBody });
+
+						Cursor smsQueueResponse =
+								app.getApplicationContext().getContentResolver().query(
+										RfcxComm.getUri("admin", "sms_queue", msgBlob),
+										RfcxComm.getProjection("admin", "sms_queue"),
+										null, null, null);
+						Log.v(logTag, smsQueueResponse.toString());
+						smsQueueResponse.close();
+					} catch (Exception e) {
+						RfcxLog.logExc(logTag, e);
+					}
+
+                }
+
+            }
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
