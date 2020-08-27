@@ -1127,7 +1127,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		if ((this.inFlightCheckInEntries.get(inFlightCheckInAudioId) != null) && (this.inFlightCheckInEntries.get(inFlightCheckInAudioId)[0] != null)) {
 			String[] checkInEntry = this.inFlightCheckInEntries.get(inFlightCheckInAudioId);
 			// delete latest instead to keep present info
-			if (this.latestCheckInAudioId != null){
+			if (this.latestCheckInAudioId != null) {
 				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(this.latestCheckInAudioId);
 			}
 			if ((checkInEntry != null) && (checkInEntry[0] != null)) {
@@ -1135,6 +1135,47 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.apiCheckInDb.dbSent.insert(checkInEntry[1], checkInEntry[2], checkInEntry[3], checkInEntry[4], checkInEntry[5], checkInEntry[6]);
 				app.apiCheckInDb.dbSent.incrementSingleRowAttempts(checkInEntry[1]);
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInEntry[1]);
+			}
+		}
+
+
+		long sentFileSizeBufferInBytes = app.rfcxPrefs.getPrefAsLong("checkin_sent_filesize_buffer")*1024*1024;
+
+		if (app.apiCheckInDb.dbSent.getCumulativeFileSizeForAllRows() >= sentFileSizeBufferInBytes) {
+
+			long sentFileSizeSumBeforeLimit = 0;
+			int sentCountBeforeLimit = 0;
+
+			for (String[] checkInCycle : app.apiCheckInDb.dbSent.getRowsWithOffset(0,5000)) {
+				sentFileSizeSumBeforeLimit += Long.parseLong(checkInCycle[6]);
+				if (sentFileSizeSumBeforeLimit >= sentFileSizeBufferInBytes) { break; }
+				sentCountBeforeLimit++;
+			}
+
+			for (String[] sentCheckInsToMove : app.apiCheckInDb.dbSent.getRowsWithOffset(sentCountBeforeLimit, 16)) {
+
+				if (!DeviceDiskUsage.isExternalStorageWritable()) {
+					app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(sentCheckInsToMove[1]);
+
+				} else {
+					String newFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
+							app.rfcxGuardianIdentity.getGuid(),
+							Long.parseLong(sentCheckInsToMove[1].substring(0, sentCheckInsToMove[1].lastIndexOf("."))),
+							sentCheckInsToMove[1].substring(sentCheckInsToMove[1].lastIndexOf(".") + 1));
+					try {
+						FileUtils.copy(sentCheckInsToMove[4], newFilePath);
+					} catch (IOException e) {
+						RfcxLog.logExc(logTag, e);
+					}
+
+					if (FileUtils.exists(newFilePath) && (FileUtils.getFileSizeInBytes(newFilePath) == Long.parseLong(sentCheckInsToMove[6]))) {
+						app.apiCheckInDb.dbSent.updateFilePathByAudioAttachmentId(sentCheckInsToMove[1], newFilePath);
+					} else {
+						app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(sentCheckInsToMove[1]);
+					}
+				}
+
+				FileUtils.delete(sentCheckInsToMove[4]);
 			}
 		}
 	}

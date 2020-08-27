@@ -374,6 +374,11 @@ public class ApiCheckInDb {
 			return this.dbUtils.getSumOfColumn(TABLE, C_AUDIO_DURATION, null, null);
 		}
 
+		public void updateFilePathByAudioAttachmentId(String audioId, String filePath) {
+			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+			this.dbUtils.updateStringColumnValueByTimestamp(TABLE, C_FILEPATH, filePath, C_AUDIO, timestamp);
+		}
+
 	}
 	public final DbSent dbSent;
 	

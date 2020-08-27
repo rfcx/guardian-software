@@ -204,6 +204,13 @@
 		android:defaultValue="@string/prefs_value_default_checkin_queue_filesize_limit" />
 
 	<EditTextPreference
+		android:key="checkin_sent_filesize_buffer"
+		android:title="checkin_sent_filesize_buffer"
+		android:summary="int - megabytes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_sent_filesize_buffer" />
+
+	<EditTextPreference
 		android:key="checkin_stash_filesize_buffer"
 		android:title="checkin_stash_filesize_buffer"
 		android:summary="int - megabytes"

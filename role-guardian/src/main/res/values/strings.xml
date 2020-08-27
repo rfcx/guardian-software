@@ -37,9 +37,10 @@
 	<string name="prefs_value_default_checkin_failure_limit">5</string>
 
 	<string name="prefs_value_default_checkin_queue_filesize_limit">80</string>
-
+	<string name="prefs_value_default_checkin_sent_filesize_buffer">80</string>
 	<string name="prefs_value_default_checkin_stash_filesize_buffer">12</string>
 	<string name="prefs_value_default_checkin_archive_filesize_target">32</string>
+
 	<string name="prefs_value_default_checkin_requeue_bounds_hours">9,15</string>
 	<string name="prefs_value_default_checkin_meta_bundle_limit">8</string>
 

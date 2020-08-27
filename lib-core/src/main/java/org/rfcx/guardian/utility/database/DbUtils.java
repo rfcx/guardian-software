@@ -241,7 +241,20 @@ public class DbUtils {
 			closeDb();
 		}
 	}
-	
+
+	public void updateStringColumnValueByTimestamp(String tableName, String columnName, String columnValue, String timestampColumn, String timestampValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			for (String[] dbRow : getRows(db, tableName, new String[] { timestampColumn, columnName }, "substr("+timestampColumn+",1,"+timestampValue.length()+") = ?", new String[] { timestampValue }, null) ) {
+				db.execSQL("UPDATE "+tableName+" SET "+columnName+"='"+columnValue+"' WHERE "+ timestampColumn +" = '"+ dbRow[0] +"'");
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		} finally {
+			closeDb();
+		}
+	}
+
 	public void adjustNumericColumnValuesWithinQueryByTimestamp(String adjustmentAmount, String tableName, String numericColumnName, String timestampColumn, String timestampValue) {
 		SQLiteDatabase db = openDb();
 		try {

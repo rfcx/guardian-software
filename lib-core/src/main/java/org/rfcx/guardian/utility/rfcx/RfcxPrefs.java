@@ -398,6 +398,7 @@ public class RfcxPrefs {
 
 			put("checkin_queue_filesize_limit", "80");
 
+			put("checkin_sent_filesize_buffer", "80");
 			put("checkin_stash_filesize_buffer", "12");
 			put("checkin_archive_filesize_target", "32");
 
