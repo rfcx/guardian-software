@@ -65,6 +65,7 @@ object SocketManager {
                                     false
                                 }
                             }
+                            "sentinel" -> sendSentinelValues()
                             else -> {
                                 val commandObject =
                                     JSONObject(receiveJson.get("command").toString())
@@ -280,6 +281,22 @@ object SocketManager {
                 streamOutput?.writeUTF(checkInTestJson.toString())
                 streamOutput?.flush()
             }
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
+        }
+    }
+
+    private fun sendSentinelValues() {
+        try {
+            val sentinelJson = JSONObject()
+                .put("is_solar_attached", false)
+                .put("voltage", 0)
+                .put("current", 0)
+                .put("power", 0)
+            val sentinelInfoJson = JSONObject()
+                .put("sentinel", sentinelJson)
+            streamOutput?.writeUTF(sentinelInfoJson.toString())
+            streamOutput?.flush()
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
         }
