@@ -14,7 +14,7 @@ import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInUtils
-import org.rfcx.guardian.guardian.api.mqtt.ApiQueueCheckInService
+import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInQueueService
 import org.rfcx.guardian.guardian.api.http.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.http.GuardianCheckCallback
 import org.rfcx.guardian.guardian.api.http.RegisterApi
@@ -257,9 +257,9 @@ class MainActivity : AppCompatActivity(),
                             val fileSize = checkInUtils.getFileSize(latestFileSize)
                             sizeText.text = " $fileSize"
 
-                            val totalLocalAudio = ApiQueueCheckInService.totalLocalAudio
+                            val totalLocalAudio = ApiCheckInQueueService.totalLocalAudio
                             val totalSyncedAudio = ApiCheckInUtils.totalSyncedAudio
-                            val totalRecordedTime = ApiQueueCheckInService.totalRecordedTime
+                            val totalRecordedTime = ApiCheckInQueueService.totalRecordedTime
                             val totalRecordedTimeTxt = DiagnosticUtils.secondToTime(totalRecordedTime)
                             recordTimeText.text = " $totalRecordedTimeTxt"
                             fileRecordedSyncedText.text = " $totalSyncedAudio / $totalLocalAudio"

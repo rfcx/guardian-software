@@ -373,6 +373,7 @@ public class RfcxPrefs {
 	        put("api_checkin_protocol", "ssl");
 	        put("api_checkin_port", "8883");
 			put("enable_checkin_auth", "true");
+			put("api_checkin_auth_creds", "[guid],[token]");
 
             put("api_rest_host", "api.rfcx.org");
             put("api_rest_protocol", "https");
@@ -393,21 +394,20 @@ public class RfcxPrefs {
 			put("audio_encode_bitrate", "28672");
 			put("audio_sample_rate", "24000");
 
-			put("checkin_failure_thresholds", "12,25,40,60,80");
-			put("checkin_failure_limit", "5");
+			put("checkin_failure_thresholds", "15,30,50,70,90");
+			put("checkin_failure_limit", "3");
 
 			put("checkin_queue_filesize_limit", "80");
-
 			put("checkin_sent_filesize_buffer", "80");
-			put("checkin_stash_filesize_buffer", "12");
+			put("checkin_stash_filesize_buffer", "32");
 			put("checkin_archive_filesize_target", "32");
 
 			put("checkin_requeue_bounds_hours", "9,15");
 
-			put("checkin_meta_bundle_limit", "8");
+			put("checkin_meta_bundle_limit", "10");
 
 			put("admin_enable_bluetooth", "false");
-			put("admin_enable_wifi", "false");
+			put("admin_enable_wifi", "true");
 			put("admin_enable_tcp_adb", "true");
 
 			put("admin_log_capture_cycle", "30");
@@ -425,7 +425,7 @@ public class RfcxPrefs {
 			put("admin_system_timezone", "[ Not Set ]");
 
 			put("admin_enable_ssh_server", "false");
-			put("admin_enable_wifi_socket", "false");
+			put("admin_enable_wifi_socket", "true");
 			
 			
 	    }}

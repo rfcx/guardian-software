@@ -113,9 +113,8 @@ public class ApiCheckInJobService extends Service {
 								if ((Integer.parseInt(latestQueuedCheckIn[3])) >= prefsCheckInFailureLimit) {
 									
 									Log.d(logTag,"Skipping CheckIn "+latestQueuedCheckIn[1]+" after "+prefsCheckInFailureLimit+" failed attempts");
-									app.apiCheckInDb.dbSkipped.insert(latestQueuedCheckIn[0], latestQueuedCheckIn[1], latestQueuedCheckIn[2], latestQueuedCheckIn[3], latestQueuedCheckIn[4], latestQueuedCheckIn[5], latestQueuedCheckIn[6]);
-									app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
-									
+									app.apiCheckInUtils.skipSingleCheckIn(latestQueuedCheckIn);
+
 								} else if (!FileUtils.exists(latestQueuedCheckIn[4])) {
 									
 									Log.d(logTag,"Disqualifying CheckIn because audio file could not be found.");
@@ -127,6 +126,7 @@ public class ApiCheckInJobService extends Service {
 									if (	!latestQueuedCheckIn[1].equalsIgnoreCase(lastCheckInId)
 										|| 	(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(lastCheckInEndTime) > 2000 )
 									) {
+
 										// Publish CheckIn to API
 										app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
 										lastCheckInEndTime = System.currentTimeMillis();

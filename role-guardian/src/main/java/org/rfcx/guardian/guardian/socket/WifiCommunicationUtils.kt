@@ -6,7 +6,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInUtils
-import org.rfcx.guardian.guardian.api.mqtt.ApiQueueCheckInService
+import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInQueueService
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 class WifiCommunicationUtils(private val context: Context) {
@@ -45,9 +45,9 @@ class WifiCommunicationUtils(private val context: Context) {
         val diagnosticJsonArray = JSONArray()
         try {
             val diagnosticJson = JSONObject()
-            val totalLocalAudio = ApiQueueCheckInService.totalLocalAudio
+            val totalLocalAudio = ApiCheckInQueueService.totalLocalAudio
             val totalSyncedAudio = ApiCheckInUtils.totalSyncedAudio
-            val totalRecordedTime = ApiQueueCheckInService.totalRecordedTime
+            val totalRecordedTime = ApiCheckInQueueService.totalRecordedTime
             val totalFileSize = ApiCheckInUtils.totalFileSize
             val battery = app.deviceBattery.getBatteryChargePercentage(this.context, null)
 

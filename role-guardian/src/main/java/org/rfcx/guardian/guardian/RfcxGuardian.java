@@ -5,7 +5,9 @@ import java.util.Map;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInStatsDb;
+import org.rfcx.guardian.guardian.api.mqtt.ApiDiagnosticsDb;
 import org.rfcx.guardian.guardian.api.mqtt.ScheduledApiPingService;
+import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
@@ -36,7 +38,7 @@ import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInJobService;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInMetaDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInUtils;
-import org.rfcx.guardian.guardian.api.mqtt.ApiQueueCheckInService;
+import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInQueueService;
 import org.rfcx.guardian.guardian.archive.ApiCheckInArchiveService;
 import org.rfcx.guardian.guardian.archive.ArchiveDb;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureService;
@@ -68,6 +70,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInDb apiCheckInDb = null;
     public ApiCheckInMetaDb apiCheckInMetaDb = null;
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
+    public ApiDiagnosticsDb apiDiagnosticsDb = null;
     public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
     public ArchiveDb archiveDb = null;
     public InstructionsDb instructionsDb = null;
@@ -94,7 +97,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     "AudioCapture",
                     "ApiCheckInJob",
                     "AudioEncodeJob",
-                    "InstructionsExecution"
+                    "InstructionsCycle"
             };
 
     @Override
@@ -215,6 +218,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
+        this.apiDiagnosticsDb = new ApiDiagnosticsDb(this, this.version);
         this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
@@ -230,7 +234,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
         this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
 
-        this.rfcxServiceHandler.addService("ApiQueueCheckIn", ApiQueueCheckInService.class);
+        this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueService.class);
         this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
 
         this.rfcxServiceHandler.addService("ScheduledApiPing", ScheduledApiPingService.class);
@@ -240,6 +244,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
         this.rfcxServiceHandler.addService("ApiCheckInMetaSnapshot", ApiCheckInMetaSnapshotService.class);
+
+        this.rfcxServiceHandler.addService("InstructionsCycle", InstructionsCycleService.class);
         this.rfcxServiceHandler.addService("InstructionsExecution", InstructionsExecutionService.class);
 
         this.rfcxServiceHandler.addService("WifiCommunication", WifiCommunicationService.class);
@@ -281,8 +287,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     }
 
     public void onPrefReSync(String prefKey) {
+
         if (prefKey.equalsIgnoreCase("admin_enable_wifi_socket")) {
-            rfcxServiceHandler.triggerService("WifiCommunication", false);
+            this.rfcxServiceHandler.triggerService("WifiCommunication", false);
+
+        } else if (prefKey.equalsIgnoreCase("checkin_failure_thresholds")) {
+            this.apiCheckInUtils.initializeFailedCheckInThresholds();
         }
     }
 

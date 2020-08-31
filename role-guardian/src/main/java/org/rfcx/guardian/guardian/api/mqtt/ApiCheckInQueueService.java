@@ -9,16 +9,16 @@ import android.content.Intent;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
-public class ApiQueueCheckInService extends IntentService {
+public class ApiCheckInQueueService extends IntentService {
 
-	private static final String SERVICE_NAME = "ApiQueueCheckIn";
+	private static final String SERVICE_NAME = "ApiCheckInQueue";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiQueueCheckInService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInQueueService");
 
 	public static int totalLocalAudio = 0;
 	public static int totalRecordedTime = 0;
 		
-	public ApiQueueCheckInService() {
+	public ApiCheckInQueueService() {
 		super(logTag);
 	}
 	

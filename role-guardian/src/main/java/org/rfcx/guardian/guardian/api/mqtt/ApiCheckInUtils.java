@@ -79,7 +79,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
 
 	private int inFlightCheckInAttemptCounter = 0;
-	private int inFlightCheckInAttemptCounterLimit = 6;
+	private int inFlightCheckInAttemptCounterLimit = 5;
 
 	private int[] failedCheckInThresholds = new int[0];
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
@@ -95,15 +95,16 @@ public class ApiCheckInUtils implements MqttCallback {
 	public static int totalSyncedAudio = 0;
 
 	public void setOrResetBrokerConfig() {
+		String[] authUserPswd = app.rfcxPrefs.getPrefAsString("api_checkin_auth_creds").split(",");
+		String authUser = !app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : authUserPswd[0];
+		String authPswd = !app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : authUserPswd[1];
 		this.mqttCheckInClient.setOrResetBroker(
-				this.app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
-				this.app.rfcxPrefs.getPrefAsInt("api_checkin_port"),
-				this.app.rfcxPrefs.getPrefAsString("api_checkin_host"),
-				this.app.rfcxGuardianIdentity.getKeystorePassphrase(),
-//				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : this.app.rfcxGuardianIdentity.getGuid(),
-//				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : this.app.rfcxGuardianIdentity.getAuthToken()
-				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : "rfcx-guardian",
-				!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : "1AbgQrSrK91KH2hyn5TSY4SFp"
+			this.app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
+			this.app.rfcxPrefs.getPrefAsInt("api_checkin_port"),
+			this.app.rfcxPrefs.getPrefAsString("api_checkin_host"),
+			this.app.rfcxGuardianIdentity.getKeystorePassphrase(),
+			!authUser.equalsIgnoreCase("[guid]") ? authUser : app.rfcxGuardianIdentity.getGuid(),
+			!authPswd.equalsIgnoreCase("[token]") ? authPswd : app.rfcxGuardianIdentity.getAuthToken()
 		);
 	}
 
@@ -213,6 +214,28 @@ public class ApiCheckInUtils implements MqttCallback {
 		if (app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() >= (stashFileSizeBufferInBytes + archiveFileSizeTargetInBytes)) {
 			app.rfcxServiceHandler.triggerService("ApiCheckInArchive", false);
 		}
+	}
+
+	void skipSingleCheckIn(String[] checkInToSkip) {
+
+		String skipFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
+				app.rfcxGuardianIdentity.getGuid(),
+				Long.parseLong(checkInToSkip[1].substring(0, checkInToSkip[1].lastIndexOf("."))),
+				checkInToSkip[1].substring(checkInToSkip[1].lastIndexOf(".") + 1));
+
+		try {
+			FileUtils.copy(checkInToSkip[4], skipFilePath);
+		} catch (IOException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+
+		if (FileUtils.exists(skipFilePath) && (FileUtils.getFileSizeInBytes(skipFilePath) == Long.parseLong(checkInToSkip[6]))) {
+			app.apiCheckInDb.dbSkipped.insert(checkInToSkip[0], checkInToSkip[1], checkInToSkip[2], checkInToSkip[3], skipFilePath, checkInToSkip[5], checkInToSkip[6]);
+		}
+
+		app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInToSkip[1]);
+		FileUtils.delete(checkInToSkip[4]);
+
 	}
 
 	private void reQueueAudioAssetForCheckIn(String checkInStatus, String audioId) {
@@ -676,21 +699,36 @@ public class ApiCheckInUtils implements MqttCallback {
 		try {
 			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
 
+			boolean isTimedOut = excStr.contains("Timed out waiting for a response from the server");
+			boolean tooManyPublishes = excStr.contains("Too many publishes in progress");
+
 			if (	excStr.contains("UnknownHostException")
-					||	excStr.contains("Broken pipe")
-					||	excStr.contains("Timed out waiting for a response from the server")
-					||	excStr.contains("No route to host")
-					||	excStr.contains("Host is unresolved")
-					||	excStr.contains("Unable to connect to server")
-					||	excStr.contains("Too many publishes in progress")
+				||	excStr.contains("Broken pipe")
+				||	excStr.contains("No route to host")
+				||	excStr.contains("Host is unresolved")
+				||	excStr.contains("Unable to connect to server")
+				||	tooManyPublishes
+				||	isTimedOut
 			) {
-				Log.i(logTag, "Connection has failed "+this.inFlightCheckInAttemptCounter +" times (max: "+this.inFlightCheckInAttemptCounterLimit +")");
-				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
-					Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
+
+				if (!isTimedOut) {
+					Log.v(logTag, "Connection has failed " + this.inFlightCheckInAttemptCounter + " times (max: " + this.inFlightCheckInAttemptCounterLimit + ")");
+					app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
+				}
+
+				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit){
+					Log.v(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
 					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
 					this.inFlightCheckInAttemptCounter = 0;
 				}
+
+				if (isTimedOut || (tooManyPublishes && (this.inFlightCheckInAttemptCounter > 1))) {
+					Log.v(logTag, "Kill ApiCheckInJob Service, Close MQTT Connection & Re-Connect");
+					app.rfcxServiceHandler.stopService("ApiCheckInQueue");
+					this.mqttCheckInClient.closeConnection();
+					confirmOrCreateConnectionToBroker(true);
+				}
+
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -724,7 +762,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		return assetMeta;
 	}
 
-	private void initializeFailedCheckInThresholds() {
+	public void initializeFailedCheckInThresholds() {
 
 		String[] checkInThresholdsStr = TextUtils.split(app.rfcxPrefs.getPrefAsString("checkin_failure_thresholds"), ",");
 
@@ -751,23 +789,23 @@ public class ApiCheckInUtils implements MqttCallback {
 			int minsSinceSuccess = (int) Math.floor(((System.currentTimeMillis() - this.requestSendReturned) / 1000) / 60);
 			int minsSinceConnected = (int) Math.floor(((System.currentTimeMillis() - app.deviceConnectivity.lastConnectedAt()) / 1000) / 60);
 
-			if (		// ...we haven't yet reached the first threshold for bad connectivity
+			if (	// ...we haven't yet reached the first threshold for bad connectivity
 					(minsSinceSuccess < this.failedCheckInThresholds[0])
 					// OR... we are explicitly in offline mode
 					|| !app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")
 					// OR... checkins are explicitly paused due to low battery level
 					|| !isBatteryChargeSufficientForCheckIn()
 					// OR... this is likely the first checkin after a period of disconnection
-					|| (app.deviceConnectivity.isConnected() && (minsSinceConnected < this.failedCheckInThresholds[0]))
+				//	|| (app.deviceConnectivity.isConnected() && (minsSinceConnected < this.failedCheckInThresholds[0]))
 			) {
 				for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
 					this.failedCheckInThresholdsReached[i] = false;
 				}
 			} else {
-				int i = 0;
+				int j = 0;
 				for (int toggleThreshold : this.failedCheckInThresholds) {
-                    if ((minsSinceSuccess >= toggleThreshold) && !this.failedCheckInThresholdsReached[i]) {
-                        this.failedCheckInThresholdsReached[i] = true;
+                    if ((minsSinceSuccess >= toggleThreshold) && !this.failedCheckInThresholdsReached[j]) {
+                        this.failedCheckInThresholdsReached[j] = true;
                         if (toggleThreshold == this.failedCheckInThresholds[this.failedCheckInThresholds.length - 1]) {
                             // last threshold
                             if (!app.deviceConnectivity.isConnected() && !app.deviceMobilePhone.hasSim()) {
@@ -780,6 +818,11 @@ public class ApiCheckInUtils implements MqttCallback {
                                         + " minutes since last successful CheckIn)");
                                 app.deviceControlUtils.runOrTriggerDeviceControl("relaunch",
                                         app.getApplicationContext().getContentResolver());
+
+								for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
+									this.failedCheckInThresholdsReached[i] = false;
+								}
+								this.inFlightCheckInAttemptCounter = 0;
                             }
                         } else { //} else if (!app.deviceConnectivity.isConnected()) {
                             // any threshold // and not connected
@@ -791,7 +834,7 @@ public class ApiCheckInUtils implements MqttCallback {
                         }
                         break;
                     }
-					i++;
+					j++;
 				}
 			}
 		}
@@ -987,6 +1030,7 @@ public class ApiCheckInUtils implements MqttCallback {
 									/* recent */        checkInStats[0],
 									/* time-of-day */   (long) rightNow.get(Calendar.HOUR_OF_DAY)
 							});
+							app.apiDiagnosticsDb.dbBandwidth.insert(checkInId, Math.round(1000*checkInStats[2]/checkInStats[1]) );
 						}
 					}
 				}
@@ -1108,6 +1152,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			// parse 'instructions' array
 			if (jsonObj.has("instructions")) {
 				app.instructionsUtils.processReceivedInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
+				app.rfcxServiceHandler.triggerService("InstructionsExecution", false);
 			}
 
 			// increase total of synced audio when get the response from mqtt sending
@@ -1257,13 +1302,17 @@ public class ApiCheckInUtils implements MqttCallback {
 
 				mqttCheckInClient.confirmOrCreateConnectionToBroker(this.app.deviceConnectivity.isConnected());
 				if (mqttCheckInClient.mqttBrokerConnectionLatency > 0) {
+
 					Log.v(logTag, "MQTT Broker Latency: Connection: "+mqttCheckInClient.mqttBrokerConnectionLatency+" ms, Subscription: "+mqttCheckInClient.mqttBrokerSubscriptionLatency+" ms");
+
 					app.deviceSystemDb.dbMqttBrokerConnections.insert(new Date(),
 													mqttCheckInClient.mqttBrokerConnectionLatency,
 													mqttCheckInClient.mqttBrokerSubscriptionLatency,
 													app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
 													app.rfcxPrefs.getPrefAsString("api_checkin_host"),
 													app.rfcxPrefs.getPrefAsInt("api_checkin_port"));
+
+					app.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
 				}
 			} catch (MqttException e) {
 				RfcxLog.logExc(logTag, e, "confirmOrCreateConnectionToBroker");
