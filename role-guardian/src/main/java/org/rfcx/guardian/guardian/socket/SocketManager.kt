@@ -289,10 +289,10 @@ object SocketManager {
     private fun sendSentinelValues() {
         try {
             val sentinelJson = JSONObject()
-                .put("is_solar_attached", false)
-                .put("voltage", 0)
-                .put("current", 0)
-                .put("power", 0)
+                .put("is_solar_attached", true)
+                .put("voltage", 10)
+                .put("current", 10)
+                .put("power", 10)
             val sentinelInfoJson = JSONObject()
                 .put("sentinel", sentinelJson)
             streamOutput?.writeUTF(sentinelInfoJson.toString())
