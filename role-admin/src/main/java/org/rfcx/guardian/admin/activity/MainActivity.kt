@@ -34,8 +34,6 @@ class MainActivity : AppCompatActivity() {
             R.id.menu_logcat -> app.rfcxServiceHandler.triggerService("LogCatCapture", true)
 
             R.id.menu_reboot -> app.rfcxServiceHandler.triggerService("RebootTrigger", true)
-
-
         }
         return true
     }
