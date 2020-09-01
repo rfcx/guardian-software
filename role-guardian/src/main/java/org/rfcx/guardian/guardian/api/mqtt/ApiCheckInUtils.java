@@ -122,7 +122,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		long queuedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows()+"")/(queuedLimitMb*1024*1024))));
 
 		Log.d(logTag, "Queued " + audioInfo[1] + ", " + Math.round(audioFileSize/1024) + "kB "
-						+  "(1 of " + queuedCount + " queued, "+queuedLimitPct+"% of "+queuedLimitMb+"MB limit) " + filePath);
+						+  "(" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+"MB limit) " + filePath);
 
 		// once queued, remove database reference from encode role
 		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1]);
