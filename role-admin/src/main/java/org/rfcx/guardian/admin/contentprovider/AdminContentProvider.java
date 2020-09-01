@@ -227,6 +227,8 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "signal", "*")) { logFuncVal = "signal-*";
                 return RfcxComm.getProjectionCursor(appRole, "signal", new Object[]{DeviceSystemService.getSignalStrengthAsJsonArray()});
+            } else if (RfcxComm.uriMatch(uri, appRole, "sentinel_values", "*")) { logFuncVal = "sentinel_values-*";
+                return RfcxComm.getProjectionCursor(appRole, "sentinel_values", new Object[]{ new JSONArray().put(app.sentinelPowerUtils.getSentinelPowerCurrentValuesAsJson())});
             }
 
 

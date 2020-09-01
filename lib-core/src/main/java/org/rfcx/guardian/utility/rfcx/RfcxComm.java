@@ -71,6 +71,8 @@ public class RfcxComm {
 					"diagnostic", new String[] { "target", "result", "received_at" });
 			roleFuncProj.get(role).put(
 					"signal", new String[] { "result" });
+			roleFuncProj.get(role).put(
+					"sentinel_values", new String[] { "result" });
 		}
 		return roleFuncProj;
 	}

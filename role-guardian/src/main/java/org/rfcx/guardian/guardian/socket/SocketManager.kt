@@ -287,18 +287,23 @@ object SocketManager {
     }
 
     private fun sendSentinelValues() {
-        try {
-            val sentinelJson = JSONObject()
-                .put("is_solar_attached", true)
-                .put("voltage", 10)
-                .put("current", 10)
-                .put("power", 10)
-            val sentinelInfoJson = JSONObject()
-                .put("sentinel", sentinelJson)
-            streamOutput?.writeUTF(sentinelInfoJson.toString())
-            streamOutput?.flush()
-        } catch (e: Exception) {
-            RfcxLog.logExc(LOGTAG, e)
+        val sentinelJsonArray =
+            RfcxComm.getQueryContentProvider(
+                "admin",
+                "sentinel_values",
+                "sentinel_values",
+                context?.contentResolver
+            )
+        if (sentinelJsonArray.length() > 0) {
+            val sentinelJson = sentinelJsonArray.getJSONObject(0)
+            try {
+                val sentinelInfoJson = JSONObject()
+                    .put("sentinel", sentinelJson)
+                streamOutput?.writeUTF(sentinelInfoJson.toString())
+                streamOutput?.flush()
+            } catch (e: Exception) {
+                RfcxLog.logExc(LOGTAG, e)
+            }
         }
     }
 
