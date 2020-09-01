@@ -79,6 +79,13 @@
 		android:defaultValue="@string/prefs_value_default_enable_checkin_auth" />
 
 	<EditTextPreference
+		android:key="api_checkin_auth_creds"
+		android:title="api_checkin_auth_creds"
+		android:summary="string - broker user/password (mqtt) - comma separated"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_checkin_auth_creds" />
+
+	<EditTextPreference
 		android:key="api_rest_host"
 		android:title="api_rest_host"
 		android:summary="string - rest api address"

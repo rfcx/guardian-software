@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
@@ -274,6 +275,40 @@ public class SentinelPowerUtils {
         app.sentinelPowerDb.dbSentinelPowerInput.clearRowsBefore(clearBefore);
 
         return 1;
+    }
+
+    public JSONObject getSentinelPowerCurrentValuesAsJson() {
+
+        JSONObject jsonObj = new JSONObject();
+
+        try {
+
+            long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(this.i2cTmpValues.get("battery"));
+            JSONObject jsonBatteryObj = new JSONObject();
+            jsonBatteryObj.put("voltage",bVals[0]);
+            jsonBatteryObj.put("current",bVals[1]);
+            jsonBatteryObj.put("power",bVals[3]);
+            jsonObj.put("battery",jsonBatteryObj);
+
+            long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(this.i2cTmpValues.get("input"));
+            JSONObject jsonInputObj = new JSONObject();
+            jsonInputObj.put("voltage",iVals[0]);
+            jsonInputObj.put("current",iVals[1]);
+            jsonInputObj.put("power",iVals[3]);
+            jsonObj.put("input",jsonInputObj);
+
+            long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(this.i2cTmpValues.get("system"));
+            JSONObject jsonSystemObj = new JSONObject();
+            jsonSystemObj.put("voltage",sVals[0]);
+            jsonSystemObj.put("current",sVals[1]);
+            jsonSystemObj.put("power",sVals[3]);
+            jsonObj.put("system",jsonSystemObj);
+
+        } catch (JSONException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+
+        return jsonObj;
     }
 
 

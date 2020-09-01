@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.guardian.api.asset;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;

@@ -221,7 +221,7 @@ public class ApiCheckInArchiveService extends Service {
 
 		archiveTitle = "archive_"+rfcxDeviceId+"_"+fileDateTimeFormat.format(new Date(archiveTimestamp));
 		archiveWorkDir = context.getFilesDir().toString() + "/archive/" + archiveTitle;
-		archiveSdCardDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/archive";
+		archiveSdCardDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/archive/" + dirDateFormat.format(new Date(archiveTimestamp));
 		archiveTarFilePath = archiveSdCardDir + "/" + archiveTitle + ".tar";
 
 		FileUtils.initializeDirectoryRecursively(archiveSdCardDir, true);

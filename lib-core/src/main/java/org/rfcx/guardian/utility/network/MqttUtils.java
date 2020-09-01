@@ -177,7 +177,7 @@ public class MqttUtils implements MqttCallback {
 		this.mqttCallback = mqttCallback;
 	}
 	
-	private void closeConnection() {
+	public void closeConnection() {
 		try {
 			this.mqttClient.disconnect();
 			Log.v(logTag, "MQTT client disconnected");	

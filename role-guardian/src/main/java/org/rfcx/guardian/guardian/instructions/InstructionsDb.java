@@ -115,6 +115,10 @@ public class InstructionsDb {
 			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_INSTR_ID, instructionId);
 		}
 
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
+
 	}
 	public final DbQueuedInstructions dbQueuedInstructions;
 

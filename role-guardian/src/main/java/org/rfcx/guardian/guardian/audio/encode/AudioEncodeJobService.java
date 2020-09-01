@@ -169,7 +169,7 @@ public class AudioEncodeJobService extends Service {
 										);
 
 									app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(latestQueuedAudioToEncode[1]);
-									app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiQueueCheckIn");
+									app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInQueue");
 								}
 								
 							}
