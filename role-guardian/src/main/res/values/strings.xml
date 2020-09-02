@@ -56,7 +56,6 @@
 
 	<string name="prefs_value_default_admin_enable_tcp_adb">true</string>
 	<string name="prefs_value_default_admin_enable_wifi">true</string>
-	<string name="prefs_value_default_admin_enable_bluetooth">false</string>
 	<string name="prefs_value_default_admin_enable_ssh_server">false</string>
 	<string name="prefs_value_default_admin_enable_wifi_socket">true</string>
 

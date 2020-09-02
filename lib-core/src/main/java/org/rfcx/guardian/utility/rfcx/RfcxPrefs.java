@@ -406,7 +406,6 @@ public class RfcxPrefs {
 
 			put("checkin_meta_bundle_limit", "10");
 
-			put("admin_enable_bluetooth", "false");
 			put("admin_enable_wifi", "true");
 			put("admin_enable_tcp_adb", "true");
 

@@ -294,15 +294,6 @@
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_admin_enable_screenshot_capture" />
- 	
- 	<ListPreference
-        android:key="admin_enable_bluetooth"
-		android:title="admin_enable_bluetooth"
-		android:dialogTitle="admin_enable_bluetooth"
-        android:summary="string - true/false"
-		android:entries="@array/prefs_values_true_or_false"
-		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_admin_enable_bluetooth" />
 
 	<ListPreference
 		android:key="admin_enable_wifi"
