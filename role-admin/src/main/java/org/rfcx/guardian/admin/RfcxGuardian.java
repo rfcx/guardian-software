@@ -11,7 +11,6 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelerometerUtils;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
-import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
 import org.rfcx.guardian.admin.sms.SmsDispatchService;
 import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
@@ -25,7 +24,6 @@ import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.capture.DeviceNetworkStats;
-import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceNetworkName;
 import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
@@ -95,7 +93,6 @@ public class RfcxGuardian extends Application {
     public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
     public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
     public DeviceUtils deviceUtils = null;
-    public DeviceBluetooth deviceBluetooth = null;
 	public DeviceMobilePhone deviceMobilePhone = null;
 
 
@@ -206,11 +203,7 @@ public class RfcxGuardian extends Application {
 							,
 					"WifiStateSet"
 							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
-							+"|"+"0" 																	// no repeat
-							,
-					"BluetoothStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minute before running
-							+"|"+"0" 																	// no repeat
+							+"|"+"0" 																		// no repeat
 			};
 			
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
@@ -241,7 +234,6 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("AirplaneModeToggle", AirplaneModeToggleService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeEnable", AirplaneModeEnableService.class);
 
-		this.rfcxServiceHandler.addService("BluetoothStateSet", BluetoothStateSetService.class);
 		this.rfcxServiceHandler.addService("WifiStateSet", WifiStateSetService.class);
 		this.rfcxServiceHandler.addService("ADBStateSet", ADBStateSetService.class);
 
@@ -273,11 +265,7 @@ public class RfcxGuardian extends Application {
 
 	public void onPrefReSync(String prefKey) {
 
-		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth")) {
-			rfcxServiceHandler.triggerService("BluetoothStateSet", false);
-			rfcxServiceHandler.triggerService("ADBStateSet", false);
-
-		} else if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
+		if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
 			rfcxServiceHandler.triggerService("WifiStateSet", false);
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
 
