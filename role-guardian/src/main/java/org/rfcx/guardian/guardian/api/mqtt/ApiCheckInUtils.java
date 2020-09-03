@@ -529,11 +529,11 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 12));
 
-		// Telephony and SIM card info
-		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
-
-		// Hardware info
-		checkInMetaJson.put("hardware", DeviceHardwareUtils.getInfoAsJson());
+		// Device: Phone & Android info
+		JSONObject deviceJsonObj = new JSONObject();
+		deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
+		deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
+		checkInMetaJson.put("device", deviceJsonObj);
 
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
@@ -1386,12 +1386,11 @@ public class ApiCheckInUtils implements MqttCallback {
 			pingObj.put("prefs", buildCheckInPrefsJsonObj());
 		}
 
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "hardware")) {
-			pingObj.put("hardware", DeviceHardwareUtils.getInfoAsJson());
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "phone")) {
-			pingObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "device")) {
+			JSONObject deviceJsonObj = new JSONObject();
+			deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
+			deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
+			pingObj.put("device", deviceJsonObj);
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "software")) {
