@@ -96,6 +96,7 @@ public class SmsUtils {
 			String msgId = DeviceSmsUtils.generateMessageId();
 			app.smsMessageDb.dbSmsQueued.insert(sendAtOrAfter, sendTo, msgBody, msgId);
 			Log.w(logTag, "SMS Queued (ID " + msgId + "): To " + sendTo + " at " + DateTimeUtils.getDateTime(sendAtOrAfter) + ": \"" + msgBody + "\"");
+			app.rfcxServiceHandler.triggerService("SmsDispatch", false);
 		}
 		return isQueued;
 	}

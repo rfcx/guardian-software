@@ -24,8 +24,6 @@ public class SmsDispatchService extends Service {
 	private boolean runFlag = false;
 	private SmsDispatch smsDispatch;
 
-	private long smsDispatchCycleDuration = 10000;
-
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -73,52 +71,45 @@ public class SmsDispatchService extends Service {
 			SmsDispatchService smsDispatchInstance = SmsDispatchService.this;
 			
 			app = (RfcxGuardian) getApplication();
-			Context context = app.getApplicationContext();
 
-			while (smsDispatchInstance.runFlag) {
+			try {
 
-				try {
+				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				List<String[]> smsQueuedForDispatch = app.smsMessageDb.dbSmsQueued.getRowsInOrderOfTimestamp();
 
-					List<String[]> smsQueuedForDispatch = app.smsMessageDb.dbSmsQueued.getRowsInOrderOfTimestamp();
+				for (String[] smsForDispatch : smsQueuedForDispatch) {
 
-					for (String[] smsForDispatch : smsQueuedForDispatch) {
+					// only proceed with dispatch process if there is a valid queued sms message in the database
+					if (smsForDispatch[0] != null) {
 
-						// only proceed with dispatch process if there is a valid queued sms message in the database
-						if (smsForDispatch[0] != null) {
+						long sendAtOrAfter = Long.parseLong(smsForDispatch[1]);
+						long rightNow = System.currentTimeMillis();
 
-							long sendAtOrAfter = (long) Long.parseLong(smsForDispatch[1]);
-							long rightNow = System.currentTimeMillis();
+						if (sendAtOrAfter <= rightNow) {
 
-							if (sendAtOrAfter <= rightNow) {
+							String msgId = smsForDispatch[4];
+							String msgAddress = smsForDispatch[2];
+							String msgBody = smsForDispatch[3];
 
-								String msgId = smsForDispatch[4];
-								String msgAddress = smsForDispatch[2];
-								String msgBody = smsForDispatch[3];
+							DeviceSmsUtils.sendSmsMessage(msgAddress, msgBody);
 
-								DeviceSmsUtils.sendSmsMessage(msgAddress, msgBody);
+							app.smsMessageDb.dbSmsSent.insert(rightNow, msgAddress, msgBody, msgId);
+							app.smsMessageDb.dbSmsQueued.deleteSingleRowByMessageId(msgId);
 
-								app.smsMessageDb.dbSmsSent.insert(rightNow, msgAddress, msgBody, msgId);
-								app.smsMessageDb.dbSmsQueued.deleteSingleRowByMessageId(msgId);
-
-								Log.w(logTag, "SMS Sent (ID " + msgId + "): To " + msgAddress + " at " + DateTimeUtils.getDateTime(rightNow) + ": \"" + msgBody + "\"");
-							}
+							Log.w(logTag, "SMS Sent (ID " + msgId + "): To " + msgAddress + " at " + DateTimeUtils.getDateTime(rightNow) + ": \"" + msgBody + "\"");
 						}
 					}
-
-					Thread.sleep(smsDispatchCycleDuration);
-
-				} catch (Exception e) {
-					RfcxLog.logExc(logTag, e);
-					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-					smsDispatchInstance.runFlag = false;
 				}
+
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+
+			} finally {
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				smsDispatchInstance.runFlag = false;
 			}
 
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			smsDispatchInstance.runFlag = false;
-			Log.v(logTag, "Stopping service: "+logTag);
 		}
 	}
 

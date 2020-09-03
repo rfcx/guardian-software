@@ -9,6 +9,7 @@ import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelerometerUtils;
+import org.rfcx.guardian.admin.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.sms.SmsDispatchService;
@@ -108,7 +109,7 @@ public class RfcxGuardian extends Application {
 			new String[] {
 				"DeviceSystem",
 				"DeviceSentinel",
-				"SmsDispatch"
+				"SmsDispatchCycle"
 			};
 	
 	@Override
@@ -238,6 +239,8 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("ADBStateSet", ADBStateSetService.class);
 
         this.rfcxServiceHandler.addService("SmsDispatch", SmsDispatchService.class);
+		this.rfcxServiceHandler.addService("SmsDispatchCycle", SmsDispatchCycleService.class);
+
 		this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
 

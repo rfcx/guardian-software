@@ -81,6 +81,7 @@
         <service android:name=".device.android.control.SntpSyncJobService" />
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
+        <service android:name=".sms.SmsDispatchCycleService" />
         <service android:name=".device.android.ssh.SSHServerControlService" />
 
         <!-- IntentServices -->
