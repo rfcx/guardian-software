@@ -75,7 +75,6 @@ public class AirplaneModeToggleService extends Service {
 				app.deviceAirplaneMode.setOff(context);
 
 				app.rfcxServiceHandler.triggerService("WifiStateSet", false);
-				app.rfcxServiceHandler.triggerService("BluetoothStateSet", false);
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
