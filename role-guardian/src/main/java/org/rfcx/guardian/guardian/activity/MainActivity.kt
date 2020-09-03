@@ -1,7 +1,6 @@
 package org.rfcx.guardian.guardian.activity
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -12,11 +11,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_home.*
-import org.json.JSONObject
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.checkin.ApiCheckInUtils
-import org.rfcx.guardian.guardian.api.checkin.ApiQueueCheckInService
+import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInUtils
+import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInQueueService
 import org.rfcx.guardian.guardian.api.http.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.http.GuardianCheckCallback
 import org.rfcx.guardian.guardian.api.http.RegisterApi
@@ -31,7 +29,6 @@ import org.rfcx.guardian.guardian.utils.AudioSettingUtils
 import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
 import org.rfcx.guardian.guardian.view.*
-import org.rfcx.guardian.utility.install.RegisterUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 
@@ -260,9 +257,9 @@ class MainActivity : AppCompatActivity(),
                             val fileSize = checkInUtils.getFileSize(latestFileSize)
                             sizeText.text = " $fileSize"
 
-                            val totalLocalAudio = ApiQueueCheckInService.totalLocalAudio
+                            val totalLocalAudio = ApiCheckInQueueService.totalLocalAudio
                             val totalSyncedAudio = ApiCheckInUtils.totalSyncedAudio
-                            val totalRecordedTime = ApiQueueCheckInService.totalRecordedTime
+                            val totalRecordedTime = ApiCheckInQueueService.totalRecordedTime
                             val totalRecordedTimeTxt = DiagnosticUtils.secondToTime(totalRecordedTime)
                             recordTimeText.text = " $totalRecordedTimeTxt"
                             fileRecordedSyncedText.text = " $totalSyncedAudio / $totalLocalAudio"
@@ -279,7 +276,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onRegisterSuccess(t: Throwable?, response: String?) {
-        app.saveGuardianRegistration(response);
+        app.saveGuardianRegistration(response)
         Log.i(logTag, "onRegisterSuccess: Successfully Registered")
         showToast("Successfully Registered")
         GuardianCheckApi.exists(applicationContext, app.rfcxGuardianIdentity.guid, this)
@@ -301,7 +298,7 @@ class MainActivity : AppCompatActivity(),
         deviceIdText.text = " $deviceIdTxt"
         Log.i(logTag, "onGuardianCheckSuccess: Successfully Verified Registration")
         showToast("Successfully Verified Registration")
-        app.apiCheckInUtils.sendMqttPing()
+        app.apiCheckInUtils.sendMqttPing(true,  arrayOf<String>() )
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {

@@ -21,7 +21,7 @@ import org.rfcx.guardian.guardian.entity.Err
 import org.rfcx.guardian.guardian.entity.Ok
 import org.rfcx.guardian.guardian.manager.CredentialKeeper
 import org.rfcx.guardian.guardian.manager.CredentialVerifier
-import org.rfcx.guardian.utility.http.TLSSocketFactory
+import org.rfcx.guardian.utility.network.TLSSocketFactory
 import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.InputStreamReader

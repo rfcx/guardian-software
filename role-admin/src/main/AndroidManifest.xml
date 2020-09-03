@@ -8,8 +8,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+<!--    <uses-permission android:name="android.permission.BLUETOOTH" />-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
@@ -77,11 +77,12 @@
         <service android:name=".device.android.control.RebootTriggerService" />
         <service android:name=".device.android.control.AirplaneModeToggleService" />
         <service android:name=".device.android.control.AirplaneModeEnableService" />
-        <service android:name=".device.android.control.BluetoothStateSetService" />
         <service android:name=".device.android.control.WifiStateSetService" />
         <service android:name=".device.android.control.SntpSyncJobService" />
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
+        <service android:name=".sms.SmsDispatchCycleService" />
+        <service android:name=".device.android.ssh.SSHServerControlService" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" />

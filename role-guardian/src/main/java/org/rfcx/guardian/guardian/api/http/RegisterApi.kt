@@ -5,8 +5,7 @@ import android.os.Handler
 import android.os.StrictMode
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.getTokenID
-import org.rfcx.guardian.utility.http.HttpPostMultipart
-import org.rfcx.guardian.utility.install.RegisterUtils
+import org.rfcx.guardian.utility.network.HttpPostMultipart
 
 object RegisterApi {
 

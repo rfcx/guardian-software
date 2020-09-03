@@ -11,12 +11,14 @@
 	<string name="prefs_value_default_enable_cutoffs_battery">true</string>
 	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">true</string>
 
+	<string name="prefs_value_default_api_checkin_host">checkins.rfcx.org</string>
+	<string name="prefs_value_default_api_checkin_protocol">ssl</string>
+	<string name="prefs_value_default_api_checkin_port">8883</string>
+	<string name="prefs_value_default_enable_checkin_auth">true</string>
+	<string name="prefs_value_default_api_checkin_auth_creds">[guid],[token]</string>
+
 	<string name="prefs_value_default_api_rest_host">api.rfcx.org</string>
 	<string name="prefs_value_default_api_rest_protocol">https</string>
-
-	<string name="prefs_value_default_api_checkin_host">checkin.rfcx.org</string>
-	<string name="prefs_value_default_api_checkin_protocol">tcp</string>
-	<string name="prefs_value_default_api_checkin_port">1883</string>
 
 	<string name="prefs_value_default_api_ntp_host">time.apple.com</string>
 	<string name="prefs_value_default_api_sms_address">+14154803657</string>
@@ -26,30 +28,41 @@
 	<string name="prefs_value_default_audio_cycle_duration">90</string>
 	<string name="prefs_value_default_audio_schedule_off_hours">23:56-23:58,23:58-00:00</string>
 	<string name="prefs_value_default_audio_encode_codec">opus</string>
-	<string name="prefs_value_default_audio_encode_bitrate">24576</string>
+	<string name="prefs_value_default_audio_encode_bitrate">28672</string>
 	<string name="prefs_value_default_audio_sample_rate">24000</string>
 
 	<string name="prefs_value_default_checkin_battery_cutoff">90</string>
 	<string name="prefs_value_default_audio_battery_cutoff">80</string>
 
-	<string name="prefs_value_default_checkin_failure_thresholds">10,20,30,40,50,60,70,80,90</string>
-	<string name="prefs_value_default_checkin_skip_threshold">5</string>
-	<string name="prefs_value_default_checkin_stash_threshold">240</string>
-	<string name="prefs_value_default_checkin_archive_threshold">160</string>
+	<string name="prefs_value_default_checkin_failure_thresholds">15,30,50,70,90</string>
+	<string name="prefs_value_default_checkin_failure_limit">3</string>
+
+	<string name="prefs_value_default_checkin_queue_filesize_limit">80</string>
+	<string name="prefs_value_default_checkin_sent_filesize_buffer">80</string>
+	<string name="prefs_value_default_checkin_stash_filesize_buffer">32</string>
+	<string name="prefs_value_default_checkin_archive_filesize_target">32</string>
+
+	<string name="prefs_value_default_checkin_requeue_bounds_hours">9,15</string>
+	<string name="prefs_value_default_checkin_meta_bundle_limit">10</string>
 
 	<string name="prefs_value_default_admin_enable_log_capture">false</string>
 	<string name="prefs_value_default_admin_log_capture_level">Warn</string>
 	<string name="prefs_value_default_admin_log_capture_cycle">30</string>
 
-	<string name="prefs_value_default_admin_enable_screenshot_capture">true</string>
+	<string name="prefs_value_default_admin_gps_capture_cycle">15</string>
+
+	<string name="prefs_value_default_admin_enable_screenshot_capture">false</string>
 	<string name="prefs_value_default_admin_screenshot_capture_cycle">180</string>
 
 	<string name="prefs_value_default_admin_enable_tcp_adb">true</string>
-	<string name="prefs_value_default_admin_enable_wifi">false</string>
-	<string name="prefs_value_default_admin_enable_bluetooth">false</string>
+	<string name="prefs_value_default_admin_enable_wifi">true</string>
+	<string name="prefs_value_default_admin_enable_ssh_server">false</string>
+	<string name="prefs_value_default_admin_enable_wifi_socket">true</string>
 
 	<string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>
-	<string name="prefs_value_default_admin_enable_sentinel_capture">true</string>
+	<string name="prefs_value_default_admin_enable_sentinel_power">true</string>
+	<string name="prefs_value_default_admin_enable_sentinel_sensor">true</string>
+
 
     <string-array name="prefs_values_true_or_false">
 		<item>true</item>

@@ -1,14 +1,12 @@
 package org.rfcx.guardian.utility.install;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
-import org.rfcx.guardian.utility.http.HttpGet;
+
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -16,9 +14,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 public class InstallUtils {
 
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "InstallUtils");
+
 	public InstallUtils(Context context, String appRole) {
 
-		this.logTag = RfcxLog.generateLogTag(appRole, "InstallUtils");
 		this.context = context;
 		this.thisAppRole = appRole;
 
@@ -30,7 +29,6 @@ public class InstallUtils {
 	}
 
 	private Context context;
-	private String logTag;
 	private String thisAppRole;
 	public String apkDirDownload;
 	public String apkDirExternal;
@@ -89,5 +87,18 @@ public class InstallUtils {
 		return false;
 	}
 
-	
+
+	public static int calculateVersionValue(String versionName) {
+		try {
+			int majorVersion = Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
+			int subVersion = Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
+			int updateVersion = Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
+			return 1000*majorVersion+100*subVersion+updateVersion;
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return 0;
+	}
+
+
 }

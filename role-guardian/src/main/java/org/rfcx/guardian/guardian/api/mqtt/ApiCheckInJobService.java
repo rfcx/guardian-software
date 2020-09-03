@@ -1,6 +1,4 @@
-package org.rfcx.guardian.guardian.api.checkin;
-
-import java.io.File;
+package org.rfcx.guardian.guardian.api.mqtt;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -75,7 +73,9 @@ public class ApiCheckInJobService extends Service {
 				
 			while (		apiCheckInJobInstance.runFlag
 					&&	app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish") 
-					&& 	(app.apiCheckInDb.dbQueued.getCount() > 0)
+					&& 	(	(app.apiCheckInDb.dbQueued.getCount() > 0)
+						||	!app.apiCheckInUtils.isConnectedToBroker()
+						)
 				) {
 
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
@@ -83,7 +83,7 @@ public class ApiCheckInJobService extends Service {
 				try {
 						
 					long prefsAudioCycleDuration = Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
-					int prefsCheckInSkipThreshold = app.rfcxPrefs.getPrefAsInt("checkin_skip_threshold");
+					int prefsCheckInFailureLimit = app.rfcxPrefs.getPrefAsInt("checkin_failure_limit");
 					boolean prefsEnableBatteryCutoffs = app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery");
 					int prefsCheckInBatteryCutoff = app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff");
 					
@@ -110,12 +110,11 @@ public class ApiCheckInJobService extends Service {
 							
 							if (latestQueuedCheckIn[0] != null) {
 
-								if ((Integer.parseInt(latestQueuedCheckIn[3])) >= prefsCheckInSkipThreshold) {
+								if ((Integer.parseInt(latestQueuedCheckIn[3])) >= prefsCheckInFailureLimit) {
 									
-									Log.d(logTag,"Skipping CheckIn "+latestQueuedCheckIn[1]+" after "+prefsCheckInSkipThreshold+" failed attempts");
-									app.apiCheckInDb.dbSkipped.insert(latestQueuedCheckIn[0], latestQueuedCheckIn[1], latestQueuedCheckIn[2], latestQueuedCheckIn[3], latestQueuedCheckIn[4]);
-									app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(latestQueuedCheckIn[1]);
-									
+									Log.d(logTag,"Skipping CheckIn "+latestQueuedCheckIn[1]+" after "+prefsCheckInFailureLimit+" failed attempts");
+									app.apiCheckInUtils.skipSingleCheckIn(latestQueuedCheckIn);
+
 								} else if (!FileUtils.exists(latestQueuedCheckIn[4])) {
 									
 									Log.d(logTag,"Disqualifying CheckIn because audio file could not be found.");
@@ -127,6 +126,7 @@ public class ApiCheckInJobService extends Service {
 									if (	!latestQueuedCheckIn[1].equalsIgnoreCase(lastCheckInId)
 										|| 	(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(lastCheckInEndTime) > 2000 )
 									) {
+
 										// Publish CheckIn to API
 										app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
 										lastCheckInEndTime = System.currentTimeMillis();
@@ -143,6 +143,12 @@ public class ApiCheckInJobService extends Service {
 								
 								Log.d(logTag, "Queued checkin entry in database was invalid.");
 							}
+						}
+
+						if (!app.apiCheckInUtils.isConnectedToBroker()) {
+							Log.e(logTag, "Broker not connected. Delaying 10 seconds and trying again...");
+							Thread.sleep(10000);
+							app.apiCheckInUtils.confirmOrCreateConnectionToBroker(true);
 						}
 					}
 					

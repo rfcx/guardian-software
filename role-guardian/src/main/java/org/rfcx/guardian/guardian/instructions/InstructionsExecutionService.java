@@ -10,8 +10,6 @@ import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import java.util.List;
-
 public class InstructionsExecutionService extends Service {
 
 	private static final String SERVICE_NAME = "InstructionsExecution";
@@ -22,8 +20,6 @@ public class InstructionsExecutionService extends Service {
 	
 	private boolean runFlag = false;
 	private InstructionsExecutionSvc instructionsExecutionSvc;
-
-	private long instructionsExecutionCycleDuration = 10000;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -70,62 +66,66 @@ public class InstructionsExecutionService extends Service {
 			InstructionsExecutionService instructionsExecutionInstance = InstructionsExecutionService.this;
 			
 			app = (RfcxGuardian) getApplication();
-			Context context = app.getApplicationContext();
 
-			while (instructionsExecutionInstance.runFlag) {
+			try {
 
-				try {
+				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				for (String[] queuedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
 
-					List<String[]> instructionsQueuedForExecution = app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution();
+					// only proceed with execution process if there is a valid queued instruction in the local database
+					if (queuedRow[0] != null) {
 
-					for (String[] queuedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
+						long executeAtOrAfter = Long.parseLong(queuedRow[4]);
+						long rightNow = System.currentTimeMillis();
 
-						// only proceed with execution process if there is a valid queued instruction in the local database
-						if (queuedRow[0] != null) {
+						if (executeAtOrAfter <= rightNow) {
 
-							long executeAtOrAfter = (long) Long.parseLong(queuedRow[4]);
-							long rightNow = System.currentTimeMillis();
+							String instrId = queuedRow[1];
+							long receivedAt = Long.parseLong(queuedRow[0]);
+							String type = queuedRow[2];
+							String command = queuedRow[3];
+							JSONObject metaJson = new JSONObject(queuedRow[5]);
+							String protocol = queuedRow[8];
 
-							if (executeAtOrAfter <= rightNow) {
+							if (app.instructionsDb.dbExecutedInstructions.getCountById(instrId) == 0) {
+								app.instructionsDb.dbQueuedInstructions.incrementSingleRowAttemptsById(instrId);
+								int execAttempts = (Integer.parseInt(queuedRow[6])) + 1;
 
-								String guid = queuedRow[1];
-								long receivedAt = (long) Long.parseLong(queuedRow[0]);
-								String type = queuedRow[2];
-								String command = queuedRow[3];
-								JSONObject metaJson = new JSONObject(queuedRow[5]);
-								JSONObject responseJson = new JSONObject();
+								// Execute the instruction
+								String responseJsonStr = app.instructionsUtils.executeInstruction(type, command, metaJson);
 
-								if (app.instructionsDb.dbExecutedInstructions.getCountByGuid(guid) == 0) {
-									app.instructionsDb.dbQueuedInstructions.incrementSingleRowAttemptsByGuid(guid);
-									int execAttempts = ((int) Integer.parseInt(queuedRow[6])) + 1;
+								app.instructionsDb.dbExecutedInstructions.findByIdOrCreate(instrId, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt, protocol);
+								app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(instrId);
+								Log.w(logTag, "Instruction ("+protocol+") "+instrId+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
+							} else {
+								Log.w(logTag, "Instruction ("+protocol+") "+instrId+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
+								app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(instrId);
+							}
 
-									// Execute the instruction
+							if (protocol.equalsIgnoreCase("mqtt")) {
 
-									app.instructionsDb.dbExecutedInstructions.findByGuidOrCreate(guid, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJson.toString(), execAttempts, receivedAt);
-									app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(guid);
-									Log.w(logTag, "Instruction "+guid+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
-								} else {
-									Log.w(logTag, "Instruction "+guid+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
-									app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(guid);
-								}
+								String[] pingFields = new String[] { "instructions" };
+								if (type.equalsIgnoreCase("set") && command.equalsIgnoreCase("prefs")) { pingFields = new String[] { "instructions", "prefs" }; }
+
+								app.apiCheckInUtils.sendMqttPing(false, pingFields);
+
+							} else if (protocol.equalsIgnoreCase("sms")) {
+								Log.e(logTag, "Send SMS Instruction Response: "+ app.instructionsUtils.getSingleInstructionInfoAsSerializedString(instrId) );
+
 							}
 						}
 					}
-
-					Thread.sleep(instructionsExecutionCycleDuration);
-
-				} catch (Exception e) {
-					RfcxLog.logExc(logTag, e);
-					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-					instructionsExecutionInstance.runFlag = false;
 				}
+
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+
+			} finally {
+				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				instructionsExecutionInstance.runFlag = false;
 			}
 
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			instructionsExecutionInstance.runFlag = false;
-			Log.v(logTag, "Stopping service: "+logTag);
 		}
 	}
 

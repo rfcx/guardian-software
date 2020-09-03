@@ -5,12 +5,13 @@ import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
+import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelerometerUtils;
+import org.rfcx.guardian.admin.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
-import org.rfcx.guardian.admin.device.android.control.BluetoothStateSetService;
 import org.rfcx.guardian.admin.sms.SmsDispatchService;
 import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
@@ -22,8 +23,8 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
+import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.capture.DeviceNetworkStats;
-import org.rfcx.guardian.utility.device.control.DeviceBluetooth;
 import org.rfcx.guardian.utility.device.control.DeviceNetworkName;
 import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
@@ -93,7 +94,8 @@ public class RfcxGuardian extends Application {
     public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
     public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
     public DeviceUtils deviceUtils = null;
-    public DeviceBluetooth deviceBluetooth = null;
+	public DeviceMobilePhone deviceMobilePhone = null;
+
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelCompassUtils sentinelCompassUtils = null;
@@ -107,7 +109,7 @@ public class RfcxGuardian extends Application {
 			new String[] {
 				"DeviceSystem",
 				"DeviceSentinel",
-				"SmsDispatch"
+				"SmsDispatchCycle"
 			};
 	
 	@Override
@@ -202,11 +204,7 @@ public class RfcxGuardian extends Application {
 							,
 					"WifiStateSet"
 							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
-							+"|"+"0" 																	// no repeat
-							,
-					"BluetoothStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minute before running
-							+"|"+"0" 																	// no repeat
+							+"|"+"0" 																		// no repeat
 			};
 			
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
@@ -229,6 +227,7 @@ public class RfcxGuardian extends Application {
         this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
         this.deviceDiskDb = new DeviceDiskDb(this, this.version);
         this.smsMessageDb = new SmsMessageDb(this, this.version);
+		this.deviceMobilePhone = new DeviceMobilePhone(this);
 	}
 
 	private void setServiceHandlers() {
@@ -236,11 +235,12 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("AirplaneModeToggle", AirplaneModeToggleService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeEnable", AirplaneModeEnableService.class);
 
-		this.rfcxServiceHandler.addService("BluetoothStateSet", BluetoothStateSetService.class);
 		this.rfcxServiceHandler.addService("WifiStateSet", WifiStateSetService.class);
 		this.rfcxServiceHandler.addService("ADBStateSet", ADBStateSetService.class);
 
         this.rfcxServiceHandler.addService("SmsDispatch", SmsDispatchService.class);
+		this.rfcxServiceHandler.addService("SmsDispatchCycle", SmsDispatchCycleService.class);
+
 		this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
 
@@ -262,15 +262,13 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("CameraVideoCapture", CameraVideoCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledCameraVideoCapture", ScheduledCameraVideoCaptureService.class);
 
+		this.rfcxServiceHandler.addService("SSHServerControl", SSHServerControlService.class);
+
 	}
 
 	public void onPrefReSync(String prefKey) {
 
-		if (prefKey.equalsIgnoreCase("admin_enable_bluetooth")) {
-			rfcxServiceHandler.triggerService("BluetoothStateSet", false);
-			rfcxServiceHandler.triggerService("ADBStateSet", false);
-
-		} else if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
+		if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
 			rfcxServiceHandler.triggerService("WifiStateSet", false);
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
 
@@ -283,6 +281,8 @@ public class RfcxGuardian extends Application {
 		} else if (prefKey.equalsIgnoreCase("reboot_forced_daily_at")) {
 			Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
 
+		} else if (prefKey.equalsIgnoreCase("admin_enable_ssh_server")) {
+			rfcxServiceHandler.triggerService("SSHServerControl", false);
 		}
 	}
 
@@ -293,9 +293,6 @@ public class RfcxGuardian extends Application {
 			// Disable Sensor Listeners for sensors the don't exist on the OrangePi 3G-IoT
 			this.deviceUtils.disableSensorListener("accel"); // accelerometer
 			this.deviceUtils.disableSensorListener("light");  // light meter
-
-			// Disable Sensor Measurements that are invalid on the OrangePi 3G-IoT
-			this.deviceUtils.allowMeasurement_battery_temperature = false;
 
 			// Set Desktop Wallpaper to empty black
 			DeviceWallpaper.setWallpaper(this, R.drawable.black);

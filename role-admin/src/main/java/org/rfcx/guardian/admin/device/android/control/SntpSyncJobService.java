@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin.device.android.control;
 
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.datetime.SntpClient;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -88,8 +89,15 @@ public class SntpSyncJobService extends Service {
 					if (sntpClient.requestTime(dateTimeNtpHost, 15000) && sntpClient.requestTime(dateTimeNtpHost, 15000)) {
 						long nowSystem = System.currentTimeMillis();
 						long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
+
 						SystemClock.setCurrentTimeMillis(nowSntp);
-						Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntp+" - System: "+nowSystem+" (System was "+Math.abs(nowSystem-nowSntp)+"ms "+
+
+						String nowSntpStr = DateTimeUtils.getDateTime(nowSntp) +"."+ (""+(1000+nowSntp-Math.round(1000*Math.floor(nowSntp/1000)))).substring(1);
+						String nowSystemStr = DateTimeUtils.getDateTime(nowSystem) +"."+ (""+(1000+nowSystem-Math.round(1000*Math.floor(nowSystem/1000)))).substring(1);
+
+						Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntpStr.substring(1+nowSntpStr.indexOf(" "))
+								+" - System: "+nowSystemStr.substring(1+nowSystemStr.indexOf(" "))
+								+" (System is "+Math.abs(nowSystem-nowSntp)+"ms "+
 								((nowSystem >= nowSntp) ? "ahead of" : "behind")
 								+" SNTP value. System time now synced to SNTP value.)");
 					 }

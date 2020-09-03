@@ -75,10 +75,10 @@ public class DeviceLogCatCaptureService extends Service {
 			Context context = app.getApplicationContext();
 			
 			DeviceLogCat deviceLogCat = new DeviceLogCat(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid(), app.rfcxPrefs.getPrefAsString("admin_log_capture_level"));
-			String scriptFilePath = DeviceLogCat.getExecutableScriptFilePath(context);
+			String scriptFilePath = DeviceLogCat.getLogExecutableScriptFilePath(context);
 
 			// removing older files if they're left in the capture directory
-			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(DeviceLogCat.captureDir(context), 60);
+			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(DeviceLogCat.logCaptureDir(context), 60);
 			
 			try {
 				
@@ -96,7 +96,7 @@ public class DeviceLogCatCaptureService extends Service {
 				long captureCycleEndingTimeStamp = System.currentTimeMillis();
 
 				// removing older files if they're left in the 'postCapture' directory
-				FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(DeviceLogCat.postCaptureDir(context), 60);
+				FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(DeviceLogCat.logPostCaptureDir(context), 60);
 				
 				File postCaptureFile = new File(postCaptureFilePath);
 				

@@ -5,6 +5,7 @@ import java.util.List;
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -53,7 +54,7 @@ public class ApiCheckVersionUtils {
 			}
 
 			String installedVersion = RfcxRole.getRoleVersionByName(targetRole, RfcxGuardian.APP_ROLE, context);
-			int installedVersionValue = calculateVersionValue(installedVersion);
+			int installedVersionValue = InstallUtils.calculateVersionValue(installedVersion);
 			
 			if (	(	(focusVersion != null) && (installedVersion == null))
 				||	(!installedVersion.equals(focusVersion) && (installedVersionValue < focusVersionValue))
@@ -71,9 +72,9 @@ public class ApiCheckVersionUtils {
 				}
 				return true;
 			} else if (!installedVersion.equals(focusVersion) && (installedVersionValue > focusVersionValue)) {
-				Log.d(logTag,"org.rfcx.guardian."+focusRole+" is newer than the api version: "+installedVersion+" ("+installedVersionValue+")");
+				Log.d(logTag,"rfcx "+focusRole+": installed version ("+installedVersion+", "+installedVersionValue+") is newer than the latest release version ("+focusVersion+", "+focusVersionValue+").");
 			} else {
-				Log.d(logTag,"org.rfcx.guardian."+focusRole+" is already up-to-date: "+installedVersion+" ("+installedVersionValue+")");
+				Log.d(logTag,"rfcx "+focusRole+": installed version is already up-to-date ("+installedVersion+", "+installedVersionValue+").");
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -82,17 +83,7 @@ public class ApiCheckVersionUtils {
 	}
 
 	
-	private static int calculateVersionValue(String versionName) {
-		try {
-			int majorVersion = Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
-			int subVersion = Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
-			int updateVersion = Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
-			return 1000*majorVersion+100*subVersion+updateVersion;
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return 0;
-	}
+
 	
 	private boolean isCheckInAllowed(boolean printLoggingFeedbackIfBlocked) {
 		if (app != null) {

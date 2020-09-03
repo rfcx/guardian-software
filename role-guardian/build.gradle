@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
-if (project.file("../gradle/signing/platform_signing.gradle").exists() && project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists()) {
+if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properties.containsKey("jksPath")) {
     apply from: "../gradle/signing/platform_signing.gradle"
 }
 
@@ -16,7 +16,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 3
-        versionName "0.6.8"
+        versionName "0.6.16"
         setProperty("archivesBaseName", "guardian-$versionName")
 
         manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "rfcx"]

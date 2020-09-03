@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.http;
+package org.rfcx.guardian.utility.network;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,6 +21,8 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
+
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class HttpGet {
@@ -63,7 +65,7 @@ public class HttpGet {
 	public JSONObject getAsJson(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(logTag,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
+		Log.v(logTag,DOWNLOAD_TIME_LABEL + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ));
 		try {
 			return new JSONObject(str);
 		} catch (JSONException e) {
@@ -79,7 +81,7 @@ public class HttpGet {
 	public List<JSONObject> getAsJsonList(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(logTag,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
+		Log.v(logTag,DOWNLOAD_TIME_LABEL + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ));
 		try {
 			List<JSONObject> jsonArray = new ArrayList<JSONObject>();
 			JSONArray jsonAll = new JSONArray(str);
@@ -100,7 +102,7 @@ public class HttpGet {
 	public String getAsString(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(logTag,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
+		Log.v(logTag,DOWNLOAD_TIME_LABEL + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ));
 		return str;
 	}
 	
@@ -121,7 +123,7 @@ public class HttpGet {
 		if ((inputStream != null) && (fileOutputStream != null)) {
 			writeFileResponseStream(inputStream, fileOutputStream, this.logTag);
 			closeInputOutputStreams(inputStream, fileOutputStream, this.logTag);
-			Log.v(logTag,DOWNLOAD_TIME_LABEL+(System.currentTimeMillis()-startTime)+"ms");
+			Log.v(logTag,DOWNLOAD_TIME_LABEL + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ));
 			return (new File(this.context.getFilesDir(), outputFileName)).exists();
 		}
 		return false;
@@ -174,7 +176,7 @@ public class HttpGet {
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 	            return readResponseStream(conn.getInputStream(), this.logTag);
 	        } else {
-	        	Log.e(logTag, "HTTP Code: "+conn.getResponseCode());
+	        	Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode());
 	        }
 	    } catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -199,7 +201,7 @@ public class HttpGet {
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
 	            return readResponseStream(conn.getInputStream(), this.logTag);
 	        } else {
-	        	Log.e(logTag, "HTTP Code: "+conn.getResponseCode());
+	        	Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode());
 	        }
 	    } catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -277,9 +279,9 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-		            Log.i(logTag, "Success ("+conn.getResponseCode()+"): "+fullUrl);
+		            Log.i(logTag, "Download Started: "+fullUrl);
 			    } else {
-		            Log.i(logTag, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
+		            Log.i(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
 			    }
 		        return conn.getInputStream();
 			} else if (inferredProtocol.equals("http")) {
@@ -293,9 +295,9 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-		            Log.i(logTag, "Success ("+conn.getResponseCode()+"): "+fullUrl);
+		            Log.i(logTag, "Download Started: "+fullUrl);
 			    } else {
-		            Log.i(logTag, "Failure: ("+conn.getResponseCode()+"):"+fullUrl);
+		            Log.i(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
 			    }
 		        return conn.getInputStream();
 			} else {

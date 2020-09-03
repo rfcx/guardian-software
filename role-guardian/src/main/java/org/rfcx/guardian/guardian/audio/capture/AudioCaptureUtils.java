@@ -17,6 +17,8 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
+
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class AudioCaptureUtils {
@@ -38,14 +40,13 @@ public class AudioCaptureUtils {
 	private boolean isAudioCaptureHardwareSupported = false;
 	private static final int requiredFreeDiskSpaceForAudioCapture = 32;
 
-
+	private static AudioCaptureWavRecorder wavRecorderForCompanion = null;
 
 	public static AudioCaptureWavRecorder initializeWavRecorder(String captureDir, long timestamp, int sampleRate) throws Exception {
-		AudioCaptureWavRecorder wavRecorderInstance = null;
-		wavRecorderInstance = AudioCaptureWavRecorder.getInstance(sampleRate);
-		wavRecorderInstance.setOutputFile(getCaptureFilePath(captureDir, timestamp, "wav"));
-		wavRecorderInstance.prepareRecorder();
-		return wavRecorderInstance;
+		wavRecorderForCompanion = AudioCaptureWavRecorder.getInstance(sampleRate);;
+		wavRecorderForCompanion.setOutputFile(getCaptureFilePath(captureDir, timestamp, "wav"));
+		wavRecorderForCompanion.prepareRecorder();
+		return wavRecorderForCompanion;
 	}
 
 
@@ -199,7 +200,7 @@ public class AudioCaptureUtils {
 
 	public static boolean reLocateAudioCaptureFile(Context context, long timestamp, String fileExtension) {
 		boolean isFileMoved = false;
-		File captureFile = new File(getCaptureFilePath(RfcxAudioUtils.captureDir(context),timestamp,fileExtension));
+		File captureFile = new File(getCaptureFilePath(RfcxAudioUtils.audioCaptureDir(context),timestamp,fileExtension));
 		if (captureFile.exists()) {
 			try {
 				File preEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PreEncode(context, timestamp,fileExtension));
@@ -212,6 +213,14 @@ public class AudioCaptureUtils {
 			}
 		}
 		return isFileMoved;
+	}
+
+	public Pair<byte[], Integer> getAudioBuffer() {
+		return wavRecorderForCompanion.getAudioBuffer();
+	}
+
+	public Boolean isAudioChanged() {
+		return wavRecorderForCompanion.isAudioChanged();
 	}
 
 }

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.checkin;
+package org.rfcx.guardian.guardian.api.mqtt;
 
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -9,16 +9,16 @@ import android.content.Intent;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
-public class ApiQueueCheckInService extends IntentService {
+public class ApiCheckInQueueService extends IntentService {
 
-	private static final String SERVICE_NAME = "ApiQueueCheckIn";
+	private static final String SERVICE_NAME = "ApiCheckInQueue";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiQueueCheckInService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInQueueService");
 
 	public static int totalLocalAudio = 0;
 	public static int totalRecordedTime = 0;
 		
-	public ApiQueueCheckInService() {
+	public ApiCheckInQueueService() {
 		super(logTag);
 	}
 	
@@ -46,12 +46,13 @@ public class ApiQueueCheckInService extends IntentService {
 								encodedAudio[6], //	codec
 								(RfcxAudioUtils.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr"), //	cbr or vbr
 								encodedAudio[8], // encode duration
-								"16bit" 		 // sample precision, in bits
+								"16bit", 		 // sample precision, in bits
+								encodedAudio[7] // capture duration
 						}, encodedAudio[9]);
 
 				// increase total of local audio when finish sending audio to queue
-//				totalLocalAudio += 1;
-//				totalRecordedTime += app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+				totalLocalAudio += 1;
+				totalRecordedTime += app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			}
 
 

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
@@ -44,9 +45,11 @@ public class SentinelPowerUtils {
 
     private boolean verboseLogging = false;
 
+    public boolean isInputPowerAtZero = false;
+
     public boolean isCaptureAllowed() {
 
-        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_capture");
+        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_power");
         boolean isI2cHandlerAccessible = false;
         boolean isI2cPowerChipConnected = false;
 
@@ -162,7 +165,7 @@ public class SentinelPowerUtils {
                 valueSet[3] = valueSet[0] * valueSet[1] / 1000;
                 this.i2cTmpValues.put(groupName, valueSet);
             }
-            calculateMissingSystemPowerValues();
+            calculateMissingPowerValues();
             cacheI2cTmpValues();
 
         } catch (Exception e) {
@@ -170,11 +173,16 @@ public class SentinelPowerUtils {
         }
     }
 
-    private void calculateMissingSystemPowerValues() {
+    private void calculateMissingPowerValues() {
+
         double[] sysVals = this.i2cTmpValues.get("system");
-        sysVals[3] = this.i2cTmpValues.get("input")[3] - this.i2cTmpValues.get("battery")[3];
+        double[] inpVals = this.i2cTmpValues.get("input");
+
+        sysVals[3] = inpVals[3] - this.i2cTmpValues.get("battery")[3];
         sysVals[1] = 1000 * sysVals[3] / sysVals[0];
         this.i2cTmpValues.put("system", sysVals);
+
+        this.isInputPowerAtZero = !(Math.round(inpVals[3]) > 0);
     }
 
     private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
@@ -216,7 +224,6 @@ public class SentinelPowerUtils {
             long[] sysVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
             this.powerSystemValues = new ArrayList<>();
             app.sentinelPowerDb.dbSentinelPowerSystem.insert(sysVals[4], sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
-            logStr.append(" [ temp: ").append(sysVals[2]).append(" C").append(" ]");
             logStr.append(" [ system: ").append(sysVals[0]).append(" mV, ").append(sysVals[1]).append(" mA, ").append(sysVals[3]).append(" mW").append(" ]");
 
             long[] battVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
@@ -228,6 +235,8 @@ public class SentinelPowerUtils {
             this.powerInputValues = new ArrayList<>();
             app.sentinelPowerDb.dbSentinelPowerInput.insert(inpVals[4], inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
             logStr.append(" [ input: ").append(inpVals[0]).append(" mV, ").append(inpVals[1]).append(" mA, ").append(inpVals[3]).append(" mW").append(" ]");
+
+            logStr.append(" [ temp: ").append(sysVals[2]).append(" C").append(" ]");
 
             if (printValuesToLog) {
                 Log.d(logTag, logStr.toString());
@@ -268,5 +277,80 @@ public class SentinelPowerUtils {
         return 1;
     }
 
+    public JSONObject getSentinelPowerCurrentValuesAsJson() {
+
+        JSONObject jsonObj = new JSONObject();
+
+        try {
+
+            long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(this.i2cTmpValues.get("battery"));
+            JSONObject jsonBatteryObj = new JSONObject();
+            jsonBatteryObj.put("voltage",bVals[0]);
+            jsonBatteryObj.put("current",bVals[1]);
+            jsonBatteryObj.put("power",bVals[3]);
+            jsonObj.put("battery",jsonBatteryObj);
+
+            long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(this.i2cTmpValues.get("input"));
+            JSONObject jsonInputObj = new JSONObject();
+            jsonInputObj.put("voltage",iVals[0]);
+            jsonInputObj.put("current",iVals[1]);
+            jsonInputObj.put("power",iVals[3]);
+            jsonObj.put("input",jsonInputObj);
+
+            long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(this.i2cTmpValues.get("system"));
+            JSONObject jsonSystemObj = new JSONObject();
+            jsonSystemObj.put("voltage",sVals[0]);
+            jsonSystemObj.put("current",sVals[1]);
+            jsonSystemObj.put("power",sVals[3]);
+            jsonObj.put("system",jsonSystemObj);
+
+        } catch (JSONException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+
+        return jsonObj;
+    }
+
+
+    private static int getLiFePO4BatteryChargePercentage(long battMilliVoltage) {
+
+        if (battMilliVoltage >= 3380) {      return 99;  }
+        else if (battMilliVoltage >= 3365) { return 95;  }
+        else if (battMilliVoltage >= 3350) { return 90;  }
+        else if (battMilliVoltage >= 3340) { return 85;  }
+        else if (battMilliVoltage >= 3330) { return 80;  }
+        else if (battMilliVoltage >= 3315) { return 75;  }
+        else if (battMilliVoltage >= 3300) { return 70;  }
+        else if (battMilliVoltage >= 3290) { return 65;  }
+        else if (battMilliVoltage >= 3280) { return 60;  }
+        else if (battMilliVoltage >= 3270) { return 55;  }
+        else if (battMilliVoltage >= 3260) { return 50;  }
+        else if (battMilliVoltage >= 3255) { return 45;  }
+        else if (battMilliVoltage >= 3250) { return 40;  }
+        else if (battMilliVoltage >= 3240) { return 35;  }
+        else if (battMilliVoltage >= 3230) { return 30;  }
+        else if (battMilliVoltage >= 3215) { return 25;  }
+        else if (battMilliVoltage >= 3200) { return 20;  }
+        else if (battMilliVoltage >= 3190) { return 19;  }
+        else if (battMilliVoltage >= 3180) { return 18;  }
+        else if (battMilliVoltage >= 3170) { return 17;  }
+        else if (battMilliVoltage >= 3160) { return 16;  }
+        else if (battMilliVoltage >= 3150) { return 15;  }
+        else if (battMilliVoltage >= 3140) { return 14;  }
+        else if (battMilliVoltage >= 3105) { return 13;  }
+        else if (battMilliVoltage >= 3070) { return 12;  }
+        else if (battMilliVoltage >= 3035) { return 11;  }
+        else if (battMilliVoltage >= 3000) { return 10;  }
+        else if (battMilliVoltage >= 2960) { return 9;   }
+        else if (battMilliVoltage >= 2920) { return 8;   }
+        else if (battMilliVoltage >= 2880) { return 7;   }
+        else if (battMilliVoltage >= 2840) { return 6;   }
+        else if (battMilliVoltage >= 2800) { return 5;   }
+        else if (battMilliVoltage >= 2735) { return 4;   }
+        else if (battMilliVoltage >= 2670) { return 3;   }
+        else if (battMilliVoltage >= 2605) { return 2;   }
+        else if (battMilliVoltage >= 2540) { return 1;   }
+        else {                               return 0;   }
+    }
 
 }

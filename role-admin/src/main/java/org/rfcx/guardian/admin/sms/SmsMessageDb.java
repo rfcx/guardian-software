@@ -86,6 +86,10 @@ public class SmsMessageDb {
 			return rightNow;
 		}
 
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
+
 	}
 	public final DbSmsReceived dbSmsReceived;
 
@@ -129,6 +133,10 @@ public class SmsMessageDb {
 			long rightNow = (new Date()).getTime();
 			this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_MESSAGE_ID, message_id);
 			return rightNow;
+		}
+
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
 		}
 
 	}
@@ -178,6 +186,10 @@ public class SmsMessageDb {
 			long rightNow = (new Date()).getTime();
 			this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_MESSAGE_ID, message_id);
 			return rightNow;
+		}
+
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
 		}
 
 	}

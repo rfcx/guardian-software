@@ -42,6 +42,10 @@ public class StringUtils {
 		return byteArrayToHexString(messageDigest.digest(inputString.getBytes()));
 	}
 
+	public static String byteArrayToBase64(byte[] byteArray) {
+		return Base64.encodeToString(byteArray,Base64.NO_WRAP);
+	}
+
 	public static String gZipStringToBase64(String inputString) {
 		return Base64.encodeToString(gZipStringToByteArray(inputString),Base64.DEFAULT);
 	}

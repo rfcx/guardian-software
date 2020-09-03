@@ -21,27 +21,29 @@ public class InstructionsDb {
 	static final String DATABASE = "instructions";
 
 	static final String C_CREATED_AT = "created_at";
-	static final String C_GUID = "guid";
+	static final String C_INSTR_ID = "instr_id";
 	static final String C_TYPE = "type";
 	static final String C_COMMAND = "command";
 	static final String C_EXECUTE_AT = "execute_at";
 	static final String C_JSON = "json";
 	static final String C_ATTEMPTS = "attempts";
 	static final String C_TIMESTAMP_EXTRA = "timestamp_extra";
+	static final String C_RECEIVED_BY = "received_by";
 
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_GUID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_INSTR_ID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA, C_RECEIVED_BY };
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName)
 			.append("(").append(C_CREATED_AT).append(" INTEGER")
-			.append(", ").append(C_GUID).append(" TEXT")
+			.append(", ").append(C_INSTR_ID).append(" TEXT")
 			.append(", ").append(C_TYPE).append(" TEXT")
 			.append(", ").append(C_COMMAND).append(" TEXT")
 			.append(", ").append(C_EXECUTE_AT).append(" INTEGER")
 			.append(", ").append(C_JSON).append(" TEXT")
 			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
 			.append(", ").append(C_TIMESTAMP_EXTRA).append(" INTEGER")
+			.append(", ").append(C_RECEIVED_BY).append(" TEXT")
 			.append(")");
 		return sbOut.toString();
 	}
@@ -58,40 +60,42 @@ public class InstructionsDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(String instructionGuid, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson) {
+		public int insert(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson, String receivedBy) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_GUID, instructionGuid);
+			values.put(C_INSTR_ID, instructionId);
 			values.put(C_TYPE, instructionType);
 			values.put(C_COMMAND, instructionCommand);
 			values.put(C_EXECUTE_AT, executeAtOrAfter);
 			values.put(C_JSON, metaJson);
 			values.put(C_ATTEMPTS, 0);
 			values.put(C_TIMESTAMP_EXTRA, (new Date()).getTime());
+			values.put(C_RECEIVED_BY, receivedBy);
 
 			return this.dbUtils.insertRow(TABLE, values);
 		}
 
-		public int findByGuidOrCreate(String instructionGuid, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson) {
+		public int findByIdOrCreate(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson, String receivedBy) {
 
-			if (getCountByGuid(instructionGuid) == 0) {
+			if (getCountById(instructionId) == 0) {
 				ContentValues values = new ContentValues();
 				values.put(C_CREATED_AT, (new Date()).getTime());
-				values.put(C_GUID, instructionGuid);
+				values.put(C_INSTR_ID, instructionId);
 				values.put(C_TYPE, instructionType);
 				values.put(C_COMMAND, instructionCommand);
 				values.put(C_EXECUTE_AT, executeAtOrAfter);
 				values.put(C_JSON, metaJson);
 				values.put(C_ATTEMPTS, 0);
 				values.put(C_TIMESTAMP_EXTRA, (new Date()).getTime());
+				values.put(C_RECEIVED_BY, receivedBy);
 				this.dbUtils.insertRow(TABLE, values);
 			}
-			return getCountByGuid(instructionGuid);
+			return getCountById(instructionId);
 		}
 
-		public int getCountByGuid(String instructionGuid) {
-			return this.dbUtils.getCount(TABLE, C_GUID+"=?",new String[] { instructionGuid });
+		public int getCountById(String instructionId) {
+			return this.dbUtils.getCount(TABLE, C_INSTR_ID +"=?",new String[] { instructionId });
 		}
 
 		public List<String[]> getAllRows() {
@@ -102,13 +106,17 @@ public class InstructionsDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_EXECUTE_AT +" ASC");
 		}
 
-		public int deleteSingleRowByGuid(String instructionGuid) {
-			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_GUID, instructionGuid);
+		public int deleteSingleRowById(String instructionId) {
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_INSTR_ID, instructionId);
 			return 0;
 		}
 
-		public void incrementSingleRowAttemptsByGuid(String instructionGuid) {
-			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_GUID, instructionGuid);
+		public void incrementSingleRowAttemptsById(String instructionId) {
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_INSTR_ID, instructionId);
+		}
+
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
 		}
 
 	}
@@ -126,40 +134,42 @@ public class InstructionsDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(String instructionGuid, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra) {
+		public int insert(String instructionId, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra, String receivedBy) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_GUID, instructionGuid);
+			values.put(C_INSTR_ID, instructionId);
 			values.put(C_TYPE, instructionType);
 			values.put(C_COMMAND, instructionCommand);
 			values.put(C_EXECUTE_AT, executedAt);
 			values.put(C_JSON, responseJson);
 			values.put(C_ATTEMPTS, attempts);
 			values.put(C_TIMESTAMP_EXTRA, timestampExtra);
+			values.put(C_RECEIVED_BY, receivedBy);
 
 			return this.dbUtils.insertRow(TABLE, values);
 		}
 
-		public int findByGuidOrCreate(String instructionGuid, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra) {
+		public int findByIdOrCreate(String instructionId, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra, String receivedBy) {
 
-			if (getCountByGuid(instructionGuid) == 0) {
+			if (getCountById(instructionId) == 0) {
 				ContentValues values = new ContentValues();
 				values.put(C_CREATED_AT, (new Date()).getTime());
-				values.put(C_GUID, instructionGuid);
+				values.put(C_INSTR_ID, instructionId);
 				values.put(C_TYPE, instructionType);
 				values.put(C_COMMAND, instructionCommand);
 				values.put(C_EXECUTE_AT, executedAt);
 				values.put(C_JSON, responseJson);
 				values.put(C_ATTEMPTS, attempts);
 				values.put(C_TIMESTAMP_EXTRA, timestampExtra);
+				values.put(C_RECEIVED_BY, receivedBy);
 				this.dbUtils.insertRow(TABLE, values);
 			}
-			return getCountByGuid(instructionGuid);
+			return getCountById(instructionId);
 		}
 
-		public int getCountByGuid(String instructionGuid) {
-			return this.dbUtils.getCount(TABLE, C_GUID+"=?",new String[] { instructionGuid });
+		public int getCountById(String instructionId) {
+			return this.dbUtils.getCount(TABLE, C_INSTR_ID +"=?",new String[] { instructionId });
 		}
 
 		public List<String[]> getAllRows() {
@@ -170,13 +180,13 @@ public class InstructionsDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_EXECUTE_AT +" ASC");
 		}
 
-		public int deleteSingleRowByGuid(String instructionGuid) {
-			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_GUID, instructionGuid);
+		public int deleteSingleRowById(String instructionId) {
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_INSTR_ID, instructionId);
 			return 0;
 		}
 
-		public void incrementSingleRowAttemptsByGuid(String instructionGuid) {
-			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_GUID, instructionGuid);
+		public void incrementSingleRowAttemptsById(String instructionId) {
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_INSTR_ID, instructionId);
 		}
 
 	}

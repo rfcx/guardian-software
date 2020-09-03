@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.mqtt;
+package org.rfcx.guardian.utility.network;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -48,6 +48,8 @@ public class MqttUtils implements MqttCallback {
 	private String mqttBrokerAddress = null;
 	private String mqttBrokerUri = null;
 	private String mqttBrokerKeystorePassphrase = null;
+	private String mqttBrokerAuthUserName = null;
+	private String mqttBrokerAuthPassword = null;
 	private MqttClient mqttClient = null;
 	private List<String> mqttTopics_Subscribe = new ArrayList<String>();;
 	private MqttCallback mqttCallback = this;
@@ -58,24 +60,28 @@ public class MqttUtils implements MqttCallback {
 	
 	private MqttConnectOptions getConnectOptions() throws MqttSecurityException {
 		
-		MqttConnectOptions options = new MqttConnectOptions();
+		MqttConnectOptions connectOptions = new MqttConnectOptions();
 		
 		// More info on options here:
 		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html
 
-		options.setCleanSession(true); // If false, both the client and server will maintain state across restarts of the client, the server and the connection.
-		options.setConnectionTimeout(20); // in seconds
-		options.setKeepAliveInterval(40); // in seconds
-		options.setAutomaticReconnect(false); // automatically attempt to reconnect to the server if the connection is lost
-		options.setMaxInflight(1); // limits how many messages can be sent without receiving acknowledgments
+		connectOptions.setCleanSession(true); // If false, both the client and server will maintain state across restarts of the client, the server and the connection.
+		connectOptions.setConnectionTimeout(20); // in seconds
+		connectOptions.setKeepAliveInterval(40); // in seconds
+		connectOptions.setAutomaticReconnect(false); // automatically attempt to reconnect to the server if the connection is lost
+		connectOptions.setMaxInflight(1); // limits how many messages can be sent without receiving acknowledgments
 
 		if (this.mqttBrokerProtocol.equalsIgnoreCase("ssl")) {
-			// Requires res/raw/server.bks (see bin/convert-mqtt-certs.sh)
-			InputStream keystore = context.getResources().openRawResource(R.raw.server);
-			options.setSocketFactory(getSSLSocketFactory(keystore, mqttBrokerKeystorePassphrase));
+			InputStream brokerKeystore = context.getResources().openRawResource(R.raw.rfcx_mqtt_broker);
+			connectOptions.setSocketFactory(getSSLSocketFactory(brokerKeystore, mqttBrokerKeystorePassphrase));
+		}
+
+		if ((this.mqttBrokerAuthUserName != null) && (this.mqttBrokerAuthPassword != null)) {
+			connectOptions.setUserName(this.mqttBrokerAuthUserName);
+			connectOptions.setPassword(this.mqttBrokerAuthPassword.toCharArray());
 		}
 		
-		return options;
+		return connectOptions;
 	}
 	
 	public void setActionTimeout(long timeToWaitInMillis) {
@@ -106,17 +112,19 @@ public class MqttUtils implements MqttCallback {
 		return this.msgSendStart;
 	}
 	
-	public void setOrResetBroker(String protocol, int port, String address, String keystorePassphrase) {
-		mqttBrokerProtocol = protocol;
-		mqttBrokerPort = port;
-		mqttBrokerAddress = address;
-		mqttBrokerKeystorePassphrase = keystorePassphrase;
+	public void setOrResetBroker(String protocol, int port, String address, String keystorePassphrase, String authUserName, String authPassword) {
+		this.mqttBrokerProtocol = protocol;
+		this.mqttBrokerPort = port;
+		this.mqttBrokerAddress = address;
+		this.mqttBrokerKeystorePassphrase = keystorePassphrase;
+		this.mqttBrokerAuthUserName = authUserName;
+		this.mqttBrokerAuthPassword = authPassword;
 
-		String newUri = mqttBrokerProtocol + "://" + mqttBrokerAddress + ":" + mqttBrokerPort;
-		if (!newUri.equals(mqttBrokerUri) && (mqttClient != null) && mqttClient.isConnected()) {
+		String newUri = this.mqttBrokerProtocol + "://" + this.mqttBrokerAddress + ":" + this.mqttBrokerPort;
+		if (!newUri.equals(this.mqttBrokerUri) && (this.mqttClient != null) && this.mqttClient.isConnected()) {
 			closeConnection();
 		}
-		mqttBrokerUri = newUri;
+		this.mqttBrokerUri = newUri;
 	}
 	
 	public boolean confirmOrCreateConnectionToBroker(boolean allowBasedOnDeviceConnectivity) throws MqttException {
@@ -144,7 +152,10 @@ public class MqttUtils implements MqttCallback {
 			this.mqttClient.connect(options);
 
 			mqttBrokerConnectionLatency = System.currentTimeMillis() - mqttBrokerConnectionLastAttemptedAt;
-			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri+" (QoS: "+this.mqttQos+")");
+			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri
+                                +" (QoS: "+this.mqttQos+")"
+                                +((this.mqttBrokerAuthUserName != null) ? " (User: "+this.mqttBrokerAuthUserName+")" : "")
+            );
 
 			mqttBrokerSubscriptionLatency = 0;
 			for (String subscribeTopic : this.mqttTopics_Subscribe) {
@@ -166,7 +177,7 @@ public class MqttUtils implements MqttCallback {
 		this.mqttCallback = mqttCallback;
 	}
 	
-	private void closeConnection() {
+	public void closeConnection() {
 		try {
 			this.mqttClient.disconnect();
 			Log.v(logTag, "MQTT client disconnected");	

@@ -20,7 +20,10 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
+
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 
@@ -294,7 +297,14 @@ public class RfcxPrefs {
 	}
 
 	public String getPrefsChecksum() {
-		return StringUtils.getSha1HashOfString(getPrefsAsJsonArray().toString());
+		List<String> prefsKeys = listPrefsKeys();
+		Collections.sort(prefsKeys);
+		List<String> prefsKeysVals = new ArrayList<String>();
+		for (String prefKey : prefsKeys) {
+			prefsKeysVals.add(TextUtils.join("*", new String[] { prefKey, getPrefAsString(prefKey) } ));
+		}
+		String prefsBlob = TextUtils.join("|", prefsKeysVals);
+		return StringUtils.getSha1HashOfString(prefsBlob);
 	}
 
 	public JSONArray getPrefsAsJsonArray() {
@@ -313,9 +323,38 @@ public class RfcxPrefs {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
-
+		Log.e(logTag, prefsBlob.toString());
 		return prefsBlob;
 	}
+
+	public JSONObject getPrefsAsJsonObj(boolean includeAllKeys, String[] includeTheseKeys) {
+
+		List<String> prefsKeys = listPrefsKeys();
+		Collections.sort(prefsKeys);
+
+		JSONObject prefsObj = new JSONObject();
+
+		for (String prefKey : prefsKeys) {
+			if (includeAllKeys || ArrayUtils.doesStringArrayContainString(includeTheseKeys, prefKey)) {
+				try {
+					prefsObj.put(prefKey, getPrefAsString(prefKey));
+				} catch (JSONException e) {
+					RfcxLog.logExc(logTag, e);
+				}
+			}
+		}
+
+		return prefsObj;
+	}
+
+	public JSONObject getPrefsAsJsonObj() {
+		return getPrefsAsJsonObj(true, new String[] {} );
+	}
+
+	public JSONObject getPrefsAsJsonObj(String[] includeTheseKeys) {
+		return getPrefsAsJsonObj(false, includeTheseKeys );
+	}
+
 
     //
     // Prefs default/fallback values. Should be kept in sync with the prefs.xml file in guardian role resources
@@ -330,11 +369,15 @@ public class RfcxPrefs {
 			put("enable_cutoffs_battery", "true");
 			put("enable_cutoffs_schedule_off_hours", "true");
 
-			put("api_rest_host", "api.rfcx.org");
-			put("api_rest_protocol", "https");
-	        put("api_checkin_host", "checkin.rfcx.org");
-	        put("api_checkin_protocol", "tcp");
-	        put("api_checkin_port", "1883");
+			put("api_checkin_host", "checkins.rfcx.org");
+	        put("api_checkin_protocol", "ssl");
+	        put("api_checkin_port", "8883");
+			put("enable_checkin_auth", "true");
+			put("api_checkin_auth_creds", "[guid],[token]");
+
+            put("api_rest_host", "api.rfcx.org");
+            put("api_rest_protocol", "https");
+
 	        put("api_ntp_host", "time.apple.com");
 			put("api_sms_address", "+14154803657");
 	        
@@ -342,35 +385,46 @@ public class RfcxPrefs {
 			
 			put("audio_cycle_duration", "90");
 			
-			put("audio_schedule_off_hours", "00:10-00:15,00:15-00:20");
+			put("audio_schedule_off_hours", "23:56-23:58,23:58-00:00");
 
 			put("checkin_battery_cutoff", "90");
 			put("audio_battery_cutoff", "80");
 			
 			put("audio_encode_codec", "opus");
-			put("audio_encode_bitrate", "24576");
+			put("audio_encode_bitrate", "28672");
 			put("audio_sample_rate", "24000");
 
-			put("checkin_failure_thresholds", "10,20,30,40,50,60,70,80,90");
-			
-			put("checkin_skip_threshold", "5");
-			put("checkin_stash_threshold", "240");
-			put("checkin_archive_threshold", "160");
+			put("checkin_failure_thresholds", "15,30,50,70,90");
+			put("checkin_failure_limit", "3");
 
-			put("admin_enable_bluetooth", "false");
-			put("admin_enable_wifi", "false");
+			put("checkin_queue_filesize_limit", "80");
+			put("checkin_sent_filesize_buffer", "80");
+			put("checkin_stash_filesize_buffer", "32");
+			put("checkin_archive_filesize_target", "32");
+
+			put("checkin_requeue_bounds_hours", "9,15");
+
+			put("checkin_meta_bundle_limit", "10");
+
+			put("admin_enable_wifi", "true");
 			put("admin_enable_tcp_adb", "true");
 
 			put("admin_log_capture_cycle", "30");
 			put("admin_log_capture_level", "warn");
 			put("admin_enable_log_capture", "false");
+
+			put("admin_gps_capture_cycle", "15");
 			
 			put("admin_screenshot_capture_cycle", "180");
-			put("admin_enable_screenshot_capture", "true");
+			put("admin_enable_screenshot_capture", "false");
 
-			put("admin_enable_sentinel_capture", "true");
+			put("admin_enable_sentinel_power", "true");
+			put("admin_enable_sentinel_sensor", "true");
 
 			put("admin_system_timezone", "[ Not Set ]");
+
+			put("admin_enable_ssh_server", "false");
+			put("admin_enable_wifi_socket", "true");
 			
 			
 	    }}

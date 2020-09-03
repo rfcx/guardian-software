@@ -10,7 +10,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -18,12 +17,11 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.xeustechnologies.jtar.TarEntry;
 import org.xeustechnologies.jtar.TarOutputStream;
 
 import android.content.Context;
-import android.os.Environment;
-import android.os.StatFs;
 import android.util.Base64;
 import android.util.Base64OutputStream;
 import android.util.Log;
@@ -146,6 +144,14 @@ public class FileUtils {
 	public static boolean chmod(String filePath, String owner_rwx, String everybody_rwx) {
 		return chmod(new File(filePath), owner_rwx, everybody_rwx);
 	}
+
+	public static long getFileSizeInBytes(File file) {
+		return file.length();
+	}
+
+	public static long getFileSizeInBytes(String filePath) {
+		return (new File(filePath)).length();
+	}
 	
 	public static Date lastModifiedAt(File fileObj) {
 		Date modifiedAt = null;
@@ -262,6 +268,13 @@ public class FileUtils {
 			}
 		}
 	}
+
+	public static void initializeDirectoryRecursively(String dirPath, boolean isExternal) {
+		if (!isExternal || DeviceDiskUsage.isExternalStorageWritable()) {
+			(new File(dirPath)).mkdirs();
+			FileUtils.chmod(dirPath, "rw", "rw");
+		}
+	}
 	
 	
 	public static boolean createTarArchiveFromFileList(List<String> inputFilePaths, String outputTarFilePath) {
@@ -368,66 +381,6 @@ public class FileUtils {
 		return currentAppFilesDir.substring(0, currentAppFilesDir.indexOf("org.rfcx.org.rfcx.guardian.guardian."));
 	}
 	
-    public static boolean isExternalStorageAvailable() {
-    	
-		int requiredFreeMegaBytes = 16;
 
-        StatFs extDiskStat = new StatFs(Environment.getExternalStorageDirectory().getPath());
-        double extDiskAvailSize = (double) extDiskStat.getAvailableBlocks() * (double) extDiskStat.getBlockSize();
-        // One binary gigabyte equals 1,073,741,824 bytes.
-        double mbAvailable = extDiskAvailSize / 1048576;
-
-        String extDiskState = Environment.getExternalStorageState();
-        boolean extDiskIsAvailable = false;
-        boolean extDiskIsWriteable = false;
-
-        if (Environment.MEDIA_MOUNTED.equals(extDiskState)) {
-            // We can read and write the media
-            extDiskIsAvailable = extDiskIsWriteable = true;
-        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(extDiskState)) {
-            // We can only read the media
-            extDiskIsAvailable = true;
-            extDiskIsWriteable = false;
-        } else {
-            // Something else is wrong. It may be one of many other states, but all we need
-            // to know is we can neither read nor write
-            extDiskIsAvailable = extDiskIsWriteable = false;
-        }
-
-        return extDiskIsAvailable && extDiskIsWriteable && (mbAvailable >= requiredFreeMegaBytes);
-        
-    }
-    
-    public static boolean isInternalStorageAvailable() {
-    	
-		int requiredFreeMegaBytes = 16;
-		
-		return true;
-
-//	    StatFs intDiskStat = new StatFs(Environment.getExternalStorageDirectory().getPath());
-//	    double intDiskAvailSize = (double) intDiskStat.getAvailableBlocks() * (double) intDiskStat.getBlockSize();
-//	    // One binary gigabyte equals 1,073,741,824 bytes.
-//	    double mbAvailable = intDiskAvailSize / 1048576;
-//	
-//	    String intDiskState = Environment.getExternalStorageState();
-//	    boolean intDiskIsAvailable = false;
-//	    boolean intDiskIsWriteable = false;
-//	
-//	    if (Environment.MEDIA_MOUNTED.equals(intDiskState)) {
-//	        // We can read and write the media
-//	        intDiskIsAvailable = intDiskIsWriteable = true;
-//	    } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(intDiskState)) {
-//	        // We can only read the media
-//	        intDiskIsAvailable = true;
-//	        intDiskIsWriteable = false;
-//	    } else {
-//	        // Something else is wrong. It may be one of many other states, but all we need
-//	        // to know is we can neither read nor write
-//	        intDiskIsAvailable = intDiskIsWriteable = false;
-//	    }
-//	
-//	    return intDiskIsAvailable && intDiskIsWriteable && (mbAvailable >= requiredFreeMegaBytes);
-	    
-	}
 	
 }

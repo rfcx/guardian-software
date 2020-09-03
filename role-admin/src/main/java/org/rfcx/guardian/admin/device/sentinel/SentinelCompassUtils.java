@@ -3,8 +3,6 @@ package org.rfcx.guardian.admin.device.sentinel;
 import android.content.Context;
 import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.DeviceI2cUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
@@ -12,7 +10,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,18 +48,22 @@ public class SentinelCompassUtils {
 
     public boolean isCaptureAllowed() {
 
-        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_capture");
+        // Only allow compass measurement when there is no input current.
+        // It seems that the magnetic field from an input charging current disrupts compass measurements.
+        boolean isInputPowerAtZero = app.sentinelPowerUtils.isInputPowerAtZero;
+
+        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_sensor");
         boolean isI2cHandlerAccessible = false;
         boolean isI2cCompassChipConnected = false;
 
-        if (isNotExplicitlyDisabled) {
-            isI2cHandlerAccessible = (new File("/dev/i2c-"+DeviceI2cUtils.i2cInterface)).canRead();
+        if (isNotExplicitlyDisabled && isInputPowerAtZero) {
+            isI2cHandlerAccessible = (new File("/dev/i2c-" + DeviceI2cUtils.i2cInterface)).canRead();
             if (isI2cHandlerAccessible) {
                 String i2cConnectAttempt = this.deviceI2cUtils.i2cGetAsString("0x4f", true);
                 isI2cCompassChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
             }
         }
-        return isNotExplicitlyDisabled && isI2cHandlerAccessible && isI2cCompassChipConnected;
+        return isNotExplicitlyDisabled && isInputPowerAtZero && isI2cHandlerAccessible && isI2cCompassChipConnected;
     }
 
     public void setOrResetSentinelCompassChip() {

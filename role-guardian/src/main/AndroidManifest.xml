@@ -83,18 +83,20 @@
         <!-- Services -->
         <service android:name=".audio.capture.AudioCaptureService" android:exported="false" />
         <service android:name=".audio.encode.AudioEncodeJobService" android:exported="false" />
-        <service android:name=".api.checkin.ApiCheckInJobService" android:exported="false" />
+        <service android:name=".api.mqtt.ApiCheckInJobService" android:exported="false" />
         <service android:name=".archive.ApiCheckInArchiveService" android:exported="false" />
         <service android:name=".device.android.SntpSyncJobService" android:exported="false" />
+        <service android:name=".instructions.InstructionsCycleService" android:exported="false" />
         <service android:name=".instructions.InstructionsExecutionService" android:exported="false" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" android:exported="false" />
-        <service android:name=".api.checkin.ApiQueueCheckInService" android:exported="false" />
-        <service android:name=".api.checkin.ScheduledApiPingService" android:exported="false" />
+        <service android:name=".api.mqtt.ApiCheckInQueueService" android:exported="false" />
+        <service android:name=".api.mqtt.ScheduledApiPingService" android:exported="false" />
         <service android:name=".audio.encode.AudioQueueEncodeService" android:exported="false" />
         <service android:name=".device.android.ScheduledSntpSyncService" android:exported="false" />
-        <service android:name=".api.checkin.ApiCheckInMetaSnapshotService" android:exported="false" />
+        <service android:name=".api.mqtt.ApiCheckInMetaSnapshotService" android:exported="false" />
+        <service android:name=".socket.WifiCommunicationService" android:exported="false" />
 
         <!-- Receivers -->
         <receiver android:name=".receiver.BootReceiver">

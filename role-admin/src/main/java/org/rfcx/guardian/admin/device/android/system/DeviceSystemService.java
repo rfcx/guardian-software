@@ -18,6 +18,8 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
@@ -83,6 +85,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private boolean isListenerRegistered_light = false;
 	private boolean isListenerRegistered_accel = false;
 	private boolean isListenerRegistered_geoposition = false;
+
+	//For companion
+	private static SignalStrength signalStrengthCompanion;
 
 	private void checkSetSensorManager() {
 		if (this.sensorManager == null) {
@@ -398,8 +403,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					if (checkSetLocationManager() && !this.geoPositionProviderInfo.isEmpty()) {
 						this.locationManager.requestLocationUpdates(
 								this.geoPositionProviderInfo,
-								DeviceUtils.geoPositionMinTimeElapsedBetweenUpdatesInSeconds[app.deviceUtils.geoPositionUpdateIndex] * 1000,
-								DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters[app.deviceUtils.geoPositionUpdateIndex],
+								( app.rfcxPrefs.getPrefAsLong("admin_gps_capture_cycle") * 60 * 1000 ),
+								DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters,
 								this);
 						this.isListenerRegistered_geoposition = true;
 					} else {
@@ -564,7 +569,28 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			super.onSignalStrengthsChanged(signalStrength);
 			telephonySignalStrength = signalStrength;
+			signalStrengthCompanion = signalStrength;
 			cacheSnapshotValues("telephony", new double[]{});
+		}
+	}
+
+	public static SignalStrength getSignalStrength() {
+		return signalStrengthCompanion;
+	}
+
+	public static JSONArray getSignalStrengthAsJsonArray() {
+		JSONArray signalJsonArray = new JSONArray();
+		try {
+			JSONObject signalJson = new JSONObject();
+
+			signalJson.put("signal", signalStrengthCompanion.getGsmSignalStrength());
+			signalJsonArray.put(signalJson);
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+
+		} finally {
+			return signalJsonArray;
 		}
 	}
 	
@@ -601,7 +627,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	
 	@Override
 	public void onLocationChanged(Location location) {
-		Log.e(logTag, "Running onLocationChanged...");
+	//	Log.e(logTag, "Running onLocationChanged...");
 		if (app != null) {
 			app.deviceUtils.processAndSaveGeoPosition(location);
 		}
@@ -609,21 +635,21 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		Log.e(logTag, "Running onProviderDisabled...");
+	//	Log.e(logTag, "Running onProviderDisabled...");
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		Log.e(logTag, "Running onProviderDisabled...");
+	//	Log.e(logTag, "Running onProviderDisabled...");
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		Log.e(logTag, "Running onStatusChanged...");
+	//	Log.e(logTag, "Running onStatusChanged...");
 		// TODO Auto-generated method stub
 		
 	}

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.checkin;
+package org.rfcx.guardian.guardian.api.mqtt;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -24,7 +23,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.rfcx.guardian.guardian.socket.SocketManager;
 import org.rfcx.guardian.utility.camera.RfcxCameraUtils;
+import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -34,9 +35,10 @@ import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
 import org.rfcx.guardian.utility.device.capture.DeviceScreenShot;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
-import org.rfcx.guardian.utility.mqtt.MqttUtils;
+import org.rfcx.guardian.utility.network.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import android.content.Context;
 import android.text.TextUtils;
@@ -53,10 +55,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		initializeFailedCheckInThresholds();
 
 		this.mqttCheckInClient = new MqttUtils(context, RfcxGuardian.APP_ROLE, this.app.rfcxGuardianIdentity.getGuid());
-
-		this.subscribeBaseTopic = "guardians/" + this.app.rfcxGuardianIdentity.getGuid().toLowerCase(Locale.US) + "/" + RfcxGuardian.APP_ROLE.toLowerCase(Locale.US);
-		this.mqttCheckInClient.addSubscribeTopic(this.subscribeBaseTopic + "/instructions");
-		this.mqttCheckInClient.addSubscribeTopic(this.subscribeBaseTopic + "/checkins");
+		this.mqttCheckInClient.addSubscribeTopic(this.app.rfcxGuardianIdentity.getGuid()+"/cmd");
 
 		setOrResetBrokerConfig();
 		this.mqttCheckInClient.setCallback(this);
@@ -72,8 +71,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private long requestTimeOutLength = 0;
 
-	private String subscribeBaseTopic = null;
-
 	private long requestSendReturned = System.currentTimeMillis();
 
 	private String inFlightCheckInAudioId = null;
@@ -82,45 +79,50 @@ public class ApiCheckInUtils implements MqttCallback {
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
 
 	private int inFlightCheckInAttemptCounter = 0;
-	private int inFlightCheckInAttemptCounterLimit = 12;
-
-	private List<String> previousCheckIns = new ArrayList<String>();
-
-//	private Date preFlightStatsQueryTimestamp = new Date();
+	private int inFlightCheckInAttemptCounterLimit = 5;
 
 	private int[] failedCheckInThresholds = new int[0];
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
 
-	private Map<String, long[]> healthCheckMonitors = new HashMap<String, long[]>();
-	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent", "time-of-day" };
-	private long[] healthCheckTargetLowerBounds = new long[healthCheckCategories.length];
-	private long[] healthCheckTargetUpperBounds = new long[healthCheckCategories.length];
-	private static final int healthCheckMeasurementCount = 6;
-	private long[] healthCheckInitValues = new long[healthCheckMeasurementCount];
-	private boolean doCheckInConditionsAllowCheckInRequeuing = false;
+	private ApiCheckInHealthUtils apiCheckInHealthUtils = new ApiCheckInHealthUtils();
+
+	public String prefsSha1FullApiSync = null;
+	public long prefsTimestampLastFullApiSync = 0;
 
 	public static long latestFileSize = 0;
+	public static long totalFileSize = 0;
 	public static String latestCheckinTimestamp = "";
 	public static int totalSyncedAudio = 0;
 
 	public void setOrResetBrokerConfig() {
+		String[] authUserPswd = app.rfcxPrefs.getPrefAsString("api_checkin_auth_creds").split(",");
+		String authUser = !app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : authUserPswd[0];
+		String authPswd = !app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : authUserPswd[1];
 		this.mqttCheckInClient.setOrResetBroker(
-				this.app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
-				this.app.rfcxPrefs.getPrefAsInt("api_checkin_port"),
-				this.app.rfcxPrefs.getPrefAsString("api_checkin_host"),
-				this.app.rfcxGuardianIdentity.getKeystorePassphrase());
+			this.app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
+			this.app.rfcxPrefs.getPrefAsInt("api_checkin_port"),
+			this.app.rfcxPrefs.getPrefAsString("api_checkin_host"),
+			this.app.rfcxGuardianIdentity.getKeystorePassphrase(),
+			!authUser.equalsIgnoreCase("[guid]") ? authUser : app.rfcxGuardianIdentity.getGuid(),
+			!authPswd.equalsIgnoreCase("[token]") ? authPswd : app.rfcxGuardianIdentity.getAuthToken()
+		);
 	}
 
-
-	boolean addCheckInToQueue(String[] audioInfo, String filepath) {
+	boolean addCheckInToQueue(String[] audioInfo, String filePath) {
 
 		// serialize audio info into JSON for checkin queue insertion
 		String queueJson = generateCheckInQueueJson(audioInfo);
 
-		// add audio info to checkin queue
-		int queuedCount = app.apiCheckInDb.dbQueued.insert(audioInfo[1] + "." + audioInfo[2], queueJson, "0", filepath);
+		long audioFileSize = FileUtils.getFileSizeInBytes(filePath);
 
-		Log.d(logTag, "Queued (1/" + queuedCount + "): " + queueJson + " | " + filepath);
+		// add audio info to checkin queue
+		int queuedCount = app.apiCheckInDb.dbQueued.insert(audioInfo[1] + "." + audioInfo[2], queueJson, "0", filePath, audioInfo[10], audioFileSize+"");
+
+		long queuedLimitMb = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit");
+		long queuedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows()+"")/(queuedLimitMb*1024*1024))));
+
+		Log.d(logTag, "Queued " + audioInfo[1] + ", " + Math.round(audioFileSize/1024) + "kB "
+						+  "(" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+"MB limit) " + filePath);
 
 		// once queued, remove database reference from encode role
 		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1]);
@@ -151,31 +153,89 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	void stashOrArchiveOldestCheckIns() {
 
-		int stashThreshold = app.rfcxPrefs.getPrefAsInt("checkin_stash_threshold");
-		int archiveThreshold = app.rfcxPrefs.getPrefAsInt("checkin_archive_threshold");
+		long queueFileSizeLimitInBytes = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit")*1024*1024;
+		long stashFileSizeBufferInBytes = app.rfcxPrefs.getPrefAsLong("checkin_stash_filesize_buffer")*1024*1024;
+		long archiveFileSizeTargetInBytes = app.rfcxPrefs.getPrefAsLong("checkin_archive_filesize_target")*1024*1024;
 
-		if (app.apiCheckInDb.dbQueued.getCount() > stashThreshold) {
+		if (app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows() >= queueFileSizeLimitInBytes) {
 
-			List<String[]> checkInsBeyondStashThreshold = app.apiCheckInDb.dbQueued.getRowsWithOffset(stashThreshold, archiveThreshold);
+			long queuedFileSizeSumBeforeLimit = 0;
+			int queuedCountBeforeLimit = 0;
+
+			for (String[] checkInCycle : app.apiCheckInDb.dbQueued.getRowsWithOffset(0,5000)) {
+				queuedFileSizeSumBeforeLimit += Long.parseLong(checkInCycle[6]);
+				if (queuedFileSizeSumBeforeLimit >= queueFileSizeLimitInBytes) { break; }
+				queuedCountBeforeLimit++;
+			}
 
 			// string list for reporting stashed checkins to the log
-			List<String> stashList = new ArrayList<String>();
+			List<String> stashSuccessList = new ArrayList<String>();
+			List<String> stashFailureList = new ArrayList<String>();
 			int stashCount = 0;
 
 			// cycle through stashable checkins and move them to the new table/database
-			for (String[] checkInsToStash : checkInsBeyondStashThreshold) {
-				stashCount = app.apiCheckInDb.dbStashed.insert(checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], checkInsToStash[4]);
+			for (String[] checkInsToStash : app.apiCheckInDb.dbQueued.getRowsWithOffset(queuedCountBeforeLimit, 16)) {
+
+				if (!DeviceDiskUsage.isExternalStorageWritable()) {
+					stashFailureList.add(checkInsToStash[1]);
+
+				} else {
+					String stashFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
+							app.rfcxGuardianIdentity.getGuid(),
+							Long.parseLong(checkInsToStash[1].substring(0, checkInsToStash[1].lastIndexOf("."))),
+							checkInsToStash[1].substring(checkInsToStash[1].lastIndexOf(".") + 1));
+					try {
+						FileUtils.copy(checkInsToStash[4], stashFilePath);
+					} catch (IOException e) {
+						RfcxLog.logExc(logTag, e);
+					}
+
+					if (FileUtils.exists(stashFilePath) && (FileUtils.getFileSizeInBytes(stashFilePath) == Long.parseLong(checkInsToStash[6]))) {
+						stashCount = app.apiCheckInDb.dbStashed.insert(checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], stashFilePath, checkInsToStash[5], checkInsToStash[6]);
+						stashSuccessList.add(checkInsToStash[1]);
+					} else {
+						stashFailureList.add(checkInsToStash[1]);
+					}
+				}
+
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInsToStash[1]);
-				stashList.add(checkInsToStash[1]);
+				FileUtils.delete(checkInsToStash[4]);
 			}
 
-			// report in the logs
-			Log.i(logTag, "Stashed CheckIns (" + stashCount + " total in database): " + TextUtils.join(" ", stashList));
+			if (stashFailureList.size() > 0) {
+				Log.e(logTag, stashFailureList.size() + " CheckIn(s) failed to be Stashed (" + TextUtils.join(" ", stashFailureList) + ").");
+			}
+
+			if (stashSuccessList.size() > 0) {
+				Log.i(logTag, stashSuccessList.size() + " CheckIn(s) moved to Stash (" + TextUtils.join(" ", stashSuccessList) + "). Total in Stash: " + stashCount + " CheckIns, " + Math.round(app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() / 1024) + " kB.");
+			}
 		}
 
-		if (app.apiCheckInDb.dbStashed.getCount() >= archiveThreshold) {
+		if (app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() >= (stashFileSizeBufferInBytes + archiveFileSizeTargetInBytes)) {
 			app.rfcxServiceHandler.triggerService("ApiCheckInArchive", false);
 		}
+	}
+
+	void skipSingleCheckIn(String[] checkInToSkip) {
+
+		String skipFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
+				app.rfcxGuardianIdentity.getGuid(),
+				Long.parseLong(checkInToSkip[1].substring(0, checkInToSkip[1].lastIndexOf("."))),
+				checkInToSkip[1].substring(checkInToSkip[1].lastIndexOf(".") + 1));
+
+		try {
+			FileUtils.copy(checkInToSkip[4], skipFilePath);
+		} catch (IOException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+
+		if (FileUtils.exists(skipFilePath) && (FileUtils.getFileSizeInBytes(skipFilePath) == Long.parseLong(checkInToSkip[6]))) {
+			app.apiCheckInDb.dbSkipped.insert(checkInToSkip[0], checkInToSkip[1], checkInToSkip[2], checkInToSkip[3], skipFilePath, checkInToSkip[5], checkInToSkip[6]);
+		}
+
+		app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInToSkip[1]);
+		FileUtils.delete(checkInToSkip[4]);
+
 	}
 
 	private void reQueueAudioAssetForCheckIn(String checkInStatus, String audioId) {
@@ -196,7 +256,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		if ((checkInToReQueue.length > 0) && (checkInToReQueue[0] != null)) {
 
 
-			int queuedCount = app.apiCheckInDb.dbQueued.insert(checkInToReQueue[1], checkInToReQueue[2], checkInToReQueue[3], checkInToReQueue[4]);
+			int queuedCount = app.apiCheckInDb.dbQueued.insert(checkInToReQueue[1], checkInToReQueue[2], checkInToReQueue[3], checkInToReQueue[4], checkInToReQueue[5], checkInToReQueue[6]);
 			String[] reQueuedCheckIn = app.apiCheckInDb.dbQueued.getSingleRowByAudioAttachmentId(audioId);
 
 			// if successfully inserted into queue table (and verified), delete from original table
@@ -223,88 +283,17 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	}
 
-	private void setupRecentCheckInHealthCheck() {
+	private void reQueueStashedCheckInIfAllowedByHealthCheck(long[] currentCheckInStats) {
 
-		// fill initial array with garbage (very high) values to ensure that checks will fail until we have the required number of checkins to compare
-		Arrays.fill(healthCheckInitValues, Math.round(Long.MAX_VALUE / healthCheckMeasurementCount));
-
-		// initialize categories with initial arrays (to be filled incrementally with real data)
-		for (String healthCheckCategory : healthCheckCategories) {
-			if (!healthCheckMonitors.containsKey(healthCheckCategory)) { healthCheckMonitors.put(healthCheckCategory, healthCheckInitValues); }
+		if (	apiCheckInHealthUtils.validateRecentCheckInHealthCheck(
+					app.rfcxPrefs.getPrefAsLong("audio_cycle_duration"),
+					app.rfcxPrefs.getPrefAsString("checkin_requeue_bounds_hours"),
+					currentCheckInStats
+				)
+			&& 	(app.apiCheckInDb.dbStashed.getCount() > 0)
+		) {
+			reQueueAudioAssetForCheckIn("stashed", app.apiCheckInDb.dbStashed.getLatestRow()[1]);
 		}
-
-		// set parameters (bounds) for health check pass or fail
-
-		/* latency */		healthCheckTargetLowerBounds[0] = 0;
-							healthCheckTargetUpperBounds[0] = Math.round( 0.4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
-
-		/* queued */		healthCheckTargetLowerBounds[1] = 0;
-							healthCheckTargetUpperBounds[1] = 1;
-
-		/* recent */		healthCheckTargetLowerBounds[2] = 0;
-							healthCheckTargetUpperBounds[2] = ( healthCheckMeasurementCount / 2 ) * (app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
-
-		/* time-of-day */	healthCheckTargetLowerBounds[3] = 9;
-							healthCheckTargetUpperBounds[3] = 15;
-	}
-
-	private void runRecentCheckInHealthCheck(long[] inputValues) {
-
-		if (!healthCheckMonitors.containsKey(healthCheckCategories[0])) { setupRecentCheckInHealthCheck(); }
-
-		long[] currAvgVals = new long[healthCheckCategories.length]; Arrays.fill(currAvgVals, 0);
-
-		for (int j = 0; j < healthCheckCategories.length; j++) {
-			String categ = healthCheckCategories[j];
-			long[] arraySnapshot = new long[healthCheckMeasurementCount];
-			arraySnapshot[0] = inputValues[j];
-			for (int i = (healthCheckMeasurementCount-1); i > 0; i--) { arraySnapshot[i] = healthCheckMonitors.get(categ)[i-1]; }
-			healthCheckMonitors.remove(healthCheckCategories[j]);
-			healthCheckMonitors.put(healthCheckCategories[j], arraySnapshot);
-			currAvgVals[j] = ArrayUtils.getAverageAsLong(healthCheckMonitors.get(categ));
-		}
-
-		boolean displayLogging = true;
-		doCheckInConditionsAllowCheckInRequeuing = true;
-		StringBuilder healthCheckLogging = new StringBuilder();
-
-		for (int j = 0; j < healthCheckCategories.length; j++) {
-
-			long currAvgVal = currAvgVals[j];
-			// some average values require modification before comparison to upper/lower bounds...
-			if (healthCheckCategories[j].equalsIgnoreCase("recent")) { currAvgVal = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(currAvgVals[j])); }
-
-			// compare to upper lower bounds, check for pass/fail
-			if ((currAvgVal > healthCheckTargetUpperBounds[j]) || (currAvgVal < healthCheckTargetLowerBounds[j])) {
-				doCheckInConditionsAllowCheckInRequeuing = false;
-			}
-
-			// generate some verbose logging feedback
-			healthCheckLogging.append(", ").append(healthCheckCategories[j]).append(": ").append(currAvgVal).append("/")
-					.append((healthCheckTargetLowerBounds[j] > 1) ? healthCheckTargetLowerBounds[j] + "-" : "")
-					.append(healthCheckTargetUpperBounds[j]);
-
-			if (healthCheckCategories[j].equalsIgnoreCase("time-of-day") && (currAvgVal > 24)) {
-				// In this case, we suppress logging, as we can guess that there are less than 6 checkin samples gathered
-				displayLogging = false;
-			}
-		}
-
-		healthCheckLogging.insert(0,"Stashed CheckIn Requeuing: "+( doCheckInConditionsAllowCheckInRequeuing ? "Allowed" : "Not Allowed" )+". Conditions (last "+healthCheckMeasurementCount+" checkins)");
-
-		if (displayLogging) {
-			if (!doCheckInConditionsAllowCheckInRequeuing) {
-				Log.w(logTag, healthCheckLogging.toString());
-			} else {
-				Log.i(logTag, healthCheckLogging.toString());
-				// this is where we could choose to reload stashed checkins into the queue
-				if (app.apiCheckInDb.dbStashed.getCount() > 0) {
-					String[] lastStashedCheckIn = app.apiCheckInDb.dbStashed.getLatestRow();
-					reQueueAudioAssetForCheckIn("stashed", lastStashedCheckIn[1]);
-				}
-			}
-		}
-
 	}
 
 	void createSystemMetaDataJsonSnapshot() throws JSONException {
@@ -322,7 +311,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
 
 		// Adding connection data from previous checkins
-		metaDataJsonObj.put("previous_checkins", TextUtils.join("|", this.previousCheckIns));
+		metaDataJsonObj.put("previous_checkins", app.apiCheckInStatsDb.dbStats.getConcatRows());
 
 		// Adding system metadata, if they can be retrieved from admin role via content provider
 		JSONArray systemMetaJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
@@ -351,7 +340,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			app.deviceSystemDb.dbDateTimeOffsets.clearRowsBefore(deleteBefore);
 			app.deviceSystemDb.dbMqttBrokerConnections.clearRowsBefore(deleteBefore);
-			this.previousCheckIns = new ArrayList<String>();
+			app.apiCheckInStatsDb.dbStats.clearRowsBefore(deleteBefore);
 
 			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
 					"system_meta|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
@@ -409,73 +398,62 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private String getCheckInStatusInfoForJson(boolean includeAssetIdLists) {
 
-		StringBuilder queuedStatus = (new StringBuilder()).append("queued").append("*").append(app.apiCheckInDb.dbQueued.getCount());
-		StringBuilder sentStatus = (new StringBuilder()).append("sent").append("*").append(app.apiCheckInDb.dbSent.getCount());
-		StringBuilder skippedStatus = (new StringBuilder()).append("skipped").append("*").append(app.apiCheckInDb.dbSkipped.getCount());
-		StringBuilder stashedStatus = (new StringBuilder()).append("stashed").append("*").append(app.apiCheckInDb.dbStashed.getCount());
-		StringBuilder archivedStatus = (new StringBuilder()).append("archived").append("*").append(app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount());
-
+		StringBuilder sentIdList = new StringBuilder();
 		if (includeAssetIdLists) {
 			long reportAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
-			for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(10)) {
+			for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(15)) {
 				String assetId = _checkIn[1].substring(0, _checkIn[1].lastIndexOf("."));
-				long diff = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(assetId)));
-			//	Log.e(logTag, "Difference (" + assetId + ") " + DateTimeUtils.milliSecondDurationAsReadableString(diff));
-				if (diff > reportAssetIdIfOlderThan) {
-					sentStatus.append("*").append(assetId);
+				if (reportAssetIdIfOlderThan < Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(assetId)))) {
+					sentIdList.append("*").append(assetId);
 				}
 			}
 		}
 
-		return TextUtils.join("|", new String[] { queuedStatus.toString(), sentStatus.toString(), skippedStatus.toString(), stashedStatus.toString(), archivedStatus.toString() });
+		return TextUtils.join("|",
+				new String[] {
+					"sent*" + app.apiCheckInDb.dbSent.getCount() + sentIdList.toString(),
+					"queued*" + app.apiCheckInDb.dbQueued.getCount(),
+					"meta*" + app.apiCheckInMetaDb.dbMeta.getCount(),
+					"skipped*" + app.apiCheckInDb.dbSkipped.getCount(),
+					"stashed*" + app.apiCheckInDb.dbStashed.getCount(),
+					"archived*" + app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount()
+				});
 	}
 
-	private JSONObject getLocalInstructionsStatusInfoJson() {
 
-		JSONObject instrObj = new JSONObject();
+	private JSONObject buildCheckInPrefsJsonObj() {
+
+		JSONObject prefsObj = new JSONObject();
 		try {
 
-			JSONArray receivedInstrArr = new JSONArray();
-			for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
-				if (receivedRow[0] != null) {
-					JSONObject receivedObj = new JSONObject();
-					receivedObj.put("guid", receivedRow[1]);
-					receivedObj.put("received_at", receivedRow[0]);
-					receivedInstrArr.put(receivedObj);
-				}
-			}
-			instrObj.put("received", receivedInstrArr);
+			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.prefsTimestampLastFullApiSync));
+			String prefsSha1 = app.rfcxPrefs.getPrefsChecksum();
+			prefsObj.put("sha1", prefsSha1);
 
-			JSONArray executedInstrArr = new JSONArray();
-			for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
-				if (executedRow[0] != null) {
-					JSONObject executedObj = new JSONObject();
-					executedObj.put("guid", executedRow[1]);
-					executedObj.put("executed_at", executedRow[0]);
-					executedObj.put("received_at", executedRow[7]);
-					executedObj.put("attempts", executedRow[6]);
-					executedObj.put("response", executedRow[5]);
-					executedInstrArr.put(executedObj);
-				}
+			if (	(this.prefsSha1FullApiSync != null)
+				&&	!this.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
+				&& 	(milliSecondsSinceAccessed > this.requestTimeOutLength)
+			) {
+				Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent.");
+				prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
+				this.prefsTimestampLastFullApiSync = System.currentTimeMillis();
 			}
-			instrObj.put("executed", executedInstrArr);
-
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return instrObj;
+		return prefsObj;
 	}
+
 
 	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
-		int maxRowsToBundle = 4;
-		int maxRowsToQuery = maxRowsToBundle+2;
+		int maxMetaRowsToBundle = this.app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit");
 
 		JSONObject metaJsonBundledSnapshotsObj = null;
 		JSONArray metaJsonBundledSnapshotsIds = new JSONArray();
 		long metaMeasuredAtValue = 0;
 
-		for (String[] metaRow : app.apiCheckInMetaDb.dbMeta.getLatestRowsWithLimit(maxRowsToQuery)) {
+		for (String[] metaRow : app.apiCheckInMetaDb.dbMeta.getLatestRowsWithLimit(2 * maxMetaRowsToBundle)) {
 
 			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(metaRow[3])));
 
@@ -524,7 +502,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.apiCheckInMetaDb.dbMeta.updateLastAccessedAtByTimestamp(metaRow[1]);
 
 				// if the bundle already contains max number of snapshots, stop here
-				if (metaJsonBundledSnapshotsIds.length() >= maxRowsToBundle) { break; }
+				if (metaJsonBundledSnapshotsIds.length() >= maxMetaRowsToBundle) { break; }
 			}
 		}
 
@@ -541,12 +519,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
 
-		// Adding Guardian GUID and Auth Token
-		JSONObject guardianObj = new JSONObject();
-		guardianObj.put("guid", this.app.rfcxGuardianIdentity.getGuid());
-		guardianObj.put("token", this.app.rfcxGuardianIdentity.getAuthToken());
-		checkInMetaJson.put("guardian", guardianObj);
-
 		// Adding Audio JSON fields from checkin table
 		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
 		checkInMetaJson.put("queued_at", checkInJsonObj.getLong("queued_at"));
@@ -557,35 +529,38 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 12));
 
-		checkInMetaJson.put("instructions", getLocalInstructionsStatusInfoJson());
-
-		// Telephony and SIM card info
-		checkInMetaJson.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
-
-		// Hardware info
-		checkInMetaJson.put("hardware", DeviceHardwareUtils.getInfoAsJson());
+		// Device: Phone & Android info
+		JSONObject deviceJsonObj = new JSONObject();
+		deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
+		deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
+		checkInMetaJson.put("device", deviceJsonObj);
 
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 
 		// Adding checksum of current prefs values
-		checkInMetaJson.put("prefs", app.rfcxPrefs.getPrefsChecksum());
+		checkInMetaJson.put("prefs", buildCheckInPrefsJsonObj());
 
 		// Adding device location timezone offset
 		checkInMetaJson.put("datetime", TextUtils.join("|", new String[] { "system*"+System.currentTimeMillis(), "timezone*"+DateTimeUtils.getTimeZoneOffset() }));
+
+		// Adding instructions, if there are any
+		if (app.instructionsUtils.getInstructionsCount() > 0) {
+			checkInMetaJson.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+		}
 
 		// Adding messages to JSON blob
 		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver()));
 
 		// Adding screenshot meta to JSON blob
-		checkInMetaJson.put("screenshots", (screenShotMeta[0] == null) ? "" :
-				TextUtils.join("*", new String[] { screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6] })
-				);
+		checkInMetaJson.put("screenshots",  (screenShotMeta[0] == null) ? "" :
+				TextUtils.join("*", new String[]{screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6] })
+		);
 
 		// Adding logs meta to JSON blob
 		checkInMetaJson.put("logs", (logFileMeta[0] == null) ? "" :
 				TextUtils.join("*", new String[] { logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4] })
-				);
+		);
 
 		// Adding photos meta to JSON blob
 		checkInMetaJson.put("photos",(photoFileMeta[0] == null) ? "" :
@@ -593,11 +568,17 @@ public class ApiCheckInUtils implements MqttCallback {
         );
 
 		// Adding videos meta to JSON blob
-		checkInMetaJson.put("videos",(photoFileMeta[0] == null) ? "" :
+		checkInMetaJson.put("videos",(videoFileMeta[0] == null) ? "" :
 				TextUtils.join("*", new String[] { videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6] })
 		);
 
 		Log.d(logTag,checkInMetaJson.toString());
+
+        // Adding Guardian GUID and Auth Token
+        JSONObject guardianObj = new JSONObject();
+        guardianObj.put("guid", this.app.rfcxGuardianIdentity.getGuid());
+        guardianObj.put("token", this.app.rfcxGuardianIdentity.getAuthToken());
+        checkInMetaJson.put("guardian", guardianObj);
 
 		return checkInMetaJson.toString();
 
@@ -718,24 +699,36 @@ public class ApiCheckInUtils implements MqttCallback {
 		try {
 			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
 
-			if (excStr.contains("Too many publishes in progress")) {
-				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-				app.rfcxServiceHandler.triggerService("ApiCheckInJob", true);
+			boolean isTimedOut = excStr.contains("Timed out waiting for a response from the server");
+			boolean tooManyPublishes = excStr.contains("Too many publishes in progress");
 
-			} else if (	excStr.contains("UnknownHostException")
-					||	excStr.contains("Broken pipe")
-					||	excStr.contains("Timed out waiting for a response from the server")
-					||	excStr.contains("No route to host")
-					||	excStr.contains("Host is unresolved")
-					||	excStr.contains("Unable to connect to server")
+			if (	excStr.contains("UnknownHostException")
+				||	excStr.contains("Broken pipe")
+				||	excStr.contains("No route to host")
+				||	excStr.contains("Host is unresolved")
+				||	excStr.contains("Unable to connect to server")
+				||	tooManyPublishes
+				||	isTimedOut
 			) {
-				Log.i(logTag, "Connection has failed "+this.inFlightCheckInAttemptCounter +" times (max: "+this.inFlightCheckInAttemptCounterLimit +")");
-				app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
-					Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
+
+				if (!isTimedOut) {
+					Log.v(logTag, "Connection has failed " + this.inFlightCheckInAttemptCounter + " times (max: " + this.inFlightCheckInAttemptCounterLimit + ")");
+					app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
+				}
+
+				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit){
+					Log.v(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
 					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
 					this.inFlightCheckInAttemptCounter = 0;
 				}
+
+				if (isTimedOut || (tooManyPublishes && (this.inFlightCheckInAttemptCounter > 1))) {
+					Log.v(logTag, "Kill ApiCheckInJob Service, Close MQTT Connection & Re-Connect");
+					app.rfcxServiceHandler.stopService("ApiCheckInQueue");
+					this.mqttCheckInClient.closeConnection();
+					confirmOrCreateConnectionToBroker(true);
+				}
+
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -769,7 +762,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		return assetMeta;
 	}
 
-	private void initializeFailedCheckInThresholds() {
+	public void initializeFailedCheckInThresholds() {
 
 		String[] checkInThresholdsStr = TextUtils.split(app.rfcxPrefs.getPrefAsString("checkin_failure_thresholds"), ",");
 
@@ -796,23 +789,23 @@ public class ApiCheckInUtils implements MqttCallback {
 			int minsSinceSuccess = (int) Math.floor(((System.currentTimeMillis() - this.requestSendReturned) / 1000) / 60);
 			int minsSinceConnected = (int) Math.floor(((System.currentTimeMillis() - app.deviceConnectivity.lastConnectedAt()) / 1000) / 60);
 
-			if (		// ...we haven't yet reached the first threshold for bad connectivity
+			if (	// ...we haven't yet reached the first threshold for bad connectivity
 					(minsSinceSuccess < this.failedCheckInThresholds[0])
 					// OR... we are explicitly in offline mode
 					|| !app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")
 					// OR... checkins are explicitly paused due to low battery level
 					|| !isBatteryChargeSufficientForCheckIn()
 					// OR... this is likely the first checkin after a period of disconnection
-					|| (app.deviceConnectivity.isConnected() && (minsSinceConnected < this.failedCheckInThresholds[0]))
+				//	|| (app.deviceConnectivity.isConnected() && (minsSinceConnected < this.failedCheckInThresholds[0]))
 			) {
 				for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
 					this.failedCheckInThresholdsReached[i] = false;
 				}
 			} else {
-				int i = 0;
+				int j = 0;
 				for (int toggleThreshold : this.failedCheckInThresholds) {
-                    if ((minsSinceSuccess >= toggleThreshold) && !this.failedCheckInThresholdsReached[i]) {
-                        this.failedCheckInThresholdsReached[i] = true;
+                    if ((minsSinceSuccess >= toggleThreshold) && !this.failedCheckInThresholdsReached[j]) {
+                        this.failedCheckInThresholdsReached[j] = true;
                         if (toggleThreshold == this.failedCheckInThresholds[this.failedCheckInThresholds.length - 1]) {
                             // last threshold
                             if (!app.deviceConnectivity.isConnected() && !app.deviceMobilePhone.hasSim()) {
@@ -825,17 +818,23 @@ public class ApiCheckInUtils implements MqttCallback {
                                         + " minutes since last successful CheckIn)");
                                 app.deviceControlUtils.runOrTriggerDeviceControl("relaunch",
                                         app.getApplicationContext().getContentResolver());
+
+								for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
+									this.failedCheckInThresholdsReached[i] = false;
+								}
+								this.inFlightCheckInAttemptCounter = 0;
                             }
-                        } else if (!app.deviceConnectivity.isConnected()) {
-                            // any threshold and not connected
+                        } else { //} else if (!app.deviceConnectivity.isConnected()) {
+                            // any threshold // and not connected
                             Log.d(logTag, "Failure Threshold Reached: Airplane Mode (" + toggleThreshold
                                     + " minutes since last successful CheckIn)");
                             app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle",
                                     app.getApplicationContext().getContentResolver());
+                            this.inFlightCheckInAttemptCounter = 0;
                         }
                         break;
                     }
-					i++;
+					j++;
 				}
 			}
 		}
@@ -864,27 +863,32 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(assetId);
 				for (String fileExtension : new String[] { "opus", "flac" }) {
 					filePaths.add(RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
+					filePaths.add(RfcxAudioUtils.getAudioFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId), fileExtension));
 				}
 
 			} else if (assetType.equals("screenshot")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePaths.add(DeviceScreenShot.getScreenShotFileLocation_Complete(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(DeviceScreenShot.getScreenShotFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("photo")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "photos|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePaths.add(RfcxCameraUtils.getPhotoFileLocation_Complete_PostGZip(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxCameraUtils.getPhotoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("video")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "videos|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePaths.add(RfcxCameraUtils.getVideoFileLocation_Complete_PostGZip(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxCameraUtils.getVideoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("log")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
 						app.getApplicationContext().getContentResolver());
 				filePaths.add(DeviceLogCat.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(DeviceLogCat.getLogFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("sms")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,
@@ -895,8 +899,8 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			} else if (assetType.equals("instruction")) {
-				app.instructionsDb.dbExecutedInstructions.deleteSingleRowByGuid(assetId);
-				app.instructionsDb.dbQueuedInstructions.deleteSingleRowByGuid(assetId);
+				app.instructionsDb.dbExecutedInstructions.deleteSingleRowById(assetId);
+				app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(assetId);
 
 			}
 
@@ -904,7 +908,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			// delete asset file after it has been purged from records
 			for (String filePath : filePaths) {
 				if ((filePath != null) && (new File(filePath)).exists()) {
-//					latestFileSize = (new File(filePath)).length();
+					latestFileSize = (new File(filePath)).length();
+					totalFileSize += latestFileSize;
 //					latestCheckinTimestamp = DateTimeUtils.getDateTime();
 					FileUtils.delete(filePath);
 					app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
@@ -993,7 +998,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private void processCheckInResponseMessage(String jsonStr) {
 
-		Log.i(logTag, "CheckIn Response: " + jsonStr);
+		Log.i(logTag, "Received: " + jsonStr);
 		try {
 
 			JSONObject jsonObj = new JSONObject(jsonStr);
@@ -1015,16 +1020,17 @@ public class ApiCheckInUtils implements MqttCallback {
 					if (checkInId.length() > 0) {
 						long[] checkInStats = this.inFlightCheckInStats.get(audioId);
 						if (checkInStats != null) {
-							this.previousCheckIns.add( checkInId + "*" + checkInStats[1] + "*" + checkInStats[2] );
+							app.apiCheckInStatsDb.dbStats.insert(checkInId, checkInStats[1], checkInStats[2]);
 							Calendar rightNow = GregorianCalendar.getInstance();
 							rightNow.setTime(new Date());
 
-							runRecentCheckInHealthCheck(new long[]{
+							reQueueStashedCheckInIfAllowedByHealthCheck(new long[]{
 									/* latency */    	checkInStats[1],
 									/* queued */       	(long) app.apiCheckInDb.dbQueued.getCount(),
 									/* recent */        checkInStats[0],
 									/* time-of-day */   (long) rightNow.get(Calendar.HOUR_OF_DAY)
 							});
+							app.apiDiagnosticsDb.dbBandwidth.insert(checkInId, Math.round(1000*checkInStats[2]/checkInStats[1]) );
 						}
 					}
 				}
@@ -1132,9 +1138,21 @@ public class ApiCheckInUtils implements MqttCallback {
 				}
 			}
 
+			// parse 'prefs' array
+			if (jsonObj.has("prefs")) {
+				JSONArray prefsJson = jsonObj.getJSONArray("prefs");
+				for (int i = 0; i < prefsJson.length(); i++) {
+					JSONObject prefsObj = prefsJson.getJSONObject(i);
+					if (prefsObj.has("sha1")) {
+						this.prefsSha1FullApiSync = prefsObj.getString("sha1").toLowerCase();
+					}
+				}
+			}
+
 			// parse 'instructions' array
 			if (jsonObj.has("instructions")) {
-				app.instructionsUtils.processInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
+				app.instructionsUtils.processReceivedInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
+				app.rfcxServiceHandler.triggerService("InstructionsExecution", false);
 			}
 
 			// increase total of synced audio when get the response from mqtt sending
@@ -1152,14 +1170,55 @@ public class ApiCheckInUtils implements MqttCallback {
 		if ((this.inFlightCheckInEntries.get(inFlightCheckInAudioId) != null) && (this.inFlightCheckInEntries.get(inFlightCheckInAudioId)[0] != null)) {
 			String[] checkInEntry = this.inFlightCheckInEntries.get(inFlightCheckInAudioId);
 			// delete latest instead to keep present info
-			if (this.latestCheckInAudioId != null){
+			if (this.latestCheckInAudioId != null) {
 				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(this.latestCheckInAudioId);
 			}
 			if ((checkInEntry != null) && (checkInEntry[0] != null)) {
 				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(checkInEntry[1]);
-				app.apiCheckInDb.dbSent.insert(checkInEntry[1], checkInEntry[2], checkInEntry[3], checkInEntry[4]);
+				app.apiCheckInDb.dbSent.insert(checkInEntry[1], checkInEntry[2], checkInEntry[3], checkInEntry[4], checkInEntry[5], checkInEntry[6]);
 				app.apiCheckInDb.dbSent.incrementSingleRowAttempts(checkInEntry[1]);
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInEntry[1]);
+			}
+		}
+
+
+		long sentFileSizeBufferInBytes = app.rfcxPrefs.getPrefAsLong("checkin_sent_filesize_buffer")*1024*1024;
+
+		if (app.apiCheckInDb.dbSent.getCumulativeFileSizeForAllRows() >= sentFileSizeBufferInBytes) {
+
+			long sentFileSizeSumBeforeLimit = 0;
+			int sentCountBeforeLimit = 0;
+
+			for (String[] checkInCycle : app.apiCheckInDb.dbSent.getRowsWithOffset(0,5000)) {
+				sentFileSizeSumBeforeLimit += Long.parseLong(checkInCycle[6]);
+				if (sentFileSizeSumBeforeLimit >= sentFileSizeBufferInBytes) { break; }
+				sentCountBeforeLimit++;
+			}
+
+			for (String[] sentCheckInsToMove : app.apiCheckInDb.dbSent.getRowsWithOffset(sentCountBeforeLimit, 16)) {
+
+				if (!DeviceDiskUsage.isExternalStorageWritable()) {
+					app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(sentCheckInsToMove[1]);
+
+				} else {
+					String newFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
+							app.rfcxGuardianIdentity.getGuid(),
+							Long.parseLong(sentCheckInsToMove[1].substring(0, sentCheckInsToMove[1].lastIndexOf("."))),
+							sentCheckInsToMove[1].substring(sentCheckInsToMove[1].lastIndexOf(".") + 1));
+					try {
+						FileUtils.copy(sentCheckInsToMove[4], newFilePath);
+					} catch (IOException e) {
+						RfcxLog.logExc(logTag, e);
+					}
+
+					if (FileUtils.exists(newFilePath) && (FileUtils.getFileSizeInBytes(newFilePath) == Long.parseLong(sentCheckInsToMove[6]))) {
+						app.apiCheckInDb.dbSent.updateFilePathByAudioAttachmentId(sentCheckInsToMove[1], newFilePath);
+					} else {
+						app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(sentCheckInsToMove[1]);
+					}
+				}
+
+				FileUtils.delete(sentCheckInsToMove[4]);
 			}
 		}
 	}
@@ -1181,12 +1240,8 @@ public class ApiCheckInUtils implements MqttCallback {
 		Log.i(logTag, "Received "+messagePayload.length+" bytes on '"+messageTopic+"' at "+DateTimeUtils.getDateTime());
 
 		// this is a checkin response message
-		if (messageTopic.equalsIgnoreCase(this.subscribeBaseTopic + "/checkins")) {
+		if (messageTopic.equalsIgnoreCase(this.app.rfcxGuardianIdentity.getGuid()+"/cmd")) {
 			processCheckInResponseMessage(StringUtils.UnGZipByteArrayToString(messagePayload));
-
-		// this is an instruction message
-		} else if (messageTopic.equalsIgnoreCase(this.subscribeBaseTopic + "/instructions")) {
-		    app.instructionsUtils.processInstructionJson(StringUtils.UnGZipByteArrayToString(messagePayload));
 
 		}
 	}
@@ -1207,7 +1262,9 @@ public class ApiCheckInUtils implements MqttCallback {
 					long msgSendDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.inFlightCheckInStats.get(this.inFlightCheckInAudioId)[0]));
 					setInFlightCheckInStats(this.inFlightCheckInAudioId, 0, msgSendDuration, 0);
 //					this.inFlightCheckInAudioId = null;
-					Log.i(logTag, "CheckIn delivery time: " + DateTimeUtils.milliSecondDurationAsReadableString(msgSendDuration, true));
+					String deliveryTimeReadable = DateTimeUtils.milliSecondDurationAsReadableString(msgSendDuration, true);
+					SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHED, deliveryTimeReadable);
+					Log.i(logTag, "CheckIn delivery time: " + deliveryTimeReadable);
 				}
 
 			} else {
@@ -1245,13 +1302,17 @@ public class ApiCheckInUtils implements MqttCallback {
 
 				mqttCheckInClient.confirmOrCreateConnectionToBroker(this.app.deviceConnectivity.isConnected());
 				if (mqttCheckInClient.mqttBrokerConnectionLatency > 0) {
+
 					Log.v(logTag, "MQTT Broker Latency: Connection: "+mqttCheckInClient.mqttBrokerConnectionLatency+" ms, Subscription: "+mqttCheckInClient.mqttBrokerSubscriptionLatency+" ms");
+
 					app.deviceSystemDb.dbMqttBrokerConnections.insert(new Date(),
 													mqttCheckInClient.mqttBrokerConnectionLatency,
 													mqttCheckInClient.mqttBrokerSubscriptionLatency,
 													app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
 													app.rfcxPrefs.getPrefAsString("api_checkin_host"),
 													app.rfcxPrefs.getPrefAsInt("api_checkin_port"));
+
+					app.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
 				}
 			} catch (MqttException e) {
 				RfcxLog.logExc(logTag, e, "confirmOrCreateConnectionToBroker");
@@ -1263,17 +1324,21 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private long publishMessageOnConfirmedConnection(String publishTopic, byte[] messageByteArray) throws MqttException {
 		confirmOrCreateConnectionToBroker(true);
+		SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHING, null);
 		return this.mqttCheckInClient.publishMessage(publishTopic, messageByteArray);
 	}
 
+	public boolean isConnectedToBroker() {
+		return mqttCheckInClient.isConnected();
+	}
 
 	// Ping Messages
 
-	public void sendMqttPing() {
+	public void sendMqttPing(boolean includeAllExtraFields, String[] includeExtraFields) {
 
 		try {
 
-			long pingSendStart = publishMessageOnConfirmedConnection("guardians/pings", packageMqttPingPayload(buildPingJson()));
+			long pingSendStart = publishMessageOnConfirmedConnection("guardians/pings", packageMqttPingPayload(buildPingJson(includeAllExtraFields, includeExtraFields)));
 
 		} catch (Exception e) {
 
@@ -1297,29 +1362,51 @@ public class ApiCheckInUtils implements MqttCallback {
 		return byteArrayOutputStream.toByteArray();
 	}
 
-	private String buildPingJson() throws JSONException, IOException {
+	private String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields) throws JSONException, IOException {
 
 		JSONObject pingObj = new JSONObject();
+
+		boolean includeMeasuredAt = false;
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "battery")) {
+			pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
+			includeMeasuredAt = true;
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {
+			pingObj.put("checkins", getCheckInStatusInfoForJson(false));
+			includeMeasuredAt = true;
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "instructions")) {
+			pingObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {
+			pingObj.put("prefs", buildCheckInPrefsJsonObj());
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "device")) {
+			JSONObject deviceJsonObj = new JSONObject();
+			deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
+			deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
+			pingObj.put("device", deviceJsonObj);
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "software")) {
+			pingObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
+		}
+
+		if (includeMeasuredAt) { pingObj.put("measured_at", System.currentTimeMillis()); }
+
+		Log.d(logTag, pingObj.toString());
 
 		JSONObject guardianObj = new JSONObject();
 		guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
 		guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
 		pingObj.put("guardian", guardianObj);
 
-		pingObj.put("measured_at", System.currentTimeMillis());
-		pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
-		pingObj.put("instructions", getLocalInstructionsStatusInfoJson());
-		pingObj.put("hardware", DeviceHardwareUtils.getInfoAsJson());
-		pingObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
-		pingObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
-		pingObj.put("checkins", getCheckInStatusInfoForJson(false));
-
-		JSONObject outputJsonObj = new JSONObject();
-		outputJsonObj.put("ping", pingObj);
-
-//		Log.d(logTag, outputJsonObj.toString());
-
-		return outputJsonObj.toString();
+		return pingObj.toString();
 	}
 
     private void handlePingPublicationExceptions(Exception inputExc) {

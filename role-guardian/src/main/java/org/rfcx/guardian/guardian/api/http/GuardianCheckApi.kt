@@ -5,7 +5,7 @@ import android.os.Handler
 import android.os.StrictMode
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.manager.getTokenID
-import org.rfcx.guardian.utility.http.HttpGet
+import org.rfcx.guardian.utility.network.HttpGet
 
 object GuardianCheckApi {
 

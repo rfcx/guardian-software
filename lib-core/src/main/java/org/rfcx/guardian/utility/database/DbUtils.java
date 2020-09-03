@@ -29,11 +29,19 @@ public class DbUtils {
 		
 		String TABLE;
 		String CREATE_COLUMN_QUERY;
-		
+		boolean DROP_TABLE_ON_UPGRADE = true;
+
 		public DbHelper(Context context, String database, String table, int version, String createColumnQuery) {
 			super(context, database+"-"+table+".db", null, version);
 			this.TABLE = table;
 			this.CREATE_COLUMN_QUERY = createColumnQuery;
+		}
+
+		public DbHelper(Context context, String database, String table, int version, String createColumnQuery, boolean suppressDropTableOnUpgrade) {
+			super(context, database+"-"+table+".db", null, version);
+			this.TABLE = table;
+			this.CREATE_COLUMN_QUERY = createColumnQuery;
+			this.DROP_TABLE_ON_UPGRADE = !suppressDropTableOnUpgrade;
 		}
 	
 		@Override
@@ -47,18 +55,27 @@ public class DbUtils {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			try { db.execSQL("DROP TABLE IF EXISTS " + this.TABLE); onCreate(db);
-			} catch (SQLException e) { 
-				RfcxLog.logExc(logTag, e);
+			if (this.DROP_TABLE_ON_UPGRADE) {
+				try {
+					db.execSQL("DROP TABLE IF EXISTS " + this.TABLE);
+					onCreate(db);
+				} catch (SQLException e) {
+					RfcxLog.logExc(logTag, e);
+				}
 			}
 		}
 	}
 	
 	public DbHelper dbHelper;
 	private SQLiteDatabase sqlLiteDb = null;
-	
+
+
 	public DbUtils(Context context, String database, String table, int version, String createColumnQuery) {
 		this.dbHelper = new DbHelper(context, database, table, version, createColumnQuery);
+	}
+
+	public DbUtils(Context context, String database, String table, int version, String createColumnQuery, boolean suppressDropTableOnUpgrade) {
+		this.dbHelper = new DbHelper(context, database, table, version, createColumnQuery, suppressDropTableOnUpgrade);
 	}
 	
 	private SQLiteDatabase openDb() {
@@ -224,7 +241,20 @@ public class DbUtils {
 			closeDb();
 		}
 	}
-	
+
+	public void updateStringColumnValueByTimestamp(String tableName, String columnName, String columnValue, String timestampColumn, String timestampValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			for (String[] dbRow : getRows(db, tableName, new String[] { timestampColumn, columnName }, "substr("+timestampColumn+",1,"+timestampValue.length()+") = ?", new String[] { timestampValue }, null) ) {
+				db.execSQL("UPDATE "+tableName+" SET "+columnName+"='"+columnValue+"' WHERE "+ timestampColumn +" = '"+ dbRow[0] +"'");
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		} finally {
+			closeDb();
+		}
+	}
+
 	public void adjustNumericColumnValuesWithinQueryByTimestamp(String adjustmentAmount, String tableName, String numericColumnName, String timestampColumn, String timestampValue) {
 		SQLiteDatabase db = openDb();
 		try {
@@ -251,12 +281,12 @@ public class DbUtils {
 		}
 	}
 
-	public static int getSumOfColumn(SQLiteDatabase db, String tableName, String sumColumn, String selection, String[] selectionArgs) {
-		int sum = 0;
+	public static long getSumOfColumn(SQLiteDatabase db, String tableName, String sumColumn, String selection, String[] selectionArgs) {
+		long sum = 0;
 		try {
 			for (String[] singleRow : getRows(db, tableName, new String[] { "SUM("+sumColumn+")" }, selection, selectionArgs, null, 0, 1)) {
 				if (singleRow[0] != null) {
-					sum = Integer.parseInt(singleRow[0]);
+					sum = Long.parseLong(singleRow[0]);
 					break;
 				}
 			}
@@ -266,9 +296,9 @@ public class DbUtils {
 		return sum;
 	}
 
-	public int getSumOfColumn(String tableName, String sumColumn, String selection, String[] selectionArgs) {
+	public long getSumOfColumn(String tableName, String sumColumn, String selection, String[] selectionArgs) {
 		SQLiteDatabase db = openDb();
-		int sum = getSumOfColumn(db, tableName, sumColumn, selection, selectionArgs);
+		long sum = getSumOfColumn(db, tableName, sumColumn, selection, selectionArgs);
 		closeDb();
 		return sum;
 	}

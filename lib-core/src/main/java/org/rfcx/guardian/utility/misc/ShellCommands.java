@@ -124,7 +124,7 @@ public class ShellCommands {
 //							Log.i(logTag, "Line: " + commandLine);
 //						}
 
-						shellProcess = Runtime.getRuntime().exec(new String[] { "su", "0", tmpScriptObj.getAbsolutePath() });
+						shellProcess = Runtime.getRuntime().exec(new String[] { "su", "-c", tmpScriptObj.getAbsolutePath() });
 						shellProcess.waitFor();
 
 

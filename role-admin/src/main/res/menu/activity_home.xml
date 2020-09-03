@@ -1,31 +1,25 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
 
     <item
-	    android:id="@+id/menu_sms"
-        android:orderInCategory="1"
-	    android:title="@string/menu_sms"
-	    />
+            android:id="@+id/menu_sms_activity"
+            android:orderInCategory="1"
+            android:title="@string/menu_compose_sms" />
     <item
-	    android:id="@+id/menu_screenshot"
-        android:orderInCategory="2"
-	    android:title="@string/menu_screenshot"
-	    />
+            android:id="@+id/menu_screenshot"
+            android:orderInCategory="2"
+            android:title="@string/menu_screenshot" />
     <item
-	    android:id="@+id/menu_sntp"
-        android:orderInCategory="3"
-	    android:title="@string/menu_sntp"
-	    />
-	<item
-	    android:id="@+id/menu_logcat"
-        android:orderInCategory="5"
-	    android:title="@string/menu_logcat"
-	    />
-	<item
-		android:id="@+id/menu_reboot"
-		android:orderInCategory="6"
-		android:title="@string/menu_reboot"
-		/>
-    
-    
-    
+            android:id="@+id/menu_sntp"
+            android:orderInCategory="3"
+            android:title="@string/menu_sntp" />
+    <item
+            android:id="@+id/menu_logcat"
+            android:orderInCategory="4"
+            android:title="@string/menu_logcat" />
+    <item
+            android:id="@+id/menu_reboot"
+            android:orderInCategory="5"
+            android:title="@string/menu_reboot" />
+
 </menu>
