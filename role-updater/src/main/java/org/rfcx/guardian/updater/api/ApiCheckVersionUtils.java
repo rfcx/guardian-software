@@ -72,9 +72,9 @@ public class ApiCheckVersionUtils {
 				}
 				return true;
 			} else if (!installedVersion.equals(focusVersion) && (installedVersionValue > focusVersionValue)) {
-				Log.d(logTag,"org.rfcx.guardian."+focusRole+" is newer than the api version: "+installedVersion+" ("+installedVersionValue+")");
+				Log.d(logTag,"rfcx "+focusRole+": installed version ("+installedVersion+", "+installedVersionValue+") is newer than the latest release version ("+focusVersion+", "+focusVersionValue+").");
 			} else {
-				Log.d(logTag,"org.rfcx.guardian."+focusRole+" is already up-to-date: "+installedVersion+" ("+installedVersionValue+")");
+				Log.d(logTag,"rfcx "+focusRole+": installed version is already up-to-date ("+installedVersion+", "+installedVersionValue+").");
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
