@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
+export GNU_STAT_FLAG="-c%s"; if [[ "$OSTYPE" == "darwin"* ]]; then GNU_STAT_FLAG="-f%z"; fi;
 
 export ROLE=$1;
 
@@ -30,6 +31,7 @@ fi
 export CREATE_BACKUP=`cp $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk.backup;`;
 export GZIP=`gzip -9 $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk`;
 export RESTORE_BACKUP=`mv $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk.backup $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk;`;
+export GZIP_FILESIZE=$(stat $GNU_STAT_FLAG "$PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk.gz")
 
 echo "generating sha1 digest...";
 export SHA1=`openssl dgst -sha1 $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk.gz | grep 'SHA1(' | cut -d'=' -f 2 | cut -d' ' -f 2`;
@@ -43,7 +45,7 @@ export DB_DATABASE="rfcx_api";
 
 export ROLE_FROM_SQL=`mysql -h$DB_URI -u$DB_USER -p$DB_PSWD $DB_DATABASE -e "SELECT id FROM GuardianSoftware WHERE role='$ROLE' LIMIT 1;";`;
 export ROLE_ID=`echo $ROLE_FROM_SQL | cut -d' ' -f 2`;
-export VERSION_INSERT_QUERY="INSERT INTO GuardianSoftwareVersions SET software_role_id=$ROLE_ID, version='$APK_VERSION', sha1_checksum='$SHA1', url='http://install.rfcx.org/rfcx-guardian/guardian-android-$ROLE/$ENV/$ROLE-$APK_VERSION.apk.gz', is_available=1, release_date=NOW(), created_at=NOW(), updated_at=NOW();";
+export VERSION_INSERT_QUERY="INSERT INTO GuardianSoftwareVersions SET software_role_id=$ROLE_ID, version='$APK_VERSION', sha1_checksum='$SHA1', size=$GZIP_FILESIZE, url='http://install.rfcx.org/rfcx-guardian/guardian-android-$ROLE/$ENV/$ROLE-$APK_VERSION.apk.gz', is_available=1, release_date=NOW(), created_at=NOW(), updated_at=NOW();";
 mysql -h$DB_URI -u$DB_USER -p$DB_PSWD $DB_DATABASE -e "$VERSION_INSERT_QUERY";
 
 export VERSION_ID_FROM_SQL=`mysql -h$DB_URI -u$DB_USER -p$DB_PSWD $DB_DATABASE -e "SELECT id FROM GuardianSoftwareVersions WHERE sha1_checksum='$SHA1' LIMIT 1;";`;

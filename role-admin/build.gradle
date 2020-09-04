@@ -16,7 +16,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 28
         versionCode 3
-        versionName "0.6.14"
+        versionName "0.6.15"
         resConfigs "en"
         setProperty("archivesBaseName", "admin-$versionName")
 

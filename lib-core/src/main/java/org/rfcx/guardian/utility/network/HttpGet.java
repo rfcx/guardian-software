@@ -12,6 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -171,10 +172,12 @@ public class HttpGet {
 	        conn.setDoInput(true);
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
+	        conn.setRequestProperty("Accept-Encoding", "gzip");
 			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	            return readResponseStream(conn.getInputStream(), this.logTag);
+				return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream(), this.logTag);
+
 	        } else {
 	        	Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode());
 	        }
@@ -194,12 +197,14 @@ public class HttpGet {
 	        conn.setDoInput(true);
 	        conn.setDoOutput(false);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
+			conn.setRequestProperty("Accept-Encoding", "gzip");
 			for (String[] keyValueHeader : this.customHttpHeaders) {
 				conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]);
 			}
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-	            return readResponseStream(conn.getInputStream(), this.logTag);
+		    	return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream(), this.logTag);
+
 	        } else {
 	        	Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode());
 	        }
