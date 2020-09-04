@@ -70,7 +70,7 @@ public class DownloadFileService extends Service {
 
 			try {
 
-				if (httpGet.getAsFile(app.installUtils.installVersionUrl, app.installUtils.apkFileName)) {
+				if (httpGet.getAsFile(app.installUtils.installVersionUrl, app.installUtils.apkFileNameDownload)) {
 
 					Log.d(logTag, "APK download complete. Verifying downloaded checksum...");
 					String downloadFileSha1 = FileUtils.sha1Hash(app.installUtils.apkPathDownload);
@@ -78,14 +78,19 @@ public class DownloadFileService extends Service {
 
 					if (downloadFileSha1.equalsIgnoreCase(app.installUtils.installVersionSha1)) {
 
-						Log.d(logTag, "Checksum passed. Moving APK file to external storage...");
+						Log.d(logTag, "Checksum passed. Uncompressing APK...");
+
+						FileUtils.gUnZipFile(app.installUtils.apkPathDownload, app.installUtils.apkPathPostDownload);
+
+						Log.d(logTag, "APK Uncompresssed. Moving APK file to external storage...");
+						FileUtils.delete(app.installUtils.apkPathDownload);
 						FileUtils.delete(app.installUtils.apkPathExternal);
-						FileUtils.copy(app.installUtils.apkPathDownload, app.installUtils.apkPathExternal);
+						FileUtils.copy(app.installUtils.apkPathPostDownload, app.installUtils.apkPathExternal);
 						FileUtils.chmod(app.installUtils.apkPathExternal,  "rw", "rw");
 
-						if (FileUtils.sha1Hash(app.installUtils.apkPathExternal).equalsIgnoreCase(downloadFileSha1)) {
+						if (FileUtils.sha1Hash(app.installUtils.apkPathExternal).equalsIgnoreCase(FileUtils.sha1Hash(app.installUtils.apkPathPostDownload))) {
 
-							FileUtils.delete(app.installUtils.apkPathDownload);
+							FileUtils.delete(app.installUtils.apkPathPostDownload);
 							app.rfcxServiceHandler.triggerService("InstallApp", false);
 						}
 

@@ -33,7 +33,9 @@ public class InstallUtils {
 	public String apkDirDownload;
 	public String apkDirExternal;
 	public String apkFileName = null;
+	public String apkFileNameDownload = null;
 	public String apkPathDownload = null;
+	public String apkPathPostDownload = null;
 	public String apkPathExternal = null;
 
 
@@ -54,7 +56,9 @@ public class InstallUtils {
 
 
 		this.apkFileName = this.installRole+"-"+this.installVersion+".apk";
-		this.apkPathDownload = this.apkDirDownload+"/"+this.apkFileName;
+		this.apkFileNameDownload = this.apkFileName+".gz";
+		this.apkPathDownload = this.apkDirDownload+"/"+this.apkFileNameDownload;
+		this.apkPathPostDownload = this.apkDirDownload+"/"+this.apkFileName;
 		this.apkPathExternal = this.apkDirExternal+"/"+this.apkFileName;
 	}
 

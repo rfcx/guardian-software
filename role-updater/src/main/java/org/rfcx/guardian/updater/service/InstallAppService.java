@@ -79,8 +79,7 @@ public class InstallAppService extends Service {
 				if (versionValueToInstall > installedVersionValue) {
 					if (app.installUtils.installApkAndVerify()) {
 						Log.d(logTag, "Installation Successful: " + app.installUtils.installRole + ", " + app.installUtils.installVersion);
-						//	Log.d(logTag, "Rebooting system now...");
-						//	app.rfcxServiceHandler.triggerService("RebootTrigger", true);
+						app.apiCheckVersionUtils.attemptToTriggerCheckIn(true, true);
 					} else {
 						Log.e(logTag, "Installation Failed: " + app.installUtils.installRole + ", " + app.installUtils.installVersion);
 					}
