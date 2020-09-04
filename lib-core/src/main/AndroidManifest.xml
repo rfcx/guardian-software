@@ -1,6 +1,2 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="org.rfcx.guardian.utility">
-
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-</manifest>
+          package="org.rfcx.guardian.utility" />

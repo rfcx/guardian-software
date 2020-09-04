@@ -22,12 +22,13 @@ public class DeviceControlUtils {
 		boolean mustUseContentProvider = appRole.equalsIgnoreCase("Guardian");
 			
 		if (mustUseContentProvider) {
-			try { 
-				Log.v(logTag, "Triggering '"+controlCommand+"' via content provider.");
-				Cursor deviceControlResponse = 
+			try {
+				String targetRole = controlCommand.equalsIgnoreCase("software_update") ? "updater" : "admin";
+				Log.v(logTag, "Triggering '"+controlCommand+"' via "+targetRole+" role content provider.");
+				Cursor deviceControlResponse =
 						contentResolver.query(
-							RfcxComm.getUri("admin", "control", controlCommand),
-							RfcxComm.getProjection("admin", "control"),
+							RfcxComm.getUri(targetRole, "control", controlCommand),
+							RfcxComm.getProjection(targetRole, "control"),
 							null, null, null);
 				Log.v(logTag, deviceControlResponse.toString());
 				deviceControlResponse.close();
@@ -44,29 +45,29 @@ public class DeviceControlUtils {
 		}
 		return false;
 	}
-	public boolean runOrTriggerDbFromAdmin(String controlCommand, ContentResolver contentResolver) {
-
-		// replace this with something that more dynamically determines whether the roles has root access
-		boolean mustUseContentProvider = appRole.equalsIgnoreCase("Guardian");
-
-		if (mustUseContentProvider) {
-			try {
-				Log.v(logTag, "Triggering '"+controlCommand+"' via content provider.");
-				Cursor dbFetchingResponse =
-						contentResolver.query(
-								RfcxComm.getUri("admin", "database_get_latest_row", controlCommand),
-								RfcxComm.getProjection("admin", "database_get_latest_row"),
-								null, null, null);
-				Log.v(logTag, dbFetchingResponse.getCount()+"");
-				dbFetchingResponse.close();
-				return true;
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-				return false;
-			}
-		}
-		return false;
-	}
+//	public boolean runOrTriggerDbFromAdmin(String controlCommand, ContentResolver contentResolver) {
+//
+//		// replace this with something that more dynamically determines whether the roles has root access
+//		boolean mustUseContentProvider = appRole.equalsIgnoreCase("Guardian");
+//
+//		if (mustUseContentProvider) {
+//			try {
+//				Log.v(logTag, "Triggering '"+controlCommand+"' via content provider.");
+//				Cursor dbFetchingResponse =
+//						contentResolver.query(
+//								RfcxComm.getUri("admin", "database_get_latest_row", controlCommand),
+//								RfcxComm.getProjection("admin", "database_get_latest_row"),
+//								null, null, null);
+//				Log.v(logTag, dbFetchingResponse.getCount()+"");
+//				dbFetchingResponse.close();
+//				return true;
+//			} catch (Exception e) {
+//				RfcxLog.logExc(logTag, e);
+//				return false;
+//			}
+//		}
+//		return false;
+//	}
 	
 	
 	

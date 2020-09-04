@@ -68,9 +68,9 @@ public class UpdaterContentProvider extends ContentProvider {
 				app.rfcxServiceHandler.stopAllServices();
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{ "kill", null, System.currentTimeMillis()});
 
-			} else if (RfcxComm.uriMatch(uri, appRole, "control", "api_check")) {
-				app.rfcxServiceHandler.triggerService("ApiCheckVersion",true);
-				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{ "api_check", null, System.currentTimeMillis()});
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "software_update")) {
+				app.apiCheckVersionUtils.attemptToTriggerCheckIn(true, true);
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{ "software_update", null, System.currentTimeMillis()});
 
 			}
 
