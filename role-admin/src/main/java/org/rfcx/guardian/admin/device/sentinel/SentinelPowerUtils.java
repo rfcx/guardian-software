@@ -16,7 +16,7 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import android.content.Context;
 import android.util.Log;
 
-import org.rfcx.guardian.utility.device.DeviceI2cUtils;
+import org.rfcx.guardian.i2c.DeviceI2cUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 

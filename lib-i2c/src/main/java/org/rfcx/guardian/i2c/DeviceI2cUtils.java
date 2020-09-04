@@ -1,9 +1,7 @@
-package org.rfcx.guardian.utility.device;
+package org.rfcx.guardian.i2c;
 
-import android.content.Context;
-
-import org.rfcx.guardian.i2c.I2cTools;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import android.text.TextUtils;
+import android.util.Log;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -150,5 +148,8 @@ public class DeviceI2cUtils {
 	public static long twosComplementHexToDecAsLong(String hexStr)  {
 		return Long.parseLong(twosComplementHexToDec(hexStr)+"");
 	}
+
+
+
 
 }

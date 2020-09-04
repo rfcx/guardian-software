@@ -9,14 +9,14 @@ if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properti
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId "org.rfcx.guardian.guardian"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 3
-        versionName "0.6.21"
+        versionName "0.6.22"
         resConfigs "en"
         setProperty("archivesBaseName", "guardian-$versionName")
 

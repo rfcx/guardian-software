@@ -9,14 +9,14 @@ if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properti
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId "org.rfcx.guardian.admin"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 3
-        versionName "0.6.15"
+        versionName "0.6.16"
         resConfigs "en"
         setProperty("archivesBaseName", "admin-$versionName")
 
@@ -40,6 +40,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation project(path: ':lib-i2c')
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'

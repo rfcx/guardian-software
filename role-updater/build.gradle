@@ -7,7 +7,7 @@ if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properti
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     lintOptions {
         checkReleaseBuilds false
@@ -19,9 +19,9 @@ android {
     defaultConfig {
         applicationId "org.rfcx.guardian.updater"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 3
-        versionName "0.7.8"
+        versionName "0.7.9"
         resConfigs "en"
         setProperty("archivesBaseName", "updater-$versionName")
 
