@@ -5,6 +5,7 @@ import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
+import org.rfcx.guardian.admin.device.android.control.ScheduledSntpSyncService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
@@ -183,28 +184,28 @@ public class RfcxGuardian extends Application {
 			
 			String[] runOnceOnlyOnLaunch = new String[] {
 					"ServiceMonitor"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
-							+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
-							,
-					"ScheduledReboot"
-							+"|"+DateTimeUtils.nextOccurrenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
-							+"|"+( 24 * 60 * 60 * 1000 ) // repeats daily
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
+							+ "|" + ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
 							,
 					"ScheduledScreenShotCapture"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:45").getTimeInMillis() // waits forty five seconds before running
-							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_screenshot_capture_cycle") * 60 * 1000 )
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:45").getTimeInMillis() // waits forty five seconds before running
+							+ "|" + ( this.rfcxPrefs.getPrefAsLong("admin_screenshot_capture_cycle") * 60 * 1000 )
 							,
 					"ScheduledLogCatCapture"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
-							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
+							+ "|" + ( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
 							,
 					"ADBStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
-							+"|"+"0" 																	// no repeat
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
+							+ "|" + "norepeat"
 							,
 					"WifiStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
-							+"|"+"0" 																		// no repeat
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:15").getTimeInMillis() // waits fifteen seconds before running
+							+ "|" + "norepeat"
+							,
+					"ScheduledReboot"
+							+ "|" + DateTimeUtils.nextOccurrenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
+							+ "|" + "norepeat"
 			};
 			
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
@@ -242,6 +243,8 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("SmsDispatchCycle", SmsDispatchCycleService.class);
 
 		this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
+		this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
+
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
 
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerService.class);

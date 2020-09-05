@@ -244,6 +244,20 @@
 		android:summary="int - count"
 		android:enabled="true"
 		android:defaultValue="@string/prefs_value_default_checkin_meta_bundle_limit" />
+
+	<EditTextPreference
+		android:key="api_sntp_cycle_duration"
+		android:title="api_sntp_cycle_duration"
+		android:summary="int - minutes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_sntp_cycle_duration" />
+
+	<EditTextPreference
+		android:key="api_ping_cycle_duration"
+		android:title="api_ping_cycle_duration"
+		android:summary="int - minutes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_ping_cycle_duration" />
  	
  	<!-- Admin Controls -->
  	

@@ -1,19 +1,21 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.admin.device.android.control;
 
 import android.app.IntentService;
 import android.content.Intent;
 
-import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-public class ScheduledApiPingService extends IntentService {
+public class ScheduledSntpSyncService extends IntentService {
 
-	private static final String SERVICE_NAME = "ScheduledApiPing";
+	private static final String SERVICE_NAME = "ScheduledSntpSync";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledApiPingService");
-
-	public ScheduledApiPingService() {
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledSntpSyncService");
+	
+	public static final long SCHEDULED_SNTP_SYNC_CYCLE_DURATION = 20 * ( 60 * 1000 ); // every 20 minutes
+		
+	public ScheduledSntpSyncService() {
 		super(logTag);
 	}
 	
@@ -24,10 +26,8 @@ public class ScheduledApiPingService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-
-		app.apiCheckInUtils.sendMqttPing(true, new String[]{} );
-		
+		app.rfcxServiceHandler.triggerService("SntpSyncJob", true);
+	
 	}
 	
 	

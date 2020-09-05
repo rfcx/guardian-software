@@ -409,6 +409,9 @@ public class RfcxPrefs {
 			put("admin_enable_wifi", "true");
 			put("admin_enable_tcp_adb", "true");
 
+			put("api_sntp_cycle_duration", "30");
+			put("api_ping_cycle_duration", "30");
+
 			put("admin_log_capture_cycle", "30");
 			put("admin_log_capture_level", "warn");
 			put("admin_enable_log_capture", "false");

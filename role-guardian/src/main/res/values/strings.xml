@@ -45,6 +45,9 @@
 	<string name="prefs_value_default_checkin_requeue_bounds_hours">9,15</string>
 	<string name="prefs_value_default_checkin_meta_bundle_limit">10</string>
 
+	<string name="prefs_value_default_api_sntp_cycle_duration">30</string>
+	<string name="prefs_value_default_api_ping_cycle_duration">30</string>
+
 	<string name="prefs_value_default_admin_enable_log_capture">false</string>
 	<string name="prefs_value_default_admin_log_capture_level">Warn</string>
 	<string name="prefs_value_default_admin_log_capture_cycle">30</string>

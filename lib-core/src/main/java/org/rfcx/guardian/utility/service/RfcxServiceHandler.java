@@ -60,7 +60,7 @@ public class RfcxServiceHandler {
 					
 					long startTimeMillis = System.currentTimeMillis();
 					boolean isSvcScheduled = false;
-					if (		!svcStart.equals("0") 
+					if (	!svcStart.equals("0")
 						&& 	!svcStart.equalsIgnoreCase("now")
 						) { try {
 							startTimeMillis = (long) Long.parseLong(svcStart);
@@ -69,10 +69,10 @@ public class RfcxServiceHandler {
 					}
 					
 					long repeatIntervalMillis = 0;
-					if (		!svcRepeat.equals("0") 
+					if (	!svcRepeat.equals("0")
 						&& 	!svcRepeat.equalsIgnoreCase("norepeat")
 						) { try {
-							repeatIntervalMillis = (long) Long.parseLong(svcRepeat);
+							repeatIntervalMillis = Long.parseLong(svcRepeat);
 						} catch (Exception e) { RfcxLog.logExc(logTag, e); } 
 					}
 

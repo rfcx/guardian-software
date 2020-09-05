@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin.receiver;
 
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
@@ -13,6 +14,8 @@ import java.util.Date;
 public class ConnectivityReceiver extends BroadcastReceiver {
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ConnectivityReceiver");
+
+	private boolean isFirstInstance = true;
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -20,6 +23,12 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         
         int disconnectedFor = app.deviceConnectivity.updateConnectivityStateAndReportDisconnectedFor(intent);
+
+        if (this.isFirstInstance) {
+			app.rfcxServiceHandler.triggerService( new String[] { "ScheduledSntpSync", ""+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis(), "norepeat" }, false);
+		}
+
+		this.isFirstInstance = false;
 
 	}
 

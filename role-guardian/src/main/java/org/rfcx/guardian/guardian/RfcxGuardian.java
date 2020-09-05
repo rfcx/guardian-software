@@ -18,7 +18,6 @@ import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
-import org.rfcx.guardian.utility.install.RegisterUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -157,8 +156,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         boolean isSaved = false;
 
         try {
-            JSONObject regJsonObj = RegisterUtils.parseRegisterJson(regJsonStr);
-
+            JSONObject regJsonObj = new JSONObject(regJsonStr);
             if (regJsonObj.has("guid") && regJsonObj.has("token")) {
                 this.rfcxGuardianIdentity.setAuthToken(regJsonObj.getString("token"));
                 this.rfcxGuardianIdentity.setKeystorePassPhrase(regJsonObj.getString("keystore_passphrase"));
@@ -174,9 +172,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public boolean doConditionsPermitRoleServices() {
         if (isGuardianRegistered()) {
-  //          if (!this.rfcxServiceHandler.isRunning("AudioCapture")) {
-                return true;
-  //          }
+            return true;
         } else {
             this.rfcxServiceHandler.stopAllServices();
         }
@@ -191,18 +187,18 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     "ServiceMonitor"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
                             + "|" + ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
-                    ,
+                            ,
                     "ScheduledSntpSync"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
-                            + "|" + ScheduledSntpSyncService.SCHEDULED_SNTP_SYNC_CYCLE_DURATION
-                    ,
+                            + "|" + ( this.rfcxPrefs.getPrefAsLong("api_sntp_cycle_duration") * 60 * 1000 )
+                            ,
                     "ScheduledApiPing"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
-                            + "|" + ScheduledApiPingService.SCHEDULED_API_PING_CYCLE_DURATION
-                    ,
+                            + "|" + ( this.rfcxPrefs.getPrefAsLong("api_ping_cycle_duration") * 60 * 1000 )
+                            ,
                     "WifiCommunication"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minutes before running
-                            + "|" + "0"                                                                    // no repeat
+                            + "|" + "norepeat"
             };
 
             String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
