@@ -16,7 +16,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 3
-        versionName "0.6.16"
+        versionName "0.6.18"
         resConfigs "en"
         setProperty("archivesBaseName", "admin-$versionName")
 
@@ -39,7 +39,7 @@ dependencies {
     implementation project(':lib-core')
     implementation project(':lib-i2c')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation 'androidx.appcompat:appcompat:1.0.0'
