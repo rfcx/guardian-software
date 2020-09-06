@@ -387,7 +387,7 @@ public class RfcxPrefs {
 			put("audio_cycle_duration", "90");
 			
 			put("audio_schedule_off_hours", "23:56-23:58,23:58-00:00");
-			put("audio_sampling_ratio", "1:1");
+			put("audio_sampling_ratio", "1:2");
 
 			put("checkin_battery_cutoff", "90");
 			put("audio_battery_cutoff", "80");
@@ -404,9 +404,9 @@ public class RfcxPrefs {
 			put("checkin_stash_filesize_buffer", "32");
 			put("checkin_archive_filesize_target", "32");
 
-			put("checkin_requeue_bounds_hours", "9,15");
+			put("checkin_requeue_bounds_hours", "9-15");
 
-			put("checkin_meta_bundle_limit", "5");
+			put("checkin_meta_bundle_limit", "8");
 
 			put("admin_enable_wifi", "true");
 			put("admin_enable_tcp_adb", "true");
@@ -417,7 +417,7 @@ public class RfcxPrefs {
 			put("api_ping_cycle_duration", "30");
 
 			put("admin_log_capture_cycle", "30");
-			put("admin_log_capture_level", "warn");
+			put("admin_log_capture_level", "Warn");
 			put("admin_enable_log_capture", "false");
 
 			put("admin_gps_capture_cycle", "15");

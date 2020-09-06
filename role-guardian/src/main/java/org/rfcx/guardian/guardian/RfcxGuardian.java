@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian;
 import java.util.Map;
 
 import org.json.JSONObject;
+import org.rfcx.guardian.guardian.api.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInStatsDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiDiagnosticsDb;
@@ -84,6 +85,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
+    public AssetUtils assetUtils = null;
     public InstructionsUtils instructionsUtils = null;
     public WifiCommunicationUtils wifiCommunicationUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
@@ -123,6 +125,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioCaptureUtils = new AudioCaptureUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
+        this.assetUtils = new AssetUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.wifiCommunicationUtils = new WifiCommunicationUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);

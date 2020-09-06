@@ -78,9 +78,9 @@ public class ApiCheckInHealthUtils {
 	public boolean validateRecentCheckInHealthCheck(long prefsAudioCycleDuration, String prefsTimeOfDayBounds, long[] currentCheckInStats) {
 
 		setOrResetRecentCheckInHealthCheck(	prefsAudioCycleDuration,
-											Long.parseLong(prefsTimeOfDayBounds.split(",")[0]),
-											Long.parseLong(prefsTimeOfDayBounds.split(",")[1])
-										);
+										(prefsTimeOfDayBounds.contains("-") ? Long.parseLong(prefsTimeOfDayBounds.split("-")[0]) : 11),
+										(prefsTimeOfDayBounds.contains("-") ? Long.parseLong(prefsTimeOfDayBounds.split("-")[1]) : 13)
+									);
 
 		long[] currAvgVals = new long[healthCheckCategories.length]; Arrays.fill(currAvgVals, 0);
 
@@ -101,8 +101,11 @@ public class ApiCheckInHealthUtils {
 		for (int j = 0; j < healthCheckCategories.length; j++) {
 
 			long currAvgVal = currAvgVals[j];
+
 			// some average values require modification before comparison to upper/lower bounds...
-			if (healthCheckCategories[j].equalsIgnoreCase("recent")) { currAvgVal = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(currAvgVals[j])); }
+			if (healthCheckCategories[j].equalsIgnoreCase("recent")) {
+				currAvgVal = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(currAvgVals[j]));
+			}
 
 			// compare to upper lower bounds, check for pass/fail
 			if ((currAvgVal > healthCheckTargetUpperBounds[j]) || (currAvgVal < healthCheckTargetLowerBounds[j])) {
@@ -115,7 +118,7 @@ public class ApiCheckInHealthUtils {
 					.append(healthCheckTargetUpperBounds[j]);
 
 			if (healthCheckCategories[j].equalsIgnoreCase("time-of-day") && (currAvgVal > 24)) {
-				// In this case, we suppress logging, as we can guess that there are less than 6 checkin samples gathered
+				// In this case, we suppress logging, as we can be sure that there are less than 6 checkin samples gathered
 				displayLogging = false;
 			}
 		}
@@ -127,11 +130,9 @@ public class ApiCheckInHealthUtils {
 				Log.w(logTag, healthCheckLogging.toString());
 			} else {
 				Log.i(logTag, healthCheckLogging.toString());
-				// this is where we could choose to reload stashed checkins into the queue
-				return true;
 			}
 		}
-		return false;
+		return doCheckInConditionsAllowCheckInRequeuing;
 	}
 
 

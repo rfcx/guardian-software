@@ -30,7 +30,6 @@ import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
-import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
 import org.rfcx.guardian.utility.device.capture.DeviceScreenShot;
@@ -87,11 +86,6 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	public String prefsSha1FullApiSync = null;
 	public long prefsTimestampLastFullApiSync = 0;
-
-	public static long latestFileSize = 0;
-	public static long totalFileSize = 0;
-	public static String latestCheckinTimestamp = "";
-	public static int totalSyncedAudio = 0;
 
 	public void setOrResetBrokerConfig() {
 		String[] authUserPswd = app.rfcxPrefs.getPrefAsString("api_checkin_auth_creds").split(",");
@@ -386,14 +380,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
 	}
 
-	private String getAssetExchangeLogList(String assetStatus, int rowLimit) {
-
-		List<String[]> assetRows = new ArrayList<String[]>();
-		if (assetStatus.equalsIgnoreCase("purged")) {
-			assetRows = app.apiAssetExchangeLogDb.dbPurged.getLatestRowsWithLimitExcludeCreatedAt(rowLimit);
-		}
-		return DbUtils.getConcatRows(assetRows);
-	}
 
 	private String getCheckInStatusInfoForJson(boolean includeAssetIdLists) {
 
@@ -526,7 +512,7 @@ public class ApiCheckInUtils implements MqttCallback {
 		// Recording number of currently queued/skipped/stashed checkins
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson(true));
 
-		checkInMetaJson.put("assets_purged", getAssetExchangeLogList("purged", 12));
+		checkInMetaJson.put("assets_purged", app.assetUtils.getAssetExchangeLogList("purged", 12));
 
 		// Device: Phone & Android info
 		JSONObject deviceJsonObj = new JSONObject();
@@ -907,9 +893,6 @@ public class ApiCheckInUtils implements MqttCallback {
 			// delete asset file after it has been purged from records
 			for (String filePath : filePaths) {
 				if ((filePath != null) && (new File(filePath)).exists()) {
-					latestFileSize = (new File(filePath)).length();
-					totalFileSize += latestFileSize;
-//					latestCheckinTimestamp = DateTimeUtils.getDateTime();
 					FileUtils.delete(filePath);
 					app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
 					Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ", " + filePath.substring(1 + filePath.lastIndexOf("/")));
@@ -923,76 +906,76 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 	}
 
-	public void purgeAllCheckIns() {
-
-		String deviceGuid = app.rfcxGuardianIdentity.getGuid();
-		String defaultAudioCodec = app.rfcxPrefs.getPrefAsString("audio_encode_codec");
-
-		List<String[]> allQueued = app.apiCheckInDb.dbQueued.getAllRows();
-		app.apiCheckInDb.dbQueued.deleteAllRows();
-		List<String> queuedDeletedList = new ArrayList<String>();
-
-		for (String[] queuedRow : allQueued) {
-			String fileTimestamp = queuedRow[1].substring(0, queuedRow[1].indexOf("."));
-			String filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(deviceGuid, app.getApplicationContext(),
-					Long.parseLong(fileTimestamp), defaultAudioCodec);
-			if ((new File(filePath)).exists()) {
-				(new File(filePath)).delete();
-				queuedDeletedList.add(fileTimestamp);
-			}
-		}
-
-		Log.v(logTag, "Deleted from Queued: " + TextUtils.join(" ", queuedDeletedList));
-
-		List<String[]> allStashed = app.apiCheckInDb.dbStashed.getAllRows();
-		app.apiCheckInDb.dbStashed.deleteAllRows();
-		List<String> stashedDeletedList = new ArrayList<String>();
-
-		for (String[] stashedRow : allStashed) {
-			String fileTimestamp = stashedRow[1].substring(0, stashedRow[1].indexOf("."));
-			String filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(deviceGuid, app.getApplicationContext(),
-					Long.parseLong(fileTimestamp), defaultAudioCodec);
-			if ((new File(filePath)).exists()) {
-				(new File(filePath)).delete();
-				stashedDeletedList.add(fileTimestamp);
-			}
-		}
-
-		Log.v(logTag, "Deleted from Stashed: " + TextUtils.join(" ", stashedDeletedList));
-
-		List<String[]> allSkipped = app.apiCheckInDb.dbSkipped.getAllRows();
-		app.apiCheckInDb.dbSkipped.deleteAllRows();
-		List<String> skippedDeletedList = new ArrayList<String>();
-
-		for (String[] skippedRow : allSkipped) {
-			String fileTimestamp = skippedRow[1].substring(0, skippedRow[1].indexOf("."));
-			String filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(deviceGuid, app.getApplicationContext(),
-					Long.parseLong(fileTimestamp), defaultAudioCodec);
-			if ((new File(filePath)).exists()) {
-				(new File(filePath)).delete();
-				skippedDeletedList.add(fileTimestamp);
-			}
-		}
-
-		Log.v(logTag, "Deleted from Skipped: " + TextUtils.join(" ", skippedDeletedList));
-
-		List<String[]> allSent = app.apiCheckInDb.dbSent.getAllRows();
-		app.apiCheckInDb.dbSent.deleteAllRows();
-		List<String> sentDeletedList = new ArrayList<String>();
-
-		for (String[] sentRow : allSent) {
-			String fileTimestamp = sentRow[1].substring(0, sentRow[1].indexOf("."));
-			String filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(deviceGuid, app.getApplicationContext(),
-					Long.parseLong(fileTimestamp), defaultAudioCodec);
-			if ((new File(filePath)).exists()) {
-				(new File(filePath)).delete();
-				sentDeletedList.add(fileTimestamp);
-			}
-		}
-
-		Log.v(logTag, "Deleted from Sent: " + TextUtils.join(" ", sentDeletedList));
-
-	}
+//	public void purgeAllCheckIns() {
+//
+//		String deviceGuid = app.rfcxGuardianIdentity.getGuid();
+//		String defaultAudioCodec = app.rfcxPrefs.getPrefAsString("audio_encode_codec");
+//
+//		List<String[]> allQueued = app.apiCheckInDb.dbQueued.getAllRows();
+//		app.apiCheckInDb.dbQueued.deleteAllRows();
+//		List<String> queuedDeletedList = new ArrayList<String>();
+//
+//		for (String[] queuedRow : allQueued) {
+//			String fileTimestamp = queuedRow[1].substring(0, queuedRow[1].indexOf("."));
+//			String filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(deviceGuid, app.getApplicationContext(),
+//					Long.parseLong(fileTimestamp), defaultAudioCodec);
+//			if ((new File(filePath)).exists()) {
+//				(new File(filePath)).delete();
+//				queuedDeletedList.add(fileTimestamp);
+//			}
+//		}
+//
+//		Log.v(logTag, "Deleted from Queued: " + TextUtils.join(" ", queuedDeletedList));
+//
+//		List<String[]> allStashed = app.apiCheckInDb.dbStashed.getAllRows();
+//		app.apiCheckInDb.dbStashed.deleteAllRows();
+//		List<String> stashedDeletedList = new ArrayList<String>();
+//
+//		for (String[] stashedRow : allStashed) {
+//			String fileTimestamp = stashedRow[1].substring(0, stashedRow[1].indexOf("."));
+//			String filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(deviceGuid, app.getApplicationContext(),
+//					Long.parseLong(fileTimestamp), defaultAudioCodec);
+//			if ((new File(filePath)).exists()) {
+//				(new File(filePath)).delete();
+//				stashedDeletedList.add(fileTimestamp);
+//			}
+//		}
+//
+//		Log.v(logTag, "Deleted from Stashed: " + TextUtils.join(" ", stashedDeletedList));
+//
+//		List<String[]> allSkipped = app.apiCheckInDb.dbSkipped.getAllRows();
+//		app.apiCheckInDb.dbSkipped.deleteAllRows();
+//		List<String> skippedDeletedList = new ArrayList<String>();
+//
+//		for (String[] skippedRow : allSkipped) {
+//			String fileTimestamp = skippedRow[1].substring(0, skippedRow[1].indexOf("."));
+//			String filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(deviceGuid, app.getApplicationContext(),
+//					Long.parseLong(fileTimestamp), defaultAudioCodec);
+//			if ((new File(filePath)).exists()) {
+//				(new File(filePath)).delete();
+//				skippedDeletedList.add(fileTimestamp);
+//			}
+//		}
+//
+//		Log.v(logTag, "Deleted from Skipped: " + TextUtils.join(" ", skippedDeletedList));
+//
+//		List<String[]> allSent = app.apiCheckInDb.dbSent.getAllRows();
+//		app.apiCheckInDb.dbSent.deleteAllRows();
+//		List<String> sentDeletedList = new ArrayList<String>();
+//
+//		for (String[] sentRow : allSent) {
+//			String fileTimestamp = sentRow[1].substring(0, sentRow[1].indexOf("."));
+//			String filePath = RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(deviceGuid, app.getApplicationContext(),
+//					Long.parseLong(fileTimestamp), defaultAudioCodec);
+//			if ((new File(filePath)).exists()) {
+//				(new File(filePath)).delete();
+//				sentDeletedList.add(fileTimestamp);
+//			}
+//		}
+//
+//		Log.v(logTag, "Deleted from Sent: " + TextUtils.join(" ", sentDeletedList));
+//
+//	}
 
 
 	private void processCheckInResponseMessage(String jsonStr) {

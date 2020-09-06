@@ -27,7 +27,7 @@
 	<string name="prefs_value_default_reboot_forced_daily_at">23:54:00</string>
 
 	<string name="prefs_value_default_audio_schedule_off_hours">23:56-23:58,23:58-00:00</string>
-	<string name="prefs_value_default_audio_sampling_ratio">1:1</string>
+	<string name="prefs_value_default_audio_sampling_ratio">1:2</string>
 
 	<string name="prefs_value_default_audio_cycle_duration">90</string>
 	<string name="prefs_value_default_audio_encode_codec">opus</string>
@@ -45,8 +45,8 @@
 	<string name="prefs_value_default_checkin_stash_filesize_buffer">32</string>
 	<string name="prefs_value_default_checkin_archive_filesize_target">32</string>
 
-	<string name="prefs_value_default_checkin_requeue_bounds_hours">9,15</string>
-	<string name="prefs_value_default_checkin_meta_bundle_limit">5</string>
+	<string name="prefs_value_default_checkin_requeue_bounds_hours">9-15</string>
+	<string name="prefs_value_default_checkin_meta_bundle_limit">8</string>
 
 	<string name="prefs_value_default_api_sntp_cycle_duration">30</string>
 	<string name="prefs_value_default_api_ping_cycle_duration">30</string>
@@ -190,9 +190,6 @@
     <string name="register_guid">Guardian ID:</string>
 	<string name="record_status">Record status:</string>
 	<string name="audio_capture_start">start</string>
-	<string name="checkin_info_last_checkin_time">Last CheckIn time:</string>
-	<string name="checkin_info_last_checkin_size">Last CheckIn size:</string>
-	<string name="synced_local_files">Synced / Local files:</string>
 	<string name="audio_settings">Audio settings</string>
 	<string name="audio_settings_edit">[EDIT]</string>
 	<string name="login_info_as">Logged in as:</string>

@@ -13,20 +13,16 @@ import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInUtils
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInQueueService
 import org.rfcx.guardian.guardian.api.http.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.http.GuardianCheckCallback
 import org.rfcx.guardian.guardian.api.http.RegisterApi
 import org.rfcx.guardian.guardian.api.http.RegisterCallback
-import org.rfcx.guardian.guardian.diagnostic.DiagnosticUtils
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.manager.isLoginExpired
 import org.rfcx.guardian.guardian.utils.AudioSettingUtils
-import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
 import org.rfcx.guardian.guardian.view.*
 import org.rfcx.guardian.utility.rfcx.RfcxLog
@@ -169,9 +165,6 @@ class MainActivity : AppCompatActivity(),
         Handler().postDelayed({
             app.initializeRoleServices()
             setUIByRecordingState()
-            if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
-                getCheckinInformation()
-            }
         }, 1000)
     }
 
@@ -243,38 +236,6 @@ class MainActivity : AppCompatActivity(),
         registerProgress.visibility = View.INVISIBLE
     }
 
-    private fun getCheckinInformation() {
-        val checkInUtils = CheckInInformationUtils()
-        getInfoThread = object : Thread() {
-            override fun run() {
-                try {
-                    while (!isInterrupted) {
-                        runOnUiThread {
-                            val latestCheckinTimestamp = ApiCheckInUtils.latestCheckinTimestamp
-                            val latestFileSize = ApiCheckInUtils.latestFileSize
-                            val checkInTime = checkInUtils.getCheckinTime(latestCheckinTimestamp)
-                            checkInText.text = " $checkInTime"
-                            val fileSize = checkInUtils.getFileSize(latestFileSize)
-                            sizeText.text = " $fileSize"
-
-                            val totalLocalAudio = ApiCheckInQueueService.totalLocalAudio
-                            val totalSyncedAudio = ApiCheckInUtils.totalSyncedAudio
-                            val totalRecordedTime = ApiCheckInQueueService.totalRecordedTime
-                            val totalRecordedTimeTxt = DiagnosticUtils.secondToTime(totalRecordedTime)
-                            recordTimeText.text = " $totalRecordedTimeTxt"
-                            fileRecordedSyncedText.text = " $totalSyncedAudio / $totalLocalAudio"
-
-                        }
-                        sleep(5000)
-                    }
-                } catch (e: InterruptedException) {
-                    return
-                }
-            }
-        }
-        getInfoThread?.start()
-    }
-
     override fun onRegisterSuccess(t: Throwable?, response: String?) {
         app.saveGuardianRegistration(response)
         Log.i(logTag, "onRegisterSuccess: Successfully Registered")
@@ -293,7 +254,6 @@ class MainActivity : AppCompatActivity(),
         app.initializeRoleServices()
         setUIByRecordingState()
         setUIByGuidState()
-        getCheckinInformation()
         val deviceIdTxt = app.rfcxGuardianIdentity.guid
         deviceIdText.text = " $deviceIdTxt"
         Log.i(logTag, "onGuardianCheckSuccess: Successfully Verified Registration")
