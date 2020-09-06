@@ -17,6 +17,7 @@ import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -219,27 +220,28 @@ public class SentinelPowerUtils {
 
         if (sampleCount > 0) {
 
-            StringBuilder logStr = (new StringBuilder("Average of ")).append(sampleCount).append(" samples");
-
             long[] sysVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
             this.powerSystemValues = new ArrayList<>();
-            app.sentinelPowerDb.dbSentinelPowerSystem.insert(sysVals[4], sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
-            logStr.append(" [ system: ").append(sysVals[0]).append(" mV, ").append(sysVals[1]).append(" mA, ").append(sysVals[3]).append(" mW").append(" ]");
-
             long[] battVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
             this.powerBatteryValues = new ArrayList<>();
-            app.sentinelPowerDb.dbSentinelPowerBattery.insert(battVals[4], battVals[0], battVals[1], battVals[2], battVals[3]);
-            logStr.append(" [ battery: ").append(battVals[0]).append(" mV, ").append(battVals[1]).append(" mA, ").append(battVals[3]).append(" mW").append(" ]");
-
             long[] inpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
             this.powerInputValues = new ArrayList<>();
-            app.sentinelPowerDb.dbSentinelPowerInput.insert(inpVals[4], inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
-            logStr.append(" [ input: ").append(inpVals[0]).append(" mV, ").append(inpVals[1]).append(" mA, ").append(inpVals[3]).append(" mW").append(" ]");
 
-            logStr.append(" [ temp: ").append(sysVals[2]).append(" C").append(" ]");
+            double measuredAtAvg = (sysVals[4]+battVals[4]+inpVals[4])/3;
+            long measuredAt = Math.round(measuredAtAvg);
+
+            app.sentinelPowerDb.dbSentinelPowerSystem.insert(measuredAt, sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
+            app.sentinelPowerDb.dbSentinelPowerBattery.insert(measuredAt, battVals[0], battVals[1], battVals[2], battVals[3]);
+            app.sentinelPowerDb.dbSentinelPowerInput.insert(measuredAt, inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
 
             if (printValuesToLog) {
-                Log.d(logTag, logStr.toString());
+                Log.d(logTag,
+                    (new StringBuilder("Avg of ")).append(sampleCount).append(" samples at ").append(DateTimeUtils.getDateTime(measuredAt))
+                    .append(" [ system: ").append(sysVals[0]).append(" mV, ").append(sysVals[1]).append(" mA, ").append(sysVals[3]).append(" mW").append(" ]")
+                    .append(" [ battery: ").append(battVals[0]).append(" mV, ").append(battVals[1]).append(" mA, ").append(battVals[3]).append(" mW").append(" ]")
+                    .append(" [ input: ").append(inpVals[0]).append(" mV, ").append(inpVals[1]).append(" mA, ").append(inpVals[3]).append(" mW").append(" ]")
+                    .append(" [ temp: ").append(sysVals[2]).append(" C").append(" ]")
+                .toString());
             }
         }
     }
