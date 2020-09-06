@@ -1,12 +1,18 @@
 package org.rfcx.guardian.guardian.api.asset;
 
 import android.content.Context;
+import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class AssetUtils {
@@ -35,7 +41,6 @@ public class AssetUtils {
 		}
 		return DbUtils.getConcatRows(assetRows);
 	}
-
 
 
 

@@ -27,6 +27,53 @@ public class ApiCheckInHealthUtils {
 	private long lastKnownTimeOfDayLowerBound = 0;
 	private long lastKnownTimeOfDayUpperBound = 0;
 
+	private String inFlightCheckInAudioId = null;
+	private String latestCheckInAudioId = null;
+	private Map<String, String[]> inFlightCheckInEntries = new HashMap<String, String[]>();
+	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
+
+	public void updateInFlightCheckInOnSend(String audioId, String[] checkInDbEntry) {
+		this.inFlightCheckInAudioId = audioId;
+		this.inFlightCheckInEntries.remove(audioId);
+		this.inFlightCheckInEntries.put(audioId, checkInDbEntry);
+	}
+
+	public void updateInFlightCheckInOnReceive(String audioId) {
+		this.latestCheckInAudioId = audioId;
+		this.inFlightCheckInEntries.remove(audioId);
+		this.inFlightCheckInStats.remove(audioId);
+	}
+
+	public String getInFlightCheckInAudioId() {
+		return this.inFlightCheckInAudioId;
+	}
+
+	public String getLatestCheckInAudioId() {
+		return this.latestCheckInAudioId;
+	}
+
+	public long[] getInFlightCheckInStatsEntry(String audioId) {
+		return this.inFlightCheckInStats.get(audioId);
+	}
+
+	public long[] getCurrentInFlightCheckInStatsEntry() {
+		return getInFlightCheckInStatsEntry(this.inFlightCheckInAudioId);
+	}
+
+	public String[] getInFlightCheckInEntry(String audioId) {
+		return this.inFlightCheckInEntries.get(audioId);
+	}
+
+	public void setInFlightCheckInStats(String keyId, long msgSendStart, long msgSendDuration, long msgPayloadSize) {
+		long[] stats = this.inFlightCheckInStats.get(keyId);
+		if (stats == null) { stats = new long[] { 0, 0, 0 }; }
+		if (msgSendStart != 0) { stats[0] = msgSendStart; }
+		if (msgSendDuration != 0) { stats[1] = msgSendDuration; }
+		if (msgPayloadSize != 0) { stats[2] = msgPayloadSize; }
+		this.inFlightCheckInStats.remove(keyId);
+		this.inFlightCheckInStats.put(keyId, stats);
+	}
+
 	private void resetRecentCheckInHealthMonitors() {
 		healthCheckMonitors = new HashMap<String, long[]>();
 		healthCheckTargetLowerBounds = new long[healthCheckCategories.length];

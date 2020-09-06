@@ -5,6 +5,7 @@ import java.util.Map;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInMetaSnapshotService;
+import org.rfcx.guardian.guardian.api.mqtt.ApiJsonUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInStatsDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiDiagnosticsDb;
 import org.rfcx.guardian.guardian.api.mqtt.ScheduledApiPingService;
@@ -85,6 +86,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
+    public ApiJsonUtils apiJsonUtils = null;
     public AssetUtils assetUtils = null;
     public InstructionsUtils instructionsUtils = null;
     public WifiCommunicationUtils wifiCommunicationUtils = null;
@@ -125,6 +127,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioCaptureUtils = new AudioCaptureUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
+        this.apiJsonUtils = new ApiJsonUtils(this);
         this.assetUtils = new AssetUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.wifiCommunicationUtils = new WifiCommunicationUtils(this);
@@ -287,7 +290,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public void onPrefReSync(String prefKey) {
 
-        if (prefKey.equalsIgnoreCase("admin_enable_wifi_socket")) {
+        if (prefKey.equalsIgnoreCase("audio_cycle_duration")) {
+            this.apiCheckInUtils.getSetCheckInPublishTimeOutLength();
+
+        } else if (prefKey.equalsIgnoreCase("admin_enable_wifi_socket")) {
             this.rfcxServiceHandler.triggerService("WifiCommunication", false);
 
         } else if (prefKey.equalsIgnoreCase("checkin_failure_thresholds")) {
