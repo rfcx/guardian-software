@@ -24,6 +24,7 @@ import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class HttpGet {
@@ -174,7 +175,7 @@ public class HttpGet {
 			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				Log.i(logTag, "Download Started ("+conn.getContentLength()+" bytes): "+url.toString());
+				Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
 				return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream(), this.logTag);
 
 	        } else {
@@ -202,7 +203,7 @@ public class HttpGet {
 			}
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-				Log.i(logTag, "Download Started ("+conn.getContentLength()+" bytes): "+url.toString());
+				Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
 		    	return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream(), this.logTag);
 
 	        } else {
@@ -284,7 +285,7 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-		            Log.i(logTag, "Download Started ("+conn.getContentLength()+" bytes): "+fullUrl);
+					Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+fullUrl);
 			    } else {
 		            Log.i(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
 			    }
@@ -300,7 +301,7 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-		            Log.i(logTag, "Download Started ("+conn.getContentLength()+" bytes): "+fullUrl);
+					Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+fullUrl);
 			    } else {
 		            Log.i(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
 			    }

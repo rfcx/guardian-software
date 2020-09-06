@@ -367,7 +367,8 @@ public class RfcxPrefs {
 			put("enable_checkin_publish", "true");
 
 			put("enable_cutoffs_battery", "true");
-			put("enable_cutoffs_schedule_off_hours", "true");
+			put("enable_cutoffs_schedule_off_hours", "false");
+			put("enable_cutoffs_sampling_ratio", "false");
 
 			put("api_checkin_host", "checkins.rfcx.org");
 	        put("api_checkin_protocol", "ssl");
@@ -386,6 +387,7 @@ public class RfcxPrefs {
 			put("audio_cycle_duration", "90");
 			
 			put("audio_schedule_off_hours", "23:56-23:58,23:58-00:00");
+			put("audio_sampling_ratio", "1:1");
 
 			put("checkin_battery_cutoff", "90");
 			put("audio_battery_cutoff", "80");
@@ -404,10 +406,12 @@ public class RfcxPrefs {
 
 			put("checkin_requeue_bounds_hours", "9,15");
 
-			put("checkin_meta_bundle_limit", "10");
+			put("checkin_meta_bundle_limit", "5");
 
 			put("admin_enable_wifi", "true");
 			put("admin_enable_tcp_adb", "true");
+			put("admin_enable_wifi_socket", "true");
+			put("admin_enable_ssh_server", "false");
 
 			put("api_sntp_cycle_duration", "30");
 			put("api_ping_cycle_duration", "30");
@@ -426,8 +430,6 @@ public class RfcxPrefs {
 
 			put("admin_system_timezone", "[ Not Set ]");
 
-			put("admin_enable_ssh_server", "false");
-			put("admin_enable_wifi_socket", "true");
 			
 			
 	    }}

@@ -15,6 +15,7 @@ import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -25,6 +26,8 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 
 import android.util.Log;
+
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class HttpPostMultipart {
@@ -113,6 +116,7 @@ public class HttpPostMultipart {
 	        conn.setDoInput(true);
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
+			conn.setRequestProperty("Accept-Encoding", "gzip");
 			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.setFixedLengthStreamingMode((int) entity.getContentLength());
 	        conn.addRequestProperty(entity.getContentType().getName(), entity.getContentType().getValue());
@@ -121,11 +125,11 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	            Log.d(logTag, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
+				Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
+				return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream());
 		    } else {
-	            Log.e(logTag, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
+	            Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode()+" for "+url.toString());
 		    }
-		    return readResponseStream(conn.getInputStream());
 	    } catch (UnknownHostException e) {
 			RfcxLog.logExc(logTag, e);
 			return logTag+"-UnknownHostException";
@@ -147,6 +151,7 @@ public class HttpPostMultipart {
 	        conn.setDoInput(true);
 	        conn.setDoOutput(true);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
+			conn.setRequestProperty("Accept-Encoding", "gzip");
 			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.setFixedLengthStreamingMode((int) entity.getContentLength());
 	        conn.addRequestProperty(entity.getContentType().getName(), entity.getContentType().getValue());
@@ -154,11 +159,12 @@ public class HttpPostMultipart {
 	        entity.writeTo(outputStream);
 	        outputStream.close();
 	        conn.connect();
-		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-	            Log.d(logTag, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
-		    } else {
-	            Log.e(logTag, "HTTP Response Code: "+conn.getResponseCode()+" for "+url.toString());
-		    }
+			if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+				Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
+				return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream());
+			} else {
+				Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode()+" for "+url.toString());
+			}
 	        return readResponseStream(conn.getInputStream());
 	    } catch (UnknownHostException e) {
 			RfcxLog.logExc(logTag, e);

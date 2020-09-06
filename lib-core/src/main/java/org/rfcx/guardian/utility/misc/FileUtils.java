@@ -380,7 +380,38 @@ public class FileUtils {
 		String currentAppFilesDir = context.getFilesDir().getAbsolutePath();
 		return currentAppFilesDir.substring(0, currentAppFilesDir.indexOf("org.rfcx.org.rfcx.guardian.guardian."));
 	}
-	
+
+
+	public static String bytesAsReadableString(int bytes) {
+		return bytesAsReadableString(Long.parseLong(""+bytes));
+	}
+
+	public static String bytesAsReadableString(long bytes) {
+		StringBuilder sizeStr = new StringBuilder();
+
+		int MB = (int) Math.floor( bytes / 1048576 );
+		int kB = (int) Math.floor( (bytes - (MB * 1048576)) / 1024 );
+		int B = (int) Math.floor( (bytes - (MB * 1048576) - (kB * 1024)));
+
+		if (MB > 0) {
+			sizeStr.append(MB);
+			int fracVal = (int) Math.floor(100*kB/1024);
+			sizeStr.append(".").append( (fracVal < 10) ? "0" : "").append(fracVal);
+			sizeStr.append(" MB");
+
+		} else if (kB > 0) {
+			sizeStr.append(kB);
+			int fracVal = (int) Math.floor(10*B/1024);
+			if (kB < 10) { sizeStr.append(".").append(fracVal); }
+			sizeStr.append(" kB");
+
+		} else {
+			sizeStr.append(B).append(" bytes");
+
+		}
+
+		return sizeStr.toString();
+	}
 
 	
 }

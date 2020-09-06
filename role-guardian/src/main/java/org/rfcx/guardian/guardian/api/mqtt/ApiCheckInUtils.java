@@ -38,7 +38,6 @@ import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.network.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import android.content.Context;
 import android.text.TextUtils;
@@ -121,8 +120,8 @@ public class ApiCheckInUtils implements MqttCallback {
 		long queuedLimitMb = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit");
 		long queuedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows()+"")/(queuedLimitMb*1024*1024))));
 
-		Log.d(logTag, "Queued " + audioInfo[1] + ", " + Math.round(audioFileSize/1024) + "kB "
-						+  "(" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+"MB limit) " + filePath);
+		Log.d(logTag, "Queued " + audioInfo[1] + ", " + FileUtils.bytesAsReadableString(audioFileSize)
+						+  " (" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+" MB limit) " + filePath);
 
 		// once queued, remove database reference from encode role
 		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1]);
@@ -1237,7 +1236,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	public void messageArrived(String messageTopic, MqttMessage mqttMessage) throws Exception {
 
 		byte[] messagePayload = mqttMessage.getPayload();
-		Log.i(logTag, "Received "+messagePayload.length+" bytes on '"+messageTopic+"' at "+DateTimeUtils.getDateTime());
+		Log.i(logTag, "Received "+FileUtils.bytesAsReadableString(messagePayload.length)+" on '"+messageTopic+"' at "+DateTimeUtils.getDateTime());
 
 		// this is a checkin response message
 		if (messageTopic.equalsIgnoreCase(this.app.rfcxGuardianIdentity.getGuid()+"/cmd")) {

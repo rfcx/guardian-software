@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
@@ -90,7 +91,8 @@ public class AudioCaptureService extends Service {
 				
 				try {
 
-					boolean isCaptureAllowed = app.audioCaptureUtils.isAudioCaptureAllowed(true);
+					updateSamplingRatioIteration();
+					boolean isCaptureAllowed = app.audioCaptureUtils.isAudioCaptureAllowed( true);
 
 					if (confirmOrSetAudioCaptureParameters() && isCaptureAllowed) {
 
@@ -113,10 +115,8 @@ public class AudioCaptureService extends Service {
 						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueueEncode");
 					}
 
-					// If capture is not allowed, we extend the capture cycle duration by a factor of AudioCaptureUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-					int currInnerLoopIterationCount = isCaptureAllowed ? innerLoopIterationCount : (AudioCaptureUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf * innerLoopIterationCount);
 					// This ensures that the service registers as active more frequently than the capture loop duration
-					for (int innerLoopIteration = 0; innerLoopIteration < currInnerLoopIterationCount; innerLoopIteration++) {
+					for (int innerLoopIteration = 0; innerLoopIteration < innerLoopIterationCount; innerLoopIteration++) {
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 						Thread.sleep(innerLoopIterationDuration);
 					}
@@ -164,6 +164,12 @@ public class AudioCaptureService extends Service {
 		}
 		
 		return true;
+	}
+
+	private void updateSamplingRatioIteration() {
+		int nonCaptureRatio = Integer.parseInt(TextUtils.split(app.rfcxPrefs.getPrefAsString("audio_sampling_ratio"), ":")[1]);
+		if (app.audioCaptureUtils.samplingRatioIteration > nonCaptureRatio) { app.audioCaptureUtils.samplingRatioIteration = 0; }
+		app.audioCaptureUtils.samplingRatioIteration++;
 	}
 
 	

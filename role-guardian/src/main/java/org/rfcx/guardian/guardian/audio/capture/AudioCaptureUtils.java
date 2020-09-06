@@ -32,10 +32,10 @@ public class AudioCaptureUtils {
 
 	private RfcxGuardian app = null;
 
+	public int samplingRatioIteration = 0;
+
 	public long[] queueCaptureTimeStamp = new long[] { 0, 0 };
 	public int[] queueCaptureSampleRate = new int[] { 0, 0 };
-
-	public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 2;
 
 	private boolean isAudioCaptureHardwareSupported = false;
 	private static final int requiredFreeDiskSpaceForAudioCapture = 32;
@@ -88,12 +88,12 @@ public class AudioCaptureUtils {
 		return this.isAudioCaptureHardwareSupported;
 	}
 
-	public boolean isBatteryChargeSufficientForCapture() {
+	private boolean isBatteryChargeSufficientForCapture() {
 		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 		return (batteryCharge >= this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff"));
 	}
 
-	public boolean isCaptureAllowedAtThisTimeOfDay() {
+	private boolean isCaptureAllowedAtThisTimeOfDay() {
 		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours"), ",")) {
 			String[] offHours = TextUtils.split(offHoursRange, "-");
 			if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
@@ -103,12 +103,20 @@ public class AudioCaptureUtils {
 		return true;
 	}
 
+	private boolean isCaptureAllowedAtThisSamplingRatioIteration() {
+		return (this.samplingRatioIteration == 1);
+	}
+
 	private boolean limitBasedOnBatteryLevel() {
 		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery"));
 	}
 
 	private boolean limitBasedOnTimeOfDay() {
 		return (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_schedule_off_hours"));
+	}
+
+	private boolean limitBasedOnCaptureSamplingRatio() {
+		return (!isCaptureAllowedAtThisSamplingRatioIteration() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sampling_ratio"));
 	}
 
 	private boolean limitBasedOnInternalStorage() {
@@ -156,6 +164,11 @@ public class AudioCaptureUtils {
 						.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")).append("'.");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
+		} else if (limitBasedOnCaptureSamplingRatio()) {
+			msgNoCapture.append("a sampling ratio definition")
+					.append(" (ratio is '").append(app.rfcxPrefs.getPrefAsString("audio_sampling_ratio")).append("').");
+			isAudioCaptureAllowedUnderKnownConditions = false;
+
 		} else if (limitBasedOnInternalStorage()) {
 			msgNoCapture.append("a lack of sufficient free internal disk storage.")
 						.append(" (current: ").append(DeviceDiskUsage.getInternalDiskFreeMegaBytes()).append("MB)")
@@ -173,15 +186,13 @@ public class AudioCaptureUtils {
 			if (printFeedbackInLog) {
 				Log.d(logTag, msgNoCapture
 						.insert(0, DateTimeUtils.getDateTime() + " - AudioCapture not allowed due to ")
-						.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * inReducedCaptureModeExtendCaptureCycleByFactorOf).append(" seconds before next attempt.")
+						.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")).append(" seconds before next attempt.")
 						.toString());
 			}
 		}
 
 		return isAudioCaptureAllowedUnderKnownConditions;
 	}
-
-
 
 	public boolean updateCaptureQueue(long timeStamp, int sampleRate) {
 

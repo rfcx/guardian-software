@@ -46,6 +46,15 @@
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_enable_cutoffs_schedule_off_hours" />
 
+	<ListPreference
+		android:key="enable_cutoffs_sampling_ratio"
+		android:title="enable_cutoffs_sampling_ratio"
+		android:dialogTitle="enable_cutoffs_sampling_ratio"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_enable_cutoffs_sampling_ratio" />
+
  	<EditTextPreference
         android:key="api_checkin_host"
         android:title="api_checkin_host"
@@ -137,6 +146,13 @@
         android:summary="string - time ranges, comma separated"
         android:enabled="true"
         android:defaultValue="@string/prefs_value_default_audio_schedule_off_hours" />
+
+	<EditTextPreference
+		android:key="audio_sampling_ratio"
+		android:title="audio_sampling_ratio"
+		android:summary="ratio - capture to silence"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_audio_sampling_ratio" />
  	
  	<!-- Audio Capture Formatting -->
  	

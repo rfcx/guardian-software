@@ -289,7 +289,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         } else if (prefKey.equalsIgnoreCase("checkin_failure_thresholds")) {
             this.apiCheckInUtils.initializeFailedCheckInThresholds();
+
+        } else if (prefKey.equalsIgnoreCase("enable_cutoffs_sampling_ratio")) {
+            this.audioCaptureUtils.samplingRatioIteration = 0;
+
         }
+
+
+
+
     }
 
 }

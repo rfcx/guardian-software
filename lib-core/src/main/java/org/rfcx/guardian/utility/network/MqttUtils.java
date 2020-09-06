@@ -2,7 +2,6 @@ package org.rfcx.guardian.utility.network;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import javax.net.ssl.SSLContext;
@@ -28,6 +27,7 @@ import android.util.Log;
 
 import org.rfcx.guardian.utility.R;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class MqttUtils implements MqttCallback {
@@ -103,7 +103,7 @@ public class MqttUtils implements MqttCallback {
 	
 	public long publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
 		if (confirmOrCreateConnectionToBroker(true)) {
-			Log.i(logTag, "Publishing " + messageByteArray.length + " bytes to '" + publishTopic + "' at " + DateTimeUtils.getDateTime());
+			Log.i(logTag, "Publishing " + FileUtils.bytesAsReadableString(messageByteArray.length) + " to '" + publishTopic + "' at " + DateTimeUtils.getDateTime());
 			this.msgSendStart = System.currentTimeMillis();
 			this.mqttClient.publish(publishTopic, buildMessage(messageByteArray));
 		} else {
