@@ -5,6 +5,9 @@ import android.util.Base64
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
+import org.rfcx.guardian.guardian.api.http.RegisterApi
+import org.rfcx.guardian.guardian.api.http.RegisterCallback
+import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.io.DataInputStream
@@ -76,6 +79,11 @@ object SocketManager {
                                             "sync"
                                         )
                                     )
+                                    "register" -> {
+                                        val registerInfo = commandObject.getJSONObject("register")
+                                        val tokenId = registerInfo.getString("token_id")
+                                        sendRegistrationStatus(tokenId)
+                                    }
                                 }
                             }
                         }
@@ -304,6 +312,39 @@ object SocketManager {
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
             }
+        }
+    }
+
+    private fun sendRegistrationStatus(tokenId: String) {
+        val registerJson = JSONObject()
+        context?.let {
+            val guid = app?.rfcxGuardianIdentity?.guid ?: ""
+            RegisterApi.registerGuardian(it, RegisterRequest(guid), tokenId,object:
+                RegisterCallback {
+                override fun onRegisterSuccess(t: Throwable?, response: String?) {
+                    try {
+                        val registerInfo =JSONObject()
+                            .put("status", "Success")
+                        registerJson.put("register", registerInfo)
+                        streamOutput?.writeUTF(registerJson.toString())
+                        streamOutput?.flush()
+                    } catch (e: Exception) {
+                        RfcxLog.logExc(LOGTAG, e)
+                    }
+                }
+
+                override fun onRegisterFailed(t: Throwable?, message: String?) {
+                    try {
+                        val registerInfo =JSONObject()
+                            .put("status", "Failed")
+                        registerJson.put("register", registerInfo)
+                        streamOutput?.writeUTF(registerJson.toString())
+                        streamOutput?.flush()
+                    } catch (e: Exception) {
+                        RfcxLog.logExc(LOGTAG, e)
+                    }
+                }
+            })
         }
     }
 
