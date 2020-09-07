@@ -59,8 +59,13 @@ object RegisterApi {
         val prefs = (context.applicationContext as RfcxGuardian).rfcxPrefs
         val protocol = prefs.getPrefAsString("api_rest_protocol")
         var host = prefs.getPrefAsString("api_rest_host")
-        //Add staging-url if current rest api is not on staging
-        if (!isProduction) {
+        if (isProduction) {
+            //Remove staging- out
+            if (host.contains("staging")) {
+                host = host.replace("staging-", "")
+            }
+        } else {
+            //Add staging-url if current rest api is not on staging
             if (!host.contains("staging")) {
                 host = "staging-${host}"
             }
