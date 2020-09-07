@@ -82,7 +82,8 @@ object SocketManager {
                                     "register" -> {
                                         val registerInfo = commandObject.getJSONObject("register")
                                         val tokenId = registerInfo.getString("token_id")
-                                        sendRegistrationStatus(tokenId)
+                                        val isProduction = registerInfo.getBoolean("is_production")
+                                        sendRegistrationStatus(tokenId, isProduction)
                                     }
                                 }
                             }
@@ -315,11 +316,11 @@ object SocketManager {
         }
     }
 
-    private fun sendRegistrationStatus(tokenId: String) {
+    private fun sendRegistrationStatus(tokenId: String, isProduction: Boolean) {
         val registerJson = JSONObject()
         context?.let {
             val guid = app?.rfcxGuardianIdentity?.guid ?: ""
-            RegisterApi.registerGuardian(it, RegisterRequest(guid), tokenId,object:
+            RegisterApi.registerGuardian(it, RegisterRequest(guid), tokenId, isProduction, object:
                 RegisterCallback {
                 override fun onRegisterSuccess(t: Throwable?, response: String?) {
                     try {
