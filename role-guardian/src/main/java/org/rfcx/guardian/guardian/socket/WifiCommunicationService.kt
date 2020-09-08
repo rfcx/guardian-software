@@ -17,11 +17,8 @@ class WifiCommunicationService : IntentService("WifiCommunication") {
     )
 
     override fun onHandleIntent(p0: Intent?) {
-        Log.d(logTag, "Starting WifiCommunication service")
-        val intent =
-            Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME))
-        sendBroadcast(
-            intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME))
+        val intent = Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME))
+        sendBroadcast( intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME))
 
         val app = application as RfcxGuardian
 
