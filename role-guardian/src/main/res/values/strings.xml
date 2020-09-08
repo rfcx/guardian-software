@@ -35,7 +35,7 @@
 	<string name="prefs_value_default_audio_sample_rate">24000</string>
 
 	<string name="prefs_value_default_checkin_battery_cutoff">90</string>
-	<string name="prefs_value_default_audio_battery_cutoff">80</string>
+	<string name="prefs_value_default_audio_battery_cutoff">85</string>
 
 	<string name="prefs_value_default_checkin_failure_thresholds">15,30,50,70,90</string>
 	<string name="prefs_value_default_checkin_failure_limit">3</string>
@@ -45,7 +45,7 @@
 	<string name="prefs_value_default_checkin_stash_filesize_buffer">32</string>
 	<string name="prefs_value_default_checkin_archive_filesize_target">32</string>
 
-	<string name="prefs_value_default_checkin_requeue_bounds_hours">9-15</string>
+	<string name="prefs_value_default_checkin_requeue_bounds_hours">10-14</string>
 	<string name="prefs_value_default_checkin_meta_bundle_limit">8</string>
 
 	<string name="prefs_value_default_api_sntp_cycle_duration">30</string>
@@ -55,7 +55,8 @@
 	<string name="prefs_value_default_admin_log_capture_level">Warn</string>
 	<string name="prefs_value_default_admin_log_capture_cycle">30</string>
 
-	<string name="prefs_value_default_admin_gps_capture_cycle">15</string>
+	<string name="prefs_value_default_admin_enable_geoposition_capture">true</string>
+	<string name="prefs_value_default_admin_geoposition_capture_cycle">15</string>
 
 	<string name="prefs_value_default_admin_enable_screenshot_capture">false</string>
 	<string name="prefs_value_default_admin_screenshot_capture_cycle">180</string>

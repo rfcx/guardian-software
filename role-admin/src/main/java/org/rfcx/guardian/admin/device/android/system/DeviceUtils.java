@@ -51,7 +51,7 @@ public class DeviceUtils {
 		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
 			return this.allowListenerRegistration_telephony;
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
-			return this.allowListenerRegistration_geoposition;
+			return this.allowListenerRegistration_geoposition && ((RfcxGuardian) this.context.getApplicationContext()).rfcxPrefs.getPrefAsBoolean("admin_enable_geoposition_capture");
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_gps")) {
 			return this.allowListenerRegistration_geoposition_gps;
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_network")) {
@@ -95,7 +95,7 @@ public class DeviceUtils {
 	//
 
 	public static final long captureLoopIncrementFullDurationInMilliseconds = 1000;
-	public static final long captureCycleMinimumAllowedDurationInMilliseconds = 20000;
+	public static final long captureCycleMinimumAllowedDurationInMilliseconds = 30000;
 	public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 
 	public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 2;
@@ -115,13 +115,13 @@ public class DeviceUtils {
 			if (jsonArray.length() > 0) {
 				JSONObject jsonObject = jsonArray.getJSONObject(0);
 				if (jsonObject.has("is_allowed")) {
-					return jsonObject.getBoolean(("is_allowed"));
+					return !jsonObject.getBoolean(("is_allowed"));
 				}
 			}
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return false;
+		return true;
 	}
 
 	public static long getCaptureCycleDuration(int audioCycleDurationInSeconds) {

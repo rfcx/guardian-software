@@ -302,12 +302,21 @@
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_admin_enable_log_capture" />
 
+	<ListPreference
+		android:key="admin_enable_geoposition_capture"
+		android:title="admin_enable_geoposition_capture"
+		android:dialogTitle="admin_enable_geoposition_capture"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_admin_enable_geoposition_capture" />
+
 	<EditTextPreference
-		android:key="admin_gps_capture_cycle"
-		android:title="admin_gps_capture_cycle"
+		android:key="admin_geoposition_capture_cycle"
+		android:title="admin_geoposition_capture_cycle"
 		android:summary="int - minutes"
 		android:enabled="true"
-		android:defaultValue="@string/prefs_value_default_admin_gps_capture_cycle" />
+		android:defaultValue="@string/prefs_value_default_admin_geoposition_capture_cycle" />
  	
  	<EditTextPreference
         android:key="admin_screenshot_capture_cycle"

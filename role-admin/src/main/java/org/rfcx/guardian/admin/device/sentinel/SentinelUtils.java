@@ -14,7 +14,7 @@ public class SentinelUtils {
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelUtils");
 
     public static final long captureLoopIncrementFullDurationInMilliseconds = 1000;
-    public static final long captureCycleMinimumAllowedDurationInMilliseconds = 20000;
+    public static final long captureCycleMinimumAllowedDurationInMilliseconds = 30000;
     public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 
     public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 2;

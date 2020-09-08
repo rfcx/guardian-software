@@ -58,7 +58,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	private int outerLoopIncrement = 0;
 	private int outerLoopCaptureCount = 0;
-	private boolean isReducedCaptureModeActive = true;
+	private boolean isReducedCaptureModeActive = false;
 
 	private SignalStrengthListener signalStrengthListener;
 	private TelephonyManager telephonyManager;
@@ -252,7 +252,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 				// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
 				// however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-				int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? audioCycleDuration : (audioCycleDuration * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf);
+				int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? (audioCycleDuration * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
 
 				if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 
@@ -263,7 +263,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					long samplingOperationDuration = DeviceCPU.SAMPLE_DURATION_MILLISECONDS;
 					this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
 
-					Log.d(logTag, "SystemStats Capture" + (this.isReducedCaptureModeActive ? "" : " (currently limited)") + ": " +
+					Log.d(logTag, "SystemStats Capture" + (this.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
 							"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
 				}
 			}
@@ -377,7 +377,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					}
 				}
 
-			} else if (sensorAbbrev.equalsIgnoreCase("light") && app.deviceUtils.isSensorListenerAllowed("light")) {
+			} else if (sensorAbbrev.equalsIgnoreCase("light")
+					&& app.deviceUtils.isSensorListenerAllowed("light")
+			) {
 				if (!this.isListenerRegistered_light) {
 					checkSetSensorManager();
 					if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
@@ -398,12 +400,12 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					this.isListenerRegistered_telephony = true;
 				}
 
-			} else if (sensorAbbrev.equalsIgnoreCase("geoposition") && app.deviceUtils.isSensorListenerAllowed("geoposition")) {
+			} else if (	sensorAbbrev.equalsIgnoreCase("geoposition") && app.deviceUtils.isSensorListenerAllowed("geoposition")) {
 				if (!this.isListenerRegistered_geoposition) {
 					if (checkSetLocationManager() && !this.geoPositionProviderInfo.isEmpty()) {
 						this.locationManager.requestLocationUpdates(
 								this.geoPositionProviderInfo,
-								( app.rfcxPrefs.getPrefAsLong("admin_gps_capture_cycle") * 60 * 1000 ),
+								( app.rfcxPrefs.getPrefAsLong("admin_geoposition_capture_cycle") * 60 * 1000 ),
 								DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters,
 								this);
 						this.isListenerRegistered_geoposition = true;

@@ -73,7 +73,7 @@ public class GuardianContentProvider extends ContentProvider {
 				String statusTarget = uri.getLastPathSegment();
 				JSONArray statusResultJsonArray = new JSONArray();
 				if (statusTarget.equalsIgnoreCase("audio_capture")) {
-					statusResultJsonArray = app.audioCaptureUtils.getAudioCaptureStatusAsJsonArray();
+					statusResultJsonArray = app.audioCaptureUtils.isAudioCaptureAllowedAsJsonArray();
 				}
 				return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusResultJsonArray.toString(), System.currentTimeMillis()});
 

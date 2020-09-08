@@ -390,7 +390,7 @@ public class RfcxPrefs {
 			put("audio_sampling_ratio", "1:2");
 
 			put("checkin_battery_cutoff", "90");
-			put("audio_battery_cutoff", "80");
+			put("audio_battery_cutoff", "85");
 			
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "28672");
@@ -404,7 +404,7 @@ public class RfcxPrefs {
 			put("checkin_stash_filesize_buffer", "32");
 			put("checkin_archive_filesize_target", "32");
 
-			put("checkin_requeue_bounds_hours", "9-15");
+			put("checkin_requeue_bounds_hours", "10-14");
 
 			put("checkin_meta_bundle_limit", "8");
 
@@ -420,7 +420,8 @@ public class RfcxPrefs {
 			put("admin_log_capture_level", "Warn");
 			put("admin_enable_log_capture", "false");
 
-			put("admin_gps_capture_cycle", "15");
+			put("admin_enable_geoposition_capture", "true");
+			put("admin_geoposition_capture_cycle", "15");
 			
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "false");

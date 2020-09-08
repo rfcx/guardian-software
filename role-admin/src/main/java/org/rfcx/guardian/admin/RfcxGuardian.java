@@ -7,6 +7,7 @@ import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptur
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledSntpSyncService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
+import org.rfcx.guardian.admin.device.sentinel.PowerMeterService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelerometerUtils;
@@ -110,6 +111,7 @@ public class RfcxGuardian extends Application {
 			new String[] {
 				"DeviceSystem",
 				"DeviceSentinel",
+				"PowerMeter",
 				"SmsDispatchCycle"
 			};
 	
@@ -252,6 +254,7 @@ public class RfcxGuardian extends Application {
 
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
+		this.rfcxServiceHandler.addService("PowerMeter", PowerMeterService.class);
 
 		this.rfcxServiceHandler.addService("ScreenShotCapture", DeviceScreenShotCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledScreenShotCapture", ScheduledScreenShotCaptureService.class);
@@ -286,6 +289,9 @@ public class RfcxGuardian extends Application {
 
 		} else if (prefKey.equalsIgnoreCase("admin_enable_ssh_server")) {
 			rfcxServiceHandler.triggerService("SSHServerControl", false);
+
+		} else if (prefKey.equalsIgnoreCase("admin_enable_geoposition_capture") || prefKey.equalsIgnoreCase("admin_geoposition_capture_cycle")) {
+			rfcxServiceHandler.triggerService("DeviceSystem", true);
 		}
 	}
 

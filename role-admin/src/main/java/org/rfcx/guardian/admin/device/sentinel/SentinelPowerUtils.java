@@ -233,6 +233,7 @@ public class SentinelPowerUtils {
             app.sentinelPowerDb.dbSentinelPowerSystem.insert(measuredAt, sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
             app.sentinelPowerDb.dbSentinelPowerBattery.insert(measuredAt, battVals[0], battVals[1], battVals[2], battVals[3]);
             app.sentinelPowerDb.dbSentinelPowerInput.insert(measuredAt, inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
+            app.sentinelPowerDb.dbSentinelPowerMeter.insert(measuredAt, battVals[3]);
 
             if (printValuesToLog) {
                 Log.d(logTag,

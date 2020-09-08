@@ -17,6 +17,7 @@ public class SentinelPowerDb {
 		this.dbSentinelPowerBattery = new DbSentinelPowerBattery(context);
 		this.dbSentinelPowerInput = new DbSentinelPowerInput(context);
 		this.dbSentinelPowerSystem = new DbSentinelPowerSystem(context);
+		this.dbSentinelPowerMeter = new DbSentinelPowerMeter(context);
 	}
 
 	private int VERSION = 1;
@@ -170,6 +171,44 @@ public class SentinelPowerDb {
 
 	}
 	public final DbSentinelPowerSystem dbSentinelPowerSystem;
+
+	public class DbSentinelPowerMeter {
+
+		final DbUtils dbUtils;
+
+		private String TABLE = "meter";
+
+		public DbSentinelPowerMeter(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+		}
+
+		public int insert(long measuredAt, long power) {
+
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, measuredAt);
+			values.put(C_POWER, power);
+
+			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
+
+		public void clearRowsBefore(Date date) {
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
+		}
+
+		public long getSumOfPowerEntries() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_POWER, null, null);
+		}
+
+		public long getOldestTimestamp() {
+			return this.dbUtils.getMinValueOfColumn(TABLE, C_MEASURED_AT, null, null);
+		}
+
+	}
+	public final DbSentinelPowerMeter dbSentinelPowerMeter;
 
 	
 }

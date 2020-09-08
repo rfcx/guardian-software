@@ -91,10 +91,10 @@ public class AudioCaptureService extends Service {
 				
 				try {
 
-					updateSamplingRatioIteration();
-					boolean isCaptureAllowed = app.audioCaptureUtils.isAudioCaptureAllowed( true);
-
-					if (confirmOrSetAudioCaptureParameters() && isCaptureAllowed) {
+					if (	confirmOrSetAudioCaptureParameters()
+						&&	!app.audioCaptureUtils.isAudioCaptureBlocked(true)
+						&& 	app.audioCaptureUtils.isAudioCaptureAllowed( true)
+					) {
 
 						// in this case, we are starting the audio capture from a stopped/pre-initialized state
 						captureTimeStamp = System.currentTimeMillis();
@@ -145,6 +145,8 @@ public class AudioCaptureService extends Service {
 		
 		if (app != null) {
 
+			app.audioCaptureUtils.updateSamplingRatioIteration();
+
 			int prefsAudioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
 			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			
@@ -166,12 +168,6 @@ public class AudioCaptureService extends Service {
 		return true;
 	}
 
-	private void updateSamplingRatioIteration() {
-		int nonCaptureRatio = Integer.parseInt(TextUtils.split(app.rfcxPrefs.getPrefAsString("audio_sampling_ratio"), ":")[1]);
-		if (app.audioCaptureUtils.samplingRatioIteration > nonCaptureRatio) { app.audioCaptureUtils.samplingRatioIteration = 0; }
-		app.audioCaptureUtils.samplingRatioIteration++;
-	}
 
-	
 	
 }

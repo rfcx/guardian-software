@@ -40,7 +40,7 @@ public class DeviceSentinelService extends Service {
 	private int outerLoopIncrement = 0;
 	private int outerLoopCaptureCount = 0;
 
-	private boolean isReducedCaptureModeActive = true;
+	private boolean isReducedCaptureModeActive = false;
 	private boolean isSentinelPowerCaptureAllowed = true;
 	private boolean isSentinelAccelCaptureAllowed = true;
 	private boolean isSentinelCompassCaptureAllowed = true;
@@ -204,8 +204,8 @@ public class DeviceSentinelService extends Service {
 				int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 
 				// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
-				// however, we slow the capture cycle by the multiple indicated in SentinelPowerUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-				int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? audioCycleDuration : (audioCycleDuration * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf);
+				// however, we slow the capture cycle by the multiple indicated in SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
+				int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? (audioCycleDuration * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
 
 				if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 
@@ -223,7 +223,7 @@ public class DeviceSentinelService extends Service {
 					app.sentinelPowerUtils.setOrResetSentinelPowerChip();
 					app.sentinelCompassUtils.setOrResetSentinelCompassChip();
 
-					Log.d(logTag, "SentinelStats Capture" + (this.isReducedCaptureModeActive ? "" : " (currently limited)") + ": " +
+					Log.d(logTag, "SentinelStats Capture" + (this.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
 							"Snapshots (all metrics) taken every " + Math.round(SentinelUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
 				}
 			}

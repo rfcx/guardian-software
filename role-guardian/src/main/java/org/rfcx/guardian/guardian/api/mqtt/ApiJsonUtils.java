@@ -325,6 +325,9 @@ public class ApiJsonUtils {
 	public JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
 		int maxMetaRowsToBundle = app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit");
+		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sampling_ratio")) {
+			maxMetaRowsToBundle = maxMetaRowsToBundle + app.audioCaptureUtils.samplingRatioArr[0] + app.audioCaptureUtils.samplingRatioArr[1];
+		}
 
 		JSONObject metaJsonBundledSnapshotsObj = null;
 		JSONArray metaJsonBundledSnapshotsIds = new JSONArray();
