@@ -18,21 +18,11 @@ object RegisterApi {
         guardianInfo: RegisterRequest,
         callback: RegisterCallback
     ) {
-        val token = context.getTokenID() ?: ""
-        registerGuardian(context, guardianInfo, token, true, callback)
-    }
-
-    fun registerGuardian(
-        context: Context,
-        guardianInfo: RegisterRequest,
-        tokenId: String,
-        isProduction: Boolean = true,
-        callback: RegisterCallback
-    ) {
+        val tokenId = context.getTokenID() ?: ""
         httpPostMultipart = HttpPostMultipart()
         httpPostMultipart.customHttpHeaders = listOf(arrayOf("Authorization", "Bearer $tokenId"))
 
-        var url = getApiUrl(context, isProduction)
+        val url = ApiRest.baseUrl(context)
         val postUrl = "${url}v2/guardians/register"
         val body = listOf(
             arrayOf("guid", guardianInfo.guid)
