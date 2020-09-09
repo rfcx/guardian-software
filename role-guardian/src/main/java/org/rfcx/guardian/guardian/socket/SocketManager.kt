@@ -1,12 +1,13 @@
 package org.rfcx.guardian.guardian.socket
 
 import android.content.Context
+import android.os.Looper
 import android.util.Base64
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.http.RegisterApi
-import org.rfcx.guardian.guardian.api.http.RegisterCallback
+import org.rfcx.guardian.guardian.api.http.SocketRegisterCallback
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
@@ -36,6 +37,7 @@ object SocketManager {
         this.context = context
         app = context.applicationContext as RfcxGuardian
         serverThread = Thread(Runnable {
+            Looper.prepare()
             try {
                 serverSocket = ServerSocket(9999)
                 serverSocket?.reuseAddress = true
@@ -94,6 +96,7 @@ object SocketManager {
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
             }
+            Looper.loop()
         })
         serverThread?.start()
     }
@@ -334,11 +337,12 @@ object SocketManager {
         context?.let {
             val guid = app?.rfcxGuardianIdentity?.guid ?: ""
             RegisterApi.registerGuardian(it, RegisterRequest(guid), tokenId, isProduction, object:
-                RegisterCallback {
+                SocketRegisterCallback {
                 override fun onRegisterSuccess(t: Throwable?, response: String?) {
                     try {
-                        val registerInfo =JSONObject()
-                            .put("status", "Success")
+                        app?.saveGuardianRegistration(response)
+                        val registerInfo = JSONObject()
+                            .put("status", "success")
                         registerJson.put("register", registerInfo)
                         streamOutput?.writeUTF(registerJson.toString())
                         streamOutput?.flush()
@@ -349,8 +353,8 @@ object SocketManager {
 
                 override fun onRegisterFailed(t: Throwable?, message: String?) {
                     try {
-                        val registerInfo =JSONObject()
-                            .put("status", "Failed")
+                        val registerInfo = JSONObject()
+                            .put("status", "failed")
                         registerJson.put("register", registerInfo)
                         streamOutput?.writeUTF(registerJson.toString())
                         streamOutput?.flush()
