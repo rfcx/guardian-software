@@ -69,6 +69,7 @@ object SocketManager {
                                 }
                             }
                             "sentinel" -> sendSentinelValues()
+                            "is_registered" -> sendIfGuardianRegistered()
                             else -> {
                                 val commandObject =
                                     JSONObject(receiveJson.get("command").toString())
@@ -313,6 +314,18 @@ object SocketManager {
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
             }
+        }
+    }
+
+    private fun sendIfGuardianRegistered() {
+        val isRegistered = app?.isGuardianRegistered ?: false
+        try {
+            val isRegisteredJson = JSONObject()
+                .put("is_registered", isRegistered)
+            streamOutput?.writeUTF(isRegisteredJson.toString())
+            streamOutput?.flush()
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
         }
     }
 
