@@ -63,8 +63,8 @@ public class PowerMeterService extends Service {
 		
 		@Override
 		public void run() {
+
 			PowerMeterService powerMeterServiceInstance = PowerMeterService.this;
-			
 			app = (RfcxGuardian) getApplication();
 
 			while (powerMeterServiceInstance.runFlag) {
@@ -73,11 +73,11 @@ public class PowerMeterService extends Service {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-					if (app.smsMessageDb.dbSmsQueued.getCount() > 0) {
-
-						app.rfcxServiceHandler.triggerService("SmsDispatch", false);
-
-					}
+//					if (app.smsMessageDb.dbSmsQueued.getCount() > 0) {
+//
+//						app.rfcxServiceHandler.triggerService("SmsDispatch", false);
+//
+//					}
 
 					Thread.sleep(powerMeterCycleDuration);
 

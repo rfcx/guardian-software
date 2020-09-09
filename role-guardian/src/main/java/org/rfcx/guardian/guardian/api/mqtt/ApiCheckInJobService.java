@@ -88,15 +88,21 @@ public class ApiCheckInJobService extends Service {
 					int prefsCheckInBatteryCutoff = app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff");
 					
 					if (!app.deviceConnectivity.isConnected()) {
+
 						Log.v(logTag, "No CheckIn because org.rfcx.guardian.guardian currently has no connectivity."
 							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration / 2 ) / 1000 ) ) + " seconds before next attempt.");
+
 						Thread.sleep( prefsAudioCycleDuration / 2 );
 						
 					} else if (prefsEnableBatteryCutoffs && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
+
 						Log.v(logTag, DateTimeUtils.getDateTime()+" CheckIn not allowed due to low battery level"
 							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+prefsCheckInBatteryCutoff+"%)."
 							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration * 2 ) / 1000 ) ) + " seconds before next attempt.");
+
 						Thread.sleep( prefsAudioCycleDuration * 2 );
+
+						app.apiCheckInUtils.initializeFailedCheckInThresholds();
 						
 						// reboots org.rfcx.guardian.guardian in situations where battery charge percentage doesn't reflect charge state
 						if (app.apiCheckInUtils.isBatteryChargedButBelowCheckInThreshold()) {

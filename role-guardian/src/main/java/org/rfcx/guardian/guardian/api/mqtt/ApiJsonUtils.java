@@ -50,13 +50,13 @@ public class ApiJsonUtils {
 		// Recording number of currently queued/skipped/stashed checkins
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson(true));
 
-		checkInMetaJson.put("assets_purged", app.assetUtils.getAssetExchangeLogList("purged", 2 * app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit")));
+		checkInMetaJson.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit")));
 
 		// Device: Phone & Android info
 		JSONObject deviceJsonObj = new JSONObject();
 		deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
 		deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
-		checkInMetaJson.put("device", deviceJsonObj);
+		//checkInMetaJson.put("device", deviceJsonObj);
 
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
@@ -64,36 +64,34 @@ public class ApiJsonUtils {
 		// Adding checksum of current prefs values
 		checkInMetaJson.put("prefs", app.apiJsonUtils.buildCheckInPrefsJsonObj());
 
-		// Adding device location timezone offset
-		checkInMetaJson.put("datetime", TextUtils.join("|", new String[] { "system*"+System.currentTimeMillis(), "timezone*"+DateTimeUtils.getTimeZoneOffset() }));
-
 		// Adding instructions, if there are any
 		if (app.instructionsUtils.getInstructionsCount() > 0) {
 			checkInMetaJson.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
 		}
 
 		// Adding messages to JSON blob
-		checkInMetaJson.put("messages", RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver()));
+		JSONArray smsArr = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver());
+		if (smsArr.length() > 0) { checkInMetaJson.put("messages", smsArr); }
 
 		// Adding screenshot meta to JSON blob
-		checkInMetaJson.put("screenshots",  (screenShotMeta[0] == null) ? "" :
-				TextUtils.join("*", new String[]{screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6] })
-		);
+		if (screenShotMeta[0] != null) {
+			checkInMetaJson.put("screenshots", TextUtils.join("*", new String[]{screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6]}));
+		}
 
 		// Adding logs meta to JSON blob
-		checkInMetaJson.put("logs", (logFileMeta[0] == null) ? "" :
-				TextUtils.join("*", new String[] { logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4] })
-		);
+		if (logFileMeta[0] != null) {
+			checkInMetaJson.put("logs", TextUtils.join("*", new String[]{logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4]}));
+		}
 
 		// Adding photos meta to JSON blob
-		checkInMetaJson.put("photos",(photoFileMeta[0] == null) ? "" :
-				TextUtils.join("*", new String[] { photoFileMeta[1], photoFileMeta[2], photoFileMeta[3], photoFileMeta[4], photoFileMeta[5], photoFileMeta[6] })
-		);
+		if (photoFileMeta[0] != null) {
+			checkInMetaJson.put("photos", TextUtils.join("*", new String[]{photoFileMeta[1], photoFileMeta[2], photoFileMeta[3], photoFileMeta[4], photoFileMeta[5], photoFileMeta[6]}));
+		}
 
 		// Adding videos meta to JSON blob
-		checkInMetaJson.put("videos",(videoFileMeta[0] == null) ? "" :
-				TextUtils.join("*", new String[] { videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6] })
-		);
+		if (videoFileMeta[0] != null) {
+			checkInMetaJson.put("videos", TextUtils.join("*", new String[]{videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6]}));
+		}
 
 		Log.d(logTag,checkInMetaJson.toString());
 

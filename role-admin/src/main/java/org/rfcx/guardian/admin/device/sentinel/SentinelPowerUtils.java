@@ -1,6 +1,8 @@
 package org.rfcx.guardian.admin.device.sentinel;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -230,18 +232,23 @@ public class SentinelPowerUtils {
             double measuredAtAvg = (sysVals[4]+battVals[4]+inpVals[4])/3;
             long measuredAt = Math.round(measuredAtAvg);
 
-            app.sentinelPowerDb.dbSentinelPowerSystem.insert(measuredAt, sysVals[0], sysVals[1], sysVals[2], sysVals[3]);
-            app.sentinelPowerDb.dbSentinelPowerBattery.insert(measuredAt, battVals[0], battVals[1], battVals[2], battVals[3]);
-            app.sentinelPowerDb.dbSentinelPowerInput.insert(measuredAt, inpVals[0], inpVals[1], inpVals[2], inpVals[3]);
-            app.sentinelPowerDb.dbSentinelPowerMeter.insert(measuredAt, battVals[3]);
+            long[] voltages = new long[] { pVal("voltage", sysVals[0]), pVal("voltage", battVals[0]), pVal("voltage", inpVals[0]) };
+            long[] currents = new long[] { pVal("current", sysVals[1]), pVal("current", battVals[1]), pVal("current", inpVals[1]) };
+            long[] temps = new long[] { pVal("temp", sysVals[2]), pVal("temp", battVals[2]), pVal("temp", inpVals[2]) };
+            long[] powers = new long[] { pVal("power", sysVals[3]), pVal("power", battVals[3]), pVal("power", inpVals[3]) };
+
+            app.sentinelPowerDb.dbSentinelPowerSystem.insert( measuredAt, voltages[0], currents[0], temps[0], powers[0] );
+            app.sentinelPowerDb.dbSentinelPowerBattery.insert( measuredAt, voltages[1], currents[1], temps[1], powers[1] );
+            app.sentinelPowerDb.dbSentinelPowerInput.insert( measuredAt, voltages[2], currents[2], temps[2], powers[2] );
+            app.sentinelPowerDb.dbSentinelPowerMeter.insert( measuredAt, battVals[3]);
 
             if (printValuesToLog) {
                 Log.d(logTag,
                     (new StringBuilder("Avg of ")).append(sampleCount).append(" samples at ").append(DateTimeUtils.getDateTime(measuredAt))
-                    .append(" [ system: ").append(sysVals[0]).append(" mV, ").append(sysVals[1]).append(" mA, ").append(sysVals[3]).append(" mW").append(" ]")
-                    .append(" [ battery: ").append(battVals[0]).append(" mV, ").append(battVals[1]).append(" mA, ").append(battVals[3]).append(" mW").append(" ]")
-                    .append(" [ input: ").append(inpVals[0]).append(" mV, ").append(inpVals[1]).append(" mA, ").append(inpVals[3]).append(" mW").append(" ]")
-                    .append(" [ temp: ").append(sysVals[2]).append(" C").append(" ]")
+                    .append(" [ system: ").append(voltages[0]).append(" mV, ").append(currents[0]).append(" mA, ").append(powers[0]).append(" mW").append(" ]")
+                    .append(" [ battery: ").append(voltages[1]).append(" mV, ").append(currents[1]).append(" mA, ").append(powers[1]).append(" mW").append(" ]")
+                    .append(" [ input: ").append(voltages[2]).append(" mV, ").append(currents[2]).append(" mA, ").append(powers[2]).append(" mW").append(" ]")
+                    .append(" [ temp: ").append(temps[0]).append(" C").append(" ]")
                 .toString());
             }
         }
@@ -314,6 +321,27 @@ public class SentinelPowerUtils {
         return jsonObj;
     }
 
+    private static long pVal(String fieldName, long val) {
+
+//        double divVal = val;
+//
+//
+//        if (fieldName.equalsIgnoreCase("voltage")) {
+//            divVal = val/100;
+//            Log.e(logTag, divVal+"");
+//
+//        } else if (fieldName.equalsIgnoreCase("current")) {
+//            divVal = Math.round(val/100)*100;
+//
+//        } else if (fieldName.equalsIgnoreCase("power")) {
+//            divVal = Math.round(val/100)*100;
+//
+//        }/* else if (fieldName.equalsIgnoreCase("temps")) {
+//
+//        }*/
+
+        return val;
+    }
 
     private static int getLiFePO4BatteryChargePercentage(long battMilliVoltage) {
 
