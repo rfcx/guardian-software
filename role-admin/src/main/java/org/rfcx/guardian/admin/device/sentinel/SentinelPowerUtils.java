@@ -368,22 +368,22 @@ public class SentinelPowerUtils {
         else if (battMilliVoltage >= 3180) { return 18;  }
         else if (battMilliVoltage >= 3170) { return 17;  }
         else if (battMilliVoltage >= 3160) { return 16;  }
-        else if (battMilliVoltage >= 3150) { return 15;  }
+        else if (battMilliVoltage >= 3150) { return 15;  } // cutoff?
         else if (battMilliVoltage >= 3140) { return 14;  }
         else if (battMilliVoltage >= 3105) { return 13;  }
         else if (battMilliVoltage >= 3070) { return 12;  }
         else if (battMilliVoltage >= 3035) { return 11;  }
         else if (battMilliVoltage >= 3000) { return 10;  }
-        else if (battMilliVoltage >= 2960) { return 9;   }
-        else if (battMilliVoltage >= 2920) { return 8;   }
-        else if (battMilliVoltage >= 2880) { return 7;   }
-        else if (battMilliVoltage >= 2840) { return 6;   }
-        else if (battMilliVoltage >= 2800) { return 5;   }
-        else if (battMilliVoltage >= 2735) { return 4;   }
-        else if (battMilliVoltage >= 2670) { return 3;   }
-        else if (battMilliVoltage >= 2605) { return 2;   }
-        else if (battMilliVoltage >= 2540) { return 1;   }
-        else {                               return 0;   }
+        else if (battMilliVoltage >= 2960) {  return 9;  }
+        else if (battMilliVoltage >= 2920) {  return 8;  }
+        else if (battMilliVoltage >= 2880) {  return 7;  }
+        else if (battMilliVoltage >= 2840) {  return 6;  }
+        else if (battMilliVoltage >= 2800) {  return 5;  }
+        else if (battMilliVoltage >= 2735) {  return 4;  }
+        else if (battMilliVoltage >= 2670) {  return 3;  }
+        else if (battMilliVoltage >= 2605) {  return 2;  }
+        else if (battMilliVoltage >= 2540) {  return 1;  }
+        else {                                return 0;  }
     }
 
 }

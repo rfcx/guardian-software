@@ -18,11 +18,15 @@ fi
 export DB_PSWD=`cat $PROJECT_DIR/bin/_private/rfcx-api-db-pswd-$ENV.txt;`;
 
 export APK_VERSION=`cat $ROLE_DIR/build.gradle | grep ' versionName ' | cut -d'"' -f 2`;
+
+if [ ! -f "$PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk" ]; then
+	$SCRIPT_DIR/build-apk.sh $ROLE;
+fi
+
 echo ""; echo "RFCx $ROLE ($APK_VERSION)";
 
-# $SCRIPT_DIR/build-apk.sh $ROLE;
-
 echo "gzipping apk file...";
+
 if [ -f "$PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk.backup" ]; then
 	export CLEANUP=`rm $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk.backup`;
 fi

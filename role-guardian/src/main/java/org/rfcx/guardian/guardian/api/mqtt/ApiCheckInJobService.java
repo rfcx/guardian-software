@@ -156,6 +156,7 @@ public class ApiCheckInJobService extends Service {
 							Thread.sleep(10000);
 							app.apiCheckInUtils.confirmOrCreateConnectionToBroker(true);
 						}
+
 					}
 					
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
