@@ -5,6 +5,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home.*
@@ -46,6 +48,19 @@ class MainActivity : Activity(),
         startServices()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_prefs -> startActivity(Intent(this, PrefsActivity::class.java))
+        }
+        return true
+    }
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -58,10 +73,6 @@ class MainActivity : Activity(),
             app.setSharedPref("enable_audio_capture", (!isAudioCaptureOn).toString().toLowerCase())
             audioCaptureButton.text = if (!isAudioCaptureOn) "stop" else "record"
             setUIByRecordingState()
-        }
-
-        prefsSettingButton.setOnClickListener {
-            startActivity(Intent(this, PrefsActivity::class.java))
         }
 
         registerButton.setOnClickListener {

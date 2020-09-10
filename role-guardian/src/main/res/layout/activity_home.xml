@@ -196,28 +196,6 @@
                                     app:layout_constraintBottom_toBottomOf="@id/durationInfoText"
                                     app:layout_constraintStart_toEndOf="@id/durationInfoText"
                                     app:layout_constraintTop_toTopOf="@id/durationInfoText" />
-
-                            <TextView
-                                    android:id="@+id/prefsSettingsText"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/margin_padding_small"
-                                    android:text="@string/preferences"
-                                    android:textColor="@color/text_black"
-                                    android:textStyle="bold"
-                                    app:layout_constraintStart_toStartOf="parent"
-                                    app:layout_constraintTop_toBottomOf="@id/durationInfoText" />
-
-                            <TextView
-                                    android:id="@+id/prefsSettingButton"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/margin_padding_small"
-                                    android:text="@string/audio_settings_edit"
-                                    android:textColor="@color/text_blue"
-                                    app:layout_constraintBottom_toBottomOf="@id/prefsSettingsText"
-                                    app:layout_constraintStart_toEndOf="@id/prefsSettingsText"
-                                    app:layout_constraintTop_toTopOf="@id/prefsSettingsText" />
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <View
