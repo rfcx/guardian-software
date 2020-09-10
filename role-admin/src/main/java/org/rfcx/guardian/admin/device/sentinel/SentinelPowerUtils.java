@@ -287,11 +287,13 @@ public class SentinelPowerUtils {
         return 1;
     }
 
-    public JSONObject getSentinelPowerCurrentValuesAsJson() {
+    public JSONObject getMomentarySentinelPowerValuesAsJson() {
 
         JSONObject jsonObj = new JSONObject();
 
         try {
+
+            updateSentinelPowerValues();
 
             long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(this.i2cTmpValues.get("battery"));
             JSONObject jsonBatteryObj = new JSONObject();

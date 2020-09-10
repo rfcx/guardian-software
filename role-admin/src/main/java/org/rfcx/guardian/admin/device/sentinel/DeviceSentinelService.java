@@ -195,9 +195,9 @@ public class DeviceSentinelService extends Service {
 
 			if (innerLoopIncrement == 0) {
 
-				this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.isCaptureAllowed();
-				this.isSentinelAccelCaptureAllowed = app.sentinelAccelerometerUtils.isCaptureAllowed();
-				this.isSentinelCompassCaptureAllowed = app.sentinelCompassUtils.isCaptureAllowed();
+				this.isSentinelPowerCaptureAllowed = /*!this.isReducedCaptureModeActive && */app.sentinelPowerUtils.isCaptureAllowed();
+				this.isSentinelAccelCaptureAllowed = !this.isReducedCaptureModeActive && app.sentinelAccelerometerUtils.isCaptureAllowed();
+				this.isSentinelCompassCaptureAllowed = !this.isReducedCaptureModeActive && app.sentinelCompassUtils.isCaptureAllowed();
 
 				this.captureCycleLastStartTime = System.currentTimeMillis();
 

@@ -179,7 +179,7 @@ public class AudioCaptureUtils {
 			if (printFeedbackInLog) {
 				Log.d(logTag, msgNoCapture
 						.insert(0, DateTimeUtils.getDateTime() + " - AudioCapture not allowed due to ")
-						.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")).append(" seconds before next attempt.")
+						.append(" Waiting ").append( 2 * app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")).append(" seconds before next attempt.")
 						.toString());
 			}
 		}

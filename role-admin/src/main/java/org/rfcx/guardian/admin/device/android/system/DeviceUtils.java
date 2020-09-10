@@ -98,7 +98,7 @@ public class DeviceUtils {
 	public static final long captureCycleMinimumAllowedDurationInMilliseconds = 30000;
 	public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 
-	public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 2;
+	public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 3;
 
 	public static final long geoPositionMinDistanceChangeBetweenUpdatesInMeters = 1;
 
