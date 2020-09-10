@@ -1,47 +1,40 @@
 package org.rfcx.guardian.admin.activity
 
+import android.app.Activity
 import android.content.Intent
-import org.rfcx.guardian.admin.R
-
-import org.rfcx.guardian.admin.RfcxGuardian
 import android.os.Bundle
-import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_home.*
+import org.rfcx.guardian.admin.R
+import org.rfcx.guardian.admin.RfcxGuardian
 import org.rfcx.guardian.admin.sms.ComposeSmsActivity
-import org.rfcx.guardian.admin.sms.SmsUtils
-import java.util.*
 
-class MainActivity : AppCompatActivity() {
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.activity_home, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val app = application as RfcxGuardian
-        when (item.itemId) {
-
-            R.id.menu_sms_activity -> startActivity(Intent(this, ComposeSmsActivity::class.java))
-
-            R.id.menu_screenshot -> app.rfcxServiceHandler.triggerService("ScreenShotCapture", true)
-
-            R.id.menu_sntp -> app.rfcxServiceHandler.triggerService("SntpSyncJob", true)
-
-            R.id.menu_logcat -> app.rfcxServiceHandler.triggerService("LogCatCapture", true)
-
-            R.id.menu_reboot -> app.rfcxServiceHandler.triggerService("RebootTrigger", true)
-        }
-        return true
-    }
+class MainActivity : Activity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
-        setSupportActionBar(toolbar)
+
+        val app = application as RfcxGuardian
+
+        smsActivityButton.setOnClickListener {
+            startActivity(Intent(this, ComposeSmsActivity::class.java))
+        }
+
+        screenshotButton.setOnClickListener {
+            app.rfcxServiceHandler.triggerService("ScreenShotCapture", true)
+        }
+
+        sntpButton.setOnClickListener {
+            app.rfcxServiceHandler.triggerService("SntpSyncJob", true)
+        }
+
+        logcatButton.setOnClickListener {
+            app.rfcxServiceHandler.triggerService("LogCatCapture", true)
+        }
+
+        rebootButton.setOnClickListener {
+            app.rfcxServiceHandler.triggerService("RebootTrigger", true)
+        }
     }
 
     public override fun onResume() {
