@@ -40,7 +40,7 @@ public class ApiJsonUtils {
 
 	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta, String[] photoFileMeta, String[] videoFileMeta) throws JSONException, IOException {
 
-		JSONObject checkInMetaJson = app.apiJsonUtils.retrieveAndBundleMetaJson();
+		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
 
 		// Adding Audio JSON fields from checkin table
 		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
@@ -204,14 +204,14 @@ public class ApiJsonUtils {
 		metaDataJsonObj = addConcatSystemMetaParams(metaDataJsonObj, systemMetaJsonArray);
 
 		// Adding sentinel power data, if they can be retrieved from admin role via content provider
-		JSONArray sentinelPowerJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-				"sentinel_power", app.getApplicationContext().getContentResolver());
-		metaDataJsonObj.put("sentinel_power", getConcatSentinelMeta(sentinelPowerJsonArray));
+		String sentinelPower = getConcatSentinelMeta(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
+				"sentinel_power", app.getApplicationContext().getContentResolver()));
+		if (sentinelPower.length() > 0) { metaDataJsonObj.put("sentinel_power", sentinelPower); }
 
 		// Adding sentinel sensor data, if they can be retrieved from admin role via content provider
-		JSONArray sentinelSensorJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-				"sentinel_sensor", app.getApplicationContext().getContentResolver());
-		metaDataJsonObj.put("sentinel_sensor", getConcatSentinelMeta(sentinelSensorJsonArray));
+		String sentinelSensor = getConcatSentinelMeta(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
+				"sentinel_sensor", app.getApplicationContext().getContentResolver()));
+		if (sentinelSensor.length() > 0) { metaDataJsonObj.put("sentinel_sensor", sentinelSensor); }
 
 		// Saves JSON snapshot blob to database
 		app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
@@ -296,7 +296,7 @@ public class ApiJsonUtils {
 		}
 	}
 
-	public JSONObject buildCheckInPrefsJsonObj() {
+	private JSONObject buildCheckInPrefsJsonObj() {
 
 		JSONObject prefsObj = new JSONObject();
 		try {
@@ -320,7 +320,7 @@ public class ApiJsonUtils {
 	}
 
 
-	public JSONObject retrieveAndBundleMetaJson() throws JSONException {
+	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
 		int maxMetaRowsToBundle = app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit");
 		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sampling_ratio")) {

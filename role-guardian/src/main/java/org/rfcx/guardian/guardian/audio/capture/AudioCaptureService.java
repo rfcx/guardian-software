@@ -91,10 +91,10 @@ public class AudioCaptureService extends Service {
 				
 				try {
 
-					if (	confirmOrSetAudioCaptureParameters()
-						&&	!app.audioCaptureUtils.isAudioCaptureBlocked(true)
-						&& 	app.audioCaptureUtils.isAudioCaptureAllowed( true)
-					) {
+					boolean isAudioCaptureAllowed = app.audioCaptureUtils.isAudioCaptureAllowed(true);
+					boolean isAudioCaptureBlocked = app.audioCaptureUtils.isAudioCaptureBlocked(true);
+
+					if ( confirmOrSetAudioCaptureParameters() && !isAudioCaptureBlocked && isAudioCaptureAllowed ) {
 
 						// in this case, we are starting the audio capture from a stopped/pre-initialized state
 						captureTimeStamp = System.currentTimeMillis();
@@ -116,7 +116,7 @@ public class AudioCaptureService extends Service {
 					}
 
 					// This ensures that the service registers as active more frequently than the capture loop duration
-					for (int innerLoopIteration = 0; innerLoopIteration < innerLoopIterationCount; innerLoopIteration++) {
+					for (int innerLoopIteration = 0; innerLoopIteration < (isAudioCaptureAllowed ? innerLoopIterationCount : (2*innerLoopIterationCount)); innerLoopIteration++) {
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 						Thread.sleep(innerLoopIterationDuration);
 					}

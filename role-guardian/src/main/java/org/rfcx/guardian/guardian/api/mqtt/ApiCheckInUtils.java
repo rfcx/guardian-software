@@ -59,7 +59,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	private MqttUtils mqttCheckInClient = null;
 
 	private long checkInPublishTimeOutLength = 0;
-	private long checkInSendReturnedAt = System.currentTimeMillis();
+	private long checkInPublishCompletedAt = System.currentTimeMillis();
 
 	private int inFlightCheckInAttemptCounter = 0;
 	private int inFlightCheckInAttemptCounterLimit = 5;
@@ -451,14 +451,18 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		this.failedCheckInThresholds = checkInThresholds;
 		this.failedCheckInThresholdsReached = checkInThresholdsReached;
+
+		this.checkInPublishCompletedAt = System.currentTimeMillis();
+
+		Log.v(logTag, "Resetting CheckIn Failure Thresholds");
 	}
 
 	void updateFailedCheckInThresholds() {
 
 		if (this.failedCheckInThresholds.length > 0) {
 
-			int minsSinceSuccess = (int) Math.floor(((System.currentTimeMillis() - this.checkInSendReturnedAt) / 1000) / 60);
-			int minsSinceConnected = (int) Math.floor(((System.currentTimeMillis() - app.deviceConnectivity.lastConnectedAt()) / 1000) / 60);
+			int minsSinceSuccess = (int) Math.floor(((System.currentTimeMillis() - this.checkInPublishCompletedAt) / 1000) / 60);
+	//		int minsSinceConnected = (int) Math.floor(((System.currentTimeMillis() - app.deviceConnectivity.lastConnectedAt()) / 1000) / 60);
 
 			if (	// ...we haven't yet reached the first threshold for bad connectivity
 					(minsSinceSuccess < this.failedCheckInThresholds[0])
@@ -598,9 +602,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		try {
 
 			JSONObject jsonObj = new JSONObject(jsonStr);
-
-			// reset/record request latency
-			this.checkInSendReturnedAt = System.currentTimeMillis();
 
 			// parse audio info and use it to purge the data locally
 			// this assumes that the audio array has only one item in it
@@ -842,11 +843,12 @@ public class ApiCheckInUtils implements MqttCallback {
 
 				if (msgTopic.equalsIgnoreCase("guardians/checkins")) {
 					moveCheckInEntryToSentDatabase(this.apiCheckInHealthUtils.getInFlightCheckInAudioId());
-					long msgSendDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds( this.apiCheckInHealthUtils.getCurrentInFlightCheckInStatsEntry()[0] ));
-					this.apiCheckInHealthUtils.setInFlightCheckInStats(this.apiCheckInHealthUtils.getInFlightCheckInAudioId(), 0, msgSendDuration, 0);
-					String deliveryTimeReadable = DateTimeUtils.milliSecondDurationAsReadableString(msgSendDuration, true);
-					SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHED, deliveryTimeReadable);
-					Log.i(logTag, "CheckIn delivery time: " + deliveryTimeReadable);
+					long publishDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds( this.apiCheckInHealthUtils.getCurrentInFlightCheckInStatsEntry()[0] ));
+					this.apiCheckInHealthUtils.setInFlightCheckInStats(this.apiCheckInHealthUtils.getInFlightCheckInAudioId(), 0, publishDuration, 0);
+					this.checkInPublishCompletedAt = System.currentTimeMillis();
+					String publishDurationReadable = DateTimeUtils.milliSecondDurationAsReadableString(publishDuration, true);
+					SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHED, publishDurationReadable);
+					Log.i(logTag, "CheckIn delivery time: " + publishDurationReadable);
 				}
 
 			} else {

@@ -309,7 +309,13 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 		if (outerLoopIncrement == 1) {
 
-			isReducedCaptureModeActive = DeviceUtils.isReducedCaptureModeActive(app.getApplicationContext());
+			this.isReducedCaptureModeActive = DeviceUtils.isReducedCaptureModeActive(app.getApplicationContext());
+
+			if (this.isReducedCaptureModeActive) {
+				unRegisterListener("geoposition");
+			} else if (!this.isListenerRegistered_geoposition) {
+				registerListener("geoposition");
+			}
 
 		//	Log.e(logTag, "RUN OUTER LOOP BEHAVIOR...");
 
@@ -446,6 +452,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) { 
 			if (this.isListenerRegistered_geoposition && (this.locationManager != null)) {
+
 				this.locationManager.removeUpdates(this);
 				this.isListenerRegistered_geoposition = false;
 			}
