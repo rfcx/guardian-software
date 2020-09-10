@@ -65,6 +65,7 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         app = application as RfcxGuardian
+        val x = this.resources.openRawResource(R.raw.keep)
 
         setSupportActionBar(toolbar)
         initUI()
