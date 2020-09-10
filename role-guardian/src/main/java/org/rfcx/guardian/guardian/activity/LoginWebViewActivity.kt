@@ -1,12 +1,12 @@
 package org.rfcx.guardian.guardian.activity
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.StrictMode
-import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -31,14 +31,11 @@ import java.net.URLEncoder
 import javax.net.ssl.HttpsURLConnection
 
 
-class LoginWebViewActivity : AppCompatActivity(){
+class LoginWebViewActivity : Activity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_webview)
-
-        setSupportActionBar(toolbar)
-        toolBarInit()
 
         val uri = intent.data
         if(uri != null){
@@ -77,11 +74,6 @@ class LoginWebViewActivity : AppCompatActivity(){
             preparePost(null)
         }
 
-    }
-
-    private fun toolBarInit() {
-        val toolbar = supportActionBar
-        toolbar?.title = "Login"
     }
 
     private fun preparePost(code: String?){

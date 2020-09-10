@@ -1,15 +1,12 @@
 package org.rfcx.guardian.guardian.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
@@ -28,7 +25,7 @@ import org.rfcx.guardian.guardian.view.*
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 
-class MainActivity : AppCompatActivity(),
+class MainActivity : Activity(),
     RegisterCallback, GuardianCheckCallback {
     private var getInfoThread: Thread? = null
     private lateinit var app: RfcxGuardian
@@ -49,25 +46,11 @@ class MainActivity : AppCompatActivity(),
         startServices()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_prefs -> startActivity(Intent(this, PrefsActivity::class.java))
-        }
-        return true
-    }
-
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         app = application as RfcxGuardian
-        val x = this.resources.openRawResource(R.raw.keep)
 
-        setSupportActionBar(toolbar)
         initUI()
 
         audioCaptureButton.setOnClickListener {
@@ -75,6 +58,10 @@ class MainActivity : AppCompatActivity(),
             app.setSharedPref("enable_audio_capture", (!isAudioCaptureOn).toString().toLowerCase())
             audioCaptureButton.text = if (!isAudioCaptureOn) "stop" else "record"
             setUIByRecordingState()
+        }
+
+        prefsSettingButton.setOnClickListener {
+            startActivity(Intent(this, PrefsActivity::class.java))
         }
 
         registerButton.setOnClickListener {
@@ -107,13 +94,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun initUI() {
-        toolBarInit()
         setAppVersion()
-    }
-
-    private fun toolBarInit() {
-        val toolbar = supportActionBar
-        toolbar?.title = "Guardian"
     }
 
     private fun setAppVersion() {
@@ -154,7 +135,10 @@ class MainActivity : AppCompatActivity(),
 
     private fun updateAudioSettingsInfo() {
         val audioSettingUtils = AudioSettingUtils(this)
-        audioSettingsInfoText.text = "${audioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${audioSettingUtils.getBitRateLabel(bitRate!!)}"
+        audioSettingsInfoText.text =
+            "${audioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${audioSettingUtils.getBitRateLabel(
+                bitRate!!
+            )}"
         durationInfoText.text = "$duration seconds per file"
     }
 
@@ -183,11 +167,11 @@ class MainActivity : AppCompatActivity(),
             deviceIdText.text = " $deviceIdTxt"
             if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
                 recordStatusText.text = " recording"
-                recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
+                recordStatusText.setTextColor(resources.getColor(R.color.primary))
                 audioCaptureButton.text = "stop"
             } else {
                 recordStatusText.text = " stopped"
-                recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
+                recordStatusText.setTextColor(resources.getColor(R.color.grey_default))
                 audioCaptureButton.text = "record"
             }
         }
@@ -259,13 +243,15 @@ class MainActivity : AppCompatActivity(),
         deviceIdText.text = " $deviceIdTxt"
         Log.i(logTag, "onGuardianCheckSuccess: Successfully Verified Registration")
         showToast("Successfully Verified Registration")
-        app.apiCheckInUtils.sendMqttPing(true,  arrayOf<String>() )
+        app.apiCheckInUtils.sendMqttPing(true, arrayOf<String>())
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {
         setVisibilityRegisterFail()
         Log.e(logTag, "onGuardianCheckFailed: $message")
-        showToast(message ?: "Failed to verify registration. Please try again or contact us for support.")
+        showToast(
+            message ?: "Failed to verify registration. Please try again or contact us for support."
+        )
     }
 
     override fun onPause() {
