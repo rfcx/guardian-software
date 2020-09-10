@@ -5,48 +5,4 @@
         android:layout_height="match_parent"
         android:background="#000000">
 
-    <LinearLayout
-            android:id="@+id/adminMenuLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintTop_toTopOf="parent">
-
-        <Button
-                android:id="@+id/smsActivityButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="@string/menu_compose_sms" />
-
-        <Button
-                android:id="@+id/screenshotButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="@string/menu_screenshot" />
-
-        <Button
-                android:id="@+id/sntpButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="@string/menu_sntp" />
-
-        <Button
-                android:id="@+id/logcatButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="@string/menu_logcat" />
-
-        <Button
-                android:id="@+id/rebootButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:text="@string/menu_reboot" />
-
-    </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
