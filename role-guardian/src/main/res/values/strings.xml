@@ -176,17 +176,9 @@
 	</string-array>
 
 	<!-- login -->
-	<string name="email">Email</string>
-	<string name="password">Password</string>
-	<string name="login">Login</string>
-	<string name="pls_fill_email">Please fill email</string>
-	<string name="pls_fill_password">Please fill password</string>
-	<string name="incorrect_username_password">Incorrect username or password</string>
-	<string name="an_error_occurred">Service unavailable</string>
-	<string name="or">OR</string>
+    <string name="login">Login</string>
+    <string name="an_error_occurred">Service unavailable</string>
     <string name="register">register guardian</string>
-    <string name="error_common">An error occurred. Please try again.</string>
-    <string name="skip_login">SKIP</string>
     <string name="logout">Logout</string>
     <string name="register_guid">Guardian ID:</string>
 	<string name="record_status">Record status:</string>
@@ -194,8 +186,9 @@
 	<string name="audio_settings">Audio settings</string>
 	<string name="audio_settings_edit">[EDIT]</string>
 	<string name="login_info_as">Logged in as:</string>
+    <string name="preferences">Preferences</string>
 
-	<string-array name="tz_timezones">
+    <string-array name="tz_timezones">
 		<item>[ Not Set ]</item>
 		<item>Africa/Abidjan</item>
 		<item>Africa/Accra</item>
