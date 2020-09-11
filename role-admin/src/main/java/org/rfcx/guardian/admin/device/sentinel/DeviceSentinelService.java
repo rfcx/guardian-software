@@ -159,7 +159,7 @@ public class DeviceSentinelService extends Service {
 			outerLoopIncrement = 0;
 		}
 
-		isReducedCaptureModeActive = DeviceUtils.isReducedCaptureModeActive(app.getApplicationContext());
+		setOrUnSetReducedCaptureMode();
 
 		// run this on every loop, if allowed
 		if (this.isSentinelPowerCaptureAllowed) {
@@ -187,6 +187,12 @@ public class DeviceSentinelService extends Service {
 		}
 
 		return outerLoopIncrement;
+	}
+
+	private void setOrUnSetReducedCaptureMode() {
+		this.isReducedCaptureModeActive =
+				DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
+			&&	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture");
 	}
 
 	private boolean confirmOrSetCaptureParameters() {

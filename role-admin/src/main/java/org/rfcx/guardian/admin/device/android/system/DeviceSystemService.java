@@ -307,10 +307,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			outerLoopIncrement = 0;
 		}
 
-		if (outerLoopIncrement == 1) {
+		setOrUnSetReducedCaptureMode();
+		setOrUnSetReducedCaptureModeListeners();
 
-			this.isReducedCaptureModeActive = DeviceUtils.isReducedCaptureModeActive(app.getApplicationContext());
-			setOrUnSetReducedCaptureModeListeners();
+		if (outerLoopIncrement == 1) {
 
 		//	Log.e(logTag, "RUN OUTER LOOP BEHAVIOR...");
 
@@ -321,6 +321,11 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		return outerLoopIncrement;
 	}
 
+	private void setOrUnSetReducedCaptureMode() {
+		this.isReducedCaptureModeActive =
+				DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
+			&&	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture");
+	}
 
 	private void setOrUnSetReducedCaptureModeListeners() {
 
@@ -383,6 +388,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				if (!this.isListenerRegistered_accel) {
 					checkSetSensorManager();
 					if (this.sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size() != 0) {
+						Log.v(logTag, "Registering listener for 'accelerometer'...");
 						this.accelSensor = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).get(0);
 						this.sensorManager.registerListener(this, this.accelSensor, SensorManager.SENSOR_DELAY_NORMAL);
 						this.isListenerRegistered_accel = true;
@@ -398,6 +404,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				if (!this.isListenerRegistered_light) {
 					checkSetSensorManager();
 					if (this.sensorManager.getSensorList(Sensor.TYPE_LIGHT).size() != 0) {
+						Log.v(logTag, "Registering listener for 'light'...");
 						this.lightSensor = sensorManager.getSensorList(Sensor.TYPE_LIGHT).get(0);
 						this.sensorManager.registerListener(this, this.lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
 						this.isListenerRegistered_light = true;
@@ -409,6 +416,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 			} else if (sensorAbbrev.equalsIgnoreCase("telephony") && app.deviceUtils.isSensorListenerAllowed("telephony")) {
 				if (!this.isListenerRegistered_telephony) {
+					Log.v(logTag, "Registering listener for 'telephony'...");
 					this.signalStrengthListener = new SignalStrengthListener();
 					this.telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 					this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
@@ -418,6 +426,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			} else if (	sensorAbbrev.equalsIgnoreCase("geoposition") && app.deviceUtils.isSensorListenerAllowed("geoposition")) {
 				if (!this.isListenerRegistered_geoposition) {
 					if (checkSetLocationManager() && !this.geoPositionProviderInfo.isEmpty()) {
+						Log.v(logTag, "Registering listener for 'geoposition'...");
 						this.locationManager.requestLocationUpdates(
 								this.geoPositionProviderInfo,
 								( app.rfcxPrefs.getPrefAsLong("admin_geoposition_capture_cycle") * 60 * 1000 ),
@@ -442,6 +451,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		
 		if (sensorAbbrev.equalsIgnoreCase("accel")) { 
 			if (this.isListenerRegistered_accel && (this.accelSensor != null)) {
+				Log.v(logTag, "Unregistering sensor listener for 'accelerometer'...");
 				this.sensorManager.unregisterListener(this, this.accelSensor);
 				this.isListenerRegistered_accel = false;
 				if (this.app != null) { this.app.deviceUtils.processAccelSensorSnapshot(); }
@@ -449,19 +459,21 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			
 		} else if (sensorAbbrev.equalsIgnoreCase("light")) { 
 			if (this.isListenerRegistered_light && (this.lightSensor != null)) {
+				Log.v(logTag, "Unregistering sensor listener for 'light'...");
 				this.sensorManager.unregisterListener(this, this.lightSensor); 
 				this.isListenerRegistered_light = false;
 			}
 			
 		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) { 
 			if (this.isListenerRegistered_telephony && (this.telephonyManager != null)) {
+				Log.v(logTag, "Unregistering sensor listener for 'telephony'...");
 				this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE); 
 				this.isListenerRegistered_telephony = false;
 			}
 			
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) { 
 			if (this.isListenerRegistered_geoposition && (this.locationManager != null)) {
-
+				Log.v(logTag, "Unregistering sensor listener for 'geoposition'...");
 				this.locationManager.removeUpdates(this);
 				this.isListenerRegistered_geoposition = false;
 			}

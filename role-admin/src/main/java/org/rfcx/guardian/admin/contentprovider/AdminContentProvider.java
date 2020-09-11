@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin.contentprovider;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
@@ -19,6 +20,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +74,21 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "process", null)) { logFuncVal = "process";
                 return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole.toLowerCase(), AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
+
+            // get status of services
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) { logFuncVal = "status-*";
+                String statusTarget = uri.getLastPathSegment();
+                JSONArray statusArr = new JSONArray();
+                JSONObject statusObj = new JSONObject();
+
+                JSONObject statusSentinelAudio = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("audio_capture");
+                if (statusSentinelAudio != null) { statusObj.put("audio_capture", statusSentinelAudio); }
+                JSONObject statusSentinelCheckIn = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("api_checkin");
+                if (statusSentinelCheckIn != null) { statusObj.put("api_checkin", statusSentinelCheckIn); }
+
+                statusArr.put(statusObj);
+                return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 
             // "control" function endpoints
 
@@ -143,7 +160,6 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "database_get_latest_row", "*")) { logFuncVal = "database_get_latest_row-*";
                 String pathSeg = uri.getLastPathSegment();
-
 
                 if (pathSeg.equalsIgnoreCase("screenshots")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"screenshots", app.deviceScreenShotDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});

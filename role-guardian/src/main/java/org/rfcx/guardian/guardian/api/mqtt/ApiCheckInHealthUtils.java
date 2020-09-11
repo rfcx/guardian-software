@@ -1,10 +1,16 @@
 package org.rfcx.guardian.guardian.api.mqtt;
 
+import android.content.Context;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.Arrays;
@@ -13,7 +19,13 @@ import java.util.Map;
 
 public class ApiCheckInHealthUtils {
 
+	public ApiCheckInHealthUtils(Context context) {
+		this.app = (RfcxGuardian) context.getApplicationContext();
+	}
+
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInHealthUtils");
+
+	private RfcxGuardian app;
 
 	private Map<String, long[]> healthCheckMonitors = new HashMap<String, long[]>();
 	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent", "time-of-day" };
@@ -185,6 +197,113 @@ public class ApiCheckInHealthUtils {
 
 
 
+
+	public JSONObject apiCheckInStatusAsJsonObj() {
+		JSONObject statusObj = null;
+		try {
+			statusObj = new JSONObject();
+			statusObj.put("is_allowed", isApiCheckInAllowed(false, false));
+			statusObj.put("is_blocked", isApiCheckInBlocked(false));
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return statusObj;
+	}
+
+
+	public boolean isApiCheckInAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
+
+		// we set this to true, and cycle through conditions that might make it false
+		// we then return the resulting true/false value
+		boolean isApiCheckInAllowedUnderKnownConditions = true;
+		StringBuilder msgNotAllowed = new StringBuilder();
+		int reportedDelay = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 2;
+
+		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery") && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
+			msgNotAllowed.append("low battery level")
+					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
+					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("checkin_cutoff_battery")).append("%).");
+			isApiCheckInAllowedUnderKnownConditions = false;
+
+		} else if (!app.deviceConnectivity.isConnected()) {
+			msgNotAllowed.append("a lack of network connectivity.");
+			isApiCheckInAllowedUnderKnownConditions = false;
+			reportedDelay = Math.round(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 2);
+
+		} else if (includeSentinel && limitBasedOnSentinelBatteryLevel()) {
+			msgNotAllowed.append("Low Sentinel Battery level")
+					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery")).append("%).");
+			isApiCheckInAllowedUnderKnownConditions = false;
+
+
+		}
+
+		if (!isApiCheckInAllowedUnderKnownConditions) {
+			if (printFeedbackInLog) {
+				Log.d(logTag, msgNotAllowed
+						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn not allowed due to ")
+						.append(" Waiting ").append(reportedDelay).append(" seconds before next attempt.")
+						.toString());
+			}
+		}
+
+		return isApiCheckInAllowedUnderKnownConditions;
+	}
+
+	public boolean isApiCheckInBlocked(boolean printFeedbackInLog) {
+
+		// we set this to false, and cycle through conditions that might make it true
+		// we then return the resulting true/false value
+		boolean isApiCheckInBlockedRightNow = false;
+		StringBuilder msgIfBlocked = new StringBuilder();
+
+		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) {
+			msgIfBlocked.append("it being explicitly disabled ('enable_checkin_publish' is set to false).");
+			isApiCheckInBlockedRightNow = true;
+
+//		} else if (limitBasedOnTimeOfDay()) {
+//			msgIfBlocked.append("current time of day/night")
+//					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")).append("'.");
+//			isApiCheckInBlockedRightNow = true;
+
+		}
+
+		if (isApiCheckInBlockedRightNow) {
+			if (printFeedbackInLog) {
+				Log.d(logTag, msgIfBlocked
+						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn paused due to ")
+					//	.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")).append(" seconds before next attempt.")
+						.toString());
+			}
+		}
+
+		return isApiCheckInBlockedRightNow;
+	}
+
+
+
+	private boolean limitBasedOnSentinelBatteryLevel() {
+
+		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
+			return false;
+		} else {
+			try {
+				JSONArray jsonArray = RfcxComm.getQueryContentProvider("admin", "status", "*", app.getApplicationContext().getContentResolver());
+				if (jsonArray.length() > 0) {
+					JSONObject jsonObj = jsonArray.getJSONObject(0);
+					if (jsonObj.has("api_checkin")) {
+						JSONObject apiCheckInObj = jsonObj.getJSONObject("api_checkin");
+						if (apiCheckInObj.has("is_allowed")) {
+							return !apiCheckInObj.getBoolean(("is_allowed"));
+						}
+					}
+				}
+			} catch (JSONException e) {
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+		return false;
+	}
 
 
 }

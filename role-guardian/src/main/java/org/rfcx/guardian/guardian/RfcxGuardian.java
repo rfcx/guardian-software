@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.asset.AssetUtils;
+import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInHealthUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInMetaSnapshotService;
 import org.rfcx.guardian.guardian.api.mqtt.ApiJsonUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInStatsDb;
@@ -87,6 +88,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioCaptureUtils audioCaptureUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
     public ApiJsonUtils apiJsonUtils = null;
+    public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
     public AssetUtils assetUtils = null;
     public InstructionsUtils instructionsUtils = null;
     public WifiCommunicationUtils wifiCommunicationUtils = null;
@@ -128,6 +130,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.audioCaptureUtils = new AudioCaptureUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.apiJsonUtils = new ApiJsonUtils(this);
+        this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);
         this.assetUtils = new AssetUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.wifiCommunicationUtils = new WifiCommunicationUtils(this);

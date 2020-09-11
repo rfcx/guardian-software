@@ -67,8 +67,6 @@ public class ApiCheckInUtils implements MqttCallback {
 	private int[] failedCheckInThresholds = new int[0];
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
 
-	private ApiCheckInHealthUtils apiCheckInHealthUtils = new ApiCheckInHealthUtils();
-
 	public void setOrResetBrokerConfig() {
 		String[] authUserPswd = app.rfcxPrefs.getPrefAsString("api_checkin_auth_creds").split(",");
 		String authUser = !app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : authUserPswd[0];
@@ -247,7 +245,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private void reQueueStashedCheckInIfAllowedByHealthCheck(long[] currentCheckInStats) {
 
-		if (	apiCheckInHealthUtils.validateRecentCheckInHealthCheck(
+		if (	app.apiCheckInHealthUtils.validateRecentCheckInHealthCheck(
 					app.rfcxPrefs.getPrefAsLong("audio_cycle_duration"),
 					app.rfcxPrefs.getPrefAsString("checkin_requeue_bounds_hours"),
 					currentCheckInStats
@@ -345,13 +343,13 @@ public class ApiCheckInUtils implements MqttCallback {
 
 				byte[] checkInPayload = packageMqttCheckInPayload(audioJson, audioPath);
 
-				this.apiCheckInHealthUtils.updateInFlightCheckInOnSend(audioId, checkInDbEntry);
+				app.apiCheckInHealthUtils.updateInFlightCheckInOnSend(audioId, checkInDbEntry);
 				this.inFlightCheckInAttemptCounter++;
 
 				app.apiCheckInDb.dbQueued.incrementSingleRowAttempts(audioId);
 				long msgSendStart = publishMessageOnConfirmedConnection("guardians/checkins", checkInPayload);
 
-				this.apiCheckInHealthUtils.setInFlightCheckInStats(audioId, msgSendStart, 0, checkInPayload.length);
+				app.apiCheckInHealthUtils.setInFlightCheckInStats(audioId, msgSendStart, 0, checkInPayload.length);
 				this.inFlightCheckInAttemptCounter = 0;
 
 			} else {
@@ -517,7 +515,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	boolean isBatteryChargeSufficientForCheckIn() {
 		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff"));
+		return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("checkin_cutoff_battery"));
 	}
 
 	boolean isBatteryChargedButBelowCheckInThreshold() {
@@ -614,7 +612,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				if (jsonObj.has("checkin_id")) {
 					String checkInId = jsonObj.getString("checkin_id");
 					if (checkInId.length() > 0) {
-						long[] checkInStats = this.apiCheckInHealthUtils.getInFlightCheckInStatsEntry(audioId);
+						long[] checkInStats = app.apiCheckInHealthUtils.getInFlightCheckInStatsEntry(audioId);
 						if (checkInStats != null) {
 							app.apiCheckInStatsDb.dbStats.insert(checkInId, checkInStats[1], checkInStats[2]);
 							Calendar rightNow = GregorianCalendar.getInstance();
@@ -630,7 +628,7 @@ public class ApiCheckInUtils implements MqttCallback {
 						}
 					}
 				}
-				this.apiCheckInHealthUtils.updateInFlightCheckInOnReceive(audioId);
+				app.apiCheckInHealthUtils.updateInFlightCheckInOnReceive(audioId);
 			}
 
 			// parse screenshot info and use it to purge the data locally
@@ -762,11 +760,11 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private void moveCheckInEntryToSentDatabase(String inFlightCheckInAudioId) {
 
-		if ((this.apiCheckInHealthUtils.getInFlightCheckInEntry(inFlightCheckInAudioId) != null) && (this.apiCheckInHealthUtils.getInFlightCheckInEntry(inFlightCheckInAudioId)[0] != null)) {
-			String[] checkInEntry = this.apiCheckInHealthUtils.getInFlightCheckInEntry(inFlightCheckInAudioId);
+		if ((app.apiCheckInHealthUtils.getInFlightCheckInEntry(inFlightCheckInAudioId) != null) && (app.apiCheckInHealthUtils.getInFlightCheckInEntry(inFlightCheckInAudioId)[0] != null)) {
+			String[] checkInEntry = app.apiCheckInHealthUtils.getInFlightCheckInEntry(inFlightCheckInAudioId);
 			// delete latest instead to keep present info
-			if (this.apiCheckInHealthUtils.getLatestCheckInAudioId() != null) {
-				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(this.apiCheckInHealthUtils.getLatestCheckInAudioId());
+			if (app.apiCheckInHealthUtils.getLatestCheckInAudioId() != null) {
+				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(app.apiCheckInHealthUtils.getLatestCheckInAudioId());
 			}
 			if ((checkInEntry != null) && (checkInEntry[0] != null)) {
 				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(checkInEntry[1]);
@@ -842,9 +840,9 @@ public class ApiCheckInUtils implements MqttCallback {
 				Log.i(logTag, "Completed delivery to '"+msgTopic+"' at "+DateTimeUtils.getDateTime());
 
 				if (msgTopic.equalsIgnoreCase("guardians/checkins")) {
-					moveCheckInEntryToSentDatabase(this.apiCheckInHealthUtils.getInFlightCheckInAudioId());
-					long publishDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds( this.apiCheckInHealthUtils.getCurrentInFlightCheckInStatsEntry()[0] ));
-					this.apiCheckInHealthUtils.setInFlightCheckInStats(this.apiCheckInHealthUtils.getInFlightCheckInAudioId(), 0, publishDuration, 0);
+					moveCheckInEntryToSentDatabase(app.apiCheckInHealthUtils.getInFlightCheckInAudioId());
+					long publishDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds( app.apiCheckInHealthUtils.getCurrentInFlightCheckInStatsEntry()[0] ));
+					app.apiCheckInHealthUtils.setInFlightCheckInStats(app.apiCheckInHealthUtils.getInFlightCheckInAudioId(), 0, publishDuration, 0);
 					this.checkInPublishCompletedAt = System.currentTimeMillis();
 					String publishDurationReadable = DateTimeUtils.milliSecondDurationAsReadableString(publishDuration, true);
 					SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHED, publishDurationReadable);
@@ -864,7 +862,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	public void connectionLost(Throwable cause) {
 		try {
 			Log.e(logTag, "Connection lost. "
-							+ DateTimeUtils.timeStampDifferenceFromNowAsReadableString( this.apiCheckInHealthUtils.getCurrentInFlightCheckInStatsEntry()[0] )
+							+ DateTimeUtils.timeStampDifferenceFromNowAsReadableString( app.apiCheckInHealthUtils.getCurrentInFlightCheckInStatsEntry()[0] )
 							+ " since last CheckIn publication was launched");
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e, "connectionLost");

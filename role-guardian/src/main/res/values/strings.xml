@@ -34,8 +34,12 @@
 	<string name="prefs_value_default_audio_encode_bitrate">28672</string>
 	<string name="prefs_value_default_audio_sample_rate">24000</string>
 
-	<string name="prefs_value_default_checkin_battery_cutoff">95</string>
-	<string name="prefs_value_default_audio_battery_cutoff">90</string>
+	<string name="prefs_value_default_checkin_cutoff_battery">95</string>
+	<string name="prefs_value_default_audio_cutoff_battery">90</string>
+
+	<string name="prefs_value_default_enable_cutoffs_sentinel_battery">true</string>
+	<string name="prefs_value_default_checkin_cutoff_sentinel_battery">15</string>
+	<string name="prefs_value_default_audio_cutoff_sentinel_battery">15</string>
 
 	<string name="prefs_value_default_checkin_failure_thresholds">15,30,50,70,90</string>
 	<string name="prefs_value_default_checkin_failure_limit">3</string>
