@@ -141,6 +141,11 @@ public class ApiJsonUtils {
 			pingObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 		}
 
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sentinel_power")) {
+			String sentinelPower = getConcatSentinelMeta(RfcxComm.getQueryContentProvider("admin", "database_get_latest_row", "sentinel_power", app.getApplicationContext().getContentResolver()));
+			if (sentinelPower.length() > 0) { pingObj.put("sentinel_power", sentinelPower); }
+		}
+
 		if (includeMeasuredAt) { pingObj.put("measured_at", System.currentTimeMillis()); }
 
 		Log.d(logTag, pingObj.toString());

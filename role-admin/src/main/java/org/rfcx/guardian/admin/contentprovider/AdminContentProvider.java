@@ -173,6 +173,9 @@ public class AdminContentProvider extends ContentProvider {
                 } else if (pathSeg.equalsIgnoreCase("videos")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"videos", app.cameraCaptureDb.dbVideos.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
 
+                } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"sentinel_power", app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray().toString(), System.currentTimeMillis()});
+
                 } else {
                     return null;
                 }

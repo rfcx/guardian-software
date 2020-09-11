@@ -242,10 +242,11 @@ public class SentinelPowerUtils {
             app.sentinelPowerDb.dbSentinelPowerMeter.insert( measuredAt, battVals[3]);
 
             if (printValuesToLog) {
+                int battPct = getLiFePO4BatteryChargePercentage(voltages[1]);
                 Log.d(logTag,
                     (new StringBuilder("Avg of ")).append(sampleCount).append(" samples at ").append(DateTimeUtils.getDateTime(measuredAt))
                     .append(" [ system: ").append(voltages[0]).append(" mV, ").append(currents[0]).append(" mA, ").append(powers[0]).append(" mW").append(" ]")
-                    .append(" [ battery: ").append(voltages[1]).append(" mV, ").append(currents[1]).append(" mA, ").append(powers[1]).append(" mW").append(" ]")
+                    .append(" [ battery: ").append(battPct).append("%, ").append(voltages[1]).append(" mV, ").append(currents[1]).append(" mA, ").append(powers[1]).append(" mW").append(" ]")
                     .append(" [ input: ").append(voltages[2]).append(" mV, ").append(currents[2]).append(" mA, ").append(powers[2]).append(" mW").append(" ]")
                     .append(" [ temp: ").append(temps[0]).append(" C").append(" ]")
                 .toString());
@@ -287,6 +288,35 @@ public class SentinelPowerUtils {
     }
 
 
+    public JSONArray getMomentarySentinelPowerValuesAsJsonArray() {
+
+        JSONArray powerJsonArray = new JSONArray();
+
+        if (this.powerBatteryValues.size() == 0) { updateSentinelPowerValues(); }
+
+        long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
+        long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
+        long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
+
+        double measuredAtAvg = (sVals[4]+bVals[4]+iVals[4])/3;
+        long measuredAt = Math.round(measuredAtAvg);
+
+        try {
+            JSONObject powerJson = new JSONObject();
+
+            powerJson.put("system", "system*"+measuredAt+"*"+sVals[0]+"*"+sVals[1]+"*"+sVals[2]+"*"+sVals[3] );
+            powerJson.put("battery", "battery*"+measuredAt+"*"+bVals[0]+"*"+bVals[1]+"*"+bVals[2]+"*"+bVals[3]);
+            powerJson.put("input", "input*"+measuredAt+"*"+iVals[0]+"*"+iVals[1]+"*"+iVals[2]+"*"+iVals[3]);
+            powerJsonArray.put(powerJson);
+
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+
+        } finally {
+            return powerJsonArray;
+        }
+
+    }
 
     public JSONObject getMomentarySentinelPowerValuesAsJson() {
 
@@ -294,10 +324,7 @@ public class SentinelPowerUtils {
 
         try {
 
-            if (this.powerBatteryValues.size() == 0) {
-                Log.e(logTag, "New Power Snapshot needed...");
-                updateSentinelPowerValues();
-            }
+            if (this.powerBatteryValues.size() == 0) { updateSentinelPowerValues(); }
 
             long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
             JSONObject jsonBatteryObj = new JSONObject();
@@ -328,12 +355,6 @@ public class SentinelPowerUtils {
         return jsonObj;
     }
 
-    public JSONArray getMomentarySentinelPowerValuesAsJsonArray() {
-        JSONArray jsonArr = new JSONArray();
-        jsonArr.put(getMomentarySentinelPowerValuesAsJson());
-        return jsonArr;
-    }
-
     public JSONObject sentinelPowerStatusAsJsonObj(String activityTag) {
         JSONObject statusObj = null;
         try {
@@ -350,17 +371,16 @@ public class SentinelPowerUtils {
 
     public boolean isReducedCaptureModeActive_BasedOnSentinelPower(String activityTag) {
 
-        if (this.powerBatteryValues.size() == 0) {
-            Log.e(logTag, "New Power Snapshot needed...");
-            updateSentinelPowerValues();
-        }
+        if (this.powerBatteryValues.size() == 0) { updateSentinelPowerValues(); }
 
         boolean isAllowed = !app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery");
 
         if (!isAllowed) {
-            int battPct = getLiFePO4BatteryChargePercentage(ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues))[0]);
+            long battVoltage = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues))[0];
+            int battPct = getLiFePO4BatteryChargePercentage(battVoltage);
             int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery") : app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery");
-            isAllowed = battPct > prefsVal;
+            isAllowed = battPct >= prefsVal;
+//            if (!isAllowed) { Log.v(logTag, "Sentinel Battery: "+battPct+"%, "+battVoltage+" mV"); }
         }
 
         return !isAllowed;

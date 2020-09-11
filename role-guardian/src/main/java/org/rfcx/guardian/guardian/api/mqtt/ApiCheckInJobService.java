@@ -73,9 +73,7 @@ public class ApiCheckInJobService extends Service {
 				
 			while (		apiCheckInJobInstance.runFlag
 					&&	!app.apiCheckInHealthUtils.isApiCheckInBlocked(true)
-					&& 	(	(app.apiCheckInDb.dbQueued.getCount() > 0)
-						||	!app.apiCheckInUtils.isConnectedToBroker()
-						)
+					&& 	( (app.apiCheckInDb.dbQueued.getCount() > 0) || !app.apiCheckInUtils.isConnectedToBroker() )
 				) {
 
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
@@ -87,17 +85,22 @@ public class ApiCheckInJobService extends Service {
 					
 					if (!app.apiCheckInHealthUtils.isApiCheckInAllowed(true, true)) {
 
-						if (!app.deviceConnectivity.isConnected()) {
-							Thread.sleep( prefsAudioCycleDuration / 2 );
-						} else {
-							Thread.sleep( prefsAudioCycleDuration * 2 );
+						int waitLoopIterationCount = !app.deviceConnectivity.isConnected() ? 1 : 4;
+
+						// This ensures that the service registers as active more frequently than the wait loop duration
+						for (int waitLoopIteration = 0; waitLoopIteration < waitLoopIterationCount; waitLoopIteration++) {
+							app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+							Thread.sleep( Math.round( prefsAudioCycleDuration / 2 ) );
+						}
+
+						if (app.deviceConnectivity.isConnected()) {
 							app.apiCheckInUtils.initializeFailedCheckInThresholds();
 						}
 
-						// reboots org.rfcx.guardian.guardian in situations where battery charge percentage doesn't reflect charge state
-						if (app.apiCheckInUtils.isBatteryChargedButBelowCheckInThreshold()) {
-							app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
-						}
+//						// reboots org.rfcx.guardian.guardian in situations where battery charge percentage doesn't reflect charge state
+//						if (app.apiCheckInUtils.isBatteryChargedButBelowCheckInThreshold()) {
+//							app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
+//						}
 						
 					} else {
 						

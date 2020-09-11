@@ -91,8 +91,8 @@ public class AudioCaptureService extends Service {
 				
 				try {
 
-					boolean isAudioCaptureAllowed = app.audioCaptureUtils.isAudioCaptureAllowed(true, true);
 					boolean isAudioCaptureBlocked = app.audioCaptureUtils.isAudioCaptureBlocked(true);
+					boolean isAudioCaptureAllowed = !isAudioCaptureBlocked && app.audioCaptureUtils.isAudioCaptureAllowed(true, true);
 
 					if ( confirmOrSetAudioCaptureParameters() && !isAudioCaptureBlocked && isAudioCaptureAllowed ) {
 
