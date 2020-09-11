@@ -67,7 +67,7 @@ public class ApiCheckVersionUtils {
 					app.rfcxServiceHandler.triggerService("DownloadFile", true);
 				} else {
 					Log.i(logTag, "Download & Installation disabled due to low battery level"
-							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("install_battery_cutoff")+"%)."
+							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("install_cutoff_battery")+"%)."
 							);
 				}
 				return true;
@@ -112,7 +112,7 @@ public class ApiCheckVersionUtils {
 	
 	private boolean isBatteryChargeSufficientForDownloadAndInstall() {
 		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(context, null);
-	//	return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("install_battery_cutoff"));
+	//	return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("install_cutoff_battery"));
 		return (batteryCharge >= 50);
 	}
 	

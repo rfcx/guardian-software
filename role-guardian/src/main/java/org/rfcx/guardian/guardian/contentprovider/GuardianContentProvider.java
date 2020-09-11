@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
@@ -71,11 +72,16 @@ public class GuardianContentProvider extends ContentProvider {
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) { logFuncVal = "status-*";
 				String statusTarget = uri.getLastPathSegment();
-				JSONArray statusResultJsonArray = new JSONArray();
-				if (statusTarget.equalsIgnoreCase("audio_capture")) {
-					statusResultJsonArray = app.audioCaptureUtils.isAudioCaptureAllowedAsJsonArray();
-				}
-				return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusResultJsonArray.toString(), System.currentTimeMillis()});
+				JSONArray statusArr = new JSONArray();
+				JSONObject statusObj = new JSONObject();
+
+				JSONObject statusAudioCapture = app.audioCaptureUtils.audioCaptureStatusAsJsonObj();
+				if (statusAudioCapture != null) { statusObj.put("audio_capture", statusAudioCapture); }
+				JSONObject statusApiCheckIn = app.apiCheckInHealthUtils.apiCheckInStatusAsJsonObj();
+				if (statusApiCheckIn != null) { statusObj.put("api_checkin", statusApiCheckIn); }
+
+				statusArr.put(statusObj);
+				return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 
 			// "process" function endpoints
 

@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
@@ -98,11 +100,35 @@ public class AudioCaptureUtils {
 
 	private boolean isBatteryChargeSufficientForCapture() {
 		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff"));
+		return (batteryCharge >= this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_battery"));
 	}
 
 	private boolean limitBasedOnBatteryLevel() {
 		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery"));
+	}
+
+
+	private boolean limitBasedOnSentinelBatteryLevel() {
+
+		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
+			return false;
+		} else {
+			try {
+				JSONArray jsonArray = RfcxComm.getQueryContentProvider("admin", "status", "*", app.getApplicationContext().getContentResolver());
+				if (jsonArray.length() > 0) {
+					JSONObject jsonObj = jsonArray.getJSONObject(0);
+					if (jsonObj.has("audio_capture")) {
+						JSONObject audioCaptureObj = jsonObj.getJSONObject("audio_capture");
+						if (audioCaptureObj.has("is_allowed")) {
+							return !audioCaptureObj.getBoolean(("is_allowed"));
+						}
+					}
+				}
+			} catch (JSONException e) {
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+		return false;
 	}
 
 	private boolean limitBasedOnInternalStorage() {
@@ -134,22 +160,19 @@ public class AudioCaptureUtils {
 		return (this.samplingRatioIteration == 1);
 	}
 
-	public JSONArray isAudioCaptureAllowedAsJsonArray() {
-		JSONArray statusJsonArray = new JSONArray();
+	public JSONObject audioCaptureStatusAsJsonObj() {
+		JSONObject statusObj = null;
         try {
-            JSONObject statusObj = new JSONObject();
-            statusObj.put("is_allowed", isAudioCaptureAllowed(false));
-			statusJsonArray.put(statusObj);
-
+            statusObj = new JSONObject();
+            statusObj.put("is_allowed", isAudioCaptureAllowed(false, false));
+			statusObj.put("is_blocked", isAudioCaptureBlocked(false));
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
-
-        } finally {
-            return statusJsonArray;
         }
+        return statusObj;
 	}
 
-	public boolean isAudioCaptureAllowed(boolean printFeedbackInLog) {
+	public boolean isAudioCaptureAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
 
 		// we set this to true, and cycle through conditions that might make it false
 		// we then return the resulting true/false value
@@ -157,10 +180,15 @@ public class AudioCaptureUtils {
 		StringBuilder msgNoCapture = new StringBuilder();
 
 		if (limitBasedOnBatteryLevel()) {
-			msgNoCapture.append("low battery level")
+			msgNoCapture.append("Low Battery level")
 					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
-					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("audio_battery_cutoff")).append("%).");
+					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_battery")).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
+
+		} else if (includeSentinel && limitBasedOnSentinelBatteryLevel()) {
+				msgNoCapture.append("Low Sentinel Battery level")
+						.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery")).append("%).");
+				isAudioCaptureAllowedUnderKnownConditions = false;
 
 		} else if (limitBasedOnInternalStorage()) {
 			msgNoCapture.append("a lack of sufficient free internal disk storage.")

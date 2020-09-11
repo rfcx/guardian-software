@@ -104,13 +104,16 @@ public class DeviceUtils {
 	private List<double[]> recentValuesGeoLocation = new ArrayList<double[]>();
 
 
-	public static boolean isReducedCaptureModeActive(Context context) {
+	public static boolean isReducedCaptureModeActive(String activityTag, Context context) {
 		try {
-			JSONArray jsonArray = RfcxComm.getQueryContentProvider("guardian", "status", "audio_capture", context.getContentResolver());
+			JSONArray jsonArray = RfcxComm.getQueryContentProvider("guardian", "status", "*", context.getContentResolver());
 			if (jsonArray.length() > 0) {
-				JSONObject jsonObject = jsonArray.getJSONObject(0);
-				if (jsonObject.has("is_allowed")) {
-					return !jsonObject.getBoolean(("is_allowed"));
+				JSONObject jsonObj = jsonArray.getJSONObject(0);
+				if (jsonObj.has(activityTag)) {
+					JSONObject audioCaptureObj = jsonObj.getJSONObject(activityTag);
+					if (audioCaptureObj.has("is_allowed")) {
+						return !audioCaptureObj.getBoolean(("is_allowed"));
+					}
 				}
 			}
 		} catch (JSONException e) {

@@ -55,6 +55,15 @@
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_enable_cutoffs_sampling_ratio" />
 
+	<ListPreference
+		android:key="enable_cutoffs_sentinel_battery"
+		android:title="enable_cutoffs_sentinel_battery"
+		android:dialogTitle="enable_cutoffs_sentinel_battery"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_enable_cutoffs_sentinel_battery" />
+
  	<EditTextPreference
         android:key="api_checkin_host"
         android:title="api_checkin_host"
@@ -186,22 +195,40 @@
  	<!-- Battery Cutoff Thresholds -->
         
 	<ListPreference
-		android:key="checkin_battery_cutoff"
-		android:title="checkin_battery_cutoff"
-		android:dialogTitle="checkin_battery_cutoff"
+		android:key="checkin_cutoff_battery"
+		android:title="checkin_cutoff_battery"
+		android:dialogTitle="checkin_cutoff_battery"
         android:summary="int - percentage"
 		android:entries="@array/prefs_labels_percent"
 		android:entryValues="@array/prefs_values_percent"
-		android:defaultValue="@string/prefs_value_default_checkin_battery_cutoff" />
+		android:defaultValue="@string/prefs_value_default_checkin_cutoff_battery" />
         
 	<ListPreference
-		android:key="audio_battery_cutoff"
-		android:title="audio_battery_cutoff"
-		android:dialogTitle="audio_battery_cutoff"
+		android:key="audio_cutoff_battery"
+		android:title="audio_cutoff_battery"
+		android:dialogTitle="audio_cutoff_battery"
         android:summary="int - percentage"
 		android:entries="@array/prefs_labels_percent"
 		android:entryValues="@array/prefs_values_percent"
-		android:defaultValue="@string/prefs_value_default_audio_battery_cutoff" />
+		android:defaultValue="@string/prefs_value_default_audio_cutoff_battery" />
+
+	<ListPreference
+		android:key="checkin_cutoff_sentinel_battery"
+		android:title="checkin_cutoff_sentinel_battery"
+		android:dialogTitle="checkin_cutoff_sentinel_battery"
+		android:summary="int - percentage"
+		android:entries="@array/prefs_labels_percent"
+		android:entryValues="@array/prefs_values_percent"
+		android:defaultValue="@string/prefs_value_default_checkin_cutoff_sentinel_battery" />
+
+	<ListPreference
+		android:key="audio_cutoff_sentinel_battery"
+		android:title="audio_cutoff_sentinel_battery"
+		android:dialogTitle="audio_cutoff_sentinel_battery"
+		android:summary="int - percentage"
+		android:entries="@array/prefs_labels_percent"
+		android:entryValues="@array/prefs_values_percent"
+		android:defaultValue="@string/prefs_value_default_audio_cutoff_sentinel_battery" />
  	
  	<!-- CheckIn Triggering Controls -->
  	
