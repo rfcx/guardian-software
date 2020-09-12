@@ -58,7 +58,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	private int outerLoopIncrement = 0;
 	private int outerLoopCaptureCount = 0;
+
 	private boolean isReducedCaptureModeActive = false;
+
+	private int reducedCaptureModeChangeoverBufferCounter = 0;
 
 	private SignalStrengthListener signalStrengthListener;
 	private TelephonyManager telephonyManager;
@@ -321,22 +324,33 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		return outerLoopIncrement;
 	}
 
+
 	private void setOrUnSetReducedCaptureMode() {
-		this.isReducedCaptureModeActive =
-				DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
-			&&	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture");
+
+		if (	(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
+				||	DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
+				)
+		) {
+			if (this.reducedCaptureModeChangeoverBufferCounter < DeviceUtils.reducedCaptureModeChangeoverBufferLimit) {
+				this.reducedCaptureModeChangeoverBufferCounter++;
+			}
+		} else if (this.reducedCaptureModeChangeoverBufferCounter > 0) {
+			this.reducedCaptureModeChangeoverBufferCounter--;
+		}
+
+		this.isReducedCaptureModeActive = (this.reducedCaptureModeChangeoverBufferCounter == DeviceUtils.reducedCaptureModeChangeoverBufferLimit);
 	}
 
 	private void setOrUnSetReducedCaptureModeListeners() {
 
 		if (this.isReducedCaptureModeActive) {
+
 			unRegisterListener("geoposition");
 
 		} else {
 
-			if (!this.isListenerRegistered_geoposition) {
-				registerListener("geoposition");
-			}
+		//	registerListener("geoposition");
+
 		}
 	}
 

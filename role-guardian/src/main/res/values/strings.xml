@@ -12,7 +12,7 @@
 	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">false</string>
 	<string name="prefs_value_default_enable_cutoffs_sampling_ratio">false</string>
 
-	<string name="prefs_value_default_api_checkin_host">checkins.rfcx.org</string>
+	<string name="prefs_value_default_api_checkin_host">api-mqtt.rfcx.org</string>
 	<string name="prefs_value_default_api_checkin_protocol">ssl</string>
 	<string name="prefs_value_default_api_checkin_port">8883</string>
 	<string name="prefs_value_default_enable_checkin_auth">true</string>
@@ -120,6 +120,7 @@
 	</string-array>
 	
     <string-array name="prefs_labels_percent">
+		<item>100 %</item>
 		<item>95 %</item>
 		<item>90 %</item>
 		<item>85 %</item>
@@ -142,6 +143,7 @@
 	</string-array>
 	
     <string-array name="prefs_values_percent">
+		<item>100</item>
 		<item>95</item>
 		<item>90</item>
 		<item>85</item>

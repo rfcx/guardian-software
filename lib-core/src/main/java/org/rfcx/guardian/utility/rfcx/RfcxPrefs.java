@@ -370,7 +370,7 @@ public class RfcxPrefs {
 			put("enable_cutoffs_schedule_off_hours", "false");
 			put("enable_cutoffs_sampling_ratio", "false");
 
-			put("api_checkin_host", "checkins.rfcx.org");
+			put("api_checkin_host", "api-mqtt.rfcx.org");
 	        put("api_checkin_protocol", "ssl");
 	        put("api_checkin_port", "8883");
 			put("enable_checkin_auth", "true");
@@ -393,8 +393,8 @@ public class RfcxPrefs {
 			put("audio_cutoff_battery", "90");
 
 			put("enable_cutoffs_sentinel_battery", "true");
-			put("audio_cutoff_sentinel_battery", "15");
 			put("checkin_cutoff_sentinel_battery", "15");
+			put("audio_cutoff_sentinel_battery", "15");
 			
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "28672");

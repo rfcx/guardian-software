@@ -44,6 +44,9 @@ public class AudioCaptureUtils {
 	private boolean isAudioCaptureHardwareSupported = false;
 	private static final int requiredFreeDiskSpaceForAudioCapture = 32;
 
+	private int limitBySentinelBatteryChangeoverBufferCounter = 0;
+	private static final int limitBySentinelBatteryChangeoverBufferLimit = 5;
+
 	private static AudioCaptureWavRecorder wavRecorderForCompanion = null;
 
 	public static AudioCaptureWavRecorder initializeWavRecorder(String captureDir, long timestamp, int sampleRate) throws Exception {
@@ -107,10 +110,10 @@ public class AudioCaptureUtils {
 		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery"));
 	}
 
-
 	private boolean limitBasedOnSentinelBatteryLevel() {
 
 		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
+			this.limitBySentinelBatteryChangeoverBufferCounter = 0;
 			return false;
 		} else {
 			try {
@@ -118,9 +121,15 @@ public class AudioCaptureUtils {
 				if (jsonArray.length() > 0) {
 					JSONObject jsonObj = jsonArray.getJSONObject(0);
 					if (jsonObj.has("audio_capture")) {
-						JSONObject audioCaptureObj = jsonObj.getJSONObject("audio_capture");
-						if (audioCaptureObj.has("is_allowed")) {
-							return !audioCaptureObj.getBoolean(("is_allowed"));
+						JSONObject apiCheckInObj = jsonObj.getJSONObject("audio_capture");
+						if (apiCheckInObj.has("is_allowed")) {
+							if (!apiCheckInObj.getBoolean(("is_allowed"))) {
+								if (this.limitBySentinelBatteryChangeoverBufferCounter < this.limitBySentinelBatteryChangeoverBufferLimit) {
+									this.limitBySentinelBatteryChangeoverBufferCounter++;
+								}
+							} else if (this.limitBySentinelBatteryChangeoverBufferCounter > 0) {
+								this.limitBySentinelBatteryChangeoverBufferCounter--;
+							}
 						}
 					}
 				}
@@ -128,8 +137,10 @@ public class AudioCaptureUtils {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
-		return false;
+		return (this.limitBySentinelBatteryChangeoverBufferCounter == this.limitBySentinelBatteryChangeoverBufferLimit);
 	}
+
+
 
 	private boolean limitBasedOnInternalStorage() {
 		return (DeviceDiskUsage.getInternalDiskFreeMegaBytes() <= requiredFreeDiskSpaceForAudioCapture);

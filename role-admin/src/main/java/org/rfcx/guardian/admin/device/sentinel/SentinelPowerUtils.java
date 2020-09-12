@@ -375,12 +375,14 @@ public class SentinelPowerUtils {
 
         boolean isAllowed = !app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery");
 
-        if (!isAllowed) {
-            long battVoltage = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues))[0];
+        if (!isAllowed && (this.powerBatteryValues.size() > 0)) {
+            long battVoltage = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[0];
             int battPct = getLiFePO4BatteryChargePercentage(battVoltage);
             int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery") : app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery");
             isAllowed = battPct >= prefsVal;
-//            if (!isAllowed) { Log.v(logTag, "Sentinel Battery: "+battPct+"%, "+battVoltage+" mV"); }
+            //if (!isAllowed) {
+           //     Log.v(logTag, "Sentinel Battery: "+battPct+"%, "+battVoltage+" mV");
+            //}
         }
 
         return !isAllowed;

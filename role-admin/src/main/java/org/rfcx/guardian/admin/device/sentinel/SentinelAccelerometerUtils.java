@@ -24,7 +24,7 @@ public class SentinelAccelerometerUtils {
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelAccelerometerUtils");
 
-    public static final long samplesTakenPerCaptureCycle = 15;
+    public static final long samplesTakenPerCaptureCycle = 1;
 
     RfcxGuardian app;
     private DeviceI2cUtils deviceI2cUtils = null;
@@ -151,7 +151,7 @@ public class SentinelAccelerometerUtils {
 
         if (sampleCount > 0) {
 
-            StringBuilder logStr = (new StringBuilder("Average of ")).append(sampleCount).append(" samples");
+            StringBuilder logStr = (new StringBuilder("Avg of ")).append(sampleCount).append(" samples");
 
             long[] accVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.accelValues));
             this.accelValues = new ArrayList<>();

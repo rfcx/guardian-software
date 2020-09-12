@@ -79,15 +79,19 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) { logFuncVal = "status-*";
                 String statusTarget = uri.getLastPathSegment();
+
                 JSONArray statusArr = new JSONArray();
-                JSONObject statusObj = new JSONObject();
+                try {
+                    JSONObject statusObj = new JSONObject();
+                    JSONObject statusSentinelAudio = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("audio_capture");
+                    if (statusSentinelAudio != null) { statusObj.put("audio_capture", statusSentinelAudio); }
+                    JSONObject statusSentinelCheckIn = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("api_checkin");
+                    if (statusSentinelCheckIn != null) { statusObj.put("api_checkin", statusSentinelCheckIn); }
+                    statusArr.put(statusObj);
+                } catch (Exception e) {
+                    RfcxLog.logExc(logTag, e, "AdminContentProvider - "+logFuncVal);
+                }
 
-                JSONObject statusSentinelAudio = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("audio_capture");
-                if (statusSentinelAudio != null) { statusObj.put("audio_capture", statusSentinelAudio); }
-                JSONObject statusSentinelCheckIn = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("api_checkin");
-                if (statusSentinelCheckIn != null) { statusObj.put("api_checkin", statusSentinelCheckIn); }
-
-                statusArr.put(statusObj);
                 return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 
             // "control" function endpoints

@@ -125,6 +125,59 @@ public class ArrayUtils {
 		}
 		return sum / arrLst.size();
 	}
+
+
+
+	public static double[] getMinimumValuesAsArrayFromArrayList(List<double[]> arrLst) {
+		int lstLen = arrLst.size();
+		if (lstLen > 0) {
+			int arrLen = arrLst.get(0).length;
+			double[] arr = new double[arrLen];
+			for (int i = 0; i < arrLen; i++) {
+				arr[i] = getMinimumValueOfIndexWithinArrayList(arrLst, i);
+			}
+			return arr;
+		}
+		return new double[] {};
+	}
+
+
+	private static double getMinimumValueOfIndexWithinArrayList(List<double[]> arrLst, int index) {
+		double min = Double.MAX_VALUE;
+		for (double[] vals : arrLst) {
+			if (vals.length > index) {
+				if (vals[index] < min) {
+					min = vals[index];
+				}
+			}
+		}
+		return min;
+	}
+
+	public static double[] getMaximumValuesAsArrayFromArrayList(List<double[]> arrLst) {
+		int lstLen = arrLst.size();
+		if (lstLen > 0) {
+			int arrLen = arrLst.get(0).length;
+			double[] arr = new double[arrLen];
+			for (int i = 0; i < arrLen; i++) {
+				arr[i] = getMinimumValueOfIndexWithinArrayList(arrLst, i);
+			}
+			return arr;
+		}
+		return new double[] {};
+	}
+
+	private static double getMaximumValueOfIndexWithinArrayList(List<double[]> arrLst, int index) {
+		double max = Double.MIN_VALUE;
+		for (double[] vals : arrLst) {
+			if (vals.length > index) {
+				if (vals[index] > max) {
+					max = vals[index];
+				}
+			}
+		}
+		return max;
+	}
 	
 	// convert arrays to lists
 	

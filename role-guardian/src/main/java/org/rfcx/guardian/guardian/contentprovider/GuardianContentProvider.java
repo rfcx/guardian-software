@@ -72,15 +72,19 @@ public class GuardianContentProvider extends ContentProvider {
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) { logFuncVal = "status-*";
 				String statusTarget = uri.getLastPathSegment();
+
 				JSONArray statusArr = new JSONArray();
-				JSONObject statusObj = new JSONObject();
+				try {
+					JSONObject statusObj = new JSONObject();
+					JSONObject statusAudioCapture = app.audioCaptureUtils.audioCaptureStatusAsJsonObj();
+					if (statusAudioCapture != null) { statusObj.put("audio_capture", statusAudioCapture); }
+					JSONObject statusApiCheckIn = app.apiCheckInHealthUtils.apiCheckInStatusAsJsonObj();
+					if (statusApiCheckIn != null) { statusObj.put("api_checkin", statusApiCheckIn); }
+					statusArr.put(statusObj);
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e, "GuardianContentProvider - "+logFuncVal);
+				}
 
-				JSONObject statusAudioCapture = app.audioCaptureUtils.audioCaptureStatusAsJsonObj();
-				if (statusAudioCapture != null) { statusObj.put("audio_capture", statusAudioCapture); }
-				JSONObject statusApiCheckIn = app.apiCheckInHealthUtils.apiCheckInStatusAsJsonObj();
-				if (statusApiCheckIn != null) { statusObj.put("api_checkin", statusApiCheckIn); }
-
-				statusArr.put(statusObj);
 				return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 
 			// "process" function endpoints

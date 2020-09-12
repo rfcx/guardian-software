@@ -45,6 +45,8 @@ public class DeviceSentinelService extends Service {
 	private boolean isSentinelAccelCaptureAllowed = true;
 	private boolean isSentinelCompassCaptureAllowed = true;
 
+	private int reducedCaptureModeChangeoverBufferCounter = 0;
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -167,19 +169,20 @@ public class DeviceSentinelService extends Service {
 			app.sentinelPowerUtils.setOrResetSentinelPowerChip();
 		}
 
-		// run this on every loop, if allowed
-		if (this.isSentinelAccelCaptureAllowed) {
-			app.sentinelAccelerometerUtils.saveSentinelAccelValuesToDatabase(false);
-		}
 
-		// run this on every loop, if allowed
-		if (this.isSentinelCompassCaptureAllowed) {
-			app.sentinelCompassUtils.saveSentinelCompassValuesToDatabase(false);
-			app.sentinelCompassUtils.setOrResetSentinelCompassChip();
-		}
 
 		// run these on specific outer loop iterations
 		if (outerLoopIncrement == 1) {
+
+
+			if (this.isSentinelAccelCaptureAllowed) {
+				app.sentinelAccelerometerUtils.saveSentinelAccelValuesToDatabase(true);
+			}
+
+			if (this.isSentinelCompassCaptureAllowed) {
+				app.sentinelCompassUtils.saveSentinelCompassValuesToDatabase(true);
+				app.sentinelCompassUtils.setOrResetSentinelCompassChip();
+			}
 
 
 		} else {
@@ -190,9 +193,19 @@ public class DeviceSentinelService extends Service {
 	}
 
 	private void setOrUnSetReducedCaptureMode() {
-		this.isReducedCaptureModeActive =
-				DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
-			&&	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture");
+
+		if (	(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
+				||	DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
+				)
+		) {
+			if (this.reducedCaptureModeChangeoverBufferCounter < DeviceUtils.reducedCaptureModeChangeoverBufferLimit) {
+				this.reducedCaptureModeChangeoverBufferCounter++;
+			}
+		} else if (this.reducedCaptureModeChangeoverBufferCounter > 0) {
+			this.reducedCaptureModeChangeoverBufferCounter--;
+		}
+
+		this.isReducedCaptureModeActive = (this.reducedCaptureModeChangeoverBufferCounter == DeviceUtils.reducedCaptureModeChangeoverBufferLimit);
 	}
 
 	private boolean confirmOrSetCaptureParameters() {

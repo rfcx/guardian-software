@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -43,6 +42,9 @@ public class ApiCheckInHealthUtils {
 	private String latestCheckInAudioId = null;
 	private Map<String, String[]> inFlightCheckInEntries = new HashMap<String, String[]>();
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
+
+	private int limitBySentinelBatteryChangeoverBufferCounter = 0;
+	private static final int limitBySentinelBatteryChangeoverBufferLimit = 5;
 
 	public void updateInFlightCheckInOnSend(String audioId, String[] checkInDbEntry) {
 		this.inFlightCheckInAudioId = audioId;
@@ -285,6 +287,7 @@ public class ApiCheckInHealthUtils {
 	private boolean limitBasedOnSentinelBatteryLevel() {
 
 		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
+			this.limitBySentinelBatteryChangeoverBufferCounter = 0;
 			return false;
 		} else {
 			try {
@@ -294,7 +297,13 @@ public class ApiCheckInHealthUtils {
 					if (jsonObj.has("api_checkin")) {
 						JSONObject apiCheckInObj = jsonObj.getJSONObject("api_checkin");
 						if (apiCheckInObj.has("is_allowed")) {
-							return !apiCheckInObj.getBoolean(("is_allowed"));
+							if (!apiCheckInObj.getBoolean(("is_allowed"))) {
+								if (this.limitBySentinelBatteryChangeoverBufferCounter < this.limitBySentinelBatteryChangeoverBufferLimit) {
+									this.limitBySentinelBatteryChangeoverBufferCounter++;
+								}
+							} else if (this.limitBySentinelBatteryChangeoverBufferCounter > 0) {
+								this.limitBySentinelBatteryChangeoverBufferCounter--;
+							}
 						}
 					}
 				}
@@ -302,7 +311,7 @@ public class ApiCheckInHealthUtils {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
-		return false;
+		return (this.limitBySentinelBatteryChangeoverBufferCounter == this.limitBySentinelBatteryChangeoverBufferLimit);
 	}
 
 

@@ -33,7 +33,7 @@ public class SentinelUtils {
 
     public static int getOuterLoopCaptureCount(int audioCycleDurationInSeconds) {
 //		return (int) ( Math.round( geoPositionMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
-        return 2;
+        return 3;
     }
 
     public static long getInnerLoopDelayRemainder(int audioCycleDurationInSeconds, double captureCycleDurationPercentageMultiplier, long samplingOperationDuration) {

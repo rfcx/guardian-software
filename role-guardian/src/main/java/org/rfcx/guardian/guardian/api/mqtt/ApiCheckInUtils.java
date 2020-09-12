@@ -452,7 +452,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		this.checkInPublishCompletedAt = System.currentTimeMillis();
 
-//		Log.v(logTag, "Resetting CheckIn Failure Thresholds");
+		Log.v(logTag, "Resetting CheckIn Failure Thresholds");
 	}
 
 	void updateFailedCheckInThresholds() {

@@ -24,7 +24,7 @@ public class SentinelCompassUtils {
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelCompassUtils");
 
-    public static final long samplesTakenPerCaptureCycle = 4;
+    public static final long samplesTakenPerCaptureCycle = 1;
 
     RfcxGuardian app;
     private DeviceI2cUtils deviceI2cUtils = null;
@@ -168,7 +168,7 @@ public class SentinelCompassUtils {
 
         if (sampleCount > 0) {
 
-            StringBuilder logStr = (new StringBuilder("Average of ")).append(sampleCount).append(" samples");
+            StringBuilder logStr = (new StringBuilder("Avg of ")).append(sampleCount).append(" samples");
 
             long[] cmpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.compassValues));
             this.compassValues = new ArrayList<>();
