@@ -98,7 +98,7 @@ object RegisterApi {
         if (protocol != null && host != null) {
             return "${protocol}://${host}/"
         }
-        return "https://api.rfcx.org/"
+        return "https://api-mqtt-http.rfcx.org/"
     }
 }
 
