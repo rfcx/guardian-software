@@ -53,7 +53,7 @@ A collection of Android applications which, together, operate as autonomous Rain
 2. In Android Studio, press "Run" and select the "guardian" app.
 3. You should be able to select your phone (or Orange Pi) for running the app (instead of an emulator).
 4. (If you are on Android 8 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS). Then run the app again from Android Studio.
-5. Login (make sure your user account has guardianCreator role). Once logined, copy a login code and paste on an entry section.
+5. Login (make sure your user account has guardianCreator role). Once logined, the browser will redirect to the app automatically.
 6. Register the guardian
 7. If registration success, guid will show up on the screen.
 8. Also, login to the Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your phone (you will see the first 4 chars of the id)
