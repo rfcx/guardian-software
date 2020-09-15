@@ -292,7 +292,7 @@ public class SentinelPowerUtils {
 
         JSONArray powerJsonArray = new JSONArray();
 
-        if (this.powerBatteryValues.size() == 0) { updateSentinelPowerValues(); }
+        if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) { updateSentinelPowerValues(); }
 
         long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
         long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
@@ -323,7 +323,7 @@ public class SentinelPowerUtils {
 
         try {
 
-            if (this.powerBatteryValues.size() == 0) { updateSentinelPowerValues(); }
+            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) { updateSentinelPowerValues(); }
 
             long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
             JSONObject jsonBatteryObj = new JSONObject();
@@ -370,7 +370,7 @@ public class SentinelPowerUtils {
 
     public boolean isReducedCaptureModeActive_BasedOnSentinelPower(String activityTag) {
 
-        if (this.powerBatteryValues.size() == 0) { updateSentinelPowerValues(); }
+        if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) { updateSentinelPowerValues(); }
 
         boolean isAllowed = !app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery");
 
