@@ -12,11 +12,11 @@
 	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">false</string>
 	<string name="prefs_value_default_enable_cutoffs_sampling_ratio">false</string>
 
-	<string name="prefs_value_default_api_checkin_host">api-mqtt.rfcx.org</string>
-	<string name="prefs_value_default_api_checkin_protocol">ssl</string>
-	<string name="prefs_value_default_api_checkin_port">8883</string>
-	<string name="prefs_value_default_enable_checkin_auth">true</string>
-	<string name="prefs_value_default_api_checkin_auth_creds">[guid],[token]</string>
+	<string name="prefs_value_default_api_mqtt_host">api-mqtt.rfcx.org</string>
+	<string name="prefs_value_default_api_mqtt_protocol">ssl</string>
+	<string name="prefs_value_default_api_mqtt_port">8883</string>
+	<string name="prefs_value_default_enable_mqtt_auth">true</string>
+	<string name="prefs_value_default_api_mqtt_auth_creds">[guid],[token]</string>
 
 	<string name="prefs_value_default_api_rest_host">api.rfcx.org</string>
 	<string name="prefs_value_default_api_rest_protocol">https</string>
@@ -137,8 +137,20 @@
 		<item>30 %</item>
 		<item>25 %</item>
 		<item>20 %</item>
+		<item>19 %</item>
+		<item>18 %</item>
+		<item>17 %</item>
+		<item>16 %</item>
 		<item>15 %</item>
+		<item>14 %</item>
+		<item>13 %</item>
+		<item>12 %</item>
+		<item>11 %</item>
 		<item>10 %</item>
+		<item>9 %</item>
+		<item>8 %</item>
+		<item>7 %</item>
+		<item>6 %</item>
 		<item>5 %</item>
 	</string-array>
 	
@@ -160,8 +172,20 @@
 		<item>30</item>
 		<item>25</item>
 		<item>20</item>
+		<item>19</item>
+		<item>18</item>
+		<item>17</item>
+		<item>16</item>
 		<item>15</item>
+		<item>14</item>
+		<item>13</item>
+		<item>12</item>
+		<item>11</item>
 		<item>10</item>
+		<item>9</item>
+		<item>8</item>
+		<item>7</item>
+		<item>6</item>
 		<item>5</item>
 	</string-array>
     

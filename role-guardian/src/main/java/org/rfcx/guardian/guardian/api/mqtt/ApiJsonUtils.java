@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
@@ -142,8 +141,26 @@ public class ApiJsonUtils {
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sentinel_power")) {
-			String sentinelPower = getConcatSentinelMeta(RfcxComm.getQueryContentProvider("admin", "database_get_latest_row", "sentinel_power", app.getApplicationContext().getContentResolver()));
+			String sentinelPower = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "sentinel_power", app.getApplicationContext().getContentResolver()));
 			if (sentinelPower.length() > 0) { pingObj.put("sentinel_power", sentinelPower); }
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "disk_usage")) {
+			String systemDiskUsage = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_disk_usage", app.getApplicationContext().getContentResolver()));
+			if (systemDiskUsage.length() > 0) { pingObj.put("disk_usage", systemDiskUsage); }
+			includeMeasuredAt = true;
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "cpu")) {
+			String systemCPU = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_cpu", app.getApplicationContext().getContentResolver()));
+			if (systemCPU.length() > 0) { pingObj.put("cpu", systemCPU); }
+			includeMeasuredAt = true;
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "network")) {
+			String networkCPU = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_network", app.getApplicationContext().getContentResolver()));
+			if (networkCPU.length() > 0) { pingObj.put("network", networkCPU); }
+			includeMeasuredAt = true;
 		}
 
 		if (includeMeasuredAt) { pingObj.put("measured_at", System.currentTimeMillis()); }
@@ -209,12 +226,12 @@ public class ApiJsonUtils {
 		metaDataJsonObj = addConcatSystemMetaParams(metaDataJsonObj, systemMetaJsonArray);
 
 		// Adding sentinel power data, if they can be retrieved from admin role via content provider
-		String sentinelPower = getConcatSentinelMeta(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
+		String sentinelPower = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
 				"sentinel_power", app.getApplicationContext().getContentResolver()));
 		if (sentinelPower.length() > 0) { metaDataJsonObj.put("sentinel_power", sentinelPower); }
 
 		// Adding sentinel sensor data, if they can be retrieved from admin role via content provider
-		String sentinelSensor = getConcatSentinelMeta(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
+		String sentinelSensor = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
 				"sentinel_sensor", app.getApplicationContext().getContentResolver()));
 		if (sentinelSensor.length() > 0) { metaDataJsonObj.put("sentinel_sensor", sentinelSensor); }
 
@@ -263,19 +280,19 @@ public class ApiJsonUtils {
 		return metaDataJsonObj;
 	}
 
-	private String getConcatSentinelMeta(JSONArray sentinelJsonArray) throws JSONException {
-		ArrayList<String> sentinelMetaBlobs = new ArrayList<String>();
-		for (int i = 0; i < sentinelJsonArray.length(); i++) {
-			JSONObject sentinelJsonRow = sentinelJsonArray.getJSONObject(i);
-			Iterator<String> paramLabels = sentinelJsonRow.keys();
+	private String getConcatMetaField(JSONArray metaJsonArray) throws JSONException {
+		ArrayList<String> metaBlobs = new ArrayList<String>();
+		for (int i = 0; i < metaJsonArray.length(); i++) {
+			JSONObject metaJsonRow = metaJsonArray.getJSONObject(i);
+			Iterator<String> paramLabels = metaJsonRow.keys();
 			while (paramLabels.hasNext()) {
 				String paramLabel = paramLabels.next();
-				if ( (sentinelJsonRow.get(paramLabel) instanceof String) && (sentinelJsonRow.getString(paramLabel).length() > 0) ) {
-					sentinelMetaBlobs.add(sentinelJsonRow.getString(paramLabel));
+				if ( (metaJsonRow.get(paramLabel) instanceof String) && (metaJsonRow.getString(paramLabel).length() > 0) ) {
+					metaBlobs.add(metaJsonRow.getString(paramLabel));
 				}
 			}
 		}
-		return (sentinelMetaBlobs.size() > 0) ? TextUtils.join("|", sentinelMetaBlobs) : "";
+		return (metaBlobs.size() > 0) ? TextUtils.join("|", metaBlobs) : "";
 	}
 
 

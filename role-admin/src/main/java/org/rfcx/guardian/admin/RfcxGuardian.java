@@ -25,6 +25,7 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
+import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.capture.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceNetworkName;
@@ -95,6 +96,7 @@ public class RfcxGuardian extends Application {
     public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
     public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
     public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
+	public DeviceMobileNetwork deviceMobileNetwork = new DeviceMobileNetwork(APP_ROLE);
     public DeviceUtils deviceUtils = null;
 	public DeviceMobilePhone deviceMobilePhone = null;
 

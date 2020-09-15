@@ -68,13 +68,13 @@ public class ApiCheckInUtils implements MqttCallback {
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
 
 	public void setOrResetBrokerConfig() {
-		String[] authUserPswd = app.rfcxPrefs.getPrefAsString("api_checkin_auth_creds").split(",");
-		String authUser = !app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : authUserPswd[0];
-		String authPswd = !app.rfcxPrefs.getPrefAsBoolean("enable_checkin_auth") ? null : authUserPswd[1];
+		String[] authUserPswd = app.rfcxPrefs.getPrefAsString("api_mqtt_auth_creds").split(",");
+		String authUser = !app.rfcxPrefs.getPrefAsBoolean("enable_mqtt_auth") ? null : authUserPswd[0];
+		String authPswd = !app.rfcxPrefs.getPrefAsBoolean("enable_mqtt_auth") ? null : authUserPswd[1];
 		this.mqttCheckInClient.setOrResetBroker(
-			this.app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
-			this.app.rfcxPrefs.getPrefAsInt("api_checkin_port"),
-			this.app.rfcxPrefs.getPrefAsString("api_checkin_host"),
+			this.app.rfcxPrefs.getPrefAsString("api_mqtt_protocol"),
+			this.app.rfcxPrefs.getPrefAsInt("api_mqtt_port"),
+			this.app.rfcxPrefs.getPrefAsString("api_mqtt_host"),
 			this.app.rfcxGuardianIdentity.getKeystorePassphrase(),
 			!authUser.equalsIgnoreCase("[guid]") ? authUser : app.rfcxGuardianIdentity.getGuid(),
 			!authPswd.equalsIgnoreCase("[token]") ? authPswd : app.rfcxGuardianIdentity.getAuthToken()
@@ -817,7 +817,7 @@ public class ApiCheckInUtils implements MqttCallback {
 	}
 
 	@Override
-	public void messageArrived(String messageTopic, MqttMessage mqttMessage) throws Exception {
+	public void messageArrived(String messageTopic, MqttMessage mqttMessage) {
 
 		byte[] messagePayload = mqttMessage.getPayload();
 		Log.i(logTag, "Received "+FileUtils.bytesAsReadableString(messagePayload.length)+" on '"+messageTopic+"' at "+DateTimeUtils.getDateTime());
@@ -890,9 +890,9 @@ public class ApiCheckInUtils implements MqttCallback {
 					app.deviceSystemDb.dbMqttBrokerConnections.insert(new Date(),
 													mqttCheckInClient.mqttBrokerConnectionLatency,
 													mqttCheckInClient.mqttBrokerSubscriptionLatency,
-													app.rfcxPrefs.getPrefAsString("api_checkin_protocol"),
-													app.rfcxPrefs.getPrefAsString("api_checkin_host"),
-													app.rfcxPrefs.getPrefAsInt("api_checkin_port"));
+													app.rfcxPrefs.getPrefAsString("api_mqtt_protocol"),
+													app.rfcxPrefs.getPrefAsString("api_mqtt_host"),
+													app.rfcxPrefs.getPrefAsInt("api_mqtt_port"));
 
 					app.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
 				}

@@ -370,11 +370,11 @@ public class RfcxPrefs {
 			put("enable_cutoffs_schedule_off_hours", "false");
 			put("enable_cutoffs_sampling_ratio", "false");
 
-			put("api_checkin_host", "api-mqtt.rfcx.org");
-	        put("api_checkin_protocol", "ssl");
-	        put("api_checkin_port", "8883");
-			put("enable_checkin_auth", "true");
-			put("api_checkin_auth_creds", "[guid],[token]");
+			put("api_mqtt_host", "api-mqtt.rfcx.org");
+	        put("api_mqtt_protocol", "ssl");
+	        put("api_mqtt_port", "8883");
+			put("enable_mqtt_auth", "true");
+			put("api_mqtt_auth_creds", "[guid],[token]");
 
             put("api_rest_host", "api.rfcx.org");
             put("api_rest_protocol", "https");

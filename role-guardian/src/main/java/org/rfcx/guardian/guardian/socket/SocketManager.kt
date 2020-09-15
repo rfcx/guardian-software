@@ -308,9 +308,9 @@ object SocketManager {
     }
 
     private fun getFullCheckInUrl(): String {
-        val protocol = app?.rfcxPrefs?.getPrefAsString("api_checkin_protocol") ?: "ssl"
-        val host = app?.rfcxPrefs?.getPrefAsString("api_checkin_host") ?: "checkin.rfcx.org"
-        val port = app?.rfcxPrefs?.getPrefAsString("api_checkin_port") ?: "8883"
+        val protocol = app?.rfcxPrefs?.getPrefAsString("api_mqtt_protocol") ?: "ssl"
+        val host = app?.rfcxPrefs?.getPrefAsString("api_mqtt_host") ?: "api-mqtt.rfcx.org"
+        val port = app?.rfcxPrefs?.getPrefAsString("api_mqtt_port") ?: "8883"
         return "$protocol://$host:$port"
     }
 

@@ -18,13 +18,9 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
-import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
-import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -64,8 +60,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private int reducedCaptureModeChangeoverBufferCounter = 0;
 
 	private SignalStrengthListener signalStrengthListener;
-	private TelephonyManager telephonyManager;
-	private SignalStrength telephonySignalStrength;
 	private LocationManager locationManager;
 	private SensorManager sensorManager;
 
@@ -88,9 +82,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private boolean isListenerRegistered_light = false;
 	private boolean isListenerRegistered_accel = false;
 	private boolean isListenerRegistered_geoposition = false;
-
-	//For companion
-	private static SignalStrength signalStrengthCompanion;
 
 	private void checkSetSensorManager() {
 		if (this.sensorManager == null) {
@@ -382,8 +373,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
 
-			if ((this.telephonyManager != null) && (this.telephonySignalStrength != null)) {
-				this.telephonyValues.add(DeviceMobileNetwork.getMobileNetworkSummary(this.telephonyManager, this.telephonySignalStrength));
+			if ((app.deviceMobileNetwork.telephonyManager != null) && (app.deviceMobileNetwork.signalStrength != null)) {
+				this.telephonyValues.add(app.deviceMobileNetwork.getMobileNetworkSummary());
 			}
 
 		} else {
@@ -432,8 +423,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				if (!this.isListenerRegistered_telephony) {
 					Log.v(logTag, "Registering listener for 'telephony'...");
 					this.signalStrengthListener = new SignalStrengthListener();
-					this.telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-					this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+					app.deviceMobileNetwork.telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+					app.deviceMobileNetwork.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 					this.isListenerRegistered_telephony = true;
 				}
 
@@ -479,9 +470,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			}
 			
 		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) { 
-			if (this.isListenerRegistered_telephony && (this.telephonyManager != null)) {
+			if (this.isListenerRegistered_telephony && (app.deviceMobileNetwork.telephonyManager != null)) {
 				Log.v(logTag, "Unregistering sensor listener for 'telephony'...");
-				this.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE); 
+				app.deviceMobileNetwork.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE);
 				this.isListenerRegistered_telephony = false;
 			}
 			
@@ -551,7 +542,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 							&& 	!telephonyVals[3].equalsIgnoreCase(prevTelephonyVals[3])
 							)
 						) {
-						app.deviceSystemDb.dbTelephony.insert(new Date((long) Long.parseLong(telephonyVals[0])), (int) Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3].trim());
+						app.deviceSystemDb.dbTelephony.insert(new Date(Long.parseLong(telephonyVals[0])), (int) Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3].trim());
 					}
 					prevTelephonyVals = telephonyVals;
 				}
@@ -612,31 +603,13 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		@Override
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			super.onSignalStrengthsChanged(signalStrength);
-			telephonySignalStrength = signalStrength;
-			signalStrengthCompanion = signalStrength;
+			app.deviceMobileNetwork.signalStrength = signalStrength;
 			cacheSnapshotValues("telephony", new double[]{});
 		}
 	}
 
-	public static SignalStrength getSignalStrength() {
-		return signalStrengthCompanion;
-	}
 
-	public static JSONArray getSignalStrengthAsJsonArray() {
-		JSONArray signalJsonArray = new JSONArray();
-		try {
-			JSONObject signalJson = new JSONObject();
 
-			signalJson.put("signal", signalStrengthCompanion.getGsmSignalStrength());
-			signalJsonArray.put(signalJson);
-
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-
-		} finally {
-			return signalJsonArray;
-		}
-	}
 	
 /*
  *  These are methods for SensorEventListener

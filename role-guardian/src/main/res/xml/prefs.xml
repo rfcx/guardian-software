@@ -65,43 +65,43 @@
 		android:defaultValue="@string/prefs_value_default_enable_cutoffs_sentinel_battery" />
 
  	<EditTextPreference
-        android:key="api_checkin_host"
-        android:title="api_checkin_host"
+        android:key="api_mqtt_host"
+        android:title="api_mqtt_host"
         android:summary="string - checkin api address (mqtt)"
         android:enabled="true"
-        android:defaultValue="@string/prefs_value_default_api_checkin_host" />
+        android:defaultValue="@string/prefs_value_default_api_mqtt_host" />
  	
  	<ListPreference
-		android:key="api_checkin_protocol"
-		android:title="api_checkin_protocol"
-		android:dialogTitle="api_checkin_protocol"
+		android:key="api_mqtt_protocol"
+		android:title="api_mqtt_protocol"
+		android:dialogTitle="api_mqtt_protocol"
         android:summary="string - checkin api protocol (mqtt)"
 		android:entries="@array/prefs_values_tcp_or_ssl"
 		android:entryValues="@array/prefs_values_tcp_or_ssl"
-		android:defaultValue="@string/prefs_value_default_api_checkin_protocol" />
+		android:defaultValue="@string/prefs_value_default_api_mqtt_protocol" />
     
  	<EditTextPreference
-        android:key="api_checkin_port"
-        android:title="api_checkin_port"
+        android:key="api_mqtt_port"
+        android:title="api_mqtt_port"
         android:summary="string - checkin api port (mqtt)"
         android:enabled="true"
-        android:defaultValue="@string/prefs_value_default_api_checkin_port" />
+        android:defaultValue="@string/prefs_value_default_api_mqtt_port" />
 
 	<ListPreference
-		android:key="enable_checkin_auth"
-		android:title="enable_checkin_auth"
-		android:dialogTitle="enable_checkin_auth"
+		android:key="enable_mqtt_auth"
+		android:title="enable_mqtt_auth"
+		android:dialogTitle="enable_mqtt_auth"
 		android:summary="string - true/false"
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_enable_checkin_auth" />
+		android:defaultValue="@string/prefs_value_default_enable_mqtt_auth" />
 
 	<EditTextPreference
-		android:key="api_checkin_auth_creds"
-		android:title="api_checkin_auth_creds"
+		android:key="api_mqtt_auth_creds"
+		android:title="api_mqtt_auth_creds"
 		android:summary="string - broker user/password (mqtt) - comma separated"
 		android:enabled="true"
-		android:defaultValue="@string/prefs_value_default_api_checkin_auth_creds" />
+		android:defaultValue="@string/prefs_value_default_api_mqtt_auth_creds" />
 
 	<EditTextPreference
 		android:key="api_rest_host"

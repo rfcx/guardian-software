@@ -137,7 +137,31 @@ public class AdminContentProvider extends ContentProvider {
                 SmsUtils.addScheduledSmsToQueue(Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext());
                 return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{pathSegSendAt + "|" + pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
 
-                // "database" function endpoints
+
+            // get momentary values endpoints
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "get_momentary_values", "*")) { logFuncVal = "get_momentary_values-*";
+                String pathSeg = uri.getLastPathSegment();
+
+                if (pathSeg.equalsIgnoreCase("sentinel_power")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"sentinel_power", app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray().toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("system_disk_usage")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"system_disk_usage", app.deviceUtils.getMomentarySystemMetaValuesAsJsonArray("disk_usage").toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("system_cpu")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"system_cpu", app.deviceUtils.getMomentarySystemMetaValuesAsJsonArray("cpu").toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("system_network")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"system_network", app.deviceUtils.getMomentarySystemMetaValuesAsJsonArray("network").toString(), System.currentTimeMillis()});
+
+
+                } else {
+                    return null;
+                }
+
+
+            // "database" function endpoints
 
             } else if (RfcxComm.uriMatch(uri, appRole, "database_get_all_rows", "*")) { logFuncVal = "database_get_all_rows-*";
                 String pathSeg = uri.getLastPathSegment();
@@ -176,9 +200,6 @@ public class AdminContentProvider extends ContentProvider {
 
                 } else if (pathSeg.equalsIgnoreCase("videos")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"videos", app.cameraCaptureDb.dbVideos.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
-
-                } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"sentinel_power", app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray().toString(), System.currentTimeMillis()});
 
                 } else {
                     return null;
@@ -249,7 +270,7 @@ public class AdminContentProvider extends ContentProvider {
                 }
 
             } else if (RfcxComm.uriMatch(uri, appRole, "signal", "*")) { logFuncVal = "signal-*";
-                return RfcxComm.getProjectionCursor(appRole, "signal", new Object[]{DeviceSystemService.getSignalStrengthAsJsonArray()});
+                return RfcxComm.getProjectionCursor(appRole, "signal", new Object[]{ app.deviceMobileNetwork.getSignalStrengthAsJsonArray() });
             } else if (RfcxComm.uriMatch(uri, appRole, "sentinel_values", "*")) { logFuncVal = "sentinel_values-*";
                 return RfcxComm.getProjectionCursor(appRole, "sentinel_values", new Object[]{ new JSONArray().put(app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJson())});
             }

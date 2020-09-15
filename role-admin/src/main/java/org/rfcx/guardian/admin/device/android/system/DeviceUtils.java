@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -255,7 +256,7 @@ public class DeviceUtils {
 
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
-		Date clearBefore = new Date((long) Long.parseLong(timeStamp));
+		Date clearBefore = new Date(Long.parseLong(timeStamp));
 
 		app.deviceSystemDb.dbBattery.clearRowsBefore(clearBefore);
 		app.deviceSystemDb.dbCPU.clearRowsBefore(clearBefore);
@@ -268,6 +269,41 @@ public class DeviceUtils {
 		app.deviceDiskDb.dbDiskUsage.clearRowsBefore(clearBefore);
 
 		return 1;
+	}
+
+
+
+	public JSONArray getMomentarySystemMetaValuesAsJsonArray(String metaTag) {
+
+		JSONArray metaJsonArray = new JSONArray();
+
+		try {
+			JSONObject metaJson = new JSONObject();
+
+			if ("disk_usage".equalsIgnoreCase(metaTag)) {
+				long[] diskUsageStats = DeviceDiskUsage.getCurrentDiskUsageStats();
+				metaJson.put("internal", "internal*" + diskUsageStats[0] + "*" + diskUsageStats[1] + "*" + diskUsageStats[2]);
+				metaJson.put("external", "external*" + diskUsageStats[0] + "*" + diskUsageStats[3] + "*" + diskUsageStats[4]);
+
+			} else if ("cpu".equalsIgnoreCase(metaTag)) {
+				int[] cpuStats = ((RfcxGuardian) this.context.getApplicationContext()).deviceCPU.getCurrentStats();
+				metaJson.put("cpu",System.currentTimeMillis() + "*" + cpuStats[0] + "*" + cpuStats[1]);
+
+			} else if ("network".equalsIgnoreCase(metaTag)) {
+				String[] networkStats = ((RfcxGuardian) this.context.getApplicationContext()).deviceMobileNetwork.getMobileNetworkSummary();
+				metaJson.put("network",networkStats[0] + "*" + networkStats[1] + "*" + networkStats[2] + "*" + networkStats[3]);
+
+			}
+
+			metaJsonArray.put(metaJson);
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+
+		} finally {
+			return metaJsonArray;
+		}
+
 	}
 
 }

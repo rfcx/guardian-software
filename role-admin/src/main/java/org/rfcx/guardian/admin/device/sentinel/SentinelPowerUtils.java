@@ -380,9 +380,7 @@ public class SentinelPowerUtils {
             int battPct = getLiFePO4BatteryChargePercentage(battVoltage);
             int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery") : app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery");
             isAllowed = battPct >= prefsVal;
-            //if (!isAllowed) {
-           //     Log.v(logTag, "Sentinel Battery: "+battPct+"%, "+battVoltage+" mV");
-            //}
+//            if (!isAllowed) { Log.v(logTag, "Sentinel Battery: "+battPct+"%, "+battVoltage+" mV"); }
         }
 
         return !isAllowed;
@@ -391,7 +389,6 @@ public class SentinelPowerUtils {
     private static long pVal(String fieldName, long val) {
 
 //        double divVal = val;
-//
 //
 //        if (fieldName.equalsIgnoreCase("voltage")) {
 //            divVal = val/100;
