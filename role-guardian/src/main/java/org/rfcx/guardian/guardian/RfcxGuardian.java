@@ -157,7 +157,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
 
 
-    private boolean isGuardianRegistered() {
+    public boolean isGuardianRegistered() {
         return (this.rfcxGuardianIdentity.getAuthToken() != null);
     }
 
