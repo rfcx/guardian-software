@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.guardian.api.asset;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -8,13 +8,13 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-public class ApiCheckInMetaSnapshotService extends IntentService {
+public class MetaSnapshotService extends IntentService {
 
-	private static final String SERVICE_NAME = "ApiCheckInMetaSnapshot";
+	private static final String SERVICE_NAME = "MetaSnapshot";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInMetaSnapshotService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "MetaSnapshotService");
 
-	public ApiCheckInMetaSnapshotService() {
+	public MetaSnapshotService() {
 		super(logTag);
 	}
 	

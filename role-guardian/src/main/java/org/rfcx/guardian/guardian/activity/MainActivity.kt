@@ -247,6 +247,8 @@ class MainActivity : Activity(),
 
     override fun onGuardianCheckSuccess(t: Throwable?, response: String?) {
         setVisibilityRegisterSuccess()
+        app.apiCheckInUtils.initializeFailedCheckInThresholds()
+        app.apiJsonUtils.clearPrePackageMetaData()
         app.initializeRoleServices()
         setUIByRecordingState()
         setUIByGuidState()

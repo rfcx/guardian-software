@@ -5,10 +5,9 @@ import java.util.Map;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInHealthUtils;
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInMetaSnapshotService;
+import org.rfcx.guardian.guardian.api.asset.MetaSnapshotService;
 import org.rfcx.guardian.guardian.api.mqtt.ApiJsonUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInStatsDb;
-import org.rfcx.guardian.guardian.api.mqtt.ApiDiagnosticsDb;
 import org.rfcx.guardian.guardian.api.mqtt.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
@@ -35,10 +34,10 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import org.rfcx.guardian.guardian.api.mqtt.ApiAssetExchangeLogDb;
+import org.rfcx.guardian.guardian.api.asset.AssetExchangeLogDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInJobService;
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInMetaDb;
+import org.rfcx.guardian.guardian.api.asset.MetaDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInQueueService;
 import org.rfcx.guardian.guardian.archive.ApiCheckInArchiveService;
@@ -70,10 +69,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     // Database Handlers
     public AudioEncodeDb audioEncodeDb = null;
     public ApiCheckInDb apiCheckInDb = null;
-    public ApiCheckInMetaDb apiCheckInMetaDb = null;
+    public MetaDb metaDb = null;
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
     public ApiDiagnosticsDb apiDiagnosticsDb = null;
-    public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
+    public AssetExchangeLogDb assetExchangeLogDb = null;
     public ArchiveDb archiveDb = null;
     public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
@@ -221,10 +220,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioEncodeDb = new AudioEncodeDb(this, this.version);
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
-        this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
+        this.metaDb = new MetaDb(this, this.version);
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
         this.apiDiagnosticsDb = new ApiDiagnosticsDb(this, this.version);
-        this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
+        this.assetExchangeLogDb = new AssetExchangeLogDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
@@ -248,7 +247,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
 
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
-        this.rfcxServiceHandler.addService("ApiCheckInMetaSnapshot", ApiCheckInMetaSnapshotService.class);
+        this.rfcxServiceHandler.addService("MetaSnapshot", MetaSnapshotService.class);
 
         this.rfcxServiceHandler.addService("InstructionsCycle", InstructionsCycleService.class);
         this.rfcxServiceHandler.addService("InstructionsExecution", InstructionsExecutionService.class);

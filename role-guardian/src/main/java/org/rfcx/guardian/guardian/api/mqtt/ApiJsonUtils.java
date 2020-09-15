@@ -200,7 +200,7 @@ public class ApiJsonUtils {
 				new String[] {
 						"sent*" + app.apiCheckInDb.dbSent.getCount() + sentIdList.toString(),
 						"queued*" + app.apiCheckInDb.dbQueued.getCount(),
-						"meta*" + app.apiCheckInMetaDb.dbMeta.getCount(),
+						"meta*" + app.metaDb.dbMeta.getCount(),
 						"skipped*" + app.apiCheckInDb.dbSkipped.getCount(),
 						"stashed*" + app.apiCheckInDb.dbStashed.getCount(),
 						"archived*" + app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount()
@@ -245,10 +245,14 @@ public class ApiJsonUtils {
 		if (dateTimeOffsets.size() > 0) { metaDataJsonObj.put("datetime_offsets", TextUtils.join("|", dateTimeOffsets)); }
 
 		// Saves JSON snapshot blob to database
-		app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
+		app.metaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
 
 		clearPrePackageMetaData(metaQueryTimestampObj);
 
+	}
+
+	public void clearPrePackageMetaData() {
+		clearPrePackageMetaData(new Date(System.currentTimeMillis()));
 	}
 
 	private void clearPrePackageMetaData(Date deleteBefore) {
@@ -362,7 +366,7 @@ public class ApiJsonUtils {
 		JSONArray metaJsonBundledSnapshotsIds = new JSONArray();
 		long metaMeasuredAtValue = 0;
 
-		for (String[] metaRow : app.apiCheckInMetaDb.dbMeta.getLatestRowsWithLimit(2 * maxMetaRowsToBundle)) {
+		for (String[] metaRow : app.metaDb.dbMeta.getLatestRowsWithLimit(2 * maxMetaRowsToBundle)) {
 
 			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(metaRow[3])));
 
@@ -408,7 +412,7 @@ public class ApiJsonUtils {
 				metaJsonBundledSnapshotsObj.put("meta_ids", metaJsonBundledSnapshotsIds);
 
 				// mark this row as accessed in the database
-				app.apiCheckInMetaDb.dbMeta.updateLastAccessedAtByTimestamp(metaRow[1]);
+				app.metaDb.dbMeta.updateLastAccessedAtByTimestamp(metaRow[1]);
 
 				// if the bundle already contains max number of snapshots, stop here
 				if (metaJsonBundledSnapshotsIds.length() >= maxMetaRowsToBundle) { break; }

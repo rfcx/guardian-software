@@ -568,8 +568,8 @@ public class ApiCheckInUtils implements MqttCallback {
 						app.getApplicationContext().getContentResolver());
 
 			} else if (assetType.equals("meta")) {
-				app.apiCheckInMetaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
-				app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
+				app.metaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
+				app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			} else if (assetType.equals("instruction")) {
 				app.instructionsDb.dbExecutedInstructions.deleteSingleRowById(assetId);
@@ -582,7 +582,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			for (String filePath : filePaths) {
 				if ((filePath != null) && (new File(filePath)).exists()) {
 					FileUtils.delete(filePath);
-					app.apiAssetExchangeLogDb.dbPurged.insert(assetType, assetId);
+					app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
 					Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ", " + filePath.substring(1 + filePath.lastIndexOf("/")));
 					isPurgeReported = true;
 				}
@@ -624,7 +624,6 @@ public class ApiCheckInUtils implements MqttCallback {
 									/* recent */        checkInStats[0],
 									/* time-of-day */   (long) rightNow.get(Calendar.HOUR_OF_DAY)
 							});
-							app.apiDiagnosticsDb.dbBandwidth.insert(checkInId, Math.round(1000*checkInStats[2]/checkInStats[1]) );
 						}
 					}
 				}
@@ -700,7 +699,7 @@ public class ApiCheckInUtils implements MqttCallback {
 								|| assetType.equalsIgnoreCase("photo")
 								|| assetType.equalsIgnoreCase("video")
 						) {
-							app.apiAssetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(assetId);
+							app.assetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(assetId);
 						}
 					}
 				}
