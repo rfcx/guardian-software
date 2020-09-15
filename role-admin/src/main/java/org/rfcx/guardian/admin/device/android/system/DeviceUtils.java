@@ -217,7 +217,7 @@ public class DeviceUtils {
 						+" —— Clock Discrepancy: "+dateTimeDiscrepancyFromSystemClock_gps+" ms"
 						);
 
-				app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps);
+				app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps, DateTimeUtils.getTimeZoneOffset());
 				app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);
 					
 			} catch (Exception e) {
@@ -242,6 +242,8 @@ public class DeviceUtils {
 			metaJson.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
 			metaJson.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());
 			metaJson.put("disk_usage", app.deviceDiskDb.dbDiskUsage.getConcatRows());
+			metaJson.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
+
 			metaJsonArray.put(metaJson);
 
 		} catch (Exception e) {
@@ -267,13 +269,14 @@ public class DeviceUtils {
 		app.rebootDb.dbRebootComplete.clearRowsBefore(clearBefore);
 		app.deviceSensorDb.dbGeoPosition.clearRowsBefore(clearBefore);
 		app.deviceDiskDb.dbDiskUsage.clearRowsBefore(clearBefore);
+		app.deviceSystemDb.dbDateTimeOffsets.clearRowsBefore(clearBefore);
 
 		return 1;
 	}
 
 
 
-	public JSONArray getMomentarySystemMetaValuesAsJsonArray(String metaTag) {
+	public JSONArray getMomentaryConcatSystemMetaValuesAsJsonArray(String metaTag) {
 
 		JSONArray metaJsonArray = new JSONArray();
 
@@ -291,8 +294,9 @@ public class DeviceUtils {
 
 			} else if ("network".equalsIgnoreCase(metaTag)) {
 				String[] networkStats = ((RfcxGuardian) this.context.getApplicationContext()).deviceMobileNetwork.getMobileNetworkSummary();
-				metaJson.put("network",networkStats[0] + "*" + networkStats[1] + "*" + networkStats[2] + "*" + networkStats[3]);
-
+				if ((networkStats[2] != null) && (networkStats[3] != null)) {
+					metaJson.put("network", networkStats[0] + "*" + networkStats[1] + "*" + networkStats[2] + "*" + networkStats[3]);
+				}
 			}
 
 			metaJsonArray.put(metaJson);

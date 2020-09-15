@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.device.android;
+package org.rfcx.guardian.guardian.api.sntp;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.datetime.SntpClient;

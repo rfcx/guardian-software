@@ -158,12 +158,12 @@ public class DeviceSystemDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
-		public int insert(long measured_at, String source, long offset) {
+		public int insert(long measured_at, String source, long offset, String timezone) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at);
 			values.put(C_VALUE_1, source);
-			values.put(C_VALUE_2, offset);
+			values.put(C_VALUE_2, offset+"*"+timezone);
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}

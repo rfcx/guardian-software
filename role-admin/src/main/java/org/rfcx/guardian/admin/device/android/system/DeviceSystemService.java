@@ -542,7 +542,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 							&& 	!telephonyVals[3].equalsIgnoreCase(prevTelephonyVals[3])
 							)
 						) {
-						app.deviceSystemDb.dbTelephony.insert(new Date(Long.parseLong(telephonyVals[0])), (int) Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3].trim());
+						app.deviceSystemDb.dbTelephony.insert(new Date(Long.parseLong(telephonyVals[0])), Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3].trim());
 					}
 					prevTelephonyVals = telephonyVals;
 				}

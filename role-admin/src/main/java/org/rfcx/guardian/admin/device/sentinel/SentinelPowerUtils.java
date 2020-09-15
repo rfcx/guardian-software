@@ -244,7 +244,7 @@ public class SentinelPowerUtils {
             if (printValuesToLog) {
                 int battPct = getLiFePO4BatteryChargePercentage(voltages[1]);
                 Log.d(logTag,
-                    (new StringBuilder("Avg of ")).append(sampleCount).append(" samples at ").append(DateTimeUtils.getDateTime(measuredAt))
+                    (new StringBuilder("Avg of ")).append(sampleCount).append(" samples for ").append(DateTimeUtils.getDateTime(measuredAt))//.append(":")
                     .append(" [ system: ").append(voltages[0]).append(" mV, ").append(currents[0]).append(" mA, ").append(powers[0]).append(" mW").append(" ]")
                     .append(" [ battery: ").append(battPct).append("%, ").append(voltages[1]).append(" mV, ").append(currents[1]).append(" mA, ").append(powers[1]).append(" mW").append(" ]")
                     .append(" [ input: ").append(voltages[2]).append(" mV, ").append(currents[2]).append(" mA, ").append(powers[2]).append(" mW").append(" ]")

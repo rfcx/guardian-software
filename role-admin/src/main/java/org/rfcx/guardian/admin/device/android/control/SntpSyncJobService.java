@@ -92,6 +92,8 @@ public class SntpSyncJobService extends Service {
 
 						SystemClock.setCurrentTimeMillis(nowSntp);
 
+						app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem), DateTimeUtils.getTimeZoneOffset());
+
 						String nowSystemStr = DateTimeUtils.getDateTime(nowSystem) +"."+ (""+(1000+nowSystem-Math.round(1000*Math.floor(nowSystem/1000)))).substring(1);
 
 						Log.v(logTag, "DateTime Sync: System time is "+nowSystemStr.substring(1+nowSystemStr.indexOf(" "))

@@ -215,7 +215,6 @@ public class ApiJsonUtils {
 		metaDataJsonObj.put("measured_at", metaQueryTimestamp);
 
 		metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
-		metaDataJsonObj.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
 
 		// Adding connection data from previous checkins
 		metaDataJsonObj.put("previous_checkins", app.apiCheckInStatsDb.dbStats.getConcatRows());
@@ -234,6 +233,11 @@ public class ApiJsonUtils {
 		String sentinelSensor = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
 				"sentinel_sensor", app.getApplicationContext().getContentResolver()));
 		if (sentinelSensor.length() > 0) { metaDataJsonObj.put("sentinel_sensor", sentinelSensor); }
+
+		ArrayList<String> dateTimeOffsets = new ArrayList<String>();
+		if (metaDataJsonObj.has("datetime_offsets")) { dateTimeOffsets.add(metaDataJsonObj.getString("datetime_offsets")); }
+		if (app.deviceSystemDb.dbDateTimeOffsets.getCount() > 0) { dateTimeOffsets.add(app.deviceSystemDb.dbDateTimeOffsets.getConcatRows()); }
+		if (dateTimeOffsets.size() > 0) { metaDataJsonObj.put("datetime_offsets", TextUtils.join("|", dateTimeOffsets)); }
 
 		// Saves JSON snapshot blob to database
 		app.apiCheckInMetaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());

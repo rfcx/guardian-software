@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.install.InstallUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -72,9 +73,9 @@ public class ApiCheckVersionUtils {
 				}
 				return true;
 			} else if (!installedVersion.equals(focusVersion) && (installedVersionValue > focusVersionValue)) {
-				Log.d(logTag,"rfcx "+focusRole+": installed version ("+installedVersion+", "+installedVersionValue+") is newer than the latest release version ("+focusVersion+", "+focusVersionValue+").");
+				Log.d(logTag,"RFCx "+ StringUtils.capitalizeFirstChar(focusRole) +": Installed version ("+installedVersion+", "+installedVersionValue+") is newer than the latest release version ("+focusVersion+", "+focusVersionValue+").");
 			} else {
-				Log.d(logTag,"rfcx "+focusRole+": installed version is already up-to-date ("+installedVersion+", "+installedVersionValue+").");
+				Log.d(logTag,"RFCx "+ StringUtils.capitalizeFirstChar(focusRole) +": Installed version is already up-to-date ("+installedVersion+", "+installedVersionValue+").");
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

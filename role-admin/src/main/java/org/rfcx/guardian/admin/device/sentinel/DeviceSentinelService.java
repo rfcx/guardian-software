@@ -143,7 +143,7 @@ public class DeviceSentinelService extends Service {
 		}
 
 		if ((innerLoopIncrement % this.innerLoopsPerCaptureCycle_Accelerometer == 0) && this.isSentinelAccelCaptureAllowed) {
-			app.sentinelAccelerometerUtils.updateSentinelAccelValues();
+			app.sentinelAccelUtils.updateSentinelAccelValues();
 		}
 
 		if ((innerLoopIncrement % this.innerLoopsPerCaptureCycle_Compass == 0) && this.isSentinelCompassCaptureAllowed) {
@@ -176,7 +176,7 @@ public class DeviceSentinelService extends Service {
 
 
 			if (this.isSentinelAccelCaptureAllowed) {
-				app.sentinelAccelerometerUtils.saveSentinelAccelValuesToDatabase(true);
+				app.sentinelAccelUtils.saveSentinelAccelValuesToDatabase(true);
 			}
 
 			if (this.isSentinelCompassCaptureAllowed) {
@@ -215,7 +215,7 @@ public class DeviceSentinelService extends Service {
 			if (innerLoopIncrement == 0) {
 
 				this.isSentinelPowerCaptureAllowed = /*!this.isReducedCaptureModeActive && */app.sentinelPowerUtils.isCaptureAllowed();
-				this.isSentinelAccelCaptureAllowed = !this.isReducedCaptureModeActive && app.sentinelAccelerometerUtils.isCaptureAllowed();
+				this.isSentinelAccelCaptureAllowed = !this.isReducedCaptureModeActive && app.sentinelAccelUtils.isCaptureAllowed();
 				this.isSentinelCompassCaptureAllowed = !this.isReducedCaptureModeActive && app.sentinelCompassUtils.isCaptureAllowed();
 
 				this.captureCycleLastStartTime = System.currentTimeMillis();
@@ -237,7 +237,7 @@ public class DeviceSentinelService extends Service {
 
 					this.innerLoopsPerCaptureCycle_Power = 1;
 					this.innerLoopsPerCaptureCycle_Compass = Math.round(this.innerLoopsPerCaptureCycle / SentinelCompassUtils.samplesTakenPerCaptureCycle);
-					this.innerLoopsPerCaptureCycle_Accelerometer = Math.round(this.innerLoopsPerCaptureCycle / SentinelAccelerometerUtils.samplesTakenPerCaptureCycle);
+					this.innerLoopsPerCaptureCycle_Accelerometer = Math.round(this.innerLoopsPerCaptureCycle / SentinelAccelUtils.samplesTakenPerCaptureCycle);
 
 					app.sentinelPowerUtils.setOrResetSentinelPowerChip();
 					app.sentinelCompassUtils.setOrResetSentinelCompassChip();

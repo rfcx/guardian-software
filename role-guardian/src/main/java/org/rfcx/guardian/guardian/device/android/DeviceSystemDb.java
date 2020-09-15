@@ -67,6 +67,10 @@ public class DeviceSystemDb {
 			return DbUtils.getConcatRows(getAllRows());
 		}
 
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
+
 	}
 	public final DbMqttBrokerConnections dbMqttBrokerConnections;
 
@@ -100,6 +104,10 @@ public class DeviceSystemDb {
 
 		public String getConcatRows() {
 			return DbUtils.getConcatRows(getAllRows());
+		}
+
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
 		}
 
 	}

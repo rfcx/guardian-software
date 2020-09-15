@@ -48,9 +48,9 @@ import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.guardian.audio.encode.AudioQueueEncodeService;
-import org.rfcx.guardian.guardian.device.android.SntpSyncJobService;
+import org.rfcx.guardian.guardian.api.sntp.SntpSyncJobService;
 import org.rfcx.guardian.guardian.device.android.DeviceSystemDb;
-import org.rfcx.guardian.guardian.device.android.ScheduledSntpSyncService;
+import org.rfcx.guardian.guardian.api.sntp.ScheduledSntpSyncService;
 import org.rfcx.guardian.guardian.receiver.ConnectivityReceiver;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {

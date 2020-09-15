@@ -10,7 +10,7 @@ import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
 import org.rfcx.guardian.admin.device.sentinel.PowerMeterService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
-import org.rfcx.guardian.admin.device.sentinel.SentinelAccelerometerUtils;
+import org.rfcx.guardian.admin.device.sentinel.SentinelAccelUtils;
 import org.rfcx.guardian.admin.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
@@ -103,7 +103,7 @@ public class RfcxGuardian extends Application {
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelCompassUtils sentinelCompassUtils = null;
-	public SentinelAccelerometerUtils sentinelAccelerometerUtils = null;
+	public SentinelAccelUtils sentinelAccelUtils = null;
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -139,7 +139,7 @@ public class RfcxGuardian extends Application {
 		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		this.sentinelCompassUtils = new SentinelCompassUtils(this);
-		this.sentinelAccelerometerUtils = new SentinelAccelerometerUtils(this);
+		this.sentinelAccelUtils = new SentinelAccelUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();

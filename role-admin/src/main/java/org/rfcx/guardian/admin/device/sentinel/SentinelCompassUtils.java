@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -168,16 +169,16 @@ public class SentinelCompassUtils {
 
         if (sampleCount > 0) {
 
-            StringBuilder logStr = (new StringBuilder("Avg of ")).append(sampleCount).append(" samples");
-
             long[] cmpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.compassValues));
             this.compassValues = new ArrayList<>();
             app.sentinelSensorDb.dbCompass.insert(cmpVals[4], cmpVals[0]+"", cmpVals[1]+"", cmpVals[2]+"", cmpVals[3]+"");
-    //        logStr.append(" [ temp: ").append(cmpVals[3]).append(" C").append(" ]");
-            logStr.append(" [ compass: x ").append(cmpVals[0]).append(", y ").append(cmpVals[1]).append(", z ").append(cmpVals[2]).append(" ]");
 
             if (printValuesToLog) {
-                Log.d(logTag, logStr.toString());
+                Log.d(logTag,
+                    (new StringBuilder("Avg of ")).append(sampleCount).append(" samples for ").append(DateTimeUtils.getDateTime(cmpVals[4]))//.append(":")
+                    .append(" [ compass: x ").append(cmpVals[0]).append(", y ").append(cmpVals[1]).append(", z ").append(cmpVals[2]).append(" ]")
+                    //.append(" [ temp: ").append(cmpVals[3]).append(" C").append(" ]")
+                    .toString());
             }
         }
     }

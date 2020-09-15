@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.device.android;
+package org.rfcx.guardian.guardian.api.sntp;
 
 import android.app.IntentService;
 import android.content.Intent;
