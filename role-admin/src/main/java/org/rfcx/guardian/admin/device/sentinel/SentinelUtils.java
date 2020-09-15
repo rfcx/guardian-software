@@ -91,19 +91,17 @@ public class SentinelUtils {
             }
         }
 
-        long measuredAt = System.currentTimeMillis();
-
         try {
             JSONObject sensorJson = new JSONObject();
 
             if (app.sentinelAccelUtils.getAccelValues().size() > 0) {
                 long[] accelVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentinelAccelUtils.getAccelValues()));
-                sensorJson.put("accelerometer", "accelerometer*"+measuredAt+"*"+accelVals[0]+"*"+accelVals[1]+"*"+accelVals[2]+"*"+accelVals[3] );
+                sensorJson.put("accelerometer", "accelerometer*"+accelVals[4]+"*"+accelVals[0]+"*"+accelVals[1]+"*"+accelVals[2]+"*"+accelVals[3] );
             }
 
             if (app.sentinelCompassUtils.getCompassValues().size() > 0) {
                 long[] compassVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentinelCompassUtils.getCompassValues()));
-                sensorJson.put("compass", "compass*"+measuredAt+"*"+compassVals[0]+"*"+compassVals[1]+"*"+compassVals[2]+"*"+compassVals[3]);
+                sensorJson.put("compass", "compass*"+compassVals[4]+"*"+compassVals[0]+"*"+compassVals[1]+"*"+compassVals[2]+"*"+compassVals[3]);
             }
 
             sensorJsonArray.put(sensorJson);
