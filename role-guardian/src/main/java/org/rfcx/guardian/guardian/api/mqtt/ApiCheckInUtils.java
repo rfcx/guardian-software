@@ -347,7 +347,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				this.inFlightCheckInAttemptCounter++;
 
 				app.apiCheckInDb.dbQueued.incrementSingleRowAttempts(audioId);
-				long msgSendStart = publishMessageOnConfirmedConnection("guardians/checkins", checkInPayload);
+				long msgSendStart = publishMessageOnConfirmedConnection("guardians/checkins", true, checkInPayload);
 
 				app.apiCheckInHealthUtils.setInFlightCheckInStats(audioId, msgSendStart, 0, checkInPayload.length);
 				this.inFlightCheckInAttemptCounter = 0;
@@ -904,10 +904,10 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 	}
 
-	private long publishMessageOnConfirmedConnection(String publishTopic, byte[] messageByteArray) throws MqttException {
+	private long publishMessageOnConfirmedConnection(String publishTopic, boolean trackDuration, byte[] messageByteArray) throws MqttException {
 		confirmOrCreateConnectionToBroker(true);
-		SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHING, null);
-		return this.mqttCheckInClient.publishMessage(publishTopic, messageByteArray);
+		if (publishTopic.equalsIgnoreCase("guardians/checkins")) { SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHING, null); }
+		return this.mqttCheckInClient.publishMessage(publishTopic, trackDuration, messageByteArray);
 	}
 
 	public boolean isConnectedToBroker() {
@@ -920,7 +920,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		try {
 
-			long pingSendStart = publishMessageOnConfirmedConnection("guardians/pings", packageMqttPingPayload(app.apiJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields)));
+			long pingSendStart = publishMessageOnConfirmedConnection("guardians/pings", false, packageMqttPingPayload(app.apiJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields)));
 
 		} catch (Exception e) {
 

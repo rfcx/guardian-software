@@ -101,15 +101,16 @@ public class MqttUtils implements MqttCallback {
 	public long mqttBrokerConnectionLatency = 0;
 	public long mqttBrokerSubscriptionLatency = 0;
 	
-	public long publishMessage(String publishTopic, byte[] messageByteArray) throws MqttPersistenceException, MqttException {
+	public long publishMessage(String publishTopic, boolean trackDeliveryDuration, byte[] messageByteArray) throws MqttException {
+
 		if (confirmOrCreateConnectionToBroker(true)) {
 			Log.i(logTag, "Publishing " + FileUtils.bytesAsReadableString(messageByteArray.length) + " to '" + publishTopic + "' at " + DateTimeUtils.getDateTime());
-			this.msgSendStart = System.currentTimeMillis();
+			if (trackDeliveryDuration) { this.msgSendStart = System.currentTimeMillis(); }
 			this.mqttClient.publish(publishTopic, buildMessage(messageByteArray));
 		} else {
 			Log.e(logTag, "Message could not be sent because connection could not be created...");
 		}
-		return this.msgSendStart;
+		return trackDeliveryDuration ? this.msgSendStart : System.currentTimeMillis();
 	}
 	
 	public void setOrResetBroker(String protocol, int port, String address, String keystorePassphrase, String authUserName, String authPassword) {
