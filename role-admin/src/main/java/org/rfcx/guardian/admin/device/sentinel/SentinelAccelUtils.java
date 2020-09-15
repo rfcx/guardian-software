@@ -166,4 +166,13 @@ public class SentinelAccelUtils {
         }
     }
 
+
+    public List<double[]> getAccelValues() {
+        return this.accelValues;
+    }
+
+    public void resetAccelValues() {
+        this.accelValues = new ArrayList<>();
+    }
+
 }

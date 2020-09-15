@@ -315,7 +315,6 @@ public class SentinelPowerUtils {
         } finally {
             return powerJsonArray;
         }
-
     }
 
     public JSONObject getMomentarySentinelPowerValuesAsJson() {

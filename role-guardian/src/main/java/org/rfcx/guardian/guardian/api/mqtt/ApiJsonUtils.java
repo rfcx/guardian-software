@@ -145,6 +145,11 @@ public class ApiJsonUtils {
 			if (sentinelPower.length() > 0) { pingObj.put("sentinel_power", sentinelPower); }
 		}
 
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sentinel_sensor")) {
+			String sentinelSensor = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "sentinel_sensor", app.getApplicationContext().getContentResolver()));
+			if (sentinelSensor.length() > 0) { pingObj.put("sentinel_sensor", sentinelSensor); }
+		}
+
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "disk_usage")) {
 			String systemDiskUsage = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_disk_usage", app.getApplicationContext().getContentResolver()));
 			if (systemDiskUsage.length() > 0) { pingObj.put("disk_usage", systemDiskUsage); }

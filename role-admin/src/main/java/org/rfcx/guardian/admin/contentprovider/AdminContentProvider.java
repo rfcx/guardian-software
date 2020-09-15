@@ -142,16 +142,19 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSeg = uri.getLastPathSegment();
 
                 if (pathSeg.equalsIgnoreCase("sentinel_power")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"sentinel_power", app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray().toString(), System.currentTimeMillis()});
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"sentinel_power", app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray().toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("sentinel_sensor")) {
+                     return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"sentinel_sensor", SentinelUtils.getMomentarySentinelSensorValuesAsJsonArray(true, app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("system_disk_usage")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"system_disk_usage", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("disk_usage").toString(), System.currentTimeMillis()});
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_disk_usage", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("disk_usage").toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("system_cpu")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"system_cpu", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("cpu").toString(), System.currentTimeMillis()});
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_cpu", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("cpu").toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("system_network")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"system_network", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("network").toString(), System.currentTimeMillis()});
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_network", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("network").toString(), System.currentTimeMillis()});
 
 
                 } else {

@@ -5,6 +5,7 @@ import android.content.Context;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.Date;
@@ -69,6 +70,50 @@ public class SentinelUtils {
         app.sentinelSensorDb.dbCompass.clearRowsBefore(clearBefore);
 
         return 1;
+    }
+
+
+    public static JSONArray getMomentarySentinelSensorValuesAsJsonArray(boolean forceUpdate, Context context) {
+
+        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+        JSONArray sensorJsonArray = new JSONArray();
+
+        if (forceUpdate) {
+
+            if (app.sentinelAccelUtils.isCaptureAllowed()) {
+                app.sentinelAccelUtils.resetAccelValues();
+                app.sentinelAccelUtils.updateSentinelAccelValues();
+            }
+
+            if (app.sentinelCompassUtils.isCaptureAllowed()) {
+                app.sentinelCompassUtils.resetCompassValues();
+                app.sentinelCompassUtils.updateSentinelCompassValues();
+            }
+        }
+
+        long measuredAt = System.currentTimeMillis();
+
+        try {
+            JSONObject sensorJson = new JSONObject();
+
+            if (app.sentinelAccelUtils.getAccelValues().size() > 0) {
+                long[] accelVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentinelAccelUtils.getAccelValues()));
+                sensorJson.put("accelerometer", "accelerometer*"+measuredAt+"*"+accelVals[0]+"*"+accelVals[1]+"*"+accelVals[2]+"*"+accelVals[3] );
+            }
+
+            if (app.sentinelCompassUtils.getCompassValues().size() > 0) {
+                long[] compassVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentinelCompassUtils.getCompassValues()));
+                sensorJson.put("compass", "compass*"+measuredAt+"*"+compassVals[0]+"*"+compassVals[1]+"*"+compassVals[2]+"*"+compassVals[3]);
+            }
+
+            sensorJsonArray.put(sensorJson);
+
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+
+        } finally {
+            return sensorJsonArray;
+        }
     }
 
 }

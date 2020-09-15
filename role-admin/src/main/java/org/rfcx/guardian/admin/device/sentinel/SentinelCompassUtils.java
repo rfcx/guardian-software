@@ -183,10 +183,13 @@ public class SentinelCompassUtils {
         }
     }
 
+    public List<double[]> getCompassValues() {
+        return this.compassValues;
+    }
 
-
-
-
+    public void resetCompassValues() {
+        this.compassValues = new ArrayList<>();
+    }
 
 
 }
