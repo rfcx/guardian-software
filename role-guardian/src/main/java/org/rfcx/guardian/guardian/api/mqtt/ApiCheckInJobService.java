@@ -144,7 +144,8 @@ public class ApiCheckInJobService extends Service {
 						}
 
 						if (!app.apiCheckInUtils.isConnectedToBroker()) {
-							long additionalLoopDelay = Math.round(app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") / 5);
+							long additionalLoopDelay = Math.round(prefsAudioCycleDuration/10);
+							if (additionalLoopDelay < 8) { additionalLoopDelay = 8; }
 							Log.e(logTag, "Broker not connected. Delaying "+additionalLoopDelay+" seconds and trying again...");
 							Thread.sleep(additionalLoopDelay*1000);
 							app.apiCheckInUtils.confirmOrCreateConnectionToBroker(true);
