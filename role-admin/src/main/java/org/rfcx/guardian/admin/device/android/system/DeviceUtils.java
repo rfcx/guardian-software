@@ -197,17 +197,16 @@ public class DeviceUtils {
 		if (location != null) {
 			try {
 
-				RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
-
 				long dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
-				long dateTimeDiscrepancyFromSystemClock_gps = DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(location.getTime());
+				long dateTimeDiscrepancyFromSystemClock_gps =
+						DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(
+							location.getTime() + 3600000); // for some reason, it would appear we have to add an hour to this measurement?!?!?
 				
 				double[] geoPos = new double[] { 
 						(double) dateTimeSourceLastSyncedAt_gps,
 						location.getLatitude(), location.getLongitude(), 
 						(double) location.getAccuracy(), 
-						location.getAltitude(),
-						(double) location.getTime()
+						location.getAltitude()
 					};
 
 				Log.i(logTag, "Snapshot —— GeoPosition"
@@ -216,6 +215,8 @@ public class DeviceUtils {
 						+" —— "+DateTimeUtils.getDateTime(dateTimeSourceLastSyncedAt_gps)
 						+" —— Clock Discrepancy: "+dateTimeDiscrepancyFromSystemClock_gps+" ms"
 						);
+
+				RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
 
 				app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps, DateTimeUtils.getTimeZoneOffset());
 				app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);

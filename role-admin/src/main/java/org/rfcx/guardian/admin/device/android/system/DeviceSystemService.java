@@ -42,7 +42,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	private int referenceCycleDuration = 1;
 
-	private int innerLoopIncrement = 0;
+	private int innerLoopIncrement = 1;
 	private int innerLoopsPerCaptureCycle = 1;
 	private long innerLoopDelayRemainderInMilliseconds = 0;
 
@@ -179,47 +179,23 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 					confirmOrSetCaptureParameters();
 
+					if (innerLoopDelayRemainderInMilliseconds > 0) {
+						Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+					}
+
 					// Sample CPU Stats
 					app.deviceCPU.update();
 
-					// Sample Inner Loop Stats (Accelerometer)
+					// Inner Loop Behavior
 					innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
 
-					if (innerLoopIncrement < innerLoopsPerCaptureCycle) {
-						if (innerLoopDelayRemainderInMilliseconds > 0) {
-							Thread.sleep(innerLoopDelayRemainderInMilliseconds);
-						}
-					} else {
-
-//						Log.e(logTag, SERVICE_NAME+" - "+ DateTimeUtils.getDateTime());
+					if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
 
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
 						// Outer Loop Behavior
 						outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
 
-						// capture and cache cpu usage info
-						cpuUsageValues.add(app.deviceCPU.getCurrentStats());
-						saveSnapshotValuesToDatabase("cpu");
-
-						// capture and cache telephony signal strength
-						cacheSnapshotValues("telephony", new double[]{});
-						saveSnapshotValuesToDatabase("telephony");
-
-						// capture and cache data transfer info
-						dataTransferValues.add(app.deviceNetworkStats.getDataTransferStatsSnapshot());
-						saveSnapshotValuesToDatabase("datatransfer");
-
-						// capture and cache battery level info
-						batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
-						saveSnapshotValuesToDatabase("battery");
-
-						// cache accelerometer sensor data
-						saveSnapshotValuesToDatabase("accel");
-
-						// capture and cache light sensor data
-						cacheSnapshotValues("light", new double[]{lightSensorLastValue});
-						saveSnapshotValuesToDatabase("light");
 					}
 
 				} catch (InterruptedException e) {
@@ -237,7 +213,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 		if (app != null) {
 
-			if (innerLoopIncrement == 0) {
+			if (innerLoopIncrement == 1) {
 
 				this.captureCycleLastStartTime = System.currentTimeMillis();
 
@@ -273,7 +249,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 		innerLoopIncrement++;
 		if (innerLoopIncrement > innerLoopsPerCaptureCycle) {
-			innerLoopIncrement = 0;
+			innerLoopIncrement = 1;
 		}
 
 		if (app.deviceUtils.isSensorListenerAllowed("accel")) {
@@ -295,13 +271,31 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private int triggerOrSkipOuterLoopBehavior(int outerLoopIncrement, int outerLoopCaptureCount) {
 
 		outerLoopIncrement++;
-
-		if (outerLoopIncrement >= outerLoopCaptureCount) {
-			outerLoopIncrement = 0;
+		if (outerLoopIncrement > outerLoopCaptureCount) {
+			outerLoopIncrement = 1;
 		}
 
 		setOrUnSetReducedCaptureMode();
 		setOrUnSetReducedCaptureModeListeners();
+
+		// capture and cache cpu usage info
+		cpuUsageValues.add(app.deviceCPU.getCurrentStats());
+		saveSnapshotValuesToDatabase("cpu");
+
+		// capture and cache data transfer info
+		dataTransferValues.add(app.deviceNetworkStats.getDataTransferStatsSnapshot());
+		saveSnapshotValuesToDatabase("datatransfer");
+
+		// capture and cache battery level info
+		batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
+		saveSnapshotValuesToDatabase("battery");
+
+		// cache accelerometer sensor data
+		saveSnapshotValuesToDatabase("accel");
+
+		// capture and cache light sensor data
+		cacheSnapshotValues("light", new double[]{lightSensorLastValue});
+		saveSnapshotValuesToDatabase("light");
 
 		if (outerLoopIncrement == 1) {
 
@@ -313,7 +307,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			memoryValues.add(DeviceMemory.getCurrentMemoryStats(app.getApplicationContext()));
 			saveSnapshotValuesToDatabase("memory");
 
-		} else {
+			// capture and cache telephony signal strength
+			cacheSnapshotValues("telephony", new double[]{});
+			saveSnapshotValuesToDatabase("telephony");
 
 		}
 

@@ -22,13 +22,13 @@ public class DeviceSentinelService extends Service {
 
 	private int referenceCycleDuration = 1;
 
-	private int innerLoopIncrement = 0;
+	private int innerLoopIncrement = 1;
 	private int innerLoopsPerCaptureCycle = 1;
 	private long innerLoopDelayRemainderInMilliseconds = 0;
 
-	private int innerLoopsPerCaptureCycle_Power = 0;
-	private int innerLoopsPerCaptureCycle_Accelerometer = 0;
-	private int innerLoopsPerCaptureCycle_Compass = 0;
+	private double innerLoopsPerCaptureCycle_Power = 0;
+	private double innerLoopsPerCaptureCycle_Accelerometer = 0;
+	private double innerLoopsPerCaptureCycle_Compass = 0;
 
 	// Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
 	// This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
@@ -102,14 +102,14 @@ public class DeviceSentinelService extends Service {
 
 					confirmOrSetCaptureParameters();
 
+					if (innerLoopDelayRemainderInMilliseconds > 0) {
+						Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+					}
+
 					// Inner Loop Behavior
 					innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
 
-					if (innerLoopIncrement < innerLoopsPerCaptureCycle) {
-						if (innerLoopDelayRemainderInMilliseconds > 0) {
-							Thread.sleep(innerLoopDelayRemainderInMilliseconds);
-						}
-					} else {
+					if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
 
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
@@ -133,7 +133,7 @@ public class DeviceSentinelService extends Service {
 
 		innerLoopIncrement++;
 		if (innerLoopIncrement > innerLoopsPerCaptureCycle) {
-			innerLoopIncrement = 0;
+			innerLoopIncrement = 1;
 		}
 
 		//	Log.e(logTag, "RUN INNER LOOP BEHAVIOR...");
@@ -156,9 +156,8 @@ public class DeviceSentinelService extends Service {
 	private int triggerOrSkipOuterLoopBehavior(int outerLoopIncrement, int outerLoopCaptureCount) {
 
 		outerLoopIncrement++;
-
-		if (outerLoopIncrement >= outerLoopCaptureCount) {
-			outerLoopIncrement = 0;
+		if (outerLoopIncrement > outerLoopCaptureCount) {
+			outerLoopIncrement = 1;
 		}
 
 		setOrUnSetReducedCaptureMode();
@@ -168,7 +167,6 @@ public class DeviceSentinelService extends Service {
 			app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(true);
 			app.sentinelPowerUtils.setOrResetSentinelPowerChip();
 		}
-
 
 
 		// run these on specific outer loop iterations
@@ -183,9 +181,6 @@ public class DeviceSentinelService extends Service {
 				app.sentinelCompassUtils.saveSentinelCompassValuesToDatabase(true);
 				app.sentinelCompassUtils.setOrResetSentinelCompassChip();
 			}
-
-
-		} else {
 
 		}
 
@@ -212,7 +207,7 @@ public class DeviceSentinelService extends Service {
 
 		if (app != null) {
 
-			if (innerLoopIncrement == 0) {
+			if (innerLoopIncrement == 1) {
 
 				this.isSentinelPowerCaptureAllowed = /*!this.isReducedCaptureModeActive && */app.sentinelPowerUtils.isCaptureAllowed();
 				this.isSentinelAccelCaptureAllowed = !this.isReducedCaptureModeActive && app.sentinelAccelUtils.isCaptureAllowed();
@@ -236,8 +231,8 @@ public class DeviceSentinelService extends Service {
 					this.innerLoopDelayRemainderInMilliseconds = SentinelUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
 
 					this.innerLoopsPerCaptureCycle_Power = 1;
-					this.innerLoopsPerCaptureCycle_Compass = Math.round(this.innerLoopsPerCaptureCycle / SentinelCompassUtils.samplesTakenPerCaptureCycle);
-					this.innerLoopsPerCaptureCycle_Accelerometer = Math.round(this.innerLoopsPerCaptureCycle / SentinelAccelUtils.samplesTakenPerCaptureCycle);
+					this.innerLoopsPerCaptureCycle_Compass = Math.ceil(this.innerLoopsPerCaptureCycle / SentinelCompassUtils.samplesTakenPerCaptureCycle);
+					this.innerLoopsPerCaptureCycle_Accelerometer = Math.ceil(this.innerLoopsPerCaptureCycle / SentinelAccelUtils.samplesTakenPerCaptureCycle);
 
 					app.sentinelPowerUtils.setOrResetSentinelPowerChip();
 					app.sentinelCompassUtils.setOrResetSentinelCompassChip();

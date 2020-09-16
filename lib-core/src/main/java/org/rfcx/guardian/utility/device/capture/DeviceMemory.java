@@ -29,6 +29,8 @@ public class DeviceMemory {
 		long usedMemInBytes = nativeHeapSize - nativeHeapFreeSize;
 		long nativeHeapThreshold = memoryInfo.threshold;
 
+
+
 		return new long[] { System.currentTimeMillis(), usedMemInBytes, nativeHeapFreeSize, nativeHeapThreshold };
 	}
 
