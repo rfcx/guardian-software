@@ -131,11 +131,10 @@ public class ApiCheckInJobService extends Service {
 										lastCheckInEndTime = System.currentTimeMillis();
 
 									} else {
-										Thread.sleep(500);
+										Thread.sleep(333);
 									}
 
 									lastCheckInId = latestQueuedCheckIn[1];
-
 								}
 								
 							} else {
@@ -145,8 +144,9 @@ public class ApiCheckInJobService extends Service {
 						}
 
 						if (!app.apiCheckInUtils.isConnectedToBroker()) {
-							Log.e(logTag, "Broker not connected. Delaying 10 seconds and trying again...");
-							Thread.sleep(10000);
+							long additionalLoopDelay = Math.round(app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") / 5);
+							Log.e(logTag, "Broker not connected. Delaying "+additionalLoopDelay+" seconds and trying again...");
+							Thread.sleep(additionalLoopDelay*1000);
 							app.apiCheckInUtils.confirmOrCreateConnectionToBroker(true);
 						}
 

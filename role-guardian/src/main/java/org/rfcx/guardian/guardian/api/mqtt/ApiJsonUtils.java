@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceMemory;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -37,6 +36,8 @@ public class ApiJsonUtils {
 	public String prefsSha1FullApiSync = null;
 	public long prefsTimestampLastFullApiSync = 0;
 
+	public boolean hasDeviceInfoBeenSent = false;
+
 
 	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta, String[] photoFileMeta, String[] videoFileMeta) throws JSONException, IOException {
 
@@ -53,10 +54,13 @@ public class ApiJsonUtils {
 		checkInMetaJson.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit")));
 
 		// Device: Phone & Android info
-		JSONObject deviceJsonObj = new JSONObject();
-		deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
-		deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
-		//checkInMetaJson.put("device", deviceJsonObj);
+		if (!hasDeviceInfoBeenSent || (Math.round(Math.random()*10) == 1)) {
+			this.hasDeviceInfoBeenSent = true;
+			JSONObject deviceJsonObj = new JSONObject();
+			deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
+			deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
+			checkInMetaJson.put("device", deviceJsonObj);
+		}
 
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));

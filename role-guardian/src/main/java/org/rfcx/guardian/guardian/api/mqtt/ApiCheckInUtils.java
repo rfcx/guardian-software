@@ -1,7 +1,6 @@
 package org.rfcx.guardian.guardian.api.mqtt;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -21,16 +20,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import org.rfcx.guardian.guardian.socket.SocketManager;
-import org.rfcx.guardian.utility.camera.RfcxCameraUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
-import org.rfcx.guardian.utility.device.capture.DeviceScreenShot;
 import org.rfcx.guardian.utility.network.MqttUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import android.content.Context;
 import android.text.TextUtils;
@@ -260,24 +255,24 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-		String[] screenShotMeta = getLatestExternalAssetMeta("screenshots");
+		String[] screenShotMeta = app.assetUtils.getLatestExternalAssetMeta("screenshots", this.checkInPublishTimeOutLength);
 		if ((screenShotMeta[0] != null) && !FileUtils.exists(screenShotMeta[0])) {
-			purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotMeta[2]);
+			app.assetUtils.purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotMeta[2]);
 		}
 
-		String[] logFileMeta = getLatestExternalAssetMeta("logs");
+		String[] logFileMeta = app.assetUtils.getLatestExternalAssetMeta("logs", this.checkInPublishTimeOutLength);
 		if ((logFileMeta[0] != null) && !FileUtils.exists(logFileMeta[0])) {
-			purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logFileMeta[2]);
+			app.assetUtils.purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logFileMeta[2]);
 		}
 
-        String[] photoFileMeta = getLatestExternalAssetMeta("photos");
+        String[] photoFileMeta = app.assetUtils.getLatestExternalAssetMeta("photos", this.checkInPublishTimeOutLength);
         if ((photoFileMeta[0] != null) && !FileUtils.exists(photoFileMeta[0])) {
-            purgeSingleAsset("photo", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), photoFileMeta[2]);
+			app.assetUtils.purgeSingleAsset("photo", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), photoFileMeta[2]);
         }
 
-		String[] videoFileMeta = getLatestExternalAssetMeta("videos");
+		String[] videoFileMeta = app.assetUtils.getLatestExternalAssetMeta("videos", this.checkInPublishTimeOutLength);
 		if ((videoFileMeta[0] != null) && !FileUtils.exists(videoFileMeta[0])) {
-			purgeSingleAsset("video", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), videoFileMeta[2]);
+			app.assetUtils.purgeSingleAsset("video", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), videoFileMeta[2]);
 		}
 
         // Build JSON blob from included assets
@@ -353,7 +348,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				this.inFlightCheckInAttemptCounter = 0;
 
 			} else {
-				purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
+				app.assetUtils.purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
 			}
 
 		} catch (Exception e) {
@@ -363,73 +358,6 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 	}
 
-	private void handleCheckInPublicationExceptions(Exception inputExc, String audioId) {
-
-		try {
-			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
-
-			boolean isTimedOut = excStr.contains("Timed out waiting for a response from the server");
-			boolean tooManyPublishes = excStr.contains("Too many publishes in progress");
-
-			if (	excStr.contains("UnknownHostException")
-				||	excStr.contains("Broken pipe")
-				||	excStr.contains("No route to host")
-				||	excStr.contains("Host is unresolved")
-				||	excStr.contains("Unable to connect to server")
-				||	tooManyPublishes
-				||	isTimedOut
-			) {
-
-				if (!isTimedOut) {
-					Log.v(logTag, "Connection has failed " + this.inFlightCheckInAttemptCounter + " times (max: " + this.inFlightCheckInAttemptCounterLimit + ")");
-					app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-				}
-
-				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit){
-					Log.v(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
-					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
-					this.inFlightCheckInAttemptCounter = 0;
-				}
-
-				if (isTimedOut || (tooManyPublishes && (this.inFlightCheckInAttemptCounter > 1))) {
-					Log.v(logTag, "Kill ApiCheckInJob Service, Close MQTT Connection & Re-Connect");
-					app.rfcxServiceHandler.stopService("ApiCheckInQueue");
-					this.mqttCheckInClient.closeConnection();
-					confirmOrCreateConnectionToBroker(true);
-				}
-
-			}
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
-	}
-
-	private String[] getLatestExternalAssetMeta(String assetType) {
-
-		String[] assetMeta = new String[] { null };
-		try {
-			JSONArray latestAssetMetaArray = RfcxComm.getQueryContentProvider("admin", "database_get_latest_row",
-					assetType, app.getApplicationContext().getContentResolver());
-			for (int i = 0; i < latestAssetMetaArray.length(); i++) {
-				JSONObject latestAssetMeta = latestAssetMetaArray.getJSONObject(i);
-				long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(latestAssetMeta.getString("last_accessed_at"))));
-				if (milliSecondsSinceAccessed > this.checkInPublishTimeOutLength) {
-					assetMeta = new String[] { latestAssetMeta.getString("filepath"),
-							latestAssetMeta.getString("created_at"), latestAssetMeta.getString("timestamp"),
-							latestAssetMeta.getString("format"), latestAssetMeta.getString("digest"),
-							latestAssetMeta.getString("width"), latestAssetMeta.getString("height") };
-					RfcxComm.updateQueryContentProvider("admin", "database_set_last_accessed_at", assetType + "|" + latestAssetMeta.getString("timestamp"),
-							app.getApplicationContext().getContentResolver());
-					break;
-				} else {
-					Log.e(logTag,"Skipping asset attachment: "+assetType+", "+latestAssetMeta.getString("timestamp")+" was last sent only "+Math.round(milliSecondsSinceAccessed / 1000)+" seconds ago.");
-				}
-			}
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return assetMeta;
-	}
 
 	public void initializeFailedCheckInThresholds() {
 
@@ -523,76 +451,6 @@ public class ApiCheckInUtils implements MqttCallback {
 				&& !isBatteryChargeSufficientForCheckIn());
 	}
 
-	private void purgeSingleAsset(String assetType, String rfcxDeviceId, Context context, String assetId) {
-
-		try {
-			List<String> filePaths =  new ArrayList<String>();
-
-			if (assetType.equals("audio")) {
-				app.audioEncodeDb.dbEncoded.deleteSingleRow(assetId);
-				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(assetId);
-				app.apiCheckInDb.dbSkipped.deleteSingleRowByAudioAttachmentId(assetId);
-				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(assetId);
-				app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(assetId);
-				for (String fileExtension : new String[] { "opus", "flac" }) {
-					filePaths.add(RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
-					filePaths.add(RfcxAudioUtils.getAudioFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId), fileExtension));
-				}
-
-			} else if (assetType.equals("screenshot")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
-						app.getApplicationContext().getContentResolver());
-				filePaths.add(DeviceScreenShot.getScreenShotFileLocation_Complete(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(DeviceScreenShot.getScreenShotFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
-
-			} else if (assetType.equals("photo")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "photos|" + assetId,
-						app.getApplicationContext().getContentResolver());
-				filePaths.add(RfcxCameraUtils.getPhotoFileLocation_Complete_PostGZip(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(RfcxCameraUtils.getPhotoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
-
-			} else if (assetType.equals("video")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "videos|" + assetId,
-						app.getApplicationContext().getContentResolver());
-				filePaths.add(RfcxCameraUtils.getVideoFileLocation_Complete_PostGZip(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(RfcxCameraUtils.getVideoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
-
-			} else if (assetType.equals("log")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
-						app.getApplicationContext().getContentResolver());
-				filePaths.add(DeviceLogCat.getLogFileLocation_Complete_PostZip(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(DeviceLogCat.getLogFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
-
-			} else if (assetType.equals("sms")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,
-						app.getApplicationContext().getContentResolver());
-
-			} else if (assetType.equals("meta")) {
-				app.metaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
-				app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
-
-			} else if (assetType.equals("instruction")) {
-				app.instructionsDb.dbExecutedInstructions.deleteSingleRowById(assetId);
-				app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(assetId);
-
-			}
-
-			boolean isPurgeReported = false;
-			// delete asset file after it has been purged from records
-			for (String filePath : filePaths) {
-				if ((filePath != null) && (new File(filePath)).exists()) {
-					FileUtils.delete(filePath);
-					app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
-					Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ", " + filePath.substring(1 + filePath.lastIndexOf("/")));
-					isPurgeReported = true;
-				}
-			}
-			if (!isPurgeReported) { Log.d(logTag, "Purging asset: " + assetType + ", " + assetId); }
-
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
-	}
 
 	private void processCheckInResponseMessage(String jsonStr) {
 
@@ -607,7 +465,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			if (jsonObj.has("audio")) {
 				JSONArray audioJson = jsonObj.getJSONArray("audio");
 				String audioId = audioJson.getJSONObject(0).getString("id");
-				purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
+				app.assetUtils.purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
 
 				if (jsonObj.has("checkin_id")) {
 					String checkInId = jsonObj.getString("checkin_id");
@@ -635,7 +493,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray screenShotJson = jsonObj.getJSONArray("screenshots");
 				for (int i = 0; i < screenShotJson.length(); i++) {
 					String screenShotId = screenShotJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotId);
+					app.assetUtils.purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotId);
 				}
 			}
 
@@ -644,7 +502,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray logsJson = jsonObj.getJSONArray("logs");
 				for (int i = 0; i < logsJson.length(); i++) {
 					String logId = logsJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logId);
+					app.assetUtils.purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logId);
 				}
 			}
 
@@ -653,7 +511,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray messagesJson = jsonObj.getJSONArray("messages");
 				for (int i = 0; i < messagesJson.length(); i++) {
 					String smsId = messagesJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("sms", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), smsId);
+					app.assetUtils.purgeSingleAsset("sms", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), smsId);
 				}
 			}
 
@@ -662,7 +520,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray metaJson = jsonObj.getJSONArray("meta");
 				for (int i = 0; i < metaJson.length(); i++) {
 					String metaId = metaJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("meta", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), metaId);
+					app.assetUtils.purgeSingleAsset("meta", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), metaId);
 				}
 			}
 
@@ -671,7 +529,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray photosJson = jsonObj.getJSONArray("photos");
 				for (int i = 0; i < photosJson.length(); i++) {
 					String photoId = photosJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("photo", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), photoId);
+					app.assetUtils.purgeSingleAsset("photo", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), photoId);
 				}
 			}
 
@@ -680,7 +538,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				JSONArray videosJson = jsonObj.getJSONArray("videos");
 				for (int i = 0; i < videosJson.length(); i++) {
 					String videoId = videosJson.getJSONObject(i).getString("id");
-					purgeSingleAsset("video", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), videoId);
+					app.assetUtils.purgeSingleAsset("video", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), videoId);
 				}
 			}
 
@@ -713,7 +571,7 @@ public class ApiCheckInUtils implements MqttCallback {
 					if (receivedObj.has("type") && receivedObj.has("id")) {
 						String assetId = receivedObj.getString("id");
 						String assetType = receivedObj.getString("type");
-						purgeSingleAsset(assetType, app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), assetId);
+						app.assetUtils.purgeSingleAsset(assetType, app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), assetId);
 					}
 				}
 			}
@@ -879,6 +737,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				setOrResetBrokerConfig();
 
 				mqttCheckInClient.confirmOrCreateConnectionToBroker(this.app.deviceConnectivity.isConnected());
+
 				if (mqttCheckInClient.mqttBrokerConnectionLatency > 0) {
 
 					Log.v(logTag, "MQTT Broker Latency: Connection: "+mqttCheckInClient.mqttBrokerConnectionLatency+" ms, Subscription: "+mqttCheckInClient.mqttBrokerSubscriptionLatency+" ms");
@@ -938,6 +797,52 @@ public class ApiCheckInUtils implements MqttCallback {
 		byteArrayOutputStream.close();
 
 		return byteArrayOutputStream.toByteArray();
+	}
+
+	private void handleCheckInPublicationExceptions(Exception inputExc, String audioId) {
+
+		try {
+			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
+
+			boolean isTimedOut = excStr.contains("Timed out waiting for a response from the server");
+			boolean tooManyPublishes = excStr.contains("Too many publishes in progress");
+			boolean badUserNameOrPswd = excStr.contains("Bad user name or password");
+			boolean unknownHost = excStr.contains("UnknownHostException");
+			boolean brokenPipe = excStr.contains("Broken pipe");
+			boolean noRouteToHost = excStr.contains("No route to host");
+			boolean unresolvedHost = excStr.contains("Host is unresolved");
+			boolean unableToConnect = excStr.contains("Unable to connect to server");
+
+			if ( unknownHost || brokenPipe || noRouteToHost || unresolvedHost || unableToConnect || tooManyPublishes || isTimedOut ) {
+
+				if (!isTimedOut) {
+					Log.v(logTag, "Connection has failed " + this.inFlightCheckInAttemptCounter + " times (max: " + this.inFlightCheckInAttemptCounterLimit + ")");
+					app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
+				}
+
+				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit){
+					Log.v(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
+					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+					this.inFlightCheckInAttemptCounter = 0;
+				}
+
+				if (isTimedOut || (tooManyPublishes && (this.inFlightCheckInAttemptCounter > 1))) {
+					Log.v(logTag, "Kill ApiCheckInJob Service, Close MQTT Connection & Re-Connect");
+					app.rfcxServiceHandler.stopService("ApiCheckInQueue");
+					this.mqttCheckInClient.closeConnection();
+					confirmOrCreateConnectionToBroker(true);
+				}
+
+			} else if ( badUserNameOrPswd ) {
+
+				long additionalDelay = Math.round(this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") / 2);
+				Log.e(logTag, "Broker Credentials Rejected. Delaying "+additionalDelay+" seconds before trying again...");
+				Thread.sleep(additionalDelay*1000);
+			}
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
 	}
 
     private void handlePingPublicationExceptions(Exception inputExc) {
