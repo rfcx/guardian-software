@@ -205,41 +205,38 @@ public class DeviceSentinelService extends Service {
 
 	private boolean confirmOrSetCaptureParameters() {
 
-		if (app != null) {
+		if ((app != null) && (innerLoopIncrement == 1)) {
 
-			if (innerLoopIncrement == 1) {
+			this.captureCycleLastStartTime = System.currentTimeMillis();
 
-				this.isSentinelPowerCaptureAllowed = /*!this.isReducedCaptureModeActive && */app.sentinelPowerUtils.isCaptureAllowed();
-				this.isSentinelAccelCaptureAllowed = !this.isReducedCaptureModeActive && app.sentinelAccelUtils.isCaptureAllowed();
-				this.isSentinelCompassCaptureAllowed = !this.isReducedCaptureModeActive && app.sentinelCompassUtils.isCaptureAllowed();
+			this.isSentinelPowerCaptureAllowed = /*!this.isReducedCaptureModeActive && */app.sentinelPowerUtils.isCaptureAllowed();
+			this.isSentinelAccelCaptureAllowed = !this.isReducedCaptureModeActive && app.sentinelAccelUtils.isCaptureAllowed();
+			this.isSentinelCompassCaptureAllowed = !this.isReducedCaptureModeActive && app.sentinelCompassUtils.isCaptureAllowed();
 
-				this.captureCycleLastStartTime = System.currentTimeMillis();
+			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 
-				int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+			// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
+			// however, we slow the capture cycle by the multiple indicated in SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
+			int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? (audioCycleDuration * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
 
-				// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
-				// however, we slow the capture cycle by the multiple indicated in SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-				int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? (audioCycleDuration * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
+			if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 
-				if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
+				this.referenceCycleDuration = prefsReferenceCycleDuration;
+				this.innerLoopsPerCaptureCycle = SentinelUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
+				this.outerLoopCaptureCount = SentinelUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
 
-					this.referenceCycleDuration = prefsReferenceCycleDuration;
-					this.innerLoopsPerCaptureCycle = SentinelUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
-					this.outerLoopCaptureCount = SentinelUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
+				long samplingOperationDuration = 0;
+				this.innerLoopDelayRemainderInMilliseconds = SentinelUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
 
-					long samplingOperationDuration = 0;
-					this.innerLoopDelayRemainderInMilliseconds = SentinelUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
+				this.innerLoopsPerCaptureCycle_Power = 1;
+				this.innerLoopsPerCaptureCycle_Compass = Math.ceil(this.innerLoopsPerCaptureCycle / SentinelCompassUtils.samplesTakenPerCaptureCycle);
+				this.innerLoopsPerCaptureCycle_Accelerometer = Math.ceil(this.innerLoopsPerCaptureCycle / SentinelAccelUtils.samplesTakenPerCaptureCycle);
 
-					this.innerLoopsPerCaptureCycle_Power = 1;
-					this.innerLoopsPerCaptureCycle_Compass = Math.ceil(this.innerLoopsPerCaptureCycle / SentinelCompassUtils.samplesTakenPerCaptureCycle);
-					this.innerLoopsPerCaptureCycle_Accelerometer = Math.ceil(this.innerLoopsPerCaptureCycle / SentinelAccelUtils.samplesTakenPerCaptureCycle);
+				app.sentinelPowerUtils.setOrResetSentinelPowerChip();
+				app.sentinelCompassUtils.setOrResetSentinelCompassChip();
 
-					app.sentinelPowerUtils.setOrResetSentinelPowerChip();
-					app.sentinelCompassUtils.setOrResetSentinelCompassChip();
-
-					Log.d(logTag, "SentinelStats Capture" + (this.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
-							"Snapshots (all metrics) taken every " + Math.round(SentinelUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
-				}
+				Log.d(logTag, "SentinelStats Capture" + (this.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
+						"Snapshots (all metrics) taken every " + Math.round(SentinelUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
 			}
 
 		} else {

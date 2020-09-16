@@ -211,30 +211,27 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	private boolean confirmOrSetCaptureParameters() {
 
-		if (app != null) {
+		if ((app != null) && (innerLoopIncrement == 1)) {
 
-			if (innerLoopIncrement == 1) {
+			this.captureCycleLastStartTime = System.currentTimeMillis();
 
-				this.captureCycleLastStartTime = System.currentTimeMillis();
+			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 
-				int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+			// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
+			// however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
+			int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? (audioCycleDuration * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
 
-				// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
-				// however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-				int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? (audioCycleDuration * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
+			if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 
-				if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
+				this.referenceCycleDuration = prefsReferenceCycleDuration;
+				this.innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
+				this.outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
+				app.deviceCPU.setReportingSampleCount(this.innerLoopsPerCaptureCycle);
+				long samplingOperationDuration = DeviceCPU.SAMPLE_DURATION_MILLISECONDS;
+				this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
 
-					this.referenceCycleDuration = prefsReferenceCycleDuration;
-					this.innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
-					this.outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
-					app.deviceCPU.setReportingSampleCount(this.innerLoopsPerCaptureCycle);
-					long samplingOperationDuration = DeviceCPU.SAMPLE_DURATION_MILLISECONDS;
-					this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
-
-					Log.d(logTag, "SystemStats Capture" + (this.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
-							"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
-				}
+				Log.d(logTag, "SystemStats Capture" + (this.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
+						"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
 			}
 
 		} else {
