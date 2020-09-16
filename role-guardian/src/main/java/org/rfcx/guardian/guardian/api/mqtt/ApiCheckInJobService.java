@@ -144,10 +144,10 @@ public class ApiCheckInJobService extends Service {
 						}
 
 						if (!app.apiCheckInUtils.isConnectedToBroker()) {
-							long additionalLoopDelay = Math.round(prefsAudioCycleDuration/10);
-							if (additionalLoopDelay < 8) { additionalLoopDelay = 8; }
-							Log.e(logTag, "Broker not connected. Delaying "+additionalLoopDelay+" seconds and trying again...");
-							Thread.sleep(additionalLoopDelay*1000);
+							long loopDelayBeforeReconnectAttempt = Math.round(prefsAudioCycleDuration/10);
+							if (loopDelayBeforeReconnectAttempt < 8) { loopDelayBeforeReconnectAttempt = 8; }
+							Log.e(logTag, "Broker not connected. Delaying "+loopDelayBeforeReconnectAttempt+" seconds and trying again...");
+							Thread.sleep(loopDelayBeforeReconnectAttempt*1000);
 							app.apiCheckInUtils.confirmOrCreateConnectionToBroker(true);
 						}
 
