@@ -20,7 +20,8 @@ import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
-import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
+import org.rfcx.guardian.utility.device.capture.DeviceMemory;
+import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -74,7 +75,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private List<long[]> lightSensorValues = new ArrayList<long[]>();
 	private List<long[]> dataTransferValues = new ArrayList<long[]>();
 	private List<int[]> batteryLevelValues = new ArrayList<int[]>();
-	private List<long[]> diskUsageValues = new ArrayList<long[]>();
+	private List<long[]> storageValues = new ArrayList<long[]>();
+	private List<long[]> memoryValues = new ArrayList<long[]>();
 	private List<int[]> cpuUsageValues = new ArrayList<int[]>();
 	private List<double[]> accelSensorValues = new ArrayList<double[]>();
 
@@ -200,10 +202,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 						cpuUsageValues.add(app.deviceCPU.getCurrentStats());
 						saveSnapshotValuesToDatabase("cpu");
 
-						// capture and cache light sensor data
-						cacheSnapshotValues("light", new double[]{lightSensorLastValue});
-						saveSnapshotValuesToDatabase("light");
-
 						// capture and cache telephony signal strength
 						cacheSnapshotValues("telephony", new double[]{});
 						saveSnapshotValuesToDatabase("telephony");
@@ -216,11 +214,12 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 						batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
 						saveSnapshotValuesToDatabase("battery");
 
-						diskUsageValues.add(DeviceDiskUsage.getCurrentDiskUsageStats());
-						saveSnapshotValuesToDatabase("diskusage");
-
 						// cache accelerometer sensor data
 						saveSnapshotValuesToDatabase("accel");
+
+						// capture and cache light sensor data
+						cacheSnapshotValues("light", new double[]{lightSensorLastValue});
+						saveSnapshotValuesToDatabase("light");
 					}
 
 				} catch (InterruptedException e) {
@@ -306,7 +305,13 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 		if (outerLoopIncrement == 1) {
 
-		//	Log.e(logTag, "RUN OUTER LOOP BEHAVIOR...");
+			// capture and cache storage usage stats
+			storageValues.add(DeviceStorage.getCurrentStorageStats());
+			saveSnapshotValuesToDatabase("storage");
+
+			// capture and cache memory usage stats
+			memoryValues.add(DeviceMemory.getCurrentMemoryStats(app.getApplicationContext()));
+			saveSnapshotValuesToDatabase("memory");
 
 		} else {
 
@@ -575,14 +580,23 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					}
 				}
 				
-			} else if (statAbbrev.equalsIgnoreCase("diskusage")) {
+			} else if (statAbbrev.equalsIgnoreCase("storage")) {
 				
-				List<long[]> diskUsageValuesCache = this.diskUsageValues;
-				this.diskUsageValues = new ArrayList<long[]>();
+				List<long[]> storageValuesCache = this.storageValues;
+				this.storageValues = new ArrayList<long[]>();
 				
-				for (long[] diskUsageVals : diskUsageValuesCache) {
-					app.deviceDiskDb.dbDiskUsage.insert("internal", new Date(diskUsageVals[0]), diskUsageVals[1], diskUsageVals[2]);
-					app.deviceDiskDb.dbDiskUsage.insert("external", new Date(diskUsageVals[0]), diskUsageVals[3], diskUsageVals[4]);
+				for (long[] storageVals : storageValuesCache) {
+					app.deviceSpaceDb.dbStorage.insert("internal", new Date(storageVals[0]), storageVals[1], storageVals[2]);
+					app.deviceSpaceDb.dbStorage.insert("external", new Date(storageVals[0]), storageVals[3], storageVals[4]);
+				}
+
+			} else if (statAbbrev.equalsIgnoreCase("memory")) {
+
+				List<long[]> memoryValuesCache = this.memoryValues;
+				this.memoryValues = new ArrayList<long[]>();
+
+				for (long[] memoryVals : memoryValuesCache) {
+					app.deviceSpaceDb.dbMemory.insert("system", new Date(memoryVals[0]), memoryVals[1], memoryVals[2], memoryVals[3]);
 				}
 				
 			} else {

@@ -1,7 +1,6 @@
 package org.rfcx.guardian.admin.device.android.system;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -12,7 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
+import org.rfcx.guardian.utility.device.capture.DeviceMemory;
+import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -142,7 +142,7 @@ public class DeviceUtils {
 	
 	public static int getOuterLoopCaptureCount(int audioCycleDurationInSeconds) {
 //		return (int) ( Math.round( geoPositionMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
-		return 2;
+		return 3;
 	}
 	
 	public static double[] generateAverageAccelValues(List<double[]> accelValues) {
@@ -241,7 +241,8 @@ public class DeviceUtils {
 			metaJson.put("data_transfer", app.deviceDataTransferDb.dbTransferred.getConcatRows());
 			metaJson.put("reboots", app.rebootDb.dbRebootComplete.getConcatRows());
 			metaJson.put("geoposition", app.deviceSensorDb.dbGeoPosition.getConcatRows());
-			metaJson.put("disk_usage", app.deviceDiskDb.dbDiskUsage.getConcatRows());
+			metaJson.put("storage", app.deviceSpaceDb.dbStorage.getConcatRows());
+			metaJson.put("memory", app.deviceSpaceDb.dbMemory.getConcatRows());
 			metaJson.put("datetime_offsets", app.deviceSystemDb.dbDateTimeOffsets.getConcatRows());
 
 			metaJsonArray.put(metaJson);
@@ -268,7 +269,8 @@ public class DeviceUtils {
 		app.deviceDataTransferDb.dbTransferred.clearRowsBefore(clearBefore);
 		app.rebootDb.dbRebootComplete.clearRowsBefore(clearBefore);
 		app.deviceSensorDb.dbGeoPosition.clearRowsBefore(clearBefore);
-		app.deviceDiskDb.dbDiskUsage.clearRowsBefore(clearBefore);
+		app.deviceSpaceDb.dbStorage.clearRowsBefore(clearBefore);
+		app.deviceSpaceDb.dbMemory.clearRowsBefore(clearBefore);
 		app.deviceSystemDb.dbDateTimeOffsets.clearRowsBefore(clearBefore);
 
 		return 1;
@@ -283,10 +285,14 @@ public class DeviceUtils {
 		try {
 			JSONObject metaJson = new JSONObject();
 
-			if ("disk_usage".equalsIgnoreCase(metaTag)) {
-				long[] diskUsageStats = DeviceDiskUsage.getCurrentDiskUsageStats();
-				metaJson.put("internal", "internal*" + diskUsageStats[0] + "*" + diskUsageStats[1] + "*" + diskUsageStats[2]);
-				metaJson.put("external", "external*" + diskUsageStats[0] + "*" + diskUsageStats[3] + "*" + diskUsageStats[4]);
+			if ("storage".equalsIgnoreCase(metaTag)) {
+				long[] storageStats = DeviceStorage.getCurrentStorageStats();
+				metaJson.put("internal", "internal*" + storageStats[0] + "*" + storageStats[1] + "*" + storageStats[2]);
+				metaJson.put("external", "external*" + storageStats[0] + "*" + storageStats[3] + "*" + storageStats[4]);
+
+			} else if ("memory".equalsIgnoreCase(metaTag)) {
+				long[] memoryStats = DeviceMemory.getCurrentMemoryStats(this.context);
+				metaJson.put("memory", memoryStats[0] + "*" + memoryStats[1] + "*" + memoryStats[2] + "*" + memoryStats[3] );
 
 			} else if ("cpu".equalsIgnoreCase(metaTag)) {
 				int[] cpuStats = ((RfcxGuardian) this.context.getApplicationContext()).deviceCPU.getCurrentStats();

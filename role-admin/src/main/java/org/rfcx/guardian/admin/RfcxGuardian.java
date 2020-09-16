@@ -17,7 +17,7 @@ import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.sms.SmsDispatchService;
 import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
-import org.rfcx.guardian.admin.device.android.system.DeviceDiskDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceSpaceDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceRebootDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSensorDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
@@ -86,7 +86,7 @@ public class RfcxGuardian extends Application {
     public DeviceSensorDb deviceSensorDb = null;
     public DeviceRebootDb rebootDb = null;
     public DeviceDataTransferDb deviceDataTransferDb = null;
-    public DeviceDiskDb deviceDiskDb = null;
+    public DeviceSpaceDb deviceSpaceDb = null;
     public SmsMessageDb smsMessageDb = null;
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
@@ -230,7 +230,7 @@ public class RfcxGuardian extends Application {
         this.deviceSensorDb = new DeviceSensorDb(this, this.version);
         this.rebootDb = new DeviceRebootDb(this, this.version);
         this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
-        this.deviceDiskDb = new DeviceDiskDb(this, this.version);
+        this.deviceSpaceDb = new DeviceSpaceDb(this, this.version);
         this.smsMessageDb = new SmsMessageDb(this, this.version);
 		this.deviceMobilePhone = new DeviceMobilePhone(this);
 	}

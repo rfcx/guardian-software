@@ -8,7 +8,7 @@ import java.util.Locale;
 import android.content.Context;
 import android.os.Environment;
 
-import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
+import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -64,7 +64,7 @@ public class RfcxCameraUtils {
 	}
 		
 	public static String getPhotoFileLocation_Complete_PostGZip(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceDiskUsage.isExternalStorageWritable() ? photoSdCardDir() : photoFinalDir(context) )
+		return (DeviceStorage.isExternalStorageWritable() ? photoSdCardDir() : photoFinalDir(context) )
 				+ "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + photoFileType + ".gz";
 	}
 
@@ -96,7 +96,7 @@ public class RfcxCameraUtils {
 	}
 		
 	public static String getVideoFileLocation_Complete_PostGZip(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceDiskUsage.isExternalStorageWritable() ? videoSdCardDir() : videoFinalDir(context) )
+		return (DeviceStorage.isExternalStorageWritable() ? videoSdCardDir() : videoFinalDir(context) )
 				+"/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + videoFileType + ".gz";
 	}
 

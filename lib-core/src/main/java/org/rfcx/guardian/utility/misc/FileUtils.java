@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
+import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.xeustechnologies.jtar.TarEntry;
 import org.xeustechnologies.jtar.TarOutputStream;
 
@@ -270,7 +270,7 @@ public class FileUtils {
 	}
 
 	public static void initializeDirectoryRecursively(String dirPath, boolean isExternal) {
-		if (!isExternal || DeviceDiskUsage.isExternalStorageWritable()) {
+		if (!isExternal || DeviceStorage.isExternalStorageWritable()) {
 			(new File(dirPath)).mkdirs();
 			FileUtils.chmod(dirPath, "rw", "rw");
 		}

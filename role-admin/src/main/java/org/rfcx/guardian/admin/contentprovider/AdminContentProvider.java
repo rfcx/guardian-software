@@ -147,8 +147,11 @@ public class AdminContentProvider extends ContentProvider {
                 } else if (pathSeg.equalsIgnoreCase("sentinel_sensor")) {
                      return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"sentinel_sensor", SentinelUtils.getMomentarySentinelSensorValuesAsJsonArray(true, app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
-                } else if (pathSeg.equalsIgnoreCase("system_disk_usage")) {
-                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_disk_usage", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("disk_usage").toString(), System.currentTimeMillis()});
+                } else if (pathSeg.equalsIgnoreCase("system_storage")) {
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_storage", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("storage").toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("system_memory")) {
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_memory", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("memory").toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("system_cpu")) {
                     return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_cpu", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("cpu").toString(), System.currentTimeMillis()});

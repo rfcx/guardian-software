@@ -71,7 +71,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInDb apiCheckInDb = null;
     public MetaDb metaDb = null;
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
-    public ApiDiagnosticsDb apiDiagnosticsDb = null;
     public AssetExchangeLogDb assetExchangeLogDb = null;
     public ArchiveDb archiveDb = null;
     public InstructionsDb instructionsDb = null;
@@ -222,7 +221,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.metaDb = new MetaDb(this, this.version);
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
-        this.apiDiagnosticsDb = new ApiDiagnosticsDb(this, this.version);
         this.assetExchangeLogDb = new AssetExchangeLogDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);

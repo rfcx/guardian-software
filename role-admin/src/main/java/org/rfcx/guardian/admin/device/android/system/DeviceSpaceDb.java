@@ -3,23 +3,22 @@ package org.rfcx.guardian.admin.device.android.system;
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
 import java.util.List;
 
-public class DeviceDiskDb {
+public class DeviceSpaceDb {
 	
-	public DeviceDiskDb(Context context, String appVersion) {
+	public DeviceSpaceDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.dbDiskUsage = new DbDiskUsage(context);
+		this.dbStorage = new DbStorage(context);
+		this.dbMemory = new DbMemory(context);
 	}
 
 	private int VERSION = 1;
-	static final String DATABASE = "disk";
+	static final String DATABASE = "space";
 	static final String C_LABEL = "label";
 	static final String C_MEASURED_AT = "measured_at";
 	static final String C_VALUE_1 = "value_1";
@@ -37,13 +36,13 @@ public class DeviceDiskDb {
 		return sbOut.toString();
 	}
 	
-	public class DbDiskUsage {
+	public class DbStorage {
 
 		final DbUtils dbUtils;
 
-		private String TABLE = "usage";
+		private String TABLE = "storage";
 		
-		public DbDiskUsage(Context context) {
+		public DbStorage(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 		
@@ -71,7 +70,46 @@ public class DeviceDiskDb {
 		}
 
 	}
-	public final DbDiskUsage dbDiskUsage;
+	public final DbStorage dbStorage;
+
+
+
+
+	public class DbMemory {
+
+		final DbUtils dbUtils;
+
+		private String TABLE = "memory";
+
+		public DbMemory(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+		}
+
+		public int insert(String label, Date measured_at, long bytes_used, long bytes_available, long bytes_threshold) {
+
+			ContentValues values = new ContentValues();
+			values.put(C_LABEL, label);
+			values.put(C_MEASURED_AT, measured_at.getTime());
+			values.put(C_VALUE_1, bytes_used);
+			values.put(C_VALUE_2, bytes_available+"*"+bytes_threshold);
+
+			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		private List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
+
+		public void clearRowsBefore(Date date) {
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
+		}
+
+		public String getConcatRows() {
+			return DbUtils.getConcatRows(getAllRows());
+		}
+
+	}
+	public final DbMemory dbMemory;
 	
 	
 }

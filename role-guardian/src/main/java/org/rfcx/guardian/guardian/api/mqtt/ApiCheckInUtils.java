@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 import org.rfcx.guardian.guardian.socket.SocketManager;
 import org.rfcx.guardian.utility.camera.RfcxCameraUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
+import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
@@ -137,7 +137,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			// cycle through stashable checkins and move them to the new table/database
 			for (String[] checkInsToStash : app.apiCheckInDb.dbQueued.getRowsWithOffset(queuedCountBeforeLimit, 16)) {
 
-				if (!DeviceDiskUsage.isExternalStorageWritable()) {
+				if (!DeviceStorage.isExternalStorageWritable()) {
 					stashFailureList.add(checkInsToStash[1]);
 
 				} else {
@@ -747,9 +747,6 @@ public class ApiCheckInUtils implements MqttCallback {
 				app.rfcxServiceHandler.triggerService("InstructionsExecution", false);
 			}
 
-			// increase total of synced audio when get the response from mqtt sending
-//			totalSyncedAudio += 1;
-
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 
@@ -789,7 +786,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 			for (String[] sentCheckInsToMove : app.apiCheckInDb.dbSent.getRowsWithOffset(sentCountBeforeLimit, 16)) {
 
-				if (!DeviceDiskUsage.isExternalStorageWritable()) {
+				if (!DeviceStorage.isExternalStorageWritable()) {
 					app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(sentCheckInsToMove[1]);
 
 				} else {

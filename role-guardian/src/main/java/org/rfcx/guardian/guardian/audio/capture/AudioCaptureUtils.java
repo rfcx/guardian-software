@@ -8,7 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceDiskUsage;
+import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -143,7 +143,7 @@ public class AudioCaptureUtils {
 
 
 	private boolean limitBasedOnInternalStorage() {
-		return (DeviceDiskUsage.getInternalDiskFreeMegaBytes() <= requiredFreeDiskSpaceForAudioCapture);
+		return (DeviceStorage.getInternalDiskFreeMegaBytes() <= requiredFreeDiskSpaceForAudioCapture);
 	}
 
 
@@ -203,7 +203,7 @@ public class AudioCaptureUtils {
 
 		} else if (limitBasedOnInternalStorage()) {
 			msgNoCapture.append("a lack of sufficient free internal disk storage.")
-						.append(" (current: ").append(DeviceDiskUsage.getInternalDiskFreeMegaBytes()).append("MB)")
+						.append(" (current: ").append(DeviceStorage.getInternalDiskFreeMegaBytes()).append("MB)")
 						.append(" (required: ").append(requiredFreeDiskSpaceForAudioCapture).append("MB).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 

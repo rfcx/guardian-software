@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.device.capture.DeviceMemory;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -150,9 +151,15 @@ public class ApiJsonUtils {
 			if (sentinelSensor.length() > 0) { pingObj.put("sentinel_sensor", sentinelSensor); }
 		}
 
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "disk_usage")) {
-			String systemDiskUsage = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_disk_usage", app.getApplicationContext().getContentResolver()));
-			if (systemDiskUsage.length() > 0) { pingObj.put("disk_usage", systemDiskUsage); }
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "storage")) {
+			String systemStorage = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_storage", app.getApplicationContext().getContentResolver()));
+			if (systemStorage.length() > 0) { pingObj.put("storage", systemStorage); }
+			includeMeasuredAt = true;
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "memory")) {
+			String systemMemory = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_memory", app.getApplicationContext().getContentResolver()));
+			if (systemMemory.length() > 0) { pingObj.put("memory", systemMemory); }
 			includeMeasuredAt = true;
 		}
 
