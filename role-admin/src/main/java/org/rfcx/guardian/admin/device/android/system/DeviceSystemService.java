@@ -294,7 +294,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		cacheSnapshotValues("light", new double[]{lightSensorLastValue});
 		saveSnapshotValuesToDatabase("light");
 
-		if (outerLoopIncrement == 1) {
+		if (outerLoopIncrement == outerLoopCaptureCount) {
 
 			// capture and cache storage usage stats
 			storageValues.add(DeviceStorage.getCurrentStorageStats());

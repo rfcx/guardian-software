@@ -170,8 +170,7 @@ public class DeviceSentinelService extends Service {
 
 
 		// run these on specific outer loop iterations
-		if (outerLoopIncrement == 1) {
-
+		if (outerLoopIncrement == outerLoopCaptureCount) {
 
 			if (this.isSentinelAccelCaptureAllowed) {
 				app.sentinelAccelUtils.saveSentinelAccelValuesToDatabase(true);
