@@ -17,7 +17,6 @@ public class SentinelPowerDb {
 		this.dbSentinelPowerBattery = new DbSentinelPowerBattery(context);
 		this.dbSentinelPowerInput = new DbSentinelPowerInput(context);
 		this.dbSentinelPowerSystem = new DbSentinelPowerSystem(context);
-		this.dbSentinelPowerMeter = new DbSentinelPowerMeter(context);
 	}
 
 	private int VERSION = 1;
@@ -25,18 +24,18 @@ public class SentinelPowerDb {
 	static final String C_MEASURED_AT = "measured_at";
 	static final String C_VOLTAGE = "voltage";
 	static final String C_CURRENT = "current";
-	static final String C_TEMPERATURE = "temperature";
+	static final String C_MISC = "misc";
 	static final String C_POWER = "power";
-	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VOLTAGE, C_CURRENT, C_TEMPERATURE, C_POWER};
+	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VOLTAGE, C_CURRENT, C_MISC, C_POWER};
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName)
 			.append("(").append(C_MEASURED_AT).append(" INTEGER")
-			.append(", ").append(C_VOLTAGE).append(" INTEGER")
-			.append(", ").append(C_CURRENT).append(" INTEGER")
-			.append(", ").append(C_TEMPERATURE).append(" INTEGER")
-			.append(", ").append(C_POWER).append(" INTEGER")
+			.append(", ").append(C_VOLTAGE).append(" TEXT")
+			.append(", ").append(C_CURRENT).append(" TEXT")
+			.append(", ").append(C_MISC).append(" TEXT")
+			.append(", ").append(C_POWER).append(" TEXT")
 			.append(")");
 		return sbOut.toString();
 	}
@@ -51,13 +50,13 @@ public class SentinelPowerDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(long measuredAt, long voltage, long current, long temperature, long power) {
+		public int insert(long measuredAt, long voltage, long current, String misc, long power) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measuredAt);
 			values.put(C_VOLTAGE, voltage);
 			values.put(C_CURRENT, current);
-			values.put(C_TEMPERATURE, temperature);
+			values.put(C_MISC, misc);
 			values.put(C_POWER, power);
 
 			return this.dbUtils.insertRow(TABLE, values);
@@ -98,13 +97,13 @@ public class SentinelPowerDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(long measuredAt, long voltage, long current, long temperature, long power) {
+		public int insert(long measuredAt, long voltage, long current, long misc, long power) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measuredAt);
 			values.put(C_VOLTAGE, voltage);
 			values.put(C_CURRENT, current);
-			values.put(C_TEMPERATURE, temperature);
+			values.put(C_MISC, misc);
 			values.put(C_POWER, power);
 
 			return this.dbUtils.insertRow(TABLE, values);
@@ -141,13 +140,13 @@ public class SentinelPowerDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
 		}
 
-		public int insert(long measuredAt, long voltage, long current, long temperature, long power) {
+		public int insert(long measuredAt, long voltage, long current, long misc, long power) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measuredAt);
 			values.put(C_VOLTAGE, voltage);
 			values.put(C_CURRENT, current);
-			values.put(C_TEMPERATURE, temperature);
+			values.put(C_MISC, misc);
 			values.put(C_POWER, power);
 
 			return this.dbUtils.insertRow(TABLE, values);
@@ -172,43 +171,6 @@ public class SentinelPowerDb {
 	}
 	public final DbSentinelPowerSystem dbSentinelPowerSystem;
 
-	public class DbSentinelPowerMeter {
-
-		final DbUtils dbUtils;
-
-		private String TABLE = "meter";
-
-		public DbSentinelPowerMeter(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
-		}
-
-		public int insert(long measuredAt, long power) {
-
-			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, measuredAt);
-			values.put(C_POWER, power);
-
-			return this.dbUtils.insertRow(TABLE, values);
-		}
-
-		public int getCount() {
-			return this.dbUtils.getCount(TABLE, null, null);
-		}
-
-		public void clearRowsBefore(Date date) {
-			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
-		}
-
-		public long getSumOfPowerEntries() {
-			return this.dbUtils.getSumOfColumn(TABLE, C_POWER, null, null);
-		}
-
-		public long getOldestTimestamp() {
-			return this.dbUtils.getMinValueOfColumn(TABLE, C_MEASURED_AT, null, null);
-		}
-
-	}
-	public final DbSentinelPowerMeter dbSentinelPowerMeter;
 
 	
 }

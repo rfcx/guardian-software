@@ -393,8 +393,8 @@ public class RfcxPrefs {
 			put("audio_cutoff_battery", "90");
 
 			put("enable_cutoffs_sentinel_battery", "true");
-			put("checkin_cutoff_sentinel_battery", "15");
-			put("audio_cutoff_sentinel_battery", "15");
+			put("checkin_cutoff_sentinel_battery", "10");
+			put("audio_cutoff_sentinel_battery", "10");
 			
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "28672");
@@ -425,7 +425,7 @@ public class RfcxPrefs {
 			put("admin_enable_log_capture", "false");
 
 			put("admin_enable_geoposition_capture", "true");
-			put("admin_geoposition_capture_cycle", "15");
+			put("admin_geoposition_capture_cycle", "20");
 			
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "false");

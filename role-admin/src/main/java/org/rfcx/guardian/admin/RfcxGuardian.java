@@ -7,7 +7,6 @@ import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptur
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledSntpSyncService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
-import org.rfcx.guardian.admin.device.sentinel.PowerMeterService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelUtils;
@@ -113,7 +112,6 @@ public class RfcxGuardian extends Application {
 			new String[] {
 				"DeviceSystem",
 				"DeviceSentinel",
-				"PowerMeter",
 				"SmsDispatchCycle"
 			};
 	
@@ -256,7 +254,6 @@ public class RfcxGuardian extends Application {
 
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
-		this.rfcxServiceHandler.addService("PowerMeter", PowerMeterService.class);
 
 		this.rfcxServiceHandler.addService("ScreenShotCapture", DeviceScreenShotCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledScreenShotCapture", ScheduledScreenShotCaptureService.class);

@@ -3,6 +3,8 @@ package org.rfcx.guardian.i2c;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.rfcx.guardian.utility.misc.ArrayUtils;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,17 +64,21 @@ public class DeviceI2cUtils {
 	public String i2cGetAsString(String subAddress, boolean parseAsHex) {
 		List<String[]> i2cLabelsAndSubAddresses = new ArrayList<String[]>();
 		i2cLabelsAndSubAddresses.add(new String[] { "no-label", subAddress });
-		List<String[]> i2cReturn = i2cGet(i2cLabelsAndSubAddresses, this.i2cMainAddress, parseAsHex);
+		List<String[]> i2cReturn = i2cGet(i2cLabelsAndSubAddresses, this.i2cMainAddress, parseAsHex, new String[] { } );
 		String rtrnVal = null;
 		if (i2cReturn.size() > 0) { try { rtrnVal = i2cReturn.get(0)[1]; } catch (Exception e) { RfcxLog.logExc(logTag, e); } }
 		return rtrnVal;
 	}
 
 	public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, boolean parseAsHex) {
-		return i2cGet(i2cLabelsAndSubAddresses, this.i2cMainAddress, parseAsHex);
+		return i2cGet(i2cLabelsAndSubAddresses, this.i2cMainAddress, parseAsHex, new String[] { } );
 	}
 
-	private static List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String i2cMainAddress, boolean parseAsHex) {
+	public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, boolean parseAsHex, String[] rtrnValsWithoutTwosComplement) {
+		return i2cGet(i2cLabelsAndSubAddresses, this.i2cMainAddress, parseAsHex, rtrnValsWithoutTwosComplement );
+	}
+
+	private static List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String i2cMainAddress, boolean parseAsHex, String[] rtrnValsWithoutTwosComplement) {
 
 		List<String[]> i2cLabelsAndOutputValues = new ArrayList<String[]>();
 		List<String> i2cValues = new ArrayList<String>();
@@ -91,12 +97,21 @@ public class DeviceI2cUtils {
 
 			int lineIndex = 0;
 			for (String i2cValue: i2cValues) {
+
 				String i2cStrValue = i2cValue;
+
 				if (parseAsHex && i2cValue.substring(0,2).equalsIgnoreCase("0x")) {
-					i2cStrValue = twosComplementHexToDec(i2cValue.substring(1+i2cValue.indexOf("x")))+"";
+
+					if (!ArrayUtils.doesStringArrayContainString(rtrnValsWithoutTwosComplement, i2cLabelsAndSubAddresses.get(lineIndex)[0])) {
+						i2cStrValue = twosComplementHexToDec(i2cValue.substring(1 + i2cValue.indexOf("x"))) + "";
+					} else {
+						i2cStrValue = ""+Integer.parseInt(i2cValue.substring(1 + i2cValue.indexOf("x")),16);;
+					}
+
 				} else if (parseAsHex) {
 					i2cStrValue = null;
 				}
+
 				i2cLabelsAndOutputValues.add(new String[] { i2cLabelsAndSubAddresses.get(lineIndex)[0], i2cStrValue } );
 				lineIndex++;
 			}

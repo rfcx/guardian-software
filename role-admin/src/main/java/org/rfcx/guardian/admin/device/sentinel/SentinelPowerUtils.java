@@ -39,6 +39,7 @@ public class SentinelPowerUtils {
     private String[] i2cValueIndex = new String[]{};
     private Map<String, double[]> i2cTmpValues = new HashMap<>();
     private Map<String, String[]> i2cAddresses = new HashMap<String, String[]>();
+    private String[] getWithoutTwoComplement = new String[] {};
 
     private List<double[]> powerBatteryValues = new ArrayList<>();
     private List<double[]> powerInputValues = new ArrayList<>();
@@ -47,6 +48,10 @@ public class SentinelPowerUtils {
     private boolean verboseLogging = false;
 
     public boolean isInputPowerAtZero = false;
+    public boolean isBatteryCharging = false;
+    public boolean isBatteryCharged = false;
+
+    private static final long qCountCalibratedMax = (65535 - 16384);
 
     public boolean isCaptureAllowed() {
 
@@ -66,11 +71,13 @@ public class SentinelPowerUtils {
 
     private void initSentinelPowerI2cOptions() {
 
-        this.i2cValueIndex = new String[]{"voltage", "current", "temperature", "power"};
-        //										        voltage     current     temp
-        this.i2cAddresses.put("system", new String[]{   "0x3c",     null,       "0x3f"  });
-        this.i2cAddresses.put("battery", new String[]{  "0x3a",     "0x3d",     null  });
-        this.i2cAddresses.put("input", new String[]{    "0x3b",     "0x3e",     null  });
+        this.i2cValueIndex =            new String[]{   "voltage",      "current",      "misc",     "power" };
+
+        this.i2cAddresses.put("system", new String[]{   "0x3c",         null,           "0x3f" /* die temperature */    });
+        this.i2cAddresses.put("battery", new String[]{  "0x3a",         "0x3d",         "0x13" /* coulomb_counter */    });
+        this.i2cAddresses.put("input", new String[]{    "0x3b",         "0x3e",         "0x34" /* charger_state */      });
+
+        this.getWithoutTwoComplement = new String[] { "battery-misc", "input-misc" };
 
         resetI2cTmpValues();
     }
@@ -80,11 +87,32 @@ public class SentinelPowerUtils {
         if (isCaptureAllowed()) {
 
             List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
-            i2cLabelsAddressesValues.add(new String[]{"force_meas_sys_on", "0x14", "0x0018"});   //000011000  // bits 3 and 4 set to 1
+
+            i2cLabelsAddressesValues.add(new String[]{ "config_bits",            "0x14", "0x001c"});    // 000011100 (binary)  // set bits 2, 3, 4 to "1"
+                                                                                                        // 'en_qcount' (bit 2) enabled
+                                                                                                        // 'mppt_en_i2c' (bit 3) enabled
+                                                                                                        // 'force_meas_sys_on' (bit 4) enabled
+                                                                                                        // 'run_bsr' (bit 5) disabled
+                                                                                                        // 'suspend_charger' (bit 8) disabled
+
+            i2cLabelsAddressesValues.add(new String[]{ "charger_config_bits",    "0x29", "0x0004"});    // 0100 (binary)  // set bit 2 to "1"
+                                                                                                        // 'en_c_over_x_term' (bit 2) enabled
+                                                                                                        // 'en_lead_acid_temp_comp' (bit 1) disabled
+                                                                                                        // 'en_jeita' (bit 0) disabled
+
+            i2cLabelsAddressesValues.add(new String[]{ "max_cv_time",            "0x1d", "0x0000"});    // setting value (in seconds) to zero to disable charging timeout
+            i2cLabelsAddressesValues.add(new String[]{ "max_charge_time",        "0x1e", "0x0000"});    // setting value (in seconds) to zero to disable charging timeout
+//            i2cLabelsAddressesValues.add(new String[]{ "max_absorb_time",        "0x2b", "0x0000"});    // setting value (in seconds) to zero to disable charging timeout
+
+            i2cLabelsAddressesValues.add(new String[]{ "qcount_prescale_factor", "0x12", "0x002d"});    // 45 (decimal) is QCOUNT_PRESCALE_FACTOR
+                                                                                                        // LiFePO4 Battery Capacity: 16.5 Ah * 3600 sec = 59400C
+                                                                                                        // qLSB (max) = 59400C / 65535 =  0.906
+                                                                                                        //  K_QC: 8333.33 Hz/V       //  R_SNSB: 0.003 Ohms
+                                                                                                        //  QCOUNT_PRESCALE_FACTOR = 2 * (qLSB * K_QC * R_SNSB)
             this.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues);
 
         } else {
-            Log.e(logTag, "Skipping setOrResetSentinelPowerChip() because Sentinel capture is not allowed or not possible.");
+            Log.e(logTag, "Skipping setOrResetSentinelPowerChip() because Sentinel Power Capture is not allowed or not possible.");
         }
     }
 
@@ -95,7 +123,7 @@ public class SentinelPowerUtils {
     }
 
     private void resetI2cTmpValue(String statAbbr) {
-        											/*	voltage		current 	temp		power       captured_at     */
+        											/*	voltage		current 	misc		power       captured_at     */
         this.i2cTmpValues.put(statAbbr, new double[]{     0,          0,          0,          0,           0           });
     }
 
@@ -117,7 +145,8 @@ public class SentinelPowerUtils {
             powerBatteryValues.add(new double[] { battVals[0], battVals[1], battVals[2], battVals[3], rightNow });
             if (verboseLogging) {
                 long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(battVals);
-                logStr.append(" [ battery: ").append(bVals[0]).append(" mV, ").append(bVals[1]).append(" mA, ").append(bVals[3]).append(" mW").append(" ]");
+                String bPctStr = (bVals[2]+"").substring(0,(bVals[2]+"").length()-2)+"."+(bVals[2]+"").substring((bVals[2]+"").length()-2);
+                logStr.append(" [ battery: ").append(bPctStr).append(" %, ").append(bVals[0]).append(" mV, ").append(bVals[1]).append(" mA, ").append(bVals[3]).append(" mW").append(" ]");
             }
         }
         double[] inpVals = this.i2cTmpValues.get("input");
@@ -126,6 +155,7 @@ public class SentinelPowerUtils {
             if (verboseLogging) {
                 long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(inpVals);
                 logStr.append(" [ input: ").append(iVals[0]).append(" mV, ").append(iVals[1]).append(" mA, ").append(iVals[3]).append(" mW").append(" ]");
+                logStr.append(" [ (").append(iVals[2]).append(") Charging: ").append(this.isBatteryCharging).append(", Charged: ").append(this.isBatteryCharged).append(" ]");
             }
         }
         if (verboseLogging) { Log.d(logTag, logStr.toString()); }
@@ -151,7 +181,7 @@ public class SentinelPowerUtils {
 
             resetI2cTmpValues();
 
-            for (String[] i2cLabeledOutput : this.deviceI2cUtils.i2cGet(buildI2cQueryList(), true)) {
+            for (String[] i2cLabeledOutput : this.deviceI2cUtils.i2cGet(buildI2cQueryList(), true, this.getWithoutTwoComplement)) {
                 String groupName = i2cLabeledOutput[0].substring(0, i2cLabeledOutput[0].indexOf("-"));
                 String valueType = i2cLabeledOutput[0].substring(1 + i2cLabeledOutput[0].indexOf("-"));
                 double[] valueSet = this.i2cTmpValues.get(groupName);
@@ -167,7 +197,7 @@ public class SentinelPowerUtils {
                 valueSet[4] = System.currentTimeMillis();
                 this.i2cTmpValues.put(groupName, valueSet);
             }
-            calculateMissingPowerValues();
+            calculateMissingValues();
             cacheI2cTmpValues();
 
         } catch (Exception e) {
@@ -175,16 +205,42 @@ public class SentinelPowerUtils {
         }
     }
 
-    private void calculateMissingPowerValues() {
+    private void calculateMissingValues() {
 
         double[] sysVals = this.i2cTmpValues.get("system");
+        double[] battVals = this.i2cTmpValues.get("battery");
         double[] inpVals = this.i2cTmpValues.get("input");
 
-        sysVals[3] = inpVals[3] - this.i2cTmpValues.get("battery")[3];
+        sysVals[3] = inpVals[3] - battVals[3];
         sysVals[1] = 1000 * sysVals[3] / sysVals[0];
         this.i2cTmpValues.put("system", sysVals);
 
         this.isInputPowerAtZero = !(Math.round(inpVals[3]) > 0);
+
+        long chargerState = Math.round(inpVals[2]);
+        this.isBatteryCharging = (chargerState == 64);
+        this.isBatteryCharged = (chargerState == 8);
+
+        checkSetQCountCalibration(Math.round(battVals[2]));
+
+        battVals[2] = (10000*(battVals[2]-16384)/32768);
+        this.i2cTmpValues.put("battery", battVals);
+    }
+
+    private void checkSetQCountCalibration(long qCountVal) {
+
+        if (this.isBatteryCharged && !this.isBatteryCharging && (qCountVal != this.qCountCalibratedMax)) {
+
+            Log.e(logTag, "Max Charge State Attained. Calibrating Coulomb Counter Maximum to "+this.qCountCalibratedMax+" (previously at "+qCountVal+")");
+
+            if (isCaptureAllowed()) {
+                List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
+                i2cLabelsAddressesValues.add(new String[]{ "qcount", "0x13", "0x"+Long.toHexString(this.qCountCalibratedMax)});
+                this.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues);
+            } else {
+                Log.e(logTag, "Could not calibrate/reset qcount value");
+            }
+        }
     }
 
     private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
@@ -195,18 +251,22 @@ public class SentinelPowerUtils {
 
         if (i2cLabel.equals("system-voltage")) {
             modifiedValue = i2cRawValue * 1.648;
-        } else if (i2cLabel.equals("system-temperature")) {
+        } else if (i2cLabel.equals("system-misc")) {
             modifiedValue = (i2cRawValue - 12010) / 45.6;
 
         } else if (i2cLabel.equals("battery-voltage")) {
             modifiedValue = i2cRawValue * 0.192264;
         } else if (i2cLabel.equals("battery-current")) {
             modifiedValue = i2cRawValue * (0.00146487 / 0.003); // hardcoded resistor value R[SNSB] = 0.003 ohms
+        } else if (i2cLabel.equals("battery-misc")) {
+            modifiedValue = i2cRawValue;
 
         } else if (i2cLabel.equals("input-voltage")) {
             modifiedValue = i2cRawValue * 1.648;
         } else if (i2cLabel.equals("input-current")) {
             modifiedValue = i2cRawValue * (0.00146487 / 0.005); // hardcoded resistor value R[SNSI] = 0.005 ohms
+        } else if (i2cLabel.equals("input-misc")) {
+            modifiedValue = i2cRawValue;
 
 
         } else {
@@ -233,22 +293,22 @@ public class SentinelPowerUtils {
 
             long[] voltages = new long[] { pVal("voltage", sysVals[0]), pVal("voltage", battVals[0]), pVal("voltage", inpVals[0]) };
             long[] currents = new long[] { pVal("current", sysVals[1]), pVal("current", battVals[1]), pVal("current", inpVals[1]) };
-            long[] temps = new long[] { pVal("temp", sysVals[2]), pVal("temp", battVals[2]), pVal("temp", inpVals[2]) };
+            long[] misc = new long[] { pVal("temp", sysVals[2]), pVal("percent", battVals[2]), pVal("misc", inpVals[2]) };
             long[] powers = new long[] { pVal("power", sysVals[3]), pVal("power", battVals[3]), pVal("power", inpVals[3]) };
 
-            app.sentinelPowerDb.dbSentinelPowerSystem.insert( measuredAt, voltages[0], currents[0], temps[0], powers[0] );
-            app.sentinelPowerDb.dbSentinelPowerBattery.insert( measuredAt, voltages[1], currents[1], temps[1], powers[1] );
-            app.sentinelPowerDb.dbSentinelPowerInput.insert( measuredAt, voltages[2], currents[2], temps[2], powers[2] );
-            app.sentinelPowerDb.dbSentinelPowerMeter.insert( measuredAt, battVals[3]);
+            String bPctStr = (misc[1]+"").substring(0, (misc[1]+"").length()-2) +"."+ (misc[1]+"").substring((misc[1]+"").length()-2);
+
+            app.sentinelPowerDb.dbSentinelPowerSystem.insert( measuredAt, voltages[0], currents[0], misc[0], powers[0] );
+            app.sentinelPowerDb.dbSentinelPowerBattery.insert( measuredAt, voltages[1], currents[1], bPctStr, powers[1] );
+            app.sentinelPowerDb.dbSentinelPowerInput.insert( measuredAt, voltages[2], currents[2], misc[2], powers[2] );
 
             if (printValuesToLog) {
-                int battPct = getLiFePO4BatteryChargePercentage(voltages[1]);
                 Log.d(logTag,
                     (new StringBuilder("Avg of ")).append(sampleCount).append(" samples for ").append(DateTimeUtils.getDateTime(measuredAt))//.append(":")
                     .append(" [ system: ").append(voltages[0]).append(" mV, ").append(currents[0]).append(" mA, ").append(powers[0]).append(" mW").append(" ]")
-                    .append(" [ battery: ").append(battPct).append("%, ").append(voltages[1]).append(" mV, ").append(currents[1]).append(" mA, ").append(powers[1]).append(" mW").append(" ]")
+                    .append(" [ battery: ").append(bPctStr).append(" %, ").append(voltages[1]).append(" mV, ").append(currents[1]).append(" mA, ").append(powers[1]).append(" mW").append(" ]")
                     .append(" [ input: ").append(voltages[2]).append(" mV, ").append(currents[2]).append(" mA, ").append(powers[2]).append(" mW").append(" ]")
-                    .append(" [ temp: ").append(temps[0]).append(" C").append(" ]")
+                    .append(" [ temp: ").append(misc[0]).append(" C").append(" ]")
                 .toString());
             }
         }
@@ -327,7 +387,7 @@ public class SentinelPowerUtils {
 
             long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
             JSONObject jsonBatteryObj = new JSONObject();
-            jsonBatteryObj.put("percentage", getLiFePO4BatteryChargePercentage(bVals[0]));
+            jsonBatteryObj.put("percentage", Math.round(bVals[2]/100) );
             jsonBatteryObj.put("voltage", bVals[0]);
             jsonBatteryObj.put("current", bVals[1]);
             jsonBatteryObj.put("power", bVals[3]);
@@ -377,10 +437,9 @@ public class SentinelPowerUtils {
             if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) { updateSentinelPowerValues(); }
 
             if (this.powerBatteryValues.size() > 0) {
-                long battVoltage = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[0];
-                int battPct = getLiFePO4BatteryChargePercentage(battVoltage);
+                long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
                 int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery") : app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery");
-                isAllowed = battPct >= prefsVal;
+                isAllowed = battPct >= (prefsVal*100);
             }
         }
 
@@ -389,64 +448,27 @@ public class SentinelPowerUtils {
 
     private static long pVal(String fieldName, long val) {
 
-//        double divVal = val;
-//
-//        if (fieldName.equalsIgnoreCase("voltage")) {
-//            divVal = val/100;
-//            Log.e(logTag, divVal+"");
-//
-//        } else if (fieldName.equalsIgnoreCase("current")) {
-//            divVal = Math.round(val/100)*100;
-//
-//        } else if (fieldName.equalsIgnoreCase("power")) {
-//            divVal = Math.round(val/100)*100;
-//
-//        }/* else if (fieldName.equalsIgnoreCase("temps")) {
-//
-//        }*/
+        double divVal = val;
 
-        return val;
+        if (fieldName.equalsIgnoreCase("voltage")) {
+            divVal = val;//val/100;
+
+        } else if (fieldName.equalsIgnoreCase("current")) {
+            divVal = val;//Math.round(val/100)*100;
+
+        } else if (fieldName.equalsIgnoreCase("power")) {
+            divVal = val;//Math.round(val/100)*100;
+
+        }/* else if (fieldName.equalsIgnoreCase("temp")) {
+            divVal = val;//Math.round(val/100)*100;
+
+        } else if (fieldName.equalsIgnoreCase("percent")) {
+            divVal = val;//Math.round(val/100)*100;
+
+        }*/
+
+        return Math.round(divVal);
     }
 
-    private static int getLiFePO4BatteryChargePercentage(long battMilliVoltage) {
-
-        if (battMilliVoltage >= 3380) {      return 99;  }
-        else if (battMilliVoltage >= 3365) { return 95;  }
-        else if (battMilliVoltage >= 3350) { return 90;  }
-        else if (battMilliVoltage >= 3340) { return 85;  }
-        else if (battMilliVoltage >= 3330) { return 80;  }
-        else if (battMilliVoltage >= 3315) { return 75;  }
-        else if (battMilliVoltage >= 3300) { return 70;  }
-        else if (battMilliVoltage >= 3290) { return 65;  }
-        else if (battMilliVoltage >= 3280) { return 60;  }
-        else if (battMilliVoltage >= 3270) { return 55;  }
-        else if (battMilliVoltage >= 3260) { return 50;  }
-        else if (battMilliVoltage >= 3255) { return 45;  }
-        else if (battMilliVoltage >= 3250) { return 40;  }
-        else if (battMilliVoltage >= 3240) { return 35;  }
-        else if (battMilliVoltage >= 3230) { return 30;  }
-        else if (battMilliVoltage >= 3215) { return 25;  }
-        else if (battMilliVoltage >= 3200) { return 20;  }
-        else if (battMilliVoltage >= 3190) { return 19;  }
-        else if (battMilliVoltage >= 3180) { return 18;  }
-        else if (battMilliVoltage >= 3170) { return 17;  }
-        else if (battMilliVoltage >= 3160) { return 16;  }
-        else if (battMilliVoltage >= 3150) { return 15;  }
-        else if (battMilliVoltage >= 3140) { return 14;  }
-        else if (battMilliVoltage >= 3105) { return 13;  }
-        else if (battMilliVoltage >= 3070) { return 12;  }
-        else if (battMilliVoltage >= 3035) { return 11;  }
-        else if (battMilliVoltage >= 3000) { return 10;  }
-        else if (battMilliVoltage >= 2960) {  return 9;  }
-        else if (battMilliVoltage >= 2920) {  return 8;  }
-        else if (battMilliVoltage >= 2880) {  return 7;  }
-        else if (battMilliVoltage >= 2840) {  return 6;  }
-        else if (battMilliVoltage >= 2800) {  return 5;  }
-        else if (battMilliVoltage >= 2735) {  return 4;  }
-        else if (battMilliVoltage >= 2670) {  return 3;  }
-        else if (battMilliVoltage >= 2605) {  return 2;  }
-        else if (battMilliVoltage >= 2540) {  return 1;  }
-        else {                                return 0;  }
-    }
 
 }
