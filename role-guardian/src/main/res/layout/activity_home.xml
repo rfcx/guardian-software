@@ -97,6 +97,7 @@
                             android:orientation="vertical"
                             app:layout_constraintTop_toTopOf="parent">
 
+
                         <LinearLayout
                                 android:id="@+id/status_view"
                                 android:layout_width="wrap_content"
@@ -203,6 +204,21 @@
                                 android:layout_height="1dp"
                                 android:layout_marginStart="@dimen/margin_padding_normal"
                                 android:background="@color/grey_light" />
+
+
+                        <Button
+                                android:id="@+id/sendPingButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="@dimen/margin_padding_normal"
+                                android:text="send ping"/>
+
+                        <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginStart="@dimen/margin_padding_normal"
+                                android:background="@color/grey_light" />
+
                     </LinearLayout>
 
                     <TextView

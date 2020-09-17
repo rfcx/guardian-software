@@ -784,6 +784,10 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 	}
 
+	public void sendMqttPing() {
+		sendMqttPing(true, new String[]{});
+	}
+
 	private byte[] packageMqttPingPayload(String pingJsonString) throws UnsupportedEncodingException, IOException, JSONException {
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

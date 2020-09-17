@@ -68,6 +68,10 @@ class MainActivity : Activity(),
 
         initUI()
 
+        sendPingButton.setOnClickListener {
+            sendPing()
+        }
+
         audioCaptureButton.setOnClickListener {
             val isAudioCaptureOn = app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")
             app.setSharedPref("enable_audio_capture", (!isAudioCaptureOn).toString().toLowerCase())
@@ -186,6 +190,10 @@ class MainActivity : Activity(),
                 audioCaptureButton.text = "record"
             }
         }
+    }
+
+    private fun sendPing() {
+        app.apiCheckInUtils.sendMqttPing();
     }
 
     private fun setUIByLoginState() {
