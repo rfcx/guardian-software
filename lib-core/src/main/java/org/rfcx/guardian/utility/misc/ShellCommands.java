@@ -159,7 +159,7 @@ public class ShellCommands {
 			
 //			String shellLineContent;
 //			while ((shellLineContent = shellReader.readLine()) != null) {
-//				String thisLine = shellLineContent.trim();
+//				String thisLine = shellLineContent.replaceAll("\\p{Z}","");
 //				if (thisLine.length() > 0) {
 //					outputLines.add(thisLine);
 //				}
@@ -181,7 +181,7 @@ public class ShellCommands {
 	private static boolean executeCommandAsRoot_ReturnBoolean(String[] commandContents, String ifOutputContainThisStringReturnTrue, Context context) {
 		List<String> outputLines = executeCommandInShell(commandContents, true, context);
 		for (String outputLine : outputLines) {
-			if (outputLine.trim().equalsIgnoreCase(ifOutputContainThisStringReturnTrue.trim())) { return true; }
+			if (outputLine.replaceAll("\\p{Z}","").equalsIgnoreCase(ifOutputContainThisStringReturnTrue.replaceAll("\\p{Z}",""))) { return true; }
 		}
 		return false;
 	}
@@ -193,7 +193,7 @@ public class ShellCommands {
 	private static boolean executeCommand_ReturnBoolean(String[] commandContents, String ifOutputContainThisStringReturnTrue) {
 		List<String> outputLines = executeCommandInShell(commandContents, false, null);
 		for (String outputLine : outputLines) {
-			if (outputLine.trim().equalsIgnoreCase(ifOutputContainThisStringReturnTrue.trim())) { return true; }
+			if (outputLine.replaceAll("\\p{Z}","").equalsIgnoreCase(ifOutputContainThisStringReturnTrue.replaceAll("\\p{Z}",""))) { return true; }
 		}
 		return false;
 	}

@@ -41,10 +41,10 @@ public class RfcxRole {
 	
 	public static int getRoleVersionValue(String versionName) {
 		try {
-			int majorVersion = (int) Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
-			int subVersion = (int) Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
-			int updateVersion = (int) Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
-			return 1000*majorVersion+100*subVersion+updateVersion;
+			int majorVersion = Integer.parseInt(versionName.substring(0, versionName.indexOf(".")));
+			int subVersion = Integer.parseInt(versionName.substring(1+versionName.indexOf("."), versionName.lastIndexOf(".")));
+			int updateVersion = Integer.parseInt(versionName.substring(1+versionName.lastIndexOf(".")));
+			return (10000 * majorVersion) + (100 * subVersion) + updateVersion;
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}

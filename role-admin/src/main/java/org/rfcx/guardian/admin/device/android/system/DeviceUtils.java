@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceMemory;
+import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -95,7 +96,6 @@ public class DeviceUtils {
 	public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 
 	public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 3;
-	public static final int reducedCaptureModeChangeoverBufferLimit = 5;
 
 	public static final long geoPositionMinDistanceChangeBetweenUpdatesInMeters = 1;
 

@@ -58,6 +58,7 @@ import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 
 import android.app.Application;
+import android.bluetooth.BluetoothClass;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -95,9 +96,9 @@ public class RfcxGuardian extends Application {
     public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
     public DeviceNetworkStats deviceNetworkStats = new DeviceNetworkStats(APP_ROLE);
     public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
-	public DeviceMobileNetwork deviceMobileNetwork = new DeviceMobileNetwork(APP_ROLE);
     public DeviceUtils deviceUtils = null;
 	public DeviceMobilePhone deviceMobilePhone = null;
+	public DeviceMobileNetwork deviceMobileNetwork = new DeviceMobileNetwork(APP_ROLE);
 
 
 	public SentinelPowerUtils sentinelPowerUtils = null;

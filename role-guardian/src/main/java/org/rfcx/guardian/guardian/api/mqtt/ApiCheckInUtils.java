@@ -775,7 +775,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		try {
 
-			long pingSendStart = publishMessageOnConfirmedConnection("guardians/pings", false, packageMqttPingPayload(app.apiJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields)));
+			publishMessageOnConfirmedConnection("guardians/pings", false, packageMqttPingPayload(app.apiJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields)));
 
 		} catch (Exception e) {
 

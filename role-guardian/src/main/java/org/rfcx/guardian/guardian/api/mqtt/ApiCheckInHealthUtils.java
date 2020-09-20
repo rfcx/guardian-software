@@ -43,9 +43,6 @@ public class ApiCheckInHealthUtils {
 	private Map<String, String[]> inFlightCheckInEntries = new HashMap<String, String[]>();
 	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
 
-	private int limitBySentinelBatteryChangeoverBufferCounter = 0;
-	private static final int limitBySentinelBatteryChangeoverBufferLimit = 5;
-
 	public void updateInFlightCheckInOnSend(String audioId, String[] checkInDbEntry) {
 		this.inFlightCheckInAudioId = audioId;
 		this.inFlightCheckInEntries.remove(audioId);
@@ -286,10 +283,7 @@ public class ApiCheckInHealthUtils {
 
 	private boolean limitBasedOnSentinelBatteryLevel() {
 
-		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
-			this.limitBySentinelBatteryChangeoverBufferCounter = 0;
-			return false;
-		} else {
+		if (this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
 			try {
 				JSONArray jsonArray = RfcxComm.getQueryContentProvider("admin", "status", "*", app.getApplicationContext().getContentResolver());
 				if (jsonArray.length() > 0) {
@@ -298,20 +292,17 @@ public class ApiCheckInHealthUtils {
 						JSONObject apiCheckInObj = jsonObj.getJSONObject("api_checkin");
 						if (apiCheckInObj.has("is_allowed")) {
 							if (!apiCheckInObj.getBoolean(("is_allowed"))) {
-								if (this.limitBySentinelBatteryChangeoverBufferCounter < this.limitBySentinelBatteryChangeoverBufferLimit) {
-									this.limitBySentinelBatteryChangeoverBufferCounter++;
-								}
-							} else if (this.limitBySentinelBatteryChangeoverBufferCounter > 0) {
-								this.limitBySentinelBatteryChangeoverBufferCounter--;
+								return true;
 							}
 						}
 					}
 				}
 			} catch (JSONException e) {
 				RfcxLog.logExc(logTag, e);
+				return false;
 			}
 		}
-		return (this.limitBySentinelBatteryChangeoverBufferCounter == this.limitBySentinelBatteryChangeoverBufferLimit);
+		return false;
 	}
 
 

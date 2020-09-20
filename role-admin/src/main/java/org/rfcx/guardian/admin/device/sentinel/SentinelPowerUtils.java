@@ -215,7 +215,7 @@ public class SentinelPowerUtils {
         sysVals[1] = 1000 * sysVals[3] / sysVals[0];
         this.i2cTmpValues.put("system", sysVals);
 
-        this.isInputPowerAtZero = !(Math.round(inpVals[3]) > 0);
+        this.isInputPowerAtZero = !(Math.round(inpVals[3]) > 5);
 
         long chargerState = Math.round(inpVals[2]);
         this.isBatteryCharging = (chargerState == 64);
@@ -231,7 +231,7 @@ public class SentinelPowerUtils {
 
         if (this.isBatteryCharged && !this.isBatteryCharging && (qCountVal != this.qCountCalibratedMax)) {
 
-            Log.e(logTag, "Max Charge State Attained. Calibrating Coulomb Counter Maximum to "+this.qCountCalibratedMax+" (previously at "+qCountVal+")");
+            Log.v(logTag, "Max Charge State Attained. Calibrating Coulomb Counter Maximum to "+this.qCountCalibratedMax+" (previously at "+qCountVal+")");
 
             if (isCaptureAllowed()) {
                 List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
@@ -364,9 +364,24 @@ public class SentinelPowerUtils {
         try {
             JSONObject powerJson = new JSONObject();
 
-            powerJson.put("system", "system*"+measuredAt+"*"+sVals[0]+"*"+sVals[1]+"*"+sVals[2]+"*"+sVals[3] );
-            powerJson.put("battery", "battery*"+measuredAt+"*"+bVals[0]+"*"+bVals[1]+"*"+bVals[2]+"*"+bVals[3]);
-            powerJson.put("input", "input*"+measuredAt+"*"+iVals[0]+"*"+iVals[1]+"*"+iVals[2]+"*"+iVals[3]);
+            long bPct = pVal("percent", bVals[2]);
+            String bPctStr = (bPct+"").substring(0, (bPct+"").length()-2) +"."+ (bPct+"").substring((bPct+"").length()-2);
+
+            powerJson.put("system", "system*"+measuredAt
+                                                    +"*"+pVal("voltage", sVals[0])
+                                                    +"*"+pVal("current", sVals[1])
+                                                    +"*"+pVal("temp", sVals[2])
+                                                    +"*"+pVal("power", sVals[3]) );
+            powerJson.put("battery", "battery*"+measuredAt
+                                                    +"*"+pVal("voltage", bVals[0])
+                                                    +"*"+pVal("current", bVals[1])
+                                                    +"*"+bPctStr
+                                                    +"*"+pVal("power", bVals[3]) );
+            powerJson.put("input", "input*"+measuredAt
+                                                    +"*"+pVal("voltage", iVals[0])
+                                                    +"*"+pVal("current", iVals[1])
+                                                    +"*"+pVal("misc", iVals[2])
+                                                    +"*"+pVal("power", iVals[3]) );
             powerJsonArray.put(powerJson);
 
         } catch (Exception e) {
@@ -448,24 +463,17 @@ public class SentinelPowerUtils {
 
     private static long pVal(String fieldName, long val) {
 
-        double divVal = val;
+        double divVal = Double.parseDouble(""+val);
 
         if (fieldName.equalsIgnoreCase("voltage")) {
-            divVal = val;//val/100;
-
+            if (val < 2000) {
+                divVal = Math.round(divVal / 100) * 100;
+            }
         } else if (fieldName.equalsIgnoreCase("current")) {
-            divVal = val;//Math.round(val/100)*100;
-
-        } else if (fieldName.equalsIgnoreCase("power")) {
-            divVal = val;//Math.round(val/100)*100;
-
-        }/* else if (fieldName.equalsIgnoreCase("temp")) {
-            divVal = val;//Math.round(val/100)*100;
-
-        } else if (fieldName.equalsIgnoreCase("percent")) {
-            divVal = val;//Math.round(val/100)*100;
-
-        }*/
+            if ((val < 100) && (val > -100)) {
+                divVal = Math.round(divVal / 10) * 10;
+            }
+        }
 
         return Math.round(divVal);
     }

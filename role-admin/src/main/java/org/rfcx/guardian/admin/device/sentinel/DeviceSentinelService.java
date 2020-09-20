@@ -45,8 +45,6 @@ public class DeviceSentinelService extends Service {
 	private boolean isSentinelAccelCaptureAllowed = true;
 	private boolean isSentinelCompassCaptureAllowed = true;
 
-	private int reducedCaptureModeChangeoverBufferCounter = 0;
-
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -188,18 +186,10 @@ public class DeviceSentinelService extends Service {
 
 	private void setOrUnSetReducedCaptureMode() {
 
-		if (	(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
+		this.isReducedCaptureModeActive =
+				(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
 				||	DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
-				)
-		) {
-			if (this.reducedCaptureModeChangeoverBufferCounter < DeviceUtils.reducedCaptureModeChangeoverBufferLimit) {
-				this.reducedCaptureModeChangeoverBufferCounter++;
-			}
-		} else if (this.reducedCaptureModeChangeoverBufferCounter > 0) {
-			this.reducedCaptureModeChangeoverBufferCounter--;
-		}
-
-		this.isReducedCaptureModeActive = (this.reducedCaptureModeChangeoverBufferCounter == DeviceUtils.reducedCaptureModeChangeoverBufferLimit);
+				);
 	}
 
 	private boolean confirmOrSetCaptureParameters() {

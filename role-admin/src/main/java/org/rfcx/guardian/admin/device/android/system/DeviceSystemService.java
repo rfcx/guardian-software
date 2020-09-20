@@ -19,8 +19,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceMemory;
+import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -58,9 +60,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	private boolean isReducedCaptureModeActive = false;
 
-	private int reducedCaptureModeChangeoverBufferCounter = 0;
-
 	private SignalStrengthListener signalStrengthListener;
+
 	private LocationManager locationManager;
 	private SensorManager sensorManager;
 
@@ -283,18 +284,19 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		dataTransferValues.add(app.deviceNetworkStats.getDataTransferStatsSnapshot());
 		saveSnapshotValuesToDatabase("datatransfer");
 
-		// capture and cache battery level info
-		batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
-		saveSnapshotValuesToDatabase("battery");
-
 		// cache accelerometer sensor data
 		saveSnapshotValuesToDatabase("accel");
 
 		// capture and cache light sensor data
-		cacheSnapshotValues("light", new double[]{lightSensorLastValue});
+		cacheSnapshotValues("light", new double[]{ lightSensorLastValue });
 		saveSnapshotValuesToDatabase("light");
 
+
 		if (outerLoopIncrement == outerLoopCaptureCount) {
+
+			// capture and cache battery level info
+			batteryLevelValues.add(app.deviceBattery.getBatteryState(app.getApplicationContext(), null));
+			saveSnapshotValuesToDatabase("battery");
 
 			// capture and cache storage usage stats
 			storageValues.add(DeviceStorage.getCurrentStorageStats());
@@ -316,18 +318,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	private void setOrUnSetReducedCaptureMode() {
 
-		if (	(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
-				||	DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
-				)
-		) {
-			if (this.reducedCaptureModeChangeoverBufferCounter < DeviceUtils.reducedCaptureModeChangeoverBufferLimit) {
-				this.reducedCaptureModeChangeoverBufferCounter++;
-			}
-		} else if (this.reducedCaptureModeChangeoverBufferCounter > 0) {
-			this.reducedCaptureModeChangeoverBufferCounter--;
-		}
-
-		this.isReducedCaptureModeActive = (this.reducedCaptureModeChangeoverBufferCounter == DeviceUtils.reducedCaptureModeChangeoverBufferLimit);
+		this.isReducedCaptureModeActive =
+			(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
+			||	DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
+			);
 	}
 
 	private void setOrUnSetReducedCaptureModeListeners() {
@@ -360,19 +354,21 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		} else if (sensorAbbrev.equalsIgnoreCase("light")) {
 
 			this.lightSensorLastValue = vals[0];
-			long lightSensorLastValueAsLong = (long) Math.round(this.lightSensorLastValue);
-			if ((this.lightSensorLastValue != Float.MAX_VALUE)
-					&& ((this.lightSensorValues.size() == 0)
-					|| (lightSensorLastValueAsLong != this.lightSensorValues.get(this.lightSensorValues.size() - 1)[1])
-			)
+			long lightSensorLastValueAsLong = Math.round(this.lightSensorLastValue);
+			if (	(this.lightSensorLastValue != Float.MAX_VALUE)
+				&& 	(	(this.lightSensorValues.size() == 0)
+					|| 	(lightSensorLastValueAsLong != this.lightSensorValues.get(this.lightSensorValues.size() - 1)[1])
+					)
 			) {
 				this.lightSensorValues.add(new long[]{System.currentTimeMillis(), lightSensorLastValueAsLong});
 			}
 
 		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
 
-			if ((app.deviceMobileNetwork.telephonyManager != null) && (app.deviceMobileNetwork.signalStrength != null)) {
+			if (app.deviceMobileNetwork.isInitializedTelephonyManager() && app.deviceMobileNetwork.isInitializedSignalStrength()) {
 				this.telephonyValues.add(app.deviceMobileNetwork.getMobileNetworkSummary());
+			} else {
+				Log.e(logTag, "could not cache telephony");
 			}
 
 		} else {
@@ -421,8 +417,8 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				if (!this.isListenerRegistered_telephony) {
 					Log.v(logTag, "Registering listener for 'telephony'...");
 					this.signalStrengthListener = new SignalStrengthListener();
-					app.deviceMobileNetwork.telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-					app.deviceMobileNetwork.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+					app.deviceMobileNetwork.setTelephonyManager((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE));
+					app.deviceMobileNetwork.setTelephonyListener(this.signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 					this.isListenerRegistered_telephony = true;
 				}
 
@@ -468,9 +464,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			}
 			
 		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) { 
-			if (this.isListenerRegistered_telephony && (app.deviceMobileNetwork.telephonyManager != null)) {
+			if (this.isListenerRegistered_telephony && app.deviceMobileNetwork.isInitializedTelephonyManager()) {
 				Log.v(logTag, "Unregistering sensor listener for 'telephony'...");
-				app.deviceMobileNetwork.telephonyManager.listen(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE);
+				app.deviceMobileNetwork.setTelephonyListener(this.signalStrengthListener, PhoneStateListener.LISTEN_NONE);
 				this.isListenerRegistered_telephony = false;
 			}
 			
@@ -534,13 +530,12 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				String[] prevTelephonyVals = new String[] { "", "", "", "" };
 
 				for (String[] telephonyVals : telephonyValuesCache) {
-					if (	(telephonyVals[2] != null) && (telephonyVals[3] != null) // ensure relevant values aren't just null
-						&&	(	!telephonyVals[1].equalsIgnoreCase(prevTelephonyVals[1])
-							&&	!telephonyVals[2].equalsIgnoreCase(prevTelephonyVals[2]) // ensure relevant values aren't just immediate repeats of last saved value
-							&& 	!telephonyVals[3].equalsIgnoreCase(prevTelephonyVals[3])
-							)
-						) {
-						app.deviceSystemDb.dbTelephony.insert(new Date(Long.parseLong(telephonyVals[0])), Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3].trim());
+					if (	((telephonyVals[2] != null) && (telephonyVals[3] != null)) // ensure relevant values aren't just null
+						&&	!telephonyVals[1].equalsIgnoreCase(prevTelephonyVals[1])
+						&&	!telephonyVals[2].equalsIgnoreCase(prevTelephonyVals[2]) // ensure relevant values aren't just immediate repeats of last saved value
+						&& 	!telephonyVals[3].equalsIgnoreCase(prevTelephonyVals[3])
+					) {
+						app.deviceSystemDb.dbTelephony.insert(new Date(Long.parseLong(telephonyVals[0])), Integer.parseInt(telephonyVals[1]), telephonyVals[2], telephonyVals[3]);
 					}
 					prevTelephonyVals = telephonyVals;
 				}
@@ -605,12 +600,12 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 /*
  *  These are methods for PhoneStateListener
  */
-	
+
 	public class SignalStrengthListener extends PhoneStateListener {
 		@Override
 		public void onSignalStrengthsChanged(SignalStrength signalStrength) {
 			super.onSignalStrengthsChanged(signalStrength);
-			app.deviceMobileNetwork.signalStrength = signalStrength;
+			app.deviceMobileNetwork.setTelephonySignalStrength(signalStrength);
 			cacheSnapshotValues("telephony", new double[]{});
 		}
 	}

@@ -44,9 +44,6 @@ public class AudioCaptureUtils {
 	private boolean isAudioCaptureHardwareSupported = false;
 	private static final int requiredFreeDiskSpaceForAudioCapture = 32;
 
-	private int limitBySentinelBatteryChangeoverBufferCounter = 0;
-	private static final int limitBySentinelBatteryChangeoverBufferLimit = 5;
-
 	private static AudioCaptureWavRecorder wavRecorderForCompanion = null;
 
 	public static AudioCaptureWavRecorder initializeWavRecorder(String captureDir, long timestamp, int sampleRate) throws Exception {
@@ -112,10 +109,7 @@ public class AudioCaptureUtils {
 
 	private boolean limitBasedOnSentinelBatteryLevel() {
 
-		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
-			this.limitBySentinelBatteryChangeoverBufferCounter = 0;
-			return false;
-		} else {
+		if (this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
 			try {
 				JSONArray jsonArray = RfcxComm.getQueryContentProvider("admin", "status", "*", app.getApplicationContext().getContentResolver());
 				if (jsonArray.length() > 0) {
@@ -124,20 +118,17 @@ public class AudioCaptureUtils {
 						JSONObject apiCheckInObj = jsonObj.getJSONObject("audio_capture");
 						if (apiCheckInObj.has("is_allowed")) {
 							if (!apiCheckInObj.getBoolean(("is_allowed"))) {
-								if (this.limitBySentinelBatteryChangeoverBufferCounter < this.limitBySentinelBatteryChangeoverBufferLimit) {
-									this.limitBySentinelBatteryChangeoverBufferCounter++;
-								}
-							} else if (this.limitBySentinelBatteryChangeoverBufferCounter > 0) {
-								this.limitBySentinelBatteryChangeoverBufferCounter--;
+								return true;
 							}
 						}
 					}
 				}
 			} catch (JSONException e) {
 				RfcxLog.logExc(logTag, e);
+				return false;
 			}
 		}
-		return (this.limitBySentinelBatteryChangeoverBufferCounter == this.limitBySentinelBatteryChangeoverBufferLimit);
+		return false;
 	}
 
 
