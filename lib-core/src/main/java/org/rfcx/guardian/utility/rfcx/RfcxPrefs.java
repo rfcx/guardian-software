@@ -389,8 +389,8 @@ public class RfcxPrefs {
 			put("audio_schedule_off_hours", "23:56-23:58,23:58-00:00");
 			put("audio_sampling_ratio", "1:2");
 
-			put("checkin_cutoff_battery", "95");
-			put("audio_cutoff_battery", "90");
+			put("checkin_cutoff_battery", "100");
+			put("audio_cutoff_battery", "100");
 
 			put("enable_cutoffs_sentinel_battery", "true");
 			put("checkin_cutoff_sentinel_battery", "10");

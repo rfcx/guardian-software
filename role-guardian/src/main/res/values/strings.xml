@@ -121,6 +121,10 @@
 	
     <string-array name="prefs_labels_percent">
 		<item>100 %</item>
+		<item>99 %</item>
+		<item>98 %</item>
+		<item>97 %</item>
+		<item>96 %</item>
 		<item>95 %</item>
 		<item>90 %</item>
 		<item>85 %</item>
@@ -156,6 +160,10 @@
 	
     <string-array name="prefs_values_percent">
 		<item>100</item>
+		<item>99</item>
+		<item>98</item>
+		<item>97</item>
+		<item>96</item>
 		<item>95</item>
 		<item>90</item>
 		<item>85</item>
