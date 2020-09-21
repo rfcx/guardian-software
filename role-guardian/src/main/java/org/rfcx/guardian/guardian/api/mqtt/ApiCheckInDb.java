@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentValues;
@@ -14,6 +15,7 @@ public class ApiCheckInDb {
 
 	public ApiCheckInDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbQueued = new DbQueued(context);
 		this.dbSent = new DbSent(context);
 		this.dbSkipped = new DbSkipped(context);
@@ -29,7 +31,10 @@ public class ApiCheckInDb {
 	static final String C_FILEPATH = "filepath";
 	static final String C_AUDIO_DURATION = "audio_duration";
 	static final String C_AUDIO_FILESIZE = "audio_filesize";
-	public static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON, C_ATTEMPTS, C_FILEPATH, C_AUDIO_DURATION, C_AUDIO_FILESIZE};
+	public static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_AUDIO, C_JSON, C_ATTEMPTS, C_FILEPATH, C_AUDIO_DURATION, C_AUDIO_FILESIZE };
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] {  }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -52,7 +57,7 @@ public class ApiCheckInDb {
 		private String TABLE = "queued";
 		
 		public DbQueued(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(String audio, String json, String attempts, String filepath, String audioDuration, String audioFileSize) {
@@ -135,7 +140,7 @@ public class ApiCheckInDb {
 		private String TABLE = "skipped";
 		
 		public DbSkipped(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(String created_at, String audio, String json, String attempts, String filepath, String audioDuration, String audioFileSize) {
@@ -218,7 +223,7 @@ public class ApiCheckInDb {
 		private String TABLE = "stashed";
 		
 		public DbStashed(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(String audio, String json, String attempts, String filepath, String audioDuration, String audioFileSize) {
@@ -301,7 +306,7 @@ public class ApiCheckInDb {
 		private String TABLE = "sent";
 		
 		public DbSent(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(String audio, String json, String attempts, String filepath, String audioDuration, String audioFileSize) {

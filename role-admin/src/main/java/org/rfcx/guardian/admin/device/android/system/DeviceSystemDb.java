@@ -5,6 +5,7 @@ import android.content.Context;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -15,6 +16,7 @@ public class DeviceSystemDb {
 	
 	public DeviceSystemDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbCPU = new DbCPU(context);
 		this.dbBattery = new DbBattery(context);
 		this.dbTelephony = new DbTelephony(context);
@@ -27,6 +29,9 @@ public class DeviceSystemDb {
 	static final String C_VALUE_1 = "value_1";
 	static final String C_VALUE_2 = "value_2";
 	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VALUE_1, C_VALUE_2 };
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -45,7 +50,7 @@ public class DeviceSystemDb {
 		private String TABLE = "cpu";
 		
 		public DbCPU(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(Date measured_at, int cpu_percent, int cpu_clock) {
@@ -81,7 +86,7 @@ public class DeviceSystemDb {
 		private String TABLE = "battery";
 		
 		public DbBattery(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(Date measured_at, int battery_percent, int battery_temperature, int is_charging, int is_charged) {
@@ -117,7 +122,7 @@ public class DeviceSystemDb {
 		private String TABLE = "telephony";
 		
 		public DbTelephony(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(Date measured_at, int signal_strength, String network_type, String carrier_name) {
@@ -155,7 +160,7 @@ public class DeviceSystemDb {
 		private String TABLE = "datetimeoffsets";
 		
 		public DbDateTimeOffsets(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(long measured_at, String source, long offset, String timezone) {

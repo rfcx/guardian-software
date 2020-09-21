@@ -5,6 +5,7 @@ import android.content.Context;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -15,6 +16,7 @@ public class DeviceSensorDb {
 	
 	public DeviceSensorDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbLightMeter = new DbLightMeter(context);
 		this.dbAccelerometer = new DbAccelerometer(context);
 		this.dbGeoPosition = new DbGeoPosition(context);
@@ -26,6 +28,9 @@ public class DeviceSensorDb {
 	static final String C_VALUE_1 = "value_1";
 	static final String C_VALUE_2 = "value_2";
 	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VALUE_1, C_VALUE_2 };
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -44,7 +49,7 @@ public class DeviceSensorDb {
 		private String TABLE = "lightmeter";
 		
 		public DbLightMeter(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(Date measured_at, long luminosity, String value_2) {
@@ -80,7 +85,7 @@ public class DeviceSensorDb {
 		private String TABLE = "accelerometer";
 		
 		public DbAccelerometer(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(Date measured_at, String x_y_z, int sample_count) {
@@ -115,7 +120,7 @@ public class DeviceSensorDb {
 		private String TABLE = "geoposition";
 		
 		public DbGeoPosition(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(double measured_at, double latitude, double longitude, double accuracy, double altitude) {

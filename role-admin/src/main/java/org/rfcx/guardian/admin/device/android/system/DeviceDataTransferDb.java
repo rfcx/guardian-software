@@ -5,6 +5,7 @@ import android.content.Context;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -15,6 +16,7 @@ public class DeviceDataTransferDb {
 	
 	public DeviceDataTransferDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbTransferred = new DbTransferred(context);
 	}
 
@@ -28,6 +30,9 @@ public class DeviceDataTransferDb {
 	static final String C_BYTES_RECEIVED_TOTAL = "bytes_received_total";
 	static final String C_BYTES_SENT_TOTAL = "bytes_sent_total";
 	private static final String[] ALL_COLUMNS = new String[] { C_START_TIME, C_END_TIME, C_BYTES_RECEIVED_CURRENT, C_BYTES_SENT_CURRENT, C_BYTES_RECEIVED_TOTAL, C_BYTES_SENT_TOTAL };
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -50,7 +55,7 @@ public class DeviceDataTransferDb {
 		private String TABLE = "transferred";
 		
 		public DbTransferred(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(Date created_at, Date start_time, Date end_time, long bytes_rx_current, long bytes_tx_current, long bytes_rx_total, long bytes_tx_total) {

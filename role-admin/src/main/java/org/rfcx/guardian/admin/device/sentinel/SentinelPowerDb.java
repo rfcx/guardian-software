@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.json.JSONArray;
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentValues;
@@ -14,6 +15,7 @@ public class SentinelPowerDb {
 	
 	public SentinelPowerDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbSentinelPowerBattery = new DbSentinelPowerBattery(context);
 		this.dbSentinelPowerInput = new DbSentinelPowerInput(context);
 		this.dbSentinelPowerSystem = new DbSentinelPowerSystem(context);
@@ -27,6 +29,9 @@ public class SentinelPowerDb {
 	static final String C_MISC = "misc";
 	static final String C_POWER = "power";
 	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VOLTAGE, C_CURRENT, C_MISC, C_POWER};
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -47,7 +52,7 @@ public class SentinelPowerDb {
 		private String TABLE = "battery";
 
 		public DbSentinelPowerBattery(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(long measuredAt, long voltage, long current, String misc, long power) {
@@ -94,7 +99,7 @@ public class SentinelPowerDb {
 		private String TABLE = "input";
 
 		public DbSentinelPowerInput(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(long measuredAt, long voltage, long current, long misc, long power) {
@@ -137,7 +142,7 @@ public class SentinelPowerDb {
 		private String TABLE = "system";
 
 		public DbSentinelPowerSystem(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(long measuredAt, long voltage, long current, long misc, long power) {

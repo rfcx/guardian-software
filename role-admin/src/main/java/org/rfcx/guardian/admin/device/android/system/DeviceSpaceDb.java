@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -13,6 +14,7 @@ public class DeviceSpaceDb {
 	
 	public DeviceSpaceDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbStorage = new DbStorage(context);
 		this.dbMemory = new DbMemory(context);
 	}
@@ -24,6 +26,9 @@ public class DeviceSpaceDb {
 	static final String C_VALUE_1 = "value_1";
 	static final String C_VALUE_2 = "value_2";
 	private static final String[] ALL_COLUMNS = new String[] { C_LABEL, C_MEASURED_AT, C_VALUE_1, C_VALUE_2 };
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -43,7 +48,7 @@ public class DeviceSpaceDb {
 		private String TABLE = "storage";
 		
 		public DbStorage(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(String label, Date measured_at, long bytes_used, long bytes_available) {
@@ -82,7 +87,7 @@ public class DeviceSpaceDb {
 		private String TABLE = "memory";
 
 		public DbMemory(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(String label, Date measured_at, long bytes_used, long bytes_available, long bytes_threshold) {

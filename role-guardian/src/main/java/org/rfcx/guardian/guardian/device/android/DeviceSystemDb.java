@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -14,6 +15,7 @@ public class DeviceSystemDb {
 	
 	public DeviceSystemDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbMqttBrokerConnections = new DbMqttBrokerConnections(context);
 		this.dbDateTimeOffsets = new DbDateTimeOffsets(context);
 	}
@@ -24,6 +26,9 @@ public class DeviceSystemDb {
 	static final String C_VALUE_1 = "value_1";
 	static final String C_VALUE_2 = "value_2";
 	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VALUE_1, C_VALUE_2 };
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -42,7 +47,7 @@ public class DeviceSystemDb {
 		private String TABLE = "mqttbroker";
 
 		public DbMqttBrokerConnections(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(Date measured_at, long connection_latency, long subscription_latency, String protocol, String host, int port) {
@@ -81,7 +86,7 @@ public class DeviceSystemDb {
 		private String TABLE = "datetimeoffsets";
 
 		public DbDateTimeOffsets(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(long measured_at, String source, long offset, String timezone) {

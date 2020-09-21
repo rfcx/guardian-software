@@ -26,22 +26,18 @@ public class DbUtils {
 	private static final String DEFAULT_ORDER = "DESC";
 	
 	class DbHelper extends SQLiteOpenHelper {
-		
+
+		String DATABASE;
 		String TABLE;
 		String CREATE_COLUMN_QUERY;
 		boolean DROP_TABLE_ON_UPGRADE = true;
 
-		public DbHelper(Context context, String database, String table, int version, String createColumnQuery) {
+		public DbHelper(Context context, String database, String table, int version, String createColumnQuery, boolean dropTableOnUpgrade) {
 			super(context, database+"-"+table+".db", null, version);
+			this.DATABASE = database;
 			this.TABLE = table;
 			this.CREATE_COLUMN_QUERY = createColumnQuery;
-		}
-
-		public DbHelper(Context context, String database, String table, int version, String createColumnQuery, boolean suppressDropTableOnUpgrade) {
-			super(context, database+"-"+table+".db", null, version);
-			this.TABLE = table;
-			this.CREATE_COLUMN_QUERY = createColumnQuery;
-			this.DROP_TABLE_ON_UPGRADE = !suppressDropTableOnUpgrade;
+			this.DROP_TABLE_ON_UPGRADE = dropTableOnUpgrade;
 		}
 	
 		@Override
@@ -55,27 +51,25 @@ public class DbUtils {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			String upgradeMsg = "Upgrading Database '"+this.DATABASE+"-"+this.TABLE+"' to v"+newVersion;
 			if (this.DROP_TABLE_ON_UPGRADE) {
 				try {
+					upgradeMsg += " - Table has been dropped and contents have been erased.";
 					db.execSQL("DROP TABLE IF EXISTS " + this.TABLE);
 					onCreate(db);
 				} catch (SQLException e) {
 					RfcxLog.logExc(logTag, e);
 				}
 			}
+			Log.v(logTag, upgradeMsg);
 		}
 	}
 	
 	public DbHelper dbHelper;
 	private SQLiteDatabase sqlLiteDb = null;
 
-
-	public DbUtils(Context context, String database, String table, int version, String createColumnQuery) {
-		this.dbHelper = new DbHelper(context, database, table, version, createColumnQuery);
-	}
-
-	public DbUtils(Context context, String database, String table, int version, String createColumnQuery, boolean suppressDropTableOnUpgrade) {
-		this.dbHelper = new DbHelper(context, database, table, version, createColumnQuery, suppressDropTableOnUpgrade);
+	public DbUtils(Context context, String database, String table, int version, String createColumnQuery, boolean dropTableOnUpgrade) {
+		this.dbHelper = new DbHelper(context, database, table, version, createColumnQuery, dropTableOnUpgrade);
 	}
 	
 	private SQLiteDatabase openDb() {
