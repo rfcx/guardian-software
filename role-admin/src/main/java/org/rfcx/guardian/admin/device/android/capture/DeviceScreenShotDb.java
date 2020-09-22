@@ -53,11 +53,13 @@ public class DeviceScreenShotDb {
 	public class DbCaptured {
 
 		final DbUtils dbUtils;
+		public String FILEPATH;
 
 		private String TABLE = "captured";
 		
 		public DbCaptured(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
 		public int insert(String timestamp, String format, String digest, String width, String height, String filepath) {

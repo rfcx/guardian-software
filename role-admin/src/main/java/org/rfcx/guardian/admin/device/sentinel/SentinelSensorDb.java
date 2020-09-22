@@ -47,11 +47,13 @@ public class SentinelSensorDb {
 	public class DbAccelerometer {
 
 		final DbUtils dbUtils;
+		public String FILEPATH;
 
 		private String TABLE = "accelerometer";
 		
 		public DbAccelerometer(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
 		public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {

@@ -94,6 +94,11 @@ public class DbUtils {
 //			RfcxLog.logExc(logTag, e);
 //		}
 	}
+
+	public static String getDbFilePath(Context context, String database, String table) {
+		String filesDir = context.getFilesDir().getAbsolutePath();
+		return filesDir.substring(0, filesDir.lastIndexOf("/"))+"/databases/"+database+"-"+table+".db";
+	}
 	
 	public int insertRow(String table, ContentValues values) {
 		int rowCount = 0;

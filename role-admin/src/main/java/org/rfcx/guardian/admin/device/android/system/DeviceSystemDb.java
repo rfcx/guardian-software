@@ -46,11 +46,13 @@ public class DeviceSystemDb {
 	public class DbCPU {
 
 		final DbUtils dbUtils;
+		public String FILEPATH;
 
 		private String TABLE = "cpu";
 		
 		public DbCPU(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
 		public int insert(Date measured_at, int cpu_percent, int cpu_clock) {

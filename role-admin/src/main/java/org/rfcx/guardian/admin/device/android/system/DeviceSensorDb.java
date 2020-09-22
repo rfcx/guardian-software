@@ -45,11 +45,13 @@ public class DeviceSensorDb {
 	public class DbLightMeter {
 
 		final DbUtils dbUtils;
+		public String FILEPATH;
 
 		private String TABLE = "lightmeter";
 		
 		public DbLightMeter(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
 		public int insert(Date measured_at, long luminosity, String value_2) {

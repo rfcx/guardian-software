@@ -44,11 +44,13 @@ public class DeviceSpaceDb {
 	public class DbStorage {
 
 		final DbUtils dbUtils;
+		public String FILEPATH;
 
 		private String TABLE = "storage";
 		
 		public DbStorage(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
 		public int insert(String label, Date measured_at, long bytes_used, long bytes_available) {

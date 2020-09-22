@@ -291,10 +291,10 @@ public class SentinelPowerUtils {
             double measuredAtAvg = (sysVals[4]+battVals[4]+inpVals[4])/3;
             long measuredAt = Math.round(measuredAtAvg);
 
-            long[] voltages = new long[] { pVal("voltage", sysVals[0]), pVal("voltage", battVals[0]), pVal("voltage", inpVals[0]) };
-            long[] currents = new long[] { pVal("current", sysVals[1]), pVal("current", battVals[1]), pVal("current", inpVals[1]) };
-            long[] misc = new long[] { pVal("temp", sysVals[2]), pVal("percent", battVals[2]), pVal("misc", inpVals[2]) };
-            long[] powers = new long[] { pVal("power", sysVals[3]), pVal("power", battVals[3]), pVal("power", inpVals[3]) };
+            long[] voltages = new long[] { _v("voltage", sysVals[0]), _v("voltage", battVals[0]), _v("voltage", inpVals[0]) };
+            long[] currents = new long[] { _v("current", sysVals[1]), _v("current", battVals[1]), _v("current", inpVals[1]) };
+            long[] misc = new long[] { _v("temp", sysVals[2]), _v("percent", battVals[2]), _v("misc", inpVals[2]) };
+            long[] powers = new long[] { _v("power", sysVals[3]), _v("power", battVals[3]), _v("power", inpVals[3]) };
 
             String bPctStr = (misc[1]+"").substring(0, (misc[1]+"").length()-2) +"."+ (misc[1]+"").substring((misc[1]+"").length()-2);
 
@@ -364,24 +364,24 @@ public class SentinelPowerUtils {
         try {
             JSONObject powerJson = new JSONObject();
 
-            long bPct = pVal("percent", bVals[2]);
+            long bPct = _v("percent", bVals[2]);
             String bPctStr = (bPct+"").substring(0, (bPct+"").length()-2) +"."+ (bPct+"").substring((bPct+"").length()-2);
 
             powerJson.put("system", "system*"+measuredAt
-                                                    +"*"+pVal("voltage", sVals[0])
-                                                    +"*"+pVal("current", sVals[1])
-                                                    +"*"+pVal("temp", sVals[2])
-                                                    +"*"+pVal("power", sVals[3]) );
+                                                    +"*"+ _v("voltage", sVals[0])
+                                                    +"*"+ _v("current", sVals[1])
+                                                    +"*"+ _v("temp", sVals[2])
+                                                    +"*"+ _v("power", sVals[3]) );
             powerJson.put("battery", "battery*"+measuredAt
-                                                    +"*"+pVal("voltage", bVals[0])
-                                                    +"*"+pVal("current", bVals[1])
+                                                    +"*"+ _v("voltage", bVals[0])
+                                                    +"*"+ _v("current", bVals[1])
                                                     +"*"+bPctStr
-                                                    +"*"+pVal("power", bVals[3]) );
+                                                    +"*"+ _v("power", bVals[3]) );
             powerJson.put("input", "input*"+measuredAt
-                                                    +"*"+pVal("voltage", iVals[0])
-                                                    +"*"+pVal("current", iVals[1])
-                                                    +"*"+pVal("misc", iVals[2])
-                                                    +"*"+pVal("power", iVals[3]) );
+                                                    +"*"+ _v("voltage", iVals[0])
+                                                    +"*"+ _v("current", iVals[1])
+                                                    +"*"+ _v("misc", iVals[2])
+                                                    +"*"+ _v("power", iVals[3]) );
             powerJsonArray.put(powerJson);
 
         } catch (Exception e) {
@@ -449,11 +449,7 @@ public class SentinelPowerUtils {
 
         if (!isAllowed) {
 
-            if (    (this.powerBatteryValues.size() == 0)
-               &&   isCaptureAllowed()
-            ) {
-                updateSentinelPowerValues();
-            }
+            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) { updateSentinelPowerValues(); }
 
             if (this.powerBatteryValues.size() > 0) {
                 long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
@@ -465,7 +461,7 @@ public class SentinelPowerUtils {
         return !isAllowed;
     }
 
-    private static long pVal(String fieldName, long val) {
+    private static long _v(String fieldName, long val) {
 
         double divVal = Double.parseDouble(""+val);
 

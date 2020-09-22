@@ -42,11 +42,13 @@ public class AssetExchangeLogDb {
 	public class DbPurged {
 
 		final DbUtils dbUtils;
+		public String FILEPATH = "";
 
 		private String TABLE = "purged";
 		
 		public DbPurged(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
 		public int insert(String asset_type, String timestamp) {
