@@ -449,12 +449,16 @@ public class SentinelPowerUtils {
 
         if (!isAllowed) {
 
-            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) { updateSentinelPowerValues(); }
+            if (    (this.powerBatteryValues.size() == 0)
+               &&   isCaptureAllowed()
+            ) {
+                updateSentinelPowerValues();
+            }
 
             if (this.powerBatteryValues.size() > 0) {
                 long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
                 int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery") : app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery");
-                isAllowed = battPct >= (prefsVal*100);
+                isAllowed = battPct >= (prefsVal * 100);
             }
         }
 

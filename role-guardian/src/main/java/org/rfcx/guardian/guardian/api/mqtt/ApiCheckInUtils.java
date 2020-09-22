@@ -817,6 +817,8 @@ public class ApiCheckInUtils implements MqttCallback {
 			boolean unresolvedHost = excStr.contains("Host is unresolved");
 			boolean unableToConnect = excStr.contains("Unable to connect to server");
 
+			boolean brokerConnectionLost = excStr.contains("java.io.IOException: Connection is lost.");
+
 			if ( unknownHost || brokenPipe || noRouteToHost || unresolvedHost || unableToConnect || tooManyPublishes || isTimedOut ) {
 
 				if (!isTimedOut) {
@@ -837,11 +839,22 @@ public class ApiCheckInUtils implements MqttCallback {
 					confirmOrCreateConnectionToBroker(true);
 				}
 
-			} else if ( badUserNameOrPswd ) {
+			} else if ( badUserNameOrPswd || brokerConnectionLost ) {
 
-				long additionalDelay = Math.round(this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") / 2);
-				Log.e(logTag, "Broker Credentials Rejected. Delaying "+additionalDelay+" seconds before trying again...");
+				String logErrorMsg = "";
+				if (badUserNameOrPswd) { logErrorMsg = "Broker Credentials Rejected."; }
+				else if (brokerConnectionLost) { logErrorMsg = "Broker Connection Lost."; }
+
+				// This might be something we should remove if we find out that 'Connection Lost" isn't always due to the broker itself having problems
+				// This line assumes that the issue is NOT with the Guardian's internet connection
+				if (app.deviceConnectivity.isConnected()) {
+					app.apiCheckInUtils.initializeFailedCheckInThresholds();
+				}
+
+				long additionalDelay = Math.round(this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 0.667);
+				Log.e(logTag, logErrorMsg+" Delaying "+additionalDelay+" seconds before trying again...");
 				Thread.sleep(additionalDelay*1000);
+
 			}
 
 		} catch (Exception e) {

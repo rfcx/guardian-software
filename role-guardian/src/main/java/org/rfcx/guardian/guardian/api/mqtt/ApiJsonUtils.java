@@ -11,6 +11,7 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -19,8 +20,10 @@ import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class ApiJsonUtils {
 
@@ -50,7 +53,7 @@ public class ApiJsonUtils {
 		checkInMetaJson.put("audio", checkInJsonObj.getString("audio"));
 
 		// Recording number of currently queued/skipped/stashed checkins
-		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson(true));
+		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson( new String[] { "sent" } ));
 
 		checkInMetaJson.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit")));
 
@@ -123,7 +126,7 @@ public class ApiJsonUtils {
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {
-			pingObj.put("checkins", getCheckInStatusInfoForJson(false));
+			pingObj.put("checkins", getCheckInStatusInfoForJson(new String[] {}));
 			includeMeasuredAt = true;
 		}
 
@@ -195,27 +198,49 @@ public class ApiJsonUtils {
 
 
 
-	private String getCheckInStatusInfoForJson(boolean includeAssetIdLists) {
+	private String getCheckInStatusInfoForJson(String[] includeAssetIdLists) {
 
-		StringBuilder sentIdList = new StringBuilder();
-		if (includeAssetIdLists) {
-			long reportAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
-			for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(15)) {
-				String assetId = _checkIn[1].substring(0, _checkIn[1].lastIndexOf("."));
-				if (reportAssetIdIfOlderThan < Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(assetId)))) {
-					sentIdList.append("*").append(assetId);
+		Map<String, String> assetExtraInfo = new HashMap<String, String>();
+
+		for (String assetType : new String[] { "sent", "queued", "meta", "skipped", "stashed", "archived" }) {
+
+			StringBuilder assetInfo = new StringBuilder();
+
+			if (assetType.equalsIgnoreCase("sent")) {
+				assetInfo.append("*").append( app.apiCheckInDb.dbSent.getCumulativeFileSizeForAllRows() );
+			} else if (assetType.equalsIgnoreCase("queued")) {
+				assetInfo.append("*").append( app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows() );
+			} else if (assetType.equalsIgnoreCase("meta")) {
+				assetInfo.append("*").append( 0 );
+			} else if (assetType.equalsIgnoreCase("skipped")) {
+				assetInfo.append("*").append( app.apiCheckInDb.dbSkipped.getCumulativeFileSizeForAllRows() );
+			} else if (assetType.equalsIgnoreCase("stashed")) {
+				assetInfo.append("*").append( app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() );
+			} else if (assetType.equalsIgnoreCase("archived")) {
+				assetInfo.append("*").append( app.archiveDb.dbCheckInArchive.getCumulativeFileSizeForAllRows() );
+			}
+
+			if (ArrayUtils.doesStringArrayContainString(includeAssetIdLists, assetType)) {
+				long reportAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+				for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(15)) {
+					long assetId = Long.parseLong(_checkIn[1].substring(0, _checkIn[1].lastIndexOf(".")));
+					if (reportAssetIdIfOlderThan < Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(assetId))) {
+						assetInfo.append("*").append(assetId);
+					}
 				}
 			}
+
+			assetExtraInfo.put(assetType, assetInfo.toString());
 		}
 
 		return TextUtils.join("|",
 				new String[] {
-						"sent*" + app.apiCheckInDb.dbSent.getCount() + sentIdList.toString(),
-						"queued*" + app.apiCheckInDb.dbQueued.getCount(),
-						"meta*" + app.metaDb.dbMeta.getCount(),
-						"skipped*" + app.apiCheckInDb.dbSkipped.getCount(),
-						"stashed*" + app.apiCheckInDb.dbStashed.getCount(),
-						"archived*" + app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount()
+						"sent*" + app.apiCheckInDb.dbSent.getCount() + assetExtraInfo.get("sent"),
+						"queued*" + app.apiCheckInDb.dbQueued.getCount() + assetExtraInfo.get("queued"),
+						"meta*" + app.metaDb.dbMeta.getCount() + assetExtraInfo.get("meta"),
+						"skipped*" + app.apiCheckInDb.dbSkipped.getCount() + assetExtraInfo.get("skipped"),
+						"stashed*" + app.apiCheckInDb.dbStashed.getCount() + assetExtraInfo.get("stashed"),
+						"archived*" + app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount() + assetExtraInfo.get("archived")
 				});
 	}
 
