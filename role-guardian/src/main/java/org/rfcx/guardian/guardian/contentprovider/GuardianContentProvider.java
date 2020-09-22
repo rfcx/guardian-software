@@ -105,6 +105,10 @@ public class GuardianContentProvider extends ContentProvider {
 				app.rfcxServiceHandler.stopAllServices();
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"kill", null, System.currentTimeMillis()});
 
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "initialize")) { logFuncVal = "control-initialize";
+				app.initializeRoleServices();
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"initialize", null, System.currentTimeMillis()});
+
 			// "instructions" endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "instructions", "*")) { logFuncVal = "instructions-*";

@@ -234,7 +234,6 @@ public class ApiCheckInHealthUtils {
 					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery")).append("%).");
 			isApiCheckInAllowedUnderKnownConditions = false;
 
-
 		}
 
 		if (!isApiCheckInAllowedUnderKnownConditions) {
@@ -265,12 +264,16 @@ public class ApiCheckInHealthUtils {
 //					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")).append("'.");
 //			isApiCheckInBlockedRightNow = true;
 
+		} else if (!app.isGuardianRegistered()) {
+			msgIfBlocked.append("the Guardian not being registered.");
+			isApiCheckInBlockedRightNow = true;
+
 		}
 
 		if (isApiCheckInBlockedRightNow) {
 			if (printFeedbackInLog) {
 				Log.d(logTag, msgIfBlocked
-						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn paused due to ")
+						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn blocked due to ")
 					//	.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")).append(" seconds before next attempt.")
 						.toString());
 			}

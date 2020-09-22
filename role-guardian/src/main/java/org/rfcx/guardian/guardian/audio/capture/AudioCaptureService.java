@@ -116,7 +116,7 @@ public class AudioCaptureService extends Service {
 					}
 
 					// This ensures that the service registers as active more frequently than the capture loop duration
-					for (int innerLoopIteration = 0; innerLoopIteration < (isAudioCaptureAllowed ? innerLoopIterationCount : (2*innerLoopIterationCount)); innerLoopIteration++) {
+					for (int innerLoopIteration = 0; innerLoopIteration < innerLoopIterationCount; innerLoopIteration++) {
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 						Thread.sleep(innerLoopIterationDuration);
 					}
@@ -156,7 +156,7 @@ public class AudioCaptureService extends Service {
 
 				this.audioSampleRate = prefsAudioSampleRate;
 				this.audioCycleDuration = prefsAudioCycleDuration;
-				innerLoopIterationDuration = (long) Math.round( (prefsAudioCycleDuration * 1000) / innerLoopIterationCount );
+				innerLoopIterationDuration = Math.round( (prefsAudioCycleDuration * 1000) / innerLoopIterationCount );
 				
 				Log.d(logTag, "Audio Capture Params: " + prefsAudioCycleDuration + " seconds, " + prefsAudioSampleRate + " Hz");
 			}

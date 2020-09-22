@@ -72,6 +72,11 @@ class MainActivity : Activity(),
             sendPing()
         }
 
+        clearRegistrationButton.setOnClickListener {
+            clearRegistration()
+            setVisibilityBeforeRegister()
+        }
+
         audioCaptureButton.setOnClickListener {
             val isAudioCaptureOn = app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")
             app.setSharedPref("enable_audio_capture", (!isAudioCaptureOn).toString().toLowerCase())
@@ -194,6 +199,10 @@ class MainActivity : Activity(),
 
     private fun sendPing() {
         app.apiCheckInUtils.sendMqttPing();
+    }
+
+    private fun clearRegistration() {
+        app.clearRegistration();
     }
 
     private fun setUIByLoginState() {

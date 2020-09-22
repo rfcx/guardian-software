@@ -818,6 +818,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			boolean unableToConnect = excStr.contains("Unable to connect to server");
 
 			boolean brokerConnectionLost = excStr.contains("java.io.IOException: Connection is lost.");
+			boolean unexpectedError = excStr.contains("Message: Unexpected error");
 
 			if ( unknownHost || brokenPipe || noRouteToHost || unresolvedHost || unableToConnect || tooManyPublishes || isTimedOut ) {
 
@@ -839,11 +840,12 @@ public class ApiCheckInUtils implements MqttCallback {
 					confirmOrCreateConnectionToBroker(true);
 				}
 
-			} else if ( badUserNameOrPswd || brokerConnectionLost ) {
+			} else if ( badUserNameOrPswd || brokerConnectionLost || unexpectedError ) {
 
 				String logErrorMsg = "";
 				if (badUserNameOrPswd) { logErrorMsg = "Broker Credentials Rejected."; }
 				else if (brokerConnectionLost) { logErrorMsg = "Broker Connection Lost."; }
+				else if (unexpectedError) { logErrorMsg = "Unexpected Error."; }
 
 				// This might be something we should remove if we find out that 'Connection Lost" isn't always due to the broker itself having problems
 				// This line assumes that the issue is NOT with the Guardian's internet connection

@@ -211,6 +211,12 @@ public class RfcxPrefs {
 			RfcxLog.logExc(logTag, e);
         }
 	}
+
+	public static void deleteGuardianRoleTxtFile(Context context, String fileNameNoExt) {
+		String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt;
+		File fileObj = new File(filePath);
+		FileUtils.delete(fileObj);
+	}
 	
 	public static String readFromGuardianRoleTxtFile(Context context, String logTag, String thisAppRole, String targetAppRole, String fileNameNoExt) {
 	    	try {

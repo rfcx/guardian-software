@@ -18,7 +18,6 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
@@ -72,8 +71,12 @@ public class MqttUtils implements MqttCallback {
 		connectOptions.setMaxInflight(1); // limits how many messages can be sent without receiving acknowledgments
 
 		if (this.mqttBrokerProtocol.equalsIgnoreCase("ssl")) {
-			InputStream brokerKeystore = context.getResources().openRawResource(R.raw.rfcx_mqtt_broker);
-			connectOptions.setSocketFactory(getSSLSocketFactory(brokerKeystore, mqttBrokerKeystorePassphrase));
+			try {
+				InputStream brokerKeystore = context.getAssets().open(this.mqttBrokerAddress.replaceAll("\\.", "_")+".bks");
+				connectOptions.setSocketFactory(getSSLSocketFactory(brokerKeystore, mqttBrokerKeystorePassphrase));
+			} catch (IOException e) {
+				RfcxLog.logExc(logTag, e);
+			}
 		}
 
 		if ((this.mqttBrokerAuthUserName != null) && (this.mqttBrokerAuthPassword != null)) {

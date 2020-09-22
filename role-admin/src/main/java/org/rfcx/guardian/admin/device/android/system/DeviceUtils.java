@@ -108,13 +108,15 @@ public class DeviceUtils {
 
 	public static boolean isReducedCaptureModeActive(String activityTag, Context context) {
 		try {
-			JSONArray jsonArray = RfcxComm.getQueryContentProvider("guardian", "status", "*", context.getContentResolver());
-			if (jsonArray.length() > 0) {
-				JSONObject jsonObj = jsonArray.getJSONObject(0);
-				if (jsonObj.has(activityTag)) {
-					JSONObject audioCaptureObj = jsonObj.getJSONObject(activityTag);
-					if (audioCaptureObj.has("is_allowed")) {
-						return !audioCaptureObj.getBoolean(("is_allowed"));
+			if (((RfcxGuardian) context.getApplicationContext()).isGuardianRegistered()) {
+				JSONArray jsonArray = RfcxComm.getQueryContentProvider("guardian", "status", "*", context.getContentResolver());
+				if (jsonArray.length() > 0) {
+					JSONObject jsonObj = jsonArray.getJSONObject(0);
+					if (jsonObj.has(activityTag)) {
+						JSONObject audioCaptureObj = jsonObj.getJSONObject(activityTag);
+						if (audioCaptureObj.has("is_allowed") && audioCaptureObj.has("is_blocked")) {
+							return !audioCaptureObj.getBoolean("is_allowed") || audioCaptureObj.getBoolean("is_blocked");
+						}
 					}
 				}
 			}

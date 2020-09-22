@@ -154,11 +154,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void appPause() { }
 
 
-
-    public boolean isGuardianRegistered() {
-        return (this.rfcxGuardianIdentity.getAuthToken() != null);
-    }
-
     public boolean saveGuardianRegistration(String regJsonStr) {
         boolean isSaved = false;
 
@@ -167,6 +162,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             if (regJsonObj.has("guid") && regJsonObj.has("token")) {
                 this.rfcxGuardianIdentity.setAuthToken(regJsonObj.getString("token"));
                 this.rfcxGuardianIdentity.setKeystorePassPhrase(regJsonObj.getString("keystore_passphrase"));
+                if (regJsonObj.has("broker_hostname")) {
+                    setSharedPref("api_mqtt_host", regJsonObj.getString("broker_hostname"));
+                }
             } else {
                 Log.e(logTag, "doesn't have token or guid");
             }
@@ -177,18 +175,18 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         return isSaved;
     }
 
-    public boolean doConditionsPermitRoleServices() {
-        if (isGuardianRegistered()) {
-            return true;
-        } else {
-            this.rfcxServiceHandler.stopAllServices();
-        }
-        return false;
+    public void clearRegistration() {
+        this.rfcxGuardianIdentity.unSetIdentityValue("token");
+        this.rfcxGuardianIdentity.unSetIdentityValue("keystore_passphrase");
+    }
+
+    public boolean isGuardianRegistered() {
+        return (this.rfcxGuardianIdentity.getAuthToken() != null);
     }
 
     public void initializeRoleServices() {
 
-        if (doConditionsPermitRoleServices() && !this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+        if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[]{
                     "ServiceMonitor"

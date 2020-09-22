@@ -84,20 +84,9 @@ public class RfcxGuardian extends Application {
 
     }
 
-    public boolean doConditionsPermitRoleServices() {
-//		if (isGuardianRegistered()) {
-//			if (!this.rfcxServiceHandler.isRunning("AudioCapture")) {
-        return true;
-//			}
-//		} else {
-//			this.rfcxServiceHandler.stopAllServices();
-//		}
-//		return false;
-    }
-
     public void initializeRoleServices() {
 
-        if (doConditionsPermitRoleServices() && !this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+        if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[] {
                     "ApiCheckVersionTrigger"
