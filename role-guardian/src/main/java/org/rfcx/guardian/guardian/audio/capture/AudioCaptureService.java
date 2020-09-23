@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
@@ -91,10 +90,10 @@ public class AudioCaptureService extends Service {
 				
 				try {
 
-					boolean isAudioCaptureBlocked = app.audioCaptureUtils.isAudioCaptureBlocked(true);
-					boolean isAudioCaptureAllowed = !isAudioCaptureBlocked && app.audioCaptureUtils.isAudioCaptureAllowed(true, true);
+					boolean isAudioCaptureDisabled = app.audioCaptureUtils.isAudioCaptureDisabled(true);
+					boolean isAudioCaptureAllowed = !isAudioCaptureDisabled && app.audioCaptureUtils.isAudioCaptureAllowed(true, true);
 
-					if ( confirmOrSetAudioCaptureParameters() && !isAudioCaptureBlocked && isAudioCaptureAllowed ) {
+					if ( confirmOrSetAudioCaptureParameters() && !isAudioCaptureDisabled && isAudioCaptureAllowed ) {
 
 						// in this case, we are starting the audio capture from a stopped/pre-initialized state
 						captureTimeStamp = System.currentTimeMillis();

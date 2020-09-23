@@ -29,6 +29,8 @@ public class ApiCheckVersionUtils {
 	public long lastCheckInTriggered = 0;
 	public long lastCheckInTime = System.currentTimeMillis();
 
+	private static final int installationBatteryCutoffPercentage = 50;
+
 	public boolean apiCheckVersionFollowUp(String targetRole, List<JSONObject> jsonList) {
 		
 		this.lastCheckInTime = System.currentTimeMillis();
@@ -64,18 +66,18 @@ public class ApiCheckVersionUtils {
 				app.installUtils.setInstallConfig(focusRole, focusVersion, focusReleaseDate, focusUrl, focusSha1, focusVersionValue);
 				
 				if (isBatteryChargeSufficientForDownloadAndInstall()) {
-					Log.d(logTag, "Latest version detected and download triggered: "+focusVersion+" ("+focusVersionValue+")");
+					Log.d(logTag, "Update required. Latest release version ("+focusVersion+") detected and download triggered.");
 					app.rfcxServiceHandler.triggerService("DownloadFile", true);
 				} else {
-					Log.i(logTag, "Download & Installation disabled due to low battery level"
-							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt("install_cutoff_battery")+"%)."
+					Log.i(logTag, "Update required, but will not be triggered due to low battery level"
+							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+installationBatteryCutoffPercentage+"%)."
 							);
 				}
 				return true;
 			} else if (!installedVersion.equals(focusVersion) && (installedVersionValue > focusVersionValue)) {
-				Log.d(logTag,"RFCx "+ StringUtils.capitalizeFirstChar(focusRole) +": Installed version ("+installedVersion+", "+installedVersionValue+") is newer than the latest release version ("+focusVersion+", "+focusVersionValue+").");
+				Log.d(logTag,"RFCx "+ StringUtils.capitalizeFirstChar(focusRole) +": No Update. Installed version ("+installedVersion+") is newer than the latest release version ("+focusVersion+").");
 			} else {
-				Log.d(logTag,"RFCx "+ StringUtils.capitalizeFirstChar(focusRole) +": Installed version is already up-to-date ("+installedVersion+", "+installedVersionValue+").");
+				Log.d(logTag,"RFCx "+ StringUtils.capitalizeFirstChar(focusRole) +": No Update. Installed version ("+installedVersion+") is already up-to-date.");
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -86,14 +88,14 @@ public class ApiCheckVersionUtils {
 	
 
 	
-	private boolean isCheckInAllowed(boolean printLoggingFeedbackIfBlocked) {
+	private boolean isCheckInAllowed(boolean printLoggingFeedbackIfNotAllowed) {
 		if (app != null) {
 			if (app.deviceConnectivity.isConnected()) {
 				long timeElapsedSinceLastCheckIn = System.currentTimeMillis() - this.lastCheckInTriggered;
 				if (timeElapsedSinceLastCheckIn > (minimumAllowedIntervalBetweenCheckIns * (60 * 1000))) {
 					this.lastCheckInTriggered = System.currentTimeMillis();
 					return true;
-				} else if (printLoggingFeedbackIfBlocked) {
+				} else if (printLoggingFeedbackIfNotAllowed) {
 					Log.e(logTag, "Update CheckIn blocked b/c minimum allowed interval has not yet elapsed"
 									+" - Elapsed: " + DateTimeUtils.milliSecondDurationAsReadableString(timeElapsedSinceLastCheckIn)
 									+" - Required: " + minimumAllowedIntervalBetweenCheckIns + " minutes");
@@ -105,16 +107,14 @@ public class ApiCheckVersionUtils {
 		return false;
 	}
 
-	public void attemptToTriggerCheckIn(boolean forceRequest, boolean printLoggingFeedbackIfBlocked) {
-		if (forceRequest || isCheckInAllowed(printLoggingFeedbackIfBlocked)) {
+	public void attemptToTriggerCheckIn(boolean forceRequest, boolean printLoggingFeedbackIfNotAllowed) {
+		if (forceRequest || isCheckInAllowed(printLoggingFeedbackIfNotAllowed)) {
 			app.rfcxServiceHandler.triggerService("ApiCheckVersion", false);
 		}
 	}
 	
 	private boolean isBatteryChargeSufficientForDownloadAndInstall() {
-		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(context, null);
-	//	return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("install_cutoff_battery"));
-		return (batteryCharge >= 50);
+		return (app.deviceBattery.getBatteryChargePercentage(context, null) >= installationBatteryCutoffPercentage);
 	}
 	
 }

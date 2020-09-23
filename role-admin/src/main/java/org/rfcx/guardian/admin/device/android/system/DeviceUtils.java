@@ -114,8 +114,8 @@ public class DeviceUtils {
 					JSONObject jsonObj = jsonArray.getJSONObject(0);
 					if (jsonObj.has(activityTag)) {
 						JSONObject audioCaptureObj = jsonObj.getJSONObject(activityTag);
-						if (audioCaptureObj.has("is_allowed") && audioCaptureObj.has("is_blocked")) {
-							return !audioCaptureObj.getBoolean("is_allowed") || audioCaptureObj.getBoolean("is_blocked");
+						if (audioCaptureObj.has("is_allowed") && audioCaptureObj.has("is_disabled")) {
+							return !audioCaptureObj.getBoolean("is_allowed") || audioCaptureObj.getBoolean("is_disabled");
 						}
 					}
 				}

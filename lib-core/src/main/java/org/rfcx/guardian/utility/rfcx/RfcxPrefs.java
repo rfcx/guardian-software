@@ -416,7 +416,7 @@ public class RfcxPrefs {
 
 			put("checkin_requeue_bounds_hours", "10-14");
 
-			put("checkin_meta_bundle_limit", "8");
+			put("checkin_meta_bundle_limit", "12");
 
 			put("admin_enable_wifi", "true");
 			put("admin_enable_tcp_adb", "true");

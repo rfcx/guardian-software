@@ -72,7 +72,7 @@ public class ApiCheckInJobService extends Service {
 			String lastCheckInId = null;
 				
 			while (		apiCheckInJobInstance.runFlag
-					&&	!app.apiCheckInHealthUtils.isApiCheckInBlocked(true)
+					&&	!app.apiCheckInHealthUtils.isApiCheckInDisabled(true)
 					&& 	( (app.apiCheckInDb.dbQueued.getCount() > 0) || !app.apiCheckInUtils.isConnectedToBroker() )
 				) {
 

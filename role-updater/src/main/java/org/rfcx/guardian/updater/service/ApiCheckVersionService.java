@@ -82,7 +82,7 @@ public class ApiCheckVersionService extends Service {
 					String getUrl =	app.rfcxPrefs.getPrefAsString("api_rest_protocol")
 									+ "://"
 									+ app.rfcxPrefs.getPrefAsString("api_rest_host")
-									+"/v1/guardians/"+app.rfcxGuardianIdentity.getGuid()+"/software/all"
+									+"/v2/guardians/"+app.rfcxGuardianIdentity.getGuid()+"/software/all"
 									+ "?role="+RfcxGuardian.APP_ROLE.toLowerCase()
 									+ "&version="+ app.version
 									+ "&battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)

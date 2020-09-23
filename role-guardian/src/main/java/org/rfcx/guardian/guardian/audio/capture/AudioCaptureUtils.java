@@ -167,7 +167,7 @@ public class AudioCaptureUtils {
         try {
             statusObj = new JSONObject();
             statusObj.put("is_allowed", isAudioCaptureAllowed(false, false));
-			statusObj.put("is_blocked", isAudioCaptureBlocked(false));
+			statusObj.put("is_disabled", isAudioCaptureDisabled(false));
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
@@ -188,9 +188,9 @@ public class AudioCaptureUtils {
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		} else if (includeSentinel && limitBasedOnSentinelBatteryLevel()) {
-				msgNoCapture.append("Low Sentinel Battery level")
-						.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery")).append("%).");
-				isAudioCaptureAllowedUnderKnownConditions = false;
+			msgNoCapture.append("Low Sentinel Battery level")
+					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery")).append("%).");
+			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		} else if (limitBasedOnInternalStorage()) {
 			msgNoCapture.append("a lack of sufficient free internal disk storage.")
@@ -217,35 +217,35 @@ public class AudioCaptureUtils {
 		return isAudioCaptureAllowedUnderKnownConditions;
 	}
 
-	public boolean isAudioCaptureBlocked(boolean printFeedbackInLog) {
+	public boolean isAudioCaptureDisabled(boolean printFeedbackInLog) {
 
 		// we set this to false, and cycle through conditions that might make it true
 		// we then return the resulting true/false value
-		boolean isAudioCaptureBlockedRightNow = false;
+		boolean isAudioCaptureDisabledRightNow = false;
 		StringBuilder msgNoCapture = new StringBuilder();
 
 		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
 			msgNoCapture.append("it being explicitly disabled ('enable_audio_capture' is set to false).");
-			isAudioCaptureBlockedRightNow = true;
+			isAudioCaptureDisabledRightNow = true;
 
 		} else if (limitBasedOnTimeOfDay()) {
 			msgNoCapture.append("current time of day/night")
 					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")).append("'.");
-			isAudioCaptureBlockedRightNow = true;
+			isAudioCaptureDisabledRightNow = true;
 
 		} else if (limitBasedOnCaptureSamplingRatio()) {
 			msgNoCapture.append("a sampling ratio definition. ")
 						.append("Ratio is '").append(app.rfcxPrefs.getPrefAsString("audio_sampling_ratio")).append("'. ")
 						.append("Currently on iteration ").append(this.samplingRatioIteration).append(" of ").append(this.samplingRatioArr[0]+this.samplingRatioArr[1]).append(".");
-			isAudioCaptureBlockedRightNow = true;
+			isAudioCaptureDisabledRightNow = true;
 
 		} else if (!app.isGuardianRegistered()) {
-			msgNoCapture.append("the Guardian not being registered.");
-			isAudioCaptureBlockedRightNow = true;
+			msgNoCapture.append("the Guardian not having been registered.");
+			isAudioCaptureDisabledRightNow = true;
 
 		}
 
-		if (isAudioCaptureBlockedRightNow) {
+		if (isAudioCaptureDisabledRightNow) {
 			if (printFeedbackInLog) {
 				Log.d(logTag, msgNoCapture
 						.insert(0, DateTimeUtils.getDateTime() + " - AudioCapture paused due to ")
@@ -254,7 +254,7 @@ public class AudioCaptureUtils {
 			}
 		}
 
-		return isAudioCaptureBlockedRightNow;
+		return isAudioCaptureDisabledRightNow;
 	}
 
 	public boolean updateCaptureQueue(long timeStamp, int sampleRate) {

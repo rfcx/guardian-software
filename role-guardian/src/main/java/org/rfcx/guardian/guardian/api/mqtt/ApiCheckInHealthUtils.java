@@ -202,7 +202,7 @@ public class ApiCheckInHealthUtils {
 		try {
 			statusObj = new JSONObject();
 			statusObj.put("is_allowed", isApiCheckInAllowed(false, false));
-			statusObj.put("is_blocked", isApiCheckInBlocked(false));
+			statusObj.put("is_disabled", isApiCheckInDisabled(false));
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -248,38 +248,40 @@ public class ApiCheckInHealthUtils {
 		return isApiCheckInAllowedUnderKnownConditions;
 	}
 
-	public boolean isApiCheckInBlocked(boolean printFeedbackInLog) {
+	public boolean isApiCheckInDisabled(boolean printFeedbackInLog) {
 
 		// we set this to false, and cycle through conditions that might make it true
 		// we then return the resulting true/false value
-		boolean isApiCheckInBlockedRightNow = false;
-		StringBuilder msgIfBlocked = new StringBuilder();
+		boolean areApiChecksInDisabledRightNow = false;
+		StringBuilder msgIfDisabled = new StringBuilder();
 
 		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) {
-			msgIfBlocked.append("it being explicitly disabled ('enable_checkin_publish' is set to false).");
-			isApiCheckInBlockedRightNow = true;
+			msgIfDisabled.append("it being explicitly disabled ('enable_checkin_publish' is set to false).");
+			areApiChecksInDisabledRightNow = true;
 
+		// This section is commented out because there is currently no mechanism by which the checkins are filtered by time of day (off hours)
+		// ...But we assume this is something that might be added at a future date, as it works for audio capture.
 //		} else if (limitBasedOnTimeOfDay()) {
-//			msgIfBlocked.append("current time of day/night")
+//			msgIfDisabled.append("current time of day/night")
 //					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")).append("'.");
-//			isApiCheckInBlockedRightNow = true;
+//			areApiChecksInDisabledRightNow = true;
 
 		} else if (!app.isGuardianRegistered()) {
-			msgIfBlocked.append("the Guardian not being registered.");
-			isApiCheckInBlockedRightNow = true;
+			msgIfDisabled.append("the Guardian not having been registered.");
+			areApiChecksInDisabledRightNow = true;
 
 		}
 
-		if (isApiCheckInBlockedRightNow) {
+		if (areApiChecksInDisabledRightNow) {
 			if (printFeedbackInLog) {
-				Log.d(logTag, msgIfBlocked
-						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn blocked due to ")
+				Log.d(logTag, msgIfDisabled
+						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn disabled due to ")
 					//	.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")).append(" seconds before next attempt.")
 						.toString());
 			}
 		}
 
-		return isApiCheckInBlockedRightNow;
+		return areApiChecksInDisabledRightNow;
 	}
 
 

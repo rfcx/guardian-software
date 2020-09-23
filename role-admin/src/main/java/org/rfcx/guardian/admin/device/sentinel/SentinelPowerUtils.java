@@ -435,7 +435,7 @@ public class SentinelPowerUtils {
 
             statusObj = new JSONObject();
             statusObj.put("is_allowed", !isReducedCaptureModeActive_BasedOnSentinelPower(activityTag) );
-            statusObj.put("is_blocked", false);
+            statusObj.put("is_disabled", false);
 
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);

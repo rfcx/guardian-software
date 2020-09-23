@@ -50,7 +50,7 @@
 	<string name="prefs_value_default_checkin_archive_filesize_target">32</string>
 
 	<string name="prefs_value_default_checkin_requeue_bounds_hours">10-14</string>
-	<string name="prefs_value_default_checkin_meta_bundle_limit">8</string>
+	<string name="prefs_value_default_checkin_meta_bundle_limit">12</string>
 
 	<string name="prefs_value_default_api_sntp_cycle_duration">30</string>
 	<string name="prefs_value_default_api_ping_cycle_duration">30</string>

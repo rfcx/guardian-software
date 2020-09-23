@@ -403,7 +403,7 @@ public class ApiJsonUtils {
 		JSONArray metaJsonBundledSnapshotsIds = new JSONArray();
 		long metaMeasuredAtValue = 0;
 
-		for (String[] metaRow : app.metaDb.dbMeta.getLatestRowsWithLimit(2 * maxMetaRowsToBundle)) {
+		for (String[] metaRow : app.metaDb.dbMeta.getLatestRowsWithLimit(3 * maxMetaRowsToBundle)) {
 
 			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(metaRow[3])));
 
