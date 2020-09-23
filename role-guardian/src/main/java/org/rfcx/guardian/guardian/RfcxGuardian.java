@@ -9,6 +9,8 @@ import org.rfcx.guardian.guardian.api.asset.MetaSnapshotService;
 import org.rfcx.guardian.guardian.api.mqtt.ApiJsonUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInStatsDb;
 import org.rfcx.guardian.guardian.api.mqtt.ScheduledApiPingService;
+import org.rfcx.guardian.guardian.api.msg.ApiShortMsgDb;
+import org.rfcx.guardian.guardian.api.msg.ApiShortMsgUtils;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -73,6 +75,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
     public AssetExchangeLogDb assetExchangeLogDb = null;
     public ArchiveDb archiveDb = null;
+    public ApiShortMsgDb apiShortMsgDb = null;
     public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
 
@@ -88,6 +91,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiJsonUtils apiJsonUtils = null;
     public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
     public AssetUtils assetUtils = null;
+    public ApiShortMsgUtils apiShortMsgUtils = null;
     public InstructionsUtils instructionsUtils = null;
     public WifiCommunicationUtils wifiCommunicationUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
@@ -127,6 +131,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioCaptureUtils = new AudioCaptureUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
+        this.apiShortMsgUtils = new ApiShortMsgUtils(this);
         this.apiJsonUtils = new ApiJsonUtils(this);
         this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);
         this.assetUtils = new AssetUtils(this);
@@ -216,6 +221,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
         this.assetExchangeLogDb = new AssetExchangeLogDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
+        this.apiShortMsgDb = new ApiShortMsgDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
 
