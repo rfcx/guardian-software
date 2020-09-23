@@ -40,7 +40,7 @@ public class MqttUtils implements MqttCallback {
 	private Context context;
 	private String logTag;
 	
-	private int mqttQos = 1; // QoS - 1 - Send message at least once
+	private int mqttQos = 0; // QoS 
 	private String mqttClientId = null;
 	private int mqttBrokerPort = 1883;
 	private String mqttBrokerProtocol = "tcp";
