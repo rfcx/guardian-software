@@ -154,25 +154,20 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void appPause() { }
 
 
-    public boolean saveGuardianRegistration(String regJsonStr) {
-        boolean isSaved = false;
-
+    public void saveGuardianRegistration(String regJsonStr) {
         try {
-            JSONObject regJsonObj = new JSONObject(regJsonStr);
-            if (regJsonObj.has("guid") && regJsonObj.has("token")) {
-                this.rfcxGuardianIdentity.setAuthToken(regJsonObj.getString("token"));
-                this.rfcxGuardianIdentity.setKeystorePassPhrase(regJsonObj.getString("keystore_passphrase"));
-                if (regJsonObj.has("broker_hostname")) {
-                    setSharedPref("api_mqtt_host", regJsonObj.getString("broker_hostname"));
-                }
+            JSONObject regJson = new JSONObject(regJsonStr);
+            if (regJson.has("guid") && regJson.has("token")) {
+                this.rfcxGuardianIdentity.setAuthToken(regJson.getString("token"));
+                this.rfcxGuardianIdentity.setKeystorePassPhrase(regJson.getString("keystore_passphrase"));
+                if (regJson.has("api_mqtt_host")) { setSharedPref("api_mqtt_host", regJson.getString("api_mqtt_host")); }
+                if (regJson.has("api_sms_address")) { setSharedPref("api_sms_address", regJson.getString("api_sms_address")); }
             } else {
                 Log.e(logTag, "doesn't have token or guid");
             }
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
-
-        return isSaved;
     }
 
     public void clearRegistration() {
