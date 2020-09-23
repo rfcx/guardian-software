@@ -1,9 +1,9 @@
 package org.rfcx.guardian.updater;
 
-import org.rfcx.guardian.updater.api.ApiCheckVersionUtils;
+import org.rfcx.guardian.updater.api.ApiUpdateRequestUtils;
 import org.rfcx.guardian.updater.receiver.ConnectivityReceiver;
-import org.rfcx.guardian.updater.service.ApiCheckVersionTrigger;
-import org.rfcx.guardian.updater.service.ApiCheckVersionService;
+import org.rfcx.guardian.updater.service.ApiUpdateRequestTrigger;
+import org.rfcx.guardian.updater.service.ApiUpdateRequestService;
 import org.rfcx.guardian.updater.service.DownloadFileService;
 import org.rfcx.guardian.updater.service.InstallAppService;
 import org.rfcx.guardian.updater.service.RebootTriggerService;
@@ -36,7 +36,7 @@ public class RfcxGuardian extends Application {
 
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 
-    public ApiCheckVersionUtils apiCheckVersionUtils = null;
+    public ApiUpdateRequestUtils apiUpdateRequestUtils = null;
     public InstallUtils installUtils = null;
 
     // for checking battery level
@@ -61,7 +61,7 @@ public class RfcxGuardian extends Application {
 
         this.registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
-        this.apiCheckVersionUtils = new ApiCheckVersionUtils(this);
+        this.apiUpdateRequestUtils = new ApiUpdateRequestUtils(this);
 
         this.installUtils = new InstallUtils(this, APP_ROLE);
 
@@ -89,9 +89,9 @@ public class RfcxGuardian extends Application {
         if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[] {
-                    "ApiCheckVersionTrigger"
+                    "ApiUpdateRequestTrigger"
                             +"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
-                            +"|"+ ( ( 2 * ApiCheckVersionUtils.minimumAllowedIntervalBetweenCheckIns ) * ( 60 * 1000 ) ) // repeats hourly
+                            +"|"+ ( ( 2 * ApiUpdateRequestUtils.minimumAllowedIntervalBetweenUpdateRequests) * ( 60 * 1000 ) ) // repeats hourly
             };
 
             String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
@@ -107,8 +107,8 @@ public class RfcxGuardian extends Application {
     }
 
     private void setServiceHandlers() {
-        this.rfcxServiceHandler.addService("ApiCheckVersionTrigger", ApiCheckVersionTrigger.class);
-        this.rfcxServiceHandler.addService("ApiCheckVersion", ApiCheckVersionService.class);
+        this.rfcxServiceHandler.addService("ApiUpdateRequestTrigger", ApiUpdateRequestTrigger.class);
+        this.rfcxServiceHandler.addService("ApiUpdateRequest", ApiUpdateRequestService.class);
         this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
         this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
         this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerService.class);

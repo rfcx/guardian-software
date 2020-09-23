@@ -6,7 +6,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 
@@ -19,7 +18,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
 		app.deviceConnectivity.updateConnectivityState(intent);
 
-		app.apiCheckVersionUtils.attemptToTriggerCheckIn(false,false);
+		app.apiUpdateRequestUtils.attemptToTriggerUpdateRequest(false,false);
 
 	}
 

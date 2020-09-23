@@ -3,15 +3,12 @@ package org.rfcx.guardian.updater.service;
 import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class InstallAppService extends Service {
@@ -79,7 +76,7 @@ public class InstallAppService extends Service {
 				if (versionValueToInstall > installedVersionValue) {
 					if (app.installUtils.installApkAndVerify()) {
 						Log.d(logTag, "Installation Successful: " + app.installUtils.installRole + ", " + app.installUtils.installVersion);
-						app.apiCheckVersionUtils.attemptToTriggerCheckIn(true, true);
+						app.apiUpdateRequestUtils.attemptToTriggerUpdateRequest(true, true);
 					} else {
 						Log.e(logTag, "Installation Failed: " + app.installUtils.installRole + ", " + app.installUtils.installVersion);
 					}
@@ -90,7 +87,7 @@ public class InstallAppService extends Service {
 				RfcxLog.logExc(logTag, e);
 			} finally {
 				FileUtils.delete(app.installUtils.apkPathExternal);
-				app.apiCheckVersionUtils.lastCheckInTriggered = 0;
+				app.apiUpdateRequestUtils.lastUpdateRequestTriggered = 0;
 			}
 
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);

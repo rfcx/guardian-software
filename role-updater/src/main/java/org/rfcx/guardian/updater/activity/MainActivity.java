@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import org.rfcx.guardian.utility.misc.ShellCommands;
 
 public class MainActivity extends Activity {
 
@@ -20,7 +19,6 @@ public class MainActivity extends Activity {
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		RfcxGuardian app = (RfcxGuardian) getApplication();
 		switch (item.getItemId()) {
 
 		}
@@ -31,12 +29,11 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-		final RfcxGuardian app = (RfcxGuardian) getApplication();
-		Button checkVersion = findViewById(R.id.checkVersionButton);
-		checkVersion.setOnClickListener(new View.OnClickListener() {
+		Button updateRequest = findViewById(R.id.updateRequestButton);
+		updateRequest.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				app.apiCheckVersionUtils.attemptToTriggerCheckIn(true, true);
+			((RfcxGuardian) getApplication()).apiUpdateRequestUtils.attemptToTriggerUpdateRequest(true, true);
 			}
 		});
 	}

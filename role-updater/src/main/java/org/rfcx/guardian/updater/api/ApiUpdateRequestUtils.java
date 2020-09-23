@@ -13,27 +13,27 @@ import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import android.content.Context;
 import android.util.Log;
 
-public class ApiCheckVersionUtils {
+public class ApiUpdateRequestUtils {
 
-	public ApiCheckVersionUtils(Context context) {
+	public ApiUpdateRequestUtils(Context context) {
 		this.context = context;
 		this.app = (RfcxGuardian) context.getApplicationContext();
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckVersionUtils");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiUpdateRequestUtils");
 
 	private Context context;
 	private RfcxGuardian app;
 
-	public static final long minimumAllowedIntervalBetweenCheckIns = 30; // in minutes
-	public long lastCheckInTriggered = 0;
-	public long lastCheckInTime = System.currentTimeMillis();
+	public static final long minimumAllowedIntervalBetweenUpdateRequests = 30; // in minutes
+	public long lastUpdateRequestTriggered = 0;
+	public long lastUpdateRequestTime = System.currentTimeMillis();
 
 	private static final int installationBatteryCutoffPercentage = 50;
 
-	public boolean apiCheckVersionFollowUp(String targetRole, List<JSONObject> jsonList) {
+	public boolean apiUpdateRequestFollowUp(String targetRole, List<JSONObject> jsonList) {
 		
-		this.lastCheckInTime = System.currentTimeMillis();
+		this.lastUpdateRequestTime = System.currentTimeMillis();
 
 		String focusRole = null;
 		String focusVersion = null;
@@ -88,28 +88,28 @@ public class ApiCheckVersionUtils {
 	
 
 	
-	private boolean isCheckInAllowed(boolean printLoggingFeedbackIfNotAllowed) {
+	private boolean isUpdateRequestAllowed(boolean printLoggingFeedbackIfNotAllowed) {
 		if (app != null) {
 			if (app.deviceConnectivity.isConnected()) {
-				long timeElapsedSinceLastCheckIn = System.currentTimeMillis() - this.lastCheckInTriggered;
-				if (timeElapsedSinceLastCheckIn > (minimumAllowedIntervalBetweenCheckIns * (60 * 1000))) {
-					this.lastCheckInTriggered = System.currentTimeMillis();
+				long timeElapsedSinceLastUpdateRequest = System.currentTimeMillis() - this.lastUpdateRequestTriggered;
+				if (timeElapsedSinceLastUpdateRequest > (minimumAllowedIntervalBetweenUpdateRequests * (60 * 1000))) {
+					this.lastUpdateRequestTriggered = System.currentTimeMillis();
 					return true;
 				} else if (printLoggingFeedbackIfNotAllowed) {
-					Log.e(logTag, "Update CheckIn blocked b/c minimum allowed interval has not yet elapsed"
-									+" - Elapsed: " + DateTimeUtils.milliSecondDurationAsReadableString(timeElapsedSinceLastCheckIn)
-									+" - Required: " + minimumAllowedIntervalBetweenCheckIns + " minutes");
+					Log.e(logTag, "Update Request blocked b/c minimum allowed interval has not yet elapsed"
+									+" - Elapsed: " + DateTimeUtils.milliSecondDurationAsReadableString(timeElapsedSinceLastUpdateRequest)
+									+" - Required: " + minimumAllowedIntervalBetweenUpdateRequests + " minutes");
 				}
 			} else {
-				Log.e(logTag, "Update CheckIn blocked b/c there is no internet connectivity.");
+				Log.e(logTag, "Update Request blocked b/c there is no internet connectivity.");
 			}
 		}
 		return false;
 	}
 
-	public void attemptToTriggerCheckIn(boolean forceRequest, boolean printLoggingFeedbackIfNotAllowed) {
-		if (forceRequest || isCheckInAllowed(printLoggingFeedbackIfNotAllowed)) {
-			app.rfcxServiceHandler.triggerService("ApiCheckVersion", false);
+	public void attemptToTriggerUpdateRequest(boolean forceRequest, boolean printLoggingFeedbackIfNotAllowed) {
+		if (forceRequest || isUpdateRequestAllowed(printLoggingFeedbackIfNotAllowed)) {
+			app.rfcxServiceHandler.triggerService("ApiUpdateRequest", false);
 		}
 	}
 	

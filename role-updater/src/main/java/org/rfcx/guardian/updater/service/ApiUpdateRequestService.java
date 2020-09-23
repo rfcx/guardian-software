@@ -14,16 +14,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class ApiCheckVersionService extends Service {
+public class ApiUpdateRequestService extends Service {
 
-	private static final String SERVICE_NAME = "ApiCheckVersion";
+	private static final String SERVICE_NAME = "ApiUpdateRequest";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckVersionService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiUpdateRequestService");
 
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private ApiCheckVersion apiCheckVersion;
+	private ApiUpdateRequest apiUpdateRequest;
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -33,7 +33,7 @@ public class ApiCheckVersionService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.apiCheckVersion = new ApiCheckVersion();
+		this.apiUpdateRequest = new ApiUpdateRequest();
 		app = (RfcxGuardian) getApplication();
 	}
 
@@ -44,7 +44,7 @@ public class ApiCheckVersionService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.apiCheckVersion.start();
+			this.apiUpdateRequest.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -56,19 +56,19 @@ public class ApiCheckVersionService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.apiCheckVersion.interrupt();
-		this.apiCheckVersion = null;
+		this.apiUpdateRequest.interrupt();
+		this.apiUpdateRequest = null;
 	}
 	
-	private class ApiCheckVersion extends Thread {
+	private class ApiUpdateRequest extends Thread {
 
-		public ApiCheckVersion() {
-			super("ApiCheckVersionService-ApiCheckVersion");
+		public ApiUpdateRequest() {
+			super("ApiUpdateRequestService-ApiUpdateRequest");
 		}
 
 		@Override
 		public void run() {
-			ApiCheckVersionService apiCheckVersionService = ApiCheckVersionService.this;
+			ApiUpdateRequestService apiUpdateRequestService = ApiUpdateRequestService.this;
 
 			HttpGet httpGet = new HttpGet(app.getApplicationContext(), RfcxGuardian.APP_ROLE);
 			// setting customized rfcx authentication headers (necessary for API access)
@@ -89,7 +89,7 @@ public class ApiCheckVersionService extends Service {
 									+ "&timestamp="+System.currentTimeMillis()
 									;
 
-					Log.d(logTag, "Time elapsed since last update checkin: "+ DateTimeUtils.milliSecondDurationAsReadableString((System.currentTimeMillis() - app.apiCheckVersionUtils.lastCheckInTime)));
+					Log.d(logTag, "Time elapsed since last update request: "+ DateTimeUtils.milliSecondDurationAsReadableString((System.currentTimeMillis() - app.apiUpdateRequestUtils.lastUpdateRequestTime)));
 
 					List<JSONObject> jsonResponse = null;
 					try {
@@ -99,16 +99,13 @@ public class ApiCheckVersionService extends Service {
 					}
 
 					if (jsonResponse == null) {
-						Log.e(logTag, "Version check API request failed...");
-						app.apiCheckVersionUtils.lastCheckInTriggered = 0;
+						Log.e(logTag, "Version API Update Request failed...");
+						app.apiUpdateRequestUtils.lastUpdateRequestTriggered = 0;
 					} else {
-//							for (JSONObject jsonObj : jsonResponse) {
-//								Log.d(logTag, jsonObj.toString());
-//							}
 						for (JSONObject jsonResponseItem : jsonResponse) {
 							String targetAppRole = jsonResponseItem.getString("role").toLowerCase();
 							if (!targetAppRole.equals(RfcxGuardian.APP_ROLE)) {
-								if (app.apiCheckVersionUtils.apiCheckVersionFollowUp(targetAppRole, jsonResponse)) {
+								if (app.apiUpdateRequestUtils.apiUpdateRequestFollowUp(targetAppRole, jsonResponse)) {
 									break;
 								}
 							}

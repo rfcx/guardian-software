@@ -3,15 +3,10 @@
 
     <string name="app_name">RFCx Admin</string>
 
-    <string name="menu_compose_sms">Compose SMS</string>
-    <string name="menu_screenshot">Capture Screenshot</string>
-    <string name="menu_sntp">SNTP Sync</string>
-    <string name="menu_logcat">Capture Logcat</string>
-    <string name="menu_reboot">Reboot System</string>
     <string name="sms_phone_number">Phone Number</string>
     <string name="sms_message">Message</string>
     <string name="send_sms_button">Send SMS</string>
-    <string name="not_default_app">Not default app</string>
-    <string name="change_default_app">Change default app</string>
+    <string name="not_default_app">NOT Default SMS App</string>
+    <string name="change_default_app">Change Default SMS App</string>
 
 </resources>

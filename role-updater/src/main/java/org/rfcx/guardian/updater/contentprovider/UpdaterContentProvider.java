@@ -8,7 +8,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
@@ -74,7 +73,7 @@ public class UpdaterContentProvider extends ContentProvider {
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"initialize", null, System.currentTimeMillis()});
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "software_update")) {  logFuncVal = "control-software_update";
-				app.apiCheckVersionUtils.attemptToTriggerCheckIn(true, true);
+				app.apiUpdateRequestUtils.attemptToTriggerUpdateRequest(true, true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{ "software_update", null, System.currentTimeMillis()});
 
 			}
