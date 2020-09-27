@@ -279,7 +279,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         return this.sharedPrefs.edit().putString(prefKey, prefValue).commit();
     }
 
-    private void reSyncIdentityAcrossRoles() {
+    public void reSyncIdentityAcrossRoles() {
         for (String roleName : RfcxRole.ALL_ROLES) {
             if (!roleName.equalsIgnoreCase(APP_ROLE)) {
                 this.rfcxGuardianIdentity.reSyncIdentityInExternalRoleViaContentProvider(roleName.toLowerCase(), this);

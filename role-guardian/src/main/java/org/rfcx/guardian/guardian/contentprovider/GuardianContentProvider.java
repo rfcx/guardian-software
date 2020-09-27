@@ -66,6 +66,7 @@ public class GuardianContentProvider extends ContentProvider {
 				String pathSegIdKey = pathSeg.substring(0, pathSeg.indexOf("|"));
 				String pathSegIdVal = pathSeg.substring(1 + pathSeg.indexOf("|"));
 				app.rfcxGuardianIdentity.setIdentityValue(pathSegIdKey, pathSegIdVal);
+				app.reSyncIdentityAcrossRoles();
 				return RfcxComm.getProjectionCursor(appRole, "identity_set", new Object[]{pathSegIdKey, pathSegIdVal, System.currentTimeMillis()});
 
 			// get status of services

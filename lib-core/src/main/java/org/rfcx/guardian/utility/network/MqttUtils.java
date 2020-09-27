@@ -24,7 +24,6 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import android.content.Context;
 import android.util.Log;
 
-import org.rfcx.guardian.utility.R;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -39,8 +38,8 @@ public class MqttUtils implements MqttCallback {
 
 	private Context context;
 	private String logTag;
-	
-	private int mqttQos = 0; // QoS 
+
+
 	private String mqttClientId = null;
 	private int mqttBrokerPort = 1883;
 	private String mqttBrokerProtocol = "tcp";
@@ -51,6 +50,7 @@ public class MqttUtils implements MqttCallback {
 	private String mqttBrokerAuthPassword = null;
 	private MqttClient mqttClient = null;
 	private List<String> mqttTopics_Subscribe = new ArrayList<String>();;
+	private int mqttSubscriptionQoS = 1;
 	private MqttCallback mqttCallback = this;
 	
 	private long mqttActionTimeout = 0;
@@ -104,12 +104,12 @@ public class MqttUtils implements MqttCallback {
 	public long mqttBrokerConnectionLatency = 0;
 	public long mqttBrokerSubscriptionLatency = 0;
 	
-	public long publishMessage(String publishTopic, boolean trackDeliveryDuration, byte[] messageByteArray) throws MqttException {
+	public long publishMessage(String publishTopic, int publishQoS, boolean trackDeliveryDuration, byte[] messageByteArray) throws MqttException {
 
 		if (confirmOrCreateConnectionToBroker(true)) {
-			Log.i(logTag, "Publishing " + FileUtils.bytesAsReadableString(messageByteArray.length) + " to '" + publishTopic + "' at " + DateTimeUtils.getDateTime());
+			Log.i(logTag, "Publishing " + FileUtils.bytesAsReadableString(messageByteArray.length) + " to '" + publishTopic + "' (QoS: " + publishQoS + ") at " + DateTimeUtils.getDateTime());
 			if (trackDeliveryDuration) { this.msgSendStart = System.currentTimeMillis(); }
-			this.mqttClient.publish(publishTopic, buildMessage(messageByteArray));
+			this.mqttClient.publish(publishTopic, buildMessage(publishQoS, messageByteArray));
 		} else {
 			Log.e(logTag, "Message could not be sent because connection could not be created...");
 		}
@@ -157,14 +157,13 @@ public class MqttUtils implements MqttCallback {
 
 			mqttBrokerConnectionLatency = System.currentTimeMillis() - mqttBrokerConnectionLastAttemptedAt;
 			Log.v(logTag, "Connected to MQTT broker: "+this.mqttBrokerUri
-                                +" (QoS: "+this.mqttQos+")"
                                 +((this.mqttBrokerAuthUserName != null) ? " (Auth User: '"+this.mqttBrokerAuthUserName+"')" : "")
             );
 
 			mqttBrokerSubscriptionLatency = 0;
 			for (String subscribeTopic : this.mqttTopics_Subscribe) {
-				this.mqttClient.subscribe(subscribeTopic);
-				Log.v(logTag, "Subscribed to MQTT topic: "+subscribeTopic);
+				this.mqttClient.subscribe(subscribeTopic, this.mqttSubscriptionQoS);
+				Log.v(logTag, "Subscribed to MQTT topic: "+subscribeTopic+" (QoS: "+this.mqttSubscriptionQoS +")");
 			}
 			mqttBrokerSubscriptionLatency = System.currentTimeMillis() - (mqttBrokerConnectionLastAttemptedAt + mqttBrokerConnectionLatency);
 				
@@ -190,9 +189,9 @@ public class MqttUtils implements MqttCallback {
 		}
 	}
 	
-	private MqttMessage buildMessage(byte[] messageByteArray) {
+	private MqttMessage buildMessage(int publishQoS, byte[] messageByteArray) {
 		MqttMessage mqttMessage = new MqttMessage(messageByteArray);
-		mqttMessage.setQos(mqttQos);
+		mqttMessage.setQos(publishQoS);
 		mqttMessage.setRetained(false);
 		return mqttMessage;
 	}

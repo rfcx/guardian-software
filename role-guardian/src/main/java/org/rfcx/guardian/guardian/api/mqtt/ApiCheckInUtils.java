@@ -39,7 +39,13 @@ public class ApiCheckInUtils implements MqttCallback {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 
 		this.mqttCheckInClient = new MqttUtils(context, RfcxGuardian.APP_ROLE, this.app.rfcxGuardianIdentity.getGuid());
-		this.mqttCheckInClient.addSubscribeTopic(this.app.rfcxGuardianIdentity.getGuid()+"/cmd");
+
+		this.mqttTopic_Subscribe_Command = "grd/"+this.app.rfcxGuardianIdentity.getGuid()+"/cmd";
+		this.mqttTopic_Publish_CheckIn = "grd/"+this.app.rfcxGuardianIdentity.getGuid()+"/chk";
+		this.mqttTopic_Publish_Ping = "grd/"+this.app.rfcxGuardianIdentity.getGuid()+"/png";
+
+		this.mqttCheckInClient.addSubscribeTopic(this.mqttTopic_Subscribe_Command);
+
 		setOrResetBrokerConfig();
 		this.mqttCheckInClient.setCallback(this);
 		getSetCheckInPublishTimeOutLength();
@@ -52,6 +58,10 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	private RfcxGuardian app;
 	private MqttUtils mqttCheckInClient = null;
+
+	private String mqttTopic_Subscribe_Command = null;
+	private String mqttTopic_Publish_CheckIn = null;
+	private String mqttTopic_Publish_Ping = null;
 
 	private long checkInPublishTimeOutLength = 0;
 	private long checkInPublishCompletedAt = System.currentTimeMillis();
@@ -342,7 +352,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				this.inFlightCheckInAttemptCounter++;
 
 				app.apiCheckInDb.dbQueued.incrementSingleRowAttempts(audioId);
-				long msgSendStart = publishMessageOnConfirmedConnection("guardians/checkins", true, checkInPayload);
+				long msgSendStart = publishMessageOnConfirmedConnection(this.mqttTopic_Publish_CheckIn, 1,true, checkInPayload);
 
 				app.apiCheckInHealthUtils.setInFlightCheckInStats(audioId, msgSendStart, 0, checkInPayload.length);
 				this.inFlightCheckInAttemptCounter = 0;
@@ -677,9 +687,8 @@ public class ApiCheckInUtils implements MqttCallback {
 		Log.i(logTag, "Received "+FileUtils.bytesAsReadableString(messagePayload.length)+" on '"+messageTopic+"' at "+DateTimeUtils.getDateTime());
 
 		// this is a checkin response message
-		if (messageTopic.equalsIgnoreCase(this.app.rfcxGuardianIdentity.getGuid()+"/cmd")) {
+		if (messageTopic.equalsIgnoreCase(this.mqttTopic_Subscribe_Command)) {
 			processCheckInResponseMessage(StringUtils.UnGZipByteArrayToString(messagePayload));
-
 		}
 	}
 
@@ -693,7 +702,7 @@ public class ApiCheckInUtils implements MqttCallback {
 				String msgTopic = deliveryToken.getTopics()[0];
 				Log.i(logTag, "Completed delivery to '"+msgTopic+"' at "+DateTimeUtils.getDateTime());
 
-				if (msgTopic.equalsIgnoreCase("guardians/checkins")) {
+				if (msgTopic.equalsIgnoreCase(this.mqttTopic_Publish_CheckIn)) {
 					moveCheckInEntryToSentDatabase(app.apiCheckInHealthUtils.getInFlightCheckInAudioId());
 					long publishDuration = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds( app.apiCheckInHealthUtils.getCurrentInFlightCheckInStatsEntry()[0] ));
 					app.apiCheckInHealthUtils.setInFlightCheckInStats(app.apiCheckInHealthUtils.getInFlightCheckInAudioId(), 0, publishDuration, 0);
@@ -759,10 +768,10 @@ public class ApiCheckInUtils implements MqttCallback {
 		}
 	}
 
-	private long publishMessageOnConfirmedConnection(String publishTopic, boolean trackDuration, byte[] messageByteArray) throws MqttException {
+	private long publishMessageOnConfirmedConnection(String publishTopic, int publishQoS, boolean trackDuration, byte[] messageByteArray) throws MqttException {
 		confirmOrCreateConnectionToBroker(true);
-		if (publishTopic.equalsIgnoreCase("guardians/checkins")) { SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHING, null); }
-		return this.mqttCheckInClient.publishMessage(publishTopic, trackDuration, messageByteArray);
+		if (publishTopic.equalsIgnoreCase(this.mqttTopic_Publish_CheckIn)) { SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHING, null); }
+		return this.mqttCheckInClient.publishMessage(publishTopic, publishQoS, trackDuration, messageByteArray);
 	}
 
 	public boolean isConnectedToBroker() {
@@ -775,7 +784,7 @@ public class ApiCheckInUtils implements MqttCallback {
 
 		try {
 
-			publishMessageOnConfirmedConnection("guardians/pings", false, packageMqttPingPayload(app.apiJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields)));
+			publishMessageOnConfirmedConnection(this.mqttTopic_Publish_Ping, 1,false, packageMqttPingPayload(app.apiJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields)));
 
 		} catch (Exception e) {
 

@@ -67,9 +67,9 @@ public class RfcxGuardianIdentity {
 
 	public void setIdentityValue(String idKey, String idVal) {
 		if (idKey.equalsIgnoreCase("guid")) {
-			setGuid(idVal);
+			setGuid(idVal.toLowerCase());
 		} else if (idKey.equalsIgnoreCase("token")) {
-			setAuthToken(idVal);
+			setAuthToken(idVal.toLowerCase());
 		} else if (idKey.equalsIgnoreCase("keystore_passphrase")) {
 			setKeystorePassPhrase(idVal);
 		}

@@ -65,7 +65,7 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "identity_resync", "*")) { logFuncVal = "identity_resync-*";
                 String idKey = uri.getLastPathSegment();
-                //app.rfcxGuardianIdentity.reSyncGuardianIdentity();
+                app.rfcxGuardianIdentity.reSyncGuardianIdentity();
                 return RfcxComm.getProjectionCursor(appRole, "identity_resync", new Object[]{ idKey, System.currentTimeMillis() });
 
             // "process" function endpoints
