@@ -99,7 +99,7 @@ Run **publish-apk** script in /bin/apk/ with role and environment  as parameters
 8. Login (make sure your user account has guardianCreator role). Once logined, the browser will redirect to the app automatically.
 9. Press Register button to register the guardian
 10. If registration success, guid will show up on the screen and other UIs will show up.
-11. Also, login to the *(production/staging)*Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your guardian (you will see the first 4 chars of the guid)
+11. Also, login to the *(production/staging)* Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your guardian (you will see the first 4 chars of the guid)
 12. You can observe the app by using **adb logcat**
    ```
    adb logcat | grep Rfcx 
@@ -134,28 +134,30 @@ Before getting started, key points to be familiar with:
 
 #### Install apps
 
-You can install apps by 2 ways
-1. Using script in /bin/
-   1. Your **PATH** should have Android SDK root path or If you have Android Studio installed then your Environment Variables also should have **ANDROID_SDK_ROOT**. If there is none of those two then you need to set it yourself.
-   2. Connect your OrangePi to your PC via usb port
-   3. Run script **download-apk-install.sh 0.x.x**
-   4. All apps will be installed and start automatically
-2. Using Android Studio
-   1. Connect your OrangePi to your PC via usb port
-   2. In Android Studio, select the **guardian|admin|updater** app and press **Run**.
-   3. The app will be installed and start automatically
+You can install apps by 3 ways
+1. [Using script in /bin/](https://github.com/rfcx/rfcx-guardian-android/tree/develop#download-apps-from-script)
+2. [Using Android Studio](https://github.com/rfcx/rfcx-guardian-android/tree/develop#run-the-guardian-role-from-android-studio-android-442-recommended)
+3. [Using latest release APKs in github](https://github.com/rfcx/rfcx-guardian-android/tree/develop#run-the-guardian-role-from-android-studio-android-442-recommended)
 
 #### Run the guardian role
 
 1. Login (make sure your user account has guardianCreator role). Once logined, the browser will be redirected to the app automatically.
-2. Register the guardian.
-3. If registration success, guid will show up on the screen and the audio capture service will start.
-4. Also, login to the Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your OrangePi (you will see the first 4 chars of the id)
-5. Open **Logcat** in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your OrangePi.
+2. You can change environment of this guardian by enter to Preference menu at top right of the screen.
+   - Leave it if you want this guardian to be on production.
+   - If you want this guardian to be on staging, add **staging-** in front of the old ones on *api_rest_host* and *api_mqtt_host*.
+3. Login (make sure your user account has guardianCreator role). Once logined, the browser will redirect to the app automatically.
+4. Press Register button to register the guardian
+5. If registration success, guid will show up on the screen and other UIs will show up.
+6. Also, login to the *(production/staging)* Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your guardian (you will see the first 4 chars of the guid)
+7. You can observe the app by using **adb logcat**
+   ```
+   adb logcat | grep Rfcx 
+   ```
+8. Or open **Logcat** in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your OrangePi.
 
 #### Run the admin role
 
-OrangePi has already been rooted so you do not need to do anything extra to run admin role.
+OrangePi has already been rooted and signed key also same as in the Android image, so you do not need to do anything extra to run admin role.
 
 ### Step 1: Flash Android on OrangePi (using Windows)
 
@@ -178,7 +180,6 @@ OrangePi has already been rooted so you do not need to do anything extra to run 
 
 Before following the instruction below. You need to download Vysor first.
 
-- Google Chrome Extension: https://chrome.google.com/webstore/detail/vysor/gidgenkbbabolejbgbpnhbimgjbffefm
 - Normal program: https://www.vysor.io/download/
 
 1. After you flashed the Orange Pi and disconnect the usb cable. Please make sure that you remove jumper cap from COM2 and the arrange jumper cap of COM1 as shown in the picture. *(the middle iron of jumper cap also must be the same as in the picture)*
@@ -320,6 +321,8 @@ Before you start, you will need to generate a suitable IMEI number. Please use t
 2. Go to Settings > Wireless & Networks - **More...** > Default SMS app > Choose **RFCx Admin**
 
    ![](docs/images/sms_to_admin.PNG?raw=true)
+
+3. Or open the admin role and set it from the app itself
 
 ### Step 8: How to set Default Write Disk to Phone storage
 
