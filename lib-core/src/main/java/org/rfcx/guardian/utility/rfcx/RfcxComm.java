@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 
 import android.content.ContentResolver;
 import android.content.UriMatcher;
@@ -134,6 +135,10 @@ public class RfcxComm {
 		if (command != null) { uri.append("/").append(command.toLowerCase(Locale.US)); }
 		return Uri.parse(uri.toString());
 	}
+
+	public static Uri getUri(String role, String function) {
+		return getUri(role, function, null);
+	}
 	
 	public static int[] getUriMatchId(String role, String function) {
 		
@@ -160,7 +165,7 @@ public class RfcxComm {
 		UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 		
 		uriMatcher.addURI(getAuthority(_role), _function, uriMatchIds[0]);
-		uriMatcher.addURI(getAuthority(_role), (new StringBuilder()).append(_function).append("/*").toString(), uriMatchIds[1]);
+		uriMatcher.addURI(getAuthority(_role), _function + "/*", uriMatchIds[1]);
 		
 		return uriMatcher;
 	}
@@ -183,7 +188,8 @@ public class RfcxComm {
 	}
 
 	public static String getAuthority(String role) {
-		return (new StringBuilder()).append("org.rfcx.guardian.").append(role.toLowerCase(Locale.US)).toString();
+		String _role = role.toLowerCase(Locale.US);
+		return ((ArrayUtils.doesStringArrayContainString(RfcxRole.ALL_ROLES, _role)) ? "org.rfcx.guardian." : "") + _role;
 	}
 	
 	public static String[] getProjection(String role, String function) {

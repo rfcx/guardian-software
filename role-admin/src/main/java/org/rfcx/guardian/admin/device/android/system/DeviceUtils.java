@@ -200,9 +200,7 @@ public class DeviceUtils {
 			try {
 
 				long dateTimeSourceLastSyncedAt_gps = System.currentTimeMillis();
-				long dateTimeDiscrepancyFromSystemClock_gps =
-						DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(
-							location.getTime() + 3600000); // for some reason, it would appear we have to add an hour to this measurement?!?!?
+				long dateTimeDiscrepancyFromSystemClock_gps = DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(location.getTime());
 				
 				double[] geoPos = new double[] { 
 						(double) dateTimeSourceLastSyncedAt_gps,

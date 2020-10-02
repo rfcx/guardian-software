@@ -14,7 +14,7 @@ import org.rfcx.guardian.admin.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.sms.SmsDispatchService;
-import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
+import org.rfcx.guardian.admin.device.android.control.WifiHotspotStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSpaceDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceRebootDb;
@@ -58,7 +58,6 @@ import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 
 import android.app.Application;
-import android.bluetooth.BluetoothClass;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -168,6 +167,7 @@ public class RfcxGuardian extends Application {
 
 	}
 
+
 	public boolean isGuardianRegistered() {
 		return (this.rfcxGuardianIdentity.getAuthToken() != null);
 	}
@@ -193,7 +193,7 @@ public class RfcxGuardian extends Application {
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
 							+ "|" + "norepeat"
 							,
-					"WifiStateSet"
+					"WifiHotspot"
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:15").getTimeInMillis() // waits fifteen seconds before running
 							+ "|" + "norepeat"
 							,
@@ -230,7 +230,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("AirplaneModeToggle", AirplaneModeToggleService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeEnable", AirplaneModeEnableService.class);
 
-		this.rfcxServiceHandler.addService("WifiStateSet", WifiStateSetService.class);
+		this.rfcxServiceHandler.addService("WifiHotspot", WifiHotspotStateSetService.class);
 		this.rfcxServiceHandler.addService("ADBStateSet", ADBStateSetService.class);
 
         this.rfcxServiceHandler.addService("SmsDispatch", SmsDispatchService.class);
@@ -266,7 +266,7 @@ public class RfcxGuardian extends Application {
 	public void onPrefReSync(String prefKey) {
 
 		if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
-			rfcxServiceHandler.triggerService("WifiStateSet", false);
+			rfcxServiceHandler.triggerService("WifiHotspot", false);
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
 
 		} else if (prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
@@ -298,7 +298,7 @@ public class RfcxGuardian extends Application {
 			DeviceWallpaper.setWallpaper(this, R.drawable.black);
 
 			// Rename Device Hardware with /system/build.prop.
-			// Only occurs once, on initial launch, and requires reboot once complete.
+			// Only occurs once, on initial launch, and requires reboot if changes are made.
 			DeviceHardware_OrangePi_3G_IOT.checkSetDeviceHardwareIdentification(this);
 
 		}
