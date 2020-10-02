@@ -354,20 +354,12 @@ Before you start, you will need to generate a suitable IMEI number. Please use t
 
 5. You can debug OrangePi by using Bluetooth on [Step 5](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-5-how-to-debug-orangepi-over-bluetooth-instead-of-usb-cable) or [Step 6](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-6-how-to-debug-orangepi-over-wifi-hotspot)
 
-### Step 7: How to setup, run and test the I2C
-
-1. Plugin the sentinel power wires to the OrangePi on [Step 10](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-10-how-to-connect-i2c-and-load-i2c-module)
-
-2. Install admin role
-
-3. When the admin role starts, switch **monitor** to **ON** in the screen
-
-4. The result will be monitored real-time and can stop by switch it to **OFF**
-
 ## Instructions for Android phone
 
 There are differences for normal Android phone and OrangePi.
 - It is not rooted by default.
+- Android image is not the same
+- System app cannot be installed because of different system signed key
 - You need to enable permission for apps yourself.
 
 #### Install apps
@@ -377,9 +369,12 @@ The process is same as OrangePi
 #### Run the guardian role
 
 The process is same as OrangePi but you need to enable Permission yourself by
-- (If you are on Android 8 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS) then run the app again.
+- (If you are on Android 5 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS) then run the app again.
 
 #### Run the admin role
 
-You will need a rooted phone to test the admin role. It will run without a rooted phone, but many of the functions (e.g. time sync, reboot) will not operate.
-Also allow all permission is required.
+Now admin role cannot be normally installed on the phone because it is now built as system application especially for Orange Pi which the signed key need to be the same as the phone.
+
+#### Run the updater role
+
+This can be done same as guardian role
