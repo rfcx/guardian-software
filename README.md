@@ -62,7 +62,7 @@ Run **deploy-apk** script in /bin/apk/ with role as parameter
 #### Publish app APKs to server from script
 Run **publish-apk** script in /bin/apk/ with role and environment  as parameters
    ```
-   publish-apk.sh role  // publish-apk.sh guardian staging
+   publish-apk.sh role env // publish-apk.sh guardian staging
    ```
 
 #### Run the guardian role from Android Studio (Android 4.4.2 recommended)
