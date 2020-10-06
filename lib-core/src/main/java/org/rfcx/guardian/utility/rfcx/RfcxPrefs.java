@@ -399,8 +399,8 @@ public class RfcxPrefs {
 			put("audio_cutoff_battery", "100");
 
 			put("enable_cutoffs_sentinel_battery", "true");
-			put("checkin_cutoff_sentinel_battery", "10");
-			put("audio_cutoff_sentinel_battery", "10");
+			put("checkin_cutoff_sentinel_battery", "15");
+			put("audio_cutoff_sentinel_battery", "15");
 			
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "28672");
