@@ -31,7 +31,7 @@ A collection of Android applications which, together, operate as autonomous Rain
    For specific role
 
    ```
-   gradlew :role:assembleRelease
+   gradlew :role:assembleRelease  // gradlew :role-guardian:assembleRelease
    ```
    
    For all roles
@@ -47,21 +47,71 @@ A collection of Android applications which, together, operate as autonomous Rain
 1. If your Environment variables do not have **ANDROID_SDK_ROOT**, create it and point to android-sdk root path
 2. Run script with version **download-apk-install.sh 0.x.x** in /bin/
 
-#### Run the guardian role
+#### Build app APKs from script
+Run **build-apk** script in /bin/apk/ with role as parameter
+   ```
+   build-apk.sh role  // build-apk.sh guardian
+   ```
 
-1. Connect your phone.
-2. In Android Studio, press "Run" and select the "guardian" app.
-3. You should be able to select your phone (or Orange Pi) for running the app (instead of an emulator).
-4. (If you are on Android 8 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS). Then run the app again from Android Studio.
-5. Login (make sure your user account has guardianCreator role). Once logined, copy a login code and paste on an entry section.
-6. Register the guardian
-7. If registration success, guid will show up on the screen.
-8. Also, login to the Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your phone (you will see the first 4 chars of the id)
-9. Open "Logcat" in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your phone.
+#### Install app APKs from script
+Run **deploy-apk** script in /bin/apk/ with role as parameter
+   ```
+   deploy-apk.sh role  // deploy-apk.sh guardian
+   ```
 
-### Run the admin role
+#### Publish app APKs to server from script
+Run **publish-apk** script in /bin/apk/ with role and environment  as parameters
+   ```
+   publish-apk.sh role env // publish-apk.sh guardian staging
+   ```
 
-You will need a rooted phone to test the admin role. It will run without a rooted phone, but many of the functions (e.g. time sync, reboot) will not operate.
+#### Run the guardian role from Android Studio (Android 4.4.2 recommended)
+
+1. Clone this repo
+2. Connect your phone with USB cable to your PC.
+3. Open this project and wait for gradle syncing process.
+4. You should be able to select your phone (or Orange Pi) for running the app (instead of an emulator).
+4. Select **role-guardian** and press **Run** button to start building and installing process.
+5. (If you are on Android 5 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS). Then run the app again from Android Studio.
+6. You can change environment of this guardian by enter to Preference menu at top right of the screen.
+   - Leave it if you want this guardian to be on production.
+   - If you want this guardian to be on staging, add **staging-** in front of the old ones on *api_rest_host* and *api_mqtt_host*.
+6. Login (make sure your user account has guardianCreator role). Once logined, the browser will redirect to the app automatically.
+7. Press Register button to register the guardian
+8. If registration success, guid will show up on the screen and other UIs will show up.
+9. Also, login to the *(production/staging)*Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your guardian (you will see the first 4 chars of the guid)
+10. Open "Logcat" in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your guardian.
+
+#### Run the guardian role from APK (Android 4.4.2 recommended)
+
+1. You can download latest release guardian APK from [here](https://github.com/rfcx/rfcx-guardian-android/releases)
+2. Download [ADB driver](https://adb.clockworkmod.com/), if you do not have it installed.
+3. Connect your phone with USB cable to your PC.
+4. Enter this command in your terminal
+   ```
+   adb install path/to/apk/file.apk
+   ```
+5. Once the installation finished, now you can open the app from your phone.
+6. (If you are on Android 5 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS). Then run the app again from Android Studio.
+7. You can change environment of this guardian by enter to Preference menu at top right of the screen.
+   - Leave it if you want this guardian to be on production.
+   - If you want this guardian to be on staging, add **staging-** in front of the old ones on *api_rest_host* and *api_mqtt_host*.
+8. Login (make sure your user account has guardianCreator role). Once logined, the browser will redirect to the app automatically.
+9. Press Register button to register the guardian
+10. If registration success, guid will show up on the screen and other UIs will show up.
+11. Also, login to the *(production/staging)* Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your guardian (you will see the first 4 chars of the guid)
+12. You can observe the app by using **adb logcat**
+   ```
+   adb logcat | grep Rfcx 
+   ```
+
+#### Run the admin role
+
+Now admin role cannot be normally installed on the phone because it is now built as system application especially for Orange Pi which the signed key need to be the same as the phone.
+
+#### Run the updater role
+
+This can be done same as guardian role
 
 ## Instructions for Orange Pi 3G-IoT
 
@@ -81,32 +131,33 @@ Before getting started, key points to be familiar with:
     2. Guardian is registered
     3. **SD card** is connected *(any size is okay -- tested up to 64GB)*
     4. There is internet connection
-    5. You don't need to press the **start button**. It will start the service automatically. You can also check the status in the app.
 
 #### Install apps
 
-You can install apps by 2 ways
-1. Using script in /bin/
-   1. Your **PATH** should have Android SDK root path or If you have Android Studio installed then your Environment Variables also should have **ANDROID_SDK_ROOT**. If there is none of those two then you need to set it yourself.
-   2. Connect your OrangePi to your PC via usb port
-   3. Run script **download-apk-install.sh 0.x.x**
-   4. All apps will be installed and start automatically
-2. Using Android Studio
-   1. Connect your OrangePi to your PC via usb port
-   2. In Android Studio, select the **guardian|admin|updater** app and press **Run**.
-   3. The app will be installed and start automatically
+You can install apps by 3 ways
+1. [Using script in /bin/](https://github.com/rfcx/rfcx-guardian-android/tree/develop#download-apps-from-script)
+2. [Using Android Studio](https://github.com/rfcx/rfcx-guardian-android/tree/develop#run-the-guardian-role-from-android-studio-android-442-recommended)
+3. [Using latest release APKs in github](https://github.com/rfcx/rfcx-guardian-android/tree/develop#run-the-guardian-role-from-android-studio-android-442-recommended)
 
 #### Run the guardian role
 
 1. Login (make sure your user account has guardianCreator role). Once logined, the browser will be redirected to the app automatically.
-2. Register the guardian.
-3. If registration success, guid will show up on the screen and the audio capture service will start.
-4. Also, login to the Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your OrangePi (you will see the first 4 chars of the id)
-5. Open **Logcat** in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your OrangePi.
+2. You can change environment of this guardian by enter to Preference menu at top right of the screen.
+   - Leave it if you want this guardian to be on production.
+   - If you want this guardian to be on staging, add **staging-** in front of the old ones on *api_rest_host* and *api_mqtt_host*.
+3. Login (make sure your user account has guardianCreator role). Once logined, the browser will redirect to the app automatically.
+4. Press Register button to register the guardian
+5. If registration success, guid will show up on the screen and other UIs will show up.
+6. Also, login to the *(production/staging)* Console/Dashboard -> Sites -> RFCx Lab -> check that you can see your guardian (you will see the first 4 chars of the guid)
+7. You can observe the app by using **adb logcat**
+   ```
+   adb logcat | grep Rfcx 
+   ```
+8. Or open **Logcat** in Android Studio and observe the logs for "Rfcx". You should see the Audio Capture service begin immediately, and after 90 seconds you should see the Checkin service upload the audio to the server. At this point you can log into the RFCx console and listen to the latest audio from your OrangePi.
 
 #### Run the admin role
 
-OrangePi has already been rooted so you do not need to do anything extra to run admin role.
+OrangePi has already been rooted and signed key also same as in the Android image, so you do not need to do anything extra to run admin role.
 
 ### Step 1: Flash Android on OrangePi (using Windows)
 
@@ -129,7 +180,6 @@ OrangePi has already been rooted so you do not need to do anything extra to run 
 
 Before following the instruction below. You need to download Vysor first.
 
-- Google Chrome Extension: https://chrome.google.com/webstore/detail/vysor/gidgenkbbabolejbgbpnhbimgjbffefm
 - Normal program: https://www.vysor.io/download/
 
 1. After you flashed the Orange Pi and disconnect the usb cable. Please make sure that you remove jumper cap from COM2 and the arrange jumper cap of COM1 as shown in the picture. *(the middle iron of jumper cap also must be the same as in the picture)*
@@ -272,6 +322,8 @@ Before you start, you will need to generate a suitable IMEI number. Please use t
 
    ![](docs/images/sms_to_admin.PNG?raw=true)
 
+3. Or open the admin role and set it from the app itself
+
 ### Step 8: How to set Default Write Disk to Phone storage
 
 1. Go to Settings > Device - **Storage** > Choose Default Write Disk - **Phone storage**
@@ -302,20 +354,12 @@ Before you start, you will need to generate a suitable IMEI number. Please use t
 
 5. You can debug OrangePi by using Bluetooth on [Step 5](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-5-how-to-debug-orangepi-over-bluetooth-instead-of-usb-cable) or [Step 6](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-6-how-to-debug-orangepi-over-wifi-hotspot)
 
-### Step 7: How to setup, run and test the I2C
-
-1. Plugin the sentinel power wires to the OrangePi on [Step 10](https://github.com/rfcx/rfcx-guardian-android/tree/develop#step-10-how-to-connect-i2c-and-load-i2c-module)
-
-2. Install admin role
-
-3. When the admin role starts, switch **monitor** to **ON** in the screen
-
-4. The result will be monitored real-time and can stop by switch it to **OFF**
-
 ## Instructions for Android phone
 
 There are differences for normal Android phone and OrangePi.
 - It is not rooted by default.
+- Android image is not the same
+- System app cannot be installed because of different system signed key
 - You need to enable permission for apps yourself.
 
 #### Install apps
@@ -325,9 +369,12 @@ The process is same as OrangePi
 #### Run the guardian role
 
 The process is same as OrangePi but you need to enable Permission yourself by
-- (If you are on Android 8 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS) then run the app again.
+- (If you are on Android 5 or above then...) The first time you run, you will need to quit the app, open the Android settings on your phone and enable all the permissions for the guardian app. And enable the Location Sharing(GPS) then run the app again.
 
 #### Run the admin role
 
-You will need a rooted phone to test the admin role. It will run without a rooted phone, but many of the functions (e.g. time sync, reboot) will not operate.
-Also allow all permission is required.
+Now admin role cannot be normally installed on the phone because it is now built as system application especially for Orange Pi which the signed key need to be the same as the phone.
+
+#### Run the updater role
+
+This can be done same as guardian role
