@@ -5,8 +5,13 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 export ADB="$ANDROID_SDK_ROOT/platform-tools/adb";
 
 export ROLE=$1;
+export BUILD_INSTRUCTION=$2
 
-$SCRIPT_DIR/build-apk.sh $ROLE;
+if [ "$BUILD_INSTRUCTION" = "nobuild" ]; then
+	echo "skipping build step"
+else
+	$SCRIPT_DIR/build-apk.sh $ROLE;
+fi
 
 export PROJECT_DIR="$SCRIPT_DIR/../..";
 export ROLE_DIR="$PROJECT_DIR/role-$ROLE";
