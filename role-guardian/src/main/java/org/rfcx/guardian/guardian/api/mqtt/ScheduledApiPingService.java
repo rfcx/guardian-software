@@ -13,8 +13,6 @@ public class ScheduledApiPingService extends IntentService {
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledApiPingService");
 
-	public static final long SCHEDULED_API_PING_CYCLE_DURATION = 30 * ( 60 * 1000 ); // every 30 minutes
-
 	public ScheduledApiPingService() {
 		super(logTag);
 	}

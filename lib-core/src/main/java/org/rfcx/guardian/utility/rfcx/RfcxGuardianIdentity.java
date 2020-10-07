@@ -67,9 +67,9 @@ public class RfcxGuardianIdentity {
 
 	public void setIdentityValue(String idKey, String idVal) {
 		if (idKey.equalsIgnoreCase("guid")) {
-			setGuid(idVal);
+			setGuid(idVal.toLowerCase());
 		} else if (idKey.equalsIgnoreCase("token")) {
-			setAuthToken(idVal);
+			setAuthToken(idVal.toLowerCase());
 		} else if (idKey.equalsIgnoreCase("keystore_passphrase")) {
 			setKeystorePassPhrase(idVal);
 		}
@@ -88,6 +88,19 @@ public class RfcxGuardianIdentity {
 	public void setKeystorePassPhrase(String keystorePassPhrase) {
 		RfcxPrefs.writeToGuardianRoleTxtFile(this.context, this.logTag, "keystore_passphrase", keystorePassPhrase, true);
 		this.keystorePassPhrase = keystorePassPhrase;
+	}
+
+	public void unSetIdentityValue(String idKey) {
+		if (idKey.equalsIgnoreCase("guid")) {
+			this.guid = null;
+			RfcxPrefs.deleteGuardianRoleTxtFile(this.context, "guid");
+		} else if (idKey.equalsIgnoreCase("token")) {
+			this.authToken = null;
+			RfcxPrefs.deleteGuardianRoleTxtFile(this.context, "token");
+		} else if (idKey.equalsIgnoreCase("keystore_passphrase")) {
+			this.keystorePassPhrase = null;
+			RfcxPrefs.deleteGuardianRoleTxtFile(this.context, "keystore_passphrase");
+		}
 	}
 
 	public String getIdentityValue(String idKey) {

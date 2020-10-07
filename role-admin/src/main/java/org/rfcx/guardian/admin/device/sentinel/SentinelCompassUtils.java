@@ -4,7 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.DeviceI2cUtils;
+import org.rfcx.guardian.i2c.DeviceI2cUtils;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -24,7 +25,7 @@ public class SentinelCompassUtils {
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelCompassUtils");
 
-    public static final long samplesTakenPerCaptureCycle = 4;
+    public static final long samplesTakenPerCaptureCycle = 1;
 
     RfcxGuardian app;
     private DeviceI2cUtils deviceI2cUtils = null;
@@ -137,6 +138,7 @@ public class SentinelCompassUtils {
                     }
                 }
                 valueSet[valueTypeIndex] = (i2cLabeledOutput[1] == null) ? 0 : applyValueModifier(i2cLabeledOutput[0], Long.parseLong(i2cLabeledOutput[1]));
+                valueSet[4] = System.currentTimeMillis();
                 this.i2cTmpValues.put(groupName, valueSet);
             }
             cacheI2cTmpValues();
@@ -167,24 +169,27 @@ public class SentinelCompassUtils {
 
         if (sampleCount > 0) {
 
-            StringBuilder logStr = (new StringBuilder("Average of ")).append(sampleCount).append(" samples");
-
             long[] cmpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.compassValues));
             this.compassValues = new ArrayList<>();
             app.sentinelSensorDb.dbCompass.insert(cmpVals[4], cmpVals[0]+"", cmpVals[1]+"", cmpVals[2]+"", cmpVals[3]+"");
-    //        logStr.append(" [ temp: ").append(cmpVals[3]).append(" C").append(" ]");
-            logStr.append(" [ compass: x ").append(cmpVals[0]).append(", y ").append(cmpVals[1]).append(", z ").append(cmpVals[2]).append(" ]");
 
             if (printValuesToLog) {
-                Log.d(logTag, logStr.toString());
+                Log.d(logTag,
+                    (new StringBuilder("Avg of ")).append(sampleCount).append(" samples for ").append(DateTimeUtils.getDateTime(cmpVals[4]))//.append(":")
+                    .append(" [ compass: x ").append(cmpVals[0]).append(", y ").append(cmpVals[1]).append(", z ").append(cmpVals[2]).append(" ]")
+                    //.append(" [ temp: ").append(cmpVals[3]).append(" C").append(" ]")
+                    .toString());
             }
         }
     }
 
+    public List<double[]> getCompassValues() {
+        return this.compassValues;
+    }
 
-
-
-
+    public void resetCompassValues() {
+        this.compassValues = new ArrayList<>();
+    }
 
 
 }

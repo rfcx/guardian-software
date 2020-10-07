@@ -90,9 +90,10 @@ public class AudioCaptureService extends Service {
 				
 				try {
 
-					boolean isCaptureAllowed = app.audioCaptureUtils.isAudioCaptureAllowed(true);
+					boolean isAudioCaptureDisabled = app.audioCaptureUtils.isAudioCaptureDisabled(true);
+					boolean isAudioCaptureAllowed = !isAudioCaptureDisabled && app.audioCaptureUtils.isAudioCaptureAllowed(true, true);
 
-					if (confirmOrSetAudioCaptureParameters() && isCaptureAllowed) {
+					if ( confirmOrSetAudioCaptureParameters() && !isAudioCaptureDisabled && isAudioCaptureAllowed ) {
 
 						// in this case, we are starting the audio capture from a stopped/pre-initialized state
 						captureTimeStamp = System.currentTimeMillis();
@@ -113,10 +114,8 @@ public class AudioCaptureService extends Service {
 						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueueEncode");
 					}
 
-					// If capture is not allowed, we extend the capture cycle duration by a factor of AudioCaptureUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-					int currInnerLoopIterationCount = isCaptureAllowed ? innerLoopIterationCount : (AudioCaptureUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf * innerLoopIterationCount);
 					// This ensures that the service registers as active more frequently than the capture loop duration
-					for (int innerLoopIteration = 0; innerLoopIteration < currInnerLoopIterationCount; innerLoopIteration++) {
+					for (int innerLoopIteration = 0; innerLoopIteration < innerLoopIterationCount; innerLoopIteration++) {
 						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 						Thread.sleep(innerLoopIterationDuration);
 					}
@@ -124,7 +123,7 @@ public class AudioCaptureService extends Service {
 					// Triggering creation of a metadata snapshot.
 					// This is not directly related to audio capture, but putting it here ensures that snapshots will...
 					// ...continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
-					app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInMetaSnapshot");
+					app.rfcxServiceHandler.triggerIntentServiceImmediately("MetaSnapshot");
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
@@ -145,6 +144,8 @@ public class AudioCaptureService extends Service {
 		
 		if (app != null) {
 
+			app.audioCaptureUtils.updateSamplingRatioIteration();
+
 			int prefsAudioSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
 			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
 			
@@ -154,7 +155,7 @@ public class AudioCaptureService extends Service {
 
 				this.audioSampleRate = prefsAudioSampleRate;
 				this.audioCycleDuration = prefsAudioCycleDuration;
-				innerLoopIterationDuration = (long) Math.round( (prefsAudioCycleDuration * 1000) / innerLoopIterationCount );
+				innerLoopIterationDuration = Math.round( (prefsAudioCycleDuration * 1000) / innerLoopIterationCount );
 				
 				Log.d(logTag, "Audio Capture Params: " + prefsAudioCycleDuration + " seconds, " + prefsAudioSampleRate + " Hz");
 			}
@@ -166,6 +167,6 @@ public class AudioCaptureService extends Service {
 		return true;
 	}
 
-	
+
 	
 }

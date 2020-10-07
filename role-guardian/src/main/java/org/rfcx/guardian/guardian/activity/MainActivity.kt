@@ -1,5 +1,6 @@
 package org.rfcx.guardian.guardian.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -8,31 +9,25 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInUtils
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInQueueService
 import org.rfcx.guardian.guardian.api.http.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.http.GuardianCheckCallback
 import org.rfcx.guardian.guardian.api.http.RegisterApi
 import org.rfcx.guardian.guardian.api.http.RegisterCallback
-import org.rfcx.guardian.guardian.diagnostic.DiagnosticUtils
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.guardian.manager.getUserNickname
 import org.rfcx.guardian.guardian.manager.isLoginExpired
 import org.rfcx.guardian.guardian.utils.AudioSettingUtils
-import org.rfcx.guardian.guardian.utils.CheckInInformationUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
 import org.rfcx.guardian.guardian.view.*
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 
-class MainActivity : AppCompatActivity(),
+class MainActivity : Activity(),
     RegisterCallback, GuardianCheckCallback {
     private var getInfoThread: Thread? = null
     private lateinit var app: RfcxGuardian
@@ -53,8 +48,9 @@ class MainActivity : AppCompatActivity(),
         startServices()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
@@ -70,8 +66,16 @@ class MainActivity : AppCompatActivity(),
         setContentView(R.layout.activity_home)
         app = application as RfcxGuardian
 
-        setSupportActionBar(toolbar)
         initUI()
+
+        sendPingButton.setOnClickListener {
+            sendPing()
+        }
+
+        clearRegistrationButton.setOnClickListener {
+            clearRegistration()
+            setVisibilityBeforeRegister()
+        }
 
         audioCaptureButton.setOnClickListener {
             val isAudioCaptureOn = app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")
@@ -110,13 +114,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     private fun initUI() {
-        toolBarInit()
         setAppVersion()
-    }
-
-    private fun toolBarInit() {
-        val toolbar = supportActionBar
-        toolbar?.title = "Guardian"
     }
 
     private fun setAppVersion() {
@@ -157,7 +155,10 @@ class MainActivity : AppCompatActivity(),
 
     private fun updateAudioSettingsInfo() {
         val audioSettingUtils = AudioSettingUtils(this)
-        audioSettingsInfoText.text = "${audioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${audioSettingUtils.getBitRateLabel(bitRate!!)}"
+        audioSettingsInfoText.text =
+            "${audioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${audioSettingUtils.getBitRateLabel(
+                bitRate!!
+            )}"
         durationInfoText.text = "$duration seconds per file"
     }
 
@@ -169,9 +170,6 @@ class MainActivity : AppCompatActivity(),
         Handler().postDelayed({
             app.initializeRoleServices()
             setUIByRecordingState()
-            if (app.rfcxServiceHandler.isRunning("AudioCapture")) {
-                getCheckinInformation()
-            }
         }, 1000)
     }
 
@@ -189,14 +187,22 @@ class MainActivity : AppCompatActivity(),
             deviceIdText.text = " $deviceIdTxt"
             if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
                 recordStatusText.text = " recording"
-                recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.primary))
+                recordStatusText.setTextColor(resources.getColor(R.color.primary))
                 audioCaptureButton.text = "stop"
             } else {
                 recordStatusText.text = " stopped"
-                recordStatusText.setTextColor(ContextCompat.getColor(this, R.color.grey_default))
+                recordStatusText.setTextColor(resources.getColor(R.color.grey_default))
                 audioCaptureButton.text = "record"
             }
         }
+    }
+
+    private fun sendPing() {
+        app.apiCheckInUtils.sendMqttPing();
+    }
+
+    private fun clearRegistration() {
+        app.clearRegistration();
     }
 
     private fun setUIByLoginState() {
@@ -243,38 +249,6 @@ class MainActivity : AppCompatActivity(),
         registerProgress.visibility = View.INVISIBLE
     }
 
-    private fun getCheckinInformation() {
-        val checkInUtils = CheckInInformationUtils()
-        getInfoThread = object : Thread() {
-            override fun run() {
-                try {
-                    while (!isInterrupted) {
-                        runOnUiThread {
-                            val latestCheckinTimestamp = ApiCheckInUtils.latestCheckinTimestamp
-                            val latestFileSize = ApiCheckInUtils.latestFileSize
-                            val checkInTime = checkInUtils.getCheckinTime(latestCheckinTimestamp)
-                            checkInText.text = " $checkInTime"
-                            val fileSize = checkInUtils.getFileSize(latestFileSize)
-                            sizeText.text = " $fileSize"
-
-                            val totalLocalAudio = ApiCheckInQueueService.totalLocalAudio
-                            val totalSyncedAudio = ApiCheckInUtils.totalSyncedAudio
-                            val totalRecordedTime = ApiCheckInQueueService.totalRecordedTime
-                            val totalRecordedTimeTxt = DiagnosticUtils.secondToTime(totalRecordedTime)
-                            recordTimeText.text = " $totalRecordedTimeTxt"
-                            fileRecordedSyncedText.text = " $totalSyncedAudio / $totalLocalAudio"
-
-                        }
-                        sleep(5000)
-                    }
-                } catch (e: InterruptedException) {
-                    return
-                }
-            }
-        }
-        getInfoThread?.start()
-    }
-
     override fun onRegisterSuccess(t: Throwable?, response: String?) {
         app.saveGuardianRegistration(response)
         Log.i(logTag, "onRegisterSuccess: Successfully Registered")
@@ -290,21 +264,24 @@ class MainActivity : AppCompatActivity(),
 
     override fun onGuardianCheckSuccess(t: Throwable?, response: String?) {
         setVisibilityRegisterSuccess()
+        app.apiCheckInUtils.initializeFailedCheckInThresholds()
+        app.apiJsonUtils.clearPrePackageMetaData()
         app.initializeRoleServices()
         setUIByRecordingState()
         setUIByGuidState()
-        getCheckinInformation()
         val deviceIdTxt = app.rfcxGuardianIdentity.guid
         deviceIdText.text = " $deviceIdTxt"
         Log.i(logTag, "onGuardianCheckSuccess: Successfully Verified Registration")
         showToast("Successfully Verified Registration")
-        app.apiCheckInUtils.sendMqttPing(true,  arrayOf<String>() )
+        app.apiCheckInUtils.sendMqttPing(true, arrayOf<String>())
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {
         setVisibilityRegisterFail()
         Log.e(logTag, "onGuardianCheckFailed: $message")
-        showToast(message ?: "Failed to verify registration. Please try again or contact us for support.")
+        showToast(
+            message ?: "Failed to verify registration. Please try again or contact us for support."
+        )
     }
 
     override fun onPause() {

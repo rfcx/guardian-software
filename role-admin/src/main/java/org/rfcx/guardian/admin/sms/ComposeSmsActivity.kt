@@ -1,17 +1,17 @@
 package org.rfcx.guardian.admin.sms
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Telephony
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_compose_sms.*
 import org.rfcx.guardian.admin.R
 import org.rfcx.guardian.admin.RfcxGuardian
 
-class ComposeSmsActivity : AppCompatActivity(), TextWatcher {
+class ComposeSmsActivity : Activity(), TextWatcher {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_compose_sms)

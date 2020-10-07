@@ -3,10 +3,14 @@ package org.rfcx.guardian.guardian;
 import java.util.Map;
 
 import org.json.JSONObject;
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInMetaSnapshotService;
+import org.rfcx.guardian.guardian.api.asset.AssetUtils;
+import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInHealthUtils;
+import org.rfcx.guardian.guardian.api.asset.MetaSnapshotService;
+import org.rfcx.guardian.guardian.api.mqtt.ApiJsonUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInStatsDb;
-import org.rfcx.guardian.guardian.api.mqtt.ApiDiagnosticsDb;
 import org.rfcx.guardian.guardian.api.mqtt.ScheduledApiPingService;
+import org.rfcx.guardian.guardian.api.msg.ApiShortMsgDb;
+import org.rfcx.guardian.guardian.api.msg.ApiShortMsgUtils;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -18,7 +22,6 @@ import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
-import org.rfcx.guardian.utility.install.RegisterUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -33,10 +36,10 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import org.rfcx.guardian.guardian.api.mqtt.ApiAssetExchangeLogDb;
+import org.rfcx.guardian.guardian.api.asset.AssetExchangeLogDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInJobService;
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInMetaDb;
+import org.rfcx.guardian.guardian.api.asset.MetaDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInUtils;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInQueueService;
 import org.rfcx.guardian.guardian.archive.ApiCheckInArchiveService;
@@ -46,9 +49,9 @@ import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.guardian.audio.encode.AudioQueueEncodeService;
-import org.rfcx.guardian.guardian.device.android.SntpSyncJobService;
+import org.rfcx.guardian.guardian.api.sntp.SntpSyncJobService;
 import org.rfcx.guardian.guardian.device.android.DeviceSystemDb;
-import org.rfcx.guardian.guardian.device.android.ScheduledSntpSyncService;
+import org.rfcx.guardian.guardian.api.sntp.ScheduledSntpSyncService;
 import org.rfcx.guardian.guardian.receiver.ConnectivityReceiver;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
@@ -68,11 +71,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     // Database Handlers
     public AudioEncodeDb audioEncodeDb = null;
     public ApiCheckInDb apiCheckInDb = null;
-    public ApiCheckInMetaDb apiCheckInMetaDb = null;
+    public MetaDb metaDb = null;
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
-    public ApiDiagnosticsDb apiDiagnosticsDb = null;
-    public ApiAssetExchangeLogDb apiAssetExchangeLogDb = null;
+    public AssetExchangeLogDb assetExchangeLogDb = null;
     public ArchiveDb archiveDb = null;
+    public ApiShortMsgDb apiShortMsgDb = null;
     public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
 
@@ -85,6 +88,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
+    public ApiJsonUtils apiJsonUtils = null;
+    public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
+    public AssetUtils assetUtils = null;
+    public ApiShortMsgUtils apiShortMsgUtils = null;
     public InstructionsUtils instructionsUtils = null;
     public WifiCommunicationUtils wifiCommunicationUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
@@ -124,6 +131,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioCaptureUtils = new AudioCaptureUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
+        this.apiShortMsgUtils = new ApiShortMsgUtils(this);
+        this.apiJsonUtils = new ApiJsonUtils(this);
+        this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);
+        this.assetUtils = new AssetUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.wifiCommunicationUtils = new WifiCommunicationUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
@@ -148,61 +159,51 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void appPause() { }
 
 
-
-    private boolean isGuardianRegistered() {
-        return (this.rfcxGuardianIdentity.getAuthToken() != null);
-    }
-
-    public boolean saveGuardianRegistration(String regJsonStr) {
-        boolean isSaved = false;
-
+    public void saveGuardianRegistration(String regJsonStr) {
         try {
-            JSONObject regJsonObj = RegisterUtils.parseRegisterJson(regJsonStr);
-
-            if (regJsonObj.has("guid") && regJsonObj.has("token")) {
-                this.rfcxGuardianIdentity.setAuthToken(regJsonObj.getString("token"));
-                this.rfcxGuardianIdentity.setKeystorePassPhrase(regJsonObj.getString("keystore_passphrase"));
+            JSONObject regJson = new JSONObject(regJsonStr);
+            if (regJson.has("guid") && regJson.has("token")) {
+                this.rfcxGuardianIdentity.setAuthToken(regJson.getString("token"));
+                this.rfcxGuardianIdentity.setKeystorePassPhrase(regJson.getString("keystore_passphrase"));
+                if (regJson.has("api_mqtt_host")) { setSharedPref("api_mqtt_host", regJson.getString("api_mqtt_host")); }
+                if (regJson.has("api_sms_address")) { setSharedPref("api_sms_address", regJson.getString("api_sms_address")); }
             } else {
                 Log.e(logTag, "doesn't have token or guid");
             }
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
-
-        return isSaved;
     }
 
-    public boolean doConditionsPermitRoleServices() {
-        if (isGuardianRegistered()) {
-  //          if (!this.rfcxServiceHandler.isRunning("AudioCapture")) {
-                return true;
-  //          }
-        } else {
-            this.rfcxServiceHandler.stopAllServices();
-        }
-        return false;
+    public void clearRegistration() {
+        this.rfcxGuardianIdentity.unSetIdentityValue("token");
+        this.rfcxGuardianIdentity.unSetIdentityValue("keystore_passphrase");
+    }
+
+    public boolean isGuardianRegistered() {
+        return (this.rfcxGuardianIdentity.getAuthToken() != null);
     }
 
     public void initializeRoleServices() {
 
-        if (doConditionsPermitRoleServices() && !this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+        if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[]{
                     "ServiceMonitor"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
                             + "|" + ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
-                    ,
+                            ,
                     "ScheduledSntpSync"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
-                            + "|" + ScheduledSntpSyncService.SCHEDULED_SNTP_SYNC_CYCLE_DURATION
-                    ,
+                            + "|" + ( this.rfcxPrefs.getPrefAsLong("api_sntp_cycle_duration") * 60 * 1000 )
+                            ,
                     "ScheduledApiPing"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
-                            + "|" + ScheduledApiPingService.SCHEDULED_API_PING_CYCLE_DURATION
-                    ,
+                            + "|" + ( this.rfcxPrefs.getPrefAsLong("api_ping_cycle_duration") * 60 * 1000 )
+                            ,
                     "WifiCommunication"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minutes before running
-                            + "|" + "0"                                                                    // no repeat
+                            + "|" + "norepeat"
             };
 
             String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
@@ -216,11 +217,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioEncodeDb = new AudioEncodeDb(this, this.version);
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
-        this.apiCheckInMetaDb = new ApiCheckInMetaDb(this, this.version);
+        this.metaDb = new MetaDb(this, this.version);
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
-        this.apiDiagnosticsDb = new ApiDiagnosticsDb(this, this.version);
-        this.apiAssetExchangeLogDb = new ApiAssetExchangeLogDb(this, this.version);
+        this.assetExchangeLogDb = new AssetExchangeLogDb(this, this.version);
         this.archiveDb = new ArchiveDb(this, this.version);
+        this.apiShortMsgDb = new ApiShortMsgDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
 
@@ -243,7 +244,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
 
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
-        this.rfcxServiceHandler.addService("ApiCheckInMetaSnapshot", ApiCheckInMetaSnapshotService.class);
+        this.rfcxServiceHandler.addService("MetaSnapshot", MetaSnapshotService.class);
 
         this.rfcxServiceHandler.addService("InstructionsCycle", InstructionsCycleService.class);
         this.rfcxServiceHandler.addService("InstructionsExecution", InstructionsExecutionService.class);
@@ -253,7 +254,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     @Override
     public synchronized void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String prefKey) {
-        Log.d(logTag, "Pref changed: " + prefKey + " = " + this.sharedPrefs.getString(prefKey, null));
+        Log.v(logTag, "Pref Changed: '" + prefKey + "' = " + this.sharedPrefs.getString(prefKey, null));
         syncSharedPrefs();
         reSyncPrefAcrossRoles(prefKey);
         onPrefReSync(prefKey);
@@ -278,7 +279,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         return this.sharedPrefs.edit().putString(prefKey, prefValue).commit();
     }
 
-    private void reSyncIdentityAcrossRoles() {
+    public void reSyncIdentityAcrossRoles() {
         for (String roleName : RfcxRole.ALL_ROLES) {
             if (!roleName.equalsIgnoreCase(APP_ROLE)) {
                 this.rfcxGuardianIdentity.reSyncIdentityInExternalRoleViaContentProvider(roleName.toLowerCase(), this);
@@ -288,12 +289,26 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public void onPrefReSync(String prefKey) {
 
-        if (prefKey.equalsIgnoreCase("admin_enable_wifi_socket")) {
+        if (prefKey.equalsIgnoreCase("audio_cycle_duration")) {
+            this.apiCheckInUtils.getSetCheckInPublishTimeOutLength();
+
+        } else if (prefKey.equalsIgnoreCase("admin_enable_wifi_socket")) {
             this.rfcxServiceHandler.triggerService("WifiCommunication", false);
 
         } else if (prefKey.equalsIgnoreCase("checkin_failure_thresholds")) {
             this.apiCheckInUtils.initializeFailedCheckInThresholds();
+
+        } else if (prefKey.equalsIgnoreCase("enable_checkin_publish")) {
+            this.apiCheckInUtils.initializeFailedCheckInThresholds();
+
+        } else if (prefKey.equalsIgnoreCase("enable_cutoffs_sampling_ratio")) {
+            this.audioCaptureUtils.samplingRatioIteration = 0;
+
         }
+
+
+
+
     }
 
 }

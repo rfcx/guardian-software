@@ -1,10 +1,15 @@
 package org.rfcx.guardian.guardian.api.mqtt;
 
+import android.content.Context;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.Arrays;
@@ -13,7 +18,13 @@ import java.util.Map;
 
 public class ApiCheckInHealthUtils {
 
+	public ApiCheckInHealthUtils(Context context) {
+		this.app = (RfcxGuardian) context.getApplicationContext();
+	}
+
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInHealthUtils");
+
+	private RfcxGuardian app;
 
 	private Map<String, long[]> healthCheckMonitors = new HashMap<String, long[]>();
 	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent", "time-of-day" };
@@ -26,6 +37,53 @@ public class ApiCheckInHealthUtils {
 	private long lastKnownAudioCaptureDuration = 0;
 	private long lastKnownTimeOfDayLowerBound = 0;
 	private long lastKnownTimeOfDayUpperBound = 0;
+
+	private String inFlightCheckInAudioId = null;
+	private String latestCheckInAudioId = null;
+	private Map<String, String[]> inFlightCheckInEntries = new HashMap<String, String[]>();
+	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
+
+	public void updateInFlightCheckInOnSend(String audioId, String[] checkInDbEntry) {
+		this.inFlightCheckInAudioId = audioId;
+		this.inFlightCheckInEntries.remove(audioId);
+		this.inFlightCheckInEntries.put(audioId, checkInDbEntry);
+	}
+
+	public void updateInFlightCheckInOnReceive(String audioId) {
+		this.latestCheckInAudioId = audioId;
+		this.inFlightCheckInEntries.remove(audioId);
+		this.inFlightCheckInStats.remove(audioId);
+	}
+
+	public String getInFlightCheckInAudioId() {
+		return this.inFlightCheckInAudioId;
+	}
+
+	public String getLatestCheckInAudioId() {
+		return this.latestCheckInAudioId;
+	}
+
+	public long[] getInFlightCheckInStatsEntry(String audioId) {
+		return this.inFlightCheckInStats.get(audioId);
+	}
+
+	public long[] getCurrentInFlightCheckInStatsEntry() {
+		return getInFlightCheckInStatsEntry(this.inFlightCheckInAudioId);
+	}
+
+	public String[] getInFlightCheckInEntry(String audioId) {
+		return this.inFlightCheckInEntries.get(audioId);
+	}
+
+	public void setInFlightCheckInStats(String keyId, long msgSendStart, long msgSendDuration, long msgPayloadSize) {
+		long[] stats = this.inFlightCheckInStats.get(keyId);
+		if (stats == null) { stats = new long[] { 0, 0, 0 }; }
+		if (msgSendStart != 0) { stats[0] = msgSendStart; }
+		if (msgSendDuration != 0) { stats[1] = msgSendDuration; }
+		if (msgPayloadSize != 0) { stats[2] = msgPayloadSize; }
+		this.inFlightCheckInStats.remove(keyId);
+		this.inFlightCheckInStats.put(keyId, stats);
+	}
 
 	private void resetRecentCheckInHealthMonitors() {
 		healthCheckMonitors = new HashMap<String, long[]>();
@@ -78,9 +136,9 @@ public class ApiCheckInHealthUtils {
 	public boolean validateRecentCheckInHealthCheck(long prefsAudioCycleDuration, String prefsTimeOfDayBounds, long[] currentCheckInStats) {
 
 		setOrResetRecentCheckInHealthCheck(	prefsAudioCycleDuration,
-											Long.parseLong(prefsTimeOfDayBounds.split(",")[0]),
-											Long.parseLong(prefsTimeOfDayBounds.split(",")[1])
-										);
+										(prefsTimeOfDayBounds.contains("-") ? Long.parseLong(prefsTimeOfDayBounds.split("-")[0]) : 11),
+										(prefsTimeOfDayBounds.contains("-") ? Long.parseLong(prefsTimeOfDayBounds.split("-")[1]) : 13)
+									);
 
 		long[] currAvgVals = new long[healthCheckCategories.length]; Arrays.fill(currAvgVals, 0);
 
@@ -101,8 +159,11 @@ public class ApiCheckInHealthUtils {
 		for (int j = 0; j < healthCheckCategories.length; j++) {
 
 			long currAvgVal = currAvgVals[j];
+
 			// some average values require modification before comparison to upper/lower bounds...
-			if (healthCheckCategories[j].equalsIgnoreCase("recent")) { currAvgVal = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(currAvgVals[j])); }
+			if (healthCheckCategories[j].equalsIgnoreCase("recent")) {
+				currAvgVal = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(currAvgVals[j]));
+			}
 
 			// compare to upper lower bounds, check for pass/fail
 			if ((currAvgVal > healthCheckTargetUpperBounds[j]) || (currAvgVal < healthCheckTargetLowerBounds[j])) {
@@ -115,7 +176,7 @@ public class ApiCheckInHealthUtils {
 					.append(healthCheckTargetUpperBounds[j]);
 
 			if (healthCheckCategories[j].equalsIgnoreCase("time-of-day") && (currAvgVal > 24)) {
-				// In this case, we suppress logging, as we can guess that there are less than 6 checkin samples gathered
+				// In this case, we suppress logging, as we can be sure that there are less than 6 checkin samples gathered
 				displayLogging = false;
 			}
 		}
@@ -127,16 +188,127 @@ public class ApiCheckInHealthUtils {
 				Log.w(logTag, healthCheckLogging.toString());
 			} else {
 				Log.i(logTag, healthCheckLogging.toString());
-				// this is where we could choose to reload stashed checkins into the queue
-				return true;
 			}
 		}
-		return false;
+		return doCheckInConditionsAllowCheckInRequeuing;
 	}
 
 
 
 
+
+	public JSONObject apiCheckInStatusAsJsonObj() {
+		JSONObject statusObj = null;
+		try {
+			statusObj = new JSONObject();
+			statusObj.put("is_allowed", isApiCheckInAllowed(false, false));
+			statusObj.put("is_disabled", isApiCheckInDisabled(false));
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return statusObj;
+	}
+
+
+	public boolean isApiCheckInAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
+
+		// we set this to true, and cycle through conditions that might make it false
+		// we then return the resulting true/false value
+		boolean isApiCheckInAllowedUnderKnownConditions = true;
+		StringBuilder msgNotAllowed = new StringBuilder();
+		int reportedDelay = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 2;
+
+		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery") && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
+			msgNotAllowed.append("low battery level")
+					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
+					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("checkin_cutoff_battery")).append("%).");
+			isApiCheckInAllowedUnderKnownConditions = false;
+
+		} else if (!app.deviceConnectivity.isConnected()) {
+			msgNotAllowed.append("a lack of network connectivity.");
+			isApiCheckInAllowedUnderKnownConditions = false;
+			reportedDelay = Math.round(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 2);
+
+		} else if (includeSentinel && limitBasedOnSentinelBatteryLevel()) {
+			msgNotAllowed.append("Low Sentinel Battery level")
+					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery")).append("%).");
+			isApiCheckInAllowedUnderKnownConditions = false;
+
+		}
+
+		if (!isApiCheckInAllowedUnderKnownConditions) {
+			if (printFeedbackInLog) {
+				Log.d(logTag, msgNotAllowed
+						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn not allowed due to ")
+						.append(" Waiting ").append(reportedDelay).append(" seconds before next attempt.")
+						.toString());
+			}
+		}
+
+		return isApiCheckInAllowedUnderKnownConditions;
+	}
+
+	public boolean isApiCheckInDisabled(boolean printFeedbackInLog) {
+
+		// we set this to false, and cycle through conditions that might make it true
+		// we then return the resulting true/false value
+		boolean areApiChecksInDisabledRightNow = false;
+		StringBuilder msgIfDisabled = new StringBuilder();
+
+		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) {
+			msgIfDisabled.append("it being explicitly disabled ('enable_checkin_publish' is set to false).");
+			areApiChecksInDisabledRightNow = true;
+
+		// This section is commented out because there is currently no mechanism by which the checkins are filtered by time of day (off hours)
+		// ...But we assume this is something that might be added at a future date, as it works for audio capture.
+//		} else if (limitBasedOnTimeOfDay()) {
+//			msgIfDisabled.append("current time of day/night")
+//					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")).append("'.");
+//			areApiChecksInDisabledRightNow = true;
+
+		} else if (!app.isGuardianRegistered()) {
+			msgIfDisabled.append("the Guardian not having been registered.");
+			areApiChecksInDisabledRightNow = true;
+
+		}
+
+		if (areApiChecksInDisabledRightNow) {
+			if (printFeedbackInLog) {
+				Log.d(logTag, msgIfDisabled
+						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn disabled due to ")
+					//	.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")).append(" seconds before next attempt.")
+						.toString());
+			}
+		}
+
+		return areApiChecksInDisabledRightNow;
+	}
+
+
+
+	private boolean limitBasedOnSentinelBatteryLevel() {
+
+		if (this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
+			try {
+				JSONArray jsonArray = RfcxComm.getQueryContentProvider("admin", "status", "*", app.getApplicationContext().getContentResolver());
+				if (jsonArray.length() > 0) {
+					JSONObject jsonObj = jsonArray.getJSONObject(0);
+					if (jsonObj.has("api_checkin")) {
+						JSONObject apiCheckInObj = jsonObj.getJSONObject("api_checkin");
+						if (apiCheckInObj.has("is_allowed")) {
+							if (!apiCheckInObj.getBoolean(("is_allowed"))) {
+								return true;
+							}
+						}
+					}
+				}
+			} catch (JSONException e) {
+				RfcxLog.logExc(logTag, e);
+				return false;
+			}
+		}
+		return false;
+	}
 
 
 }

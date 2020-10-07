@@ -15,6 +15,13 @@ public class MathUtils {
 		bd = bd.round(new MathContext(decimalPlaces));
 		return bd.doubleValue();
 	}
+
+//	public static String limitValueToSpecificDecimalPlacesAsStr(double val, int decimalPlaces) {
+//		double _val = 0;
+//		BigDecimal bd = new BigDecimal(val);
+//		bd = bd.round(new MathContext(decimalPlaces));
+//		return ""+bd.doubleValue();
+//	}
 	
 	
 }

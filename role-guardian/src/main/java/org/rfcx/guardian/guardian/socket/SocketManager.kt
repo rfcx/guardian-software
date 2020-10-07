@@ -1,10 +1,14 @@
 package org.rfcx.guardian.guardian.socket
 
 import android.content.Context
+import android.os.Looper
 import android.util.Base64
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
+import org.rfcx.guardian.guardian.api.http.RegisterApi
+import org.rfcx.guardian.guardian.api.http.SocketRegisterCallback
+import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.io.DataInputStream
@@ -33,6 +37,7 @@ object SocketManager {
         this.context = context
         app = context.applicationContext as RfcxGuardian
         serverThread = Thread(Runnable {
+            Looper.prepare()
             try {
                 serverSocket = ServerSocket(9999)
                 serverSocket?.reuseAddress = true
@@ -66,6 +71,7 @@ object SocketManager {
                                 }
                             }
                             "sentinel" -> sendSentinelValues()
+                            "is_registered" -> sendIfGuardianRegistered()
                             else -> {
                                 val commandObject =
                                     JSONObject(receiveJson.get("command").toString())
@@ -76,6 +82,12 @@ object SocketManager {
                                             "sync"
                                         )
                                     )
+                                    "register" -> {
+                                        val registerInfo = commandObject.getJSONObject("register")
+                                        val tokenId = registerInfo.getString("token_id")
+                                        val isProduction = registerInfo.getBoolean("is_production")
+                                        sendRegistrationStatus(tokenId, isProduction)
+                                    }
                                 }
                             }
                         }
@@ -84,6 +96,7 @@ object SocketManager {
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
             }
+            Looper.loop()
         })
         serverThread?.start()
     }
@@ -307,10 +320,56 @@ object SocketManager {
         }
     }
 
+    private fun sendIfGuardianRegistered() {
+        val isRegistered = app?.isGuardianRegistered ?: false
+        try {
+            val isRegisteredJson = JSONObject()
+                .put("is_registered", isRegistered)
+            streamOutput?.writeUTF(isRegisteredJson.toString())
+            streamOutput?.flush()
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
+        }
+    }
+
+    private fun sendRegistrationStatus(tokenId: String, isProduction: Boolean) {
+        val registerJson = JSONObject()
+        context?.let {
+            val guid = app?.rfcxGuardianIdentity?.guid ?: ""
+            RegisterApi.registerGuardian(it, RegisterRequest(guid), tokenId, isProduction, object:
+                SocketRegisterCallback {
+                override fun onRegisterSuccess(t: Throwable?, response: String?) {
+                    try {
+                        app?.saveGuardianRegistration(response)
+                        val registerInfo = JSONObject()
+                            .put("status", "success")
+                        registerJson.put("register", registerInfo)
+                        streamOutput?.writeUTF(registerJson.toString())
+                        streamOutput?.flush()
+                    } catch (e: Exception) {
+                        RfcxLog.logExc(LOGTAG, e)
+                    }
+                }
+
+                override fun onRegisterFailed(t: Throwable?, message: String?) {
+                    try {
+                        val registerInfo = JSONObject()
+                            .put("status", "failed")
+                        registerJson.put("register", registerInfo)
+                        streamOutput?.writeUTF(registerJson.toString())
+                        streamOutput?.flush()
+                    } catch (e: Exception) {
+                        RfcxLog.logExc(LOGTAG, e)
+                    }
+                }
+            })
+        }
+    }
+
     private fun getFullCheckInUrl(): String {
-        val protocol = app?.rfcxPrefs?.getPrefAsString("api_checkin_protocol") ?: "ssl"
-        val host = app?.rfcxPrefs?.getPrefAsString("api_checkin_host") ?: "checkin.rfcx.org"
-        val port = app?.rfcxPrefs?.getPrefAsString("api_checkin_port") ?: "8883"
+        val protocol = app?.rfcxPrefs?.getPrefAsString("api_mqtt_protocol") ?: "ssl"
+        val host = app?.rfcxPrefs?.getPrefAsString("api_mqtt_host") ?: "api-mqtt.rfcx.org"
+        val port = app?.rfcxPrefs?.getPrefAsString("api_mqtt_port") ?: "8883"
         return "$protocol://$host:$port"
     }
 

@@ -5,6 +5,7 @@ import android.content.Context;
 
 import org.json.JSONArray;
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -14,6 +15,7 @@ public class SentinelSensorDb {
 
 	public SentinelSensorDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbAccelerometer = new DbAccelerometer(context);
 		this.dbCompass = new DbCompass(context);
 	}
@@ -26,6 +28,9 @@ public class SentinelSensorDb {
 	static final String C_VALUE_3 = "value_3";
 	static final String C_VALUE_4 = "value_4";
 	private static final String[] ALL_COLUMNS = new String[] { C_MEASURED_AT, C_VALUE_1, C_VALUE_2, C_VALUE_3, C_VALUE_4 };
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -42,11 +47,13 @@ public class SentinelSensorDb {
 	public class DbAccelerometer {
 
 		final DbUtils dbUtils;
+		public String FILEPATH;
 
 		private String TABLE = "accelerometer";
 		
 		public DbAccelerometer(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
 		public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {
@@ -95,7 +102,7 @@ public class SentinelSensorDb {
 		private String TABLE = "compass";
 
 		public DbCompass(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {

@@ -7,13 +7,13 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 import android.app.IntentService;
 import android.content.Intent;
 
-public class ApiCheckVersionTrigger extends IntentService {
+public class ApiUpdateRequestTrigger extends IntentService {
 
-	private static final String SERVICE_NAME = "ApiCheckVersionTrigger";
+	private static final String SERVICE_NAME = "ApiUpdateRequestTrigger";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckVersionTrigger");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiUpdateRequestTrigger");
 		
-	public ApiCheckVersionTrigger() {
+	public ApiUpdateRequestTrigger() {
 		super(logTag);
 	}
 
@@ -24,7 +24,7 @@ public class ApiCheckVersionTrigger extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 
-		app.apiCheckVersionUtils.attemptToTriggerCheckIn(false, true);
+		app.apiUpdateRequestUtils.attemptToTriggerUpdateRequest(false, true);
 
 	}
 

@@ -85,7 +85,7 @@
         <service android:name=".audio.encode.AudioEncodeJobService" android:exported="false" />
         <service android:name=".api.mqtt.ApiCheckInJobService" android:exported="false" />
         <service android:name=".archive.ApiCheckInArchiveService" android:exported="false" />
-        <service android:name=".device.android.SntpSyncJobService" android:exported="false" />
+        <service android:name=".api.sntp.SntpSyncJobService" android:exported="false" />
         <service android:name=".instructions.InstructionsCycleService" android:exported="false" />
         <service android:name=".instructions.InstructionsExecutionService" android:exported="false" />
 
@@ -94,8 +94,8 @@
         <service android:name=".api.mqtt.ApiCheckInQueueService" android:exported="false" />
         <service android:name=".api.mqtt.ScheduledApiPingService" android:exported="false" />
         <service android:name=".audio.encode.AudioQueueEncodeService" android:exported="false" />
-        <service android:name=".device.android.ScheduledSntpSyncService" android:exported="false" />
-        <service android:name=".api.mqtt.ApiCheckInMetaSnapshotService" android:exported="false" />
+        <service android:name=".api.sntp.ScheduledSntpSyncService" android:exported="false" />
+        <service android:name=".api.asset.MetaSnapshotService" android:exported="false" />
         <service android:name=".socket.WifiCommunicationService" android:exported="false" />
 
         <!-- Receivers -->

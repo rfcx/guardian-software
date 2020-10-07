@@ -1,27 +1,23 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
 
 if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properties.containsKey("jksPath")) {
     apply from: "../gradle/signing/platform_signing.gradle"
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId "org.rfcx.guardian.guardian"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 3
-        versionName "0.6.21"
+        versionName "0.6.57"
         resConfigs "en"
         setProperty("archivesBaseName", "guardian-$versionName")
-
         manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "rfcx"]
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -42,18 +38,15 @@ dependencies {
     implementation project(':lib-audio')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4'
-
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     //Authentication
-    implementation 'com.auth0.android:auth0:1.15.2'
+    implementation('com.auth0.android:auth0-guardian:1.25.0@aar') {
+        exclude group: 'androidx.appcompat', module: 'appcompat'
+    }
 
     //jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.11.1'
@@ -63,6 +56,10 @@ dependencies {
     }
 
 }
+
 repositories {
     mavenCentral()
+    flatDir{
+        dirs 'libs'
+    }
 }

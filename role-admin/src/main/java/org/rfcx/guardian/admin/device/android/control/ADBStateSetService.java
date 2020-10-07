@@ -2,6 +2,7 @@ package org.rfcx.guardian.admin.device.android.control;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.control.DeviceADB;
@@ -27,7 +28,13 @@ public class ADBStateSetService extends IntentService {
 
 		// set ADB networking state
 		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean("admin_enable_tcp_adb");
-		DeviceADB.setADBoverTCP(prefsAdminEnableAdb, app.getApplicationContext());
+
+		boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi");
+		if (prefsAdminEnableAdb && !prefsAdminEnableWifi) {
+			Log.e(logTag,"ADB over TCP could not be enabled because 'admin_enable_wifi' is disabled");
+		}
+
+		DeviceADB.setADBoverTCP((prefsAdminEnableAdb && prefsAdminEnableWifi), app.getApplicationContext());
 	
 	}
 	

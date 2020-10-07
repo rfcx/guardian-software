@@ -4,24 +4,29 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 export GNU_STAT_FLAG="-c%s"; if [[ "$OSTYPE" == "darwin"* ]]; then GNU_STAT_FLAG="-f%z"; fi;
 
 export ROLE=$1;
-
 export ENV="$2"; # staging or production;
-
-read -p "Please provide the database password for the '$ENV' environment: " -n 50 -r
-export DB_PSWD="${REPLY}";
 
 export PROJECT_DIR="$SCRIPT_DIR/../..";
 export ROLE_DIR="$PROJECT_DIR/role-$ROLE";
-
 cd $PROJECT_DIR;
+
+if [ ! -f "$PROJECT_DIR/bin/_private/rfcx-api-db-pswd-$ENV.txt" ]; then
+	read -p "Please provide the database password for the '$ENV' environment: " -n 50 -r
+	export DB_PSWD_INPUT="${REPLY}";
+	export DB_PSWD_SAVE=`echo "$DB_PSWD_INPUT" > $PROJECT_DIR/bin/_private/rfcx-api-db-pswd-$ENV.txt;`;
+fi
+export DB_PSWD=`cat $PROJECT_DIR/bin/_private/rfcx-api-db-pswd-$ENV.txt;`;
 
 export APK_VERSION=`cat $ROLE_DIR/build.gradle | grep ' versionName ' | cut -d'"' -f 2`;
 
-# echo ""; echo "RFCx $ROLE ($APK_VERSION)";
+if [ ! -f "$PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk" ]; then
+	$SCRIPT_DIR/build-apk.sh $ROLE;
+fi
 
-# $SCRIPT_DIR/build-apk.sh $ROLE;
+echo ""; echo "RFCx $ROLE ($APK_VERSION)";
 
 echo "gzipping apk file...";
+
 if [ -f "$PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk.backup" ]; then
 	export CLEANUP=`rm $PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk.backup`;
 fi

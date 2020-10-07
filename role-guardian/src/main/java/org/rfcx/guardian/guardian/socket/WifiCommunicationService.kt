@@ -17,24 +17,26 @@ class WifiCommunicationService : IntentService("WifiCommunication") {
     )
 
     override fun onHandleIntent(p0: Intent?) {
-        Log.d(logTag, "Starting WifiCommunication service")
-        val intent =
-            Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME))
-        sendBroadcast(
-            intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME))
+        val intent = Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME))
+        sendBroadcast( intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME))
 
         val app = application as RfcxGuardian
 
         app.rfcxServiceHandler.reportAsActive(SERVICE_NAME)
 
-        val state = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi_socket")
+        val prefsAdminEnableWifiSocket = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi_socket")
+
+        val prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi")
+        if (prefsAdminEnableWifiSocket && !prefsAdminEnableWifi) {
+            Log.e( logTag, "WiFi Socket Server could not be enabled because 'admin_enable_wifi' is disabled")
+        }
         try {
-            if (state) {
-                Log.d(logTag, "Start WifiCommunication service")
+            if (prefsAdminEnableWifiSocket && prefsAdminEnableWifi) {
+                Log.d(logTag, "Starting WifiCommunication service")
                 SocketManager.stopServerSocket()
                 SocketManager.startServerSocket(applicationContext)
             } else {
-                Log.d(logTag, "Stop WifiCommunication service")
+                Log.d(logTag, "Stopping WifiCommunication service")
                 SocketManager.stopServerSocket()
             }
         } catch (e: Exception) {

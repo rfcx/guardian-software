@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
@@ -65,17 +66,27 @@ public class GuardianContentProvider extends ContentProvider {
 				String pathSegIdKey = pathSeg.substring(0, pathSeg.indexOf("|"));
 				String pathSegIdVal = pathSeg.substring(1 + pathSeg.indexOf("|"));
 				app.rfcxGuardianIdentity.setIdentityValue(pathSegIdKey, pathSegIdVal);
+				app.reSyncIdentityAcrossRoles();
 				return RfcxComm.getProjectionCursor(appRole, "identity_set", new Object[]{pathSegIdKey, pathSegIdVal, System.currentTimeMillis()});
 
 			// get status of services
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) { logFuncVal = "status-*";
 				String statusTarget = uri.getLastPathSegment();
-				JSONArray statusResultJsonArray = new JSONArray();
-				if (statusTarget.equalsIgnoreCase("audio_capture")) {
-					statusResultJsonArray = app.audioCaptureUtils.getAudioCaptureStatusAsJsonArray();
+
+				JSONArray statusArr = new JSONArray();
+				try {
+					JSONObject statusObj = new JSONObject();
+					JSONObject statusAudioCapture = app.audioCaptureUtils.audioCaptureStatusAsJsonObj();
+					if (statusAudioCapture != null) { statusObj.put("audio_capture", statusAudioCapture); }
+					JSONObject statusApiCheckIn = app.apiCheckInHealthUtils.apiCheckInStatusAsJsonObj();
+					if (statusApiCheckIn != null) { statusObj.put("api_checkin", statusApiCheckIn); }
+					statusArr.put(statusObj);
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e, "GuardianContentProvider - "+logFuncVal);
 				}
-				return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusResultJsonArray.toString(), System.currentTimeMillis()});
+
+				return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 
 			// "process" function endpoints
 
@@ -94,6 +105,10 @@ public class GuardianContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) { logFuncVal = "control-kill";
 				app.rfcxServiceHandler.stopAllServices();
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"kill", null, System.currentTimeMillis()});
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "initialize")) { logFuncVal = "control-initialize";
+				app.initializeRoleServices();
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"initialize", null, System.currentTimeMillis()});
 
 			// "instructions" endpoints
 

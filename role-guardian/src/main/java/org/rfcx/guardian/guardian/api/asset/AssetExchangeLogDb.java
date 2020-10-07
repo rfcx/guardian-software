@@ -1,19 +1,21 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.guardian.api.asset;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentValues;
 import android.content.Context;
 
-public class ApiAssetExchangeLogDb {
+public class AssetExchangeLogDb {
 
-	public ApiAssetExchangeLogDb(Context context, String appVersion) {
+	public AssetExchangeLogDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbPurged = new DbPurged(context);
 	}
 
@@ -23,8 +25,10 @@ public class ApiAssetExchangeLogDb {
 	static final String C_ASSET_TYPE = "asset_type";
 	static final String C_TIMESTAMP = "timestamp";
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_ASSET_TYPE, C_TIMESTAMP };
-	
-	
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
+
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName)
@@ -38,11 +42,13 @@ public class ApiAssetExchangeLogDb {
 	public class DbPurged {
 
 		final DbUtils dbUtils;
+		public String FILEPATH = "";
 
 		private String TABLE = "purged";
 		
 		public DbPurged(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
 		public int insert(String asset_type, String timestamp) {

@@ -4,13 +4,13 @@ import android.os.Environment;
 import android.os.StatFs;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-public class DeviceDiskUsage {
+public class DeviceStorage {
 
 	private static StatFs getStatFs(String absolutePath){
 		return new StatFs(absolutePath);
 	}
 
-	public static long[] getCurrentDiskUsageStats() {
+	public static long[] getCurrentStorageStats() {
 		StatFs intStat = getStatFs(Environment.getDataDirectory().getAbsolutePath());
 		StatFs extStat = getStatFs(Environment.getExternalStorageDirectory().getAbsolutePath());
 		return new long[] { System.currentTimeMillis(), diskUsedBytes(intStat), diskFreeBytes(intStat), diskUsedBytes(extStat), diskFreeBytes(extStat) };

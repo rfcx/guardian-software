@@ -46,44 +46,62 @@
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_enable_cutoffs_schedule_off_hours" />
 
- 	<EditTextPreference
-        android:key="api_checkin_host"
-        android:title="api_checkin_host"
-        android:summary="string - checkin api address (mqtt)"
-        android:enabled="true"
-        android:defaultValue="@string/prefs_value_default_api_checkin_host" />
- 	
- 	<ListPreference
-		android:key="api_checkin_protocol"
-		android:title="api_checkin_protocol"
-		android:dialogTitle="api_checkin_protocol"
-        android:summary="string - checkin api protocol (mqtt)"
-		android:entries="@array/prefs_values_tcp_or_ssl"
-		android:entryValues="@array/prefs_values_tcp_or_ssl"
-		android:defaultValue="@string/prefs_value_default_api_checkin_protocol" />
-    
- 	<EditTextPreference
-        android:key="api_checkin_port"
-        android:title="api_checkin_port"
-        android:summary="string - checkin api port (mqtt)"
-        android:enabled="true"
-        android:defaultValue="@string/prefs_value_default_api_checkin_port" />
-
 	<ListPreference
-		android:key="enable_checkin_auth"
-		android:title="enable_checkin_auth"
-		android:dialogTitle="enable_checkin_auth"
+		android:key="enable_cutoffs_sampling_ratio"
+		android:title="enable_cutoffs_sampling_ratio"
+		android:dialogTitle="enable_cutoffs_sampling_ratio"
 		android:summary="string - true/false"
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_enable_checkin_auth" />
+		android:defaultValue="@string/prefs_value_default_enable_cutoffs_sampling_ratio" />
+
+	<ListPreference
+		android:key="enable_cutoffs_sentinel_battery"
+		android:title="enable_cutoffs_sentinel_battery"
+		android:dialogTitle="enable_cutoffs_sentinel_battery"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_enable_cutoffs_sentinel_battery" />
+
+ 	<EditTextPreference
+        android:key="api_mqtt_host"
+        android:title="api_mqtt_host"
+        android:summary="string - checkin api address (mqtt)"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_api_mqtt_host" />
+ 	
+ 	<ListPreference
+		android:key="api_mqtt_protocol"
+		android:title="api_mqtt_protocol"
+		android:dialogTitle="api_mqtt_protocol"
+        android:summary="string - checkin api protocol (mqtt)"
+		android:entries="@array/prefs_values_tcp_or_ssl"
+		android:entryValues="@array/prefs_values_tcp_or_ssl"
+		android:defaultValue="@string/prefs_value_default_api_mqtt_protocol" />
+    
+ 	<EditTextPreference
+        android:key="api_mqtt_port"
+        android:title="api_mqtt_port"
+        android:summary="string - checkin api port (mqtt)"
+        android:enabled="true"
+        android:defaultValue="@string/prefs_value_default_api_mqtt_port" />
+
+	<ListPreference
+		android:key="enable_mqtt_auth"
+		android:title="enable_mqtt_auth"
+		android:dialogTitle="enable_mqtt_auth"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_enable_mqtt_auth" />
 
 	<EditTextPreference
-		android:key="api_checkin_auth_creds"
-		android:title="api_checkin_auth_creds"
+		android:key="api_mqtt_auth_creds"
+		android:title="api_mqtt_auth_creds"
 		android:summary="string - broker user/password (mqtt) - comma separated"
 		android:enabled="true"
-		android:defaultValue="@string/prefs_value_default_api_checkin_auth_creds" />
+		android:defaultValue="@string/prefs_value_default_api_mqtt_auth_creds" />
 
 	<EditTextPreference
 		android:key="api_rest_host"
@@ -137,6 +155,13 @@
         android:summary="string - time ranges, comma separated"
         android:enabled="true"
         android:defaultValue="@string/prefs_value_default_audio_schedule_off_hours" />
+
+	<EditTextPreference
+		android:key="audio_sampling_ratio"
+		android:title="audio_sampling_ratio"
+		android:summary="ratio - capture to silence"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_audio_sampling_ratio" />
  	
  	<!-- Audio Capture Formatting -->
  	
@@ -170,22 +195,40 @@
  	<!-- Battery Cutoff Thresholds -->
         
 	<ListPreference
-		android:key="checkin_battery_cutoff"
-		android:title="checkin_battery_cutoff"
-		android:dialogTitle="checkin_battery_cutoff"
+		android:key="checkin_cutoff_battery"
+		android:title="checkin_cutoff_battery"
+		android:dialogTitle="checkin_cutoff_battery"
         android:summary="int - percentage"
 		android:entries="@array/prefs_labels_percent"
 		android:entryValues="@array/prefs_values_percent"
-		android:defaultValue="@string/prefs_value_default_checkin_battery_cutoff" />
+		android:defaultValue="@string/prefs_value_default_checkin_cutoff_battery" />
         
 	<ListPreference
-		android:key="audio_battery_cutoff"
-		android:title="audio_battery_cutoff"
-		android:dialogTitle="audio_battery_cutoff"
+		android:key="audio_cutoff_battery"
+		android:title="audio_cutoff_battery"
+		android:dialogTitle="audio_cutoff_battery"
         android:summary="int - percentage"
 		android:entries="@array/prefs_labels_percent"
 		android:entryValues="@array/prefs_values_percent"
-		android:defaultValue="@string/prefs_value_default_audio_battery_cutoff" />
+		android:defaultValue="@string/prefs_value_default_audio_cutoff_battery" />
+
+	<ListPreference
+		android:key="checkin_cutoff_sentinel_battery"
+		android:title="checkin_cutoff_sentinel_battery"
+		android:dialogTitle="checkin_cutoff_sentinel_battery"
+		android:summary="int - percentage"
+		android:entries="@array/prefs_labels_percent"
+		android:entryValues="@array/prefs_values_percent"
+		android:defaultValue="@string/prefs_value_default_checkin_cutoff_sentinel_battery" />
+
+	<ListPreference
+		android:key="audio_cutoff_sentinel_battery"
+		android:title="audio_cutoff_sentinel_battery"
+		android:dialogTitle="audio_cutoff_sentinel_battery"
+		android:summary="int - percentage"
+		android:entries="@array/prefs_labels_percent"
+		android:entryValues="@array/prefs_values_percent"
+		android:defaultValue="@string/prefs_value_default_audio_cutoff_sentinel_battery" />
  	
  	<!-- CheckIn Triggering Controls -->
  	
@@ -244,6 +287,20 @@
 		android:summary="int - count"
 		android:enabled="true"
 		android:defaultValue="@string/prefs_value_default_checkin_meta_bundle_limit" />
+
+	<EditTextPreference
+		android:key="api_sntp_cycle_duration"
+		android:title="api_sntp_cycle_duration"
+		android:summary="int - minutes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_sntp_cycle_duration" />
+
+	<EditTextPreference
+		android:key="api_ping_cycle_duration"
+		android:title="api_ping_cycle_duration"
+		android:summary="int - minutes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_ping_cycle_duration" />
  	
  	<!-- Admin Controls -->
  	
@@ -272,12 +329,21 @@
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_admin_enable_log_capture" />
 
+	<ListPreference
+		android:key="admin_enable_geoposition_capture"
+		android:title="admin_enable_geoposition_capture"
+		android:dialogTitle="admin_enable_geoposition_capture"
+		android:summary="string - true/false"
+		android:entries="@array/prefs_values_true_or_false"
+		android:entryValues="@array/prefs_values_true_or_false"
+		android:defaultValue="@string/prefs_value_default_admin_enable_geoposition_capture" />
+
 	<EditTextPreference
-		android:key="admin_gps_capture_cycle"
-		android:title="admin_gps_capture_cycle"
+		android:key="admin_geoposition_capture_cycle"
+		android:title="admin_geoposition_capture_cycle"
 		android:summary="int - minutes"
 		android:enabled="true"
-		android:defaultValue="@string/prefs_value_default_admin_gps_capture_cycle" />
+		android:defaultValue="@string/prefs_value_default_admin_geoposition_capture_cycle" />
  	
  	<EditTextPreference
         android:key="admin_screenshot_capture_cycle"

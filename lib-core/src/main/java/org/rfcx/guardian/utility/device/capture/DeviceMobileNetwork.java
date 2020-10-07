@@ -2,24 +2,80 @@ package org.rfcx.guardian.utility.device.capture;
 
 import java.util.Date;
 
+import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceMobileNetwork {
-	
-	public DeviceMobileNetwork(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceMobileNetwork");
-	}
-	
+
+	public DeviceMobileNetwork(String appRole) { this.logTag = RfcxLog.generateLogTag(appRole, "DeviceMobileNetwork"); }
+
 	private String logTag;
-	
+
+	private TelephonyManager telephonyManager;
+	private SignalStrength telephonySignalStrength;
+
+
+	public boolean isInitializedTelephonyManager() {
+		return (this.telephonyManager != null);
+	}
+
+	public boolean isInitializedSignalStrength() {
+		return (this.telephonySignalStrength != null);
+	}
+
+	public void setTelephonyManager(TelephonyManager telephonyManager) {
+		this.telephonyManager = telephonyManager;
+	}
+
+	public void setTelephonySignalStrength(SignalStrength telephonySignalStrength) {
+		this.telephonySignalStrength = telephonySignalStrength;
+	}
+
+	public TelephonyManager getTelephonyManager() {
+		return this.telephonyManager;
+	}
+
+	public void setTelephonyListener(PhoneStateListener phoneStateListener, int events) {
+		if (this.telephonyManager != null) {
+			this.telephonyManager.listen(phoneStateListener, events);
+		}
+	}
+
+	public JSONArray getSignalStrengthAsJsonArray() {
+		JSONArray signalJsonArray = new JSONArray();
+		if (isInitializedSignalStrength()) {
+			try {
+				JSONObject signalJson = new JSONObject();
+
+				signalJson.put("signal", this.telephonySignalStrength.getGsmSignalStrength());
+				signalJsonArray.put(signalJson);
+
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+
+			} finally {
+				return signalJsonArray;
+			}
+		}
+		return signalJsonArray;
+	}
+
+
+	public String[] getMobileNetworkSummary() {
+		return getMobileNetworkSummary(this.telephonyManager, this.telephonySignalStrength);
+	}
+
+
 	public static String[] getMobileNetworkSummary(TelephonyManager telephonyManager, SignalStrength signalStrength) {
 		
 		// array indices are: measured_at, signal_strength (dBm), network_type, carrier_name
 		String[] mobileNetworkSummary = new String[] { ""+(new Date()).getTime(), "", "", "" };
-		
-		
+
 		// GSM values
 		boolean	isGsmActive = signalStrength.isGsm();
 		int gsmBitErrorRate = signalStrength.getGsmBitErrorRate(); // bit error rate values (0-7, 99) as defined in TS 27.007 8.5
@@ -40,14 +96,14 @@ public class DeviceMobileNetwork {
 		} else {
 			mobileNetworkSummary[1] = ""+gsmSignalStrength_dBm;
 			mobileNetworkSummary[2] = getNetworkTypeCategoryAsString(telephonyManager.getNetworkType());
-			mobileNetworkSummary[3] = telephonyManager.getNetworkOperatorName();
+			mobileNetworkSummary[3] = telephonyManager.getNetworkOperatorName().replaceAll("\\p{Z}","");
 		}
 		
 		return mobileNetworkSummary;
 	}
 	
 	private static String getNetworkTypeCategoryAsString(int getNetworkType) {
-		String networkTypeCategory = null;
+		String networkTypeCategory;
 	    switch (getNetworkType) {
 	        case TelephonyManager.NETWORK_TYPE_UNKNOWN:
 	        	networkTypeCategory = "unknown";
@@ -89,10 +145,10 @@ public class DeviceMobileNetwork {
 	        	networkTypeCategory = "hspa";
 	            break;
 	        default:
-	        	networkTypeCategory = null;
+	        	networkTypeCategory = "unknown";
 	    }
 	    return networkTypeCategory;
 	}
-	
-	
+
+
 }

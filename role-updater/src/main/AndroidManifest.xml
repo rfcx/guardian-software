@@ -56,9 +56,9 @@
         android:name="org.rfcx.guardian.updater.RfcxGuardian"
         >
 
-        <service android:name=".service.ApiCheckVersionTrigger" />
+        <service android:name=".service.ApiUpdateRequestTrigger" />
         <service android:name=".service.DownloadFileService" />
-        <service android:name=".service.ApiCheckVersionService" />
+        <service android:name=".service.ApiUpdateRequestService" />
         <service android:name=".service.InstallAppService" />
 		<service android:name=".service.RebootTriggerService" />
 

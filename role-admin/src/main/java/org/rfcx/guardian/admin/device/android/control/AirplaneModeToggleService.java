@@ -74,7 +74,7 @@ public class AirplaneModeToggleService extends Service {
 
 				app.deviceAirplaneMode.setOff(context);
 
-				app.rfcxServiceHandler.triggerService("WifiStateSet", false);
+				app.rfcxServiceHandler.triggerService("WifiHotspot", false);
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

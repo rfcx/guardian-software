@@ -72,10 +72,8 @@ public class ApiCheckInJobService extends Service {
 			String lastCheckInId = null;
 				
 			while (		apiCheckInJobInstance.runFlag
-					&&	app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish") 
-					&& 	(	(app.apiCheckInDb.dbQueued.getCount() > 0)
-						||	!app.apiCheckInUtils.isConnectedToBroker()
-						)
+					&&	!app.apiCheckInHealthUtils.isApiCheckInDisabled(true)
+					&& 	( (app.apiCheckInDb.dbQueued.getCount() > 0) || !app.apiCheckInUtils.isConnectedToBroker() )
 				) {
 
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
@@ -84,24 +82,25 @@ public class ApiCheckInJobService extends Service {
 						
 					long prefsAudioCycleDuration = Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
 					int prefsCheckInFailureLimit = app.rfcxPrefs.getPrefAsInt("checkin_failure_limit");
-					boolean prefsEnableBatteryCutoffs = app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery");
-					int prefsCheckInBatteryCutoff = app.rfcxPrefs.getPrefAsInt("checkin_battery_cutoff");
 					
-					if (!app.deviceConnectivity.isConnected()) {
-						Log.v(logTag, "No CheckIn because org.rfcx.guardian.guardian currently has no connectivity."
-							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration / 2 ) / 1000 ) ) + " seconds before next attempt.");
-						Thread.sleep( prefsAudioCycleDuration / 2 );
-						
-					} else if (prefsEnableBatteryCutoffs && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
-						Log.v(logTag, DateTimeUtils.getDateTime()+" CheckIn not allowed due to low battery level"
-							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+prefsCheckInBatteryCutoff+"%)."
-							+" Waiting " + ( Math.round( ( prefsAudioCycleDuration * 2 ) / 1000 ) ) + " seconds before next attempt.");
-						Thread.sleep( prefsAudioCycleDuration * 2 );
-						
-						// reboots org.rfcx.guardian.guardian in situations where battery charge percentage doesn't reflect charge state
-						if (app.apiCheckInUtils.isBatteryChargedButBelowCheckInThreshold()) {
-							app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
+					if (!app.apiCheckInHealthUtils.isApiCheckInAllowed(true, true)) {
+
+						int waitLoopIterationCount = !app.deviceConnectivity.isConnected() ? 1 : 4;
+
+						// This ensures that the service registers as active more frequently than the wait loop duration
+						for (int waitLoopIteration = 0; waitLoopIteration < waitLoopIterationCount; waitLoopIteration++) {
+							app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+							Thread.sleep( Math.round( prefsAudioCycleDuration / 2 ) );
 						}
+
+						if (app.deviceConnectivity.isConnected()) {
+							app.apiCheckInUtils.initializeFailedCheckInThresholds();
+						}
+
+//						// reboots org.rfcx.guardian.guardian in situations where battery charge percentage doesn't reflect charge state
+//						if (app.apiCheckInUtils.isBatteryChargedButBelowCheckInThreshold()) {
+//							app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
+//						}
 						
 					} else {
 						
@@ -132,11 +131,10 @@ public class ApiCheckInJobService extends Service {
 										lastCheckInEndTime = System.currentTimeMillis();
 
 									} else {
-										Thread.sleep(500);
+										Thread.sleep(333);
 									}
 
 									lastCheckInId = latestQueuedCheckIn[1];
-
 								}
 								
 							} else {
@@ -146,10 +144,13 @@ public class ApiCheckInJobService extends Service {
 						}
 
 						if (!app.apiCheckInUtils.isConnectedToBroker()) {
-							Log.e(logTag, "Broker not connected. Delaying 10 seconds and trying again...");
-							Thread.sleep(10000);
+							long loopDelayBeforeReconnectAttempt = Math.round(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")/10);
+							if (loopDelayBeforeReconnectAttempt < 8) { loopDelayBeforeReconnectAttempt = 8; }
+							Log.e(logTag, "Broker not connected. Delaying "+loopDelayBeforeReconnectAttempt+" seconds and trying again...");
+							Thread.sleep(loopDelayBeforeReconnectAttempt*1000);
 							app.apiCheckInUtils.confirmOrCreateConnectionToBroker(true);
 						}
+
 					}
 					
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
@@ -158,13 +159,7 @@ public class ApiCheckInJobService extends Service {
 					RfcxLog.logExc(logTag, e);
 					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 					apiCheckInJobInstance.runFlag = false;
-				}			
-					
-			}
-			
-			if (!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) {
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-				Log.v(logTag, "CheckIn publication is explicitly disabled.");
+				}
 			}
 
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);

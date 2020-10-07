@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -15,6 +16,7 @@ public class AudioEncodeDb {
 	
 	public AudioEncodeDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbEncodeQueue = new DbEncodeQueue(context);
 		this.dbEncoded = new DbEncoded(context);
 	}
@@ -34,20 +36,10 @@ public class AudioEncodeDb {
 	static final String C_FILEPATH = "filepath";
 	static final String C_ATTEMPTS = "attempts";
 	
-	private static final String[] ALL_COLUMNS = 
-		new String[] { 
-			C_CREATED_AT,	// 0 
-			C_TIMESTAMP,	// 1
-			C_FORMAT, 		// 2
-			C_DIGEST, 		// 3
-			C_SAMPLE_RATE,	// 4
-			C_BITRATE, 		// 5
-			C_CODEC, 		// 6
-			C_DURATION, 	// 7
-			C_CREATION_DURATION,// 8 
-			C_FILEPATH, 	// 9
-			C_ATTEMPTS 		// 10
-		};
+	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_SAMPLE_RATE, C_BITRATE, C_CODEC, C_DURATION, C_CREATION_DURATION, C_FILEPATH, C_ATTEMPTS };
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 	
 	private static String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -75,7 +67,7 @@ public class AudioEncodeDb {
 		private String TABLE = "queued";
 		
 		public DbEncodeQueue(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
@@ -142,7 +134,7 @@ public class AudioEncodeDb {
 		private String TABLE = "encoded";
 		
 		public DbEncoded(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
 		public int insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {

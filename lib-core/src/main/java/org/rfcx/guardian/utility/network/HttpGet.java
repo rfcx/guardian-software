@@ -24,6 +24,7 @@ import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class HttpGet {
@@ -35,8 +36,6 @@ public class HttpGet {
 	
 	private Context context;
 	private String logTag;
-	
-	private static final String DOWNLOAD_TIME_LABEL = "Download time: ";
 	
 	// These hard coded timeout values are just defaults.
 	// They may be customized through the setTimeOuts method.
@@ -66,7 +65,7 @@ public class HttpGet {
 	public JSONObject getAsJson(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(logTag,DOWNLOAD_TIME_LABEL + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ));
+		Log.i(logTag,"Download Complete (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +"): "+fullUrl);
 		try {
 			return new JSONObject(str);
 		} catch (JSONException e) {
@@ -82,7 +81,7 @@ public class HttpGet {
 	public List<JSONObject> getAsJsonList(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(logTag,DOWNLOAD_TIME_LABEL + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ));
+		Log.i(logTag,"Download Complete (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +"): "+fullUrl);
 		try {
 			List<JSONObject> jsonArray = new ArrayList<JSONObject>();
 			JSONArray jsonAll = new JSONArray(str);
@@ -103,7 +102,7 @@ public class HttpGet {
 	public String getAsString(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.v(logTag,DOWNLOAD_TIME_LABEL + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ));
+		Log.i(logTag,"Download Complete (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +"): "+fullUrl);
 		return str;
 	}
 	
@@ -124,7 +123,7 @@ public class HttpGet {
 		if ((inputStream != null) && (fileOutputStream != null)) {
 			writeFileResponseStream(inputStream, fileOutputStream, this.logTag);
 			closeInputOutputStreams(inputStream, fileOutputStream, this.logTag);
-			Log.v(logTag,DOWNLOAD_TIME_LABEL + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ));
+			Log.i(logTag,"Download Complete (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +"): "+fullUrl);
 			return (new File(this.context.getFilesDir(), outputFileName)).exists();
 		}
 		return false;
@@ -176,6 +175,7 @@ public class HttpGet {
 			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
 				return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream(), this.logTag);
 
 	        } else {
@@ -203,6 +203,7 @@ public class HttpGet {
 			}
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+				Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
 		    	return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream(), this.logTag);
 
 	        } else {
@@ -284,7 +285,7 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-		            Log.i(logTag, "Download Started: "+fullUrl);
+					Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+fullUrl);
 			    } else {
 		            Log.i(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
 			    }
@@ -300,7 +301,7 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-		            Log.i(logTag, "Download Started: "+fullUrl);
+					Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+fullUrl);
 			    } else {
 		            Log.i(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
 			    }

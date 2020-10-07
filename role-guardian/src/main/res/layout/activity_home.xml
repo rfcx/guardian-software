@@ -9,21 +9,11 @@
         android:orientation="horizontal"
         tools:context=".activity.MainActivity">
 
-    <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
-            android:theme="@style/ToolBarStyle"
-            app:layout_constraintTop_toTopOf="parent">
-
-    </androidx.appcompat.widget.Toolbar>
-
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/unregisteredView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/toolbar">
+            app:layout_constraintTop_toTopOf="parent">
 
         <Button
                 android:id="@+id/registerButton"
@@ -34,6 +24,7 @@
                 android:layout_marginEnd="20dp"
                 android:background="@drawable/button_style1"
                 android:text="@string/register"
+                android:textAllCaps="true"
                 android:textColor="@color/text_white"
                 android:textSize="15sp"
                 android:textStyle="bold"
@@ -44,7 +35,7 @@
             android:id="@+id/registerGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/toolbar">
+            app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
                 android:id="@+id/registerInfo"
@@ -106,6 +97,7 @@
                             android:orientation="vertical"
                             app:layout_constraintTop_toTopOf="parent">
 
+
                         <LinearLayout
                                 android:id="@+id/status_view"
                                 android:layout_width="wrap_content"
@@ -140,85 +132,7 @@
                                         android:text="@string/audio_capture_start" />
                             </LinearLayout>
 
-                            <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="2dp">
 
-                                <TextView
-                                        android:id="@+id/checkInTopic"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/checkin_info_last_checkin_time"
-                                        android:textColor="@color/text_black" />
-
-                                <TextView
-                                        android:id="@+id/checkInText"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="2dp">
-
-                                <TextView
-                                        android:id="@+id/sizeTopic"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/checkin_info_last_checkin_size"
-                                        android:textColor="@color/text_black" />
-
-                                <TextView
-                                        android:id="@+id/sizeText"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="" />
-
-                            </LinearLayout>
-
-                            <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="2dp">
-
-                                <TextView
-                                        android:id="@+id/recordTopic"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="Recorded time: "
-                                        android:textColor="@color/text_black"
-                                        tools:ignore="HardcodedText" />
-
-                                <TextView
-                                        android:id="@+id/recordTimeText"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="" />
-
-                            </LinearLayout>
-
-                            <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="2dp">
-
-                                <TextView
-                                        android:id="@+id/fileTopic"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@string/synced_local_files"
-                                        android:textColor="@color/text_black" />
-
-                                <TextView
-                                        android:id="@+id/fileRecordedSyncedText"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="" />
-
-                            </LinearLayout>
                         </LinearLayout>
 
                         <View
@@ -240,6 +154,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="@string/audio_settings"
                                     android:textColor="@color/text_black"
+                                    android:textStyle="bold"
                                     app:layout_constraintStart_toStartOf="parent"
                                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -289,6 +204,35 @@
                                 android:layout_height="1dp"
                                 android:layout_marginStart="@dimen/margin_padding_normal"
                                 android:background="@color/grey_light" />
+
+
+                        <Button
+                                android:id="@+id/sendPingButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="@dimen/margin_padding_normal"
+                                android:text="send ping"/>
+
+                        <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginStart="@dimen/margin_padding_normal"
+                                android:background="@color/grey_light" />
+
+
+                        <Button
+                                android:id="@+id/clearRegistrationButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="@dimen/margin_padding_normal"
+                                android:text="clear registration"/>
+
+                        <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginStart="@dimen/margin_padding_normal"
+                                android:background="@color/grey_light" />
+
                     </LinearLayout>
 
                     <TextView
@@ -313,21 +257,20 @@
 
                     </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <ProgressBar
-                        android:id="@+id/registerProgress"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_padding_large"
-                        android:theme="@style/AppTheme.LoadingProgress"
-                        android:visibility="invisible"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
+    <ProgressBar
+            android:id="@+id/registerProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_padding_large"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/loginGroupView"

@@ -92,14 +92,13 @@ public class SntpSyncJobService extends Service {
 
 						SystemClock.setCurrentTimeMillis(nowSntp);
 
-						String nowSntpStr = DateTimeUtils.getDateTime(nowSntp) +"."+ (""+(1000+nowSntp-Math.round(1000*Math.floor(nowSntp/1000)))).substring(1);
+						app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem), DateTimeUtils.getTimeZoneOffset());
+
 						String nowSystemStr = DateTimeUtils.getDateTime(nowSystem) +"."+ (""+(1000+nowSystem-Math.round(1000*Math.floor(nowSystem/1000)))).substring(1);
 
-						Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntpStr.substring(1+nowSntpStr.indexOf(" "))
-								+" - System: "+nowSystemStr.substring(1+nowSystemStr.indexOf(" "))
-								+" (System is "+Math.abs(nowSystem-nowSntp)+"ms "+
-								((nowSystem >= nowSntp) ? "ahead of" : "behind")
-								+" SNTP value. System time now synced to SNTP value.)");
+						Log.v(logTag, "DateTime Sync: System time is "+nowSystemStr.substring(1+nowSystemStr.indexOf(" "))
+								+" —— "+Math.abs(nowSystem-nowSntp)+"ms "+((nowSystem >= nowSntp) ? "ahead of" : "behind")+" SNTP value."
+								+" System time now synced to SNTP value.");
 					 }
 				}
 					

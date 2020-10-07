@@ -211,6 +211,12 @@ public class RfcxPrefs {
 			RfcxLog.logExc(logTag, e);
         }
 	}
+
+	public static void deleteGuardianRoleTxtFile(Context context, String fileNameNoExt) {
+		String filePath = context.getFilesDir().toString()+"/txt/"+fileNameNoExt;
+		File fileObj = new File(filePath);
+		FileUtils.delete(fileObj);
+	}
 	
 	public static String readFromGuardianRoleTxtFile(Context context, String logTag, String thisAppRole, String targetAppRole, String fileNameNoExt) {
 	    	try {
@@ -366,14 +372,11 @@ public class RfcxPrefs {
 			put("enable_audio_capture", "true");
 			put("enable_checkin_publish", "true");
 
-			put("enable_cutoffs_battery", "true");
-			put("enable_cutoffs_schedule_off_hours", "true");
-
-			put("api_checkin_host", "checkins.rfcx.org");
-	        put("api_checkin_protocol", "ssl");
-	        put("api_checkin_port", "8883");
-			put("enable_checkin_auth", "true");
-			put("api_checkin_auth_creds", "[guid],[token]");
+			put("api_mqtt_host", "api-mqtt.rfcx.org");
+	        put("api_mqtt_protocol", "ssl");
+	        put("api_mqtt_port", "8883");
+			put("enable_mqtt_auth", "true");
+			put("api_mqtt_auth_creds", "[guid],[token]");
 
             put("api_rest_host", "api.rfcx.org");
             put("api_rest_protocol", "https");
@@ -384,11 +387,20 @@ public class RfcxPrefs {
 			put("reboot_forced_daily_at", "23:54:00");
 			
 			put("audio_cycle_duration", "90");
-			
+
+			put("enable_cutoffs_schedule_off_hours", "false");
 			put("audio_schedule_off_hours", "23:56-23:58,23:58-00:00");
 
-			put("checkin_battery_cutoff", "90");
-			put("audio_battery_cutoff", "80");
+			put("enable_cutoffs_sampling_ratio", "false");
+			put("audio_sampling_ratio", "1:2");
+
+			put("enable_cutoffs_battery", "true");
+			put("checkin_cutoff_battery", "100");
+			put("audio_cutoff_battery", "100");
+
+			put("enable_cutoffs_sentinel_battery", "true");
+			put("checkin_cutoff_sentinel_battery", "15");
+			put("audio_cutoff_sentinel_battery", "15");
 			
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "28672");
@@ -399,21 +411,27 @@ public class RfcxPrefs {
 
 			put("checkin_queue_filesize_limit", "80");
 			put("checkin_sent_filesize_buffer", "80");
-			put("checkin_stash_filesize_buffer", "32");
+			put("checkin_stash_filesize_buffer", "160");
 			put("checkin_archive_filesize_target", "32");
 
-			put("checkin_requeue_bounds_hours", "9,15");
+			put("checkin_requeue_bounds_hours", "10-14");
 
-			put("checkin_meta_bundle_limit", "10");
+			put("checkin_meta_bundle_limit", "12");
 
 			put("admin_enable_wifi", "true");
 			put("admin_enable_tcp_adb", "true");
+			put("admin_enable_wifi_socket", "true");
+			put("admin_enable_ssh_server", "false");
+
+			put("api_sntp_cycle_duration", "30");
+			put("api_ping_cycle_duration", "30");
 
 			put("admin_log_capture_cycle", "30");
-			put("admin_log_capture_level", "warn");
+			put("admin_log_capture_level", "Warn");
 			put("admin_enable_log_capture", "false");
 
-			put("admin_gps_capture_cycle", "15");
+			put("admin_enable_geoposition_capture", "true");
+			put("admin_geoposition_capture_cycle", "20");
 			
 			put("admin_screenshot_capture_cycle", "180");
 			put("admin_enable_screenshot_capture", "false");
@@ -423,8 +441,6 @@ public class RfcxPrefs {
 
 			put("admin_system_timezone", "[ Not Set ]");
 
-			put("admin_enable_ssh_server", "false");
-			put("admin_enable_wifi_socket", "true");
 			
 			
 	    }}

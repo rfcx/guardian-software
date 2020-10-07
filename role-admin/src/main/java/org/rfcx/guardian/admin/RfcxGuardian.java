@@ -5,17 +5,18 @@ import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
+import org.rfcx.guardian.admin.device.android.control.ScheduledSntpSyncService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
-import org.rfcx.guardian.admin.device.sentinel.SentinelAccelerometerUtils;
+import org.rfcx.guardian.admin.device.sentinel.SentinelAccelUtils;
 import org.rfcx.guardian.admin.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.sms.SmsDispatchService;
-import org.rfcx.guardian.admin.device.android.control.WifiStateSetService;
+import org.rfcx.guardian.admin.device.android.control.WifiHotspotStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
-import org.rfcx.guardian.admin.device.android.system.DeviceDiskDb;
+import org.rfcx.guardian.admin.device.android.system.DeviceSpaceDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceRebootDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSensorDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
@@ -23,6 +24,7 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
+import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.capture.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceNetworkName;
@@ -83,7 +85,7 @@ public class RfcxGuardian extends Application {
     public DeviceSensorDb deviceSensorDb = null;
     public DeviceRebootDb rebootDb = null;
     public DeviceDataTransferDb deviceDataTransferDb = null;
-    public DeviceDiskDb deviceDiskDb = null;
+    public DeviceSpaceDb deviceSpaceDb = null;
     public SmsMessageDb smsMessageDb = null;
 	
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
@@ -95,11 +97,12 @@ public class RfcxGuardian extends Application {
     public DeviceCPU deviceCPU = new DeviceCPU(APP_ROLE);
     public DeviceUtils deviceUtils = null;
 	public DeviceMobilePhone deviceMobilePhone = null;
+	public DeviceMobileNetwork deviceMobileNetwork = new DeviceMobileNetwork(APP_ROLE);
 
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelCompassUtils sentinelCompassUtils = null;
-	public SentinelAccelerometerUtils sentinelAccelerometerUtils = null;
+	public SentinelAccelUtils sentinelAccelUtils = null;
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -134,7 +137,7 @@ public class RfcxGuardian extends Application {
 		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		this.sentinelCompassUtils = new SentinelCompassUtils(this);
-		this.sentinelAccelerometerUtils = new SentinelAccelerometerUtils(this);
+		this.sentinelAccelUtils = new SentinelAccelUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();
@@ -165,46 +168,38 @@ public class RfcxGuardian extends Application {
 	}
 
 
-	public boolean doConditionsPermitRoleServices() {
-//		if (isGuardianRegistered()) {
-//			if (!this.rfcxServiceHandler.isRunning("AudioCapture")) {
-				return true;
-//			}
-//		} else {
-//			this.rfcxServiceHandler.stopAllServices();
-//		}
-//		return false;
+	public boolean isGuardianRegistered() {
+		return (this.rfcxGuardianIdentity.getAuthToken() != null);
 	}
-
 	
 	public void initializeRoleServices() {
 		
-		if (doConditionsPermitRoleServices() && !this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 			
 			String[] runOnceOnlyOnLaunch = new String[] {
 					"ServiceMonitor"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
-							+"|"+ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
-							,
-					"ScheduledReboot"
-							+"|"+DateTimeUtils.nextOccurrenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
-							+"|"+( 24 * 60 * 60 * 1000 ) // repeats daily
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
+							+ "|" + ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
 							,
 					"ScheduledScreenShotCapture"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:45").getTimeInMillis() // waits forty five seconds before running
-							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_screenshot_capture_cycle") * 60 * 1000 )
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:45").getTimeInMillis() // waits forty five seconds before running
+							+ "|" + ( this.rfcxPrefs.getPrefAsLong("admin_screenshot_capture_cycle") * 60 * 1000 )
 							,
 					"ScheduledLogCatCapture"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
-							+"|"+( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
+							+ "|" + ( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
 							,
 					"ADBStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
-							+"|"+"0" 																	// no repeat
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
+							+ "|" + "norepeat"
 							,
-					"WifiStateSet"
-							+"|"+DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
-							+"|"+"0" 																		// no repeat
+					"WifiHotspot"
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:15").getTimeInMillis() // waits fifteen seconds before running
+							+ "|" + "norepeat"
+							,
+					"ScheduledReboot"
+							+ "|" + DateTimeUtils.nextOccurrenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
+							+ "|" + "norepeat"
 			};
 			
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
@@ -225,7 +220,7 @@ public class RfcxGuardian extends Application {
         this.deviceSensorDb = new DeviceSensorDb(this, this.version);
         this.rebootDb = new DeviceRebootDb(this, this.version);
         this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
-        this.deviceDiskDb = new DeviceDiskDb(this, this.version);
+        this.deviceSpaceDb = new DeviceSpaceDb(this, this.version);
         this.smsMessageDb = new SmsMessageDb(this, this.version);
 		this.deviceMobilePhone = new DeviceMobilePhone(this);
 	}
@@ -235,13 +230,15 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("AirplaneModeToggle", AirplaneModeToggleService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeEnable", AirplaneModeEnableService.class);
 
-		this.rfcxServiceHandler.addService("WifiStateSet", WifiStateSetService.class);
+		this.rfcxServiceHandler.addService("WifiHotspot", WifiHotspotStateSetService.class);
 		this.rfcxServiceHandler.addService("ADBStateSet", ADBStateSetService.class);
 
         this.rfcxServiceHandler.addService("SmsDispatch", SmsDispatchService.class);
 		this.rfcxServiceHandler.addService("SmsDispatchCycle", SmsDispatchCycleService.class);
 
 		this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
+		this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
+
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
 
 		this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerService.class);
@@ -269,7 +266,7 @@ public class RfcxGuardian extends Application {
 	public void onPrefReSync(String prefKey) {
 
 		if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
-			rfcxServiceHandler.triggerService("WifiStateSet", false);
+			rfcxServiceHandler.triggerService("WifiHotspot", false);
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
 
 		} else if (prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
@@ -283,6 +280,9 @@ public class RfcxGuardian extends Application {
 
 		} else if (prefKey.equalsIgnoreCase("admin_enable_ssh_server")) {
 			rfcxServiceHandler.triggerService("SSHServerControl", false);
+
+		} else if (prefKey.equalsIgnoreCase("admin_enable_geoposition_capture") || prefKey.equalsIgnoreCase("admin_geoposition_capture_cycle")) {
+			rfcxServiceHandler.triggerService("DeviceSystem", true);
 		}
 	}
 
@@ -298,7 +298,7 @@ public class RfcxGuardian extends Application {
 			DeviceWallpaper.setWallpaper(this, R.drawable.black);
 
 			// Rename Device Hardware with /system/build.prop.
-			// Only occurs once, on initial launch, and requires reboot once complete.
+			// Only occurs once, on initial launch, and requires reboot if changes are made.
 			DeviceHardware_OrangePi_3G_IOT.checkSetDeviceHardwareIdentification(this);
 
 		}

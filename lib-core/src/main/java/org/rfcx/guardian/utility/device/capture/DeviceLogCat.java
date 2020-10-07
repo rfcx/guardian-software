@@ -75,7 +75,7 @@ public class DeviceLogCat {
 	}
 
 	public static String getLogFileLocation_Complete_PostZip(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceDiskUsage.isExternalStorageWritable() ? logSdCardDir() : logFinalDir(context) )
+		return (DeviceStorage.isExternalStorageWritable() ? logSdCardDir() : logFinalDir(context) )
 				+ "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + FILETYPE + ".gz";
 	}
 

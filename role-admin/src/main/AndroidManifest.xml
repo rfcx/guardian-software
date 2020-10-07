@@ -69,6 +69,7 @@
         </activity>
 
 
+
         <!-- Services -->
         <service android:name=".device.android.capture.DeviceScreenShotCaptureService" />
         <service android:name=".device.android.capture.DeviceLogCatCaptureService" />
@@ -77,7 +78,7 @@
         <service android:name=".device.android.control.RebootTriggerService" />
         <service android:name=".device.android.control.AirplaneModeToggleService" />
         <service android:name=".device.android.control.AirplaneModeEnableService" />
-        <service android:name=".device.android.control.WifiStateSetService" />
+        <service android:name=".device.android.control.WifiHotspotStateSetService" />
         <service android:name=".device.android.control.SntpSyncJobService" />
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
@@ -93,6 +94,7 @@
         <service android:name=".device.android.capture.ScheduledLogCatCaptureService" />
         <service android:name=".device.android.capture.ScheduledCameraPhotoCaptureService" />
         <service android:name=".device.android.capture.ScheduledCameraVideoCaptureService" />
+        <service android:name=".device.android.control.ScheduledSntpSyncService" />
 
         <!--                     -->
         <!-- START: SMS settings -->
@@ -129,6 +131,7 @@
                 <data android:mimeType="application/vnd.wap.mms-message" />
             </intent-filter>
         </receiver>
+
 
         <activity android:name=".sms.ComposeSmsActivity">
             <intent-filter>

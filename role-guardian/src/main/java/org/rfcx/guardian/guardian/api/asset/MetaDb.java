@@ -1,18 +1,20 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.guardian.api.asset;
 
 import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentValues;
 import android.content.Context;
 
-public class ApiCheckInMetaDb {
+public class MetaDb {
 
-	public ApiCheckInMetaDb(Context context, String appVersion) {
+	public MetaDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbMeta = new DbMeta(context);
 	}
 
@@ -23,7 +25,9 @@ public class ApiCheckInMetaDb {
 	static final String C_JSON = "json";
 	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_JSON, C_LAST_ACCESSED_AT };
-	
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 	
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -39,11 +43,13 @@ public class ApiCheckInMetaDb {
 	public class DbMeta {
 
 		final DbUtils dbUtils;
+		public String FILEPATH;
 
 		private String TABLE = "meta";
 		
 		public DbMeta(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
 		public int insert(long timestamp, String json) {

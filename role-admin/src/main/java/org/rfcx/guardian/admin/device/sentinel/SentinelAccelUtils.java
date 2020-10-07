@@ -4,7 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.DeviceI2cUtils;
+import org.rfcx.guardian.i2c.DeviceI2cUtils;
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -14,17 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SentinelAccelerometerUtils {
+public class SentinelAccelUtils {
 
-    public SentinelAccelerometerUtils(Context context) {
+    public SentinelAccelUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.deviceI2cUtils = new DeviceI2cUtils(sentinelAccelI2cMainAddress);
         initSentinelAccelI2cOptions();
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelAccelerometerUtils");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelAccelUtils");
 
-    public static final long samplesTakenPerCaptureCycle = 15;
+    public static final long samplesTakenPerCaptureCycle = 1;
 
     RfcxGuardian app;
     private DeviceI2cUtils deviceI2cUtils = null;
@@ -120,6 +121,7 @@ public class SentinelAccelerometerUtils {
                     }
                 }
                 valueSet[valueTypeIndex] = (i2cLabeledOutput[1] == null) ? 0 : applyValueModifier(i2cLabeledOutput[0], Long.parseLong(i2cLabeledOutput[1]));
+                valueSet[4] = System.currentTimeMillis();
                 this.i2cTmpValues.put(groupName, valueSet);
             }
             cacheI2cTmpValues();
@@ -150,18 +152,27 @@ public class SentinelAccelerometerUtils {
 
         if (sampleCount > 0) {
 
-            StringBuilder logStr = (new StringBuilder("Average of ")).append(sampleCount).append(" samples");
-
             long[] accVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.accelValues));
             this.accelValues = new ArrayList<>();
             app.sentinelSensorDb.dbAccelerometer.insert(accVals[4], accVals[0]+"", accVals[1]+"", accVals[2]+"", accVals[3]+"");
-//            logStr.append(" [ temp: ").append(accVals[3]).append(" C").append(" ]");
-            logStr.append(" [ accelerometer: x ").append(accVals[0]).append(", y ").append(accVals[1]).append(", z ").append(accVals[2]).append(" ]");
 
             if (printValuesToLog) {
-                Log.d(logTag, logStr.toString());
+                Log.d(logTag,
+                    (new StringBuilder("Avg of ")).append(sampleCount).append(" samples for ").append(DateTimeUtils.getDateTime(accVals[4]))//.append(":")
+                    .append(" [ accelerometer: x ").append(accVals[0]).append(", y ").append(accVals[1]).append(", z ").append(accVals[2]).append(" ]")
+                    //.append(" [ temp: ").append(accVals[3]).append(" C").append(" ]")
+                    .toString());
             }
         }
+    }
+
+
+    public List<double[]> getAccelValues() {
+        return this.accelValues;
+    }
+
+    public void resetAccelValues() {
+        this.accelValues = new ArrayList<>();
     }
 
 }

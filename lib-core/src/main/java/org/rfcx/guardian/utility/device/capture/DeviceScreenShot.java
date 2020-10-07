@@ -57,7 +57,7 @@ public class DeviceScreenShot {
 	}
 
 	public static String getScreenShotFileLocation_Complete(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceDiskUsage.isExternalStorageWritable() ? screenShotSdCardDir() : screenShotfinalDir(context) )
+		return (DeviceStorage.isExternalStorageWritable() ? screenShotSdCardDir() : screenShotfinalDir(context) )
 				+ "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + CAPTURE_FILETYPE;
 	}
 

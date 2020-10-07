@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -13,6 +14,7 @@ public class InstructionsDb {
 
 	public InstructionsDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbQueuedInstructions = new DbQueuedInstructions(context);
 		this.dbExecutedInstructions = new DbExecutedInstructions(context);
 	}
@@ -31,6 +33,9 @@ public class InstructionsDb {
 	static final String C_RECEIVED_BY = "received_by";
 
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_INSTR_ID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA, C_RECEIVED_BY };
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -57,7 +62,7 @@ public class InstructionsDb {
 		private String TABLE = "queued";
 
 		public DbQueuedInstructions(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson, String receivedBy) {
@@ -131,7 +136,7 @@ public class InstructionsDb {
 		private String TABLE = "executed";
 
 		public DbExecutedInstructions(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(String instructionId, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra, String receivedBy) {

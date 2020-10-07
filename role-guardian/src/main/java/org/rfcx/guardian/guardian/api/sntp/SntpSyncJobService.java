@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.device.android;
+package org.rfcx.guardian.guardian.api.sntp;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.datetime.SntpClient;
@@ -77,7 +77,7 @@ public class SntpSyncJobService extends Service {
 				
 				if (!app.deviceConnectivity.isConnected()) {
 					
-					Log.v(logTag, "No SNTP Sync Job because org.rfcx.guardian.guardian currently has no connectivity.");
+					Log.v(logTag, "No SNTP Sync Job because there is currently no connectivity.");
 					
 				} else {
 				
@@ -88,16 +88,12 @@ public class SntpSyncJobService extends Service {
 						long nowSystem = System.currentTimeMillis();
 						long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
 						
-						app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem));
+						app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem), DateTimeUtils.getTimeZoneOffset());
 
-						String nowSntpStr = DateTimeUtils.getDateTime(nowSntp) +"."+ (""+(1000+nowSntp-Math.round(1000*Math.floor(nowSntp/1000)))).substring(1);
 						String nowSystemStr = DateTimeUtils.getDateTime(nowSystem) +"."+ (""+(1000+nowSystem-Math.round(1000*Math.floor(nowSystem/1000)))).substring(1);
 						
-						Log.v(logTag, "SNTP DateTime Sync: SNTP: "+nowSntpStr.substring(1+nowSntpStr.indexOf(" "))
-								+" - System: "+nowSystemStr.substring(1+nowSystemStr.indexOf(" "))
-								+" (System is "+Math.abs(nowSystem-nowSntp)+"ms "+
-								((nowSystem >= nowSntp) ? "ahead of" : "behind")
-								+" SNTP value.)");
+						Log.v(logTag, "DateTime Sync: System time is "+nowSystemStr.substring(1+nowSystemStr.indexOf(" "))
+								+" —— "+Math.abs(nowSystem-nowSntp)+"ms "+((nowSystem >= nowSntp) ? "ahead of" : "behind")+" SNTP value.");
 					 }
 				}
 					

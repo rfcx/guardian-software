@@ -1,7 +1,7 @@
 package org.rfcx.guardian.admin.contentprovider;
 
 import org.json.JSONArray;
-import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
+import org.json.JSONObject;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
 import org.rfcx.guardian.admin.sms.SmsUtils;
@@ -65,7 +65,7 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "identity_resync", "*")) { logFuncVal = "identity_resync-*";
                 String idKey = uri.getLastPathSegment();
-                //app.rfcxGuardianIdentity.reSyncGuardianIdentity();
+                app.rfcxGuardianIdentity.reSyncGuardianIdentity();
                 return RfcxComm.getProjectionCursor(appRole, "identity_resync", new Object[]{ idKey, System.currentTimeMillis() });
 
             // "process" function endpoints
@@ -73,11 +73,34 @@ public class AdminContentProvider extends ContentProvider {
             } else if (RfcxComm.uriMatch(uri, appRole, "process", null)) { logFuncVal = "process";
                 return RfcxComm.getProjectionCursor(appRole, "process", new Object[] { "org.rfcx.guardian."+appRole.toLowerCase(), AppProcessInfo.getAppProcessId(), AppProcessInfo.getAppUserId() });
 
+            // get status of services
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) { logFuncVal = "status-*";
+                String statusTarget = uri.getLastPathSegment();
+
+                JSONArray statusArr = new JSONArray();
+                try {
+                    JSONObject statusObj = new JSONObject();
+                    JSONObject statusSentinelAudio = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("audio_capture");
+                    if (statusSentinelAudio != null) { statusObj.put("audio_capture", statusSentinelAudio); }
+                    JSONObject statusSentinelCheckIn = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("api_checkin");
+                    if (statusSentinelCheckIn != null) { statusObj.put("api_checkin", statusSentinelCheckIn); }
+                    statusArr.put(statusObj);
+                } catch (Exception e) {
+                    RfcxLog.logExc(logTag, e, "AdminContentProvider - "+logFuncVal);
+                }
+
+                return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
+
             // "control" function endpoints
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) { logFuncVal = "control-kill";
                 app.rfcxServiceHandler.stopAllServices();
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"kill", null, System.currentTimeMillis()});
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "initialize")) { logFuncVal = "control-initialize";
+                app.initializeRoleServices();
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"initialize", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "reboot")) { logFuncVal = "control-reboot";
                 app.rfcxServiceHandler.triggerService("RebootTrigger", true);
@@ -116,7 +139,37 @@ public class AdminContentProvider extends ContentProvider {
                 SmsUtils.addScheduledSmsToQueue(Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext());
                 return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{pathSegSendAt + "|" + pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
 
-                // "database" function endpoints
+
+            // get momentary values endpoints
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "get_momentary_values", "*")) { logFuncVal = "get_momentary_values-*";
+                String pathSeg = uri.getLastPathSegment();
+
+                if (pathSeg.equalsIgnoreCase("sentinel_power")) {
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"sentinel_power", app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray().toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("sentinel_sensor")) {
+                     return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"sentinel_sensor", SentinelUtils.getMomentarySentinelSensorValuesAsJsonArray(true, app.getApplicationContext()).toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("system_storage")) {
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_storage", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("storage").toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("system_memory")) {
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_memory", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("memory").toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("system_cpu")) {
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_cpu", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("cpu").toString(), System.currentTimeMillis()});
+
+                } else if (pathSeg.equalsIgnoreCase("system_network")) {
+                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_network", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("network").toString(), System.currentTimeMillis()});
+
+
+                } else {
+                    return null;
+                }
+
+
+            // "database" function endpoints
 
             } else if (RfcxComm.uriMatch(uri, appRole, "database_get_all_rows", "*")) { logFuncVal = "database_get_all_rows-*";
                 String pathSeg = uri.getLastPathSegment();
@@ -143,7 +196,6 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "database_get_latest_row", "*")) { logFuncVal = "database_get_latest_row-*";
                 String pathSeg = uri.getLastPathSegment();
-
 
                 if (pathSeg.equalsIgnoreCase("screenshots")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_latest_row", new Object[]{"screenshots", app.deviceScreenShotDb.dbCaptured.getLatestRowAsJsonArray().toString(), System.currentTimeMillis()});
@@ -226,9 +278,9 @@ public class AdminContentProvider extends ContentProvider {
                 }
 
             } else if (RfcxComm.uriMatch(uri, appRole, "signal", "*")) { logFuncVal = "signal-*";
-                return RfcxComm.getProjectionCursor(appRole, "signal", new Object[]{DeviceSystemService.getSignalStrengthAsJsonArray()});
+                return RfcxComm.getProjectionCursor(appRole, "signal", new Object[]{ app.deviceMobileNetwork.getSignalStrengthAsJsonArray() });
             } else if (RfcxComm.uriMatch(uri, appRole, "sentinel_values", "*")) { logFuncVal = "sentinel_values-*";
-                return RfcxComm.getProjectionCursor(appRole, "sentinel_values", new Object[]{ new JSONArray().put(app.sentinelPowerUtils.getSentinelPowerCurrentValuesAsJson())});
+                return RfcxComm.getProjectionCursor(appRole, "sentinel_values", new Object[]{ new JSONArray().put(app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJson())});
             }
 
 

@@ -6,6 +6,7 @@ import android.content.Context;
 import org.json.JSONArray;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
@@ -16,6 +17,7 @@ public class SmsMessageDb {
 
 	public SmsMessageDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbSmsReceived = new DbSmsReceived(context);
 		this.dbSmsSent = new DbSmsSent(context);
 		this.dbSmsQueued = new DbSmsQueued(context);
@@ -30,6 +32,9 @@ public class SmsMessageDb {
 	static final String C_MESSAGE_ID = "message_id";
 	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
 	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_TIMESTAMP, C_ADDRESS, C_BODY, C_MESSAGE_ID, C_LAST_ACCESSED_AT };
+
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	private boolean DROP_TABLE_ON_UPGRADE = false;
 
 	private String createColumnString(String tableName) {
 		StringBuilder sbOut = new StringBuilder();
@@ -47,11 +52,13 @@ public class SmsMessageDb {
 	public class DbSmsReceived {
 
 		final DbUtils dbUtils;
+		public String FILEPATH;
 
 		private String TABLE = "received";
 
 		public DbSmsReceived(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 
 		public int insert(String timestamp, String address, String body, String message_id) {
@@ -100,7 +107,7 @@ public class SmsMessageDb {
 		private String TABLE = "sent";
 
 		public DbSmsSent(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(long timestamp, String address, String body, String message_id) {
@@ -149,7 +156,7 @@ public class SmsMessageDb {
 		private String TABLE = "queued";
 
 		public DbSmsQueued(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE));
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
 		public int insert(long timestamp, String address, String body, String message_id) {

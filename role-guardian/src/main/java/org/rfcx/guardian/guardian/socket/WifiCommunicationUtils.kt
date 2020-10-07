@@ -45,17 +45,9 @@ class WifiCommunicationUtils(private val context: Context) {
         val diagnosticJsonArray = JSONArray()
         try {
             val diagnosticJson = JSONObject()
-            val totalLocalAudio = ApiCheckInQueueService.totalLocalAudio
-            val totalSyncedAudio = ApiCheckInUtils.totalSyncedAudio
-            val totalRecordedTime = ApiCheckInQueueService.totalRecordedTime
-            val totalFileSize = ApiCheckInUtils.totalFileSize
             val battery = app.deviceBattery.getBatteryChargePercentage(this.context, null)
 
             diagnosticJson.let {
-                it.put("total_local", totalLocalAudio)
-                it.put("total_checkin", totalSyncedAudio)
-                it.put("total_record_time", totalRecordedTime)
-                it.put("total_file_size", totalFileSize)
                 it.put("battery_percentage", battery)
             }
 
