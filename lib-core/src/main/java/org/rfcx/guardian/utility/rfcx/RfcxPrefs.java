@@ -372,10 +372,6 @@ public class RfcxPrefs {
 			put("enable_audio_capture", "true");
 			put("enable_checkin_publish", "true");
 
-			put("enable_cutoffs_battery", "true");
-			put("enable_cutoffs_schedule_off_hours", "false");
-			put("enable_cutoffs_sampling_ratio", "false");
-
 			put("api_mqtt_host", "api-mqtt.rfcx.org");
 	        put("api_mqtt_protocol", "ssl");
 	        put("api_mqtt_port", "8883");
@@ -391,10 +387,14 @@ public class RfcxPrefs {
 			put("reboot_forced_daily_at", "23:54:00");
 			
 			put("audio_cycle_duration", "90");
-			
+
+			put("enable_cutoffs_schedule_off_hours", "false");
 			put("audio_schedule_off_hours", "23:56-23:58,23:58-00:00");
+
+			put("enable_cutoffs_sampling_ratio", "false");
 			put("audio_sampling_ratio", "1:2");
 
+			put("enable_cutoffs_battery", "true");
 			put("checkin_cutoff_battery", "100");
 			put("audio_cutoff_battery", "100");
 

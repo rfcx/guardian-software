@@ -8,9 +8,6 @@
 	<string name="prefs_value_default_show_ui">true</string>
 	<string name="prefs_value_default_enable_audio_capture">true</string>
 	<string name="prefs_value_default_enable_checkin_publish">true</string>
-	<string name="prefs_value_default_enable_cutoffs_battery">true</string>
-	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">false</string>
-	<string name="prefs_value_default_enable_cutoffs_sampling_ratio">false</string>
 
 	<string name="prefs_value_default_api_mqtt_host">api-mqtt.rfcx.org</string>
 	<string name="prefs_value_default_api_mqtt_protocol">ssl</string>
@@ -26,7 +23,10 @@
 
 	<string name="prefs_value_default_reboot_forced_daily_at">23:54:00</string>
 
+	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">false</string>
 	<string name="prefs_value_default_audio_schedule_off_hours">23:56-23:58,23:58-00:00</string>
+
+	<string name="prefs_value_default_enable_cutoffs_sampling_ratio">false</string>
 	<string name="prefs_value_default_audio_sampling_ratio">1:2</string>
 
 	<string name="prefs_value_default_audio_cycle_duration">90</string>
@@ -34,8 +34,9 @@
 	<string name="prefs_value_default_audio_encode_bitrate">28672</string>
 	<string name="prefs_value_default_audio_sample_rate">24000</string>
 
-	<string name="prefs_value_default_checkin_cutoff_battery">95</string>
-	<string name="prefs_value_default_audio_cutoff_battery">90</string>
+	<string name="prefs_value_default_enable_cutoffs_battery">true</string>
+	<string name="prefs_value_default_checkin_cutoff_battery">100</string>
+	<string name="prefs_value_default_audio_cutoff_battery">100</string>
 
 	<string name="prefs_value_default_enable_cutoffs_sentinel_battery">true</string>
 	<string name="prefs_value_default_checkin_cutoff_sentinel_battery">15</string>
