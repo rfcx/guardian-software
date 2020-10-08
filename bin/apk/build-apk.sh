@@ -36,9 +36,9 @@ cd $PROJECT_DIR;
 echo "building apk...";
 
 if [[ "$APK_TYPE" = "debug" ]]; then
-	gradlew :role-$ROLE:assembleDebug;
+	$PROJECT_DIR/gradlew :role-$ROLE:assembleDebug;
 elif [ "$APK_TYPE" = "release" ]; then
-	gradlew :role-$ROLE:assembleRelease;
+	$PROJECT_DIR/gradlew :role-$ROLE:assembleRelease;
 fi
 
 export APK_PATH_UNSIGNED="$ROLE_DIR/build/outputs/apk/$APK_TYPE/$ROLE-$APK_VERSION-$APK_TYPE-unsigned.apk";
