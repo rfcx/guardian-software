@@ -54,7 +54,7 @@ public class SentinelPowerUtils {
     private static final double qCountMeasurementRange = 65535;
     private static final double qCountCalibratedMin = Math.round(qCountMeasurementRange / 4);
     private static final double qCountCalibratedMax = Math.round(qCountMeasurementRange - qCountCalibratedMin);
-    private static final double qCountCalibratedEighthOfOnePercent = Math.round((qCountCalibratedMax - qCountCalibratedMin) / 800);
+    private static final double qCountCalibratedQuarterOfOnePercent = Math.round((qCountCalibratedMax - qCountCalibratedMin) / (4 * 100));
 
     public boolean isCaptureAllowed() {
 
@@ -232,31 +232,34 @@ public class SentinelPowerUtils {
 
     private double checkSetQCountCalibration(double qCountVal) {
 
-        double qCntVal = qCountVal;
+        boolean doReCalibration = false;
 
-        if (this.isBatteryCharged && !this.isBatteryCharging && (qCountVal != this.qCountCalibratedMax)) {
-
-            qCntVal = this.qCountCalibratedMax;
+        if (    this.isBatteryCharged && !this.isBatteryCharging
+            &&  (   (qCountVal > this.qCountCalibratedMax) || (qCountVal < this.qCountCalibratedMax)    )
+        ) {
+            qCountVal = this.qCountCalibratedMax;
+            doReCalibration = true;
             Log.v(logTag, "Max Charge State Attained. Calibrating Coulomb Counter Maximum to "+Math.round(this.qCountCalibratedMax)+" (previously at "+Math.round(qCountVal)+")");
 
-        } else if ((qCountVal + this.qCountCalibratedEighthOfOnePercent) < this.qCountCalibratedMin) {
+        } else if ((qCountVal + this.qCountCalibratedQuarterOfOnePercent) < this.qCountCalibratedMin) {
 
-            qCntVal = this.qCountCalibratedMin;
+            qCountVal = this.qCountCalibratedMin;
+            doReCalibration = true;
             Log.v(logTag, "Min Charge State Attained. Calibrating Coulomb Counter Minimum to "+Math.round(this.qCountCalibratedMin)+" (previously at "+Math.round(qCountVal)+")");
 
         }
 
-        if (qCntVal != qCountVal) {
+        if (doReCalibration) {
             if (isCaptureAllowed()) {
                 List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
-                i2cLabelsAddressesValues.add(new String[]{ "qcount", "0x13", "0x"+Long.toHexString(Long.parseLong(""+Math.round(qCntVal)))});
+                i2cLabelsAddressesValues.add(new String[]{ "qcount", "0x13", "0x"+Long.toHexString(Long.parseLong(""+Math.round(qCountVal)))});
                 this.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues);
             } else {
                 Log.e(logTag, "Could not calibrate/reset qcount value");
             }
         }
 
-        return qCntVal;
+        return qCountVal;
     }
 
     private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
