@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.asset;
+package org.rfcx.guardian.guardian.asset;
 
 import android.content.Context;
 import android.util.Log;

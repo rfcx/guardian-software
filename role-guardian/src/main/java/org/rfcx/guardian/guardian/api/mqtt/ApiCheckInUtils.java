@@ -173,7 +173,7 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 
 			if (stashSuccessList.size() > 0) {
-				Log.i(logTag, stashSuccessList.size() + " CheckIn(s) moved to Stash (" + TextUtils.join(" ", stashSuccessList) + "). Total in Stash: " + stashCount + " CheckIns, " + Math.round(app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() / 1024) + " kB.");
+				Log.i(logTag, stashSuccessList.size() + " CheckIn(s) moved to Stash (" + TextUtils.join(" ", stashSuccessList) + "). Total in Stash: " + stashCount + " CheckIns, " + FileUtils.bytesAsReadableString(app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows()) + ".");
 			}
 		}
 

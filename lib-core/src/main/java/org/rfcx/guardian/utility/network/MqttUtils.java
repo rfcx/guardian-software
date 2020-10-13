@@ -65,8 +65,8 @@ public class MqttUtils implements MqttCallback {
 		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html
 
 		connectOptions.setCleanSession(true); // If false, both the client and server will maintain state across restarts of the client, the server and the connection.
-		connectOptions.setConnectionTimeout(20); // in seconds
-		connectOptions.setKeepAliveInterval(40); // in seconds
+		connectOptions.setConnectionTimeout(30); // in seconds
+		connectOptions.setKeepAliveInterval(45); // in seconds
 		connectOptions.setAutomaticReconnect(false); // automatically attempt to reconnect to the server if the connection is lost
 		connectOptions.setMaxInflight(1); // limits how many messages can be sent without receiving acknowledgments
 
