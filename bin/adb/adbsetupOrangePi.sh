@@ -49,16 +49,17 @@ echo "   - Boot Completed... Beginning Setup..."
 sleep 15;
 
 
-echo "1) Verifying Device IMEI Code..."  
-GET_IMEI=`$ADB shell "dumpsys iphonesubinfo" | grep Device`
-echo -e "   - IMEI: $GRN${GET_IMEI:14}$RST";
 
-
-echo "2) System: Formatting SD Card..."  
+echo "1) System: Formatting SD Card..."  
 SET_SDCARD=`$ADB shell "am start -n com.android.settings/com.android.settings.MediaFormat && sleep 2 && input keyevent $KEYCODE_DOWN && input keyevent $KEYCODE_DOWN && input keyevent $KEYCODE_ENTER && input keyevent $KEYCODE_DOWN && input keyevent $KEYCODE_DOWN && input keyevent $KEYCODE_ENTER && input keyevent $KEYCODE_BACK"`
 sleep 20;
 GET_SDCARD=`$ADB shell "df /storage/sdcard0 | grep sdcard"`
 echo "   - $GET_SDCARD";
+
+echo "2) Verifying Device IMEI Code..."  
+GET_IMEI=`$ADB shell "dumpsys iphonesubinfo" | grep Device`
+echo -e "   - IMEI: $GRN${GET_IMEI:14}$RST";
+
 echo "3) System: Rebooting..."  
 REBOOT=`$ADB shell "reboot"`
 
