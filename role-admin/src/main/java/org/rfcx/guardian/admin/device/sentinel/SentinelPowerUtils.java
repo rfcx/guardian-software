@@ -47,11 +47,18 @@ public class SentinelPowerUtils {
 
     private boolean verboseLogging = false;
 
-    public boolean isInputPowerAtZero = false;
-    public boolean isBatteryCharging = false;
-    public boolean isBatteryCharged = false;
+    private static final double qCountMeasurementRange = 65535;
+    private static final double qCountCalibratedMin = Math.round(qCountMeasurementRange / 4);
+    private static final double qCountCalibratedMax = Math.round(qCountMeasurementRange - qCountCalibratedMin);
+    private static final double qCountCalibratedQuarterOfOnePercent = (qCountCalibratedMax - qCountCalibratedMin) / (4 * 100);
+    private static final double qCountCalibrationVoltageMin = 2800;
+    private static final int qCountCalibrationDelayCounterMax = 30;
+    private int qCountCalibrationDelayCounter = 0;
 
-    private static final long qCountCalibratedMax = (65535 - 16384);
+    public boolean isInputPowerAtZero = false;
+    private boolean isBatteryCharging = false;
+    private boolean isBatteryCharged = false;
+    private boolean isBatteryChargingAllowed = true;
 
     public boolean isCaptureAllowed() {
 
@@ -88,7 +95,8 @@ public class SentinelPowerUtils {
 
             List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
 
-            i2cLabelsAddressesValues.add(new String[]{ "config_bits",            "0x14", "0x001c"});    // 000011100 (binary)  // set bits 2, 3, 4 to "1"
+            String configBits = (this.isBatteryChargingAllowed) ? "0x001c" : "0x011c";                  // 100011100 (binary)  // set bits 2, 3, 4, 8 to "1"
+            i2cLabelsAddressesValues.add(new String[]{ "config_bits",           "0x14", configBits});   // 000011100 (binary)  // set bits 2, 3, 4 to "1"
                                                                                                         // 'en_qcount' (bit 2) enabled
                                                                                                         // 'mppt_en_i2c' (bit 3) enabled
                                                                                                         // 'force_meas_sys_on' (bit 4) enabled
@@ -110,6 +118,8 @@ public class SentinelPowerUtils {
                                                                                                         //  K_QC: 8333.33 Hz/V       //  R_SNSB: 0.003 Ohms
                                                                                                         //  QCOUNT_PRESCALE_FACTOR = 2 * (qLSB * K_QC * R_SNSB)
             this.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues);
+
+            Log.e(logTag, "setOrResetSentinelPowerChip() has run.");
 
         } else {
             Log.e(logTag, "Skipping setOrResetSentinelPowerChip() because Sentinel Power Capture is not allowed or not possible.");
@@ -221,26 +231,56 @@ public class SentinelPowerUtils {
         this.isBatteryCharging = (chargerState == 64);
         this.isBatteryCharged = (chargerState == 8);
 
-        checkSetQCountCalibration(Math.round(battVals[2]));
+        battVals[2] = checkSetQCountCalibration(battVals[2], battVals[0]);
 
-        battVals[2] = (10000*(battVals[2]-16384)/32768);
+        battVals[2] = (10000*(battVals[2]-this.qCountCalibratedMin)/32768);
         this.i2cTmpValues.put("battery", battVals);
     }
 
-    private void checkSetQCountCalibration(long qCountVal) {
+    private double checkSetQCountCalibration(double qCountVal, double voltageVal) {
 
-        if (this.isBatteryCharged && !this.isBatteryCharging && (qCountVal != this.qCountCalibratedMax)) {
+        boolean doReCalibration = false;
+        String calibrationMsg = null;
 
-            Log.v(logTag, "Max Charge State Attained. Calibrating Coulomb Counter Maximum to "+this.qCountCalibratedMax+" (previously at "+qCountVal+")");
+        if (    ((qCountVal - this.qCountCalibratedQuarterOfOnePercent) > this.qCountCalibratedMax)
+           ||   (this.isBatteryCharged && !this.isBatteryCharging && (qCountVal != this.qCountCalibratedMax))
+        ) {
 
+            calibrationMsg = "Max Charge State Attained. Calibrating Coulomb Counter Maximum to "+Math.round(this.qCountCalibratedMax)+" (previously at "+Math.round(qCountVal)+")";
+            qCountVal = this.qCountCalibratedMax;
+            doReCalibration = true;
+
+        } else if ( (qCountVal + this.qCountCalibratedQuarterOfOnePercent) < this.qCountCalibratedMin ) {
+
+            calibrationMsg = "Min Charge State Attained. Calibrating Coulomb Counter Minimum to "+Math.round(this.qCountCalibratedMin)+" (previously at "+Math.round(qCountVal)+")";
+            qCountVal = this.qCountCalibratedMin;
+            doReCalibration = true;
+
+        } else if (voltageVal <= this.qCountCalibrationVoltageMin) {
+
+            qCountCalibrationDelayCounter--;
+
+            if (qCountCalibrationDelayCounter <= 0) {
+                calibrationMsg = "Battery is effectively fully discharged (Voltage: "+Math.round(voltageVal)+" mV). Resetting Coulomb Counter to " + Math.round(this.qCountCalibratedMin);
+                qCountVal = this.qCountCalibratedMin;
+                doReCalibration = true;
+                qCountCalibrationDelayCounter = this.qCountCalibrationDelayCounterMax;
+            }
+
+        }
+
+        if (doReCalibration) {
             if (isCaptureAllowed()) {
                 List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
-                i2cLabelsAddressesValues.add(new String[]{ "qcount", "0x13", "0x"+Long.toHexString(this.qCountCalibratedMax)});
+                i2cLabelsAddressesValues.add(new String[]{ "qcount", "0x13", "0x"+Long.toHexString(Long.parseLong(""+Math.round(qCountVal)))});
                 this.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues);
+                Log.v(logTag, calibrationMsg);
             } else {
                 Log.e(logTag, "Could not calibrate/reset qcount value");
             }
         }
+
+        return qCountVal;
     }
 
     private static double applyValueModifier(String i2cLabel, long i2cRawValue) {
@@ -297,6 +337,7 @@ public class SentinelPowerUtils {
             long[] powers = new long[] { _v("power", sysVals[3]), _v("power", battVals[3]), _v("power", inpVals[3]) };
 
             String bPctStr = (misc[1]+"").substring(0, (misc[1]+"").length()-2) +"."+ (misc[1]+"").substring((misc[1]+"").length()-2);
+            if ((misc[1] > -10) && (misc[1] < 10)) { if (misc[1] < 0) { bPctStr = "-0.0"+Math.abs(misc[1]); } else if (misc[1] >= 0) { bPctStr = "0.0"+misc[1]; } }
 
             app.sentinelPowerDb.dbSentinelPowerSystem.insert( measuredAt, voltages[0], currents[0], misc[0], powers[0] );
             app.sentinelPowerDb.dbSentinelPowerBattery.insert( measuredAt, voltages[1], currents[1], bPctStr, powers[1] );
@@ -449,12 +490,20 @@ public class SentinelPowerUtils {
 
         if (!isAllowed) {
 
-            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) { updateSentinelPowerValues(); }
+            boolean isCaptureAllowedNow = isCaptureAllowed();
+
+            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowedNow) { updateSentinelPowerValues(); }
 
             if (this.powerBatteryValues.size() > 0) {
+
                 long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
                 int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery") : app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery");
                 isAllowed = battPct >= (prefsVal * 100);
+
+            } else if (!isCaptureAllowedNow) {
+
+                isAllowed = true;
+
             }
         }
 

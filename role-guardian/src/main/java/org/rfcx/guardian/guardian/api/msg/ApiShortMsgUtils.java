@@ -13,7 +13,7 @@ public class ApiShortMsgUtils {
 
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiShortBurstMsgUtils");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiShortMsgUtils");
 
 	private RfcxGuardian app;
 

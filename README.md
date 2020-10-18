@@ -163,10 +163,10 @@ OrangePi has already been rooted and signed key also same as in the Android imag
 
 1. Make sure COM 2 jumper is ON. (Note: in practice we found that the jumper can be OFF for the flashing process.)
 1. You need to download and install these tools
-    1. [MTK Driver Installer](https://drive.google.com/open?id=15GXkFqZ95ilu482SXAiOPlxm878otwu9).
+    1. [MTK Driver Installer](https://static.rfcx.org/tools/orangepi-3g-iot/driver_auto_installer_v5.1453.03.zip).
        Choose WIN8 if you are using Windows 8 or above.
-       (Some users report failures during install -- [this is the solution](https://drive.google.com/file/d/1zfUcaQk06CXQBbLr59rt83pD5sLO7pnP/view))
-    2. [MTK Flash Tool](https://drive.google.com/open?id=1VXU-Jb5A8cFco3Q6uYht684pxjnp0pJd)
+       (Some users report failures during install -- [this is the solution](https://static.rfcx.org/tools/orangepi-3g-iot/video-how-to-resolve-mediatek-driver-install-failed-issue-on-windows10-64bit.mp4))
+    2. [MTK Flash Tool](https://static.rfcx.org/tools/orangepi-3g-iot/sp_flash_tool_v5.1644_win.zip)
     3. Orange Pi Android image: [Android Image Downloads](https://bit.ly/rfcx-3giot-img)
 2. Open the MTK Flash Tool *(flash_tool)*
     1. Make sure the Orange Pi is NOT connected.
@@ -207,7 +207,7 @@ Before following the instruction below. You need to download Vysor first.
 Before you start, you will need to generate a suitable IMEI number. Please use this [Online IMEI Generator](https://static.rfcx.org/tools/imei/generator.html) to create a valid value.
 
 1. Make sure that COM 2 jumper is OFF (removed).
-2. First download [IMEI Writer](https://drive.google.com/open?id=1JBEbILcHHfWM3Yz4e4J9Yc5Leix9m1uI) (for Windows)
+2. First download [IMEI Writer](https://static.rfcx.org/tools/orangepi-3g-iot/sn_writer_tool_exe_v1.1716.00.zip) (for Windows)
 3. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
 4. Choose **USB VCOM** and **Smart Phone**
 5. Open System Config
