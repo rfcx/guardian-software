@@ -4,7 +4,7 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export ROLE=$1;
 
-export SDKVERSION="30.0.2";
+export SDKVERSION="29.0.2";
 
 export APKSIGNER_BIN="$ANDROID_SDK_ROOT/build-tools/$SDKVERSION/apksigner";
 
