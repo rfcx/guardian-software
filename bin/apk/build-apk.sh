@@ -4,7 +4,9 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export ROLE=$1;
 
-export APKSIGNER_BIN="$ANDROID_SDK_ROOT/build-tools/29.0.3/apksigner";
+export SDKVERSION="30.0.2";
+
+export APKSIGNER_BIN="$ANDROID_SDK_ROOT/build-tools/$SDKVERSION/apksigner";
 
 export KEYSTORE="$SCRIPT_DIR/../_private/rfcx-platform-keystore.jks";
 export KEY_ALIAS=`cat $SCRIPT_DIR/../_private/rfcx-platform-keystore-alias.txt;`;
