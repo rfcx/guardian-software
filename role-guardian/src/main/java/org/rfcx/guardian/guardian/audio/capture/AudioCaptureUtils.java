@@ -99,8 +99,14 @@ public class AudioCaptureUtils {
 	}
 
 	private boolean isBatteryChargeSufficientForCapture() {
+		int batteryChargeCutoff = this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_battery");
 		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_battery"));
+		boolean isBatteryChargeSufficient = (batteryCharge >= batteryChargeCutoff);
+		if (isBatteryChargeSufficient && (batteryChargeCutoff == 100)) {
+			isBatteryChargeSufficient = this.app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null);
+			if (!isBatteryChargeSufficient) { Log.d(logTag, "Battery is at 100% but is not yet fully charged."); }
+		}
+		return isBatteryChargeSufficient;
 	}
 
 	private boolean limitBasedOnBatteryLevel() {

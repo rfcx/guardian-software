@@ -452,8 +452,14 @@ public class ApiCheckInUtils implements MqttCallback {
 	}
 
 	boolean isBatteryChargeSufficientForCheckIn() {
-		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
-		return (batteryCharge >= app.rfcxPrefs.getPrefAsInt("checkin_cutoff_battery"));
+		int batteryChargeCutoff = app.rfcxPrefs.getPrefAsInt("checkin_cutoff_battery");
+		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
+		boolean isBatteryChargeSufficient = (batteryCharge >= batteryChargeCutoff);
+		if (isBatteryChargeSufficient && (batteryChargeCutoff == 100)) {
+			isBatteryChargeSufficient = this.app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null);
+			if (!isBatteryChargeSufficient) { Log.d(logTag, "Battery is at 100% but is not yet fully charged."); }
+		}
+		return isBatteryChargeSufficient;
 	}
 
 	boolean isBatteryChargedButBelowCheckInThreshold() {
