@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.socket
 import android.content.Context
 import android.os.Looper
 import android.util.Base64
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
@@ -127,7 +128,7 @@ object SocketManager {
             streamOutput?.flush()
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
-            verifySocketError(e.message ?: "")
+            verifySocketError(e.message ?: "null")
         }
     }
 
@@ -137,7 +138,7 @@ object SocketManager {
             streamOutput?.flush()
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
-            verifySocketError(e.message ?: "")
+            verifySocketError(e.message ?: "null")
         }
     }
 
@@ -173,7 +174,7 @@ object SocketManager {
             streamOutput?.flush()
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
-            verifySocketError(e.message ?: "")
+            verifySocketError(e.message ?: "null")
         }
     }
 
@@ -194,7 +195,7 @@ object SocketManager {
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
-            verifySocketError(e.message ?: "")
+            verifySocketError(e.message ?: "null")
         }
     }
 
@@ -231,7 +232,7 @@ object SocketManager {
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
-            verifySocketError(e.message ?: "")
+            verifySocketError(e.message ?: "null")
         }
     }
 
@@ -258,7 +259,7 @@ object SocketManager {
                 streamOutput?.flush()
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
-                verifySocketError(e.message ?: "")
+                verifySocketError(e.message ?: "null")
             }
         }
     }
@@ -303,7 +304,7 @@ object SocketManager {
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
-            verifySocketError(e.message ?: "")
+            verifySocketError(e.message ?: "null")
         }
     }
 
@@ -324,7 +325,7 @@ object SocketManager {
                 streamOutput?.flush()
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
-                verifySocketError(e.message ?: "")
+                verifySocketError(e.message ?: "null")
             }
         }
     }
@@ -338,7 +339,7 @@ object SocketManager {
             streamOutput?.flush()
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
-            verifySocketError(e.message ?: "")
+            verifySocketError(e.message ?: "null")
         }
     }
 
@@ -358,7 +359,7 @@ object SocketManager {
                         streamOutput?.flush()
                     } catch (e: Exception) {
                         RfcxLog.logExc(LOGTAG, e)
-                        verifySocketError(e.message ?: "")
+                        verifySocketError(e.message ?: "null")
                     }
                 }
 
@@ -371,7 +372,7 @@ object SocketManager {
                         streamOutput?.flush()
                     } catch (e: Exception) {
                         RfcxLog.logExc(LOGTAG, e)
-                        verifySocketError(e.message ?: "")
+                        verifySocketError(e.message ?: "null")
                     }
                 }
             })
@@ -404,9 +405,9 @@ object SocketManager {
     }
 
     private fun verifySocketError(message: String) {
-        val error = message.toLowerCase()
-        if (error.contains("null") || error.contains("EPIPE")) {
+        if (message.contains("null", ignoreCase = true) || message.contains("EPIPE", ignoreCase = true)) {
             if (context != null) {
+                Log.d(LOGTAG, "Restart socket service")
                 stopServerSocket()
                 startServerSocket(context!!)
             }
