@@ -96,6 +96,7 @@ object SocketManager {
                 }
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
+                verifySocketError(e.message ?: "null")
             }
             Looper.loop()
         })
@@ -405,6 +406,7 @@ object SocketManager {
     }
 
     private fun verifySocketError(message: String) {
+        Log.d(LOGTAG, "Socket got error: ${message}")
         if (message.contains("null", ignoreCase = true) || message.contains("EPIPE", ignoreCase = true)) {
             if (context != null) {
                 Log.d(LOGTAG, "Restart socket service")
