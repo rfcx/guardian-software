@@ -19,6 +19,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +82,7 @@ public class AdminContentProvider extends ContentProvider {
                 JSONArray statusArr = new JSONArray();
                 try {
                     JSONObject statusObj = new JSONObject();
+                    Log.i(logTag, "AdminContentProvider: Started...");
                     JSONObject statusSentinelAudio = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("audio_capture");
                     if (statusSentinelAudio != null) { statusObj.put("audio_capture", statusSentinelAudio); }
                     JSONObject statusSentinelCheckIn = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("api_checkin");
@@ -89,6 +91,7 @@ public class AdminContentProvider extends ContentProvider {
                 } catch (Exception e) {
                     RfcxLog.logExc(logTag, e, "AdminContentProvider - "+logFuncVal);
                 }
+                Log.i(logTag, "ContentProvider: "+statusArr.toString());
 
                 return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 

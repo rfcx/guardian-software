@@ -4,7 +4,9 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export ROLE=$1;
 
-export APKSIGNER_BIN="$ANDROID_SDK_ROOT/build-tools/29.0.3/apksigner";
+export SDKVERSION="29.0.2";
+
+export APKSIGNER_BIN="$ANDROID_SDK_ROOT/build-tools/$SDKVERSION/apksigner";
 
 export KEYSTORE="$SCRIPT_DIR/../_private/rfcx-platform-keystore.jks";
 export KEY_ALIAS=`cat $SCRIPT_DIR/../_private/rfcx-platform-keystore-alias.txt;`;
@@ -36,9 +38,9 @@ cd $PROJECT_DIR;
 echo "building apk...";
 
 if [[ "$APK_TYPE" = "debug" ]]; then
-	gradlew :role-$ROLE:assembleDebug;
+	$PROJECT_DIR/gradlew :role-$ROLE:assembleDebug;
 elif [ "$APK_TYPE" = "release" ]; then
-	gradlew :role-$ROLE:assembleRelease;
+	$PROJECT_DIR/gradlew :role-$ROLE:assembleRelease;
 fi
 
 export APK_PATH_UNSIGNED="$ROLE_DIR/build/outputs/apk/$APK_TYPE/$ROLE-$APK_VERSION-$APK_TYPE-unsigned.apk";

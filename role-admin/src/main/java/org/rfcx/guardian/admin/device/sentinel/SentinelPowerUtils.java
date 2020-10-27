@@ -47,13 +47,18 @@ public class SentinelPowerUtils {
 
     private boolean verboseLogging = false;
 
+    private boolean reducedCaptureModeLastValue = false;
+    private long reducedCaptureModeLastValueSetAt = 0;
+    private static final long reducedCaptureModeLastValueExpiresAfter = 5000;
+
+    private static final double qCountCalibrationVoltageMin = 2750;
+
     private static final double qCountMeasurementRange = 65535;
     private static final double qCountCalibratedMin = Math.round(qCountMeasurementRange / 4);
     private static final double qCountCalibratedMax = Math.round(qCountMeasurementRange - qCountCalibratedMin);
     private static final double qCountCalibratedQuarterOfOnePercent = (qCountCalibratedMax - qCountCalibratedMin) / (4 * 100);
-    private static final double qCountCalibrationVoltageMin = 2800;
-    private static final int qCountCalibrationDelayCounterMax = 30;
-    private int qCountCalibrationDelayCounter = 0;
+    private static final int qCountCalibrationDelayCounterMax = 28;
+    private int qCountCalibrationDelayCounter = qCountCalibrationDelayCounterMax;
 
     public boolean isInputPowerAtZero = false;
     private boolean isBatteryCharging = false;
@@ -207,15 +212,20 @@ public class SentinelPowerUtils {
                 valueSet[4] = System.currentTimeMillis();
                 this.i2cTmpValues.put(groupName, valueSet);
             }
-            calculateMissingValues();
-            cacheI2cTmpValues();
+
+            if (calculateMissingValuesAndValidateResults()) {
+                cacheI2cTmpValues();
+            } else {
+                Log.e(logTag, "Not Saved: "+this.i2cTmpValues.get("battery")[0]);
+
+            }
 
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
     }
 
-    private void calculateMissingValues() {
+    private boolean calculateMissingValuesAndValidateResults() {
 
         double[] sysVals = this.i2cTmpValues.get("system");
         double[] battVals = this.i2cTmpValues.get("battery");
@@ -235,6 +245,8 @@ public class SentinelPowerUtils {
 
         battVals[2] = (10000*(battVals[2]-this.qCountCalibratedMin)/32768);
         this.i2cTmpValues.put("battery", battVals);
+
+        return (battVals[0] >= (this.qCountCalibrationVoltageMin/2));
     }
 
     private double checkSetQCountCalibration(double qCountVal, double voltageVal) {
@@ -246,27 +258,29 @@ public class SentinelPowerUtils {
            ||   (this.isBatteryCharged && !this.isBatteryCharging && (qCountVal != this.qCountCalibratedMax))
         ) {
 
-            calibrationMsg = "Max Charge State Attained. Calibrating Coulomb Counter Maximum to "+Math.round(this.qCountCalibratedMax)+" (previously at "+Math.round(qCountVal)+")";
+            calibrationMsg = "Max Charge State Attained. Calibrating Coulomb Counter Maximum (100%) to "+Math.round(this.qCountCalibratedMax)+" (previously at "+Math.round(qCountVal)+")";
             qCountVal = this.qCountCalibratedMax;
             doReCalibration = true;
 
         } else if ( (qCountVal + this.qCountCalibratedQuarterOfOnePercent) < this.qCountCalibratedMin ) {
 
-            calibrationMsg = "Min Charge State Attained. Calibrating Coulomb Counter Minimum to "+Math.round(this.qCountCalibratedMin)+" (previously at "+Math.round(qCountVal)+")";
+            calibrationMsg = "Min Charge State Attained. Calibrating Coulomb Counter Minimum (0%) to "+Math.round(this.qCountCalibratedMin)+" (previously at "+Math.round(qCountVal)+")";
             qCountVal = this.qCountCalibratedMin;
             doReCalibration = true;
 
-        } else if (voltageVal <= this.qCountCalibrationVoltageMin) {
+        } else if ((voltageVal <= this.qCountCalibrationVoltageMin) && (voltageVal >= (this.qCountCalibrationVoltageMin)/2)) {
+//            if (verboseLogging) {
+            Log.e(logTag, "Battery Voltage at "+Math.round(voltageVal)+" mV, Countdown to Coulomb Counter reset: "+this.qCountCalibrationDelayCounter+"/"+this.qCountCalibrationDelayCounterMax);
+            //  }
 
-            qCountCalibrationDelayCounter--;
+            this.qCountCalibrationDelayCounter--;
 
             if (qCountCalibrationDelayCounter <= 0) {
-                calibrationMsg = "Battery is effectively fully discharged (Voltage: "+Math.round(voltageVal)+" mV). Resetting Coulomb Counter to " + Math.round(this.qCountCalibratedMin);
+                calibrationMsg = "Battery is effectively fully discharged (Voltage: "+Math.round(voltageVal)+" mV). Setting Coulomb Counter to " + Math.round(this.qCountCalibratedMin)+" (0%)";
                 qCountVal = this.qCountCalibratedMin;
                 doReCalibration = true;
-                qCountCalibrationDelayCounter = this.qCountCalibrationDelayCounterMax;
+                this.qCountCalibrationDelayCounter = this.qCountCalibrationDelayCounterMax;
             }
-
         }
 
         if (doReCalibration) {
@@ -276,7 +290,7 @@ public class SentinelPowerUtils {
                 this.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues);
                 Log.v(logTag, calibrationMsg);
             } else {
-                Log.e(logTag, "Could not calibrate/reset qcount value");
+                Log.e(logTag, "Failed to Set/Calibrate QCount value via I2C...");
             }
         }
 
@@ -486,25 +500,38 @@ public class SentinelPowerUtils {
 
     public boolean isReducedCaptureModeActive_BasedOnSentinelPower(String activityTag) {
 
-        boolean isAllowed = !app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery");
+        boolean isAllowed;
 
-        if (!isAllowed) {
+        if (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureModeLastValueSetAt)) <= this.reducedCaptureModeLastValueExpiresAfter) {
 
-            boolean isCaptureAllowedNow = isCaptureAllowed();
+            isAllowed = this.reducedCaptureModeLastValue;
 
-            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowedNow) { updateSentinelPowerValues(); }
+        } else {
 
-            if (this.powerBatteryValues.size() > 0) {
+            isAllowed = !app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery");
 
-                long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
-                int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery") : app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery");
-                isAllowed = battPct >= (prefsVal * 100);
+            if (!isAllowed) {
 
-            } else if (!isCaptureAllowedNow) {
+                if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) {
+                    updateSentinelPowerValues();
+                }
 
-                isAllowed = true;
+                if (this.powerBatteryValues.size() > 0) {
 
+                    long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
+                    int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery") : app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery");
+                    isAllowed = battPct >= (prefsVal * 100);
+
+                } else if (!isCaptureAllowed()) {
+
+                    isAllowed = true;
+
+                }
             }
+
+            this.reducedCaptureModeLastValue = isAllowed;
+            this.reducedCaptureModeLastValueSetAt = System.currentTimeMillis();
+
         }
 
         return !isAllowed;
