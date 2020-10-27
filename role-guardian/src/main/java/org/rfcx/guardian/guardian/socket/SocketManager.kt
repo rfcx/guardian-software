@@ -127,6 +127,7 @@ object SocketManager {
             streamOutput?.flush()
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
+            verifySocketError(e.message ?: "")
         }
     }
 
@@ -136,6 +137,7 @@ object SocketManager {
             streamOutput?.flush()
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
+            verifySocketError(e.message ?: "")
         }
     }
 
@@ -171,6 +173,7 @@ object SocketManager {
             streamOutput?.flush()
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
+            verifySocketError(e.message ?: "")
         }
     }
 
@@ -191,6 +194,7 @@ object SocketManager {
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
+            verifySocketError(e.message ?: "")
         }
     }
 
@@ -227,6 +231,7 @@ object SocketManager {
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
+            verifySocketError(e.message ?: "")
         }
     }
 
@@ -253,6 +258,7 @@ object SocketManager {
                 streamOutput?.flush()
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
+                verifySocketError(e.message ?: "")
             }
         }
     }
@@ -275,6 +281,7 @@ object SocketManager {
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
+            verifySocketError(e.message ?: "")
             syncResponse = getSyncResponse("failed")
         } finally {
             streamOutput?.writeUTF(syncResponse)
@@ -296,6 +303,7 @@ object SocketManager {
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
+            verifySocketError(e.message ?: "")
         }
     }
 
@@ -316,6 +324,7 @@ object SocketManager {
                 streamOutput?.flush()
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
+                verifySocketError(e.message ?: "")
             }
         }
     }
@@ -329,6 +338,7 @@ object SocketManager {
             streamOutput?.flush()
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
+            verifySocketError(e.message ?: "")
         }
     }
 
@@ -348,6 +358,7 @@ object SocketManager {
                         streamOutput?.flush()
                     } catch (e: Exception) {
                         RfcxLog.logExc(LOGTAG, e)
+                        verifySocketError(e.message ?: "")
                     }
                 }
 
@@ -360,6 +371,7 @@ object SocketManager {
                         streamOutput?.flush()
                     } catch (e: Exception) {
                         RfcxLog.logExc(LOGTAG, e)
+                        verifySocketError(e.message ?: "")
                     }
                 }
             })
@@ -389,6 +401,16 @@ object SocketManager {
         response.put("sync", status)
 
         return response.toString()
+    }
+
+    private fun verifySocketError(message: String) {
+        val error = message.toLowerCase()
+        if (error.contains("null") || error.contains("EPIPE")) {
+            if (context != null) {
+                stopServerSocket()
+                startServerSocket(context!!)
+            }
+        }
     }
 
     private fun ByteArray.toSmallChunk(number: Int): List<ByteArray> {
