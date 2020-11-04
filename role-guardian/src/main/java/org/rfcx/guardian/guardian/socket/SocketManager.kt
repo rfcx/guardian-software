@@ -9,6 +9,7 @@ import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.http.RegisterApi
 import org.rfcx.guardian.guardian.api.http.SocketRegisterCallback
+import org.rfcx.guardian.guardian.audio.capture.AudioCaptureWavRecorder
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
@@ -16,6 +17,7 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.*
 
 object SocketManager {
 
@@ -73,6 +75,7 @@ object SocketManager {
                             }
                             "sentinel" -> sendSentinelValues()
                             "is_registered" -> sendIfGuardianRegistered()
+                            "is_recording" -> sendRecorderState()
                             else -> {
                                 val commandObject =
                                     JSONObject(receiveJson.get("command").toString())
@@ -377,6 +380,19 @@ object SocketManager {
                     }
                 }
             })
+        }
+    }
+
+    private fun sendRecorderState() {
+        val recorderState = AudioCaptureWavRecorder.getRecorderState().name.equals("RECORDING", ignoreCase = true)
+        try {
+            val recorderStateJson = JSONObject()
+                .put("is_recording", recorderState)
+            streamOutput?.writeUTF(recorderStateJson.toString())
+            streamOutput?.flush()
+        } catch (e: Exception) {
+            RfcxLog.logExc(LOGTAG, e)
+            verifySocketError(e.message ?: "null")
         }
     }
 

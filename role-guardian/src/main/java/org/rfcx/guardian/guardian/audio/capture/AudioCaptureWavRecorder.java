@@ -32,7 +32,7 @@ public class AudioCaptureWavRecorder {
 	//	STOPPED: reset needed
 	
 	public enum State { INITIALIZING, READY, RECORDING, ERROR, STOPPED };
-	private State recorderState;
+	private static State recorderState;
 
 	private AudioRecord audioRecorder = null;
 	public static final boolean RECORDING_UNCOMPRESSED = true;
@@ -60,7 +60,7 @@ public class AudioCaptureWavRecorder {
 	private int captureFilePayloadSizeInBytes;
 
 	//	Returns the state of the recorder in a RehearsalAudioRecord.State typed object. Useful, as no exceptions are thrown.
-	public State getRecorderState() {
+	public static State getRecorderState() {
 		return recorderState;
 	}
 
