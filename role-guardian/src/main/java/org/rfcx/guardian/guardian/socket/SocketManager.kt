@@ -76,6 +76,7 @@ object SocketManager {
                             "sentinel" -> sendSentinelValues()
                             "is_registered" -> sendIfGuardianRegistered()
                             "is_recording" -> sendRecorderState()
+                            "stop_wifi" -> stopWiFiService()
                             else -> {
                                 val commandObject =
                                     JSONObject(receiveJson.get("command").toString())
@@ -394,6 +395,10 @@ object SocketManager {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
         }
+    }
+
+    private fun stopWiFiService() {
+        app?.setSharedPref("admin_enable_wifi", "false")
     }
 
     private fun getFullCheckInUrl(): String {
