@@ -32,12 +32,16 @@ class WifiCommunicationService : IntentService("WifiCommunication") {
         }
         try {
             if (prefsAdminEnableWifiSocket && prefsAdminEnableWifi) {
-                Log.d(logTag, "Starting WifiCommunication service")
-                SocketManager.stopServerSocket()
-                SocketManager.startServerSocket(applicationContext)
+                if (!SocketManager.isRunning) {
+                    Log.d(logTag, "Starting WifiCommunication service")
+                    SocketManager.stopServerSocket()
+                    SocketManager.startServerSocket(applicationContext)
+                }
             } else {
-                Log.d(logTag, "Stopping WifiCommunication service")
-                SocketManager.stopServerSocket()
+                if (SocketManager.isRunning) {
+                    Log.d(logTag, "Stopping WifiCommunication service")
+                    SocketManager.stopServerSocket()
+                }
             }
         } catch (e: Exception) {
             RfcxLog.logExc(logTag, e)
