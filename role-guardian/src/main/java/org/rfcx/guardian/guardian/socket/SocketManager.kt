@@ -79,6 +79,7 @@ object SocketManager {
                                 "sentinel" -> sendSentinelValues()
                                 "is_registered" -> sendIfGuardianRegistered()
                                 "is_recording" -> sendRecorderState()
+                                "stop_wifi" -> stopWiFiService()
                                 else -> {
                                     val commandObject =
                                         JSONObject(receiveJson.get("command").toString())
@@ -90,9 +91,11 @@ object SocketManager {
                                             )
                                         )
                                         "register" -> {
-                                            val registerInfo = commandObject.getJSONObject("register")
+                                            val registerInfo =
+                                                commandObject.getJSONObject("register")
                                             val tokenId = registerInfo.getString("token_id")
-                                            val isProduction = registerInfo.getBoolean("is_production")
+                                            val isProduction =
+                                                registerInfo.getBoolean("is_production")
                                             sendRegistrationStatus(tokenId, isProduction)
                                         }
                                     }
@@ -237,7 +240,8 @@ object SocketManager {
                             .put("number", index + 1) // make it real number
                             .put("buffer", audioChunkString)
                             .put("read_size", readSize)
-                        val micTestChunkObject = JSONObject().put("microphone_test", audioChunkJsonObject)
+                        val micTestChunkObject =
+                            JSONObject().put("microphone_test", audioChunkJsonObject)
                         streamOutput?.writeUTF(micTestChunkObject.toString())
                         streamOutput?.flush()
                     }
@@ -360,7 +364,7 @@ object SocketManager {
         val registerJson = JSONObject()
         context?.let {
             val guid = app?.rfcxGuardianIdentity?.guid ?: ""
-            RegisterApi.registerGuardian(it, RegisterRequest(guid), tokenId, isProduction, object:
+            RegisterApi.registerGuardian(it, RegisterRequest(guid), tokenId, isProduction, object :
                 SocketRegisterCallback {
                 override fun onRegisterSuccess(t: Throwable?, response: String?) {
                     try {
@@ -393,7 +397,8 @@ object SocketManager {
     }
 
     private fun sendRecorderState() {
-        val recorderState = AudioCaptureWavRecorder.getRecorderState().name.equals("RECORDING", ignoreCase = true)
+        val recorderState =
+            AudioCaptureWavRecorder.getRecorderState().name.equals("RECORDING", ignoreCase = true)
         try {
             val recorderStateJson = JSONObject()
                 .put("is_recording", recorderState)
@@ -403,6 +408,10 @@ object SocketManager {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
         }
+    }
+
+    private fun stopWiFiService() {
+        app?.setSharedPref("admin_enable_wifi", "false")
     }
 
     private fun getFullCheckInUrl(): String {
@@ -432,7 +441,11 @@ object SocketManager {
 
     private fun verifySocketError(message: String) {
         Log.d(LOGTAG, "Socket got error: ${message}")
-        if (message.contains("null", ignoreCase = true) || message.contains("EPIPE", ignoreCase = true)) {
+        if (message.contains("null", ignoreCase = true) || message.contains(
+                "EPIPE",
+                ignoreCase = true
+            )
+        ) {
             if (context != null) {
                 Log.d(LOGTAG, "Restart socket service")
                 stopServerSocket()
@@ -451,7 +464,7 @@ object SocketManager {
         }
         return resultChunk
     }
-  
+
     enum class CheckInState(val value: String) {
         NOT_PUBLISHED("not published"), PUBLISHING("publishing"), PUBLISHED(
             "published"
