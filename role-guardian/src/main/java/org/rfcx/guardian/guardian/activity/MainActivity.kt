@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.util.Log
 import android.view.Menu
@@ -16,6 +17,8 @@ import org.rfcx.guardian.guardian.api.http.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.http.GuardianCheckCallback
 import org.rfcx.guardian.guardian.api.http.RegisterApi
 import org.rfcx.guardian.guardian.api.http.RegisterCallback
+import org.rfcx.guardian.guardian.audio.detect.AudioConverter
+import org.rfcx.guardian.guardian.audio.detect.pipeline.MLPredictor
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID
@@ -25,6 +28,7 @@ import org.rfcx.guardian.guardian.utils.AudioSettingUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
 import org.rfcx.guardian.guardian.view.*
 import org.rfcx.guardian.utility.rfcx.RfcxLog
+import java.lang.Exception
 
 
 class MainActivity : Activity(),
@@ -65,6 +69,15 @@ class MainActivity : Activity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         app = application as RfcxGuardian
+
+        try {
+            val predictor = MLPredictor().also {
+                it.load(this)
+                it.run(AudioConverter.readAudioSimple(Environment.getExternalStorageDirectory().absolutePath + "/1607507238016.wav"))
+            }
+        } catch (e: Exception) {
+            Log.e("Rfcx", e.message)
+        }
 
         initUI()
 

@@ -286,7 +286,9 @@ public class AudioCaptureUtils {
 				File preEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PreEncode(context, timestamp,fileExtension));
 				FileUtils.copy(captureFile, preEncodeFile);
 				FileUtils.chmod(preEncodeFile, "rw", "rw");
-				if (preEncodeFile.exists()) { captureFile.delete(); }
+				if (preEncodeFile.exists()) {
+//					captureFile.delete();
+				}
 				isFileMoved = preEncodeFile.exists();
 			} catch (IOException e) {
 				RfcxLog.logExc(logTag, e);

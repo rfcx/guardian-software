@@ -13,8 +13,7 @@ open class Model() {
 
     companion object {
         // Note: in future, these could be downloaded from the API
-        val inputShape: List<Int> = listOf(1, 1024)
-        val outputShape: List<Int> = listOf(1, 10)
+        val inputShape: List<Float> = listOf(1f, 15600f)
         val outputIndexOfLeak: Int = 1
     }
 }
