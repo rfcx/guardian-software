@@ -133,8 +133,6 @@ public class AssetUtils {
 		}
 	}
 
-
-
 	public String getAssetExchangeLogList(String assetStatus, int rowLimit) {
 
 		List<String[]> assetRows = new ArrayList<String[]>();
@@ -145,6 +143,15 @@ public class AssetUtils {
 	}
 
 
+//	public boolean runGarbageCollection_SingleAsset(String assetFilePath) {
+//		return runGarbageCollection_SingleAsset(new File(assetFilePath));
+//	}
+//
+//	public boolean runGarbageCollection_SingleAsset(File assetFile) {
+//
+//
+//
+//	}
 
 
 }

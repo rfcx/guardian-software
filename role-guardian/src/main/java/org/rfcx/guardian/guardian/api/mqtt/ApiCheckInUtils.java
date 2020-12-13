@@ -119,9 +119,11 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	void stashOrArchiveOldestCheckIns() {
 
-		long queueFileSizeLimitInBytes = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit")*1024*1024;
-		long stashFileSizeBufferInBytes = app.rfcxPrefs.getPrefAsLong("checkin_stash_filesize_buffer")*1024*1024;
-		long archiveFileSizeTargetInBytes = app.rfcxPrefs.getPrefAsLong("checkin_archive_filesize_target")*1024*1024;
+		long queueFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit");
+		long queueFileSizeLimitInBytes = queueFileSizeLimit*1024*1024;
+
+		long stashFileSizeBuffer = app.rfcxPrefs.getPrefAsLong("checkin_stash_filesize_buffer");
+		long archiveFileSizeTarget = app.rfcxPrefs.getPrefAsLong("checkin_archive_filesize_target");
 
 		if (app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows() >= queueFileSizeLimitInBytes) {
 
@@ -169,11 +171,18 @@ public class ApiCheckInUtils implements MqttCallback {
 			}
 
 			if (stashSuccessList.size() > 0) {
-				Log.i(logTag, stashSuccessList.size() + " CheckIn(s) moved to Stash (" + TextUtils.join(" ", stashSuccessList) + "). Total in Stash: " + stashCount + " CheckIns, " + FileUtils.bytesAsReadableString(app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows()) + ".");
+
+				long stashedSize = app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows();
+				long stashedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(stashedSize+"")/((stashFileSizeBuffer+archiveFileSizeTarget)*1024*1024))));
+
+				Log.i(logTag, stashSuccessList.size() + " CheckIn(s) moved to stash (" + TextUtils.join(" ", stashSuccessList) + ")."
+						+" Total: "
+							+ stashCount + " in stash ("+FileUtils.bytesAsReadableString(stashedSize)+")"
+							+", " + stashedLimitPct +"% of "+(stashFileSizeBuffer+archiveFileSizeTarget)+" MB limit.");
 			}
 		}
 
-		if (app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() >= (stashFileSizeBufferInBytes + archiveFileSizeTargetInBytes)) {
+		if (app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() >= ((stashFileSizeBuffer+archiveFileSizeTarget)*1024*1024)) {
 			app.rfcxServiceHandler.triggerService("ApiCheckInArchive", false);
 		}
 	}

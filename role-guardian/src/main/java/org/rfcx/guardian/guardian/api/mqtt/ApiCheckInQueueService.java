@@ -49,9 +49,7 @@ public class ApiCheckInQueueService extends IntentService {
 			}
 
 
-			if (!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) {
-				Log.v(logTag, "CheckIn publication is explicitly disabled.");
-			} else {
+			if (!app.apiCheckInHealthUtils.isApiCheckInDisabled(true)) {
 				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", 3 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
 				app.apiCheckInUtils.updateFailedCheckInThresholds();
 			}

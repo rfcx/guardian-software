@@ -256,7 +256,7 @@ public class ApiCheckInHealthUtils {
 		StringBuilder msgIfDisabled = new StringBuilder();
 
 		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) {
-			msgIfDisabled.append("it being explicitly disabled ('enable_checkin_publish' is set to false).");
+			msgIfDisabled.append("preference 'enable_checkin_publish' being explicitly set to false.");
 			areApiChecksInDisabledRightNow = true;
 
 		// This section is commented out because there is currently no mechanism by which the checkins are filtered by time of day (off hours)

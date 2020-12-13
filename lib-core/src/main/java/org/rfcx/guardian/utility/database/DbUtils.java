@@ -302,6 +302,28 @@ public class DbUtils {
 		return sum;
 	}
 
+	public static long getSumOfLengthOfColumn(SQLiteDatabase db, String tableName, String sumColumn, String selection, String[] selectionArgs) {
+		long sum = 0;
+		try {
+			for (String[] singleRow : getRows(db, tableName, new String[] { "SUM(LENGTH("+sumColumn+"))" }, selection, selectionArgs, null, 0, 1)) {
+				if (singleRow[0] != null) {
+					sum = Long.parseLong(singleRow[0]);
+					break;
+				}
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return sum;
+	}
+
+	public long getSumOfLengthOfColumn(String tableName, String sumColumn, String selection, String[] selectionArgs) {
+		SQLiteDatabase db = openDb();
+		long sum = getSumOfLengthOfColumn(db, tableName, sumColumn, selection, selectionArgs);
+		closeDb();
+		return sum;
+	}
+
 	public static long getMinValueOfColumn(SQLiteDatabase db, String tableName, String minValueOfWhichColumn, String selection, String[] selectionArgs) {
 		long minVal = 0;
 		try {

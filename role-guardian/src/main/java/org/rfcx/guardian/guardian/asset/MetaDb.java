@@ -96,6 +96,10 @@ public class MetaDb {
 			return this.dbUtils.getCount(TABLE, null, null);
 		}
 
+		public long getCumulativeJsonBlobLengthForAllRows() {
+			return this.dbUtils.getSumOfLengthOfColumn(TABLE, C_JSON, null, null);
+		}
+
 	}
 	public final DbMeta dbMeta;
 	

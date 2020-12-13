@@ -211,7 +211,9 @@ public class ApiJsonUtils {
 			} else if (assetType.equalsIgnoreCase("queued")) {
 				assetInfo.append("*").append( app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows() );
 			} else if (assetType.equalsIgnoreCase("meta")) {
-				assetInfo.append("*").append( FileUtils.getFileSizeInBytes(app.metaDb.dbMeta.FILEPATH) );
+				assetInfo.append("*").append( app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows() );
+
+						//FileUtils.getFileSizeInBytes(app.metaDb.dbMeta.FILEPATH) );
 			} else if (assetType.equalsIgnoreCase("skipped")) {
 				assetInfo.append("*").append( app.apiCheckInDb.dbSkipped.getCumulativeFileSizeForAllRows() );
 			} else if (assetType.equalsIgnoreCase("stashed")) {
