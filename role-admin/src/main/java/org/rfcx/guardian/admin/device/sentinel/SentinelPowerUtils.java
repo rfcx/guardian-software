@@ -100,7 +100,7 @@ public class SentinelPowerUtils {
 
             List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
 
-            String configBits = (this.isBatteryChargingAllowed) ? "0x001c" : "0x011c";                  // 100011100 (binary)  // set bits 2, 3, 4, 8 to "1"
+            String configBits = (this.isBatteryChargingAllowed) ? "0x001c" : "0x011c";                  // 000011100 (binary)  // set bits 2, 3, 4 to "1" (include bit 8 at "1" to suspend charger)
             i2cLabelsAddressesValues.add(new String[]{ "config_bits",           "0x14", configBits});   // 000011100 (binary)  // set bits 2, 3, 4 to "1"
                                                                                                         // 'en_qcount' (bit 2) enabled
                                                                                                         // 'mppt_en_i2c' (bit 3) enabled
