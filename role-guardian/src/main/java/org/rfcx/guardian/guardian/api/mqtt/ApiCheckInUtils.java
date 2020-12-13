@@ -142,26 +142,22 @@ public class ApiCheckInUtils implements MqttCallback {
 			// cycle through stashable checkins and move them to the new table/database
 			for (String[] checkInsToStash : app.apiCheckInDb.dbQueued.getRowsWithOffset(queuedCountBeforeLimit, 16)) {
 
-				if (!DeviceStorage.isExternalStorageWritable()) {
-					stashFailureList.add(checkInsToStash[1]);
+				String stashFilePath = RfcxAudioUtils.getAudioFileLocation_Stash(
+						app.rfcxGuardianIdentity.getGuid(),
+						app.getApplicationContext(),
+						Long.parseLong(checkInsToStash[1].substring(0, checkInsToStash[1].lastIndexOf("."))),
+						checkInsToStash[1].substring(checkInsToStash[1].lastIndexOf(".") + 1));
+				try {
+					FileUtils.copy(checkInsToStash[4], stashFilePath);
+				} catch (IOException e) {
+					RfcxLog.logExc(logTag, e);
+				}
 
+				if (FileUtils.exists(stashFilePath) && (FileUtils.getFileSizeInBytes(stashFilePath) == Long.parseLong(checkInsToStash[6]))) {
+					stashCount = app.apiCheckInDb.dbStashed.insert(checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], stashFilePath, checkInsToStash[5], checkInsToStash[6]);
+					stashSuccessList.add(checkInsToStash[1]);
 				} else {
-					String stashFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
-							app.rfcxGuardianIdentity.getGuid(),
-							Long.parseLong(checkInsToStash[1].substring(0, checkInsToStash[1].lastIndexOf("."))),
-							checkInsToStash[1].substring(checkInsToStash[1].lastIndexOf(".") + 1));
-					try {
-						FileUtils.copy(checkInsToStash[4], stashFilePath);
-					} catch (IOException e) {
-						RfcxLog.logExc(logTag, e);
-					}
-
-					if (FileUtils.exists(stashFilePath) && (FileUtils.getFileSizeInBytes(stashFilePath) == Long.parseLong(checkInsToStash[6]))) {
-						stashCount = app.apiCheckInDb.dbStashed.insert(checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], stashFilePath, checkInsToStash[5], checkInsToStash[6]);
-						stashSuccessList.add(checkInsToStash[1]);
-					} else {
-						stashFailureList.add(checkInsToStash[1]);
-					}
+					stashFailureList.add(checkInsToStash[1]);
 				}
 
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInsToStash[1]);
@@ -184,19 +180,22 @@ public class ApiCheckInUtils implements MqttCallback {
 
 	void skipSingleCheckIn(String[] checkInToSkip) {
 
-		String skipFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
-				app.rfcxGuardianIdentity.getGuid(),
-				Long.parseLong(checkInToSkip[1].substring(0, checkInToSkip[1].lastIndexOf("."))),
-				checkInToSkip[1].substring(checkInToSkip[1].lastIndexOf(".") + 1));
+		if (DeviceStorage.isExternalStorageWritable()) {
 
-		try {
-			FileUtils.copy(checkInToSkip[4], skipFilePath);
-		} catch (IOException e) {
-			RfcxLog.logExc(logTag, e);
-		}
+			String skipFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
+					app.rfcxGuardianIdentity.getGuid(),
+					Long.parseLong(checkInToSkip[1].substring(0, checkInToSkip[1].lastIndexOf("."))),
+					checkInToSkip[1].substring(checkInToSkip[1].lastIndexOf(".") + 1));
 
-		if (FileUtils.exists(skipFilePath) && (FileUtils.getFileSizeInBytes(skipFilePath) == Long.parseLong(checkInToSkip[6]))) {
-			app.apiCheckInDb.dbSkipped.insert(checkInToSkip[0], checkInToSkip[1], checkInToSkip[2], checkInToSkip[3], skipFilePath, checkInToSkip[5], checkInToSkip[6]);
+			try {
+				FileUtils.copy(checkInToSkip[4], skipFilePath);
+			} catch (IOException e) {
+				RfcxLog.logExc(logTag, e);
+			}
+
+			if (FileUtils.exists(skipFilePath) && (FileUtils.getFileSizeInBytes(skipFilePath) == Long.parseLong(checkInToSkip[6]))) {
+				app.apiCheckInDb.dbSkipped.insert(checkInToSkip[0], checkInToSkip[1], checkInToSkip[2], checkInToSkip[3], skipFilePath, checkInToSkip[5], checkInToSkip[6]);
+			}
 		}
 
 		app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInToSkip[1]);
@@ -664,18 +663,18 @@ public class ApiCheckInUtils implements MqttCallback {
 					app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(sentCheckInsToMove[1]);
 
 				} else {
-					String newFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
+					String sentFilePath_BufferOverrun = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
 							app.rfcxGuardianIdentity.getGuid(),
 							Long.parseLong(sentCheckInsToMove[1].substring(0, sentCheckInsToMove[1].lastIndexOf("."))),
 							sentCheckInsToMove[1].substring(sentCheckInsToMove[1].lastIndexOf(".") + 1));
 					try {
-						FileUtils.copy(sentCheckInsToMove[4], newFilePath);
+						FileUtils.copy(sentCheckInsToMove[4], sentFilePath_BufferOverrun);
 					} catch (IOException e) {
 						RfcxLog.logExc(logTag, e);
 					}
 
-					if (FileUtils.exists(newFilePath) && (FileUtils.getFileSizeInBytes(newFilePath) == Long.parseLong(sentCheckInsToMove[6]))) {
-						app.apiCheckInDb.dbSent.updateFilePathByAudioAttachmentId(sentCheckInsToMove[1], newFilePath);
+					if (FileUtils.exists(sentFilePath_BufferOverrun) && (FileUtils.getFileSizeInBytes(sentFilePath_BufferOverrun) == Long.parseLong(sentCheckInsToMove[6]))) {
+						app.apiCheckInDb.dbSent.updateFilePathByAudioAttachmentId(sentCheckInsToMove[1], sentFilePath_BufferOverrun);
 					} else {
 						app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(sentCheckInsToMove[1]);
 					}

@@ -73,7 +73,8 @@ public class AssetUtils {
 				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(assetId);
 				app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(assetId);
 				for (String fileExtension : new String[] { "opus", "flac" }) {
-					filePaths.add(RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
+					filePaths.add(RfcxAudioUtils.getAudioFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
+					filePaths.add(RfcxAudioUtils.getAudioFileLocation_Stash(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
 					filePaths.add(RfcxAudioUtils.getAudioFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId), fileExtension));
 				}
 

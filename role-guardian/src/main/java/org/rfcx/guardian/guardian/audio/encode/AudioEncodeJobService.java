@@ -116,7 +116,7 @@ public class AudioEncodeJobService extends Service {
 							File postEncodeFile = new File(RfcxAudioUtils.getAudioFileLocation_PostEncode(context, Long.parseLong(latestQueuedAudioToEncode[1]), latestQueuedAudioToEncode[6]));
 
 							Log.d("encoding","Gzipfile");
-							File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_Complete_PostGZip(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(latestQueuedAudioToEncode[1]), RfcxAudioUtils.getFileExtension(latestQueuedAudioToEncode[6])));
+							File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_Queue(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(latestQueuedAudioToEncode[1]), RfcxAudioUtils.getFileExtension(latestQueuedAudioToEncode[6])));
 
 							// just in case there's already a post-encoded file, delete it first
 							Log.d("encoding","check if exist");
