@@ -42,12 +42,12 @@ public class StringUtils {
 		return byteArrayToHexString(messageDigest.digest(inputString.getBytes()));
 	}
 
-	public static String byteArrayToBase64(byte[] byteArray) {
-		return Base64.encodeToString(byteArray,Base64.NO_WRAP);
+	public static String gZipStringToBase64(String inputString) {
+		return Base64.encodeToString(gZipStringToByteArray(inputString), Base64.NO_WRAP);
 	}
 
-	public static String gZipStringToBase64(String inputString) {
-		return Base64.encodeToString(gZipStringToByteArray(inputString),Base64.DEFAULT);
+	public static String decodeBase64GZippedByteArrayToString(String base64String) {
+		return unGZipByteArrayToString( Base64.decode( base64String, Base64.NO_WRAP ) );
 	}
 	
 	public static byte[] gZipStringToByteArray(String inputString) {
@@ -70,7 +70,7 @@ public class StringUtils {
 		return byteArrayOutputStream.toByteArray();
 	}
 	
-	public static String UnGZipByteArrayToString(byte[] inputByteArray) {
+	public static String unGZipByteArrayToString(byte[] inputByteArray) {
 		
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		
@@ -115,5 +115,13 @@ public class StringUtils {
 	public static String capitalizeFirstChar(String str) {
 		return str.substring(0,1).toUpperCase()+str.substring(1);
 	}
-	
+
+	public static String escapeBase64ForUrl(String unEscapedBase64Str) {
+		return unEscapedBase64Str.replaceAll("\\/","_").replaceAll("\\+","-");
+	}
+
+	public static String unEscapeBase64FromUrl(String escapedBase64Str) {
+		return escapedBase64Str.replaceAll("\\_","/").replaceAll("\\-","+");
+	}
+
 }

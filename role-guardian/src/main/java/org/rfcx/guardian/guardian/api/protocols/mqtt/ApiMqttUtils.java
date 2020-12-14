@@ -201,9 +201,9 @@ public class ApiMqttUtils implements MqttCallback {
 		byte[] messagePayload = mqttMessage.getPayload();
 		Log.i(logTag, "Received "+FileUtils.bytesAsReadableString(messagePayload.length)+" on '"+messageTopic+"' at "+DateTimeUtils.getDateTime());
 
-		// this is an API command message
+		// this is a command message receive from the API
 		if (messageTopic.equalsIgnoreCase(this.mqttTopic_Subscribe_Command)) {
-			app.apiCommandUtils.processApiCmdJson(StringUtils.UnGZipByteArrayToString(messagePayload));
+			app.apiCommandUtils.processApiCmdJson(StringUtils.unGZipByteArrayToString(messagePayload));
 		}
 	}
 
