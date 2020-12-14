@@ -198,7 +198,7 @@ class MainActivity : Activity(),
     }
 
     private fun sendPing() {
-        app.apiCheckInUtils.sendMqttPing();
+        app.apiMqttUtils.sendMqttPing();
     }
 
     private fun clearRegistration() {
@@ -264,8 +264,8 @@ class MainActivity : Activity(),
 
     override fun onGuardianCheckSuccess(t: Throwable?, response: String?) {
         setVisibilityRegisterSuccess()
-        app.apiCheckInUtils.initializeFailedCheckInThresholds()
-        app.apiJsonUtils.clearPrePackageMetaData()
+        app.apiMqttUtils.initializeFailedCheckInThresholds()
+        app.apiCheckInJsonUtils.clearPrePackageMetaData()
         app.initializeRoleServices()
         setUIByRecordingState()
         setUIByGuidState()
@@ -273,7 +273,7 @@ class MainActivity : Activity(),
         deviceIdText.text = " $deviceIdTxt"
         Log.i(logTag, "onGuardianCheckSuccess: Successfully Verified Registration")
         showToast("Successfully Verified Registration")
-        app.apiCheckInUtils.sendMqttPing(true, arrayOf<String>())
+        app.apiMqttUtils.sendMqttPing(true, arrayOf<String>())
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {

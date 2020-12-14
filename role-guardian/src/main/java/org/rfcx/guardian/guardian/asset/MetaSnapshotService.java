@@ -27,7 +27,7 @@ public class MetaSnapshotService extends IntentService {
 
 		try {
 
-			app.apiJsonUtils.createSystemMetaDataJsonSnapshot();
+			app.apiCheckInJsonUtils.createSystemMetaDataJsonSnapshot();
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);

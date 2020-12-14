@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.guardian.api.checkin;
 
 import android.content.Context;
 import android.util.Log;

@@ -1,7 +1,6 @@
 package org.rfcx.guardian.guardian.instructions;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -108,7 +107,7 @@ public class InstructionsExecutionService extends Service {
 								String[] pingFields = new String[] { "instructions" };
 								if (type.equalsIgnoreCase("set") && command.equalsIgnoreCase("prefs")) { pingFields = new String[] { "instructions", "prefs" }; }
 
-								app.apiCheckInUtils.sendMqttPing(false, pingFields);
+								app.apiMqttUtils.sendMqttPing(false, pingFields);
 
 							} else if (protocol.equalsIgnoreCase("sms")) {
 								Log.e(logTag, "Send SMS Instruction Response: "+ app.instructionsUtils.getSingleInstructionInfoAsSerializedString(instrId) );

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.guardian.api.checkin;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -11,8 +11,6 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -25,15 +23,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class ApiJsonUtils {
+public class ApiCheckInJsonUtils {
 
-	public ApiJsonUtils(Context context) {
+	public ApiCheckInJsonUtils(Context context) {
 
 		this.app = (RfcxGuardian) context.getApplicationContext();
 
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInMetaUtils");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInJsonUtils");
 
 	private RfcxGuardian app;
 
@@ -70,7 +68,7 @@ public class ApiJsonUtils {
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 
 		// Adding checksum of current prefs values
-		checkInMetaJson.put("prefs", app.apiJsonUtils.buildCheckInPrefsJsonObj());
+		checkInMetaJson.put("prefs", app.apiCheckInJsonUtils.buildCheckInPrefsJsonObj());
 
 		// Adding instructions, if there are any
 		if (app.instructionsUtils.getInstructionsCount() > 0) {
@@ -114,91 +112,8 @@ public class ApiJsonUtils {
 	}
 
 
-	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields) throws JSONException, IOException {
 
-		JSONObject pingObj = new JSONObject();
-
-		boolean includeMeasuredAt = false;
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "battery")) {
-			pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
-			includeMeasuredAt = true;
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {
-			pingObj.put("checkins", getCheckInStatusInfoForJson(new String[] {}));
-			includeMeasuredAt = true;
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "instructions")) {
-			pingObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {
-			pingObj.put("prefs", app.apiJsonUtils.buildCheckInPrefsJsonObj());
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "device")) {
-			JSONObject deviceJsonObj = new JSONObject();
-			deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
-			deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
-			pingObj.put("device", deviceJsonObj);
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "software")) {
-			pingObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sentinel_power")) {
-			String sentinelPower = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "sentinel_power", app.getApplicationContext().getContentResolver()));
-			if (sentinelPower.length() > 0) { pingObj.put("sentinel_power", sentinelPower); }
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sentinel_sensor")) {
-			String sentinelSensor = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "sentinel_sensor", app.getApplicationContext().getContentResolver()));
-			if (sentinelSensor.length() > 0) { pingObj.put("sentinel_sensor", sentinelSensor); }
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "storage")) {
-			String systemStorage = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_storage", app.getApplicationContext().getContentResolver()));
-			if (systemStorage.length() > 0) { pingObj.put("storage", systemStorage); }
-			includeMeasuredAt = true;
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "memory")) {
-			String systemMemory = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_memory", app.getApplicationContext().getContentResolver()));
-			if (systemMemory.length() > 0) { pingObj.put("memory", systemMemory); }
-			includeMeasuredAt = true;
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "cpu")) {
-			String systemCPU = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_cpu", app.getApplicationContext().getContentResolver()));
-			if (systemCPU.length() > 0) { pingObj.put("cpu", systemCPU); }
-			includeMeasuredAt = true;
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "network")) {
-			String networkCPU = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_network", app.getApplicationContext().getContentResolver()));
-			if (networkCPU.length() > 0) { pingObj.put("network", networkCPU); }
-			includeMeasuredAt = true;
-		}
-
-		if (includeMeasuredAt) { pingObj.put("measured_at", System.currentTimeMillis()); }
-
-		Log.d(logTag, pingObj.toString());
-
-		JSONObject guardianObj = new JSONObject();
-		guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
-		guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
-		pingObj.put("guardian", guardianObj);
-
-		return pingObj.toString();
-	}
-
-
-
-
-	private String getCheckInStatusInfoForJson(String[] includeAssetIdLists) {
+	public String getCheckInStatusInfoForJson(String[] includeAssetIdLists) {
 
 		Map<String, String> assetExtraInfo = new HashMap<String, String>();
 
@@ -332,7 +247,7 @@ public class ApiJsonUtils {
 		return metaDataJsonObj;
 	}
 
-	private String getConcatMetaField(JSONArray metaJsonArray) throws JSONException {
+	public static String getConcatMetaField(JSONArray metaJsonArray) throws JSONException {
 		ArrayList<String> metaBlobs = new ArrayList<String>();
 		for (int i = 0; i < metaJsonArray.length(); i++) {
 			JSONObject metaJsonRow = metaJsonArray.getJSONObject(i);
@@ -370,7 +285,7 @@ public class ApiJsonUtils {
 		}
 	}
 
-	private JSONObject buildCheckInPrefsJsonObj() {
+	public JSONObject buildCheckInPrefsJsonObj() {
 
 		JSONObject prefsObj = new JSONObject();
 		try {
@@ -381,7 +296,7 @@ public class ApiJsonUtils {
 
 			if (	(this.prefsSha1FullApiSync != null)
 					&&	!this.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
-					&& 	(milliSecondsSinceAccessed > app.apiCheckInUtils.getSetCheckInPublishTimeOutLength())
+					&& 	(milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength())
 			) {
 				Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent.");
 				prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
@@ -409,7 +324,7 @@ public class ApiJsonUtils {
 
 			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(metaRow[3])));
 
-			if (milliSecondsSinceAccessed > app.apiCheckInUtils.getSetCheckInPublishTimeOutLength()) {
+			if (milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength()) {
 
 				// add meta snapshot ID to array of IDs
 				metaJsonBundledSnapshotsIds.put(metaRow[1]);

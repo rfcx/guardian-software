@@ -12,11 +12,8 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public class InstructionsUtils {
 
@@ -68,7 +65,7 @@ public class InstructionsUtils {
 						Log.i(logTag, "Instruction Received ("+protocol+"): "+instrId+", "+instrType+", "+instrCmd+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
 
 						if (protocol.equalsIgnoreCase("mqtt")) {
-							this.app.apiCheckInUtils.sendMqttPing(false, new String[]{"instructions"});
+							this.app.apiMqttUtils.sendMqttPing(false, new String[]{"instructions"});
 
 						} else if (protocol.equalsIgnoreCase("sms")) {
 							Log.e(logTag, "Send SMS Instruction Response: "+ getSingleInstructionInfoAsSerializedString(instrId) );
@@ -193,7 +190,7 @@ public class InstructionsUtils {
                     for (int i = 0; i < inclFieldsArr.length(); i++) {
                         inclFields[i] = inclFieldsArr.getString(i).toLowerCase();
                     }
-                    app.apiCheckInUtils.sendMqttPing(false, inclFields);
+                    app.apiMqttUtils.sendMqttPing(false, inclFields);
 
                 } else if (instrCmd.equalsIgnoreCase("sms")) {
 

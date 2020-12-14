@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.guardian.api.checkin;
 
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -6,7 +6,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
+
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class ApiCheckInQueueService extends IntentService {
@@ -51,7 +51,7 @@ public class ApiCheckInQueueService extends IntentService {
 
 			if (!app.apiCheckInHealthUtils.isApiCheckInDisabled(true)) {
 				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", 3 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
-				app.apiCheckInUtils.updateFailedCheckInThresholds();
+				app.apiMqttUtils.updateFailedCheckInThresholds();
 			}
 
 			// if the queued table has grown beyond the maximum threshold, stash the oldest checkins 

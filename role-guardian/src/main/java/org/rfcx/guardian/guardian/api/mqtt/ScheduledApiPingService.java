@@ -26,7 +26,7 @@ public class ScheduledApiPingService extends IntentService {
 		
 		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-		app.apiCheckInUtils.sendMqttPing(true, new String[]{} );
+		app.apiMqttUtils.sendMqttPing(true, new String[]{} );
 		
 	}
 	

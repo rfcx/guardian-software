@@ -3,11 +3,14 @@ package org.rfcx.guardian.guardian;
 import java.util.Map;
 
 import org.json.JSONObject;
+import org.rfcx.guardian.guardian.api.checkin.ApiCheckInUtils;
+import org.rfcx.guardian.guardian.api.cmd.ApiCmdUtils;
+import org.rfcx.guardian.guardian.api.ping.ApiPingJsonUtils;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInHealthUtils;
+import org.rfcx.guardian.guardian.api.checkin.ApiCheckInHealthUtils;
 import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
-import org.rfcx.guardian.guardian.api.mqtt.ApiJsonUtils;
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInStatsDb;
+import org.rfcx.guardian.guardian.api.checkin.ApiCheckInJsonUtils;
+import org.rfcx.guardian.guardian.api.checkin.ApiCheckInStatsDb;
 import org.rfcx.guardian.guardian.api.mqtt.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.api.msg.ApiShortMsgDb;
 import org.rfcx.guardian.guardian.api.msg.ApiShortMsgUtils;
@@ -37,11 +40,11 @@ import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import org.rfcx.guardian.guardian.asset.AssetExchangeLogDb;
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInDb;
+import org.rfcx.guardian.guardian.api.checkin.ApiCheckInDb;
 import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInJobService;
 import org.rfcx.guardian.guardian.asset.MetaDb;
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInUtils;
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInQueueService;
+import org.rfcx.guardian.guardian.api.mqtt.ApiMqttUtils;
+import org.rfcx.guardian.guardian.api.checkin.ApiCheckInQueueService;
 import org.rfcx.guardian.guardian.archive.ApiCheckInArchiveService;
 import org.rfcx.guardian.guardian.archive.ArchiveDb;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureService;
@@ -87,8 +90,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
+    public ApiMqttUtils apiMqttUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
-    public ApiJsonUtils apiJsonUtils = null;
+    public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
+    public ApiPingJsonUtils apiPingJsonUtils = null;
+    public ApiCmdUtils apiCmdUtils = null;
     public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
     public AssetUtils assetUtils = null;
     public ApiShortMsgUtils apiShortMsgUtils = null;
@@ -130,11 +136,14 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         setServiceHandlers();
 
         this.audioCaptureUtils = new AudioCaptureUtils(this);
+        this.apiMqttUtils = new ApiMqttUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
-        this.apiShortMsgUtils = new ApiShortMsgUtils(this);
-        this.apiJsonUtils = new ApiJsonUtils(this);
+        this.apiCheckInJsonUtils = new ApiCheckInJsonUtils(this);
+        this.apiPingJsonUtils = new ApiPingJsonUtils(this);
+        this.apiCmdUtils = new ApiCmdUtils(this);
         this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);
         this.assetUtils = new AssetUtils(this);
+        this.apiShortMsgUtils = new ApiShortMsgUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.wifiCommunicationUtils = new WifiCommunicationUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
@@ -290,16 +299,16 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void onPrefReSync(String prefKey) {
 
         if (prefKey.equalsIgnoreCase("audio_cycle_duration")) {
-            this.apiCheckInUtils.getSetCheckInPublishTimeOutLength();
+            this.apiMqttUtils.getSetCheckInPublishTimeOutLength();
 
         } else if (prefKey.equalsIgnoreCase("admin_enable_wifi_socket")) {
             this.rfcxServiceHandler.triggerService("WifiCommunication", false);
 
         } else if (prefKey.equalsIgnoreCase("checkin_failure_thresholds")) {
-            this.apiCheckInUtils.initializeFailedCheckInThresholds();
+            this.apiMqttUtils.initializeFailedCheckInThresholds();
 
         } else if (prefKey.equalsIgnoreCase("enable_checkin_publish")) {
-            this.apiCheckInUtils.initializeFailedCheckInThresholds();
+            this.apiMqttUtils.initializeFailedCheckInThresholds();
 
         } else if (prefKey.equalsIgnoreCase("enable_cutoffs_sampling_ratio")) {
             this.audioCaptureUtils.samplingRatioIteration = 0;

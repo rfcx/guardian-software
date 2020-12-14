@@ -12,7 +12,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
@@ -97,7 +96,7 @@ public class GuardianContentProvider extends ContentProvider {
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "ping", "*")) { logFuncVal = "ping-*";
 				String pingField = uri.getLastPathSegment();
-				app.apiCheckInUtils.sendMqttPing(pingField.equalsIgnoreCase("all"), new String[]{ pingField } );
+				app.apiMqttUtils.sendMqttPing(pingField.equalsIgnoreCase("all"), new String[]{ pingField } );
 				return RfcxComm.getProjectionCursor(appRole, "ping", new Object[] { System.currentTimeMillis() });
 
 			// "control" function endpoints

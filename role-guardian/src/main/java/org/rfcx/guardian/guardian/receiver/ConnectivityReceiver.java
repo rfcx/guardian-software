@@ -1,13 +1,11 @@
 package org.rfcx.guardian.guardian.receiver;
 
-import java.util.Date;
-
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
+
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
@@ -21,7 +19,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         
         app.deviceConnectivity.updateConnectivityState(intent);
 
-        app.apiCheckInUtils.confirmOrCreateConnectionToBroker(false);
+        app.apiMqttUtils.confirmOrCreateConnectionToBroker(false);
         
 	}
 

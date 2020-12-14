@@ -73,7 +73,7 @@ public class ApiCheckInJobService extends Service {
 				
 			while (		apiCheckInJobInstance.runFlag
 					&&	!app.apiCheckInHealthUtils.isApiCheckInDisabled(true)
-					&& 	( (app.apiCheckInDb.dbQueued.getCount() > 0) || !app.apiCheckInUtils.isConnectedToBroker() )
+					&& 	( (app.apiCheckInDb.dbQueued.getCount() > 0) || !app.apiMqttUtils.isConnectedToBroker() )
 				) {
 
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
@@ -94,7 +94,7 @@ public class ApiCheckInJobService extends Service {
 						}
 
 						if (app.deviceConnectivity.isConnected()) {
-							app.apiCheckInUtils.initializeFailedCheckInThresholds();
+							app.apiMqttUtils.initializeFailedCheckInThresholds();
 						}
 
 //						// reboots org.rfcx.guardian.guardian in situations where battery charge percentage doesn't reflect charge state
@@ -126,8 +126,8 @@ public class ApiCheckInJobService extends Service {
 										|| 	(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(lastCheckInEndTime) > 2000 )
 									) {
 
-										// Publish CheckIn to API
-										app.apiCheckInUtils.sendMqttCheckIn(latestQueuedCheckIn);
+										// Publish CheckIn to MQTT Broker
+										app.apiMqttUtils.sendMqttCheckIn(latestQueuedCheckIn);
 										lastCheckInEndTime = System.currentTimeMillis();
 
 									} else {
@@ -143,12 +143,12 @@ public class ApiCheckInJobService extends Service {
 							}
 						}
 
-						if (!app.apiCheckInUtils.isConnectedToBroker()) {
+						if (!app.apiMqttUtils.isConnectedToBroker()) {
 							long loopDelayBeforeReconnectAttempt = Math.round(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")/10);
 							if (loopDelayBeforeReconnectAttempt < 8) { loopDelayBeforeReconnectAttempt = 8; }
 							Log.e(logTag, "Broker not connected. Delaying "+loopDelayBeforeReconnectAttempt+" seconds and trying again...");
 							Thread.sleep(loopDelayBeforeReconnectAttempt*1000);
-							app.apiCheckInUtils.confirmOrCreateConnectionToBroker(true);
+							app.apiMqttUtils.confirmOrCreateConnectionToBroker(true);
 						}
 
 					}
