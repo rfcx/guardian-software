@@ -218,10 +218,10 @@ public class ApiCheckInHealthUtils {
 		StringBuilder msgNotAllowed = new StringBuilder();
 		int reportedDelay = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 2;
 
-		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery") && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
+		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_internal_battery") && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
 			msgNotAllowed.append("low battery level")
 					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
-					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("checkin_cutoff_battery")).append("%).");
+					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("checkin_cutoff_internal_battery")).append("%).");
 			isApiCheckInAllowedUnderKnownConditions = false;
 
 		} else if (!app.deviceConnectivity.isConnected()) {

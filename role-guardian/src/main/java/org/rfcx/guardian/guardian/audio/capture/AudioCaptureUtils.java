@@ -99,7 +99,7 @@ public class AudioCaptureUtils {
 	}
 
 	private boolean isBatteryChargeSufficientForCapture() {
-		int batteryChargeCutoff = this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_battery");
+		int batteryChargeCutoff = this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_internal_battery");
 		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 		boolean isBatteryChargeSufficient = (batteryCharge >= batteryChargeCutoff);
 		if (isBatteryChargeSufficient && (batteryChargeCutoff == 100)) {
@@ -110,7 +110,7 @@ public class AudioCaptureUtils {
 	}
 
 	private boolean limitBasedOnBatteryLevel() {
-		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_battery"));
+		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_internal_battery"));
 	}
 
 	private boolean limitBasedOnSentinelBatteryLevel() {
@@ -190,7 +190,7 @@ public class AudioCaptureUtils {
 		if (limitBasedOnBatteryLevel()) {
 			msgNoCapture.append("Low Battery level")
 					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
-					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_battery")).append("%).");
+					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_internal_battery")).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		} else if (includeSentinel && limitBasedOnSentinelBatteryLevel()) {

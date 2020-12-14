@@ -33,15 +33,15 @@ public class DeviceScreenShot {
 
 		FileUtils.initializeDirectoryRecursively(screenShotSdCardDir(), true);
 		FileUtils.initializeDirectoryRecursively(screenShotCaptureDir(context), false);
-		FileUtils.initializeDirectoryRecursively(screenShotfinalDir(context), false);
+		FileUtils.initializeDirectoryRecursively(screenShotQueueDir(context), false);
 	}
 	
 	private static String screenShotSdCardDir() {
 		return Environment.getExternalStorageDirectory().toString() + "/rfcx/screenshots";
 	}
 	
-	private static String screenShotfinalDir(Context context) {
-		return context.getFilesDir().toString() + "/screenshots/final";
+	private static String screenShotQueueDir(Context context) {
+		return context.getFilesDir().toString() + "/screenshots/queue";
 	}
 
 	public static String getScreenShotExecutableBinaryFilePath(Context context) {
@@ -56,8 +56,8 @@ public class DeviceScreenShot {
 		return screenShotCaptureDir(context) + "/" + timestamp + "." + CAPTURE_FILETYPE;
 	}
 
-	public static String getScreenShotFileLocation_Complete(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceStorage.isExternalStorageWritable() ? screenShotSdCardDir() : screenShotfinalDir(context) )
+	public static String getScreenShotFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp) {
+		return (DeviceStorage.isExternalStorageWritable() ? screenShotSdCardDir() : screenShotQueueDir(context) )
 				+ "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + CAPTURE_FILETYPE;
 	}
 
@@ -77,7 +77,7 @@ public class DeviceScreenShot {
 				long captureTimestamp = System.currentTimeMillis();
 				
 				String captureFilePath = DeviceScreenShot.getScreenShotFileLocation_Capture(context, captureTimestamp);
-				String finalFilePath = DeviceScreenShot.getScreenShotFileLocation_Complete(this.rfcxDeviceId, context, captureTimestamp);
+				String finalFilePath = DeviceScreenShot.getScreenShotFileLocation_Queue(this.rfcxDeviceId, context, captureTimestamp);
 
 				Process shellProcess = Runtime.getRuntime().exec(new String[] { executableBinaryFilePath, captureFilePath });
 				shellProcess.waitFor();

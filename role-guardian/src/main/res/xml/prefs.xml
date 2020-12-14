@@ -29,13 +29,13 @@
 		android:defaultValue="@string/prefs_value_default_enable_checkin_publish" />
         
 	<ListPreference
-		android:key="enable_cutoffs_battery"
-		android:title="enable_cutoffs_battery"
-		android:dialogTitle="enable_cutoffs_battery"
+		android:key="enable_cutoffs_internal_battery"
+		android:title="enable_cutoffs_internal_battery"
+		android:dialogTitle="enable_cutoffs_internal_battery"
         android:summary="string - true/false"
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_enable_cutoffs_battery" />
+		android:defaultValue="@string/prefs_value_default_enable_cutoffs_internal_battery" />
  	
   	<ListPreference
 		android:key="enable_cutoffs_schedule_off_hours"
@@ -195,22 +195,22 @@
  	<!-- Battery Cutoff Thresholds -->
         
 	<ListPreference
-		android:key="checkin_cutoff_battery"
-		android:title="checkin_cutoff_battery"
-		android:dialogTitle="checkin_cutoff_battery"
+		android:key="checkin_cutoff_internal_battery"
+		android:title="checkin_cutoff_internal_battery"
+		android:dialogTitle="checkin_cutoff_internal_battery"
         android:summary="int - percentage"
 		android:entries="@array/prefs_labels_percent"
 		android:entryValues="@array/prefs_values_percent"
-		android:defaultValue="@string/prefs_value_default_checkin_cutoff_battery" />
+		android:defaultValue="@string/prefs_value_default_checkin_cutoff_internal_battery" />
         
 	<ListPreference
-		android:key="audio_cutoff_battery"
-		android:title="audio_cutoff_battery"
-		android:dialogTitle="audio_cutoff_battery"
+		android:key="audio_cutoff_internal_battery"
+		android:title="audio_cutoff_internal_battery"
+		android:dialogTitle="audio_cutoff_internal_battery"
         android:summary="int - percentage"
 		android:entries="@array/prefs_labels_percent"
 		android:entryValues="@array/prefs_values_percent"
-		android:defaultValue="@string/prefs_value_default_audio_cutoff_battery" />
+		android:defaultValue="@string/prefs_value_default_audio_cutoff_internal_battery" />
 
 	<ListPreference
 		android:key="checkin_cutoff_sentinel_battery"

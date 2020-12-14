@@ -40,8 +40,12 @@ public class RfcxAudioUtils {
 		return context.getFilesDir().toString() + "/audio/encode";
 	}
 
-	private static String audioQueueDir(Context context) {
+	private static String audioFinalDir(Context context) {
 		return context.getFilesDir().toString() + "/audio/final";
+	}
+
+	private static String audioQueueDir(Context context) {
+		return context.getFilesDir().toString() + "/audio/queue";
 	}
 
 	private static String audioStashDir(Context context) {
@@ -58,6 +62,10 @@ public class RfcxAudioUtils {
 	
 	public static String getAudioFileLocation_PostEncode(Context context, long timestamp, String audioCodec) {
 		return audioEncodeDir(context) + "/_" + timestamp + "." + getFileExtension(audioCodec);
+	}
+
+	public static String getAudioFileLocation_GZip(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
+		return audioFinalDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + getFileExtension(audioCodec) + ".gz";
 	}
 
 	public static String getAudioFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {

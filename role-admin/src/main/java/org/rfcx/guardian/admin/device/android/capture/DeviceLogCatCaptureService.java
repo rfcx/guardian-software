@@ -104,7 +104,7 @@ public class DeviceLogCatCaptureService extends Service {
 					Log.e(logTag, "could not find captured log file: "+postCaptureFilePath);
 				} else {
 					
-					File finalGzipFile = new File(DeviceLogCat.getLogFileLocation_Complete_PostZip(app.rfcxGuardianIdentity.getGuid(), context, captureCycleEndingTimeStamp ));
+					File finalGzipFile = new File(DeviceLogCat.getLogFileLocation_Queue(app.rfcxGuardianIdentity.getGuid(), context, captureCycleEndingTimeStamp ));
 					
 					if (finalGzipFile.exists()) { finalGzipFile.delete(); }
 					
