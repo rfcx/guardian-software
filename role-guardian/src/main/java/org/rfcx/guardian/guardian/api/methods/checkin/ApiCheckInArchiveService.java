@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.archive;
+package org.rfcx.guardian.guardian.api.methods.checkin;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -183,7 +183,7 @@ public class ApiCheckInArchiveService extends Service {
 					FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath);
 					long archiveFileSize = FileUtils.getFileSizeInBytes(archiveTarFilePath);
 
-					app.archiveDb.dbCheckInArchive.insert(
+					app.apiCheckInArchiveDb.dbApiCheckInArchive.insert(
 							new Date(archiveTimestamp),			// archived_at
 							new Date(oldestCheckInTimestamp),	// archive_begins_at
 							new Date(newestCheckInTimestamp),	// archive_ends_at

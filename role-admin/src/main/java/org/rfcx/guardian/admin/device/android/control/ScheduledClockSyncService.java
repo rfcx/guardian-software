@@ -1,18 +1,19 @@
-package org.rfcx.guardian.guardian.api.sntp;
+package org.rfcx.guardian.admin.device.android.control;
 
 import android.app.IntentService;
 import android.content.Intent;
-import org.rfcx.guardian.guardian.RfcxGuardian;
+
+import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-public class ScheduledSntpSyncService extends IntentService {
+public class ScheduledClockSyncService extends IntentService {
 
-	private static final String SERVICE_NAME = "ScheduledSntpSync";
+	private static final String SERVICE_NAME = "ScheduledClockSync";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledSntpSyncService");
-
-	public ScheduledSntpSyncService() {
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledClockSyncService");
+		
+	public ScheduledClockSyncService() {
 		super(logTag);
 	}
 	

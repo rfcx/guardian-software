@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.checkin;
+package org.rfcx.guardian.guardian.api.methods.checkin;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -134,7 +134,7 @@ public class ApiCheckInJsonUtils {
 			} else if (assetType.equalsIgnoreCase("stashed")) {
 				assetInfo.append("*").append( app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() );
 			} else if (assetType.equalsIgnoreCase("archived")) {
-				assetInfo.append("*").append( app.archiveDb.dbCheckInArchive.getCumulativeFileSizeForAllRows() );
+				assetInfo.append("*").append( app.apiCheckInArchiveDb.dbApiCheckInArchive.getCumulativeFileSizeForAllRows() );
 			}
 
 			if (ArrayUtils.doesStringArrayContainString(includeAssetIdLists, assetType)) {
@@ -157,7 +157,7 @@ public class ApiCheckInJsonUtils {
 						"meta*" + app.metaDb.dbMeta.getCount() + assetExtraInfo.get("meta"),
 						"skipped*" + app.apiCheckInDb.dbSkipped.getCount() + assetExtraInfo.get("skipped"),
 						"stashed*" + app.apiCheckInDb.dbStashed.getCount() + assetExtraInfo.get("stashed"),
-						"archived*" + app.archiveDb.dbCheckInArchive.getInnerRecordCumulativeCount() + assetExtraInfo.get("archived")
+						"archived*" + app.apiCheckInArchiveDb.dbApiCheckInArchive.getInnerRecordCumulativeCount() + assetExtraInfo.get("archived")
 				});
 	}
 

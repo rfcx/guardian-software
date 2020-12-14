@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.checkin;
+package org.rfcx.guardian.guardian.api.methods.checkin;
 
 import android.content.ContentValues;
 import android.content.Context;

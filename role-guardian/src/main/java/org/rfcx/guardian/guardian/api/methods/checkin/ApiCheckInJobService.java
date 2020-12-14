@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.guardian.api.methods.checkin;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;

@@ -1,7 +1,7 @@
 package org.rfcx.guardian.admin.device.android.control;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.datetime.SntpClient;
+import org.rfcx.guardian.utility.datetime.SntpUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
@@ -76,30 +76,15 @@ public class SntpSyncJobService extends Service {
 			try {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-				
-				if (!app.deviceConnectivity.isConnected()) {
-					
-					Log.v(logTag, "No SNTP Sync Job because org.rfcx.guardian.guardian currently has no connectivity.");
-					
-				} else {
 
-					SntpClient sntpClient = new SntpClient();
-					String dateTimeNtpHost = app.rfcxPrefs.getPrefAsString("api_ntp_host");
-					
-					if (sntpClient.requestTime(dateTimeNtpHost, 15000) && sntpClient.requestTime(dateTimeNtpHost, 15000)) {
-						long nowSystem = System.currentTimeMillis();
-						long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
+				long[] sntpClockValues = SntpUtils.getSntpClockValues(app.deviceConnectivity.isConnected(), app.rfcxPrefs.getPrefAsString("api_ntp_host"));
 
-						SystemClock.setCurrentTimeMillis(nowSntp);
-
-						app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem), DateTimeUtils.getTimeZoneOffset());
-
-						String nowSystemStr = DateTimeUtils.getDateTime(nowSystem) +"."+ (""+(1000+nowSystem-Math.round(1000*Math.floor(nowSystem/1000)))).substring(1);
-
-						Log.v(logTag, "DateTime Sync: System time is "+nowSystemStr.substring(1+nowSystemStr.indexOf(" "))
-								+" —— "+Math.abs(nowSystem-nowSntp)+"ms "+((nowSystem >= nowSntp) ? "ahead of" : "behind")+" SNTP value."
-								+" System time now synced to SNTP value.");
-					 }
+				if (sntpClockValues.length > 0) {
+					long nowSntp = sntpClockValues[0];
+					long nowSystem = sntpClockValues[1];
+					app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem), DateTimeUtils.getTimeZoneOffset());
+					SystemClock.setCurrentTimeMillis(nowSntp);
+					Log.v(logTag, "DateTime Sync: System time now synced to SNTP value.");
 				}
 					
 			} catch (Exception e) {

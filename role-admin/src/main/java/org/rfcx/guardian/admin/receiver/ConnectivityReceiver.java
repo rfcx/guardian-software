@@ -25,7 +25,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         int disconnectedFor = app.deviceConnectivity.updateConnectivityStateAndReportDisconnectedFor(intent);
 
         if (this.isFirstInstance) {
-			app.rfcxServiceHandler.triggerService( new String[] { "ScheduledSntpSync", ""+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis(), "norepeat" }, false);
+			app.rfcxServiceHandler.triggerService( new String[] { "ScheduledClockSync", ""+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis(), "norepeat" }, false);
 		}
 
 		this.isFirstInstance = false;

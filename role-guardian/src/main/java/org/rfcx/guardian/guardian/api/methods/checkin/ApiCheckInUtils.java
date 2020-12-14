@@ -1,36 +1,18 @@
-package org.rfcx.guardian.guardian.api.checkin;
+package org.rfcx.guardian.guardian.api.methods.checkin;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.guardian.socket.SocketManager;
 import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.network.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
 
 public class ApiCheckInUtils {
 

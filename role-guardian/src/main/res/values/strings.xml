@@ -53,7 +53,7 @@
 	<string name="prefs_value_default_checkin_requeue_bounds_hours">10-14</string>
 	<string name="prefs_value_default_checkin_meta_bundle_limit">15</string>
 
-	<string name="prefs_value_default_api_sntp_cycle_duration">30</string>
+	<string name="prefs_value_default_api_clock_sync_cycle_duration">30</string>
 	<string name="prefs_value_default_api_ping_cycle_duration">30</string>
 
 	<string name="prefs_value_default_admin_enable_log_capture">false</string>

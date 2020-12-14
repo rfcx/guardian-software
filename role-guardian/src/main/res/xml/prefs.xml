@@ -289,11 +289,11 @@
 		android:defaultValue="@string/prefs_value_default_checkin_meta_bundle_limit" />
 
 	<EditTextPreference
-		android:key="api_sntp_cycle_duration"
-		android:title="api_sntp_cycle_duration"
+		android:key="api_clock_sync_cycle_duration"
+		android:title="api_clock_sync_cycle_duration"
 		android:summary="int - minutes"
 		android:enabled="true"
-		android:defaultValue="@string/prefs_value_default_api_sntp_cycle_duration" />
+		android:defaultValue="@string/prefs_value_default_api_clock_sync_cycle_duration" />
 
 	<EditTextPreference
 		android:key="api_ping_cycle_duration"

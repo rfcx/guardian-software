@@ -12,10 +12,10 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.http.GuardianCheckApi
-import org.rfcx.guardian.guardian.api.http.GuardianCheckCallback
-import org.rfcx.guardian.guardian.api.http.RegisterApi
-import org.rfcx.guardian.guardian.api.http.RegisterCallback
+import org.rfcx.guardian.guardian.api.methods.register.GuardianCheckApi
+import org.rfcx.guardian.guardian.api.methods.register.GuardianCheckCallback
+import org.rfcx.guardian.guardian.api.methods.register.RegisterApi
+import org.rfcx.guardian.guardian.api.methods.register.RegisterCallback
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.PreferenceManager
 import org.rfcx.guardian.guardian.manager.getTokenID

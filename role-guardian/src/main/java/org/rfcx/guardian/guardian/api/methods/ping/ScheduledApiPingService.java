@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.guardian.api.methods.ping;
 
 import android.app.IntentService;
 import android.content.Intent;

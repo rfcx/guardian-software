@@ -5,7 +5,7 @@ import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
-import org.rfcx.guardian.admin.device.android.control.ScheduledSntpSyncService;
+import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
@@ -242,7 +242,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("SmsDispatchCycle", SmsDispatchCycleService.class);
 
 		this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
-		this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
+		this.rfcxServiceHandler.addService("ScheduledClockSync", ScheduledClockSyncService.class);
 
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);
 

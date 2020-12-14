@@ -1,40 +1,32 @@
-package org.rfcx.guardian.guardian.api.cmd;
+package org.rfcx.guardian.guardian.api.methods.command;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.guardian.api.checkin.ApiCheckInJsonUtils;
-import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class ApiCmdUtils {
+public class ApiCommandUtils {
 
-	public ApiCmdUtils(Context context) {
+	public ApiCommandUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCmdUtils");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCommandUtils");
 
 	private RfcxGuardian app;
-
-
 
 	public void processApiCmdJson(String jsonStr) {
 
 		Log.i(logTag, "Cmd Received: " + jsonStr);
+
 		try {
 
 			JSONObject jsonObj = new JSONObject(jsonStr);

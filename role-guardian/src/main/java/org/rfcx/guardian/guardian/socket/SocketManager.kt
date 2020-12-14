@@ -7,8 +7,8 @@ import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.http.RegisterApi
-import org.rfcx.guardian.guardian.api.http.SocketRegisterCallback
+import org.rfcx.guardian.guardian.api.methods.register.RegisterApi
+import org.rfcx.guardian.guardian.api.methods.register.SocketRegisterCallback
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureWavRecorder
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.utility.rfcx.RfcxComm
@@ -17,7 +17,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.ServerSocket
 import java.net.Socket
-import java.util.*
 
 object SocketManager {
 

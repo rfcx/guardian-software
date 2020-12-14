@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.archive;
+package org.rfcx.guardian.guardian.api.methods.checkin;
 
 import java.util.Date;
 import java.util.List;
@@ -10,16 +10,16 @@ import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
-public class ArchiveDb {
+public class ApiCheckInArchiveDb {
 	
-	public ArchiveDb(Context context, String appVersion) {
+	public ApiCheckInArchiveDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-		this.dbCheckInArchive = new DbCheckInArchive(context);
+		this.dbApiCheckInArchive = new DbApiCheckInArchive(context);
 	}
 
 	private int VERSION = 1;
-	static final String DATABASE = "archive";
+	static final String DATABASE = "checkin";
 	static final String C_ARCHIVED_AT = "archived_at";
 	static final String C_ARCHIVE_BEGINS_AT = "archive_begins_at";
 	static final String C_ARCHIVE_ENDS_AT = "archive_ends_at";
@@ -44,13 +44,13 @@ public class ArchiveDb {
 		return sbOut.toString();
 	}
 	
-	public class DbCheckInArchive {
+	public class DbApiCheckInArchive {
 
 		final DbUtils dbUtils;
 
-		private String TABLE = "checkins";
+		private String TABLE = "archive";
 		
-		public DbCheckInArchive(Context context) {
+		public DbApiCheckInArchive(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
@@ -94,6 +94,6 @@ public class ArchiveDb {
 
 
 	}
-	public final DbCheckInArchive dbCheckInArchive;
+	public final DbApiCheckInArchive dbApiCheckInArchive;
 	
 }

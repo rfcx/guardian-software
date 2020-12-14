@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.msg;
+package org.rfcx.guardian.guardian.api.methods.segment;
 
 import android.content.ContentValues;
 import android.content.Context;

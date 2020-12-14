@@ -3,17 +3,16 @@ package org.rfcx.guardian.guardian;
 import java.util.Map;
 
 import org.json.JSONObject;
-import org.rfcx.guardian.guardian.api.checkin.ApiCheckInUtils;
-import org.rfcx.guardian.guardian.api.cmd.ApiCmdUtils;
-import org.rfcx.guardian.guardian.api.ping.ApiPingJsonUtils;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInUtils;
+import org.rfcx.guardian.guardian.api.methods.command.ApiCommandUtils;
+import org.rfcx.guardian.guardian.api.methods.ping.ApiPingJsonUtils;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
-import org.rfcx.guardian.guardian.api.checkin.ApiCheckInHealthUtils;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInHealthUtils;
 import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
-import org.rfcx.guardian.guardian.api.checkin.ApiCheckInJsonUtils;
-import org.rfcx.guardian.guardian.api.checkin.ApiCheckInStatsDb;
-import org.rfcx.guardian.guardian.api.mqtt.ScheduledApiPingService;
-import org.rfcx.guardian.guardian.api.msg.ApiShortMsgDb;
-import org.rfcx.guardian.guardian.api.msg.ApiShortMsgUtils;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJsonUtils;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInStatsDb;
+import org.rfcx.guardian.guardian.api.methods.ping.ScheduledApiPingService;
+import org.rfcx.guardian.guardian.api.methods.segment.ApiShortMsgDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -40,21 +39,21 @@ import android.net.ConnectivityManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import org.rfcx.guardian.guardian.asset.AssetExchangeLogDb;
-import org.rfcx.guardian.guardian.api.checkin.ApiCheckInDb;
-import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInJobService;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInDb;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJobService;
 import org.rfcx.guardian.guardian.asset.MetaDb;
-import org.rfcx.guardian.guardian.api.mqtt.ApiMqttUtils;
-import org.rfcx.guardian.guardian.api.checkin.ApiCheckInQueueService;
-import org.rfcx.guardian.guardian.archive.ApiCheckInArchiveService;
-import org.rfcx.guardian.guardian.archive.ArchiveDb;
+import org.rfcx.guardian.guardian.api.protocols.mqtt.ApiMqttUtils;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInArchiveService;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInArchiveDb;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureService;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.guardian.audio.encode.AudioQueueEncodeService;
-import org.rfcx.guardian.guardian.api.sntp.SntpSyncJobService;
+import org.rfcx.guardian.guardian.api.protocols.sntp.SntpSyncJobService;
 import org.rfcx.guardian.guardian.device.android.DeviceSystemDb;
-import org.rfcx.guardian.guardian.api.sntp.ScheduledSntpSyncService;
+import org.rfcx.guardian.guardian.api.methods.clock.ScheduledClockSyncService;
 import org.rfcx.guardian.guardian.receiver.ConnectivityReceiver;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
@@ -77,7 +76,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public MetaDb metaDb = null;
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
     public AssetExchangeLogDb assetExchangeLogDb = null;
-    public ArchiveDb archiveDb = null;
+    public ApiCheckInArchiveDb apiCheckInArchiveDb = null;
     public ApiShortMsgDb apiShortMsgDb = null;
     public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
@@ -94,10 +93,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInUtils apiCheckInUtils = null;
     public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
     public ApiPingJsonUtils apiPingJsonUtils = null;
-    public ApiCmdUtils apiCmdUtils = null;
+    public ApiCommandUtils apiCommandUtils = null;
     public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
     public AssetUtils assetUtils = null;
-    public ApiShortMsgUtils apiShortMsgUtils = null;
     public InstructionsUtils instructionsUtils = null;
     public WifiCommunicationUtils wifiCommunicationUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
@@ -140,10 +138,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.apiCheckInJsonUtils = new ApiCheckInJsonUtils(this);
         this.apiPingJsonUtils = new ApiPingJsonUtils(this);
-        this.apiCmdUtils = new ApiCmdUtils(this);
+        this.apiCommandUtils = new ApiCommandUtils(this);
         this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);
         this.assetUtils = new AssetUtils(this);
-        this.apiShortMsgUtils = new ApiShortMsgUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.wifiCommunicationUtils = new WifiCommunicationUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
@@ -202,9 +199,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                             + "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
                             + "|" + ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
                             ,
-                    "ScheduledSntpSync"
+                    "ScheduledClockSync"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
-                            + "|" + ( this.rfcxPrefs.getPrefAsLong("api_sntp_cycle_duration") * 60 * 1000 )
+                            + "|" + ( this.rfcxPrefs.getPrefAsLong("api_clock_sync_cycle_duration") * 60 * 1000 )
                             ,
                     "ScheduledApiPing"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
@@ -229,7 +226,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.metaDb = new MetaDb(this, this.version);
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
         this.assetExchangeLogDb = new AssetExchangeLogDb(this, this.version);
-        this.archiveDb = new ArchiveDb(this, this.version);
+        this.apiCheckInArchiveDb = new ApiCheckInArchiveDb(this, this.version);
         this.apiShortMsgDb = new ApiShortMsgDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
@@ -250,7 +247,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("ScheduledApiPing", ScheduledApiPingService.class);
 
         this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
-        this.rfcxServiceHandler.addService("ScheduledSntpSync", ScheduledSntpSyncService.class);
+        this.rfcxServiceHandler.addService("ScheduledClockSync", ScheduledClockSyncService.class);
 
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
         this.rfcxServiceHandler.addService("MetaSnapshot", MetaSnapshotService.class);

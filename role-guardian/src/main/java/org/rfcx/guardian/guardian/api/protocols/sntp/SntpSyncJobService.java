@@ -1,14 +1,13 @@
-package org.rfcx.guardian.guardian.api.sntp;
+package org.rfcx.guardian.guardian.api.protocols.sntp;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.datetime.SntpClient;
+import org.rfcx.guardian.utility.datetime.SntpUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
 
 public class SntpSyncJobService extends Service {
@@ -75,28 +74,14 @@ public class SntpSyncJobService extends Service {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 				
-				if (!app.deviceConnectivity.isConnected()) {
-					
-					Log.v(logTag, "No SNTP Sync Job because there is currently no connectivity.");
-					
-				} else {
-				
-					SntpClient sntpClient = new SntpClient();
-					String ntpHost = app.rfcxPrefs.getPrefAsString("api_ntp_host");
-					
-					if (sntpClient.requestTime(ntpHost, 15000) && sntpClient.requestTime(ntpHost, 15000)) {
-						long nowSystem = System.currentTimeMillis();
-						long nowSntp = sntpClient.getNtpTime() + SystemClock.elapsedRealtime() - sntpClient.getNtpTimeReference();
-						
-						app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem), DateTimeUtils.getTimeZoneOffset());
+				long[] sntpClockValues = SntpUtils.getSntpClockValues(app.deviceConnectivity.isConnected(), app.rfcxPrefs.getPrefAsString("api_ntp_host"));
 
-						String nowSystemStr = DateTimeUtils.getDateTime(nowSystem) +"."+ (""+(1000+nowSystem-Math.round(1000*Math.floor(nowSystem/1000)))).substring(1);
-						
-						Log.v(logTag, "DateTime Sync: System time is "+nowSystemStr.substring(1+nowSystemStr.indexOf(" "))
-								+" —— "+Math.abs(nowSystem-nowSntp)+"ms "+((nowSystem >= nowSntp) ? "ahead of" : "behind")+" SNTP value.");
-					 }
+				if (sntpClockValues.length > 0) {
+					long nowSntp = sntpClockValues[0];
+					long nowSystem = sntpClockValues[1];
+					app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem), DateTimeUtils.getTimeZoneOffset());
 				}
-					
+
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {

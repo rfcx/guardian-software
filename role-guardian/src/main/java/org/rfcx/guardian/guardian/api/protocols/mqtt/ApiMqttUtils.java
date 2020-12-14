@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.mqtt;
+package org.rfcx.guardian.guardian.api.protocols.mqtt;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -162,7 +162,7 @@ public class ApiMqttUtils implements MqttCallback {
 		return byteArrayOutputStream.toByteArray();
 	}
 
-	void sendMqttCheckIn(String[] checkInDbEntry) {
+	public void sendMqttCheckIn(String[] checkInDbEntry) {
 
 		String audioId = checkInDbEntry[1].substring(0, checkInDbEntry[1].lastIndexOf("."));
 		String audioPath = checkInDbEntry[4];
@@ -201,9 +201,9 @@ public class ApiMqttUtils implements MqttCallback {
 		byte[] messagePayload = mqttMessage.getPayload();
 		Log.i(logTag, "Received "+FileUtils.bytesAsReadableString(messagePayload.length)+" on '"+messageTopic+"' at "+DateTimeUtils.getDateTime());
 
-		// this is a checkin response message
+		// this is an API command message
 		if (messageTopic.equalsIgnoreCase(this.mqttTopic_Subscribe_Command)) {
-			app.apiCmdUtils.processApiCmdJson(StringUtils.UnGZipByteArrayToString(messagePayload));
+			app.apiCommandUtils.processApiCmdJson(StringUtils.UnGZipByteArrayToString(messagePayload));
 		}
 	}
 

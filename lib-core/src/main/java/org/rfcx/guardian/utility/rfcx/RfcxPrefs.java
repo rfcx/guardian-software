@@ -423,7 +423,7 @@ public class RfcxPrefs {
 			put("admin_enable_wifi_socket", "true");
 			put("admin_enable_ssh_server", "false");
 
-			put("api_sntp_cycle_duration", "30");
+			put("api_clock_sync_cycle_duration", "30");
 			put("api_ping_cycle_duration", "30");
 
 			put("admin_log_capture_cycle", "30");
