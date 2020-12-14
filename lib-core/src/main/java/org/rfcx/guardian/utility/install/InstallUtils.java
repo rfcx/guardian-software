@@ -22,7 +22,8 @@ public class InstallUtils {
 		this.thisAppRole = appRole;
 
 		this.apkDirDownload = context.getFilesDir().toString();
-		this.apkDirExternal = Environment.getExternalStorageDirectory().toString()+"/rfcx/apk";;
+//		this.apkDirExternal = Environment.getExternalStorageDirectory().toString()+"/rfcx/apk";
+		this.apkDirExternal = "/cache/backup/rfcx/apk";
 
 		(new File(this.apkDirDownload)).mkdirs(); FileUtils.chmod(this.apkDirDownload,  "rw", "rw");
 		(new File(this.apkDirExternal)).mkdirs(); FileUtils.chmod(this.apkDirExternal,  "rw", "rw");

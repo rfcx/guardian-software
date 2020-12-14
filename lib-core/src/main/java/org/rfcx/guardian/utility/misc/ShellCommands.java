@@ -37,7 +37,8 @@ public class ShellCommands {
 		File tmpScriptObj = null;
 
 		// In case the file directory for the application is not accessible to the parts of the system that run the scripts.
-		String accessibleDir = Environment.getExternalStorageDirectory().toString()+"/rfcx/scripts";
+	//	String accessibleDir = Environment.getExternalStorageDirectory().toString()+"/rfcx/scripts";
+		String accessibleDir = "/cache/backup/rfcx/scripts";
 		(new File(accessibleDir)).mkdirs(); FileUtils.chmod(accessibleDir,  "rw", "rw");
 		tmpScriptObj = new File(accessibleDir+"/script-root-"+System.currentTimeMillis()+".sh");
 		
@@ -168,8 +169,8 @@ public class ShellCommands {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 	    } finally {
-	    		if ((rootScriptObj != null) && rootScriptObj.exists()) { rootScriptObj.delete(); }
-				if ((tmpScriptObj != null) && tmpScriptObj.exists()) { tmpScriptObj.delete(); }
+			if ((rootScriptObj != null) && rootScriptObj.exists()) { rootScriptObj.delete(); }
+			if ((tmpScriptObj != null) && tmpScriptObj.exists()) { tmpScriptObj.delete(); }
 	    }
 
 		Log.e(logTag, "Exec"+(asRoot ? " (as root)" : "")+": "+ TextUtils.join(" | ",commandLines));
