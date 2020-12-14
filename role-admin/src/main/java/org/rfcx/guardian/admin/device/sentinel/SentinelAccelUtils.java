@@ -19,7 +19,6 @@ public class SentinelAccelUtils {
 
     public SentinelAccelUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
-        this.deviceI2cUtils = new DeviceI2cUtils(sentinelAccelI2cMainAddress);
         initSentinelAccelI2cOptions();
     }
 
@@ -28,8 +27,7 @@ public class SentinelAccelUtils {
     public static final long samplesTakenPerCaptureCycle = 1;
 
     RfcxGuardian app;
-    private DeviceI2cUtils deviceI2cUtils = null;
-    private static final String sentinelAccelI2cMainAddress = "0x18";
+    private static final String i2cMainAddr = "0x18";
 
     private String[] i2cValueIndex = new String[]{};
     private Map<String, double[]> i2cTmpValues = new HashMap<>();
@@ -55,9 +53,9 @@ public class SentinelAccelUtils {
         boolean isI2cAccelChipConnected = false;
 
         if (isNotExplicitlyDisabled) {
-            isI2cHandlerAccessible = (new File("/dev/i2c-"+DeviceI2cUtils.i2cInterface)).canRead();
+            isI2cHandlerAccessible = app.deviceI2cUtils.isI2cHandlerAccessible();
             if (isI2cHandlerAccessible) {
-                String i2cConnectAttempt = this.deviceI2cUtils.i2cGetAsString("0x00", true);
+                String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x00", i2cMainAddr, true);
                 isI2cAccelChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
             }
         }
@@ -109,7 +107,7 @@ public class SentinelAccelUtils {
 
             resetI2cTmpValues();
 
-            for (String[] i2cLabeledOutput : this.deviceI2cUtils.i2cGet(buildI2cQueryList(), true)) {
+            for (String[] i2cLabeledOutput : app.deviceI2cUtils.i2cGet(buildI2cQueryList(), i2cMainAddr, true)) {
                 String groupName = i2cLabeledOutput[0].substring(0, i2cLabeledOutput[0].indexOf("-"));
                 String valueType = i2cLabeledOutput[0].substring(1 + i2cLabeledOutput[0].indexOf("-"));
                 double[] valueSet = this.i2cTmpValues.get(groupName);

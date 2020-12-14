@@ -22,6 +22,7 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSensorDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
+import org.rfcx.guardian.i2c.DeviceI2cUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
@@ -100,6 +101,7 @@ public class RfcxGuardian extends Application {
 	public DeviceMobileNetwork deviceMobileNetwork = new DeviceMobileNetwork(APP_ROLE);
 
 
+	public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils();
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelCompassUtils sentinelCompassUtils = null;
 	public SentinelAccelUtils sentinelAccelUtils = null;
@@ -141,6 +143,9 @@ public class RfcxGuardian extends Application {
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();
+
+		// Initialize I2C Handler
+		this.deviceI2cUtils.initializeOrReInitialize();
 
 		// Android-Build-specific hacks and modifications
 		// This is not necessary if this app role is running as "system"
@@ -300,6 +305,9 @@ public class RfcxGuardian extends Application {
 			// Rename Device Hardware with /system/build.prop.
 			// Only occurs once, on initial launch, and requires reboot if changes are made.
 			DeviceHardware_OrangePi_3G_IOT.checkSetDeviceHardwareIdentification(this);
+
+			// Sets I2C interface
+			this.deviceI2cUtils.setInterface(DeviceHardware_OrangePi_3G_IOT.DEVICE_I2C_INTERFACE);
 
 		}
 

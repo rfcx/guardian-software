@@ -19,7 +19,6 @@ public class SentinelCompassUtils {
 
     public SentinelCompassUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
-        this.deviceI2cUtils = new DeviceI2cUtils(sentinelCompassI2cMainAddress);
         initSentinelCompassI2cOptions();
     }
 
@@ -28,8 +27,7 @@ public class SentinelCompassUtils {
     public static final long samplesTakenPerCaptureCycle = 1;
 
     RfcxGuardian app;
-    private DeviceI2cUtils deviceI2cUtils = null;
-    private static final String sentinelCompassI2cMainAddress = "0x1e";
+    private static final String i2cMainAddr = "0x1e";
 
     private String[] i2cValueIndex = new String[]{};
     private Map<String, double[]> i2cTmpValues = new HashMap<>();
@@ -58,9 +56,9 @@ public class SentinelCompassUtils {
         boolean isI2cCompassChipConnected = false;
 
         if (isNotExplicitlyDisabled && isInputPowerAtZero) {
-            isI2cHandlerAccessible = (new File("/dev/i2c-" + DeviceI2cUtils.i2cInterface)).canRead();
+            isI2cHandlerAccessible = app.deviceI2cUtils.isI2cHandlerAccessible();
             if (isI2cHandlerAccessible) {
-                String i2cConnectAttempt = this.deviceI2cUtils.i2cGetAsString("0x4f", true);
+                String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x4f", i2cMainAddr, true);
                 isI2cCompassChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
             }
         }
@@ -74,7 +72,7 @@ public class SentinelCompassUtils {
             List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
             i2cLabelsAddressesValues.add(new String[]{"cfg_reg_a", "0x60", "0x0080"});
             i2cLabelsAddressesValues.add(new String[]{"cfg_reg_c", "0x62", "0x0001"});
-            this.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues);
+            app.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues, i2cMainAddr);
 
         } else {
             Log.e(logTag, "Skipping setOrResetSentinelCompassChip() because Sentinel capture is not allowed or not possible.");
@@ -126,7 +124,7 @@ public class SentinelCompassUtils {
 
             resetI2cTmpValues();
 
-            for (String[] i2cLabeledOutput : this.deviceI2cUtils.i2cGet(buildI2cQueryList(), true)) {
+            for (String[] i2cLabeledOutput : app.deviceI2cUtils.i2cGet(buildI2cQueryList(), i2cMainAddr, true)) {
                 String groupName = i2cLabeledOutput[0].substring(0, i2cLabeledOutput[0].indexOf("-"));
                 String valueType = i2cLabeledOutput[0].substring(1 + i2cLabeledOutput[0].indexOf("-"));
                 double[] valueSet = this.i2cTmpValues.get(groupName);

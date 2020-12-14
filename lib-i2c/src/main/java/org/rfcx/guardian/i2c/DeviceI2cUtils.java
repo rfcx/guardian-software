@@ -1,60 +1,94 @@
 package org.rfcx.guardian.i2c;
 
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DeviceI2cUtils {
 
-	public DeviceI2cUtils(String i2cMainAddress) {
-		this.i2cMainAddress = i2cMainAddress;
-	}
-
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceI2cUtils");
 
-	// i2cInterface should be a number, as in /dev/i2c-0 or /dev/i2c-1 or /dev/i2c-2
-	public static final int i2cInterface = 1;
+	private I2cTools i2cTools;
+	private int i2cAdapterReceipt;
 
-	private String i2cMainAddress = null;
+	// i2cInterface should be a low integer, including zero, as in /dev/i2c-0 or /dev/i2c-1 or /dev/i2c-2
+	private int i2cInterface = 0;
+
+	public void setInterface(int i2cInterface) {
+		this.i2cInterface = i2cInterface;
+	}
+
+	public void initializeOrReInitialize() {
+
+		Log.i(logTag, "Attempting to initialize I2C interface '/dev/i2c-"+this.i2cInterface+"'");
+
+		if (isI2cHandlerAccessible()) {
+
+			this.i2cTools = new I2cTools();
+			this.i2cTools.i2cDeInit(this.i2cInterface);
+			this.i2cAdapterReceipt = i2cTools.i2cInit(this.i2cInterface);
+
+			if (isInitialized(true)) {
+				Log.i(logTag, "I2C interface '/dev/i2c-" + this.i2cInterface + "' successfully initialized.");
+			}
+
+		} else {
+			Log.e(logTag, "I2C handler '/dev/i2c-"+this.i2cInterface+"' is NOT accessible. Initialization failed.");
+		}
+	}
+
+	public boolean isInitialized(boolean printFeedbackInLog) {
+
+		boolean isInitialized = (this.i2cAdapterReceipt >= 0) && isI2cHandlerAccessible();
+
+		if (printFeedbackInLog && !isInitialized) {
+			Log.e(logTag, "I2C interface '/dev/i2c-"+this.i2cInterface+"' is NOT initialized.");
+		}
+
+		return isInitialized;
+	}
+
+	private void throwExceptionIfNotInitialized() throws Exception {
+		if (!isInitialized(false)) {
+			throw new Exception("I2C Initialization Failed");
+		}
+	}
+
+	public boolean isI2cHandlerAccessible() {
+		return (new File("/dev/i2c-"+this.i2cInterface)).canRead();
+	}
 
 	// i2cSET
 
-	public boolean i2cSet(List<String[]> i2cLabelsAddressesValues/*, boolean parseAsHex*/) {
-		return i2cSet(i2cLabelsAddressesValues, this.i2cMainAddress/*, parseAsHex*/);
-	}
+	public boolean i2cSet(List<String[]> i2cLabelsAddressesValues, String mainAddr/*, boolean parseAsHex*/) {
 
-	private static boolean i2cSet(List<String[]> i2cLabelsAddressesValues, String i2cMainAddress/*, boolean parseAsHex*/) {
-		I2cTools i2cTools = new I2cTools();
-		boolean result = false;
+		boolean isSet = false;
 
 		for (String[] i2cRow : i2cLabelsAddressesValues) {
+
 			try {
-				int i2cAdapter = i2cTools.i2cInit(i2cInterface);
-				if (i2cAdapter < 0) {
-					throw new Exception("I2c Initialization Failed");
-				}
 
-				result = i2cTools.i2cSet(i2cAdapter, i2cMainAddress, i2cRow[1], i2cRow[2], true);
+				throwExceptionIfNotInitialized();
 
-				i2cTools.i2cDeInit(i2cAdapter);
+				isSet = this.i2cTools.i2cSet(i2cAdapterReceipt, mainAddr, i2cRow[1], i2cRow[2], true);
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
 
-		return result;
+		return isSet;
 	}
 
 	// i2cGET
 
-	public long i2cGet(String subAddress, boolean parseAsHex) {
-		String rtrnValAsString = i2cGetAsString(subAddress, parseAsHex);
+	public long i2cGetAsLong(String subAddr, String mainAddr, boolean parseAsHex) {
+		String rtrnValAsString = i2cGetAsString(subAddr, mainAddr, parseAsHex);
 		long rtrnVal = 0;
 		if (rtrnValAsString != null) {
 			try { rtrnVal = Long.parseLong(rtrnValAsString); } catch (Exception e) { RfcxLog.logExc(logTag, e); }
@@ -62,39 +96,32 @@ public class DeviceI2cUtils {
 		return rtrnVal;
 	}
 
-	public String i2cGetAsString(String subAddress, boolean parseAsHex) {
+	public String i2cGetAsString(String subAddr, String mainAddr, boolean parseAsHex) {
 		List<String[]> i2cLabelsAndSubAddresses = new ArrayList<String[]>();
-		i2cLabelsAndSubAddresses.add(new String[] { "no-label", subAddress });
-		List<String[]> i2cReturn = i2cGet(i2cLabelsAndSubAddresses, this.i2cMainAddress, parseAsHex, new String[] { } );
+		i2cLabelsAndSubAddresses.add(new String[] { "no-label", subAddr });
+		List<String[]> i2cReturn = i2cGet(i2cLabelsAndSubAddresses, mainAddr, parseAsHex, new String[] { } );
 		String rtrnVal = null;
 		if (i2cReturn.size() > 0) { try { rtrnVal = i2cReturn.get(0)[1]; } catch (Exception e) { RfcxLog.logExc(logTag, e); } }
 		return rtrnVal;
 	}
 
-	public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, boolean parseAsHex) {
-		return i2cGet(i2cLabelsAndSubAddresses, this.i2cMainAddress, parseAsHex, new String[] { } );
+	public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String mainAddr, boolean parseAsHex) {
+		return i2cGet(i2cLabelsAndSubAddresses, mainAddr, parseAsHex, new String[] { } );
 	}
 
-	public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, boolean parseAsHex, String[] rtrnValsWithoutTwosComplement) {
-		return i2cGet(i2cLabelsAndSubAddresses, this.i2cMainAddress, parseAsHex, rtrnValsWithoutTwosComplement );
-	}
-
-	private static List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String i2cMainAddress, boolean parseAsHex, String[] rtrnValsWithoutTwosComplement) {
+	public List<String[]> i2cGet(List<String[]> i2cLabelsAndSubAddresses, String mainAddr, boolean parseAsHex, String[] rtrnValsWithoutTwosComplement) {
 
 		List<String[]> i2cLabelsAndOutputValues = new ArrayList<String[]>();
 		List<String> i2cValues = new ArrayList<String>();
-		I2cTools i2cTools = new I2cTools();
+
 		try {
-			int i2cAdapter = i2cTools.i2cInit(i2cInterface);
-			if (i2cAdapter < 0) {
-				throw new Exception("I2c Initialization Failed");
-			}
+
+			throwExceptionIfNotInitialized();
 
 			for (String[] i2cRow : i2cLabelsAndSubAddresses) {
-				String i2cValue = i2cTools.i2cGet(i2cAdapter, i2cMainAddress, i2cRow[1], false, true);
+				String i2cValue = i2cTools.i2cGet(i2cAdapterReceipt, mainAddr, i2cRow[1], false, true);
 				i2cValues.add(i2cValue);
 			}
-			i2cTools.i2cDeInit(i2cAdapter);
 
 			int lineIndex = 0;
 			for (String i2cValue: i2cValues) {

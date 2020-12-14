@@ -15,6 +15,8 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	public static final String[] DEVICE_MODEL = new String[] { "3G_IOT", "hexing72_cwet_kk" };
 	public static final String[] DEVICE_BRAND = new String[] { "RFCx", "alps" };
 	public static final String[] DEVICE_PRODUCT = new String[] { "Guardian", "hexing72_cwet_kk" };
+
+	public static final int DEVICE_I2C_INTERFACE = 1;
 		
 	public static boolean isDevice_OrangePi_3G_IOT() {
 		for (String manufacturer : DEVICE_MANUFACTURER) { if (DeviceHardwareUtils.getManufacturer().equalsIgnoreCase(manufacturer)) {
