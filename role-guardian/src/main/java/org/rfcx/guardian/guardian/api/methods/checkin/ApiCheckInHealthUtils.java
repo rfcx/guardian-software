@@ -34,7 +34,7 @@ public class ApiCheckInHealthUtils {
 	private long[] healthCheckInitValues = new long[healthCheckMeasurementCount];
 	private boolean doCheckInConditionsAllowCheckInRequeuing = false;
 
-	private long lastKnownAudioCaptureDuration = 0;
+	private long lastKnownAudioCycleDuration = 0;
 	private long lastKnownTimeOfDayLowerBound = 0;
 	private long lastKnownTimeOfDayUpperBound = 0;
 
@@ -96,14 +96,14 @@ public class ApiCheckInHealthUtils {
 	private void setOrResetRecentCheckInHealthCheck(long prefsAudioCycleDuration, long prefsTimeOfDayLowerBound, long prefsTimeOfDayUpperBound) {
 
 		if (	!healthCheckMonitors.containsKey(healthCheckCategories[0])
-			|| 	(lastKnownAudioCaptureDuration != prefsAudioCycleDuration)
+			|| 	(lastKnownAudioCycleDuration != prefsAudioCycleDuration)
 			|| 	(lastKnownTimeOfDayLowerBound != prefsTimeOfDayLowerBound)
 			|| 	(lastKnownTimeOfDayUpperBound != prefsTimeOfDayUpperBound)
 		) {
 
 			Log.v(logTag, "Resetting RecentCheckInHealthCheck metrics...");
 
-			lastKnownAudioCaptureDuration = prefsAudioCycleDuration;
+			lastKnownAudioCycleDuration = prefsAudioCycleDuration;
 			lastKnownTimeOfDayLowerBound = prefsTimeOfDayLowerBound;
 			lastKnownTimeOfDayUpperBound = prefsTimeOfDayUpperBound;
 
@@ -120,13 +120,13 @@ public class ApiCheckInHealthUtils {
 			// set parameters (bounds) for health check pass or fail
 
 			/* latency */		healthCheckTargetLowerBounds[0] = 0;
-								healthCheckTargetUpperBounds[0] = Math.round( 0.4 * lastKnownAudioCaptureDuration * 1000);
+								healthCheckTargetUpperBounds[0] = Math.round( 0.4 * lastKnownAudioCycleDuration * 1000);
 
 			/* queued */		healthCheckTargetLowerBounds[1] = 0;
 								healthCheckTargetUpperBounds[1] = 1;
 
 			/* recent */		healthCheckTargetLowerBounds[2] = 0;
-								healthCheckTargetUpperBounds[2] = ( healthCheckMeasurementCount / 2 ) * (lastKnownAudioCaptureDuration * 1000);
+								healthCheckTargetUpperBounds[2] = ( healthCheckMeasurementCount / 2 ) * (lastKnownAudioCycleDuration * 1000);
 
 			/* time-of-day */	healthCheckTargetLowerBounds[3] = lastKnownTimeOfDayLowerBound;
 								healthCheckTargetUpperBounds[3] = lastKnownTimeOfDayUpperBound;

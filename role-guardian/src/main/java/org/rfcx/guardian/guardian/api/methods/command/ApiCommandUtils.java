@@ -7,8 +7,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -23,9 +26,9 @@ public class ApiCommandUtils {
 
 	private RfcxGuardian app;
 
-	public void processApiCmdJson(String jsonStr) {
+	public void processApiCommandJson(String jsonStr) {
 
-		Log.i(logTag, "Cmd Received: " + jsonStr);
+		Log.i(logTag, "Command JSON Received: " + jsonStr);
 
 		try {
 

@@ -112,7 +112,7 @@ public class ApiMqttUtils implements MqttCallback {
 		}
 
         // Build JSON blob from included assets
-		byte[] jsonBlobAsBytes = StringUtils.gZipStringToByteArray(app.apiCheckInJsonUtils.buildCheckInJson(checkInJsonString, screenShotMeta, logFileMeta, photoFileMeta, videoFileMeta));
+		byte[] jsonBlobAsBytes = StringUtils.stringToGZippedByteArray(app.apiCheckInJsonUtils.buildCheckInJson(checkInJsonString, screenShotMeta, logFileMeta, photoFileMeta, videoFileMeta));
 		String jsonBlobMetaSection = String.format(Locale.US, "%012d", jsonBlobAsBytes.length);
 		byteArrayOutputStream.write(jsonBlobMetaSection.getBytes(StandardCharsets.UTF_8));
 		byteArrayOutputStream.write(jsonBlobAsBytes);
@@ -203,7 +203,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 		// this is a command message receive from the API
 		if (messageTopic.equalsIgnoreCase(this.mqttTopic_Subscribe_Command)) {
-			app.apiCommandUtils.processApiCmdJson(StringUtils.unGZipByteArrayToString(messagePayload));
+			app.apiCommandUtils.processApiCommandJson(StringUtils.gZippedByteArrayToUnGZippedString(messagePayload));
 		}
 	}
 
@@ -317,7 +317,7 @@ public class ApiMqttUtils implements MqttCallback {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
 		// Build JSON blob
-		byte[] jsonBlobAsBytes = StringUtils.gZipStringToByteArray(pingJsonString);
+		byte[] jsonBlobAsBytes = StringUtils.stringToGZippedByteArray(pingJsonString);
 		String jsonBlobMetaSection = String.format(Locale.US, "%012d", jsonBlobAsBytes.length);
 		byteArrayOutputStream.write(jsonBlobMetaSection.getBytes(StandardCharsets.UTF_8));
 		byteArrayOutputStream.write(jsonBlobAsBytes);
@@ -374,7 +374,7 @@ public class ApiMqttUtils implements MqttCallback {
 				// This might be something we should remove if we find out that 'Connection Lost" isn't always due to the broker itself having problems
 				// This line assumes that the issue is NOT with the Guardian's internet connection
 				if (app.deviceConnectivity.isConnected()) {
-					app.apiMqttUtils.initializeFailedCheckInThresholds();
+					initializeFailedCheckInThresholds();
 				}
 
 				long additionalDelay = Math.round(this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 0.667);

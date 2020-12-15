@@ -4,6 +4,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.vendor.SntpClient;
 
 public class SntpUtils {
 

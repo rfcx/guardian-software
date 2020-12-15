@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.datetime;
+package org.rfcx.guardian.utility.vendor;
 
 /*
  * Copyright (C) 2008 The Android Open Source Project

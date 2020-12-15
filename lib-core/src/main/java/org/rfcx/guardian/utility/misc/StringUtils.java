@@ -6,6 +6,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
@@ -14,13 +17,14 @@ import java.util.zip.GZIPOutputStream;
 
 import android.util.Base64;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.vendor.Base85;
 
 public class StringUtils {
 	
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "StringUtils");
 	
 	private static final char[] lowerCaseAlphanumericRef = "abcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
-	private static final char[] upperLowerCaseAlphanumericRef = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
+	private static final char[] upperLowerCaseAlphanumericRef = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
 	
 	public static String randomAlphanumericString(int stringLength, boolean allowUpperCaseCharacters) {
 		char[] charRef = lowerCaseAlphanumericRef; if (allowUpperCaseCharacters) { charRef = upperLowerCaseAlphanumericRef; }
@@ -42,15 +46,23 @@ public class StringUtils {
 		return byteArrayToHexString(messageDigest.digest(inputString.getBytes()));
 	}
 
-	public static String gZipStringToBase64(String inputString) {
-		return Base64.encodeToString(gZipStringToByteArray(inputString), Base64.NO_WRAP);
+	public static String stringToGZippedBase64(String inputString) {
+		return Base64.encodeToString(stringToGZippedByteArray(inputString), Base64.NO_WRAP);
 	}
 
-	public static String decodeBase64GZippedByteArrayToString(String base64String) {
-		return unGZipByteArrayToString( Base64.decode( base64String, Base64.NO_WRAP ) );
+	public static String gZippedBase64ToUnGZippedString(String base64String) {
+		return gZippedByteArrayToUnGZippedString( Base64.decode( base64String, Base64.NO_WRAP ) );
+	}
+
+	public static String stringToGZippedBase85(String inputString) {
+		return Base85.getZ85Encoder().encodeToString(stringToGZippedByteArray(inputString));
+	}
+
+	public static String gZippedBase85ToUnGZippedString(String base85String) {
+		return gZippedByteArrayToUnGZippedString( Base85.getZ85Decoder().decodeToBytes(base85String) );
 	}
 	
-	public static byte[] gZipStringToByteArray(String inputString) {
+	public static byte[] stringToGZippedByteArray(String inputString) {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		GZIPOutputStream gZIPOutputStream = null;
 		try {
@@ -70,7 +82,7 @@ public class StringUtils {
 		return byteArrayOutputStream.toByteArray();
 	}
 	
-	public static String unGZipByteArrayToString(byte[] inputByteArray) {
+	public static String gZippedByteArrayToUnGZippedString(byte[] inputByteArray) {
 		
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		
@@ -116,12 +128,24 @@ public class StringUtils {
 		return str.substring(0,1).toUpperCase()+str.substring(1);
 	}
 
-	public static String escapeBase64ForUrl(String unEscapedBase64Str) {
-		return unEscapedBase64Str.replaceAll("\\/","_").replaceAll("\\+","-");
+	public static String urlEncode(String unEncodedString) {
+		String rtrnStr = unEncodedString;
+		try {
+			rtrnStr = URLEncoder.encode(rtrnStr, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return rtrnStr;
 	}
 
-	public static String unEscapeBase64FromUrl(String escapedBase64Str) {
-		return escapedBase64Str.replaceAll("\\_","/").replaceAll("\\-","+");
+	public static String urlDecode(String encodedString) {
+		String rtrnStr = encodedString;
+		try {
+			rtrnStr = URLDecoder.decode(encodedString, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return rtrnStr;
 	}
 
 }
