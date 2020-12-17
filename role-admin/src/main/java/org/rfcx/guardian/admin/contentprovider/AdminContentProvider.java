@@ -7,6 +7,7 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
 import org.rfcx.guardian.admin.sms.SmsUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -128,7 +129,7 @@ public class AdminContentProvider extends ContentProvider {
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_enable", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "sntp_sync")) { logFuncVal = "control-sntp_sync";
-                app.rfcxServiceHandler.triggerService("SntpSyncJob", true);
+                app.rfcxServiceHandler.triggerService("ClockSyncJob", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"sntp_sync", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "sms_queue", "*")) { logFuncVal = "sms_queue-*";
@@ -137,8 +138,8 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSegAfterSendAt = pathSeg.substring(pathSegSendAt.length()+1);
                 String pathSegAddress = pathSegAfterSendAt.substring(0, pathSegAfterSendAt.indexOf("|"));
                 String pathSegMessage = pathSegAfterSendAt.substring(1 + pathSegAfterSendAt.indexOf("|"));
-                SmsUtils.addScheduledSmsToQueue(Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext());
-                return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{pathSegSendAt + "|" + pathSegAddress + "|" + pathSegMessage, null, System.currentTimeMillis()});
+                SmsUtils.addScheduledSmsToQueue(Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext(), false);
+                return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{ pathSegSendAt+"|"+pathSegAddress+"|"+pathSegMessage, null, System.currentTimeMillis()});
 
 
             // get momentary values endpoints

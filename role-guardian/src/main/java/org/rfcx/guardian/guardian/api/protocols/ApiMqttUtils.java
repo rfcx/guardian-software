@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.protocols.mqtt;
+package org.rfcx.guardian.guardian.api.protocols;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

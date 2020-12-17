@@ -1,6 +1,9 @@
 package org.rfcx.guardian.utility.rfcx;
 
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -54,6 +57,8 @@ public class RfcxComm {
 				"control", new String[] { "command", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"sms_queue", new String[] { "send_at|address|message", "result", "received_at" });
+			roleFuncProj.get(role).put(
+				"segment_insert", new String[] { "segment_payload", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"get_momentary_values", new String[] { "value", "result", "received_at" });
 			roleFuncProj.get(role).put(
@@ -132,7 +137,7 @@ public class RfcxComm {
 				.append(getAuthority(role.toLowerCase(Locale.US)))
 				.append("/")
 				.append(function.toLowerCase(Locale.US));
-		if (command != null) { uri.append("/").append(command.toLowerCase(Locale.US)); }
+		if (command != null) { uri.append("/").append(command); }
 		return Uri.parse(uri.toString());
 	}
 
@@ -194,6 +199,26 @@ public class RfcxComm {
 	
 	public static String[] getProjection(String role, String function) {
 		return initRoleFuncProj().get(role.toLowerCase(Locale.US)).get(function.toLowerCase(Locale.US));
+	}
+
+	public static String urlEncode(String unEncodedString) {
+		String rtrnStr = unEncodedString;
+		try {
+			rtrnStr = URLEncoder.encode(rtrnStr, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return rtrnStr;
+	}
+
+	public static String urlDecode(String encodedString) {
+		String rtrnStr = encodedString;
+		try {
+			rtrnStr = URLDecoder.decode(encodedString, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return rtrnStr;
 	}
 	
 }

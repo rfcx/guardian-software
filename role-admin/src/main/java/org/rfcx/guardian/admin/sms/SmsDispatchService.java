@@ -24,6 +24,8 @@ public class SmsDispatchService extends Service {
 	private boolean runFlag = false;
 	private SmsDispatch smsDispatch;
 
+	private long forcedPauseBetweenEachDispatch = 1000;
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -98,6 +100,8 @@ public class SmsDispatchService extends Service {
 							app.smsMessageDb.dbSmsQueued.deleteSingleRowByMessageId(msgId);
 
 							Log.w(logTag, "SMS Sent (ID " + msgId + "): To " + msgAddress + " at " + DateTimeUtils.getDateTime(rightNow) + ": \"" + msgBody + "\"");
+
+							Thread.sleep(forcedPauseBetweenEachDispatch);
 						}
 					}
 				}

@@ -79,7 +79,7 @@
         <service android:name=".device.android.control.AirplaneModeToggleService" />
         <service android:name=".device.android.control.AirplaneModeEnableService" />
         <service android:name=".device.android.control.WifiHotspotStateSetService" />
-        <service android:name=".device.android.control.SntpSyncJobService" />
+        <service android:name=".device.android.control.ClockSyncJobService" />
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
         <service android:name=".sms.SmsDispatchCycleService" />

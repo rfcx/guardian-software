@@ -85,7 +85,7 @@
         <service android:name=".audio.encode.AudioEncodeJobService" android:exported="false" />
         <service android:name=".api.methods.checkin.ApiCheckInJobService" android:exported="false" />
         <service android:name=".api.methods.checkin.ApiCheckInArchiveService" android:exported="false" />
-        <service android:name=".api.protocols.sntp.SntpSyncJobService" android:exported="false" />
+        <service android:name=".api.methods.clock.ClockSyncJobService" android:exported="false" />
         <service android:name=".instructions.InstructionsCycleService" android:exported="false" />
         <service android:name=".instructions.InstructionsExecutionService" android:exported="false" />
 

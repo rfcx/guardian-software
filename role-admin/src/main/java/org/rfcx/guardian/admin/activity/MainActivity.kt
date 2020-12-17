@@ -40,7 +40,7 @@ class MainActivity : Activity() {
         }
 
         sntpSyncButton.setOnClickListener {
-            app.rfcxServiceHandler.triggerService("SntpSyncJob", true)
+            app.rfcxServiceHandler.triggerService("ClockSyncJob", true)
         }
 
         screenshotButton.setOnClickListener {

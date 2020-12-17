@@ -6,13 +6,16 @@ import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInUtils;
 import org.rfcx.guardian.guardian.api.methods.command.ApiCommandUtils;
 import org.rfcx.guardian.guardian.api.methods.ping.ApiPingJsonUtils;
+import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
+import org.rfcx.guardian.guardian.api.protocols.ApiHttpUtils;
+import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInHealthUtils;
 import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJsonUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInStatsDb;
 import org.rfcx.guardian.guardian.api.methods.ping.ScheduledApiPingService;
-import org.rfcx.guardian.guardian.api.methods.segment.ApiShortMsgDb;
+import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -42,7 +45,7 @@ import org.rfcx.guardian.guardian.asset.AssetExchangeLogDb;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInDb;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJobService;
 import org.rfcx.guardian.guardian.asset.MetaDb;
-import org.rfcx.guardian.guardian.api.protocols.mqtt.ApiMqttUtils;
+import org.rfcx.guardian.guardian.api.protocols.ApiMqttUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInArchiveService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInArchiveDb;
@@ -51,7 +54,7 @@ import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.guardian.audio.encode.AudioQueueEncodeService;
-import org.rfcx.guardian.guardian.api.protocols.sntp.SntpSyncJobService;
+import org.rfcx.guardian.guardian.api.methods.clock.ClockSyncJobService;
 import org.rfcx.guardian.guardian.device.android.DeviceSystemDb;
 import org.rfcx.guardian.guardian.api.methods.clock.ScheduledClockSyncService;
 import org.rfcx.guardian.guardian.receiver.ConnectivityReceiver;
@@ -77,7 +80,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
     public AssetExchangeLogDb assetExchangeLogDb = null;
     public ApiCheckInArchiveDb apiCheckInArchiveDb = null;
-    public ApiShortMsgDb apiShortMsgDb = null;
+    public ApiSegmentDb apiSegmentDb = null;
     public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
 
@@ -90,10 +93,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
     public ApiMqttUtils apiMqttUtils = null;
+    public ApiSmsUtils apiSmsUtils = null;
+    public ApiHttpUtils apiHttpUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
     public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
     public ApiPingJsonUtils apiPingJsonUtils = null;
     public ApiCommandUtils apiCommandUtils = null;
+    public ApiSegmentUtils apiSegmentUtils = null;
     public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
     public AssetUtils assetUtils = null;
     public InstructionsUtils instructionsUtils = null;
@@ -135,10 +141,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioCaptureUtils = new AudioCaptureUtils(this);
         this.apiMqttUtils = new ApiMqttUtils(this);
+        this.apiSmsUtils = new ApiSmsUtils(this);
+        this.apiHttpUtils = new ApiHttpUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.apiCheckInJsonUtils = new ApiCheckInJsonUtils(this);
         this.apiPingJsonUtils = new ApiPingJsonUtils(this);
         this.apiCommandUtils = new ApiCommandUtils(this);
+        this.apiSegmentUtils = new ApiSegmentUtils(this);
         this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);
         this.assetUtils = new AssetUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
@@ -227,7 +236,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
         this.assetExchangeLogDb = new AssetExchangeLogDb(this, this.version);
         this.apiCheckInArchiveDb = new ApiCheckInArchiveDb(this, this.version);
-        this.apiShortMsgDb = new ApiShortMsgDb(this, this.version);
+        this.apiSegmentDb = new ApiSegmentDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
 
@@ -246,7 +255,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.rfcxServiceHandler.addService("ScheduledApiPing", ScheduledApiPingService.class);
 
-        this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
+        this.rfcxServiceHandler.addService("ClockSyncJob", ClockSyncJobService.class);
         this.rfcxServiceHandler.addService("ScheduledClockSync", ScheduledClockSyncService.class);
 
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);

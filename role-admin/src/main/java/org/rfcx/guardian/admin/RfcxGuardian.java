@@ -49,7 +49,7 @@ import org.rfcx.guardian.admin.device.android.capture.ScheduledScreenShotCapture
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeEnableService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledRebootService;
-import org.rfcx.guardian.admin.device.android.control.SntpSyncJobService;
+import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService;
 import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
 import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
 import org.rfcx.guardian.admin.device.sentinel.DeviceSentinelService;
@@ -241,7 +241,7 @@ public class RfcxGuardian extends Application {
         this.rfcxServiceHandler.addService("SmsDispatch", SmsDispatchService.class);
 		this.rfcxServiceHandler.addService("SmsDispatchCycle", SmsDispatchCycleService.class);
 
-		this.rfcxServiceHandler.addService("SntpSyncJob", SntpSyncJobService.class);
+		this.rfcxServiceHandler.addService("ClockSyncJob", ClockSyncJobService.class);
 		this.rfcxServiceHandler.addService("ScheduledClockSync", ScheduledClockSyncService.class);
 
 		this.rfcxServiceHandler.addService("ForceRoleRelaunch", ForceRoleRelaunchService.class);

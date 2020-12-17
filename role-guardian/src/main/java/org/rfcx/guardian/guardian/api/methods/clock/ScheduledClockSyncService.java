@@ -23,7 +23,7 @@ public class ScheduledClockSyncService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		app.rfcxServiceHandler.triggerService("SntpSyncJob", true);
+		app.rfcxServiceHandler.triggerService("ClockSyncJob", true);
 	
 	}
 	

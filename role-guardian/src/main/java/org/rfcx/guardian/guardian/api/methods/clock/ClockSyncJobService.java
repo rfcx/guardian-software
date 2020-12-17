@@ -1,28 +1,25 @@
-package org.rfcx.guardian.admin.device.android.control;
+package org.rfcx.guardian.guardian.api.methods.clock;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.datetime.SntpUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
-
-import android.app.AlarmManager;
+import org.rfcx.guardian.guardian.RfcxGuardian;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
 
-public class SntpSyncJobService extends Service {
+public class ClockSyncJobService extends Service {
 
-	private static final String SERVICE_NAME = "SntpSyncJob";
+	private static final String SERVICE_NAME = "ClockSyncJob";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SntpSyncJobService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ClockSyncJobService");
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private SntpSyncJob sntpSyncJob;
+	private ClockSyncJob clockSyncJob;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -33,7 +30,7 @@ public class SntpSyncJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.sntpSyncJob = new SntpSyncJob();
+		this.clockSyncJob = new ClockSyncJob();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -44,7 +41,7 @@ public class SntpSyncJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.sntpSyncJob.start();
+			this.clockSyncJob.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -56,41 +53,39 @@ public class SntpSyncJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.sntpSyncJob.interrupt();
-		this.sntpSyncJob = null;
+		this.clockSyncJob.interrupt();
+		this.clockSyncJob = null;
 	}
 	
 	
-	private class SntpSyncJob extends Thread {
+	private class ClockSyncJob extends Thread {
 		
-		public SntpSyncJob() {
-			super("SntpSyncJobService-SntpSyncJob");
+		public ClockSyncJob() {
+			super("ClockSyncJobService-ClockSyncJob");
 		}
 		
 		@Override
 		public void run() {
-			SntpSyncJobService sntpSyncJobInstance = SntpSyncJobService.this;
+			ClockSyncJobService clockSyncJobInstance = ClockSyncJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			
 			try {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-
+				
 				long[] sntpClockValues = SntpUtils.getSntpClockValues(app.deviceConnectivity.isConnected(), app.rfcxPrefs.getPrefAsString("api_ntp_host"));
 
 				if (sntpClockValues.length > 0) {
 					long nowSntp = sntpClockValues[0];
 					long nowSystem = sntpClockValues[1];
 					app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem), DateTimeUtils.getTimeZoneOffset());
-					SystemClock.setCurrentTimeMillis(nowSntp);
-					Log.v(logTag, "DateTime Sync: System time now synced to SNTP value.");
 				}
-					
+
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				sntpSyncJobInstance.runFlag = false;
+				clockSyncJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 			}

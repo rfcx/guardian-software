@@ -125,7 +125,7 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
+				Log.i(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
 				return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream());
 		    } else {
 	            Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode()+" for "+url.toString());
@@ -160,7 +160,7 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 			if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-				Log.i(logTag, "Download Started ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
+				Log.i(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
 				return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream());
 			} else {
 				Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode()+" for "+url.toString());

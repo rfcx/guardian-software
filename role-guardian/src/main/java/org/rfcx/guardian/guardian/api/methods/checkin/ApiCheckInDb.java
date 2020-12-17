@@ -381,7 +381,7 @@ public class ApiCheckInDb {
 
 		public void updateFilePathByAudioAttachmentId(String audioId, String filePath) {
 			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			this.dbUtils.updateStringColumnValueByTimestamp(TABLE, C_FILEPATH, filePath, C_AUDIO, timestamp);
+			this.dbUtils.updateStringColumnValuesWithinQueryByTimestamp(TABLE, C_FILEPATH, filePath, C_AUDIO, timestamp);
 		}
 
 	}

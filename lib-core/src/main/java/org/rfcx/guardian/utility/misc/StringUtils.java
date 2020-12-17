@@ -128,24 +128,4 @@ public class StringUtils {
 		return str.substring(0,1).toUpperCase()+str.substring(1);
 	}
 
-	public static String urlEncode(String unEncodedString) {
-		String rtrnStr = unEncodedString;
-		try {
-			rtrnStr = URLEncoder.encode(rtrnStr, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return rtrnStr;
-	}
-
-	public static String urlDecode(String encodedString) {
-		String rtrnStr = encodedString;
-		try {
-			rtrnStr = URLDecoder.decode(encodedString, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return rtrnStr;
-	}
-
 }

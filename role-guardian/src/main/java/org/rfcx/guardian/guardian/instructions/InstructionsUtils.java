@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -36,43 +37,47 @@ public class InstructionsUtils {
 	public void processReceivedInstructionJson(JSONObject jsonObj) {
 		try {
 			if (jsonObj.has("instructions")) {
+
 				JSONArray instrArr = jsonObj.getJSONArray("instructions");
+
+				String confirmReceptionViaProtocol = "";
+
 				for (int i = 0; i < instrArr.length(); i++) {
+
 					JSONObject instrObj = instrArr.getJSONObject(i);
+
 					if (instrObj.has("id")) {
 
 						String instrId = instrObj.getString("id");
-						String instrType = instrObj.getString("type");
-						String instrCmd = instrObj.getString("cmd");
 
-						JSONObject instrMetaObj = new JSONObject();
-						if (instrObj.getString("meta").length() > 0) {
-							instrMetaObj = new JSONObject(instrObj.getString("meta"));
-						}
+						if (this.app.instructionsDb.dbQueuedInstructions.getCountById(instrId) == 0) {
 
-						long instrExecuteAt = System.currentTimeMillis();
-						if (instrObj.getString("at").length() > 0) {
-							instrExecuteAt = Long.parseLong(instrObj.getString("at"));
-						}
+							String instrType = instrObj.getString("type");
 
-						String protocol = "mqtt";
-						if (instrObj.has("protocol")) {
-							protocol = instrObj.getString("protocol");
-						}
+							String instrCmd = instrObj.getString("cmd");
 
-						this.app.instructionsDb.dbQueuedInstructions.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString(), protocol);
+							JSONObject instrMetaObj = (instrObj.getString("meta").length() > 0) ? new JSONObject(instrObj.getString("meta")) : new JSONObject();
 
-						Log.i(logTag, "Instruction Received ("+protocol+"): "+instrId+", "+instrType+", "+instrCmd+", at "+ DateTimeUtils.getDateTime(instrExecuteAt)+", "+instrMetaObj.toString());
+							long instrExecuteAt = (instrObj.getString("at").length() > 0) ? Long.parseLong(instrObj.getString("at")) : System.currentTimeMillis();
 
-						if (protocol.equalsIgnoreCase("mqtt")) {
-							this.app.apiMqttUtils.sendMqttPing(false, new String[]{"instructions"});
+							confirmReceptionViaProtocol = instrObj.has("protocol") ? instrObj.getString("protocol") : "mqtt";
 
-						} else if (protocol.equalsIgnoreCase("sms")) {
-							Log.e(logTag, "Send SMS Instruction Response: "+ getSingleInstructionInfoAsSerializedString(instrId) );
+							this.app.instructionsDb.dbQueuedInstructions.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString(), confirmReceptionViaProtocol);
 
+							Log.i(logTag, "Instruction Received (via " + confirmReceptionViaProtocol + ") with ID '" + instrId + "', Type: '" + instrType + "', Command: '" + instrCmd + "', Send at " + DateTimeUtils.getDateTime(instrExecuteAt) + ", JSON Meta: '" + instrMetaObj.toString() + "'");
 						}
 					}
 				}
+
+				if (confirmReceptionViaProtocol.equalsIgnoreCase("mqtt")) {
+
+					this.app.apiMqttUtils.sendMqttPing(false, new String[]{"instructions"});
+
+				} else if (confirmReceptionViaProtocol.equalsIgnoreCase("sms")) {
+
+					Log.e(logTag, "Send Bundled SMS Instruction Response..." );
+				}
+
 			}
 
 		} catch (JSONException e) {
@@ -194,22 +199,11 @@ public class InstructionsUtils {
 
                 } else if (instrCmd.equalsIgnoreCase("sms")) {
 
-					try {
-						String sendAt = instrMeta.has("at") ? ""+Long.parseLong(instrMeta.getString("at")) : ""+System.currentTimeMillis();
-						String sendTo = instrMeta.has("to") ? instrMeta.getString("to") : app.rfcxPrefs.getPrefAsString("api_sms_address");
-						String msgBody = instrMeta.has("body") ? instrMeta.getString("body") : "";
-						String msgBlob = TextUtils.join("|", new String[]{ sendAt, sendTo, msgBody });
+					String sendAt = instrMeta.has("at") ? ""+Long.parseLong(instrMeta.getString("at")) : ""+System.currentTimeMillis();
+					String sendTo = instrMeta.has("to") ? instrMeta.getString("to") : app.rfcxPrefs.getPrefAsString("api_sms_address");
+					String msgBody = instrMeta.has("body") ? instrMeta.getString("body") : "";
 
-						Cursor smsQueueResponse =
-								app.getApplicationContext().getContentResolver().query(
-										RfcxComm.getUri("admin", "sms_queue", msgBlob),
-										RfcxComm.getProjection("admin", "sms_queue"),
-										null, null, null);
-						Log.v(logTag, smsQueueResponse.toString());
-						smsQueueResponse.close();
-					} catch (Exception e) {
-						RfcxLog.logExc(logTag, e);
-					}
+					app.apiSmsUtils.queueSmsToSend(sendAt, sendTo, msgBody);
 
                 }
 

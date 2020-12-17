@@ -28,7 +28,7 @@ public class ApiCommandUtils {
 
 	public void processApiCommandJson(String jsonStr) {
 
-		Log.i(logTag, "Command JSON Received: " + jsonStr);
+		Log.i(logTag, "Received: " + jsonStr);
 
 		try {
 

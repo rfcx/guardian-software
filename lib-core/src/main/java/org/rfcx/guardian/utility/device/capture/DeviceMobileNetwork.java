@@ -92,7 +92,7 @@ public class DeviceMobileNetwork {
 //		int	evdoSnr = signalStrength.getEvdoSnr(); //signal to noise ratio. Valid values are 0-8. 8 is the highest.
 		
 		if (gsmSignalStrength_dBm > 0) {
-			mobileNetworkSummary[1] = "0";
+			mobileNetworkSummary[1] = "-120";
 		} else {
 			mobileNetworkSummary[1] = ""+gsmSignalStrength_dBm;
 			mobileNetworkSummary[2] = getNetworkTypeCategoryAsString(telephonyManager.getNetworkType());
@@ -105,9 +105,6 @@ public class DeviceMobileNetwork {
 	private static String getNetworkTypeCategoryAsString(int getNetworkType) {
 		String networkTypeCategory;
 	    switch (getNetworkType) {
-	        case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-	        	networkTypeCategory = "unknown";
-	            break;
 	        case TelephonyManager.NETWORK_TYPE_IDEN:
 	        	networkTypeCategory = "iden";
 	            break;

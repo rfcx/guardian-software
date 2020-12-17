@@ -22,7 +22,7 @@ public class DbUtils {
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "DbUtils");
 
 	private static final int DEFAULT_ROWOFFSET = 0;
-	private static final int DEFAULT_ROWLIMIT = 1000;
+	private static final int DEFAULT_ROWLIMIT = 4096;
 	private static final String DEFAULT_ORDER = "DESC";
 	
 	class DbHelper extends SQLiteOpenHelper {
@@ -226,26 +226,77 @@ public class DbUtils {
 			closeDb();
 		}
 	}
-	
-	public void deleteRowsWithinQueryByTimestamp(String tableName, String timestampColumn, String timestampValue) {
+
+	public void deleteRowsWithinQueryByOneColumn(String tableName, String queryColumnName, String queryColumnValue) {
 		SQLiteDatabase db = openDb();
 		try {
-			for (String[] dbRow : getRows(db, tableName, new String[] { timestampColumn }, "substr("+timestampColumn+",1,"+timestampValue.length()+") = ?", new String[] { timestampValue }, null) ) {
-				db.execSQL("DELETE FROM "+tableName+" WHERE "+ timestampColumn +" = '"+ dbRow[0] +"'");
-			
+			for (String[] dbRow : getRows(db, tableName, new String[] { queryColumnName }, "substr("+queryColumnName+",1,"+queryColumnValue.length()+") = ?", new String[] { queryColumnValue }, null) ) {
+				db.execSQL("DELETE FROM "+tableName+" WHERE "+ queryColumnName +" = '"+ dbRow[0] +"'");
+
 			}
-		} catch (Exception e) { 
-			RfcxLog.logExc(logTag, e); 
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
 		} finally {
 			closeDb();
 		}
 	}
 
-	public void updateStringColumnValueByTimestamp(String tableName, String columnName, String columnValue, String timestampColumn, String timestampValue) {
+	public void deleteRowsWithinQueryByTimestamp(String tableName, String timestampColumn, String timestampValue) {
+		deleteRowsWithinQueryByOneColumn(tableName, timestampColumn, timestampValue);
+	}
+
+	public void deleteRowsWithinQueryByTwoColumns(String tableName, String queryFirstColumnName, String queryFirstColumnValue, String querySecondColumnName, String querySecondColumnValue) {
 		SQLiteDatabase db = openDb();
 		try {
-			for (String[] dbRow : getRows(db, tableName, new String[] { timestampColumn, columnName }, "substr("+timestampColumn+",1,"+timestampValue.length()+") = ?", new String[] { timestampValue }, null) ) {
-				db.execSQL("UPDATE "+tableName+" SET "+columnName+"='"+columnValue+"' WHERE "+ timestampColumn +" = '"+ dbRow[0] +"'");
+			for (String[] dbRow : getRows(db, tableName, new String[] { queryFirstColumnName, querySecondColumnName }, "substr("+queryFirstColumnName+",1,"+queryFirstColumnValue.length()+") = ?", new String[] { queryFirstColumnValue }, null) ) {
+				if (dbRow[1].equalsIgnoreCase(querySecondColumnValue)) {
+					db.execSQL("DELETE FROM " + tableName + " WHERE " + queryFirstColumnName + " = '" + dbRow[0] + "' AND " + querySecondColumnName + " = '" + dbRow[1] + "'");
+				}
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		} finally {
+			closeDb();
+		}
+	}
+
+	public void updateStringColumnValuesWithinQueryByOneColumn(String tableName, String updateColumnName, String updateColumnValue, String queryColumnName, String queryColumnValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			for (String[] dbRow : getRows(db, tableName, new String[] { queryColumnName, updateColumnName }, "substr("+queryColumnName+",1,"+queryColumnValue.length()+") = ?", new String[] { queryColumnValue }, null) ) {
+				db.execSQL("UPDATE "+tableName+" SET "+updateColumnName+"='"+updateColumnValue+"' WHERE "+ queryColumnName +" = '"+ dbRow[0] +"'");
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		} finally {
+			closeDb();
+		}
+	}
+
+	public void updateStringColumnValuesWithinQueryByTimestamp(String tableName, String columnName, String columnValue, String timestampColumn, String timestampValue) {
+		updateStringColumnValuesWithinQueryByOneColumn(tableName, columnName, columnValue, timestampColumn, timestampValue);
+	}
+
+	public void updateStringColumnValuesWithinQueryByTwoColumns(String tableName, String updateColumnName, String updateColumnValue, String queryFirstColumnName, String queryFirstColumnValue, String querySecondColumnName, String querySecondColumnValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			for (String[] dbRow : getRows(db, tableName, new String[] { queryFirstColumnName, querySecondColumnName }, "substr("+queryFirstColumnName+",1,"+queryFirstColumnValue.length()+") = ?", new String[] { queryFirstColumnValue }, null) ) {
+				if (dbRow[1].equalsIgnoreCase(querySecondColumnValue)) {
+					db.execSQL("UPDATE " + tableName + " SET " + updateColumnName + "='" + updateColumnValue + "' WHERE " + queryFirstColumnName + " = '" + dbRow[0] + "' AND " + querySecondColumnName + " = '" + dbRow[1] + "'");
+				}
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		} finally {
+			closeDb();
+		}
+	}
+
+	public void adjustNumericColumnValuesWithinQueryByOneColumn(String adjustmentAmount, String tableName, String numericColumnName, String queryColumnName, String queryColumnValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			for (String[] dbRow : getRows(db, tableName, new String[] { queryColumnName, numericColumnName }, "substr("+queryColumnName+",1,"+queryColumnValue.length()+") = ?", new String[] { queryColumnValue }, null) ) {
+				db.execSQL("UPDATE "+tableName+" SET "+numericColumnName+"=cast("+numericColumnName+" as INT)"+adjustmentAmount+" WHERE "+ queryColumnName +" = '"+ dbRow[0] +"'");
 			}
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -255,26 +306,51 @@ public class DbUtils {
 	}
 
 	public void adjustNumericColumnValuesWithinQueryByTimestamp(String adjustmentAmount, String tableName, String numericColumnName, String timestampColumn, String timestampValue) {
+		adjustNumericColumnValuesWithinQueryByOneColumn(adjustmentAmount, tableName, numericColumnName, timestampColumn, timestampValue);
+	}
+
+	public void adjustNumericColumnValuesWithinQueryByTwoColumns(String adjustmentAmount, String tableName, String numericColumnName, String queryFirstColumnName, String queryFirstColumnValue, String querySecondColumnName, String querySecondColumnValue) {
 		SQLiteDatabase db = openDb();
 		try {
-			for (String[] dbRow : getRows(db, tableName, new String[] { timestampColumn, numericColumnName }, "substr("+timestampColumn+",1,"+timestampValue.length()+") = ?", new String[] { timestampValue }, null) ) {
-				db.execSQL("UPDATE "+tableName+" SET "+numericColumnName+"=cast("+numericColumnName+" as INT)"+adjustmentAmount+" WHERE "+ timestampColumn +" = '"+ dbRow[0] +"'");
+			for (String[] dbRow : getRows(db, tableName, new String[]{queryFirstColumnName, querySecondColumnName}, "substr(" + queryFirstColumnName + ",1," + queryFirstColumnValue.length() + ") = ?", new String[]{queryFirstColumnValue}, null)) {
+				if (dbRow[1].equalsIgnoreCase(querySecondColumnValue)) {
+					db.execSQL("UPDATE " + tableName + " SET " + numericColumnName + "=cast(" + numericColumnName + " as INT)" + adjustmentAmount + " WHERE " + queryFirstColumnName + " = '" + dbRow[0] + "' AND " + querySecondColumnName + " = '" + dbRow[1] + "'");
+				}
 			}
-		} catch (Exception e) { 
-			RfcxLog.logExc(logTag, e); 
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
 		} finally {
 			closeDb();
 		}
 	}
-	
-	public void setDatetimeColumnValuesWithinQueryByTimestamp(String tableName, String datetimeColumnName, long datetimeColumnValue, String timestampColumn, String timestampValue) {
+
+	public void setDatetimeColumnValuesWithinQueryByOneColumn(String tableName, String datetimeColumnName, long datetimeColumnValue, String queryColumnName, String queryColumnValue) {
 		SQLiteDatabase db = openDb();
 		try {
-			for (String[] dbRow : getRows(db, tableName, new String[] { timestampColumn, datetimeColumnName }, "substr("+timestampColumn+",1,"+timestampValue.length()+") = ?", new String[] { timestampValue }, null) ) {
-				db.execSQL("UPDATE "+tableName+" SET "+datetimeColumnName+"="+datetimeColumnValue+" WHERE "+ timestampColumn +" = '"+ dbRow[0] +"'");
+			for (String[] dbRow : getRows(db, tableName, new String[] { queryColumnName, datetimeColumnName }, "substr("+queryColumnName+",1,"+queryColumnValue.length()+") = ?", new String[] { queryColumnValue }, null) ) {
+				db.execSQL("UPDATE "+tableName+" SET "+datetimeColumnName+"="+datetimeColumnValue+" WHERE "+ queryColumnName +" = '"+ dbRow[0] +"'");
 			}
-		} catch (Exception e) { 
-			RfcxLog.logExc(logTag, e); 
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		} finally {
+			closeDb();
+		}
+	}
+
+	public void setDatetimeColumnValuesWithinQueryByTimestamp(String tableName, String datetimeColumnName, long datetimeColumnValue, String timestampColumn, String timestampValue) {
+		setDatetimeColumnValuesWithinQueryByOneColumn(tableName, datetimeColumnName, datetimeColumnValue, timestampColumn, timestampValue);
+	}
+
+	public void setDatetimeColumnValuesWithinQueryByTwoColumns(String tableName, String datetimeColumnName, long datetimeColumnValue, String queryFirstColumnName, String queryFirstColumnValue, String querySecondColumnName, String querySecondColumnValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			for (String[] dbRow : getRows(db, tableName, new String[] { queryFirstColumnName, querySecondColumnName }, "substr("+queryFirstColumnName+",1,"+queryFirstColumnValue.length()+") = ?", new String[] { queryFirstColumnValue }, null) ) {
+				if (dbRow[1].equalsIgnoreCase(querySecondColumnValue)) {
+					db.execSQL("UPDATE " + tableName + " SET " + datetimeColumnName + "=" + datetimeColumnValue + " WHERE " + queryFirstColumnName + " = '" + dbRow[0] + "' AND " + querySecondColumnName + " = '" + dbRow[1] + "'");
+				}
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
 		} finally {
 			closeDb();
 		}
