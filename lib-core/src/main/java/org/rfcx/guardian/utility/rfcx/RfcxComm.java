@@ -58,7 +58,7 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"sms_queue", new String[] { "send_at|address|message", "result", "received_at" });
 			roleFuncProj.get(role).put(
-				"segment_insert", new String[] { "segment_payload", "result", "received_at" });
+				"segment_receive_sms", new String[] { "segment_payload", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"get_momentary_values", new String[] { "value", "result", "received_at" });
 			roleFuncProj.get(role).put(

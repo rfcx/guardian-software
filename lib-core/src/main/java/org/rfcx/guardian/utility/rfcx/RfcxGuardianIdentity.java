@@ -19,6 +19,8 @@ public class RfcxGuardianIdentity {
 	private Context context;
 	private String appRole;
 
+	public static final int GUID_LENGTH = 12;
+
 	private String guid;
 	private String authToken;
 	private String keystorePassPhrase;
@@ -120,7 +122,7 @@ public class RfcxGuardianIdentity {
 			checkSetPreDefinedGuid();
 			if (this.guid == null) {
 				Log.e(logTag, "Failed to find pre-defined guid.");
-				setGuid(StringUtils.randomAlphanumericString(12, false));
+				setGuid(StringUtils.randomAlphanumericString(GUID_LENGTH, false));
 				Log.e(logTag, "New Guardian Guid generated (random): "+this.guid);
 			}
 		}

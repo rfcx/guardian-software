@@ -111,10 +111,10 @@ public class GuardianContentProvider extends ContentProvider {
 
 			// "segments" endpoints
 
-			} else if (RfcxComm.uriMatch(uri, appRole, "segment_insert", "*")) { logFuncVal = "segment_insert-*";
+			} else if (RfcxComm.uriMatch(uri, appRole, "segment_receive_sms", "*")) { logFuncVal = "segment_receive_sms-*";
 				String segmentPayload = uri.getLastPathSegment();
-				app.apiSegmentUtils.receiveSegment(segmentPayload);
-				return RfcxComm.getProjectionCursor(appRole, "segment_insert", new Object[]{ segmentPayload, null, System.currentTimeMillis()});
+				app.apiSegmentUtils.receiveSegment(segmentPayload, "sms");
+				return RfcxComm.getProjectionCursor(appRole, "segment_receive_sms", new Object[]{ segmentPayload, null, System.currentTimeMillis()});
 
 			// "instructions" endpoints
 

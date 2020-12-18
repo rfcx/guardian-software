@@ -26,9 +26,10 @@ public class ApiSegmentDb {
 	static final String C_SEGMENT_ID_OR_COUNT = "segment_id";
 	static final String C_BODY_OR_CHECKSUM = "body";
 	static final String C_PROTOCOL = "protocol";
+	static final String C_TYPE = "type";
 	static final String C_ATTEMPTS = "attempts";
 	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-	public static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_GROUP_ID, C_SEGMENT_ID_OR_COUNT, C_BODY_OR_CHECKSUM, C_PROTOCOL, C_ATTEMPTS, C_LAST_ACCESSED_AT };
+	public static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_GROUP_ID, C_SEGMENT_ID_OR_COUNT, C_BODY_OR_CHECKSUM, C_PROTOCOL, C_TYPE, C_ATTEMPTS, C_LAST_ACCESSED_AT };
 
 	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] {  }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -41,6 +42,7 @@ public class ApiSegmentDb {
 			.append(", ").append(C_SEGMENT_ID_OR_COUNT).append(" TEXT")
 			.append(", ").append(C_BODY_OR_CHECKSUM).append(" TEXT")
 			.append(", ").append(C_PROTOCOL).append(" TEXT")
+			.append(", ").append(C_TYPE).append(" TEXT")
 			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
 			.append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
 			.append(")");
@@ -59,11 +61,11 @@ public class ApiSegmentDb {
 			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 
-		public int insert(String groupId, int segmentCount, String fullMsgChecksum, String protocol) {
-			return insert(groupId, ""+segmentCount, fullMsgChecksum, protocol);
+		public int insert(String groupId, int segmentCount, String fullMsgChecksum, String fullMsgType, String protocol) {
+			return insert(groupId, ""+segmentCount, fullMsgChecksum, fullMsgType, protocol);
 		}
 
-		public int insert(String groupId, String segmentCount, String fullMsgChecksum, String protocol) {
+		public int insert(String groupId, String segmentCount, String fullMsgChecksum, String fullMsgType, String protocol) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -71,6 +73,7 @@ public class ApiSegmentDb {
 			values.put(C_SEGMENT_ID_OR_COUNT, segmentCount);
 			values.put(C_BODY_OR_CHECKSUM, fullMsgChecksum);
 			values.put(C_PROTOCOL, protocol);
+			values.put(C_TYPE, fullMsgType);
 			values.put(C_ATTEMPTS, 0);
 			values.put(C_LAST_ACCESSED_AT, 0);
 
@@ -128,6 +131,7 @@ public class ApiSegmentDb {
 			values.put(C_SEGMENT_ID_OR_COUNT, segmentId);
 			values.put(C_BODY_OR_CHECKSUM, segmentBody);
 		//	values.put(C_PROTOCOL, protocol);
+		//	values.put(C_TYPE, protocol);
 			values.put(C_ATTEMPTS, 0);
 			values.put(C_LAST_ACCESSED_AT, 0);
 

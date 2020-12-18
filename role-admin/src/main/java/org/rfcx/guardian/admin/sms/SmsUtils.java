@@ -59,8 +59,8 @@ public class SmsUtils {
 			String segmentPayload = smsObj.getString("body");
 			Cursor smsSegmentReceivedContentProviderResponse =
 					app.getApplicationContext().getContentResolver().query(
-							RfcxComm.getUri("guardian", "segment_insert", RfcxComm.urlEncode(segmentPayload)),
-							RfcxComm.getProjection("guardian", "segment_insert"),
+							RfcxComm.getUri("guardian", "segment_receive_sms", RfcxComm.urlEncode(segmentPayload)),
+							RfcxComm.getProjection("guardian", "segment_receive_sms"),
 							null, null, null);
 			smsSegmentReceivedContentProviderResponse.close();
 		}
