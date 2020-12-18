@@ -12,9 +12,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import org.rfcx.guardian.admin.RfcxGuardian;
 
-public class DeviceLogCatDb {
+public class LogcatDb {
 	
-	public DeviceLogCatDb(Context context, String appVersion) {
+	public LogcatDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbCaptured = new DbCaptured(context);

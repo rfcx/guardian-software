@@ -1,7 +1,7 @@
 package org.rfcx.guardian.guardian.audio.encode;
 
 
-import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
+import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 

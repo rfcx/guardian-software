@@ -71,8 +71,8 @@
 
 
         <!-- Services -->
-        <service android:name=".device.android.capture.DeviceScreenShotCaptureService" />
-        <service android:name=".device.android.capture.DeviceLogCatCaptureService" />
+        <service android:name=".device.android.capture.ScreenShotCaptureService" />
+        <service android:name=".device.android.capture.LogcatCaptureService" />
         <service android:name=".device.android.capture.CameraPhotoCaptureService" />
         <service android:name=".device.android.capture.CameraVideoCaptureService" />
         <service android:name=".device.android.control.RebootTriggerService" />
@@ -91,7 +91,7 @@
         <service android:name=".device.android.control.ForceRoleRelaunchService" />
         <service android:name=".device.android.control.ScheduledRebootService" />
         <service android:name=".device.android.capture.ScheduledScreenShotCaptureService" />
-        <service android:name=".device.android.capture.ScheduledLogCatCaptureService" />
+        <service android:name=".device.android.capture.ScheduledLogcatCaptureService" />
         <service android:name=".device.android.capture.ScheduledCameraPhotoCaptureService" />
         <service android:name=".device.android.capture.ScheduledCameraVideoCaptureService" />
         <service android:name=".device.android.control.ScheduledClockSyncService" />

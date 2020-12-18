@@ -1,9 +1,4 @@
-package org.rfcx.guardian.utility.camera;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+package org.rfcx.guardian.utility.asset;
 
 import android.content.Context;
 import android.os.Environment;
@@ -12,13 +7,18 @@ import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-public class RfcxCameraUtils {
-	
-	public RfcxCameraUtils(Context context, String appRole, String rfcxDeviceId) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxCameraUtils");
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+public class RfcxPhotoUtils {
+
+	public RfcxPhotoUtils(Context context, String appRole, String rfcxDeviceId) {
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxPhotoUtils");
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
-		initializeCameraCaptureDirectories(context);
+		initializePhotoDirectories(context);
 	}
 
 	private String logTag;
@@ -29,18 +29,12 @@ public class RfcxCameraUtils {
 	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US);
 
 	private static final String photoFileType = "jpg";
-	private static final String videoFileType = "mp4";
 	
-	private static void initializeCameraCaptureDirectories(Context context) {
+	private static void initializePhotoDirectories(Context context) {
 
 		FileUtils.initializeDirectoryRecursively(photoSdCardDir(), true);
-		FileUtils.initializeDirectoryRecursively(videoSdCardDir(), true);
-
 		FileUtils.initializeDirectoryRecursively(photoCaptureDir(context), false);
-		FileUtils.initializeDirectoryRecursively(videoCaptureDir(context), false);
-
 		FileUtils.initializeDirectoryRecursively(photoQueueDir(context), false);
-		FileUtils.initializeDirectoryRecursively(videoQueueDir(context), false);
 	}
 	
 	private static String photoSdCardDir() {
@@ -73,38 +67,7 @@ public class RfcxCameraUtils {
 	}
 
 
-	
-	
-	private static String videoSdCardDir() {
-		return Environment.getExternalStorageDirectory().toString() + "/rfcx/videos";
-	}
-	
-	private static String videoQueueDir(Context context) {
-		return context.getFilesDir().toString() + "/videos/queue";
-	}
-	
-	public static String videoCaptureDir(Context context) {
-		return context.getFilesDir().toString() + "/videos/capture";
-	}
-	
-	public static String getVideoFileLocation_Capture(Context context, long timestamp) {
-		return videoCaptureDir(context) + "/" + timestamp + "." + videoFileType;
-	}
 
-	public static String getVideoFileLocation_PostCapture(Context context, long timestamp) {
-		return videoCaptureDir(context) + "/_" + timestamp + "." + videoFileType;
-	}
-		
-	public static String getVideoFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceStorage.isExternalStorageWritable() ? videoSdCardDir() : videoQueueDir(context) )
-				+"/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + videoFileType + ".gz";
-	}
-
-	public static String getVideoFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {
-		return videoSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + videoFileType + ".gz";
-	}
-	
-	
 	
 	
 	

@@ -1,7 +1,7 @@
 package org.rfcx.guardian.admin.device.android.capture;
 
+import org.rfcx.guardian.utility.asset.RfcxScreenShotUtils;
 import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
-import org.rfcx.guardian.utility.device.capture.DeviceScreenShot;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
@@ -11,16 +11,16 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-public class DeviceScreenShotCaptureService extends Service {
+public class ScreenShotCaptureService extends Service {
 
 	private static final String SERVICE_NAME = "ScreenShotCapture";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceScreenShotCaptureService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScreenShotCaptureService");
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private DeviceScreenShotCapture deviceScreenShotCapture;
+	private ScreenShotCapture screenShotCapture;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,7 +30,7 @@ public class DeviceScreenShotCaptureService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.deviceScreenShotCapture = new DeviceScreenShotCapture();
+		this.screenShotCapture = new ScreenShotCapture();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -41,7 +41,7 @@ public class DeviceScreenShotCaptureService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.deviceScreenShotCapture.start();
+			this.screenShotCapture.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -53,25 +53,25 @@ public class DeviceScreenShotCaptureService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.deviceScreenShotCapture.interrupt();
-		this.deviceScreenShotCapture = null;
+		this.screenShotCapture.interrupt();
+		this.screenShotCapture = null;
 	}
 	
 	
-	private class DeviceScreenShotCapture extends Thread {
+	private class ScreenShotCapture extends Thread {
 		
-		public DeviceScreenShotCapture() {
-			super("DeviceScreenShotCaptureService-DeviceScreenShotCapture");
+		public ScreenShotCapture() {
+			super("ScreenShotCaptureService-ScreenShotCapture");
 		}
 		
 		@Override
 		public void run() {
-			DeviceScreenShotCaptureService deviceScreenShotCaptureInstance = DeviceScreenShotCaptureService.this;
+			ScreenShotCaptureService screenShotCaptureInstance = ScreenShotCaptureService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
-			
-			DeviceScreenShot deviceScreenShot = new DeviceScreenShot(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
+
+			RfcxScreenShotUtils rfcxScreenShotUtils = new RfcxScreenShotUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
 			DeviceScreenLock deviceScreenLock = new DeviceScreenLock(RfcxGuardian.APP_ROLE);
 
 			try {
@@ -81,10 +81,10 @@ public class DeviceScreenShotCaptureService extends Service {
 				deviceScreenLock.unLockScreen(context);
 				Thread.sleep(1500);
 
-				String[] saveScreenShot = deviceScreenShot.launchCapture(context);
+				String[] saveScreenShot = rfcxScreenShotUtils.launchCapture(context);
 
 				if (saveScreenShot != null) {
-					app.deviceScreenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3], saveScreenShot[4], saveScreenShot[5]);
+					app.screenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3], saveScreenShot[4], saveScreenShot[5]);
 					Log.i(logTag, "ScreenShot saved: "+saveScreenShot[5]);
 				}
 				Thread.sleep(1500);
@@ -92,7 +92,7 @@ public class DeviceScreenShotCaptureService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				deviceScreenShotCaptureInstance.runFlag = false;
+				screenShotCaptureInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME);
 				deviceScreenLock.releaseWakeLock();

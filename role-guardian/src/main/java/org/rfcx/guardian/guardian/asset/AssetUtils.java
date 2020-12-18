@@ -7,12 +7,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.audio.RfcxAudioUtils;
-import org.rfcx.guardian.utility.camera.RfcxCameraUtils;
+import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
+import org.rfcx.guardian.utility.asset.RfcxLogcatUtils;
+import org.rfcx.guardian.utility.asset.RfcxPhotoUtils;
+import org.rfcx.guardian.utility.asset.RfcxScreenShotUtils;
+import org.rfcx.guardian.utility.asset.RfcxVideoUtils;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceLogCat;
-import org.rfcx.guardian.utility.device.capture.DeviceScreenShot;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -82,26 +83,26 @@ public class AssetUtils {
 			} else if (assetType.equals("screenshot")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
 						app.getApplicationContext().getContentResolver());
-				filePaths.add(DeviceScreenShot.getScreenShotFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(DeviceScreenShot.getScreenShotFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
+				filePaths.add(RfcxScreenShotUtils.getScreenShotFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxScreenShotUtils.getScreenShotFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("photo")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "photos|" + assetId,
 						app.getApplicationContext().getContentResolver());
-				filePaths.add(RfcxCameraUtils.getPhotoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(RfcxCameraUtils.getPhotoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
+				filePaths.add(RfcxPhotoUtils.getPhotoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxPhotoUtils.getPhotoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("video")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "videos|" + assetId,
 						app.getApplicationContext().getContentResolver());
-				filePaths.add(RfcxCameraUtils.getVideoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(RfcxCameraUtils.getVideoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
+				filePaths.add(RfcxVideoUtils.getVideoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxVideoUtils.getVideoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("log")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
 						app.getApplicationContext().getContentResolver());
-				filePaths.add(DeviceLogCat.getLogFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(DeviceLogCat.getLogFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
+				filePaths.add(RfcxLogcatUtils.getLogFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxLogcatUtils.getLogFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("sms")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,

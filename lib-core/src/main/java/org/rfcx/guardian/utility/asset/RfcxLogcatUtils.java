@@ -1,5 +1,12 @@
 
-package org.rfcx.guardian.utility.device.capture;
+package org.rfcx.guardian.utility.asset;
+
+import android.content.Context;
+import android.os.Environment;
+
+import org.rfcx.guardian.utility.device.capture.DeviceStorage;
+import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,15 +15,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import android.content.Context;
-import android.os.Environment;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
+public class RfcxLogcatUtils {
 
-public class DeviceLogCat {
-	
-	public DeviceLogCat(Context context, String appRole, String rfcxDeviceId, String logLevel) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceLogCat");
+	public RfcxLogcatUtils(Context context, String appRole, String rfcxDeviceId, String logLevel) {
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxLogcatUtils");
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
 		initializeLogCatDirectories(context);

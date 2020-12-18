@@ -40,11 +40,11 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-import org.rfcx.guardian.admin.device.android.capture.DeviceLogCatDb;
-import org.rfcx.guardian.admin.device.android.capture.DeviceLogCatCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.DeviceScreenShotDb;
-import org.rfcx.guardian.admin.device.android.capture.DeviceScreenShotCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.ScheduledLogCatCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.LogcatDb;
+import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.ScreenShotDb;
+import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.ScheduledLogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeEnableService;
@@ -77,9 +77,9 @@ public class RfcxGuardian extends Application {
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxServiceHandler rfcxServiceHandler = null;
 	
-	public DeviceScreenShotDb deviceScreenShotDb = null;
+	public ScreenShotDb screenShotDb = null;
 	public CameraCaptureDb cameraCaptureDb = null;
-	public DeviceLogCatDb deviceLogCatDb = null;
+	public LogcatDb logcatDb = null;
 	public SentinelPowerDb sentinelPowerDb = null;
 	public SentinelSensorDb sentinelSensorDb = null;
 	public DeviceSystemDb deviceSystemDb = null;
@@ -218,9 +218,9 @@ public class RfcxGuardian extends Application {
 		
 		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
 		this.sentinelSensorDb = new SentinelSensorDb(this, this.version);
-		this.deviceScreenShotDb = new DeviceScreenShotDb(this, this.version);
+		this.screenShotDb = new ScreenShotDb(this, this.version);
 		this.cameraCaptureDb = new CameraCaptureDb(this, this.version);
-		this.deviceLogCatDb = new DeviceLogCatDb(this, this.version);
+		this.logcatDb = new LogcatDb(this, this.version);
 		this.deviceSystemDb = new DeviceSystemDb(this, this.version);
         this.deviceSensorDb = new DeviceSensorDb(this, this.version);
         this.rebootDb = new DeviceRebootDb(this, this.version);
@@ -252,11 +252,11 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("DeviceSystem", DeviceSystemService.class);
 		this.rfcxServiceHandler.addService("DeviceSentinel", DeviceSentinelService.class);
 
-		this.rfcxServiceHandler.addService("ScreenShotCapture", DeviceScreenShotCaptureService.class);
+		this.rfcxServiceHandler.addService("ScreenShotCapture", ScreenShotCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledScreenShotCapture", ScheduledScreenShotCaptureService.class);
 
-		this.rfcxServiceHandler.addService("LogCatCapture", DeviceLogCatCaptureService.class);
-		this.rfcxServiceHandler.addService("ScheduledLogCatCapture", ScheduledLogCatCaptureService.class);
+		this.rfcxServiceHandler.addService("LogcatCapture", LogcatCaptureService.class);
+		this.rfcxServiceHandler.addService("ScheduledLogcatCapture", ScheduledLogcatCaptureService.class);
 
 		this.rfcxServiceHandler.addService("CameraPhotoCapture", CameraPhotoCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledCameraPhotoCapture", ScheduledCameraPhotoCaptureService.class);

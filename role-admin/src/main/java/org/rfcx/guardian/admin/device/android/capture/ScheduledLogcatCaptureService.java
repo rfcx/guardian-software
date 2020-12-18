@@ -7,13 +7,13 @@ import android.util.Log;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-public class ScheduledLogCatCaptureService extends IntentService {
+public class ScheduledLogcatCaptureService extends IntentService {
 
-	private static final String SERVICE_NAME = "ScheduledLogCatCapture";
+	private static final String SERVICE_NAME = "ScheduledLogcatCapture";
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledLogCatCaptureService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledLogcatCaptureService");
 		
-	public ScheduledLogCatCaptureService() {
+	public ScheduledLogcatCaptureService() {
 		super(logTag);
 	}
 	
@@ -25,9 +25,9 @@ public class ScheduledLogCatCaptureService extends IntentService {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
 		if (app.rfcxPrefs.getPrefAsBoolean("admin_enable_log_capture")) {
-			app.rfcxServiceHandler.triggerService("LogCatCapture", true);
+			app.rfcxServiceHandler.triggerService("LogcatCapture", true);
 		} else {
-			Log.i(logTag, "Scheduled LogCat Capture is currently disabled in preferences.");
+			Log.i(logTag, "Scheduled Logcat Capture is currently disabled in preferences.");
 		}
 	}
 	

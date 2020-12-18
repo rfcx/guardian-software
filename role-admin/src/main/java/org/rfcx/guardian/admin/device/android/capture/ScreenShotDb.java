@@ -12,9 +12,9 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import android.content.ContentValues;
 import android.content.Context;
 
-public class DeviceScreenShotDb {
+public class ScreenShotDb {
 	
-	public DeviceScreenShotDb(Context context, String appVersion) {
+	public ScreenShotDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbCaptured = new DbCaptured(context);
