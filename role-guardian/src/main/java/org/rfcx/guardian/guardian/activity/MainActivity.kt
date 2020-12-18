@@ -73,7 +73,7 @@ class MainActivity : Activity(),
         try {
             val predictor = MLPredictor().also {
                 it.load(this)
-                it.run(AudioConverter.readAudioSimple(Environment.getExternalStorageDirectory().absolutePath + "/1607507238016.wav"))
+                it.run(AudioConverter.readAudioSimple(Environment.getExternalStorageDirectory().absolutePath + "/1608282235295.wav"))
             }
         } catch (e: Exception) {
             Log.e("Rfcx", e.message)

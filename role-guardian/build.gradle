@@ -55,6 +55,8 @@ dependencies {
         exclude group: 'org.json', module: 'json' //provided by Android natively
     }
 
+    //ml
+    implementation 'org.tensorflow:tensorflow-lite:2.3.0'
 }
 
 repositories {

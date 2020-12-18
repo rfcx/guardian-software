@@ -32,10 +32,7 @@ class MLPredictor: Predictor {
         if (interpreter == null) {
             return
         }
-
-        val input1: Array<FloatArray> = arrayOf(FloatArray(15600)) // Wrap in batch dim
         val outputShape: Array<FloatArray> = arrayOf(FloatArray(521))
-        val input2: List<Float> = listOf(1f, 15600f)
         Log.d("Rfcx", input.size.toString())
         try {
             interpreter?.run(arrayOf(input.toSmallChunk(15600)), outputShape)
@@ -43,8 +40,13 @@ class MLPredictor: Predictor {
             Log.e("Rfcx", e.message)
         }
 
-        outputShape[0].filter { it != 0f }.forEach {
-            Log.d("Rfcx", it.toString())
+//        outputShape[0].filter { it != 0f }.forEach {
+//            Log.d("Rfcx", it.toString())
+//        }
+        outputShape[0].forEachIndexed { index, fl ->
+            if (fl != 0f && fl >= 0.01f) {
+                Log.d("Rfcx", "$index : $fl")
+            }
         }
     }
 
