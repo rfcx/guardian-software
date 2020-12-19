@@ -3,8 +3,10 @@ package org.rfcx.guardian.guardian.api.methods.segment;
 import android.content.ContentValues;
 import android.content.Context;
 
+import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -17,6 +19,7 @@ public class ApiSegmentDb {
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbGroups = new DbGroups(context);
 		this.dbReceived = new DbReceived(context);
+		this.dbQueued = new DbQueued(context);
 	}
 
 	private int VERSION = 1;
@@ -80,8 +83,12 @@ public class ApiSegmentDb {
 			return this.dbUtils.insertRow(TABLE, values);
 		}
 
+		public int getCountById(String groupId) {
+			return this.dbUtils.getCount(TABLE, C_GROUP_ID +"=?",new String[] { groupId });
+		}
+
 		public List<String[]> getAllRows() {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT);
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_SEGMENT_ID_OR_COUNT);
 		}
 
 		public String[] getSingleRowById(String groupId) {
@@ -138,13 +145,17 @@ public class ApiSegmentDb {
 			return this.dbUtils.insertRow(TABLE, values);
 		}
 
-		public List<String[]> getAllSegmentsForGroup(String groupId) {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr("+C_GROUP_ID+",1,"+ApiSegmentUtils.GROUP_ID_LENGTH+") = ?", new String[] { groupId }, C_SEGMENT_ID_OR_COUNT);
+		public int getCountByGroupId(String groupId) {
+			return this.dbUtils.getCount(TABLE, C_GROUP_ID +"=?",new String[] { groupId });
+		}
+
+		public List<String[]> getAllSegmentsForGroupOrderedBySegmentId(String groupId) {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr("+C_GROUP_ID+",1,"+ApiSegmentUtils.GROUP_ID_LENGTH+") = ?", new String[] { groupId }, C_SEGMENT_ID_OR_COUNT+" ASC");
 		}
 
 		public String[] getSegmentByGroupAndId(String groupId, int segmentId) {
 			String[] rtrnRow = DbUtils.placeHolderStringArray(ALL_COLUMNS.length);
-			for (String[] segmentRow : getAllSegmentsForGroup(groupId)) {
+			for (String[] segmentRow : getAllSegmentsForGroupOrderedBySegmentId(groupId)) {
 				if (segmentRow[2].equalsIgnoreCase(""+segmentId)) {
 					rtrnRow = segmentRow;
 					break;
@@ -170,6 +181,75 @@ public class ApiSegmentDb {
 
 	}
 	public final DbReceived dbReceived;
+
+
+	public class DbQueued {
+
+		final DbUtils dbUtils;
+		public String FILEPATH;
+
+		private String TABLE = "queued";
+
+		public DbQueued(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
+		}
+
+		public int insert(String groupId, int segmentId, String segmentBody) {
+			return insert(groupId, segmentId+"", segmentBody);
+		}
+
+		public int insert(String groupId, String segmentId, String segmentBody) {
+
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, (new Date()).getTime());
+			values.put(C_GROUP_ID, groupId);
+			values.put(C_SEGMENT_ID_OR_COUNT, segmentId);
+			values.put(C_BODY_OR_CHECKSUM, segmentBody);
+			//	values.put(C_PROTOCOL, protocol);
+			//	values.put(C_TYPE, protocol);
+			values.put(C_ATTEMPTS, 0);
+			values.put(C_LAST_ACCESSED_AT, 0);
+
+			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public int getCountByGroupId(String groupId) {
+			return this.dbUtils.getCount(TABLE, C_GROUP_ID +"=?",new String[] { groupId });
+		}
+
+		public List<String[]> getAllSegmentsForGroupOrderedBySegmentId(String groupId) {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr("+C_GROUP_ID+",1,"+ApiSegmentUtils.GROUP_ID_LENGTH+") = ?", new String[] { groupId }, C_SEGMENT_ID_OR_COUNT+" ASC");
+		}
+
+		public String[] getSegmentByGroupAndId(String groupId, int segmentId) {
+			String[] rtrnRow = DbUtils.placeHolderStringArray(ALL_COLUMNS.length);
+			for (String[] segmentRow : getAllSegmentsForGroupOrderedBySegmentId(groupId)) {
+				if (segmentRow[2].equalsIgnoreCase(""+segmentId)) {
+					rtrnRow = segmentRow;
+					break;
+				}
+			}
+			return rtrnRow;
+		}
+
+		public int deleteSegmentsForGroup(String groupId) {
+			this.dbUtils.deleteRowsWithinQueryByOneColumn(TABLE, C_GROUP_ID, groupId);
+			return 0;
+		}
+
+		public long updateLastAccessedAt(String groupId, String segmentId) {
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByTwoColumns(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId);
+			return rightNow;
+		}
+
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
+
+	}
+	public final DbQueued dbQueued;
 
 	
 }

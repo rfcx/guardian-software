@@ -60,6 +60,8 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"segment_receive_sms", new String[] { "segment_payload", "result", "received_at" });
 			roleFuncProj.get(role).put(
+				"segment_receive_iridium", new String[] { "segment_payload", "result", "received_at" });
+			roleFuncProj.get(role).put(
 				"get_momentary_values", new String[] { "value", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"database_get_all_rows", new String[] { "table", "result", "received_at" });

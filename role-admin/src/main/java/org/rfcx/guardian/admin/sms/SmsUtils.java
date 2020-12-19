@@ -25,7 +25,7 @@ public class SmsUtils {
 		return sendSms(address, "", delayInterval, smsCount, context);
 	}
 
-	//with user's defined message
+	// with user's defined message
 	public static boolean processSendingSms(String address, String message, long delayInterval, int smsCount, Context context) {
 		return sendSms(address, message, delayInterval, smsCount, context);
 	}
@@ -34,7 +34,7 @@ public class SmsUtils {
 		long thisTime = System.currentTimeMillis();
 
 		for (int i = 1; i <= smsCount; i++) {
-			addScheduledSmsToQueue(thisTime, address, i+") SMS Test Message: " + ((!message.isEmpty()) ? message: DateTimeUtils.getDateTime(thisTime)), context, true);
+			addScheduledSmsToQueue(thisTime, address, i+") SMS Test Message: " + ((!message.isEmpty()) ? message : DateTimeUtils.getDateTime(thisTime)), context, true);
 			thisTime = thisTime + (delayInterval*1000);
 		}
 
@@ -56,6 +56,7 @@ public class SmsUtils {
 
 		} else {
 			// In this case, the message arrived from the API SMS address, so we attempt to parse it
+			Log.w(logTag, "SMS received from API '"+apiSmsAddress+"'.");
 			String segmentPayload = smsObj.getString("body");
 			Cursor smsSegmentReceivedContentProviderResponse =
 					app.getApplicationContext().getContentResolver().query(

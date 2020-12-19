@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -28,8 +29,11 @@ public class ApiSegmentUtils {
 	private static final int MSG_CHECKSUM_LENGTH = 40;
 
 	// Segment Group Header Format:
-	// {GROUP_ID}{SEGMENT_ID}{GUARDIAN_GUID}{MSG_TYPE}{SEGMENT_COUNT}{MSG_CHECKSUM}{FIRST_SEGMENT}
-	// {ABCd}{000}{298c2kwyfg55}{cmd}{0fe272f9da329ab5e64c08b223dc6f044a5b5e79be0}{1234}
+	// {GROUP_ID}{SEGMENT_ID}{GUARDIAN_GUID}{MSG_TYPE}{MSG_CHECKSUM}{SEGMENT_COUNT}{FIRST_SEGMENT}
+	// {ABCd}{000}{298c2kwyfg55}{cmd}{0fe272f9da329ab5e64c08b223dc6f044a5b5e79be0}{fff}{1234}
+
+	public static final String[] JSON_MSG_TYPES = new String[] { "cmd", "png", "chk" };
+	public static final String[] BINARY_MSG_TYPES = new String[] {  };
 
 	public static final String[] SEGMENT_PROTOCOLS = new String[] { "sms", "iridium" };
 
@@ -42,7 +46,7 @@ public class ApiSegmentUtils {
 
 	public static int getSegmentPayloadMaxLength(String protocol) {
 		if (SEGMENT_PAYLOAD_MAX_LENGTH_BY_PROTOCOL.containsKey(protocol.toLowerCase())) {
-			return (int) (SEGMENT_PAYLOAD_MAX_LENGTH_BY_PROTOCOL.get(protocol.toLowerCase())- GROUP_ID_LENGTH - SEGMENT_ID_LENGTH);
+			return (SEGMENT_PAYLOAD_MAX_LENGTH_BY_PROTOCOL.get(protocol.toLowerCase()) - GROUP_ID_LENGTH - SEGMENT_ID_LENGTH);
 		} else {
 			return 100;
 		}
@@ -69,23 +73,13 @@ public class ApiSegmentUtils {
 			int segmentId = segmentId_paddedHexToDec(segmentPayload.substring(GROUP_ID_LENGTH, GROUP_ID_LENGTH + SEGMENT_ID_LENGTH));
 			String segmentBody = segmentPayload.substring(GROUP_ID_LENGTH + SEGMENT_ID_LENGTH);
 
-	/*		if (	!isSegmentAnInitialGroupHeader(segmentId)
-				&&	canSegmentBeAssociatedWithValidGroup(groupId, segmentId)
-				&& 	!isSegmentAlreadyReceived(groupId, segmentId)
-				) {
-
-				saveSegment(groupId, segmentId, segmentBody);
-
-			} else */if ( isSegmentAnInitialGroupHeader(segmentId) ) {
-
+			if ( isSegmentAnInitialGroupHeader(segmentId) ) {
 				parseSegmentInitialGroupHeader(groupId, segmentBody, originProtocol);
 
 			} else if ( canSegmentBeAssociatedWithValidGroup(groupId, segmentId) && !isSegmentAlreadyReceived(groupId, segmentId) ) {
-
 				saveSegment(groupId, segmentId, segmentBody);
 
 			} else {
-
 				Log.e(logTag, "Received segment was not saved: " + segmentPayload +" ("+segmentPayload.length()+" chars)");
 			}
 
@@ -98,9 +92,9 @@ public class ApiSegmentUtils {
 
 		String guardianGuid = segmentBody.substring(0, RfcxGuardianIdentity.GUID_LENGTH);
 		String msgType = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH);
-		int segmentCount = segmentId_paddedHexToDec(segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + SEGMENT_ID_LENGTH));
-		String msgChecksum = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + SEGMENT_ID_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + SEGMENT_ID_LENGTH + MSG_CHECKSUM_LENGTH);
-		String segmentBodyZero = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + SEGMENT_ID_LENGTH + MSG_CHECKSUM_LENGTH);
+		String msgChecksum = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_LENGTH);
+		int segmentCount = segmentId_paddedHexToDec(segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_LENGTH + SEGMENT_ID_LENGTH));
+		String segmentBodyZero = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_LENGTH + SEGMENT_ID_LENGTH);
 
 		if (!guardianGuid.equalsIgnoreCase(app.rfcxGuardianIdentity.getGuid())) {
 			Log.e(logTag, "Specified Guardian ID in Segment Group Header does not match this guardian: " + guardianGuid);
@@ -108,7 +102,7 @@ public class ApiSegmentUtils {
 		} else if (!msgType.equalsIgnoreCase("cmd")) {
 			Log.e(logTag, "Specified Message Category in Segment Group Header is not valid: " + msgType);
 
-		} else if (!originProtocol.equalsIgnoreCase("sms")) {
+		} else if (!ArrayUtils.doesStringArrayContainString(SEGMENT_PROTOCOLS, originProtocol)) {
 			Log.e(logTag, "Specified Message origin protocol in Segment Group Header is not valid: " + originProtocol);
 
 		} else if (app.apiSegmentDb.dbGroups.getSingleRowById(groupId)[0] != null) {
@@ -124,9 +118,11 @@ public class ApiSegmentUtils {
 	}
 
 	private void saveSegment(String groupId, int segmentId, String segmentBody) {
+		String smsDecodedBody = StringUtils.smsDecode(segmentBody);
+		app.apiSegmentDb.dbReceived.insert(groupId, segmentId, smsDecodedBody);
+		Log.i(logTag, "Received and saved Segment " + segmentId + " of Group " + groupId +" ("+smsDecodedBody.length()+" chars)");
+		if (isSegmentGroupFullyReceived(groupId)) { assembleReceivedSegments(groupId); }
 
-		app.apiSegmentDb.dbReceived.insert(groupId, segmentId, segmentBody);
-		Log.i(logTag, "Received and saved Segment " + segmentId + " of Group " + groupId +" ("+segmentBody.length()+" chars)");
 	}
 
 	private boolean canSegmentBeAssociatedWithValidGroup(String groupId, int segmentId) {
@@ -134,7 +130,7 @@ public class ApiSegmentUtils {
 		if ((grpCheck[0] == null)) {
 			Log.e(logTag, "No Valid Segment Group was found with ID '"+groupId+"'");
 			return false;
-		} else if ((((int) Integer.parseInt(grpCheck[2])) < segmentId)) {
+		} else if (Integer.parseInt(grpCheck[2]) < segmentId) {
 			Log.e(logTag, "Received Segment "+segmentId+" is beyond the initialized size ("+grpCheck[2]+") for Group with ID '"+groupId+"'");
 			return false;
 		} else {
@@ -149,12 +145,83 @@ public class ApiSegmentUtils {
 	private boolean isSegmentAlreadyReceived(String groupId, int segmentId) {
 		if (app.apiSegmentDb.dbReceived.getSegmentByGroupAndId(groupId, segmentId)[0] != null) {
 			Log.e(logTag, "Segment "+segmentId+" within Group "+groupId+" has already been received.");
+			if (isSegmentGroupFullyReceived(groupId)) { assembleReceivedSegments(groupId); }
 			return true;
 		}
 		return false;
 	}
 
+	private boolean isSegmentGroupFullyReceived(String groupId) {
+		int segmentCount = app.apiSegmentDb.dbReceived.getCountByGroupId(groupId);
+		if (segmentCount == Integer.parseInt(app.apiSegmentDb.dbGroups.getSingleRowById(groupId)[2])) {
+			Log.i(logTag, "All Segments ("+segmentCount+" in total) for Group " + groupId +" have been received.");
+			return true;
+		}
+		return false;
+	}
 
+	private void assembleReceivedSegments(String groupId) {
+
+		try {
+
+			String[] grpInfo = app.apiSegmentDb.dbGroups.getSingleRowById(groupId);
+
+			if (grpInfo[0] != null) {
+
+				String msgChecksum = grpInfo[3];
+				String msgType = grpInfo[5];
+
+				StringBuilder concatSegments = new StringBuilder();
+				for (String[] segmentRow : app.apiSegmentDb.dbReceived.getAllSegmentsForGroupOrderedBySegmentId(groupId)) {
+					concatSegments.append(segmentRow[3]);
+				}
+				String concatMsg = concatSegments.toString();
+
+				if (ArrayUtils.doesStringArrayContainString(JSON_MSG_TYPES, msgType)) {
+
+					String msgJson = StringUtils.gZippedBase64ToUnGZippedString(concatMsg);
+
+					if (msgChecksum.equalsIgnoreCase(StringUtils.getSha1HashOfString(msgJson))) {
+
+						if (msgType.equalsIgnoreCase("cmd")) {
+							app.apiCommandUtils.processApiCommandJson(msgJson);
+							deleteSegmentsById(groupId);
+						}
+
+					} else {
+						Log.e(logTag, "Assembled Segments for Group "+groupId+" failed checksum verification.");
+					}
+				} else if (ArrayUtils.doesStringArrayContainString(BINARY_MSG_TYPES, msgType)) {
+
+
+				}
+
+			} else {
+				Log.e(logTag, "No Valid Segment Group was found with ID '"+groupId+"'");
+			}
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+	}
+
+
+	public void deleteSegmentsById(String segmentAssetId) {
+
+		if (segmentAssetId.contains("-")) {
+			String groupId = segmentAssetId.split("-")[0];
+			String segmentId = segmentAssetId.split("-")[1];
+			app.apiSegmentDb.dbReceived.deleteSegmentsForGroup(groupId);
+			app.apiSegmentDb.dbQueued.deleteSegmentsForGroup(groupId);
+
+		} else {
+			String groupId = segmentAssetId;
+			app.apiSegmentDb.dbGroups.deleteSingleRowById(groupId);
+			app.apiSegmentDb.dbReceived.deleteSegmentsForGroup(groupId);
+			app.apiSegmentDb.dbQueued.deleteSegmentsForGroup(groupId);
+		}
+
+	}
 
 
 
