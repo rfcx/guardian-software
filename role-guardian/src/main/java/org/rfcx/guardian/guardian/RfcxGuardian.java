@@ -11,6 +11,7 @@ import org.rfcx.guardian.guardian.api.mqtt.ApiCheckInStatsDb;
 import org.rfcx.guardian.guardian.api.mqtt.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.api.msg.ApiShortMsgDb;
 import org.rfcx.guardian.guardian.api.msg.ApiShortMsgUtils;
+import org.rfcx.guardian.guardian.audio.detect.DetectionOutputDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -78,6 +79,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiShortMsgDb apiShortMsgDb = null;
     public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
+    public DetectionOutputDb detectionOutputDb = null;
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -224,6 +226,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiShortMsgDb = new ApiShortMsgDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
+        this.detectionOutputDb = new DetectionOutputDb(this, this.version);
 
     }
 
