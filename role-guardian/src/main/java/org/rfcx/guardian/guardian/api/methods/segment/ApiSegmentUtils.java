@@ -9,8 +9,11 @@ import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class ApiSegmentUtils {
@@ -77,7 +80,7 @@ public class ApiSegmentUtils {
 				parseSegmentInitialGroupHeader(groupId, segmentBody, originProtocol);
 
 			} else if ( canSegmentBeAssociatedWithValidGroup(groupId, segmentId) && !isSegmentAlreadyReceived(groupId, segmentId) ) {
-				saveSegment(groupId, segmentId, segmentBody);
+				saveReceivedSegment(groupId, segmentId, segmentBody);
 
 			} else {
 				Log.e(logTag, "Received segment was not saved: " + segmentPayload +" ("+segmentPayload.length()+" chars)");
@@ -99,7 +102,7 @@ public class ApiSegmentUtils {
 		if (!guardianGuid.equalsIgnoreCase(app.rfcxGuardianIdentity.getGuid())) {
 			Log.e(logTag, "Specified Guardian ID in Segment Group Header does not match this guardian: " + guardianGuid);
 
-		} else if (!msgType.equalsIgnoreCase("cmd")) {
+		} else if (!ArrayUtils.doesStringArrayContainString(JSON_MSG_TYPES, msgType)) {
 			Log.e(logTag, "Specified Message Category in Segment Group Header is not valid: " + msgType);
 
 		} else if (!ArrayUtils.doesStringArrayContainString(SEGMENT_PROTOCOLS, originProtocol)) {
@@ -107,20 +110,19 @@ public class ApiSegmentUtils {
 
 		} else if (app.apiSegmentDb.dbGroups.getSingleRowById(groupId)[0] != null) {
 			Log.e(logTag, "Segment Group has already been initialized: " +groupId+", "+segmentCount+" segments");
-			if (!isSegmentAlreadyReceived(groupId, 0)) { saveSegment(groupId, 0, segmentBodyZero); }
+			if (!isSegmentAlreadyReceived(groupId, 0)) { saveReceivedSegment(groupId, 0, segmentBodyZero); }
 
 		} else {
 			app.apiSegmentDb.dbGroups.insert(groupId, segmentCount, msgChecksum, msgType.toLowerCase(), originProtocol.toLowerCase());
 			Log.i(logTag, "Segment Group initialized: "+groupId+", "+segmentCount+" segments");
-			saveSegment(groupId, 0, segmentBodyZero);
+			saveReceivedSegment(groupId, 0, segmentBodyZero);
 
 		}
 	}
 
-	private void saveSegment(String groupId, int segmentId, String segmentBody) {
-		String smsDecodedBody = StringUtils.smsDecode(segmentBody);
-		app.apiSegmentDb.dbReceived.insert(groupId, segmentId, smsDecodedBody);
-		Log.i(logTag, "Received and saved Segment " + segmentId + " of Group " + groupId +" ("+smsDecodedBody.length()+" chars)");
+	private void saveReceivedSegment(String groupId, int segmentId, String segmentBody) {
+		app.apiSegmentDb.dbReceived.insert(groupId, segmentId, segmentBody);
+		Log.i(logTag, "Received and saved Segment " + (segmentId+1) + " of Group " + groupId +" ("+segmentBody.length()+" chars)");
 		if (isSegmentGroupFullyReceived(groupId)) { assembleReceivedSegments(groupId); }
 
 	}
@@ -130,8 +132,8 @@ public class ApiSegmentUtils {
 		if ((grpCheck[0] == null)) {
 			Log.e(logTag, "No Valid Segment Group was found with ID '"+groupId+"'");
 			return false;
-		} else if (Integer.parseInt(grpCheck[2]) < segmentId) {
-			Log.e(logTag, "Received Segment "+segmentId+" is beyond the initialized size ("+grpCheck[2]+") for Group with ID '"+groupId+"'");
+		} else if (Integer.parseInt(grpCheck[2]) <= segmentId) {
+			Log.e(logTag, "Received Segment "+(segmentId+1)+" is beyond the initialized size ("+grpCheck[2]+") for Group with ID '"+groupId+"'");
 			return false;
 		} else {
 			return true;
@@ -169,6 +171,7 @@ public class ApiSegmentUtils {
 			if (grpInfo[0] != null) {
 
 				String msgChecksum = grpInfo[3];
+				String msgProtocol = grpInfo[4];
 				String msgType = grpInfo[5];
 
 				StringBuilder concatSegments = new StringBuilder();
@@ -184,7 +187,11 @@ public class ApiSegmentUtils {
 					if (msgChecksum.equalsIgnoreCase(StringUtils.getSha1HashOfString(msgJson))) {
 
 						if (msgType.equalsIgnoreCase("cmd")) {
-							app.apiCommandUtils.processApiCommandJson(msgJson);
+							app.apiCommandUtils.processApiCommandJson(msgJson, msgProtocol);
+							deleteSegmentsById(groupId);
+
+						} else {
+							Log.e(logTag, msgProtocol.toUpperCase() + ": " + msgJson);
 							deleteSegmentsById(groupId);
 						}
 
@@ -203,6 +210,63 @@ public class ApiSegmentUtils {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
+	}
+
+
+
+
+	public void constructSegmentsGroupForQueue(String msgType, String apiProtocol, String msgJson, String attachmentFilePath) {
+
+		String groupId = generateSegmentGroupId();
+		int segMaxLength = SEGMENT_PAYLOAD_MAX_LENGTH_BY_PROTOCOL.get(apiProtocol);
+		int segBodyMaxLength = segMaxLength - GROUP_ID_LENGTH - SEGMENT_ID_LENGTH;
+		List<String> segments = new ArrayList<String>();
+
+		if (ArrayUtils.doesStringArrayContainString(JSON_MSG_TYPES, msgType)) {
+
+			try {
+
+				String msgChecksum = StringUtils.getSha1HashOfString(msgJson);
+				int msgOriginalLength = msgJson.length();
+				String msgPayloadFull = StringUtils.stringToGZippedBase64(msgJson);
+				int msgPayloadFullLength = msgPayloadFull.length();
+
+				String initSegHeader = groupId + segmentId_decToPaddedHex(0) + app.rfcxGuardianIdentity.getGuid() + msgType + msgChecksum;
+				int initSegBodyLength = segMaxLength - initSegHeader.length() - SEGMENT_ID_LENGTH;
+				if (initSegBodyLength > msgPayloadFullLength) { initSegBodyLength = msgPayloadFullLength; }
+				String initSegBody = msgPayloadFull.substring(0, initSegBodyLength);
+
+				double segCount = 1 + (((double) msgPayloadFullLength - initSegBodyLength) / segBodyMaxLength);
+				int segCountCeil = (int) Math.ceil(segCount);
+				int fullLengthOfSegments = msgPayloadFullLength + ((segCountCeil-1)*(GROUP_ID_LENGTH+SEGMENT_ID_LENGTH)) + initSegHeader.length() + SEGMENT_ID_LENGTH;
+
+				Log.d(logTag, "Segmented Message Stats: "+segCountCeil+" segment(s), "+fullLengthOfSegments+" characters to be transferred, "+msgOriginalLength+" original length");
+
+				if (segCount > 1) {
+					for (int i = 0; i < Math.ceil(segCount-1); i++) {
+						int segBodyOffset = (initSegBodyLength + (i * segBodyMaxLength));
+						int segBodyLength = ((segBodyOffset + segBodyMaxLength) <= msgPayloadFullLength) ? segBodyMaxLength : (msgPayloadFullLength - segBodyOffset);
+						segments.add(groupId + segmentId_decToPaddedHex(i + 1) + msgPayloadFull.substring(segBodyOffset, segBodyOffset + segBodyLength));
+					}
+				}
+
+				app.apiSegmentDb.dbGroups.insert(groupId, segCountCeil, msgChecksum, msgType.toLowerCase(), apiProtocol.toLowerCase());
+
+				String initSegPayload = initSegHeader + segmentId_decToPaddedHex(segCountCeil) + initSegBody;
+				app.apiSegmentDb.dbQueued.insert(groupId, 0, initSegPayload);
+				Log.d(logTag,  String.format(Locale.US, "%04d", 1) + ") " + initSegPayload);
+
+				for (int i = 0; i < segments.size(); i++) {
+					app.apiSegmentDb.dbQueued.insert(groupId, i+1, segments.get(i) );
+					Log.d(logTag,String.format(Locale.US, "%04d", (i+2)) + ") " + segments.get(i));
+				}
+
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+			}
+		}
+
+
 	}
 
 

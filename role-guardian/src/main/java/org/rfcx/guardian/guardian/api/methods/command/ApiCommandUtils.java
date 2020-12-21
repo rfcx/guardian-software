@@ -26,7 +26,7 @@ public class ApiCommandUtils {
 
 	private RfcxGuardian app;
 
-	public void processApiCommandJson(String jsonStr) {
+	public void processApiCommandJson(String jsonStr, String originProtocol) {
 
 		Log.i(logTag, "Received: " + jsonStr);
 

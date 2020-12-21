@@ -103,6 +103,8 @@ public class ApiPingJsonUtils {
 
 		Log.d(logTag, pingObj.toString());
 
+//		app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sms", pingObj.toString(), null);
+
 		JSONObject guardianObj = new JSONObject();
 		guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
 		guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());

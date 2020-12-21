@@ -203,7 +203,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 		// this is a command message receive from the API
 		if (messageTopic.equalsIgnoreCase(this.mqttTopic_Subscribe_Command)) {
-			app.apiCommandUtils.processApiCommandJson(StringUtils.gZippedByteArrayToUnGZippedString(messagePayload));
+			app.apiCommandUtils.processApiCommandJson(StringUtils.gZippedByteArrayToUnGZippedString(messagePayload), "mqtt");
 		}
 	}
 
