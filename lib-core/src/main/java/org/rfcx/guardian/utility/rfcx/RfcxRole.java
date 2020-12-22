@@ -26,6 +26,7 @@ public class RfcxRole {
 		ALL_ROLES= new String[] { 
 			"guardian",
 			"admin",
+			"satellite",
 			"updater"  
 		};
 	

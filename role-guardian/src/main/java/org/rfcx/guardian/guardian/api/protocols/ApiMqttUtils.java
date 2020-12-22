@@ -299,12 +299,21 @@ public class ApiMqttUtils implements MqttCallback {
 
 		try {
 
-			publishMessageOnConfirmedConnection(this.mqttTopic_Publish_Ping, 1,false, packageMqttPingPayload(app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields)));
+			publishMessageOnConfirmedConnection(this.mqttTopic_Publish_Ping, 1,false, packageMqttPingPayload(app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, true)));
 
 		} catch (Exception e) {
 
 			RfcxLog.logExc(logTag, e, "sendMqttPing");
 			handleMqttPingPublicationExceptions(e);
+
+			/////
+			try {
+			app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sms", app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, true), null);
+			} catch (Exception ex) {
+				RfcxLog.logExc(logTag, ex, "sendSmsPing");
+			}
+			/////////
+
 		}
 	}
 

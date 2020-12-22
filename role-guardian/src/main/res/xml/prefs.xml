@@ -132,6 +132,13 @@
 		android:summary="string - phone number/code"
 		android:enabled="true"
 		android:defaultValue="@string/prefs_value_default_api_sms_address" />
+
+	<EditTextPreference
+		android:key="api_protocol_escalation_order"
+		android:title="api_protocol_escalation_order"
+		android:summary="string - protocols, ordered, comma separated"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_api_protocol_escalation_order" />
  	
  	<EditTextPreference
         android:key="reboot_forced_daily_at"

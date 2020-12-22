@@ -11,9 +11,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApiHttpUtils {
+public class ApiRestUtils {
 
-	public ApiHttpUtils(Context context) {
+	public ApiRestUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 		this.httpGet = new HttpGet(context, RfcxGuardian.APP_ROLE);
 		this.httpPost = new HttpPostMultipart();
@@ -21,7 +21,7 @@ public class ApiHttpUtils {
 		setHttpTimeouts();
 	}
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiHttpUtils");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiRestUtils");
 
 	private RfcxGuardian app;
 

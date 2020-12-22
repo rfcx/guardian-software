@@ -3,18 +3,12 @@ package org.rfcx.guardian.admin.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Telephony
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import kotlinx.android.synthetic.main.activity_compose_sms.*
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.admin.R
 import org.rfcx.guardian.admin.RfcxGuardian
 import org.rfcx.guardian.admin.sms.ComposeSmsActivity
-import org.rfcx.guardian.admin.sms.SmsUtils
 
 class MainActivity : Activity() {
 
@@ -39,7 +33,7 @@ class MainActivity : Activity() {
             startActivity(Intent(this, ComposeSmsActivity::class.java))
         }
 
-        sntpSyncButton.setOnClickListener {
+        clockSyncButton.setOnClickListener {
             app.rfcxServiceHandler.triggerService("ClockSyncJob", true)
         }
 

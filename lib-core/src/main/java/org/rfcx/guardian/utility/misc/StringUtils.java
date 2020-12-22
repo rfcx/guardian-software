@@ -44,11 +44,11 @@ public class StringUtils {
 	}
 
 	public static String stringToGZippedBase64(String inputString) {
-		return Base64.encodeToString(stringToGZippedByteArray(inputString, "UTF-8"), Base64.NO_WRAP);
+		return byteArrayToBase64String( stringToGZippedByteArray( inputString ) );
 	}
 
 	public static String gZippedBase64ToUnGZippedString(String base64String) {
-		return gZippedByteArrayToUnGZippedString( Base64.decode( base64String, Base64.NO_WRAP ) );
+		return gZippedByteArrayToUnGZippedString( base64StringToByteArray( base64String ) );
 	}
 
 //	public static String stringToBase85(String inputString) {
@@ -122,6 +122,14 @@ public class StringUtils {
 			hexString.append( Integer.toString( (byteArray[i] & 0xff) + 0x100, 16 ).substring(1) );
 		}
 		return hexString.toString();
+	}
+
+	public static String byteArrayToBase64String(byte[] byteArray) {
+		return Base64.encodeToString(byteArray, Base64.NO_WRAP);
+	}
+
+	public static byte[] base64StringToByteArray(String base64String) {
+		return Base64.decode( base64String, Base64.NO_WRAP );
 	}
 	
 	public static boolean saveStringToFile(String stringContents, String filePath) {

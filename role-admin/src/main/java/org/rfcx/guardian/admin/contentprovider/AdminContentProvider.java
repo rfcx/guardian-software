@@ -126,9 +126,9 @@ public class AdminContentProvider extends ContentProvider {
                 app.rfcxServiceHandler.triggerService("AirplaneModeEnable", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_enable", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "sntp_sync")) { logFuncVal = "control-sntp_sync";
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "clock_sync")) { logFuncVal = "control-clock_sync";
                 app.rfcxServiceHandler.triggerService("ClockSyncJob", true);
-                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"sntp_sync", null, System.currentTimeMillis()});
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"clock_sync", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "sms_queue", "*")) { logFuncVal = "sms_queue-*";
                 String pathSeg = uri.getLastPathSegment();

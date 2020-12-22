@@ -38,22 +38,22 @@ public class ApiSegmentUtils {
 	public static final String[] JSON_MSG_TYPES = new String[] { "cmd", "png", "chk" };
 	public static final String[] BINARY_MSG_TYPES = new String[] {  };
 
-	public static final String[] SEGMENT_PROTOCOLS = new String[] { "sms", "iridium" };
+	public static final String[] SEGMENT_PROTOCOLS = new String[] { "sms", "sbd" };
 
-	private static final Map<String, Integer> SEGMENT_PAYLOAD_MAX_LENGTH_BY_PROTOCOL =
+	private static final Map<String, Integer> SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL =
 		Collections.unmodifiableMap( new HashMap<String, Integer>() {{
 			put("sms", 160 );
-			put("iridium", 100 );
+			put("sbd", 340 );
 		}}
 	);
 
-	public static int getSegmentPayloadMaxLength(String protocol) {
-		if (SEGMENT_PAYLOAD_MAX_LENGTH_BY_PROTOCOL.containsKey(protocol.toLowerCase())) {
-			return (SEGMENT_PAYLOAD_MAX_LENGTH_BY_PROTOCOL.get(protocol.toLowerCase()) - GROUP_ID_LENGTH - SEGMENT_ID_LENGTH);
-		} else {
-			return 100;
-		}
-	}
+//	public static int getSegmentPayloadMaxLength(String protocol) {
+//		if (SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL.containsKey(protocol.toLowerCase())) {
+//			return (SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL.get(protocol.toLowerCase()) - GROUP_ID_LENGTH - SEGMENT_ID_LENGTH);
+//		} else {
+//			return 100;
+//		}
+//	}
 
 	public static String generateSegmentGroupId() {
 		return StringUtils.randomAlphanumericString(GROUP_ID_LENGTH, true);
@@ -218,7 +218,7 @@ public class ApiSegmentUtils {
 	public void constructSegmentsGroupForQueue(String msgType, String apiProtocol, String msgJson, String attachmentFilePath) {
 
 		String groupId = generateSegmentGroupId();
-		int segMaxLength = SEGMENT_PAYLOAD_MAX_LENGTH_BY_PROTOCOL.get(apiProtocol);
+		int segMaxLength = SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL.get(apiProtocol);
 		int segBodyMaxLength = segMaxLength - GROUP_ID_LENGTH - SEGMENT_ID_LENGTH;
 		List<String> segments = new ArrayList<String>();
 

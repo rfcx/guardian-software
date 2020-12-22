@@ -383,6 +383,8 @@ public class RfcxPrefs {
 
 	        put("api_ntp_host", "time.apple.com");
 			put("api_sms_address", "+14154803657");
+
+			put("api_protocol_escalation_order", "mqtt,rest,sms,sbd");
 	        
 			put("reboot_forced_daily_at", "23:54:00");
 			

@@ -30,7 +30,7 @@ public class ApiPingJsonUtils {
 
 	private RfcxGuardian app;
 
-	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields) throws JSONException, IOException {
+	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, boolean includeGuardianIdInfo) throws JSONException, IOException {
 
 		JSONObject pingObj = new JSONObject();
 
@@ -103,12 +103,12 @@ public class ApiPingJsonUtils {
 
 		Log.d(logTag, pingObj.toString());
 
-//		app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sms", pingObj.toString(), null);
-
-		JSONObject guardianObj = new JSONObject();
-		guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
-		guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
-		pingObj.put("guardian", guardianObj);
+		if (includeGuardianIdInfo) {
+			JSONObject guardianObj = new JSONObject();
+			guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
+			guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
+			pingObj.put("guardian", guardianObj);
+		}
 
 		return pingObj.toString();
 	}

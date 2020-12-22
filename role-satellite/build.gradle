@@ -1,0 +1,49 @@
+apply plugin: 'com.android.application'
+
+if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properties.containsKey("jksPath")) {
+    apply from: "../gradle/signing/platform_signing.gradle"
+}
+
+android {
+    compileSdkVersion 29
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
+    defaultConfig {
+        applicationId "org.rfcx.guardian.satellite"
+        minSdkVersion 19
+        targetSdkVersion 29
+        versionCode 3
+        versionName "0.1.0"
+        resConfigs "en"
+        setProperty("archivesBaseName", "satellite-$versionName")
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
+        }
+    }
+}
+
+dependencies {
+    implementation project(':lib-core')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "com.github.ytai.ioio:IOIOLibAndroidBluetooth:6.1.0"
+    implementation "com.github.ytai.ioio:IOIOLibAndroidAccessory:6.1.0"
+    implementation "com.github.ytai.ioio:IOIOLibAndroidDevice:6.1.0"
+}

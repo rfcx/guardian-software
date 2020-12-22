@@ -16,7 +16,7 @@ if [ "$CNTL" = "help" ]; then
 	echo "Usage: adbcontrol.sh {[ACTION]}";
 	echo "";
 	echo "Example Actions:";
-	echo "adbcontrol.sh [reboot, screenshot, software_update, airplanemode_toggle, sntp_sync]";
+	echo "adbcontrol.sh [reboot, screenshot, software_update, airplanemode_toggle, clock_sync]";
 	echo "adbcontrol.sh ping [all, instructions, etc]";
 	echo "adbcontrol.sh identity_set [key] [value]";
 
