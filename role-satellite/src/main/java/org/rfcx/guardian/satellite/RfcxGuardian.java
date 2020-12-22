@@ -1,5 +1,9 @@
 package org.rfcx.guardian.satellite;
 
+import org.rfcx.guardian.satellite.sbd.SbdMessageDb;
+import org.rfcx.guardian.satellite.service.ClockSyncJobService;
+import org.rfcx.guardian.satellite.service.SbdDispatchCycleService;
+import org.rfcx.guardian.satellite.service.SbdDispatchService;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -24,11 +28,15 @@ public class RfcxGuardian extends Application {
     public RfcxPrefs rfcxPrefs = null;
     public RfcxServiceHandler rfcxServiceHandler = null;
 
+    // Database Handlers
+    public SbdMessageDb sbdMessageDb = null;
+
     // for checking battery level
     public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 
     public String[] RfcxCoreServices =
             new String[]{
+                    "SbdDispatchCycle"
             };
 
     @Override
@@ -81,17 +89,15 @@ public class RfcxGuardian extends Application {
 
     private void setDbHandlers() {
 
+        this.sbdMessageDb = new SbdMessageDb(this, this.version);
+
     }
 
     private void setServiceHandlers() {
-//        this.rfcxServiceHandler.addService("ApiUpdateRequestTrigger", ApiUpdateRequestTrigger.class);
-//        this.rfcxServiceHandler.addService("ApiUpdateRequest", ApiUpdateRequestService.class);
-//        this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
-//        this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
-//        this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerService.class);
 
-        IOIO ioio;
-        Uart uart = ioio.openUart();
+        this.rfcxServiceHandler.addService("ClockSyncJob", ClockSyncJobService.class);
+        this.rfcxServiceHandler.addService("SbdDispatch", SbdDispatchService.class);
+        this.rfcxServiceHandler.addService("SbdDispatchCycle", SbdDispatchCycleService.class);
 
     }
 

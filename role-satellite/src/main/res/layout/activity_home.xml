@@ -5,10 +5,10 @@
 	android:background="#ffffff"
     tools:context=".activity.MainActivity" >
 	<Button
-			android:id="@+id/updateRequestButton"
+			android:id="@+id/sbdMsgSendButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_margin="16dp"
-			android:text="Send API Update Request"/>
+			android:text="Send SBD Test Message"/>
 
 </RelativeLayout>

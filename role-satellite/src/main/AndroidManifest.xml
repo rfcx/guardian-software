@@ -67,6 +67,14 @@
             </intent-filter>
         </activity>
 
+
+		<!-- Services -->
+		<service android:name=".service.SbdDispatchCycleService" />
+		<service android:name=".service.SbdDispatchService" />
+		<service android:name=".service.ClockSyncJobService" />
+
+
+
          <receiver android:name="org.rfcx.guardian.satellite.receiver.BootReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />

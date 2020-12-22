@@ -73,7 +73,7 @@ public class SatelliteContentProvider extends ContentProvider {
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"initialize", null, System.currentTimeMillis()});
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "clock_sync")) { logFuncVal = "control-clock_sync";
-			//	app.rfcxServiceHandler.triggerService("ClockSyncJob", true);
+				app.rfcxServiceHandler.triggerService("ClockSyncJob", true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"clock_sync", null, System.currentTimeMillis()});
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "sbd_queue", "*")) { logFuncVal = "sbd_queue-*";
