@@ -13,9 +13,6 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.Application;
 
-import ioio.lib.api.Uart;
-import ioio.lib.api.IOIO;
-
 public class RfcxGuardian extends Application {
 
     public String version;

@@ -19,6 +19,9 @@ public class AudioEncodeUtils {
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioEncodeUtils");
 
+	public static final int ENCODE_QUALITY = 10;
+	public static final int ENCODE_FAILURE_SKIP_THRESHOLD = 3;
+
 	public static int encodeAudioFile(File preEncodeFile, File postEncodeFile, String encodeCodec, int encodeSampleRate, int encodeBitRate, int encodeQuality) {
 
 		int encodeOutputBitRate = -1;
@@ -57,7 +60,7 @@ public class AudioEncodeUtils {
 
 		ArrayList<String> audioQueuedForEncode = new ArrayList<String>();
 		for (String[] queuedRow : queuedForEncode) {
-			audioQueuedForEncode.add(queuedRow[9]);
+			audioQueuedForEncode.add(queuedRow[10]);
 		}
 
 		FileUtils.deleteDirectoryContents(RfcxAudioUtils.audioEncodeDir(context), audioQueuedForEncode);

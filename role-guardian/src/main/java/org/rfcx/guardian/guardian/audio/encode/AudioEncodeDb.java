@@ -4,19 +4,16 @@ import java.util.Date;
 import java.util.List;
 
 import org.rfcx.guardian.utility.database.DbUtils;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentValues;
 import android.content.Context;
-import org.rfcx.guardian.guardian.RfcxGuardian;
 
 public class AudioEncodeDb {
 	
 	public AudioEncodeDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+		this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbEncodeQueue = new DbEncodeQueue(context);
 		this.dbEncoded = new DbEncoded(context);
 	}
@@ -33,10 +30,11 @@ public class AudioEncodeDb {
 	static final String C_CODEC = "codec";
 	static final String C_DURATION = "duration";
 	static final String C_CREATION_DURATION = "creation_duration";
+	static final String C_ENCODE_PURPOSE = "encode_purpose";
 	static final String C_FILEPATH = "filepath";
 	static final String C_ATTEMPTS = "attempts";
 	
-	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_SAMPLE_RATE, C_BITRATE, C_CODEC, C_DURATION, C_CREATION_DURATION, C_FILEPATH, C_ATTEMPTS };
+	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_SAMPLE_RATE, C_BITRATE, C_CODEC, C_DURATION, C_CREATION_DURATION, C_ENCODE_PURPOSE, C_FILEPATH, C_ATTEMPTS };
 
 	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -53,6 +51,7 @@ public class AudioEncodeDb {
 			.append(", ").append(C_CODEC).append(" TEXT")
 			.append(", ").append(C_DURATION).append(" INTEGER")
 			.append(", ").append(C_CREATION_DURATION).append(" INTEGER")
+			.append(", ").append(C_ENCODE_PURPOSE).append(" TEXT")
 			.append(", ").append(C_FILEPATH).append(" TEXT")
 			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
 			.append(")");
@@ -70,7 +69,7 @@ public class AudioEncodeDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
-		public int insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
+		public int insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String encode_purpose, String filepath) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -82,6 +81,7 @@ public class AudioEncodeDb {
 			values.put(C_CODEC, codec);
 			values.put(C_DURATION, duration);
 			values.put(C_CREATION_DURATION, creation_duration);
+			values.put(C_ENCODE_PURPOSE, encode_purpose);
 			values.put(C_FILEPATH, filepath);
 			values.put(C_ATTEMPTS, 0);
 			
@@ -103,6 +103,11 @@ public class AudioEncodeDb {
 		public void deleteSingleRow(String timestamp) {
 			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
 			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
+		}
+
+		public void deleteSingleRow(String timestamp, String encodePurpose) {
+			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
+			this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_TIMESTAMP, timestampValue, C_ENCODE_PURPOSE, encodePurpose);
 		}
 		
 		public int getCount() {
@@ -137,7 +142,7 @@ public class AudioEncodeDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
-		public int insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String filepath) {
+		public int insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String encode_purpose, String filepath) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -149,6 +154,7 @@ public class AudioEncodeDb {
 			values.put(C_CODEC, codec);
 			values.put(C_DURATION, duration);
 			values.put(C_CREATION_DURATION, creation_duration);
+			values.put(C_ENCODE_PURPOSE, encode_purpose);
 			values.put(C_FILEPATH, filepath);
 			values.put(C_ATTEMPTS, 0);
 			
@@ -174,6 +180,11 @@ public class AudioEncodeDb {
 		public void deleteSingleRow(String timestamp) {
 			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
 			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
+		}
+
+		public void deleteSingleRow(String timestamp, String encodePurpose) {
+			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
+			this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_TIMESTAMP, timestampValue, C_ENCODE_PURPOSE, encodePurpose);
 		}
 		
 		public int getCount() {

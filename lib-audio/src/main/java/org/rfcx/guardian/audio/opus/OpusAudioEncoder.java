@@ -16,16 +16,16 @@ public class OpusAudioEncoder {
 //  int outputSampleRate
 //);
 
-	public EncodeStatus transcode(String inputFile, String outputFile, int bitRate, int quality) {
+	public EncodeStatus transcode(String inputPath, String outputPath, int bitRate, int quality) {
 
-		int result = encodeOpusFile( inputFile, outputFile, bitRate/1000, quality);
+		int result = encodeOpusFile( inputPath, outputPath, bitRate/1000, quality);
 
 		return result == 0 ? EncodeStatus.OK : EncodeStatus.ERROR;
 	}
 
-	public EncodeStatus transcode( File inputFile, File outputFile, int bitRate, int quality) {
+	public EncodeStatus transcode( File inputPath, File outputPath, int bitRate, int quality) {
 		
-		return transcode(inputFile.getAbsolutePath(), outputFile.getAbsolutePath(), bitRate, quality);
+		return transcode(inputPath.getAbsolutePath(), outputPath.getAbsolutePath(), bitRate, quality);
 	}
 	
 	private native int encodeOpusFile(String sourcePath, String targetPath, int bitRate, int quality);

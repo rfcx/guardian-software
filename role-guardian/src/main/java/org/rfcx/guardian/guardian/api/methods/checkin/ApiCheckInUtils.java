@@ -43,7 +43,7 @@ public class ApiCheckInUtils {
 						+  " (" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+" MB limit) " + filePath);
 
 		// once queued, remove database reference from encode role
-		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1]);
+		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1], "stream");
 
 		return true;
 	}

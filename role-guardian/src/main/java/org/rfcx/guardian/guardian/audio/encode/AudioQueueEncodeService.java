@@ -35,28 +35,36 @@ public class AudioQueueEncodeService extends IntentService {
 		try {
 			
 			long captureLoopPeriod = (long) Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
-			int encodingBitRate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
-			String encodingCodec = app.rfcxPrefs.getPrefAsString("audio_encode_codec");
 			String captureFileExtension = "wav";
 
 			long[] queueCaptureTimeStamp = app.audioCaptureUtils.queueCaptureTimeStamp;
 			int[] queueCaptureSampleRate = app.audioCaptureUtils.queueCaptureSampleRate;
 			
 			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, queueCaptureTimeStamp[0], captureFileExtension)) {
-				
-				String preEncodeFilePath = RfcxAudioUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0],captureFileExtension);
-				
-				app.audioEncodeDb.dbEncodeQueue.insert(
-						""+queueCaptureTimeStamp[0],
-						captureFileExtension,
-						"-",
-						queueCaptureSampleRate[0],
-						encodingBitRate,
-						encodingCodec,
-						captureLoopPeriod,
-						captureLoopPeriod,
-						preEncodeFilePath
-						);
+
+				String preEncodeFilePath = RfcxAudioUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0], captureFileExtension);
+
+				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_stream")) {
+
+					int streamSampleRate = queueCaptureSampleRate[0];
+					String streamCodec = app.rfcxPrefs.getPrefAsString("audio_encode_codec");
+					int streamBitrate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
+
+					app.audioEncodeDb.dbEncodeQueue.insert(
+						""+queueCaptureTimeStamp[0], captureFileExtension, "-", streamSampleRate,
+							streamBitrate, streamCodec, captureLoopPeriod, captureLoopPeriod, "stream", preEncodeFilePath );
+				}
+
+				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_vault")) {
+
+					int vaultSampleRate = queueCaptureSampleRate[0];
+					String vaultCodec = "flac";//app.rfcxPrefs.getPrefAsString("audio_encode_codec");
+					int vaultBitrate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
+
+					app.audioEncodeDb.dbEncodeQueue.insert(
+							""+queueCaptureTimeStamp[0], captureFileExtension, "-", vaultSampleRate,
+							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath );
+				}
 				
 			} else {
 				Log.e(logTag, "Queued audio file does not exist: "+RfcxAudioUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0],captureFileExtension));

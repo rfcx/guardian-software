@@ -11,22 +11,49 @@
 		android:defaultValue="@string/prefs_value_default_show_ui" />
 
 	<ListPreference
-		android:key="enable_audio_capture"
-		android:title="enable_audio_capture"
-		android:dialogTitle="enable_audio_capture"
-        android:summary="string - true/false"
-		android:entries="@array/prefs_values_true_or_false"
-		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_enable_audio_capture" />
+			android:key="enable_audio_capture"
+			android:title="enable_audio_capture"
+			android:dialogTitle="enable_audio_capture"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_audio_capture" />
 
 	<ListPreference
-		android:key="enable_checkin_publish"
-		android:title="enable_checkin_publish"
-		android:dialogTitle="enable_checkin_publish"
-        android:summary="string - true/false"
-		android:entries="@array/prefs_values_true_or_false"
-		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_enable_checkin_publish" />
+			android:key="enable_audio_stream"
+			android:title="enable_audio_stream"
+			android:dialogTitle="enable_audio_stream"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_audio_stream" />
+
+	<ListPreference
+			android:key="enable_audio_vault"
+			android:title="enable_audio_vault"
+			android:dialogTitle="enable_audio_vault"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_audio_vault" />
+
+	<ListPreference
+			android:key="enable_checkin_publish"
+			android:title="enable_checkin_publish"
+			android:dialogTitle="enable_checkin_publish"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_checkin_publish" />
+
+	<ListPreference
+			android:key="enable_checkin_archive"
+			android:title="enable_checkin_archive"
+			android:dialogTitle="enable_checkin_archive"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_checkin_archive" />
         
 	<ListPreference
 		android:key="enable_cutoffs_internal_battery"

@@ -370,7 +370,11 @@ public class RfcxPrefs {
 	    new HashMap<String, String>() {{
 
 			put("enable_audio_capture", "true");
+			put("enable_audio_stream", "true");
+			put("enable_audio_vault", "false");
+
 			put("enable_checkin_publish", "true");
+			put("enable_checkin_archive", "true");
 
 			put("api_mqtt_host", "api-mqtt.rfcx.org");
 	        put("api_mqtt_protocol", "ssl");
@@ -407,6 +411,16 @@ public class RfcxPrefs {
 			put("audio_encode_codec", "opus");
 			put("audio_encode_bitrate", "28672");
 			put("audio_sample_rate", "24000");
+
+//			put("audio_capture_sample_rate", "24000");
+//
+//			put("audio_stream_codec", "opus");
+//			put("audio_stream_sample_rate", "24000");
+//			put("audio_stream_bitrate", "28672");
+//
+//			put("audio_vault_codec", "flac");
+//			put("audio_stream_sample_rate", "24000");
+//			put("audio_stream_bitrate", "28672");
 
 			put("checkin_failure_thresholds", "15,30,50,70,90");
 			put("checkin_failure_limit", "3");

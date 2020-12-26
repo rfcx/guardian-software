@@ -30,10 +30,12 @@ public class ApiCheckInQueueService extends IntentService {
 		
 		try {
 				
-			for (String[] encodedAudio : app.audioEncodeDb.dbEncoded.getRowsWithLimit(10)) {
-				
-				app.apiCheckInUtils.addCheckInToQueue(
-						new String[] {
+			for (String[] encodedAudio : app.audioEncodeDb.dbEncoded.getAllRows()) {
+
+				if (encodedAudio[9].equalsIgnoreCase("stream")) {
+
+					app.apiCheckInUtils.addCheckInToQueue(
+						new String[]{
 								encodedAudio[0], // created_at
 								encodedAudio[1], //	timestamp
 								encodedAudio[2], //	format
@@ -43,9 +45,10 @@ public class ApiCheckInQueueService extends IntentService {
 								encodedAudio[6], //	codec
 								(RfcxAudioUtils.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr"), //	cbr or vbr
 								encodedAudio[8], // encode duration
-								"16bit", 		 // sample precision, in bits
+								"16bit",         // sample precision, in bits
 								encodedAudio[7] // capture duration
-						}, encodedAudio[9]);
+						}, encodedAudio[10]);
+				}
 			}
 
 
