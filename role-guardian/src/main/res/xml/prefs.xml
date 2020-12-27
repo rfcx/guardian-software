@@ -323,6 +323,13 @@
 		android:defaultValue="@string/prefs_value_default_checkin_meta_bundle_limit" />
 
 	<EditTextPreference
+			android:key="checkin_meta_queue_filesize_limit"
+			android:title="checkin_meta_queue_filesize_limit"
+			android:summary="int - megabytes"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_checkin_meta_queue_filesize_limit" />
+
+	<EditTextPreference
 		android:key="api_clock_sync_cycle_duration"
 		android:title="api_clock_sync_cycle_duration"
 		android:summary="int - minutes"

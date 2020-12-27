@@ -28,6 +28,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.capture.DeviceNetworkStats;
+import org.rfcx.guardian.utility.device.control.DeviceGPIO;
 import org.rfcx.guardian.utility.device.control.DeviceNetworkName;
 import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
@@ -308,6 +309,9 @@ public class RfcxGuardian extends Application {
 
 			// Sets I2C interface
 			this.deviceI2cUtils.setInterface(DeviceHardware_OrangePi_3G_IOT.DEVICE_I2C_INTERFACE);
+
+
+			DeviceGPIO.setGPIO("PULL_SEL", 128, false);
 
 		}
 
