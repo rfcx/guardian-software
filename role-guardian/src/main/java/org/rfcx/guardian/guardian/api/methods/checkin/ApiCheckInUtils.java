@@ -10,6 +10,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,13 +40,26 @@ public class ApiCheckInUtils {
 		long queuedLimitMb = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit");
 		long queuedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows()+"")/(queuedLimitMb*1024*1024))));
 
-		Log.d(logTag, "Queued " + audioInfo[1] + ", " + FileUtils.bytesAsReadableString(audioFileSize)
+		Log.d(logTag, "Audio added to Queue: " + audioInfo[1] + ", " + FileUtils.bytesAsReadableString(audioFileSize)
 						+  " (" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+" MB limit) " + filePath);
 
 		// once queued, remove database reference from encode role
 		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1], "stream");
 
 		return true;
+	}
+
+	public boolean sendEncodedAudioToQueue(String audioTimestamp, File preStreamFile, File streamFile) throws IOException {
+
+		FileUtils.copy(preStreamFile, streamFile);
+		if (FileUtils.exists(streamFile)) {
+			FileUtils.delete(preStreamFile);
+			app.audioEncodeDb.dbEncoded.deleteSingleRow(audioTimestamp, "stream");
+			return true;
+		} else {
+			Log.e(logTag, "Final encoded file not found: "+streamFile.getAbsolutePath());
+		}
+		return false;
 	}
 
 	public void stashOrArchiveOldestCheckIns() {

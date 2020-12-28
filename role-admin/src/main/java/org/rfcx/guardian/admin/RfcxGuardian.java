@@ -66,6 +66,8 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
+import java.util.Map;
+
 public class RfcxGuardian extends Application {
 	
 	public String version;
@@ -106,6 +108,8 @@ public class RfcxGuardian extends Application {
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelCompassUtils sentinelCompassUtils = null;
 	public SentinelAccelUtils sentinelAccelUtils = null;
+
+	public DeviceGPIO deviceGPIO = new DeviceGPIO(APP_ROLE);
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -310,8 +314,11 @@ public class RfcxGuardian extends Application {
 			// Sets I2C interface
 			this.deviceI2cUtils.setInterface(DeviceHardware_OrangePi_3G_IOT.DEVICE_I2C_INTERFACE);
 
-
-			DeviceGPIO.setGPIO("PULL_SEL", 128, false);
+			// Sets GPIO handler
+			this.deviceGPIO.setGpioHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_HANDLER_FILEPATH);
+			for (Map.Entry pins : DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_PINMAP.entrySet()) {
+				this.deviceGPIO.setPinByName(pins.getKey().toString(), DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_PINMAP.get(pins.getKey().toString()));
+			}
 
 		}
 

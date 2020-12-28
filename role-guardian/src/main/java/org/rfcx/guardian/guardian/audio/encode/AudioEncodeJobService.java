@@ -119,7 +119,7 @@ public class AudioEncodeJobService extends Service {
 
 							Log.i(logTag, "Beginning Audio Encode Job ("+ StringUtils.capitalizeFirstChar(encodePurpose) +"): "
 												+ timestamp + ", "
-												+ format.toUpperCase(Locale.US) + " ("+Math.round(app.rfcxPrefs.getPrefAsInt("audio_sample_rate")/1000)+" kHz) "
+												+ format.toUpperCase(Locale.US) + " ("+Math.round(app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate")/1000)+" kHz) "
 												+"to " + codec.toUpperCase(Locale.US)+" ("+Math.round(sampleRate/1000)+" kHz"+ ((codec.equalsIgnoreCase("opus")) ? (", "+Math.round(bitRate/1024)+" kbps") : "")+")"
 							);
 
@@ -155,25 +155,16 @@ public class AudioEncodeJobService extends Service {
 									// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
 									if (gZippedFile.exists()) {
 
+										FileUtils.delete(postEncodeFile);
+
 										finalDestinationFile = new File(RfcxAudioUtils.getAudioFileLocation_Queue(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(timestamp), RfcxAudioUtils.getFileExtension(codec)));
 
-										FileUtils.copy(gZippedFile, finalDestinationFile);
-
-										FileUtils.delete(postEncodeFile);
-										FileUtils.delete(gZippedFile);
-
-										if (FileUtils.exists(finalDestinationFile)) {
-
-											app.audioEncodeDb.dbEncoded.deleteSingleRow(timestamp, encodePurpose);
+										if (app.apiCheckInUtils.sendEncodedAudioToQueue(timestamp, gZippedFile, finalDestinationFile)) {
 
 											app.audioEncodeDb.dbEncoded.insert(
 													timestamp, RfcxAudioUtils.getFileExtension(codec), encodedFileDigest, sampleRate, measuredBitRate,
 													codec, audioDuration, encodeDuration, encodePurpose, finalDestinationFile.getAbsolutePath()
 											);
-
-										} else {
-
-											Log.e(logTag, "Final Encoded File not found at destination: "+finalDestinationFile.getAbsolutePath());
 										}
 
 									}
@@ -182,18 +173,7 @@ public class AudioEncodeJobService extends Service {
 
 									finalDestinationFile = new File(RfcxAudioUtils.getAudioFileLocation_Vault(app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioUtils.getFileExtension(codec)));
 
-									FileUtils.copy(postEncodeFile, finalDestinationFile);
-
-									if (FileUtils.exists(finalDestinationFile)) {
-
-										FileUtils.delete(postEncodeFile);
-
-										Log.i(logTag, "Audio saved to Vault: "+finalDestinationFile.getAbsolutePath());
-
-									} else {
-
-										Log.e(logTag, "Final Encoded File not found at destination: "+finalDestinationFile.getAbsolutePath());
-									}
+									AudioEncodeUtils.sendEncodedAudioToVault(timestamp, postEncodeFile, finalDestinationFile);
 
 								}
 

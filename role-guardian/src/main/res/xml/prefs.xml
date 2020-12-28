@@ -170,7 +170,7 @@
  	<EditTextPreference
         android:key="reboot_forced_daily_at"
         android:title="reboot_forced_daily_at"
-        android:summary="string - time"
+        android:summary="string - time - Ex: HH:mm:ss"
         android:enabled="true"
         android:defaultValue="@string/prefs_value_default_reboot_forced_daily_at" />
  	
@@ -186,7 +186,7 @@
  	<EditTextPreference
         android:key="audio_schedule_off_hours"
         android:title="audio_schedule_off_hours"
-        android:summary="string - time ranges, comma separated"
+        android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
         android:enabled="true"
         android:defaultValue="@string/prefs_value_default_audio_schedule_off_hours" />
 
@@ -198,33 +198,74 @@
 		android:defaultValue="@string/prefs_value_default_audio_sampling_ratio" />
  	
  	<!-- Audio Capture Formatting -->
- 	
- 	<ListPreference
-		android:key="audio_encode_codec"
-		android:title="audio_encode_codec"
-		android:dialogTitle="audio_encode_codec"
-        android:summary="string - codec"
-		android:entries="@array/prefs_values_opus_or_flac"
-		android:entryValues="@array/prefs_values_opus_or_flac"
-		android:defaultValue="@string/prefs_value_default_audio_encode_codec" />
- 	
-  	<ListPreference
-		android:key="audio_encode_bitrate"
-		android:title="audio_encode_bitrate"
-		android:dialogTitle="audio_encode_bitrate"
-        android:summary="int - kbits per second"
-		android:entries="@array/prefs_labels_audio_encode_bitrate"
-		android:entryValues="@array/prefs_values_audio_encode_bitrate"
-		android:defaultValue="@string/prefs_value_default_audio_encode_bitrate" />
- 	
+
 	<ListPreference
-		android:key="audio_sample_rate"
-		android:title="audio_sample_rate"
-		android:dialogTitle="audio_sample_rate"
-        android:summary="int - hertz"
+		android:key="audio_capture_sample_rate"
+		android:title="audio_capture_sample_rate"
+		android:dialogTitle="audio_capture_sample_rate"
+		android:summary="int - hertz"
 		android:entries="@array/prefs_labels_audio_sample_rate"
 		android:entryValues="@array/prefs_values_audio_sample_rate"
-		android:defaultValue="@string/prefs_value_default_audio_sample_rate" />
+		android:defaultValue="@string/prefs_value_default_audio_capture_sample_rate" />
+
+	<ListPreference
+		android:key="audio_stream_sample_rate"
+		android:title="audio_stream_sample_rate"
+		android:dialogTitle="audio_stream_sample_rate"
+		android:summary="int - hertz"
+		android:entries="@array/prefs_labels_audio_sample_rate"
+		android:entryValues="@array/prefs_values_audio_sample_rate"
+		android:defaultValue="@string/prefs_value_default_audio_stream_sample_rate" />
+
+	<ListPreference
+		android:key="audio_stream_codec"
+		android:title="audio_stream_codec"
+		android:dialogTitle="audio_stream_codec"
+		android:summary="string - codec"
+		android:entries="@array/prefs_values_opus_or_flac"
+		android:entryValues="@array/prefs_values_opus_or_flac"
+		android:defaultValue="@string/prefs_value_default_audio_stream_codec" />
+
+	<ListPreference
+		android:key="audio_stream_bitrate"
+		android:title="audio_stream_bitrate"
+		android:dialogTitle="audio_stream_bitrate"
+		android:summary="int - kbits per second"
+		android:entries="@array/prefs_labels_audio_encode_bitrate"
+		android:entryValues="@array/prefs_values_audio_encode_bitrate"
+		android:defaultValue="@string/prefs_value_default_audio_stream_bitrate" />
+
+
+
+	<ListPreference
+			android:key="audio_vault_sample_rate"
+			android:title="audio_vault_sample_rate"
+			android:dialogTitle="audio_vault_sample_rate"
+			android:summary="int - hertz"
+			android:entries="@array/prefs_labels_audio_sample_rate"
+			android:entryValues="@array/prefs_values_audio_sample_rate"
+			android:defaultValue="@string/prefs_value_default_audio_vault_sample_rate" />
+
+	<ListPreference
+			android:key="audio_vault_codec"
+			android:title="audio_vault_codec"
+			android:dialogTitle="audio_vault_codec"
+			android:summary="string - codec"
+			android:entries="@array/prefs_values_opus_or_flac"
+			android:entryValues="@array/prefs_values_opus_or_flac"
+			android:defaultValue="@string/prefs_value_default_audio_vault_codec" />
+
+	<ListPreference
+			android:key="audio_vault_bitrate"
+			android:title="audio_vault_bitrate"
+			android:dialogTitle="audio_vault_bitrate"
+			android:summary="int - kbits per second"
+			android:entries="@array/prefs_labels_audio_encode_bitrate"
+			android:entryValues="@array/prefs_values_audio_encode_bitrate"
+			android:defaultValue="@string/prefs_value_default_audio_vault_bitrate" />
+
+
+
  	
  	<!-- Battery Cutoff Thresholds -->
         
@@ -323,11 +364,11 @@
 		android:defaultValue="@string/prefs_value_default_checkin_meta_bundle_limit" />
 
 	<EditTextPreference
-			android:key="checkin_meta_queue_filesize_limit"
-			android:title="checkin_meta_queue_filesize_limit"
-			android:summary="int - megabytes"
-			android:enabled="true"
-			android:defaultValue="@string/prefs_value_default_checkin_meta_queue_filesize_limit" />
+		android:key="checkin_meta_queue_filesize_limit"
+		android:title="checkin_meta_queue_filesize_limit"
+		android:summary="int - megabytes"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_checkin_meta_queue_filesize_limit" />
 
 	<EditTextPreference
 		android:key="api_clock_sync_cycle_duration"

@@ -122,9 +122,9 @@ class MainActivity : Activity(),
     }
 
     private fun setConfiguration() {
-        sampleRate = app.rfcxPrefs.getPrefAsString("audio_sample_rate")
-        fileFormat = app.rfcxPrefs.getPrefAsString("audio_encode_codec")
-        bitRate = app.rfcxPrefs.getPrefAsString("audio_encode_bitrate")
+        sampleRate = app.rfcxPrefs.getPrefAsString("audio_capture_sample_rate")
+        fileFormat = app.rfcxPrefs.getPrefAsString("audio_stream_codec")
+        bitRate = app.rfcxPrefs.getPrefAsString("audio_stream_bitrate")
         duration = app.rfcxPrefs.getPrefAsString("audio_cycle_duration")
 
         audioSettingButton.setOnClickListener {
@@ -133,9 +133,9 @@ class MainActivity : Activity(),
                     sampleRate = settings.sampleRate
                     bitRate = settings.bitRate
                     fileFormat = settings.fileFormat
-                    app.setSharedPref("audio_sample_rate", sampleRate)
-                    app.setSharedPref("audio_encode_bitrate", bitRate)
-                    app.setSharedPref("audio_encode_codec", fileFormat)
+                    app.setSharedPref("audio_capture_sample_rate", sampleRate)
+                    app.setSharedPref("audio_stream_bitrate", bitRate)
+                    app.setSharedPref("audio_stream_codec", fileFormat)
                     updateAudioSettingsInfo()
                 }
             }).show()

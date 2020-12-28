@@ -12,6 +12,7 @@ import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,5 +65,22 @@ public class AudioEncodeUtils {
 		}
 
 		FileUtils.deleteDirectoryContents(RfcxAudioUtils.audioEncodeDir(context), audioQueuedForEncode);
+	}
+
+
+	public static void sendEncodedAudioToVault(String audioTimestamp, File preVaultFile, File vaultFile) throws IOException {
+
+		FileUtils.copy(preVaultFile, vaultFile);
+
+		if (FileUtils.exists(vaultFile)) {
+
+			FileUtils.delete(preVaultFile);
+
+			Log.d(logTag, "Audio saved to Vault: "+audioTimestamp+", "+FileUtils.bytesAsReadableString(FileUtils.getFileSizeInBytes(vaultFile))+", "+vaultFile.getAbsolutePath());
+
+		} else {
+
+			Log.e(logTag, "Final encoded file not found: "+vaultFile.getAbsolutePath());
+		}
 	}
 }

@@ -19,13 +19,13 @@ class WifiCommunicationUtils(private val context: Context) {
         val configurationJsonArray = JSONArray()
         try {
             val configurationJson = JSONObject()
-            val simpleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate")
-            val bitrate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate")
-            val fileFormat = app.rfcxPrefs.getPrefAsString("audio_encode_codec")
+            val sampleRate = app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate")
+            val bitrate = app.rfcxPrefs.getPrefAsInt("audio_stream_bitrate")
+            val fileFormat = app.rfcxPrefs.getPrefAsString("audio_stream_codec")
             val duration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")
 
             configurationJson.let {
-                it.put("sample_rate", simpleRate)
+                it.put("sample_rate", sampleRate)
                 it.put("bitrate", bitrate)
                 it.put("file_format", fileFormat)
                 it.put("duration", duration)

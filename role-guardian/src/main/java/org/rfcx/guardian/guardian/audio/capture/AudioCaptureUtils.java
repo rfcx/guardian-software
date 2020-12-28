@@ -66,7 +66,7 @@ public class AudioCaptureUtils {
 		if (!this.isAudioCaptureHardwareSupported) {
 
 			int[] defaultSampleRateOptions = new int[]{ 8000, 12000, 16000, 24000, 48000 };
-			int originalSampleRate = app.rfcxPrefs.getPrefAsInt("audio_sample_rate");
+			int originalSampleRate = app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate");
 			int verifiedOrUpdatedSampleRate = originalSampleRate;
 
 			for (int i = 0; i < defaultSampleRateOptions.length; i++) {
@@ -85,7 +85,7 @@ public class AudioCaptureUtils {
 			}
 
 			if (verifiedOrUpdatedSampleRate != originalSampleRate) {
-				app.setSharedPref("audio_sample_rate", "" + verifiedOrUpdatedSampleRate);
+				app.setSharedPref("audio_capture_sample_rate", "" + verifiedOrUpdatedSampleRate);
 				Log.e(logTag, "Audio capture sample rate of " + originalSampleRate + " Hz not supported. Sample rate updated to " + verifiedOrUpdatedSampleRate + " Hz.");
 				this.isAudioCaptureHardwareSupported = true;
 			}
@@ -206,7 +206,7 @@ public class AudioCaptureUtils {
 
 		} else if (!doesHardwareSupportCaptureSampleRate()) {
 			msgNoCapture.append("lack of hardware support for capture sample rate: ")
-						.append(app.rfcxPrefs.getPrefAsInt("audio_sample_rate")).append(" Hz.");
+						.append(app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate")).append(" Hz.");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		}

@@ -7,6 +7,7 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
 import org.rfcx.guardian.admin.sms.SmsUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
+import org.rfcx.guardian.utility.device.control.DeviceGPIO;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -19,9 +20,11 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AdminContentProvider extends ContentProvider {
 
@@ -129,6 +132,15 @@ public class AdminContentProvider extends ContentProvider {
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "clock_sync")) { logFuncVal = "control-clock_sync";
                 app.rfcxServiceHandler.triggerService("ClockSyncJob", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"clock_sync", null, System.currentTimeMillis()});
+
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "gpio_set", "*")) { logFuncVal = "gpio_set-*";
+                String pathSeg = uri.getLastPathSegment();
+                String pathSegAddr = pathSeg.substring(0, pathSeg.indexOf("|"));
+                String pathSegHighOrLow = pathSeg.substring(1+pathSeg.indexOf("|")).toLowerCase(Locale.US);
+                app.deviceGPIO.runGPIOCommand("DOUT", pathSegAddr, pathSegHighOrLow.equalsIgnoreCase("high") );
+                return RfcxComm.getProjectionCursor(appRole, "gpio_set", new Object[] { pathSegAddr, pathSegHighOrLow, System.currentTimeMillis() });
+
 
             } else if (RfcxComm.uriMatch(uri, appRole, "sms_queue", "*")) { logFuncVal = "sms_queue-*";
                 String pathSeg = uri.getLastPathSegment();

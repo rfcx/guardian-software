@@ -8,9 +8,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -204,6 +206,8 @@ public class ApiCheckInJsonUtils {
 
 		clearPrePackageMetaData(metaQueryTimestampObj);
 
+		archiveOrPurgeOldestMetaDataSnapshots();
+
 	}
 
 	public void clearPrePackageMetaData() {
@@ -229,6 +233,43 @@ public class ApiCheckInJsonUtils {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
+	}
+
+	private void archiveOrPurgeOldestMetaDataSnapshots() {
+
+		int metaBundleLimit = app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit");
+		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_meta_queue_filesize_limit");
+		long metaFileSizeLimitInBytes = metaFileSizeLimit*1024*1024;
+
+		if (app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows() >= metaFileSizeLimitInBytes) {
+
+			List<String> archiveSuccessList = new ArrayList<String>();
+			List<String> archiveFailureList = new ArrayList<String>();
+
+			for (String[] metaRowsToArchive : app.metaDb.dbMeta.getRowsWithOffset((app.metaDb.dbMeta.getCount() - metaBundleLimit), (2 * metaBundleLimit))) {
+
+				// ?? Save Meta info to archive somewhere?
+
+//				if (is meta archived) {
+					archiveSuccessList.add(metaRowsToArchive[1]);
+//				} else {
+//					archiveFailureList.add(metaRowsToArchive[1]);
+//				}
+
+				app.metaDb.dbMeta.deleteSingleRowByTimestamp(metaRowsToArchive[1]);
+			}
+
+			if (archiveFailureList.size() > 0) {
+				Log.e(logTag, archiveFailureList.size() + " Meta blob(s) failed to be archived or purged (" + TextUtils.join(" ", archiveFailureList) + ").");
+			}
+
+			if (archiveSuccessList.size() > 0) {
+
+				Log.i(logTag, archiveSuccessList.size() + " Meta blob(s) archived or purged (" + TextUtils.join(" ", archiveSuccessList) + ").");
+			}
+
+		}
+
 	}
 
 

@@ -54,10 +54,10 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
         bitRatePicker.displayedValues = bitRateDisplayList
 
         app = context.applicationContext as RfcxGuardian
-        val remainFileFormat = app.rfcxPrefs.getPrefAsString("audio_encode_codec")
+        val remainFileFormat = app.rfcxPrefs.getPrefAsString("audio_stream_codec")
         fileFormat = remainFileFormat
-        val remainSampleRate = app.rfcxPrefs.getPrefAsString("audio_sample_rate")
-        val remainBitRate = app.rfcxPrefs.getPrefAsString("audio_encode_bitrate")
+        val remainSampleRate = app.rfcxPrefs.getPrefAsString("audio_capture_sample_rate")
+        val remainBitRate = app.rfcxPrefs.getPrefAsString("audio_stream_bitrate")
 
         if (remainFileFormat == "opus") {
             opusRadio.isChecked = true
@@ -84,7 +84,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
             } else {
                 bitRatePicker.visibility = View.GONE
                 bitRateLabel.visibility = View.GONE
-                bitRatePicker.value = bitRateList.indexOf(app.rfcxPrefs.getPrefAsString("audio_encode_bitrate"))
+                bitRatePicker.value = bitRateList.indexOf(app.rfcxPrefs.getPrefAsString("audio_stream_bitrate"))
                 fileFormat = "flac"
             }
         }

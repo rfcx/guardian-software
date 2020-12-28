@@ -7,6 +7,10 @@ import android.util.Log;
 import org.rfcx.guardian.utility.device.root.SystemBuildDotPropFile;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 public class DeviceHardware_OrangePi_3G_IOT {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceHardware_OrangePi_3G_IOT");
@@ -16,7 +20,18 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	public static final String[] DEVICE_BRAND = new String[] { "RFCx", "alps" };
 	public static final String[] DEVICE_PRODUCT = new String[] { "Guardian", "hexing72_cwet_kk" };
 
+	// I2C settings for OrangePi 3G-IoT
 	public static final int DEVICE_I2C_INTERFACE = 1;
+
+	// UART for OrangePi 3G-IoT
+	public static final int DEVICE_UART_INTERFACE = 1;
+
+	// GPIO settings for OrangePi 3G-IoT
+	public static final String DEVICE_GPIO_HANDLER_FILEPATH = "/sys/devices/virtual/misc/mtgpio/pin";
+	public static final Map<String, String> DEVICE_GPIO_PINMAP = Collections.unmodifiableMap( new HashMap<String, String>() {{
+		put("iridium_power", "26");
+		put("iridium_clear", "10");
+	}});
 		
 	public static boolean isDevice_OrangePi_3G_IOT() {
 		for (String manufacturer : DEVICE_MANUFACTURER) { if (DeviceHardwareUtils.getManufacturer().equalsIgnoreCase(manufacturer)) {

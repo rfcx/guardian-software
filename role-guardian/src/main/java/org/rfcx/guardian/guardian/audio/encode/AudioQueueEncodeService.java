@@ -46,9 +46,9 @@ public class AudioQueueEncodeService extends IntentService {
 
 				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_stream")) {
 
-					int streamSampleRate = queueCaptureSampleRate[0];
-					String streamCodec = app.rfcxPrefs.getPrefAsString("audio_encode_codec");
-					int streamBitrate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
+					int streamSampleRate = app.rfcxPrefs.getPrefAsInt("audio_stream_sample_rate");
+					String streamCodec = app.rfcxPrefs.getPrefAsString("audio_stream_codec");
+					int streamBitrate = app.rfcxPrefs.getPrefAsInt("audio_stream_bitrate");
 
 					app.audioEncodeDb.dbEncodeQueue.insert(
 						""+queueCaptureTimeStamp[0], captureFileExtension, "-", streamSampleRate,
@@ -57,9 +57,9 @@ public class AudioQueueEncodeService extends IntentService {
 
 				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_vault")) {
 
-					int vaultSampleRate = queueCaptureSampleRate[0];
-					String vaultCodec = "flac";//app.rfcxPrefs.getPrefAsString("audio_encode_codec");
-					int vaultBitrate = app.rfcxPrefs.getPrefAsInt("audio_encode_bitrate");
+					int vaultSampleRate = app.rfcxPrefs.getPrefAsInt("audio_vault_sample_rate");
+					String vaultCodec = app.rfcxPrefs.getPrefAsString("audio_vault_codec");
+					int vaultBitrate = app.rfcxPrefs.getPrefAsInt("audio_vault_bitrate");
 
 					app.audioEncodeDb.dbEncodeQueue.insert(
 							""+queueCaptureTimeStamp[0], captureFileExtension, "-", vaultSampleRate,
