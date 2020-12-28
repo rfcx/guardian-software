@@ -16,6 +16,7 @@ public class AudioEncodeDb {
 		this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbEncodeQueue = new DbEncodeQueue(context);
 		this.dbEncoded = new DbEncoded(context);
+		this.dbVault = new DbVault(context);
 	}
 
 	private int VERSION = 1;
@@ -209,5 +210,69 @@ public class AudioEncodeDb {
 		
 	}
 	public final DbEncoded dbEncoded;
+
+
+
+
+	public class DbVault {
+
+		final DbUtils dbUtils;
+
+		private String TABLE = "vault";
+
+		public DbVault(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+		}
+
+		public int insert(String rowId, long duration, long recordCount, long filesize) {
+
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, (new Date()).getTime());
+			values.put(C_TIMESTAMP, rowId);
+			values.put(C_SAMPLE_RATE, duration);
+			values.put(C_DURATION, recordCount);
+			values.put(C_CREATION_DURATION, filesize);
+			values.put(C_ENCODE_PURPOSE, "vault");
+			values.put(C_ATTEMPTS, 0);
+
+			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public List<String[]> getRowsById(String rowId) {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, C_TIMESTAMP+" = ?", new String[] { rowId }, C_TIMESTAMP, 0, 1);
+		}
+
+		public int getCountById(String rowId) {
+			return getRowsById(rowId).size();
+		}
+
+		public void incrementSingleRowRecordCount(String rowId, int incrementAmount) {
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+"+incrementAmount, TABLE, C_DURATION, C_TIMESTAMP, rowId);
+		}
+
+		public long getCumulativeRecordCountForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_DURATION, null, null);
+		}
+
+		public void incrementSingleRowFileSize(String rowId, long incrementAmount) {
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+"+incrementAmount, TABLE, C_CREATION_DURATION, C_TIMESTAMP, rowId);
+		}
+
+		public long getCumulativeFileSizeForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_CREATION_DURATION, null, null);
+		}
+
+		public void incrementSingleRowDuration(String rowId, long incrementAmount) {
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+"+incrementAmount, TABLE, C_SAMPLE_RATE, C_TIMESTAMP, rowId);
+		}
+
+		public long getCumulativeDurationForAllRows() {
+			return this.dbUtils.getSumOfColumn(TABLE, C_SAMPLE_RATE, null, null);
+		}
+
+
+
+	}
+	public final DbVault dbVault;
 	
 }

@@ -52,8 +52,8 @@ public class ApiCheckInUtils {
 	public boolean sendEncodedAudioToQueue(String audioTimestamp, File preStreamFile, File streamFile) throws IOException {
 
 		FileUtils.copy(preStreamFile, streamFile);
+		FileUtils.delete(preStreamFile);
 		if (FileUtils.exists(streamFile)) {
-			FileUtils.delete(preStreamFile);
 			app.audioEncodeDb.dbEncoded.deleteSingleRow(audioTimestamp, "stream");
 			return true;
 		} else {

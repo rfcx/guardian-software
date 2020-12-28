@@ -49,15 +49,15 @@ public class RfcxAudioUtils {
 		return context.getFilesDir().toString() + "/audio/encode";
 	}
 
-	private static String audioFinalDir(Context context) {
+	public static String audioFinalDir(Context context) {
 		return context.getFilesDir().toString() + "/audio/final";
 	}
 
-	private static String audioQueueDir(Context context) {
+	public static String audioQueueDir(Context context) {
 		return context.getFilesDir().toString() + "/audio/queue";
 	}
 
-	private static String audioStashDir(Context context) {
+	public static String audioStashDir(Context context) {
 		return context.getFilesDir().toString() + "/audio/stash";
 	}
 	

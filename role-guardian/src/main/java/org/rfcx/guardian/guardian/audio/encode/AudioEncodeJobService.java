@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.audio.encode;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -173,8 +174,19 @@ public class AudioEncodeJobService extends Service {
 
 									finalDestinationFile = new File(RfcxAudioUtils.getAudioFileLocation_Vault(app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioUtils.getFileExtension(codec)));
 
-									AudioEncodeUtils.sendEncodedAudioToVault(timestamp, postEncodeFile, finalDestinationFile);
+									if (AudioEncodeUtils.sendEncodedAudioToVault(timestamp, postEncodeFile, finalDestinationFile)) {
 
+										String vaultRowId = AudioEncodeUtils.vaultStatsDayId.format(new Date(Long.parseLong(timestamp)));
+
+										if (app.audioEncodeDb.dbVault.getCountById(vaultRowId) > 0) {
+											app.audioEncodeDb.dbVault.incrementSingleRowDuration(vaultRowId, Math.round(audioDuration/1000));
+											app.audioEncodeDb.dbVault.incrementSingleRowRecordCount(vaultRowId, 1);
+											app.audioEncodeDb.dbVault.incrementSingleRowFileSize(vaultRowId, FileUtils.getFileSizeInBytes(finalDestinationFile));
+										} else {
+											app.audioEncodeDb.dbVault.insert(vaultRowId, Math.round(audioDuration/1000), 1, FileUtils.getFileSizeInBytes(finalDestinationFile));
+										}
+
+									}
 								}
 
 								app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(timestamp, encodePurpose);

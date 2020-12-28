@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
 import org.rfcx.guardian.utility.asset.RfcxLogcatUtils;
 import org.rfcx.guardian.utility.asset.RfcxPhotoUtils;
@@ -149,15 +150,27 @@ public class AssetUtils {
 	}
 
 
-//	public boolean runGarbageCollection_SingleAsset(String assetFilePath) {
-//		return runGarbageCollection_SingleAsset(new File(assetFilePath));
-//	}
-//
-//	public boolean runGarbageCollection_SingleAsset(File assetFile) {
-//
-//
-//
-//	}
 
+	public void runFileSystemAssetCleanup(int checkFilesUnModifiedSinceThisManyMinutes) {
+
+		String[] assetDirectoriesToScan = new String[] {
+				RfcxAudioUtils.audioStashDir(app.getApplicationContext()),
+				RfcxAudioUtils.audioFinalDir(app.getApplicationContext()),
+				RfcxAudioUtils.audioQueueDir(app.getApplicationContext())
+		};
+
+		List<String> assetFilePathsFromDatabase = new ArrayList<String>();
+		// CheckIn Databases
+		for (String[] row : app.apiCheckInDb.dbQueued.getAllRows()) { assetFilePathsFromDatabase.add(row[4]); }
+		for (String[] row : app.apiCheckInDb.dbStashed.getAllRows()) { assetFilePathsFromDatabase.add(row[4]); }
+		for (String[] row : app.apiCheckInDb.dbSent.getAllRows()) { assetFilePathsFromDatabase.add(row[4]); }
+		for (String[] row : app.apiCheckInDb.dbSkipped.getAllRows()) { assetFilePathsFromDatabase.add(row[4]); }
+		// Encode Queue Databases
+		for (String[] row : app.audioEncodeDb.dbEncoded.getAllRows()) { assetFilePathsFromDatabase.add(row[10]); }
+
+
+		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(assetDirectoriesToScan, assetFilePathsFromDatabase, checkFilesUnModifiedSinceThisManyMinutes);
+
+	}
 
 }

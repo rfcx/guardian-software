@@ -13,12 +13,16 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class AudioEncodeUtils {
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioEncodeUtils");
+
+	public static final SimpleDateFormat vaultStatsDayId = new SimpleDateFormat("yyyy_MM_dd", Locale.US);
 
 	public static final int ENCODE_QUALITY = 10;
 	public static final int ENCODE_FAILURE_SKIP_THRESHOLD = 3;
@@ -68,19 +72,16 @@ public class AudioEncodeUtils {
 	}
 
 
-	public static void sendEncodedAudioToVault(String audioTimestamp, File preVaultFile, File vaultFile) throws IOException {
+	public static boolean sendEncodedAudioToVault(String audioTimestamp, File preVaultFile, File vaultFile) throws IOException {
 
 		FileUtils.copy(preVaultFile, vaultFile);
-
+		FileUtils.delete(preVaultFile);
 		if (FileUtils.exists(vaultFile)) {
-
-			FileUtils.delete(preVaultFile);
-
 			Log.d(logTag, "Audio saved to Vault: "+audioTimestamp+", "+FileUtils.bytesAsReadableString(FileUtils.getFileSizeInBytes(vaultFile))+", "+vaultFile.getAbsolutePath());
-
+			return true;
 		} else {
-
 			Log.e(logTag, "Final encoded file not found: "+vaultFile.getAbsolutePath());
 		}
+		return false;
 	}
 }

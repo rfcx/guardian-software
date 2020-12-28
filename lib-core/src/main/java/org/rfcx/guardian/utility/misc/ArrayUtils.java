@@ -21,6 +21,17 @@ public class ArrayUtils {
 		}
 		return doesContain;
 	}
+
+	public static boolean doesStringListContainString(List<String> strList, String strInd) {
+		boolean doesContain = false;
+		for (String sInd : strList) {
+			if (sInd.equalsIgnoreCase(strInd)) {
+				doesContain = true;
+				break;
+			}
+		}
+		return doesContain;
+	}
 	
 	public static double[] castFloatArrayToDoubleArray(float[] arr) {
 		if (arr == null) { arr = new float[]{}; }
@@ -198,6 +209,13 @@ public class ArrayUtils {
 		for (int val : arr) { lst.add((double) val); }
 		return lst;
 	}
-	
+
+
+//	public static List<String> concatStringLists(List<String> strListA, List<String> strListB) {
+//		for (String str : strListB) {
+//			strListA.add(str);
+//		}
+//		return strListA;
+//	}
 	
 }

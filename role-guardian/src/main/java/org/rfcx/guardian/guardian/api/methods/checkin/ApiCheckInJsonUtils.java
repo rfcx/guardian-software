@@ -120,7 +120,7 @@ public class ApiCheckInJsonUtils {
 
 		Map<String, String> assetExtraInfo = new HashMap<String, String>();
 
-		for (String assetType : new String[] { "sent", "queued", "meta", "skipped", "stashed", "archived" }) {
+		for (String assetType : new String[] { "sent", "queued", "meta", "skipped", "stashed", "archived", "vault" }) {
 
 			StringBuilder assetInfo = new StringBuilder();
 
@@ -138,6 +138,8 @@ public class ApiCheckInJsonUtils {
 				assetInfo.append("*").append( app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() );
 			} else if (assetType.equalsIgnoreCase("archived")) {
 				assetInfo.append("*").append( app.apiCheckInArchiveDb.dbApiCheckInArchive.getCumulativeFileSizeForAllRows() );
+			} else if (assetType.equalsIgnoreCase("vault")) {
+				assetInfo.append("*").append( app.audioEncodeDb.dbVault.getCumulativeFileSizeForAllRows() );
 			}
 
 			if (ArrayUtils.doesStringArrayContainString(includeAssetIdLists, assetType)) {
@@ -160,7 +162,8 @@ public class ApiCheckInJsonUtils {
 						"meta*" + app.metaDb.dbMeta.getCount() + assetExtraInfo.get("meta"),
 						"skipped*" + app.apiCheckInDb.dbSkipped.getCount() + assetExtraInfo.get("skipped"),
 						"stashed*" + app.apiCheckInDb.dbStashed.getCount() + assetExtraInfo.get("stashed"),
-						"archived*" + app.apiCheckInArchiveDb.dbApiCheckInArchive.getInnerRecordCumulativeCount() + assetExtraInfo.get("archived")
+						"archived*" + app.apiCheckInArchiveDb.dbApiCheckInArchive.getInnerRecordCumulativeCount() + assetExtraInfo.get("archived"),
+						"vault*" + app.audioEncodeDb.dbVault.getCumulativeRecordCountForAllRows() + assetExtraInfo.get("vault")
 				});
 	}
 

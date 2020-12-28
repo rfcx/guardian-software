@@ -109,6 +109,10 @@ public class GuardianContentProvider extends ContentProvider {
 				app.initializeRoleServices();
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"initialize", null, System.currentTimeMillis()});
 
+			} else if (RfcxComm.uriMatch(uri, appRole, "control", "asset_garbage_collection")) { logFuncVal = "control-asset_garbage_collection";
+				app.assetUtils.runFileSystemAssetCleanup(30);
+				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"asset_garbage_collection", null, System.currentTimeMillis()});
+
 			// "segments" endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "segment_receive_sms", "*")) { logFuncVal = "segment_receive_sms-*";

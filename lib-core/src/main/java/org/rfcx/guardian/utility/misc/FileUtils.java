@@ -12,11 +12,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.xeustechnologies.jtar.TarEntry;
 import org.xeustechnologies.jtar.TarOutputStream;
@@ -217,11 +219,18 @@ public class FileUtils {
 	public static boolean delete(String filePath) {
 		return delete(new File(filePath));
 	}
-	
-	public static void delete(List<String> filePaths) {
-		for (String filePath : filePaths) {
-			delete(filePath);
+
+//	public static void delete(List<File> fileObjs) { delete(fileObjs, false); }
+
+	public static List<String> deleteAndReturnFilePaths(List<File> fileObjList) {
+		List<String> filePaths = new ArrayList<String>();
+		for (File fileObj : fileObjList) {
+			delete(fileObj);
+			if (!fileObj.exists()) {
+				filePaths.add(fileObj.getAbsolutePath());
+			}
 		}
+		return filePaths;
 	}
 
 	public static boolean exists(String filePath) {
@@ -231,6 +240,61 @@ public class FileUtils {
 	public static boolean exists(File fileObj) {
 		return (fileObj != null) && fileObj.exists();
 	}
+
+	public static List<File> getDirectoryContents(String directoryFilePath, boolean isRecursive) {
+		List<File> files = new ArrayList<File>();
+		File dirObj = new File(directoryFilePath);
+		if (dirObj.isDirectory()) {
+			for (File file : dirObj.listFiles()) {
+				try {
+					if (!file.isDirectory()) {
+						files.add(file);
+					} else if (isRecursive) {
+						List<File> innerFiles = getDirectoryContents(file.getAbsolutePath(), isRecursive);
+						for (File innerFile : innerFiles) {
+							files.add(innerFile);
+						}
+					}
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e);
+				}
+			}
+		}
+		return files;
+	}
+
+	public static List<File> getEmptyDirectories(String directoryFilePath/*, long ifNotModifiedSinceThisManyMilliseconds*/) {
+		List<File> dirs = new ArrayList<File>();
+		File dirObj = new File(directoryFilePath);
+		if (dirObj.isDirectory()) {
+			File[] innerFiles = dirObj.listFiles();
+			if (innerFiles.length == 0) {
+				dirs.add(dirObj);
+			} else {
+				for (File innerFile : innerFiles) {
+					List<File> innerDirs = getEmptyDirectories(innerFile.getAbsolutePath());
+					for (File innerDir : innerDirs) {
+						dirs.add(innerDir);
+					}
+
+
+//					findAndDeleteEmptyDirectories(innerDir.getAbsolutePath(), isRecursive, ifNotModifiedSinceThisManyMilliseconds);
+				}
+
+//				if (isRecursive) {
+//
+//					//	Log.i(logTag, "___ "+dirObj.getAbsolutePath());
+//				}
+			}/* else {
+				if (millisecondsSinceLastModified(dirObj) > ifNotModifiedSinceThisManyMilliseconds) {
+					Log.e(logTag, "Deleting empty directory: "+dirObj.getAbsolutePath());
+					delete(dirObj);
+				}
+			}*/
+		}
+		return dirs;
+	}
+
 
 	public static void deleteDirectoryContents(String directoryFilePath) {
 		File directory = new File(directoryFilePath);
@@ -272,6 +336,7 @@ public class FileUtils {
 			}
 		}
 	}
+
 
 	public static void initializeDirectoryRecursively(String dirPath, boolean isExternal) {
 		if (!isExternal || DeviceStorage.isExternalStorageWritable()) {

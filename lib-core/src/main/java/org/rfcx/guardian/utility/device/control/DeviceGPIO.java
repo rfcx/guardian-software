@@ -7,12 +7,9 @@ import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class DeviceGPIO {
 
@@ -76,20 +73,5 @@ public class DeviceGPIO {
 		}
 	}
 
-//	public static void setADBoverTCP(boolean enableOrDisable, Context context) {
-//		setADBoverTCP(enableOrDisable, DEFAULT_TCP_PORT, context);
-//	}
-//
-//	public static void enableADBoverTCP(int tcpPort, Context context) {
-//		setADBoverTCP(true, tcpPort, context);
-//	}
-//
-//	public static void enableADBoverTCP(Context context) {
-//		setADBoverTCP(true, DEFAULT_TCP_PORT, context);
-//	}
-//
-//	public static void disableADBoverTCP(Context context) {
-//		setADBoverTCP(false, 0, context);
-//	}
 	
 }
