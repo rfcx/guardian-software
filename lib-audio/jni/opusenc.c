@@ -66,12 +66,12 @@ int convert( const char* source_path, const char* target_path, int bitRate, int 
 
 JNIEXPORT jint JNICALL Java_org_rfcx_guardian_audio_opus_OpusAudioEncoder_encodeOpusFile(JNIEnv *env,
 		jobject jobj, jstring in_source_path, jstring in_target_path,
-		jint in_brate, jint in_quality) {
+		jint in_brate, jint in_quality, jint sample_rate, jint channels) {
 	const char *source_path, *target_path;
 	source_path = (*env)->GetStringUTFChars(env, in_source_path, NULL);
 	target_path = (*env)->GetStringUTFChars(env, in_target_path, NULL);
 
-	int result = convert( source_path, target_path, in_brate, in_quality);
+	int result = convert( source_path, target_path, in_brate, in_quality, sample_rate, channels);
 
 	(*env)->ReleaseStringUTFChars( env, in_source_path, source_path );
 	(*env)->ReleaseStringUTFChars( env, in_target_path, target_path );
@@ -79,7 +79,7 @@ JNIEXPORT jint JNICALL Java_org_rfcx_guardian_audio_opus_OpusAudioEncoder_encode
 	return result;
 }
 
-int convert( const char* source_path, const char* target_path, int bitRate, int quality) {
+int convert( const char* source_path, const char* target_path, int bitRate, int quality, int sample_rate, int channels) {
 	static const input_format raw_format = {NULL, 0, raw_open, wav_close, "raw",N_("RAW file reader")};
 	int i, ret;
 	int                cline_size;
@@ -127,10 +127,10 @@ int convert( const char* source_path, const char* target_path, int bitRate, int 
 	int                quiet=0;
 	int                max_frame_bytes;
 	opus_int32         bitrate=bitRate * 1000;
-	opus_int32         rate=48000;
-	opus_int32         coding_rate=48000;
+	opus_int32         rate=sample_rate;
+	opus_int32         coding_rate=sample_rate;
 	opus_int32         frame_size=960;
-	int                chan=2;
+	int                chan=channels;
 	int                with_hard_cbr=0;
 	int                with_cvbr=0;
 	int                expect_loss=0;
@@ -138,7 +138,7 @@ int convert( const char* source_path, const char* target_path, int bitRate, int 
 	int                downmix=0;
 	int                *opt_ctls_ctlval;
 	int                opt_ctls=0;
-	int                max_ogg_delay=48000; // 48kHz samples
+	int                max_ogg_delay=sample_rate; // 48kHz samples
 	int                seen_file_icons=0;
 	int                comment_padding=512;
 	int                serialno;
