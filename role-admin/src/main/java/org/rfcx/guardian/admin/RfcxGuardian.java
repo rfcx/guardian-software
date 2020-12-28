@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin;
 
+import org.rfcx.guardian.admin.asset.AssetUtils;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
 import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
@@ -91,7 +92,7 @@ public class RfcxGuardian extends Application {
     public DeviceDataTransferDb deviceDataTransferDb = null;
     public DeviceSpaceDb deviceSpaceDb = null;
     public SmsMessageDb smsMessageDb = null;
-	
+
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
 
@@ -102,7 +103,7 @@ public class RfcxGuardian extends Application {
     public DeviceUtils deviceUtils = null;
 	public DeviceMobilePhone deviceMobilePhone = null;
 	public DeviceMobileNetwork deviceMobileNetwork = new DeviceMobileNetwork(APP_ROLE);
-
+	public AssetUtils assetUtils = null;
 
 	public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils();
 	public SentinelPowerUtils sentinelPowerUtils = null;
@@ -145,6 +146,7 @@ public class RfcxGuardian extends Application {
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		this.sentinelCompassUtils = new SentinelCompassUtils(this);
 		this.sentinelAccelUtils = new SentinelAccelUtils(this);
+		this.assetUtils = new AssetUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();

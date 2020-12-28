@@ -9,6 +9,7 @@ import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
+import java.util.List;
 
 public class CameraCaptureDb {
 
@@ -73,6 +74,10 @@ public class CameraCaptureDb {
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}
+
+		public List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
 		
 		public JSONArray getLatestRowAsJsonArray() {
 			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
@@ -120,6 +125,10 @@ public class CameraCaptureDb {
 			values.put(C_LAST_ACCESSED_AT, 0);
 
 			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 
 		public JSONArray getLatestRowAsJsonArray() {

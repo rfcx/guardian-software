@@ -48,7 +48,7 @@ public class RfcxLogcatUtils {
 		return Environment.getExternalStorageDirectory().toString() + "/rfcx/logs";
 	}
 	
-	private static String logQueueDir(Context context) {
+	public static String logQueueDir(Context context) {
 		return context.getFilesDir().toString() + "/logs/queue";
 	}
 	

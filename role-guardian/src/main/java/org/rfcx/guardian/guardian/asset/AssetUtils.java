@@ -151,7 +151,16 @@ public class AssetUtils {
 
 
 
+	// Asset Cleanup
+
+	private int checkFilesUnModifiedSinceThisManyMinutes = 120;
+
 	public void runFileSystemAssetCleanup(int checkFilesUnModifiedSinceThisManyMinutes) {
+		this.checkFilesUnModifiedSinceThisManyMinutes = checkFilesUnModifiedSinceThisManyMinutes;
+		runFileSystemAssetCleanup();
+	}
+
+	public void runFileSystemAssetCleanup() {
 
 		String[] assetDirectoriesToScan = new String[] {
 				RfcxAudioUtils.audioStashDir(app.getApplicationContext()),

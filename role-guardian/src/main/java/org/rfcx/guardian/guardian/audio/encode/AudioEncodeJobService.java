@@ -148,7 +148,7 @@ public class AudioEncodeJobService extends Service {
 
 								if (encodePurpose.equalsIgnoreCase("stream")) {
 
-									File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_GZip(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(timestamp), RfcxAudioUtils.getFileExtension(codec)));
+									File gZippedFile = new File(RfcxAudioUtils.getAudioFileLocation_GZip(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(timestamp), RfcxAudioUtils.getFileExt(codec)));
 
 									// GZIP encoded file into final location
 									FileUtils.gZipFile(postEncodeFile, gZippedFile);
@@ -158,12 +158,12 @@ public class AudioEncodeJobService extends Service {
 
 										FileUtils.delete(postEncodeFile);
 
-										finalDestinationFile = new File(RfcxAudioUtils.getAudioFileLocation_Queue(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(timestamp), RfcxAudioUtils.getFileExtension(codec)));
+										finalDestinationFile = new File(RfcxAudioUtils.getAudioFileLocation_Queue(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(timestamp), RfcxAudioUtils.getFileExt(codec)));
 
 										if (app.apiCheckInUtils.sendEncodedAudioToQueue(timestamp, gZippedFile, finalDestinationFile)) {
 
 											app.audioEncodeDb.dbEncoded.insert(
-													timestamp, RfcxAudioUtils.getFileExtension(codec), encodedFileDigest, sampleRate, measuredBitRate,
+													timestamp, RfcxAudioUtils.getFileExt(codec), encodedFileDigest, sampleRate, measuredBitRate,
 													codec, audioDuration, encodeDuration, encodePurpose, finalDestinationFile.getAbsolutePath()
 											);
 										}
@@ -172,7 +172,7 @@ public class AudioEncodeJobService extends Service {
 
 								} else if (encodePurpose.equalsIgnoreCase("vault")) {
 
-									finalDestinationFile = new File(RfcxAudioUtils.getAudioFileLocation_Vault(app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioUtils.getFileExtension(codec)));
+									finalDestinationFile = new File(RfcxAudioUtils.getAudioFileLocation_Vault(app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioUtils.getFileExt(codec), sampleRate));
 
 									if (AudioEncodeUtils.sendEncodedAudioToVault(timestamp, postEncodeFile, finalDestinationFile)) {
 

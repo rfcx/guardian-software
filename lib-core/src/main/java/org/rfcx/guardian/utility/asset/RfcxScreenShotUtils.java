@@ -42,7 +42,7 @@ public class RfcxScreenShotUtils {
 		return Environment.getExternalStorageDirectory().toString() + "/rfcx/screenshots";
 	}
 	
-	private static String screenShotQueueDir(Context context) {
+	public static String screenShotQueueDir(Context context) {
 		return context.getFilesDir().toString() + "/screenshots/queue";
 	}
 

@@ -41,7 +41,7 @@ public class RfcxPhotoUtils {
 		return Environment.getExternalStorageDirectory().toString() + "/rfcx/photos";
 	}
 	
-	private static String photoQueueDir(Context context) {
+	public static String photoQueueDir(Context context) {
 		return context.getFilesDir().toString() + "/photos/queue";
 	}
 	

@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin.device.android.capture;
 
 import java.util.Date;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.rfcx.guardian.utility.database.DbUtils;
@@ -73,6 +74,10 @@ public class LogcatDb {
 			values.put(C_LAST_ACCESSED_AT, 0);
 			
 			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
 		public JSONArray getLatestRowAsJsonArray() {

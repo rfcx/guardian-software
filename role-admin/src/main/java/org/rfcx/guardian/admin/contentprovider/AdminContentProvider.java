@@ -133,6 +133,10 @@ public class AdminContentProvider extends ContentProvider {
                 app.rfcxServiceHandler.triggerService("ClockSyncJob", true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"clock_sync", null, System.currentTimeMillis()});
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "asset_cleanup")) { logFuncVal = "control-asset_cleanup";
+                app.assetUtils.runFileSystemAssetCleanup();
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"asset_cleanup", null, System.currentTimeMillis()});
+
 
             } else if (RfcxComm.uriMatch(uri, appRole, "gpio_set", "*")) { logFuncVal = "gpio_set-*";
                 String pathSeg = uri.getLastPathSegment();

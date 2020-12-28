@@ -41,7 +41,7 @@ public class RfcxVideoUtils {
 		return Environment.getExternalStorageDirectory().toString() + "/rfcx/videos";
 	}
 	
-	private static String videoQueueDir(Context context) {
+	public static String videoQueueDir(Context context) {
 		return context.getFilesDir().toString() + "/videos/queue";
 	}
 	
