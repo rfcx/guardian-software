@@ -62,7 +62,7 @@ static inline int oe_write_page(ogg_page *page, FILE *fp)
 #define PACKAGE_NAME "rfcx-guardian-lib-audio"
 #define PACKAGE_VERSION "0.1.0"
 
-int convert( const char* source_path, const char* target_path, int bitRate, int quality);
+int convert( const char* source_path, const char* target_path, int bitRate, int quality, int sample_rate, int channels);
 
 JNIEXPORT jint JNICALL Java_org_rfcx_guardian_audio_opus_OpusAudioEncoder_encodeOpusFile(JNIEnv *env,
 		jobject jobj, jstring in_source_path, jstring in_target_path,
