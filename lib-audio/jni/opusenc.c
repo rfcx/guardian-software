@@ -66,12 +66,12 @@ int convert( const char* source_path, const char* target_path, int bitRate, int 
 
 JNIEXPORT jint JNICALL Java_org_rfcx_guardian_audio_opus_OpusAudioEncoder_encodeOpusFile(JNIEnv *env,
 		jobject jobj, jstring in_source_path, jstring in_target_path,
-		jint in_brate, jint in_quality, jint sample_rate, jint channels) {
+		jint in_brate, jint in_quality, jint in_sample_rate, jint in_channels) {
 	const char *source_path, *target_path;
 	source_path = (*env)->GetStringUTFChars(env, in_source_path, NULL);
 	target_path = (*env)->GetStringUTFChars(env, in_target_path, NULL);
 
-	int result = convert( source_path, target_path, in_brate, in_quality, sample_rate, channels);
+	int result = convert( source_path, target_path, in_brate, in_quality, in_sample_rate, in_channels);
 
 	(*env)->ReleaseStringUTFChars( env, in_source_path, source_path );
 	(*env)->ReleaseStringUTFChars( env, in_target_path, target_path );
