@@ -12,13 +12,16 @@ import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInHealthUtils;
+import org.rfcx.guardian.guardian.asset.AudioClassificationDb;
 import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJsonUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInStatsDb;
 import org.rfcx.guardian.guardian.api.methods.ping.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentDb;
 import org.rfcx.guardian.guardian.asset.ScheduledAssetCleanupService;
+import org.rfcx.guardian.guardian.audio.classify.AudioClassifierDb;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyDb;
+import org.rfcx.guardian.guardian.audio.classify.AudioClassifyJobService;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -78,7 +81,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     // Database Handlers
     public AudioEncodeDb audioEncodeDb = null;
-    public AudioClassifyDb audioClassifyDb = null;
     public ApiCheckInDb apiCheckInDb = null;
     public MetaDb metaDb = null;
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
@@ -88,6 +90,10 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiDownloadDb apiDownloadDb = null;
     public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
+
+    public AudioClassifyDb audioClassifyDb = null;
+    public AudioClassificationDb audioClassificationDb = null;
+    public AudioClassifierDb audioClassifierDb = null;
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -119,6 +125,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     "AudioCapture",
                     "ApiCheckInJob",
                     "AudioEncodeJob",
+                    "AudioClassifyJob",
                     "InstructionsCycle"
             };
 
@@ -240,7 +247,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     private void setDbHandlers() {
 
         this.audioEncodeDb = new AudioEncodeDb(this, this.version);
-        this.audioClassifyDb = new AudioClassifyDb(this, this.version);
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.metaDb = new MetaDb(this, this.version);
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
@@ -250,6 +256,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiDownloadDb = new ApiDownloadDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
+        this.audioClassifyDb = new AudioClassifyDb(this, this.version);
+        this.audioClassificationDb = new AudioClassificationDb(this, this.version);
+        this.audioClassifierDb = new AudioClassifierDb(this, this.version);
 
     }
 
@@ -259,9 +268,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("ScheduledAssetCleanup", ScheduledAssetCleanupService.class);
 
         this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
-
         this.rfcxServiceHandler.addService("AudioQueuePostProcessing", AudioQueuePostProcessingService.class);
         this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
+        this.rfcxServiceHandler.addService("AudioClassifyJob", AudioClassifyJobService.class);
 
         this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueService.class);
         this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);

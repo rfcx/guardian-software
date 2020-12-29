@@ -19,7 +19,7 @@ public class AudioClassifyDb {
 	}
 
 	private int VERSION = 1;
-	static final String DATABASE = "classify";
+	static final String DATABASE = "audio-classify";
 	
 	static final String C_CREATED_AT = "created_at";
 	static final String C_TIMESTAMP = "timestamp";

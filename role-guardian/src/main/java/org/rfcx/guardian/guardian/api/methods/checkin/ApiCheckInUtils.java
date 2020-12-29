@@ -102,9 +102,9 @@ public class ApiCheckInUtils {
 
 				if (FileUtils.exists(stashFilePath) && (FileUtils.getFileSizeInBytes(stashFilePath) == Long.parseLong(checkInsToStash[6]))) {
 					stashCount = app.apiCheckInDb.dbStashed.insert(checkInsToStash[1], checkInsToStash[2], checkInsToStash[3], stashFilePath, checkInsToStash[5], checkInsToStash[6]);
-					stashSuccessList.add(checkInsToStash[1]);
+					stashSuccessList.add(checkInsToStash[1].substring(0, checkInsToStash[1].indexOf(".")));
 				} else {
-					stashFailureList.add(checkInsToStash[1]);
+					stashFailureList.add(checkInsToStash[1].substring(0, checkInsToStash[1].indexOf(".")));
 				}
 
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(checkInsToStash[1]);
@@ -112,7 +112,7 @@ public class ApiCheckInUtils {
 			}
 
 			if (stashFailureList.size() > 0) {
-				Log.e(logTag, stashFailureList.size() + " CheckIn(s) failed to be Stashed (" + TextUtils.join(" ", stashFailureList) + ").");
+				Log.e(logTag, stashFailureList.size() + " CheckIn" + ((stashFailureList.size() == 1) ? "" : "s") + " failed to be Stashed (" + TextUtils.join(" ", stashFailureList) + ").");
 			}
 
 			if (stashSuccessList.size() > 0) {
@@ -120,9 +120,9 @@ public class ApiCheckInUtils {
 				long stashedSize = app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows();
 				long stashedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(stashedSize+"")/((stashFileSizeBuffer+archiveFileSizeTarget)*1024*1024))));
 
-				Log.i(logTag, stashSuccessList.size() + " CheckIn(s) moved to stash (" + TextUtils.join(" ", stashSuccessList) + ")."
-						+" Total: "
-							+ stashCount + " in stash ("+FileUtils.bytesAsReadableString(stashedSize)+")"
+				Log.i(logTag, stashSuccessList.size() + " CheckIn" + ((stashSuccessList.size() == 1) ? "" : "s") + " moved to Stash (" + TextUtils.join(" ", stashSuccessList) + ")"
+						+" - Total: "
+							+ stashCount + " in Stash ("+FileUtils.bytesAsReadableString(stashedSize)+")"
 							+", " + stashedLimitPct +"% of "+(stashFileSizeBuffer+archiveFileSizeTarget)+" MB limit.");
 			}
 		}

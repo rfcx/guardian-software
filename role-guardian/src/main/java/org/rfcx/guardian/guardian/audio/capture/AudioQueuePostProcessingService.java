@@ -43,6 +43,8 @@ public class AudioQueuePostProcessingService extends IntentService {
 
 				String preEncodeFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0], captureFileExtension);
 
+
+
 				// Queue Audio Encode for Streaming
 				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_stream")) {
 
@@ -54,6 +56,8 @@ public class AudioQueuePostProcessingService extends IntentService {
 						""+queueCaptureTimeStamp[0], captureFileExtension, "-", streamSampleRate,
 							streamBitrate, streamCodec, captureLoopPeriod, captureLoopPeriod, "stream", preEncodeFilePath, queueCaptureSampleRate[0] );
 				}
+
+
 
 				// Queue Audio Encode for the Vault
 				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_vault")) {
@@ -67,7 +71,9 @@ public class AudioQueuePostProcessingService extends IntentService {
 							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath, queueCaptureSampleRate[0] );
 				}
 
-				// Queue Audio Analysis/Classification
+
+
+				// Queue Audio Classification
 				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_classify")) {
 
 					int classifierSampleRate = app.rfcxPrefs.getPrefAsInt("audio_stream_sample_rate");
@@ -76,12 +82,16 @@ public class AudioQueuePostProcessingService extends IntentService {
 //							""+queueCaptureTimeStamp[0], captureFileExtension, "-", classifierSampleRate,
 //							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath, queueCaptureSampleRate[0] );
 				}
+
+
 				
 			} else {
 				Log.e(logTag, "Queued audio file does not exist: "+ RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0],captureFileExtension));
 			}
 
-			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
+			long serviceTimeOutDuration = 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", serviceTimeOutDuration );
+			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioClassifyJob", serviceTimeOutDuration );
 				
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

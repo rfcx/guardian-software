@@ -88,6 +88,7 @@
         <service android:name=".api.methods.clock.ClockSyncJobService" android:exported="false" />
         <service android:name=".instructions.InstructionsCycleService" android:exported="false" />
         <service android:name=".instructions.InstructionsExecutionService" android:exported="false" />
+        <service android:name=".audio.classify.AudioClassifyJobService" android:exported="false" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" android:exported="false" />
