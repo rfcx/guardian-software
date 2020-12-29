@@ -213,18 +213,18 @@ public class ApiCheckInJsonUtils {
 
 		clearPrePackageMetaData(metaQueryTimestampObj);
 
-		int metaQueueRecordCount = app.metaDb.dbMeta.getCount();
-		long metaQueueByteLength = app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows();
+		int metaQueueFullRecordCount = app.metaDb.dbMeta.getCount();
+		long metaQueueFullByteLength = app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows();
 		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_meta_queue_filesize_limit");
 
 		Log.d(logTag, "Meta JSON Snapshot added to Queue: " + metaQueryTimestamp + ", "
 							+ FileUtils.bytesAsReadableString(metaDataJsonStr.length())
-							+ " (" + metaQueueRecordCount + " snapshots in queue, "
-							+ Math.round( 100 * metaQueueByteLength / ( metaFileSizeLimit * 1024 * 1024 ) ) + "%"
+							+ " (" + metaQueueFullRecordCount + " snapshots in queue, "
+							+ Math.round( 100 * metaQueueFullByteLength / ( metaFileSizeLimit * 1024 * 1024 ) ) + "%"
 							+ " of " + metaFileSizeLimit + " MB limit)"
 		);
 
-		archiveOldestMetaSnapshots(metaQueueByteLength, metaQueueRecordCount);
+		archiveOldestMetaSnapshots(metaQueueFullByteLength, metaQueueFullRecordCount);
 
 	}
 
@@ -253,22 +253,22 @@ public class ApiCheckInJsonUtils {
 		}
 	}
 
-	private void archiveOldestMetaSnapshots(long metaQueueByteLength, int metaQueueRecordCount) {
+	private void archiveOldestMetaSnapshots(long metaQueueFullByteLength, int metaQueueFullRecordCount) {
 
-//		int metaQueueRecordCount = app.metaDb.dbMeta.getCount();
-//		long metaQueueByteLength = app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows();
+//		int metaQueueFullRecordCount = app.metaDb.dbMeta.getCount();
+//		long metaQueueFullByteLength = app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows();
 		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_meta_queue_filesize_limit");
 		long metaFileSizeLimitInBytes = metaFileSizeLimit*1024*1024;
 
-		if (metaQueueByteLength >= metaFileSizeLimitInBytes) {
+		if (metaQueueFullByteLength >= metaFileSizeLimitInBytes) {
 
-			int metaArchiveRecordCount = Math.round(metaQueueRecordCount/ 10);
+			int metaArchiveRecordCount = Math.round( metaQueueFullRecordCount/ 10 ); // We archive 10% of the full queue size. This could be larger.
 			long metaArchiveTimestamp = 0;
 			long metaArchiveBlobSize = 0;
 			List<String> archiveSuccessList = new ArrayList<String>();
 			JSONArray metaJsonBlobsToArchive = new JSONArray();
 
-			for (String[] metaRowsToArchive : app.metaDb.dbMeta.getRowsWithOffset(app.metaDb.dbMeta.getCount() - metaArchiveRecordCount, metaArchiveRecordCount)) {
+			for (String[] metaRowsToArchive : app.metaDb.dbMeta.getRowsWithOffset(metaQueueFullRecordCount - metaArchiveRecordCount, metaArchiveRecordCount)) {
 				try {
 					metaJsonBlobsToArchive.put(new JSONObject(metaRowsToArchive[2]));
 				} catch (Exception e) {
