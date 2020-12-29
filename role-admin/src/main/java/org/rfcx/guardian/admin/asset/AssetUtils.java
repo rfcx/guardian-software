@@ -1,6 +1,8 @@
 package org.rfcx.guardian.admin.asset;
 
 import android.content.Context;
+import android.util.Log;
+
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
@@ -29,14 +31,11 @@ public class AssetUtils {
 	// Asset Cleanup
 
 
-	private int checkFilesUnModifiedSinceThisManyMinutes = 120;
-
-	public void runFileSystemAssetCleanup(int checkFilesUnModifiedSinceThisManyMinutes) {
-		this.checkFilesUnModifiedSinceThisManyMinutes = checkFilesUnModifiedSinceThisManyMinutes;
-		runFileSystemAssetCleanup();
+	public void runFileSystemAssetCleanup() {
+		runFileSystemAssetCleanup(Math.round(ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION / (60 * 1000)));
 	}
 
-	public void runFileSystemAssetCleanup() {
+	public void runFileSystemAssetCleanup(int checkFilesUnModifiedSinceThisManyMinutes) {
 
 		String[] assetDirectoriesToScan = new String[] {
 				RfcxPhotoFileUtils.photoCaptureDir(app.getApplicationContext()),

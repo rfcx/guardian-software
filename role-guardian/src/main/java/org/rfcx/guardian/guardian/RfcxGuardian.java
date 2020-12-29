@@ -5,6 +5,7 @@ import java.util.Map;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInUtils;
 import org.rfcx.guardian.guardian.api.methods.command.ApiCommandUtils;
+import org.rfcx.guardian.guardian.api.methods.download.ApiDownloadDb;
 import org.rfcx.guardian.guardian.api.methods.ping.ApiPingJsonUtils;
 import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
@@ -16,6 +17,7 @@ import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJsonUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInStatsDb;
 import org.rfcx.guardian.guardian.api.methods.ping.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentDb;
+import org.rfcx.guardian.guardian.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
@@ -83,6 +85,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AssetExchangeLogDb assetExchangeLogDb = null;
     public ApiCheckInArchiveDb apiCheckInArchiveDb = null;
     public ApiSegmentDb apiSegmentDb = null;
+    public ApiDownloadDb apiDownloadDb = null;
     public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
 
@@ -207,8 +210,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
             String[] runOnceOnlyOnLaunch = new String[]{
                     "ServiceMonitor"
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
                             + "|" + ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
+                            ,
+                    "ScheduledAssetCleanup"
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
+                            + "|" + ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION
                             ,
                     "ScheduledClockSync"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
@@ -240,6 +247,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.assetExchangeLogDb = new AssetExchangeLogDb(this, this.version);
         this.apiCheckInArchiveDb = new ApiCheckInArchiveDb(this, this.version);
         this.apiSegmentDb = new ApiSegmentDb(this, this.version);
+        this.apiDownloadDb = new ApiDownloadDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
 
@@ -248,6 +256,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     private void setServiceHandlers() {
 
         this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
+        this.rfcxServiceHandler.addService("ScheduledAssetCleanup", ScheduledAssetCleanupService.class);
+
         this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
 
         this.rfcxServiceHandler.addService("AudioQueuePostProcessing", AudioQueuePostProcessingService.class);

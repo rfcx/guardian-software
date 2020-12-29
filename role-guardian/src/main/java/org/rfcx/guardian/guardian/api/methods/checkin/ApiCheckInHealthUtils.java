@@ -218,7 +218,7 @@ public class ApiCheckInHealthUtils {
 		StringBuilder msgNotAllowed = new StringBuilder();
 		int reportedDelay = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 2;
 
-		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_internal_battery") && !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()) {
+		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_internal_battery") && !isBatteryChargeSufficientForCheckIn()) {
 			msgNotAllowed.append("low battery level")
 					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
 					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("checkin_cutoff_internal_battery")).append("%).");
@@ -310,5 +310,16 @@ public class ApiCheckInHealthUtils {
 		return false;
 	}
 
+
+	public boolean isBatteryChargeSufficientForCheckIn() {
+		int batteryChargeCutoff = app.rfcxPrefs.getPrefAsInt("checkin_cutoff_battery");
+		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
+		boolean isBatteryChargeSufficient = (batteryCharge >= batteryChargeCutoff);
+		if (isBatteryChargeSufficient && (batteryChargeCutoff == 100)) {
+			isBatteryChargeSufficient = this.app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null);
+			if (!isBatteryChargeSufficient) { Log.d(logTag, "Battery is at 100% but is not yet fully charged."); }
+		}
+		return isBatteryChargeSufficient;
+	}
 
 }

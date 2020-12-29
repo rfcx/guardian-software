@@ -206,12 +206,25 @@ public class ApiCheckInJsonUtils {
 		if (app.deviceSystemDb.dbDateTimeOffsets.getCount() > 0) { dateTimeOffsets.add(app.deviceSystemDb.dbDateTimeOffsets.getConcatRows()); }
 		if (dateTimeOffsets.size() > 0) { metaDataJsonObj.put("datetime_offsets", TextUtils.join("|", dateTimeOffsets)); }
 
+		String metaDataJsonStr = metaDataJsonObj.toString();
+
 		// Saves JSON snapshot blob to database
-		app.metaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonObj.toString());
+		app.metaDb.dbMeta.insert(metaQueryTimestamp, metaDataJsonStr);
 
 		clearPrePackageMetaData(metaQueryTimestampObj);
 
-		archiveOldestMetaSnapshots();
+		int metaQueueRecordCount = app.metaDb.dbMeta.getCount();
+		long metaQueueByteLength = app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows();
+		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_meta_queue_filesize_limit");
+
+		Log.d(logTag, "Meta JSON Snapshot added to Queue: " + metaQueryTimestamp + ", "
+							+ FileUtils.bytesAsReadableString(metaDataJsonStr.length())
+							+ " (" + metaQueueRecordCount + " snapshots in queue, "
+							+ Math.round( 100 * metaQueueByteLength / ( metaFileSizeLimit * 1024 * 1024 ) ) + "%"
+							+ " of " + metaFileSizeLimit + " MB limit)"
+		);
+
+		archiveOldestMetaSnapshots(metaQueueByteLength, metaQueueRecordCount);
 
 	}
 
@@ -240,20 +253,22 @@ public class ApiCheckInJsonUtils {
 		}
 	}
 
-	private void archiveOldestMetaSnapshots() {
+	private void archiveOldestMetaSnapshots(long metaQueueByteLength, int metaQueueRecordCount) {
 
+//		int metaQueueRecordCount = app.metaDb.dbMeta.getCount();
+//		long metaQueueByteLength = app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows();
 		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_meta_queue_filesize_limit");
 		long metaFileSizeLimitInBytes = metaFileSizeLimit*1024*1024;
 
-		if (app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows() >= metaFileSizeLimitInBytes) {
+		if (metaQueueByteLength >= metaFileSizeLimitInBytes) {
 
-			int metaArchiveRowCount = Math.round(app.metaDb.dbMeta.getCount() / 10);
+			int metaArchiveRecordCount = Math.round(metaQueueRecordCount/ 10);
 			long metaArchiveTimestamp = 0;
 			long metaArchiveBlobSize = 0;
 			List<String> archiveSuccessList = new ArrayList<String>();
 			JSONArray metaJsonBlobsToArchive = new JSONArray();
 
-			for (String[] metaRowsToArchive : app.metaDb.dbMeta.getRowsWithOffset(app.metaDb.dbMeta.getCount() - metaArchiveRowCount, metaArchiveRowCount)) {
+			for (String[] metaRowsToArchive : app.metaDb.dbMeta.getRowsWithOffset(app.metaDb.dbMeta.getCount() - metaArchiveRecordCount, metaArchiveRecordCount)) {
 				try {
 					metaJsonBlobsToArchive.put(new JSONObject(metaRowsToArchive[2]));
 				} catch (Exception e) {

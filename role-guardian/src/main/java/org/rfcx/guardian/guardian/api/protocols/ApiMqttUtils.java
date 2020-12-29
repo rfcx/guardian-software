@@ -463,7 +463,7 @@ public class ApiMqttUtils implements MqttCallback {
 							// OR... we are explicitly in offline mode
 							|| app.apiCheckInHealthUtils.isApiCheckInDisabled(false)
 							// OR... checkins are explicitly paused due to low battery level
-							|| !app.apiCheckInUtils.isBatteryChargeSufficientForCheckIn()
+							|| !app.apiCheckInHealthUtils.isBatteryChargeSufficientForCheckIn()
 				// OR... this is likely the first checkin after a period of disconnection
 				//	|| (app.deviceConnectivity.isConnected() && (minsSinceConnected < this.failedCheckInThresholds[0]))
 			) {

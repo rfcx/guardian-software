@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.asset.AssetUtils;
+import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
 import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
@@ -193,6 +194,10 @@ public class RfcxGuardian extends Application {
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
 							+ "|" + ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
 							,
+					"ScheduledAssetCleanup"
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
+							+ "|" + ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION
+							,
 					"ScheduledScreenShotCapture"
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:45").getTimeInMillis() // waits forty five seconds before running
 							+ "|" + ( this.rfcxPrefs.getPrefAsLong("admin_screenshot_capture_cycle") * 60 * 1000 )
@@ -239,6 +244,8 @@ public class RfcxGuardian extends Application {
 
 	private void setServiceHandlers() {
 		this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
+		this.rfcxServiceHandler.addService("ScheduledAssetCleanup", ScheduledAssetCleanupService.class);
+
 		this.rfcxServiceHandler.addService("AirplaneModeToggle", AirplaneModeToggleService.class);
 		this.rfcxServiceHandler.addService("AirplaneModeEnable", AirplaneModeEnableService.class);
 
