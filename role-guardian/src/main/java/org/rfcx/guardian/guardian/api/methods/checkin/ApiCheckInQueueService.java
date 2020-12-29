@@ -65,7 +65,7 @@ public class ApiCheckInQueueService extends IntentService {
 			
 		} finally {
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			app.rfcxServiceHandler.stopService(SERVICE_NAME);
+			app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
 		}
 		
 	}

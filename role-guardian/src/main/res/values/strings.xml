@@ -29,7 +29,7 @@
 
 	<string name="prefs_value_api_protocol_escalation_order">mqtt,rest,sms,sbd</string>
 
-	<string name="prefs_value_default_reboot_forced_daily_at">23:54:00</string>
+	<string name="prefs_value_default_reboot_forced_daily_at">23:55:00</string>
 
 	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">false</string>
 	<string name="prefs_value_default_audio_schedule_off_hours">23:56-23:58,23:58-00:00</string>
@@ -67,8 +67,8 @@
 
 	<string name="prefs_value_default_checkin_requeue_bounds_hours">10-14</string>
 
-	<string name="prefs_value_default_checkin_meta_bundle_limit">15</string>
-	<string name="prefs_value_default_checkin_meta_queue_filesize_limit">16</string>
+	<string name="prefs_value_default_checkin_meta_send_bundle_limit">20</string>
+	<string name="prefs_value_default_checkin_meta_queue_filesize_limit">8</string>
 
 	<string name="prefs_value_default_api_clock_sync_cycle_duration">30</string>
 	<string name="prefs_value_default_api_ping_cycle_duration">30</string>

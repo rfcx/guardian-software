@@ -33,8 +33,8 @@ public class RfcxGarbageCollection {
 	public static void runRfcxGarbageCollection(Context context) {
 		
 		String[] captureDirectories = new String[] {
-				RfcxLogcatFileUtils.logCaptureDir(context),
-				RfcxLogcatFileUtils.logPostCaptureDir(context),
+				RfcxLogcatFileUtils.logcatCaptureDir(context),
+				RfcxLogcatFileUtils.logcatPostCaptureDir(context),
 				RfcxScreenShotFileUtils.screenShotCaptureDir(context),
 				RfcxPhotoFileUtils.photoCaptureDir(context),
 				RfcxVideoFileUtils.videoCaptureDir(context),

@@ -21,8 +21,8 @@ public class RfcxLogcatFileUtils {
 		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxLogcatUtils");
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
-		initializeLogCatDirectories(context);
-		saveLogExecutableScript(context, logLevel);
+		initializeLogcatDirectories(context);
+		saveLogcatExecutableScript(context, logLevel);
 	}
 
 	private String logTag;
@@ -35,58 +35,58 @@ public class RfcxLogcatFileUtils {
 	public static final String SCRIPT_NAME = "logcat_capture.sh";
 	public static final String FILETYPE = "log";
 	
-	private static void initializeLogCatDirectories(Context context) {
+	private static void initializeLogcatDirectories(Context context) {
 
-		FileUtils.initializeDirectoryRecursively(logSdCardDir(), true);
-		FileUtils.initializeDirectoryRecursively(logCaptureDir(context), false);
-		FileUtils.initializeDirectoryRecursively(logPostCaptureDir(context), false);
-		FileUtils.initializeDirectoryRecursively(logQueueDir(context), false);
-		FileUtils.initializeDirectoryRecursively(getLogExecutableScriptDir(context), false);
+		FileUtils.initializeDirectoryRecursively(logcatSdCardDir(), true);
+		FileUtils.initializeDirectoryRecursively(logcatCaptureDir(context), false);
+		FileUtils.initializeDirectoryRecursively(logcatPostCaptureDir(context), false);
+		FileUtils.initializeDirectoryRecursively(logcatQueueDir(context), false);
+		FileUtils.initializeDirectoryRecursively(getLogcatExecutableScriptDir(context), false);
 	}
 	
-	private static String logSdCardDir() {
+	private static String logcatSdCardDir() {
 		return Environment.getExternalStorageDirectory().toString() + "/rfcx/logs";
 	}
 	
-	public static String logQueueDir(Context context) {
+	public static String logcatQueueDir(Context context) {
 		return context.getFilesDir().toString() + "/logs/queue";
 	}
 	
-	private static String getLogExecutableScriptDir(Context context) {
+	private static String getLogcatExecutableScriptDir(Context context) {
 		return context.getFilesDir().toString() + "/scr";
 	}
 
-	public static String getLogExecutableScriptFilePath(Context context) {
-		return getLogExecutableScriptDir(context) + "/" + SCRIPT_NAME;
+	public static String getLogcatExecutableScriptFilePath(Context context) {
+		return getLogcatExecutableScriptDir(context) + "/" + SCRIPT_NAME;
 	}
 	
-	public static String logCaptureDir(Context context) {
+	public static String logcatCaptureDir(Context context) {
 		return context.getFilesDir().toString() + "/logs/capture";
 	}
 	
-	public static String logPostCaptureDir(Context context) {
+	public static String logcatPostCaptureDir(Context context) {
 		return context.getFilesDir().toString() + "/logs/complete";
 	}
 	
-	public static String getLogFileLocation_Capture(Context context, long timestamp) {
-		return logCaptureDir(context) + "/" + timestamp + "." + FILETYPE;
+	public static String getLogcatFileLocation_Capture(Context context, long timestamp) {
+		return logcatCaptureDir(context) + "/" + timestamp + "." + FILETYPE;
 	}
 	
-	public static String getLogFileLocation_PostCapture(Context context, long timestamp) {
-		return logPostCaptureDir(context) + "/_" + timestamp + "." + FILETYPE;
+	public static String getLogcatFileLocation_PostCapture(Context context, long timestamp) {
+		return logcatPostCaptureDir(context) + "/_" + timestamp + "." + FILETYPE;
 	}
 
-	public static String getLogFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceStorage.isExternalStorageWritable() ? logSdCardDir() : logQueueDir(context) )
+	public static String getLogcatFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp) {
+		return (DeviceStorage.isExternalStorageWritable() ? logcatSdCardDir() : logcatQueueDir(context) )
 				+ "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + FILETYPE + ".gz";
 	}
 
-	public static String getLogFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {
-		return logSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + FILETYPE + ".gz";
+	public static String getLogcatFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {
+		return logcatSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + FILETYPE + ".gz";
 	}
 	
 	
-	public boolean saveLogExecutableScript(Context context, String logLevel) {
+	public boolean saveLogcatExecutableScript(Context context, String logLevel) {
 		
 		String scriptBody = (new StringBuilder())
 			.append("#!/system/bin/sh").append("\n")
@@ -115,7 +115,7 @@ public class RfcxLogcatFileUtils {
 			.toString();
 		
 		try {
-			String scriptFilePath = getLogExecutableScriptFilePath(context);
+			String scriptFilePath = getLogcatExecutableScriptFilePath(context);
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(scriptFilePath));
 			bufferedWriter.write(scriptBody);
 			bufferedWriter.close();

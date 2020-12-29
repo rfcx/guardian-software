@@ -1,7 +1,6 @@
 package org.rfcx.guardian.admin.asset;
 
 import android.content.Context;
-import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
@@ -42,9 +41,9 @@ public class AssetUtils {
 				RfcxPhotoFileUtils.photoQueueDir(app.getApplicationContext()),
 				RfcxVideoFileUtils.videoCaptureDir(app.getApplicationContext()),
 				RfcxVideoFileUtils.videoQueueDir(app.getApplicationContext()),
-				RfcxLogcatFileUtils.logCaptureDir(app.getApplicationContext()),
-				RfcxLogcatFileUtils.logQueueDir(app.getApplicationContext()),
-				RfcxLogcatFileUtils.logPostCaptureDir(app.getApplicationContext()),
+				RfcxLogcatFileUtils.logcatCaptureDir(app.getApplicationContext()),
+				RfcxLogcatFileUtils.logcatQueueDir(app.getApplicationContext()),
+				RfcxLogcatFileUtils.logcatPostCaptureDir(app.getApplicationContext()),
 				RfcxScreenShotFileUtils.screenShotCaptureDir(app.getApplicationContext()),
 				RfcxScreenShotFileUtils.screenShotQueueDir(app.getApplicationContext())
 		};

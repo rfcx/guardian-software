@@ -40,7 +40,7 @@ public class LogcatCaptureService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(logTag, "Starting service: "+logTag);
+//		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
@@ -75,10 +75,10 @@ public class LogcatCaptureService extends Service {
 			Context context = app.getApplicationContext();
 
 			RfcxLogcatFileUtils rfcxLogcatFileUtils = new RfcxLogcatFileUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid(), app.rfcxPrefs.getPrefAsString("admin_log_capture_level"));
-			String scriptFilePath = RfcxLogcatFileUtils.getLogExecutableScriptFilePath(context);
+			String scriptFilePath = RfcxLogcatFileUtils.getLogcatExecutableScriptFilePath(context);
 
 			// removing older files if they're left in the capture directory
-			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(RfcxLogcatFileUtils.logCaptureDir(context), 60);
+			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(RfcxLogcatFileUtils.logcatCaptureDir(context), 60);
 			
 			try {
 				
@@ -86,8 +86,8 @@ public class LogcatCaptureService extends Service {
 				
 				long captureCycleBeginningTimeStamp = System.currentTimeMillis();
 				
-				String captureFilePath = RfcxLogcatFileUtils.getLogFileLocation_Capture(context, captureCycleBeginningTimeStamp);
-				String postCaptureFilePath = RfcxLogcatFileUtils.getLogFileLocation_PostCapture(context, captureCycleBeginningTimeStamp);
+				String captureFilePath = RfcxLogcatFileUtils.getLogcatFileLocation_Capture(context, captureCycleBeginningTimeStamp);
+				String postCaptureFilePath = RfcxLogcatFileUtils.getLogcatFileLocation_PostCapture(context, captureCycleBeginningTimeStamp);
 				long scriptDurationInSeconds = Math.round((app.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60) * 0.9);
 				
 				String execCmd = scriptFilePath+" "+captureFilePath+" "+postCaptureFilePath+" "+scriptDurationInSeconds;
@@ -96,7 +96,7 @@ public class LogcatCaptureService extends Service {
 				long captureCycleEndingTimeStamp = System.currentTimeMillis();
 
 				// removing older files if they're left in the 'postCapture' directory
-				FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(RfcxLogcatFileUtils.logPostCaptureDir(context), 60);
+				FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(RfcxLogcatFileUtils.logcatPostCaptureDir(context), 60);
 				
 				File postCaptureFile = new File(postCaptureFilePath);
 				
@@ -104,7 +104,7 @@ public class LogcatCaptureService extends Service {
 					Log.e(logTag, "could not find captured log file: "+postCaptureFilePath);
 				} else {
 					
-					File finalGzipFile = new File(RfcxLogcatFileUtils.getLogFileLocation_Queue(app.rfcxGuardianIdentity.getGuid(), context, captureCycleEndingTimeStamp ));
+					File finalGzipFile = new File(RfcxLogcatFileUtils.getLogcatFileLocation_Queue(app.rfcxGuardianIdentity.getGuid(), context, captureCycleEndingTimeStamp ));
 					
 					if (finalGzipFile.exists()) { finalGzipFile.delete(); }
 					
@@ -119,7 +119,7 @@ public class LogcatCaptureService extends Service {
 
 						app.logcatDb.dbCaptured.insert(captureCycleEndingTimeStamp+"", RfcxLogcatFileUtils.FILETYPE, preGzipDigest, finalGzipFile.getAbsolutePath());
 						
-						Log.i(logTag, "LogCat snapshot saved: "+finalGzipFile.getAbsolutePath());
+						Log.i(logTag, "Logcat Snapshot Saved: "+finalGzipFile.getAbsolutePath());
 					}
 					
 				}

@@ -366,11 +366,11 @@
 		android:defaultValue="@string/prefs_value_default_checkin_requeue_bounds_hours" />
 
 	<EditTextPreference
-		android:key="checkin_meta_bundle_limit"
-		android:title="checkin_meta_bundle_limit"
+		android:key="checkin_meta_send_bundle_limit"
+		android:title="checkin_meta_send_bundle_limit"
 		android:summary="int - count"
 		android:enabled="true"
-		android:defaultValue="@string/prefs_value_default_checkin_meta_bundle_limit" />
+		android:defaultValue="@string/prefs_value_default_checkin_meta_send_bundle_limit" />
 
 	<EditTextPreference
 		android:key="checkin_meta_queue_filesize_limit"

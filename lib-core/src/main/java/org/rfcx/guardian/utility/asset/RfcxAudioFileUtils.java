@@ -67,8 +67,8 @@ public class RfcxAudioFileUtils {
 
 	public static String getAudioFileName(String rfcxDeviceId, long timestamp, String audioCodec, int sampleRate) {
 		return 	rfcxDeviceId
-				+ "_" + ((sampleRate == 0) ? "" : (Math.round(sampleRate/1000) + "kHz"))
 				+ "_" + fileDateTimeFormat.format(new Date(timestamp))
+				+ ((sampleRate == 0) ? "" : "_" + (Math.round(sampleRate/1000) + "kHz"))
 				+ "." + getFileExt(audioCodec);
 	}
 	

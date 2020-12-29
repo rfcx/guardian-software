@@ -102,8 +102,8 @@ public class AssetUtils {
 			} else if (assetType.equals("log")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
 						app.getApplicationContext().getContentResolver());
-				filePaths.add(RfcxLogcatFileUtils.getLogFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(RfcxLogcatFileUtils.getLogFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
+				filePaths.add(RfcxLogcatFileUtils.getLogcatFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxLogcatFileUtils.getLogcatFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("sms")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,

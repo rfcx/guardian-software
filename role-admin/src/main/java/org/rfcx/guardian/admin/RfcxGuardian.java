@@ -65,9 +65,16 @@ import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.util.Log;
 
+import androidx.core.content.FileProvider;
+
+import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 public class RfcxGuardian extends Application {

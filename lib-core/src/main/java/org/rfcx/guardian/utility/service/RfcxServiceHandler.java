@@ -32,23 +32,25 @@ public class RfcxServiceHandler {
 	private Map<String, long[]> svcLastReportedActiveAt = new HashMap<String, long[]>();
 
 	public static String intentServiceTags(boolean isNotificationTag, String appRole, String svcName) {
-		return (new StringBuilder())
-				.append("org.rfcx.org.rfcx.guardian.guardian.")
-				.append(appRole.toLowerCase(Locale.US))
-				.append( isNotificationTag ? ".RECEIVE_" : "." )
-				.append(svcName.toUpperCase(Locale.US))
-				.append( isNotificationTag ? "_NOTIFICATIONS" : "" )
-				.toString();
+		return "org.rfcx.org.rfcx.guardian.guardian." +
+				appRole.toLowerCase(Locale.US) +
+				(isNotificationTag ? ".RECEIVE_" : ".") +
+				svcName.toUpperCase(Locale.US) +
+				(isNotificationTag ? "_NOTIFICATIONS" : "");
+	}
+
+	public void triggerService(String[] svcToTrigger, boolean forceReTrigger) {
+		triggerService( svcToTrigger, forceReTrigger, true );
 	}
 	
-	public void triggerService(String[] svcToTrigger, boolean forceReTrigger) {
+	public void triggerService(String[] svcToTrigger, boolean forceReTrigger, boolean verboseLogging) {
 		
 		String svcName = svcToTrigger[0];
 		String svcId = svcName.toLowerCase(Locale.US);
 
 		if (!this.svcClasses.containsKey(svcId)) {
 			
-			Log.e(logTag, (new StringBuilder()).append("There is no service named '").append(svcName).append("'.").toString());
+			Log.e(logTag, "There is no service named '" + svcName + "'.");
 			
 		} else if (!this.isRunning(svcName) || forceReTrigger) {
 			try {
@@ -78,15 +80,14 @@ public class RfcxServiceHandler {
 
 					if (repeatIntervalMillis == 0) { 
 						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).set(AlarmManager.RTC, startTimeMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcId)), PendingIntent.FLAG_UPDATE_CURRENT));
-						Log.i(logTag, (new StringBuilder())
-										.append((isSvcScheduled) ? "Scheduled" : "Triggered")
-										.append(" IntentService '").append(svcName).append("'")
-										.append((isSvcScheduled) ? " (begins at "+DateTimeUtils.getDateTime(startTimeMillis)+")" : "")
-										.toString());
+						Log.i(logTag, 	((isSvcScheduled) ? "Scheduled" : "Triggered")
+											+ " IntentService '" + svcName + "'"
+											+ ((isSvcScheduled) ? " (begins at " + DateTimeUtils.getDateTime(startTimeMillis) + ")" : "")
+						);
 					} else { 
 						((AlarmManager) context.getSystemService(Context.ALARM_SERVICE)).setRepeating(AlarmManager.RTC, startTimeMillis, repeatIntervalMillis, PendingIntent.getService(this.context, -1, new Intent(context, svcClasses.get(svcId)), PendingIntent.FLAG_UPDATE_CURRENT));
 						// could also use setInexactRepeating() here instead, but this was appearing to lead to dropped events the first time around
-						Log.i(logTag, (new StringBuilder()).append("Scheduled Repeating IntentService '").append(svcName).append("' (begins at ").append(DateTimeUtils.getDateTime(startTimeMillis)).append(", repeats approx. every ").append(DateTimeUtils.milliSecondDurationAsReadableString(repeatIntervalMillis)).append(")").toString());
+						Log.i(logTag, "Scheduled Repeating IntentService '" + svcName + "' (begins at " + DateTimeUtils.getDateTime(startTimeMillis) + ", repeats approx. every " + DateTimeUtils.milliSecondDurationAsReadableString(repeatIntervalMillis) + ")");
 					}
 
 				// this means it's likely a service (rather than an intent service)
@@ -94,7 +95,7 @@ public class RfcxServiceHandler {
 					if (forceReTrigger) { Log.d(logTag,svcName +" activity: "+isRunning(svcName)+" and last reported as active "+DateTimeUtils.timeStampDifferenceFromNowAsReadableString((new Date(getLastReportedActiveAt(svcName))))+" ago."); }
 					this.context.stopService(new Intent(this.context, svcClasses.get(svcId)));
 					this.context.startService(new Intent(this.context, svcClasses.get(svcId)));
-					Log.i(logTag, (new StringBuilder()).append("Triggered Service '").append(svcName).append("'").toString());
+					Log.i(logTag, "Triggered Service '" + svcName + "'");
 					
 				}
 			} catch (Exception e) {
@@ -116,17 +117,21 @@ public class RfcxServiceHandler {
 	public void triggerIntentServiceImmediately(String svcToTrigger) {
 		triggerService(new String[] { svcToTrigger, "0", "0" }, false);
 	}
-	
+
 	public void stopService(String svcToStop) {
+		stopService(svcToStop, true);
+	}
+
+	public void stopService(String svcToStop, boolean verboseLogging) {
 		
 		String svcId = svcToStop.toLowerCase(Locale.US);
 		
 		if (!this.svcClasses.containsKey(svcId)) {
-			Log.e(logTag, (new StringBuilder()).append("There is no service named '").append(svcToStop).append("'.").toString());
+			Log.e(logTag, "There is no service named '" + svcToStop + "'.");
 		} else { 
 			try {
 				this.context.stopService(new Intent(this.context, svcClasses.get(svcId)));
-				Log.i(logTag, (new StringBuilder()).append("Stopped Service '").append(svcToStop).append("'").toString());
+				if (verboseLogging) { Log.i(logTag, "Stopped Service '" + svcToStop + "'"); }
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			}
@@ -143,16 +148,16 @@ public class RfcxServiceHandler {
 		
 		if (!hasRun(sequenceName.toLowerCase(Locale.US))) {
 			
-			Log.i(logTag, (new StringBuilder()).append("Launching ServiceSequence '").append(sequenceName).append("'.").toString());
+			Log.i(logTag, "Launching ServiceSequence '" + sequenceName + "'.");
 			
 			for (String serviceItemSerialized : serviceSequenceSerialized) {
 				String[] serviceItem = new String[] { serviceItemSerialized };
 				if (serviceItemSerialized.contains("|")) { serviceItem = serviceItemSerialized.split("\\|");  }
 				if (timeOutDuration > 0) {
-					Log.d(logTag, (new StringBuilder())
-									.append("'").append(serviceItem[0]).append("' service last registered as active ")
-									.append(DateTimeUtils.timeStampDifferenceFromNowAsReadableString(getLastReportedActiveAt(serviceItem[0])))
-									.append(" ago.").toString());
+					Log.d(logTag, 	"'" + serviceItem[0] + "' service last registered as active "
+										+ DateTimeUtils.timeStampDifferenceFromNowAsReadableString(getLastReportedActiveAt(serviceItem[0]))
+										+ " ago."
+					);
 					triggerOrForceReTriggerIfTimedOut(serviceItem[0], timeOutDuration);
 				} else {
 					triggerService(serviceItem, forceReTrigger);
@@ -160,7 +165,7 @@ public class RfcxServiceHandler {
 			}
 			setAbsoluteRunState(sequenceName, true);
 		} else {
-			Log.w(logTag, (new StringBuilder()).append("ServiceSequence '").append(sequenceName).append("' has already run.").toString());
+			Log.w(logTag, "ServiceSequence '" + sequenceName + "' has already run.");
 		}
 	}
 	
@@ -237,7 +242,7 @@ public class RfcxServiceHandler {
 
 		long lastActiveAt = getLastReportedActiveAt(svcName);
 		if ((lastActiveAt > 0) && ((System.currentTimeMillis() - lastActiveAt) > timeOutDuration)) {
-			Log.e(logTag, (new StringBuilder()).append("Service '").append(svcName).append("' timed out... Forcing re-trigger...").toString());
+			Log.e(logTag, "Service '" + svcName + "' timed out... Forcing re-trigger...");
 			triggerService(svcName, true);
 		} else {
 			triggerService(svcName, false);

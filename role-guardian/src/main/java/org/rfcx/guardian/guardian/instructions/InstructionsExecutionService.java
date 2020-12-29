@@ -35,7 +35,7 @@ public class InstructionsExecutionService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(logTag, "Starting service: "+logTag);
+//		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
@@ -122,6 +122,7 @@ public class InstructionsExecutionService extends Service {
 
 			} finally {
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
 				instructionsExecutionInstance.runFlag = false;
 			}
 

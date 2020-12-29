@@ -38,14 +38,14 @@ public class AudioEncodeUtils {
 					OpusAudioEncoder opusEncoder = new OpusAudioEncoder();
 					EncodeStatus encStatus = opusEncoder.transcode(preEncodeFile, postEncodeFile, encodeBitRate, encodeQuality);
 					if (encStatus == EncodeStatus.OK) { encodeOutputBitRate = encodeBitRate; }
-					Log.d(logTag, "OPUS Encoding Complete: "+encStatus.name());
+				//	Log.d(logTag, "OPUS Encoding Complete: "+encStatus.name());
 
 				} else if (encodeCodec.equalsIgnoreCase("flac")) {
 
 					FLACStreamEncoder flacStreamEncoder = new FLACStreamEncoder();
 					EncodeStatus encStatus = flacStreamEncoder.encode(preEncodeFile, postEncodeFile, encodeSampleRate, RfcxAudioFileUtils.AUDIO_CHANNEL_COUNT, RfcxAudioFileUtils.AUDIO_SAMPLE_SIZE);
 					if (encStatus == EncodeStatus.OK) { encodeOutputBitRate = 0; }
-					Log.d(logTag, "FLAC Encoding Complete: "+encStatus.name());
+				//	Log.d(logTag, "FLAC Encoding Complete: "+encStatus.name());
 
 				} else {
 

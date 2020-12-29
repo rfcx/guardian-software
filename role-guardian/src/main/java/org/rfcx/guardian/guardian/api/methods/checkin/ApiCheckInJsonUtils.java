@@ -58,7 +58,7 @@ public class ApiCheckInJsonUtils {
 		// Recording number of currently queued/skipped/stashed checkins
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson( new String[] { "sent" } ));
 
-		checkInMetaJson.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit")));
+		checkInMetaJson.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt("checkin_meta_send_bundle_limit")));
 
 		// Device: Phone & Android info
 		if (!hasDeviceInfoBeenSent || (Math.round(Math.random()*10) == 1)) {
@@ -219,12 +219,12 @@ public class ApiCheckInJsonUtils {
 
 		Log.d(logTag, "Meta JSON Snapshot added to Queue: " + metaQueryTimestamp + ", "
 							+ FileUtils.bytesAsReadableString(metaDataJsonStr.length())
-							+ " (" + metaQueueFullRecordCount + " snapshots in queue, "
+							+ " (" + metaQueueFullRecordCount + " snapshots, "
 							+ Math.round( 100 * metaQueueFullByteLength / ( metaFileSizeLimit * 1024 * 1024 ) ) + "%"
 							+ " of " + metaFileSizeLimit + " MB limit)"
 		);
 
-		archiveOldestMetaSnapshots(metaQueueFullByteLength, metaQueueFullRecordCount);
+		archiveOldestMetaSnapshots( metaQueueFullByteLength, metaQueueFullRecordCount );
 
 	}
 
@@ -258,11 +258,11 @@ public class ApiCheckInJsonUtils {
 //		int metaQueueFullRecordCount = app.metaDb.dbMeta.getCount();
 //		long metaQueueFullByteLength = app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows();
 		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_meta_queue_filesize_limit");
-		long metaFileSizeLimitInBytes = metaFileSizeLimit*1024*1024;
+		long metaFileSizeLimitInBytes = metaFileSizeLimit * 1024 * 1024;
 
 		if (metaQueueFullByteLength >= metaFileSizeLimitInBytes) {
 
-			int metaArchiveRecordCount = Math.round( metaQueueFullRecordCount/ 10 ); // We archive 10% of the full queue size. This could be larger.
+			int metaArchiveRecordCount = Math.round( metaQueueFullRecordCount / 3 ); // We archive 1/3 of the full queue size. This could be larger/smaller.
 			long metaArchiveTimestamp = 0;
 			long metaArchiveBlobSize = 0;
 			List<String> archiveSuccessList = new ArrayList<String>();
@@ -282,7 +282,7 @@ public class ApiCheckInJsonUtils {
 
 			if (archiveSuccessList.size() > 0) {
 				try {
-					String metaJsobBlobDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/meta/" + (new SimpleDateFormat("yyyy"/*"yyyy-MM"*/, Locale.US)).format(new Date(metaArchiveTimestamp));
+					String metaJsobBlobDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/archive/meta/" + (new SimpleDateFormat("yyyy", Locale.US)).format(new Date(metaArchiveTimestamp));
 					FileUtils.initializeDirectoryRecursively(metaJsobBlobDir, true);
 					String metaJsobBlobFilePath = metaJsobBlobDir+"/"+(new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US)).format(new Date(metaArchiveTimestamp))+".json";
 					StringUtils.saveStringToFile(metaJsonBlobsToArchive.toString(), metaJsobBlobFilePath);
@@ -299,7 +299,6 @@ public class ApiCheckInJsonUtils {
 			}
 		}
 	}
-
 
 	private JSONObject addConcatSystemMetaParams(JSONObject metaDataJsonObj, JSONArray systemMetaJsonArray) throws JSONException {
 		for (int i = 0; i < systemMetaJsonArray.length(); i++) {
@@ -381,7 +380,7 @@ public class ApiCheckInJsonUtils {
 
 	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
-		int maxMetaRowsToBundle = app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit");
+		int maxMetaRowsToBundle = app.rfcxPrefs.getPrefAsInt("checkin_meta_send_bundle_limit");
 		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sampling_ratio")) {
 			maxMetaRowsToBundle = maxMetaRowsToBundle + app.audioCaptureUtils.samplingRatioArr[0] + app.audioCaptureUtils.samplingRatioArr[1];
 		}

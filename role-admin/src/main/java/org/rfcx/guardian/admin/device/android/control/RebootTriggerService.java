@@ -38,7 +38,7 @@ public class RebootTriggerService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(logTag, "Starting service: "+logTag);
+//		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
@@ -114,7 +114,7 @@ public class RebootTriggerService extends Service {
 			} finally {
 				rebootTriggerInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
 			}
 		}
 	}

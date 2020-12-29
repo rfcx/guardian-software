@@ -391,7 +391,7 @@ public class RfcxPrefs {
 
 			put("api_protocol_escalation_order", "mqtt,rest,sms,sbd");
 	        
-			put("reboot_forced_daily_at", "23:54:00");
+			put("reboot_forced_daily_at", "23:55:00");
 			
 			put("audio_cycle_duration", "90");
 
@@ -433,8 +433,8 @@ public class RfcxPrefs {
 
 			put("checkin_requeue_bounds_hours", "10-14");
 
-			put("checkin_meta_bundle_limit", "15");
-			put("checkin_meta_queue_filesize_limit", "16");
+			put("checkin_meta_send_bundle_limit", "20");
+			put("checkin_meta_queue_filesize_limit", "8");
 
 			put("admin_enable_wifi", "true");
 			put("admin_enable_tcp_adb", "true");

@@ -43,7 +43,7 @@ public class AudioEncodeJobService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(logTag, "Starting service: "+logTag);
+//		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
@@ -82,7 +82,7 @@ public class AudioEncodeJobService extends Service {
 				
 				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbEncodeQueue.getAllRows();
 				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
-				AudioEncodeUtils.cleanupEncodeDirectory(context, latestQueuedAudioFilesToEncode);
+				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode );
 				
 				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
 

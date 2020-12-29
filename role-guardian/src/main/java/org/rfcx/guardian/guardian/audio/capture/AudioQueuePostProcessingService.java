@@ -98,6 +98,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 			
 		} finally {
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
 		}
 		
 	}
