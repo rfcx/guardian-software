@@ -1,11 +1,11 @@
 package org.rfcx.guardian.utility.rfcx;
 
 import android.content.Context;
-import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
-import org.rfcx.guardian.utility.asset.RfcxLogcatUtils;
-import org.rfcx.guardian.utility.asset.RfcxPhotoUtils;
-import org.rfcx.guardian.utility.asset.RfcxScreenShotUtils;
-import org.rfcx.guardian.utility.asset.RfcxVideoUtils;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxVideoFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 
 public class RfcxGarbageCollection {
@@ -33,13 +33,13 @@ public class RfcxGarbageCollection {
 	public static void runRfcxGarbageCollection(Context context) {
 		
 		String[] captureDirectories = new String[] {
-				RfcxLogcatUtils.logCaptureDir(context),
-				RfcxLogcatUtils.logPostCaptureDir(context),
-				RfcxScreenShotUtils.screenShotCaptureDir(context),
-				RfcxPhotoUtils.photoCaptureDir(context),
-				RfcxVideoUtils.videoCaptureDir(context),
-				RfcxAudioUtils.audioCaptureDir(context),
-				RfcxAudioUtils.audioEncodeDir(context)
+				RfcxLogcatFileUtils.logCaptureDir(context),
+				RfcxLogcatFileUtils.logPostCaptureDir(context),
+				RfcxScreenShotFileUtils.screenShotCaptureDir(context),
+				RfcxPhotoFileUtils.photoCaptureDir(context),
+				RfcxVideoFileUtils.videoCaptureDir(context),
+				RfcxAudioFileUtils.audioCaptureDir(context),
+				RfcxAudioFileUtils.audioEncodeDir(context)
 		};
 		
 		int expirationAgeInDays = 2; // delete files older than two days old

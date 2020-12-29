@@ -7,7 +7,7 @@ import org.rfcx.guardian.audio.EncodeStatus;
 import org.rfcx.guardian.audio.flac.FLACStreamEncoder;
 import org.rfcx.guardian.audio.opus.OpusAudioEncoder;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -43,7 +43,7 @@ public class AudioEncodeUtils {
 				} else if (encodeCodec.equalsIgnoreCase("flac")) {
 
 					FLACStreamEncoder flacStreamEncoder = new FLACStreamEncoder();
-					EncodeStatus encStatus = flacStreamEncoder.encode(preEncodeFile, postEncodeFile, encodeSampleRate, RfcxAudioUtils.AUDIO_CHANNEL_COUNT, RfcxAudioUtils.AUDIO_SAMPLE_SIZE);
+					EncodeStatus encStatus = flacStreamEncoder.encode(preEncodeFile, postEncodeFile, encodeSampleRate, RfcxAudioFileUtils.AUDIO_CHANNEL_COUNT, RfcxAudioFileUtils.AUDIO_SAMPLE_SIZE);
 					if (encStatus == EncodeStatus.OK) { encodeOutputBitRate = 0; }
 					Log.d(logTag, "FLAC Encoding Complete: "+encStatus.name());
 
@@ -68,7 +68,7 @@ public class AudioEncodeUtils {
 			audioQueuedForEncode.add(queuedRow[10]);
 		}
 
-		FileUtils.deleteDirectoryContents(RfcxAudioUtils.audioEncodeDir(context), audioQueuedForEncode);
+		FileUtils.deleteDirectoryContents(RfcxAudioFileUtils.audioEncodeDir(context), audioQueuedForEncode);
 	}
 
 

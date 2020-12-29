@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -79,7 +79,7 @@ public class AudioCaptureService extends Service {
 
 			app.audioCaptureUtils.queueCaptureTimeStamp = new long[] { 0, 0 };
 			
-			String captureDir = RfcxAudioUtils.audioCaptureDir(context);
+			String captureDir = RfcxAudioFileUtils.audioCaptureDir(context);
 			FileUtils.deleteDirectoryContents(captureDir);
 			
 			AudioCaptureWavRecorder wavRecorder = null;
@@ -109,9 +109,9 @@ public class AudioCaptureService extends Service {
 						Log.i(logTag, "Stopping audio capture.");
 					}
 						
-					// queueing the last capture file for encoding, if there is one
+					// queueing the last capture file (if there is one) for post-processing
 					if (app.audioCaptureUtils.updateCaptureQueue(captureTimeStamp, audioSampleRate)) {
-						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueueEncode");
+						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueuePostProcessing");
 					}
 
 					// This ensures that the service registers as active more frequently than the capture loop duration

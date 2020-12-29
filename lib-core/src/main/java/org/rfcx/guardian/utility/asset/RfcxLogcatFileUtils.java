@@ -15,9 +15,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class RfcxLogcatUtils {
+public class RfcxLogcatFileUtils {
 
-	public RfcxLogcatUtils(Context context, String appRole, String rfcxDeviceId, String logLevel) {
+	public RfcxLogcatFileUtils(Context context, String appRole, String rfcxDeviceId, String logLevel) {
 		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxLogcatUtils");
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;

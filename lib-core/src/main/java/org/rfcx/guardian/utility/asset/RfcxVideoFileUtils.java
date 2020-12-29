@@ -11,9 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class RfcxVideoUtils {
+public class RfcxVideoFileUtils {
 
-	public RfcxVideoUtils(Context context, String appRole, String rfcxDeviceId) {
+	public RfcxVideoFileUtils(Context context, String appRole, String rfcxDeviceId) {
 		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxVideoUtils");
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;

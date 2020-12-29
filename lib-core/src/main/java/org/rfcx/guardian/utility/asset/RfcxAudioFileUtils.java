@@ -10,7 +10,7 @@ import android.os.Environment;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-public class RfcxAudioUtils {
+public class RfcxAudioFileUtils {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "RfcxAudioUtils");
 
@@ -64,6 +64,13 @@ public class RfcxAudioUtils {
 //	public static String getAudioFileLocation_Capture(Context context, long timestamp, String fileExtension) {
 //		return audioCaptureDir(context) + "/" + timestamp + "." + fileExtension;
 //	}
+
+	public static String getAudioFileName(String rfcxDeviceId, long timestamp, String audioCodec, int sampleRate) {
+		return 	rfcxDeviceId
+				+ "_" + ((sampleRate == 0) ? "" : (Math.round(sampleRate/1000) + "kHz"))
+				+ "_" + fileDateTimeFormat.format(new Date(timestamp))
+				+ "." + getFileExt(audioCodec);
+	}
 	
 	public static String getAudioFileLocation_PreEncode(Context context, long timestamp, String fileExtension) {
 		return audioEncodeDir(context) + "/" + timestamp + "." + fileExtension;
@@ -74,23 +81,23 @@ public class RfcxAudioUtils {
 	}
 
 	public static String getAudioFileLocation_GZip(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
-		return audioFinalDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + getFileExt(audioCodec) + ".gz";
+		return audioFinalDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
 	}
 
 	public static String getAudioFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
-		return audioQueueDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + getFileExt(audioCodec) + ".gz";
+		return audioQueueDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
 	}
 
 	public static String getAudioFileLocation_Stash(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
-		return audioStashDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + getFileExt(audioCodec) + ".gz";
+		return audioStashDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
 	}
 
 	public static String getAudioFileLocation_Vault(String rfcxDeviceId, long timestamp, String audioCodec, int sampleRate) {
-		return audioVaultDir() + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "_" + Math.round(sampleRate/1000) + "kHz." + getFileExt(audioCodec);
+		return audioVaultDir() + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, sampleRate);
 	}
 
 	public static String getAudioFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp, String audioCodec) {
-		return audioSdCardDir() + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + getFileExt(audioCodec) + ".gz";
+		return audioSdCardDir() + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
 	}
 	
 	public static String getFileExt(String audioCodecOrFileExtension) {

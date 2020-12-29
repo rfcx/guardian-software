@@ -12,9 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class RfcxPhotoUtils {
+public class RfcxPhotoFileUtils {
 
-	public RfcxPhotoUtils(Context context, String appRole, String rfcxDeviceId) {
+	public RfcxPhotoFileUtils(Context context, String appRole, String rfcxDeviceId) {
 		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxPhotoUtils");
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;

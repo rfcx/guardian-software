@@ -93,7 +93,7 @@
         <service android:name=".ServiceMonitor" android:exported="false" />
         <service android:name=".api.methods.checkin.ApiCheckInQueueService" android:exported="false" />
         <service android:name=".api.methods.ping.ScheduledApiPingService" android:exported="false" />
-        <service android:name=".audio.encode.AudioQueueEncodeService" android:exported="false" />
+        <service android:name=".audio.capture.AudioQueuePostProcessingService" android:exported="false" />
         <service android:name=".api.methods.clock.ScheduledClockSyncService" android:exported="false" />
         <service android:name=".asset.MetaSnapshotService" android:exported="false" />
         <service android:name=".socket.WifiCommunicationService" android:exported="false" />

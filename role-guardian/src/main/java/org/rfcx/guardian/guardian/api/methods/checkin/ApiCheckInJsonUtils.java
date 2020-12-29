@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.api.methods.checkin;
 
 import android.content.Context;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -8,7 +9,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
@@ -19,11 +19,13 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class ApiCheckInJsonUtils {
@@ -209,7 +211,7 @@ public class ApiCheckInJsonUtils {
 
 		clearPrePackageMetaData(metaQueryTimestampObj);
 
-		archiveOrPurgeOldestMetaDataSnapshots();
+		archiveOldestMetaSnapshots();
 
 	}
 
@@ -238,41 +240,49 @@ public class ApiCheckInJsonUtils {
 		}
 	}
 
-	private void archiveOrPurgeOldestMetaDataSnapshots() {
+	private void archiveOldestMetaSnapshots() {
 
-		int metaBundleLimit = app.rfcxPrefs.getPrefAsInt("checkin_meta_bundle_limit");
 		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_meta_queue_filesize_limit");
 		long metaFileSizeLimitInBytes = metaFileSizeLimit*1024*1024;
 
 		if (app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows() >= metaFileSizeLimitInBytes) {
 
+			int metaArchiveRowCount = Math.round(app.metaDb.dbMeta.getCount() / 10);
+			long metaArchiveTimestamp = 0;
+			long metaArchiveBlobSize = 0;
 			List<String> archiveSuccessList = new ArrayList<String>();
-			List<String> archiveFailureList = new ArrayList<String>();
+			JSONArray metaJsonBlobsToArchive = new JSONArray();
 
-			for (String[] metaRowsToArchive : app.metaDb.dbMeta.getRowsWithOffset((app.metaDb.dbMeta.getCount() - metaBundleLimit), (2 * metaBundleLimit))) {
-
-				// ?? Save Meta info to archive somewhere?
-
-//				if (is meta archived) {
-					archiveSuccessList.add(metaRowsToArchive[1]);
-//				} else {
-//					archiveFailureList.add(metaRowsToArchive[1]);
-//				}
-
+			for (String[] metaRowsToArchive : app.metaDb.dbMeta.getRowsWithOffset(app.metaDb.dbMeta.getCount() - metaArchiveRowCount, metaArchiveRowCount)) {
+				try {
+					metaJsonBlobsToArchive.put(new JSONObject(metaRowsToArchive[2]));
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e);
+				}
+				archiveSuccessList.add(metaRowsToArchive[1]);
 				app.metaDb.dbMeta.deleteSingleRowByTimestamp(metaRowsToArchive[1]);
-			}
-
-			if (archiveFailureList.size() > 0) {
-				Log.e(logTag, archiveFailureList.size() + " Meta blob(s) failed to be archived or purged (" + TextUtils.join(" ", archiveFailureList) + ").");
+				if (metaArchiveTimestamp == 0) { metaArchiveTimestamp = Long.parseLong(metaRowsToArchive[1]); }
+				metaArchiveBlobSize += metaRowsToArchive[2].length();
 			}
 
 			if (archiveSuccessList.size() > 0) {
-
-				Log.i(logTag, archiveSuccessList.size() + " Meta blob(s) archived or purged (" + TextUtils.join(" ", archiveSuccessList) + ").");
+				try {
+					String metaJsobBlobDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/meta/" + (new SimpleDateFormat("yyyy"/*"yyyy-MM"*/, Locale.US)).format(new Date(metaArchiveTimestamp));
+					FileUtils.initializeDirectoryRecursively(metaJsobBlobDir, true);
+					String metaJsobBlobFilePath = metaJsobBlobDir+"/"+(new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US)).format(new Date(metaArchiveTimestamp))+".json";
+					StringUtils.saveStringToFile(metaJsonBlobsToArchive.toString(), metaJsobBlobFilePath);
+					FileUtils.gZipFile(metaJsobBlobFilePath, metaJsobBlobFilePath+".gz");
+					FileUtils.delete(metaJsobBlobFilePath);
+					if (FileUtils.exists(metaJsobBlobFilePath+".gz")) {
+						Log.i(logTag, archiveSuccessList.size() + " Meta blobs (" + FileUtils.bytesAsReadableString(metaArchiveBlobSize) + ") have been archived to " + metaJsobBlobFilePath);
+					} else {
+						Log.e(logTag, "Meta blob archive process failed...");
+					}
+				} catch (Exception e) {
+					RfcxLog.logExc(logTag, e);
+				}
 			}
-
 		}
-
 	}
 
 

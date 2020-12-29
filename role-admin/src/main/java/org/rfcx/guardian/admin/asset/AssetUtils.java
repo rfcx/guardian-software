@@ -3,10 +3,10 @@ package org.rfcx.guardian.admin.asset;
 import android.content.Context;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
-import org.rfcx.guardian.utility.asset.RfcxLogcatUtils;
-import org.rfcx.guardian.utility.asset.RfcxPhotoUtils;
-import org.rfcx.guardian.utility.asset.RfcxScreenShotUtils;
-import org.rfcx.guardian.utility.asset.RfcxVideoUtils;
+import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxVideoFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.ArrayList;
@@ -39,15 +39,15 @@ public class AssetUtils {
 	public void runFileSystemAssetCleanup() {
 
 		String[] assetDirectoriesToScan = new String[] {
-				RfcxPhotoUtils.photoCaptureDir(app.getApplicationContext()),
-				RfcxPhotoUtils.photoQueueDir(app.getApplicationContext()),
-				RfcxVideoUtils.videoCaptureDir(app.getApplicationContext()),
-				RfcxVideoUtils.videoQueueDir(app.getApplicationContext()),
-				RfcxLogcatUtils.logCaptureDir(app.getApplicationContext()),
-				RfcxLogcatUtils.logQueueDir(app.getApplicationContext()),
-				RfcxLogcatUtils.logPostCaptureDir(app.getApplicationContext()),
-				RfcxScreenShotUtils.screenShotCaptureDir(app.getApplicationContext()),
-				RfcxScreenShotUtils.screenShotQueueDir(app.getApplicationContext())
+				RfcxPhotoFileUtils.photoCaptureDir(app.getApplicationContext()),
+				RfcxPhotoFileUtils.photoQueueDir(app.getApplicationContext()),
+				RfcxVideoFileUtils.videoCaptureDir(app.getApplicationContext()),
+				RfcxVideoFileUtils.videoQueueDir(app.getApplicationContext()),
+				RfcxLogcatFileUtils.logCaptureDir(app.getApplicationContext()),
+				RfcxLogcatFileUtils.logQueueDir(app.getApplicationContext()),
+				RfcxLogcatFileUtils.logPostCaptureDir(app.getApplicationContext()),
+				RfcxScreenShotFileUtils.screenShotCaptureDir(app.getApplicationContext()),
+				RfcxScreenShotFileUtils.screenShotQueueDir(app.getApplicationContext())
 		};
 
 		List<String> assetFilePathsFromDatabase = new ArrayList<String>();

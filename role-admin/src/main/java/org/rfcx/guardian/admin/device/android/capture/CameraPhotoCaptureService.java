@@ -7,7 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.asset.RfcxPhotoUtils;
+import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -70,8 +70,8 @@ public class CameraPhotoCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			RfcxPhotoUtils rfcxCameraUtils = new RfcxPhotoUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
-			String photoCaptureDir = RfcxPhotoUtils.photoCaptureDir(context);
+			RfcxPhotoFileUtils rfcxCameraUtils = new RfcxPhotoFileUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
+			String photoCaptureDir = RfcxPhotoFileUtils.photoCaptureDir(context);
 
 			// removing older files if they're left in the capture directory
 			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(photoCaptureDir, 60);

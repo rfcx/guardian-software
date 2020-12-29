@@ -1,7 +1,7 @@
-package org.rfcx.guardian.guardian.audio.encode;
+package org.rfcx.guardian.guardian.audio.capture;
 
 
-import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
@@ -10,15 +10,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 
-public class AudioQueueEncodeService extends IntentService {
+public class AudioQueuePostProcessingService extends IntentService {
 
-	private static final String SERVICE_NAME = "AudioQueueEncode";
+	private static final String SERVICE_NAME = "AudioQueuePostProcessing";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioQueueEncodeService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioQueuePostProcessingService");
 		
-	public AudioQueueEncodeService() {
+	public AudioQueuePostProcessingService() {
 		super(logTag);
 	}
 	
@@ -42,8 +41,9 @@ public class AudioQueueEncodeService extends IntentService {
 			
 			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, queueCaptureTimeStamp[0], captureFileExtension)) {
 
-				String preEncodeFilePath = RfcxAudioUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0], captureFileExtension);
+				String preEncodeFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0], captureFileExtension);
 
+				// Queue Audio Encode for Streaming
 				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_stream")) {
 
 					int streamSampleRate = app.rfcxPrefs.getPrefAsInt("audio_stream_sample_rate");
@@ -52,9 +52,10 @@ public class AudioQueueEncodeService extends IntentService {
 
 					app.audioEncodeDb.dbEncodeQueue.insert(
 						""+queueCaptureTimeStamp[0], captureFileExtension, "-", streamSampleRate,
-							streamBitrate, streamCodec, captureLoopPeriod, captureLoopPeriod, "stream", preEncodeFilePath );
+							streamBitrate, streamCodec, captureLoopPeriod, captureLoopPeriod, "stream", preEncodeFilePath, queueCaptureSampleRate[0] );
 				}
 
+				// Queue Audio Encode for the Vault
 				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_vault")) {
 
 					int vaultSampleRate = app.rfcxPrefs.getPrefAsInt("audio_vault_sample_rate");
@@ -63,11 +64,21 @@ public class AudioQueueEncodeService extends IntentService {
 
 					app.audioEncodeDb.dbEncodeQueue.insert(
 							""+queueCaptureTimeStamp[0], captureFileExtension, "-", vaultSampleRate,
-							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath );
+							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath, queueCaptureSampleRate[0] );
+				}
+
+				// Queue Audio Analysis/Classification
+				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_classify")) {
+
+					int classifierSampleRate = app.rfcxPrefs.getPrefAsInt("audio_stream_sample_rate");
+
+//					app.audioEncodeDb.dbEncodeQueue.insert(
+//							""+queueCaptureTimeStamp[0], captureFileExtension, "-", classifierSampleRate,
+//							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath, queueCaptureSampleRate[0] );
 				}
 				
 			} else {
-				Log.e(logTag, "Queued audio file does not exist: "+RfcxAudioUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0],captureFileExtension));
+				Log.e(logTag, "Queued audio file does not exist: "+ RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0],captureFileExtension));
 			}
 
 			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );

@@ -8,11 +8,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
-import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
-import org.rfcx.guardian.utility.asset.RfcxLogcatUtils;
-import org.rfcx.guardian.utility.asset.RfcxPhotoUtils;
-import org.rfcx.guardian.utility.asset.RfcxScreenShotUtils;
-import org.rfcx.guardian.utility.asset.RfcxVideoUtils;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxVideoFileUtils;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -75,35 +75,35 @@ public class AssetUtils {
 				app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(assetId);
 				app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(assetId);
 				for (String fileExtension : new String[] { "opus", "flac" }) {
-					filePaths.add(RfcxAudioUtils.getAudioFileLocation_GZip(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
-					filePaths.add(RfcxAudioUtils.getAudioFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
-					filePaths.add(RfcxAudioUtils.getAudioFileLocation_Stash(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
-					filePaths.add(RfcxAudioUtils.getAudioFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId), fileExtension));
+					filePaths.add(RfcxAudioFileUtils.getAudioFileLocation_GZip(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
+					filePaths.add(RfcxAudioFileUtils.getAudioFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
+					filePaths.add(RfcxAudioFileUtils.getAudioFileLocation_Stash(rfcxDeviceId, context, Long.parseLong(assetId), fileExtension));
+					filePaths.add(RfcxAudioFileUtils.getAudioFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId), fileExtension));
 				}
 
 			} else if (assetType.equals("screenshot")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
 						app.getApplicationContext().getContentResolver());
-				filePaths.add(RfcxScreenShotUtils.getScreenShotFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(RfcxScreenShotUtils.getScreenShotFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
+				filePaths.add(RfcxScreenShotFileUtils.getScreenShotFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxScreenShotFileUtils.getScreenShotFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("photo")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "photos|" + assetId,
 						app.getApplicationContext().getContentResolver());
-				filePaths.add(RfcxPhotoUtils.getPhotoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(RfcxPhotoUtils.getPhotoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
+				filePaths.add(RfcxPhotoFileUtils.getPhotoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxPhotoFileUtils.getPhotoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("video")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "videos|" + assetId,
 						app.getApplicationContext().getContentResolver());
-				filePaths.add(RfcxVideoUtils.getVideoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(RfcxVideoUtils.getVideoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
+				filePaths.add(RfcxVideoFileUtils.getVideoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxVideoFileUtils.getVideoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("log")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
 						app.getApplicationContext().getContentResolver());
-				filePaths.add(RfcxLogcatUtils.getLogFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
-				filePaths.add(RfcxLogcatUtils.getLogFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
+				filePaths.add(RfcxLogcatFileUtils.getLogFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
+				filePaths.add(RfcxLogcatFileUtils.getLogFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("sms")) {
 				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,
@@ -163,9 +163,9 @@ public class AssetUtils {
 	public void runFileSystemAssetCleanup() {
 
 		String[] assetDirectoriesToScan = new String[] {
-				RfcxAudioUtils.audioStashDir(app.getApplicationContext()),
-				RfcxAudioUtils.audioFinalDir(app.getApplicationContext()),
-				RfcxAudioUtils.audioQueueDir(app.getApplicationContext())
+				RfcxAudioFileUtils.audioStashDir(app.getApplicationContext()),
+				RfcxAudioFileUtils.audioFinalDir(app.getApplicationContext()),
+				RfcxAudioFileUtils.audioQueueDir(app.getApplicationContext())
 		};
 
 		List<String> assetFilePathsFromDatabase = new ArrayList<String>();

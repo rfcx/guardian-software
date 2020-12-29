@@ -13,9 +13,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class RfcxScreenShotUtils {
+public class RfcxScreenShotFileUtils {
 
-	public RfcxScreenShotUtils(Context context, String appRole, String rfcxDeviceId) {
+	public RfcxScreenShotFileUtils(Context context, String appRole, String rfcxDeviceId) {
 		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxScreenShotUtils");
 		this.appRole = appRole;
 		this.rfcxDeviceId = rfcxDeviceId;
@@ -72,7 +72,7 @@ public class RfcxScreenShotUtils {
 
 	public String[] launchCapture(Context context) {
 
-		String executableBinaryFilePath = RfcxScreenShotUtils.getScreenShotExecutableBinaryFilePath(context);
+		String executableBinaryFilePath = RfcxScreenShotFileUtils.getScreenShotExecutableBinaryFilePath(context);
 
 		if ((new File(executableBinaryFilePath)).exists()) {
 
@@ -80,8 +80,8 @@ public class RfcxScreenShotUtils {
 
 				long captureTimestamp = System.currentTimeMillis();
 
-				String captureFilePath = RfcxScreenShotUtils.getScreenShotFileLocation_Capture(context, captureTimestamp);
-				String finalFilePath = RfcxScreenShotUtils.getScreenShotFileLocation_Queue(this.rfcxDeviceId, context, captureTimestamp);
+				String captureFilePath = RfcxScreenShotFileUtils.getScreenShotFileLocation_Capture(context, captureTimestamp);
+				String finalFilePath = RfcxScreenShotFileUtils.getScreenShotFileLocation_Queue(this.rfcxDeviceId, context, captureTimestamp);
 
 				Process shellProcess = Runtime.getRuntime().exec(new String[] { executableBinaryFilePath, captureFilePath });
 				shellProcess.waitFor();
@@ -107,7 +107,7 @@ public class RfcxScreenShotUtils {
 				FileUtils.copy(captureFile, finalFile);
 				if (finalFile.exists()) {
 					captureFile.delete();
-					return new String[] { ""+timestamp, RfcxScreenShotUtils.CAPTURE_FILETYPE, FileUtils.sha1Hash(finalFilePath), ""+width, ""+height, finalFilePath };
+					return new String[] { ""+timestamp, RfcxScreenShotFileUtils.CAPTURE_FILETYPE, FileUtils.sha1Hash(finalFilePath), ""+width, ""+height, finalFilePath };
 				}
 			}
 		} catch (Exception e) {

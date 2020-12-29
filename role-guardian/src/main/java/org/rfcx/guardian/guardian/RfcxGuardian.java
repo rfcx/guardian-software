@@ -16,6 +16,7 @@ import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJsonUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInStatsDb;
 import org.rfcx.guardian.guardian.api.methods.ping.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentDb;
+import org.rfcx.guardian.guardian.audio.classify.AudioClassifyDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -53,7 +54,7 @@ import org.rfcx.guardian.guardian.audio.capture.AudioCaptureService;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
-import org.rfcx.guardian.guardian.audio.encode.AudioQueueEncodeService;
+import org.rfcx.guardian.guardian.audio.capture.AudioQueuePostProcessingService;
 import org.rfcx.guardian.guardian.api.methods.clock.ClockSyncJobService;
 import org.rfcx.guardian.guardian.device.android.DeviceSystemDb;
 import org.rfcx.guardian.guardian.api.methods.clock.ScheduledClockSyncService;
@@ -75,6 +76,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     // Database Handlers
     public AudioEncodeDb audioEncodeDb = null;
+    public AudioClassifyDb audioClassifyDb = null;
     public ApiCheckInDb apiCheckInDb = null;
     public MetaDb metaDb = null;
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
@@ -231,6 +233,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     private void setDbHandlers() {
 
         this.audioEncodeDb = new AudioEncodeDb(this, this.version);
+        this.audioClassifyDb = new AudioClassifyDb(this, this.version);
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.metaDb = new MetaDb(this, this.version);
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
@@ -247,7 +250,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
         this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
 
-        this.rfcxServiceHandler.addService("AudioQueueEncode", AudioQueueEncodeService.class);
+        this.rfcxServiceHandler.addService("AudioQueuePostProcessing", AudioQueuePostProcessingService.class);
         this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
 
         this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueService.class);

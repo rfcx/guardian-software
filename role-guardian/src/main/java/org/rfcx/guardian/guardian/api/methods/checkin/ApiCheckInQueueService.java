@@ -1,6 +1,6 @@
 package org.rfcx.guardian.guardian.api.methods.checkin;
 
-import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
@@ -43,7 +43,7 @@ public class ApiCheckInQueueService extends IntentService {
 								encodedAudio[4], //	sample rate
 								encodedAudio[5], //	bitrate
 								encodedAudio[6], //	codec
-								(RfcxAudioUtils.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr"), //	cbr or vbr
+								(RfcxAudioFileUtils.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr"), //	cbr or vbr
 								encodedAudio[8], // encode duration
 								"16bit",         // sample precision, in bits
 								encodedAudio[7] // capture duration

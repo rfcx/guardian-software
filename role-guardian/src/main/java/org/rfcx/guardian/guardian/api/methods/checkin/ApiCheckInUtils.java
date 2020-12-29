@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.asset.RfcxAudioUtils;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -89,7 +89,7 @@ public class ApiCheckInUtils {
 			// cycle through stashable checkins and move them to the new table/database
 			for (String[] checkInsToStash : app.apiCheckInDb.dbQueued.getRowsWithOffset(queuedCountBeforeLimit, 16)) {
 
-				String stashFilePath = RfcxAudioUtils.getAudioFileLocation_Stash(
+				String stashFilePath = RfcxAudioFileUtils.getAudioFileLocation_Stash(
 						app.rfcxGuardianIdentity.getGuid(),
 						app.getApplicationContext(),
 						Long.parseLong(checkInsToStash[1].substring(0, checkInsToStash[1].lastIndexOf("."))),
@@ -136,7 +136,7 @@ public class ApiCheckInUtils {
 
 		if (DeviceStorage.isExternalStorageWritable()) {
 
-			String skipFilePath = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
+			String skipFilePath = RfcxAudioFileUtils.getAudioFileLocation_ExternalStorage(
 					app.rfcxGuardianIdentity.getGuid(),
 					Long.parseLong(checkInToSkip[1].substring(0, checkInToSkip[1].lastIndexOf("."))),
 					checkInToSkip[1].substring(checkInToSkip[1].lastIndexOf(".") + 1));
@@ -261,7 +261,7 @@ public class ApiCheckInUtils {
 					app.apiCheckInDb.dbSent.deleteSingleRowByAudioAttachmentId(sentCheckInsToMove[1]);
 
 				} else {
-					String sentFilePath_BufferOverrun = RfcxAudioUtils.getAudioFileLocation_ExternalStorage(
+					String sentFilePath_BufferOverrun = RfcxAudioFileUtils.getAudioFileLocation_ExternalStorage(
 							app.rfcxGuardianIdentity.getGuid(),
 							Long.parseLong(sentCheckInsToMove[1].substring(0, sentCheckInsToMove[1].lastIndexOf("."))),
 							sentCheckInsToMove[1].substring(sentCheckInsToMove[1].lastIndexOf(".") + 1));

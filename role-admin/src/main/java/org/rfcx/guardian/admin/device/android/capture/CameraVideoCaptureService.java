@@ -7,7 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.asset.RfcxVideoUtils;
+import org.rfcx.guardian.utility.asset.RfcxVideoFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -70,8 +70,8 @@ public class CameraVideoCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			RfcxVideoUtils rfcxCameraUtils = new RfcxVideoUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
-			String videoCaptureDir = RfcxVideoUtils.videoCaptureDir(context);
+			RfcxVideoFileUtils rfcxCameraUtils = new RfcxVideoFileUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
+			String videoCaptureDir = RfcxVideoFileUtils.videoCaptureDir(context);
 
 			// removing older files if they're left in the capture directory
 			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(videoCaptureDir, 60);

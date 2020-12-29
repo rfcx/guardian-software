@@ -1,6 +1,6 @@
 package org.rfcx.guardian.admin.device.android.capture;
 
-import org.rfcx.guardian.utility.asset.RfcxScreenShotUtils;
+import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
 import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -71,7 +71,7 @@ public class ScreenShotCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			RfcxScreenShotUtils rfcxScreenShotUtils = new RfcxScreenShotUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
+			RfcxScreenShotFileUtils rfcxScreenShotFileUtils = new RfcxScreenShotFileUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
 			DeviceScreenLock deviceScreenLock = new DeviceScreenLock(RfcxGuardian.APP_ROLE);
 
 			try {
@@ -81,7 +81,7 @@ public class ScreenShotCaptureService extends Service {
 				deviceScreenLock.unLockScreen(context);
 				Thread.sleep(1500);
 
-				String[] saveScreenShot = rfcxScreenShotUtils.launchCapture(context);
+				String[] saveScreenShot = rfcxScreenShotFileUtils.launchCapture(context);
 
 				if (saveScreenShot != null) {
 					app.screenShotDb.dbCaptured.insert(saveScreenShot[0], saveScreenShot[1], saveScreenShot[2], saveScreenShot[3], saveScreenShot[4], saveScreenShot[5]);

@@ -372,6 +372,7 @@ public class RfcxPrefs {
 			put("enable_audio_capture", "true");
 			put("enable_audio_stream", "true");
 			put("enable_audio_vault", "false");
+			put("enable_audio_classify", "false");
 
 			put("enable_checkin_publish", "true");
 			put("enable_checkin_archive", "true");
