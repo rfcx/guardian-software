@@ -423,6 +423,34 @@
 			android:entries="@array/prefs_values_true_or_false"
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_socket"/>
- 	
+
+	<EditTextPreference
+			android:key="model_prediction_step_size"
+			android:title="model_prediction_step_size"
+			android:summary="int - size"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_model_prediction_step_size" />
+
+	<EditTextPreference
+			android:key="model_cognition_min_confidence"
+			android:title="model_cognition_min_confidence"
+			android:summary="int - confidence (%)"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_model_cognition_min_confidence" />
+
+	<EditTextPreference
+			android:key="model_cognition_window_length"
+			android:title="model_cognition_window_length"
+			android:summary="int - seconds"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_model_cognition_window_length" />
+
+	<EditTextPreference
+			android:key="model_cognition_min_detection_count"
+			android:title="model_cognition_min_detection_count"
+			android:summary="int - amount"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_model_cognition_min_detection_count" />
+
  	
 </PreferenceScreen>
