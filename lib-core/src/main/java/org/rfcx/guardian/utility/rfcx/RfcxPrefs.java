@@ -433,7 +433,7 @@ public class RfcxPrefs {
 
 			put("checkin_requeue_bounds_hours", "10-14");
 
-			put("checkin_meta_send_bundle_limit", "20");
+			put("checkin_meta_send_bundle_limit", "16");
 			put("checkin_meta_queue_filesize_limit", "8");
 
 			put("admin_enable_wifi", "true");

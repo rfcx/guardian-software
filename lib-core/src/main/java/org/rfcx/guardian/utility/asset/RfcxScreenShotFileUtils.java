@@ -26,7 +26,7 @@ public class RfcxScreenShotFileUtils {
 	private String appRole = "Utils";
 	private String rfcxDeviceId = null;
 	
-	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM/yyyy-MM-dd/HH", Locale.US);
+	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM-dd/HH", Locale.US);
 	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US);
 
 	public static final String CAPTURE_FILETYPE = "png";

@@ -14,8 +14,8 @@ public class RfcxAudioFileUtils {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "RfcxAudioUtils");
 
-	private static final SimpleDateFormat dirDateTimeFormat = new SimpleDateFormat("yyyy-MM/yyyy-MM-dd/HH", Locale.US);
-	private static final SimpleDateFormat dirDateTimeFormat_DayOnly = new SimpleDateFormat("yyyy-MM/yyyy-MM-dd", Locale.US);
+	private static final SimpleDateFormat dirDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd/HH", Locale.US);
+	private static final SimpleDateFormat dirDateTimeFormat_DayOnly = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US);
 
 	public static final int AUDIO_SAMPLE_SIZE = 16;

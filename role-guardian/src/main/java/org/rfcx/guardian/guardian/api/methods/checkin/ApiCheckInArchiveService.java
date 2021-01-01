@@ -41,8 +41,8 @@ public class ApiCheckInArchiveService extends Service {
 	private String archiveSdCardDir;
 	private String archiveTitle;
 	private String archiveWorkDir;
-	private String archivePreGZipTar;
-	private String archivePreGZipTarFilePath;
+	private String archiveTar;
+	private String archiveTarFilePath;
 	private String archiveFinalFilePath;
 	
 	private static final String[] tsvMetaColumns = new String[] { "measured_at", "queued_at", "filename", "format", "sha1checksum", "samplerate", "bitrate", "encode_duration" };
@@ -190,16 +190,13 @@ public class ApiCheckInArchiveService extends Service {
 					archiveFileList.add(archiveWorkDir+"/_metadata_audio.tsv");
 
 					Log.i(logTag, "Creating CheckIn Archive: "+archiveTitle);
-					FileUtils.createTarArchiveFromFileList(archiveFileList, archivePreGZipTarFilePath);
-
-					Log.i(logTag, "GZipping CheckIn Archive: "+ archivePreGZipTar);
-					FileUtils.gZipFile(archivePreGZipTarFilePath, archivePreGZipTarFilePath + ".gz");
-					long archiveFileSize = FileUtils.getFileSizeInBytes(archivePreGZipTarFilePath + ".gz");
+					FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath);
+					long archiveFileSize = FileUtils.getFileSizeInBytes(archiveTarFilePath);
 
 					if (DeviceStorage.isExternalStorageWritable()) {
 
 						Log.i(logTag, "Transferring CheckIn Archive ("+FileUtils.bytesAsReadableString(archiveFileSize)+") to External Storage: "+archiveFinalFilePath);
-						FileUtils.copy(archivePreGZipTarFilePath + ".gz", archiveFinalFilePath);
+						FileUtils.copy(archiveTarFilePath, archiveFinalFilePath);
 
 						app.apiCheckInArchiveDb.dbApiCheckInArchive.insert(
 								new Date(archiveTimestamp),            // archived_at
@@ -219,8 +216,7 @@ public class ApiCheckInArchiveService extends Service {
 					}
 
 					FileUtils.delete(archiveWorkDir);
-					FileUtils.delete(archivePreGZipTarFilePath);
-					FileUtils.delete(archivePreGZipTarFilePath + ".gz");
+					FileUtils.delete(archiveTarFilePath);
 
 					Log.i(logTag, "CheckIn Archive Job Complete: "
 							+ stashedCheckInsBeyondBuffer.size() + " audio files, "
@@ -245,10 +241,10 @@ public class ApiCheckInArchiveService extends Service {
 
 		archiveTitle = "archive_" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(archiveTimestamp));
 		archiveWorkDir = context.getFilesDir().toString() + "/archive/" + archiveTitle;
-		archivePreGZipTar = "archive/" + archiveTitle + ".tar";
-		archivePreGZipTarFilePath = context.getFilesDir().toString() + "/" + archivePreGZipTar;
+		archiveTar = "archive/" + archiveTitle + ".tar";
+		archiveTarFilePath = context.getFilesDir().toString() + "/" + archiveTar;
 		archiveSdCardDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/archive/audio/" + dirDateFormat.format(new Date(archiveTimestamp));
-		archiveFinalFilePath = archiveSdCardDir + "/" + archiveTitle + ".tar.gz";
+		archiveFinalFilePath = archiveSdCardDir + "/" + archiveTitle + ".tar";
 
 		FileUtils.initializeDirectoryRecursively(archiveSdCardDir, true);
 		FileUtils.initializeDirectoryRecursively(archiveWorkDir+"/audio", false);

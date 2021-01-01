@@ -40,7 +40,7 @@ public class ApiCheckInUtils {
 		long queuedLimitMb = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit");
 		long queuedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows()+"")/(queuedLimitMb*1024*1024))));
 
-		Log.d(logTag, "Audio added to CheckIn Queue (Stream): " + audioInfo[1] + ", " + FileUtils.bytesAsReadableString(audioFileSize)
+		Log.d(logTag, "Audio added to Queue: " + audioInfo[1] + ", " + FileUtils.bytesAsReadableString(audioFileSize)
 						+  " (" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+" MB limit) " + filePath);
 
 		// once queued, remove database reference from encode role
@@ -120,10 +120,11 @@ public class ApiCheckInUtils {
 				long stashedSize = app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows();
 				long stashedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(stashedSize+"")/((stashFileSizeBuffer+archiveFileSizeTarget)*1024*1024))));
 
-				Log.i(logTag, "Transferred " + stashSuccessList.size() + " CheckIn" + ((stashSuccessList.size() == 1) ? "" : "s") + " to Stash: " + TextUtils.join(" ", stashSuccessList)
-						+" - Total: "
-							+ stashCount + " in stash ("+FileUtils.bytesAsReadableString(stashedSize)+")"
-							+", " + stashedLimitPct +"% of "+(stashFileSizeBuffer+archiveFileSizeTarget)+" MB limit.");
+				Log.i(logTag, "Transferred " + stashSuccessList.size() + " CheckIn" + ((stashSuccessList.size() == 1) ? "" : "s") + " to Stash: "
+						+ TextUtils.join(" ", stashSuccessList)
+						+" (" + stashCount + " in stash"
+						+", "+FileUtils.bytesAsReadableString(stashedSize)
+						+", " + stashedLimitPct +"% of "+(stashFileSizeBuffer+archiveFileSizeTarget)+" MB limit)");
 			}
 		}
 
