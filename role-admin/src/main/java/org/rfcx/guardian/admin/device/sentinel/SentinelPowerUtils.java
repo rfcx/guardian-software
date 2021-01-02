@@ -45,8 +45,10 @@ public class SentinelPowerUtils {
 
     private boolean verboseLogging = false;
 
-    private boolean reducedCaptureModeLastValue = false;
-    private long reducedCaptureModeLastValueSetAt = 0;
+//    private boolean reducedCaptureModeLastValue = false;
+    private Map<String, Boolean> reducedCaptureModeLastValue = new HashMap<>();
+//    private long reducedCaptureModeLastValueSetAt = 0;
+    private Map<String, Long> reducedCaptureModeLastValueSetAt = new HashMap<>();
     private static final long reducedCaptureModeLastValueExpiresAfter = 5000;
 
     private static final double qCountCalibrationVoltageMin = 2750;
@@ -500,9 +502,11 @@ public class SentinelPowerUtils {
 
         boolean isAllowed;
 
-        if (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureModeLastValueSetAt)) <= this.reducedCaptureModeLastValueExpiresAfter) {
+        if  (   this.reducedCaptureModeLastValue.containsKey(activityTag) && this.reducedCaptureModeLastValueSetAt.containsKey(activityTag)
+            &&  (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureModeLastValueSetAt.get(activityTag))) <= this.reducedCaptureModeLastValueExpiresAfter)
+        ) {
 
-            isAllowed = this.reducedCaptureModeLastValue;
+            isAllowed = this.reducedCaptureModeLastValue.get(activityTag);
 
         } else {
 
@@ -527,8 +531,8 @@ public class SentinelPowerUtils {
                 }
             }
 
-            this.reducedCaptureModeLastValue = isAllowed;
-            this.reducedCaptureModeLastValueSetAt = System.currentTimeMillis();
+            this.reducedCaptureModeLastValue.put(activityTag, isAllowed);
+            this.reducedCaptureModeLastValueSetAt.put(activityTag, System.currentTimeMillis());
 
         }
 

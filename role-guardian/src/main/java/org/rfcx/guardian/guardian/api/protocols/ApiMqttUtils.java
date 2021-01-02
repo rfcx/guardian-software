@@ -295,30 +295,26 @@ public class ApiMqttUtils implements MqttCallback {
 
 	// Ping Messages
 
-	public void sendMqttPing(boolean includeAllExtraFields, String[] includeExtraFields) {
+	public boolean sendMqttPing(String pingJson) {
 
-		try {
+		boolean isSent = false;
 
-			publishMessageOnConfirmedConnection(this.mqttTopic_Publish_Ping, 1,false, packageMqttPingPayload(app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, true)));
+		if (app.apiCheckInHealthUtils.isApiCheckInAllowed(true, false)) {
 
-		} catch (Exception e) {
-
-			RfcxLog.logExc(logTag, e, "sendMqttPing");
-			handleMqttPingPublicationExceptions(e);
-
-			/////
 			try {
-			app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sms", app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, true), null);
-			} catch (Exception ex) {
-				RfcxLog.logExc(logTag, ex, "sendSmsPing");
+
+				publishMessageOnConfirmedConnection( this.mqttTopic_Publish_Ping, 1, false, packageMqttPingPayload( app.apiPingJsonUtils.injectGuardianIdentityIntoJson( pingJson ) ) );
+				isSent = true;
+
+			} catch (Exception e) {
+
+				RfcxLog.logExc(logTag, e, "sendMqttPing");
+				handleMqttPingPublicationExceptions(e);
 			}
-			/////////
 
 		}
-	}
 
-	public void sendMqttPing() {
-		sendMqttPing(true, new String[]{});
+		return isSent;
 	}
 
 	private byte[] packageMqttPingPayload(String pingJsonString) throws UnsupportedEncodingException, IOException, JSONException {
@@ -421,7 +417,7 @@ public class ApiMqttUtils implements MqttCallback {
 //                }
             }
         } catch (Exception e) {
-            RfcxLog.logExc(logTag, e, "handlePingPublicationExceptions");
+            RfcxLog.logExc(logTag, e, "handleMqttPingPublicationExceptions");
         }
     }
 

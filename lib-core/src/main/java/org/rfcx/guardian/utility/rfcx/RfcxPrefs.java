@@ -43,6 +43,9 @@ public class RfcxPrefs {
 	private String prefsDirPath = null;
 	
 	private Map<String, String> cachedPrefs = new HashMap<String, String>();
+
+	public String prefsSha1FullApiSync = null;
+	public long prefsTimestampLastFullApiSync = 0;
 	
 	// Getters and Setters
 	

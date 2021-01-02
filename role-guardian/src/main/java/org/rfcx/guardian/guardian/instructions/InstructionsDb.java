@@ -14,7 +14,7 @@ public class InstructionsDb {
 
 	public InstructionsDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+		this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbQueuedInstructions = new DbQueuedInstructions(context);
 		this.dbExecutedInstructions = new DbExecutedInstructions(context);
 	}
@@ -31,8 +31,9 @@ public class InstructionsDb {
 	static final String C_ATTEMPTS = "attempts";
 	static final String C_TIMESTAMP_EXTRA = "timestamp_extra";
 	static final String C_RECEIVED_BY = "received_by";
+	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
 
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_INSTR_ID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA, C_RECEIVED_BY };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_INSTR_ID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA, C_RECEIVED_BY, C_LAST_ACCESSED_AT };
 
 	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -49,6 +50,7 @@ public class InstructionsDb {
 			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
 			.append(", ").append(C_TIMESTAMP_EXTRA).append(" INTEGER")
 			.append(", ").append(C_RECEIVED_BY).append(" TEXT")
+			.append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
 			.append(")");
 		return sbOut.toString();
 	}
@@ -65,7 +67,7 @@ public class InstructionsDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
-		public int insert(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson, String receivedBy) {
+		public int insert(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -76,12 +78,12 @@ public class InstructionsDb {
 			values.put(C_JSON, metaJson);
 			values.put(C_ATTEMPTS, 0);
 			values.put(C_TIMESTAMP_EXTRA, (new Date()).getTime());
-			values.put(C_RECEIVED_BY, receivedBy);
+			values.put(C_LAST_ACCESSED_AT, 0);
 
 			return this.dbUtils.insertRow(TABLE, values);
 		}
 
-		public int findByIdOrCreate(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson, String receivedBy) {
+		public int findByIdOrCreate(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson) {
 
 			if (getCountById(instructionId) == 0) {
 				ContentValues values = new ContentValues();
@@ -93,7 +95,7 @@ public class InstructionsDb {
 				values.put(C_JSON, metaJson);
 				values.put(C_ATTEMPTS, 0);
 				values.put(C_TIMESTAMP_EXTRA, (new Date()).getTime());
-				values.put(C_RECEIVED_BY, receivedBy);
+				values.put(C_LAST_ACCESSED_AT, (new Date()).getTime());
 				this.dbUtils.insertRow(TABLE, values);
 			}
 			return getCountById(instructionId);
@@ -118,6 +120,12 @@ public class InstructionsDb {
 
 		public void incrementSingleRowAttemptsById(String instructionId) {
 			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_INSTR_ID, instructionId);
+		}
+
+		public long updateLastAccessedAtById(String instructionId) {
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByOneColumn(TABLE, C_LAST_ACCESSED_AT, rightNow, C_INSTR_ID, instructionId);
+			return rightNow;
 		}
 
 		public int getCount() {
@@ -139,7 +147,7 @@ public class InstructionsDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
-		public int insert(String instructionId, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra, String receivedBy) {
+		public int insert(String instructionId, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -150,12 +158,12 @@ public class InstructionsDb {
 			values.put(C_JSON, responseJson);
 			values.put(C_ATTEMPTS, attempts);
 			values.put(C_TIMESTAMP_EXTRA, timestampExtra);
-			values.put(C_RECEIVED_BY, receivedBy);
+			values.put(C_LAST_ACCESSED_AT, 0);
 
 			return this.dbUtils.insertRow(TABLE, values);
 		}
 
-		public int findByIdOrCreate(String instructionId, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra, String receivedBy) {
+		public int findByIdOrCreate(String instructionId, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra) {
 
 			if (getCountById(instructionId) == 0) {
 				ContentValues values = new ContentValues();
@@ -167,7 +175,7 @@ public class InstructionsDb {
 				values.put(C_JSON, responseJson);
 				values.put(C_ATTEMPTS, attempts);
 				values.put(C_TIMESTAMP_EXTRA, timestampExtra);
-				values.put(C_RECEIVED_BY, receivedBy);
+				values.put(C_LAST_ACCESSED_AT, (new Date()).getTime());
 				this.dbUtils.insertRow(TABLE, values);
 			}
 			return getCountById(instructionId);
@@ -192,6 +200,12 @@ public class InstructionsDb {
 
 		public void incrementSingleRowAttemptsById(String instructionId) {
 			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_INSTR_ID, instructionId);
+		}
+
+		public long updateLastAccessedAtById(String instructionId) {
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByOneColumn(TABLE, C_LAST_ACCESSED_AT, rightNow, C_INSTR_ID, instructionId);
+			return rightNow;
 		}
 
 	}

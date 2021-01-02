@@ -30,7 +30,7 @@ public class ApiPingJsonUtils {
 
 	private RfcxGuardian app;
 
-	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, boolean includeGuardianIdInfo) throws JSONException, IOException {
+	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields) throws JSONException {
 
 		JSONObject pingObj = new JSONObject();
 
@@ -94,8 +94,8 @@ public class ApiPingJsonUtils {
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "network")) {
-			String networkCPU = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_network", app.getApplicationContext().getContentResolver()));
-			if (networkCPU.length() > 0) { pingObj.put("network", networkCPU); }
+			String systemNetwork = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_network", app.getApplicationContext().getContentResolver()));
+			if (systemNetwork.length() > 0) { pingObj.put("network", systemNetwork); }
 			includeMeasuredAt = true;
 		}
 
@@ -103,17 +103,29 @@ public class ApiPingJsonUtils {
 
 		Log.d(logTag, pingObj.toString());
 
-		if (includeGuardianIdInfo) {
-			JSONObject guardianObj = new JSONObject();
-			guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
-			guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
-			pingObj.put("guardian", guardianObj);
-		}
-
 		return pingObj.toString();
 	}
 
 
+	public String injectGuardianIdentityIntoJson(String jsonBlobStr) {
+
+		String outputJsonStr = jsonBlobStr;
+
+		try {
+
+			JSONObject jsonObj = new JSONObject(jsonBlobStr);
+			JSONObject guardianObj = new JSONObject();
+			guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
+			guardianObj.put("token", app.rfcxGuardianIdentity.getAuthToken());
+			jsonObj.put("guardian", guardianObj);
+			outputJsonStr = jsonObj.toString();
+
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+
+		return outputJsonStr;
+	}
 
 
 

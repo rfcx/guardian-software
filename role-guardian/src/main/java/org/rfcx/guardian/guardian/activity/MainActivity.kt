@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.StrictMode
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -12,6 +13,7 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
+import org.rfcx.guardian.guardian.api.methods.ping.ScheduledApiPingService
 import org.rfcx.guardian.guardian.api.methods.register.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.methods.register.GuardianCheckCallback
 import org.rfcx.guardian.guardian.api.methods.register.RegisterApi
@@ -198,7 +200,7 @@ class MainActivity : Activity(),
     }
 
     private fun sendPing() {
-        app.apiMqttUtils.sendMqttPing();
+        app.rfcxServiceHandler.triggerService(ScheduledApiPingService.SERVICE_NAME, false);
     }
 
     private fun clearRegistration() {
@@ -273,7 +275,7 @@ class MainActivity : Activity(),
         deviceIdText.text = " $deviceIdTxt"
         Log.i(logTag, "onGuardianCheckSuccess: Successfully Verified Registration")
         showToast("Successfully Verified Registration")
-        app.apiMqttUtils.sendMqttPing(true, arrayOf<String>())
+        app.apiPingUtils.sendPing(true, arrayOf<String>())
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {

@@ -96,7 +96,7 @@ public class GuardianContentProvider extends ContentProvider {
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "ping", "*")) { logFuncVal = "ping-*";
 				String pingField = uri.getLastPathSegment();
-				app.apiMqttUtils.sendMqttPing(pingField.equalsIgnoreCase("all"), new String[]{ pingField } );
+				app.apiPingUtils.sendPing(pingField.equalsIgnoreCase("all"), new String[]{ pingField } );
 				return RfcxComm.getProjectionCursor(appRole, "ping", new Object[] { System.currentTimeMillis() });
 
 			// "control" function endpoints

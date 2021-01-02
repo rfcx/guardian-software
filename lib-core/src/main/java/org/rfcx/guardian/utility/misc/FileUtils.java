@@ -263,7 +263,7 @@ public class FileUtils {
 		return files;
 	}
 
-	public static List<File> getEmptyDirectories(String directoryFilePath/*, long ifNotModifiedSinceThisManyMilliseconds*/) {
+	public static List<File> getEmptyDirectories(String directoryFilePath) {
 		List<File> dirs = new ArrayList<File>();
 		File dirObj = new File(directoryFilePath);
 		if (dirObj.isDirectory()) {
@@ -276,21 +276,8 @@ public class FileUtils {
 					for (File innerDir : innerDirs) {
 						dirs.add(innerDir);
 					}
-
-
-//					findAndDeleteEmptyDirectories(innerDir.getAbsolutePath(), isRecursive, ifNotModifiedSinceThisManyMilliseconds);
 				}
-
-//				if (isRecursive) {
-//
-//					//	Log.i(logTag, "___ "+dirObj.getAbsolutePath());
-//				}
-			}/* else {
-				if (millisecondsSinceLastModified(dirObj) > ifNotModifiedSinceThisManyMilliseconds) {
-					Log.e(logTag, "Deleting empty directory: "+dirObj.getAbsolutePath());
-					delete(dirObj);
-				}
-			}*/
+			}
 		}
 		return dirs;
 	}

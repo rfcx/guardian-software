@@ -85,7 +85,6 @@ public class InstructionsExecutionService extends Service {
 							String type = queuedRow[2];
 							String command = queuedRow[3];
 							JSONObject metaJson = new JSONObject(queuedRow[5]);
-							String protocol = queuedRow[8];
 
 							if (app.instructionsDb.dbExecutedInstructions.getCountById(instrId) == 0) {
 								app.instructionsDb.dbQueuedInstructions.incrementSingleRowAttemptsById(instrId);
@@ -94,25 +93,19 @@ public class InstructionsExecutionService extends Service {
 								// Execute the instruction
 								String responseJsonStr = app.instructionsUtils.executeInstruction(type, command, metaJson);
 
-								app.instructionsDb.dbExecutedInstructions.findByIdOrCreate(instrId, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt, protocol);
+								app.instructionsDb.dbExecutedInstructions.findByIdOrCreate(instrId, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt);
 								app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(instrId);
-								Log.w(logTag, "Instruction ("+protocol+") "+instrId+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
+								Log.w(logTag, "Instruction "+instrId+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
 							} else {
-								Log.w(logTag, "Instruction ("+protocol+") "+instrId+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
+								Log.w(logTag, "Instruction "+instrId+" has already been executed. It will be skipped, and removed from the queue, if applicable.");
 								app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(instrId);
 							}
 
-							if (protocol.equalsIgnoreCase("mqtt")) {
+							// send execution receipt
+							String[] pingFields = new String[] { "instructions" };
+							if (type.equalsIgnoreCase("set") && command.equalsIgnoreCase("prefs")) { pingFields = new String[] { "instructions", "prefs" }; }
+							app.apiPingUtils.sendPing(false, pingFields);
 
-								String[] pingFields = new String[] { "instructions" };
-								if (type.equalsIgnoreCase("set") && command.equalsIgnoreCase("prefs")) { pingFields = new String[] { "instructions", "prefs" }; }
-
-								app.apiMqttUtils.sendMqttPing(false, pingFields);
-
-							} else if (protocol.equalsIgnoreCase("sms")) {
-								Log.e(logTag, "Send SMS Instruction Response: "+ app.instructionsUtils.getSingleInstructionInfoAsSerializedString(instrId) );
-
-							}
 						}
 					}
 				}

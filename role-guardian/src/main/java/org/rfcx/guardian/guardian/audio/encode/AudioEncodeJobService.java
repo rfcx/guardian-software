@@ -179,12 +179,12 @@ public class AudioEncodeJobService extends Service {
 
 										String vaultRowId = AudioEncodeUtils.vaultStatsDayId.format(new Date(Long.parseLong(timestamp)));
 
-										if (app.audioEncodeDb.dbVault.getCountById(vaultRowId) > 0) {
-											app.audioEncodeDb.dbVault.incrementSingleRowDuration(vaultRowId, Math.round(audioDuration/1000));
-											app.audioEncodeDb.dbVault.incrementSingleRowRecordCount(vaultRowId, 1);
-											app.audioEncodeDb.dbVault.incrementSingleRowFileSize(vaultRowId, FileUtils.getFileSizeInBytes(finalDestinationFile));
+										if (app.audioVaultDb.dbVault.getCountById(vaultRowId) > 0) {
+											app.audioVaultDb.dbVault.incrementSingleRowDuration(vaultRowId, Math.round(audioDuration/1000));
+											app.audioVaultDb.dbVault.incrementSingleRowRecordCount(vaultRowId, 1);
+											app.audioVaultDb.dbVault.incrementSingleRowFileSize(vaultRowId, FileUtils.getFileSizeInBytes(finalDestinationFile));
 										} else {
-											app.audioEncodeDb.dbVault.insert(vaultRowId, Math.round(audioDuration/1000), 1, FileUtils.getFileSizeInBytes(finalDestinationFile));
+											app.audioVaultDb.dbVault.insert(vaultRowId, Math.round(audioDuration/1000), 1, FileUtils.getFileSizeInBytes(finalDestinationFile));
 										}
 
 									}

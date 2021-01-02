@@ -14,7 +14,9 @@ import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class InstructionsUtils {
 
@@ -40,7 +42,7 @@ public class InstructionsUtils {
 
 				JSONArray instrArr = jsonObj.getJSONArray("instructions");
 
-				String confirmReceptionViaProtocol = "";
+				List<String> queuedInstrIds = new ArrayList<>();
 
 				for (int i = 0; i < instrArr.length(); i++) {
 
@@ -50,7 +52,9 @@ public class InstructionsUtils {
 
 						String instrId = instrObj.getString("id");
 
-						if (this.app.instructionsDb.dbQueuedInstructions.getCountById(instrId) == 0) {
+						if (	(this.app.instructionsDb.dbQueuedInstructions.getCountById(instrId) == 0)
+							&&	(this.app.instructionsDb.dbExecutedInstructions.getCountById(instrId) == 0)
+							) {
 
 							String instrType = instrObj.getString("type");
 
@@ -58,24 +62,20 @@ public class InstructionsUtils {
 
 							JSONObject instrMetaObj = (instrObj.getString("meta").length() > 0) ? new JSONObject(instrObj.getString("meta")) : new JSONObject();
 
-							long instrExecuteAt = (instrObj.getString("at").length() > 0) ? Long.parseLong(instrObj.getString("at")) : System.currentTimeMillis();
+							long instrExecuteAt = ( (instrObj.getString("at").length() > 0) ? Long.parseLong(instrObj.getString("at")) : System.currentTimeMillis() ) + InstructionsCycleService.CYCLE_DURATION;
 
-							confirmReceptionViaProtocol = instrObj.has("protocol") ? instrObj.getString("protocol") : "mqtt";
+							this.app.instructionsDb.dbQueuedInstructions.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString());
 
-							this.app.instructionsDb.dbQueuedInstructions.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString(), confirmReceptionViaProtocol);
+							Log.i(logTag, "Instruction Received with ID '" + instrId + "', Type: '" + instrType + "', Command: '" + instrCmd + "', Send at " + DateTimeUtils.getDateTime(instrExecuteAt) + ", JSON Meta: '" + instrMetaObj.toString() + "'");
 
-							Log.i(logTag, "Instruction Received (via " + confirmReceptionViaProtocol + ") with ID '" + instrId + "', Type: '" + instrType + "', Command: '" + instrCmd + "', Send at " + DateTimeUtils.getDateTime(instrExecuteAt) + ", JSON Meta: '" + instrMetaObj.toString() + "'");
+							queuedInstrIds.add(instrId);
 						}
 					}
 				}
 
-				if (confirmReceptionViaProtocol.equalsIgnoreCase("mqtt")) {
-
-					this.app.apiMqttUtils.sendMqttPing(false, new String[]{"instructions"});
-
-				} else if (confirmReceptionViaProtocol.equalsIgnoreCase("sms")) {
-
-					Log.e(logTag, "Send Bundled SMS Instruction Response..." );
+				// confirm receipt
+				if (queuedInstrIds.size() > 0) {
+					this.app.apiPingUtils.sendPing(false, new String[]{"instructions"});
 				}
 
 			}
@@ -86,38 +86,38 @@ public class InstructionsUtils {
 		}
 	}
 
-	public String getSingleInstructionInfoAsSerializedString(String instrId) {
-
-		String[] instrInfo = new String[]{
-				app.rfcxGuardianIdentity.getGuid(),
-				"in",
-				"",		// instr_id
-				"",		// received_at
-				"",		// executed_at
-				"",		// attempts
-				""		// response
-		};
-
-		for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
-			if ((receivedRow[0] != null) && instrId.equalsIgnoreCase(receivedRow[1])) {
-				instrInfo[2] = receivedRow[1];	// instr_id
-				instrInfo[3] = receivedRow[0];	// received_at
-				break;
-			}
-		}
-
-		for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
-			if ((executedRow[0] != null) && instrId.equalsIgnoreCase(executedRow[1])) {
-				instrInfo[2] = executedRow[1];    // instr_id
-				instrInfo[3] = executedRow[7];    // received_at
-				instrInfo[4] = executedRow[0];    // executed_at
-				instrInfo[5] = executedRow[6];    // attempts
-				instrInfo[6] = executedRow[5];    // response
-				break;
-			}
-		}
-		return TextUtils.join("|", instrInfo);
-	}
+//	public String getSingleInstructionInfoAsSerializedString(String instrId) {
+//
+//		String[] instrInfo = new String[]{
+//				app.rfcxGuardianIdentity.getGuid(),
+//				"in",
+//				"",		// instr_id
+//				"",		// received_at
+//				"",		// executed_at
+//				"",		// attempts
+//				""		// response
+//		};
+//
+//		for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
+//			if ((receivedRow[0] != null) && instrId.equalsIgnoreCase(receivedRow[1])) {
+//				instrInfo[2] = receivedRow[1];	// instr_id
+//				instrInfo[3] = receivedRow[0];	// received_at
+//				break;
+//			}
+//		}
+//
+//		for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
+//			if ((executedRow[0] != null) && instrId.equalsIgnoreCase(executedRow[1])) {
+//				instrInfo[2] = executedRow[1];    // instr_id
+//				instrInfo[3] = executedRow[7];    // received_at
+//				instrInfo[4] = executedRow[0];    // executed_at
+//				instrInfo[5] = executedRow[6];    // attempts
+//				instrInfo[6] = executedRow[5];    // response
+//				break;
+//			}
+//		}
+//		return TextUtils.join("|", instrInfo);
+//	}
 
 	public JSONObject getInstructionsInfoAsJson() {
 
@@ -131,6 +131,7 @@ public class InstructionsUtils {
 					receivedObj.put("id", receivedRow[1]);
 					receivedObj.put("received_at", receivedRow[0]);
 					receivedInstrArr.put(receivedObj);
+					app.instructionsDb.dbQueuedInstructions.updateLastAccessedAtById(receivedRow[1]);
 				}
 			}
 			instrObj.put("received", receivedInstrArr);
@@ -145,6 +146,7 @@ public class InstructionsUtils {
 					executedObj.put("attempts", executedRow[6]);
 					executedObj.put("response", executedRow[5]);
 					executedInstrArr.put(executedObj);
+					app.instructionsDb.dbExecutedInstructions.updateLastAccessedAtById(executedRow[1]);
 				}
 			}
 			instrObj.put("executed", executedInstrArr);
@@ -195,7 +197,7 @@ public class InstructionsUtils {
                     for (int i = 0; i < inclFieldsArr.length(); i++) {
                         inclFields[i] = inclFieldsArr.getString(i).toLowerCase();
                     }
-                    app.apiMqttUtils.sendMqttPing(false, inclFields);
+					app.apiPingUtils.sendPing(false, inclFields);
 
                 } else if (instrCmd.equalsIgnoreCase("sms")) {
 

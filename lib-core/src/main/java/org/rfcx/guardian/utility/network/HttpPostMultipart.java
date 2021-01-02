@@ -25,20 +25,27 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class HttpPostMultipart {
-	
-	private static final String logTag = RfcxLog.generateLogTag("Utils", "HttpPostMultipart");
+
+	public HttpPostMultipart(Context context, String appRole) {
+		this.context = context;
+		this.logTag = RfcxLog.generateLogTag(appRole, "HttpPostMultipart");
+	}
+
+	private Context context;
+	private String logTag;
 
 	// These hard coded timeout values are just defaults.
 	// They may be customized through the setTimeOuts method.
 	private int requestReadTimeout = 300000;
 	private int requestConnectTimeout = 300000;
-	private static boolean useCaches = false;
+	private boolean useCaches = false;
 	
 	private List<String[]> customHttpHeaders = new ArrayList<String[]>();
 	
@@ -55,11 +62,9 @@ public class HttpPostMultipart {
 		this.customHttpHeaders = newCustomHttpHeaders;
 	}
 	
-	public List<String[]> getCustomHttpHeaders() {
-		return this.customHttpHeaders;
-	}
+	public List<String[]> getCustomHttpHeaders() { return this.customHttpHeaders; }
 	
-	public String doMultipartPost(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments) {
+	public String doMultipartPost(String fullUrl, List<String[]> keyValueParameters, List<String[]> keyFilepathMimeAttachments) throws IOException {
 		
 		/* fullUrl: url as a string
 		 * keyValueParameters: List of arrays of strings, with the indices: [fieldname, fieldvalue]
@@ -67,7 +72,7 @@ public class HttpPostMultipart {
 		 */
 		
 		MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-		try {
+		//try {
 			if (keyFilepathMimeAttachments != null) {
 				for (String[] keyFilepathMime : keyFilepathMimeAttachments) {
 					ContentBody contentBody = new FileBody(
@@ -80,16 +85,16 @@ public class HttpPostMultipart {
 			for (String[] keyValue : keyValueParameters) {
 				requestEntity.addPart(keyValue[0], new StringBody(URLEncoder.encode(keyValue[1], "UTF-8")));
 			}
-		} catch (UnsupportedEncodingException e) {
+		/*} catch (UnsupportedEncodingException e) {
 			RfcxLog.logExc(logTag, e);
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
-		}
+		}*/
 		return executeMultipartPost(fullUrl, requestEntity);
 	}
     
-	private String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) {
-		try {
+	private String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) throws IOException {
+//		try {
 	    	String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
 			if (inferredProtocol.equals("http")) {
 				return sendInsecurePostRequest((new URL(fullUrl)), requestEntity);
@@ -97,16 +102,16 @@ public class HttpPostMultipart {
 				return sendSecurePostRequest((new URL(fullUrl)), requestEntity);
 			} else {
 				Log.e(logTag,"Inferred protocol was neither HTTP nor HTTPS.");
-				return "";
+				return null;
 			}
-		} catch (MalformedURLException e) {
-			RfcxLog.logExc(logTag, e);
-			return "";
-		}
+//		} catch (MalformedURLException e) {
+//			RfcxLog.logExc(logTag, e);
+//			return "";
+//		}
 	}
 	
-	private String sendInsecurePostRequest(URL url, MultipartEntity entity) {
-	    try {
+	private String sendInsecurePostRequest(URL url, MultipartEntity entity) throws IOException {
+//	    try {
 	        HttpURLConnection conn;
 			conn = (HttpURLConnection) url.openConnection();
 	        conn.setReadTimeout(requestReadTimeout);
@@ -130,29 +135,31 @@ public class HttpPostMultipart {
 		    } else {
 	            Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode()+" for "+url.toString());
 		    }
-	    } catch (UnknownHostException e) {
-			RfcxLog.logExc(logTag, e);
-			return logTag+"-UnknownHostException";
-	    } catch (ProtocolException e) {
-			RfcxLog.logExc(logTag, e);
-	    } catch (IOException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-	    return "";        
+//	    } catch (UnknownHostException e) {
+//			RfcxLog.logExc(logTag, e);
+//			return logTag+"-UnknownHostException";
+//	    } catch (ProtocolException e) {
+//			RfcxLog.logExc(logTag, e);
+//	    } catch (IOException e) {
+//			RfcxLog.logExc(logTag, e);
+//		}
+	    return null;
 	}
 	
-	private String sendSecurePostRequest(URL url, MultipartEntity entity) {
-	    try {
+	private String sendSecurePostRequest(URL url, MultipartEntity entity) throws IOException {
+//	    try {
 	        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 	        conn.setReadTimeout(requestReadTimeout);
 	        conn.setConnectTimeout(requestConnectTimeout);
 	        conn.setRequestMethod("POST");
 	        conn.setUseCaches(useCaches);
 	        conn.setDoInput(true);
-	        conn.setDoOutput(true);
+	        conn.setDoOutput(false);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
 			conn.setRequestProperty("Accept-Encoding", "gzip");
-			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
+			for (String[] keyValueHeader : this.customHttpHeaders) {
+				conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]);
+			}
 	        conn.setFixedLengthStreamingMode((int) entity.getContentLength());
 	        conn.addRequestProperty(entity.getContentType().getName(), entity.getContentType().getValue());
 	        OutputStream outputStream = conn.getOutputStream();
@@ -165,19 +172,18 @@ public class HttpPostMultipart {
 			} else {
 				Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode()+" for "+url.toString());
 			}
-	        return readResponseStream(conn.getInputStream());
-	    } catch (UnknownHostException e) {
-			RfcxLog.logExc(logTag, e);
-			return logTag+"-UnknownHostException";
-	    } catch (ProtocolException e) {
-			RfcxLog.logExc(logTag, e);
-	    } catch (IOException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-	    return "";        
+//	    } catch (UnknownHostException e) {
+//			RfcxLog.logExc(logTag, e);
+//			return logTag+"-UnknownHostException";
+//	    } catch (ProtocolException e) {
+//			RfcxLog.logExc(logTag, e);
+//	    } catch (IOException e) {
+//			RfcxLog.logExc(logTag, e);
+//		}
+		return null;
 	}
 
-	private static String readResponseStream(InputStream inputStream) {
+	private String readResponseStream(InputStream inputStream) {
 	    BufferedReader bufferedReader = null;
 	    StringBuilder stringBuilder = new StringBuilder();
 	    try {

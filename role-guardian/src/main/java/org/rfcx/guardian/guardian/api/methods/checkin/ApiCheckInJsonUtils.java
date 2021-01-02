@@ -40,9 +40,6 @@ public class ApiCheckInJsonUtils {
 
 	private RfcxGuardian app;
 
-	public String prefsSha1FullApiSync = null;
-	public long prefsTimestampLastFullApiSync = 0;
-
 	public boolean hasDeviceInfoBeenSent = false;
 
 
@@ -141,7 +138,7 @@ public class ApiCheckInJsonUtils {
 			} else if (assetType.equalsIgnoreCase("archived")) {
 				assetInfo.append("*").append( app.apiCheckInArchiveDb.dbApiCheckInArchive.getCumulativeFileSizeForAllRows() );
 			} else if (assetType.equalsIgnoreCase("vault")) {
-				assetInfo.append("*").append( app.audioEncodeDb.dbVault.getCumulativeFileSizeForAllRows() );
+				assetInfo.append("*").append( app.audioVaultDb.dbVault.getCumulativeFileSizeForAllRows() );
 			}
 
 			if (ArrayUtils.doesStringArrayContainString(includeAssetIdLists, assetType)) {
@@ -165,7 +162,7 @@ public class ApiCheckInJsonUtils {
 						"skipped*" + app.apiCheckInDb.dbSkipped.getCount() + assetExtraInfo.get("skipped"),
 						"stashed*" + app.apiCheckInDb.dbStashed.getCount() + assetExtraInfo.get("stashed"),
 						"archived*" + app.apiCheckInArchiveDb.dbApiCheckInArchive.getInnerRecordCumulativeCount() + assetExtraInfo.get("archived"),
-						"vault*" + app.audioEncodeDb.dbVault.getCumulativeRecordCountForAllRows() + assetExtraInfo.get("vault")
+						"vault*" + app.audioVaultDb.dbVault.getCumulativeRecordCountForAllRows() + assetExtraInfo.get("vault")
 				});
 	}
 
@@ -359,17 +356,17 @@ public class ApiCheckInJsonUtils {
 		JSONObject prefsObj = new JSONObject();
 		try {
 
-			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.prefsTimestampLastFullApiSync));
+			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(app.rfcxPrefs.prefsTimestampLastFullApiSync));
 			String prefsSha1 = app.rfcxPrefs.getPrefsChecksum();
 			prefsObj.put("sha1", prefsSha1);
 
-			if (	(this.prefsSha1FullApiSync != null)
-					&&	!this.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
+			if (	(app.rfcxPrefs.prefsSha1FullApiSync != null)
+					&&	!app.rfcxPrefs.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
 					&& 	(milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength())
 			) {
 				Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent.");
 				prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
-				this.prefsTimestampLastFullApiSync = System.currentTimeMillis();
+				app.rfcxPrefs.prefsTimestampLastFullApiSync = System.currentTimeMillis();
 			}
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);

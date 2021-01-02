@@ -9,7 +9,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ScheduledApiPingService extends IntentService {
 
-	private static final String SERVICE_NAME = "ScheduledApiPing";
+	public static final String SERVICE_NAME = "ScheduledApiPing";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledApiPingService");
 
@@ -26,7 +26,7 @@ public class ScheduledApiPingService extends IntentService {
 		
 		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-		app.apiMqttUtils.sendMqttPing(true, new String[]{} );
+		app.apiPingUtils.sendPing(true, new String[]{} );
 		
 	}
 	

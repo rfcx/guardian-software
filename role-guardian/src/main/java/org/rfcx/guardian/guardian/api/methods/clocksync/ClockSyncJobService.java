@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.methods.clock;
+package org.rfcx.guardian.guardian.api.methods.clocksync;
 
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.datetime.SntpUtils;
@@ -8,7 +8,6 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 public class ClockSyncJobService extends Service {
 

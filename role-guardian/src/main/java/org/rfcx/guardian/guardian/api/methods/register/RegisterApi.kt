@@ -19,7 +19,7 @@ object RegisterApi {
         callback: RegisterCallback
     ) {
         val tokenId = context.getTokenID() ?: ""
-        httpPostMultipart = HttpPostMultipart()
+        httpPostMultipart = HttpPostMultipart(context, RfcxGuardian.APP_ROLE)
         httpPostMultipart.customHttpHeaders = listOf(arrayOf("Authorization", "Bearer $tokenId"))
 
         val url = ApiRest.baseUrl(context)
@@ -53,7 +53,7 @@ object RegisterApi {
         isProduction: Boolean = true,
         callback: SocketRegisterCallback
     ) {
-        httpPostMultipart = HttpPostMultipart()
+        httpPostMultipart = HttpPostMultipart(context, RfcxGuardian.APP_ROLE)
         httpPostMultipart.customHttpHeaders = listOf(arrayOf("Authorization", "Bearer $tokenId"))
 
         var url = getApiUrl(context, isProduction)

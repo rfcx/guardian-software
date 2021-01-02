@@ -7,8 +7,10 @@ import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInUtils;
 import org.rfcx.guardian.guardian.api.methods.command.ApiCommandUtils;
 import org.rfcx.guardian.guardian.api.methods.download.ApiDownloadDb;
 import org.rfcx.guardian.guardian.api.methods.ping.ApiPingJsonUtils;
+import org.rfcx.guardian.guardian.api.methods.ping.ApiPingUtils;
 import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
+import org.rfcx.guardian.guardian.api.protocols.ApiSbdUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInHealthUtils;
@@ -22,6 +24,7 @@ import org.rfcx.guardian.guardian.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifierDb;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyDb;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyJobService;
+import org.rfcx.guardian.guardian.audio.encode.AudioVaultDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -60,9 +63,9 @@ import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.guardian.audio.capture.AudioQueuePostProcessingService;
-import org.rfcx.guardian.guardian.api.methods.clock.ClockSyncJobService;
+import org.rfcx.guardian.guardian.api.methods.clocksync.ClockSyncJobService;
 import org.rfcx.guardian.guardian.device.android.DeviceSystemDb;
-import org.rfcx.guardian.guardian.api.methods.clock.ScheduledClockSyncService;
+import org.rfcx.guardian.guardian.api.methods.clocksync.ScheduledClockSyncService;
 import org.rfcx.guardian.guardian.receiver.ConnectivityReceiver;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
@@ -81,6 +84,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     // Database Handlers
     public AudioEncodeDb audioEncodeDb = null;
+    public AudioVaultDb audioVaultDb = null;
     public ApiCheckInDb apiCheckInDb = null;
     public MetaDb metaDb = null;
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
@@ -106,9 +110,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiMqttUtils apiMqttUtils = null;
     public ApiSmsUtils apiSmsUtils = null;
     public ApiRestUtils apiRestUtils = null;
+    public ApiSbdUtils apiSbdUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
     public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
     public ApiPingJsonUtils apiPingJsonUtils = null;
+    public ApiPingUtils apiPingUtils = null;
     public ApiCommandUtils apiCommandUtils = null;
     public ApiSegmentUtils apiSegmentUtils = null;
     public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
@@ -155,9 +161,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiMqttUtils = new ApiMqttUtils(this);
         this.apiSmsUtils = new ApiSmsUtils(this);
         this.apiRestUtils = new ApiRestUtils(this);
+        this.apiSbdUtils = new ApiSbdUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.apiCheckInJsonUtils = new ApiCheckInJsonUtils(this);
         this.apiPingJsonUtils = new ApiPingJsonUtils(this);
+        this.apiPingUtils = new ApiPingUtils(this);
         this.apiCommandUtils = new ApiCommandUtils(this);
         this.apiSegmentUtils = new ApiSegmentUtils(this);
         this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);
@@ -247,6 +255,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     private void setDbHandlers() {
 
         this.audioEncodeDb = new AudioEncodeDb(this, this.version);
+        this.audioVaultDb = new AudioVaultDb(this, this.version);
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.metaDb = new MetaDb(this, this.version);
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);

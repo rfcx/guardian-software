@@ -50,6 +50,53 @@ public class ApiSmsUtils {
 
 
 
+	public boolean sendSmsPing(String pingJson) {
 
+		boolean isSent = false;
+
+		try {
+			// String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, false);
+			//Log.d(logTag, pingJson);
+			// app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sms", app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, false), null);
+			//		publishMessageOnConfirmedConnection(this.mqttTopic_Publish_Ping, 1,false, packageMqttPingPayload());
+			isSent = true;
+
+		} catch (Exception e) {
+
+			RfcxLog.logExc(logTag, e, "sendSmsPing");
+			handleSmsPingPublicationExceptions(e);
+
+		}
+
+		return isSent;
+	}
+
+	private void handleSmsPingPublicationExceptions(Exception inputExc) {
+
+		try {
+			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
+
+//			if (excStr.contains("Too many publishes in progress")) {
+////                app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
+////                app.rfcxServiceHandler.triggerService("ApiCheckInJob", true);
+//
+//			} else if (	excStr.contains("UnknownHostException")
+//					||	excStr.contains("Broken pipe")
+//					||	excStr.contains("Timed out waiting for a response from the server")
+//					||	excStr.contains("No route to host")
+//					||	excStr.contains("Host is unresolved")
+//			) {
+////                Log.i(logTag, "Connection has failed "+this.inFlightCheckInAttemptCounter +" times (max: "+this.inFlightCheckInAttemptCounterLimit +")");
+////                app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
+////                if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
+////                    Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
+////                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+////                    this.inFlightCheckInAttemptCounter = 0;
+////                }
+//			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e, "handleSmsPingPublicationExceptions");
+		}
+	}
 
 }
