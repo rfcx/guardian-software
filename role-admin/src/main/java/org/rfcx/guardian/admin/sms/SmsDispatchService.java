@@ -110,7 +110,7 @@ public class SmsDispatchService extends Service {
 
 								String concatSegId = msgBody.substring(0,4) + "-" + msgBody.substring(4,7);
 								Log.v(logTag, "Segment sent: "+concatSegId);
-								RfcxComm.updateQueryContentProvider("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getApplicationContext().getContentResolver());
+								RfcxComm.updateQueryContentProvider("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
 							}
 
 							Thread.sleep(forcedPauseBetweenEachDispatch);

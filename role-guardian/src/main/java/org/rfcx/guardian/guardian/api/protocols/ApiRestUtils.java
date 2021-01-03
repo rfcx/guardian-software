@@ -146,7 +146,7 @@ public class ApiRestUtils {
 ////                app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
 ////                if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
 ////                    Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
-////                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+////                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
 ////                    this.inFlightCheckInAttemptCounter = 0;
 ////                }
 //			}

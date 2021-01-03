@@ -185,7 +185,7 @@ public class InstructionsUtils {
 			// Execute Control Command
 			} else if (instrType.equalsIgnoreCase("ctrl")) {
 
-				app.deviceControlUtils.runOrTriggerDeviceControl(instrCmd, app.getApplicationContext().getContentResolver());
+				app.deviceControlUtils.runOrTriggerDeviceControl(instrCmd, app.getResolver());
 
 			// Execute Send Command
             } else if (instrType.equalsIgnoreCase("send")) {

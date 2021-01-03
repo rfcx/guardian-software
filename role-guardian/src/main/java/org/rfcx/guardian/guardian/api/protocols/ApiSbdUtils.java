@@ -36,7 +36,7 @@ public class ApiSbdUtils {
 			String sbdMsgUrlBlob = TextUtils.join("|", new String[]{ sbdSendAt, RfcxComm.urlEncode(sbdSendTo), RfcxComm.urlEncode(sbdMsgBody) });
 
 			Cursor sbdQueueContentProviderResponse =
-					app.getApplicationContext().getContentResolver().query(
+					app.getResolver().query(
 							RfcxComm.getUri("satellite", "sbd_queue", sbdMsgUrlBlob),
 							RfcxComm.getProjection("satellite", "sbd_queue"),
 							null, null, null);
@@ -90,7 +90,7 @@ public class ApiSbdUtils {
 ////                app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
 ////                if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
 ////                    Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
-////                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+////                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
 ////                    this.inFlightCheckInAttemptCounter = 0;
 ////                }
 //			}

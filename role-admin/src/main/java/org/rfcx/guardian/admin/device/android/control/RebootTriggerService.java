@@ -78,7 +78,7 @@ public class RebootTriggerService extends Service {
 				// Halting the Guardian role services
 				Log.d(logTag, "Reboot: Requesting that Guardian role stop all services...");
 				try {
-					Cursor killGuardianSvcs = app.getApplicationContext().getContentResolver().query(
+					Cursor killGuardianSvcs = app.getResolver().query(
 						RfcxComm.getUri("guardian", "control", "kill"),
 						RfcxComm.getProjection("guardian", "control"),
 						null, null, null);

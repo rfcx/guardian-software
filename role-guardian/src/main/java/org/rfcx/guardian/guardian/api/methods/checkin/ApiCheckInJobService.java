@@ -99,7 +99,7 @@ public class ApiCheckInJobService extends Service {
 
 //						// reboots org.rfcx.guardian.guardian in situations where battery charge percentage doesn't reflect charge state
 //						if (app.apiCheckInUtils.isBatteryChargedButBelowCheckInThreshold()) {
-//							app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getApplicationContext().getContentResolver());
+//							app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getResolver());
 //						}
 						
 					} else {

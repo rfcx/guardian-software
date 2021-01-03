@@ -78,7 +78,7 @@ public class ApiCheckInJsonUtils {
 		}
 
 		// Adding messages to JSON blob
-		JSONArray smsArr = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver());
+		JSONArray smsArr = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getResolver());
 		if (smsArr.length() > 0) { checkInMetaJson.put("messages", smsArr); }
 
 		// Adding screenshot meta to JSON blob
@@ -185,17 +185,17 @@ public class ApiCheckInJsonUtils {
 
 		// Adding system metadata, if they can be retrieved from admin role via content provider
 		JSONArray systemMetaJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-				"system_meta", app.getApplicationContext().getContentResolver());
+				"system_meta", app.getResolver());
 		metaDataJsonObj = addConcatSystemMetaParams(metaDataJsonObj, systemMetaJsonArray);
 
 		// Adding sentinel power data, if they can be retrieved from admin role via content provider
 		String sentinelPower = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-				"sentinel_power", app.getApplicationContext().getContentResolver()));
+				"sentinel_power", app.getResolver()));
 		if (sentinelPower.length() > 0) { metaDataJsonObj.put("sentinel_power", sentinelPower); }
 
 		// Adding sentinel sensor data, if they can be retrieved from admin role via content provider
 		String sentinelSensor = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-				"sentinel_sensor", app.getApplicationContext().getContentResolver()));
+				"sentinel_sensor", app.getResolver()));
 		if (sentinelSensor.length() > 0) { metaDataJsonObj.put("sentinel_sensor", sentinelSensor); }
 
 		ArrayList<String> dateTimeOffsets = new ArrayList<String>();
@@ -236,14 +236,11 @@ public class ApiCheckInJsonUtils {
 			app.deviceSystemDb.dbMqttBrokerConnections.clearRowsBefore(deleteBefore);
 			app.apiCheckInStatsDb.dbStats.clearRowsBefore(deleteBefore);
 
-			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
-					"system_meta|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before", "system_meta|" + deleteBefore.getTime(), app.getResolver());
 
-			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
-					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before", "sentinel_power|" + deleteBefore.getTime(), app.getResolver());
 
-			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
-					"sentinel_sensor|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before", "sentinel_sensor|" + deleteBefore.getTime(), app.getResolver());
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

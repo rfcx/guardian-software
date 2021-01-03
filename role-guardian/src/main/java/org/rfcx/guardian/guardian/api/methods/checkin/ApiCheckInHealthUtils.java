@@ -290,7 +290,7 @@ public class ApiCheckInHealthUtils {
 
 		if (this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
 			try {
-				JSONArray jsonArray = RfcxComm.getQueryContentProvider("admin", "status", "*", app.getApplicationContext().getContentResolver());
+				JSONArray jsonArray = RfcxComm.getQueryContentProvider("admin", "status", "*", app.getResolver());
 				if (jsonArray.length() > 0) {
 					JSONObject jsonObj = jsonArray.getJSONObject(0);
 					if (jsonObj.has("api_checkin")) {

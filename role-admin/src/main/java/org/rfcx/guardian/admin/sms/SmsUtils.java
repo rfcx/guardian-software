@@ -59,7 +59,7 @@ public class SmsUtils {
 			Log.w(logTag, "SMS received from API '"+apiSmsAddress+"'.");
 			String segmentPayload = smsObj.getString("body");
 			Cursor smsSegmentReceivedContentProviderResponse =
-					app.getApplicationContext().getContentResolver().query(
+					app.getResolver().query(
 							RfcxComm.getUri("guardian", "segment_receive_sms", RfcxComm.urlEncode(segmentPayload)),
 							RfcxComm.getProjection("guardian", "segment_receive_sms"),
 							null, null, null);

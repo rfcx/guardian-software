@@ -358,7 +358,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit){
 					Log.v(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
-					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
 					this.inFlightCheckInAttemptCounter = 0;
 				}
 
@@ -412,7 +412,7 @@ public class ApiMqttUtils implements MqttCallback {
 //                app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
 //                if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
 //                    Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
-//                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+//                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
 //                    this.inFlightCheckInAttemptCounter = 0;
 //                }
             }
@@ -476,13 +476,11 @@ public class ApiMqttUtils implements MqttCallback {
 							if (!app.deviceConnectivity.isConnected() && !app.deviceMobilePhone.hasSim()) {
 								Log.d(logTag, "Failure Threshold Reached: Forced reboot due to missing SIM card (" + toggleThreshold
 										+ " minutes since last successful CheckIn)");
-								app.deviceControlUtils.runOrTriggerDeviceControl("reboot",
-										app.getApplicationContext().getContentResolver());
+								app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getResolver());
 							} else {
 								Log.d(logTag, "Failure Threshold Reached: Forced Relaunch (" + toggleThreshold
 										+ " minutes since last successful CheckIn)");
-								app.deviceControlUtils.runOrTriggerDeviceControl("relaunch",
-										app.getApplicationContext().getContentResolver());
+								app.deviceControlUtils.runOrTriggerDeviceControl("relaunch", app.getResolver());
 
 								for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
 									this.failedCheckInThresholdsReached[i] = false;
@@ -493,8 +491,7 @@ public class ApiMqttUtils implements MqttCallback {
 							// any threshold // and not connected
 							Log.d(logTag, "Failure Threshold Reached: Airplane Mode (" + toggleThreshold
 									+ " minutes since last successful CheckIn)");
-							app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle",
-									app.getApplicationContext().getContentResolver());
+							app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
 							this.inFlightCheckInAttemptCounter = 0;
 						}
 						break;

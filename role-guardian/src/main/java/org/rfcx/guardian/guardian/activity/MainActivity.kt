@@ -78,6 +78,7 @@ class MainActivity : Activity(),
         clearRegistrationButton.setOnClickListener {
             clearRegistration()
             setVisibilityBeforeRegister()
+            // reload or relaunch app
         }
 
         audioCaptureButton.setOnClickListener {

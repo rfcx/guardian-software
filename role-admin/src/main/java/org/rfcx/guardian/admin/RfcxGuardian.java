@@ -63,6 +63,7 @@ import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -179,14 +180,13 @@ public class RfcxGuardian extends Application {
 		this.unregisterReceiver(airplaneModeReceiver);
 	}
 	
-	public void appResume() {
-
-	}
+	public void appResume() { }
 	
-	public void appPause() {
+	public void appPause() { }
 
+	public ContentResolver getResolver() {
+		return this.getApplicationContext().getContentResolver();
 	}
-
 
 	public boolean isGuardianRegistered() {
 		return (this.rfcxGuardianIdentity.getAuthToken() != null);

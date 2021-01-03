@@ -45,6 +45,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -194,6 +195,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public void appPause() { }
 
+    public ContentResolver getResolver() {
+        return this.getApplicationContext().getContentResolver();
+    }
 
     public void saveGuardianRegistration(String regJsonStr) {
         try {
