@@ -1,7 +1,6 @@
 package org.rfcx.guardian.admin.sms;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -110,7 +109,7 @@ public class SmsDispatchService extends Service {
 
 								String concatSegId = msgBody.substring(0,4) + "-" + msgBody.substring(4,7);
 								Log.v(logTag, "Segment sent: "+concatSegId);
-								RfcxComm.updateQueryContentProvider("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
+								RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
 							}
 
 							Thread.sleep(forcedPauseBetweenEachDispatch);

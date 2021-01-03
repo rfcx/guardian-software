@@ -40,7 +40,7 @@ public class AssetUtils {
 
 		String[] assetMeta = new String[] { null };
 		try {
-			JSONArray latestAssetMetaArr = RfcxComm.getQueryContentProvider("admin", "database_get_latest_row", assetType, app.getResolver());
+			JSONArray latestAssetMetaArr = RfcxComm.getQuery("admin", "database_get_latest_row", assetType, app.getResolver());
 			for (int i = 0; i < latestAssetMetaArr.length(); i++) {
 				JSONObject latestAssetMeta = latestAssetMetaArr.getJSONObject(i);
 				long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(latestAssetMeta.getString("last_accessed_at"))));
@@ -49,7 +49,7 @@ public class AssetUtils {
 							latestAssetMeta.getString("created_at"), latestAssetMeta.getString("timestamp"),
 							latestAssetMeta.getString("format"), latestAssetMeta.getString("digest"),
 							latestAssetMeta.getString("width"), latestAssetMeta.getString("height") };
-					RfcxComm.updateQueryContentProvider("admin", "database_set_last_accessed_at", assetType + "|" + latestAssetMeta.getString("timestamp"), app.getResolver());
+					RfcxComm.updateQuery("admin", "database_set_last_accessed_at", assetType + "|" + latestAssetMeta.getString("timestamp"), app.getResolver());
 					break;
 				} else {
 					Log.e(logTag,"Skipping asset attachment: "+assetType+", "+latestAssetMeta.getString("timestamp")+" was last sent only "+Math.round(milliSecondsSinceAccessed / 1000)+" seconds ago.");
@@ -80,27 +80,27 @@ public class AssetUtils {
 				}
 
 			} else if (assetType.equals("screenshot")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId, app.getResolver());
+				RfcxComm.deleteQuery("admin", "database_delete_row", "screenshots|" + assetId, app.getResolver());
 				filePaths.add(RfcxScreenShotFileUtils.getScreenShotFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
 				filePaths.add(RfcxScreenShotFileUtils.getScreenShotFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("photo")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "photos|" + assetId, app.getResolver());
+				RfcxComm.deleteQuery("admin", "database_delete_row", "photos|" + assetId, app.getResolver());
 				filePaths.add(RfcxPhotoFileUtils.getPhotoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
 				filePaths.add(RfcxPhotoFileUtils.getPhotoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("video")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "videos|" + assetId, app.getResolver());
+				RfcxComm.deleteQuery("admin", "database_delete_row", "videos|" + assetId, app.getResolver());
 				filePaths.add(RfcxVideoFileUtils.getVideoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
 				filePaths.add(RfcxVideoFileUtils.getVideoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("log")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId, app.getResolver());
+				RfcxComm.deleteQuery("admin", "database_delete_row", "logs|" + assetId, app.getResolver());
 				filePaths.add(RfcxLogcatFileUtils.getLogcatFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
 				filePaths.add(RfcxLogcatFileUtils.getLogcatFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("sms")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId, app.getResolver());
+				RfcxComm.deleteQuery("admin", "database_delete_row", "sms|" + assetId, app.getResolver());
 
 			} else if (assetType.equals("meta")) {
 				app.metaDb.dbMeta.deleteSingleRowByTimestamp(assetId);

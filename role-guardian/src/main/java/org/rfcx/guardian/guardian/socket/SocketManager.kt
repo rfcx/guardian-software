@@ -160,7 +160,7 @@ object SocketManager {
     private fun sendDiagnosticMessage() {
         try {
             val diagnosticJson = JSONObject()
-            val diagnosticJsonArray = RfcxComm.getQueryContentProvider(
+            val diagnosticJsonArray = RfcxComm.getQuery(
                 "guardian",
                 "diagnostic",
                 "diagnostic",
@@ -171,7 +171,7 @@ object SocketManager {
                 diagnosticJson.put("diagnostic", jsonObject)
             }
 
-            val configureJsonArray = RfcxComm.getQueryContentProvider(
+            val configureJsonArray = RfcxComm.getQuery(
                 "guardian",
                 "configuration",
                 "configuration",
@@ -195,7 +195,7 @@ object SocketManager {
 
     private fun sendConfigurationMessage() {
         try {
-            val jsonArray = RfcxComm.getQueryContentProvider(
+            val jsonArray = RfcxComm.getQuery(
                 "guardian",
                 "configuration",
                 "configuration",
@@ -254,7 +254,7 @@ object SocketManager {
 
     private fun sendSignalMessage() {
         val signalJsonArray =
-            RfcxComm.getQueryContentProvider(
+            RfcxComm.getQuery(
                 "admin",
                 "signal",
                 "signal",
@@ -286,7 +286,7 @@ object SocketManager {
         try {
             for (i in 0 until syncJSONArray.length()) {
                 val pref = syncJSONArray.get(i)
-                prefResponse = RfcxComm.getQueryContentProvider(
+                prefResponse = RfcxComm.getQuery(
                     "guardian",
                     "prefs_set",
                     pref.toString(),
@@ -326,7 +326,7 @@ object SocketManager {
 
     private fun sendSentinelValues() {
         val sentinelJsonArray =
-            RfcxComm.getQueryContentProvider(
+            RfcxComm.getQuery(
                 "admin",
                 "sentinel_values",
                 "sentinel_values",

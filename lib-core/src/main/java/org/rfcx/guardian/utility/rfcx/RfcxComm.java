@@ -91,7 +91,7 @@ public class RfcxComm {
 		return roleFuncProj;
 	}
 	
-	public static JSONArray getQueryContentProvider(String role, String function, String query, ContentResolver contentResolver) {
+	public static JSONArray getQuery(String role, String function, String query, ContentResolver contentResolver) {
 		JSONArray getQueryResults = new JSONArray();
 		try {
 			Cursor queryCursor = contentResolver.query( getUri( role, function, query ), getProjection( role, function ), null, null, null );
@@ -104,7 +104,7 @@ public class RfcxComm {
 		return getQueryResults;
 	}
 
-	public static int deleteQueryContentProvider(String role, String function, String query, ContentResolver contentResolver) {
+	public static int deleteQuery(String role, String function, String query, ContentResolver contentResolver) {
 		int deleteQueryResult = 0;
 		try {
 			Cursor queryCursor = contentResolver.query( getUri( role, function, query ), getProjection( role, function ), null, null, null );
@@ -117,7 +117,7 @@ public class RfcxComm {
 		return deleteQueryResult;
 	}
 	
-	public static int updateQueryContentProvider(String role, String function, String query, ContentResolver contentResolver) {
+	public static int updateQuery(String role, String function, String query, ContentResolver contentResolver) {
 		int updateQueryResult = 0;
 		try {
 			Cursor queryCursor = contentResolver.query( getUri( role, function, query ), getProjection( role, function ), null, null, null );

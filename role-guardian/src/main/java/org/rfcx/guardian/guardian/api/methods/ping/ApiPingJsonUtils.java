@@ -2,7 +2,6 @@ package org.rfcx.guardian.guardian.api.methods.ping;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -11,12 +10,9 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJsonUtils;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
-
-import java.io.IOException;
 
 public class ApiPingJsonUtils {
 
@@ -66,35 +62,35 @@ public class ApiPingJsonUtils {
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sentinel_power")) {
-			String sentinelPower = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "sentinel_power", app.getResolver()));
+			String sentinelPower = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "sentinel_power", app.getResolver()));
 			if (sentinelPower.length() > 0) { pingObj.put("sentinel_power", sentinelPower); }
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sentinel_sensor")) {
-			String sentinelSensor = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "sentinel_sensor", app.getResolver()));
+			String sentinelSensor = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "sentinel_sensor", app.getResolver()));
 			if (sentinelSensor.length() > 0) { pingObj.put("sentinel_sensor", sentinelSensor); }
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "storage")) {
-			String systemStorage = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_storage", app.getResolver()));
+			String systemStorage = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_storage", app.getResolver()));
 			if (systemStorage.length() > 0) { pingObj.put("storage", systemStorage); }
 			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "memory")) {
-			String systemMemory = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_memory", app.getResolver()));
+			String systemMemory = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_memory", app.getResolver()));
 			if (systemMemory.length() > 0) { pingObj.put("memory", systemMemory); }
 			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "cpu")) {
-			String systemCPU = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_cpu", app.getResolver()));
+			String systemCPU = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_cpu", app.getResolver()));
 			if (systemCPU.length() > 0) { pingObj.put("cpu", systemCPU); }
 			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "network")) {
-			String systemNetwork = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "get_momentary_values", "system_network", app.getResolver()));
+			String systemNetwork = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_network", app.getResolver()));
 			if (systemNetwork.length() > 0) { pingObj.put("network", systemNetwork); }
 			includeMeasuredAt = true;
 		}
