@@ -7,13 +7,13 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-public class ScheduledApiPingService extends IntentService {
+public class SendApiPingService extends IntentService {
 
-	public static final String SERVICE_NAME = "ScheduledApiPing";
+	public static final String SERVICE_NAME = "SendApiPing";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledApiPingService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SendApiPingService");
 
-	public ScheduledApiPingService() {
+	public SendApiPingService() {
 		super(logTag);
 	}
 	
@@ -26,7 +26,7 @@ public class ScheduledApiPingService extends IntentService {
 		
 		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-		app.apiPingUtils.sendPing(true, new String[]{});
+		app.apiPingUtils.sendPing(true, new String[]{}, "sms");
 		
 	}
 	

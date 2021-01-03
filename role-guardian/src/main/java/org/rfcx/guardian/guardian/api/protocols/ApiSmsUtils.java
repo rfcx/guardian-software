@@ -55,10 +55,11 @@ public class ApiSmsUtils {
 		boolean isSent = false;
 
 		try {
-			// String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, false);
-			//Log.d(logTag, pingJson);
-			// app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sms", app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, false), null);
-			//		publishMessageOnConfirmedConnection(this.mqttTopic_Publish_Ping, 1,false, packageMqttPingPayload());
+
+			String groupId = app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sms", pingJson, null);
+
+			app.apiSegmentUtils.queueSegmentsForDispatch(groupId);
+
 			isSent = true;
 
 		} catch (Exception e) {

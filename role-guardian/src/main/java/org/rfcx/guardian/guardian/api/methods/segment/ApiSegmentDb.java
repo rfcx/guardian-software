@@ -106,6 +106,10 @@ public class ApiSegmentDb {
 			return rightNow;
 		}
 
+		public void incrementSingleRowAttempts(String groupId) {
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByOneColumn("+1", TABLE, C_ATTEMPTS, C_GROUP_ID, groupId);
+		}
+
 		public int getCount() {
 			return this.dbUtils.getCount(TABLE, null, null);
 		}
@@ -169,10 +173,19 @@ public class ApiSegmentDb {
 			return 0;
 		}
 
-		public long updateLastAccessedAt(String groupId, String segmentId) {
+		public int deleteSegmentsByGroupAndId(String groupId, int segmentId) {
+			this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
+			return 0;
+		}
+
+		public long updateLastAccessedAt(String groupId, int segmentId) {
 			long rightNow = (new Date()).getTime();
-			this.dbUtils.setDatetimeColumnValuesWithinQueryByTwoColumns(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId);
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByTwoColumns(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
 			return rightNow;
+		}
+
+		public void incrementSingleRowAttempts(String groupId, int segmentId) {
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTwoColumns("+1", TABLE, C_ATTEMPTS, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
 		}
 
 		public int getCount() {
@@ -238,10 +251,19 @@ public class ApiSegmentDb {
 			return 0;
 		}
 
-		public long updateLastAccessedAt(String groupId, String segmentId) {
+		public int deleteSegmentsByGroupAndId(String groupId, int segmentId) {
+			this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
+			return 0;
+		}
+
+		public long updateLastAccessedAt(String groupId, int segmentId) {
 			long rightNow = (new Date()).getTime();
-			this.dbUtils.setDatetimeColumnValuesWithinQueryByTwoColumns(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId);
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByTwoColumns(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
 			return rightNow;
+		}
+
+		public void incrementSingleRowAttempts(String groupId, int segmentId) {
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTwoColumns("+1", TABLE, C_ATTEMPTS, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
 		}
 
 		public int getCount() {

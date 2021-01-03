@@ -109,7 +109,7 @@ public class RfcxComm {
 		try {
 			Cursor queryCursor = contentResolver.query( getUri( role, function, query ), getProjection( role, function ), null, null, null );
 			if ((queryCursor != null) && (queryCursor.getCount() > 0) && queryCursor.moveToFirst()) { do {
-				deleteQueryResult = (int) Integer.parseInt( queryCursor.getString( queryCursor.getColumnIndex("result") ) );
+				deleteQueryResult = Integer.parseInt( queryCursor.getString( queryCursor.getColumnIndex("result") ) );
 			} while (queryCursor.moveToNext()); queryCursor.close(); }
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

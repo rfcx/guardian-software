@@ -94,6 +94,7 @@
         <service android:name=".ServiceMonitor" android:exported="false" />
         <service android:name=".api.methods.checkin.ApiCheckInQueueService" android:exported="false" />
         <service android:name=".api.methods.ping.ScheduledApiPingService" android:exported="false" />
+        <service android:name=".api.methods.ping.SendApiPingService" android:exported="false" />
         <service android:name=".asset.ScheduledAssetCleanupService" android:exported="false" />
         <service android:name=".audio.capture.AudioQueuePostProcessingService" android:exported="false" />
         <service android:name=".api.methods.clocksync.ScheduledClockSyncService" android:exported="false" />

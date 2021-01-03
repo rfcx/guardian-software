@@ -14,6 +14,7 @@ import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.api.methods.ping.ScheduledApiPingService
+import org.rfcx.guardian.guardian.api.methods.ping.SendApiPingService
 import org.rfcx.guardian.guardian.api.methods.register.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.methods.register.GuardianCheckCallback
 import org.rfcx.guardian.guardian.api.methods.register.RegisterApi
@@ -200,7 +201,7 @@ class MainActivity : Activity(),
     }
 
     private fun sendPing() {
-        app.rfcxServiceHandler.triggerService(ScheduledApiPingService.SERVICE_NAME, false);
+        app.rfcxServiceHandler.triggerService(SendApiPingService.SERVICE_NAME, false);
     }
 
     private fun clearRegistration() {

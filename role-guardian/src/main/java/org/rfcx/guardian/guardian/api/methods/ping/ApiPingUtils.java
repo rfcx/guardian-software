@@ -29,12 +29,15 @@ public class ApiPingUtils {
 
 	private RfcxGuardian app;
 
+	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, String forceProtocol) {
 
-	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields) {
-
-		String[] allowedApiProtocols = app.rfcxPrefs.getPrefAsString("api_protocol_escalation_order").split(",");
-
-		Log.v(logTag, "Allowed Ping protocols (in order): "+TextUtils.join(", ", allowedApiProtocols).toUpperCase(Locale.US));
+		String[] apiProtocols = app.rfcxPrefs.getDefaultPrefValueAsString("api_protocol_escalation_order").split(",");
+		if (forceProtocol.equalsIgnoreCase("all")) {
+			apiProtocols = app.rfcxPrefs.getPrefAsString("api_protocol_escalation_order").split(",");
+			Log.v(logTag, "Allowed Ping protocols (in order): " + TextUtils.join(", ", apiProtocols).toUpperCase(Locale.US));
+		} else if (ArrayUtils.doesStringArrayContainString(apiProtocols,forceProtocol)) {
+			apiProtocols = new String[] { forceProtocol };
+		}
 
 		boolean isPublished = false;
 
@@ -42,7 +45,7 @@ public class ApiPingUtils {
 
 			String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields);
 
-			for (String apiProtocol : allowedApiProtocols) {
+			for (String apiProtocol : apiProtocols) {
 
 				Log.v(logTag, "Attempting Ping publication via "+apiProtocol.toUpperCase(Locale.US)+" protocol...");
 
@@ -69,13 +72,17 @@ public class ApiPingUtils {
 			RfcxLog.logExc(logTag, e);
 		}
 
-		if (!isPublished) { Log.e(logTag, "Ping failed to publish on any of the allowed protocols: "+TextUtils.join(", ", allowedApiProtocols).toUpperCase(Locale.US)); }
+		if (!isPublished) { Log.e(logTag, "Ping failed to publish via protocol(s): "+TextUtils.join(", ", apiProtocols).toUpperCase(Locale.US)); }
 
 		return isPublished;
 	}
 
+	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields) {
+		return sendPing(includeAllExtraFields, includeExtraFields, "all");
+	}
+
 	public boolean sendPing() {
-		return sendPing(true, new String[]{});
+		return sendPing(true, new String[]{}, "all");
 	}
 
 }

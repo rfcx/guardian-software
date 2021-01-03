@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.contentprovider;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
+import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -131,6 +132,36 @@ public class GuardianContentProvider extends ContentProvider {
 				JSONObject instrObj = new JSONObject(uri.getLastPathSegment());
 				app.instructionsUtils.processReceivedInstructionJson(instrObj);
 				return RfcxComm.getProjectionCursor(appRole, "instructions", new Object[]{ instrObj.toString(), System.currentTimeMillis() });
+
+
+			// "database" function endpoints
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "database_delete_row", "*")) { logFuncVal = "database_delete_row-*";
+				String pathSeg = uri.getLastPathSegment();
+				String pathSegTable = pathSeg.substring(0, pathSeg.indexOf("|"));
+				String pathSegId = pathSeg.substring(1 + pathSeg.indexOf("|"));
+
+				if (pathSegTable.equalsIgnoreCase("segments")) {
+					return RfcxComm.getProjectionCursor(appRole, "database_delete_row", new Object[]{pathSeg, app.apiSegmentUtils.deleteSegmentsById(pathSegId), System.currentTimeMillis()});
+
+				} else {
+					return null;
+				}
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "database_set_last_accessed_at", "*")) { logFuncVal = "database_set_last_accessed_at-*";
+				String pathSeg = uri.getLastPathSegment();
+				String pathSegTable = pathSeg.substring(0, pathSeg.indexOf("|"));
+				String pathSegId = pathSeg.substring(1 + pathSeg.indexOf("|"));
+
+				if (pathSegTable.equalsIgnoreCase("segments")) {
+					app.apiSegmentUtils.incrementAttemptsById(pathSegId);
+					app.apiSegmentUtils.setLastAccessedAtById(pathSegId);
+					return RfcxComm.getProjectionCursor(appRole, "database_set_last_accessed_at", new Object[]{pathSeg, null, System.currentTimeMillis()});
+
+				} else {
+					return null;
+				}
+
 
 			// "get configuration" function
 

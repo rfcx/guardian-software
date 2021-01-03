@@ -9,6 +9,7 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class SmsDispatchService extends Service {
 	private boolean runFlag = false;
 	private SmsDispatch smsDispatch;
 
-	private long forcedPauseBetweenEachDispatch = 1000;
+	private long forcedPauseBetweenEachDispatch = 1500;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -78,6 +79,8 @@ public class SmsDispatchService extends Service {
 
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
+				String apiSmsAddress = app.rfcxPrefs.getPrefAsString("api_sms_address");
+
 				List<String[]> smsQueuedForDispatch = app.smsMessageDb.dbSmsQueued.getRowsInOrderOfTimestamp();
 
 				for (String[] smsForDispatch : smsQueuedForDispatch) {
@@ -96,10 +99,19 @@ public class SmsDispatchService extends Service {
 
 							DeviceSmsUtils.sendSmsMessage(msgAddress, msgBody);
 
-							app.smsMessageDb.dbSmsSent.insert(rightNow, msgAddress, msgBody, msgId);
 							app.smsMessageDb.dbSmsQueued.deleteSingleRowByMessageId(msgId);
 
-							Log.w(logTag, "SMS Sent (ID " + msgId + "): To " + msgAddress + " at " + DateTimeUtils.getDateTime(rightNow) + ": \"" + msgBody + "\"");
+							if (!msgAddress.equalsIgnoreCase(apiSmsAddress)) {
+
+								app.smsMessageDb.dbSmsSent.insert(rightNow, msgAddress, msgBody, msgId);
+								Log.w(logTag, "SMS Sent (ID " + msgId + "): To " + msgAddress + " at " + DateTimeUtils.getDateTime(rightNow) + ": \"" + msgBody + "\"");
+
+							} else {
+
+								String concatSegId = msgBody.substring(0,4) + "-" + msgBody.substring(4,7);
+								Log.v(logTag, "Segment sent: "+concatSegId);
+								RfcxComm.updateQueryContentProvider("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getApplicationContext().getContentResolver());
+							}
 
 							Thread.sleep(forcedPauseBetweenEachDispatch);
 						}

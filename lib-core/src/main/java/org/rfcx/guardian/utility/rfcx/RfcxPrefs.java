@@ -73,12 +73,26 @@ public class RfcxPrefs {
 	public int getPrefAsInt(String prefKey) {
 		return Integer.parseInt(getPrefAsString(prefKey));
 	}
-
 	public long getPrefAsLong(String prefKey) {
 		return Long.parseLong(getPrefAsString(prefKey));
 	}
-
 	public boolean getPrefAsBoolean(String prefKey) { return getPrefAsString(prefKey).equalsIgnoreCase("true"); }
+
+	//
+	// Get Default Pref Values
+	//
+
+	public String getDefaultPrefValueAsString(String prefKey) {
+		if (defaultPrefs.containsKey(prefKey)) {
+			return defaultPrefs.get(prefKey);
+		} else {
+			return null;
+		}
+	}
+
+	public int getDefaultPrefValueAsInt(String prefKey) { return Integer.parseInt(getDefaultPrefValueAsString(prefKey)); }
+	public long getDefaultPrefValueAsLong(String prefKey) { return Long.parseLong(getDefaultPrefValueAsString(prefKey)); }
+	public boolean getDefaultPrefValueAsBoolean(String prefKey) { return getDefaultPrefValueAsString(prefKey).equalsIgnoreCase("true"); }
 
 	//
 	// Set Pref Values
@@ -363,7 +377,6 @@ public class RfcxPrefs {
 	public JSONObject getPrefsAsJsonObj(String[] includeTheseKeys) {
 		return getPrefsAsJsonObj(false, includeTheseKeys );
 	}
-
 
     //
     // Prefs default/fallback values. Should be kept in sync with the prefs.xml file in guardian role resources

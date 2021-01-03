@@ -8,6 +8,7 @@ import org.rfcx.guardian.guardian.api.methods.command.ApiCommandUtils;
 import org.rfcx.guardian.guardian.api.methods.download.ApiDownloadDb;
 import org.rfcx.guardian.guardian.api.methods.ping.ApiPingJsonUtils;
 import org.rfcx.guardian.guardian.api.methods.ping.ApiPingUtils;
+import org.rfcx.guardian.guardian.api.methods.ping.SendApiPingService;
 import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSbdUtils;
@@ -285,6 +286,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
 
         this.rfcxServiceHandler.addService("ScheduledApiPing", ScheduledApiPingService.class);
+        this.rfcxServiceHandler.addService("SendApiPing", SendApiPingService.class);
 
         this.rfcxServiceHandler.addService("ClockSyncJob", ClockSyncJobService.class);
         this.rfcxServiceHandler.addService("ScheduledClockSync", ScheduledClockSyncService.class);

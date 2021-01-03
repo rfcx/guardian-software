@@ -118,8 +118,7 @@ public class AssetUtils {
 				app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(assetId);
 
 			} else if (assetType.equals("segment")) {
-				app.instructionsDb.dbExecutedInstructions.deleteSingleRowById(assetId);
-				app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(assetId);
+				app.apiSegmentUtils.deleteSegmentsById(assetId);
 
 			}
 
