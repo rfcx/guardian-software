@@ -28,6 +28,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import android.content.Context;
 import android.util.Log;
 
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -72,42 +73,37 @@ public class HttpPostMultipart {
 		 */
 		
 		MultipartEntity requestEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-		//try {
-			if (keyFilepathMimeAttachments != null) {
-				for (String[] keyFilepathMime : keyFilepathMimeAttachments) {
-					ContentBody contentBody = new FileBody(
-							(new File(keyFilepathMime[1])),
-							keyFilepathMime[1].substring(1+keyFilepathMime[1].lastIndexOf("/")),
-							keyFilepathMime[2], null);
-					requestEntity.addPart(keyFilepathMime[0], contentBody);
-				}
+		if (keyFilepathMimeAttachments != null) {
+			for (String[] keyFilepathMime : keyFilepathMimeAttachments) {
+				ContentBody contentBody = new FileBody(
+						(new File(keyFilepathMime[1])),
+						keyFilepathMime[1].substring(1+keyFilepathMime[1].lastIndexOf("/")),
+						keyFilepathMime[2], null);
+				requestEntity.addPart(keyFilepathMime[0], contentBody);
 			}
-			for (String[] keyValue : keyValueParameters) {
-				requestEntity.addPart(keyValue[0], new StringBody(URLEncoder.encode(keyValue[1], "UTF-8")));
-			}
-		/*} catch (UnsupportedEncodingException e) {
-			RfcxLog.logExc(logTag, e);
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}*/
-		return executeMultipartPost(fullUrl, requestEntity);
+		}
+		for (String[] keyValue : keyValueParameters) {
+			requestEntity.addPart(keyValue[0], new StringBody(URLEncoder.encode(keyValue[1], "UTF-8")));
+		}
+		
+		long startTime = System.currentTimeMillis();
+		Log.v(logTag,"Sending "+FileUtils.bytesAsReadableString(requestEntity.getContentLength())+" to "+fullUrl);
+		String rtrnStr = executeMultipartPost(fullUrl, requestEntity);
+		Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +") from "+fullUrl);
+		return rtrnStr;
 	}
     
 	private String executeMultipartPost(String fullUrl, MultipartEntity requestEntity) throws IOException {
-//		try {
-	    	String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
-			if (inferredProtocol.equals("http")) {
-				return sendInsecurePostRequest((new URL(fullUrl)), requestEntity);
-			} else if (inferredProtocol.equals("https")) {
-				return sendSecurePostRequest((new URL(fullUrl)), requestEntity);
-			} else {
-				Log.e(logTag,"Inferred protocol was neither HTTP nor HTTPS.");
-				return null;
-			}
-//		} catch (MalformedURLException e) {
-//			RfcxLog.logExc(logTag, e);
-//			return "";
-//		}
+
+		String inferredProtocol = fullUrl.substring(0, fullUrl.indexOf(":"));
+		if (inferredProtocol.equals("http")) {
+			return sendInsecurePostRequest((new URL(fullUrl)), requestEntity);
+		} else if (inferredProtocol.equals("https")) {
+			return sendSecurePostRequest((new URL(fullUrl)), requestEntity);
+		} else {
+			Log.e(logTag,"Inferred protocol was neither HTTP nor HTTPS.");
+			return null;
+		}
 	}
 	
 	private String sendInsecurePostRequest(URL url, MultipartEntity entity) throws IOException {
@@ -130,7 +126,7 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				Log.i(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
+				Log.v(logTag, "Downloading "+ FileUtils.bytesAsReadableString(conn.getContentLength()) +" from "+url.toString());
 				return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream());
 		    } else {
 	            Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode()+" for "+url.toString());
@@ -167,7 +163,7 @@ public class HttpPostMultipart {
 	        outputStream.close();
 	        conn.connect();
 			if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-				Log.i(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
+				Log.v(logTag, "Downloading "+ FileUtils.bytesAsReadableString(conn.getContentLength()) +" from "+url.toString());
 				return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream());
 			} else {
 				Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode()+" for "+url.toString());
