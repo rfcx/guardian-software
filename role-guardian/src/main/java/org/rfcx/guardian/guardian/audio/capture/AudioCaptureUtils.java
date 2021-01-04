@@ -7,6 +7,8 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.rfcx.guardian.guardian.audio.classify.AudioConverter;
+import org.rfcx.guardian.guardian.audio.classify.MLPredictor;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -286,7 +288,11 @@ public class AudioCaptureUtils {
 				File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp,fileExtension));
 				FileUtils.copy(captureFile, preEncodeFile);
 				FileUtils.chmod(preEncodeFile, "rw", "rw");
-				if (preEncodeFile.exists()) { captureFile.delete(); }
+				if (preEncodeFile.exists()) {
+					RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+					app.audioClassifyUtils.classifyAudio(captureFile);
+					captureFile.delete();
+				}
 				isFileMoved = preEncodeFile.exists();
 			} catch (IOException e) {
 				RfcxLog.logExc(logTag, e);
