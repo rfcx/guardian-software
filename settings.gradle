@@ -1,1 +1,1 @@
-include ':lib-core', ':lib-audio', ':lib-i2c', ':role-admin', ':role-guardian', ':role-satellite', ':role-updater'
+include ':lib-core', ':lib-audio', ':lib-i2c', ':role-admin', ':role-guardian', ':role-updater'
