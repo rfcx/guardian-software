@@ -33,52 +33,53 @@ public class AudioQueuePostProcessingService extends IntentService {
 	
 		try {
 			
-			long captureLoopPeriod = (long) Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
+			long captureLoopPeriod = Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
 			String captureFileExtension = "wav";
 
 			long[] queueCaptureTimeStamp = app.audioCaptureUtils.queueCaptureTimeStamp;
 			int[] queueCaptureSampleRate = app.audioCaptureUtils.queueCaptureSampleRate;
+
+			int jobCount_Encode = 0;
+			int jobCount_Classify = 0;
 			
 			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, queueCaptureTimeStamp[0], captureFileExtension)) {
 
 				String preEncodeFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0], captureFileExtension);
 
-
-
-				// Queue Audio Encode for Streaming
+				// Queue Encoding for Stream
 				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_stream")) {
 
 					int streamSampleRate = app.rfcxPrefs.getPrefAsInt("audio_stream_sample_rate");
 					String streamCodec = app.rfcxPrefs.getPrefAsString("audio_stream_codec");
 					int streamBitrate = app.rfcxPrefs.getPrefAsInt("audio_stream_bitrate");
 
-					app.audioEncodeDb.dbEncodeQueue.insert(
+					jobCount_Encode += app.audioEncodeDb.dbEncodeQueue.insert(
 						""+queueCaptureTimeStamp[0], captureFileExtension, "-", streamSampleRate,
 							streamBitrate, streamCodec, captureLoopPeriod, captureLoopPeriod, "stream", preEncodeFilePath, queueCaptureSampleRate[0] );
 				}
 
 
 
-				// Queue Audio Encode for the Vault
+				// Queue Encoding for Vault
 				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_vault")) {
 
 					int vaultSampleRate = app.rfcxPrefs.getPrefAsInt("audio_vault_sample_rate");
 					String vaultCodec = app.rfcxPrefs.getPrefAsString("audio_vault_codec");
 					int vaultBitrate = app.rfcxPrefs.getPrefAsInt("audio_vault_bitrate");
 
-					app.audioEncodeDb.dbEncodeQueue.insert(
+					jobCount_Encode += app.audioEncodeDb.dbEncodeQueue.insert(
 							""+queueCaptureTimeStamp[0], captureFileExtension, "-", vaultSampleRate,
 							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath, queueCaptureSampleRate[0] );
 				}
 
 
 
-				// Queue Audio Classification
+				// Queue Classification
 				if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_classify")) {
 
 					int classifierSampleRate = app.rfcxPrefs.getPrefAsInt("audio_stream_sample_rate");
 
-//					app.audioEncodeDb.dbEncodeQueue.insert(
+//					jobCount_Classify += app.audioEncodeDb.dbEncodeQueue.insert(
 //							""+queueCaptureTimeStamp[0], captureFileExtension, "-", classifierSampleRate,
 //							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath, queueCaptureSampleRate[0] );
 				}
@@ -89,9 +90,9 @@ public class AudioQueuePostProcessingService extends IntentService {
 				Log.e(logTag, "Queued audio file does not exist: "+ RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, queueCaptureTimeStamp[0],captureFileExtension));
 			}
 
-			long serviceTimeOutDuration = 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
-			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", serviceTimeOutDuration );
-			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioClassifyJob", serviceTimeOutDuration );
+			long svcTimeOut = 4 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+			if (jobCount_Encode > 0) { app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", svcTimeOut ); }
+			if (jobCount_Classify > 0) { app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioClassifyJob", svcTimeOut ); }
 				
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

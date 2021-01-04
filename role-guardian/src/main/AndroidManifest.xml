@@ -89,6 +89,7 @@
         <service android:name=".instructions.InstructionsCycleService" android:exported="false" />
         <service android:name=".instructions.InstructionsExecutionService" android:exported="false" />
         <service android:name=".audio.classify.AudioClassifyJobService" android:exported="false" />
+        <service android:name=".audio.playback.AudioPlaybackJobService" android:exported="false" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" android:exported="false" />

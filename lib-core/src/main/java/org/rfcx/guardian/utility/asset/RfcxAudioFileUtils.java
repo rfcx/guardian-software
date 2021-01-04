@@ -26,6 +26,7 @@ public class RfcxAudioFileUtils {
 		FileUtils.initializeDirectoryRecursively(audioSdCardDir(), true);
 		FileUtils.initializeDirectoryRecursively(audioVaultDir(), true);
 
+		FileUtils.initializeDirectoryRecursively(assetLibraryDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioCaptureDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioEncodeDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioFinalDir(context), false);
@@ -39,6 +40,10 @@ public class RfcxAudioFileUtils {
 
 	private static String audioVaultDir() {
 		return Environment.getExternalStorageDirectory().toString() + "/rfcx/vault";
+	}
+
+	public static String assetLibraryDir(Context context) {
+		return context.getFilesDir().toString() + "/audio/library";
 	}
 	
 	public static String audioCaptureDir(Context context) {
@@ -90,6 +95,10 @@ public class RfcxAudioFileUtils {
 
 	public static String getAudioFileLocation_Stash(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
 		return audioStashDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
+	}
+
+	public static String getAudioFileLocation_Library(String rfcxDeviceId, Context context, long timestamp, String audioCodec, int sampleRate) {
+		return assetLibraryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, sampleRate);
 	}
 
 	public static String getAudioFileLocation_Vault(String rfcxDeviceId, long timestamp, String audioCodec, int sampleRate) {

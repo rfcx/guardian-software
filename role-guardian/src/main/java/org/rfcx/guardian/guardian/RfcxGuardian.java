@@ -13,6 +13,7 @@ import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSbdUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
+import org.rfcx.guardian.guardian.asset.AssetLibraryDb;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInHealthUtils;
 import org.rfcx.guardian.guardian.asset.AudioClassificationDb;
@@ -26,6 +27,8 @@ import org.rfcx.guardian.guardian.audio.classify.AudioClassifierDb;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyDb;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyJobService;
 import org.rfcx.guardian.guardian.audio.encode.AudioVaultDb;
+import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackDb;
+import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackJobService;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -100,6 +103,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioClassifyDb audioClassifyDb = null;
     public AudioClassificationDb audioClassificationDb = null;
     public AudioClassifierDb audioClassifierDb = null;
+    public AudioPlaybackDb audioPlaybackDb = null;
+    public AssetLibraryDb assetLibraryDb = null;
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -262,6 +267,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     private void setDbHandlers() {
 
         this.audioEncodeDb = new AudioEncodeDb(this, this.version);
+        this.audioPlaybackDb = new AudioPlaybackDb(this, this.version);
+        this.assetLibraryDb = new AssetLibraryDb(this, this.version);
         this.audioVaultDb = new AudioVaultDb(this, this.version);
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.metaDb = new MetaDb(this, this.version);
@@ -287,6 +294,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("AudioQueuePostProcessing", AudioQueuePostProcessingService.class);
         this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
         this.rfcxServiceHandler.addService("AudioClassifyJob", AudioClassifyJobService.class);
+        this.rfcxServiceHandler.addService("AudioPlaybackJob", AudioPlaybackJobService.class);
 
         this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueService.class);
         this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);

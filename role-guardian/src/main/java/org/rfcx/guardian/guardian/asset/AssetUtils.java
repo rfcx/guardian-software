@@ -154,7 +154,8 @@ public class AssetUtils {
 		String[] assetDirectoriesToScan = new String[] {
 				RfcxAudioFileUtils.audioStashDir(app.getApplicationContext()),
 				RfcxAudioFileUtils.audioFinalDir(app.getApplicationContext()),
-				RfcxAudioFileUtils.audioQueueDir(app.getApplicationContext())
+				RfcxAudioFileUtils.audioQueueDir(app.getApplicationContext()),
+				RfcxAudioFileUtils.assetLibraryDir(app.getApplicationContext())
 		};
 
 		List<String> assetFilePathsFromDatabase = new ArrayList<String>();
@@ -165,6 +166,8 @@ public class AssetUtils {
 		for (String[] row : app.apiCheckInDb.dbSkipped.getAllRows()) { assetFilePathsFromDatabase.add(row[4]); }
 		// Encode Queue Databases
 		for (String[] row : app.audioEncodeDb.dbEncoded.getAllRows()) { assetFilePathsFromDatabase.add(row[10]); }
+		// Asset Library Databases
+		for (String[] row : app.assetLibraryDb.dbAudio.getAllRows()) { assetFilePathsFromDatabase.add(row[5]); }
 
 
 		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(assetDirectoriesToScan, assetFilePathsFromDatabase, checkFilesUnModifiedSinceThisManyMinutes);
