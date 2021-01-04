@@ -289,8 +289,6 @@ public class AudioCaptureUtils {
 				FileUtils.copy(captureFile, preEncodeFile);
 				FileUtils.chmod(preEncodeFile, "rw", "rw");
 				if (preEncodeFile.exists()) {
-					RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-					app.audioClassifyUtils.classifyAudio(captureFile);
 					captureFile.delete();
 				}
 				isFileMoved = preEncodeFile.exists();

@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.util.Log
 import android.view.Menu
@@ -65,6 +66,9 @@ class MainActivity : Activity(),
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         app = application as RfcxGuardian
+
+        //running models
+        app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().absolutePath + "/1608282235295.wav")
 
         initUI()
 

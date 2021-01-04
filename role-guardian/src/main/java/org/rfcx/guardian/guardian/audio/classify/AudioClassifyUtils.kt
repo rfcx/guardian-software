@@ -14,8 +14,12 @@ class AudioClassifyUtils(context: Context) {
     private val app: RfcxGuardian = context.applicationContext as RfcxGuardian
 
     fun classifyAudio(file: File) {
-        val step = app.rfcxPrefs.getPrefAsInt("prediction_step_size")
         val path = file.absolutePath
+        classifyAudio(path)
+    }
+
+    fun classifyAudio(path: String) {
+        val step = app.rfcxPrefs.getPrefAsInt("prediction_step_size")
         MLPredictor().also {
             it.load()
             AudioConverter.readAudioSimple(path).sliceTo(0).forEach { audioChunk ->

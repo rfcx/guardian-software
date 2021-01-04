@@ -1,6 +1,5 @@
 package org.rfcx.guardian.guardian.audio.classify
 
-import android.content.Context
 import android.os.Environment
 import android.util.Log
 import org.rfcx.guardian.guardian.RfcxGuardian
