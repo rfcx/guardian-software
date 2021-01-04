@@ -109,7 +109,7 @@ public class AudioEncodeJobService extends Service {
 							
 							app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(timestamp);
 							
-						} else if (((int) Integer.parseInt(latestQueuedAudioToEncode[12])) >= AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD) {
+						} else if (Integer.parseInt(latestQueuedAudioToEncode[12]) >= AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD) {
 							
 							Log.d(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " after " + AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 							

@@ -39,10 +39,10 @@ public class RfcxAssetCleanup {
 			}
 		}
 
-		Log.d(logTag, "Asset Cleanup - Summary - "
-				+allAssetFilesFromFilesystem.size()+" files found in asset directories. "
+		Log.d(logTag, "Asset Cleanup - "
+				+allAssetFilesFromFilesystem.size()+" files found. "
 				+((filteredAssetFilesFromFilesystem.size() == 0) ? "No" : filteredAssetFilesFromFilesystem.size())
-				+" files are older than the cleanup threshold of "+ DateTimeUtils.milliSecondDurationAsReadableString(checkFilesUnModifiedSinceThisManyMinutes*60*1000)+". "
+				+" files are older than cleanup threshold of "+ DateTimeUtils.milliSecondDurationAsReadableString(checkFilesUnModifiedSinceThisManyMinutes*60*1000)+". "
 				+((assetFilesToRemove.size() == 0) ? "No files are eligible for cleanup." : ( assetFilesToRemove.size()+" have no reference in the database and will be deleted." ))
 		);
 

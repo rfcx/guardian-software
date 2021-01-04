@@ -31,9 +31,9 @@ elif [ "$CNTL" = "ping" ]; then
 
 	$ADB shell content query --uri content://org.rfcx.guardian.guardian/ping/$KEY%7C$VAL;
 
-elif [ "$CNTL" = "asset_cleanup" ]; then
+elif [ "$KEY" = "asset_cleanup" ]; then
 
-	$ADB shell content query --uri content://org.rfcx.guardian.$KEY/control/asset_cleanup;
+	$ADB shell content query --uri content://org.rfcx.guardian.$CNTL/control/asset_cleanup;
 
 
 elif [ "$CNTL" = "gpio_set" ]; then

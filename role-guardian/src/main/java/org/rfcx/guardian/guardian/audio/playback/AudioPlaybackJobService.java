@@ -1,13 +1,15 @@
 package org.rfcx.guardian.guardian.audio.playback;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.misc.FileUtils;
+
+import java.util.List;
 
 public class AudioPlaybackJobService extends Service {
 
@@ -66,13 +68,65 @@ public class AudioPlaybackJobService extends Service {
 			AudioPlaybackJobService audioPlaybackJobInstance = AudioPlaybackJobService.this;
 			
 			app = (RfcxGuardian) getApplication();
-			Context context = app.getApplicationContext();
 
 			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 			
 			try {
 
-				Log.i(logTag, "Audio Playback Job...");
+				List<String[]> latestQueuedAudioFilesForPlayback = app.audioPlaybackDb.dbQueued.getAllRows();
+
+				for (String[] latestQueuedAudio : latestQueuedAudioFilesForPlayback) {
+
+					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+
+					if (latestQueuedAudio[0] != null) {
+
+						String queuedAt = latestQueuedAudio[0];
+						String assetId = latestQueuedAudio[1];
+						String audioFormat = latestQueuedAudio[2];
+						int audioSampleRate = Integer.parseInt(latestQueuedAudio[3]);
+						String audioFilePath = latestQueuedAudio[4];
+
+						if (!FileUtils.exists(audioFilePath)) {
+
+							Log.d(logTag, "Skipping Audio Playback Job for " + assetId + " because input audio file could not be found.");
+
+							app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
+
+						} else if (Integer.parseInt(latestQueuedAudio[5]) >= AudioPlaybackUtils.PLAYBACK_FAILURE_SKIP_THRESHOLD) {
+
+							Log.d(logTag, "Skipping Audio Playback Job for " + assetId + " after " + AudioPlaybackUtils.PLAYBACK_FAILURE_SKIP_THRESHOLD + " failed attempts.");
+
+							app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
+							FileUtils.delete(audioFilePath);
+
+						} else {
+
+
+							Log.i(logTag, "Beginning Audio Playback Job: " + assetId + ", " + audioFormat);
+
+							app.audioPlaybackDb.dbQueued.incrementSingleRowAttempts(queuedAt);
+
+							long playbackStartTime = System.currentTimeMillis();
+
+
+							Log.e(logTag, "Play the audio file...");
+
+
+							long playbackDuration = (System.currentTimeMillis() - playbackStartTime);
+
+							app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
+
+						}
+
+					} else {
+						Log.d(logTag, "Queued audio file entry in database is invalid.");
+
+					}
+
+				}
+
+
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

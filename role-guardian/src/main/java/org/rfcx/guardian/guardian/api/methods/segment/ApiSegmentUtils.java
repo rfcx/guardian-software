@@ -69,7 +69,7 @@ public class ApiSegmentUtils {
 	}
 
 	public void receiveSegment(String segmentPayload, String originProtocol) {
-		
+
 		try {
 			String groupId = segmentPayload.substring(0, GROUP_ID_LENGTH);
 			int segmentId = segmentId_paddedHexToDec(segmentPayload.substring(GROUP_ID_LENGTH, GROUP_ID_LENGTH + SEGMENT_ID_LENGTH));
