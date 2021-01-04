@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 public class ApiSegmentUtils {
@@ -29,7 +28,7 @@ public class ApiSegmentUtils {
 	public static final int GROUP_ID_LENGTH = 4;
 	private static final int SEGMENT_ID_LENGTH = 3;
 	private static final int MSG_TYPE_LENGTH = 3;
-	private static final int MSG_CHECKSUM_LENGTH = 40;
+	private static final int MSG_CHECKSUM_SNIPPET_LENGTH = 20;
 
 	// Segment Group Header Format:
 	// {GROUP_ID}{SEGMENT_ID}{GUARDIAN_GUID}{MSG_TYPE}{MSG_CHECKSUM}{SEGMENT_COUNT}{FIRST_SEGMENT}
@@ -79,7 +78,7 @@ public class ApiSegmentUtils {
 			if ( isSegmentAnInitialGroupHeader(segmentId) ) {
 				parseSegmentInitialGroupHeader(groupId, segmentBody, originProtocol);
 
-			} else if ( canSegmentBeAssociatedWithValidGroup(groupId, segmentId) && !isSegmentAlreadyReceived(groupId, segmentId) ) {
+			} else if ( /*canSegmentBeAssociatedWithValidGroup(groupId, segmentId) &&*/ !isSegmentAlreadyReceived(groupId, segmentId) ) {
 				saveReceivedSegment(groupId, segmentId, segmentBody);
 
 			} else {
@@ -94,13 +93,17 @@ public class ApiSegmentUtils {
 	private void parseSegmentInitialGroupHeader(String groupId, String segmentBody, String originProtocol) {
 
 		String guardianGuid = segmentBody.substring(0, RfcxGuardianIdentity.GUID_LENGTH);
-		String msgType = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH);
-		String msgChecksum = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_LENGTH);
-		int segmentCount = segmentId_paddedHexToDec(segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_LENGTH + SEGMENT_ID_LENGTH));
-		String segmentBodyZero = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_LENGTH + SEGMENT_ID_LENGTH);
+		String guardianPinCode = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH);
+		String msgType = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH);
+		String msgChecksumSnippet = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_SNIPPET_LENGTH);
+		int segmentCount = segmentId_paddedHexToDec(segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_SNIPPET_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_SNIPPET_LENGTH + SEGMENT_ID_LENGTH));
+		String segmentBodyZero = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_SNIPPET_LENGTH + SEGMENT_ID_LENGTH);
 
 		if (!guardianGuid.equalsIgnoreCase(app.rfcxGuardianIdentity.getGuid())) {
-			Log.e(logTag, "Specified Guardian ID in Segment Group Header does not match this guardian: " + guardianGuid);
+			Log.e(logTag, "Specified Guardian ID ("+guardianGuid+") in Segment Group Header does not match this guardian: " + app.rfcxGuardianIdentity.getGuid());
+
+		} else if (!guardianPinCode.equalsIgnoreCase(app.rfcxGuardianIdentity.getPinCode())) {
+			Log.e(logTag, "Specified PIN Code ("+guardianPinCode+") in Segment Group Header does not match this guardian: " + app.rfcxGuardianIdentity.getPinCode());
 
 		} else if (!ArrayUtils.doesStringArrayContainString(JSON_MSG_TYPES, msgType)) {
 			Log.e(logTag, "Specified Message Category in Segment Group Header is not valid: " + msgType);
@@ -113,7 +116,7 @@ public class ApiSegmentUtils {
 			if (!isSegmentAlreadyReceived(groupId, 0)) { saveReceivedSegment(groupId, 0, segmentBodyZero); }
 
 		} else {
-			app.apiSegmentDb.dbGroups.insert(groupId, segmentCount, msgChecksum, msgType.toLowerCase(), originProtocol.toLowerCase());
+			app.apiSegmentDb.dbGroups.insert(groupId, segmentCount, msgChecksumSnippet, msgType.toLowerCase(), originProtocol.toLowerCase());
 			Log.i(logTag, "Segment Group initialized: "+groupId+", "+segmentCount+" segments");
 			saveReceivedSegment(groupId, 0, segmentBodyZero);
 
@@ -184,7 +187,7 @@ public class ApiSegmentUtils {
 
 					String msgJson = StringUtils.gZippedBase64ToUnGZippedString(concatMsg);
 
-					if (msgChecksum.equalsIgnoreCase(StringUtils.getSha1HashOfString(msgJson))) {
+					if (msgChecksum.equalsIgnoreCase(StringUtils.getSha1HashOfString(msgJson).substring(0, MSG_CHECKSUM_SNIPPET_LENGTH))) {
 
 						if (msgType.equalsIgnoreCase("cmd")) {
 							app.apiCommandUtils.processApiCommandJson(msgJson);
@@ -226,12 +229,12 @@ public class ApiSegmentUtils {
 
 			try {
 
-				String msgChecksum = StringUtils.getSha1HashOfString(msgJson);
+				String msgChecksumSnippet = StringUtils.getSha1HashOfString(msgJson).substring(0, MSG_CHECKSUM_SNIPPET_LENGTH);
 				int msgOriginalLength = msgJson.length();
 				String msgPayloadFull = StringUtils.stringToGZippedBase64(msgJson);
 				int msgPayloadFullLength = msgPayloadFull.length();
 
-				String initSegHeader = groupId + segmentId_decToPaddedHex(0) + app.rfcxGuardianIdentity.getGuid() + msgType + msgChecksum;
+				String initSegHeader = groupId + segmentId_decToPaddedHex(0) + app.rfcxGuardianIdentity.getGuid() + app.rfcxGuardianIdentity.getPinCode() + msgType + msgChecksumSnippet;
 				int initSegBodyLength = segMaxLength - initSegHeader.length() - SEGMENT_ID_LENGTH;
 				if (initSegBodyLength > msgPayloadFullLength) { initSegBodyLength = msgPayloadFullLength; }
 				String initSegBody = msgPayloadFull.substring(0, initSegBodyLength);
@@ -250,7 +253,7 @@ public class ApiSegmentUtils {
 					}
 				}
 
-				app.apiSegmentDb.dbGroups.insert(groupId, segCountCeil, msgChecksum, msgType.toLowerCase(), apiProtocol.toLowerCase());
+				app.apiSegmentDb.dbGroups.insert(groupId, segCountCeil, msgChecksumSnippet, msgType.toLowerCase(), apiProtocol.toLowerCase());
 
 				String initSegPayload = initSegHeader + segmentId_decToPaddedHex(segCountCeil) + initSegBody;
 				app.apiSegmentDb.dbQueued.insert(groupId, 0, initSegPayload);

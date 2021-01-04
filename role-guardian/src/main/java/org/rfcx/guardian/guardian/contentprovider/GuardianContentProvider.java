@@ -96,8 +96,10 @@ public class GuardianContentProvider extends ContentProvider {
 			// "send ping" function
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "ping", "*")) { logFuncVal = "ping-*";
-				String pingField = uri.getLastPathSegment();
-				app.apiPingUtils.sendPing(pingField.equalsIgnoreCase("all"), new String[]{ pingField } );
+				String pathSeg = uri.getLastPathSegment();
+				String pathSegProtocol = pathSeg.substring(0, pathSeg.indexOf("|"));
+				String pathSegField = pathSeg.substring(1 + pathSeg.indexOf("|"));
+				app.apiPingUtils.sendPing(pathSegField.equalsIgnoreCase("all"), new String[]{ pathSegField }, pathSegProtocol );
 				return RfcxComm.getProjectionCursor(appRole, "ping", new Object[] { System.currentTimeMillis() });
 
 			// "control" function endpoints

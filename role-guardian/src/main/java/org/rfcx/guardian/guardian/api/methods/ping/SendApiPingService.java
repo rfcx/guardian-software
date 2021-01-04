@@ -26,7 +26,7 @@ public class SendApiPingService extends IntentService {
 		
 		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-		app.apiPingUtils.sendPing(true, new String[]{}, "rest");
+		app.apiPingUtils.sendPing(true, new String[]{}, "sms");
 		
 	}
 	

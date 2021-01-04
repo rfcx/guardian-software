@@ -29,7 +29,7 @@ elif [ "$CNTL" = "identity_set" ]; then
 
 elif [ "$CNTL" = "ping" ]; then
 
-	$ADB shell content query --uri content://org.rfcx.guardian.guardian/ping/$KEY;
+	$ADB shell content query --uri content://org.rfcx.guardian.guardian/ping/$KEY%7C$VAL;
 
 elif [ "$CNTL" = "asset_cleanup" ]; then
 

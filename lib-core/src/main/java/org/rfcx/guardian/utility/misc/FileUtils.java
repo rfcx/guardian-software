@@ -455,13 +455,14 @@ public class FileUtils {
 			sizeStr.append(".").append( (fracVal < 10) ? "0" : "").append(fracVal);
 			sizeStr.append(" MB");
 
-		} else if (kB > 0) {
+		} else if (kB > 1) {
 			sizeStr.append(kB);
 			int fracVal = (int) Math.floor(10*B/1024);
 			if (kB < 10) { sizeStr.append(".").append(fracVal); }
 			sizeStr.append(" kB");
 
 		} else {
+			if (kB > 0) { B += (kB * 1024); }
 			sizeStr.append(B).append(" bytes");
 
 		}

@@ -205,6 +205,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             if (regJson.has("guid") && regJson.has("token")) {
                 this.rfcxGuardianIdentity.setAuthToken(regJson.getString("token"));
                 this.rfcxGuardianIdentity.setKeystorePassPhrase(regJson.getString("keystore_passphrase"));
+                if (regJson.has("pin_code")) { this.rfcxGuardianIdentity.setPinCode(regJson.getString("pin_code")); }
                 if (regJson.has("api_mqtt_host")) { setSharedPref("api_mqtt_host", regJson.getString("api_mqtt_host")); }
                 if (regJson.has("api_sms_address")) { setSharedPref("api_sms_address", regJson.getString("api_sms_address")); }
             } else {
@@ -218,6 +219,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void clearRegistration() {
         this.rfcxGuardianIdentity.unSetIdentityValue("token");
         this.rfcxGuardianIdentity.unSetIdentityValue("keystore_passphrase");
+        this.rfcxGuardianIdentity.unSetIdentityValue("pin_code");
     }
 
     public boolean isGuardianRegistered() {
@@ -352,15 +354,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         } else if (prefKey.equalsIgnoreCase("enable_checkin_publish")) {
             this.apiMqttUtils.initializeFailedCheckInThresholds();
+            this.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
 
         } else if (prefKey.equalsIgnoreCase("enable_cutoffs_sampling_ratio")) {
             this.audioCaptureUtils.samplingRatioIteration = 0;
 
         }
-
-
-
-
     }
 
 }

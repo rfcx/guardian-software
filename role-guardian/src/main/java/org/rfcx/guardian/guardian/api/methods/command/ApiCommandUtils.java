@@ -182,6 +182,15 @@ public class ApiCommandUtils {
 					//	app.rfcxServiceHandler.triggerService("InstructionsExecution", false);
 				}
 
+				// parse segment info and use it to purge the data locally
+				if (jsonObj.has("segment")) {
+					JSONArray segListJson = jsonObj.getJSONArray("segment");
+					for (int i = 0; i < segListJson.length(); i++) {
+						String segId = segListJson.getString(i);
+						app.assetUtils.purgeSingleAsset("segment", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), segId);
+					}
+				}
+
 			} catch (JSONException e) {
 				RfcxLog.logExc(logTag, e);
 
