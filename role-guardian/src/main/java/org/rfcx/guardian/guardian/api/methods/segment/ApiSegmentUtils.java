@@ -69,7 +69,7 @@ public class ApiSegmentUtils {
 	}
 
 	public void receiveSegment(String segmentPayload, String originProtocol) {
-
+		
 		try {
 			String groupId = segmentPayload.substring(0, GROUP_ID_LENGTH);
 			int segmentId = segmentId_paddedHexToDec(segmentPayload.substring(GROUP_ID_LENGTH, GROUP_ID_LENGTH + SEGMENT_ID_LENGTH));
@@ -158,7 +158,8 @@ public class ApiSegmentUtils {
 
 	private boolean isSegmentGroupFullyReceived(String groupId) {
 		int segmentCount = app.apiSegmentDb.dbReceived.getCountByGroupId(groupId);
-		if (segmentCount == Integer.parseInt(app.apiSegmentDb.dbGroups.getSingleRowById(groupId)[2])) {
+		String[] segmentGroupRow = app.apiSegmentDb.dbGroups.getSingleRowById(groupId);
+		if ( (segmentGroupRow[0] != null) && (segmentCount == Integer.parseInt(segmentGroupRow[2])) ) {
 			Log.i(logTag, "All Segments ("+segmentCount+" in total) for Group " + groupId +" have been received.");
 			return true;
 		}
