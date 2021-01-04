@@ -68,7 +68,7 @@ class MainActivity : Activity(),
         app = application as RfcxGuardian
 
         //running models
-        app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().absolutePath + "/1608282235295.wav")
+        app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().absolutePath + "/1609752059397.wav")
 
         initUI()
 
