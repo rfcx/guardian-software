@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.asset;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -61,7 +62,31 @@ public class AssetUtils {
 		return assetMeta;
 	}
 
-	public void purgeSingleAsset(String assetType, String rfcxDeviceId, Context context, String assetId) {
+	public void purgeListOfAssets(String assetType, List<String> assetIdList) {
+		String rfcxDeviceId = app.rfcxGuardianIdentity.getGuid();
+		Context appContext = app.getApplicationContext();
+		List<String> idList = new ArrayList<>();
+		for (String assetId : assetIdList) {
+			String[] purgeReport = purgeSingleAsset( assetType, rfcxDeviceId, appContext, assetId );
+			if (purgeReport.length > 2) {
+				Log.d(logTag, "Purged Asset: "+ TextUtils.join(", ", purgeReport));
+			} else {
+				idList.add(purgeReport[1]);
+			}
+		}
+		if (idList.size() > 0) {
+			Log.d(logTag, "Purged Asset" + ((idList.size() > 1) ? "s" : "") + ": " + assetType + ", " + TextUtils.join(", ", idList));
+		}
+	}
+
+	public void purgeSingleAsset(String assetType, String assetId) {
+		String[] purgeReport = purgeSingleAsset( assetType, app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), assetId);
+		Log.d(logTag, "Purged Asset: "+ TextUtils.join(", ", purgeReport));
+	}
+
+	public String[] purgeSingleAsset(String assetType, String rfcxDeviceId, Context context, String assetId) {
+
+		String[] purgedAssetReport = new String[] { assetType, assetId };;
 
 		try {
 			List<String> filePaths =  new ArrayList<String>();
@@ -115,21 +140,20 @@ public class AssetUtils {
 
 			}
 
-			boolean isPurgeReported = false;
 			// delete asset file after it has been purged from records
 			for (String filePath : filePaths) {
 				if ((filePath != null) && (new File(filePath)).exists()) {
 					FileUtils.delete(filePath);
 					app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
-					Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ", " + filePath.substring(1 + filePath.lastIndexOf("/")));
-					isPurgeReported = true;
+					purgedAssetReport = new String[] { assetType, assetId, filePath.substring(1 + filePath.lastIndexOf("/")) };
 				}
 			}
-			if (!isPurgeReported) { Log.d(logTag, "Purging asset: " + assetType + ", " + assetId); }
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
+
+		return purgedAssetReport;
 	}
 
 	public String getAssetExchangeLogList(String assetStatus, int rowLimit) {

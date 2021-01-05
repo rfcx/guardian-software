@@ -95,6 +95,7 @@ public class ApiCheckInJobService extends Service {
 
 						if (app.deviceConnectivity.isConnected()) {
 							app.apiMqttUtils.initializeFailedCheckInThresholds();
+							app.apiMqttUtils.closeConnectionToBroker();
 						}
 
 //						// reboots org.rfcx.guardian.guardian in situations where battery charge percentage doesn't reflect charge state

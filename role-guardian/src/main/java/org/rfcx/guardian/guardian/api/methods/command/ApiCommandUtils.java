@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.api.methods.command;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -12,9 +13,11 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class ApiCommandUtils {
 
@@ -42,7 +45,7 @@ public class ApiCommandUtils {
 				if (jsonObj.has("audio")) {
 					JSONArray audioJson = jsonObj.getJSONArray("audio");
 					String audioId = audioJson.getJSONObject(0).getString("id");
-					app.assetUtils.purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
+					app.assetUtils.purgeSingleAsset("audio", audioId);
 
 					if (jsonObj.has("checkin_id")) {
 						String checkInId = jsonObj.getString("checkin_id");
@@ -68,55 +71,61 @@ public class ApiCommandUtils {
 				// parse screenshot info and use it to purge the data locally
 				if (jsonObj.has("screenshots")) {
 					JSONArray screenShotJson = jsonObj.getJSONArray("screenshots");
+					List<String> screenshotIds = new ArrayList<>();
 					for (int i = 0; i < screenShotJson.length(); i++) {
-						String screenShotId = screenShotJson.getJSONObject(i).getString("id");
-						app.assetUtils.purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotId);
+						screenshotIds.add(screenShotJson.getJSONObject(i).getString("id"));
 					}
+					app.assetUtils.purgeListOfAssets("screenshot", screenshotIds);
 				}
 
 				// parse log info and use it to purge the data locally
 				if (jsonObj.has("logs")) {
 					JSONArray logsJson = jsonObj.getJSONArray("logs");
+					List<String> logsIds = new ArrayList<>();
 					for (int i = 0; i < logsJson.length(); i++) {
-						String logId = logsJson.getJSONObject(i).getString("id");
-						app.assetUtils.purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logId);
+						logsIds.add(logsJson.getJSONObject(i).getString("id"));
 					}
+					app.assetUtils.purgeListOfAssets("log", logsIds);
 				}
 
 				// parse sms info and use it to purge the data locally
 				if (jsonObj.has("messages")) {
-					JSONArray messagesJson = jsonObj.getJSONArray("messages");
-					for (int i = 0; i < messagesJson.length(); i++) {
-						String smsId = messagesJson.getJSONObject(i).getString("id");
-						app.assetUtils.purgeSingleAsset("sms", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), smsId);
+					JSONArray smsJson = jsonObj.getJSONArray("messages");
+					List<String> smsIds = new ArrayList<>();
+					for (int i = 0; i < smsJson.length(); i++) {
+						smsIds.add(smsJson.getJSONObject(i).getString("id"));
 					}
+					app.assetUtils.purgeListOfAssets("sms", smsIds);
 				}
 
 				// parse 'meta' info and use it to purge the data locally
 				if (jsonObj.has("meta")) {
 					JSONArray metaJson = jsonObj.getJSONArray("meta");
+					List<String> metaIds = new ArrayList<>();
 					for (int i = 0; i < metaJson.length(); i++) {
-						String metaId = metaJson.getJSONObject(i).getString("id");
-						app.assetUtils.purgeSingleAsset("meta", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), metaId);
+						metaIds.add(metaJson.getJSONObject(i).getString("id"));
 					}
+					app.assetUtils.purgeListOfAssets("meta", metaIds);
 				}
 
 				// parse photo info and use it to purge the data locally
 				if (jsonObj.has("photos")) {
-					JSONArray photosJson = jsonObj.getJSONArray("photos");
-					for (int i = 0; i < photosJson.length(); i++) {
-						String photoId = photosJson.getJSONObject(i).getString("id");
-						app.assetUtils.purgeSingleAsset("photo", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), photoId);
+					JSONArray photoJson = jsonObj.getJSONArray("photos");
+					List<String> photoIds = new ArrayList<>();
+					for (int i = 0; i < photoJson.length(); i++) {
+						photoIds.add(photoJson.getJSONObject(i).getString("id"));
 					}
+					app.assetUtils.purgeListOfAssets("photo", photoIds);
 				}
 
 				// parse video info and use it to purge the data locally
 				if (jsonObj.has("videos")) {
-					JSONArray videosJson = jsonObj.getJSONArray("videos");
-					for (int i = 0; i < videosJson.length(); i++) {
-						String videoId = videosJson.getJSONObject(i).getString("id");
-						app.assetUtils.purgeSingleAsset("video", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), videoId);
+					JSONArray videoJson = jsonObj.getJSONArray("videos");
+					List<String> videoIds = new ArrayList<>();
+					for (int i = 0; i < videoJson.length(); i++) {
+						videoIds.add(videoJson.getJSONObject(i).getString("id"));
 					}
+					app.assetUtils.purgeListOfAssets("video", videoIds);
 				}
 
 				// parse 'purged' confirmation array and delete entries from asset exchange log
@@ -148,7 +157,7 @@ public class ApiCommandUtils {
 						if (receivedObj.has("type") && receivedObj.has("id")) {
 							String assetId = receivedObj.getString("id");
 							String assetType = receivedObj.getString("type");
-							app.assetUtils.purgeSingleAsset(assetType, app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), assetId);
+							app.assetUtils.purgeSingleAsset(assetType, assetId);
 						}
 					}
 				}
@@ -184,11 +193,12 @@ public class ApiCommandUtils {
 
 				// parse segment info and use it to purge the data locally
 				if (jsonObj.has("segment")) {
-					JSONArray segListJson = jsonObj.getJSONArray("segment");
-					for (int i = 0; i < segListJson.length(); i++) {
-						String segId = segListJson.getString(i);
-						app.assetUtils.purgeSingleAsset("segment", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), segId);
+					JSONArray segJson = jsonObj.getJSONArray("segment");
+					List<String> segIds = new ArrayList<>();
+					for (int i = 0; i < segJson.length(); i++) {
+						segIds.add( segJson.getString(i) );
 					}
+					app.assetUtils.purgeListOfAssets("segment", segIds);
 				}
 
 			} catch (JSONException e) {

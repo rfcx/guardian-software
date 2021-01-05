@@ -93,22 +93,22 @@ public class ApiMqttUtils implements MqttCallback {
 
 		String[] screenShotMeta = app.assetUtils.getLatestExternalAssetMeta("screenshots", this.checkInPublishTimeOutLength);
 		if ((screenShotMeta[0] != null) && !FileUtils.exists(screenShotMeta[0])) {
-			app.assetUtils.purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotMeta[2]);
+			app.assetUtils.purgeSingleAsset("screenshot", screenShotMeta[2]);
 		}
 
 		String[] logFileMeta = app.assetUtils.getLatestExternalAssetMeta("logs", this.checkInPublishTimeOutLength);
 		if ((logFileMeta[0] != null) && !FileUtils.exists(logFileMeta[0])) {
-			app.assetUtils.purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logFileMeta[2]);
+			app.assetUtils.purgeSingleAsset("log", logFileMeta[2]);
 		}
 
         String[] photoFileMeta = app.assetUtils.getLatestExternalAssetMeta("photos", this.checkInPublishTimeOutLength);
         if ((photoFileMeta[0] != null) && !FileUtils.exists(photoFileMeta[0])) {
-			app.assetUtils.purgeSingleAsset("photo", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), photoFileMeta[2]);
+			app.assetUtils.purgeSingleAsset("photo", photoFileMeta[2]);
         }
 
 		String[] videoFileMeta = app.assetUtils.getLatestExternalAssetMeta("videos", this.checkInPublishTimeOutLength);
 		if ((videoFileMeta[0] != null) && !FileUtils.exists(videoFileMeta[0])) {
-			app.assetUtils.purgeSingleAsset("video", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), videoFileMeta[2]);
+			app.assetUtils.purgeSingleAsset("video", videoFileMeta[2]);
 		}
 
         // Build JSON blob from included assets
@@ -184,7 +184,7 @@ public class ApiMqttUtils implements MqttCallback {
 				this.inFlightCheckInAttemptCounter = 0;
 
 			} else {
-				app.assetUtils.purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
+				app.assetUtils.purgeSingleAsset("audio", audioId);
 			}
 
 		} catch (Exception e) {
@@ -292,6 +292,8 @@ public class ApiMqttUtils implements MqttCallback {
 	public boolean isConnectedToBroker() {
 		return mqttCheckInClient.isConnected();
 	}
+
+	public void closeConnectionToBroker() { if (isConnectedToBroker()) { mqttCheckInClient.closeConnection(); } }
 
 	// Ping Messages
 

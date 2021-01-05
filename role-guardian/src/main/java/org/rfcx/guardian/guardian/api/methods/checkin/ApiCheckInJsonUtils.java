@@ -90,7 +90,9 @@ public class ApiCheckInJsonUtils {
 			checkInMetaJson.put("videos", TextUtils.join("*", new String[]{videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6]}));
 		}
 
-		Log.d(logTag,checkInMetaJson.toString());
+		int limitLogsTo = 1500;
+		String strLogs = checkInMetaJson.toString();
+		Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
 
 		// Adding Guardian GUID and Auth Token
 		JSONObject guardianObj = new JSONObject();

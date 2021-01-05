@@ -37,8 +37,8 @@ public class ApiRestUtils {
 	private String restUrlPath_Ping;
 
 	private void setHttpTimeouts() {
-//		this.httpGet.setTimeOuts();
-//		this.httpPost.setTimeOuts();
+		this.httpGet.setTimeOuts(30000, 30000);
+		this.httpPost.setTimeOuts(30000, 30000);
 	}
 
 	private void setHttpHeaders() {
