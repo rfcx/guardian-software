@@ -53,7 +53,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 					String streamCodec = app.rfcxPrefs.getPrefAsString("audio_stream_codec");
 					int streamBitrate = app.rfcxPrefs.getPrefAsInt("audio_stream_bitrate");
 
-					jobCount_Encode += app.audioEncodeDb.dbEncodeQueue.insert(
+					jobCount_Encode += app.audioEncodeDb.dbQueued.insert(
 						""+queueCaptureTimeStamp[0], captureFileExtension, "-", streamSampleRate,
 							streamBitrate, streamCodec, captureLoopPeriod, captureLoopPeriod, "stream", preEncodeFilePath, queueCaptureSampleRate[0] );
 				}
@@ -67,7 +67,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 					String vaultCodec = app.rfcxPrefs.getPrefAsString("audio_vault_codec");
 					int vaultBitrate = app.rfcxPrefs.getPrefAsInt("audio_vault_bitrate");
 
-					jobCount_Encode += app.audioEncodeDb.dbEncodeQueue.insert(
+					jobCount_Encode += app.audioEncodeDb.dbQueued.insert(
 							""+queueCaptureTimeStamp[0], captureFileExtension, "-", vaultSampleRate,
 							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath, queueCaptureSampleRate[0] );
 				}

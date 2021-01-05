@@ -14,7 +14,7 @@ public class AudioEncodeDb {
 	public AudioEncodeDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-		this.dbEncodeQueue = new DbEncodeQueue(context);
+		this.dbQueued = new DbQueued(context);
 		this.dbEncoded = new DbEncoded(context);
 	}
 
@@ -61,13 +61,13 @@ public class AudioEncodeDb {
 	}
 	
 
-	public class DbEncodeQueue {
+	public class DbQueued {
 
 		final DbUtils dbUtils;
 
 		private String TABLE = "queued";
 		
-		public DbEncodeQueue(Context context) {
+		public DbQueued(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
@@ -95,14 +95,6 @@ public class AudioEncodeDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
-		public String[] getLatestRow() {
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
-		}
-		
-		public void clearRowsBefore(Date date) {
-			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
-		}
-		
 		public void deleteSingleRow(String timestamp) {
 			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
 			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
@@ -127,13 +119,8 @@ public class AudioEncodeDb {
 			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_TIMESTAMP, timestamp);
 		}
 		
-		public void decrementSingleRowAttempts(String audioId) {
-			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("-1", TABLE, C_ATTEMPTS, C_TIMESTAMP, timestamp);
-		}
-		
 	}
-	public final DbEncodeQueue dbEncodeQueue;
+	public final DbQueued dbQueued;
 	
 	public class DbEncoded {
 
@@ -165,20 +152,8 @@ public class AudioEncodeDb {
 			return this.dbUtils.insertRow(TABLE, values);
 		}
 		
-		public List<String[]> getRowsWithLimit(int maxRows) {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null, 0, maxRows);
-		}
-		
 		public List<String[]> getAllRows() {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
-		}
-		
-		public String[] getLatestRow() {
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
-		}
-		
-		public void clearRowsBefore(Date date) {
-			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
 		}
 		
 		public void deleteSingleRow(String timestamp) {
@@ -194,22 +169,6 @@ public class AudioEncodeDb {
 		public int getCount() {
 			return this.dbUtils.getCount(TABLE, null, null);
 		}
-		
-		public String[] getSingleRowByAudioId(String audioId) {
-			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+C_TIMESTAMP+",1,"+timestamp.length()+") = ?", new String[] { timestamp }, null, 0);
-		}
-		
-		public void incrementSingleRowAttempts(String audioId) {
-			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_TIMESTAMP, timestamp);
-		}
-		
-		public void decrementSingleRowAttempts(String audioId) {
-			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("-1", TABLE, C_ATTEMPTS, C_TIMESTAMP, timestamp);
-		}
-		
 		
 	}
 	public final DbEncoded dbEncoded;

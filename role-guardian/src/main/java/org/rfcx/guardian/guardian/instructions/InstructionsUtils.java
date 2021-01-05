@@ -1,8 +1,6 @@
 package org.rfcx.guardian.guardian.instructions;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -10,8 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.ArrayList;
@@ -52,8 +48,8 @@ public class InstructionsUtils {
 
 						String instrId = instrObj.getString("id");
 
-						if (	(this.app.instructionsDb.dbQueuedInstructions.getCountById(instrId) == 0)
-							&&	(this.app.instructionsDb.dbExecutedInstructions.getCountById(instrId) == 0)
+						if (	(this.app.instructionsDb.dbExecuted.getCountById(instrId) == 0)
+							&&	(this.app.instructionsDb.dbQueued.getCountById(instrId) == 0)
 							) {
 
 							String instrType = instrObj.getString("type");
@@ -64,7 +60,7 @@ public class InstructionsUtils {
 
 							long instrExecuteAt = ( (instrObj.getString("at").length() > 0) ? Long.parseLong(instrObj.getString("at")) : System.currentTimeMillis() ) + InstructionsCycleService.CYCLE_DURATION;
 
-							this.app.instructionsDb.dbQueuedInstructions.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString());
+							this.app.instructionsDb.dbQueued.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString());
 
 							Log.i(logTag, "Instruction Received with ID '" + instrId + "', Type: '" + instrType + "', Command: '" + instrCmd + "', Send at " + DateTimeUtils.getDateTime(instrExecuteAt) + ", JSON Meta: '" + instrMetaObj.toString() + "'");
 
@@ -125,19 +121,19 @@ public class InstructionsUtils {
 		try {
 
 			JSONArray receivedInstrArr = new JSONArray();
-			for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
+			for (String[] receivedRow : app.instructionsDb.dbQueued.getRowsInOrderOfExecution()) {
 				if (receivedRow[0] != null) {
 					JSONObject receivedObj = new JSONObject();
 					receivedObj.put("id", receivedRow[1]);
 					receivedObj.put("received_at", receivedRow[0]);
 					receivedInstrArr.put(receivedObj);
-					app.instructionsDb.dbQueuedInstructions.updateLastAccessedAtById(receivedRow[1]);
+					app.instructionsDb.dbQueued.updateLastAccessedAtById(receivedRow[1]);
 				}
 			}
 			instrObj.put("received", receivedInstrArr);
 
 			JSONArray executedInstrArr = new JSONArray();
-			for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
+			for (String[] executedRow : app.instructionsDb.dbExecuted.getRowsInOrderOfExecution()) {
 				if (executedRow[0] != null) {
 					JSONObject executedObj = new JSONObject();
 					executedObj.put("id", executedRow[1]);
@@ -146,7 +142,7 @@ public class InstructionsUtils {
 					executedObj.put("attempts", executedRow[6]);
 					executedObj.put("response", executedRow[5]);
 					executedInstrArr.put(executedObj);
-					app.instructionsDb.dbExecutedInstructions.updateLastAccessedAtById(executedRow[1]);
+					app.instructionsDb.dbExecuted.updateLastAccessedAtById(executedRow[1]);
 				}
 			}
 			instrObj.put("executed", executedInstrArr);
@@ -158,7 +154,7 @@ public class InstructionsUtils {
 	}
 
 	public int getInstructionsCount() {
-		return app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution().size()+app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution().size();
+		return app.instructionsDb.dbQueued.getRowsInOrderOfExecution().size()+app.instructionsDb.dbExecuted.getRowsInOrderOfExecution().size();
 	}
 
 

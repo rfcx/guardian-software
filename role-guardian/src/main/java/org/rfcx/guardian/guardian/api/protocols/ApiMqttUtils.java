@@ -266,7 +266,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 					Log.v(logTag, "MQTT Broker Latency: Connection: "+mqttCheckInClient.mqttBrokerConnectionLatency+" ms, Subscription: "+mqttCheckInClient.mqttBrokerSubscriptionLatency+" ms");
 
-					app.deviceSystemDb.dbMqttBrokerConnections.insert(new Date(),
+					app.deviceSystemDb.dbMqttBroker.insert(new Date(),
 													mqttCheckInClient.mqttBrokerConnectionLatency,
 													mqttCheckInClient.mqttBrokerSubscriptionLatency,
 													app.rfcxPrefs.getPrefAsString("api_mqtt_protocol"),

@@ -136,7 +136,7 @@ public class ApiCheckInJsonUtils {
 			} else if (assetType.equalsIgnoreCase("stashed")) {
 				assetInfo.append("*").append( app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() );
 			} else if (assetType.equalsIgnoreCase("archived")) {
-				assetInfo.append("*").append( app.apiCheckInArchiveDb.dbApiCheckInArchive.getCumulativeFileSizeForAllRows() );
+				assetInfo.append("*").append( app.apiCheckInArchiveDb.dbArchive.getCumulativeFileSizeForAllRows() );
 			} else if (assetType.equalsIgnoreCase("vault")) {
 				assetInfo.append("*").append( app.audioVaultDb.dbVault.getCumulativeFileSizeForAllRows() );
 			}
@@ -161,7 +161,7 @@ public class ApiCheckInJsonUtils {
 						"meta*" + app.metaDb.dbMeta.getCount() + assetExtraInfo.get("meta"),
 						"skipped*" + app.apiCheckInDb.dbSkipped.getCount() + assetExtraInfo.get("skipped"),
 						"stashed*" + app.apiCheckInDb.dbStashed.getCount() + assetExtraInfo.get("stashed"),
-						"archived*" + app.apiCheckInArchiveDb.dbApiCheckInArchive.getInnerRecordCumulativeCount() + assetExtraInfo.get("archived"),
+						"archived*" + app.apiCheckInArchiveDb.dbArchive.getInnerRecordCumulativeCount() + assetExtraInfo.get("archived"),
 						"vault*" + app.audioVaultDb.dbVault.getCumulativeRecordCountForAllRows() + assetExtraInfo.get("vault")
 				});
 	}
@@ -178,7 +178,7 @@ public class ApiCheckInJsonUtils {
 		metaDataJsonObj.put("meta_ids", metaIds);
 		metaDataJsonObj.put("measured_at", metaQueryTimestamp);
 
-		metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
+		metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBroker.getConcatRows());
 
 		// Adding connection data from previous checkins
 		metaDataJsonObj.put("previous_checkins", app.apiCheckInStatsDb.dbStats.getConcatRows());
@@ -233,7 +233,7 @@ public class ApiCheckInJsonUtils {
 		try {
 
 			app.deviceSystemDb.dbDateTimeOffsets.clearRowsBefore(deleteBefore);
-			app.deviceSystemDb.dbMqttBrokerConnections.clearRowsBefore(deleteBefore);
+			app.deviceSystemDb.dbMqttBroker.clearRowsBefore(deleteBefore);
 			app.apiCheckInStatsDb.dbStats.clearRowsBefore(deleteBefore);
 
 			RfcxComm.deleteQuery("admin", "database_delete_rows_before", "system_meta|" + deleteBefore.getTime(), app.getResolver());

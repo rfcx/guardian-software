@@ -107,8 +107,8 @@ public class AssetUtils {
 				app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			} else if (assetType.equals("instruction")) {
-				app.instructionsDb.dbExecutedInstructions.deleteSingleRowById(assetId);
-				app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(assetId);
+				app.instructionsDb.dbExecuted.deleteSingleRowById(assetId);
+				app.instructionsDb.dbQueued.deleteSingleRowById(assetId);
 
 			} else if (assetType.equals("segment")) {
 				app.apiSegmentUtils.deleteSegmentsById(assetId);

@@ -71,10 +71,6 @@ public class MetaDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, rowOffset, rowLimit);
 		}
 		
-		public String[] getLatestRow() {
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
-		}
-		
 		public List<String[]> getLatestRowsWithLimit(int maxRows) {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, maxRows);
 		}

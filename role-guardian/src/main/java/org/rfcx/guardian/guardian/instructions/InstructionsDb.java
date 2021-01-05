@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.rfcx.guardian.utility.database.DbUtils;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
@@ -15,8 +14,8 @@ public class InstructionsDb {
 	public InstructionsDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-		this.dbQueuedInstructions = new DbQueuedInstructions(context);
-		this.dbExecutedInstructions = new DbExecutedInstructions(context);
+		this.dbQueued = new DbQueued(context);
+		this.dbExecuted = new DbExecuted(context);
 	}
 
 	private int VERSION = 1;
@@ -57,13 +56,13 @@ public class InstructionsDb {
 
 
 
-	public class DbQueuedInstructions {
+	public class DbQueued {
 
 		final DbUtils dbUtils;
 
 		private String TABLE = "queued";
 
-		public DbQueuedInstructions(Context context) {
+		public DbQueued(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
@@ -133,17 +132,17 @@ public class InstructionsDb {
 		}
 
 	}
-	public final DbQueuedInstructions dbQueuedInstructions;
+	public final DbQueued dbQueued;
 
 
 
-	public class DbExecutedInstructions {
+	public class DbExecuted {
 
 		final DbUtils dbUtils;
 
 		private String TABLE = "executed";
 
-		public DbExecutedInstructions(Context context) {
+		public DbExecuted(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
@@ -209,6 +208,6 @@ public class InstructionsDb {
 		}
 
 	}
-	public final DbExecutedInstructions dbExecutedInstructions;
+	public final DbExecuted dbExecuted;
 	
 }

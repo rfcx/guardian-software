@@ -80,7 +80,7 @@ public class AudioEncodeJobService extends Service {
 			
 			try {
 				
-				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbEncodeQueue.getAllRows();
+				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbQueued.getAllRows();
 				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
 				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode );
 				
@@ -107,13 +107,13 @@ public class AudioEncodeJobService extends Service {
 							
 							Log.d(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " because input audio file could not be found.");
 							
-							app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(timestamp);
+							app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
 							
 						} else if (Integer.parseInt(latestQueuedAudioToEncode[12]) >= AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD) {
 							
 							Log.d(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " after " + AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 							
-							app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(timestamp);
+							app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
 							FileUtils.delete(preEncodeFile);
 							
 						} else {
@@ -125,7 +125,7 @@ public class AudioEncodeJobService extends Service {
 												+"to " + codec.toUpperCase(Locale.US)+" ("+Math.round(sampleRate/1000)+" kHz"+ ((codec.equalsIgnoreCase("opus")) ? (", "+Math.round(bitRate/1024)+" kbps") : "")+")"
 							);
 
-							app.audioEncodeDb.dbEncodeQueue.incrementSingleRowAttempts(timestamp);
+							app.audioEncodeDb.dbQueued.incrementSingleRowAttempts(timestamp);
 
 							File postEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PostEncode(context, Long.parseLong(timestamp), codec));
 
@@ -190,7 +190,7 @@ public class AudioEncodeJobService extends Service {
 									}
 								}
 
-								app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(timestamp, encodePurpose);
+								app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp, encodePurpose);
 
 							}
 						}		

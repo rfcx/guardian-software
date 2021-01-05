@@ -65,18 +65,6 @@ public class AssetExchangeLogDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
-		public List<String[]> getRowsWithOffset(int rowOffset, int rowLimit) {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, rowOffset, rowLimit);
-		}
-		
-		public String[] getLatestRow() {
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
-		}
-		
-		public List<String[]> getLatestRowsWithLimit(int maxRows) {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, maxRows);
-		}
-		
 		public List<String[]> getLatestRowsWithLimitExcludeCreatedAt(int maxRows) {
 			List<String[]> rowsWithAllFields = this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, maxRows);
 			List<String[]> rowsWithoutCreatedAt = new ArrayList<String[]>();
@@ -90,14 +78,6 @@ public class AssetExchangeLogDb {
 			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
 			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
 			return 0;
-		}
-		
-		public String getConcatRows() {
-			return DbUtils.getConcatRows(getAllRows());
-		}
-		
-		public String getConcatRowsWithLimit(int maxRows) {
-			return DbUtils.getConcatRows(getLatestRowsWithLimit(maxRows));
 		}
 
 	}

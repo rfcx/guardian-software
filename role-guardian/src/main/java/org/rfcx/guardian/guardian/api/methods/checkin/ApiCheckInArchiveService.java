@@ -214,7 +214,7 @@ public class ApiCheckInArchiveService extends Service {
 							FileUtils.copy(archiveTarFilePath, archiveFinalFilePath);
 							FileUtils.chmod(archiveFinalFilePath, "rw", "rw");
 
-							app.apiCheckInArchiveDb.dbApiCheckInArchive.insert(
+							app.apiCheckInArchiveDb.dbArchive.insert(
 									new Date(archiveTimestamp),        // archived_at
 									new Date(oldestCheckInTimestamp),    // archive_begins_at
 									new Date(newestCheckInTimestamp),    // archive_ends_at
