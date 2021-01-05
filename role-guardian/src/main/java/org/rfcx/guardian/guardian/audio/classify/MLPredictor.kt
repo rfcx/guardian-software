@@ -24,7 +24,7 @@ class MLPredictor: Predictor {
             interpreter = Interpreter(
                 File(
                     Environment.getExternalStorageDirectory(),
-                    "yamnet.tflite"
+                    "multiclass-model.tflite"
                 )
             )
         } catch (e: Exception) {
@@ -37,7 +37,7 @@ class MLPredictor: Predictor {
             return ""
         }
         // fix output size to 521
-        val outputShape: Array<FloatArray> = arrayOf(FloatArray(521))
+        val outputShape: Array<FloatArray> = arrayOf(FloatArray(3))
         try {
             interpreter?.run(arrayOf(input), outputShape)
         } catch (e: Exception) {
@@ -48,7 +48,7 @@ class MLPredictor: Predictor {
         outputShape[0].forEachIndexed { index, fl ->
             // pick only confidence more than 0.1
             if (fl != 0f && fl >= 0.1f) {
-                filteredOutput.add("$index-$fl")
+                filteredOutput.add("${ModelLabel.values()[index].name}-$fl")
             }
         }
 

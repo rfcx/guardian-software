@@ -19,12 +19,12 @@ object AudioConverter {
     fun FloatArray.sliceTo(step: Int): List<FloatArray> {
         val slicedAudio = arrayListOf<FloatArray>()
         var startAt = 0
-        var endAt = 15600
-        val stepSize =  if (step != 0) (15600 * (1f / (2 * step))).toInt() else 0
-        while ((startAt + 15600) < this.size) {
+        var endAt = 11700
+        val stepSize =  if (step != 0) (11700 * (1f / (2 * step))).toInt() else 0
+        while ((startAt + 11700) < this.size) {
             if (startAt != 0) {
                 startAt = endAt - stepSize
-                endAt = startAt + 15600
+                endAt = startAt + 11700
             }
             slicedAudio.add(this.copyOfRange(startAt, endAt))
             startAt = endAt

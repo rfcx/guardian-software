@@ -25,7 +25,7 @@ class AudioClassifyUtils(context: Context) {
         predictor.also {
             it.load()
             AudioConverter.readAudioSimple(path).sliceTo(0).forEach { audioChunk ->
-                if (audioChunk.size == 15600) {
+                if (audioChunk.size == 11700) {
                     val output = it.run(audioChunk)
                     Log.d(logTag, output)
                 }
