@@ -36,7 +36,7 @@ class MLPredictor: Predictor {
         if (interpreter == null) {
             return ""
         }
-        // fix output size to 521
+        // fix output size to 3
         val outputShape: Array<FloatArray> = arrayOf(FloatArray(3))
         try {
             interpreter?.run(arrayOf(input), outputShape)
