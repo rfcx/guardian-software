@@ -77,7 +77,7 @@ public class RebootTriggerService extends Service {
 				// Halting the Guardian role services
 				Log.e(logTag, "Reboot: Requesting that Guardian role stop all services...");
 				try {
-					Cursor killGuardianSvcs = app.getApplicationContext().getContentResolver().query(
+					Cursor killGuardianSvcs = app.getResolver().query(
 						RfcxComm.getUri("guardian", "control", "kill"),
 						RfcxComm.getProjection("guardian", "control"),
 						null, null, null);
@@ -90,7 +90,7 @@ public class RebootTriggerService extends Service {
 				// Halting the Admin role services
 				Log.e(logTag, "Reboot: Requesting that Admin role stop all services...");
 				try {
-					Cursor killAdminSvcs = app.getApplicationContext().getContentResolver().query(
+					Cursor killAdminSvcs = app.getResolver().query(
 							RfcxComm.getUri("admin", "control", "kill"),
 							RfcxComm.getProjection("admin", "control"),
 							null, null, null);

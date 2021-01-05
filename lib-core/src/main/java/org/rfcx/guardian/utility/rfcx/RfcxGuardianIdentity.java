@@ -20,10 +20,12 @@ public class RfcxGuardianIdentity {
 	private String appRole;
 
 	public static final int GUID_LENGTH = 12;
+	public static final int PINCODE_LENGTH = 4;
 
 	private String guid;
 	private String authToken;
 	private String keystorePassPhrase;
+	private String pinCode;
 
 	private void checkSetPreDefinedGuid() {
 		String fromContentProvider = readIdentityInfoFromContentProvider("guid");
@@ -67,6 +69,20 @@ public class RfcxGuardianIdentity {
 		}
 	}
 
+	private void checkSetPreDefinedPinCode() {
+		String fromContentProvider = readIdentityInfoFromContentProvider("pin_code");
+		if (fromContentProvider != null) {
+			Log.v(logTag, "Predefined PIN Code retrieved via content provider");
+			setPinCode(fromContentProvider);
+		} else {
+			String fromTxtFile = RfcxPrefs.readFromGuardianRoleTxtFile(this.context, this.logTag, this.appRole, this.appRole, "pin_code");
+			if (fromTxtFile != null) {
+				Log.v(logTag, "Predefined PIN Code retrieved from file");
+				this.pinCode = fromTxtFile;
+			}
+		}
+	}
+
 	public void setIdentityValue(String idKey, String idVal) {
 		if (idKey.equalsIgnoreCase("guid")) {
 			setGuid(idVal.toLowerCase());
@@ -74,6 +90,8 @@ public class RfcxGuardianIdentity {
 			setAuthToken(idVal.toLowerCase());
 		} else if (idKey.equalsIgnoreCase("keystore_passphrase")) {
 			setKeystorePassPhrase(idVal);
+		} else if (idKey.equalsIgnoreCase("pin_code")) {
+			setPinCode(idVal);
 		}
 	}
 
@@ -92,6 +110,11 @@ public class RfcxGuardianIdentity {
 		this.keystorePassPhrase = keystorePassPhrase;
 	}
 
+	public void setPinCode(String pinCode) {
+		RfcxPrefs.writeToGuardianRoleTxtFile(this.context, this.logTag, "pin_code", pinCode, true);
+		this.pinCode = pinCode;
+	}
+
 	public void unSetIdentityValue(String idKey) {
 		if (idKey.equalsIgnoreCase("guid")) {
 			this.guid = null;
@@ -102,6 +125,9 @@ public class RfcxGuardianIdentity {
 		} else if (idKey.equalsIgnoreCase("keystore_passphrase")) {
 			this.keystorePassPhrase = null;
 			RfcxPrefs.deleteGuardianRoleTxtFile(this.context, "keystore_passphrase");
+		} else if (idKey.equalsIgnoreCase("pin_code")) {
+			this.pinCode = null;
+			RfcxPrefs.deleteGuardianRoleTxtFile(this.context, "pin_code");
 		}
 	}
 
@@ -112,6 +138,8 @@ public class RfcxGuardianIdentity {
 			return getAuthToken();
 		} else if (idKey.equalsIgnoreCase("keystore_passphrase")) {
 			return getKeystorePassphrase();
+		} else if (idKey.equalsIgnoreCase("pin_code")) {
+			return getPinCode();
 		} else {
 			return null;
 		}
@@ -153,6 +181,20 @@ public class RfcxGuardianIdentity {
 		return this.keystorePassPhrase;
 	}
 
+	public String getPinCode() {
+		if (this.pinCode == null) {
+			checkSetPreDefinedPinCode();
+			if (this.pinCode == null) {
+				Log.e(logTag, "Failed to find pre-defined PIN Code.");
+				setPinCode("0000000000000000000000000000000000000000".substring(0, PINCODE_LENGTH));
+				Log.e(logTag, "PIN Code has been defaulted to '" + this.pinCode + "'.");
+				Log.e(logTag, "This default PIN Code may not provide full functionality with the API.");
+				Log.e(logTag, "To obtain a valid PIN Code, please re-register this device, or set the value manually via content provider.");
+			}
+		}
+		return this.pinCode;
+	}
+
 
 	private String readIdentityInfoFromContentProvider(String idKey) {
 		try {
@@ -182,6 +224,7 @@ public class RfcxGuardianIdentity {
 		if (this.guid != null) { this.guid = null; checkSetPreDefinedGuid(); }
 		if (this.authToken != null) { this.authToken = null; checkSetPreDefinedAuthToken(); }
 		if (this.keystorePassPhrase != null) { this.keystorePassPhrase = null; checkSetPreDefinedKeystorePassPhrase(); }
+		if (this.pinCode != null) { this.pinCode = null; checkSetPreDefinedPinCode(); }
 	}
 
 	public void reSyncIdentityInExternalRoleViaContentProvider(String targetAppRole, Context context) {

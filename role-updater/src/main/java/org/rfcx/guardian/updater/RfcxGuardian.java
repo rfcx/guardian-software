@@ -19,6 +19,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 
@@ -76,12 +77,12 @@ public class RfcxGuardian extends Application {
         this.unregisterReceiver(connectivityReceiver);
     }
 
-    public void appResume() {
+    public void appResume() { }
 
-    }
+    public void appPause() { }
 
-    public void appPause() {
-
+    public ContentResolver getResolver() {
+        return this.getApplicationContext().getContentResolver();
     }
 
     public void initializeRoleServices() {

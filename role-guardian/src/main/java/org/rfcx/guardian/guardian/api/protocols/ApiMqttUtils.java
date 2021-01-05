@@ -93,22 +93,22 @@ public class ApiMqttUtils implements MqttCallback {
 
 		String[] screenShotMeta = app.assetUtils.getLatestExternalAssetMeta("screenshots", this.checkInPublishTimeOutLength);
 		if ((screenShotMeta[0] != null) && !FileUtils.exists(screenShotMeta[0])) {
-			app.assetUtils.purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotMeta[2]);
+			app.assetUtils.purgeSingleAsset("screenshot", screenShotMeta[2]);
 		}
 
 		String[] logFileMeta = app.assetUtils.getLatestExternalAssetMeta("logs", this.checkInPublishTimeOutLength);
 		if ((logFileMeta[0] != null) && !FileUtils.exists(logFileMeta[0])) {
-			app.assetUtils.purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logFileMeta[2]);
+			app.assetUtils.purgeSingleAsset("log", logFileMeta[2]);
 		}
 
         String[] photoFileMeta = app.assetUtils.getLatestExternalAssetMeta("photos", this.checkInPublishTimeOutLength);
         if ((photoFileMeta[0] != null) && !FileUtils.exists(photoFileMeta[0])) {
-			app.assetUtils.purgeSingleAsset("photo", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), photoFileMeta[2]);
+			app.assetUtils.purgeSingleAsset("photo", photoFileMeta[2]);
         }
 
 		String[] videoFileMeta = app.assetUtils.getLatestExternalAssetMeta("videos", this.checkInPublishTimeOutLength);
 		if ((videoFileMeta[0] != null) && !FileUtils.exists(videoFileMeta[0])) {
-			app.assetUtils.purgeSingleAsset("video", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), videoFileMeta[2]);
+			app.assetUtils.purgeSingleAsset("video", videoFileMeta[2]);
 		}
 
         // Build JSON blob from included assets
@@ -184,7 +184,7 @@ public class ApiMqttUtils implements MqttCallback {
 				this.inFlightCheckInAttemptCounter = 0;
 
 			} else {
-				app.assetUtils.purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
+				app.assetUtils.purgeSingleAsset("audio", audioId);
 			}
 
 		} catch (Exception e) {
@@ -203,7 +203,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 		// this is a command message receive from the API
 		if (messageTopic.equalsIgnoreCase(this.mqttTopic_Subscribe_Command)) {
-			app.apiCommandUtils.processApiCommandJson(StringUtils.gZippedByteArrayToUnGZippedString(messagePayload), "mqtt");
+			app.apiCommandUtils.processApiCommandJson(StringUtils.gZippedByteArrayToUnGZippedString(messagePayload));
 		}
 	}
 
@@ -266,7 +266,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 					Log.v(logTag, "MQTT Broker Latency: Connection: "+mqttCheckInClient.mqttBrokerConnectionLatency+" ms, Subscription: "+mqttCheckInClient.mqttBrokerSubscriptionLatency+" ms");
 
-					app.deviceSystemDb.dbMqttBrokerConnections.insert(new Date(),
+					app.deviceSystemDb.dbMqttBroker.insert(new Date(),
 													mqttCheckInClient.mqttBrokerConnectionLatency,
 													mqttCheckInClient.mqttBrokerSubscriptionLatency,
 													app.rfcxPrefs.getPrefAsString("api_mqtt_protocol"),
@@ -293,32 +293,30 @@ public class ApiMqttUtils implements MqttCallback {
 		return mqttCheckInClient.isConnected();
 	}
 
+	public void closeConnectionToBroker() { if (isConnectedToBroker()) { mqttCheckInClient.closeConnection(); } }
+
 	// Ping Messages
 
-	public void sendMqttPing(boolean includeAllExtraFields, String[] includeExtraFields) {
+	public boolean sendMqttPing(String pingJson) {
 
-		try {
+		boolean isSent = false;
 
-			publishMessageOnConfirmedConnection(this.mqttTopic_Publish_Ping, 1,false, packageMqttPingPayload(app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, true)));
+		if (app.apiCheckInHealthUtils.isApiCheckInAllowed(true, false)) {
 
-		} catch (Exception e) {
-
-			RfcxLog.logExc(logTag, e, "sendMqttPing");
-			handleMqttPingPublicationExceptions(e);
-
-			/////
 			try {
-			app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sms", app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, true), null);
-			} catch (Exception ex) {
-				RfcxLog.logExc(logTag, ex, "sendSmsPing");
+
+				publishMessageOnConfirmedConnection( this.mqttTopic_Publish_Ping, 1, false, packageMqttPingPayload( app.apiPingJsonUtils.injectGuardianIdentityIntoJson( pingJson ) ) );
+				isSent = true;
+
+			} catch (Exception e) {
+
+				RfcxLog.logExc(logTag, e, "sendMqttPing");
+				handleMqttPingPublicationExceptions(e);
 			}
-			/////////
 
 		}
-	}
 
-	public void sendMqttPing() {
-		sendMqttPing(true, new String[]{});
+		return isSent;
 	}
 
 	private byte[] packageMqttPingPayload(String pingJsonString) throws UnsupportedEncodingException, IOException, JSONException {
@@ -362,7 +360,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit){
 					Log.v(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
-					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
 					this.inFlightCheckInAttemptCounter = 0;
 				}
 
@@ -416,12 +414,12 @@ public class ApiMqttUtils implements MqttCallback {
 //                app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
 //                if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
 //                    Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
-//                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getApplicationContext().getContentResolver());
+//                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
 //                    this.inFlightCheckInAttemptCounter = 0;
 //                }
             }
         } catch (Exception e) {
-            RfcxLog.logExc(logTag, e, "handlePingPublicationExceptions");
+            RfcxLog.logExc(logTag, e, "handleMqttPingPublicationExceptions");
         }
     }
 
@@ -480,13 +478,11 @@ public class ApiMqttUtils implements MqttCallback {
 							if (!app.deviceConnectivity.isConnected() && !app.deviceMobilePhone.hasSim()) {
 								Log.d(logTag, "Failure Threshold Reached: Forced reboot due to missing SIM card (" + toggleThreshold
 										+ " minutes since last successful CheckIn)");
-								app.deviceControlUtils.runOrTriggerDeviceControl("reboot",
-										app.getApplicationContext().getContentResolver());
+								app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getResolver());
 							} else {
 								Log.d(logTag, "Failure Threshold Reached: Forced Relaunch (" + toggleThreshold
 										+ " minutes since last successful CheckIn)");
-								app.deviceControlUtils.runOrTriggerDeviceControl("relaunch",
-										app.getApplicationContext().getContentResolver());
+								app.deviceControlUtils.runOrTriggerDeviceControl("relaunch", app.getResolver());
 
 								for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
 									this.failedCheckInThresholdsReached[i] = false;
@@ -497,8 +493,7 @@ public class ApiMqttUtils implements MqttCallback {
 							// any threshold // and not connected
 							Log.d(logTag, "Failure Threshold Reached: Airplane Mode (" + toggleThreshold
 									+ " minutes since last successful CheckIn)");
-							app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle",
-									app.getApplicationContext().getContentResolver());
+							app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
 							this.inFlightCheckInAttemptCounter = 0;
 						}
 						break;

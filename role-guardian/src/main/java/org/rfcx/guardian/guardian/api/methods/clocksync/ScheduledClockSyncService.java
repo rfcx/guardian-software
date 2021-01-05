@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.api.methods.clock;
+package org.rfcx.guardian.guardian.api.methods.clocksync;
 
 import android.app.IntentService;
 import android.content.Intent;

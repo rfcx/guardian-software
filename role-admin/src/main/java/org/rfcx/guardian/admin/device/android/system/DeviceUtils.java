@@ -12,7 +12,6 @@ import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceMemory;
-import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -109,7 +108,7 @@ public class DeviceUtils {
 	public static boolean isReducedCaptureModeActive(String activityTag, Context context) {
 		try {
 			if (((RfcxGuardian) context.getApplicationContext()).isGuardianRegistered()) {
-				JSONArray jsonArray = RfcxComm.getQueryContentProvider("guardian", "status", "*", context.getContentResolver());
+				JSONArray jsonArray = RfcxComm.getQuery("guardian", "status", "*", context.getContentResolver());
 				if (jsonArray.length() > 0) {
 					JSONObject jsonObj = jsonArray.getJSONObject(0);
 					if (jsonObj.has(activityTag)) {

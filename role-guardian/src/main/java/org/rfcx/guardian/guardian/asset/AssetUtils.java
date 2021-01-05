@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.asset;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -40,18 +41,16 @@ public class AssetUtils {
 
 		String[] assetMeta = new String[] { null };
 		try {
-			JSONArray latestAssetMetaArray = RfcxComm.getQueryContentProvider("admin", "database_get_latest_row",
-					assetType, app.getApplicationContext().getContentResolver());
-			for (int i = 0; i < latestAssetMetaArray.length(); i++) {
-				JSONObject latestAssetMeta = latestAssetMetaArray.getJSONObject(i);
+			JSONArray latestAssetMetaArr = RfcxComm.getQuery("admin", "database_get_latest_row", assetType, app.getResolver());
+			for (int i = 0; i < latestAssetMetaArr.length(); i++) {
+				JSONObject latestAssetMeta = latestAssetMetaArr.getJSONObject(i);
 				long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(latestAssetMeta.getString("last_accessed_at"))));
 				if (milliSecondsSinceAccessed > excludeAssetsLastAccessWithinDuration) {
 					assetMeta = new String[] { latestAssetMeta.getString("filepath"),
 							latestAssetMeta.getString("created_at"), latestAssetMeta.getString("timestamp"),
 							latestAssetMeta.getString("format"), latestAssetMeta.getString("digest"),
 							latestAssetMeta.getString("width"), latestAssetMeta.getString("height") };
-					RfcxComm.updateQueryContentProvider("admin", "database_set_last_accessed_at", assetType + "|" + latestAssetMeta.getString("timestamp"),
-							app.getApplicationContext().getContentResolver());
+					RfcxComm.updateQuery("admin", "database_set_last_accessed_at", assetType + "|" + latestAssetMeta.getString("timestamp"), app.getResolver());
 					break;
 				} else {
 					Log.e(logTag,"Skipping asset attachment: "+assetType+", "+latestAssetMeta.getString("timestamp")+" was last sent only "+Math.round(milliSecondsSinceAccessed / 1000)+" seconds ago.");
@@ -63,7 +62,31 @@ public class AssetUtils {
 		return assetMeta;
 	}
 
-	public void purgeSingleAsset(String assetType, String rfcxDeviceId, Context context, String assetId) {
+	public void purgeListOfAssets(String assetType, List<String> assetIdList) {
+		String rfcxDeviceId = app.rfcxGuardianIdentity.getGuid();
+		Context appContext = app.getApplicationContext();
+		List<String> idList = new ArrayList<>();
+		for (String assetId : assetIdList) {
+			String[] purgeReport = purgeSingleAsset( assetType, rfcxDeviceId, appContext, assetId );
+			if (purgeReport.length > 2) {
+				Log.d(logTag, "Purged Asset: "+ TextUtils.join(", ", purgeReport));
+			} else {
+				idList.add(purgeReport[1]);
+			}
+		}
+		if (idList.size() > 0) {
+			Log.d(logTag, "Purged Asset" + ((idList.size() > 1) ? "s" : "") + ": " + assetType + ", " + TextUtils.join(" ", idList));
+		}
+	}
+
+	public void purgeSingleAsset(String assetType, String assetId) {
+		String[] purgeReport = purgeSingleAsset( assetType, app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), assetId);
+		Log.d(logTag, "Purged Asset: "+ TextUtils.join(", ", purgeReport));
+	}
+
+	public String[] purgeSingleAsset(String assetType, String rfcxDeviceId, Context context, String assetId) {
+
+		String[] purgedAssetReport = new String[] { assetType, assetId };;
 
 		try {
 			List<String> filePaths =  new ArrayList<String>();
@@ -82,62 +105,58 @@ public class AssetUtils {
 				}
 
 			} else if (assetType.equals("screenshot")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "screenshots|" + assetId,
-						app.getApplicationContext().getContentResolver());
+				RfcxComm.deleteQuery("admin", "database_delete_row", "screenshots|" + assetId, app.getResolver());
 				filePaths.add(RfcxScreenShotFileUtils.getScreenShotFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
 				filePaths.add(RfcxScreenShotFileUtils.getScreenShotFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("photo")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "photos|" + assetId,
-						app.getApplicationContext().getContentResolver());
+				RfcxComm.deleteQuery("admin", "database_delete_row", "photos|" + assetId, app.getResolver());
 				filePaths.add(RfcxPhotoFileUtils.getPhotoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
 				filePaths.add(RfcxPhotoFileUtils.getPhotoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("video")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "videos|" + assetId,
-						app.getApplicationContext().getContentResolver());
+				RfcxComm.deleteQuery("admin", "database_delete_row", "videos|" + assetId, app.getResolver());
 				filePaths.add(RfcxVideoFileUtils.getVideoFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
 				filePaths.add(RfcxVideoFileUtils.getVideoFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("log")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "logs|" + assetId,
-						app.getApplicationContext().getContentResolver());
+				RfcxComm.deleteQuery("admin", "database_delete_row", "logs|" + assetId, app.getResolver());
 				filePaths.add(RfcxLogcatFileUtils.getLogcatFileLocation_Queue(rfcxDeviceId, context, Long.parseLong(assetId)));
 				filePaths.add(RfcxLogcatFileUtils.getLogcatFileLocation_ExternalStorage(rfcxDeviceId, Long.parseLong(assetId)));
 
 			} else if (assetType.equals("sms")) {
-				RfcxComm.deleteQueryContentProvider("admin", "database_delete_row", "sms|" + assetId,
-						app.getApplicationContext().getContentResolver());
+				RfcxComm.deleteQuery("admin", "database_delete_row", "sms|" + assetId, app.getResolver());
 
 			} else if (assetType.equals("meta")) {
 				app.metaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
 				app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
 
 			} else if (assetType.equals("instruction")) {
-				app.instructionsDb.dbExecutedInstructions.deleteSingleRowById(assetId);
-				app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(assetId);
+				app.instructionsDb.dbExecuted.deleteSingleRowById(assetId);
+				app.instructionsDb.dbQueued.deleteSingleRowById(assetId);
 
 			} else if (assetType.equals("segment")) {
-				app.instructionsDb.dbExecutedInstructions.deleteSingleRowById(assetId);
-				app.instructionsDb.dbQueuedInstructions.deleteSingleRowById(assetId);
+				app.apiSegmentUtils.deleteSegmentsById(assetId);
+
+			} else if (assetType.equals("classification")) {
+//				app.apiSegmentUtils.deleteSegmentsById(assetId);
 
 			}
 
-			boolean isPurgeReported = false;
 			// delete asset file after it has been purged from records
 			for (String filePath : filePaths) {
 				if ((filePath != null) && (new File(filePath)).exists()) {
 					FileUtils.delete(filePath);
 					app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
-					Log.d(logTag, "Purging asset: " + assetType + ", " + assetId + ", " + filePath.substring(1 + filePath.lastIndexOf("/")));
-					isPurgeReported = true;
+					purgedAssetReport = new String[] { assetType, assetId, filePath.substring(1 + filePath.lastIndexOf("/")) };
 				}
 			}
-			if (!isPurgeReported) { Log.d(logTag, "Purging asset: " + assetType + ", " + assetId); }
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
+
+		return purgedAssetReport;
 	}
 
 	public String getAssetExchangeLogList(String assetStatus, int rowLimit) {
@@ -154,7 +173,7 @@ public class AssetUtils {
 	// Asset Cleanup
 
 	public void runFileSystemAssetCleanup() {
-		runFileSystemAssetCleanup(Math.round(ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION / (60 * 1000)));
+		runFileSystemAssetCleanup(ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION_MINUTES);
 	}
 
 	public void runFileSystemAssetCleanup(int checkFilesUnModifiedSinceThisManyMinutes) {
@@ -162,7 +181,8 @@ public class AssetUtils {
 		String[] assetDirectoriesToScan = new String[] {
 				RfcxAudioFileUtils.audioStashDir(app.getApplicationContext()),
 				RfcxAudioFileUtils.audioFinalDir(app.getApplicationContext()),
-				RfcxAudioFileUtils.audioQueueDir(app.getApplicationContext())
+				RfcxAudioFileUtils.audioQueueDir(app.getApplicationContext()),
+				RfcxAudioFileUtils.assetLibraryDir(app.getApplicationContext())
 		};
 
 		List<String> assetFilePathsFromDatabase = new ArrayList<String>();
@@ -173,6 +193,8 @@ public class AssetUtils {
 		for (String[] row : app.apiCheckInDb.dbSkipped.getAllRows()) { assetFilePathsFromDatabase.add(row[4]); }
 		// Encode Queue Databases
 		for (String[] row : app.audioEncodeDb.dbEncoded.getAllRows()) { assetFilePathsFromDatabase.add(row[10]); }
+		// Asset Library Databases
+		for (String[] row : app.assetLibraryDb.dbAudio.getAllRows()) { assetFilePathsFromDatabase.add(row[5]); }
 
 
 		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(assetDirectoriesToScan, assetFilePathsFromDatabase, checkFilesUnModifiedSinceThisManyMinutes);

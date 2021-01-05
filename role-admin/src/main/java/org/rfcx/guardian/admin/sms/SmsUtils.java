@@ -59,7 +59,7 @@ public class SmsUtils {
 			Log.w(logTag, "SMS received from API '"+apiSmsAddress+"'.");
 			String segmentPayload = smsObj.getString("body");
 			Cursor smsSegmentReceivedContentProviderResponse =
-					app.getApplicationContext().getContentResolver().query(
+					app.getResolver().query(
 							RfcxComm.getUri("guardian", "segment_receive_sms", RfcxComm.urlEncode(segmentPayload)),
 							RfcxComm.getProjection("guardian", "segment_receive_sms"),
 							null, null, null);
@@ -82,7 +82,9 @@ public class SmsUtils {
 
 			app.smsMessageDb.dbSmsQueued.insert(sendAtOrAfter, sendTo, msgBody, msgId);
 
-			Log.w(logTag, "SMS Queued (ID " + msgId + "): To " + sendTo + " at " + DateTimeUtils.getDateTime(sendAtOrAfter) + ": \"" + msgBody + "\"");
+			if (!sendTo.equalsIgnoreCase(app.rfcxPrefs.getPrefAsString("api_sms_address"))) {
+				Log.w(logTag, "SMS Queued (ID " + msgId + "): To " + sendTo + " at " + DateTimeUtils.getDateTime(sendAtOrAfter) + ": \"" + msgBody + "\"");
+			}
 
 			if (triggerDispatchService) { app.rfcxServiceHandler.triggerService("SmsDispatch", false); }
 		}

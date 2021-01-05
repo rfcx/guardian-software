@@ -15,7 +15,7 @@ public class ApiCheckInArchiveDb {
 	public ApiCheckInArchiveDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-		this.dbApiCheckInArchive = new DbApiCheckInArchive(context);
+		this.dbArchive = new DbArchive(context);
 	}
 
 	private int VERSION = 1;
@@ -44,13 +44,13 @@ public class ApiCheckInArchiveDb {
 		return sbOut.toString();
 	}
 	
-	public class DbApiCheckInArchive {
+	public class DbArchive {
 
 		final DbUtils dbUtils;
 
 		private String TABLE = "archive";
 		
-		public DbApiCheckInArchive(Context context) {
+		public DbArchive(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
@@ -94,6 +94,6 @@ public class ApiCheckInArchiveDb {
 
 
 	}
-	public final DbApiCheckInArchive dbApiCheckInArchive;
+	public final DbArchive dbArchive;
 	
 }

@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -263,7 +264,7 @@ public class FileUtils {
 		return files;
 	}
 
-	public static List<File> getEmptyDirectories(String directoryFilePath/*, long ifNotModifiedSinceThisManyMilliseconds*/) {
+	public static List<File> getEmptyDirectories(String directoryFilePath) {
 		List<File> dirs = new ArrayList<File>();
 		File dirObj = new File(directoryFilePath);
 		if (dirObj.isDirectory()) {
@@ -276,21 +277,8 @@ public class FileUtils {
 					for (File innerDir : innerDirs) {
 						dirs.add(innerDir);
 					}
-
-
-//					findAndDeleteEmptyDirectories(innerDir.getAbsolutePath(), isRecursive, ifNotModifiedSinceThisManyMilliseconds);
 				}
-
-//				if (isRecursive) {
-//
-//					//	Log.i(logTag, "___ "+dirObj.getAbsolutePath());
-//				}
-			}/* else {
-				if (millisecondsSinceLastModified(dirObj) > ifNotModifiedSinceThisManyMilliseconds) {
-					Log.e(logTag, "Deleting empty directory: "+dirObj.getAbsolutePath());
-					delete(dirObj);
-				}
-			}*/
+			}
 		}
 		return dirs;
 	}
@@ -390,7 +378,7 @@ public class FileUtils {
 			
 			FileInputStream fileInputStream = new FileInputStream(inputFile.getAbsolutePath());
             FileOutputStream fileOutputStream = new FileOutputStream(outputFile.getAbsolutePath());
-            GZIPOutputStream gZipOutputStream = new GZIPOutputStream(fileOutputStream);
+            GZIPOutputStream gZipOutputStream = new GZIPOutputStream(fileOutputStream) { { this.def.setLevel(Deflater.BEST_COMPRESSION); } };
             
             byte[] buffer = new byte[1024];
             int len;
@@ -468,13 +456,14 @@ public class FileUtils {
 			sizeStr.append(".").append( (fracVal < 10) ? "0" : "").append(fracVal);
 			sizeStr.append(" MB");
 
-		} else if (kB > 0) {
+		} else if (kB > 1) {
 			sizeStr.append(kB);
 			int fracVal = (int) Math.floor(10*B/1024);
 			if (kB < 10) { sizeStr.append(".").append(fracVal); }
 			sizeStr.append(" kB");
 
 		} else {
+			if (kB > 0) { B += (kB * 1024); }
 			sizeStr.append(B).append(" bytes");
 
 		}

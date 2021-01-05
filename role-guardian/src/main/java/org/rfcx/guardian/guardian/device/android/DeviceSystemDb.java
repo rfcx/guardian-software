@@ -5,10 +5,9 @@ import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
-import org.rfcx.guardian.guardian.RfcxGuardian;
+
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 public class DeviceSystemDb {
@@ -16,7 +15,7 @@ public class DeviceSystemDb {
 	public DeviceSystemDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-		this.dbMqttBrokerConnections = new DbMqttBrokerConnections(context);
+		this.dbMqttBroker = new DbMqttBroker(context);
 		this.dbDateTimeOffsets = new DbDateTimeOffsets(context);
 	}
 
@@ -40,13 +39,13 @@ public class DeviceSystemDb {
 		return sbOut.toString();
 	}
 
-	public class DbMqttBrokerConnections {
+	public class DbMqttBroker {
 
 		final DbUtils dbUtils;
 
 		private String TABLE = "mqttbroker";
 
-		public DbMqttBrokerConnections(Context context) {
+		public DbMqttBroker(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
@@ -77,7 +76,7 @@ public class DeviceSystemDb {
 		}
 
 	}
-	public final DbMqttBrokerConnections dbMqttBrokerConnections;
+	public final DbMqttBroker dbMqttBroker;
 
 	public class DbDateTimeOffsets {
 

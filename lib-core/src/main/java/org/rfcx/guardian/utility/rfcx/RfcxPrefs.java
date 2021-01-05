@@ -43,6 +43,9 @@ public class RfcxPrefs {
 	private String prefsDirPath = null;
 	
 	private Map<String, String> cachedPrefs = new HashMap<String, String>();
+
+	public String prefsSha1FullApiSync = null;
+	public long prefsTimestampLastFullApiSync = 0;
 	
 	// Getters and Setters
 	
@@ -70,16 +73,30 @@ public class RfcxPrefs {
 	public int getPrefAsInt(String prefKey) {
 		return Integer.parseInt(getPrefAsString(prefKey));
 	}
-
-	public float getPrefAsFloat(String prefKey) {
-		return Float.parseFloat(getPrefAsString(prefKey));
-	}
-
 	public long getPrefAsLong(String prefKey) {
 		return Long.parseLong(getPrefAsString(prefKey));
 	}
-
+	public float getPrefAsFloat(String prefKey) {
+		return Float.parseFloat(getPrefAsString(prefKey));
+	}
 	public boolean getPrefAsBoolean(String prefKey) { return getPrefAsString(prefKey).equalsIgnoreCase("true"); }
+
+	//
+	// Get Default Pref Values
+	//
+
+	public String getDefaultPrefValueAsString(String prefKey) {
+		if (defaultPrefs.containsKey(prefKey)) {
+			return defaultPrefs.get(prefKey);
+		} else {
+			return null;
+		}
+	}
+
+	public int getDefaultPrefValueAsInt(String prefKey) { return Integer.parseInt(getDefaultPrefValueAsString(prefKey)); }
+	public long getDefaultPrefValueAsLong(String prefKey) { return Long.parseLong(getDefaultPrefValueAsString(prefKey)); }
+	public float getDefaultPrefValueAsFloat(String prefKey) { return Float.parseFloat(getDefaultPrefValueAsString(prefKey)); }
+	public boolean getDefaultPrefValueAsBoolean(String prefKey) { return getDefaultPrefValueAsString(prefKey).equalsIgnoreCase("true"); }
 
 	//
 	// Set Pref Values
@@ -365,7 +382,6 @@ public class RfcxPrefs {
 		return getPrefsAsJsonObj(false, includeTheseKeys );
 	}
 
-
     //
     // Prefs default/fallback values. Should be kept in sync with the prefs.xml file in guardian role resources
     //
@@ -459,7 +475,7 @@ public class RfcxPrefs {
 			put("admin_enable_screenshot_capture", "false");
 
 			put("admin_enable_sentinel_power", "true");
-			put("admin_enable_sentinel_sensor", "true");
+			put("admin_enable_sentinel_sensor", "false");
 
 			put("admin_system_timezone", "[ Not Set ]");
 

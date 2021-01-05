@@ -63,18 +63,12 @@ import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.util.Log;
 
-import androidx.core.content.FileProvider;
-
-import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 public class RfcxGuardian extends Application {
@@ -179,14 +173,13 @@ public class RfcxGuardian extends Application {
 		this.unregisterReceiver(airplaneModeReceiver);
 	}
 	
-	public void appResume() {
-
-	}
+	public void appResume() { }
 	
-	public void appPause() {
+	public void appPause() { }
 
+	public ContentResolver getResolver() {
+		return this.getApplicationContext().getContentResolver();
 	}
-
 
 	public boolean isGuardianRegistered() {
 		return (this.rfcxGuardianIdentity.getAuthToken() != null);
@@ -203,7 +196,7 @@ public class RfcxGuardian extends Application {
 							,
 					"ScheduledAssetCleanup"
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
-							+ "|" + ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION
+							+ "|" + ( ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION_MINUTES * 60 * 1000 )
 							,
 					"ScheduledScreenShotCapture"
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:45").getTimeInMillis() // waits forty five seconds before running

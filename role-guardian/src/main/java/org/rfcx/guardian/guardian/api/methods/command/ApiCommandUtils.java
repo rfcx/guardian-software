@@ -1,20 +1,24 @@
 package org.rfcx.guardian.guardian.api.methods.command;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class ApiCommandUtils {
 
@@ -24,167 +28,204 @@ public class ApiCommandUtils {
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCommandUtils");
 
-	private RfcxGuardian app;
+	private final RfcxGuardian app;
 
-	public void processApiCommandJson(String jsonStr, String originProtocol) {
+	private static final String[] assetExchangeTypes = new String[] { "audio", "meta", "screenshot", "log", "photo", "video" };
+	private static final String[] assetExchangeTypesAbbrev = new String[] { "aud", "mta", "scn", "log", "pho", "vid" };
 
-		Log.i(logTag, "Received: " + jsonStr);
+	public void processApiCommandJson(String jsonStr) {
 
-		try {
+		if (!jsonStr.equalsIgnoreCase("{}")) {
 
-			JSONObject jsonObj = new JSONObject(jsonStr);
+			try {
 
-			// parse audio info and use it to purge the data locally
-			// this assumes that the audio array has only one item in it
-			// multiple audio items returned in this array would cause an error
-			if (jsonObj.has("audio")) {
-				JSONArray audioJson = jsonObj.getJSONArray("audio");
-				String audioId = audioJson.getJSONObject(0).getString("id");
-				app.assetUtils.purgeSingleAsset("audio", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), audioId);
+				Log.i(logTag, "Command JSON: " + jsonStr);
 
-				if (jsonObj.has("checkin_id")) {
-					String checkInId = jsonObj.getString("checkin_id");
-					if (checkInId.length() > 0) {
-						long[] checkInStats = app.apiCheckInHealthUtils.getInFlightCheckInStatsEntry(audioId);
-						if (checkInStats != null) {
-							app.apiCheckInStatsDb.dbStats.insert(checkInId, checkInStats[1], checkInStats[2]);
-							Calendar rightNow = GregorianCalendar.getInstance();
-							rightNow.setTime(new Date());
+				JSONObject jsonObj = new JSONObject(jsonStr);
 
-							app.apiCheckInUtils.reQueueStashedCheckInIfAllowedByHealthCheck(new long[]{
-									/* latency */    	checkInStats[1],
-									/* queued */       	(long) app.apiCheckInDb.dbQueued.getCount(),
-									/* recent */        checkInStats[0],
-									/* time-of-day */   (long) rightNow.get(Calendar.HOUR_OF_DAY)
-							});
+				// parse audio info and use it to purge the data locally
+				// this assumes that the audio array has only one item in it
+				// multiple audio items returned in this array would cause an error
+				if (jsonObj.has("audio") || jsonObj.has("aud")) {
+					JSONArray audJson = jsonObj.has("aud") ? jsonObj.getJSONArray("aud") : jsonObj.getJSONArray("audio");
+					String audId = jsonObj.has("aud") ? audJson.getString(0) : audJson.getJSONObject(0).getString("id");
+					app.assetUtils.purgeSingleAsset("audio", audId);
+
+					if (jsonObj.has("checkin_id") || jsonObj.has("chk")) {
+						String chkId = jsonObj.has("chk") ? jsonObj.getString("chk") : jsonObj.getString("checkin_id");
+						if (chkId.length() > 0) {
+							long[] checkInStats = app.apiCheckInHealthUtils.getInFlightCheckInStatsEntry(audId);
+							if (checkInStats != null) {
+								app.apiCheckInStatsDb.dbStats.insert(chkId, checkInStats[1], checkInStats[2]);
+								Calendar rightNow = GregorianCalendar.getInstance();
+								rightNow.setTime(new Date());
+
+								app.apiCheckInUtils.reQueueStashedCheckInIfAllowedByHealthCheck(new long[]{
+										/* latency */        checkInStats[1],
+										/* queued */        (long) app.apiCheckInDb.dbQueued.getCount(),
+										/* recent */        checkInStats[0],
+										/* time-of-day */   (long) rightNow.get(Calendar.HOUR_OF_DAY)
+								});
+							}
 						}
 					}
+					app.apiCheckInHealthUtils.updateInFlightCheckInOnReceive(audId);
 				}
-				app.apiCheckInHealthUtils.updateInFlightCheckInOnReceive(audioId);
-			}
 
-			// parse screenshot info and use it to purge the data locally
-			if (jsonObj.has("screenshots")) {
-				JSONArray screenShotJson = jsonObj.getJSONArray("screenshots");
-				for (int i = 0; i < screenShotJson.length(); i++) {
-					String screenShotId = screenShotJson.getJSONObject(i).getString("id");
-					app.assetUtils.purgeSingleAsset("screenshot", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), screenShotId);
+				// parse screenshot info and use it to purge the data locally
+				if (jsonObj.has("screenshots") || jsonObj.has("scn")) {
+					JSONArray scnJson = jsonObj.has("scn") ? jsonObj.getJSONArray("scn") : jsonObj.getJSONArray("screenshots");
+					List<String> scnIds = new ArrayList<>();
+					for (int i = 0; i < scnJson.length(); i++) {
+						scnIds.add( jsonObj.has("scn") ? scnJson.getString(i) : scnJson.getJSONObject(i).getString("id") );
+					}
+					app.assetUtils.purgeListOfAssets("screenshot", scnIds);
 				}
-			}
 
-			// parse log info and use it to purge the data locally
-			if (jsonObj.has("logs")) {
-				JSONArray logsJson = jsonObj.getJSONArray("logs");
-				for (int i = 0; i < logsJson.length(); i++) {
-					String logId = logsJson.getJSONObject(i).getString("id");
-					app.assetUtils.purgeSingleAsset("log", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), logId);
+				// parse log info and use it to purge the data locally
+				if (jsonObj.has("logs") || jsonObj.has("log")) {
+					JSONArray logJson = jsonObj.has("log") ? jsonObj.getJSONArray("log") : jsonObj.getJSONArray("logs");
+					List<String> logIds = new ArrayList<>();
+					for (int i = 0; i < logJson.length(); i++) {
+						logIds.add( jsonObj.has("log") ? logJson.getString(i) : logJson.getJSONObject(i).getString("id") );
+					}
+					app.assetUtils.purgeListOfAssets("log", logIds);
 				}
-			}
 
-			// parse sms info and use it to purge the data locally
-			if (jsonObj.has("messages")) {
-				JSONArray messagesJson = jsonObj.getJSONArray("messages");
-				for (int i = 0; i < messagesJson.length(); i++) {
-					String smsId = messagesJson.getJSONObject(i).getString("id");
-					app.assetUtils.purgeSingleAsset("sms", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), smsId);
+				// parse sms info and use it to purge the data locally
+				if (jsonObj.has("messages") || jsonObj.has("sms")) {
+					JSONArray smsJson = jsonObj.has("sms") ? jsonObj.getJSONArray("sms") : jsonObj.getJSONArray("messages");
+					List<String> smsIds = new ArrayList<>();
+					for (int i = 0; i < smsJson.length(); i++) {
+						smsIds.add( jsonObj.has("sms") ? smsJson.getString(i) : smsJson.getJSONObject(i).getString("id") );
+					}
+					app.assetUtils.purgeListOfAssets("sms", smsIds);
 				}
-			}
 
-			// parse 'meta' info and use it to purge the data locally
-			if (jsonObj.has("meta")) {
-				JSONArray metaJson = jsonObj.getJSONArray("meta");
-				for (int i = 0; i < metaJson.length(); i++) {
-					String metaId = metaJson.getJSONObject(i).getString("id");
-					app.assetUtils.purgeSingleAsset("meta", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), metaId);
+				// parse 'meta' info and use it to purge the data locally
+				if (jsonObj.has("meta") || jsonObj.has("mta")) {
+					JSONArray mtaJson = jsonObj.has("mta") ? jsonObj.getJSONArray("mta") : jsonObj.getJSONArray("meta");
+					List<String> mtaIds = new ArrayList<>();
+					for (int i = 0; i < mtaJson.length(); i++) {
+						mtaIds.add( jsonObj.has("mta") ? mtaJson.getString(i) : mtaJson.getJSONObject(i).getString("id") );
+					}
+					app.assetUtils.purgeListOfAssets("meta", mtaIds);
 				}
-			}
 
-			// parse photo info and use it to purge the data locally
-			if (jsonObj.has("photos")) {
-				JSONArray photosJson = jsonObj.getJSONArray("photos");
-				for (int i = 0; i < photosJson.length(); i++) {
-					String photoId = photosJson.getJSONObject(i).getString("id");
-					app.assetUtils.purgeSingleAsset("photo", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), photoId);
+				// parse photo info and use it to purge the data locally
+				if (jsonObj.has("photos") || jsonObj.has("pho")) {
+					JSONArray phoJson = jsonObj.has("pho") ? jsonObj.getJSONArray("pho") : jsonObj.getJSONArray("photos");
+					List<String> phoIds = new ArrayList<>();
+					for (int i = 0; i < phoJson.length(); i++) {
+						phoIds.add( jsonObj.has("pho") ? phoJson.getString(i) : phoJson.getJSONObject(i).getString("id") );
+					}
+					app.assetUtils.purgeListOfAssets("photo", phoIds);
 				}
-			}
 
-			// parse video info and use it to purge the data locally
-			if (jsonObj.has("videos")) {
-				JSONArray videosJson = jsonObj.getJSONArray("videos");
-				for (int i = 0; i < videosJson.length(); i++) {
-					String videoId = videosJson.getJSONObject(i).getString("id");
-					app.assetUtils.purgeSingleAsset("video", app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), videoId);
+				// parse video info and use it to purge the data locally
+				if (jsonObj.has("videos") || jsonObj.has("vid")) {
+					JSONArray vidJson = jsonObj.has("vid") ? jsonObj.getJSONArray("vid") : jsonObj.getJSONArray("videos");
+					List<String> vidIds = new ArrayList<>();
+					for (int i = 0; i < vidJson.length(); i++) {
+						vidIds.add( jsonObj.has("vid") ? vidJson.getString(i) : vidJson.getJSONObject(i).getString("id") );
+					}
+					app.assetUtils.purgeListOfAssets("video", vidIds);
 				}
-			}
 
-			// parse 'purged' confirmation array and delete entries from asset exchange log
-			if (jsonObj.has("purged")) {
-				JSONArray purgedJson = jsonObj.getJSONArray("purged");
-				for (int i = 0; i < purgedJson.length(); i++) {
-					JSONObject purgedObj = purgedJson.getJSONObject(i);
-					if (purgedObj.has("type") && purgedObj.has("id")) {
-						String assetId = purgedObj.getString("id");
-						String assetType = purgedObj.getString("type");
-						if (	assetType.equalsIgnoreCase("meta")
-								|| assetType.equalsIgnoreCase("audio")
-								|| assetType.equalsIgnoreCase("screenshot")
-								|| assetType.equalsIgnoreCase("log")
-								|| assetType.equalsIgnoreCase("photo")
-								|| assetType.equalsIgnoreCase("video")
+				// parse segment info and use it to purge the data locally
+				if (jsonObj.has("segments") || jsonObj.has("seg")) {
+					JSONArray segJson = jsonObj.has("seg") ? jsonObj.getJSONArray("seg") : jsonObj.getJSONArray("segments");
+					List<String> segIds = new ArrayList<>();
+					for (int i = 0; i < segJson.length(); i++) {
+						segIds.add( jsonObj.has("seg") ? segJson.getString(i) : segJson.getJSONObject(i).getString("id") );
+					}
+					app.assetUtils.purgeListOfAssets("segment", segIds);
+				}
+
+				// parse 'purged' confirmation array and delete entries from asset exchange log
+				if (jsonObj.has("purged") || jsonObj.has("prg")) {
+					JSONArray prgJson = jsonObj.has("prg") ? jsonObj.getJSONArray("prg") : jsonObj.getJSONArray("purged");
+					List<String> prgIds = new ArrayList<>();
+					for (int i = 0; i < prgJson.length(); i++) {
+						JSONObject prgObj = prgJson.getJSONObject(i);
+						if (	prgObj.has("type") && prgObj.has("id")
+							&&	ArrayUtils.doesStringArrayContainString( assetExchangeTypes, prgObj.getString("type") )
 						) {
-							app.assetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(assetId);
+							prgIds.add(prgObj.getString("id"));
+						} else {
+							for (String typeAbbrev : assetExchangeTypesAbbrev) {
+								if (prgObj.has(typeAbbrev)) {
+									JSONArray prgArr = prgObj.getJSONArray(typeAbbrev);
+									for (int j = 0; j < prgArr.length(); j++) {
+										prgIds.add(prgArr.getString(j));
+									}
+								}
+							}
+						}
+					}
+					for (String prgId : prgIds) { app.assetExchangeLogDb.dbPurged.deleteSingleRowByTimestamp(prgId); }
+				}
+
+				// parse generic 'received' info and use it to purge the data locally
+				if (jsonObj.has("received") || jsonObj.has("rec")) {
+					JSONArray recJson = jsonObj.has("rec") ? jsonObj.getJSONArray("rec") : jsonObj.getJSONArray("received");
+					for (int i = 0; i < recJson.length(); i++) {
+						JSONObject recObj = recJson.getJSONObject(i);
+						if (	recObj.has("type") && recObj.has("id")
+							&&	ArrayUtils.doesStringArrayContainString( assetExchangeTypes, recObj.getString("type") )
+						) {
+							app.assetUtils.purgeSingleAsset(recObj.getString("type"), recObj.getString("id"));
+						} else {
+							for (String typeAbbrev : assetExchangeTypesAbbrev) {
+								if (recObj.has(typeAbbrev)) {
+									JSONArray recArr = recObj.getJSONArray(typeAbbrev);
+									for (int j = 0; j < recArr.length(); j++) {
+										app.assetUtils.purgeSingleAsset(typeAbbrev, recArr.getString(j));
+									}
+								}
+							}
 						}
 					}
 				}
-			}
 
-			// parse generic 'received' info and use it to purge the data locally
-			if (jsonObj.has("received")) {
-				JSONArray receivedJson = jsonObj.getJSONArray("received");
-				for (int i = 0; i < receivedJson.length(); i++) {
-					JSONObject receivedObj = receivedJson.getJSONObject(i);
-					if (receivedObj.has("type") && receivedObj.has("id")) {
-						String assetId = receivedObj.getString("id");
-						String assetType = receivedObj.getString("type");
-						app.assetUtils.purgeSingleAsset(assetType, app.rfcxGuardianIdentity.getGuid(), app.getApplicationContext(), assetId);
+				// parse 'unconfirmed' array
+				if (jsonObj.has("unconfirmed") || jsonObj.has("unc")) {
+					JSONArray uncJson = jsonObj.has("unc") ? jsonObj.getJSONArray("unc") : jsonObj.getJSONArray("unconfirmed");
+					for (int i = 0; i < uncJson.length(); i++) {
+						JSONObject uncObj = uncJson.getJSONObject(i);
+						if ( uncObj.has("id") && uncObj.has("type") && uncObj.getString("type").equalsIgnoreCase("audio") ) {
+							app.apiCheckInUtils.reQueueAudioAssetForCheckIn("sent", uncObj.getString("id"));
+						} else if (uncObj.has("aud")) {
+							JSONArray uncArr = uncObj.getJSONArray("aud");
+							for (int j = 0; j < uncArr.length(); j++) {
+								app.apiCheckInUtils.reQueueAudioAssetForCheckIn("sent", uncArr.getString(j));
+							}
+						}
 					}
 				}
-			}
 
-			// parse 'unconfirmed' array
-			if (jsonObj.has("unconfirmed")) {
-				JSONArray unconfirmedJson = jsonObj.getJSONArray("unconfirmed");
-				for (int i = 0; i < unconfirmedJson.length(); i++) {
-					String assetId = unconfirmedJson.getJSONObject(i).getString("id");
-					String assetType = unconfirmedJson.getJSONObject(i).getString("type");
-					if (assetType.equalsIgnoreCase("audio")) {
-						app.apiCheckInUtils.reQueueAudioAssetForCheckIn("sent", assetId);
+				// parse 'prefs' array
+				if (jsonObj.has("prefs") || jsonObj.has("prf")) {
+					JSONArray prfJson = jsonObj.has("prf") ? jsonObj.getJSONArray("prf") : jsonObj.getJSONArray("prefs");
+					for (int i = 0; i < prfJson.length(); i++) {
+						JSONObject prfObj = prfJson.getJSONObject(i);
+						if (prfObj.has("sha1")) {
+							app.rfcxPrefs.prefsSha1FullApiSync = prfObj.getString("sha1").toLowerCase();
+						}
 					}
 				}
-			}
 
-			// parse 'prefs' array
-			if (jsonObj.has("prefs")) {
-				JSONArray prefsJson = jsonObj.getJSONArray("prefs");
-				for (int i = 0; i < prefsJson.length(); i++) {
-					JSONObject prefsObj = prefsJson.getJSONObject(i);
-					if (prefsObj.has("sha1")) {
-						app.apiCheckInJsonUtils.prefsSha1FullApiSync = prefsObj.getString("sha1").toLowerCase();
-					}
+				// parse 'instructions' array
+				if (jsonObj.has("instructions") || jsonObj.has("ins")) {
+					app.instructionsUtils.processReceivedInstructionJson((new JSONObject()).put("instructions", jsonObj.has("ins") ? jsonObj.getJSONArray("ins") : jsonObj.getJSONArray("instructions")));
+					//	app.rfcxServiceHandler.triggerService("InstructionsExecution", false);
 				}
+
+			} catch (JSONException e) {
+				RfcxLog.logExc(logTag, e);
+
 			}
-
-			// parse 'instructions' array
-			if (jsonObj.has("instructions")) {
-				app.instructionsUtils.processReceivedInstructionJson( (new JSONObject()).put("instructions",jsonObj.getJSONArray("instructions")) );
-				app.rfcxServiceHandler.triggerService("InstructionsExecution", false);
-			}
-
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e);
-
 		}
-
 	}
 
 

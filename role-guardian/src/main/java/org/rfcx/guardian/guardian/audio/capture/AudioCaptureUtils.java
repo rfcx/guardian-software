@@ -119,7 +119,7 @@ public class AudioCaptureUtils {
 
 		if (this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
 			try {
-				JSONArray jsonArray = RfcxComm.getQueryContentProvider("admin", "status", "*", app.getApplicationContext().getContentResolver());
+				JSONArray jsonArray = RfcxComm.getQuery("admin", "status", "*", app.getResolver());
 				if (jsonArray.length() > 0) {
 					JSONObject jsonObj = jsonArray.getJSONObject(0);
 					if (jsonObj.has("audio_capture")) {
@@ -280,23 +280,37 @@ public class AudioCaptureUtils {
 		return (new StringBuilder()).append(captureDir).append("/").append(timestamp).append(".").append(fileExtension).toString();
 	}
 
-	public static boolean reLocateAudioCaptureFile(Context context, long timestamp, String fileExtension) {
-		boolean isFileMoved = false;
+	public static boolean reLocateAudioCaptureFile(boolean isToBeEncoded, boolean isToBeClassified, long timestamp, String fileExtension, Context context) {
+		boolean isEncodeFileMoved = true;
+		boolean isClassifyFileMoved = true;
 		File captureFile = new File(getCaptureFilePath(RfcxAudioFileUtils.audioCaptureDir(context),timestamp,fileExtension));
 		if (captureFile.exists()) {
 			try {
-				File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp,fileExtension));
-				FileUtils.copy(captureFile, preEncodeFile);
-				FileUtils.chmod(preEncodeFile, "rw", "rw");
-				if (preEncodeFile.exists()) {
-					captureFile.delete();
+
+				if (isToBeEncoded) {
+					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExtension));
+					FileUtils.copy(captureFile, preEncodeFile);
+					FileUtils.chmod(preEncodeFile, "rw", "rw");
+					isEncodeFileMoved = preEncodeFile.exists();
 				}
-				isFileMoved = preEncodeFile.exists();
+
+				if (isToBeClassified) {
+					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExtension));
+					FileUtils.copy(captureFile, preClassifyFile);
+					FileUtils.chmod(preClassifyFile, "rw", "rw");
+					isClassifyFileMoved = preClassifyFile.exists();
+				}
+
+				if (isEncodeFileMoved && isClassifyFileMoved) {
+					captureFile.delete();
+					return true;
+				}
+
 			} catch (IOException e) {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
-		return isFileMoved;
+		return false;
 	}
 
 	public Pair<byte[], Integer> getAudioBuffer() {

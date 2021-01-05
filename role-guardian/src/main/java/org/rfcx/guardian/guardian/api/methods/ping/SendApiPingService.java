@@ -1,21 +1,19 @@
-package org.rfcx.guardian.admin.asset;
+package org.rfcx.guardian.guardian.api.methods.ping;
 
 import android.app.IntentService;
 import android.content.Intent;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
-public class ScheduledAssetCleanupService extends IntentService {
+public class SendApiPingService extends IntentService {
 
-	private static final String SERVICE_NAME = "ScheduledAssetCleanup";
+	public static final String SERVICE_NAME = "SendApiPing";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledAssetCleanupService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SendApiPingService");
 
-	public static final int ASSET_CLEANUP_CYCLE_DURATION_MINUTES = 120;
-
-	public ScheduledAssetCleanupService() {
+	public SendApiPingService() {
 		super(logTag);
 	}
 	
@@ -28,11 +26,7 @@ public class ScheduledAssetCleanupService extends IntentService {
 		
 		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-		try {
-			app.assetUtils.runFileSystemAssetCleanup();
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
+		app.apiPingUtils.sendPing(true, new String[]{}, "sms");
 		
 	}
 	

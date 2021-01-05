@@ -40,11 +40,6 @@ public class ApiCheckInJsonUtils {
 
 	private RfcxGuardian app;
 
-	public String prefsSha1FullApiSync = null;
-	public long prefsTimestampLastFullApiSync = 0;
-
-	public boolean hasDeviceInfoBeenSent = false;
-
 
 	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta, String[] photoFileMeta, String[] videoFileMeta) throws JSONException, IOException {
 
@@ -60,15 +55,6 @@ public class ApiCheckInJsonUtils {
 
 		checkInMetaJson.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt("checkin_meta_send_bundle_limit")));
 
-		// Device: Phone & Android info
-		if (!hasDeviceInfoBeenSent || (Math.round(Math.random()*10) == 1)) {
-			this.hasDeviceInfoBeenSent = true;
-			JSONObject deviceJsonObj = new JSONObject();
-			deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
-			deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
-			checkInMetaJson.put("device", deviceJsonObj);
-		}
-
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 
@@ -81,7 +67,7 @@ public class ApiCheckInJsonUtils {
 		}
 
 		// Adding messages to JSON blob
-		JSONArray smsArr = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows", "sms", app.getApplicationContext().getContentResolver());
+		JSONArray smsArr = RfcxComm.getQuery("admin", "database_get_all_rows", "sms", app.getResolver());
 		if (smsArr.length() > 0) { checkInMetaJson.put("messages", smsArr); }
 
 		// Adding screenshot meta to JSON blob
@@ -104,7 +90,9 @@ public class ApiCheckInJsonUtils {
 			checkInMetaJson.put("videos", TextUtils.join("*", new String[]{videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6]}));
 		}
 
-		Log.d(logTag,checkInMetaJson.toString());
+		int limitLogsTo = 1500;
+		String strLogs = checkInMetaJson.toString();
+		Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
 
 		// Adding Guardian GUID and Auth Token
 		JSONObject guardianObj = new JSONObject();
@@ -120,53 +108,65 @@ public class ApiCheckInJsonUtils {
 
 	public String getCheckInStatusInfoForJson(String[] includeAssetIdLists) {
 
-		Map<String, String> assetExtraInfo = new HashMap<String, String>();
+		String[] types = new String[] { "sent", "queued", "meta", "skipped", "stashed", "archived", "vault" };
 
-		for (String assetType : new String[] { "sent", "queued", "meta", "skipped", "stashed", "archived", "vault" }) {
+		int idBundleLimit = app.rfcxPrefs.getPrefAsInt("checkin_meta_send_bundle_limit");
+		long includeAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
 
-			StringBuilder assetInfo = new StringBuilder();
+		List<String> typeStatuses = new ArrayList<>();
 
-			if (assetType.equalsIgnoreCase("sent")) {
-				assetInfo.append("*").append( app.apiCheckInDb.dbSent.getCumulativeFileSizeForAllRows() );
-			} else if (assetType.equalsIgnoreCase("queued")) {
-				assetInfo.append("*").append( app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows() );
-			} else if (assetType.equalsIgnoreCase("meta")) {
-				assetInfo.append("*").append( app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows() );
+		for (String type : types) {
 
-						//FileUtils.getFileSizeInBytes(app.metaDb.dbMeta.FILEPATH) );
-			} else if (assetType.equalsIgnoreCase("skipped")) {
-				assetInfo.append("*").append( app.apiCheckInDb.dbSkipped.getCumulativeFileSizeForAllRows() );
-			} else if (assetType.equalsIgnoreCase("stashed")) {
-				assetInfo.append("*").append( app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() );
-			} else if (assetType.equalsIgnoreCase("archived")) {
-				assetInfo.append("*").append( app.apiCheckInArchiveDb.dbApiCheckInArchive.getCumulativeFileSizeForAllRows() );
-			} else if (assetType.equalsIgnoreCase("vault")) {
-				assetInfo.append("*").append( app.audioEncodeDb.dbVault.getCumulativeFileSizeForAllRows() );
+			StringBuilder statusStr = (new StringBuilder()).append(type);
+			List<String[]> idRows = new ArrayList<>();
+			boolean includeIdList = ArrayUtils.doesStringArrayContainString(includeAssetIdLists, type);
+
+			if (type.equalsIgnoreCase("sent")) {
+				statusStr.append("*").append(app.apiCheckInDb.dbSent.getCount());
+				statusStr.append("*").append(app.apiCheckInDb.dbSent.getCumulativeFileSizeForAllRows());
+				if (includeIdList) { idRows = app.apiCheckInDb.dbSent.getLatestRowsWithLimit(idBundleLimit); }
+
+			} else if (type.equalsIgnoreCase("queued")) {
+				statusStr.append("*").append(app.apiCheckInDb.dbQueued.getCount());
+				statusStr.append("*").append(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows());
+				if (includeIdList) { idRows = app.apiCheckInDb.dbQueued.getLatestRowsWithLimit(idBundleLimit); }
+
+			} else if (type.equalsIgnoreCase("meta")) {
+				statusStr.append("*").append(app.metaDb.dbMeta.getCount());
+				statusStr.append("*").append(app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows());
+				if (includeIdList) { idRows = app.metaDb.dbMeta.getLatestRowsWithLimit(idBundleLimit); }
+
+			} else if (type.equalsIgnoreCase("skipped")) {
+				statusStr.append("*").append(app.apiCheckInDb.dbSkipped.getCount());
+				statusStr.append("*").append(app.apiCheckInDb.dbSkipped.getCumulativeFileSizeForAllRows());
+				if (includeIdList) { idRows = app.apiCheckInDb.dbSkipped.getLatestRowsWithLimit(idBundleLimit); }
+
+			} else if (type.equalsIgnoreCase("stashed")) {
+				statusStr.append("*").append(app.apiCheckInDb.dbStashed.getCount());
+				statusStr.append("*").append(app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows());
+				if (includeIdList) { idRows = app.apiCheckInDb.dbStashed.getLatestRowsWithLimit(idBundleLimit); }
+
+			} else if (type.equalsIgnoreCase("archived")) {
+				statusStr.append("*").append(app.apiCheckInArchiveDb.dbArchive.getInnerRecordCumulativeCount());
+				statusStr.append("*").append(app.apiCheckInArchiveDb.dbArchive.getCumulativeFileSizeForAllRows());
+
+			} else if (type.equalsIgnoreCase("vault")) {
+				statusStr.append("*").append(app.audioVaultDb.dbVault.getCumulativeRecordCountForAllRows());
+				statusStr.append("*").append(app.audioVaultDb.dbVault.getCumulativeFileSizeForAllRows());
+
 			}
 
-			if (ArrayUtils.doesStringArrayContainString(includeAssetIdLists, assetType)) {
-				long reportAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
-				for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(15)) {
-					long assetId = Long.parseLong(_checkIn[1].substring(0, _checkIn[1].lastIndexOf(".")));
-					if (reportAssetIdIfOlderThan < Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(assetId))) {
-						assetInfo.append("*").append(assetId);
-					}
+			for (String[] idRow : idRows) {
+				long assetId = Long.parseLong(idRow[1].substring(0, idRow[1].lastIndexOf(".")));
+				if (includeAssetIdIfOlderThan < Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(assetId))) {
+					statusStr.append("*").append(assetId);
 				}
 			}
 
-			assetExtraInfo.put(assetType, assetInfo.toString());
+			typeStatuses.add(statusStr.toString());
 		}
 
-		return TextUtils.join("|",
-				new String[] {
-						"sent*" + app.apiCheckInDb.dbSent.getCount() + assetExtraInfo.get("sent"),
-						"queued*" + app.apiCheckInDb.dbQueued.getCount() + assetExtraInfo.get("queued"),
-						"meta*" + app.metaDb.dbMeta.getCount() + assetExtraInfo.get("meta"),
-						"skipped*" + app.apiCheckInDb.dbSkipped.getCount() + assetExtraInfo.get("skipped"),
-						"stashed*" + app.apiCheckInDb.dbStashed.getCount() + assetExtraInfo.get("stashed"),
-						"archived*" + app.apiCheckInArchiveDb.dbApiCheckInArchive.getInnerRecordCumulativeCount() + assetExtraInfo.get("archived"),
-						"vault*" + app.audioEncodeDb.dbVault.getCumulativeRecordCountForAllRows() + assetExtraInfo.get("vault")
-				});
+		return TextUtils.join("|", typeStatuses );
 	}
 
 
@@ -181,24 +181,24 @@ public class ApiCheckInJsonUtils {
 		metaDataJsonObj.put("meta_ids", metaIds);
 		metaDataJsonObj.put("measured_at", metaQueryTimestamp);
 
-		metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBrokerConnections.getConcatRows());
+		metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBroker.getConcatRows());
 
 		// Adding connection data from previous checkins
 		metaDataJsonObj.put("previous_checkins", app.apiCheckInStatsDb.dbStats.getConcatRows());
 
 		// Adding system metadata, if they can be retrieved from admin role via content provider
-		JSONArray systemMetaJsonArray = RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-				"system_meta", app.getApplicationContext().getContentResolver());
+		JSONArray systemMetaJsonArray = RfcxComm.getQuery("admin", "database_get_all_rows",
+				"system_meta", app.getResolver());
 		metaDataJsonObj = addConcatSystemMetaParams(metaDataJsonObj, systemMetaJsonArray);
 
 		// Adding sentinel power data, if they can be retrieved from admin role via content provider
-		String sentinelPower = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-				"sentinel_power", app.getApplicationContext().getContentResolver()));
+		String sentinelPower = getConcatMetaField(RfcxComm.getQuery("admin", "database_get_all_rows",
+				"sentinel_power", app.getResolver()));
 		if (sentinelPower.length() > 0) { metaDataJsonObj.put("sentinel_power", sentinelPower); }
 
 		// Adding sentinel sensor data, if they can be retrieved from admin role via content provider
-		String sentinelSensor = getConcatMetaField(RfcxComm.getQueryContentProvider("admin", "database_get_all_rows",
-				"sentinel_sensor", app.getApplicationContext().getContentResolver()));
+		String sentinelSensor = getConcatMetaField(RfcxComm.getQuery("admin", "database_get_all_rows",
+				"sentinel_sensor", app.getResolver()));
 		if (sentinelSensor.length() > 0) { metaDataJsonObj.put("sentinel_sensor", sentinelSensor); }
 
 		ArrayList<String> dateTimeOffsets = new ArrayList<String>();
@@ -236,17 +236,14 @@ public class ApiCheckInJsonUtils {
 		try {
 
 			app.deviceSystemDb.dbDateTimeOffsets.clearRowsBefore(deleteBefore);
-			app.deviceSystemDb.dbMqttBrokerConnections.clearRowsBefore(deleteBefore);
+			app.deviceSystemDb.dbMqttBroker.clearRowsBefore(deleteBefore);
 			app.apiCheckInStatsDb.dbStats.clearRowsBefore(deleteBefore);
 
-			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
-					"system_meta|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+			RfcxComm.deleteQuery("admin", "database_delete_rows_before", "system_meta|" + deleteBefore.getTime(), app.getResolver());
 
-			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
-					"sentinel_power|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+			RfcxComm.deleteQuery("admin", "database_delete_rows_before", "sentinel_power|" + deleteBefore.getTime(), app.getResolver());
 
-			RfcxComm.deleteQueryContentProvider("admin", "database_delete_rows_before",
-					"sentinel_sensor|" + deleteBefore.getTime(), app.getApplicationContext().getContentResolver());
+			RfcxComm.deleteQuery("admin", "database_delete_rows_before", "sentinel_sensor|" + deleteBefore.getTime(), app.getResolver());
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -359,17 +356,17 @@ public class ApiCheckInJsonUtils {
 		JSONObject prefsObj = new JSONObject();
 		try {
 
-			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.prefsTimestampLastFullApiSync));
+			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(app.rfcxPrefs.prefsTimestampLastFullApiSync));
 			String prefsSha1 = app.rfcxPrefs.getPrefsChecksum();
 			prefsObj.put("sha1", prefsSha1);
 
-			if (	(this.prefsSha1FullApiSync != null)
-					&&	!this.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
+			if (	(app.rfcxPrefs.prefsSha1FullApiSync != null)
+					&&	!app.rfcxPrefs.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
 					&& 	(milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength())
 			) {
 				Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent.");
 				prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
-				this.prefsTimestampLastFullApiSync = System.currentTimeMillis();
+				app.rfcxPrefs.prefsTimestampLastFullApiSync = System.currentTimeMillis();
 			}
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);

@@ -6,14 +6,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.regex.Pattern;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import android.util.Base64;
+
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class StringUtils {
@@ -22,7 +26,7 @@ public class StringUtils {
 	
 	private static final char[] lowerCaseAlphanumericRef = "abcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
 	private static final char[] upperLowerCaseAlphanumericRef = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".toCharArray();
-	
+
 	public static String randomAlphanumericString(int stringLength, boolean allowUpperCaseCharacters) {
 		char[] charRef = lowerCaseAlphanumericRef; if (allowUpperCaseCharacters) { charRef = upperLowerCaseAlphanumericRef; }
 		StringBuilder stringBuilder = new StringBuilder(stringLength);
@@ -68,6 +72,15 @@ public class StringUtils {
 //		return gZippedByteArrayToUnGZippedString(Base85.getAscii85Decoder().decodeToBytes(base85String), true);
 //	}
 
+//	public void testBzip() {
+//		String originalString = "abc";
+//		ByteArrayOutputStream compressedStream = new ByteArrayOutputStream();
+//		try (BZip2CompressorOutputStream bzip2Output =
+//					 new BZip2CompressorOutputStream(compressedStream)) {
+//			bzip2Output.write(originalString.getBytes());
+//		}
+//	}
+
 	public static byte[] stringToGZippedByteArray(String inputString) {
 		return stringToGZippedByteArray(inputString, "UTF-8");
 	}
@@ -78,7 +91,7 @@ public class StringUtils {
 
 		GZIPOutputStream gZIPOutputStream = null;
 		try {
-			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream);
+			gZIPOutputStream = new GZIPOutputStream(byteArrayOutputStream) { { this.def.setLevel(Deflater.BEST_COMPRESSION); } };
 			gZIPOutputStream.write(inputString.getBytes(charsetName));
 		} catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
@@ -165,6 +178,11 @@ public class StringUtils {
 //	public static String smsDecode(String origStr) {
 //
 //
+//	}
+
+//	static class GZIPOutputStream_BestCompression extends GZIPOutputStream {
+//		public GZIPOutputStream_BestCompression(OutputStream out) throws IOException { super(out); }
+//		public void setToBest() { def.setLevel(Deflater.BEST_COMPRESSION); }
 //	}
 
 }

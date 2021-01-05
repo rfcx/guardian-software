@@ -1,12 +1,13 @@
-package org.rfcx.guardian.satellite.service;
+package org.rfcx.guardian.guardian.api.methods.clocksync;
 
+import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.datetime.SntpUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
+import org.rfcx.guardian.guardian.RfcxGuardian;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
-
-import org.rfcx.guardian.satellite.RfcxGuardian;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class ClockSyncJobService extends Service {
 
@@ -35,7 +36,7 @@ public class ClockSyncJobService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
-		Log.v(logTag, "Starting service: "+logTag);
+//		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
@@ -71,23 +72,21 @@ public class ClockSyncJobService extends Service {
 			try {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				
+				long[] sntpClockValues = SntpUtils.getSntpClockValues(app.deviceConnectivity.isConnected(), app.rfcxPrefs.getPrefAsString("api_ntp_host"));
 
-//				long[] sntpClockValues = SntpUtils.getSntpClockValues(app.deviceConnectivity.isConnected(), app.rfcxPrefs.getPrefAsString("api_ntp_host"));
-//
-//				if (sntpClockValues.length > 0) {
-//					long nowSntp = sntpClockValues[0];
-//					long nowSystem = sntpClockValues[1];
-//					app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem), DateTimeUtils.getTimeZoneOffset());
-//					SystemClock.setCurrentTimeMillis(nowSntp);
-//					Log.v(logTag, "DateTime Sync: System time now synced to SNTP value.");
-//				}
-					
+				if (sntpClockValues.length > 0) {
+					long nowSntp = sntpClockValues[0];
+					long nowSystem = sntpClockValues[1];
+					app.deviceSystemDb.dbDateTimeOffsets.insert(nowSystem, "sntp", (nowSntp-nowSystem), DateTimeUtils.getTimeZoneOffset());
+				}
+
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
 				clockSyncJobInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME);
+				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
 			}
 		}
 	}

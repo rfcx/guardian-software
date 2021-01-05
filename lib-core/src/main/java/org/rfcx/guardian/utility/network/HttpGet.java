@@ -65,7 +65,7 @@ public class HttpGet {
 	public JSONObject getAsJson(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.i(logTag,"Completed: (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +"): "+fullUrl);
+		Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +") from "+fullUrl);
 		try {
 			return new JSONObject(str);
 		} catch (JSONException e) {
@@ -81,7 +81,7 @@ public class HttpGet {
 	public List<JSONObject> getAsJsonList(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.i(logTag,"Completed: (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +"): "+fullUrl);
+		Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +") from "+fullUrl);
 		try {
 			List<JSONObject> jsonArray = new ArrayList<JSONObject>();
 			JSONArray jsonAll = new JSONArray(str);
@@ -102,7 +102,7 @@ public class HttpGet {
 	public String getAsString(String fullUrl, List<String[]> keyValueParameters) {
 		long startTime = System.currentTimeMillis();
 		String str = doGetString(fullUrl,keyValueParameters);
-		Log.i(logTag,"Completed: (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +"): "+fullUrl);
+		Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +") from "+fullUrl);
 		return str;
 	}
 	
@@ -123,7 +123,7 @@ public class HttpGet {
 		if ((inputStream != null) && (fileOutputStream != null)) {
 			writeFileResponseStream(inputStream, fileOutputStream, this.logTag);
 			closeInputOutputStreams(inputStream, fileOutputStream, this.logTag);
-			Log.i(logTag,"Completed: (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +"): "+fullUrl);
+			Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +") from "+fullUrl);
 			return (new File(this.context.getFilesDir(), outputFileName)).exists();
 		}
 		return false;
@@ -141,7 +141,7 @@ public class HttpGet {
 				url.append(keyValue[0]).append("=").append(keyValue[1]).append("&");
 			}
 		}
-		Log.v(logTag,"HTTP GET: "+url.toString());
+		Log.v(logTag,"Initializing request to "+url.toString());
 		return executeGet(url.toString());
 	}
     
@@ -175,7 +175,7 @@ public class HttpGet {
 			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				Log.i(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
+				Log.v(logTag, "Downloading "+ FileUtils.bytesAsReadableString(conn.getContentLength()) +" from "+url.toString());
 				return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream(), this.logTag);
 
 	        } else {
@@ -203,7 +203,7 @@ public class HttpGet {
 			}
 	        conn.connect();
 		    if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-				Log.i(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+url.toString());
+				Log.v(logTag, "Downloading "+ FileUtils.bytesAsReadableString(conn.getContentLength()) +" from "+url.toString());
 		    	return readResponseStream("gzip".equalsIgnoreCase(conn.getContentEncoding()) ? (new GZIPInputStream(conn.getInputStream())) : conn.getInputStream(), this.logTag);
 
 	        } else {
@@ -285,9 +285,9 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-					Log.i(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+fullUrl);
+					Log.v(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+fullUrl);
 			    } else {
-		            Log.i(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
+		            Log.e(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
 			    }
 		        return conn.getInputStream();
 			} else if (inferredProtocol.equals("http")) {
@@ -301,9 +301,9 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-					Log.i(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+fullUrl);
+					Log.v(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+fullUrl);
 			    } else {
-		            Log.i(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
+		            Log.e(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
 			    }
 		        return conn.getInputStream();
 			} else {

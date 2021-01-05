@@ -1,12 +1,10 @@
 package org.rfcx.guardian.guardian.instructions;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -21,7 +19,7 @@ public class InstructionsCycleService extends Service {
 	private boolean runFlag = false;
 	private InstructionsCycleSvc instructionsCycleSvc;
 
-	private long instructionsCycleDuration = 5000;
+	public static final long CYCLE_DURATION = 5000;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -75,13 +73,13 @@ public class InstructionsCycleService extends Service {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-					if (app.instructionsDb.dbQueuedInstructions.getCount() > 0) {
+					if (app.instructionsDb.dbQueued.getCount() > 0) {
 
 						app.rfcxServiceHandler.triggerService("InstructionsExecution", false);
 
 					}
 
-					Thread.sleep(instructionsCycleDuration);
+					Thread.sleep(CYCLE_DURATION);
 
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);

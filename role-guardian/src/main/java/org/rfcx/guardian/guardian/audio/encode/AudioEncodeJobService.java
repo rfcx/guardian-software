@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -80,9 +81,10 @@ public class AudioEncodeJobService extends Service {
 			
 			try {
 				
-				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbEncodeQueue.getAllRows();
+				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbQueued.getAllRows();
 				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
-				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode );
+				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode, audioCycleDuration );
 				
 				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
 
@@ -107,13 +109,13 @@ public class AudioEncodeJobService extends Service {
 							
 							Log.d(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " because input audio file could not be found.");
 							
-							app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(timestamp);
+							app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
 							
-						} else if (((int) Integer.parseInt(latestQueuedAudioToEncode[12])) >= AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD) {
+						} else if (Integer.parseInt(latestQueuedAudioToEncode[12]) >= AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD) {
 							
 							Log.d(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " after " + AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 							
-							app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(timestamp);
+							app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
 							FileUtils.delete(preEncodeFile);
 							
 						} else {
@@ -125,7 +127,7 @@ public class AudioEncodeJobService extends Service {
 												+"to " + codec.toUpperCase(Locale.US)+" ("+Math.round(sampleRate/1000)+" kHz"+ ((codec.equalsIgnoreCase("opus")) ? (", "+Math.round(bitRate/1024)+" kbps") : "")+")"
 							);
 
-							app.audioEncodeDb.dbEncodeQueue.incrementSingleRowAttempts(timestamp);
+							app.audioEncodeDb.dbQueued.incrementSingleRowAttempts(timestamp);
 
 							File postEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PostEncode(context, Long.parseLong(timestamp), codec));
 
@@ -179,18 +181,18 @@ public class AudioEncodeJobService extends Service {
 
 										String vaultRowId = AudioEncodeUtils.vaultStatsDayId.format(new Date(Long.parseLong(timestamp)));
 
-										if (app.audioEncodeDb.dbVault.getCountById(vaultRowId) > 0) {
-											app.audioEncodeDb.dbVault.incrementSingleRowDuration(vaultRowId, Math.round(audioDuration/1000));
-											app.audioEncodeDb.dbVault.incrementSingleRowRecordCount(vaultRowId, 1);
-											app.audioEncodeDb.dbVault.incrementSingleRowFileSize(vaultRowId, FileUtils.getFileSizeInBytes(finalDestinationFile));
+										if (app.audioVaultDb.dbVault.getCountById(vaultRowId) > 0) {
+											app.audioVaultDb.dbVault.incrementSingleRowDuration(vaultRowId, Math.round(audioDuration/1000));
+											app.audioVaultDb.dbVault.incrementSingleRowRecordCount(vaultRowId, 1);
+											app.audioVaultDb.dbVault.incrementSingleRowFileSize(vaultRowId, FileUtils.getFileSizeInBytes(finalDestinationFile));
 										} else {
-											app.audioEncodeDb.dbVault.insert(vaultRowId, Math.round(audioDuration/1000), 1, FileUtils.getFileSizeInBytes(finalDestinationFile));
+											app.audioVaultDb.dbVault.insert(vaultRowId, Math.round(audioDuration/1000), 1, FileUtils.getFileSizeInBytes(finalDestinationFile));
 										}
 
 									}
 								}
 
-								app.audioEncodeDb.dbEncodeQueue.deleteSingleRow(timestamp, encodePurpose);
+								app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp, encodePurpose);
 
 							}
 						}		
@@ -201,7 +203,7 @@ public class AudioEncodeJobService extends Service {
 				}
 
 				app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInQueue");
-					
+
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);

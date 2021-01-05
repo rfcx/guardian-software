@@ -7,9 +7,13 @@ import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInUtils;
 import org.rfcx.guardian.guardian.api.methods.command.ApiCommandUtils;
 import org.rfcx.guardian.guardian.api.methods.download.ApiDownloadDb;
 import org.rfcx.guardian.guardian.api.methods.ping.ApiPingJsonUtils;
+import org.rfcx.guardian.guardian.api.methods.ping.ApiPingUtils;
+import org.rfcx.guardian.guardian.api.methods.ping.SendApiPingService;
 import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
+import org.rfcx.guardian.guardian.api.protocols.ApiSbdUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
+import org.rfcx.guardian.guardian.asset.AssetLibraryDb;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInHealthUtils;
 import org.rfcx.guardian.guardian.asset.AudioClassificationDb;
@@ -23,6 +27,9 @@ import org.rfcx.guardian.guardian.audio.classify.AudioClassifierDb;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyDb;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyJobService;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyUtils;
+import org.rfcx.guardian.guardian.audio.encode.AudioVaultDb;
+import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackDb;
+import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackJobService;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -42,6 +49,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -61,9 +69,9 @@ import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeDb;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.guardian.audio.capture.AudioQueuePostProcessingService;
-import org.rfcx.guardian.guardian.api.methods.clock.ClockSyncJobService;
+import org.rfcx.guardian.guardian.api.methods.clocksync.ClockSyncJobService;
 import org.rfcx.guardian.guardian.device.android.DeviceSystemDb;
-import org.rfcx.guardian.guardian.api.methods.clock.ScheduledClockSyncService;
+import org.rfcx.guardian.guardian.api.methods.clocksync.ScheduledClockSyncService;
 import org.rfcx.guardian.guardian.receiver.ConnectivityReceiver;
 
 public class RfcxGuardian extends Application implements OnSharedPreferenceChangeListener {
@@ -82,6 +90,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     // Database Handlers
     public AudioEncodeDb audioEncodeDb = null;
+    public AudioVaultDb audioVaultDb = null;
     public ApiCheckInDb apiCheckInDb = null;
     public MetaDb metaDb = null;
     public ApiCheckInStatsDb apiCheckInStatsDb = null;
@@ -95,6 +104,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioClassifyDb audioClassifyDb = null;
     public AudioClassificationDb audioClassificationDb = null;
     public AudioClassifierDb audioClassifierDb = null;
+    public AudioPlaybackDb audioPlaybackDb = null;
+    public AssetLibraryDb assetLibraryDb = null;
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -107,9 +118,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiMqttUtils apiMqttUtils = null;
     public ApiSmsUtils apiSmsUtils = null;
     public ApiRestUtils apiRestUtils = null;
+    public ApiSbdUtils apiSbdUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
     public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
     public ApiPingJsonUtils apiPingJsonUtils = null;
+    public ApiPingUtils apiPingUtils = null;
     public ApiCommandUtils apiCommandUtils = null;
     public ApiSegmentUtils apiSegmentUtils = null;
     public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
@@ -158,9 +171,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiMqttUtils = new ApiMqttUtils(this);
         this.apiSmsUtils = new ApiSmsUtils(this);
         this.apiRestUtils = new ApiRestUtils(this);
+        this.apiSbdUtils = new ApiSbdUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.apiCheckInJsonUtils = new ApiCheckInJsonUtils(this);
         this.apiPingJsonUtils = new ApiPingJsonUtils(this);
+        this.apiPingUtils = new ApiPingUtils(this);
         this.apiCommandUtils = new ApiCommandUtils(this);
         this.apiSegmentUtils = new ApiSegmentUtils(this);
         this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);
@@ -189,6 +204,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public void appPause() { }
 
+    public ContentResolver getResolver() {
+        return this.getApplicationContext().getContentResolver();
+    }
 
     public void saveGuardianRegistration(String regJsonStr) {
         try {
@@ -196,6 +214,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             if (regJson.has("guid") && regJson.has("token")) {
                 this.rfcxGuardianIdentity.setAuthToken(regJson.getString("token"));
                 this.rfcxGuardianIdentity.setKeystorePassPhrase(regJson.getString("keystore_passphrase"));
+                if (regJson.has("pin_code")) { this.rfcxGuardianIdentity.setPinCode(regJson.getString("pin_code")); }
                 if (regJson.has("api_mqtt_host")) { setSharedPref("api_mqtt_host", regJson.getString("api_mqtt_host")); }
                 if (regJson.has("api_sms_address")) { setSharedPref("api_sms_address", regJson.getString("api_sms_address")); }
             } else {
@@ -209,6 +228,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public void clearRegistration() {
         this.rfcxGuardianIdentity.unSetIdentityValue("token");
         this.rfcxGuardianIdentity.unSetIdentityValue("keystore_passphrase");
+        this.rfcxGuardianIdentity.unSetIdentityValue("pin_code");
     }
 
     public boolean isGuardianRegistered() {
@@ -226,7 +246,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                             ,
                     "ScheduledAssetCleanup"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
-                            + "|" + ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION
+                            + "|" + ( ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION_MINUTES * 60 * 1000 )
                             ,
                     "ScheduledClockSync"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
@@ -251,6 +271,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     private void setDbHandlers() {
 
         this.audioEncodeDb = new AudioEncodeDb(this, this.version);
+        this.audioPlaybackDb = new AudioPlaybackDb(this, this.version);
+        this.assetLibraryDb = new AssetLibraryDb(this, this.version);
+        this.audioVaultDb = new AudioVaultDb(this, this.version);
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.metaDb = new MetaDb(this, this.version);
         this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
@@ -275,11 +298,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("AudioQueuePostProcessing", AudioQueuePostProcessingService.class);
         this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
         this.rfcxServiceHandler.addService("AudioClassifyJob", AudioClassifyJobService.class);
+        this.rfcxServiceHandler.addService("AudioPlaybackJob", AudioPlaybackJobService.class);
 
         this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueService.class);
         this.rfcxServiceHandler.addService("ApiCheckInJob", ApiCheckInJobService.class);
 
         this.rfcxServiceHandler.addService("ScheduledApiPing", ScheduledApiPingService.class);
+        this.rfcxServiceHandler.addService("SendApiPing", SendApiPingService.class);
 
         this.rfcxServiceHandler.addService("ClockSyncJob", ClockSyncJobService.class);
         this.rfcxServiceHandler.addService("ScheduledClockSync", ScheduledClockSyncService.class);
@@ -341,15 +366,12 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         } else if (prefKey.equalsIgnoreCase("enable_checkin_publish")) {
             this.apiMqttUtils.initializeFailedCheckInThresholds();
+            this.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
 
         } else if (prefKey.equalsIgnoreCase("enable_cutoffs_sampling_ratio")) {
             this.audioCaptureUtils.samplingRatioIteration = 0;
 
         }
-
-
-
-
     }
 
 }
