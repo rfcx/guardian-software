@@ -82,7 +82,9 @@ public class SmsUtils {
 
 			app.smsMessageDb.dbSmsQueued.insert(sendAtOrAfter, sendTo, msgBody, msgId);
 
-			Log.w(logTag, "SMS Queued (ID " + msgId + "): To " + sendTo + " at " + DateTimeUtils.getDateTime(sendAtOrAfter) + ": \"" + msgBody + "\"");
+			if (!sendTo.equalsIgnoreCase(app.rfcxPrefs.getPrefAsString("api_sms_address"))) {
+				Log.w(logTag, "SMS Queued (ID " + msgId + "): To " + sendTo + " at " + DateTimeUtils.getDateTime(sendAtOrAfter) + ": \"" + msgBody + "\"");
+			}
 
 			if (triggerDispatchService) { app.rfcxServiceHandler.triggerService("SmsDispatch", false); }
 		}

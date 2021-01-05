@@ -13,7 +13,7 @@ public class ScheduledAssetCleanupService extends IntentService {
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledAssetCleanupService");
 
-	public static final long ASSET_CLEANUP_CYCLE_DURATION = 2 * 60 * 60 * 1000;
+	public static final int ASSET_CLEANUP_CYCLE_DURATION_MINUTES = 120;
 
 	public ScheduledAssetCleanupService() {
 		super(logTag);
@@ -28,7 +28,11 @@ public class ScheduledAssetCleanupService extends IntentService {
 		
 		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-		app.assetUtils.runFileSystemAssetCleanup();
+		try {
+			app.assetUtils.runFileSystemAssetCleanup();
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
 		
 	}
 	

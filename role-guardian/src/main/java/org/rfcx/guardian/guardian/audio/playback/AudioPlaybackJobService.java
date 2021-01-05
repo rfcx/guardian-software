@@ -86,6 +86,8 @@ public class AudioPlaybackJobService extends Service {
 						String audioFormat = latestQueuedAudio[2];
 						int audioSampleRate = Integer.parseInt(latestQueuedAudio[3]);
 						String audioFilePath = latestQueuedAudio[4];
+						long intendedDuration = Long.parseLong(latestQueuedAudio[5]);
+						int playbackAttempts = Integer.parseInt(latestQueuedAudio[6]);
 
 						if (!FileUtils.exists(audioFilePath)) {
 
@@ -93,7 +95,7 @@ public class AudioPlaybackJobService extends Service {
 
 							app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
 
-						} else if (Integer.parseInt(latestQueuedAudio[5]) >= AudioPlaybackUtils.PLAYBACK_FAILURE_SKIP_THRESHOLD) {
+						} else if (playbackAttempts >= AudioPlaybackUtils.PLAYBACK_FAILURE_SKIP_THRESHOLD) {
 
 							Log.d(logTag, "Skipping Audio Playback Job for " + assetId + " after " + AudioPlaybackUtils.PLAYBACK_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 

@@ -31,7 +31,7 @@ public class AssetUtils {
 
 
 	public void runFileSystemAssetCleanup() {
-		runFileSystemAssetCleanup(Math.round(ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION / (60 * 1000)));
+		runFileSystemAssetCleanup(ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION_MINUTES);
 	}
 
 	public void runFileSystemAssetCleanup(int checkFilesUnModifiedSinceThisManyMinutes) {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
@@ -43,11 +44,22 @@ public class ApiPingJsonUtils {
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "instructions")) {
-			pingObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+			if (app.instructionsUtils.getInstructionsCount() > 0) {
+				pingObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+			}
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {
 			pingObj.put("prefs", app.apiCheckInJsonUtils.buildCheckInPrefsJsonObj());
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "purged")) {
+			pingObj.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt("checkin_meta_send_bundle_limit")));
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sms")) {
+			JSONArray smsArr = RfcxComm.getQuery("admin", "database_get_all_rows", "sms", app.getResolver());
+			if (smsArr.length() > 0) { pingObj.put("messages", smsArr); }
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "device")) {

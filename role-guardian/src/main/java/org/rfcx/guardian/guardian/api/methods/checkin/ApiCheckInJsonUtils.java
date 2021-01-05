@@ -40,8 +40,6 @@ public class ApiCheckInJsonUtils {
 
 	private RfcxGuardian app;
 
-	public boolean hasDeviceInfoBeenSent = false;
-
 
 	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta, String[] photoFileMeta, String[] videoFileMeta) throws JSONException, IOException {
 
@@ -56,15 +54,6 @@ public class ApiCheckInJsonUtils {
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson( new String[] { "sent" } ));
 
 		checkInMetaJson.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt("checkin_meta_send_bundle_limit")));
-
-		// Device: Phone & Android info
-		if (!hasDeviceInfoBeenSent || (Math.round(Math.random()*10) == 1)) {
-			this.hasDeviceInfoBeenSent = true;
-			JSONObject deviceJsonObj = new JSONObject();
-			deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
-			deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
-			checkInMetaJson.put("device", deviceJsonObj);
-		}
 
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
@@ -117,53 +106,65 @@ public class ApiCheckInJsonUtils {
 
 	public String getCheckInStatusInfoForJson(String[] includeAssetIdLists) {
 
-		Map<String, String> assetExtraInfo = new HashMap<String, String>();
+		String[] types = new String[] { "sent", "queued", "meta", "skipped", "stashed", "archived", "vault" };
 
-		for (String assetType : new String[] { "sent", "queued", "meta", "skipped", "stashed", "archived", "vault" }) {
+		int idBundleLimit = app.rfcxPrefs.getPrefAsInt("checkin_meta_send_bundle_limit");
+		long includeAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
 
-			StringBuilder assetInfo = new StringBuilder();
+		List<String> typeStatuses = new ArrayList<>();
 
-			if (assetType.equalsIgnoreCase("sent")) {
-				assetInfo.append("*").append( app.apiCheckInDb.dbSent.getCumulativeFileSizeForAllRows() );
-			} else if (assetType.equalsIgnoreCase("queued")) {
-				assetInfo.append("*").append( app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows() );
-			} else if (assetType.equalsIgnoreCase("meta")) {
-				assetInfo.append("*").append( app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows() );
+		for (String type : types) {
 
-						//FileUtils.getFileSizeInBytes(app.metaDb.dbMeta.FILEPATH) );
-			} else if (assetType.equalsIgnoreCase("skipped")) {
-				assetInfo.append("*").append( app.apiCheckInDb.dbSkipped.getCumulativeFileSizeForAllRows() );
-			} else if (assetType.equalsIgnoreCase("stashed")) {
-				assetInfo.append("*").append( app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() );
-			} else if (assetType.equalsIgnoreCase("archived")) {
-				assetInfo.append("*").append( app.apiCheckInArchiveDb.dbArchive.getCumulativeFileSizeForAllRows() );
-			} else if (assetType.equalsIgnoreCase("vault")) {
-				assetInfo.append("*").append( app.audioVaultDb.dbVault.getCumulativeFileSizeForAllRows() );
+			StringBuilder statusStr = (new StringBuilder()).append(type);
+			List<String[]> idRows = new ArrayList<>();
+			boolean includeIdList = ArrayUtils.doesStringArrayContainString(includeAssetIdLists, type);
+
+			if (type.equalsIgnoreCase("sent")) {
+				statusStr.append("*").append(app.apiCheckInDb.dbSent.getCount());
+				statusStr.append("*").append(app.apiCheckInDb.dbSent.getCumulativeFileSizeForAllRows());
+				if (includeIdList) { idRows = app.apiCheckInDb.dbSent.getLatestRowsWithLimit(idBundleLimit); }
+
+			} else if (type.equalsIgnoreCase("queued")) {
+				statusStr.append("*").append(app.apiCheckInDb.dbQueued.getCount());
+				statusStr.append("*").append(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows());
+				if (includeIdList) { idRows = app.apiCheckInDb.dbQueued.getLatestRowsWithLimit(idBundleLimit); }
+
+			} else if (type.equalsIgnoreCase("meta")) {
+				statusStr.append("*").append(app.metaDb.dbMeta.getCount());
+				statusStr.append("*").append(app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows());
+				if (includeIdList) { idRows = app.metaDb.dbMeta.getLatestRowsWithLimit(idBundleLimit); }
+
+			} else if (type.equalsIgnoreCase("skipped")) {
+				statusStr.append("*").append(app.apiCheckInDb.dbSkipped.getCount());
+				statusStr.append("*").append(app.apiCheckInDb.dbSkipped.getCumulativeFileSizeForAllRows());
+				if (includeIdList) { idRows = app.apiCheckInDb.dbSkipped.getLatestRowsWithLimit(idBundleLimit); }
+
+			} else if (type.equalsIgnoreCase("stashed")) {
+				statusStr.append("*").append(app.apiCheckInDb.dbStashed.getCount());
+				statusStr.append("*").append(app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows());
+				if (includeIdList) { idRows = app.apiCheckInDb.dbStashed.getLatestRowsWithLimit(idBundleLimit); }
+
+			} else if (type.equalsIgnoreCase("archived")) {
+				statusStr.append("*").append(app.apiCheckInArchiveDb.dbArchive.getInnerRecordCumulativeCount());
+				statusStr.append("*").append(app.apiCheckInArchiveDb.dbArchive.getCumulativeFileSizeForAllRows());
+
+			} else if (type.equalsIgnoreCase("vault")) {
+				statusStr.append("*").append(app.audioVaultDb.dbVault.getCumulativeRecordCountForAllRows());
+				statusStr.append("*").append(app.audioVaultDb.dbVault.getCumulativeFileSizeForAllRows());
+
 			}
 
-			if (ArrayUtils.doesStringArrayContainString(includeAssetIdLists, assetType)) {
-				long reportAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
-				for (String[] _checkIn : app.apiCheckInDb.dbSent.getLatestRowsWithLimit(15)) {
-					long assetId = Long.parseLong(_checkIn[1].substring(0, _checkIn[1].lastIndexOf(".")));
-					if (reportAssetIdIfOlderThan < Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(assetId))) {
-						assetInfo.append("*").append(assetId);
-					}
+			for (String[] idRow : idRows) {
+				long assetId = Long.parseLong(idRow[1].substring(0, idRow[1].lastIndexOf(".")));
+				if (includeAssetIdIfOlderThan < Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(assetId))) {
+					statusStr.append("*").append(assetId);
 				}
 			}
 
-			assetExtraInfo.put(assetType, assetInfo.toString());
+			typeStatuses.add(statusStr.toString());
 		}
 
-		return TextUtils.join("|",
-				new String[] {
-						"sent*" + app.apiCheckInDb.dbSent.getCount() + assetExtraInfo.get("sent"),
-						"queued*" + app.apiCheckInDb.dbQueued.getCount() + assetExtraInfo.get("queued"),
-						"meta*" + app.metaDb.dbMeta.getCount() + assetExtraInfo.get("meta"),
-						"skipped*" + app.apiCheckInDb.dbSkipped.getCount() + assetExtraInfo.get("skipped"),
-						"stashed*" + app.apiCheckInDb.dbStashed.getCount() + assetExtraInfo.get("stashed"),
-						"archived*" + app.apiCheckInArchiveDb.dbArchive.getInnerRecordCumulativeCount() + assetExtraInfo.get("archived"),
-						"vault*" + app.audioVaultDb.dbVault.getCumulativeRecordCountForAllRows() + assetExtraInfo.get("vault")
-				});
+		return TextUtils.join("|", typeStatuses );
 	}
 
 

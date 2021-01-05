@@ -242,7 +242,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                             ,
                     "ScheduledAssetCleanup"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
-                            + "|" + ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION
+                            + "|" + ( ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION_MINUTES * 60 * 1000 )
                             ,
                     "ScheduledClockSync"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
