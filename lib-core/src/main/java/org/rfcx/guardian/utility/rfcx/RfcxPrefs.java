@@ -71,6 +71,10 @@ public class RfcxPrefs {
 		return Integer.parseInt(getPrefAsString(prefKey));
 	}
 
+	public float getPrefAsFloat(String prefKey) {
+		return Float.parseFloat(getPrefAsString(prefKey));
+	}
+
 	public long getPrefAsLong(String prefKey) {
 		return Long.parseLong(getPrefAsString(prefKey));
 	}

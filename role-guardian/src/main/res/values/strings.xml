@@ -92,6 +92,10 @@
 	<string name="prefs_value_default_admin_enable_sentinel_power">true</string>
 	<string name="prefs_value_default_admin_enable_sentinel_sensor">true</string>
 
+	<string name="prefs_value_default_prediction_model_output">chainsaw,gunshot,vehicle</string>
+	<string name="prefs_value_default_prediction_step_size">12000</string>
+	<string name="prefs_value_default_prediction_window_size">0.975</string>
+
 
     <string-array name="prefs_values_true_or_false">
 		<item>true</item>

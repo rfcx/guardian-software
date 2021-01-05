@@ -16,15 +16,16 @@ object AudioConverter {
         return floatMe(shortMe(buff.sliceArray(44 until buff.size)) ?: ShortArray(0)) ?: FloatArray(0)
     }
 
-    fun FloatArray.sliceTo(step: Int): List<FloatArray> {
+    fun FloatArray.slidingWindow(sampleRate: Int, step: Int, windowSize: Float): List<FloatArray> {
         val slicedAudio = arrayListOf<FloatArray>()
+        val chunkSize = (sampleRate * windowSize).toInt()
         var startAt = 0
-        var endAt = 11700
-        val stepSize =  if (step != 0) (11700 * (1f / (2 * step))).toInt() else 0
-        while ((startAt + 11700) < this.size) {
+        var endAt = chunkSize
+        val stepSize =  if (step != 0) (chunkSize * (1f / (2 * step))).toInt() else 0
+        while ((startAt + chunkSize) < this.size) {
             if (startAt != 0) {
                 startAt = endAt - stepSize
-                endAt = startAt + 11700
+                endAt = startAt + chunkSize
             }
             slicedAudio.add(this.copyOfRange(startAt, endAt))
             startAt = endAt
@@ -42,7 +43,7 @@ object AudioConverter {
         val floats = FloatArray(pcms.size)
         pcms.forEachIndexed { index, sh ->
             // float to -1,+1
-            floats[index] = sh.toFloat() / 32768.0f
+            floats[index] = sh.toFloat() / Float.MAX_VALUE
         }
         return floats
     }

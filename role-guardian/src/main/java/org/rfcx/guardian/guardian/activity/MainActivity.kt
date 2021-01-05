@@ -67,9 +67,6 @@ class MainActivity : Activity(),
         setContentView(R.layout.activity_home)
         app = application as RfcxGuardian
 
-        //running models
-        app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().absolutePath + "/1609752059397.wav")
-
         initUI()
 
         sendPingButton.setOnClickListener {

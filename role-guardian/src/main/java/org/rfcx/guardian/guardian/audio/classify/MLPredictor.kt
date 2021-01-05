@@ -32,9 +32,9 @@ class MLPredictor: Predictor {
         }
     }
 
-    override fun run(input: FloatArray): String {
+    override fun run(input: FloatArray): FloatArray {
         if (interpreter == null) {
-            return ""
+            return FloatArray(0)
         }
         // fix output size to 3
         val outputShape: Array<FloatArray> = arrayOf(FloatArray(3))
@@ -44,15 +44,7 @@ class MLPredictor: Predictor {
             Log.e(logTag, e.message)
         }
 
-        val filteredOutput = arrayListOf<String>()
-        outputShape[0].forEachIndexed { index, fl ->
-            // pick only confidence more than 0.1
-            if (fl != 0f && fl >= 0.1f) {
-                filteredOutput.add("${ModelLabel.values()[index].name}-$fl")
-            }
-        }
-
-        return filteredOutput.joinToString("*")
+        return outputShape[0]
     }
 
 }

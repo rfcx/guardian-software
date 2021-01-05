@@ -8,5 +8,5 @@ import android.content.Context
 interface Predictor {
     val isLoaded: Boolean
     fun load()
-    fun run(input: FloatArray): String
+    fun run(input: FloatArray): FloatArray
 }

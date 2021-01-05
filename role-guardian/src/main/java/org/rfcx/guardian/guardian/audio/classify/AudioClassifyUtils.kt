@@ -1,9 +1,8 @@
 package org.rfcx.guardian.guardian.audio.classify
 
 import android.content.Context
-import android.util.Log
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.audio.classify.AudioConverter.sliceTo
+import org.rfcx.guardian.guardian.audio.classify.AudioConverter.slidingWindow
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.io.File
 
@@ -21,15 +20,23 @@ class AudioClassifyUtils(context: Context) {
     }
 
     fun classifyAudio(path: String) {
-//        val step = app.rfcxPrefs.getPrefAsInt("prediction_step_size")
+        val step = app.rfcxPrefs.getPrefAsInt("prediction_step_size")
+        val windowSize = app.rfcxPrefs.getPrefAsFloat("prediction_window_size")
+        val finalStepSize = (step * windowSize).toInt()
+        val detections = arrayListOf<FloatArray>()
         predictor.also {
             it.load()
-            AudioConverter.readAudioSimple(path).sliceTo(0).forEach { audioChunk ->
-                if (audioChunk.size == 11700) {
+            AudioConverter.readAudioSimple(path).slidingWindow(step,windowSize).forEach { audioChunk ->
+                if (audioChunk.size == finalStepSize) {
                     val output = it.run(audioChunk)
-                    Log.d(logTag, output)
+                    detections.add(output)
                 }
             }
         }
+        //TODO: use detections on cognition
+    }
+
+    companion object {
+
     }
 }
