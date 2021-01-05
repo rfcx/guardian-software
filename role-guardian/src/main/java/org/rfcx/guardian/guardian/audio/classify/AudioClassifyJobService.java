@@ -9,6 +9,9 @@ import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.io.File;
+import java.util.List;
+
 public class AudioClassifyJobService extends Service {
 
 	private static final String SERVICE_NAME = "AudioClassifyJob";
@@ -72,7 +75,34 @@ public class AudioClassifyJobService extends Service {
 			
 			try {
 
-				Log.i(logTag, "Audio Classification Job...");
+				List<String[]> latestQueuedAudioFilesToClassify = app.audioClassifyDb.dbQueued.getAllRows();
+				if (latestQueuedAudioFilesToClassify.size() == 0) { Log.d(logTag, "No audio files are queued to be classified."); }
+				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+				AudioClassify2Utils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, audioCycleDuration );
+
+				for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
+
+					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+
+					// only proceed with classify process if there is a valid queued audio file in the database
+					if (latestQueuedAudioToClassify[0] != null) {
+
+						String timestamp = latestQueuedAudioToClassify[1];
+						File audioFile = new File(latestQueuedAudioToClassify[10]);
+
+						Log.i(logTag, "Audio Classification Job...");
+
+
+
+						app.audioClassifyDb.dbQueued.deleteSingleRow(timestamp);
+
+
+					} else {
+						Log.d(logTag, "Queued audio file entry in database is invalid.");
+
+					}
+				}
+
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

@@ -471,7 +471,7 @@ public class RfcxPrefs {
 			put("admin_enable_screenshot_capture", "false");
 
 			put("admin_enable_sentinel_power", "true");
-			put("admin_enable_sentinel_sensor", "true");
+			put("admin_enable_sentinel_sensor", "false");
 
 			put("admin_system_timezone", "[ Not Set ]");
 

@@ -30,6 +30,7 @@ dependencies {
 
     implementation 'org.xeustechnologies:jtar:1.1'
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.4'
+    implementation 'org.apache.commons:commons-compress:1.20'
 }
 repositories {
     mavenCentral()

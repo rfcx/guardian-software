@@ -7,6 +7,7 @@ import org.rfcx.guardian.audio.EncodeStatus;
 import org.rfcx.guardian.audio.flac.FLACStreamEncoder;
 import org.rfcx.guardian.audio.opus.OpusAudioEncoder;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -61,14 +62,14 @@ public class AudioEncodeUtils {
 		return encodeOutputBitRate;
 	}
 
-	public static void cleanupEncodeDirectory(Context context, List<String[]> queuedForEncode) {
+	public static void cleanupEncodeDirectory(Context context, List<String[]> queuedForEncode, long maxAgeInMilliseconds) {
 
 		ArrayList<String> audioQueuedForEncode = new ArrayList<String>();
 		for (String[] queuedRow : queuedForEncode) {
 			audioQueuedForEncode.add(queuedRow[10]);
 		}
 
-		FileUtils.deleteDirectoryContents(RfcxAudioFileUtils.audioEncodeDir(context), audioQueuedForEncode);
+		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxAudioFileUtils.audioEncodeDir(context) }, audioQueuedForEncode, Math.round(maxAgeInMilliseconds/60000), false, false );
 	}
 
 

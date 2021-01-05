@@ -6,6 +6,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
@@ -29,7 +30,7 @@ public class ApiCheckInQueueService extends IntentService {
 		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 		
 		try {
-				
+
 			for (String[] encodedAudio : app.audioEncodeDb.dbEncoded.getAllRows()) {
 
 				if (encodedAudio[9].equalsIgnoreCase("stream")) {
@@ -53,8 +54,14 @@ public class ApiCheckInQueueService extends IntentService {
 
 
 			if (!app.apiCheckInHealthUtils.isApiCheckInDisabled(true)) {
-				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", 3 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000 );
-				app.apiMqttUtils.updateFailedCheckInThresholds();
+
+				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", 3 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
+
+				// this helps to ensure that the queue is growing before checking thresholds
+				// this helps avoid thresholds being executed when new stream files are not being added, or if this is the first checkin loaded after downtime
+				if (app.apiCheckInDb.dbQueued.getCount() > 1) {
+					app.apiMqttUtils.updateFailedCheckInThresholds();
+				}
 			}
 
 			// if the queued table has grown beyond the maximum threshold, stash the oldest checkins 

@@ -71,11 +71,11 @@ public class AudioClassifyDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
-		public int insert(String value, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String encode_purpose, String filepath, int inputSampleRate) {
+		public int insert(String timestamp, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String encode_purpose, String filepath, int inputSampleRate) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_TIMESTAMP, value);
+			values.put(C_TIMESTAMP, timestamp);
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			values.put(C_SAMPLE_RATE, samplerate);
@@ -104,8 +104,7 @@ public class AudioClassifyDb {
 		}
 		
 		public void deleteSingleRow(String timestamp) {
-			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
-			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestampValue);
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestamp);
 		}
 
 		public void deleteSingleRow(String timestamp, String encodePurpose) {

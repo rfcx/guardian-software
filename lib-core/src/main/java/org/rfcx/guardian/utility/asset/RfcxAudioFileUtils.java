@@ -26,12 +26,13 @@ public class RfcxAudioFileUtils {
 		FileUtils.initializeDirectoryRecursively(audioSdCardDir(), true);
 		FileUtils.initializeDirectoryRecursively(audioVaultDir(), true);
 
-		FileUtils.initializeDirectoryRecursively(assetLibraryDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioCaptureDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioEncodeDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioFinalDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioQueueDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioStashDir(context), false);
+		FileUtils.initializeDirectoryRecursively(audioClassifyDir(context), false);
+		FileUtils.initializeDirectoryRecursively(assetLibraryDir(context), false);
 	}
 
 	private static String audioSdCardDir() {
@@ -44,6 +45,10 @@ public class RfcxAudioFileUtils {
 
 	public static String assetLibraryDir(Context context) {
 		return context.getFilesDir().toString() + "/audio/library";
+	}
+
+	public static String audioClassifyDir(Context context) {
+		return context.getFilesDir().toString() + "/audio/classify";
 	}
 	
 	public static String audioCaptureDir(Context context) {
@@ -76,7 +81,11 @@ public class RfcxAudioFileUtils {
 				+ ((sampleRate == 0) ? "" : "_" + (Math.round(sampleRate/1000) + "kHz"))
 				+ "." + getFileExt(audioCodec);
 	}
-	
+
+	public static String getAudioFileLocation_PreClassify(Context context, long timestamp, String fileExtension) {
+		return audioClassifyDir(context) + "/" + timestamp + "." + fileExtension;
+	}
+
 	public static String getAudioFileLocation_PreEncode(Context context, long timestamp, String fileExtension) {
 		return audioEncodeDir(context) + "/" + timestamp + "." + fileExtension;
 	}

@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -377,7 +378,7 @@ public class FileUtils {
 			
 			FileInputStream fileInputStream = new FileInputStream(inputFile.getAbsolutePath());
             FileOutputStream fileOutputStream = new FileOutputStream(outputFile.getAbsolutePath());
-            GZIPOutputStream gZipOutputStream = new GZIPOutputStream(fileOutputStream);
+            GZIPOutputStream gZipOutputStream = new GZIPOutputStream(fileOutputStream) { { this.def.setLevel(Deflater.BEST_COMPRESSION); } };
             
             byte[] buffer = new byte[1024];
             int len;

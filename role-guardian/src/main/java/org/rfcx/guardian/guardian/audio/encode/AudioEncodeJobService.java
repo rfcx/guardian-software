@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -82,7 +83,8 @@ public class AudioEncodeJobService extends Service {
 				
 				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbQueued.getAllRows();
 				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
-				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode );
+				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode, audioCycleDuration );
 				
 				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
 
@@ -201,7 +203,7 @@ public class AudioEncodeJobService extends Service {
 				}
 
 				app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInQueue");
-					
+
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);

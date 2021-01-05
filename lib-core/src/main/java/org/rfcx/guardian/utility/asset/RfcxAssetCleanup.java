@@ -24,8 +24,11 @@ public class RfcxAssetCleanup {
 	private String appRole;
 
 
-
 	public void runFileSystemAssetCleanup(String[] assetDirectoriesToScan, List<String> assetFilePathsFromDatabase, int checkFilesUnModifiedSinceThisManyMinutes) {
+		runFileSystemAssetCleanup(assetDirectoriesToScan, assetFilePathsFromDatabase, checkFilesUnModifiedSinceThisManyMinutes, true, true);
+	}
+
+	public void runFileSystemAssetCleanup(String[] assetDirectoriesToScan, List<String> assetFilePathsFromDatabase, int checkFilesUnModifiedSinceThisManyMinutes, boolean deleteEmptyDirectories, boolean printToLogEvenIfNoActionIsTaken) {
 
 		List<File> allAssetFilesFromFilesystem = getAssetFilesFromFilesystem(assetDirectoriesToScan);
 		List<File> filteredAssetFilesFromFilesystem = filterFilesByElapsedTimeSinceModification(allAssetFilesFromFilesystem, checkFilesUnModifiedSinceThisManyMinutes);
@@ -39,12 +42,14 @@ public class RfcxAssetCleanup {
 			}
 		}
 
-		Log.d(logTag, "Asset Cleanup - "
-				+allAssetFilesFromFilesystem.size()+" files found. "
-				+((filteredAssetFilesFromFilesystem.size() == 0) ? "No" : filteredAssetFilesFromFilesystem.size())
-				+" files are older than cleanup threshold of "+ DateTimeUtils.milliSecondDurationAsReadableString(checkFilesUnModifiedSinceThisManyMinutes*60*1000)+". "
-				+((assetFilesToRemove.size() == 0) ? "No files are eligible for cleanup." : ( assetFilesToRemove.size()+" have no reference in the database and will be deleted." ))
-		);
+		if (printToLogEvenIfNoActionIsTaken) {
+			Log.d(logTag, "Asset Cleanup - "
+					+ allAssetFilesFromFilesystem.size() + " file(s) found. "
+					+ ((filteredAssetFilesFromFilesystem.size() == 0) ? "No" : filteredAssetFilesFromFilesystem.size())
+					+ " file(s) older than cleanup threshold of " + DateTimeUtils.milliSecondDurationAsReadableString(checkFilesUnModifiedSinceThisManyMinutes * 60 * 1000) + ". "
+					+ ((assetFilesToRemove.size() == 0) ? "No files are eligible for cleanup." : (assetFilesToRemove.size() + " will be deleted."))
+			);
+		}
 
 		List<String> deletedAssetFilePaths = new ArrayList<String>();
 		for (String filePath : FileUtils.deleteAndReturnFilePaths(assetFilesToRemove)) {
@@ -55,22 +60,27 @@ public class RfcxAssetCleanup {
 		}
 
 		List<String> deletedAssetDirectories = new ArrayList<String>();
-		for (int i = 0; i < 2; i++) {
-			List<File> allEmptyAssetDirectories = getAssetEmptyDirectoriesOnFilesystem(assetDirectoriesToScan);
-			List<File> filteredEmptyAssetDirectories = filterFilesByElapsedTimeSinceModification(allEmptyAssetDirectories, checkFilesUnModifiedSinceThisManyMinutes);
-			for (String dirPath : FileUtils.deleteAndReturnFilePaths(filteredEmptyAssetDirectories)) {
-				deletedAssetDirectories.add(relativeFilePath(dirPath));
+		if (deleteEmptyDirectories) {
+			for (int i = 0; i < 2; i++) {
+				List<File> allEmptyAssetDirectories = getAssetEmptyDirectoriesOnFilesystem(assetDirectoriesToScan);
+				List<File> filteredEmptyAssetDirectories = filterFilesByElapsedTimeSinceModification(allEmptyAssetDirectories, checkFilesUnModifiedSinceThisManyMinutes);
+				for (String dirPath : FileUtils.deleteAndReturnFilePaths(filteredEmptyAssetDirectories)) {
+					deletedAssetDirectories.add(relativeFilePath(dirPath));
+				}
 			}
 		}
+
 		if (deletedAssetDirectories.size() > 0) {
 			Log.d(logTag, "Asset Cleanup - Empty Directories - " + TextUtils.join(" ", deletedAssetDirectories));
-		} else {
+		} else if (printToLogEvenIfNoActionIsTaken) {
 			Log.d(logTag, "Asset Cleanup - No Empty Directories were eligible for cleanup.");
 		}
 	}
 
 
-
+	public void runCleanupOnOneDirectory(String dirPath, long checkFilesUnModifiedSinceThisManyMilliSeconds, boolean deleteEmptyDirectories) {
+		runFileSystemAssetCleanup(new String[] { dirPath }, new ArrayList<String>(), Math.round(checkFilesUnModifiedSinceThisManyMilliSeconds/60000), deleteEmptyDirectories, false);
+	}
 
 
 	private String getDilesDirBase() {

@@ -90,7 +90,7 @@
 
 	<string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>
 	<string name="prefs_value_default_admin_enable_sentinel_power">true</string>
-	<string name="prefs_value_default_admin_enable_sentinel_sensor">true</string>
+	<string name="prefs_value_default_admin_enable_sentinel_sensor">false</string>
 
 
     <string-array name="prefs_values_true_or_false">

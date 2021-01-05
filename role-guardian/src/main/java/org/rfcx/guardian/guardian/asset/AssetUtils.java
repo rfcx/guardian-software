@@ -75,7 +75,7 @@ public class AssetUtils {
 			}
 		}
 		if (idList.size() > 0) {
-			Log.d(logTag, "Purged Asset" + ((idList.size() > 1) ? "s" : "") + ": " + assetType + ", " + TextUtils.join(", ", idList));
+			Log.d(logTag, "Purged Asset" + ((idList.size() > 1) ? "s" : "") + ": " + assetType + ", " + TextUtils.join(" ", idList));
 		}
 	}
 
@@ -137,6 +137,9 @@ public class AssetUtils {
 
 			} else if (assetType.equals("segment")) {
 				app.apiSegmentUtils.deleteSegmentsById(assetId);
+
+			} else if (assetType.equals("classification")) {
+//				app.apiSegmentUtils.deleteSegmentsById(assetId);
 
 			}
 
