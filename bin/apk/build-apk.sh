@@ -41,7 +41,7 @@ if [[ "$APK_TYPE" = "debug" ]]; then
 	$PROJECT_DIR/gradlew :role-$ROLE:assembleDebug;
 elif [ "$APK_TYPE" = "release" ]; then
 	$PROJECT_DIR/gradlew :role-$ROLE:assembleRelease;
-fi
+fi  # --stacktrace
 
 export APK_PATH_UNSIGNED="$ROLE_DIR/build/outputs/apk/$APK_TYPE/$ROLE-$APK_VERSION-$APK_TYPE-unsigned.apk";
 export APK_PATH_SIGNED="$PROJECT_DIR/tmp/$ROLE-$APK_VERSION.apk";

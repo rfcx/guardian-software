@@ -32,6 +32,28 @@ public class ArrayUtils {
 		}
 		return doesContain;
 	}
+
+	public static int indexOfStringInStringArray(String[] strArr, String strInd) {
+		int rtrnInd = -1;
+		for (int i = 0; i < strArr.length; i++) {
+			if (strArr[i].equalsIgnoreCase(strInd)) {
+				rtrnInd = i;
+				break;
+			}
+		}
+		return rtrnInd;
+	}
+
+	public static int indexOfStringInStringList(List<String> strList, String strInd) {
+		int rtrnInd = -1;
+		for (int i = 0; i < strList.size(); i++) {
+			if (strList.get(i).equalsIgnoreCase(strInd)) {
+				rtrnInd = i;
+				break;
+			}
+		}
+		return rtrnInd;
+	}
 	
 	public static double[] castFloatArrayToDoubleArray(float[] arr) {
 		if (arr == null) { arr = new float[]{}; }
@@ -87,9 +109,9 @@ public class ArrayUtils {
 	public static double getAverageAsDouble(double[] arr) {
 		return getAverage(toList(arr));
 	}
-	
+
 	public static long getAverageAsLong(double[] arr) {
-		return (long) Math.round(getAverage(toList(arr)));
+		return Math.round(getAverage(toList(arr)));
 	}
 	
 	public static double getAverageAsDouble(long[] arr) {
@@ -97,7 +119,7 @@ public class ArrayUtils {
 	}
 	
 	public static long getAverageAsLong(long[] arr) {
-		return (long) Math.round(getAverage(toList(arr)));
+		return Math.round(getAverage(toList(arr)));
 	}
 	
 	public static double getAverageAsDouble(int[] arr) {
@@ -105,7 +127,7 @@ public class ArrayUtils {
 	}
 	
 	public static long getAverageAsLong(int[] arr) {
-		return (long) Math.round(getAverage(toList(arr)));
+		return Math.round(getAverage(toList(arr)));
 	}
 	
 	public static double[] getAverageValuesAsArrayFromArrayList(List<double[]> arrLst) {

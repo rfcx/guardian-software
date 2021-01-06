@@ -76,6 +76,9 @@ public class RfcxPrefs {
 	public long getPrefAsLong(String prefKey) {
 		return Long.parseLong(getPrefAsString(prefKey));
 	}
+	public float getPrefAsFloat(String prefKey) {
+		return Float.parseFloat(getPrefAsString(prefKey));
+	}
 	public boolean getPrefAsBoolean(String prefKey) { return getPrefAsString(prefKey).equalsIgnoreCase("true"); }
 
 	//
@@ -92,6 +95,7 @@ public class RfcxPrefs {
 
 	public int getDefaultPrefValueAsInt(String prefKey) { return Integer.parseInt(getDefaultPrefValueAsString(prefKey)); }
 	public long getDefaultPrefValueAsLong(String prefKey) { return Long.parseLong(getDefaultPrefValueAsString(prefKey)); }
+	public float getDefaultPrefValueAsFloat(String prefKey) { return Float.parseFloat(getDefaultPrefValueAsString(prefKey)); }
 	public boolean getDefaultPrefValueAsBoolean(String prefKey) { return getDefaultPrefValueAsString(prefKey).equalsIgnoreCase("true"); }
 
 	//

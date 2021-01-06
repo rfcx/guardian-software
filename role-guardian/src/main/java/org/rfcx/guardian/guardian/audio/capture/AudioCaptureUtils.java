@@ -7,7 +7,7 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;

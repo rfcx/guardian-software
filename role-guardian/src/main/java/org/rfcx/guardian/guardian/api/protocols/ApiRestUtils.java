@@ -5,7 +5,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.network.HttpGet;
@@ -104,7 +103,7 @@ public class ApiRestUtils {
 
 			try {
 				List<String[]> postParams = new ArrayList<>();
-				postParams.add(new String[] { "meta", StringUtils.stringToGZippedBase64( pingJson ) });
+				postParams.add(new String[] { "meta", StringUtils.stringToGZipBase64( pingJson ) });
 
 				String pingResponse = httpPost.doMultipartPost( apiRequestUrl(restUrlPath_Ping, false), postParams, null);
 

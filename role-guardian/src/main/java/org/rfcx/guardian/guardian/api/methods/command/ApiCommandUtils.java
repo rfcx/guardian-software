@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAsset;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -30,9 +31,6 @@ public class ApiCommandUtils {
 
 	private final RfcxGuardian app;
 
-	private static final String[] assetExchangeTypes = new String[] { "audio", "meta", "screenshot", "log", "photo", "video" };
-	private static final String[] assetExchangeTypesAbbrev = new String[] { "aud", "mta", "scn", "log", "pho", "vid" };
-
 	public void processApiCommandJson(String jsonStr) {
 
 		if (!jsonStr.equalsIgnoreCase("{}")) {
@@ -46,7 +44,7 @@ public class ApiCommandUtils {
 				// parse audio info and use it to purge the data locally
 				// this assumes that the audio array has only one item in it
 				// multiple audio items returned in this array would cause an error
-				if (jsonObj.has("audio") || jsonObj.has("aud")) {
+				if (RfcxAsset.doesJsonHaveIndex(jsonObj, "audio")) {
 					JSONArray audJson = jsonObj.has("aud") ? jsonObj.getJSONArray("aud") : jsonObj.getJSONArray("audio");
 					String audId = jsonObj.has("aud") ? audJson.getString(0) : audJson.getJSONObject(0).getString("id");
 					app.assetUtils.purgeSingleAsset("audio", audId);
@@ -149,11 +147,11 @@ public class ApiCommandUtils {
 					for (int i = 0; i < prgJson.length(); i++) {
 						JSONObject prgObj = prgJson.getJSONObject(i);
 						if (	prgObj.has("type") && prgObj.has("id")
-							&&	ArrayUtils.doesStringArrayContainString( assetExchangeTypes, prgObj.getString("type") )
+							&&	ArrayUtils.doesStringArrayContainString( RfcxAsset.TYPES, prgObj.getString("type") )
 						) {
 							prgIds.add(prgObj.getString("id"));
 						} else {
-							for (String typeAbbrev : assetExchangeTypesAbbrev) {
+							for (String typeAbbrev : RfcxAsset.TYPES_ABBREV) {
 								if (prgObj.has(typeAbbrev)) {
 									JSONArray prgArr = prgObj.getJSONArray(typeAbbrev);
 									for (int j = 0; j < prgArr.length(); j++) {
@@ -172,11 +170,11 @@ public class ApiCommandUtils {
 					for (int i = 0; i < recJson.length(); i++) {
 						JSONObject recObj = recJson.getJSONObject(i);
 						if (	recObj.has("type") && recObj.has("id")
-							&&	ArrayUtils.doesStringArrayContainString( assetExchangeTypes, recObj.getString("type") )
+							&&	ArrayUtils.doesStringArrayContainString( RfcxAsset.TYPES, recObj.getString("type") )
 						) {
 							app.assetUtils.purgeSingleAsset(recObj.getString("type"), recObj.getString("id"));
 						} else {
-							for (String typeAbbrev : assetExchangeTypesAbbrev) {
+							for (String typeAbbrev : RfcxAsset.TYPES_ABBREV) {
 								if (recObj.has(typeAbbrev)) {
 									JSONArray recArr = recObj.getJSONArray(typeAbbrev);
 									for (int j = 0; j < recArr.length(); j++) {

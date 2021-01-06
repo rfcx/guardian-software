@@ -6,18 +6,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
-import java.util.regex.Pattern;
+
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import android.util.Base64;
 
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class StringUtils {
@@ -47,45 +45,52 @@ public class StringUtils {
 		return byteArrayToHexString(messageDigest.digest(inputString.getBytes()));
 	}
 
-	public static String stringToGZippedBase64(String inputString) {
-		return byteArrayToBase64String( stringToGZippedByteArray( inputString ) );
-	}
 
-	public static String gZippedBase64ToUnGZippedString(String base64String) {
-		return gZippedByteArrayToUnGZippedString( base64StringToByteArray( base64String ) );
-	}
-
-//	public static String stringToBase85(String inputString) {
+//	public static String stringToBrotliBase64(String inputString) {
+//		return byteArrayToBase64String( stringToBrotliByteArray( inputString ) );
+//	}
+//
+//	public static byte[] stringToBrotliByteArray(String inputString) {
+//		return stringToBrotliByteArray(inputString, "UTF-8");
+//	}
+//
+//	public static byte[] stringToBrotliByteArray(String inputString, String charsetName) {
+//
+//		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//
+//		BrotliOutputStream brotliOutputStream = null;
 //		try {
-//			return Base85.getZ85Encoder().encodeToString(inputString.getBytes("UTF-8"));
-//		} catch (Exception e) {
+//			brotliOutputStream = new BrotliOutputStream(byteArrayOutputStream);
+//			brotliOutputStream.write(inputString.getBytes(charsetName));
+//		} catch (IOException e) {
 //			RfcxLog.logExc(logTag, e);
+//		} finally {
+//			if (brotliOutputStream != null) {
+//				try {
+//					brotliOutputStream.close();
+//				} catch (IOException e) {
+//					RfcxLog.logExc(logTag, e);
+//				}
+//			}
 //		}
-//		return null;
-//	}
 //
-//	public static String stringToGZippedBase85(String inputString) {
-//		return Base85.getAscii85Encoder().encodeToString(stringToGZippedByteArray(inputString, "UTF-8", true));
-//	}
-//
-//	public static String gZippedBase85ToUnGZippedString(String base85String) {
-//		return gZippedByteArrayToUnGZippedString(Base85.getAscii85Decoder().decodeToBytes(base85String), true);
+//		return byteArrayOutputStream.toByteArray();
 //	}
 
-//	public void testBzip() {
-//		String originalString = "abc";
-//		ByteArrayOutputStream compressedStream = new ByteArrayOutputStream();
-//		try (BZip2CompressorOutputStream bzip2Output =
-//					 new BZip2CompressorOutputStream(compressedStream)) {
-//			bzip2Output.write(originalString.getBytes());
-//		}
-//	}
 
-	public static byte[] stringToGZippedByteArray(String inputString) {
-		return stringToGZippedByteArray(inputString, "UTF-8");
+	public static String stringToGZipBase64(String inputString) {
+		return byteArrayToBase64String( stringToGZipByteArray( inputString ) );
 	}
 
-	public static byte[] stringToGZippedByteArray(String inputString, String charsetName) {
+	public static String gZipBase64ToUnGZipString(String base64String) {
+		return gZipByteArrayToUnGZipString( base64StringToByteArray( base64String ) );
+	}
+
+	public static byte[] stringToGZipByteArray(String inputString) {
+		return stringToGZipByteArray(inputString, "UTF-8");
+	}
+
+	public static byte[] stringToGZipByteArray(String inputString, String charsetName) {
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -108,7 +113,7 @@ public class StringUtils {
 		return byteArrayOutputStream.toByteArray();
 	}
 	
-	public static String gZippedByteArrayToUnGZippedString(byte[] inputByteArray) {
+	public static String gZipByteArrayToUnGZipString(byte[] inputByteArray) {
 		
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 

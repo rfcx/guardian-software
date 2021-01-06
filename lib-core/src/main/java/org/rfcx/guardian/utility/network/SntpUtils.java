@@ -1,8 +1,9 @@
-package org.rfcx.guardian.utility.datetime;
+package org.rfcx.guardian.utility.network;
 
 import android.os.SystemClock;
 import android.util.Log;
 
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.vendor.SntpClient;
 
@@ -16,7 +17,7 @@ public class SntpUtils {
 
 		if (!isConnected) {
 
-			Log.v(logTag, "SNTP sync halted because there is currently no network connectivity.");
+			Log.v(logTag, "SNTP sync is not possible because there is currently no network connectivity.");
 
 		} else {
 

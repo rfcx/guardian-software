@@ -1,7 +1,7 @@
 package org.rfcx.guardian.admin.device.android.control;
 
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
-import org.rfcx.guardian.utility.datetime.SntpUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.network.SntpUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.admin.RfcxGuardian;

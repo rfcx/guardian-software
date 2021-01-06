@@ -10,7 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceMemory;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;

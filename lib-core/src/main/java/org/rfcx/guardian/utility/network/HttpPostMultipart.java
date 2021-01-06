@@ -6,13 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -28,7 +24,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import android.content.Context;
 import android.util.Log;
 
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 

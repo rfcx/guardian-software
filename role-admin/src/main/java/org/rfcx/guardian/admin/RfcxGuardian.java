@@ -34,7 +34,7 @@ import org.rfcx.guardian.utility.device.control.DeviceGPIO;
 import org.rfcx.guardian.utility.device.control.DeviceNetworkName;
 import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;

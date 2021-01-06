@@ -19,7 +19,6 @@ import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.xeustechnologies.jtar.TarEntry;
 import org.xeustechnologies.jtar.TarOutputStream;

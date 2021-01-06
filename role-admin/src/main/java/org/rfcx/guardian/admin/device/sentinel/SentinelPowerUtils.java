@@ -1,6 +1,5 @@
 package org.rfcx.guardian.admin.device.sentinel;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,7 +16,7 @@ import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 

@@ -1,7 +1,6 @@
 package org.rfcx.guardian.guardian.utils
 
-import org.rfcx.guardian.utility.datetime.DateTimeUtils
-import java.io.File
+import org.rfcx.guardian.utility.misc.DateTimeUtils
 
 class CheckInInformationUtils {
 

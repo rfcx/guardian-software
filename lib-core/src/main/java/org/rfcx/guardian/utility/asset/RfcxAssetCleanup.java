@@ -3,7 +3,7 @@ package org.rfcx.guardian.utility.asset;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;

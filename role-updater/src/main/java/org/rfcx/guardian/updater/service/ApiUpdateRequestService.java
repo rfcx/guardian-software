@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.network.HttpGet;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 

@@ -514,6 +514,27 @@
 			android:entries="@array/prefs_values_true_or_false"
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_socket"/>
+
+<!--	<ListPreference-->
+<!--			android:key="prediction_model_output"-->
+<!--			android:title="prediction_model_output"-->
+<!--			android:summary="string - class, comma separated"-->
+<!--			android:enabled="true"-->
+<!--			android:defaultValue="@string/prefs_value_default_prediction_model_output" />-->
+
+<!--	<ListPreference-->
+<!--			android:key="prediction_step_size"-->
+<!--			android:title="prediction_step_size"-->
+<!--			android:summary="int - size"-->
+<!--			android:enabled="true"-->
+<!--			android:defaultValue="@string/prefs_value_default_prediction_step_size" />-->
+
+<!--	<ListPreference-->
+<!--			android:key="prediction_window_size"-->
+<!--			android:title="prediction_window_size"-->
+<!--			android:summary="float - size"-->
+<!--			android:enabled="true"-->
+<!--			android:defaultValue="@string/prefs_value_default_prediction_window_size" />-->
  	
  	
 </PreferenceScreen>

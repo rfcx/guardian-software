@@ -10,6 +10,7 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AudioClassifyJobService extends Service {
@@ -90,7 +91,12 @@ public class AudioClassifyJobService extends Service {
 						String timestamp = latestQueuedAudioToClassify[1];
 						File audioFile = new File(latestQueuedAudioToClassify[10]);
 
-						Log.i(logTag, "Audio Classification Job...");
+
+
+//						AudioClassifyUtils audioClassifyUtils = new AudioClassifyUtils(context);
+//
+//
+//						audioClassifyUtils.classifyAudio(audioFile);
 
 
 

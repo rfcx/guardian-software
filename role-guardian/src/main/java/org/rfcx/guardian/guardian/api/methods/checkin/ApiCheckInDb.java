@@ -3,7 +3,7 @@ package org.rfcx.guardian.guardian.api.methods.checkin;
 import java.util.Date;
 import java.util.List;
 
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.database.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
