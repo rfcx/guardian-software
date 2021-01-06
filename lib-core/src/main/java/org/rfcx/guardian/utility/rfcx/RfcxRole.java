@@ -26,7 +26,8 @@ public class RfcxRole {
 		ALL_ROLES= new String[] {
 			"guardian",
 			"admin",
-			"updater"  
+			"classify",
+			"updater"
 		};
 	
 	public static String getRoleVersion(Context context, String logTag) {

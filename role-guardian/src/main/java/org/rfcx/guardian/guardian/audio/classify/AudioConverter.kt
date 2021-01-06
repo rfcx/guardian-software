@@ -6,6 +6,7 @@ import java.nio.ByteOrder
 
 
 object AudioConverter {
+
     fun readAudioSimple(path: String): FloatArray {
         val input =
             BufferedInputStream(FileInputStream(path))
@@ -16,7 +17,7 @@ object AudioConverter {
         return floatMe(shortMe(buff.sliceArray(44 until buff.size)) ?: ShortArray(0)) ?: FloatArray(0)
     }
 
-    fun FloatArray.slidingWindow(sampleRate: Int, step: Int, windowSize: Float): List<FloatArray> {
+    public fun FloatArray.slidingWindow(sampleRate: Int, step: Int, windowSize: Float): List<FloatArray> {
         val slicedAudio = arrayListOf<FloatArray>()
         val chunkSize = (sampleRate * windowSize).toInt()
         var startAt = 0

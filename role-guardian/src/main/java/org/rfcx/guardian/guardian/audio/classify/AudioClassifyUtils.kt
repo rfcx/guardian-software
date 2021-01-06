@@ -32,7 +32,7 @@ class AudioClassifyUtils(context: Context) {
                 if (audioChunk.size == finalStepSize) {
                     val output = it.run(audioChunk)
 //                    detections.add(output)
-                    Log.d(logTag, TextUtils.join(" - ", output.asIterable()))
+                    Log.d(logTag, ") " + TextUtils.join(" - ", output.asIterable()))
                 }
             }
         }

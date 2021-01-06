@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/lib-core" />
             <option value="$PROJECT_DIR$/lib-i2c" />
             <option value="$PROJECT_DIR$/role-admin" />
+            <option value="$PROJECT_DIR$/role-classify" />
             <option value="$PROJECT_DIR$/role-guardian" />
             <option value="$PROJECT_DIR$/role-updater" />
           </set>

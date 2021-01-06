@@ -17,7 +17,7 @@ public class SntpUtils {
 
 		if (!isConnected) {
 
-			Log.v(logTag, "SNTP sync halted because there is currently no network connectivity.");
+			Log.v(logTag, "SNTP sync is not possible because there is currently no network connectivity.");
 
 		} else {
 
