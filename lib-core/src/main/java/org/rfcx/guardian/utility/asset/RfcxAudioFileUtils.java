@@ -78,20 +78,20 @@ public class RfcxAudioFileUtils {
 	public static String getAudioFileName(String rfcxDeviceId, long timestamp, String audioCodec, int sampleRate) {
 		return 	rfcxDeviceId
 				+ "_" + fileDateTimeFormat.format(new Date(timestamp))
-				+ ((sampleRate == 0) ? "" : "_" + (Math.round(sampleRate/1000) + "kHz"))
+				+ sampleRateTag(sampleRate)
 				+ "." + getFileExt(audioCodec);
 	}
 
-	public static String getAudioFileLocation_PreClassify(Context context, long timestamp, String fileExtension) {
-		return audioClassifyDir(context) + "/" + timestamp + "." + fileExtension;
+	public static String getAudioFileLocation_PreClassify(Context context, long timestamp, String fileExtension, int sampleRate, String extraTagLabel) {
+		return audioClassifyDir(context) + "/" + timestamp + sampleRateTag(sampleRate) + miscTag(extraTagLabel) + "." + fileExtension;
 	}
 
-	public static String getAudioFileLocation_PreEncode(Context context, long timestamp, String fileExtension) {
-		return audioEncodeDir(context) + "/" + timestamp + "." + fileExtension;
+	public static String getAudioFileLocation_PreEncode(Context context, long timestamp, String fileExtension, int sampleRate, String extraTagLabel) {
+		return audioEncodeDir(context) + "/" + timestamp + sampleRateTag(sampleRate) + miscTag(extraTagLabel) + "." + fileExtension;
 	}
 	
-	public static String getAudioFileLocation_PostEncode(Context context, long timestamp, String audioCodec) {
-		return audioEncodeDir(context) + "/_" + timestamp + "." + getFileExt(audioCodec);
+	public static String getAudioFileLocation_PostEncode(Context context, long timestamp, String audioCodec, int sampleRate, String extraTagLabel) {
+		return audioEncodeDir(context) + "/_" + timestamp + sampleRateTag(sampleRate) + miscTag(extraTagLabel) + "." + getFileExt(audioCodec);
 	}
 
 	public static String getAudioFileLocation_GZip(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
@@ -128,6 +128,14 @@ public class RfcxAudioFileUtils {
 	
 	public static boolean isEncodedWithVbr(String audioCodecOrFileExtension) {
 		return (audioCodecOrFileExtension.equalsIgnoreCase("opus") || audioCodecOrFileExtension.equalsIgnoreCase("flac"));
+	}
+
+	private static String sampleRateTag(int sampleRate) {
+		return ((sampleRate == 0) ? "" : "_" + (Math.round(sampleRate/1000) + "kHz"));
+	}
+
+	private static String miscTag(String tagLabel) {
+		return (((tagLabel == null) || (tagLabel.length() == 0)) ? "" : "_" + tagLabel);
 	}
 	
 }

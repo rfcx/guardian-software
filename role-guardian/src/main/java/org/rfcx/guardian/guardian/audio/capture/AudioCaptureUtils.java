@@ -275,32 +275,32 @@ public class AudioCaptureUtils {
 	}
 
 	public static String getCaptureFilePath(String captureDir, long timestamp, String fileExtension) {
-		return (new StringBuilder()).append(captureDir).append("/").append(timestamp).append(".").append(fileExtension).toString();
+		return captureDir + "/" + timestamp + "." + fileExtension;
 	}
 
-	public static boolean reLocateAudioCaptureFile(boolean isToBeEncoded, boolean isToBeClassified, long timestamp, String fileExtension, Context context) {
+	public static boolean reLocateAudioCaptureFile(Context context, boolean isToBeEncoded, boolean isToBeClassified, long timestamp, int sampleRate, String fileExt) {
 		boolean isEncodeFileMoved = true;
 		boolean isClassifyFileMoved = true;
-		File captureFile = new File(getCaptureFilePath(RfcxAudioFileUtils.audioCaptureDir(context),timestamp,fileExtension));
+		File captureFile = new File(getCaptureFilePath(RfcxAudioFileUtils.audioCaptureDir(context),timestamp,fileExt));
 		if (captureFile.exists()) {
 			try {
 
 				if (isToBeEncoded) {
-					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExtension));
+					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, null));
 					FileUtils.copy(captureFile, preEncodeFile);
 					FileUtils.chmod(preEncodeFile, "rw", "rw");
 					isEncodeFileMoved = preEncodeFile.exists();
 				}
 
 				if (isToBeClassified) {
-					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExtension));
+					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, sampleRate, null));
 					FileUtils.copy(captureFile, preClassifyFile);
 					FileUtils.chmod(preClassifyFile, "rw", "rw");
 					isClassifyFileMoved = preClassifyFile.exists();
 				}
 
 				if (isEncodeFileMoved && isClassifyFileMoved) {
-					captureFile.delete();
+					FileUtils.delete(captureFile);
 					return true;
 				}
 
@@ -310,6 +310,26 @@ public class AudioCaptureUtils {
 		}
 		return false;
 	}
+
+
+	public static File checkOrCreateReSampledWav(Context context, String existingPreEncodeFile, long timestamp, String fileExt, int sampleRate) throws IOException {
+
+		String neededPreEncodeFile = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, null);
+
+		if ((new File(existingPreEncodeFile)).exists() && !existingPreEncodeFile.equalsIgnoreCase(neededPreEncodeFile)) {
+
+			// create resample copy of the audio file
+			// as a placeholder, for now, we just copy it...
+			FileUtils.copy(existingPreEncodeFile, neededPreEncodeFile);
+
+			return (new File(neededPreEncodeFile));
+
+		} else { Log.w(logTag, "no need to copy "+existingPreEncodeFile); }
+
+		return (new File(existingPreEncodeFile));
+	}
+
+
 
 	public Pair<byte[], Integer> getAudioBuffer() {
 		return wavRecorderForCompanion.getAudioBuffer();
