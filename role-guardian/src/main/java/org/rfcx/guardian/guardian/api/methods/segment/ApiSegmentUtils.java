@@ -186,7 +186,7 @@ public class ApiSegmentUtils {
 
 				if (ArrayUtils.doesStringArrayContainString(JSON_MSG_TYPES, msgType)) {
 
-					String msgJson = StringUtils.gZippedBase64ToUnGZippedString(concatMsg);
+					String msgJson = StringUtils.gZipBase64ToUnGZipString(concatMsg);
 
 					if (msgChecksum.equalsIgnoreCase(StringUtils.getSha1HashOfString(msgJson).substring(0, MSG_CHECKSUM_SNIPPET_LENGTH))) {
 
@@ -232,7 +232,7 @@ public class ApiSegmentUtils {
 
 				String msgChecksumSnippet = StringUtils.getSha1HashOfString(msgJson).substring(0, MSG_CHECKSUM_SNIPPET_LENGTH);
 				int msgOriginalLength = msgJson.length();
-				String msgPayloadFull = StringUtils.stringToGZippedBase64(msgJson);
+				String msgPayloadFull = StringUtils.stringToGZipBase64(msgJson);
 				int msgPayloadFullLength = msgPayloadFull.length();
 
 				String initSegHeader = groupId + segmentId_decToPaddedHex(0) + app.rfcxGuardianIdentity.getGuid() + app.rfcxGuardianIdentity.getPinCode() + msgType + msgChecksumSnippet;

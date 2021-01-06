@@ -1,8 +1,9 @@
-package org.rfcx.guardian.utility.datetime;
+package org.rfcx.guardian.utility.network;
 
 import android.os.SystemClock;
 import android.util.Log;
 
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.vendor.SntpClient;
 

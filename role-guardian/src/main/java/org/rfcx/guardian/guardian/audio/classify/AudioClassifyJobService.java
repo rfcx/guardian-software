@@ -90,7 +90,9 @@ public class AudioClassifyJobService extends Service {
 						String timestamp = latestQueuedAudioToClassify[1];
 						File audioFile = new File(latestQueuedAudioToClassify[10]);
 
-						Log.i(logTag, "Audio Classification Job...");
+
+						AudioClassifyUtils audioClassifyUtils = new AudioClassifyUtils(context);
+						audioClassifyUtils.classifyAudio(audioFile);
 
 
 

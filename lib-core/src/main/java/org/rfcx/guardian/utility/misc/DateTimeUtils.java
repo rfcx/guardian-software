@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.datetime;
+package org.rfcx.guardian.utility.misc;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

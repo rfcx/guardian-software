@@ -1,15 +1,13 @@
 package org.rfcx.guardian.admin.receiver;
 
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import org.rfcx.guardian.admin.RfcxGuardian;
 
-import java.util.Date;
+import org.rfcx.guardian.admin.RfcxGuardian;
 
 public class ConnectivityReceiver extends BroadcastReceiver {
 	

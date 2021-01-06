@@ -16,7 +16,7 @@ import org.json.JSONException;
 import org.rfcx.guardian.guardian.socket.SocketManager;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.datetime.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.network.MqttUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import android.content.Context;
@@ -112,7 +112,7 @@ public class ApiMqttUtils implements MqttCallback {
 		}
 
         // Build JSON blob from included assets
-		byte[] jsonBlobAsBytes = StringUtils.stringToGZippedByteArray(app.apiCheckInJsonUtils.buildCheckInJson(checkInJsonString, screenShotMeta, logFileMeta, photoFileMeta, videoFileMeta));
+		byte[] jsonBlobAsBytes = StringUtils.stringToGZipByteArray(app.apiCheckInJsonUtils.buildCheckInJson(checkInJsonString, screenShotMeta, logFileMeta, photoFileMeta, videoFileMeta));
 		String jsonBlobMetaSection = String.format(Locale.US, "%012d", jsonBlobAsBytes.length);
 		byteArrayOutputStream.write(jsonBlobMetaSection.getBytes(StandardCharsets.UTF_8));
 		byteArrayOutputStream.write(jsonBlobAsBytes);
@@ -203,7 +203,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 		// this is a command message receive from the API
 		if (messageTopic.equalsIgnoreCase(this.mqttTopic_Subscribe_Command)) {
-			app.apiCommandUtils.processApiCommandJson(StringUtils.gZippedByteArrayToUnGZippedString(messagePayload));
+			app.apiCommandUtils.processApiCommandJson(StringUtils.gZipByteArrayToUnGZipString(messagePayload));
 		}
 	}
 
@@ -324,7 +324,7 @@ public class ApiMqttUtils implements MqttCallback {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
 		// Build JSON blob
-		byte[] jsonBlobAsBytes = StringUtils.stringToGZippedByteArray(pingJsonString);
+		byte[] jsonBlobAsBytes = StringUtils.stringToGZipByteArray(pingJsonString);
 		String jsonBlobMetaSection = String.format(Locale.US, "%012d", jsonBlobAsBytes.length);
 		byteArrayOutputStream.write(jsonBlobMetaSection.getBytes(StandardCharsets.UTF_8));
 		byteArrayOutputStream.write(jsonBlobAsBytes);

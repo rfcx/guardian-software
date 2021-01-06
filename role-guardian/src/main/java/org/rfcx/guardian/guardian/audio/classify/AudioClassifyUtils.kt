@@ -1,6 +1,8 @@
 package org.rfcx.guardian.guardian.audio.classify
 
 import android.content.Context
+import android.text.TextUtils
+import android.util.Log
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.audio.classify.AudioConverter.slidingWindow
 import org.rfcx.guardian.utility.rfcx.RfcxLog
@@ -23,13 +25,14 @@ class AudioClassifyUtils(context: Context) {
         val step = app.rfcxPrefs.getPrefAsInt("prediction_step_size")
         val windowSize = app.rfcxPrefs.getPrefAsFloat("prediction_window_size")
         val finalStepSize = (step * windowSize).toInt()
-        val detections = arrayListOf<FloatArray>()
+  //      val detections = arrayListOf<FloatArray>()
         predictor.also {
             it.load()
-            AudioConverter.readAudioSimple(path).slidingWindow(step,windowSize).forEach { audioChunk ->
+            AudioConverter.readAudioSimple(path).slidingWindow(12000,step,windowSize).forEach { audioChunk ->
                 if (audioChunk.size == finalStepSize) {
                     val output = it.run(audioChunk)
-                    detections.add(output)
+//                    detections.add(output)
+                    Log.d(logTag, TextUtils.join(" - ", output.asIterable()))
                 }
             }
         }
