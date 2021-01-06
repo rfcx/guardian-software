@@ -17,7 +17,9 @@ public class RfcxAsset {
 			"screenshot",	// 2
 			"log",			// 3
 			"photo",		// 4
-			"video"			// 5
+			"video",		// 5
+			"sms",			// 6
+			"apk"			// 7
 	};
 
 	public static final String[]
@@ -27,7 +29,9 @@ public class RfcxAsset {
 			"screenshots",
 			"logs",
 			"photos",
-			"videos"
+			"videos",
+			"messages",
+			"apks"
 	};
 
 	public static final String[]
@@ -37,15 +41,32 @@ public class RfcxAsset {
 			"scn",
 			"log",
 			"pho",
-			"vid"
+			"vid",
+			"sms",
+			"apk"
 	};
-	
+
+
+	private static String getName(String assetType) {
+		return TYPES[getInd(assetType)];
+	}
+
+	private static String getPlural(String assetType) {
+		return TYPES_PLURAL[getInd(assetType)];
+	}
+
+	private static String getAbbrev(String assetType) {
+		return TYPES_ABBREV[getInd(assetType)];
+	}
+
+	private static int getInd(String assetType) {
+		return ArrayUtils.indexOfStringInStringArray(TYPES, assetType.toLowerCase(Locale.US));
+	}
 
 	public static boolean doesJsonHaveIndex(JSONObject jsonObj, String assetType) {
-		int typeInd = ArrayUtils.indexOfStringInStringArray(TYPES, assetType.toLowerCase(Locale.US));
-		return 	jsonObj.has(assetType.toLowerCase(Locale.US))
-			||	jsonObj.has(TYPES_PLURAL[typeInd])
-			||	jsonObj.has(TYPES_ABBREV[typeInd]);
+		return 	jsonObj.has(getName(assetType))
+			||	jsonObj.has(getPlural(assetType))
+			||	jsonObj.has(getAbbrev(assetType));
 	}
 
 }
