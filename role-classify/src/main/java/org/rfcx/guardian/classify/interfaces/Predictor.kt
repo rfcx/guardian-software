@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.audio.classify.interfaces
+package org.rfcx.guardian.classify.interfaces
 
 import android.content.Context
 

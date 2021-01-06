@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properties.containsKey("jksPath")) {
     apply from: "../gradle/signing/platform_signing.gradle"
@@ -42,7 +44,9 @@ android {
 dependencies {
     implementation project(':lib-core')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
     implementation 'org.tensorflow:tensorflow-lite:2.3.0'
     implementation 'org.tensorflow:tensorflow-lite-gpu:2.3.0'
     

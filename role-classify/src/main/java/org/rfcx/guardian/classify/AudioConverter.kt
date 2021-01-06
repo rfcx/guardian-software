@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.audio.classify
+package org.rfcx.guardian.classify
 
 import java.io.*
 import java.nio.ByteBuffer
@@ -17,7 +17,7 @@ object AudioConverter {
         return floatMe(shortMe(buff.sliceArray(44 until buff.size)) ?: ShortArray(0)) ?: FloatArray(0)
     }
 
-    public fun FloatArray.slidingWindow(sampleRate: Int, step: Int, windowSize: Float): List<FloatArray> {
+    fun FloatArray.slidingWindow(sampleRate: Int, step: Int, windowSize: Float): List<FloatArray> {
         val slicedAudio = arrayListOf<FloatArray>()
         val chunkSize = (sampleRate * windowSize).toInt()
         var startAt = 0

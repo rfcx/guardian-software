@@ -1,10 +1,9 @@
-package org.rfcx.guardian.guardian.audio.classify
+package org.rfcx.guardian.classify
 
 import android.content.Context
 import android.text.TextUtils
 import android.util.Log
-import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.audio.classify.AudioConverter.slidingWindow
+import org.rfcx.guardian.classify.AudioConverter.slidingWindow
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.io.File
 

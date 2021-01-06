@@ -1,9 +1,8 @@
-package org.rfcx.guardian.guardian.audio.classify
+package org.rfcx.guardian.classify
 
 import android.os.Environment
 import android.util.Log
-import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.audio.classify.interfaces.Predictor
+import org.rfcx.guardian.classify.interfaces.Predictor
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import org.tensorflow.lite.Interpreter
 import java.io.File
