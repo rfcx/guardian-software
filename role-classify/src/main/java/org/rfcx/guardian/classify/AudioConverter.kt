@@ -1,5 +1,6 @@
 package org.rfcx.guardian.classify
 
+import android.util.Log
 import java.io.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -17,22 +18,27 @@ object AudioConverter {
         return floatMe(shortMe(buff.sliceArray(44 until buff.size)) ?: ShortArray(0)) ?: FloatArray(0)
     }
 
-    fun FloatArray.slidingWindow(sampleRate: Int, step: Int, windowSize: Float): List<FloatArray> {
-        val slicedAudio = arrayListOf<FloatArray>()
-        val chunkSize = (sampleRate * windowSize).toInt()
-        var startAt = 0
-        var endAt = chunkSize
-        val stepSize =  if (step != 0) (chunkSize * (1f / (2 * step))).toInt() else 0
-        while ((startAt + chunkSize) < this.size) {
-            if (startAt != 0) {
-                startAt = endAt - stepSize
-                endAt = startAt + chunkSize
-            }
-            slicedAudio.add(this.copyOfRange(startAt, endAt))
-            startAt = endAt
-        }
-        return slicedAudio
-    }
+    /**
+     * To slide an audio to windows of (sample rate * window size) length
+     * parameters:
+     * step: integer = 1 (seconds)
+     * windowSize: float = 0.975
+     * output:
+     * [[0.9, 0.1], [0.8, 0.2]]
+     */
+//    fun FloatArray.slidingWindow(sampleRate: Int, step: Float, windowSize: Float): List<FloatArray> {
+//        val slicedAudio = arrayListOf<FloatArray>()
+//        val windowLength = (sampleRate * windowSize).toInt()
+//        var startAt = 0
+//        var endAt = windowLength
+//        val stepSize =  (windowLength * step).toInt()
+//        while ((startAt + windowLength) < this.size) {
+//            slicedAudio.add(this.copyOfRange(startAt, endAt))
+//            startAt += stepSize
+//            endAt = startAt + windowLength
+//        }
+//        return slicedAudio
+//    }
 
     private fun shortMe(bytes: ByteArray): ShortArray? {
         val out = ShortArray(bytes.size / 2)
@@ -44,7 +50,7 @@ object AudioConverter {
         val floats = FloatArray(pcms.size)
         pcms.forEachIndexed { index, sh ->
             // float to -1,+1
-            floats[index] = sh.toFloat() / Float.MAX_VALUE
+            floats[index] = sh.toFloat() / 32768.0f
         }
         return floats
     }

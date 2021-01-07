@@ -21,21 +21,23 @@ class AudioClassifyUtils(context: Context) {
     }
 
     fun classifyAudio(path: String) {
-        val step = app.rfcxPrefs.getPrefAsInt("prediction_step_size")
-        val windowSize = app.rfcxPrefs.getPrefAsFloat("prediction_window_size")
-        val finalStepSize = (step * windowSize).toInt()
-  //      val detections = arrayListOf<FloatArray>()
-        predictor.also {
-            it.load()
-            AudioConverter.readAudioSimple(path).slidingWindow(12000,step,windowSize).forEach { audioChunk ->
-                if (audioChunk.size == finalStepSize) {
-                    val output = it.run(audioChunk)
-//                    detections.add(output)
-                    Log.d(logTag, ") " + TextUtils.join(" - ", output.asIterable()))
-                }
-            }
+        val sampleRate = 12000
+        val windowSize = 0.975f
+        val step = 1f
+        val windowLength = (sampleRate * windowSize).toInt()
+        var startAt = 0
+        var endAt = windowLength
+        val stepSize =  (windowLength * step).toInt()
+
+        val audio = AudioConverter.readAudioSimple(path)
+        while ((startAt + windowLength) < audio.size) {
+            predictor.load()
+            val output = predictor.run(audio.copyOfRange(startAt, endAt))
+            Log.d(logTag, "${output[0]} ${output[1]} ${output[2]}")
+
+            startAt += stepSize
+            endAt = startAt + windowLength
         }
-        //TODO: use detections on cognition
     }
 
     companion object {

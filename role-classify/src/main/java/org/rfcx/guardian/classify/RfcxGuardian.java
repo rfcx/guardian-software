@@ -21,6 +21,8 @@ public class RfcxGuardian extends Application {
     public RfcxPrefs rfcxPrefs = null;
     public RfcxServiceHandler rfcxServiceHandler = null;
 
+    public AudioClassifyUtils audioClassifyUtils = null;
+
     // Database Handlers
 
     // for checking battery level
@@ -42,6 +44,8 @@ public class RfcxGuardian extends Application {
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
+
+        this.audioClassifyUtils = new AudioClassifyUtils(this);
 
         setDbHandlers();
         setServiceHandlers();

@@ -1,13 +1,18 @@
 package org.rfcx.guardian.classify.activity;
 
+import org.rfcx.guardian.classify.AudioConverter;
+import org.rfcx.guardian.classify.MLPredictor;
 import org.rfcx.guardian.classify.R;
 import org.rfcx.guardian.classify.RfcxGuardian;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
+import java.util.List;
 
 public class MainActivity extends Activity {
 
@@ -36,6 +41,9 @@ public class MainActivity extends Activity {
 		//		((RfcxGuardian) getApplication()).apiUpdateRequestUtils.attemptToTriggerUpdateRequest(true, true);
 			}
 		});
+		AudioConverter converter = AudioConverter.INSTANCE;
+		RfcxGuardian app = (RfcxGuardian) this.getApplicationContext();
+		app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().getAbsolutePath() + "/chainsaw12000.wav");
 	}
 
 	@Override
