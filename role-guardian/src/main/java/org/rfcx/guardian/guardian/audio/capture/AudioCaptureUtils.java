@@ -7,6 +7,7 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -312,21 +313,34 @@ public class AudioCaptureUtils {
 	}
 
 
-	public static File checkOrCreateReSampledWav(Context context, String existingPreEncodeFile, long timestamp, String fileExt, int sampleRate) throws IOException {
+	public static File checkOrCreateReSampledWav(Context context, String purpose, String inputFilePath, long timestamp, String fileExt, int sampleRate) throws IOException {
 
-		String neededPreEncodeFile = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, null);
+		String outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, null);
 
-		if ((new File(existingPreEncodeFile)).exists() && !existingPreEncodeFile.equalsIgnoreCase(neededPreEncodeFile)) {
+		if (purpose.equalsIgnoreCase("classify")) {
+			outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, sampleRate, null);
+		}
+
+		if (FileUtils.exists(outputFilePath)) {
+
+			Log.d(logTag, "Already exists: "+ RfcxAssetCleanup.conciseFilePath(outputFilePath, RfcxGuardian.APP_ROLE));
+			return (new File(outputFilePath));
+
+		} else if (!FileUtils.exists(inputFilePath)) {
+
+			Log.e(logTag, "Input file does not exist: "+ RfcxAssetCleanup.conciseFilePath(inputFilePath, RfcxGuardian.APP_ROLE));
+			return null;
+
+		} else {
 
 			// create resample copy of the audio file
 			// as a placeholder, for now, we just copy it...
-			FileUtils.copy(existingPreEncodeFile, neededPreEncodeFile);
+			FileUtils.copy(inputFilePath, outputFilePath);
+			FileUtils.chmod(outputFilePath, "rw", "rw");
 
-			return (new File(neededPreEncodeFile));
+			return (new File(outputFilePath));
+		}
 
-		} else { Log.w(logTag, "no need to copy "+existingPreEncodeFile); }
-
-		return (new File(existingPreEncodeFile));
 	}
 
 

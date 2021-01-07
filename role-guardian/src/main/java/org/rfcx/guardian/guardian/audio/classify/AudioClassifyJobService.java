@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.File;
@@ -89,8 +90,13 @@ public class AudioClassifyJobService extends Service {
 					if (latestQueuedAudioToClassify[0] != null) {
 
 						String timestamp = latestQueuedAudioToClassify[1];
-						File audioFile = new File(latestQueuedAudioToClassify[10]);
+						String captureFileExt = latestQueuedAudioToClassify[2];
+						int captureSampleRate = Integer.parseInt(latestQueuedAudioToClassify[11]);
+						int classifierSampleRate = Integer.parseInt(latestQueuedAudioToClassify[4]);
+						File preClassifyFile = new File(latestQueuedAudioToClassify[10]);
 
+
+						preClassifyFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, "classify", preClassifyFile.getAbsolutePath(), Long.parseLong(timestamp), captureFileExt, classifierSampleRate);
 
 
 //						AudioClassifyUtils audioClassifyUtils = new AudioClassifyUtils(context);

@@ -23,7 +23,6 @@ public class AudioClassify2Utils {
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyUtils");
 
-	private MLPredictor predictor = new MLPredictor();
 
 	public int stepSize = 12000;
 	public float windowSize = (float) 0.975;

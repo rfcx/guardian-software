@@ -148,7 +148,7 @@ public class AssetUtils {
 				if ((filePath != null) && (new File(filePath)).exists()) {
 					FileUtils.delete(filePath);
 					app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
-					purgedAssetReport = new String[] { assetType, assetId, filePath.substring(1 + filePath.lastIndexOf("/")) };
+					purgedAssetReport = new String[] { assetType, assetId, RfcxAssetCleanup.conciseFilePath(filePath, RfcxGuardian.APP_ROLE) };
 				}
 			}
 

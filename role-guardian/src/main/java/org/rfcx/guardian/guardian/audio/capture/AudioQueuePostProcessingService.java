@@ -84,7 +84,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 				// Queue Classification
 				if (isEnabled_audioClassify) {
 
-					int classifierSampleRate = app.rfcxPrefs.getPrefAsInt("audio_stream_sample_rate");
+					int classifierSampleRate = 12000;//app.rfcxPrefs.getPrefAsInt("audio_stream_sample_rate");
 
 					jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
 							""+captureTimeStamp, captureFileExt, "-", classifierSampleRate,

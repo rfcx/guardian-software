@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -40,8 +41,9 @@ public class ApiCheckInUtils {
 		long queuedLimitMb = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit");
 		long queuedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows()+"")/(queuedLimitMb*1024*1024))));
 
-		Log.d(logTag, "Audio added to Queue: " + audioInfo[1] + ", " + FileUtils.bytesAsReadableString(audioFileSize)
-						+  " (" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+" MB limit) " + filePath);
+		Log.d(logTag, "Audio added to Queue: " + audioInfo[1]
+						+ ", " + FileUtils.bytesAsReadableString(audioFileSize) + " (" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+" MB limit)"
+						+ ", " + RfcxAssetCleanup.conciseFilePath(filePath, RfcxGuardian.APP_ROLE));
 
 		// once queued, remove database reference from encode role
 		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1], "stream");

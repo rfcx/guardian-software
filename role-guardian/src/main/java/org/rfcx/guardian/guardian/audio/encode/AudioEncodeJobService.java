@@ -121,7 +121,6 @@ public class AudioEncodeJobService extends Service {
 							
 						} else {
 
-
 							Log.i(logTag, "Beginning Audio Encode Job ("+ StringUtils.capitalizeFirstChar(encodePurpose) +"): "
 												+ timestamp + ", "
 												+ inputFileExt.toUpperCase(Locale.US) + " ("+Math.round(app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate")/1000)+" kHz) "
@@ -131,7 +130,7 @@ public class AudioEncodeJobService extends Service {
 							app.audioEncodeDb.dbQueued.incrementSingleRowAttempts(timestamp);
 
 							// if needed, re-sample wav file prior to encoding
-							preEncodeFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, preEncodeFile.getAbsolutePath(), Long.parseLong(timestamp), inputFileExt, outputSampleRate);
+							preEncodeFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, encodePurpose, preEncodeFile.getAbsolutePath(), Long.parseLong(timestamp), inputFileExt, outputSampleRate);
 
 							File postEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PostEncode(context, Long.parseLong(timestamp), codec, outputSampleRate, encodePurpose));
 
