@@ -1,16 +1,15 @@
 package org.rfcx.guardian.classify.activity;
 
-import org.rfcx.guardian.classify.utils.AudioConverter;
-import org.rfcx.guardian.classify.R;
-import org.rfcx.guardian.classify.RfcxGuardian;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
+import org.rfcx.guardian.classify.R;
+import org.rfcx.guardian.classify.RfcxGuardian;
 
 import java.util.List;
 

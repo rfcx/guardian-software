@@ -33,7 +33,7 @@ class AudioClassifyUtils(context: Context) {
     }
 
     fun classifyAudio(path: String): List<FloatArray> {
-        return classifier?.classify(path) ?: listOf()
+        return this.classifier?.classify(path) ?: listOf()
     }
 
     fun getOutputAsList(): List<String> {
