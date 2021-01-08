@@ -54,8 +54,6 @@ dependencies {
     implementation('io.jsonwebtoken:jjwt-orgjson:0.11.1') {
         exclude group: 'org.json', module: 'json' //provided by Android natively
     }
-
-    implementation 'org.tensorflow:tensorflow-lite:2.3.0'
 }
 
 repositories {

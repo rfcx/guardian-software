@@ -1,13 +1,14 @@
 package org.rfcx.guardian.classify;
 
+import android.app.Application;
+
+import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
-
-import android.app.Application;
 
 public class RfcxGuardian extends Application {
 
@@ -20,6 +21,8 @@ public class RfcxGuardian extends Application {
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
     public RfcxServiceHandler rfcxServiceHandler = null;
+
+    public AudioClassifyUtils audioClassifyUtils = null;
 
     // Database Handlers
 
@@ -42,6 +45,8 @@ public class RfcxGuardian extends Application {
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
+
+        this.audioClassifyUtils = new AudioClassifyUtils(this);
 
         setDbHandlers();
         setServiceHandlers();

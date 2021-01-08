@@ -26,7 +26,6 @@ import org.rfcx.guardian.guardian.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifierDb;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyDb;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyJobService;
-import org.rfcx.guardian.guardian.audio.classify.AudioClassifyUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioVaultDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackJobService;
@@ -134,8 +133,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
 
-    public AudioClassifyUtils audioClassifyUtils = null;
-
     public String[] RfcxCoreServices =
             new String[]{
                     "AudioCapture",
@@ -183,7 +180,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.instructionsUtils = new InstructionsUtils(this);
         this.wifiCommunicationUtils = new WifiCommunicationUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
-        this.audioClassifyUtils = new AudioClassifyUtils(this);
 
     //    reSyncIdentityAcrossRoles();
         reSyncPrefAcrossRoles("all");

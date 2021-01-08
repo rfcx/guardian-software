@@ -1,6 +1,4 @@
-package org.rfcx.guardian.guardian.audio.classify.interfaces
-
-import android.content.Context
+package org.rfcx.guardian.classify.model.interfaces
 
 /**
  * An asyncronous pipeline step for performing prediction

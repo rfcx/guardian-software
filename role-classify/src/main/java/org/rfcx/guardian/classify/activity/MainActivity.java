@@ -1,13 +1,17 @@
 package org.rfcx.guardian.classify.activity;
 
-import org.rfcx.guardian.classify.R;
-import org.rfcx.guardian.classify.RfcxGuardian;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
+import org.rfcx.guardian.classify.R;
+import org.rfcx.guardian.classify.RfcxGuardian;
+
+import java.util.List;
 
 public class MainActivity extends Activity {
 
@@ -36,6 +40,15 @@ public class MainActivity extends Activity {
 		//		((RfcxGuardian) getApplication()).apiUpdateRequestUtils.attemptToTriggerUpdateRequest(true, true);
 			}
 		});
+
+		// example how model running process called
+		RfcxGuardian app = (RfcxGuardian) this.getApplicationContext();
+		int sampleRate = 12000; //app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate");
+		float stepSize = app.rfcxPrefs.getPrefAsFloat("prediction_step_size");
+		float windowSize = app.rfcxPrefs.getPrefAsFloat("prediction_window_size");
+
+		app.audioClassifyUtils.initClassifier(sampleRate, windowSize, stepSize);
+		List<float[]> output = app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().getAbsolutePath() + "/chainsaw12000.wav");
 	}
 
 	@Override
