@@ -1,6 +1,7 @@
 package org.rfcx.guardian.classify;
 
-import org.rfcx.guardian.classify.model.MLPredictor;
+import android.app.Application;
+
 import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
@@ -8,8 +9,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
-
-import android.app.Application;
 
 public class RfcxGuardian extends Application {
 
