@@ -9,11 +9,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog
 import org.tensorflow.lite.Interpreter
 import java.io.File
 
-class MLPredictor(context: Context): Predictor {
+class MLPredictor(private val outputSize: Int): Predictor {
 
     private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "MLPredictor")
-
-    private val app: RfcxGuardian = context.applicationContext as RfcxGuardian
 
     private var interpreter: Interpreter? = null
 
@@ -39,8 +37,8 @@ class MLPredictor(context: Context): Predictor {
         if (interpreter == null) {
             return FloatArray(0)
         }
-        // fix output size to 3
-        val outputShape: Array<FloatArray> = arrayOf(FloatArray(app.audioClassifyUtils.getOutputSize()))
+
+        val outputShape: Array<FloatArray> = arrayOf(FloatArray(this.outputSize))
         try {
             interpreter?.run(arrayOf(input), outputShape)
         } catch (e: Exception) {

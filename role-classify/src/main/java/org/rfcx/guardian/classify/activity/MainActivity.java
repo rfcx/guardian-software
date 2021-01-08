@@ -6,10 +6,13 @@ import org.rfcx.guardian.classify.RfcxGuardian;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
+import java.util.List;
 
 public class MainActivity extends Activity {
 
@@ -46,7 +49,7 @@ public class MainActivity extends Activity {
 		float windowSize = app.rfcxPrefs.getPrefAsFloat("prediction_window_size");
 
 		app.audioClassifyUtils.initClassifierAttributes(sampleRate, windowSize, stepSize);
-		app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().getAbsolutePath() + "/chainsaw12000.wav");
+		List<float[]> output = app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().getAbsolutePath() + "/chainsaw12000.wav");
 	}
 
 	@Override
