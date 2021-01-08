@@ -23,7 +23,7 @@ class AudioClassifyUtils(context: Context) {
      * Need to be called before classify an audio
      * Also used when related prefs have been changed and they need to be re-assigned
      */
-    fun initClassifierAttributes(sampleRate: Int, windowSize: Float, step: Float) {
+    fun initClassifier(sampleRate: Int, windowSize: Float, step: Float) {
         this.classifier = AudioClassifier(sampleRate, windowSize, step, getOutputAsList())
     }
 

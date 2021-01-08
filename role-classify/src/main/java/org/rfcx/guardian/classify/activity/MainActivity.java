@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
 		float stepSize = app.rfcxPrefs.getPrefAsFloat("prediction_step_size");
 		float windowSize = app.rfcxPrefs.getPrefAsFloat("prediction_window_size");
 
-		app.audioClassifyUtils.initClassifierAttributes(sampleRate, windowSize, stepSize);
+		app.audioClassifyUtils.initClassifier(sampleRate, windowSize, stepSize);
 		List<float[]> output = app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().getAbsolutePath() + "/chainsaw12000.wav");
 	}
 
