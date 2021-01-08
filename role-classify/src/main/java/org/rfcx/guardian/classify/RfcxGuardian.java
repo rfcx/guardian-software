@@ -1,5 +1,7 @@
 package org.rfcx.guardian.classify;
 
+import org.rfcx.guardian.classify.model.MLPredictor;
+import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -21,6 +23,7 @@ public class RfcxGuardian extends Application {
     public RfcxPrefs rfcxPrefs = null;
     public RfcxServiceHandler rfcxServiceHandler = null;
 
+    public MLPredictor mlPredictor = null;
     public AudioClassifyUtils audioClassifyUtils = null;
 
     // Database Handlers
@@ -45,6 +48,7 @@ public class RfcxGuardian extends Application {
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
 
+        this.mlPredictor = new MLPredictor(this);
         this.audioClassifyUtils = new AudioClassifyUtils(this);
 
         setDbHandlers();
