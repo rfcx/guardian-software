@@ -312,7 +312,7 @@ public class ApiCheckInHealthUtils {
 
 
 	public boolean isBatteryChargeSufficientForCheckIn() {
-		int batteryChargeCutoff = app.rfcxPrefs.getPrefAsInt("checkin_cutoff_battery");
+		int batteryChargeCutoff = app.rfcxPrefs.getPrefAsInt("checkin_cutoff_internal_battery");
 		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 		boolean isBatteryChargeSufficient = (batteryCharge >= batteryChargeCutoff);
 		if (isBatteryChargeSufficient && (batteryChargeCutoff == 100)) {

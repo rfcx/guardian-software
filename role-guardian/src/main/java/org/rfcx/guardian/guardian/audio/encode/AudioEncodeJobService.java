@@ -85,7 +85,7 @@ public class AudioEncodeJobService extends Service {
 				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbQueued.getAllRows();
 				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
 				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
-				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode, audioCycleDuration );
+				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode, Math.round( 1.0 * audioCycleDuration ) );
 				
 				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
 

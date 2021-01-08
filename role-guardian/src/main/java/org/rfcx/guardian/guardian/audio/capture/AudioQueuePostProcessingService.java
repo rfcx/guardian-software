@@ -98,8 +98,8 @@ public class AudioQueuePostProcessingService extends IntentService {
 				Log.e(logTag, "Failed to prepare captured audio for post processing.");
 			}
 
-			if (jobCount_Encode > 0) { app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", 4 * captureLoopPeriod ); }
-			if (jobCount_Classify > 0) { app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioClassifyJob", 4 * captureLoopPeriod ); }
+			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", 4 * captureLoopPeriod );
+			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioClassifyJob", 4 * captureLoopPeriod );
 
 //			if ((jobCount_Encode+jobCount_Classify) == 0) {
 //				// Scan Encode, Capture & Classify Directories for cleanup
