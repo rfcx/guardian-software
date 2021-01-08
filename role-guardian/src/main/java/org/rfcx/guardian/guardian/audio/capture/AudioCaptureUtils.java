@@ -7,6 +7,7 @@ import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.rfcx.guardian.audio.wav.WavResampler;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
@@ -313,12 +314,12 @@ public class AudioCaptureUtils {
 	}
 
 
-	public static File checkOrCreateReSampledWav(Context context, String purpose, String inputFilePath, long timestamp, String fileExt, int sampleRate) throws IOException {
+	public static File checkOrCreateReSampledWav(Context context, String purpose, String inputFilePath, long timestamp, String fileExt, int outputSampleRate) throws IOException {
 
-		String outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, null);
+		String outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, outputSampleRate, null);
 
 		if (purpose.equalsIgnoreCase("classify")) {
-			outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, sampleRate, null);
+			outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, outputSampleRate, null);
 		}
 
 		if (FileUtils.exists(outputFilePath)) {
@@ -336,6 +337,7 @@ public class AudioCaptureUtils {
 			// create resample copy of the audio file
 			// as a placeholder, for now, we just copy it...
 			FileUtils.copy(inputFilePath, outputFilePath);
+			WavResampler wavResampler = new WavResampler();//.resampleWav(inputFilePath, outputFilePath, 48000, 44100, 1);
 			FileUtils.chmod(outputFilePath, "rw", "rw");
 
 			return (new File(outputFilePath));
