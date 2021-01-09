@@ -81,16 +81,16 @@ public class AudioClassifyClassicUtils {
 	}
 
 
-	public JSONObject classifierOutputAsJson(String classifierId, List<float[]> classifierOutput) throws JSONException {
+	public JSONObject classifierOutputAsJson(String classifierId, String audioId, long audioStartsAt, List<float[]> classifierOutput) throws JSONException {
 
 		String[] classifierClasses = app.audioClassifyClassicUtils.getClassifierClasses(classifierId);
 
 		JSONObject jsonObj = new JSONObject();
 
 		jsonObj.put("classifier_id", classifierId);
-		jsonObj.put("audio_id", classifierId);
+		jsonObj.put("audio_id", audioId);
 
-		jsonObj.put("starts_at", classifierId);
+		jsonObj.put("starts_at", audioStartsAt);
 
 		JSONObject jsonDetections = new JSONObject();
 		for (int j = 0; j < classifierClasses.length; j++) {

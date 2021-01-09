@@ -13,7 +13,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class AudioCaptureService extends Service {
 
-	private static final String SERVICE_NAME = "AudioCapture";
+	public static final String SERVICE_NAME = "AudioCapture";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCaptureService");
 	
@@ -112,7 +112,7 @@ public class AudioCaptureService extends Service {
 						
 					// queueing the last capture file (if there is one) for post-processing
 					if (app.audioCaptureUtils.updateCaptureQueue(captureTimeStamp, audioSampleRate)) {
-						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueuePostProcessing");
+						app.rfcxServiceHandler.triggerIntentServiceImmediately( AudioQueuePostProcessingService.SERVICE_NAME);
 					}
 
 					// This ensures that the service registers as active more frequently than the capture loop duration

@@ -78,22 +78,24 @@ public class AudioClassifyJobService extends Service {
 			
 			try {
 
-				String classifierId = "1234567890";
-				String classifierFilePath = RfcxClassifierFileUtils.classifierActiveDir(context)+"/multiclass-model.tflite";
-				int classifierSampleRate = 12000;
-				float classifierWindowSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_WINDOW_SIZE);
-				float classifierStepSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_STEP_SIZE);
-				String classifierModelOutput = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.PREDICTION_MODEL_OUTPUT);
+				String clsfrId = "1234567890";
+				String clsfrFilePath = RfcxClassifierFileUtils.classifierActiveDir(context)+"/multiclass-model.tflite";
+				int clsfrSampleRate = 12000;
+				float clsfrWindowSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_WINDOW_SIZE);
+				float clsfrStepSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_STEP_SIZE);
+				String clsfrModelOutput = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.PREDICTION_MODEL_OUTPUT);
+
+				String audioId = "9876543210";
+				long audioStartsAt = Long.parseLong(audioId);
 				String audioFilePath = RfcxAudioFileUtils.audioClassifyDir(app.getApplicationContext()) + "/chainsaw12000.wav";
 
-
-				boolean isClassifierLoaded = app.audioClassifyClassicUtils.confirmOrLoadClassifier(classifierId, classifierFilePath, classifierSampleRate, classifierWindowSize, classifierStepSize, classifierModelOutput);
+				boolean isClassifierLoaded = app.audioClassifyClassicUtils.confirmOrLoadClassifier(clsfrId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrModelOutput);
 
 				if (isClassifierLoaded) {
 					long classifyStartTime = System.currentTimeMillis();
-					List<float[]> classifyOutput = app.audioClassifyClassicUtils.getClassifier(classifierId).classify(audioFilePath);
+					List<float[]> classifyOutput = app.audioClassifyClassicUtils.getClassifier(clsfrId).classify(audioFilePath);
 					Log.e(logTag, "Classify Job Time Elapsed: "+ DateTimeUtils.timeStampDifferenceFromNowAsReadableString(classifyStartTime));
-					Log.d(logTag, app.audioClassifyClassicUtils.classifierOutputAsJson(classifierId, classifyOutput).toString());
+					Log.d(logTag, app.audioClassifyClassicUtils.classifierOutputAsJson(clsfrId, audioId, audioStartsAt, classifyOutput).toString());
 				}
 
 

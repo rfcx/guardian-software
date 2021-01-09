@@ -88,7 +88,7 @@
         <service android:name=".api.methods.clocksync.ClockSyncJobService" android:exported="false" />
         <service android:name=".instructions.InstructionsCycleService" android:exported="false" />
         <service android:name=".instructions.InstructionsExecutionService" android:exported="false" />
-        <service android:name=".audio.classify.AudioClassifyJobService" android:exported="false" />
+        <service android:name=".audio.classify.AudioClassifyPrepareService" android:exported="false" />
         <service android:name=".audio.playback.AudioPlaybackJobService" android:exported="false" />
 
         <!-- IntentServices -->
@@ -115,18 +115,10 @@
                 android:authorities="org.rfcx.guardian.guardian"
                 android:readPermission="org.rfcx.guardian.READ"
                 android:writePermission="org.rfcx.guardian.WRITE"
-                android:exported="true" />
-
-<!--        <provider-->
-<!--                android:name=".contentprovider.GuardianFileProvider"-->
-<!--                android:authorities="org.rfcx.guardian.guardian"-->
-<!--                android:readPermission="org.rfcx.guardian.READ"-->
-<!--                android:writePermission="org.rfcx.guardian.WRITE"-->
-<!--                android:grantUriPermissions="true"-->
-<!--                android:exported="true">-->
-<!--            <meta-data  android:name="android.support.FILE_PROVIDER_PATHS"-->
-<!--                    android:resource="@xml/file_provider_paths" />-->
-<!--        </provider>-->
+                android:grantUriPermissions="true"
+                android:exported="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />
+        </provider>
 
     </application>
 

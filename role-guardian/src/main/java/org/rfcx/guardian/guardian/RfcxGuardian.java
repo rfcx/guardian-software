@@ -1,7 +1,5 @@
 package org.rfcx.guardian.guardian;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -27,7 +25,8 @@ import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentDb;
 import org.rfcx.guardian.guardian.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifierDb;
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyDb;
-import org.rfcx.guardian.guardian.audio.classify.AudioClassifyJobService;
+import org.rfcx.guardian.guardian.audio.classify.AudioClassifyPrepareService;
+import org.rfcx.guardian.guardian.audio.classify.AudioClassifyUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioVaultDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackJobService;
@@ -116,6 +115,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
+    public AudioClassifyUtils audioClassifyUtils = null;
     public ApiMqttUtils apiMqttUtils = null;
     public ApiSmsUtils apiSmsUtils = null;
     public ApiRestUtils apiRestUtils = null;
@@ -139,9 +139,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             new String[]{
                     "AudioCapture",
                     "ApiCheckInJob",
-                    "AudioEncodeJob",
-                    "AudioClassifyJob",
-                    "InstructionsCycle"
+                    AudioEncodeJobService.SERVICE_NAME,
+                    AudioClassifyPrepareService.SERVICE_NAME,
+                    InstructionsCycleService.SERVICE_NAME
             };
 
     @Override
@@ -167,6 +167,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         setServiceHandlers();
 
         this.audioCaptureUtils = new AudioCaptureUtils(this);
+        this.audioClassifyUtils = new AudioClassifyUtils(this);
         this.apiMqttUtils = new ApiMqttUtils(this);
         this.apiSmsUtils = new ApiSmsUtils(this);
         this.apiRestUtils = new ApiRestUtils(this);
@@ -289,13 +290,13 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     private void setServiceHandlers() {
 
-        this.rfcxServiceHandler.addService(ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
+        this.rfcxServiceHandler.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
         this.rfcxServiceHandler.addService("ScheduledAssetCleanup", ScheduledAssetCleanupService.class);
 
         this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);
-        this.rfcxServiceHandler.addService("AudioQueuePostProcessing", AudioQueuePostProcessingService.class);
-        this.rfcxServiceHandler.addService("AudioEncodeJob", AudioEncodeJobService.class);
-        this.rfcxServiceHandler.addService("AudioClassifyJob", AudioClassifyJobService.class);
+        this.rfcxServiceHandler.addService( AudioQueuePostProcessingService.SERVICE_NAME, AudioQueuePostProcessingService.class);
+        this.rfcxServiceHandler.addService( AudioEncodeJobService.SERVICE_NAME, AudioEncodeJobService.class);
+        this.rfcxServiceHandler.addService( AudioClassifyPrepareService.SERVICE_NAME, AudioClassifyPrepareService.class);
         this.rfcxServiceHandler.addService("AudioPlaybackJob", AudioPlaybackJobService.class);
 
         this.rfcxServiceHandler.addService("ApiCheckInQueue", ApiCheckInQueueService.class);
@@ -310,7 +311,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
         this.rfcxServiceHandler.addService("MetaSnapshot", MetaSnapshotService.class);
 
-        this.rfcxServiceHandler.addService("InstructionsCycle", InstructionsCycleService.class);
+        this.rfcxServiceHandler.addService( InstructionsCycleService.SERVICE_NAME, InstructionsCycleService.class);
         this.rfcxServiceHandler.addService("InstructionsExecution", InstructionsExecutionService.class);
 
         this.rfcxServiceHandler.addService("WifiCommunication", WifiCommunicationService.class);

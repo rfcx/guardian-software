@@ -82,7 +82,10 @@
 			android:authorities="org.rfcx.guardian.updater"
         	android:readPermission="org.rfcx.guardian.READ"
         	android:writePermission="org.rfcx.guardian.WRITE"
-        	android:exported="true" />
+			android:grantUriPermissions="true"
+			android:exported="true">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />
+		</provider>
 
     </application>
 

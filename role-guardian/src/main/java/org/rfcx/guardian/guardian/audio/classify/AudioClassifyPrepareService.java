@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
@@ -14,16 +15,16 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import java.io.File;
 import java.util.List;
 
-public class AudioClassifyJobService extends Service {
+public class AudioClassifyPrepareService extends Service {
 
-	private static final String SERVICE_NAME = "AudioClassifyJob";
+	public static final String SERVICE_NAME = "AudioClassifyPrepare";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyJobService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyPrepareService");
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private AudioClassifyJob audioClassifyJob;
+	private AudioClassifyPrepare audioClassifyPrepare;
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -33,7 +34,7 @@ public class AudioClassifyJobService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.audioClassifyJob = new AudioClassifyJob();
+		this.audioClassifyPrepare = new AudioClassifyPrepare();
 		app = (RfcxGuardian) getApplication();
 	}
 
@@ -44,7 +45,7 @@ public class AudioClassifyJobService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.audioClassifyJob.start();
+			this.audioClassifyPrepare.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -56,19 +57,19 @@ public class AudioClassifyJobService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.audioClassifyJob.interrupt();
-		this.audioClassifyJob = null;
+		this.audioClassifyPrepare.interrupt();
+		this.audioClassifyPrepare = null;
 	}
 	
-	private class AudioClassifyJob extends Thread {
+	private class AudioClassifyPrepare extends Thread {
 
-		public AudioClassifyJob() {
-			super("AudioClassifyJobService-AudioClassifyJob");
+		public AudioClassifyPrepare() {
+			super("AudioClassifyPrepareService-AudioClassifyPrepare");
 		}
 		
 		@Override
 		public void run() {
-			AudioClassifyJobService audioClassifyJobInstance = AudioClassifyJobService.this;
+			AudioClassifyPrepareService audioClassifyPrepareInstance = AudioClassifyPrepareService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
@@ -78,9 +79,9 @@ public class AudioClassifyJobService extends Service {
 			try {
 
 				List<String[]> latestQueuedAudioFilesToClassify = app.audioClassifyDb.dbQueued.getAllRows();
-				if (latestQueuedAudioFilesToClassify.size() == 0) { Log.d(logTag, "No audio files are queued to be classified."); }
+				if (latestQueuedAudioFilesToClassify.size() == 0) { Log.d(logTag, "No classification jobs are currently queued."); }
 				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
-				AudioClassifyAssetUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( 1.0 * audioCycleDuration ) );
+				AudioClassifyUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( 1.0 * audioCycleDuration ) );
 
 				for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
 
@@ -89,28 +90,34 @@ public class AudioClassifyJobService extends Service {
 					// only proceed with classify process if there is a valid queued audio file in the database
 					if (latestQueuedAudioToClassify[0] != null) {
 
-						String timestamp = latestQueuedAudioToClassify[1];
-						String captureFileExt = latestQueuedAudioToClassify[2];
-						int captureSampleRate = Integer.parseInt(latestQueuedAudioToClassify[11]);
+						Log.e(logTag, TextUtils.join(" ", latestQueuedAudioToClassify));
+
+						String audioId = latestQueuedAudioToClassify[1];
+						String classifierId = latestQueuedAudioToClassify[2];
+
+						int captureSampleRate = Integer.parseInt(latestQueuedAudioToClassify[3]);
 						int classifierSampleRate = Integer.parseInt(latestQueuedAudioToClassify[4]);
-						File preClassifyFile = new File(latestQueuedAudioToClassify[10]);
+
+						String classifierFilePath = latestQueuedAudioToClassify[6];
+						String classifierWindowSize = latestQueuedAudioToClassify[7];
+						String classifierStepSize = latestQueuedAudioToClassify[8];
+						String classifierClasses = latestQueuedAudioToClassify[9];
+
+						File preClassifyAudioFile = new File(latestQueuedAudioToClassify[5]);
+
+						preClassifyAudioFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, "classify", preClassifyAudioFile.getAbsolutePath(), Long.parseLong(audioId), "wav", captureSampleRate, classifierSampleRate);
 
 
-						preClassifyFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, "classify", preClassifyFile.getAbsolutePath(), Long.parseLong(timestamp), captureFileExt, classifierSampleRate);
-
-
-//						AudioClassifyUtils audioClassifyUtils = new AudioClassifyUtils(context);
-//
-//
-//						audioClassifyUtils.classifyAudio(audioFile);
 
 
 
-						app.audioClassifyDb.dbQueued.deleteSingleRow(timestamp);
+
+
+						app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
 
 
 					} else {
-						Log.d(logTag, "Queued audio file entry in database is invalid.");
+						Log.d(logTag, "Queued classification job in database is invalid.");
 
 					}
 				}
@@ -119,11 +126,11 @@ public class AudioClassifyJobService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				audioClassifyJobInstance.runFlag = false;
+				audioClassifyPrepareInstance.runFlag = false;
 			}
 			
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			audioClassifyJobInstance.runFlag = false;
+			audioClassifyPrepareInstance.runFlag = false;
 
 		}
 	}

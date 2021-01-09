@@ -1,6 +1,8 @@
 package org.rfcx.guardian.guardian.audio.capture;
 
 
+import org.rfcx.guardian.guardian.audio.classify.AudioClassifyPrepareService;
+import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -12,9 +14,11 @@ import android.content.Intent;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
+import java.util.List;
+
 public class AudioQueuePostProcessingService extends IntentService {
 
-	private static final String SERVICE_NAME = "AudioQueuePostProcessing";
+	public static final String SERVICE_NAME = "AudioQueuePostProcessing";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioQueuePostProcessingService");
 
@@ -82,12 +86,26 @@ public class AudioQueuePostProcessingService extends IntentService {
 				// Queue Classification
 				if (isEnabled_audioClassify) {
 
-					int classifierSampleRate = 12000;
+					List<String[]> allActiveClassifiers = app.audioClassifierDb.dbActive.getAllRows();
+					if (allActiveClassifiers.size() == 0) { Log.d(logTag, "There are currently no active classifiers."); }
 
-					jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
-							""+captureTimeStamp, captureFileExt, "-", classifierSampleRate,
-							0, "-", captureLoopPeriod, captureLoopPeriod, "-", preClassifyFilePath, captureSampleRate
-							);
+					for (String[] classiferRow : allActiveClassifiers) {
+						if (classiferRow[0] != null) {
+
+							String classifierId = classiferRow[1];
+							int classifierSampleRate = Integer.parseInt(classiferRow[6]);
+							String classifierFilePath = classiferRow[5];
+							String classifierWindowSize = classiferRow[7];
+							String classifierStepSize = classiferRow[8];
+							String classifierClasses = classiferRow[9];
+
+							jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
+									"" + captureTimeStamp, classifierId,
+											captureSampleRate, classifierSampleRate,
+											preClassifyFilePath, classifierFilePath,
+											classifierWindowSize, classifierStepSize, classifierClasses);
+						}
+					}
 				}
 
 
@@ -96,8 +114,8 @@ public class AudioQueuePostProcessingService extends IntentService {
 				Log.e(logTag, "Failed to prepare captured audio for post processing.");
 			}
 
-			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioEncodeJob", 4 * captureLoopPeriod );
-			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("AudioClassifyJob", 4 * captureLoopPeriod );
+			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut( AudioEncodeJobService.SERVICE_NAME, 4 * captureLoopPeriod );
+			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut( AudioClassifyPrepareService.SERVICE_NAME, 4 * captureLoopPeriod );
 
 //			if ((jobCount_Encode+jobCount_Classify) == 0) {
 //				// Scan Encode, Capture & Classify Directories for cleanup
