@@ -13,6 +13,7 @@ import android.widget.Button;
 
 import org.rfcx.guardian.classify.R;
 import org.rfcx.guardian.classify.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.List;
@@ -45,21 +46,9 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 
-				RfcxGuardian app = (RfcxGuardian) getApplicationContext();
-				// example how model running process called
-				int sampleRate = 12000;
-				float stepSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_STEP_SIZE);
-				float windowSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_WINDOW_SIZE);
+			RfcxGuardian app = (RfcxGuardian) getApplicationContext();
+			app.rfcxServiceHandler.triggerService("AudioClassifyJob", false);
 
-				app.audioClassifyUtils.initClassifier(sampleRate, windowSize, stepSize);
-				List<float[]> output = app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().getAbsolutePath() + "/chainsaw12000.wav");
-
-				for (float[] flt : output) {
-
-					for (float _flt : flt) {
-						Log.e("Rfcx-Classify-MainActivity",""+ _flt);
-					}
-				}
 			}
 		});
 

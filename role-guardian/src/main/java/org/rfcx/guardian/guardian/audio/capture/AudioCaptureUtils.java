@@ -35,7 +35,7 @@ public class AudioCaptureUtils {
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCaptureUtils");
 
-	private RfcxGuardian app = null;
+	private final RfcxGuardian app;
 
 	public String[] samplingRatioStrArr = new String[] {};
 	public int[] samplingRatioArr = new int[] {};

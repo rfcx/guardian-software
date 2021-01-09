@@ -289,7 +289,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     private void setServiceHandlers() {
 
-        this.rfcxServiceHandler.addService("ServiceMonitor", ServiceMonitor.class);
+        this.rfcxServiceHandler.addService(ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
         this.rfcxServiceHandler.addService("ScheduledAssetCleanup", ScheduledAssetCleanupService.class);
 
         this.rfcxServiceHandler.addService("AudioCapture", AudioCaptureService.class);

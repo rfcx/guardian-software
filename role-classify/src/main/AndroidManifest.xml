@@ -70,6 +70,11 @@
 
 		<!-- Services -->
 		<service android:name=".service.AudioClassifyQueueCycleService" />
+		<service android:name=".service.AudioClassifyJobService" />
+
+		<!-- IntentServices -->
+		<service android:name=".ServiceMonitor" android:exported="false" />
+
 
 
 		<receiver android:name=".receiver.BootReceiver">

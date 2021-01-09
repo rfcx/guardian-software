@@ -1,10 +1,10 @@
-package org.rfcx.guardian.guardian;
-
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+package org.rfcx.guardian.classify;
 
 import android.app.IntentService;
 import android.content.Intent;
+
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ServiceMonitor extends IntentService {
 

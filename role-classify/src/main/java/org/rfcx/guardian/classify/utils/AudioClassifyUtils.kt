@@ -5,6 +5,7 @@ import org.rfcx.guardian.classify.RfcxGuardian
 import org.rfcx.guardian.classify.model.AudioClassifier
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils
+import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 import java.io.File
@@ -23,8 +24,8 @@ class AudioClassifyUtils(context: Context) {
      * Need to be called before classify an audio
      * Also used when related prefs have been changed and they need to be re-assigned
      */
-    fun initClassifier(sampleRate: Int, windowSize: Float, step: Float) {
-        this.classifier = AudioClassifier(sampleRate, windowSize, step, getOutputAsList())
+    fun initClassifier(tfLiteFilePath: String, sampleRate: Int, windowSize: Float, step: Float) {
+        this.classifier = AudioClassifier(tfLiteFilePath, sampleRate, windowSize, step, getOutputAsList())
     }
 
     fun classifyAudio(file: File) {

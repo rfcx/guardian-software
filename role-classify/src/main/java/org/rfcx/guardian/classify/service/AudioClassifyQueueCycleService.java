@@ -11,7 +11,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class AudioClassifyQueueCycleService extends Service {
 
-	private static final String SERVICE_NAME = "AudioClassifyQueueCycle";
+	public static final String SERVICE_NAME = "AudioClassifyQueueCycle";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyQueueCycleService");
 	
