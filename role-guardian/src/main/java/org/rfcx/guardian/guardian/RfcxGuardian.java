@@ -1,5 +1,7 @@
 package org.rfcx.guardian.guardian;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -246,11 +248,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                             ,
                     "ScheduledClockSync"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
-                            + "|" + ( this.rfcxPrefs.getPrefAsLong("api_clock_sync_cycle_duration") * 60 * 1000 )
+                            + "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_CLOCK_SYNC_CYCLE_DURATION) * 60 * 1000 )
                             ,
                     "ScheduledApiPing"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
-                            + "|" + ( this.rfcxPrefs.getPrefAsLong("api_ping_cycle_duration") * 60 * 1000 )
+                            + "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_PING_CYCLE_DURATION) * 60 * 1000 )
                             ,
                     "WifiCommunication"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minutes before running
@@ -351,20 +353,20 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public void onPrefReSync(String prefKey) {
 
-        if (prefKey.equalsIgnoreCase("audio_cycle_duration")) {
+        if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)) {
             this.apiMqttUtils.getSetCheckInPublishTimeOutLength();
 
-        } else if (prefKey.equalsIgnoreCase("admin_enable_wifi_socket")) {
+        } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET)) {
             this.rfcxServiceHandler.triggerService("WifiCommunication", false);
 
-        } else if (prefKey.equalsIgnoreCase("checkin_failure_thresholds")) {
+        } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)) {
             this.apiMqttUtils.initializeFailedCheckInThresholds();
 
-        } else if (prefKey.equalsIgnoreCase("enable_checkin_publish")) {
+        } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH)) {
             this.apiMqttUtils.initializeFailedCheckInThresholds();
             this.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
 
-        } else if (prefKey.equalsIgnoreCase("enable_cutoffs_sampling_ratio")) {
+        } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO)) {
             this.audioCaptureUtils.samplingRatioIteration = 0;
 
         }

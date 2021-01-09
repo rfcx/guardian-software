@@ -24,6 +24,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class AudioCaptureUtils {
 
@@ -56,7 +57,7 @@ public class AudioCaptureUtils {
 	}
 
 	public void updateSamplingRatioIteration() {
-		this.samplingRatioStrArr = TextUtils.split(app.rfcxPrefs.getPrefAsString("audio_sampling_ratio"), ":");
+		this.samplingRatioStrArr = TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO), ":");
 		this.samplingRatioArr = new int[] { Integer.parseInt(this.samplingRatioStrArr[0]), Integer.parseInt(this.samplingRatioStrArr[1]) };
 		if (this.samplingRatioIteration > this.samplingRatioArr[1]) { this.samplingRatioIteration = 0; }
 		this.samplingRatioIteration++;
@@ -68,7 +69,7 @@ public class AudioCaptureUtils {
 		if (!this.isAudioCaptureHardwareSupported) {
 
 			int[] defaultSampleRateOptions = new int[]{ 8000, 12000, 16000, 24000, 48000 };
-			int originalSampleRate = app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate");
+			int originalSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE);
 			int verifiedOrUpdatedSampleRate = originalSampleRate;
 
 			for (int i = 0; i < defaultSampleRateOptions.length; i++) {
@@ -87,7 +88,7 @@ public class AudioCaptureUtils {
 			}
 
 			if (verifiedOrUpdatedSampleRate != originalSampleRate) {
-				app.setSharedPref("audio_capture_sample_rate", "" + verifiedOrUpdatedSampleRate);
+				app.setSharedPref(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE, "" + verifiedOrUpdatedSampleRate);
 				Log.e(logTag, "Audio capture sample rate of " + originalSampleRate + " Hz not supported. Sample rate updated to " + verifiedOrUpdatedSampleRate + " Hz.");
 				this.isAudioCaptureHardwareSupported = true;
 			}
@@ -101,7 +102,7 @@ public class AudioCaptureUtils {
 	}
 
 	private boolean isBatteryChargeSufficientForCapture() {
-		int batteryChargeCutoff = this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_internal_battery");
+		int batteryChargeCutoff = this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY);
 		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 		boolean isBatteryChargeSufficient = (batteryCharge >= batteryChargeCutoff);
 		if (isBatteryChargeSufficient && (batteryChargeCutoff == 100)) {
@@ -112,12 +113,12 @@ public class AudioCaptureUtils {
 	}
 
 	private boolean limitBasedOnBatteryLevel() {
-		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_internal_battery"));
+		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY));
 	}
 
 	private boolean limitBasedOnSentinelBatteryLevel() {
 
-		if (this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
+		if (this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY)) {
 			try {
 				JSONArray jsonArray = RfcxComm.getQuery("admin", "status", "*", app.getResolver());
 				if (jsonArray.length() > 0) {
@@ -149,7 +150,7 @@ public class AudioCaptureUtils {
 
 
 	private boolean isCaptureAllowedAtThisTimeOfDay() {
-		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours"), ",")) {
+		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SCHEDULE_OFF_HOURS), ",")) {
 			String[] offHours = TextUtils.split(offHoursRange, "-");
 			if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
 				return false;
@@ -159,11 +160,11 @@ public class AudioCaptureUtils {
 	}
 
 	private boolean limitBasedOnTimeOfDay() {
-		return (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_schedule_off_hours"));
+		return (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS));
 	}
 
 	private boolean limitBasedOnCaptureSamplingRatio() {
-		return (!isCaptureAllowedAtThisSamplingRatioIteration() && this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sampling_ratio"));
+		return (!isCaptureAllowedAtThisSamplingRatioIteration() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO));
 	}
 
 	private boolean isCaptureAllowedAtThisSamplingRatioIteration() {
@@ -192,12 +193,12 @@ public class AudioCaptureUtils {
 		if (limitBasedOnBatteryLevel()) {
 			msgNoCapture.append("Low Battery level")
 					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
-					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_internal_battery")).append("%).");
+					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		} else if (includeSentinel && limitBasedOnSentinelBatteryLevel()) {
 			msgNoCapture.append("Low Sentinel Battery level")
-					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery")).append("%).");
+					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		} else if (limitBasedOnInternalStorage()) {
@@ -208,7 +209,7 @@ public class AudioCaptureUtils {
 
 		} else if (!doesHardwareSupportCaptureSampleRate()) {
 			msgNoCapture.append("lack of hardware support for capture sample rate: ")
-						.append(app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate")).append(" Hz.");
+						.append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)).append(" Hz.");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		}
@@ -217,7 +218,7 @@ public class AudioCaptureUtils {
 			if (printFeedbackInLog) {
 				Log.d(logTag, msgNoCapture
 						.insert(0, DateTimeUtils.getDateTime() + " - AudioCapture not allowed due to ")
-						.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")).append(" seconds before next attempt.")
+						.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)).append(" seconds before next attempt.")
 						.toString());
 			}
 		}
@@ -232,18 +233,18 @@ public class AudioCaptureUtils {
 		boolean isAudioCaptureDisabledRightNow = false;
 		StringBuilder msgNoCapture = new StringBuilder();
 
-		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
+		if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
 			msgNoCapture.append("it being explicitly disabled ('enable_audio_capture' is set to false).");
 			isAudioCaptureDisabledRightNow = true;
 
 		} else if (limitBasedOnTimeOfDay()) {
 			msgNoCapture.append("current time of day/night")
-					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")).append("'.");
+					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SCHEDULE_OFF_HOURS)).append("'.");
 			isAudioCaptureDisabledRightNow = true;
 
 		} else if (limitBasedOnCaptureSamplingRatio()) {
 			msgNoCapture.append("a sampling ratio definition. ")
-						.append("Ratio is '").append(app.rfcxPrefs.getPrefAsString("audio_sampling_ratio")).append("'. ")
+						.append("Ratio is '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO)).append("'. ")
 						.append("Currently on iteration ").append(this.samplingRatioIteration).append(" of ").append(this.samplingRatioArr[0]+this.samplingRatioArr[1]).append(".");
 			isAudioCaptureDisabledRightNow = true;
 
@@ -257,7 +258,7 @@ public class AudioCaptureUtils {
 			if (printFeedbackInLog) {
 				Log.d(logTag, msgNoCapture
 						.insert(0, DateTimeUtils.getDateTime() + " - AudioCapture paused due to ")
-						.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")).append(" seconds before next attempt.")
+						.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)).append(" seconds before next attempt.")
 						.toString());
 			}
 		}

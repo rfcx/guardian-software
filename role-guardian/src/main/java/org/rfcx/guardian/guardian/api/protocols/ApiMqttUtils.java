@@ -23,6 +23,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class ApiMqttUtils implements MqttCallback {
 
@@ -65,13 +66,13 @@ public class ApiMqttUtils implements MqttCallback {
 	private boolean[] failedCheckInThresholdsReached = new boolean[0];
 
 	public void setOrResetBrokerConfig() {
-		String[] authUserPswd = app.rfcxPrefs.getPrefAsString("api_mqtt_auth_creds").split(",");
-		String authUser = !app.rfcxPrefs.getPrefAsBoolean("enable_mqtt_auth") ? null : authUserPswd[0];
-		String authPswd = !app.rfcxPrefs.getPrefAsBoolean("enable_mqtt_auth") ? null : authUserPswd[1];
+		String[] authUserPswd = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_AUTH_CREDS).split(",");
+		String authUser = !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_MQTT_AUTH) ? null : authUserPswd[0];
+		String authPswd = !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_MQTT_AUTH) ? null : authUserPswd[1];
 		this.mqttCheckInClient.setOrResetBroker(
-			this.app.rfcxPrefs.getPrefAsString("api_mqtt_protocol"),
-			this.app.rfcxPrefs.getPrefAsInt("api_mqtt_port"),
-			this.app.rfcxPrefs.getPrefAsString("api_mqtt_host"),
+			this.app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_PROTOCOL),
+			this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.API_MQTT_PORT),
+			this.app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_HOST),
 			this.app.rfcxGuardianIdentity.getKeystorePassphrase(),
 			!authUser.equalsIgnoreCase("[guid]") ? authUser : app.rfcxGuardianIdentity.getGuid(),
 			!authPswd.equalsIgnoreCase("[token]") ? authPswd : app.rfcxGuardianIdentity.getAuthToken()
@@ -79,7 +80,7 @@ public class ApiMqttUtils implements MqttCallback {
 	}
 
 	public long getSetCheckInPublishTimeOutLength() {
-		long timeOutLength = 2 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+		long timeOutLength = 2 * this.app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
 		if (this.checkInPublishTimeOutLength < timeOutLength) {
 			this.checkInPublishTimeOutLength = timeOutLength;
 			this.mqttCheckInClient.setActionTimeout(timeOutLength);
@@ -269,9 +270,9 @@ public class ApiMqttUtils implements MqttCallback {
 					app.deviceSystemDb.dbMqttBroker.insert(new Date(),
 													mqttCheckInClient.mqttBrokerConnectionLatency,
 													mqttCheckInClient.mqttBrokerSubscriptionLatency,
-													app.rfcxPrefs.getPrefAsString("api_mqtt_protocol"),
-													app.rfcxPrefs.getPrefAsString("api_mqtt_host"),
-													app.rfcxPrefs.getPrefAsInt("api_mqtt_port"));
+													app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_PROTOCOL),
+													app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_HOST),
+													app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.API_MQTT_PORT));
 
 					app.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
 				}
@@ -384,7 +385,7 @@ public class ApiMqttUtils implements MqttCallback {
 					initializeFailedCheckInThresholds();
 				}
 
-				long additionalDelay = Math.round(this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 0.667);
+				long additionalDelay = Math.round(this.app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 0.667);
 				Log.e(logTag, logErrorMsg+" Delaying "+additionalDelay+" seconds before trying again...");
 				Thread.sleep(additionalDelay*1000);
 
@@ -427,7 +428,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 	public void initializeFailedCheckInThresholds() {
 
-		String[] checkInThresholdsStr = TextUtils.split(app.rfcxPrefs.getPrefAsString("checkin_failure_thresholds"), ",");
+		String[] checkInThresholdsStr = TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS), ",");
 
 		int[] checkInThresholds = new int[checkInThresholdsStr.length];
 		boolean[] checkInThresholdsReached = new boolean[checkInThresholdsStr.length];

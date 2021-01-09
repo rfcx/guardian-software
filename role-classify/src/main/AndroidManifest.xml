@@ -69,7 +69,7 @@
 
 
 		<!-- Services -->
-		<service android:name=".service.SbdDispatchCycleService" />
+		<service android:name=".service.ClassifyQueueCycleService" />
 
 
 		<receiver android:name=".receiver.BootReceiver">

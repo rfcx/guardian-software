@@ -11,6 +11,7 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -216,22 +217,22 @@ public class ApiCheckInHealthUtils {
 		// we then return the resulting true/false value
 		boolean isApiCheckInAllowedUnderKnownConditions = true;
 		StringBuilder msgNotAllowed = new StringBuilder();
-		int reportedDelay = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 2;
+		int reportedDelay = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 2;
 
-		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_internal_battery") && !isBatteryChargeSufficientForCheckIn()) {
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY) && !isBatteryChargeSufficientForCheckIn()) {
 			msgNotAllowed.append("low battery level")
 					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
-					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt("checkin_cutoff_internal_battery")).append("%).");
+					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_INTERNAL_BATTERY)).append("%).");
 			isApiCheckInAllowedUnderKnownConditions = false;
 
 		} else if (!app.deviceConnectivity.isConnected()) {
 			msgNotAllowed.append("a lack of network connectivity.");
 			isApiCheckInAllowedUnderKnownConditions = false;
-			reportedDelay = Math.round(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") / 2);
+			reportedDelay = Math.round(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) / 2);
 
 		} else if (includeSentinel && limitBasedOnSentinelBatteryLevel()) {
 			msgNotAllowed.append("Low Sentinel Battery level")
-					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery")).append("%).");
+					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY)).append("%).");
 			isApiCheckInAllowedUnderKnownConditions = false;
 
 		}
@@ -255,7 +256,7 @@ public class ApiCheckInHealthUtils {
 		boolean areApiChecksInDisabledRightNow = false;
 		StringBuilder msgIfDisabled = new StringBuilder();
 
-		if (!this.app.rfcxPrefs.getPrefAsBoolean("enable_checkin_publish")) {
+		if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH)) {
 			msgIfDisabled.append("preference 'enable_checkin_publish' being explicitly set to false.");
 			areApiChecksInDisabledRightNow = true;
 
@@ -263,7 +264,7 @@ public class ApiCheckInHealthUtils {
 		// ...But we assume this is something that might be added at a future date, as it works for audio capture.
 //		} else if (limitBasedOnTimeOfDay()) {
 //			msgIfDisabled.append("current time of day/night")
-//					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString("audio_schedule_off_hours")).append("'.");
+//					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SCHEDULE_OFF_HOURS)).append("'.");
 //			areApiChecksInDisabledRightNow = true;
 
 		} else if (!app.isGuardianRegistered()) {
@@ -276,7 +277,6 @@ public class ApiCheckInHealthUtils {
 			if (printFeedbackInLog) {
 				Log.d(logTag, msgIfDisabled
 						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn disabled due to ")
-					//	.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")).append(" seconds before next attempt.")
 						.toString());
 			}
 		}
@@ -288,7 +288,7 @@ public class ApiCheckInHealthUtils {
 
 	private boolean limitBasedOnSentinelBatteryLevel() {
 
-		if (this.app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery")) {
+		if (this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY)) {
 			try {
 				JSONArray jsonArray = RfcxComm.getQuery("admin", "status", "*", app.getResolver());
 				if (jsonArray.length() > 0) {
@@ -312,7 +312,7 @@ public class ApiCheckInHealthUtils {
 
 
 	public boolean isBatteryChargeSufficientForCheckIn() {
-		int batteryChargeCutoff = app.rfcxPrefs.getPrefAsInt("checkin_cutoff_internal_battery");
+		int batteryChargeCutoff = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_INTERNAL_BATTERY);
 		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 		boolean isBatteryChargeSufficient = (batteryCharge >= batteryChargeCutoff);
 		if (isBatteryChargeSufficient && (batteryChargeCutoff == 100)) {

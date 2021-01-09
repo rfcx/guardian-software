@@ -6,6 +6,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.utility.rfcx.RfcxLog
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 class WifiCommunicationUtils(private val context: Context) {
 
@@ -19,10 +20,10 @@ class WifiCommunicationUtils(private val context: Context) {
         val configurationJsonArray = JSONArray()
         try {
             val configurationJson = JSONObject()
-            val sampleRate = app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate")
-            val bitrate = app.rfcxPrefs.getPrefAsInt("audio_stream_bitrate")
-            val fileFormat = app.rfcxPrefs.getPrefAsString("audio_stream_codec")
-            val duration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")
+            val sampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)
+            val bitrate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE)
+            val fileFormat = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE)
+            val duration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)
 
             configurationJson.let {
                 it.put("sample_rate", sampleRate)

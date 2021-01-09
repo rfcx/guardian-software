@@ -12,6 +12,7 @@ import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.io.IOException;
@@ -31,9 +32,9 @@ public class ApiPingUtils {
 
 	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, String forceProtocol) {
 
-		String[] apiProtocols = app.rfcxPrefs.getDefaultPrefValueAsString("api_protocol_escalation_order").split(",");
+		String[] apiProtocols = app.rfcxPrefs.getDefaultPrefValueAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(",");
 		if (forceProtocol.equalsIgnoreCase("all")) {
-			apiProtocols = app.rfcxPrefs.getPrefAsString("api_protocol_escalation_order").split(",");
+			apiProtocols = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(",");
 			Log.v(logTag, "Allowed Ping protocols (in order): " + TextUtils.join(", ", apiProtocols).toUpperCase(Locale.US));
 		} else if (ArrayUtils.doesStringArrayContainString(apiProtocols,forceProtocol)) {
 			apiProtocols = new String[] { forceProtocol };

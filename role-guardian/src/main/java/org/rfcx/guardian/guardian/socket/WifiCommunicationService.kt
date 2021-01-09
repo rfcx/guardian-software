@@ -5,6 +5,7 @@ import android.content.Intent
 import android.util.Log
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.utility.rfcx.RfcxLog
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 import org.rfcx.guardian.utility.service.RfcxServiceHandler
 
 class WifiCommunicationService : IntentService("WifiCommunication") {
@@ -24,9 +25,9 @@ class WifiCommunicationService : IntentService("WifiCommunication") {
 
         app.rfcxServiceHandler.reportAsActive(SERVICE_NAME)
 
-        val prefsAdminEnableWifiSocket = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi_socket")
+        val prefsAdminEnableWifiSocket = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET)
 
-        val prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi")
+        val prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI)
         if (prefsAdminEnableWifiSocket && !prefsAdminEnableWifi) {
             Log.e( logTag, "WiFi Socket Server could not be enabled because 'admin_enable_wifi' is disabled")
         }

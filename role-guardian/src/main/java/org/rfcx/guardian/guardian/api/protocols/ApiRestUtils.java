@@ -10,6 +10,7 @@ import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.network.HttpGet;
 import org.rfcx.guardian.utility.network.HttpPostMultipart;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +53,8 @@ public class ApiRestUtils {
 
 		StringBuilder requestUrl = new StringBuilder();
 
-		requestUrl.append(app.rfcxPrefs.getPrefAsString("api_rest_protocol")).append("://");
-		requestUrl.append(app.rfcxPrefs.getPrefAsString("api_rest_host"));
+		requestUrl.append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_REST_PROTOCOL)).append("://");
+		requestUrl.append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_REST_HOST));
 
 		requestUrl.append(requestPath);
 
@@ -70,7 +71,7 @@ public class ApiRestUtils {
 
 	private boolean areRestApiRequestsAllowed(boolean printLoggingFeedbackIfNotAllowed) {
 		if (app != null) {
-			if (ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString("api_protocol_escalation_order").split(","), "rest")) {
+			if (ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "rest")) {
 				if (app.deviceConnectivity.isConnected()) {
 
 //				long timeElapsedSinceLastUpdateRequest = System.currentTimeMillis() - this.lastUpdateRequestTriggered;

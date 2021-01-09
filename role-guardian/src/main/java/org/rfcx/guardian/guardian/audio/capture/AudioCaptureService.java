@@ -9,6 +9,7 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class AudioCaptureService extends Service {
 
@@ -146,8 +147,8 @@ public class AudioCaptureService extends Service {
 
 			app.audioCaptureUtils.updateSamplingRatioIteration();
 
-			int prefsAudioCaptureSampleRate = app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate");
-			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+			int prefsAudioCaptureSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE);
+			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
 			
 			if (	(this.audioSampleRate != prefsAudioCaptureSampleRate)
 				||	(this.audioCycleDuration != prefsAudioCycleDuration)

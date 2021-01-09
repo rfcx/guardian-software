@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class AudioEncodeJobService extends Service {
 
@@ -84,7 +85,7 @@ public class AudioEncodeJobService extends Service {
 				
 				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbQueued.getAllRows();
 				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
-				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
 				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode, Math.round( 1.0 * audioCycleDuration ) );
 				
 				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
@@ -123,7 +124,7 @@ public class AudioEncodeJobService extends Service {
 
 							Log.i(logTag, "Beginning Audio Encode Job ("+ StringUtils.capitalizeFirstChar(encodePurpose) +"): "
 												+ timestamp + ", "
-												+ inputFileExt.toUpperCase(Locale.US) + " ("+Math.round(app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate")/1000)+" kHz) "
+												+ inputFileExt.toUpperCase(Locale.US) + " ("+Math.round(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)/1000)+" kHz) "
 												+"to " + codec.toUpperCase(Locale.US)+" ("+Math.round(outputSampleRate/1000)+" kHz"+ ((codec.equalsIgnoreCase("opus")) ? (", "+Math.round(bitRate/1024)+" kbps") : "")+")"
 							);
 

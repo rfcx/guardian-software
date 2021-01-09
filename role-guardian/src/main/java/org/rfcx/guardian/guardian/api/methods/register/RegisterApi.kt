@@ -8,6 +8,7 @@ import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.guardian.manager.getTokenID
 import org.rfcx.guardian.utility.network.HttpPostMultipart
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 object RegisterApi {
 
@@ -82,8 +83,8 @@ object RegisterApi {
 
     private fun getApiUrl(context: Context, isProduction: Boolean): String {
         val prefs = (context.applicationContext as RfcxGuardian).rfcxPrefs
-        val protocol = prefs.getPrefAsString("api_rest_protocol")
-        var host = prefs.getPrefAsString("api_rest_host")
+        val protocol = prefs.getPrefAsString(RfcxPrefs.Pref.API_REST_PROTOCOL)
+        var host = prefs.getPrefAsString(RfcxPrefs.Pref.API_REST_HOST)
         if (isProduction) {
             //Remove staging- out
             if (host.contains("staging")) {

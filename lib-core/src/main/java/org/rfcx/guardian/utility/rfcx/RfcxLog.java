@@ -6,11 +6,11 @@ import android.util.Log;
 public class RfcxLog {
 
 	public static String generateLogTag(String appRole, Class logClass) {
-		return (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(logClass.getSimpleName()).toString();
+		return "Rfcx-" + appRole + "-" + logClass.getSimpleName();
 	}
 
 	public static String generateLogTag(String appRole, String logClassName) {
-		return (new StringBuilder()).append("Rfcx-").append(appRole).append("-").append(logClassName).toString();
+		return "Rfcx-" + appRole + "-" + logClassName;
 	}
 	
 	public static String getExceptionContentAsString(Exception exc) {

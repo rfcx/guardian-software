@@ -24,6 +24,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceMemory;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -214,7 +215,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 			this.captureCycleLastStartTime = System.currentTimeMillis();
 
-			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
 
 			// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
 			// however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
@@ -426,7 +427,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 						Log.v(logTag, "Registering listener for 'geoposition'...");
 						this.locationManager.requestLocationUpdates(
 								this.geoPositionProviderInfo,
-								( app.rfcxPrefs.getPrefAsLong("admin_geoposition_capture_cycle") * 60 * 1000 ),
+								( app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_GEOPOSITION_CAPTURE_CYCLE) * 60 * 1000 ),
 								DeviceUtils.geoPositionMinDistanceChangeBetweenUpdatesInMeters,
 								this);
 						this.isListenerRegistered_geoposition = true;

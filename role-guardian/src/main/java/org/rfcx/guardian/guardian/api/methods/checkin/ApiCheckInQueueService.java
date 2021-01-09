@@ -2,6 +2,7 @@ package org.rfcx.guardian.guardian.api.methods.checkin;
 
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 import android.app.IntentService;
@@ -55,7 +56,7 @@ public class ApiCheckInQueueService extends IntentService {
 
 			if (!app.apiCheckInHealthUtils.isApiCheckInDisabled(true)) {
 
-				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", 3 * app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000);
+				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut("ApiCheckInJob", 3 * app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000);
 
 				// this helps to ensure that the queue is growing before checking thresholds
 				// this helps avoid thresholds being executed when new stream files are not being added, or if this is the first checkin loaded after downtime

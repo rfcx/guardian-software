@@ -8,6 +8,7 @@ import org.rfcx.guardian.i2c.DeviceI2cUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class SentinelAccelUtils {
 
     public boolean isCaptureAllowed() {
 
-        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_sensor");
+        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTINEL_SENSOR);
         boolean isI2cHandlerAccessible = false;
         boolean isI2cAccelChipConnected = false;
 

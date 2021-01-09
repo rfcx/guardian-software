@@ -8,6 +8,8 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import java.io.File;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -74,7 +76,7 @@ public class LogcatCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			RfcxLogcatFileUtils rfcxLogcatFileUtils = new RfcxLogcatFileUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid(), app.rfcxPrefs.getPrefAsString("admin_log_capture_level"));
+			RfcxLogcatFileUtils rfcxLogcatFileUtils = new RfcxLogcatFileUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid(), app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_LOG_CAPTURE_LEVEL));
 			String scriptFilePath = RfcxLogcatFileUtils.getLogcatExecutableScriptFilePath(context);
 
 			// removing older files if they're left in the capture directory
@@ -88,7 +90,7 @@ public class LogcatCaptureService extends Service {
 				
 				String captureFilePath = RfcxLogcatFileUtils.getLogcatFileLocation_Capture(context, captureCycleBeginningTimeStamp);
 				String postCaptureFilePath = RfcxLogcatFileUtils.getLogcatFileLocation_PostCapture(context, captureCycleBeginningTimeStamp);
-				long scriptDurationInSeconds = Math.round((app.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60) * 0.9);
+				long scriptDurationInSeconds = Math.round((app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_LOG_CAPTURE_CYCLE) * 60) * 0.9);
 				
 				String execCmd = scriptFilePath+" "+captureFilePath+" "+postCaptureFilePath+" "+scriptDurationInSeconds;
 				ShellCommands.executeCommandAsRootAndIgnoreOutput(execCmd, context);

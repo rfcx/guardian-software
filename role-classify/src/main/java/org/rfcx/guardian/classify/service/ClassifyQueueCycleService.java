@@ -8,18 +8,18 @@ import android.util.Log;
 import org.rfcx.guardian.classify.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-public class SbdDispatchCycleService extends Service {
+public class ClassifyQueueCycleService extends Service {
 
-	private static final String SERVICE_NAME = "SbdDispatchCycle";
+	private static final String SERVICE_NAME = "ClassifyQueueCycle";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdDispatchCycleService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ClassifyQueueCycleService");
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private SbdDispatchCycleSvc sbdDispatchCycleSvc;
+	private ClassifyQueueCycleSvc classifyQueueCycleSvc;
 
-	private long sbdDispatchCycleDuration = 5000;
+	private long classifyQueueCycleDuration = 10000;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -29,7 +29,7 @@ public class SbdDispatchCycleService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.sbdDispatchCycleSvc = new SbdDispatchCycleSvc();
+		this.classifyQueueCycleSvc = new ClassifyQueueCycleSvc();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -40,7 +40,7 @@ public class SbdDispatchCycleService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.sbdDispatchCycleSvc.start();
+			this.classifyQueueCycleSvc.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -52,22 +52,22 @@ public class SbdDispatchCycleService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.sbdDispatchCycleSvc.interrupt();
-		this.sbdDispatchCycleSvc = null;
+		this.classifyQueueCycleSvc.interrupt();
+		this.classifyQueueCycleSvc = null;
 	}
 	
 	
-	private class SbdDispatchCycleSvc extends Thread {
+	private class ClassifyQueueCycleSvc extends Thread {
 		
-		public SbdDispatchCycleSvc() { super("SmsDispatchCycleService-SmsDispatchCycleSvc"); }
+		public ClassifyQueueCycleSvc() { super("ClassifyQueueCycleService-ClassifyQueueCycleSvc"); }
 		
 		@Override
 		public void run() {
-			SbdDispatchCycleService sbdDispatchCycleInstance = SbdDispatchCycleService.this;
+			ClassifyQueueCycleService classifyQueueCycleInstance = ClassifyQueueCycleService.this;
 			
 			app = (RfcxGuardian) getApplication();
 
-			while (sbdDispatchCycleInstance.runFlag) {
+			while (classifyQueueCycleInstance.runFlag) {
 
 				try {
 
@@ -79,17 +79,17 @@ public class SbdDispatchCycleService extends Service {
 //
 //					}
 
-					Thread.sleep(sbdDispatchCycleDuration);
+					Thread.sleep(classifyQueueCycleDuration);
 
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
 					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-					sbdDispatchCycleInstance.runFlag = false;
+					classifyQueueCycleInstance.runFlag = false;
 				}
 			}
 
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			sbdDispatchCycleInstance.runFlag = false;
+			classifyQueueCycleInstance.runFlag = false;
 			Log.v(logTag, "Stopping service: "+logTag);
 		}
 	}

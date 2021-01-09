@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -198,7 +199,7 @@ public class InstructionsUtils {
                 } else if (instrCmd.equalsIgnoreCase("sms")) {
 
 					String sendAt = instrMeta.has("at") ? ""+Long.parseLong(instrMeta.getString("at")) : ""+System.currentTimeMillis();
-					String sendTo = instrMeta.has("to") ? instrMeta.getString("to") : app.rfcxPrefs.getPrefAsString("api_sms_address");
+					String sendTo = instrMeta.has("to") ? instrMeta.getString("to") : app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SMS_ADDRESS);
 					String msgBody = instrMeta.has("body") ? instrMeta.getString("body") : "";
 
 					app.apiSmsUtils.queueSmsToSend(sendAt, sendTo, msgBody);

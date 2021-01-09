@@ -2,6 +2,7 @@ package org.rfcx.guardian.classify;
 
 import android.app.Application;
 
+import org.rfcx.guardian.classify.service.ClassifyQueueCycleService;
 import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
@@ -31,7 +32,7 @@ public class RfcxGuardian extends Application {
 
     public String[] RfcxCoreServices =
             new String[]{
-                    "SbdDispatchCycle"
+                    "ClassifyQueueCycle"
             };
 
     @Override
@@ -92,9 +93,7 @@ public class RfcxGuardian extends Application {
 
     private void setServiceHandlers() {
 
-//        this.rfcxServiceHandler.addService("ClockSyncJob", ClockSyncJobService.class);
-//        this.rfcxServiceHandler.addService("SbdDispatch", SbdDispatchService.class);
-//        this.rfcxServiceHandler.addService("SbdDispatchCycle", SbdDispatchCycleService.class);
+        this.rfcxServiceHandler.addService("ClassifyQueueCycle", ClassifyQueueCycleService.class);
 
     }
 

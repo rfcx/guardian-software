@@ -3,10 +3,8 @@ package org.rfcx.guardian.admin;
 import org.rfcx.guardian.admin.asset.AssetUtils;
 import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
-import org.rfcx.guardian.admin.device.android.capture.CameraPhotoCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.CameraVideoCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraPhotoCaptureService;
-import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraVideoCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.CameraCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraCaptureService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
@@ -69,6 +67,10 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class RfcxGuardian extends Application {
@@ -124,7 +126,7 @@ public class RfcxGuardian extends Application {
 				"DeviceSentinel",
 				"SmsDispatchCycle"
 			};
-	
+
 	@Override
 	public void onCreate() {
 
@@ -162,7 +164,7 @@ public class RfcxGuardian extends Application {
 
 		initializeRoleServices();
 
-		DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString("admin_system_timezone"), this);
+		DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE), this);
 
 	}
 	
@@ -200,12 +202,16 @@ public class RfcxGuardian extends Application {
 							,
 					"ScheduledScreenShotCapture"
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:45").getTimeInMillis() // waits forty five seconds before running
-							+ "|" + ( this.rfcxPrefs.getPrefAsLong("admin_screenshot_capture_cycle") * 60 * 1000 )
+							+ "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_SCREENSHOT_CAPTURE_CYCLE) * 60 * 1000 )
 							,
 					"ScheduledLogCatCapture"
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
-							+ "|" + ( this.rfcxPrefs.getPrefAsLong("admin_log_capture_cycle") * 60 * 1000 )
+							+ "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_LOG_CAPTURE_CYCLE) * 60 * 1000 )
 							,
+					"ScheduledCameraCapture"
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:04:00").getTimeInMillis() // waits four minutes before running
+							+ "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_CAMERA_CAPTURE_CYCLE) * 60 * 1000 )
+					,
 					"ADBStateSet"
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
 							+ "|" + "norepeat"
@@ -215,7 +221,7 @@ public class RfcxGuardian extends Application {
 							+ "|" + "norepeat"
 							,
 					"ScheduledReboot"
-							+ "|" + DateTimeUtils.nextOccurrenceOf(this.rfcxPrefs.getPrefAsString("reboot_forced_daily_at")).getTimeInMillis()
+							+ "|" + DateTimeUtils.nextOccurrenceOf(this.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.REBOOT_FORCED_DAILY_AT)).getTimeInMillis()
 							+ "|" + "norepeat"
 			};
 			
@@ -272,11 +278,8 @@ public class RfcxGuardian extends Application {
 		this.rfcxServiceHandler.addService("LogcatCapture", LogcatCaptureService.class);
 		this.rfcxServiceHandler.addService("ScheduledLogcatCapture", ScheduledLogcatCaptureService.class);
 
-		this.rfcxServiceHandler.addService("CameraPhotoCapture", CameraPhotoCaptureService.class);
-		this.rfcxServiceHandler.addService("ScheduledCameraPhotoCapture", ScheduledCameraPhotoCaptureService.class);
-
-		this.rfcxServiceHandler.addService("CameraVideoCapture", CameraVideoCaptureService.class);
-		this.rfcxServiceHandler.addService("ScheduledCameraVideoCapture", ScheduledCameraVideoCaptureService.class);
+		this.rfcxServiceHandler.addService("CameraCapture", CameraCaptureService.class);
+		this.rfcxServiceHandler.addService("ScheduledCameraCapture", ScheduledCameraCaptureService.class);
 
 		this.rfcxServiceHandler.addService("SSHServerControl", SSHServerControlService.class);
 
@@ -284,23 +287,23 @@ public class RfcxGuardian extends Application {
 
 	public void onPrefReSync(String prefKey) {
 
-		if (prefKey.equalsIgnoreCase("admin_enable_wifi")) {
+		if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI)) {
 			rfcxServiceHandler.triggerService("WifiHotspot", false);
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
 
-		} else if (prefKey.equalsIgnoreCase("admin_enable_tcp_adb")) {
+		} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB)) {
 			rfcxServiceHandler.triggerService("ADBStateSet", false);
 
-		} else if (prefKey.equalsIgnoreCase("admin_system_timezone")) {
-			DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString("admin_system_timezone"), this);
+		} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE)) {
+			DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE), this);
 
-		} else if (prefKey.equalsIgnoreCase("reboot_forced_daily_at")) {
+		} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.REBOOT_FORCED_DAILY_AT)) {
 			Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
 
-		} else if (prefKey.equalsIgnoreCase("admin_enable_ssh_server")) {
+		} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER)) {
 			rfcxServiceHandler.triggerService("SSHServerControl", false);
 
-		} else if (prefKey.equalsIgnoreCase("admin_enable_geoposition_capture") || prefKey.equalsIgnoreCase("admin_geoposition_capture_cycle")) {
+		} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE) || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_GEOPOSITION_CAPTURE_CYCLE)) {
 			rfcxServiceHandler.triggerService("DeviceSystem", true);
 		}
 	}

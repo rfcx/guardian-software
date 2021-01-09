@@ -13,6 +13,7 @@ import org.rfcx.guardian.guardian.audio.capture.AudioCaptureWavRecorder
 import org.rfcx.guardian.guardian.entity.RegisterRequest
 import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.ServerSocket
@@ -410,13 +411,13 @@ object SocketManager {
     }
 
     private fun stopWiFiService() {
-        app?.setSharedPref("admin_enable_wifi", "false")
+        app?.setSharedPref(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI, "false")
     }
 
     private fun getFullCheckInUrl(): String {
-        val protocol = app?.rfcxPrefs?.getPrefAsString("api_mqtt_protocol") ?: "ssl"
-        val host = app?.rfcxPrefs?.getPrefAsString("api_mqtt_host") ?: "api-mqtt.rfcx.org"
-        val port = app?.rfcxPrefs?.getPrefAsString("api_mqtt_port") ?: "8883"
+        val protocol = app?.rfcxPrefs?.getPrefAsString(RfcxPrefs.Pref.API_MQTT_PROTOCOL)
+        val host = app?.rfcxPrefs?.getPrefAsString(RfcxPrefs.Pref.API_MQTT_HOST)
+        val port = app?.rfcxPrefs?.getPrefAsString(RfcxPrefs.Pref.API_MQTT_PORT)
         return "$protocol://$host:$port"
     }
 

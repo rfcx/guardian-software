@@ -7,6 +7,7 @@ import org.rfcx.guardian.classify.model.AudioClassifier
 import org.rfcx.guardian.classify.utils.AudioConverter.pickBetween
 import org.rfcx.guardian.classify.model.MLPredictor
 import org.rfcx.guardian.utility.rfcx.RfcxLog
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -37,7 +38,7 @@ class AudioClassifyUtils(context: Context) {
     }
 
     fun getOutputAsList(): List<String> {
-        val outputString = app.rfcxPrefs.getPrefAsString("prediction_model_output")
+        val outputString = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.PREDICTION_MODEL_OUTPUT)
         return outputString.split(",")
     }
 

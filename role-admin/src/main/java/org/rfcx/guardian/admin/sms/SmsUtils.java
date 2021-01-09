@@ -11,6 +11,7 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class SmsUtils {
 	
@@ -42,7 +43,7 @@ public class SmsUtils {
 	public static void processIncomingSms(JSONObject smsObj, Context context) throws JSONException {
 
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-		String apiSmsAddress = app.rfcxPrefs.getPrefAsString("api_sms_address");
+		String apiSmsAddress = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SMS_ADDRESS);
 
 		if (!smsObj.getString("address").equalsIgnoreCase(apiSmsAddress)) {
 			// In this case, since message did not arrive from the specified API SMS address, we just save the message.
@@ -78,7 +79,7 @@ public class SmsUtils {
 
 			app.smsMessageDb.dbSmsQueued.insert(sendAtOrAfter, sendTo, msgBody, msgId);
 
-			if (!sendTo.equalsIgnoreCase(app.rfcxPrefs.getPrefAsString("api_sms_address"))) {
+			if (!sendTo.equalsIgnoreCase(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SMS_ADDRESS))) {
 				Log.w(logTag, "SMS Queued (ID " + msgId + "): To " + sendTo + " at " + DateTimeUtils.getDateTime(sendAtOrAfter) + ": \"" + msgBody + "\"");
 			}
 

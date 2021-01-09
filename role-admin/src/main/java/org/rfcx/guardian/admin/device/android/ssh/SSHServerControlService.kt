@@ -6,6 +6,7 @@ import android.os.IBinder
 import android.util.Log
 import org.rfcx.guardian.admin.RfcxGuardian
 import org.rfcx.guardian.utility.rfcx.RfcxLog
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 class SSHServerControlService : Service() {
 
@@ -59,7 +60,7 @@ class SSHServerControlService : Service() {
             super.run()
 
             try {
-                val state = app!!.rfcxPrefs.getPrefAsBoolean("admin_enable_ssh_server")
+                val state = app!!.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER)
                 if (state) {
                     SSHServerUtils.startServer(applicationContext)
                 } else {

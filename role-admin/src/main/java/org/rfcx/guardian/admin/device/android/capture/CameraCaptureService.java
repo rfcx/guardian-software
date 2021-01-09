@@ -8,19 +8,20 @@ import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxVideoFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-public class CameraPhotoCaptureService extends Service {
+public class CameraCaptureService extends Service {
 
-	private static final String SERVICE_NAME = "CameraPhotoCapture";
+	private static final String SERVICE_NAME = "CameraCapture";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CameraPhotoCaptureService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CameraCaptureService");
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private CameraPhotoCapture cameraPhotoCapture;
+	private CameraCapture cameraCapture;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -30,7 +31,7 @@ public class CameraPhotoCaptureService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.cameraPhotoCapture = new CameraPhotoCapture();
+		this.cameraCapture = new CameraCapture();
 		app = (RfcxGuardian) getApplication();
 	}
 
@@ -41,7 +42,7 @@ public class CameraPhotoCaptureService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.cameraPhotoCapture.start();
+			this.cameraCapture.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -53,50 +54,54 @@ public class CameraPhotoCaptureService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.cameraPhotoCapture.interrupt();
-		this.cameraPhotoCapture = null;
+		this.cameraCapture.interrupt();
+		this.cameraCapture = null;
 	}
 
-	private class CameraPhotoCapture extends Thread {
+	private class CameraCapture extends Thread {
 
-		public CameraPhotoCapture() {
-			super("CameraPhotoCaptureService-CameraPhotoCapture");
+		public CameraCapture() {
+			super("CameraCaptureService-CameraCapture");
 		}
 
 		@Override
 		public void run() {
-			CameraPhotoCaptureService cameraPhotoCaptureInstance = CameraPhotoCaptureService.this;
+			CameraCaptureService cameraCaptureInstance = CameraCaptureService.this;
 			
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			RfcxPhotoFileUtils rfcxCameraUtils = new RfcxPhotoFileUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
+			RfcxPhotoFileUtils rfcxPhotoUtils = new RfcxPhotoFileUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
 			String photoCaptureDir = RfcxPhotoFileUtils.photoCaptureDir(context);
+
+			RfcxVideoFileUtils rfcxVideoUtils = new RfcxVideoFileUtils(context, RfcxGuardian.APP_ROLE, app.rfcxGuardianIdentity.getGuid());
+			String videoCaptureDir = RfcxVideoFileUtils.videoCaptureDir(context);
 
 			// removing older files if they're left in the capture directory
 			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(photoCaptureDir, 60);
+			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(videoCaptureDir, 60);
 
 			try {
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				if (	 confirmOrSetCameraPhotoCaptureParameters() ) {
+				if (	 confirmOrSetCameraCaptureParameters() ) {
 
 					Log.e(logTag, "CURRENTLY THIS SERVICE DOES ABSOLUTELY NOTHING. IT'S JUST A WRAPPER.");
-					Log.e(logTag, "NO PHOTO CAPTURED. PLEASE ADD THE REQUIRED FUNCTIONALITY.");
+					Log.e(logTag, "NO PHOTO OR VIDEO CAPTURED. PLEASE ADD THE REQUIRED FUNCTIONALITY.");
 
 				}
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				cameraPhotoCaptureInstance.runFlag = false;
+				cameraCaptureInstance.runFlag = false;
 				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
 				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
 			}
 		}
 	}
 	
-	private boolean confirmOrSetCameraPhotoCaptureParameters() {
+	private boolean confirmOrSetCameraCaptureParameters() {
 		
 		if (app != null) {
 			
