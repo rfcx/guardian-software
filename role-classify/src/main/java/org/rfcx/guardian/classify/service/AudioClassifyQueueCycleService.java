@@ -7,19 +7,18 @@ import android.util.Log;
 
 import org.rfcx.guardian.classify.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
-public class ClassifyQueueCycleService extends Service {
+public class AudioClassifyQueueCycleService extends Service {
 
-	private static final String SERVICE_NAME = "ClassifyQueueCycle";
+	private static final String SERVICE_NAME = "AudioClassifyQueueCycle";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ClassifyQueueCycleService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifyQueueCycleService");
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private ClassifyQueueCycleSvc classifyQueueCycleSvc;
-
-	private long classifyQueueCycleDuration = 10000;
+	private AudioClassifyQueueCycleSvc audioClassifyQueueCycleSvc;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -29,7 +28,7 @@ public class ClassifyQueueCycleService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.classifyQueueCycleSvc = new ClassifyQueueCycleSvc();
+		this.audioClassifyQueueCycleSvc = new AudioClassifyQueueCycleSvc();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -40,7 +39,7 @@ public class ClassifyQueueCycleService extends Service {
 		this.runFlag = true;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
 		try {
-			this.classifyQueueCycleSvc.start();
+			this.audioClassifyQueueCycleSvc.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -52,44 +51,50 @@ public class ClassifyQueueCycleService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-		this.classifyQueueCycleSvc.interrupt();
-		this.classifyQueueCycleSvc = null;
+		this.audioClassifyQueueCycleSvc.interrupt();
+		this.audioClassifyQueueCycleSvc = null;
 	}
 	
 	
-	private class ClassifyQueueCycleSvc extends Thread {
+	private class AudioClassifyQueueCycleSvc extends Thread {
 		
-		public ClassifyQueueCycleSvc() { super("ClassifyQueueCycleService-ClassifyQueueCycleSvc"); }
+		public AudioClassifyQueueCycleSvc() { super("AudioClassifyQueueCycleService-AudioClassifyQueueCycleSvc"); }
 		
 		@Override
 		public void run() {
-			ClassifyQueueCycleService classifyQueueCycleInstance = ClassifyQueueCycleService.this;
+			AudioClassifyQueueCycleService audioClassifyQueueCycleInstance = AudioClassifyQueueCycleService.this;
 			
 			app = (RfcxGuardian) getApplication();
 
-			while (classifyQueueCycleInstance.runFlag) {
+			while (audioClassifyQueueCycleInstance.runFlag) {
 
 				try {
 
 					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-//					if (app.sbdMessageDb.dbSbdQueued.getCount() > 0) {
+					if (app.audioClassifyDb.dbQueued.getCount() > 0) {
+
+						app.rfcxServiceHandler.triggerService("AudioClassifyJob", false);
+
+					}
+
+//					if (app.audioClassifyDb.dbQueued.getCount() > 0) {
 //
-//						app.rfcxServiceHandler.triggerService("SbdDispatch", false);
+//						app.rfcxServiceHandler.triggerService("AudioClassifyJob", false);
 //
 //					}
 
-					Thread.sleep(classifyQueueCycleDuration);
+					Thread.sleep( Math.round( app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) / 4 ) );
 
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
 					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-					classifyQueueCycleInstance.runFlag = false;
+					audioClassifyQueueCycleInstance.runFlag = false;
 				}
 			}
 
 			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			classifyQueueCycleInstance.runFlag = false;
+			audioClassifyQueueCycleInstance.runFlag = false;
 			Log.v(logTag, "Stopping service: "+logTag);
 		}
 	}

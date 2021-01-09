@@ -14,7 +14,7 @@ import java.util.Locale;
 public class RfcxClassifierFileUtils {
 
 	public RfcxClassifierFileUtils(Context context, String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxClassifierUtils");
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxClassifierFileUtils");
 		this.appRole = appRole;
 		initializeClassifierDirectories(context);
 	}
@@ -26,7 +26,7 @@ public class RfcxClassifierFileUtils {
 
 	private static final String classifierFileType = "tflite";
 	
-	private static void initializeClassifierDirectories(Context context) {
+	public static void initializeClassifierDirectories(Context context) {
 
 		FileUtils.initializeDirectoryRecursively(classifierSdCardDir(), true);
 		FileUtils.initializeDirectoryRecursively(classifierDownloadDir(context), false);

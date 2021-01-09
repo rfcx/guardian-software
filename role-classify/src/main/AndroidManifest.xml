@@ -69,7 +69,7 @@
 
 
 		<!-- Services -->
-		<service android:name=".service.ClassifyQueueCycleService" />
+		<service android:name=".service.AudioClassifyQueueCycleService" />
 
 
 		<receiver android:name=".receiver.BootReceiver">

@@ -1,15 +1,14 @@
 package org.rfcx.guardian.classify.utils
 
 import android.content.Context
-import android.util.Log
 import org.rfcx.guardian.classify.RfcxGuardian
 import org.rfcx.guardian.classify.model.AudioClassifier
-import org.rfcx.guardian.classify.utils.AudioConverter.pickBetween
-import org.rfcx.guardian.classify.model.MLPredictor
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 import java.io.File
-import kotlin.math.roundToInt
+import java.util.*
 
 class AudioClassifyUtils(context: Context) {
 
@@ -45,4 +44,5 @@ class AudioClassifyUtils(context: Context) {
     fun getOutputSize(): Int {
         return getOutputAsList().size
     }
+
 }

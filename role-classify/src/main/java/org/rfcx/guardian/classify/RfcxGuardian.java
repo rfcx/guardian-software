@@ -2,8 +2,12 @@ package org.rfcx.guardian.classify;
 
 import android.app.Application;
 
-import org.rfcx.guardian.classify.service.ClassifyQueueCycleService;
+import org.rfcx.guardian.classify.service.AudioClassifyJobService;
+import org.rfcx.guardian.classify.service.AudioClassifyQueueCycleService;
+import org.rfcx.guardian.classify.utils.AudioClassifyDb;
 import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -26,13 +30,15 @@ public class RfcxGuardian extends Application {
     public AudioClassifyUtils audioClassifyUtils = null;
 
     // Database Handlers
+    public AudioClassifyDb audioClassifyDb = null;
 
     // for checking battery level
     public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 
     public String[] RfcxCoreServices =
             new String[]{
-                    "ClassifyQueueCycle"
+                    "AudioClassifyQueueCycle",
+                    "AudioClassifyJob"
             };
 
     @Override
@@ -48,6 +54,8 @@ public class RfcxGuardian extends Application {
         RfcxRole.writeVersionToFile(this, logTag, this.version);
 
         this.audioClassifyUtils = new AudioClassifyUtils(this);
+        RfcxAudioFileUtils.initializeAudioDirectories(this);
+        RfcxClassifierFileUtils.initializeClassifierDirectories(this);
 
         setDbHandlers();
         setServiceHandlers();
@@ -87,13 +95,14 @@ public class RfcxGuardian extends Application {
 
     private void setDbHandlers() {
 
-//        this.sbdMessageDb = new SbdMessageDb(this, this.version);
+        this.audioClassifyDb = new AudioClassifyDb(this, this.version);
 
     }
 
     private void setServiceHandlers() {
 
-        this.rfcxServiceHandler.addService("ClassifyQueueCycle", ClassifyQueueCycleService.class);
+        this.rfcxServiceHandler.addService("AudioClassifyQueueCycle", AudioClassifyQueueCycleService.class);
+        this.rfcxServiceHandler.addService("AudioClassifyJob", AudioClassifyJobService.class);
 
     }
 
