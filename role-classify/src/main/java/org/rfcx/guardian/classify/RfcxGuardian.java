@@ -1,6 +1,7 @@
 package org.rfcx.guardian.classify;
 
 import android.app.Application;
+import android.content.ContentResolver;
 
 import org.rfcx.guardian.classify.service.AudioClassifyJobService;
 import org.rfcx.guardian.classify.service.AudioClassifyQueueCycleService;
@@ -38,7 +39,7 @@ public class RfcxGuardian extends Application {
 
     public String[] RfcxCoreServices =
             new String[]{
-                    AudioClassifyJobService.SERVICE_NAME,
+          //          AudioClassifyJobService.SERVICE_NAME,
                     AudioClassifyQueueCycleService.SERVICE_NAME
             };
 
@@ -67,12 +68,12 @@ public class RfcxGuardian extends Application {
         super.onTerminate();
     }
 
-    public void appResume() {
+    public void appResume() { }
 
-    }
+    public void appPause() { }
 
-    public void appPause() {
-
+    public ContentResolver getResolver() {
+        return this.getApplicationContext().getContentResolver();
     }
 
     public void initializeRoleServices() {

@@ -1,18 +1,29 @@
 package org.rfcx.guardian.classify.service;
 
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.core.content.FileProvider;
+
 import org.rfcx.guardian.classify.RfcxGuardian;
+import org.rfcx.guardian.classify.utils.AudioClassifyClassicUtils;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 public class AudioClassifyJobService extends Service {
@@ -75,28 +86,48 @@ public class AudioClassifyJobService extends Service {
 			Context context = app.getApplicationContext();
 
 			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
-			
+
 			try {
 
-				String clsfrId = "1234567890";
-				String clsfrFilePath = RfcxClassifierFileUtils.classifierActiveDir(context)+"/multiclass-model.tflite";
-				int clsfrSampleRate = 12000;
-				float clsfrWindowSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_WINDOW_SIZE);
-				float clsfrStepSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_STEP_SIZE);
-				String clsfrModelOutput = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.PREDICTION_MODEL_OUTPUT);
 
-				String audioId = "9876543210";
-				long audioStartsAt = Long.parseLong(audioId);
-				String audioFilePath = RfcxAudioFileUtils.audioClassifyDir(app.getApplicationContext()) + "/chainsaw12000.wav";
+				String tfLiteUri = "content://org.rfcx.guardian.guardian/files_classifiers/active/2021-01-09/threat_v1_1610202905265.tflite";
 
-				boolean isClassifierLoaded = app.audioClassifyClassicUtils.confirmOrLoadClassifier(clsfrId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrModelOutput);
+				InputStream inputStream = app.getResolver().openInputStream(Uri.parse(tfLiteUri));
 
-				if (isClassifierLoaded) {
-					long classifyStartTime = System.currentTimeMillis();
-					List<float[]> classifyOutput = app.audioClassifyClassicUtils.getClassifier(clsfrId).classify(audioFilePath);
-					Log.e(logTag, "Classify Job Time Elapsed: "+ DateTimeUtils.timeStampDifferenceFromNowAsReadableString(classifyStartTime));
-					Log.d(logTag, app.audioClassifyClassicUtils.classifierOutputAsJson(clsfrId, audioId, audioStartsAt, classifyOutput).toString());
+				OutputStream outputStream = new FileOutputStream(context.getFilesDir().toString()+"/"+System.currentTimeMillis()+".tflite");
+
+				// Transfer bytes from in to out
+				byte[] buf = new byte[1024];
+				int len;
+				while ((len = inputStream.read(buf)) > 0) {
+					outputStream.write(buf, 0, len);
 				}
+				inputStream.close();
+				outputStream.close();
+
+
+//				"content://org.rfcx.guardian.guardian/files_classifiers/active/2021-01-09/threat_v1_1610202905265.tflite"
+
+
+//				String clsfrId = "1234567890";
+//				String clsfrFilePath = RfcxClassifierFileUtils.classifierActiveDir(context)+"/multiclass-model.tflite";
+//				int clsfrSampleRate = 12000;
+//				float clsfrWindowSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_WINDOW_SIZE);
+//				float clsfrStepSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_STEP_SIZE);
+//				String clsfrModelOutput = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.PREDICTION_MODEL_OUTPUT);
+//
+//				String audioId = "9876543210";
+//				long audioStartsAt = Long.parseLong(audioId);
+//				String audioFilePath = RfcxAudioFileUtils.audioClassifyDir(app.getApplicationContext()) + "/chainsaw12000.wav";
+//
+//				boolean isClassifierLoaded = app.audioClassifyClassicUtils.confirmOrLoadClassifier(clsfrId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrModelOutput);
+//
+//				if (isClassifierLoaded) {
+//					long classifyStartTime = System.currentTimeMillis();
+//					List<float[]> classifyOutput = app.audioClassifyClassicUtils.getClassifier(clsfrId).classify(audioFilePath);
+//					Log.e(logTag, "Classify Job Time Elapsed: "+ DateTimeUtils.timeStampDifferenceFromNowAsReadableString(classifyStartTime));
+//					Log.d(logTag, app.audioClassifyClassicUtils.classifierOutputAsJson(clsfrId, audioId, audioStartsAt, classifyOutput).toString());
+//				}
 
 
 
@@ -111,33 +142,40 @@ public class AudioClassifyJobService extends Service {
 //
 //					// only proceed with classify job if there is a valid queued audio file in the database
 //					if (latestQueuedAudioToClassify[0] != null) {
-////
-////						String encodePurpose = latestQueuedAudioToEncode[9];
-////						String timestamp = latestQueuedAudioToEncode[1];
-////						String inputFileExt = latestQueuedAudioToEncode[2];
-////						long audioDuration = Long.parseLong(latestQueuedAudioToEncode[7]);
-////						String codec = latestQueuedAudioToEncode[6];
-////						int bitRate = Integer.parseInt(latestQueuedAudioToEncode[5]);
-////						int inputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[11]);
-////						int outputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[4]);
-////
-////						File preEncodeFile = new File(latestQueuedAudioToEncode[10]);
-////						File finalDestinationFile = null;
-////
-////						if (!preEncodeFile.exists()) {
-////
-////							Log.e(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " because input audio file could not be found.");
-////
-////							app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
-////
-////						} else if (Integer.parseInt(latestQueuedAudioToEncode[12]) >= AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD) {
-////
-////							Log.e(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " after " + AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD + " failed attempts.");
-////
-////							app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
-////							FileUtils.delete(preEncodeFile);
-////
-////						} else {
+//
+//						Log.e(logTag, TextUtils.join(" ", latestQueuedAudioToClassify));
+//
+//
+//						String clsfrId = "1234567890";
+//						String clsfrFilePath = RfcxClassifierFileUtils.classifierActiveDir(context)+"/multiclass-model.tflite";
+//						int clsfrSampleRate = 12000;
+//						float clsfrWindowSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_WINDOW_SIZE);
+//						float clsfrStepSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_STEP_SIZE);
+//						String clsfrModelOutput = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.PREDICTION_MODEL_OUTPUT);
+//
+//						String audioId = "9876543210";
+//						long audioStartsAt = Long.parseLong(audioId);
+//						String audioFilePath = RfcxAudioFileUtils.audioClassifyDir(app.getApplicationContext()) + "/chainsaw12000.wav";
+//
+//						File preClassifyAudioFile = new File(audioFilePath);
+
+
+
+
+//						if (!preClassifyAudioFile.exists()) {
+//
+//							Log.e(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " because input audio file could not be found.");
+//
+//							app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
+//
+//						} else if (Integer.parseInt(latestQueuedAudioToEncode[12]) >= AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD) {
+//
+//							Log.e(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " after " + AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD + " failed attempts.");
+//
+//							app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
+//							FileUtils.delete(preClassifyAudioFile);
+//
+//						} else {
 ////
 ////							Log.i(logTag, "Beginning Audio Encode Job ("+ StringUtils.capitalizeFirstChar(encodePurpose) +"): "
 ////												+ timestamp + ", "
@@ -213,13 +251,13 @@ public class AudioClassifyJobService extends Service {
 ////								app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp, encodePurpose);
 ////
 ////							}
-////						}
+//						}
 //					} else {
 //						Log.e(logTag, "Queued audio file entry in database is invalid.");
 //
 //					}
 //				}
-//
+
 //				app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInQueue");
 
 			} catch (Exception e) {

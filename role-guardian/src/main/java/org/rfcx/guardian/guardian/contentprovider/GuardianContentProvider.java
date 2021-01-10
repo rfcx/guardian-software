@@ -4,17 +4,24 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+
+import java.io.File;
 
 public class GuardianContentProvider extends ContentProvider {
 	
@@ -204,6 +211,46 @@ public class GuardianContentProvider extends ContentProvider {
 		}
 		return null;
 	}
+
+
+	public ParcelFileDescriptor openFile(Uri uri, String mode) {
+
+		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
+		Context context = app.getApplicationContext();
+		String logFuncVal = "";
+
+		try {
+
+			Log.w(logTag, uri.toString());
+
+			String assetUriPath = "/"+uri.getEncodedPath().substring(RfcxComm.fileProviderAssetDirUriNamespacePrepend.length());
+			String assetFilePath = context.getFilesDir().getAbsolutePath() + assetUriPath;
+			FileUtils.initializeDirectoryRecursively(assetFilePath.substring(0, assetFilePath.lastIndexOf("/")), false);
+			File assetFile = new File(assetFilePath);
+
+			int imode = 0;
+			if (mode.contains("w")) {
+				imode |= ParcelFileDescriptor.MODE_WRITE_ONLY;
+				if (!FileUtils.exists(assetFile)) {
+					assetFile.createNewFile();
+				}
+			}
+
+			if (mode.contains("r")) imode |= ParcelFileDescriptor.MODE_READ_ONLY;
+			if (mode.contains("+")) imode |= ParcelFileDescriptor.MODE_APPEND;
+
+			if (FileUtils.exists(assetFile)) {
+				return ParcelFileDescriptor.open(assetFile, imode);
+			}
+
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e, "GuardianContentProvider - "+logFuncVal);
+		}
+		return null;
+	}
+
+
 	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {

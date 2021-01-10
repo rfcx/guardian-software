@@ -169,6 +169,16 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />
         </provider>
 
+<!--        <provider-->
+<!--                android:name="androidx.core.content.FileProvider"-->
+<!--                android:authorities="org.rfcx.guardian.admin"-->
+<!--                android:readPermission="org.rfcx.guardian.READ"-->
+<!--                android:writePermission="org.rfcx.guardian.WRITE"-->
+<!--                android:grantUriPermissions="true"-->
+<!--                android:exported="true">-->
+<!--            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />-->
+<!--        </provider>-->
+
     </application>
 
 </manifest>

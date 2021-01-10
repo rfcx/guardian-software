@@ -3,17 +3,21 @@ package org.rfcx.guardian.guardian.audio.classify;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.io.File;
 import java.util.List;
+
+import static androidx.core.content.FileProvider.getUriForFile;
 
 public class AudioClassifyPrepareService extends Service {
 
@@ -94,23 +98,28 @@ public class AudioClassifyPrepareService extends Service {
 
 						String audioId = latestQueuedAudioToClassify[1];
 						String classifierId = latestQueuedAudioToClassify[2];
-
 						int captureSampleRate = Integer.parseInt(latestQueuedAudioToClassify[3]);
 						int classifierSampleRate = Integer.parseInt(latestQueuedAudioToClassify[4]);
-
-						String classifierFilePath = latestQueuedAudioToClassify[6];
 						String classifierWindowSize = latestQueuedAudioToClassify[7];
 						String classifierStepSize = latestQueuedAudioToClassify[8];
 						String classifierClasses = latestQueuedAudioToClassify[9];
-
+						File classifierFile = new File(latestQueuedAudioToClassify[6]);
 						File preClassifyAudioFile = new File(latestQueuedAudioToClassify[5]);
+
+						app.audioClassifyDb.dbQueued.incrementSingleRowAttempts(audioId, classifierId);
+
+
 
 						preClassifyAudioFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, "classify", preClassifyAudioFile.getAbsolutePath(), Long.parseLong(audioId), "wav", captureSampleRate, classifierSampleRate);
 
 
 
 
+						Uri classifierFileUri = RfcxComm.getFileUri(RfcxGuardian.APP_ROLE, classifierFile);
+						Uri audioFileUri = RfcxComm.getFileUri(RfcxGuardian.APP_ROLE, preClassifyAudioFile);
 
+						Log.e(logTag,  audioFileUri.toString());
+						Log.e(logTag,  classifierFileUri.toString());
 
 
 						app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);

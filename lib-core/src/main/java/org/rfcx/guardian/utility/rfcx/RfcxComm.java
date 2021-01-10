@@ -1,6 +1,7 @@
 package org.rfcx.guardian.utility.rfcx;
 
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -11,6 +12,7 @@ import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 
 import android.content.ContentResolver;
@@ -23,6 +25,8 @@ import android.util.Log;
 public class RfcxComm {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxComm.class);
+
+	public static final String fileProviderAssetDirUriNamespacePrepend = "/files_";
 	
 	private static Map<String, Map<String, String[]>> initRoleFuncProj() {
 		
@@ -150,7 +154,18 @@ public class RfcxComm {
 	public static Uri getUri(String role, String function) {
 		return getUri(role, function, null);
 	}
-	
+
+	public static Uri getFileUri(String role, File fileObj) {
+		StringBuilder uri = (new StringBuilder())
+				.append("content://")
+				.append(getAuthority(role.toLowerCase(Locale.US)))
+				.append(fileProviderAssetDirUriNamespacePrepend)
+				.append(RfcxAssetCleanup.conciseFilePath(fileObj.getAbsolutePath(), role));
+		return Uri.parse(uri.toString());
+	}
+
+	public static Uri getFileUri(String role, String filePath) { return getFileUri(role, new File(filePath)); }
+
 	public static int[] getUriMatchId(String role, String function) {
 		
 		Map<String, Map<String, String[]>> roleFuncProj = initRoleFuncProj();
