@@ -11,12 +11,15 @@ import android.util.Log;
 
 import androidx.core.content.FileProvider;
 
+import org.json.JSONObject;
 import org.rfcx.guardian.classify.RfcxGuardian;
 import org.rfcx.guardian.classify.utils.AudioClassifyClassicUtils;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -90,38 +93,150 @@ public class AudioClassifyJobService extends Service {
 			try {
 
 
-				String tfLiteUri = "content://org.rfcx.guardian.guardian/files_classifiers/active/2021-01-09/threat_v1_1610202905265.tflite";
 
-				InputStream inputStream = app.getResolver().openInputStream(Uri.parse(tfLiteUri));
+				List<String[]> latestQueuedAudioFilesToClassify = app.audioClassifyDb.dbQueued.getAllRows();
+				if (latestQueuedAudioFilesToClassify.size() == 0) { Log.d(logTag, "No classification jobs are currently queued."); }
+				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
+				AudioClassifyClassicUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( 1.0 * audioCycleDuration ) );
 
-				OutputStream outputStream = new FileOutputStream(context.getFilesDir().toString()+"/"+System.currentTimeMillis()+".tflite");
 
-				// Transfer bytes from in to out
-				byte[] buf = new byte[1024];
-				int len;
-				while ((len = inputStream.read(buf)) > 0) {
-					outputStream.write(buf, 0, len);
+				for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
+
+					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+
+					// only proceed with classify process if there is a valid queued audio file in the database
+					if (latestQueuedAudioToClassify[0] != null) {
+
+						String classifierId = latestQueuedAudioToClassify[2];
+						String clsfrVersion = latestQueuedAudioToClassify[3];
+						int clsfrSampleRate = Integer.parseInt(latestQueuedAudioToClassify[5]);
+						float clsfrWindowSize = Float.parseFloat(latestQueuedAudioToClassify[8]);
+						float clsfrStepSize = Float.parseFloat(latestQueuedAudioToClassify[9]);
+						String clsfrModelOutput = latestQueuedAudioToClassify[10];
+						String audioId = latestQueuedAudioToClassify[1];
+						long audioStartsAt = Long.parseLong(latestQueuedAudioToClassify[1]);
+
+						if (Integer.parseInt(latestQueuedAudioToClassify[11]) >= AudioClassifyClassicUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
+
+							Log.e(logTag, "Skipping Audio Classify Job for " + audioId + " after " + AudioClassifyClassicUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD + " failed attempts.");
+
+							app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+
+						} else {
+
+							app.audioClassifyDb.dbQueued.incrementSingleRowAttempts(audioId, classifierId);
+
+							String clsfrFilePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong(classifierId), clsfrVersion);
+							String clsfrRelativeFilePath = RfcxAssetCleanup.conciseFilePath(clsfrFilePath, RfcxGuardian.APP_ROLE);
+							Uri clsfrFileOriginUri = RfcxComm.getFileUri("guardian", clsfrRelativeFilePath);
+
+							if (!FileUtils.exists(clsfrFilePath) && !RfcxComm.getFileRequest( clsfrFileOriginUri, clsfrFilePath, app.getResolver())) {
+
+								Log.e(logTag, "Classifier was not saved and could not be retrieved");
+
+							} else {
+
+								boolean isClassifierInitialized = app.audioClassifyClassicUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrModelOutput);
+
+								if (!isClassifierInitialized) {
+
+									Log.e(logTag, "Classifier could not be initialized.");
+
+								} else {
+
+									String audioFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, Long.parseLong(audioId), "wav", clsfrSampleRate, null);
+									String audioRelativeFilePath = RfcxAssetCleanup.conciseFilePath(audioFilePath, RfcxGuardian.APP_ROLE);
+									Uri audioFileOriginUri = RfcxComm.getFileUri("guardian", audioRelativeFilePath);
+
+									if (!FileUtils.exists(audioFilePath) && !RfcxComm.getFileRequest( audioFileOriginUri, audioFilePath, app.getResolver())) {
+
+										Log.e(logTag, "Audio file was not saved and could not be retrieved");
+
+									} else {
+
+
+										long classifyStartTime = System.currentTimeMillis();
+										List<float[]> classifyOutput = app.audioClassifyClassicUtils.getClassifier(classifierId).classify(audioFilePath);
+										JSONObject classifyOutputJson = app.audioClassifyClassicUtils.classifierOutputAsJson(classifierId, audioId, audioStartsAt, classifyOutput);
+
+										Log.e(logTag, "Classify Job Time Elapsed: "+ DateTimeUtils.timeStampDifferenceFromNowAsReadableString(classifyStartTime));
+										Log.d(logTag, classifyOutputJson.toString());
+
+
+										app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+
+									}
+								}
+							}
+
+
+						}
+
+					} else {
+						Log.d(logTag, "Queued classification job in database is invalid.");
+
+					}
 				}
-				inputStream.close();
-				outputStream.close();
 
 
-//				"content://org.rfcx.guardian.guardian/files_classifiers/active/2021-01-09/threat_v1_1610202905265.tflite"
 
 
-//				String clsfrId = "1234567890";
-//				String clsfrFilePath = RfcxClassifierFileUtils.classifierActiveDir(context)+"/multiclass-model.tflite";
-//				int clsfrSampleRate = 12000;
-//				float clsfrWindowSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_WINDOW_SIZE);
-//				float clsfrStepSize = app.rfcxPrefs.getPrefAsFloat(RfcxPrefs.Pref.PREDICTION_STEP_SIZE);
-//				String clsfrModelOutput = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.PREDICTION_MODEL_OUTPUT);
+
+//				String clsfrId = "1610202905265";
+//				String clsfrVersion = "1";
 //
-//				String audioId = "9876543210";
-//				long audioStartsAt = Long.parseLong(audioId);
-//				String audioFilePath = RfcxAudioFileUtils.audioClassifyDir(app.getApplicationContext()) + "/chainsaw12000.wav";
+//				String clsfrFilePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong(clsfrId), clsfrVersion);
+//				String clsfrRelativeFilePath = RfcxAssetCleanup.conciseFilePath(clsfrFilePath, RfcxGuardian.APP_ROLE);
+//				Uri clsfrFileOriginUri = RfcxComm.getFileUri("guardian", clsfrRelativeFilePath);
+
+//				if (!FileUtils.exists(clsfrFilePath) && !RfcxComm.getFileRequest( clsfrFileOriginUri, clsfrFilePath, app.getResolver())) {
+//
+//					Log.e(logTag, "Classifier was not saved and could not be retrieved");
+//
+//				} else {
+//
+////					int clsfrSampleRate = Integer.parseInt("12000");
+////					float clsfrWindowSize = Float.parseFloat("0.975");
+////					float clsfrStepSize = Float.parseFloat("1");
+////					String clsfrModelOutput = "chainsaw,gunshot,vehicle";
+//
+//					boolean isClassifierInitialized = app.audioClassifyClassicUtils.confirmOrLoadClassifier(clsfrId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrModelOutput);
+//
+//					if (!isClassifierInitialized) {
+//
+//						Log.e(logTag, "Classifier could not be initialized.");
+//
+//					} else {
+//
+//						String audioId = "1610243719647";
+//						long audioStartsAt = Long.parseLong("1610243719647");
+//
+//						String audioFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, Long.parseLong(audioId), "wav", clsfrSampleRate, null);
+//						String audioRelativeFilePath = RfcxAssetCleanup.conciseFilePath(audioFilePath, RfcxGuardian.APP_ROLE);
+//						Uri audioFileOriginUri = RfcxComm.getFileUri("guardian", audioRelativeFilePath);
+//
+//						if (!FileUtils.exists(audioFilePath) && !RfcxComm.getFileRequest( audioFileOriginUri, audioFilePath, app.getResolver())) {
+//
+//							Log.e(logTag, "Audio file was not saved and could not be retrieved");
+//
+//						} else {
+//
+//
+//							Log.i(logTag, "AUDIO FILE RETRIEVED");
+//
+//						}
+//
+//					}
+//
+//				}
+
+//
+
+//
+////						RfcxAudioFileUtils.audioClassifyDir(app.getApplicationContext()) + "/chainsaw12000.wav";
 //
 //				boolean isClassifierLoaded = app.audioClassifyClassicUtils.confirmOrLoadClassifier(clsfrId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrModelOutput);
-//
+
 //				if (isClassifierLoaded) {
 //					long classifyStartTime = System.currentTimeMillis();
 //					List<float[]> classifyOutput = app.audioClassifyClassicUtils.getClassifier(clsfrId).classify(audioFilePath);

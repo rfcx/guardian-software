@@ -95,6 +95,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 						if (classiferRow[0] != null) {
 
 							String classifierId = classiferRow[1];
+							String classifierVersion = "1";
 							int classifierSampleRate = Integer.parseInt(classiferRow[6]);
 							String classifierFilePath = classiferRow[5];
 							String classifierWindowSize = classiferRow[7];
@@ -102,7 +103,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 							String classifierClasses = classiferRow[9];
 
 							jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
-									"" + captureTimeStamp, classifierId,
+									"" + captureTimeStamp, classifierId, classifierVersion,
 											captureSampleRate, classifierSampleRate,
 											preClassifyFilePath, classifierFilePath,
 											classifierWindowSize, classifierStepSize, classifierClasses);

@@ -21,20 +21,19 @@ public class AudioClassifyDb {
 	static final String DATABASE = "audio-classify";
 	
 	static final String C_CREATED_AT = "created_at";
-	static final String C_TIMESTAMP = "timestamp";
-	static final String C_FORMAT = "format";
-	static final String C_DIGEST = "digest";
-	static final String C_SAMPLE_RATE = "samplerate";
-	static final String C_BITRATE = "bitrate";
-	static final String C_CODEC = "codec";
-	static final String C_DURATION = "duration";
-	static final String C_CREATION_DURATION = "creation_duration";
-	static final String C_ENCODE_PURPOSE = "encode_purpose";
-	static final String C_FILEPATH = "filepath";
-	static final String C_INPUT_SAMPLE_RATE = "input_samplerate";
+	static final String C_AUDIO_ID = "audio_id";
+	static final String C_CLASSIFIER_ID = "classifier_id";
+	static final String C_CLASSIFIER_VERSION = "classifier_version";
+	static final String C_ORIGINAL_SAMPLE_RATE = "original_sample_rate";
+	static final String C_CLASSIFIER_SAMPLE_RATE = "input_sample_rate";
+	static final String C_AUDIO_FILEPATH = "audio_filepath";
+	static final String C_CLASSIFIER_FILEPATH = "classifier_filepath";
+	static final String C_CLASSIFIER_WINDOW_SIZE = "classifier_window_size";
+	static final String C_CLASSIFIER_STEP_SIZE = "classifier_step_size";
+	static final String C_CLASSIFIER_CLASSES = "classifier_classes";
 	static final String C_ATTEMPTS = "attempts";
 	
-	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_TIMESTAMP, C_FORMAT, C_DIGEST, C_SAMPLE_RATE, C_BITRATE, C_CODEC, C_DURATION, C_CREATION_DURATION, C_ENCODE_PURPOSE, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_ATTEMPTS };
+	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_AUDIO_ID, C_CLASSIFIER_ID, C_CLASSIFIER_VERSION, C_ORIGINAL_SAMPLE_RATE, C_CLASSIFIER_SAMPLE_RATE, C_AUDIO_FILEPATH, C_CLASSIFIER_FILEPATH, C_CLASSIFIER_WINDOW_SIZE, C_CLASSIFIER_STEP_SIZE, C_CLASSIFIER_CLASSES, C_ATTEMPTS };
 
 	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -43,17 +42,16 @@ public class AudioClassifyDb {
 		StringBuilder sbOut = new StringBuilder();
 		sbOut.append("CREATE TABLE ").append(tableName)
 			.append("(").append(C_CREATED_AT).append(" INTEGER")
-			.append(", ").append(C_TIMESTAMP).append(" TEXT")
-			.append(", ").append(C_FORMAT).append(" TEXT")
-			.append(", ").append(C_DIGEST).append(" TEXT")
-			.append(", ").append(C_SAMPLE_RATE).append(" INTEGER")
-			.append(", ").append(C_BITRATE).append(" INTEGER")
-			.append(", ").append(C_CODEC).append(" TEXT")
-			.append(", ").append(C_DURATION).append(" INTEGER")
-			.append(", ").append(C_CREATION_DURATION).append(" INTEGER")
-			.append(", ").append(C_ENCODE_PURPOSE).append(" TEXT")
-			.append(", ").append(C_FILEPATH).append(" TEXT")
-			.append(", ").append(C_INPUT_SAMPLE_RATE).append(" INTEGER")
+			.append(", ").append(C_AUDIO_ID).append(" TEXT")
+			.append(", ").append(C_CLASSIFIER_ID).append(" TEXT")
+			.append(", ").append(C_CLASSIFIER_VERSION).append(" TEXT")
+			.append(", ").append(C_ORIGINAL_SAMPLE_RATE).append(" INTEGER")
+			.append(", ").append(C_CLASSIFIER_SAMPLE_RATE).append(" INTEGER")
+			.append(", ").append(C_AUDIO_FILEPATH).append(" TEXT")
+			.append(", ").append(C_CLASSIFIER_FILEPATH).append(" TEXT")
+			.append(", ").append(C_CLASSIFIER_WINDOW_SIZE).append(" TEXT")
+			.append(", ").append(C_CLASSIFIER_STEP_SIZE).append(" TEXT")
+			.append(", ").append(C_CLASSIFIER_CLASSES).append(" TEXT")
 			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
 			.append(")");
 		return sbOut.toString();
@@ -70,21 +68,20 @@ public class AudioClassifyDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
-		public int insert(String timestamp, String format, String digest, int samplerate, int bitrate, String codec, long duration, long creation_duration, String encode_purpose, String filepath, int inputSampleRate) {
+		public int insert(String audioId, String classifierId, String classifierVersion, int originalSampleRate, int classifierSampleRate, String audioFilepath, String classifierFilepath, String windowSize, String stepSize, String classes) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_TIMESTAMP, timestamp);
-			values.put(C_FORMAT, format);
-			values.put(C_DIGEST, digest);
-			values.put(C_SAMPLE_RATE, samplerate);
-			values.put(C_BITRATE, bitrate);
-			values.put(C_CODEC, codec);
-			values.put(C_DURATION, duration);
-			values.put(C_CREATION_DURATION, creation_duration);
-			values.put(C_ENCODE_PURPOSE, encode_purpose);
-			values.put(C_FILEPATH, filepath);
-			values.put(C_INPUT_SAMPLE_RATE, inputSampleRate);
+			values.put(C_AUDIO_ID, audioId);
+			values.put(C_CLASSIFIER_ID, classifierId);
+			values.put(C_CLASSIFIER_VERSION, classifierVersion);
+			values.put(C_ORIGINAL_SAMPLE_RATE, originalSampleRate);
+			values.put(C_CLASSIFIER_SAMPLE_RATE, classifierSampleRate);
+			values.put(C_AUDIO_FILEPATH, audioFilepath);
+			values.put(C_CLASSIFIER_FILEPATH, classifierFilepath);
+			values.put(C_CLASSIFIER_WINDOW_SIZE, windowSize);
+			values.put(C_CLASSIFIER_STEP_SIZE,stepSize );
+			values.put(C_CLASSIFIER_CLASSES, classes);
 			values.put(C_ATTEMPTS, 0);
 			
 			return this.dbUtils.insertRow(TABLE, values);
@@ -94,41 +91,41 @@ public class AudioClassifyDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
-		public String[] getLatestRow() {
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
-		}
-		
-		public void clearRowsBefore(Date date) {
-			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
-		}
-		
-		public void deleteSingleRow(String timestamp) {
-			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_TIMESTAMP, timestamp);
-		}
+//		public String[] getLatestRow() {
+//			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
+//		}
+//
+//		public void clearRowsBefore(Date date) {
+//			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
+//		}
+//
 
-		public void deleteSingleRow(String timestamp, String encodePurpose) {
-			String timestampValue = timestamp.contains(".") ? timestamp.substring(0, timestamp.lastIndexOf(".")) : timestamp;
-			this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_TIMESTAMP, timestampValue, C_ENCODE_PURPOSE, encodePurpose);
+		public void deleteSingleRow(String audioId, String classifierId) {
+			this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_AUDIO_ID, audioId, C_CLASSIFIER_ID, classifierId);
 		}
 		
 		public int getCount() {
 			return this.dbUtils.getCount(TABLE, null, null);
 		}
-		
-		public String[] getSingleRowByAudioId(String audioId) {
-			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+C_TIMESTAMP+",1,"+timestamp.length()+") = ?", new String[] { timestamp }, null, 0);
+
+		public void incrementSingleRowAttempts(String audioId, String classifierId) {
+			this.dbUtils.adjustNumericColumnValuesWithinQueryByTwoColumns("+1", TABLE, C_ATTEMPTS, C_AUDIO_ID, audioId, C_CLASSIFIER_ID, classifierId);
 		}
-		
-		public void incrementSingleRowAttempts(String audioId) {
-			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_TIMESTAMP, timestamp);
-		}
-		
-		public void decrementSingleRowAttempts(String audioId) {
-			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("-1", TABLE, C_ATTEMPTS, C_TIMESTAMP, timestamp);
-		}
+
+//		public String[] getSingleRowByAudioId(String audioId) {
+//			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+//			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+ C_CLASSIFIER_ID +",1,"+timestamp.length()+") = ?", new String[] { timestamp }, null, 0);
+//		}
+//
+//		public void incrementSingleRowAttempts(String audioId) {
+//			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+//			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_CLASSIFIER_ID, timestamp);
+//		}
+//
+//		public void decrementSingleRowAttempts(String audioId) {
+//			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
+//			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("-1", TABLE, C_ATTEMPTS, C_CLASSIFIER_ID, timestamp);
+//		}
 		
 	}
 	public final DbQueued dbQueued;

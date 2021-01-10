@@ -11,6 +11,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.text.TextUtils;
+import android.util.Log;
 
 public class ClassifyContentProvider extends ContentProvider {
 
@@ -71,6 +73,35 @@ public class ClassifyContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "initialize")) { logFuncVal = "control-initialize";
 				app.initializeRoleServices();
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"initialize", null, System.currentTimeMillis()});
+
+
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "classify_queue", "*")) { logFuncVal = "classify_queue-*";
+				String pathSeg = uri.getLastPathSegment();
+
+				String[] clsfyJob = TextUtils.split(pathSeg,"\\|");
+
+				String audioId = clsfyJob[0];
+				String clsfrId = clsfyJob[1];
+				String clsfrVer = clsfyJob[2];
+				int sampleRate = Integer.parseInt(clsfyJob[3]);
+				String audioFile = clsfyJob[4];
+				String clsfrFile = clsfyJob[5];
+				String windowSize = clsfyJob[6];
+				String stepSize = clsfyJob[7];
+				String classes = clsfyJob[8];
+
+				app.audioClassifyDb.dbQueued.insert(audioId, clsfrId, clsfrVer, 0, sampleRate, audioFile, clsfrFile, windowSize, stepSize, classes);
+				Log.d(logTag, "Added to Classify Job Queue: " + TextUtils.join(", ", clsfyJob));
+				app.rfcxServiceHandler.triggerService("AudioClassifyJob", false);
+
+				return RfcxComm.getProjectionCursor(appRole, "classify_queue", new Object[]{ audioId+"|"+clsfrId, null, System.currentTimeMillis()});
+
+
+
+
+
+
 
 			}
 

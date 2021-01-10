@@ -189,6 +189,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         initializeRoleServices();
 
+//        this.audioClassifyUtils.createDummyRow();
+
     }
 
     public void onTerminate() {

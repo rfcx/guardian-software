@@ -69,7 +69,6 @@
 
 
 		<!-- Services -->
-		<service android:name=".service.AudioClassifyQueueCycleService" />
 		<service android:name=".service.AudioClassifyJobService" />
 
 		<!-- IntentServices -->

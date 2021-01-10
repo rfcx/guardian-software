@@ -4,11 +4,9 @@ import android.app.Application;
 import android.content.ContentResolver;
 
 import org.rfcx.guardian.classify.service.AudioClassifyJobService;
-import org.rfcx.guardian.classify.service.AudioClassifyQueueCycleService;
 import org.rfcx.guardian.classify.utils.AudioClassifyClassicUtils;
 import org.rfcx.guardian.classify.utils.AudioClassifyDb;
 import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
-import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -39,8 +37,7 @@ public class RfcxGuardian extends Application {
 
     public String[] RfcxCoreServices =
             new String[]{
-          //          AudioClassifyJobService.SERVICE_NAME,
-                    AudioClassifyQueueCycleService.SERVICE_NAME
+                    AudioClassifyJobService.SERVICE_NAME
             };
 
     @Override
@@ -103,7 +100,6 @@ public class RfcxGuardian extends Application {
     private void setServiceHandlers() {
 
         this.rfcxServiceHandler.addService(ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
-        this.rfcxServiceHandler.addService(AudioClassifyQueueCycleService.SERVICE_NAME, AudioClassifyQueueCycleService.class);
         this.rfcxServiceHandler.addService(AudioClassifyJobService.SERVICE_NAME, AudioClassifyJobService.class);
 
     }

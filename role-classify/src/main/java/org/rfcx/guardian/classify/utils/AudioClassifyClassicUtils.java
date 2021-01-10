@@ -32,6 +32,7 @@ public class AudioClassifyClassicUtils {
 
 	private final RfcxGuardian app;
 
+	public static final int CLASSIFY_FAILURE_SKIP_THRESHOLD = 3;
 
 	private Map<String, AudioClassifier> classifiers = new HashMap<String, AudioClassifier>();
 
@@ -112,7 +113,7 @@ public class AudioClassifyClassicUtils {
 
 		ArrayList<String> audioQueuedForClassification = new ArrayList<String>();
 		for (String[] queuedRow : queuedForClassification) {
-			audioQueuedForClassification.add(queuedRow[10]);
+			audioQueuedForClassification.add(queuedRow[6]);
 		}
 
 		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxAudioFileUtils.audioClassifyDir(context) }, audioQueuedForClassification, Math.round(maxAgeInMilliseconds/60000), false, false );

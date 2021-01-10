@@ -2,6 +2,7 @@ package org.rfcx.guardian.guardian.contentprovider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -217,16 +218,16 @@ public class GuardianContentProvider extends ContentProvider {
 
 		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
 		Context context = app.getApplicationContext();
-		String logFuncVal = "";
 
 		try {
 
-			Log.w(logTag, uri.toString());
-
-			String assetUriPath = "/"+uri.getEncodedPath().substring(RfcxComm.fileProviderAssetDirUriNamespacePrepend.length());
-			String assetFilePath = context.getFilesDir().getAbsolutePath() + assetUriPath;
+			String assetUriPath = uri.getEncodedPath().substring(RfcxComm.fileProviderAssetDirUriNamespacePrepend.length());
+			String assetFilePath = context.getFilesDir().getAbsolutePath() + "/" + assetUriPath;
+			String conciseAssetFilePath = RfcxAssetCleanup.conciseFilePath(assetFilePath, RfcxGuardian.APP_ROLE);
 			FileUtils.initializeDirectoryRecursively(assetFilePath.substring(0, assetFilePath.lastIndexOf("/")), false);
 			File assetFile = new File(assetFilePath);
+
+			Log.v(logTag, "FileProvider request received: "+conciseAssetFilePath);
 
 			int imode = 0;
 			if (mode.contains("w")) {
@@ -241,11 +242,14 @@ public class GuardianContentProvider extends ContentProvider {
 
 			if (FileUtils.exists(assetFile)) {
 				return ParcelFileDescriptor.open(assetFile, imode);
+			} else {
+				Log.e(logTag, "FileProvider requested asset does not exist: "+conciseAssetFilePath);
 			}
 
 
 		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e, "GuardianContentProvider - "+logFuncVal);
+			RfcxLog.logExc(logTag, e, "GuardianContentProvider - FileProvider");
+
 		}
 		return null;
 	}

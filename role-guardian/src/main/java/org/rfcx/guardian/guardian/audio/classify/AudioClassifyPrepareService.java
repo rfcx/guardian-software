@@ -10,6 +10,10 @@ import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
+import org.rfcx.guardian.guardian.audio.encode.AudioEncodeUtils;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
+import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -94,36 +98,54 @@ public class AudioClassifyPrepareService extends Service {
 					// only proceed with classify process if there is a valid queued audio file in the database
 					if (latestQueuedAudioToClassify[0] != null) {
 
-						Log.e(logTag, TextUtils.join(" ", latestQueuedAudioToClassify));
-
 						String audioId = latestQueuedAudioToClassify[1];
 						String classifierId = latestQueuedAudioToClassify[2];
-						int captureSampleRate = Integer.parseInt(latestQueuedAudioToClassify[3]);
-						int classifierSampleRate = Integer.parseInt(latestQueuedAudioToClassify[4]);
-						String classifierWindowSize = latestQueuedAudioToClassify[7];
-						String classifierStepSize = latestQueuedAudioToClassify[8];
-						String classifierClasses = latestQueuedAudioToClassify[9];
-						File classifierFile = new File(latestQueuedAudioToClassify[6]);
-						File preClassifyAudioFile = new File(latestQueuedAudioToClassify[5]);
-
-						app.audioClassifyDb.dbQueued.incrementSingleRowAttempts(audioId, classifierId);
-
+						String classifierVersion = latestQueuedAudioToClassify[3];
+						int captureSampleRate = Integer.parseInt(latestQueuedAudioToClassify[4]);
+						int classifierSampleRate = Integer.parseInt(latestQueuedAudioToClassify[5]);
+						String classifierWindowSize = latestQueuedAudioToClassify[8];
+						String classifierStepSize = latestQueuedAudioToClassify[9];
+						String classifierClasses = latestQueuedAudioToClassify[10];
+						File classifierFile = new File(latestQueuedAudioToClassify[7]);
+						File preClassifyAudioFile = new File(latestQueuedAudioToClassify[6]);
 
 
-						preClassifyAudioFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, "classify", preClassifyAudioFile.getAbsolutePath(), Long.parseLong(audioId), "wav", captureSampleRate, classifierSampleRate);
+						if (!classifierFile.exists()) {
+
+							Log.e(logTag, "Skipping Audio Classify Job because classifier file could not be found."+RfcxAssetCleanup.conciseFilePath(classifierFile.getAbsolutePath(), RfcxGuardian.APP_ROLE));
+							app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+
+						} else if (!preClassifyAudioFile.exists()) {
+
+							Log.e(logTag, "Skipping Audio Classify Job because input audio file could not be found: "+RfcxAssetCleanup.conciseFilePath(preClassifyAudioFile.getAbsolutePath(), RfcxGuardian.APP_ROLE));
+							app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+
+						} else if (Integer.parseInt(latestQueuedAudioToClassify[11]) >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
+
+							Log.e(logTag, "Skipping Audio Classify Job for " + audioId + " after " + AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD + " failed attempts.");
+
+							app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+
+						} else {
 
 
+							app.audioClassifyDb.dbQueued.incrementSingleRowAttempts(audioId, classifierId);
 
 
-						Uri classifierFileUri = RfcxComm.getFileUri(RfcxGuardian.APP_ROLE, classifierFile);
-						Uri audioFileUri = RfcxComm.getFileUri(RfcxGuardian.APP_ROLE, preClassifyAudioFile);
+							preClassifyAudioFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, "classify", preClassifyAudioFile.getAbsolutePath(), Long.parseLong(audioId), "wav", captureSampleRate, classifierSampleRate);
 
-						Log.e(logTag,  audioFileUri.toString());
-						Log.e(logTag,  classifierFileUri.toString());
+							Log.d(logTag, "Sending Classify Job to Classify Role...");
 
+							app.audioClassifyUtils.queueClassifyJobAcrossRoles(
+									audioId, classifierId, classifierVersion, classifierSampleRate,
+									RfcxAssetCleanup.conciseFilePath(preClassifyAudioFile.getAbsolutePath(), RfcxGuardian.APP_ROLE),
+									RfcxAssetCleanup.conciseFilePath(classifierFile.getAbsolutePath(), RfcxGuardian.APP_ROLE),
+									classifierWindowSize, classifierStepSize, classifierClasses
+							);
 
-						app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+							app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
 
+						}
 
 					} else {
 						Log.d(logTag, "Queued classification job in database is invalid.");

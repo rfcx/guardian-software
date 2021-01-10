@@ -2,6 +2,9 @@ package org.rfcx.guardian.utility.rfcx;
 
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -14,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 
 import android.content.ContentResolver;
 import android.content.UriMatcher;
@@ -61,6 +65,8 @@ public class RfcxComm {
 				"gpio_set", new String[] { "address", "value", "received_at" });
 			roleFuncProj.get(role).put(
 				"control", new String[] { "command", "result", "received_at" });
+			roleFuncProj.get(role).put(
+				"classify_queue", new String[] { "audio_id|classifier_id", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"sms_queue", new String[] { "send_at|address|message", "result", "received_at" });
 			roleFuncProj.get(role).put(
@@ -133,6 +139,33 @@ public class RfcxComm {
 		}
 		return updateQueryResult;
 	}
+
+	public static boolean getFileRequest(Uri fileUri, String outputFileAbsoluteFilePath, ContentResolver contentResolver) {
+
+		try {
+
+			FileUtils.initializeDirectoryRecursively(outputFileAbsoluteFilePath.substring(0, outputFileAbsoluteFilePath.lastIndexOf("/")), false);
+
+			InputStream inputStream = contentResolver.openInputStream(fileUri);
+			OutputStream outputStream = new FileOutputStream(outputFileAbsoluteFilePath);
+
+			byte[] buf = new byte[1024]; int len;
+			while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
+
+			inputStream.close();
+			outputStream.close();
+
+			FileUtils.chmod(outputFileAbsoluteFilePath, "rw", "rw");
+
+			return FileUtils.exists(outputFileAbsoluteFilePath);
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+
+		FileUtils.delete(outputFileAbsoluteFilePath);
+		return false;
+	}
 	
 	public static MatrixCursor getProjectionCursor(String role, String function, Object[] values) {
 		MatrixCursor cursor = new MatrixCursor(getProjection(role, function));
@@ -155,16 +188,14 @@ public class RfcxComm {
 		return getUri(role, function, null);
 	}
 
-	public static Uri getFileUri(String role, File fileObj) {
+	public static Uri getFileUri(String role, String filePathRelativeToFilesDir) {
 		StringBuilder uri = (new StringBuilder())
 				.append("content://")
 				.append(getAuthority(role.toLowerCase(Locale.US)))
 				.append(fileProviderAssetDirUriNamespacePrepend)
-				.append(RfcxAssetCleanup.conciseFilePath(fileObj.getAbsolutePath(), role));
+				.append(RfcxAssetCleanup.conciseFilePath(filePathRelativeToFilesDir, role));
 		return Uri.parse(uri.toString());
 	}
-
-	public static Uri getFileUri(String role, String filePath) { return getFileUri(role, new File(filePath)); }
 
 	public static int[] getUriMatchId(String role, String function) {
 		

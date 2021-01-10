@@ -50,10 +50,9 @@ public class RfcxClassifierFileUtils {
 		return context.getFilesDir().toString() + "/classifiers/active";
 	}
 
-	public static String getClassifierFileName(String classificationTag, String versionTag, long timestamp) {
-		return 	classificationTag
+	public static String getClassifierFileName(long classifierId, String versionTag) {
+		return 	classifierId
 				+ "_" + "v" + versionTag
-				+ "_" + timestamp
 				+ "." + classifierFileType;
 	}
 
@@ -61,16 +60,16 @@ public class RfcxClassifierFileUtils {
 		return classifierDownloadDir(context) + "/_" + timestamp + "." + classifierFileType;
 	}
 
-	public static String getClassifierFileLocation_Cache(Context context, long timestamp, String classificationTag, String versionTag) {
-		return classifierCacheDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + getClassifierFileName(classificationTag, versionTag, timestamp);
+	public static String getClassifierFileLocation_Cache(Context context, long timestamp, String versionTag) {
+		return classifierCacheDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + getClassifierFileName(timestamp, versionTag);
 	}
 
-	public static String getClassifierFileLocation_Active(Context context, long timestamp, String classificationTag, String versionTag) {
-		return classifierActiveDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + getClassifierFileName(classificationTag, versionTag, timestamp);
+	public static String getClassifierFileLocation_Active(Context context, long timestamp, String versionTag) {
+		return classifierActiveDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + getClassifierFileName(timestamp, versionTag);
 	}
 
-	public static String getClassifierFileLocation_ExternalStorage(long timestamp, String classificationTag, String versionTag) {
-		return classifierSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + getClassifierFileName(classificationTag, versionTag, timestamp);
+	public static String getClassifierFileLocation_ExternalStorage(long timestamp, String versionTag) {
+		return classifierSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + getClassifierFileName(timestamp, versionTag);
 	}
 
 
