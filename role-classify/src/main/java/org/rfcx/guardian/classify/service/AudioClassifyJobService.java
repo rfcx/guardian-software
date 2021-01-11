@@ -15,7 +15,6 @@ import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -122,6 +121,7 @@ public class AudioClassifyJobService extends Service {
 							String clsfrFilePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, Long.parseLong(classifierId));
 							String clsfrRelativeFilePath = RfcxAssetCleanup.conciseFilePath(clsfrFilePath, RfcxGuardian.APP_ROLE);
 							Uri clsfrFileOriginUri = RfcxComm.getFileUri("guardian", clsfrRelativeFilePath);
+							AudioClassifyUtils.cleanupClassifierDirectory( context, new String[] { clsfrFilePath }, Math.round( 24 * 60 * 60 * 1000 ) );
 
 							if (!FileUtils.exists(clsfrFilePath) && !RfcxComm.getFileRequest( clsfrFileOriginUri, clsfrFilePath, app.getResolver())) {
 
@@ -151,11 +151,12 @@ public class AudioClassifyJobService extends Service {
 
 										long classifyStartTime = System.currentTimeMillis();
 										List<float[]> classifyOutput = app.audioClassifyUtils.getClassifier(classifierId).classify(audioFilePath);
-										JSONObject classifyOutputJson = app.audioClassifyUtils.classifierOutputAsJson(classifierId, audioId, audioStartsAt, classifyOutput);
-
 										Log.i(logTag, "Completed Audio Classify Job - " + DateTimeUtils.timeStampDifferenceFromNowAsReadableString(classifyStartTime) + " - Audio: " + audioId + " - Classifier: " + classifierId);
 
-										app.audioClassifyUtils.sendClassificationsToGuardianRole(classifyOutputJson);
+										JSONObject classifyOutputJson = app.audioClassifyUtils.classifyOutputAsJson(classifierId, audioId, audioStartsAt, classifyOutput);
+										classifyOutputJson.put("classify_duration", (System.currentTimeMillis()-classifyStartTime)+"" );
+
+										app.audioClassifyUtils.sendClassifyOutputToGuardianRole(classifyOutputJson);
 
 										app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
 									}

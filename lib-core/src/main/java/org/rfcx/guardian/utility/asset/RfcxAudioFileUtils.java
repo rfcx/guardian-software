@@ -32,7 +32,7 @@ public class RfcxAudioFileUtils {
 		FileUtils.initializeDirectoryRecursively(audioQueueDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioStashDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioClassifyDir(context), false);
-		FileUtils.initializeDirectoryRecursively(audioLibraryDir(context), false);
+		FileUtils.initializeDirectoryRecursively(audioGalleryDir(context), false);
 	}
 
 	private static String audioSdCardDir() {
@@ -47,7 +47,7 @@ public class RfcxAudioFileUtils {
 		return context.getFilesDir().toString() + "/audio/download";
 	}
 
-	public static String audioLibraryDir(Context context) {
+	public static String audioGalleryDir(Context context) {
 		return context.getFilesDir().toString() + "/audio/library";
 	}
 
@@ -114,8 +114,8 @@ public class RfcxAudioFileUtils {
 		return audioDownloadDir(context) + "/" + timestamp + "." + getFileExt(audioCodec);
 	}
 
-	public static String getAudioFileLocation_Library(Context context, long timestamp, String audioCodec) {
-		return audioLibraryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName("library", timestamp, audioCodec, 0);
+	public static String getAudioFileLocation_Gallery(Context context, long timestamp, String audioCodec) {
+		return audioGalleryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName("gallery", timestamp, audioCodec, 0);
 	}
 
 	public static String getAudioFileLocation_Vault(String rfcxDeviceId, long timestamp, String audioCodec, int sampleRate) {

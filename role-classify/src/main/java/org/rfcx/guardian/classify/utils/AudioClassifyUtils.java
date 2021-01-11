@@ -108,7 +108,7 @@ public class AudioClassifyUtils {
 	}
 
 
-	public JSONObject classifierOutputAsJson(String classifierId, String audioId, long audioStartsAt, List<float[]> classifierOutput) throws JSONException {
+	public JSONObject classifyOutputAsJson(String classifierId, String audioId, long audioStartsAt, List<float[]> classifierOutput) throws JSONException {
 
 		String[] classifierClasses = app.audioClassifyUtils.getClassifierClasses(classifierId);
 		int classifierSampleRate = app.audioClassifyUtils.getClassifierSampleRate(classifierId);
@@ -140,7 +140,7 @@ public class AudioClassifyUtils {
 	}
 
 
-	public void sendClassificationsToGuardianRole(JSONObject jsonObj) {
+	public void sendClassifyOutputToGuardianRole(JSONObject jsonObj) {
 
 		Log.d(logTag, "Sending Classifications Blob to Guardian role...");
 
@@ -162,6 +162,16 @@ public class AudioClassifyUtils {
 		}
 
 		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxAudioFileUtils.audioClassifyDir(context) }, audioQueuedForClassification, Math.round(maxAgeInMilliseconds/60000), false, false );
+	}
+
+	public static void cleanupClassifierDirectory(Context context, String[] excludeFilePaths, long maxAgeInMilliseconds) {
+
+		ArrayList<String> excludeFilePathList = new ArrayList<String>();
+		for (String filePath : excludeFilePaths) {
+			excludeFilePathList.add(filePath);
+		}
+
+		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxClassifierFileUtils.classifierActiveDir(context) }, excludeFilePathList, Math.round(maxAgeInMilliseconds/60000), false, false );
 	}
 
 }

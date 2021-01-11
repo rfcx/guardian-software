@@ -23,22 +23,17 @@ public class RfcxClassifierFileUtils {
 	
 	public static void initializeClassifierDirectories(Context context) {
 
-		FileUtils.initializeDirectoryRecursively(classifierSdCardDir(), true);
 		FileUtils.initializeDirectoryRecursively(classifierDownloadDir(context), false);
-		FileUtils.initializeDirectoryRecursively(classifierLibraryDir(context), false);
+		FileUtils.initializeDirectoryRecursively(classifierGalleryDir(context), false);
 		FileUtils.initializeDirectoryRecursively(classifierActiveDir(context), false);
-	}
-	
-	private static String classifierSdCardDir() {
-		return Environment.getExternalStorageDirectory().toString() + "/rfcx/classifiers";
 	}
 	
 	public static String classifierDownloadDir(Context context) {
 		return context.getFilesDir().toString() + "/classifiers/download";
 	}
 
-	public static String classifierLibraryDir(Context context) {
-		return context.getFilesDir().toString() + "/classifiers/library";
+	public static String classifierGalleryDir(Context context) {
+		return context.getFilesDir().toString() + "/classifiers/gallery";
 	}
 
 	public static String classifierActiveDir(Context context) {
@@ -49,16 +44,12 @@ public class RfcxClassifierFileUtils {
 		return classifierDownloadDir(context) + "/" + timestamp + "." + classifierFileType;
 	}
 
-	public static String getClassifierFileLocation_Library(Context context, long timestamp) {
-		return classifierLibraryDir(context) + "/" + timestamp + "." + classifierFileType;
+	public static String getClassifierFileLocation_Gallery(Context context, long timestamp) {
+		return classifierGalleryDir(context) + "/" + timestamp + "." + classifierFileType;
 	}
 
 	public static String getClassifierFileLocation_Active(Context context, long timestamp) {
 		return classifierActiveDir(context) + "/" + timestamp + "." + classifierFileType;
-	}
-
-	public static String getClassifierFileLocation_ExternalStorage(long timestamp) {
-		return classifierSdCardDir() + "/" + timestamp + "." + classifierFileType;
 	}
 
 

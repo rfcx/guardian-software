@@ -70,6 +70,8 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"classify_queue", new String[] { "audio_id|classifier_id", "result", "received_at" });
 			roleFuncProj.get(role).put(
+				"classification_create", new String[] { "classification_payload", "result", "received_at" });
+			roleFuncProj.get(role).put(
 				"sms_queue", new String[] { "send_at|address|message", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"sbd_queue", new String[] { "send_at|address|message", "result", "received_at" });
@@ -77,8 +79,6 @@ public class RfcxComm {
 				"segment_receive_sms", new String[] { "segment_payload", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"segment_receive_sbd", new String[] { "segment_payload", "result", "received_at" });
-			roleFuncProj.get(role).put(
-				"classification_create", new String[] { "classification_payload", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"get_momentary_values", new String[] { "value", "result", "received_at" });
 			roleFuncProj.get(role).put(

@@ -33,13 +33,8 @@ public class RfcxScreenShotFileUtils {
 	
 	public static void initializeScreenShotDirectories(Context context) {
 
-		FileUtils.initializeDirectoryRecursively(screenShotSdCardDir(), true);
 		FileUtils.initializeDirectoryRecursively(screenShotCaptureDir(context), false);
 		FileUtils.initializeDirectoryRecursively(screenShotQueueDir(context), false);
-	}
-	
-	private static String screenShotSdCardDir() {
-		return Environment.getExternalStorageDirectory().toString() + "/rfcx/screenshots";
 	}
 	
 	public static String screenShotQueueDir(Context context) {
@@ -59,14 +54,8 @@ public class RfcxScreenShotFileUtils {
 	}
 
 	public static String getScreenShotFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceStorage.isExternalStorageWritable() ? screenShotSdCardDir() : screenShotQueueDir(context) )
-				+ "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + CAPTURE_FILETYPE;
+		return screenShotQueueDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + CAPTURE_FILETYPE;
 	}
-
-	public static String getScreenShotFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {
-		return screenShotSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + CAPTURE_FILETYPE;
-	}
-
 
 
 

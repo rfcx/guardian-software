@@ -121,13 +121,13 @@ public class AssetDownloadJobService extends Service {
 
 							String downloadTmpFilePath = app.assetDownloadUtils.getTmpAssetFilePath(assetType, assetId);
 							String postDownloadFilePath = app.assetDownloadUtils.getPostDownloadAssetFilePath(assetType, assetId, fileType);
-							String finalFilePath = app.assetDownloadUtils.getFinalAssetFilePath(assetType, assetId, fileType);
+							String finalGalleryFilePath = app.assetGalleryUtils.getGalleryAssetFilePath(assetType, assetId, fileType);
 
 							if (protocol.equalsIgnoreCase("http")) {
 
-								if (FileUtils.sha1Hash(finalFilePath).equalsIgnoreCase(checksum)) {
+								if (FileUtils.sha1Hash(finalGalleryFilePath).equalsIgnoreCase(checksum)) {
 
-									Log.e(logTag, "Asset Download will be skipped. An existing copy of queued asset was found with correct checksum at " + RfcxAssetCleanup.conciseFilePath(finalFilePath, RfcxGuardian.APP_ROLE));
+									Log.e(logTag, "Asset Download will be skipped. An existing copy of queued asset was found with correct checksum at " + RfcxAssetCleanup.conciseFilePath(finalGalleryFilePath, RfcxGuardian.APP_ROLE));
 									app.assetDownloadDb.dbQueued.deleteSingleRow(assetType, assetId);
 
 								} else {
@@ -150,12 +150,12 @@ public class AssetDownloadJobService extends Service {
 										app.assetDownloadDb.dbCompleted.insert(assetType, assetId, checksum, protocol, uriStr, fileSize, fileType, downloadAttempts + 1, downloadDuration);
 										app.assetDownloadDb.dbQueued.deleteSingleRow(assetType, assetId);
 
-										Log.i(logTag, "Asset Download Successful. File will be placed at " + RfcxAssetCleanup.conciseFilePath(finalFilePath, RfcxGuardian.APP_ROLE));
+										Log.i(logTag, "Asset Download Successful. File will be placed in the Asset Gallery at " + RfcxAssetCleanup.conciseFilePath(finalGalleryFilePath, RfcxGuardian.APP_ROLE));
 
 										app.assetDownloadUtils.followUpOnSuccessfulDownload( assetType, assetId, fileType, checksum, fileSize );
 
 									} else {
-										Log.e(logTag, "Asset Download Failure, Checksum Mis-match on Unzipped Asset");
+										Log.e(logTag, "Asset Download Failure: Rejected due to checksum mis-match on decompressed asset file.");
 										Log.e(logTag, downloadChecksum+" - "+checksum);
 										FileUtils.delete(postDownloadFilePath);
 

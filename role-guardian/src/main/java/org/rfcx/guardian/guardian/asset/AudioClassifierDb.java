@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.audio.classify;
+package org.rfcx.guardian.guardian.asset;
 
 import android.content.ContentValues;
 import android.content.Context;

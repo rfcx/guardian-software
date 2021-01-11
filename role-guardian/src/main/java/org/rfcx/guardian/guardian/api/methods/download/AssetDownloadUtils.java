@@ -46,6 +46,8 @@ public class AssetDownloadUtils {
 	}
 
 
+
+
 	public String getTmpAssetFilePath(String assetType, String assetId) {
 
 		return this.downloadDirectoryPath + "/" + assetType + "_" + assetId+".download";
@@ -69,40 +71,22 @@ public class AssetDownloadUtils {
 		return null;
 	}
 
-	public String getFinalAssetFilePath(String assetType, String assetId, String fileType) {
-
-		Context context = app.getApplicationContext();
-		long numericAssetId = Long.parseLong(assetId);
-
-		if (assetType.equalsIgnoreCase("classifier")) {
-			return RfcxClassifierFileUtils.getClassifierFileLocation_Library(context, numericAssetId);
-
-		} else if (assetType.equalsIgnoreCase("audio")) {
-			return RfcxAudioFileUtils.getAudioFileLocation_Library(context, numericAssetId, fileType);
-
-		}/* else if (assetType.equalsIgnoreCase("apk")) {
-
-		}*/
-
-		return null;
-	}
-
 
 	public void followUpOnSuccessfulDownload(String assetType, String assetId, String fileType, String checksum, long fileSize) throws IOException {
 
 		Log.i(logTag, "Following up on successful download...");
 
 		String tmpPath = getPostDownloadAssetFilePath(assetType, assetId, fileType);
-		String finalPath = getFinalAssetFilePath(assetType, assetId, fileType);
-		FileUtils.initializeDirectoryRecursively(finalPath.substring(0, finalPath.lastIndexOf("/")), false);
+		String galleryPath = app.assetGalleryUtils.getGalleryAssetFilePath(assetType, assetId, fileType);
+		FileUtils.initializeDirectoryRecursively(galleryPath.substring(0, galleryPath.lastIndexOf("/")), false);
 
 		if (assetType.equalsIgnoreCase("classifier")) {
 
-			FileUtils.copy(tmpPath, finalPath);
+			FileUtils.copy(tmpPath, galleryPath);
 
-			if (app.assetLibraryDb.dbClassifier.getCountByAssetId(assetId) == 0) {
+			if (app.assetGalleryDb.dbClassifier.getCountByAssetId(assetId) == 0) {
 
-				app.assetLibraryDb.dbClassifier.insert(assetId, "classifier", fileType, checksum, finalPath, fileSize,
+				app.assetGalleryDb.dbClassifier.insert(assetId, "classifier", fileType, checksum, galleryPath, fileSize,
 						"",0,0);
 
 			}
@@ -111,7 +95,7 @@ public class AssetDownloadUtils {
 			FileUtils.copy(tmpPath, RfcxClassifierFileUtils.getClassifierFileLocation_Active(app.getApplicationContext(), Long.parseLong(assetId)));
 			app.audioClassifierDb.dbActive.insert(
 					assetId, "guid", "1", fileType, checksum,
-					finalPath, 12000, "0.975", "1", "chainsaw,gunshot,vehicle"
+					galleryPath, 12000, "0.975", "1", "chainsaw,gunshot,vehicle"
 			);
 
 		} else if (assetType.equalsIgnoreCase("audio")) {

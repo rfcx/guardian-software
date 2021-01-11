@@ -14,12 +14,20 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 
 import org.rfcx.guardian.guardian.socket.SocketManager;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
+import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
+import org.rfcx.guardian.utility.asset.RfcxVideoFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.network.MqttUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import android.content.Context;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
@@ -90,26 +98,45 @@ public class ApiMqttUtils implements MqttCallback {
 
 	private byte[] packageMqttCheckInPayload(String checkInJsonString, String checkInAudioFilePath) throws IOException, JSONException {
 
+		Context context = app.getApplicationContext();
+		String guardianGuid = app.rfcxGuardianIdentity.getGuid();
+
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
 		String[] screenShotMeta = app.assetUtils.getLatestExternalAssetMeta("screenshots", this.checkInPublishTimeOutLength);
-		if ((screenShotMeta[0] != null) && !FileUtils.exists(screenShotMeta[0])) {
-			app.assetUtils.purgeSingleAsset("screenshot", screenShotMeta[2]);
+		if (screenShotMeta[0] != null) {
+			screenShotMeta[0] = RfcxScreenShotFileUtils.getScreenShotFileLocation_Queue(guardianGuid, context, Long.parseLong(screenShotMeta[2]));
+			Uri screenShotUri = RfcxComm.getFileUri("admin", RfcxAssetCleanup.conciseFilePath(screenShotMeta[0], RfcxGuardian.APP_ROLE));
+			if (!FileUtils.exists(screenShotMeta[0]) && !RfcxComm.getFileRequest( screenShotUri, screenShotMeta[0], app.getResolver())) {
+				app.assetUtils.purgeSingleAsset("screenshot", screenShotMeta[2]);
+			}
 		}
 
 		String[] logFileMeta = app.assetUtils.getLatestExternalAssetMeta("logs", this.checkInPublishTimeOutLength);
-		if ((logFileMeta[0] != null) && !FileUtils.exists(logFileMeta[0])) {
-			app.assetUtils.purgeSingleAsset("log", logFileMeta[2]);
+		if (logFileMeta[0] != null) {
+			logFileMeta[0] = RfcxLogcatFileUtils.getLogcatFileLocation_Queue(guardianGuid, context, Long.parseLong(logFileMeta[2]));
+			Uri logFileUri = RfcxComm.getFileUri("admin", RfcxAssetCleanup.conciseFilePath(logFileMeta[0], RfcxGuardian.APP_ROLE));
+			if (!FileUtils.exists(logFileMeta[0]) && !RfcxComm.getFileRequest( logFileUri, logFileMeta[0], app.getResolver())) {
+				app.assetUtils.purgeSingleAsset("log", logFileMeta[2]);
+			}
 		}
 
         String[] photoFileMeta = app.assetUtils.getLatestExternalAssetMeta("photos", this.checkInPublishTimeOutLength);
-        if ((photoFileMeta[0] != null) && !FileUtils.exists(photoFileMeta[0])) {
-			app.assetUtils.purgeSingleAsset("photo", photoFileMeta[2]);
+        if (photoFileMeta[0] != null) {
+			photoFileMeta[0] = RfcxPhotoFileUtils.getPhotoFileLocation_Queue(guardianGuid, context, Long.parseLong(photoFileMeta[2]));
+			Uri photoFileUri = RfcxComm.getFileUri("admin", RfcxAssetCleanup.conciseFilePath(photoFileMeta[0], RfcxGuardian.APP_ROLE));
+			if (!FileUtils.exists(photoFileMeta[0]) && !RfcxComm.getFileRequest( photoFileUri, photoFileMeta[0], app.getResolver())) {
+				app.assetUtils.purgeSingleAsset("photo", photoFileMeta[2]);
+			}
         }
 
 		String[] videoFileMeta = app.assetUtils.getLatestExternalAssetMeta("videos", this.checkInPublishTimeOutLength);
-		if ((videoFileMeta[0] != null) && !FileUtils.exists(videoFileMeta[0])) {
-			app.assetUtils.purgeSingleAsset("video", videoFileMeta[2]);
+		if (videoFileMeta[0] != null) {
+			videoFileMeta[0] = RfcxVideoFileUtils.getVideoFileLocation_Queue(guardianGuid, context, Long.parseLong(videoFileMeta[2]));
+			Uri videoFileUri = RfcxComm.getFileUri("admin", RfcxAssetCleanup.conciseFilePath(videoFileMeta[0], RfcxGuardian.APP_ROLE));
+			if (!FileUtils.exists(videoFileMeta[0]) && !RfcxComm.getFileRequest( videoFileUri, videoFileMeta[0], app.getResolver())) {
+				app.assetUtils.purgeSingleAsset("video", videoFileMeta[2]);
+			}
 		}
 
         // Build JSON blob from included assets
