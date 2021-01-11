@@ -97,11 +97,6 @@ public class AudioClassifierDb {
 			return this.dbUtils.getCount(TABLE, null, null);
 		}
 		
-//		public String[] getSingleRowByAudioId(String audioId) {
-//			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-//			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+ C_CLASSIFIER_ID +",1,"+timestamp.length()+") = ?", new String[] { timestamp }, null, 0);
-//		}
-		
 	}
 	public final DbActive dbActive;
 

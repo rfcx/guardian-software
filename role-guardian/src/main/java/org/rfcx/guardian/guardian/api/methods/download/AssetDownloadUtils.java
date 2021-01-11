@@ -75,7 +75,7 @@ public class AssetDownloadUtils {
 		long numericAssetId = Long.parseLong(assetId);
 
 		if (assetType.equalsIgnoreCase("classifier")) {
-			return RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, numericAssetId);
+			return RfcxClassifierFileUtils.getClassifierFileLocation_Library(context, numericAssetId);
 
 		} else if (assetType.equalsIgnoreCase("audio")) {
 			return RfcxAudioFileUtils.getAudioFileLocation_Library(context, numericAssetId, fileType);
@@ -88,7 +88,7 @@ public class AssetDownloadUtils {
 	}
 
 
-	public void followUpOnSuccessfulDownload(String assetType, String assetId, String fileType) throws IOException {
+	public void followUpOnSuccessfulDownload(String assetType, String assetId, String fileType, String checksum, long fileSize) throws IOException {
 
 		Log.i(logTag, "Following up on successful download...");
 
@@ -100,13 +100,19 @@ public class AssetDownloadUtils {
 
 			FileUtils.copy(tmpPath, finalPath);
 
+			if (app.assetLibraryDb.dbClassifier.getCountByAssetId(assetId) == 0) {
+
+				app.assetLibraryDb.dbClassifier.insert(assetId, "classifier", fileType, checksum, finalPath, fileSize,
+						"",0,0);
+
+			}
+
 			// Using dummy data for development
+			FileUtils.copy(tmpPath, RfcxClassifierFileUtils.getClassifierFileLocation_Active(app.getApplicationContext(), Long.parseLong(assetId)));
 			app.audioClassifierDb.dbActive.insert(
-					assetId, "guid", "1", "tflite", "checksum",
+					assetId, "guid", "1", fileType, checksum,
 					finalPath, 12000, "0.975", "1", "chainsaw,gunshot,vehicle"
 			);
-
-			FileUtils.delete(tmpPath);
 
 		} else if (assetType.equalsIgnoreCase("audio")) {
 
@@ -115,6 +121,8 @@ public class AssetDownloadUtils {
 		}/* else if (assetType.equalsIgnoreCase("apk")) {
 
 		}*/
+
+		FileUtils.delete(tmpPath);
 
 	}
 

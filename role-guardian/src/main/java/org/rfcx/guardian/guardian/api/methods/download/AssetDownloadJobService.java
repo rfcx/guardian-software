@@ -152,7 +152,7 @@ public class AssetDownloadJobService extends Service {
 
 										Log.i(logTag, "Asset Download Successful. File will be placed at " + RfcxAssetCleanup.conciseFilePath(finalFilePath, RfcxGuardian.APP_ROLE));
 
-										app.assetDownloadUtils.followUpOnSuccessfulDownload( assetType, assetId, fileType );
+										app.assetDownloadUtils.followUpOnSuccessfulDownload( assetType, assetId, fileType, checksum, fileSize );
 
 									} else {
 										Log.e(logTag, "Asset Download Failure, Checksum Mis-match on Unzipped Asset");
