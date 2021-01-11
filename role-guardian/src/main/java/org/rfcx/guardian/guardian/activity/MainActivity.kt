@@ -12,6 +12,7 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
+import org.rfcx.guardian.guardian.api.methods.download.AssetDownloadJobService
 import org.rfcx.guardian.guardian.api.methods.ping.SendApiPingService
 import org.rfcx.guardian.guardian.api.methods.register.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.methods.register.GuardianCheckCallback
@@ -78,6 +79,11 @@ class MainActivity : Activity(),
             clearRegistration()
             setVisibilityBeforeRegister()
             // reload or relaunch app
+        }
+
+        downloadDevClassifierButton.setOnClickListener {
+            app.assetDownloadUtils.createDummyRow();
+            app.rfcxServiceHandler.triggerService(AssetDownloadJobService.SERVICE_NAME, false);
         }
 
         audioCaptureButton.setOnClickListener {

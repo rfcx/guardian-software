@@ -40,17 +40,15 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_home);
 
 
-		Button placeholderButton = findViewById(R.id.clickMe);
-		placeholderButton.setOnClickListener(new View.OnClickListener() {
-			@SuppressLint("LongLogTag")
-			@Override
-			public void onClick(View v) {
-
-			RfcxGuardian app = (RfcxGuardian) getApplicationContext();
-			app.rfcxServiceHandler.triggerService("AudioClassifyJob", false);
-
-			}
-		});
+//		Button placeholderButton = findViewById(R.id.clickMe);
+//		placeholderButton.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//
+//				// Do something here...
+//
+//			}
+//		});
 
 	}
 

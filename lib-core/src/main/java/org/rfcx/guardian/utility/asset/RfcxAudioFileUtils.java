@@ -32,7 +32,7 @@ public class RfcxAudioFileUtils {
 		FileUtils.initializeDirectoryRecursively(audioQueueDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioStashDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioClassifyDir(context), false);
-		FileUtils.initializeDirectoryRecursively(assetLibraryDir(context), false);
+		FileUtils.initializeDirectoryRecursively(audioLibraryDir(context), false);
 	}
 
 	private static String audioSdCardDir() {
@@ -43,7 +43,11 @@ public class RfcxAudioFileUtils {
 		return Environment.getExternalStorageDirectory().toString() + "/rfcx/vault";
 	}
 
-	public static String assetLibraryDir(Context context) {
+	public static String audioDownloadDir(Context context) {
+		return context.getFilesDir().toString() + "/audio/download";
+	}
+
+	public static String audioLibraryDir(Context context) {
 		return context.getFilesDir().toString() + "/audio/library";
 	}
 
@@ -106,8 +110,12 @@ public class RfcxAudioFileUtils {
 		return audioStashDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
 	}
 
-	public static String getAudioFileLocation_Library(String rfcxDeviceId, Context context, long timestamp, String audioCodec, int sampleRate) {
-		return assetLibraryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, sampleRate);
+	public static String getAudioFileLocation_Download(Context context, long timestamp, String audioCodec) {
+		return audioDownloadDir(context) + "/" + timestamp + "." + getFileExt(audioCodec);
+	}
+
+	public static String getAudioFileLocation_Library(Context context, long timestamp, String audioCodec) {
+		return audioLibraryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName("library", timestamp, audioCodec, 0);
 	}
 
 	public static String getAudioFileLocation_Vault(String rfcxDeviceId, long timestamp, String audioCodec, int sampleRate) {

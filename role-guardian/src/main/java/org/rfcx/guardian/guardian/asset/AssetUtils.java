@@ -182,7 +182,8 @@ public class AssetUtils {
 				RfcxAudioFileUtils.audioStashDir(app.getApplicationContext()),
 				RfcxAudioFileUtils.audioFinalDir(app.getApplicationContext()),
 				RfcxAudioFileUtils.audioQueueDir(app.getApplicationContext()),
-				RfcxAudioFileUtils.assetLibraryDir(app.getApplicationContext())
+		//		RfcxAudioFileUtils.audioLibraryDir(app.getApplicationContext()),
+				RfcxAudioFileUtils.audioDownloadDir(app.getApplicationContext())
 		};
 
 		List<String> assetFilePathsFromDatabase = new ArrayList<String>();

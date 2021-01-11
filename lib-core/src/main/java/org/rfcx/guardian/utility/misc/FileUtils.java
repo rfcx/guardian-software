@@ -34,31 +34,34 @@ public class FileUtils {
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "FileUtils");
 	
 	public static String sha1Hash(String filePath) {
-		try {
-			MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
-		    FileInputStream fileInputStream = new FileInputStream(filePath);
-			byte[] dataBytes = new byte[1024];
-		    int nread = 0;
-		    while ((nread = fileInputStream.read(dataBytes)) != -1) {
-		    	messageDigest.update(dataBytes, 0, nread);
-		    };
-		    fileInputStream.close();
-		    byte[] mdbytes = messageDigest.digest();
-		    StringBuffer stringBuffer = new StringBuffer("");
-		    for (int i = 0; i < mdbytes.length; i++) {
-		    	stringBuffer.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
-		    }
-			return stringBuffer.toString();
-		} catch (NoSuchAlgorithmException e) {
-			RfcxLog.logExc(logTag, e);
-		} catch (FileNotFoundException e) {
-			RfcxLog.logExc(logTag, e);
-		} catch (IOException e) {
-			RfcxLog.logExc(logTag, e);
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
+		if ((new File(filePath)).exists()) {
+			try {
+				MessageDigest messageDigest = MessageDigest.getInstance("SHA1");
+				FileInputStream fileInputStream = new FileInputStream(filePath);
+				byte[] dataBytes = new byte[1024];
+				int nread = 0;
+				while ((nread = fileInputStream.read(dataBytes)) != -1) {
+					messageDigest.update(dataBytes, 0, nread);
+				}
+				;
+				fileInputStream.close();
+				byte[] mdbytes = messageDigest.digest();
+				StringBuffer stringBuffer = new StringBuffer("");
+				for (int i = 0; i < mdbytes.length; i++) {
+					stringBuffer.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+				}
+				return stringBuffer.toString();
+			} catch (NoSuchAlgorithmException e) {
+				RfcxLog.logExc(logTag, e);
+			} catch (FileNotFoundException e) {
+				RfcxLog.logExc(logTag, e);
+			} catch (IOException e) {
+				RfcxLog.logExc(logTag, e);
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+			}
 		}
-		return null;
+		return "";
 	}
 	
 	public static String fileAsBase64String(String filePath) {

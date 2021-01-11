@@ -20,6 +20,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -307,6 +308,10 @@ public class AdminContentProvider extends ContentProvider {
             RfcxLog.logExc(logTag, e, "AdminContentProvider - "+logFuncVal);
         }
         return null;
+    }
+
+    public ParcelFileDescriptor openFile(Uri uri, String mode) {
+        return RfcxComm.serveAssetFileRequest(uri, mode, getContext(), RfcxGuardian.APP_ROLE, logTag);
     }
 
     @Override

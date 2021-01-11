@@ -110,27 +110,27 @@ public class HttpGet {
 		return getAsString(fullUrl,(new ArrayList<String[]>()));
 	}
 	
-	public boolean getAsFile(String fullUrl, List<String[]> keyValueParameters, String outputFileName) {
+	public boolean getAsFile(String fullUrl, List<String[]> keyValueParameters, String outputFilePath) {
 		long startTime = System.currentTimeMillis();
 		StringBuilder url = (new StringBuilder()).append(fullUrl);
 		if (keyValueParameters.size() > 0) url.append("?");
 		for (String[] keyValue : keyValueParameters) {
 			url.append(keyValue[0]).append("=").append(keyValue[1]).append("&");
 		}
-		Log.v(logTag,"HTTP GET: "+url.toString());
-		FileOutputStream fileOutputStream = httpGetFileOutputStream(outputFileName, this.context, this.logTag);
+		Log.v(logTag,"Initializing request to "+url.toString());
+		FileOutputStream fileOutputStream = httpGetFileOutputStream(outputFilePath, this.logTag);
 		InputStream inputStream = httpGetFileInputStream(url.toString());
 		if ((inputStream != null) && (fileOutputStream != null)) {
 			writeFileResponseStream(inputStream, fileOutputStream, this.logTag);
 			closeInputOutputStreams(inputStream, fileOutputStream, this.logTag);
 			Log.v(logTag,"Completed (" + DateTimeUtils.milliSecondDurationAsReadableString(System.currentTimeMillis()-startTime ) +") from "+fullUrl);
-			return (new File(this.context.getFilesDir(), outputFileName)).exists();
+			return FileUtils.exists(outputFilePath);
 		}
 		return false;
 	}
 	
-	public boolean getAsFile(String fullUrl, String outputFileName) {
-		return getAsFile(fullUrl, (new ArrayList<String[]>()), outputFileName);
+	public boolean getAsFile(String fullUrl, String outputFilePath) {
+		return getAsFile(fullUrl, (new ArrayList<String[]>()), outputFilePath);
 	}	
 	
 	private String doGetString(String fullUrl, List<String[]> keyValueParameters) {
@@ -260,11 +260,10 @@ public class HttpGet {
 		}
 	}
 	
-	private static FileOutputStream httpGetFileOutputStream(String fileName, Context context, String logTag) {
-		File targetFile = new File(context.getFilesDir().toString()+"/"+fileName);
-		if (targetFile.exists()) { targetFile.delete(); }
+	private static FileOutputStream httpGetFileOutputStream(String filePath, String logTag) {
+		FileUtils.delete(filePath);
 		try {
-			return context.openFileOutput(fileName, Context.MODE_WORLD_READABLE|Context.MODE_WORLD_WRITEABLE);
+			return new FileOutputStream(filePath);
 		} catch (FileNotFoundException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -285,9 +284,9 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
-					Log.v(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+fullUrl);
+					Log.v(logTag, "Downloading "+ FileUtils.bytesAsReadableString(conn.getContentLength()) +" from "+fullUrl);
 			    } else {
-		            Log.e(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
+					Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode()+" "+fullUrl);
 			    }
 		        return conn.getInputStream();
 			} else if (inferredProtocol.equals("http")) {
@@ -301,9 +300,9 @@ public class HttpGet {
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-					Log.v(logTag, "Requested: ("+ FileUtils.bytesAsReadableString(conn.getContentLength()) +"): "+fullUrl);
+					Log.v(logTag, "Downloading "+ FileUtils.bytesAsReadableString(conn.getContentLength()) +" from "+fullUrl);
 			    } else {
-		            Log.e(logTag, "Download Failure: (Response Code "+conn.getResponseCode()+"):"+fullUrl);
+					Log.e(logTag, "HTTP Failure Code: "+conn.getResponseCode()+" "+fullUrl);
 			    }
 		        return conn.getInputStream();
 			} else {

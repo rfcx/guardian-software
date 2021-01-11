@@ -70,7 +70,7 @@ public class DownloadFileService extends Service {
 
 			try {
 
-				if (httpGet.getAsFile(app.installUtils.installVersionUrl, app.installUtils.apkFileNameDownload)) {
+				if (httpGet.getAsFile(app.installUtils.installVersionUrl, app.getApplicationContext().getFilesDir()+"/"+app.installUtils.apkFileNameDownload)) {
 
 					Log.d(logTag, "APK download complete. Verifying downloaded checksum...");
 					String downloadFileSha1 = FileUtils.sha1Hash(app.installUtils.apkPathDownload);

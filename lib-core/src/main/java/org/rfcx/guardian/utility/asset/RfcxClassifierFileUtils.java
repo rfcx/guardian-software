@@ -3,13 +3,8 @@ package org.rfcx.guardian.utility.asset;
 import android.content.Context;
 import android.os.Environment;
 
-import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public class RfcxClassifierFileUtils {
 
@@ -22,7 +17,7 @@ public class RfcxClassifierFileUtils {
 	private String logTag;
 	private String appRole = "Utils";
 	
-	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+//	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
 	private static final String classifierFileType = "tflite";
 	
@@ -30,7 +25,7 @@ public class RfcxClassifierFileUtils {
 
 		FileUtils.initializeDirectoryRecursively(classifierSdCardDir(), true);
 		FileUtils.initializeDirectoryRecursively(classifierDownloadDir(context), false);
-		FileUtils.initializeDirectoryRecursively(classifierCacheDir(context), false);
+		FileUtils.initializeDirectoryRecursively(classifierLibraryDir(context), false);
 		FileUtils.initializeDirectoryRecursively(classifierActiveDir(context), false);
 	}
 	
@@ -42,34 +37,28 @@ public class RfcxClassifierFileUtils {
 		return context.getFilesDir().toString() + "/classifiers/download";
 	}
 
-	public static String classifierCacheDir(Context context) {
-		return context.getFilesDir().toString() + "/classifiers/cache";
+	public static String classifierLibraryDir(Context context) {
+		return context.getFilesDir().toString() + "/classifiers/library";
 	}
 
 	public static String classifierActiveDir(Context context) {
 		return context.getFilesDir().toString() + "/classifiers/active";
 	}
 
-	public static String getClassifierFileName(long classifierId, String versionTag) {
-		return 	classifierId
-				+ "_" + "v" + versionTag
-				+ "." + classifierFileType;
-	}
-
 	public static String getClassifierFileLocation_Download(Context context, long timestamp) {
-		return classifierDownloadDir(context) + "/_" + timestamp + "." + classifierFileType;
+		return classifierDownloadDir(context) + "/" + timestamp + "." + classifierFileType;
 	}
 
-	public static String getClassifierFileLocation_Cache(Context context, long timestamp, String versionTag) {
-		return classifierCacheDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + getClassifierFileName(timestamp, versionTag);
+	public static String getClassifierFileLocation_Library(Context context, long timestamp) {
+		return classifierLibraryDir(context) + "/" + timestamp + "." + classifierFileType;
 	}
 
-	public static String getClassifierFileLocation_Active(Context context, long timestamp, String versionTag) {
-		return classifierActiveDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + getClassifierFileName(timestamp, versionTag);
+	public static String getClassifierFileLocation_Active(Context context, long timestamp) {
+		return classifierActiveDir(context) + "/" + timestamp + "." + classifierFileType;
 	}
 
-	public static String getClassifierFileLocation_ExternalStorage(long timestamp, String versionTag) {
-		return classifierSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + getClassifierFileName(timestamp, versionTag);
+	public static String getClassifierFileLocation_ExternalStorage(long timestamp) {
+		return classifierSdCardDir() + "/" + timestamp + "." + classifierFileType;
 	}
 
 

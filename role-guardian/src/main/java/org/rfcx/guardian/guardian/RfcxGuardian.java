@@ -5,7 +5,9 @@ import java.util.Map;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInUtils;
 import org.rfcx.guardian.guardian.api.methods.command.ApiCommandUtils;
-import org.rfcx.guardian.guardian.api.methods.download.ApiDownloadDb;
+import org.rfcx.guardian.guardian.api.methods.download.AssetDownloadDb;
+import org.rfcx.guardian.guardian.api.methods.download.AssetDownloadJobService;
+import org.rfcx.guardian.guardian.api.methods.download.AssetDownloadUtils;
 import org.rfcx.guardian.guardian.api.methods.ping.ApiPingJsonUtils;
 import org.rfcx.guardian.guardian.api.methods.ping.ApiPingUtils;
 import org.rfcx.guardian.guardian.api.methods.ping.SendApiPingService;
@@ -97,7 +99,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AssetExchangeLogDb assetExchangeLogDb = null;
     public ApiCheckInArchiveDb apiCheckInArchiveDb = null;
     public ApiSegmentDb apiSegmentDb = null;
-    public ApiDownloadDb apiDownloadDb = null;
+    public AssetDownloadDb assetDownloadDb = null;
     public InstructionsDb instructionsDb = null;
     public DeviceSystemDb deviceSystemDb = null;
 
@@ -119,6 +121,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiMqttUtils apiMqttUtils = null;
     public ApiSmsUtils apiSmsUtils = null;
     public ApiRestUtils apiRestUtils = null;
+    public AssetDownloadUtils assetDownloadUtils = null;
     public ApiSbdUtils apiSbdUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
     public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
@@ -173,6 +176,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiRestUtils = new ApiRestUtils(this);
         this.apiSbdUtils = new ApiSbdUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
+        this.assetDownloadUtils = new AssetDownloadUtils(this);
         this.apiCheckInJsonUtils = new ApiCheckInJsonUtils(this);
         this.apiPingJsonUtils = new ApiPingJsonUtils(this);
         this.apiPingUtils = new ApiPingUtils(this);
@@ -188,8 +192,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         reSyncPrefAcrossRoles("all");
 
         initializeRoleServices();
-
-//        this.audioClassifyUtils.createDummyRow();
 
     }
 
@@ -281,7 +283,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.assetExchangeLogDb = new AssetExchangeLogDb(this, this.version);
         this.apiCheckInArchiveDb = new ApiCheckInArchiveDb(this, this.version);
         this.apiSegmentDb = new ApiSegmentDb(this, this.version);
-        this.apiDownloadDb = new ApiDownloadDb(this, this.version);
+        this.assetDownloadDb = new AssetDownloadDb(this, this.version);
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
         this.audioClassifyDb = new AudioClassifyDb(this, this.version);
@@ -312,6 +314,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.rfcxServiceHandler.addService("ApiCheckInArchive", ApiCheckInArchiveService.class);
         this.rfcxServiceHandler.addService("MetaSnapshot", MetaSnapshotService.class);
+
+        this.rfcxServiceHandler.addService( AssetDownloadJobService.SERVICE_NAME, AssetDownloadJobService.class);
 
         this.rfcxServiceHandler.addService( InstructionsCycleService.SERVICE_NAME, InstructionsCycleService.class);
         this.rfcxServiceHandler.addService("InstructionsExecution", InstructionsExecutionService.class);

@@ -11,6 +11,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 
 public class UpdaterContentProvider extends ContentProvider {
 
@@ -82,6 +83,10 @@ public class UpdaterContentProvider extends ContentProvider {
 			RfcxLog.logExc(logTag, e, "UpdaterContentProvider - "+logFuncVal);
 		}
 		return null;
+	}
+
+	public ParcelFileDescriptor openFile(Uri uri, String mode) {
+		return RfcxComm.serveAssetFileRequest(uri, mode, getContext(), RfcxGuardian.APP_ROLE, logTag);
 	}
 
 	@Override

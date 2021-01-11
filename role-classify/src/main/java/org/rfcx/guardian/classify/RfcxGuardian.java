@@ -4,9 +4,9 @@ import android.app.Application;
 import android.content.ContentResolver;
 
 import org.rfcx.guardian.classify.service.AudioClassifyJobService;
-import org.rfcx.guardian.classify.utils.AudioClassifyClassicUtils;
-import org.rfcx.guardian.classify.utils.AudioClassifyDb;
 import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
+import org.rfcx.guardian.classify.utils.AudioClassifyDb;
+import org.rfcx.guardian.classify.utils.AudioClassifyModelUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -26,8 +26,8 @@ public class RfcxGuardian extends Application {
     public RfcxPrefs rfcxPrefs = null;
     public RfcxServiceHandler rfcxServiceHandler = null;
 
+    public AudioClassifyModelUtils audioClassifyModelUtils = null;
     public AudioClassifyUtils audioClassifyUtils = null;
-    public AudioClassifyClassicUtils audioClassifyClassicUtils = null;
 
     // Database Handlers
     public AudioClassifyDb audioClassifyDb = null;
@@ -52,8 +52,8 @@ public class RfcxGuardian extends Application {
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
 
+        this.audioClassifyModelUtils = new AudioClassifyModelUtils(this);
         this.audioClassifyUtils = new AudioClassifyUtils(this);
-        this.audioClassifyClassicUtils = new AudioClassifyClassicUtils(this);
 
         setDbHandlers();
         setServiceHandlers();
@@ -99,8 +99,8 @@ public class RfcxGuardian extends Application {
 
     private void setServiceHandlers() {
 
-        this.rfcxServiceHandler.addService(ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
-        this.rfcxServiceHandler.addService(AudioClassifyJobService.SERVICE_NAME, AudioClassifyJobService.class);
+        this.rfcxServiceHandler.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
+        this.rfcxServiceHandler.addService( AudioClassifyJobService.SERVICE_NAME, AudioClassifyJobService.class);
 
     }
 

@@ -2,27 +2,19 @@ package org.rfcx.guardian.guardian.contentprovider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
-import org.rfcx.guardian.utility.device.DeviceSmsUtils;
-import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
-
-import java.io.File;
 
 public class GuardianContentProvider extends ContentProvider {
 	
@@ -136,6 +128,13 @@ public class GuardianContentProvider extends ContentProvider {
 				app.apiSegmentUtils.receiveSegment(segmentPayload, "sbd");
 				return RfcxComm.getProjectionCursor(appRole, "segment_receive_sbd", new Object[]{ segmentPayload, null, System.currentTimeMillis()});
 
+			// "classifications" endpoints
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "classification_create", "*")) { logFuncVal = "classification_create-*";
+				String classificationPayload = uri.getLastPathSegment();
+				app.audioClassifyUtils.parseIncomingClassificationPayloadAndSave(classificationPayload);
+				return RfcxComm.getProjectionCursor(appRole, "classification_create", new Object[]{ classificationPayload, null, System.currentTimeMillis()});
+
 			// "instructions" endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "instructions", "*")) { logFuncVal = "instructions-*";
@@ -213,45 +212,8 @@ public class GuardianContentProvider extends ContentProvider {
 		return null;
 	}
 
-
 	public ParcelFileDescriptor openFile(Uri uri, String mode) {
-
-		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
-		Context context = app.getApplicationContext();
-
-		try {
-
-			String assetUriPath = uri.getEncodedPath().substring(RfcxComm.fileProviderAssetDirUriNamespacePrepend.length());
-			String assetFilePath = context.getFilesDir().getAbsolutePath() + "/" + assetUriPath;
-			String conciseAssetFilePath = RfcxAssetCleanup.conciseFilePath(assetFilePath, RfcxGuardian.APP_ROLE);
-			FileUtils.initializeDirectoryRecursively(assetFilePath.substring(0, assetFilePath.lastIndexOf("/")), false);
-			File assetFile = new File(assetFilePath);
-
-			Log.v(logTag, "FileProvider request received: "+conciseAssetFilePath);
-
-			int imode = 0;
-			if (mode.contains("w")) {
-				imode |= ParcelFileDescriptor.MODE_WRITE_ONLY;
-				if (!FileUtils.exists(assetFile)) {
-					assetFile.createNewFile();
-				}
-			}
-
-			if (mode.contains("r")) imode |= ParcelFileDescriptor.MODE_READ_ONLY;
-			if (mode.contains("+")) imode |= ParcelFileDescriptor.MODE_APPEND;
-
-			if (FileUtils.exists(assetFile)) {
-				return ParcelFileDescriptor.open(assetFile, imode);
-			} else {
-				Log.e(logTag, "FileProvider requested asset does not exist: "+conciseAssetFilePath);
-			}
-
-
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e, "GuardianContentProvider - FileProvider");
-
-		}
-		return null;
+		return RfcxComm.serveAssetFileRequest(uri, mode, getContext(), RfcxGuardian.APP_ROLE, logTag);
 	}
 
 

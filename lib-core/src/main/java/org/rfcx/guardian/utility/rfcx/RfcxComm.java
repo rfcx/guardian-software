@@ -20,10 +20,12 @@ import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 public class RfcxComm {
@@ -75,6 +77,8 @@ public class RfcxComm {
 				"segment_receive_sms", new String[] { "segment_payload", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"segment_receive_sbd", new String[] { "segment_payload", "result", "received_at" });
+			roleFuncProj.get(role).put(
+				"classification_create", new String[] { "classification_payload", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"get_momentary_values", new String[] { "value", "result", "received_at" });
 			roleFuncProj.get(role).put(
@@ -252,6 +256,47 @@ public class RfcxComm {
 	public static String[] getProjection(String role, String function) {
 		return initRoleFuncProj().get(role.toLowerCase(Locale.US)).get(function.toLowerCase(Locale.US));
 	}
+
+
+	public static ParcelFileDescriptor serveAssetFileRequest(Uri uri, String mode, Context context, String role, String logTag) {
+
+		try {
+
+			String assetUriPath = uri.getEncodedPath().substring(fileProviderAssetDirUriNamespacePrepend.length());
+			String assetFilePath = context.getFilesDir().getAbsolutePath() + "/" + assetUriPath;
+			String conciseAssetFilePath = RfcxAssetCleanup.conciseFilePath(assetFilePath, role);
+			FileUtils.initializeDirectoryRecursively(assetFilePath.substring(0, assetFilePath.lastIndexOf("/")), false);
+			File assetFile = new File(assetFilePath);
+
+			Log.v(logTag, "File share request for asset "+conciseAssetFilePath);
+
+			int imode = 0;
+			if (mode.contains("w")) {
+				imode |= ParcelFileDescriptor.MODE_WRITE_ONLY;
+				if (!FileUtils.exists(assetFile)) {
+					assetFile.createNewFile();
+				}
+			}
+
+			if (mode.contains("r")) imode |= ParcelFileDescriptor.MODE_READ_ONLY;
+			if (mode.contains("+")) imode |= ParcelFileDescriptor.MODE_APPEND;
+
+			if (FileUtils.exists(assetFile)) {
+				return ParcelFileDescriptor.open(assetFile, imode);
+			} else {
+				Log.e(logTag, "Requested asset does not exist: "+conciseAssetFilePath);
+			}
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e, "GuardianContentProvider - FileProvider");
+
+		}
+		return null;
+
+	}
+
+
+
 
 	public static String urlEncode(String unEncodedString) {
 		String rtrnStr = unEncodedString;

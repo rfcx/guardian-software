@@ -1,6 +1,7 @@
 package org.rfcx.guardian.classify.contentprovider;
 
 import org.rfcx.guardian.classify.RfcxGuardian;
+import org.rfcx.guardian.classify.service.AudioClassifyJobService;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -11,6 +12,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -92,27 +94,21 @@ public class ClassifyContentProvider extends ContentProvider {
 				String classes = clsfyJob[8];
 
 				app.audioClassifyDb.dbQueued.insert(audioId, clsfrId, clsfrVer, 0, sampleRate, audioFile, clsfrFile, windowSize, stepSize, classes);
-				Log.d(logTag, "Added to Classify Job Queue: " + TextUtils.join(", ", clsfyJob));
-				app.rfcxServiceHandler.triggerService("AudioClassifyJob", false);
+				Log.d(logTag, "Audio added to Classify Queue: " + TextUtils.join(", ", clsfyJob));
+				app.rfcxServiceHandler.triggerService( AudioClassifyJobService.SERVICE_NAME, false);
 
 				return RfcxComm.getProjectionCursor(appRole, "classify_queue", new Object[]{ audioId+"|"+clsfrId, null, System.currentTimeMillis()});
 
-
-
-
-
-
-
 			}
-
-
-
-
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e, "ClassifyContentProvider - "+logFuncVal);
 		}
 		return null;
+	}
+
+	public ParcelFileDescriptor openFile(Uri uri, String mode) {
+		return RfcxComm.serveAssetFileRequest(uri, mode, getContext(), RfcxGuardian.APP_ROLE, logTag);
 	}
 
 	@Override

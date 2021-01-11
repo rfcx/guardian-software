@@ -95,12 +95,13 @@ public class AudioQueuePostProcessingService extends IntentService {
 						if (classiferRow[0] != null) {
 
 							String classifierId = classiferRow[1];
-							String classifierVersion = "1";
-							int classifierSampleRate = Integer.parseInt(classiferRow[6]);
-							String classifierFilePath = classiferRow[5];
-							String classifierWindowSize = classiferRow[7];
-							String classifierStepSize = classiferRow[8];
-							String classifierClasses = classiferRow[9];
+							String classifierGuid = classiferRow[2];
+							String classifierVersion = classiferRow[3];
+							int classifierSampleRate = Integer.parseInt(classiferRow[7]);
+							String classifierFilePath = classiferRow[6];
+							String classifierWindowSize = classiferRow[8];
+							String classifierStepSize = classiferRow[9];
+							String classifierClasses = classiferRow[10];
 
 							jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
 									"" + captureTimeStamp, classifierId, classifierVersion,

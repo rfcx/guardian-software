@@ -138,9 +138,7 @@ public class RfcxPrefs {
 
 		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
 
-		public static final String PREDICTION_MODEL_OUTPUT = "prediction_model_output";
-		public static final String PREDICTION_STEP_SIZE = "prediction_step_size";
-		public static final String PREDICTION_WINDOW_SIZE = "prediction_window_size";
+		public static final String AUDIO_CLASSIFY_ALLOW_GPU = "audio_classify_allow_gpu";
 
 	}
 
@@ -245,11 +243,7 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 
-			put(Pref.PREDICTION_MODEL_OUTPUT, "chainsaw,gunshot,vehicle");
-			put(Pref.PREDICTION_STEP_SIZE, "1");
-			put(Pref.PREDICTION_WINDOW_SIZE, "0.975");
-
-
+			put(Pref.AUDIO_CLASSIFY_ALLOW_GPU, "true");
 		}}
 	);
 

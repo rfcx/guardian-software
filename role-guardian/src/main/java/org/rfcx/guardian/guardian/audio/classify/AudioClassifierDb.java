@@ -23,6 +23,7 @@ public class AudioClassifierDb {
 	
 	static final String C_CREATED_AT = "created_at";
 	static final String C_CLASSIFIER_ID = "classifier_id";
+	static final String C_CLASSIFIER_GUID = "classifier_guid";
 	static final String C_CLASSIFIER_VERSION = "version";
 	static final String C_FORMAT = "format";
 	static final String C_DIGEST = "digest";
@@ -32,7 +33,7 @@ public class AudioClassifierDb {
 	static final String C_STEP_SIZE = "step_size";
 	static final String C_CLASSES = "classes";
 	
-	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_CLASSIFIER_ID, C_CLASSIFIER_VERSION, C_FORMAT, C_DIGEST, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_WINDOW_SIZE, C_STEP_SIZE, C_CLASSES };
+	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_CLASSIFIER_ID, C_CLASSIFIER_GUID, C_CLASSIFIER_VERSION, C_FORMAT, C_DIGEST, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_WINDOW_SIZE, C_STEP_SIZE, C_CLASSES };
 
 	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -42,6 +43,7 @@ public class AudioClassifierDb {
 		sbOut.append("CREATE TABLE ").append(tableName)
 			.append("(").append(C_CREATED_AT).append(" INTEGER")
 			.append(", ").append(C_CLASSIFIER_ID).append(" TEXT")
+			.append(", ").append(C_CLASSIFIER_GUID).append(" TEXT")
 			.append(", ").append(C_CLASSIFIER_VERSION).append(" TEXT")
 			.append(", ").append(C_FORMAT).append(" TEXT")
 			.append(", ").append(C_DIGEST).append(" TEXT")
@@ -65,11 +67,12 @@ public class AudioClassifierDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
-		public int insert(String classifierId, String version, String format, String digest, String filepath, int inputSampleRate, String windowSize, String stepSize, String classes) {
+		public int insert(String classifierId, String classifierGuid, String version, String format, String digest, String filepath, int inputSampleRate, String windowSize, String stepSize, String classes) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_CLASSIFIER_ID, classifierId);
+			values.put(C_CLASSIFIER_GUID, classifierGuid);
 			values.put(C_CLASSIFIER_VERSION, version);
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);

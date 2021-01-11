@@ -3,11 +3,14 @@ package org.rfcx.guardian.guardian.audio.classify;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
+import android.util.Log;
 
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -26,25 +29,6 @@ public class AudioClassifyUtils {
 	private final RfcxGuardian app;
 
 	public static final int CLASSIFY_FAILURE_SKIP_THRESHOLD = 3;
-
-	public void createDummyRow() {
-
-		long classifierId = System.currentTimeMillis();
-
-		app.audioClassifierDb.dbActive.insert(
-				""+classifierId,
-				"1",
-				"tflite",
-				"-",
-				RfcxClassifierFileUtils.getClassifierFileLocation_Active(app.getApplicationContext(), classifierId,  "1"),
-				12000,
-				"0.975",
-				"1",
-				"chainsaw,gunshot,vehicle"
-				);
-	}
-
-
 
 	public void queueClassifyJobAcrossRoles(String audioId, String classifierId, String classifierVersion, int classifierSampleRate, String audioFilePath, String classifierFilePath, String classifierWindowSize, String classifierStepSize, String classifierClasses) {
 
@@ -74,6 +58,17 @@ public class AudioClassifyUtils {
 	}
 
 
+	public void parseIncomingClassificationPayloadAndSave(String classificationPayload) {
+
+		try {
+			JSONObject jsonObj = new JSONObject(StringUtils.gZipBase64ToUnGZipString(classificationPayload));
+
+			Log.d(logTag, "Classifications Blob Receieved: " + jsonObj.toString() );
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+	}
 
 
 	public static void cleanupClassifyDirectory(Context context, List<String[]> queuedForClassification, long maxAgeInMilliseconds) {

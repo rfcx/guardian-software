@@ -90,42 +90,14 @@ public class AudioClassifyDb {
 		public List<String[]> getAllRows() {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
-		
-//		public String[] getLatestRow() {
-//			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0);
-//		}
-//
-//		public void clearRowsBefore(Date date) {
-//			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
-//		}
-//
 
 		public void deleteSingleRow(String audioId, String classifierId) {
 			this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_AUDIO_ID, audioId, C_CLASSIFIER_ID, classifierId);
-		}
-		
-		public int getCount() {
-			return this.dbUtils.getCount(TABLE, null, null);
 		}
 
 		public void incrementSingleRowAttempts(String audioId, String classifierId) {
 			this.dbUtils.adjustNumericColumnValuesWithinQueryByTwoColumns("+1", TABLE, C_ATTEMPTS, C_AUDIO_ID, audioId, C_CLASSIFIER_ID, classifierId);
 		}
-
-//		public String[] getSingleRowByAudioId(String audioId) {
-//			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-//			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+ C_CLASSIFIER_ID +",1,"+timestamp.length()+") = ?", new String[] { timestamp }, null, 0);
-//		}
-//
-//		public void incrementSingleRowAttempts(String audioId) {
-//			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-//			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("+1", TABLE, C_ATTEMPTS, C_CLASSIFIER_ID, timestamp);
-//		}
-//
-//		public void decrementSingleRowAttempts(String audioId) {
-//			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-//			this.dbUtils.adjustNumericColumnValuesWithinQueryByTimestamp("-1", TABLE, C_ATTEMPTS, C_CLASSIFIER_ID, timestamp);
-//		}
 		
 	}
 	public final DbQueued dbQueued;
