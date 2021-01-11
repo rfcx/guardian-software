@@ -30,10 +30,10 @@ public class AudioClassifyDb {
 	static final String C_CLASSIFIER_FILEPATH = "classifier_filepath";
 	static final String C_CLASSIFIER_WINDOW_SIZE = "classifier_window_size";
 	static final String C_CLASSIFIER_STEP_SIZE = "classifier_step_size";
-	static final String C_CLASSIFIER_CLASSES = "classifier_classes";
+	static final String C_CLASSIFIER_CLASSIFICATIONS = "classifier_classes";
 	static final String C_ATTEMPTS = "attempts";
 	
-	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_AUDIO_ID, C_CLASSIFIER_ID, C_CLASSIFIER_VERSION, C_ORIGINAL_SAMPLE_RATE, C_CLASSIFIER_SAMPLE_RATE, C_AUDIO_FILEPATH, C_CLASSIFIER_FILEPATH, C_CLASSIFIER_WINDOW_SIZE, C_CLASSIFIER_STEP_SIZE, C_CLASSIFIER_CLASSES, C_ATTEMPTS };
+	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_AUDIO_ID, C_CLASSIFIER_ID, C_CLASSIFIER_VERSION, C_ORIGINAL_SAMPLE_RATE, C_CLASSIFIER_SAMPLE_RATE, C_AUDIO_FILEPATH, C_CLASSIFIER_FILEPATH, C_CLASSIFIER_WINDOW_SIZE, C_CLASSIFIER_STEP_SIZE, C_CLASSIFIER_CLASSIFICATIONS, C_ATTEMPTS };
 
 	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -51,7 +51,7 @@ public class AudioClassifyDb {
 			.append(", ").append(C_CLASSIFIER_FILEPATH).append(" TEXT")
 			.append(", ").append(C_CLASSIFIER_WINDOW_SIZE).append(" TEXT")
 			.append(", ").append(C_CLASSIFIER_STEP_SIZE).append(" TEXT")
-			.append(", ").append(C_CLASSIFIER_CLASSES).append(" TEXT")
+			.append(", ").append(C_CLASSIFIER_CLASSIFICATIONS).append(" TEXT")
 			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
 			.append(")");
 		return sbOut.toString();
@@ -81,7 +81,7 @@ public class AudioClassifyDb {
 			values.put(C_CLASSIFIER_FILEPATH, classifierFilepath);
 			values.put(C_CLASSIFIER_WINDOW_SIZE, windowSize);
 			values.put(C_CLASSIFIER_STEP_SIZE,stepSize );
-			values.put(C_CLASSIFIER_CLASSES, classes);
+			values.put(C_CLASSIFIER_CLASSIFICATIONS, classes);
 			values.put(C_ATTEMPTS, 0);
 			
 			return this.dbUtils.insertRow(TABLE, values);

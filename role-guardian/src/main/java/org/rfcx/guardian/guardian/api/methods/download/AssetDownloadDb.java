@@ -29,9 +29,10 @@ public class AssetDownloadDb {
 	static final String C_URI = "uri";
 	static final String C_FILESIZE = "filesize";
 	static final String C_FILETYPE = "filetype";
+	static final String C_META_JSON_BLOB = "meta_json_blob";
 	static final String C_ATTEMPTS = "attempts";
 	static final String C_LAST_ACCESSED_AT_OR_DOWNLOAD_DURATION = "last_accessed_at";
-	public static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_ASSET_TYPE, C_ASSET_ID, C_PAYLOAD_CHECKSUM, C_PROTOCOL, C_URI, C_FILESIZE, C_FILETYPE, C_ATTEMPTS, C_LAST_ACCESSED_AT_OR_DOWNLOAD_DURATION};
+	public static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_ASSET_TYPE, C_ASSET_ID, C_PAYLOAD_CHECKSUM, C_PROTOCOL, C_URI, C_FILESIZE, C_FILETYPE, C_META_JSON_BLOB, C_ATTEMPTS, C_LAST_ACCESSED_AT_OR_DOWNLOAD_DURATION};
 
 	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] {  }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -47,6 +48,7 @@ public class AssetDownloadDb {
 			.append(", ").append(C_URI).append(" TEXT")
 			.append(", ").append(C_FILESIZE).append(" INTEGER")
 			.append(", ").append(C_FILETYPE).append(" TEXT")
+			.append(", ").append(C_META_JSON_BLOB).append(" TEXT")
 			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
 			.append(", ").append(C_LAST_ACCESSED_AT_OR_DOWNLOAD_DURATION).append(" INTEGER")
 			.append(")");
@@ -65,7 +67,7 @@ public class AssetDownloadDb {
 			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 
-		public int insert(String assetType, String assetId, String checksum, String protocol, String uri, long fileSize, String fileType) {
+		public int insert(String assetType, String assetId, String checksum, String protocol, String uri, long fileSize, String fileType, String metaJsonBlob) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -76,6 +78,7 @@ public class AssetDownloadDb {
 			values.put(C_URI, uri);
 			values.put(C_FILESIZE, fileSize);
 			values.put(C_FILETYPE, fileType);
+			values.put(C_META_JSON_BLOB, metaJsonBlob);
 			values.put(C_ATTEMPTS, 0);
 			values.put(C_LAST_ACCESSED_AT_OR_DOWNLOAD_DURATION, 0);
 
@@ -121,7 +124,7 @@ public class AssetDownloadDb {
 			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 
-		public int insert(String assetType, String assetId, String checksum, String protocol, String uri, long fileSize, String fileType, int attempts, long downloadDuration) {
+		public int insert(String assetType, String assetId, String checksum, String protocol, String uri, long fileSize, String fileType, String metaJsonBlob, int attempts, long downloadDuration) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -132,6 +135,7 @@ public class AssetDownloadDb {
 			values.put(C_URI, uri);
 			values.put(C_FILESIZE, fileSize);
 			values.put(C_FILETYPE, fileType);
+			values.put(C_META_JSON_BLOB, metaJsonBlob);
 			values.put(C_ATTEMPTS, attempts);
 			values.put(C_LAST_ACCESSED_AT_OR_DOWNLOAD_DURATION, downloadDuration);
 
@@ -171,7 +175,7 @@ public class AssetDownloadDb {
 			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 
-		public int insert(String assetType, String assetId, String checksum, String protocol, String uri, long fileSize, String fileType, int attempts, long lastAccessedAt) {
+		public int insert(String assetType, String assetId, String checksum, String protocol, String uri, long fileSize, String fileType, String metaJsonBlob, int attempts, long lastAccessedAt) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -182,6 +186,7 @@ public class AssetDownloadDb {
 			values.put(C_URI, uri);
 			values.put(C_FILESIZE, fileSize);
 			values.put(C_FILETYPE, fileType);
+			values.put(C_META_JSON_BLOB, metaJsonBlob);
 			values.put(C_ATTEMPTS, attempts);
 			values.put(C_LAST_ACCESSED_AT_OR_DOWNLOAD_DURATION, lastAccessedAt);
 

@@ -40,7 +40,15 @@ public class AssetDownloadUtils {
 				"http",
 				"http://install.rfcx.org/rfcx-guardian/guardian-asset-classifier/1610252810820.tflite.gz",
 				12476227,
-				"tflite"
+				"tflite",
+				"{"
+						+"\"classifier_name\":\"threat\","
+						+"\"classifier_version\":\"1\","
+						+"\"sample_rate\":\"12000\","
+						+"\"window_size\":\"0.9750\","
+						+"\"step_size\":\"1\","
+						+"\"classifications\":\"chainsaw,gunshot,vehicle\""
+						+"}"
 				);
 
 	}
@@ -72,7 +80,7 @@ public class AssetDownloadUtils {
 	}
 
 
-	public void followUpOnSuccessfulDownload(String assetType, String assetId, String fileType, String checksum, long fileSize) throws IOException {
+	public void followUpOnSuccessfulDownload(String assetType, String assetId, String fileType, String checksum, String metaJsonBlob) throws IOException {
 
 		Log.i(logTag, "Following up on successful download...");
 
@@ -80,23 +88,20 @@ public class AssetDownloadUtils {
 		String galleryPath = app.assetGalleryUtils.getGalleryAssetFilePath(assetType, assetId, fileType);
 		FileUtils.initializeDirectoryRecursively(galleryPath.substring(0, galleryPath.lastIndexOf("/")), false);
 
-		if (assetType.equalsIgnoreCase("classifier")) {
+		FileUtils.delete(galleryPath);
+		FileUtils.copy(tmpPath, galleryPath);
 
-			FileUtils.copy(tmpPath, galleryPath);
+		if (assetType.equalsIgnoreCase("classifier")) {
 
 			if (app.assetGalleryDb.dbClassifier.getCountByAssetId(assetId) == 0) {
 
-				app.assetGalleryDb.dbClassifier.insert(assetId, "classifier", fileType, checksum, galleryPath, fileSize,
-						"",0,0);
+				app.assetGalleryDb.dbClassifier.insert(
+						assetId, "classifier", fileType, checksum,
+						galleryPath, FileUtils.getFileSizeInBytes(galleryPath),
+						metaJsonBlob,0,0);
 
+				app.audioClassifyUtils.activateClassifier(assetId);
 			}
-
-			// Using dummy data for development
-			FileUtils.copy(tmpPath, RfcxClassifierFileUtils.getClassifierFileLocation_Active(app.getApplicationContext(), Long.parseLong(assetId)));
-			app.audioClassifierDb.dbActive.insert(
-					assetId, "guid", "1", fileType, checksum,
-					galleryPath, 12000, "0.975", "1", "chainsaw,gunshot,vehicle"
-			);
 
 		} else if (assetType.equalsIgnoreCase("audio")) {
 

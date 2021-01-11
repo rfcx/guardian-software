@@ -103,8 +103,8 @@ public class AudioClassifyJobService extends Service {
 						int clsfrSampleRate = Integer.parseInt(latestQueuedAudioToClassify[5]);
 						float clsfrWindowSize = Float.parseFloat(latestQueuedAudioToClassify[8]);
 						float clsfrStepSize = Float.parseFloat(latestQueuedAudioToClassify[9]);
-						String clsfrModelOutput = latestQueuedAudioToClassify[10];
-						String clsfLoggingSummary = classifierId + ", v" + clsfrVersion + ", " + clsfrModelOutput + ", " + Math.round(clsfrSampleRate/1000) + "kHz, " + clsfrWindowSize + ", " + clsfrStepSize;
+						String clsfrClassifications = latestQueuedAudioToClassify[10];
+						String clsfLoggingSummary = classifierId + ", v" + clsfrVersion + ", " + clsfrClassifications + ", " + Math.round(clsfrSampleRate/1000) + "kHz, " + clsfrWindowSize + ", " + clsfrStepSize;
 						String audioId = latestQueuedAudioToClassify[1];
 						long audioStartsAt = Long.parseLong(latestQueuedAudioToClassify[1]);
 
@@ -129,7 +129,7 @@ public class AudioClassifyJobService extends Service {
 
 							} else {
 
-								boolean isClassifierInitialized = app.audioClassifyUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, allowGpu, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrModelOutput);
+								boolean isClassifierInitialized = app.audioClassifyUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, allowGpu, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
 
 								if (!isClassifierInitialized) {
 

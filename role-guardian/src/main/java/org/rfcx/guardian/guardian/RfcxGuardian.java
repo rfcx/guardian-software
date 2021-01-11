@@ -19,7 +19,7 @@ import org.rfcx.guardian.guardian.asset.AssetGalleryDb;
 import org.rfcx.guardian.guardian.asset.AssetGalleryUtils;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInHealthUtils;
-import org.rfcx.guardian.guardian.asset.AudioClassificationDb;
+import org.rfcx.guardian.guardian.asset.AudioDetectionDb;
 import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJsonUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInStatsDb;
@@ -105,7 +105,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public DeviceSystemDb deviceSystemDb = null;
 
     public AudioClassifyDb audioClassifyDb = null;
-    public AudioClassificationDb audioClassificationDb = null;
+    public AudioDetectionDb audioDetectionDb = null;
     public AudioClassifierDb audioClassifierDb = null;
     public AudioPlaybackDb audioPlaybackDb = null;
     public AssetGalleryDb assetGalleryDb = null;
@@ -290,7 +290,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.instructionsDb = new InstructionsDb(this, this.version);
         this.deviceSystemDb = new DeviceSystemDb(this, this.version);
         this.audioClassifyDb = new AudioClassifyDb(this, this.version);
-        this.audioClassificationDb = new AudioClassificationDb(this, this.version);
+        this.audioDetectionDb = new AudioDetectionDb(this, this.version);
         this.audioClassifierDb = new AudioClassifierDb(this, this.version);
 
     }

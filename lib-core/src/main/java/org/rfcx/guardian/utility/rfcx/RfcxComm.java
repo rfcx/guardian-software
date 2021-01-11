@@ -70,7 +70,7 @@ public class RfcxComm {
 			roleFuncProj.get(role).put(
 				"classify_queue", new String[] { "audio_id|classifier_id", "result", "received_at" });
 			roleFuncProj.get(role).put(
-				"classification_create", new String[] { "classification_payload", "result", "received_at" });
+				"detections_create", new String[] { "detections", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"sms_queue", new String[] { "send_at|address|message", "result", "received_at" });
 			roleFuncProj.get(role).put(

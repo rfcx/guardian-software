@@ -130,10 +130,10 @@ public class GuardianContentProvider extends ContentProvider {
 
 			// "classifications" endpoints
 
-			} else if (RfcxComm.uriMatch(uri, appRole, "classification_create", "*")) { logFuncVal = "classification_create-*";
+			} else if (RfcxComm.uriMatch(uri, appRole, "detections_create", "*")) { logFuncVal = "detections_create-*";
 				String classificationPayload = uri.getLastPathSegment();
 				app.audioClassifyUtils.parseIncomingClassificationPayloadAndSave(classificationPayload);
-				return RfcxComm.getProjectionCursor(appRole, "classification_create", new Object[]{ classificationPayload, null, System.currentTimeMillis()});
+				return RfcxComm.getProjectionCursor(appRole, "detections_create", new Object[]{ classificationPayload, null, System.currentTimeMillis()});
 
 			// "instructions" endpoints
 

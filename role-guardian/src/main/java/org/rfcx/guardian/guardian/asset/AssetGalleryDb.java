@@ -146,6 +146,14 @@ public class AssetGalleryDb {
 			return this.dbUtils.getCount(TABLE, C_ASSET_ID +"=?",new String[] { assetId });
 		}
 
+		public String[] getSingleRowById(String assetId) {
+			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+C_ASSET_ID+",1,"+assetId.length()+") = ?", new String[] { assetId }, C_CREATED_AT, 0);
+		}
+
+		public void deleteSingleRow(String assetId) {
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_ASSET_ID, assetId);
+		}
+
 
 	}
 	public final DbClassifier dbClassifier;

@@ -40,26 +40,26 @@ public class AudioClassifyUtils {
 
 	private final Map<String, AudioClassifier> classifiers = new HashMap<String, AudioClassifier>();
 
-	private final Map<String, String[]> classifierClasses = new HashMap<String, String[]>();
+	private final Map<String, String[]> classifierClassifications = new HashMap<String, String[]>();
 	private final Map<String, Integer> classifierSampleRates = new HashMap<String, Integer>();
 	private final Map<String, Float> classifierWindowSizes = new HashMap<String, Float>();
 	private final Map<String, Float> classifierStepSizes = new HashMap<String, Float>();
 
 
-	public boolean confirmOrLoadClassifier(String classifierId, String tfLiteFilePath, boolean useGpuIfPossible, int sampleRate, float windowSize, float step, String outputClassesStr) {
+	public boolean confirmOrLoadClassifier(String classifierId, String tfLiteFilePath, boolean useGpuIfPossible, int sampleRate, float windowSize, float stepSize, String classificationsStr) {
 
 		String clsfrId = classifierId.toLowerCase(Locale.US);
 
 
 		if (!this.classifiers.containsKey(clsfrId)) {
 
-			AudioClassifier audioClassifier = new AudioClassifier(tfLiteFilePath, useGpuIfPossible, sampleRate, windowSize, step, ArrayUtils.toList(outputClassesStr.split(",")));
+			AudioClassifier audioClassifier = new AudioClassifier(tfLiteFilePath, useGpuIfPossible, sampleRate, windowSize, stepSize, ArrayUtils.toList(classificationsStr.split(",")));
 			audioClassifier.loadClassifier();
 
-			this.classifierClasses.put( clsfrId, outputClassesStr.split(",") );
+			this.classifierClassifications.put( clsfrId, classificationsStr.split(",") );
 			this.classifierSampleRates.put( clsfrId, sampleRate);
 			this.classifierWindowSizes.put( clsfrId, windowSize);
-			this.classifierStepSizes.put( clsfrId, step);
+			this.classifierStepSizes.put( clsfrId, stepSize);
 			this.classifiers.put( clsfrId, audioClassifier );
 
 		}
@@ -75,10 +75,10 @@ public class AudioClassifyUtils {
 		return null;
 	}
 
-	private String[] getClassifierClasses(String classifierId) {
+	private String[] getClassifierClassifications(String classifierId) {
 		String clsfrId = classifierId.toLowerCase(Locale.US);
-		if (this.classifierClasses.containsKey(clsfrId)) {
-			return this.classifierClasses.get(clsfrId);
+		if (this.classifierClassifications.containsKey(clsfrId)) {
+			return this.classifierClassifications.get(clsfrId);
 		}
 		return null;
 	}
@@ -110,7 +110,7 @@ public class AudioClassifyUtils {
 
 	public JSONObject classifyOutputAsJson(String classifierId, String audioId, long audioStartsAt, List<float[]> classifierOutput) throws JSONException {
 
-		String[] classifierClasses = app.audioClassifyUtils.getClassifierClasses(classifierId);
+		String[] classifierClassifications = app.audioClassifyUtils.getClassifierClassifications(classifierId);
 		int classifierSampleRate = app.audioClassifyUtils.getClassifierSampleRate(classifierId);
 		float classifierWindowSize = app.audioClassifyUtils.getClassifierWindowSize(classifierId);
 		float classifierStepSize = app.audioClassifyUtils.getClassifierStepSize(classifierId);
@@ -121,33 +121,33 @@ public class AudioClassifyUtils {
 		jsonObj.put("audio_id", audioId);
 
 		jsonObj.put("sample_rate", classifierSampleRate+"");
-		jsonObj.put("window_size", String.format(Locale.US, "%.3f", classifierWindowSize));
-		jsonObj.put("step_size", String.format(Locale.US, "%.3f", classifierStepSize));
+		jsonObj.put("window_size", String.format(Locale.US, "%.4f", classifierWindowSize));
+		jsonObj.put("step_size", String.format(Locale.US, "%.4f", classifierStepSize));
 
 		jsonObj.put("starts_at", audioStartsAt+"");
 
 		JSONObject jsonDetections = new JSONObject();
-		for (int j = 0; j < classifierClasses.length; j++) {
+		for (int j = 0; j < classifierClassifications.length; j++) {
 			JSONArray classArr = new JSONArray();
 			for (int i = 0; i < classifierOutput.size(); i++) {
-				classArr.put( Double.parseDouble( String.format(Locale.US, "%.3f", classifierOutput.get(i)[j]) ) );
+				classArr.put( String.format(Locale.US, "%.6f", classifierOutput.get(i)[j]) );
 			}
-			jsonDetections.put(classifierClasses[j], classArr);
+			jsonDetections.put(classifierClassifications[j], classArr);
 		}
 
-		jsonObj.put("classifications", jsonDetections);
+		jsonObj.put("detections", jsonDetections);
 		return jsonObj;
 	}
 
 
 	public void sendClassifyOutputToGuardianRole(JSONObject jsonObj) {
 
-		Log.d(logTag, "Sending Classifications Blob to Guardian role...");
+		Log.d(logTag, "Sending Detections Blob to Guardian role...");
 
 		Cursor sendClassificationsContentProviderResponse =
 			app.getResolver().query(
-				RfcxComm.getUri("guardian", "classification_create", RfcxComm.urlEncode(StringUtils.stringToGZipBase64(jsonObj.toString()))),
-				RfcxComm.getProjection("guardian", "classification_create"),
+				RfcxComm.getUri("guardian", "detections_create", RfcxComm.urlEncode(StringUtils.stringToGZipBase64(jsonObj.toString()))),
+				RfcxComm.getProjection("guardian", "detections_create"),
 				null, null, null);
 		sendClassificationsContentProviderResponse.close();
 

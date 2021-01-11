@@ -95,8 +95,9 @@ public class AssetDownloadJobService extends Service {
 						String uriStr = queuedDownloads[5];
 						long fileSize = Long.parseLong(queuedDownloads[6]);
 						String fileType = queuedDownloads[7];
-						int downloadAttempts = Integer.parseInt(queuedDownloads[8]);
-						long lastAccessedAt = Long.parseLong(queuedDownloads[9]);
+						String metaJsonBlob = queuedDownloads[8];
+						int downloadAttempts = Integer.parseInt(queuedDownloads[9]);
+						long lastAccessedAt = Long.parseLong(queuedDownloads[10]);
 /*
 						if (!FileUtils.exists(audioFilePath)) {
 
@@ -108,7 +109,7 @@ public class AssetDownloadJobService extends Service {
 
 							Log.d(logTag, "Skipping Asset Download Job for " + assetType + ", " + assetId + " after " + AssetDownloadUtils.DOWNLOAD_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 
-							app.assetDownloadDb.dbSkipped.insert(assetType, assetId, checksum, protocol, uriStr, fileSize, fileType, downloadAttempts, System.currentTimeMillis());
+							app.assetDownloadDb.dbSkipped.insert(assetType, assetId, checksum, protocol, uriStr, fileSize, fileType, metaJsonBlob, downloadAttempts, System.currentTimeMillis());
 							app.assetDownloadDb.dbQueued.deleteSingleRow(assetType, assetId);
 
 						} else {
@@ -147,12 +148,12 @@ public class AssetDownloadJobService extends Service {
 										FileUtils.chmod(postDownloadFilePath, "rw", "rw");
 
 										// log successful completion
-										app.assetDownloadDb.dbCompleted.insert(assetType, assetId, checksum, protocol, uriStr, fileSize, fileType, downloadAttempts + 1, downloadDuration);
+										app.assetDownloadDb.dbCompleted.insert(assetType, assetId, checksum, protocol, uriStr, fileSize, fileType, metaJsonBlob,downloadAttempts + 1, downloadDuration);
 										app.assetDownloadDb.dbQueued.deleteSingleRow(assetType, assetId);
 
 										Log.i(logTag, "Asset Download Successful. File will be placed in the Asset Gallery at " + RfcxAssetCleanup.conciseFilePath(finalGalleryFilePath, RfcxGuardian.APP_ROLE));
 
-										app.assetDownloadUtils.followUpOnSuccessfulDownload( assetType, assetId, fileType, checksum, fileSize );
+										app.assetDownloadUtils.followUpOnSuccessfulDownload( assetType, assetId, fileType, checksum, metaJsonBlob );
 
 									} else {
 										Log.e(logTag, "Asset Download Failure: Rejected due to checksum mis-match on decompressed asset file.");
