@@ -6,13 +6,15 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class AudioCaptureService extends Service {
 
-	private static final String SERVICE_NAME = "AudioCapture";
+	public static final String SERVICE_NAME = "AudioCapture";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCaptureService");
 	
@@ -111,7 +113,7 @@ public class AudioCaptureService extends Service {
 						
 					// queueing the last capture file (if there is one) for post-processing
 					if (app.audioCaptureUtils.updateCaptureQueue(captureTimeStamp, audioSampleRate)) {
-						app.rfcxServiceHandler.triggerIntentServiceImmediately("AudioQueuePostProcessing");
+						app.rfcxServiceHandler.triggerIntentServiceImmediately( AudioQueuePostProcessingService.SERVICE_NAME);
 					}
 
 					// This ensures that the service registers as active more frequently than the capture loop duration
@@ -123,7 +125,7 @@ public class AudioCaptureService extends Service {
 					// Triggering creation of a metadata snapshot.
 					// This is not directly related to audio capture, but putting it here ensures that snapshots will...
 					// ...continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
-					app.rfcxServiceHandler.triggerIntentServiceImmediately("MetaSnapshot");
+					app.rfcxServiceHandler.triggerIntentServiceImmediately( MetaSnapshotService.SERVICE_NAME);
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
@@ -146,8 +148,8 @@ public class AudioCaptureService extends Service {
 
 			app.audioCaptureUtils.updateSamplingRatioIteration();
 
-			int prefsAudioCaptureSampleRate = app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate");
-			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration");
+			int prefsAudioCaptureSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE);
+			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
 			
 			if (	(this.audioSampleRate != prefsAudioCaptureSampleRate)
 				||	(this.audioCycleDuration != prefsAudioCycleDuration)

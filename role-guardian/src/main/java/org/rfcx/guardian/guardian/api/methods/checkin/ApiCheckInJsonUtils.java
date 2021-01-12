@@ -15,6 +15,7 @@ import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class ApiCheckInJsonUtils {
 		// Recording number of currently queued/skipped/stashed checkins
 		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson( new String[] { "sent" } ));
 
-		checkInMetaJson.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt("checkin_meta_send_bundle_limit")));
+		checkInMetaJson.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT)));
 
 		// Adding software role versions
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
@@ -107,8 +108,8 @@ public class ApiCheckInJsonUtils {
 
 		String[] types = new String[] { "sent", "queued", "meta", "skipped", "stashed", "archived", "vault" };
 
-		int idBundleLimit = app.rfcxPrefs.getPrefAsInt("checkin_meta_send_bundle_limit");
-		long includeAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong("audio_cycle_duration") * 1000;
+		int idBundleLimit = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT);
+		long includeAssetIdIfOlderThan = 4 * this.app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
 
 		List<String> typeStatuses = new ArrayList<>();
 
@@ -212,7 +213,7 @@ public class ApiCheckInJsonUtils {
 
 		int metaQueueFullRecordCount = app.metaDb.dbMeta.getCount();
 		long metaQueueFullByteLength = app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows();
-		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_meta_queue_filesize_limit");
+		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT);
 
 		Log.d(logTag, "Meta JSON Snapshot added to Queue: " + metaQueryTimestamp + ", "
 							+ FileUtils.bytesAsReadableString(metaDataJsonStr.length())
@@ -251,7 +252,7 @@ public class ApiCheckInJsonUtils {
 
 //		int metaQueueFullRecordCount = app.metaDb.dbMeta.getCount();
 //		long metaQueueFullByteLength = app.metaDb.dbMeta.getCumulativeJsonBlobLengthForAllRows();
-		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_meta_queue_filesize_limit");
+		long metaFileSizeLimit = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT);
 		long metaFileSizeLimitInBytes = metaFileSizeLimit * 1024 * 1024;
 
 		if (metaQueueFullByteLength >= metaFileSizeLimitInBytes) {
@@ -374,8 +375,8 @@ public class ApiCheckInJsonUtils {
 
 	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
 
-		int maxMetaRowsToBundle = app.rfcxPrefs.getPrefAsInt("checkin_meta_send_bundle_limit");
-		if (app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sampling_ratio")) {
+		int maxMetaRowsToBundle = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT);
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO)) {
 			maxMetaRowsToBundle = maxMetaRowsToBundle + app.audioCaptureUtils.samplingRatioArr[0] + app.audioCaptureUtils.samplingRatioArr[1];
 		}
 

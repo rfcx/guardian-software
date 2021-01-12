@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
-	package="org.rfcx.guardian.classify" android:sharedUserId="android.uid.system">
+	package="org.rfcx.guardian.classify">
 
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
@@ -69,7 +69,11 @@
 
 
 		<!-- Services -->
-		<service android:name=".service.SbdDispatchCycleService" />
+		<service android:name=".service.AudioClassifyJobService" />
+
+		<!-- IntentServices -->
+		<service android:name=".ServiceMonitor" android:exported="false" />
+
 
 
 		<receiver android:name=".receiver.BootReceiver">
@@ -79,11 +83,24 @@
 		</receiver>
 		
 		<provider 
-		    android:name=".contentprovider.ClassifyContentProvider"
-			android:authorities="org.rfcx.guardian.classify"
-        	android:readPermission="org.rfcx.guardian.READ"
-        	android:writePermission="org.rfcx.guardian.WRITE"
-        	android:exported="true" />
+				android:name=".contentprovider.ClassifyContentProvider"
+				android:authorities="org.rfcx.guardian.classify"
+				android:readPermission="org.rfcx.guardian.READ"
+				android:writePermission="org.rfcx.guardian.WRITE"
+				android:grantUriPermissions="true"
+				android:exported="true">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />
+		</provider>
+
+<!--		<provider-->
+<!--				android:name="androidx.core.content.FileProvider"-->
+<!--				android:authorities="org.rfcx.guardian.classify"-->
+<!--				android:readPermission="org.rfcx.guardian.READ"-->
+<!--				android:writePermission="org.rfcx.guardian.WRITE"-->
+<!--				android:grantUriPermissions="true"-->
+<!--				android:exported="true">-->
+<!--			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />-->
+<!--		</provider>-->
 
     </application>
 

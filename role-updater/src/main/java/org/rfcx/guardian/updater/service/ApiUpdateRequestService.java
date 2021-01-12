@@ -8,6 +8,7 @@ import org.rfcx.guardian.updater.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.network.HttpGet;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import android.app.Service;
 import android.content.Intent;
@@ -16,7 +17,7 @@ import android.util.Log;
 
 public class ApiUpdateRequestService extends Service {
 
-	private static final String SERVICE_NAME = "ApiUpdateRequest";
+	public static final String SERVICE_NAME = "ApiUpdateRequest";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiUpdateRequestService");
 
@@ -79,9 +80,9 @@ public class ApiUpdateRequestService extends Service {
 
 			try {
 				if (app.deviceConnectivity.isConnected()) {
-					String getUrl =	app.rfcxPrefs.getPrefAsString("api_rest_protocol")
+					String getUrl =	app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_REST_PROTOCOL)
 									+ "://"
-									+ app.rfcxPrefs.getPrefAsString("api_rest_host")
+									+ app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_REST_HOST)
 									+"/v2/guardians/" + app.rfcxGuardianIdentity.getGuid() + "/software/all"
 									+ "?" + "battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
 									+ "&" + "timestamp="+System.currentTimeMillis()

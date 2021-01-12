@@ -13,7 +13,7 @@ import android.util.Log;
 
 public class ScreenShotCaptureService extends Service {
 
-	private static final String SERVICE_NAME = "ScreenShotCapture";
+	public static final String SERVICE_NAME = "ScreenShotCapture";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScreenShotCaptureService");
 	

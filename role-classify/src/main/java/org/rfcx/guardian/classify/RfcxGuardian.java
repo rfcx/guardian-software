@@ -1,8 +1,12 @@
 package org.rfcx.guardian.classify;
 
 import android.app.Application;
+import android.content.ContentResolver;
 
+import org.rfcx.guardian.classify.service.AudioClassifyJobService;
 import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
+import org.rfcx.guardian.classify.utils.AudioClassifyDb;
+import org.rfcx.guardian.classify.utils.AudioClassifyModelUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -22,16 +26,18 @@ public class RfcxGuardian extends Application {
     public RfcxPrefs rfcxPrefs = null;
     public RfcxServiceHandler rfcxServiceHandler = null;
 
+    public AudioClassifyModelUtils audioClassifyModelUtils = null;
     public AudioClassifyUtils audioClassifyUtils = null;
 
     // Database Handlers
+    public AudioClassifyDb audioClassifyDb = null;
 
     // for checking battery level
     public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 
     public String[] RfcxCoreServices =
             new String[]{
-                    "SbdDispatchCycle"
+                    AudioClassifyJobService.SERVICE_NAME
             };
 
     @Override
@@ -46,6 +52,7 @@ public class RfcxGuardian extends Application {
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
 
+        this.audioClassifyModelUtils = new AudioClassifyModelUtils(this);
         this.audioClassifyUtils = new AudioClassifyUtils(this);
 
         setDbHandlers();
@@ -58,12 +65,12 @@ public class RfcxGuardian extends Application {
         super.onTerminate();
     }
 
-    public void appResume() {
+    public void appResume() { }
 
-    }
+    public void appPause() { }
 
-    public void appPause() {
-
+    public ContentResolver getResolver() {
+        return this.getApplicationContext().getContentResolver();
     }
 
     public void initializeRoleServices() {
@@ -79,22 +86,21 @@ public class RfcxGuardian extends Application {
             String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
             System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
             System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-            this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
+            this.rfcxServiceHandler.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, true, 0);
         }
 
     }
 
     private void setDbHandlers() {
 
-//        this.sbdMessageDb = new SbdMessageDb(this, this.version);
+        this.audioClassifyDb = new AudioClassifyDb(this, this.version);
 
     }
 
     private void setServiceHandlers() {
 
-//        this.rfcxServiceHandler.addService("ClockSyncJob", ClockSyncJobService.class);
-//        this.rfcxServiceHandler.addService("SbdDispatch", SbdDispatchService.class);
-//        this.rfcxServiceHandler.addService("SbdDispatchCycle", SbdDispatchCycleService.class);
+        this.rfcxServiceHandler.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
+        this.rfcxServiceHandler.addService( AudioClassifyJobService.SERVICE_NAME, AudioClassifyJobService.class);
 
     }
 

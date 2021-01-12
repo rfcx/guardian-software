@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class AirplaneModeToggleService extends Service {
 
-	private static final String SERVICE_NAME = "AirplaneModeToggle";
+	public static final String SERVICE_NAME = "AirplaneModeToggle";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AirplaneModeToggleService");
 	
@@ -74,7 +74,7 @@ public class AirplaneModeToggleService extends Service {
 
 				app.deviceAirplaneMode.setOff(context);
 
-				app.rfcxServiceHandler.triggerService("WifiHotspot", false);
+				app.rfcxServiceHandler.triggerService( WifiHotspotStateSetService.SERVICE_NAME, false);
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

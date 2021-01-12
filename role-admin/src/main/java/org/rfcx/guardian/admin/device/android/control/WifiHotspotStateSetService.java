@@ -7,11 +7,12 @@ import android.content.Intent;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.control.DeviceWifi;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class WifiHotspotStateSetService extends IntentService {
 
-	private static final String SERVICE_NAME = "WifiHotspot";
+	public static final String SERVICE_NAME = "WifiHotspot";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "WifiHotspotStateSetService");
 
@@ -26,7 +27,7 @@ public class WifiHotspotStateSetService extends IntentService {
 
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
-		boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi");
+		boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI);
 
 		DeviceWifi deviceWifi = new DeviceWifi(context);
 		deviceWifi.setHotspotConfig("rfcx-"+app.rfcxGuardianIdentity.getGuid().substring(0,8), "rfcxrfcx", true);

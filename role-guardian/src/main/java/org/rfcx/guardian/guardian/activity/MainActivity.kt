@@ -3,9 +3,7 @@ package org.rfcx.guardian.guardian.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
-import android.os.StrictMode
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -14,7 +12,7 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
-import org.rfcx.guardian.guardian.api.methods.ping.ScheduledApiPingService
+import org.rfcx.guardian.guardian.api.methods.download.AssetDownloadJobService
 import org.rfcx.guardian.guardian.api.methods.ping.SendApiPingService
 import org.rfcx.guardian.guardian.api.methods.register.GuardianCheckApi
 import org.rfcx.guardian.guardian.api.methods.register.GuardianCheckCallback
@@ -29,6 +27,7 @@ import org.rfcx.guardian.guardian.utils.AudioSettingUtils
 import org.rfcx.guardian.guardian.utils.GuardianUtils
 import org.rfcx.guardian.guardian.view.*
 import org.rfcx.guardian.utility.rfcx.RfcxLog
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 
 class MainActivity : Activity(),
@@ -82,9 +81,14 @@ class MainActivity : Activity(),
             // reload or relaunch app
         }
 
+        downloadDevClassifierButton.setOnClickListener {
+            app.assetDownloadUtils.createDummyRow();
+            app.rfcxServiceHandler.triggerService( AssetDownloadJobService.SERVICE_NAME, false );
+        }
+
         audioCaptureButton.setOnClickListener {
-            val isAudioCaptureOn = app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")
-            app.setSharedPref("enable_audio_capture", (!isAudioCaptureOn).toString().toLowerCase())
+            val isAudioCaptureOn = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)
+            app.setSharedPref(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE, (!isAudioCaptureOn).toString().toLowerCase())
             audioCaptureButton.text = if (!isAudioCaptureOn) "stop" else "record"
             setUIByRecordingState()
         }
@@ -127,10 +131,10 @@ class MainActivity : Activity(),
     }
 
     private fun setConfiguration() {
-        sampleRate = app.rfcxPrefs.getPrefAsString("audio_capture_sample_rate")
-        fileFormat = app.rfcxPrefs.getPrefAsString("audio_stream_codec")
-        bitRate = app.rfcxPrefs.getPrefAsString("audio_stream_bitrate")
-        duration = app.rfcxPrefs.getPrefAsString("audio_cycle_duration")
+        sampleRate = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)
+        fileFormat = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_CODEC)
+        bitRate = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE)
+        duration = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)
 
         audioSettingButton.setOnClickListener {
             AudioSettingsDialog.build(this, object : OnAudioSettingsSet {
@@ -138,9 +142,9 @@ class MainActivity : Activity(),
                     sampleRate = settings.sampleRate
                     bitRate = settings.bitRate
                     fileFormat = settings.fileFormat
-                    app.setSharedPref("audio_capture_sample_rate", sampleRate)
-                    app.setSharedPref("audio_stream_bitrate", bitRate)
-                    app.setSharedPref("audio_stream_codec", fileFormat)
+                    app.setSharedPref(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE, sampleRate)
+                    app.setSharedPref(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE, bitRate)
+                    app.setSharedPref(RfcxPrefs.Pref.AUDIO_STREAM_CODEC, fileFormat)
                     updateAudioSettingsInfo()
                 }
             }).show()
@@ -150,7 +154,7 @@ class MainActivity : Activity(),
             DurationPickerDialog.build(this, object : OnDurationSet {
                 override fun onSet(seconds: Int) {
                     duration = seconds.toString()
-                    app.setSharedPref("audio_cycle_duration", duration)
+                    app.setSharedPref(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION, duration)
                     updateAudioSettingsInfo()
                 }
             }).show()
@@ -190,7 +194,7 @@ class MainActivity : Activity(),
         if (GuardianUtils.isGuardianRegistered(this)) {
             var deviceIdTxt = app.rfcxGuardianIdentity.guid
             deviceIdText.text = " $deviceIdTxt"
-            if (app.rfcxPrefs.getPrefAsBoolean("enable_audio_capture")) {
+            if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
                 recordStatusText.text = " recording"
                 recordStatusText.setTextColor(resources.getColor(R.color.primary))
                 audioCaptureButton.text = "stop"
@@ -203,7 +207,7 @@ class MainActivity : Activity(),
     }
 
     private fun sendPing() {
-        app.rfcxServiceHandler.triggerService(SendApiPingService.SERVICE_NAME, false);
+        app.rfcxServiceHandler.triggerService( SendApiPingService.SERVICE_NAME, false);
     }
 
     private fun clearRegistration() {

@@ -5,10 +5,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,11 +39,12 @@ public class ApiCheckInUtils {
 		// add audio info to checkin queue
 		int queuedCount = app.apiCheckInDb.dbQueued.insert(audioInfo[1] + "." + audioInfo[2], queueJson, "0", filePath, audioInfo[10], audioFileSize+"");
 
-		long queuedLimitMb = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit");
+		long queuedLimitMb = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_QUEUE_FILESIZE_LIMIT);
 		long queuedLimitPct = Math.round(Math.floor(100*(Double.parseDouble(app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows()+"")/(queuedLimitMb*1024*1024))));
 
-		Log.d(logTag, "Audio added to Queue: " + audioInfo[1] + ", " + FileUtils.bytesAsReadableString(audioFileSize)
-						+  " (" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+" MB limit) " + filePath);
+		Log.d(logTag, "Audio added to Queue: " + audioInfo[1]
+						+ ", " + FileUtils.bytesAsReadableString(audioFileSize) + " (" + queuedCount + " in queue, "+queuedLimitPct+"% of "+queuedLimitMb+" MB limit)"
+						+ ", " + RfcxAssetCleanup.conciseFilePath(filePath, RfcxGuardian.APP_ROLE));
 
 		// once queued, remove database reference from encode role
 		app.audioEncodeDb.dbEncoded.deleteSingleRow(audioInfo[1], "stream");
@@ -64,11 +67,11 @@ public class ApiCheckInUtils {
 
 	public void stashOrArchiveOldestCheckIns() {
 
-		long queueFileSizeLimit = app.rfcxPrefs.getPrefAsLong("checkin_queue_filesize_limit");
+		long queueFileSizeLimit = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_QUEUE_FILESIZE_LIMIT);
 		long queueFileSizeLimitInBytes = queueFileSizeLimit*1024*1024;
 
-		long stashFileSizeBuffer = app.rfcxPrefs.getPrefAsLong("checkin_stash_filesize_buffer");
-		long archiveFileSizeTarget = app.rfcxPrefs.getPrefAsLong("checkin_archive_filesize_target");
+		long stashFileSizeBuffer = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_STASH_FILESIZE_BUFFER);
+		long archiveFileSizeTarget = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_ARCHIVE_FILESIZE_TARGET);
 
 		if (app.apiCheckInDb.dbQueued.getCumulativeFileSizeForAllRows() >= queueFileSizeLimitInBytes) {
 
@@ -129,7 +132,7 @@ public class ApiCheckInUtils {
 		}
 
 		if (app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() >= ((stashFileSizeBuffer+archiveFileSizeTarget)*1024*1024)) {
-			app.rfcxServiceHandler.triggerService("ApiCheckInArchive", false);
+			app.rfcxServiceHandler.triggerService( ApiCheckInArchiveService.SERVICE_NAME, false);
 		}
 	}
 
@@ -205,8 +208,8 @@ public class ApiCheckInUtils {
 	public void reQueueStashedCheckInIfAllowedByHealthCheck(long[] currentCheckInStats) {
 
 		if (	app.apiCheckInHealthUtils.validateRecentCheckInHealthCheck(
-					app.rfcxPrefs.getPrefAsLong("audio_cycle_duration"),
-					app.rfcxPrefs.getPrefAsString("checkin_requeue_bounds_hours"),
+					app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION),
+					app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.CHECKIN_REQUEUE_BOUNDS_HOURS),
 					currentCheckInStats
 				)
 			&& 	(app.apiCheckInDb.dbStashed.getCount() > 0)
@@ -232,7 +235,7 @@ public class ApiCheckInUtils {
 		}
 
 
-		long sentFileSizeBufferInBytes = app.rfcxPrefs.getPrefAsLong("checkin_sent_filesize_buffer")*1024*1024;
+		long sentFileSizeBufferInBytes = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_SENT_FILESIZE_BUFFER)*1024*1024;
 
 		if (app.apiCheckInDb.dbSent.getCumulativeFileSizeForAllRows() >= sentFileSizeBufferInBytes) {
 

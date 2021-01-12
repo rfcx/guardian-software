@@ -19,6 +19,7 @@ import org.rfcx.guardian.i2c.DeviceI2cUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class SentinelPowerUtils {
 
@@ -66,7 +67,7 @@ public class SentinelPowerUtils {
 
     public boolean isCaptureAllowed() {
 
-        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean("admin_enable_sentinel_power");
+        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTINEL_POWER);
         boolean isI2cHandlerAccessible = false;
         boolean isI2cPowerChipConnected = false;
 
@@ -509,7 +510,7 @@ public class SentinelPowerUtils {
 
         } else {
 
-            isAllowed = !app.rfcxPrefs.getPrefAsBoolean("enable_cutoffs_sentinel_battery");
+            isAllowed = !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY);
 
             if (!isAllowed) {
 
@@ -520,7 +521,7 @@ public class SentinelPowerUtils {
                 if (this.powerBatteryValues.size() > 0) {
 
                     long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
-                    int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt("audio_cutoff_sentinel_battery") : app.rfcxPrefs.getPrefAsInt("checkin_cutoff_sentinel_battery");
+                    int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY);
                     isAllowed = battPct >= (prefsVal * 100);
 
                 } else if (!isCaptureAllowed()) {

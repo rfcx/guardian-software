@@ -36,22 +36,224 @@ public class RfcxPrefs {
 		this.prefsDirPath = setOrCreatePrefsDirectory(context);
 	}
 	
-	private String logTag;
+	private final String logTag;
 	
-	private Context context = null;
-	private String thisAppRole = null;
-	private String prefsDirPath = null;
+	private final Context context;
+	private final String thisAppRole;
+	private final String prefsDirPath;
 	
-	private Map<String, String> cachedPrefs = new HashMap<String, String>();
+	private final Map<String, String> cachedPrefs = new HashMap<String, String>();
 
 	public String prefsSha1FullApiSync = null;
 	public long prefsTimestampLastFullApiSync = 0;
-	
+
+	public static final class Pref {
+
+		public static final String ENABLE_AUDIO_CAPTURE = "enable_audio_capture";
+		public static final String ENABLE_AUDIO_STREAM = "enable_audio_stream";
+		public static final String ENABLE_AUDIO_VAULT = "enable_audio_vault";
+		public static final String ENABLE_AUDIO_CLASSIFY = "enable_audio_classify";
+
+		public static final String ENABLE_CHECKIN_PUBLISH = "enable_checkin_publish";
+		public static final String ENABLE_CHECKIN_ARCHIVE = "enable_checkin_archive";
+
+		public static final String API_MQTT_HOST = "api_mqtt_host";
+		public static final String API_MQTT_PROTOCOL = "api_mqtt_protocol";
+		public static final String API_MQTT_PORT = "api_mqtt_port";
+		public static final String ENABLE_MQTT_AUTH = "enable_mqtt_auth";
+		public static final String API_MQTT_AUTH_CREDS = "api_mqtt_auth_creds";
+
+		public static final String API_REST_HOST = "api_rest_host";
+		public static final String API_REST_PROTOCOL = "api_rest_protocol";
+
+		public static final String API_NTP_HOST = "api_ntp_host";
+		public static final String API_SMS_ADDRESS = "api_sms_address";
+
+		public static final String API_PROTOCOL_ESCALATION_ORDER = "api_protocol_escalation_order";
+
+		public static final String REBOOT_FORCED_DAILY_AT = "reboot_forced_daily_at";
+
+		public static final String AUDIO_CYCLE_DURATION = "audio_cycle_duration";
+
+		public static final String ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS = "enable_cutoffs_schedule_off_hours";
+		public static final String AUDIO_SCHEDULE_OFF_HOURS = "audio_schedule_off_hours";
+
+		public static final String ENABLE_CUTOFFS_SAMPLING_RATIO = "enable_cutoffs_sampling_ratio";
+		public static final String AUDIO_SAMPLING_RATIO = "audio_sampling_ratio";
+
+		public static final String ENABLE_CUTOFFS_INTERNAL_BATTERY = "enable_cutoffs_internal_battery";
+		public static final String CHECKIN_CUTOFF_INTERNAL_BATTERY = "checkin_cutoff_internal_battery";
+		public static final String AUDIO_CUTOFF_INTERNAL_BATTERY = "audio_cutoff_internal_battery";
+
+		public static final String ENABLE_CUTOFFS_SENTINEL_BATTERY = "enable_cutoffs_sentinel_battery";
+		public static final String CHECKIN_CUTOFF_SENTINEL_BATTERY = "checkin_cutoff_sentinel_battery";
+		public static final String AUDIO_CUTOFF_SENTINEL_BATTERY = "audio_cutoff_sentinel_battery";
+
+		public static final String AUDIO_CAPTURE_SAMPLE_RATE = "audio_capture_sample_rate";
+
+		public static final String AUDIO_STREAM_SAMPLE_RATE = "audio_stream_sample_rate";
+		public static final String AUDIO_STREAM_CODEC = "audio_stream_codec";
+		public static final String AUDIO_STREAM_BITRATE = "audio_stream_bitrate";
+
+		public static final String AUDIO_VAULT_SAMPLE_RATE = "audio_vault_sample_rate";
+		public static final String AUDIO_VAULT_CODEC = "audio_vault_codec";
+		public static final String AUDIO_VAULT_BITRATE = "audio_vault_bitrate";
+
+		public static final String CHECKIN_FAILURE_THRESHOLDS = "checkin_failure_thresholds";
+		public static final String CHECKIN_FAILURE_LIMIT = "checkin_failure_limit";
+
+		public static final String CHECKIN_QUEUE_FILESIZE_LIMIT = "checkin_queue_filesize_limit";
+		public static final String CHECKIN_SENT_FILESIZE_BUFFER = "checkin_sent_filesize_buffer";
+		public static final String CHECKIN_STASH_FILESIZE_BUFFER = "checkin_stash_filesize_buffer";
+		public static final String CHECKIN_ARCHIVE_FILESIZE_TARGET = "checkin_archive_filesize_target";
+
+		public static final String CHECKIN_REQUEUE_BOUNDS_HOURS = "checkin_requeue_bounds_hours";
+
+		public static final String CHECKIN_META_SEND_BUNDLE_LIMIT = "checkin_meta_send_bundle_limit";
+		public static final String CHECKIN_META_QUEUE_FILESIZE_LIMIT = "checkin_meta_queue_filesize_limit";
+
+		public static final String ADMIN_ENABLE_WIFI = "admin_enable_wifi";
+		public static final String ADMIN_ENABLE_TCP_ADB = "admin_enable_tcp_adb";
+		public static final String ADMIN_ENABLE_WIFI_SOCKET = "admin_enable_wifi_socket";
+		public static final String ADMIN_ENABLE_SSH_SERVER = "admin_enable_ssh_server";
+
+		public static final String API_CLOCK_SYNC_CYCLE_DURATION = "api_clock_sync_cycle_duration";
+		public static final String API_PING_CYCLE_DURATION = "api_ping_cycle_duration";
+
+		public static final String ADMIN_ENABLE_LOG_CAPTURE = "admin_enable_log_capture";
+		public static final String ADMIN_LOG_CAPTURE_CYCLE = "admin_log_capture_cycle";
+		public static final String ADMIN_LOG_CAPTURE_LEVEL = "admin_log_capture_level";
+
+		public static final String ADMIN_ENABLE_GEOPOSITION_CAPTURE = "admin_enable_geoposition_capture";
+		public static final String ADMIN_GEOPOSITION_CAPTURE_CYCLE = "admin_geoposition_capture_cycle";
+
+		public static final String ADMIN_ENABLE_SCREENSHOT_CAPTURE = "admin_enable_screenshot_capture";
+		public static final String ADMIN_SCREENSHOT_CAPTURE_CYCLE = "admin_screenshot_capture_cycle";
+
+		public static final String ADMIN_ENABLE_CAMERA_CAPTURE = "admin_enable_camera_capture";
+		public static final String ADMIN_CAMERA_CAPTURE_CYCLE = "admin_camera_capture_cycle";
+
+		public static final String ADMIN_ENABLE_SENTINEL_POWER = "admin_enable_sentinel_power";
+		public static final String ADMIN_ENABLE_SENTINEL_SENSOR = "admin_enable_sentinel_sensor";
+
+		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
+
+		public static final String AUDIO_CLASSIFY_ALLOW_GPU = "audio_classify_allow_gpu";
+
+	}
+
+
+	//
+	// Prefs default/fallback values. Should be kept in sync with the prefs.xml file in guardian role resources
+	//
+
+	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
+			new HashMap<String, String>() {{
+
+			put(Pref.ENABLE_AUDIO_CAPTURE, "true");
+			put(Pref.ENABLE_AUDIO_STREAM, "true");
+			put(Pref.ENABLE_AUDIO_VAULT, "false");
+			put(Pref.ENABLE_AUDIO_CLASSIFY, "false");
+
+			put(Pref.ENABLE_CHECKIN_PUBLISH, "true");
+			put(Pref.ENABLE_CHECKIN_ARCHIVE, "true");
+
+			put(Pref.API_MQTT_HOST, "api-mqtt.rfcx.org");
+			put(Pref.API_MQTT_PROTOCOL, "ssl");
+			put(Pref.API_MQTT_PORT, "8883");
+			put(Pref.ENABLE_MQTT_AUTH, "true");
+			put(Pref.API_MQTT_AUTH_CREDS, "[guid],[token]");
+
+			put(Pref.API_REST_HOST, "api.rfcx.org");
+			put(Pref.API_REST_PROTOCOL, "https");
+
+			put(Pref.API_NTP_HOST, "time.apple.com");
+			put(Pref.API_SMS_ADDRESS, "+14154803657");
+
+			put(Pref.API_PROTOCOL_ESCALATION_ORDER, "mqtt,rest,sms,sbd");
+
+			put(Pref.REBOOT_FORCED_DAILY_AT, "23:55:00");
+
+			put(Pref.AUDIO_CYCLE_DURATION, "90");
+
+			put(Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS, "false");
+			put(Pref.AUDIO_SCHEDULE_OFF_HOURS, "23:56-23:58,23:58-00:00");
+
+			put(Pref.ENABLE_CUTOFFS_SAMPLING_RATIO, "false");
+			put(Pref.AUDIO_SAMPLING_RATIO, "1:2");
+
+			put(Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY, "true");
+			put(Pref.CHECKIN_CUTOFF_INTERNAL_BATTERY, "100");
+			put(Pref.AUDIO_CUTOFF_INTERNAL_BATTERY, "100");
+
+			put(Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY, "true");
+			put(Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY, "20");
+			put(Pref.AUDIO_CUTOFF_SENTINEL_BATTERY, "20");
+
+//			put("audio_encode_codec", "opus");
+//			put("audio_encode_bitrate", "28672");
+//			put("audio_sample_rate", "24000");
+
+			put(Pref.AUDIO_CAPTURE_SAMPLE_RATE, "24000");
+
+			put(Pref.AUDIO_STREAM_SAMPLE_RATE, "24000");
+			put(Pref.AUDIO_STREAM_CODEC, "opus");
+			put(Pref.AUDIO_STREAM_BITRATE, "28672");
+
+			put(Pref.AUDIO_VAULT_SAMPLE_RATE, "24000");
+			put(Pref.AUDIO_VAULT_CODEC, "flac");
+			put(Pref.AUDIO_VAULT_BITRATE, "28672");
+
+			put(Pref.CHECKIN_FAILURE_THRESHOLDS, "15,30,50,70,90");
+			put(Pref.CHECKIN_FAILURE_LIMIT, "3");
+
+			put(Pref.CHECKIN_QUEUE_FILESIZE_LIMIT, "80");
+			put(Pref.CHECKIN_SENT_FILESIZE_BUFFER, "80");
+			put(Pref.CHECKIN_STASH_FILESIZE_BUFFER, "160");
+			put(Pref.CHECKIN_ARCHIVE_FILESIZE_TARGET, "32");
+
+			put(Pref.CHECKIN_REQUEUE_BOUNDS_HOURS, "10-14");
+
+			put(Pref.CHECKIN_META_SEND_BUNDLE_LIMIT, "16");
+			put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
+
+			put(Pref.ADMIN_ENABLE_WIFI, "true");
+			put(Pref.ADMIN_ENABLE_TCP_ADB, "true");
+			put(Pref.ADMIN_ENABLE_WIFI_SOCKET, "true");
+			put(Pref.ADMIN_ENABLE_SSH_SERVER, "false");
+
+			put(Pref.API_CLOCK_SYNC_CYCLE_DURATION, "30");
+			put(Pref.API_PING_CYCLE_DURATION, "30");
+
+			put(Pref.ADMIN_ENABLE_LOG_CAPTURE, "false");
+			put(Pref.ADMIN_LOG_CAPTURE_CYCLE, "30");
+			put(Pref.ADMIN_LOG_CAPTURE_LEVEL, "Warn");
+
+			put(Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE, "false");
+			put(Pref.ADMIN_GEOPOSITION_CAPTURE_CYCLE, "20");
+
+			put(Pref.ADMIN_ENABLE_SCREENSHOT_CAPTURE, "false");
+			put(Pref.ADMIN_SCREENSHOT_CAPTURE_CYCLE, "180");
+
+			put(Pref.ADMIN_ENABLE_CAMERA_CAPTURE, "false");
+			put(Pref.ADMIN_CAMERA_CAPTURE_CYCLE, "60");
+
+			put(Pref.ADMIN_ENABLE_SENTINEL_POWER, "true");
+			put(Pref.ADMIN_ENABLE_SENTINEL_SENSOR, "false");
+
+			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
+
+			put(Pref.AUDIO_CLASSIFY_ALLOW_GPU, "true");
+		}}
+	);
+
+
+
 	// Getters and Setters
 	
 	public String getPrefAsString(String prefKey) {
 		
-		String newPrefValue = null;
+		String newPrefValue;
 		
 		if (this.cachedPrefs.containsKey(prefKey)) {
 			return this.cachedPrefs.get(prefKey);
@@ -382,108 +584,9 @@ public class RfcxPrefs {
 		return getPrefsAsJsonObj(false, includeTheseKeys );
 	}
 
-    //
-    // Prefs default/fallback values. Should be kept in sync with the prefs.xml file in guardian role resources
-    //
-	
-	private static final Map<String, String> defaultPrefs = Collections.unmodifiableMap(
-	    new HashMap<String, String>() {{
 
-			put("enable_audio_capture", "true");
-			put("enable_audio_stream", "true");
-			put("enable_audio_vault", "false");
-			put("enable_audio_classify", "false");
 
-			put("enable_checkin_publish", "true");
-			put("enable_checkin_archive", "true");
 
-			put("api_mqtt_host", "api-mqtt.rfcx.org");
-	        put("api_mqtt_protocol", "ssl");
-	        put("api_mqtt_port", "8883");
-			put("enable_mqtt_auth", "true");
-			put("api_mqtt_auth_creds", "[guid],[token]");
 
-            put("api_rest_host", "api.rfcx.org");
-            put("api_rest_protocol", "https");
 
-	        put("api_ntp_host", "time.apple.com");
-			put("api_sms_address", "+14154803657");
-
-			put("api_protocol_escalation_order", "mqtt,rest,sms,sbd");
-	        
-			put("reboot_forced_daily_at", "23:55:00");
-			
-			put("audio_cycle_duration", "90");
-
-			put("enable_cutoffs_schedule_off_hours", "false");
-			put("audio_schedule_off_hours", "23:56-23:58,23:58-00:00");
-
-			put("enable_cutoffs_sampling_ratio", "false");
-			put("audio_sampling_ratio", "1:2");
-
-			put("enable_cutoffs_internal_battery", "true");
-			put("checkin_cutoff_internal_battery", "100");
-			put("audio_cutoff_internal_battery", "100");
-
-			put("enable_cutoffs_sentinel_battery", "true");
-			put("checkin_cutoff_sentinel_battery", "20");
-			put("audio_cutoff_sentinel_battery", "20");
-			
-//			put("audio_encode_codec", "opus");
-//			put("audio_encode_bitrate", "28672");
-//			put("audio_sample_rate", "24000");
-
-			put("audio_capture_sample_rate", "24000");
-
-			put("audio_stream_sample_rate", "24000");
-			put("audio_stream_codec", "opus");
-			put("audio_stream_bitrate", "28672");
-
-			put("audio_vault_sample_rate", "24000");
-			put("audio_vault_codec", "flac");
-			put("audio_vault_bitrate", "28672");
-
-			put("checkin_failure_thresholds", "15,30,50,70,90");
-			put("checkin_failure_limit", "3");
-
-			put("checkin_queue_filesize_limit", "80");
-			put("checkin_sent_filesize_buffer", "80");
-			put("checkin_stash_filesize_buffer", "160");
-			put("checkin_archive_filesize_target", "32");
-
-			put("checkin_requeue_bounds_hours", "10-14");
-
-			put("checkin_meta_send_bundle_limit", "16");
-			put("checkin_meta_queue_filesize_limit", "8");
-
-			put("admin_enable_wifi", "true");
-			put("admin_enable_tcp_adb", "true");
-			put("admin_enable_wifi_socket", "true");
-			put("admin_enable_ssh_server", "false");
-
-			put("api_clock_sync_cycle_duration", "30");
-			put("api_ping_cycle_duration", "30");
-
-			put("admin_log_capture_cycle", "30");
-			put("admin_log_capture_level", "Warn");
-			put("admin_enable_log_capture", "false");
-
-			put("admin_enable_geoposition_capture", "false");
-			put("admin_geoposition_capture_cycle", "20");
-			
-			put("admin_screenshot_capture_cycle", "180");
-			put("admin_enable_screenshot_capture", "false");
-
-			put("admin_enable_sentinel_power", "true");
-			put("admin_enable_sentinel_sensor", "false");
-
-			put("admin_system_timezone", "[ Not Set ]");
-
-			
-			
-	    }}
-	);
-	
-
-	
 }

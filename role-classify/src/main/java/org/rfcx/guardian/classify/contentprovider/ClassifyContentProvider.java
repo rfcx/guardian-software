@@ -1,6 +1,7 @@
 package org.rfcx.guardian.classify.contentprovider;
 
 import org.rfcx.guardian.classify.RfcxGuardian;
+import org.rfcx.guardian.classify.service.AudioClassifyJobService;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -11,6 +12,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
+import android.util.Log;
 
 public class ClassifyContentProvider extends ContentProvider {
 
@@ -72,16 +76,39 @@ public class ClassifyContentProvider extends ContentProvider {
 				app.initializeRoleServices();
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"initialize", null, System.currentTimeMillis()});
 
+
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "classify_queue", "*")) { logFuncVal = "classify_queue-*";
+				String pathSeg = uri.getLastPathSegment();
+
+				String[] clsfyJob = TextUtils.split(pathSeg,"\\|");
+
+				String audioId = clsfyJob[0];
+				String clsfrId = clsfyJob[1];
+				String clsfrVer = clsfyJob[2];
+				int sampleRate = Integer.parseInt(clsfyJob[3]);
+				String audioFile = clsfyJob[4];
+				String clsfrFile = clsfyJob[5];
+				String windowSize = clsfyJob[6];
+				String stepSize = clsfyJob[7];
+				String classes = clsfyJob[8];
+
+				app.audioClassifyDb.dbQueued.insert(audioId, clsfrId, clsfrVer, 0, sampleRate, audioFile, clsfrFile, windowSize, stepSize, classes);
+				Log.d(logTag, "Audio added to Classify Queue: " + TextUtils.join(", ", clsfyJob));
+				app.rfcxServiceHandler.triggerService( AudioClassifyJobService.SERVICE_NAME, false);
+
+				return RfcxComm.getProjectionCursor(appRole, "classify_queue", new Object[]{ audioId+"|"+clsfrId, null, System.currentTimeMillis()});
+
 			}
-
-
-
-
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e, "ClassifyContentProvider - "+logFuncVal);
 		}
 		return null;
+	}
+
+	public ParcelFileDescriptor openFile(Uri uri, String mode) {
+		return RfcxComm.serveAssetFileRequest(uri, mode, getContext(), RfcxGuardian.APP_ROLE, logTag);
 	}
 
 	@Override

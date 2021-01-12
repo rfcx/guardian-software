@@ -1,8 +1,11 @@
 package org.rfcx.guardian.classify.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,6 +13,8 @@ import android.widget.Button;
 
 import org.rfcx.guardian.classify.R;
 import org.rfcx.guardian.classify.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.List;
 
@@ -33,22 +38,18 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home);
-		Button sbdMsgSend = findViewById(R.id.sendButton);
-		sbdMsgSend.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-		//		((RfcxGuardian) getApplication()).apiUpdateRequestUtils.attemptToTriggerUpdateRequest(true, true);
-			}
-		});
 
-		// example how model running process called
-		RfcxGuardian app = (RfcxGuardian) this.getApplicationContext();
-		int sampleRate = 12000; //app.rfcxPrefs.getPrefAsInt("audio_capture_sample_rate");
-		float stepSize = app.rfcxPrefs.getPrefAsFloat("prediction_step_size");
-		float windowSize = app.rfcxPrefs.getPrefAsFloat("prediction_window_size");
 
-		app.audioClassifyUtils.initClassifier(sampleRate, windowSize, stepSize);
-		List<float[]> output = app.audioClassifyUtils.classifyAudio(Environment.getExternalStorageDirectory().getAbsolutePath() + "/chainsaw12000.wav");
+//		Button placeholderButton = findViewById(R.id.clickMe);
+//		placeholderButton.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//
+//				// Do something here...
+//
+//			}
+//		});
+
 	}
 
 	@Override

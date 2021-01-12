@@ -10,7 +10,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class SmsDispatchCycleService extends Service {
 
-	private static final String SERVICE_NAME = "SmsDispatchCycle";
+	public static final String SERVICE_NAME = "SmsDispatchCycle";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SmsDispatchCycleService");
 	
@@ -75,7 +75,7 @@ public class SmsDispatchCycleService extends Service {
 
 					if (app.smsMessageDb.dbSmsQueued.getCount() > 0) {
 
-						app.rfcxServiceHandler.triggerService("SmsDispatch", false);
+						app.rfcxServiceHandler.triggerService( SmsDispatchService.SERVICE_NAME, false);
 
 					}
 

@@ -5,6 +5,7 @@ import org.rfcx.guardian.utility.network.SntpUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import android.app.Service;
 import android.content.Intent;
@@ -14,7 +15,7 @@ import android.util.Log;
 
 public class ClockSyncJobService extends Service {
 
-	private static final String SERVICE_NAME = "ClockSyncJob";
+	public static final String SERVICE_NAME = "ClockSyncJob";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ClockSyncJobService");
 	
@@ -76,7 +77,7 @@ public class ClockSyncJobService extends Service {
 				
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				long[] sntpClockValues = SntpUtils.getSntpClockValues(app.deviceConnectivity.isConnected(), app.rfcxPrefs.getPrefAsString("api_ntp_host"));
+				long[] sntpClockValues = SntpUtils.getSntpClockValues(app.deviceConnectivity.isConnected(), app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_NTP_HOST));
 
 				if (sntpClockValues.length > 0) {
 					long nowSntp = sntpClockValues[0];

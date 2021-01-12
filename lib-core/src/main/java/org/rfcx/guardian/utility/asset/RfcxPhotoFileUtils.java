@@ -32,13 +32,8 @@ public class RfcxPhotoFileUtils {
 	
 	private static void initializePhotoDirectories(Context context) {
 
-		FileUtils.initializeDirectoryRecursively(photoSdCardDir(), true);
 		FileUtils.initializeDirectoryRecursively(photoCaptureDir(context), false);
 		FileUtils.initializeDirectoryRecursively(photoQueueDir(context), false);
-	}
-	
-	private static String photoSdCardDir() {
-		return Environment.getExternalStorageDirectory().toString() + "/rfcx/photos";
 	}
 	
 	public static String photoQueueDir(Context context) {
@@ -58,12 +53,7 @@ public class RfcxPhotoFileUtils {
 	}
 		
 	public static String getPhotoFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceStorage.isExternalStorageWritable() ? photoSdCardDir() : photoQueueDir(context) )
-				+ "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + photoFileType + ".gz";
-	}
-
-	public static String getPhotoFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {
-		return photoSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + photoFileType + ".gz";
+		return photoQueueDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + photoFileType + ".gz";
 	}
 
 

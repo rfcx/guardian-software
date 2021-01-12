@@ -10,7 +10,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class InstructionsCycleService extends Service {
 
-	private static final String SERVICE_NAME = "InstructionsCycle";
+	public static final String SERVICE_NAME = "InstructionsCycle";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstructionsCycleService");
 	
@@ -75,7 +75,7 @@ public class InstructionsCycleService extends Service {
 
 					if (app.instructionsDb.dbQueued.getCount() > 0) {
 
-						app.rfcxServiceHandler.triggerService("InstructionsExecution", false);
+						app.rfcxServiceHandler.triggerService( InstructionsExecutionService.SERVICE_NAME, false);
 
 					}
 

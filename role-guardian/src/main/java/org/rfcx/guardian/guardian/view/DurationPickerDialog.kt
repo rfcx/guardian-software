@@ -6,6 +6,7 @@ import android.widget.NumberPicker
 import androidx.constraintlayout.widget.ConstraintLayout
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 class DurationPickerDialog(context: Context) : AlertDialog(context) {
 
@@ -26,7 +27,7 @@ class DurationPickerDialog(context: Context) : AlertDialog(context) {
         minutePicker.maxValue = 60
 
         val app = context.applicationContext as RfcxGuardian
-        val remainValue = app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")
+        val remainValue = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)
         secondPicker.value = remainValue % 60
         minutePicker.value = remainValue / 60
     }

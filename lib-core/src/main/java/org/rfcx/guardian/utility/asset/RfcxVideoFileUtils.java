@@ -36,7 +36,6 @@ public class RfcxVideoFileUtils {
 		FileUtils.initializeDirectoryRecursively(videoQueueDir(context), false);
 	}
 
-	
 	private static String videoSdCardDir() {
 		return Environment.getExternalStorageDirectory().toString() + "/rfcx/videos";
 	}
@@ -58,8 +57,7 @@ public class RfcxVideoFileUtils {
 	}
 		
 	public static String getVideoFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceStorage.isExternalStorageWritable() ? videoSdCardDir() : videoQueueDir(context) )
-				+"/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + videoFileType + ".gz";
+		return videoQueueDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + videoFileType + ".gz";
 	}
 
 	public static String getVideoFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {

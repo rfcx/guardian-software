@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import org.rfcx.guardian.guardian.R
 import org.rfcx.guardian.guardian.RfcxGuardian
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 data class AudioSettings(
     val sampleRate: String,
@@ -54,10 +55,10 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
         bitRatePicker.displayedValues = bitRateDisplayList
 
         app = context.applicationContext as RfcxGuardian
-        val remainFileFormat = app.rfcxPrefs.getPrefAsString("audio_stream_codec")
+        val remainFileFormat = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_CODEC)
         fileFormat = remainFileFormat
-        val remainSampleRate = app.rfcxPrefs.getPrefAsString("audio_capture_sample_rate")
-        val remainBitRate = app.rfcxPrefs.getPrefAsString("audio_stream_bitrate")
+        val remainSampleRate = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)
+        val remainBitRate = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE)
 
         if (remainFileFormat == "opus") {
             opusRadio.isChecked = true
@@ -84,7 +85,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
             } else {
                 bitRatePicker.visibility = View.GONE
                 bitRateLabel.visibility = View.GONE
-                bitRatePicker.value = bitRateList.indexOf(app.rfcxPrefs.getPrefAsString("audio_stream_bitrate"))
+                bitRatePicker.value = bitRateList.indexOf(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE))
                 fileFormat = "flac"
             }
         }

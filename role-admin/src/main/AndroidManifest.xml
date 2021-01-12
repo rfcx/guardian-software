@@ -73,8 +73,7 @@
         <!-- Services -->
         <service android:name=".device.android.capture.ScreenShotCaptureService" />
         <service android:name=".device.android.capture.LogcatCaptureService" />
-        <service android:name=".device.android.capture.CameraPhotoCaptureService" />
-        <service android:name=".device.android.capture.CameraVideoCaptureService" />
+        <service android:name=".device.android.capture.CameraCaptureService" />
         <service android:name=".device.android.control.RebootTriggerService" />
         <service android:name=".device.android.control.AirplaneModeToggleService" />
         <service android:name=".device.android.control.AirplaneModeEnableService" />
@@ -93,8 +92,7 @@
         <service android:name=".device.android.control.ScheduledRebootService" />
         <service android:name=".device.android.capture.ScheduledScreenShotCaptureService" />
         <service android:name=".device.android.capture.ScheduledLogcatCaptureService" />
-        <service android:name=".device.android.capture.ScheduledCameraPhotoCaptureService" />
-        <service android:name=".device.android.capture.ScheduledCameraVideoCaptureService" />
+        <service android:name=".device.android.capture.ScheduledCameraCaptureService" />
         <service android:name=".device.android.control.ScheduledClockSyncService" />
 
         <!--                     -->
@@ -166,17 +164,19 @@
                 android:authorities="org.rfcx.guardian.admin"
                 android:readPermission="org.rfcx.guardian.READ"
                 android:writePermission="org.rfcx.guardian.WRITE"
-                android:exported="true" />
+                android:grantUriPermissions="true"
+                android:exported="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />
+        </provider>
 
 <!--        <provider-->
-<!--                android:name=".contentprovider.AdminFileProvider"-->
+<!--                android:name="androidx.core.content.FileProvider"-->
 <!--                android:authorities="org.rfcx.guardian.admin"-->
 <!--                android:readPermission="org.rfcx.guardian.READ"-->
 <!--                android:writePermission="org.rfcx.guardian.WRITE"-->
 <!--                android:grantUriPermissions="true"-->
 <!--                android:exported="true">-->
-<!--            <meta-data  android:name="android.support.FILE_PROVIDER_PATHS"-->
-<!--                        android:resource="@xml/file_provider_paths" />-->
+<!--            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_provider_paths" />-->
 <!--        </provider>-->
 
     </application>

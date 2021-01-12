@@ -10,12 +10,13 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.List;
 
 public class SmsDispatchService extends Service {
 
-	private static final String SERVICE_NAME = "SmsDispatch";
+	public static final String SERVICE_NAME = "SmsDispatch";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SmsDispatchService");
 	
@@ -78,7 +79,7 @@ public class SmsDispatchService extends Service {
 
 				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
 
-				String apiSmsAddress = app.rfcxPrefs.getPrefAsString("api_sms_address");
+				String apiSmsAddress = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SMS_ADDRESS);
 
 				List<String[]> smsQueuedForDispatch = app.smsMessageDb.dbSmsQueued.getRowsInOrderOfTimestamp();
 

@@ -16,6 +16,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +48,7 @@ public class DeviceUtils {
 		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
 			return this.allowListenerRegistration_telephony;
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
-			return this.allowListenerRegistration_geoposition && ((RfcxGuardian) this.context.getApplicationContext()).rfcxPrefs.getPrefAsBoolean("admin_enable_geoposition_capture");
+			return this.allowListenerRegistration_geoposition && ((RfcxGuardian) this.context.getApplicationContext()).rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE);
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_gps")) {
 			return this.allowListenerRegistration_geoposition_gps;
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_network")) {

@@ -10,7 +10,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class MetaSnapshotService extends IntentService {
 
-	private static final String SERVICE_NAME = "MetaSnapshot";
+	public static final String SERVICE_NAME = "MetaSnapshot";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "MetaSnapshotService");
 

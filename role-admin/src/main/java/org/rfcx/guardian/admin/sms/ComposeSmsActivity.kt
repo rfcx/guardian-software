@@ -10,6 +10,7 @@ import android.view.View
 import kotlinx.android.synthetic.main.activity_compose_sms.*
 import org.rfcx.guardian.admin.R
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 class ComposeSmsActivity : Activity(), TextWatcher {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +22,7 @@ class ComposeSmsActivity : Activity(), TextWatcher {
         smsMsgEditText.addTextChangedListener(this)
         smsNumberEditText.addTextChangedListener(this)
 
-        smsNumberEditText.setText("${app.rfcxPrefs.getPrefAsString("api_sms_address")}")
+        smsNumberEditText.setText("${app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SMS_ADDRESS)}")
 
         sendMsgButton.setOnClickListener {
             //message for sending

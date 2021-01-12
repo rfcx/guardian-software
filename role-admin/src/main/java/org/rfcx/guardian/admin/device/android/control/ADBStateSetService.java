@@ -7,11 +7,12 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.control.DeviceADB;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ADBStateSetService extends IntentService {
 
-	private static final String SERVICE_NAME = "ADBStateSet";
+	public static final String SERVICE_NAME = "ADBStateSet";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ADBStateSetService");
 
@@ -27,9 +28,9 @@ public class ADBStateSetService extends IntentService {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 
 		// set ADB networking state
-		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean("admin_enable_tcp_adb");
+		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB);
 
-		boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean("admin_enable_wifi");
+		boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI);
 		if (prefsAdminEnableAdb && !prefsAdminEnableWifi) {
 			Log.e(logTag,"ADB over TCP could not be enabled because 'admin_enable_wifi' is disabled");
 		}

@@ -3,10 +3,11 @@ package org.rfcx.guardian.classify.model
 import org.rfcx.guardian.classify.RfcxGuardian
 import org.rfcx.guardian.classify.utils.AudioConverter
 import org.rfcx.guardian.classify.utils.AudioConverter.pickBetween
+import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import kotlin.math.roundToInt
 
-class AudioClassifier(private val sampleRate: Int, private val windowSize: Float, private val step: Float, private val outputList: List<String>) {
+class AudioClassifier(private val tfLiteFilePath: String, private val useGpuIfPossible: Boolean, private val sampleRate: Int, private val windowSize: Float, private val step: Float, private val outputList: List<String>) {
 
     private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifier")
 
@@ -15,7 +16,11 @@ class AudioClassifier(private val sampleRate: Int, private val windowSize: Float
     private var endAt: Int = this.windowLength
     private var stepSize: Int = (this.windowLength * this.step).roundToInt()
 
-    private var predictor = MLPredictor(this.outputList.size)
+    private var predictor = MLPredictor(this.tfLiteFilePath, this.outputList.size)
+
+    fun loadClassifier() {
+        predictor.load()
+    }
 
     /**
      * Move to the next chunk of audio based on window length and step size

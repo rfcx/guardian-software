@@ -23,10 +23,11 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class ApiCheckInArchiveService extends Service {
 
-	private static final String SERVICE_NAME = "ApiCheckInArchive";
+	public static final String SERVICE_NAME = "ApiCheckInArchive";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInArchiveService");
 	
@@ -110,10 +111,10 @@ public class ApiCheckInArchiveService extends Service {
 			FileUtils.deleteDirectoryContents(archiveAppFilesDir);
 			setAndInitializeCheckInArchiveDirectories(context); // best to run this before AND after the cleanup
 
-			long archiveFileSizeTarget = app.rfcxPrefs.getPrefAsLong("checkin_archive_filesize_target");
+			long archiveFileSizeTarget = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_ARCHIVE_FILESIZE_TARGET);
 			long archiveFileSizeTargetInBytes = archiveFileSizeTarget*1024*1024;
 
-			long stashFileSizeBuffer = app.rfcxPrefs.getPrefAsLong("checkin_stash_filesize_buffer");
+			long stashFileSizeBuffer = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_STASH_FILESIZE_BUFFER);
 			long stashFileSizeBufferInBytes = stashFileSizeBuffer*1024*1024;
 
 			long stashedCumulativeFileSizeInBytes = app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows();
@@ -140,7 +141,7 @@ public class ApiCheckInArchiveService extends Service {
 						}
 					}
 
-					if (!app.rfcxPrefs.getPrefAsBoolean("enable_checkin_archive")) {
+					if (!app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CHECKIN_ARCHIVE)) {
 
 						Log.d(logTag, "CheckIn Archive disabled due to preference 'enable_checkin_archive' being explicitly set to false.");
 

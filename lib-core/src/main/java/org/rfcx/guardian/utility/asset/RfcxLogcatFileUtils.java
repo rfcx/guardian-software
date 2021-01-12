@@ -37,15 +37,10 @@ public class RfcxLogcatFileUtils {
 	
 	private static void initializeLogcatDirectories(Context context) {
 
-		FileUtils.initializeDirectoryRecursively(logcatSdCardDir(), true);
 		FileUtils.initializeDirectoryRecursively(logcatCaptureDir(context), false);
 		FileUtils.initializeDirectoryRecursively(logcatPostCaptureDir(context), false);
 		FileUtils.initializeDirectoryRecursively(logcatQueueDir(context), false);
 		FileUtils.initializeDirectoryRecursively(getLogcatExecutableScriptDir(context), false);
-	}
-	
-	private static String logcatSdCardDir() {
-		return Environment.getExternalStorageDirectory().toString() + "/rfcx/logs";
 	}
 	
 	public static String logcatQueueDir(Context context) {
@@ -77,12 +72,7 @@ public class RfcxLogcatFileUtils {
 	}
 
 	public static String getLogcatFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp) {
-		return (DeviceStorage.isExternalStorageWritable() ? logcatSdCardDir() : logcatQueueDir(context) )
-				+ "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + FILETYPE + ".gz";
-	}
-
-	public static String getLogcatFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp) {
-		return logcatSdCardDir() + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + FILETYPE + ".gz";
+		return logcatQueueDir(context) + "/" + dirDateFormat.format(new Date(timestamp)) + "/" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(timestamp)) + "." + FILETYPE + ".gz";
 	}
 	
 	

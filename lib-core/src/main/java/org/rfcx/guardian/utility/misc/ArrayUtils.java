@@ -232,6 +232,12 @@ public class ArrayUtils {
 		return lst;
 	}
 
+	public static List<String> toList(String[] arr) {
+		List<String> lst = new ArrayList<String>();
+		for (String val : arr) { lst.add(val); }
+		return lst;
+	}
+
 
 //	public static List<String> concatStringLists(List<String> strListA, List<String> strListB) {
 //		for (String str : strListB) {

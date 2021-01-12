@@ -32,31 +32,34 @@ public class RfcxAssetCleanup {
 
 		List<File> allAssetFilesFromScan = getAssetFilesFromFilesystem(assetDirsToScan);
 		List<File> eligibleAssetFilesFromScan = filterFilesByModificationDate(allAssetFilesFromScan, checkFilesUnModifiedSinceThisManyMinutes);
-		List<String> relativeAssetPathsFromDb = relativizeFilePathList(assetPathsFromDb);
+		List<String> relativeAssetPathsFromDb = conciseFilePaths(assetPathsFromDb);
 
 		List<File> assetFilesToDelete = new ArrayList<File>();
 
 		for (File assetFile : eligibleAssetFilesFromScan) {
-			if (!ArrayUtils.doesStringListContainString(relativeAssetPathsFromDb, relativeFilePath(assetFile.getAbsolutePath()))) {
-				assetFilesToDelete.add(assetFile);
+			String relFilePath = conciseFilePath(assetFile.getAbsolutePath(), this.appRole);
+			if (	!ArrayUtils.doesStringListContainString( relativeAssetPathsFromDb, relFilePath )
+				&&	!ArrayUtils.doesStringArrayContainString( assetDirsToScan, relFilePath )
+			) {
+					assetFilesToDelete.add(assetFile);
 			}
 		}
 
 		if (verboseLogging) {
 			Log.d(logTag, "Asset Cleanup - "
-					+ allAssetFilesFromScan.size() + " file(s) found. "
-					+ ((eligibleAssetFilesFromScan.size() == 0) ? "No" : eligibleAssetFilesFromScan.size())
-					+ " file(s) older than cleanup threshold of " + DateTimeUtils.milliSecondDurationAsReadableString(checkFilesUnModifiedSinceThisManyMinutes * 60 * 1000) + ". "
-					+ ((assetFilesToDelete.size() == 0) ? "No files are eligible for cleanup." : (assetFilesToDelete.size() + " will be deleted."))
+					+ allAssetFilesFromScan.size() + " file" + ((allAssetFilesFromScan.size() != 1) ? "" : "s") + " found in scan. "
+					+ ((eligibleAssetFilesFromScan.size() == 0) ? "None" : eligibleAssetFilesFromScan.size())
+					+ " are older than cleanup threshold of " + DateTimeUtils.milliSecondDurationAsReadableString(checkFilesUnModifiedSinceThisManyMinutes * 60 * 1000) + ". "
+					+ ((assetFilesToDelete.size() == 0) ? "" : (assetFilesToDelete.size() + " will be deleted."))
 			);
 		}
 
 		List<String> deletedAssetPaths = new ArrayList<String>();
 		for (String filePath : FileUtils.deleteAndReturnFilePaths(assetFilesToDelete)) {
-			deletedAssetPaths.add(relativeFilePath(filePath));
+			deletedAssetPaths.add(conciseFilePath(filePath, this.appRole));
 		}
 		if (deletedAssetPaths.size() > 0) {
-			Log.d(logTag, "Asset Cleanup - Deleted - " + TextUtils.join(" ", deletedAssetPaths));
+			Log.d(logTag, "Asset Cleanup - Deleted - " + TextUtils.join(", ", deletedAssetPaths));
 		}
 
 		List<String> deletedAssetDirs = new ArrayList<String>();
@@ -65,13 +68,13 @@ public class RfcxAssetCleanup {
 				List<File> allEmptyAssetDirs = getAssetEmptyDirsOnFilesystem(assetDirsToScan);
 				List<File> filteredEmptyAssetDirs = filterFilesByModificationDate(allEmptyAssetDirs, checkFilesUnModifiedSinceThisManyMinutes);
 				for (String dirPath : FileUtils.deleteAndReturnFilePaths(filteredEmptyAssetDirs)) {
-					deletedAssetDirs.add(relativeFilePath(dirPath));
+					deletedAssetDirs.add(conciseFilePath(dirPath, this.appRole));
 				}
 			}
 		}
 
 		if (deletedAssetDirs.size() > 0) {
-			Log.d(logTag, "Asset Cleanup - Empty Directories - " + TextUtils.join(" ", deletedAssetDirs));
+			Log.d(logTag, "Asset Cleanup - Empty Directories - " + TextUtils.join(", ", deletedAssetDirs));
 		} else if (verboseLogging) {
 			Log.d(logTag, "Asset Cleanup - No Empty Directories were eligible for cleanup.");
 		}
@@ -83,18 +86,19 @@ public class RfcxAssetCleanup {
 	}
 
 
-	private String getFilesDirBase() {
-		return "org.rfcx.guardian."+this.appRole.toLowerCase(Locale.US)+"/files/";
+	private static String getFilesDirBase(String appRole) {
+		return "org.rfcx.guardian."+appRole.toLowerCase(Locale.US)+"/files/";
 	}
 
-	private String relativeFilePath(String filePath) {
-		return ((filePath.length() > getFilesDirBase().length()) && (filePath.indexOf(getFilesDirBase()) >= 0)) ? filePath.substring(filePath.indexOf(getFilesDirBase())+ getFilesDirBase().length()) : filePath;
+	public static String conciseFilePath(String filePath, String appRole) {
+		String appRoleBaseDir = getFilesDirBase(appRole);
+		return ((filePath.length() > appRoleBaseDir.length()) && (filePath.indexOf(appRoleBaseDir) >= 0)) ? filePath.substring(filePath.indexOf(appRoleBaseDir)+ appRoleBaseDir.length()) : filePath;
 	}
 
-	private List<String> relativizeFilePathList(List<String> filePathList) {
+	private List<String> conciseFilePaths(List<String> filePathList) {
 		List<String> assetFilePaths = new ArrayList<String>();
 		for (String assetFilePath : filePathList) {
-			assetFilePaths.add(relativeFilePath(assetFilePath));
+			assetFilePaths.add(conciseFilePath(assetFilePath, this.appRole));
 		}
 		return assetFilePaths;
 	}

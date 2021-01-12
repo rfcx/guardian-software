@@ -8,7 +8,7 @@ import android.content.Intent;
 
 public class ServiceMonitor extends IntentService {
 
-	private static final String SERVICE_NAME = "ServiceMonitor";
+	public static final String SERVICE_NAME = "ServiceMonitor";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ServiceMonitor");
 	

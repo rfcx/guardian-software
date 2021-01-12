@@ -12,7 +12,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class RfcxAudioFileUtils {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", "RfcxAudioUtils");
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "RfcxAudioFileUtils");
 
 	private static final SimpleDateFormat dirDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd/HH", Locale.US);
 	private static final SimpleDateFormat dirDateTimeFormat_DayOnly = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
@@ -32,7 +32,7 @@ public class RfcxAudioFileUtils {
 		FileUtils.initializeDirectoryRecursively(audioQueueDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioStashDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioClassifyDir(context), false);
-		FileUtils.initializeDirectoryRecursively(assetLibraryDir(context), false);
+		FileUtils.initializeDirectoryRecursively(audioGalleryDir(context), false);
 	}
 
 	private static String audioSdCardDir() {
@@ -43,7 +43,11 @@ public class RfcxAudioFileUtils {
 		return Environment.getExternalStorageDirectory().toString() + "/rfcx/vault";
 	}
 
-	public static String assetLibraryDir(Context context) {
+	public static String audioDownloadDir(Context context) {
+		return context.getFilesDir().toString() + "/audio/download";
+	}
+
+	public static String audioGalleryDir(Context context) {
 		return context.getFilesDir().toString() + "/audio/library";
 	}
 
@@ -106,8 +110,12 @@ public class RfcxAudioFileUtils {
 		return audioStashDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
 	}
 
-	public static String getAudioFileLocation_Library(String rfcxDeviceId, Context context, long timestamp, String audioCodec, int sampleRate) {
-		return assetLibraryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, sampleRate);
+	public static String getAudioFileLocation_Download(Context context, long timestamp, String audioCodec) {
+		return audioDownloadDir(context) + "/" + timestamp + "." + getFileExt(audioCodec);
+	}
+
+	public static String getAudioFileLocation_Gallery(Context context, long timestamp, String audioCodec) {
+		return audioGalleryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName("gallery", timestamp, audioCodec, 0);
 	}
 
 	public static String getAudioFileLocation_Vault(String rfcxDeviceId, long timestamp, String audioCodec, int sampleRate) {

@@ -3,7 +3,6 @@ package org.rfcx.guardian.guardian.contentprovider;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
-import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -13,6 +12,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
@@ -128,6 +128,13 @@ public class GuardianContentProvider extends ContentProvider {
 				app.apiSegmentUtils.receiveSegment(segmentPayload, "sbd");
 				return RfcxComm.getProjectionCursor(appRole, "segment_receive_sbd", new Object[]{ segmentPayload, null, System.currentTimeMillis()});
 
+			// "classifications" endpoints
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "detections_create", "*")) { logFuncVal = "detections_create-*";
+				String classificationPayload = uri.getLastPathSegment();
+				app.audioClassifyUtils.parseIncomingClassificationPayloadAndSave(classificationPayload);
+				return RfcxComm.getProjectionCursor(appRole, "detections_create", new Object[]{ classificationPayload, null, System.currentTimeMillis()});
+
 			// "instructions" endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "instructions", "*")) { logFuncVal = "instructions-*";
@@ -204,6 +211,12 @@ public class GuardianContentProvider extends ContentProvider {
 		}
 		return null;
 	}
+
+	public ParcelFileDescriptor openFile(Uri uri, String mode) {
+		return RfcxComm.serveAssetFileRequest(uri, mode, getContext(), RfcxGuardian.APP_ROLE, logTag);
+	}
+
+
 	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {

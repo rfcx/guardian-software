@@ -9,10 +9,11 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class ApiCheckInJobService extends Service {
 
-	private static final String SERVICE_NAME = "ApiCheckInJob";
+	public static final String SERVICE_NAME = "ApiCheckInJob";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInJobService");
 	
@@ -80,8 +81,8 @@ public class ApiCheckInJobService extends Service {
 
 				try {
 						
-					long prefsAudioCycleDuration = Math.round( app.rfcxPrefs.getPrefAsInt("audio_cycle_duration") * 1000 );
-					int prefsCheckInFailureLimit = app.rfcxPrefs.getPrefAsInt("checkin_failure_limit");
+					long prefsAudioCycleDuration = Math.round( app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000 );
+					int prefsCheckInFailureLimit = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_FAILURE_LIMIT);
 					
 					if (!app.apiCheckInHealthUtils.isApiCheckInAllowed(true, true)) {
 
@@ -145,7 +146,7 @@ public class ApiCheckInJobService extends Service {
 						}
 
 						if (!app.apiMqttUtils.isConnectedToBroker()) {
-							long loopDelayBeforeReconnectAttempt = Math.round(app.rfcxPrefs.getPrefAsInt("audio_cycle_duration")/10);
+							long loopDelayBeforeReconnectAttempt = Math.round(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)/10);
 							if (loopDelayBeforeReconnectAttempt < 8) { loopDelayBeforeReconnectAttempt = 8; }
 							Log.e(logTag, "Broker not connected. Delaying "+loopDelayBeforeReconnectAttempt+" seconds and trying again...");
 							Thread.sleep(loopDelayBeforeReconnectAttempt*1000);

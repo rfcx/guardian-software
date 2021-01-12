@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.audio.classify;
+package org.rfcx.guardian.guardian.asset;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,7 +14,7 @@ public class AudioClassifierDb {
 
 	public AudioClassifierDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbActive = new DbActive(context);
 	}
 
@@ -23,12 +23,17 @@ public class AudioClassifierDb {
 	
 	static final String C_CREATED_AT = "created_at";
 	static final String C_CLASSIFIER_ID = "classifier_id";
-	static final String C_INPUT_SAMPLE_RATE = "input_sample_rate";
+	static final String C_CLASSIFIER_NAME = "classifier_name";
+	static final String C_CLASSIFIER_VERSION = "version";
 	static final String C_FORMAT = "format";
 	static final String C_DIGEST = "digest";
 	static final String C_FILEPATH = "filepath";
+	static final String C_INPUT_SAMPLE_RATE = "input_sample_rate";
+	static final String C_WINDOW_SIZE = "window_size";
+	static final String C_STEP_SIZE = "step_size";
+	static final String C_CLASSES = "classes";
 	
-	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_CLASSIFIER_ID, C_INPUT_SAMPLE_RATE, C_FORMAT, C_DIGEST, C_FILEPATH };
+	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_CLASSIFIER_ID, C_CLASSIFIER_NAME, C_CLASSIFIER_VERSION, C_FORMAT, C_DIGEST, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_WINDOW_SIZE, C_STEP_SIZE, C_CLASSES };
 
 	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -38,10 +43,15 @@ public class AudioClassifierDb {
 		sbOut.append("CREATE TABLE ").append(tableName)
 			.append("(").append(C_CREATED_AT).append(" INTEGER")
 			.append(", ").append(C_CLASSIFIER_ID).append(" TEXT")
-			.append(", ").append(C_INPUT_SAMPLE_RATE).append(" INTEGER")
+			.append(", ").append(C_CLASSIFIER_NAME).append(" TEXT")
+			.append(", ").append(C_CLASSIFIER_VERSION).append(" TEXT")
 			.append(", ").append(C_FORMAT).append(" TEXT")
 			.append(", ").append(C_DIGEST).append(" TEXT")
 			.append(", ").append(C_FILEPATH).append(" TEXT")
+			.append(", ").append(C_INPUT_SAMPLE_RATE).append(" INTEGER")
+			.append(", ").append(C_WINDOW_SIZE).append(" TEXT")
+			.append(", ").append(C_STEP_SIZE).append(" TEXT")
+			.append(", ").append(C_CLASSES).append(" TEXT")
 			.append(")");
 		return sbOut.toString();
 	}
@@ -57,15 +67,20 @@ public class AudioClassifierDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
-		public int insert(String classifierId, int inputSampleRate, String format, String digest, String filepath) {
+		public int insert(String classifierId, String classifierName, String version, String format, String digest, String filepath, int inputSampleRate, String windowSize, String stepSize, String classes) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_CLASSIFIER_ID, classifierId);
-			values.put(C_INPUT_SAMPLE_RATE, inputSampleRate);
+			values.put(C_CLASSIFIER_NAME, classifierName);
+			values.put(C_CLASSIFIER_VERSION, version);
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			values.put(C_FILEPATH, filepath);
+			values.put(C_INPUT_SAMPLE_RATE, inputSampleRate);
+			values.put(C_WINDOW_SIZE, windowSize);
+			values.put(C_STEP_SIZE, stepSize);
+			values.put(C_CLASSES, classes);
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}
@@ -74,19 +89,17 @@ public class AudioClassifierDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 		
-		public void deleteSingleRow(String classifierId) {
-			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_CLASSIFIER_ID, classifierId);
+		public void deleteSingleRow(String assetId) {
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_CLASSIFIER_ID, assetId);
 		}
 		
 		public int getCount() {
 			return this.dbUtils.getCount(TABLE, null, null);
 		}
-		
-//		public String[] getSingleRowByAudioId(String audioId) {
-//			String timestamp = audioId.contains(".") ? audioId.substring(0, audioId.lastIndexOf(".")) : audioId;
-//			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+ C_CLASSIFIER_ID +",1,"+timestamp.length()+") = ?", new String[] { timestamp }, null, 0);
-//		}
-		
+
+		public int getCountByAssetId(String assetId) {
+			return this.dbUtils.getCount(TABLE, C_CLASSIFIER_ID +"=?",new String[] { assetId });
+		}
 	}
 	public final DbActive dbActive;
 

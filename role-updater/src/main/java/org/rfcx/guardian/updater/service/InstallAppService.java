@@ -13,7 +13,7 @@ import android.util.Log;
 
 public class InstallAppService extends Service {
 
-	private static final String SERVICE_NAME = "InstallApp";
+	public static final String SERVICE_NAME = "InstallApp";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstallAppService");
 

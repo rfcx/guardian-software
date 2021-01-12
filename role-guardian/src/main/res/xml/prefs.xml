@@ -452,6 +452,22 @@
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_admin_enable_screenshot_capture" />
 
+	<EditTextPreference
+			android:key="admin_camera_capture_cycle"
+			android:title="admin_camera_capture_cycle"
+			android:summary="int - minutes"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_camera_capture_cycle" />
+
+	<ListPreference
+			android:key="admin_enable_camera_capture"
+			android:title="admin_enable_camera_capture"
+			android:dialogTitle="admin_enable_camera_capture"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_camera_capture" />
+
 	<ListPreference
 		android:key="admin_enable_wifi"
 		android:title="admin_enable_wifi"
@@ -515,26 +531,14 @@
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_socket"/>
 
-	<EditTextPreference
-			android:key="prediction_model_output"
-			android:title="prediction_model_output"
-			android:summary="string - class, comma separated"
-			android:enabled="true"
-			android:defaultValue="@string/prefs_value_default_prediction_model_output" />
-
-	<EditTextPreference
-			android:key="prediction_step_size"
-			android:title="prediction_step_size"
-			android:summary="float - second"
-			android:enabled="true"
-			android:defaultValue="@string/prefs_value_default_prediction_step_size" />
-
-	<EditTextPreference
-			android:key="prediction_window_size"
-			android:title="prediction_window_size"
-			android:summary="float - size"
-			android:enabled="true"
-			android:defaultValue="@string/prefs_value_default_prediction_window_size" />
+	<ListPreference
+			android:key="audio_classify_allow_gpu"
+			android:title="audio_classify_allow_gpu"
+			android:dialogTitle="audio_classify_allow_gpu"
+			android:summary="string - Yes/No"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_audio_classify_allow_gpu"/>
  	
  	
 </PreferenceScreen>

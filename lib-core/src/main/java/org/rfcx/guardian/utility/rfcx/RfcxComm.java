@@ -1,6 +1,10 @@
 package org.rfcx.guardian.utility.rfcx;
 
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -11,18 +15,24 @@ import java.util.Map.Entry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 public class RfcxComm {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxComm.class);
+
+	public static final String fileProviderAssetDirUriNamespacePrepend = "/files_";
 	
 	private static Map<String, Map<String, String[]>> initRoleFuncProj() {
 		
@@ -57,6 +67,10 @@ public class RfcxComm {
 				"gpio_set", new String[] { "address", "value", "received_at" });
 			roleFuncProj.get(role).put(
 				"control", new String[] { "command", "result", "received_at" });
+			roleFuncProj.get(role).put(
+				"classify_queue", new String[] { "audio_id|classifier_id", "result", "received_at" });
+			roleFuncProj.get(role).put(
+				"detections_create", new String[] { "detections", "result", "received_at" });
 			roleFuncProj.get(role).put(
 				"sms_queue", new String[] { "send_at|address|message", "result", "received_at" });
 			roleFuncProj.get(role).put(
@@ -129,6 +143,33 @@ public class RfcxComm {
 		}
 		return updateQueryResult;
 	}
+
+	public static boolean getFileRequest(Uri fileUri, String outputFileAbsoluteFilePath, ContentResolver contentResolver) {
+
+		try {
+
+			FileUtils.initializeDirectoryRecursively(outputFileAbsoluteFilePath.substring(0, outputFileAbsoluteFilePath.lastIndexOf("/")), false);
+
+			InputStream inputStream = contentResolver.openInputStream(fileUri);
+			OutputStream outputStream = new FileOutputStream(outputFileAbsoluteFilePath);
+
+			byte[] buf = new byte[1024]; int len;
+			while ((len = inputStream.read(buf)) > 0) { outputStream.write(buf, 0, len); }
+
+			inputStream.close();
+			outputStream.close();
+
+			FileUtils.chmod(outputFileAbsoluteFilePath, "rw", "rw");
+
+			return FileUtils.exists(outputFileAbsoluteFilePath);
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+
+		FileUtils.delete(outputFileAbsoluteFilePath);
+		return false;
+	}
 	
 	public static MatrixCursor getProjectionCursor(String role, String function, Object[] values) {
 		MatrixCursor cursor = new MatrixCursor(getProjection(role, function));
@@ -150,7 +191,16 @@ public class RfcxComm {
 	public static Uri getUri(String role, String function) {
 		return getUri(role, function, null);
 	}
-	
+
+	public static Uri getFileUri(String role, String filePathRelativeToFilesDir) {
+		StringBuilder uri = (new StringBuilder())
+				.append("content://")
+				.append(getAuthority(role.toLowerCase(Locale.US)))
+				.append(fileProviderAssetDirUriNamespacePrepend)
+				.append(RfcxAssetCleanup.conciseFilePath(filePathRelativeToFilesDir, role));
+		return Uri.parse(uri.toString());
+	}
+
 	public static int[] getUriMatchId(String role, String function) {
 		
 		Map<String, Map<String, String[]>> roleFuncProj = initRoleFuncProj();
@@ -206,6 +256,47 @@ public class RfcxComm {
 	public static String[] getProjection(String role, String function) {
 		return initRoleFuncProj().get(role.toLowerCase(Locale.US)).get(function.toLowerCase(Locale.US));
 	}
+
+
+	public static ParcelFileDescriptor serveAssetFileRequest(Uri uri, String mode, Context context, String role, String logTag) {
+
+		try {
+
+			String assetUriPath = uri.getEncodedPath().substring(fileProviderAssetDirUriNamespacePrepend.length());
+			String assetFilePath = context.getFilesDir().getAbsolutePath() + "/" + assetUriPath;
+			String conciseAssetFilePath = RfcxAssetCleanup.conciseFilePath(assetFilePath, role);
+			FileUtils.initializeDirectoryRecursively(assetFilePath.substring(0, assetFilePath.lastIndexOf("/")), false);
+			File assetFile = new File(assetFilePath);
+
+			Log.v(logTag, "File share request for asset "+conciseAssetFilePath);
+
+			int imode = 0;
+			if (mode.contains("w")) {
+				imode |= ParcelFileDescriptor.MODE_WRITE_ONLY;
+				if (!FileUtils.exists(assetFile)) {
+					assetFile.createNewFile();
+				}
+			}
+
+			if (mode.contains("r")) imode |= ParcelFileDescriptor.MODE_READ_ONLY;
+			if (mode.contains("+")) imode |= ParcelFileDescriptor.MODE_APPEND;
+
+			if (FileUtils.exists(assetFile)) {
+				return ParcelFileDescriptor.open(assetFile, imode);
+			} else {
+				Log.e(logTag, "Requested asset does not exist: "+conciseAssetFilePath);
+			}
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e, "GuardianContentProvider - FileProvider");
+
+		}
+		return null;
+
+	}
+
+
+
 
 	public static String urlEncode(String unEncodedString) {
 		String rtrnStr = unEncodedString;

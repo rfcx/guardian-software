@@ -13,7 +13,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class RebootTriggerService extends Service {
 
-	private static final String SERVICE_NAME = "RebootTrigger";
+	public static final String SERVICE_NAME = "RebootTrigger";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "RebootTriggerService");
 	
