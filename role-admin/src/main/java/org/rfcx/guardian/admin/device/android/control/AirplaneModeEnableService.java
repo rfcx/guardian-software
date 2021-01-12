@@ -11,7 +11,7 @@ import android.util.Log;
 
 public class AirplaneModeEnableService extends Service {
 
-	private static final String SERVICE_NAME = "AirplaneModeEnable";
+	public static final String SERVICE_NAME = "AirplaneModeEnable";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AirplaneModeEnableService");
 	

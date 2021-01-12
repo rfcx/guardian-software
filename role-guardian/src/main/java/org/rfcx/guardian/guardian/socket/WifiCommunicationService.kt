@@ -10,7 +10,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler
 
 class WifiCommunicationService : IntentService("WifiCommunication") {
 
-    private val SERVICE_NAME = "WifiCommunication"
+    public val SERVICE_NAME = "WifiCommunication"
 
     private val logTag = RfcxLog.generateLogTag(
         RfcxGuardian.APP_ROLE,

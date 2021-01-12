@@ -10,7 +10,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ForceRoleRelaunchService extends IntentService {
 
-	private static final String SERVICE_NAME = "ForceRoleRelaunch";
+	public static final String SERVICE_NAME = "ForceRoleRelaunch";
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ForceRoleRelaunchService");
 		

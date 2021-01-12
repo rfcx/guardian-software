@@ -17,7 +17,7 @@ import android.util.Log;
 
 public class ApiUpdateRequestService extends Service {
 
-	private static final String SERVICE_NAME = "ApiUpdateRequest";
+	public static final String SERVICE_NAME = "ApiUpdateRequest";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiUpdateRequestService");
 

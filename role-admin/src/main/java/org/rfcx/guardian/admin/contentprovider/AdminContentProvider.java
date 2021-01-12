@@ -2,6 +2,13 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
+import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
+import org.rfcx.guardian.admin.device.android.control.AirplaneModeEnableService;
+import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
+import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService;
+import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
+import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
 import org.rfcx.guardian.admin.sms.SmsUtils;
@@ -108,31 +115,31 @@ public class AdminContentProvider extends ContentProvider {
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"initialize", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "reboot")) { logFuncVal = "control-reboot";
-                app.rfcxServiceHandler.triggerService("RebootTrigger", true);
+                app.rfcxServiceHandler.triggerService( RebootTriggerService.SERVICE_NAME, true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"reboot", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "relaunch")) { logFuncVal = "control-relaunch";
-                app.rfcxServiceHandler.triggerIntentServiceImmediately("ForceRoleRelaunch");
+                app.rfcxServiceHandler.triggerIntentServiceImmediately( ForceRoleRelaunchService.SERVICE_NAME);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"relaunch", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "screenshot")) { logFuncVal = "control-screenshot";
-                app.rfcxServiceHandler.triggerService("ScreenShotCapture", true);
+                app.rfcxServiceHandler.triggerService( ScreenShotCaptureService.SERVICE_NAME, true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"screenshot", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "logcat")) { logFuncVal = "control-logcat";
-                app.rfcxServiceHandler.triggerService("LogCatCapture", true);
+                app.rfcxServiceHandler.triggerService( LogcatCaptureService.SERVICE_NAME, true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"logcat", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_toggle")) { logFuncVal = "control-airplanemode_toggle";
-                app.rfcxServiceHandler.triggerService("AirplaneModeToggle", true);
+                app.rfcxServiceHandler.triggerService( AirplaneModeToggleService.SERVICE_NAME, true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_toggle", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_enable")) { logFuncVal = "control-airplanemode_enable";
-                app.rfcxServiceHandler.triggerService("AirplaneModeEnable", true);
+                app.rfcxServiceHandler.triggerService( AirplaneModeEnableService.SERVICE_NAME, true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_enable", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "clock_sync")) { logFuncVal = "control-clock_sync";
-                app.rfcxServiceHandler.triggerService("ClockSyncJob", true);
+                app.rfcxServiceHandler.triggerService( ClockSyncJobService.SERVICE_NAME, true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"clock_sync", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "asset_cleanup")) { logFuncVal = "control-asset_cleanup";

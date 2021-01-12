@@ -9,7 +9,7 @@ import android.content.Intent;
 
 public class ApiUpdateRequestTrigger extends IntentService {
 
-	private static final String SERVICE_NAME = "ApiUpdateRequestTrigger";
+	public static final String SERVICE_NAME = "ApiUpdateRequestTrigger";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiUpdateRequestTrigger");
 		

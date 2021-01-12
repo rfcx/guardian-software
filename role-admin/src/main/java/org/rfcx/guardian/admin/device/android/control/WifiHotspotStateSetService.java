@@ -12,7 +12,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class WifiHotspotStateSetService extends IntentService {
 
-	private static final String SERVICE_NAME = "WifiHotspot";
+	public static final String SERVICE_NAME = "WifiHotspot";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "WifiHotspotStateSetService");
 

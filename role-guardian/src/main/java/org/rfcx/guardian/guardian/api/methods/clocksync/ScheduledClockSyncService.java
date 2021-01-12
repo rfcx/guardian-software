@@ -8,7 +8,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ScheduledClockSyncService extends IntentService {
 
-	private static final String SERVICE_NAME = "ScheduledClockSync";
+	public static final String SERVICE_NAME = "ScheduledClockSync";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledClockSyncService");
 
@@ -23,7 +23,7 @@ public class ScheduledClockSyncService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		app.rfcxServiceHandler.triggerService("ClockSyncJob", true);
+		app.rfcxServiceHandler.triggerService( ClockSyncJobService.SERVICE_NAME, true);
 	
 	}
 	

@@ -18,7 +18,7 @@ import android.util.Log;
 
 public class LogcatCaptureService extends Service {
 
-	private static final String SERVICE_NAME = "LogcatCapture";
+	public static final String SERVICE_NAME = "LogcatCapture";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "LogcatCaptureService");
 	

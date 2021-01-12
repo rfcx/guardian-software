@@ -11,7 +11,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ScheduledCameraCaptureService extends IntentService {
 
-	private static final String SERVICE_NAME = "ScheduledCameraCapture";
+	public static final String SERVICE_NAME = "ScheduledCameraCapture";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledCameraCaptureService");
 
@@ -27,7 +27,7 @@ public class ScheduledCameraCaptureService extends IntentService {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 
 		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_CAMERA_CAPTURE)) {
-			app.rfcxServiceHandler.triggerService("CameraCapture", true);
+			app.rfcxServiceHandler.triggerService( CameraCaptureService.SERVICE_NAME, true);
 		} else {
 			Log.i(logTag, "Scheduled Photo/Video Capture is currently disabled in preferences.");
 		}

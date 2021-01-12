@@ -13,7 +13,7 @@ import java.util.List;
 
 public class AudioPlaybackJobService extends Service {
 
-	private static final String SERVICE_NAME = "AudioPlaybackJob";
+	public static final String SERVICE_NAME = "AudioPlaybackJob";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioPlaybackJobService");
 	

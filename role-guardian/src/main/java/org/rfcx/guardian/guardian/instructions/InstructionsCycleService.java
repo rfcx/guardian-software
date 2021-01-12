@@ -75,7 +75,7 @@ public class InstructionsCycleService extends Service {
 
 					if (app.instructionsDb.dbQueued.getCount() > 0) {
 
-						app.rfcxServiceHandler.triggerService("InstructionsExecution", false);
+						app.rfcxServiceHandler.triggerService( InstructionsExecutionService.SERVICE_NAME, false);
 
 					}
 

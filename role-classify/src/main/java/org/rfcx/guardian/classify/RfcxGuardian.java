@@ -86,7 +86,7 @@ public class RfcxGuardian extends Application {
             String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
             System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
             System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-            this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
+            this.rfcxServiceHandler.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, true, 0);
         }
 
     }

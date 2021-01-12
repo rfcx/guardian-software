@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin.receiver;
 
+import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -23,7 +24,12 @@ public class ConnectivityReceiver extends BroadcastReceiver {
         int disconnectedFor = app.deviceConnectivity.updateConnectivityStateAndReportDisconnectedFor(intent);
 
         if (this.isFirstInstance) {
-			app.rfcxServiceHandler.triggerService( new String[] { "ScheduledClockSync", ""+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis(), "norepeat" }, false);
+			app.rfcxServiceHandler.triggerService(
+					new String[] {
+							ScheduledClockSyncService.SERVICE_NAME,
+							""+DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis(),
+							"norepeat"
+					}, false);
 		}
 
 		this.isFirstInstance = false;

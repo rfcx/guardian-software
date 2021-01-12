@@ -16,7 +16,7 @@ import java.util.List;
 
 public class SmsDispatchService extends Service {
 
-	private static final String SERVICE_NAME = "SmsDispatch";
+	public static final String SERVICE_NAME = "SmsDispatch";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SmsDispatchService");
 	

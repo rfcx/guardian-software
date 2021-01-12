@@ -8,6 +8,9 @@ import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_home.*
 import org.rfcx.guardian.admin.R
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService
+import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService
+import org.rfcx.guardian.admin.device.android.control.RebootTriggerService
 import org.rfcx.guardian.admin.sms.ComposeSmsActivity
 
 class MainActivity : Activity() {
@@ -34,15 +37,15 @@ class MainActivity : Activity() {
         }
 
         clockSyncButton.setOnClickListener {
-            app.rfcxServiceHandler.triggerService("ClockSyncJob", true)
+            app.rfcxServiceHandler.triggerService( ClockSyncJobService.SERVICE_NAME, true)
         }
 
         screenshotButton.setOnClickListener {
-            app.rfcxServiceHandler.triggerService("ScreenShotCapture", true)
+            app.rfcxServiceHandler.triggerService( ScreenShotCaptureService.SERVICE_NAME, true)
         }
 
         rebootButton.setOnClickListener {
-            app.rfcxServiceHandler.triggerService("RebootTrigger", true)
+            app.rfcxServiceHandler.triggerService( RebootTriggerService.SERVICE_NAME, true)
         }
 
     }

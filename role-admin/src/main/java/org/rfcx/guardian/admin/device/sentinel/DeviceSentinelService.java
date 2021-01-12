@@ -12,7 +12,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class DeviceSentinelService extends Service {
 
-	private static final String SERVICE_NAME = "DeviceSentinel";
+	public static final String SERVICE_NAME = "DeviceSentinel";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceSentinelService");
 	

@@ -10,7 +10,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
 class SSHServerControlService : Service() {
 
-    private val SERVICE_NAME = "SSHServerControl"
+    val SERVICE_NAME: String = "SSHServerControl"
 
     private val logTag = RfcxLog.generateLogTag(
         RfcxGuardian.APP_ROLE,

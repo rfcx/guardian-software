@@ -32,7 +32,7 @@ import java.util.List;
 
 public class DeviceSystemService extends Service implements SensorEventListener, LocationListener {
 
-	private static final String SERVICE_NAME = "DeviceSystem";
+	public static final String SERVICE_NAME = "DeviceSystem";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceSystemService");
 

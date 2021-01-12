@@ -72,9 +72,7 @@ public class AssetDownloadUtils {
 		} else if (assetType.equalsIgnoreCase("audio")) {
 			return RfcxAudioFileUtils.getAudioFileLocation_Download(context, numericAssetId, fileType);
 
-		}/* else if (assetType.equalsIgnoreCase("apk")) {
-
-		}*/
+		}
 
 		return null;
 	}
@@ -91,28 +89,21 @@ public class AssetDownloadUtils {
 		FileUtils.delete(galleryPath);
 		FileUtils.copy(tmpPath, galleryPath);
 
-		if (assetType.equalsIgnoreCase("classifier")) {
+		if (assetType.equalsIgnoreCase("classifier") && (app.assetGalleryDb.dbClassifier.getCountByAssetId(assetId) == 0)) {
 
-			if (app.assetGalleryDb.dbClassifier.getCountByAssetId(assetId) == 0) {
+			app.assetGalleryDb.dbClassifier.insert( assetId, "classifier", fileType, checksum, galleryPath,
+					FileUtils.getFileSizeInBytes(galleryPath), metaJsonBlob,0,0);
 
-				app.assetGalleryDb.dbClassifier.insert(
-						assetId, "classifier", fileType, checksum,
-						galleryPath, FileUtils.getFileSizeInBytes(galleryPath),
-						metaJsonBlob,0,0);
+			app.audioClassifyUtils.activateClassifier(assetId);
 
-				app.audioClassifyUtils.activateClassifier(assetId);
-			}
+		} else if (assetType.equalsIgnoreCase("audio") && (app.assetGalleryDb.dbAudio.getCountByAssetId(assetId) == 0)) {
 
-		} else if (assetType.equalsIgnoreCase("audio")) {
+			app.assetGalleryDb.dbAudio.insert( assetId, "audio", fileType, checksum, galleryPath,
+					FileUtils.getFileSizeInBytes(galleryPath), metaJsonBlob, 0, 0);
 
-//			FileUtils.copy(tmpPath, finalPath);
-
-		}/* else if (assetType.equalsIgnoreCase("apk")) {
-
-		}*/
+		}
 
 		FileUtils.delete(tmpPath);
-
 	}
 
 

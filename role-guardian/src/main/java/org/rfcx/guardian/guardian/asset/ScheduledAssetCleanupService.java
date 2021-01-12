@@ -9,7 +9,7 @@ import org.rfcx.guardian.utility.service.RfcxServiceHandler;
 
 public class ScheduledAssetCleanupService extends IntentService {
 
-	private static final String SERVICE_NAME = "ScheduledAssetCleanup";
+	public static final String SERVICE_NAME = "ScheduledAssetCleanup";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledAssetCleanupService");
 

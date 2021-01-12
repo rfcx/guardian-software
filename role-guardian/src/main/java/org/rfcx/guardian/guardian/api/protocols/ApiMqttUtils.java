@@ -13,6 +13,8 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONException;
 
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJobService;
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
 import org.rfcx.guardian.guardian.socket.SocketManager;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
@@ -301,7 +303,7 @@ public class ApiMqttUtils implements MqttCallback {
 													app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_HOST),
 													app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.API_MQTT_PORT));
 
-					app.rfcxServiceHandler.triggerService("ApiCheckInJob", false);
+					app.rfcxServiceHandler.triggerService( ApiCheckInJobService.SERVICE_NAME, false);
 				}
 			} catch (MqttException e) {
 				RfcxLog.logExc(logTag, e, "confirmOrCreateConnectionToBroker");
@@ -393,8 +395,8 @@ public class ApiMqttUtils implements MqttCallback {
 				}
 
 				if (isTimedOut || (tooManyPublishes && (this.inFlightCheckInAttemptCounter > 1))) {
-					Log.v(logTag, "Kill ApiCheckInJob Service, Close MQTT Connection & Re-Connect");
-					app.rfcxServiceHandler.stopService("ApiCheckInQueue");
+					Log.v(logTag, "Kill ApiCheckInQueue Service, Close MQTT Connection & Re-Connect");
+					app.rfcxServiceHandler.stopService( ApiCheckInQueueService.SERVICE_NAME );
 					this.mqttCheckInClient.closeConnection();
 					confirmOrCreateConnectionToBroker(true);
 				}

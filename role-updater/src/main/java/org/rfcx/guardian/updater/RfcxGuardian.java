@@ -90,7 +90,7 @@ public class RfcxGuardian extends Application {
         if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[] {
-                    "ApiUpdateRequestTrigger"
+                    ApiUpdateRequestTrigger.SERVICE_NAME
                             +"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
                             +"|"+ ( ( 2 * ApiUpdateRequestUtils.minimumAllowedIntervalBetweenUpdateRequests) * ( 60 * 1000 ) ) // repeats hourly
             };
@@ -98,7 +98,7 @@ public class RfcxGuardian extends Application {
             String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
             System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
             System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-            this.rfcxServiceHandler.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
+            this.rfcxServiceHandler.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, true, 0);
         }
 
     }
@@ -108,11 +108,11 @@ public class RfcxGuardian extends Application {
     }
 
     private void setServiceHandlers() {
-        this.rfcxServiceHandler.addService("ApiUpdateRequestTrigger", ApiUpdateRequestTrigger.class);
-        this.rfcxServiceHandler.addService("ApiUpdateRequest", ApiUpdateRequestService.class);
-        this.rfcxServiceHandler.addService("DownloadFile", DownloadFileService.class);
-        this.rfcxServiceHandler.addService("InstallApp", InstallAppService.class);
-        this.rfcxServiceHandler.addService("RebootTrigger", RebootTriggerService.class);
+        this.rfcxServiceHandler.addService( ApiUpdateRequestTrigger.SERVICE_NAME, ApiUpdateRequestTrigger.class);
+        this.rfcxServiceHandler.addService( ApiUpdateRequestService.SERVICE_NAME, ApiUpdateRequestService.class);
+        this.rfcxServiceHandler.addService( DownloadFileService.SERVICE_NAME, DownloadFileService.class);
+        this.rfcxServiceHandler.addService( InstallAppService.SERVICE_NAME, InstallAppService.class);
+        this.rfcxServiceHandler.addService( RebootTriggerService.SERVICE_NAME, RebootTriggerService.class);
     }
 
     public void onPrefReSync(String prefKey) {

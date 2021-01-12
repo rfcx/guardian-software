@@ -12,7 +12,7 @@ import android.util.Log;
 
 public class DownloadFileService extends Service {
 
-	private static final String SERVICE_NAME = "DownloadFile";
+	public static final String SERVICE_NAME = "DownloadFile";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DownloadFileService");
 
@@ -91,7 +91,7 @@ public class DownloadFileService extends Service {
 						if (FileUtils.sha1Hash(app.installUtils.apkPathExternal).equalsIgnoreCase(FileUtils.sha1Hash(app.installUtils.apkPathPostDownload))) {
 
 							FileUtils.delete(app.installUtils.apkPathPostDownload);
-							app.rfcxServiceHandler.triggerService("InstallApp", false);
+							app.rfcxServiceHandler.triggerService( InstallAppService.SERVICE_NAME, false);
 						}
 
 					} else {

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -124,7 +125,7 @@ public class AudioCaptureService extends Service {
 					// Triggering creation of a metadata snapshot.
 					// This is not directly related to audio capture, but putting it here ensures that snapshots will...
 					// ...continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
-					app.rfcxServiceHandler.triggerIntentServiceImmediately("MetaSnapshot");
+					app.rfcxServiceHandler.triggerIntentServiceImmediately( MetaSnapshotService.SERVICE_NAME);
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);

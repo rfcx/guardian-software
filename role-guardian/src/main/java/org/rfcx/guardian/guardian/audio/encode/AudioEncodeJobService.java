@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -203,7 +204,7 @@ public class AudioEncodeJobService extends Service {
 					}
 				}
 
-				app.rfcxServiceHandler.triggerIntentServiceImmediately("ApiCheckInQueue");
+				app.rfcxServiceHandler.triggerIntentServiceImmediately( ApiCheckInQueueService.SERVICE_NAME );
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

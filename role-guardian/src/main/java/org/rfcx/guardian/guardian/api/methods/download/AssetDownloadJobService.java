@@ -98,14 +98,8 @@ public class AssetDownloadJobService extends Service {
 						String metaJsonBlob = queuedDownloads[8];
 						int downloadAttempts = Integer.parseInt(queuedDownloads[9]);
 						long lastAccessedAt = Long.parseLong(queuedDownloads[10]);
-/*
-						if (!FileUtils.exists(audioFilePath)) {
 
-							Log.d(logTag, "Skipping Audio Playback Job for " + assetId + " because input audio file could not be found.");
-
-							app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
-
-						} else*/ if (downloadAttempts >= AssetDownloadUtils.DOWNLOAD_FAILURE_SKIP_THRESHOLD) {
+						if (downloadAttempts >= AssetDownloadUtils.DOWNLOAD_FAILURE_SKIP_THRESHOLD) {
 
 							Log.d(logTag, "Skipping Asset Download Job for " + assetType + ", " + assetId + " after " + AssetDownloadUtils.DOWNLOAD_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 
@@ -145,7 +139,6 @@ public class AssetDownloadJobService extends Service {
 									String downloadChecksum = FileUtils.sha1Hash(postDownloadFilePath);
 
 									if (downloadChecksum.equalsIgnoreCase(checksum)) {
-										FileUtils.chmod(postDownloadFilePath, "rw", "rw");
 
 										// log successful completion
 										app.assetDownloadDb.dbCompleted.insert(assetType, assetId, checksum, protocol, uriStr, fileSize, fileType, metaJsonBlob,downloadAttempts + 1, downloadDuration);

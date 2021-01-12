@@ -15,7 +15,7 @@ import android.util.Log;
 
 public class ClockSyncJobService extends Service {
 
-	private static final String SERVICE_NAME = "ClockSyncJob";
+	public static final String SERVICE_NAME = "ClockSyncJob";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ClockSyncJobService");
 	

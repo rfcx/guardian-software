@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.json.JSONObject;
 import org.rfcx.guardian.updater.RfcxGuardian;
+import org.rfcx.guardian.updater.service.ApiUpdateRequestService;
+import org.rfcx.guardian.updater.service.DownloadFileService;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -67,7 +69,7 @@ public class ApiUpdateRequestUtils {
 				
 				if (isBatteryChargeSufficientForDownloadAndInstall()) {
 					Log.d(logTag, "Update required. Latest release version ("+focusVersion+") detected and download triggered.");
-					app.rfcxServiceHandler.triggerService("DownloadFile", true);
+					app.rfcxServiceHandler.triggerService( DownloadFileService.SERVICE_NAME, true);
 				} else {
 					Log.i(logTag, "Update required, but will not be triggered due to low battery level"
 							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+installationBatteryCutoffPercentage+"%)."
@@ -109,7 +111,7 @@ public class ApiUpdateRequestUtils {
 
 	public void attemptToTriggerUpdateRequest(boolean forceRequest, boolean printLoggingFeedbackIfNotAllowed) {
 		if (forceRequest || isUpdateRequestAllowed(printLoggingFeedbackIfNotAllowed)) {
-			app.rfcxServiceHandler.triggerService("ApiUpdateRequest", false);
+			app.rfcxServiceHandler.triggerService( ApiUpdateRequestService.SERVICE_NAME, false);
 		}
 	}
 	
