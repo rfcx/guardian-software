@@ -20,7 +20,7 @@ public class RfcxClassifierFileUtils {
 	private String logTag;
 	private String appRole = "Utils";
 
-	private static final SimpleDateFormat dirDateTimeFormat_DayOnly = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	private static final SimpleDateFormat dirDateTimeFormat_MonthOnly = new SimpleDateFormat("yyyy-MM", Locale.US);
 
 	private static final String classifierFileType = "tflite";
 	
@@ -48,7 +48,7 @@ public class RfcxClassifierFileUtils {
 	}
 
 	public static String getClassifierFileLocation_Library(Context context, long timestamp) {
-		return classifierLibraryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + timestamp + "." + classifierFileType;
+		return classifierLibraryDir(context) + "/" + dirDateTimeFormat_MonthOnly.format(new Date(timestamp)) + "/" + timestamp + "." + classifierFileType;
 	}
 
 	public static String getClassifierFileLocation_Active(Context context, long timestamp) {

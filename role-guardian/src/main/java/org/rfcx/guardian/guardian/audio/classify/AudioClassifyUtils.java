@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
@@ -16,6 +17,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class AudioClassifyUtils {
@@ -64,14 +66,28 @@ public class AudioClassifyUtils {
 		try {
 			JSONObject jsonObj = new JSONObject(StringUtils.gZipBase64ToUnGZipString(classificationPayload));
 
-			Log.d(logTag, "Classifications Blob Received: " + jsonObj.toString() );
+			long classifyDuration = Long.parseLong(jsonObj.getString("classify_duration"));
 
 			String classifierId = jsonObj.getString("classifier_id");
 			String audioId = jsonObj.getString("audio_id");
-			long classifyDuration = Long.parseLong(jsonObj.getString("classify_duration"));
-			int sampleRate = Integer.parseInt(jsonObj.getString("sample_rate"));
+			String stepSize = jsonObj.getString("step_size");
+			String windowSize = jsonObj.getString("window_size");
 
-//			app.audioClassificationDb.dbUnfiltered.insert()
+			Log.d(logTag, "Classify Detections Received: Audio: " + audioId + ", Classifier: " + classifierId );
+			
+			String[] classiferLibraryInfo = app.assetLibraryDb.dbClassifier.getSingleRowById(classifierId);
+			JSONObject classiferJsonMeta = new JSONObject(classiferLibraryInfo[7]);
+			String classifierName = classiferJsonMeta.getString("classifier_name");
+			String classifierVersion = classiferJsonMeta.getString("classifier_version");
+
+			for (Iterator<String> classificationNames = jsonObj.getJSONObject("detections").keys(); classificationNames.hasNext(); ) {
+				String classificationTag = classificationNames.next();
+				JSONArray detections = jsonObj.getJSONObject("detections").getJSONArray(classificationTag);
+				app.audioDetectionDb.dbUnfiltered.insert(
+						classificationTag, classifierId, classifierName, classifierVersion, "-",
+						audioId, audioId, windowSize, stepSize, detections.toString()
+				);
+			}
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

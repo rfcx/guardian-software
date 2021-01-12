@@ -1,7 +1,6 @@
 package org.rfcx.guardian.guardian.api.methods.command;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -10,11 +9,8 @@ import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAsset;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -54,7 +50,7 @@ public class ApiCommandUtils {
 						if (chkId.length() > 0) {
 							long[] checkInStats = app.apiCheckInHealthUtils.getInFlightCheckInStatsEntry(audId);
 							if (checkInStats != null) {
-								app.apiCheckInStatsDb.dbStats.insert(chkId, checkInStats[1], checkInStats[2]);
+								app.apiCheckInStatsDb.dbCheckInLatency.insert(chkId, checkInStats[1], checkInStats[2]);
 								Calendar rightNow = GregorianCalendar.getInstance();
 								rightNow.setTime(new Date());
 

@@ -15,11 +15,11 @@ public class ApiCheckInStatsDb {
 	public ApiCheckInStatsDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-		this.dbStats = new DbStats(context);
+		this.dbCheckInLatency = new DbCheckInLatency(context);
 	}
 
 	private int VERSION = 1;
-	static final String DATABASE = "checkin";
+	static final String DATABASE = "stats";
 	static final String C_GUID = "guid";
 	static final String C_LATENCY = "latency";
 	static final String C_SIZE = "size";
@@ -40,13 +40,13 @@ public class ApiCheckInStatsDb {
 		return sbOut.toString();
 	}
 	
-	public class DbStats {
+	public class DbCheckInLatency {
 
 		final DbUtils dbUtils;
 
-		private String TABLE = "stats";
+		private String TABLE = "checkinlatency";
 		
-		public DbStats(Context context) {
+		public DbCheckInLatency(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
@@ -75,7 +75,7 @@ public class ApiCheckInStatsDb {
 
 
 	}
-	public final DbStats dbStats;
+	public final DbCheckInLatency dbCheckInLatency;
 	
 	
 }

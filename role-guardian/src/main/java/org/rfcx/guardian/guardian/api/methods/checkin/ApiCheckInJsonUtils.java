@@ -182,7 +182,7 @@ public class ApiCheckInJsonUtils {
 		metaDataJsonObj.put("broker_connections", app.deviceSystemDb.dbMqttBroker.getConcatRows());
 
 		// Adding connection data from previous checkins
-		metaDataJsonObj.put("previous_checkins", app.apiCheckInStatsDb.dbStats.getConcatRows());
+		metaDataJsonObj.put("previous_checkins", app.apiCheckInStatsDb.dbCheckInLatency.getConcatRows());
 
 		// Adding system metadata, if they can be retrieved from admin role via content provider
 		JSONArray systemMetaJsonArray = RfcxComm.getQuery("admin", "database_get_all_rows",
@@ -235,7 +235,7 @@ public class ApiCheckInJsonUtils {
 
 			app.deviceSystemDb.dbDateTimeOffsets.clearRowsBefore(deleteBefore);
 			app.deviceSystemDb.dbMqttBroker.clearRowsBefore(deleteBefore);
-			app.apiCheckInStatsDb.dbStats.clearRowsBefore(deleteBefore);
+			app.apiCheckInStatsDb.dbCheckInLatency.clearRowsBefore(deleteBefore);
 
 			RfcxComm.deleteQuery("admin", "database_delete_rows_before", "system_meta|" + deleteBefore.getTime(), app.getResolver());
 
