@@ -142,8 +142,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public String[] RfcxCoreServices =
             new String[]{
-                    "AudioCapture",
-                    "ApiCheckInJob",
+                    AudioCaptureService.SERVICE_NAME,
+                    ApiCheckInJobService.SERVICE_NAME,
                     AudioEncodeJobService.SERVICE_NAME,
                     AudioClassifyPrepareService.SERVICE_NAME,
                     InstructionsCycleService.SERVICE_NAME
@@ -246,15 +246,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[]{
-                    "ServiceMonitor"
+                    ServiceMonitor.SERVICE_NAME
                             + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
                             + "|" + ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
                             ,
-                    "ScheduledAssetCleanup"
+                    ScheduledAssetCleanupService.SERVICE_NAME
                             + "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
                             + "|" + ( ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION_MINUTES * 60 * 1000 )
                             ,
-                    "ScheduledClockSync"
+                    ScheduledClockSyncService.SERVICE_NAME
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
                             + "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_CLOCK_SYNC_CYCLE_DURATION) * 60 * 1000 )
                             ,
