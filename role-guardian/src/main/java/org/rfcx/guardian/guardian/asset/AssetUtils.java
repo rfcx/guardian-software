@@ -127,7 +127,7 @@ public class AssetUtils {
 			} else if (assetType.equals("classifier")) {
 				app.audioClassifierDb.dbActive.deleteSingleRow(assetId);
 				filePaths.add(RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, numericAssetId));
-				filePaths.add(RfcxClassifierFileUtils.getClassifierFileLocation_Download(context, numericAssetId));
+				filePaths.add(RfcxClassifierFileUtils.getClassifierFileLocation_Cache(context, numericAssetId));
 
 			} else if (assetType.equals("sms")) {
 				RfcxComm.deleteQuery("admin", "database_delete_row", "sms|" + assetId, app.getResolver());
@@ -188,7 +188,7 @@ public class AssetUtils {
 				RfcxAudioFileUtils.audioFinalDir(app.getApplicationContext()),
 				RfcxAudioFileUtils.audioQueueDir(app.getApplicationContext()),
 		//		RfcxAudioFileUtils.audioLibraryDir(app.getApplicationContext()),
-				RfcxAudioFileUtils.audioDownloadDir(app.getApplicationContext())
+				RfcxAudioFileUtils.audioCacheDir(app.getApplicationContext())
 		};
 
 		List<String> assetFilePathsFromDatabase = new ArrayList<String>();
@@ -200,7 +200,7 @@ public class AssetUtils {
 		// Encode Queue Databases
 		for (String[] row : app.audioEncodeDb.dbEncoded.getAllRows()) { assetFilePathsFromDatabase.add(row[10]); }
 		// Asset Library Databases
-		for (String[] row : app.assetGalleryDb.dbAudio.getAllRows()) { assetFilePathsFromDatabase.add(row[5]); }
+		for (String[] row : app.assetLibraryDb.dbAudio.getAllRows()) { assetFilePathsFromDatabase.add(row[5]); }
 
 
 		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(assetDirectoriesToScan, assetFilePathsFromDatabase, checkFilesUnModifiedSinceThisManyMinutes);

@@ -10,9 +10,9 @@ import org.rfcx.guardian.utility.rfcx.RfcxRole;
 import java.util.Date;
 import java.util.List;
 
-public class AssetGalleryDb {
+public class AssetLibraryDb {
 
-	public AssetGalleryDb(Context context, String appVersion) {
+	public AssetLibraryDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbAudio = new DbAudio(context);
@@ -20,7 +20,7 @@ public class AssetGalleryDb {
 	}
 
 	private int VERSION = 1;
-	static final String DATABASE = "gallery";
+	static final String DATABASE = "library";
 	
 	static final String C_CREATED_AT = "created_at";
 	static final String C_ASSET_ID = "asset_id";

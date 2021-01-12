@@ -15,8 +15,8 @@ import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSbdUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
-import org.rfcx.guardian.guardian.asset.AssetGalleryDb;
-import org.rfcx.guardian.guardian.asset.AssetGalleryUtils;
+import org.rfcx.guardian.guardian.asset.AssetLibraryDb;
+import org.rfcx.guardian.guardian.asset.AssetLibraryUtils;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInHealthUtils;
 import org.rfcx.guardian.guardian.asset.AudioDetectionDb;
@@ -108,7 +108,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioDetectionDb audioDetectionDb = null;
     public AudioClassifierDb audioClassifierDb = null;
     public AudioPlaybackDb audioPlaybackDb = null;
-    public AssetGalleryDb assetGalleryDb = null;
+    public AssetLibraryDb assetLibraryDb = null;
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -123,7 +123,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiSmsUtils apiSmsUtils = null;
     public ApiRestUtils apiRestUtils = null;
     public AssetDownloadUtils assetDownloadUtils = null;
-    public AssetGalleryUtils assetGalleryUtils = null;
+    public AssetLibraryUtils assetLibraryUtils = null;
     public ApiSbdUtils apiSbdUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
     public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
@@ -179,7 +179,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiSbdUtils = new ApiSbdUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.assetDownloadUtils = new AssetDownloadUtils(this);
-        this.assetGalleryUtils = new AssetGalleryUtils(this);
+        this.assetLibraryUtils = new AssetLibraryUtils(this);
         this.apiCheckInJsonUtils = new ApiCheckInJsonUtils(this);
         this.apiPingJsonUtils = new ApiPingJsonUtils(this);
         this.apiPingUtils = new ApiPingUtils(this);
@@ -278,7 +278,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioEncodeDb = new AudioEncodeDb(this, this.version);
         this.audioPlaybackDb = new AudioPlaybackDb(this, this.version);
-        this.assetGalleryDb = new AssetGalleryDb(this, this.version);
+        this.assetLibraryDb = new AssetLibraryDb(this, this.version);
         this.audioVaultDb = new AudioVaultDb(this, this.version);
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.metaDb = new MetaDb(this, this.version);

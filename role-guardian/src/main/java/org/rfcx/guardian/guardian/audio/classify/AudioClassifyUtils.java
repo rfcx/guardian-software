@@ -82,21 +82,21 @@ public class AudioClassifyUtils {
 
 		try {
 
-			if (app.assetGalleryDb.dbClassifier.getCountByAssetId(clsfrId) == 0) {
-				Log.e(logTag, "Classifier could not be activated because it does not exist in the Asset Gallery.");
+			if (app.assetLibraryDb.dbClassifier.getCountByAssetId(clsfrId) == 0) {
+				Log.e(logTag, "Classifier could not be activated because it does not exist in the Asset Library.");
 
 			} else {
 
-				String[] galleryEntry = app.assetGalleryDb.dbClassifier.getSingleRowById(clsfrId);
+				String[] libraryEntry = app.assetLibraryDb.dbClassifier.getSingleRowById(clsfrId);
 
-				if (galleryEntry[0] != null) {
+				if (libraryEntry[0] != null) {
 
-					String clsfrFormat = galleryEntry[3];
-					String clsfrDigest = galleryEntry[4];
-					String clsfrGalleryFilePath = galleryEntry[5];
+					String clsfrFormat = libraryEntry[3];
+					String clsfrDigest = libraryEntry[4];
+					String clsfrLibraryFilePath = libraryEntry[5];
 					String clsfrActiveFilePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(app.getApplicationContext(), Long.parseLong(clsfrId));
 
-					JSONObject jsonMeta = new JSONObject(galleryEntry[7]);
+					JSONObject jsonMeta = new JSONObject(libraryEntry[7]);
 
 					String clsfrName = jsonMeta.getString("classifier_name");
 					String clsfrVersion = jsonMeta.getString("classifier_version");
@@ -108,7 +108,7 @@ public class AudioClassifyUtils {
 					app.audioClassifierDb.dbActive.insert(clsfrId, clsfrName, clsfrVersion, clsfrFormat, clsfrDigest, clsfrActiveFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
 
 					FileUtils.delete(clsfrActiveFilePath);
-					FileUtils.copy(clsfrGalleryFilePath, clsfrActiveFilePath);
+					FileUtils.copy(clsfrLibraryFilePath, clsfrActiveFilePath);
 
 					return FileUtils.sha1Hash(clsfrActiveFilePath).equalsIgnoreCase(clsfrDigest);
 				}
