@@ -22,7 +22,6 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
@@ -227,7 +226,7 @@ public class MqttUtils implements MqttCallback {
 			return new TLSSocketFactory(ctx.getSocketFactory(),
 										new String[]{
 													"TLSv1"//,
-												//	"TLSv1.1"//,
+												//	"TLSv1.1"//,  // v1.1 and v1.2 require enabling at the Android OS level
 												//	"TLSv1.2"
 											});
 		} catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException | KeyManagementException e) {
