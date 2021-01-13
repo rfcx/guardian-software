@@ -184,11 +184,23 @@ public class AssetUtils {
 	public void runFileSystemAssetCleanup(int checkFilesUnModifiedSinceThisManyMinutes) {
 
 		String[] assetDirectoriesToScan = new String[] {
-				RfcxAudioFileUtils.audioStashDir(app.getApplicationContext()),
-				RfcxAudioFileUtils.audioFinalDir(app.getApplicationContext()),
-				RfcxAudioFileUtils.audioQueueDir(app.getApplicationContext()),
-		//		RfcxAudioFileUtils.audioLibraryDir(app.getApplicationContext()),
-				RfcxAudioFileUtils.audioCacheDir(app.getApplicationContext())
+			// Misc Asset Directories
+			RfcxScreenShotFileUtils.screenShotQueueDir(app.getApplicationContext()),
+			RfcxLogcatFileUtils.logcatQueueDir(app.getApplicationContext()),
+			RfcxPhotoFileUtils.photoQueueDir(app.getApplicationContext()),
+			RfcxVideoFileUtils.videoQueueDir(app.getApplicationContext()),
+			// Audio File Directories
+			RfcxAudioFileUtils.audioStashDir(app.getApplicationContext()),
+			RfcxAudioFileUtils.audioFinalDir(app.getApplicationContext()),
+			RfcxAudioFileUtils.audioQueueDir(app.getApplicationContext()),
+			RfcxAudioFileUtils.audioClassifyDir(app.getApplicationContext()),
+			// Audio Library Directories
+			RfcxAudioFileUtils.audioLibraryDir(app.getApplicationContext()),
+			RfcxAudioFileUtils.audioCacheDir(app.getApplicationContext()),
+			// Classifier Library Directories
+			RfcxClassifierFileUtils.classifierLibraryDir(app.getApplicationContext()),
+			RfcxClassifierFileUtils.classifierCacheDir(app.getApplicationContext()),
+			RfcxClassifierFileUtils.classifierActiveDir(app.getApplicationContext())
 		};
 
 		List<String> assetFilePathsFromDatabase = new ArrayList<String>();
@@ -197,10 +209,14 @@ public class AssetUtils {
 		for (String[] row : app.apiCheckInDb.dbStashed.getAllRows()) { assetFilePathsFromDatabase.add(row[4]); }
 		for (String[] row : app.apiCheckInDb.dbSent.getAllRows()) { assetFilePathsFromDatabase.add(row[4]); }
 		for (String[] row : app.apiCheckInDb.dbSkipped.getAllRows()) { assetFilePathsFromDatabase.add(row[4]); }
-		// Encode Queue Databases
+		// Audio Encode Databases
 		for (String[] row : app.audioEncodeDb.dbEncoded.getAllRows()) { assetFilePathsFromDatabase.add(row[10]); }
+		for (String[] row : app.audioClassifyDb.dbQueued.getAllRows()) { assetFilePathsFromDatabase.add(row[6]); }
 		// Asset Library Databases
 		for (String[] row : app.assetLibraryDb.dbAudio.getAllRows()) { assetFilePathsFromDatabase.add(row[5]); }
+		for (String[] row : app.assetLibraryDb.dbClassifier.getAllRows()) { assetFilePathsFromDatabase.add(row[5]); }
+		// Classifier Databases
+		for (String[] row : app.audioClassifierDb.dbActive.getAllRows()) { assetFilePathsFromDatabase.add(row[6]); }
 
 
 		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(assetDirectoriesToScan, assetFilePathsFromDatabase, checkFilesUnModifiedSinceThisManyMinutes);

@@ -98,6 +98,17 @@ public class ApiMqttUtils implements MqttCallback {
 		return this.checkInPublishTimeOutLength;
 	}
 
+	public void updateMqttConnectionBasedOnConfigChange() {
+		initializeFailedCheckInThresholds();
+		closeConnectionToBroker();
+		if (app.rfcxPrefs.getPrefAsBoolean( RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH )) {
+			confirmOrCreateConnectionToBroker(false);
+			app.rfcxServiceHandler.triggerService( ApiCheckInJobService.SERVICE_NAME, false);
+		} else {
+			app.rfcxServiceHandler.stopService( ApiCheckInJobService.SERVICE_NAME );
+		}
+	}
+
 	private byte[] packageMqttCheckInPayload(String checkInJsonString, String checkInAudioFilePath) throws IOException, JSONException {
 
 		Context context = app.getApplicationContext();
@@ -378,6 +389,7 @@ public class ApiMqttUtils implements MqttCallback {
 			boolean unresolvedHost = excStr.contains("Host is unresolved");
 			boolean unableToConnect = excStr.contains("Unable to connect to server");
 
+			boolean socketTimeout = excStr.contains("SocketTimeoutException: failed to connect to");
 			boolean brokerConnectionLost = excStr.contains("java.io.IOException: Connection is lost.");
 			boolean unexpectedError = excStr.contains("Message: Unexpected error");
 
@@ -401,7 +413,7 @@ public class ApiMqttUtils implements MqttCallback {
 					confirmOrCreateConnectionToBroker(true);
 				}
 
-			} else if ( badUserNameOrPswd || brokerConnectionLost || unexpectedError ) {
+			} else if ( badUserNameOrPswd || brokerConnectionLost || unexpectedError || socketTimeout ) {
 
 				String logErrorMsg = "";
 				if (badUserNameOrPswd) { logErrorMsg = "Broker Credentials Rejected."; }

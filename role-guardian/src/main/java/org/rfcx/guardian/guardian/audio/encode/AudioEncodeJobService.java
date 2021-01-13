@@ -104,6 +104,7 @@ public class AudioEncodeJobService extends Service {
 						int bitRate = Integer.parseInt(latestQueuedAudioToEncode[5]);
 						int inputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[11]);
 						int outputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[4]);
+						double outputGain = 1.0;
 						
 						File preEncodeFile = new File(latestQueuedAudioToEncode[10]);
 						File finalDestinationFile = null;
@@ -132,7 +133,7 @@ public class AudioEncodeJobService extends Service {
 							app.audioEncodeDb.dbQueued.incrementSingleRowAttempts(timestamp);
 
 							// if needed, re-sample wav file prior to encoding
-							preEncodeFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, encodePurpose, preEncodeFile.getAbsolutePath(), Long.parseLong(timestamp), inputFileExt, inputSampleRate, outputSampleRate);
+							preEncodeFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, encodePurpose, preEncodeFile.getAbsolutePath(), Long.parseLong(timestamp), inputFileExt, inputSampleRate, outputSampleRate, outputGain);
 
 							File postEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PostEncode(context, Long.parseLong(timestamp), codec, outputSampleRate, encodePurpose));
 
@@ -177,7 +178,7 @@ public class AudioEncodeJobService extends Service {
 
 								} else if (encodePurpose.equalsIgnoreCase("vault")) {
 
-									finalDestinationFile = new File(RfcxAudioFileUtils.getAudioFileLocation_Vault(app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec), outputSampleRate));
+									finalDestinationFile = new File(RfcxAudioFileUtils.getAudioFileLocation_Vault(app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec), audioDuration, outputSampleRate));
 
 									if (AudioEncodeUtils.sendEncodedAudioToVault(timestamp, postEncodeFile, finalDestinationFile)) {
 

@@ -22,6 +22,7 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
@@ -72,7 +73,8 @@ public class MqttUtils implements MqttCallback {
 
 		if (this.mqttBrokerProtocol.equalsIgnoreCase("ssl")) {
 			try {
-				InputStream brokerKeystore = context.getAssets().open(this.mqttBrokerAddress.replaceAll("\\.", "_")+".bks");
+//				InputStream brokerKeystore = context.getAssets().open(this.mqttBrokerAddress.replaceAll("\\.", "_")+".bks");
+				InputStream brokerKeystore = context.getAssets().open("staging-api-mqtt.rfcx.org".replaceAll("\\.", "_")+".bks");
 				connectOptions.setSocketFactory(getSSLSocketFactory(brokerKeystore, mqttBrokerKeystorePassphrase));
 			} catch (IOException e) {
 				RfcxLog.logExc(logTag, e);
@@ -222,9 +224,20 @@ public class MqttUtils implements MqttCallback {
 			TrustManager[] tm = tmf.getTrustManagers();
 			SSLContext ctx = SSLContext.getInstance("TLSv1");
 			ctx.init(null, tm, null);
-			return ctx.getSocketFactory();
+			return new TLSSocketFactory(ctx.getSocketFactory(),
+										new String[]{
+													"TLSv1"//,
+												//	"TLSv1.1"//,
+												//	"TLSv1.2"
+											});
 		} catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException | KeyManagementException e) {
 			throw new MqttSecurityException(e);
 		}
 	}
 }
+
+
+
+
+
+

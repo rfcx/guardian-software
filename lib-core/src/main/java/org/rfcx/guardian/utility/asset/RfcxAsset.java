@@ -19,7 +19,8 @@ public class RfcxAsset {
 			"photo",		// 4
 			"video",		// 5
 			"sms",			// 6
-			"apk"			// 7
+			"apk",			// 7
+			"detection"		// 8
 	};
 
 	public static final String[]
@@ -31,7 +32,8 @@ public class RfcxAsset {
 			"photos",
 			"videos",
 			"messages",
-			"apks"
+			"apks",
+			"detections"
 	};
 
 	public static final String[]
@@ -43,7 +45,8 @@ public class RfcxAsset {
 			"pho",
 			"vid",
 			"sms",
-			"apk"
+			"apk",
+			"det"
 	};
 
 

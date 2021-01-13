@@ -8,6 +8,7 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.guardian.asset.AudioDetectionFilterJobService;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
@@ -66,15 +67,13 @@ public class AudioClassifyUtils {
 		try {
 			JSONObject jsonObj = new JSONObject(StringUtils.gZipBase64ToUnGZipString(classificationPayload));
 
-			long classifyDuration = Long.parseLong(jsonObj.getString("classify_duration"));
-
 			String classifierId = jsonObj.getString("classifier_id");
 			String audioId = jsonObj.getString("audio_id");
 			String stepSize = jsonObj.getString("step_size");
 			String windowSize = jsonObj.getString("window_size");
 
 			Log.d(logTag, "Classify Detections Received: Audio: " + audioId + ", Classifier: " + classifierId );
-			
+
 			String[] classiferLibraryInfo = app.assetLibraryDb.dbClassifier.getSingleRowById(classifierId);
 			JSONObject classiferJsonMeta = new JSONObject(classiferLibraryInfo[7]);
 			String classifierName = classiferJsonMeta.getString("classifier_name");
@@ -88,6 +87,13 @@ public class AudioClassifyUtils {
 						audioId, audioId, windowSize, stepSize, detections.toString()
 				);
 			}
+
+			// save classify job stats
+			long classifyJobDuration = Long.parseLong(jsonObj.getString("classify_duration"));
+			long classifyAudioSize = Long.parseLong(jsonObj.getString("audio_size"));
+			app.latencyStatsDb.dbClassifyLatency.insert(classifierName + "-v" + classifierVersion, classifyJobDuration, classifyAudioSize);
+
+			app.rfcxServiceHandler.triggerService( AudioDetectionFilterJobService.SERVICE_NAME, false);
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

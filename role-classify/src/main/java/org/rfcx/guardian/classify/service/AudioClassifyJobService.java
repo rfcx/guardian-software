@@ -107,6 +107,7 @@ public class AudioClassifyJobService extends Service {
 						String clsfLoggingSummary = classifierId + ", v" + clsfrVersion + ", " + clsfrClassifications + ", " + Math.round(clsfrSampleRate/1000) + "kHz, " + clsfrWindowSize + ", " + clsfrStepSize;
 						String audioId = latestQueuedAudioToClassify[1];
 						long audioStartsAt = Long.parseLong(latestQueuedAudioToClassify[1]);
+						String audioOrigRelativePath = latestQueuedAudioToClassify[6];
 
 						if (Integer.parseInt(latestQueuedAudioToClassify[11]) >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
 
@@ -139,7 +140,7 @@ public class AudioClassifyJobService extends Service {
 
 									String audioFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, Long.parseLong(audioId), "wav", clsfrSampleRate, null);
 									String audioRelativeFilePath = RfcxAssetCleanup.conciseFilePath(audioFilePath, RfcxGuardian.APP_ROLE);
-									Uri audioFileOriginUri = RfcxComm.getFileUri("guardian", audioRelativeFilePath);
+									Uri audioFileOriginUri = RfcxComm.getFileUri("guardian", audioOrigRelativePath);
 
 									if (!FileUtils.exists(audioFilePath) && !RfcxComm.getFileRequest( audioFileOriginUri, audioFilePath, app.getResolver())) {
 
@@ -155,6 +156,7 @@ public class AudioClassifyJobService extends Service {
 
 										JSONObject classifyOutputJson = app.audioClassifyUtils.classifyOutputAsJson(classifierId, audioId, audioStartsAt, classifyOutput);
 										classifyOutputJson.put("classify_duration", (System.currentTimeMillis()-classifyStartTime)+"" );
+										classifyOutputJson.put("audio_size", FileUtils.getFileSizeInBytes(audioFilePath)+"" );
 
 										app.audioClassifyUtils.sendClassifyOutputToGuardianRole(classifyOutputJson);
 

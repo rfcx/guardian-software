@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.audio.capture;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -288,17 +289,19 @@ public class AudioCaptureUtils {
 		if (captureFile.exists()) {
 			try {
 
+				double inputGain = 1.0;
+
 				if (isToBeEncoded) {
-					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, null));
+					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, "g"+Math.round(inputGain*10)));
 					FileUtils.copy(captureFile, preEncodeFile);
-					FileUtils.chmod(preEncodeFile, "rw", "rw");
+		//			FileUtils.chmod(preEncodeFile, "rw", "rw");
 					isEncodeFileMoved = preEncodeFile.exists();
 				}
 
 				if (isToBeClassified) {
-					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, sampleRate, null));
+					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, sampleRate, "g"+Math.round(inputGain*10)));
 					FileUtils.copy(captureFile, preClassifyFile);
-					FileUtils.chmod(preClassifyFile, "rw", "rw");
+		//			FileUtils.chmod(preClassifyFile, "rw", "rw");
 					isClassifyFileMoved = preClassifyFile.exists();
 				}
 
@@ -315,12 +318,12 @@ public class AudioCaptureUtils {
 	}
 
 
-	public static File checkOrCreateReSampledWav(Context context, String purpose, String inputFilePath, long timestamp, String fileExt, int inputSampleRate, int outputSampleRate) throws IOException {
+	public static File checkOrCreateReSampledWav(Context context, String purpose, String inputFilePath, long timestamp, String fileExt, int inputSampleRate, int outputSampleRate, double outputGain) throws IOException {
 
-		String outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, outputSampleRate, null);
+		String outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, outputSampleRate, "g"+Math.round(outputGain*10));
 
 		if (purpose.equalsIgnoreCase("classify")) {
-			outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, outputSampleRate, null);
+			outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, outputSampleRate, "g"+Math.round(outputGain*10));
 		}
 
 		if (FileUtils.exists(outputFilePath)) {
@@ -337,9 +340,8 @@ public class AudioCaptureUtils {
 
 			// create resample copy of the audio file
 			// as a placeholder, for now, we just copy it...
-			FileUtils.copy(inputFilePath, outputFilePath);
-			WavResampler wavResampler = new WavResampler();//.resampleWav(inputFilePath, outputFilePath, 48000, 44100, 1);
-			FileUtils.chmod(outputFilePath, "rw", "rw");
+//			FileUtils.copy(inputFilePath, outputFilePath);
+			WavResampler.resampleWavWithGain(inputFilePath, outputFilePath, inputSampleRate, outputSampleRate, outputGain);
 
 			return (new File(outputFilePath));
 		}

@@ -17,6 +17,7 @@ import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
 import java.util.List;
+import java.util.Locale;
 
 public class AudioQueuePostProcessingService extends IntentService {
 
@@ -44,6 +45,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 			String captureFileExt = "wav";
 			long captureTimeStamp = app.audioCaptureUtils.queueCaptureTimeStamp[0];
 			int captureSampleRate = app.audioCaptureUtils.queueCaptureSampleRate[0];
+			double captureGain = 1.0;
 
 			int jobCount_Encode = 0;
 			int jobCount_Classify = 0;
@@ -54,8 +56,8 @@ public class AudioQueuePostProcessingService extends IntentService {
 
 			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, (isEnabled_audioStream || isEnabled_audioVault), isEnabled_audioClassify, captureTimeStamp, captureSampleRate, captureFileExt)) {
 
-				String preEncodeFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, captureTimeStamp, captureFileExt, captureSampleRate, null);
-				String preClassifyFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, captureTimeStamp, captureFileExt, captureSampleRate, null);
+				String preEncodeFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, captureTimeStamp, captureFileExt, captureSampleRate, "g"+Math.round(captureGain*10));
+				String preClassifyFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, captureTimeStamp, captureFileExt, captureSampleRate, "g"+Math.round(captureGain*10));
 
 				// Queue Encoding for Stream
 				if (isEnabled_audioStream) {
@@ -113,7 +115,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 				}
 
 
-				
+
 			} else {
 				Log.e(logTag, "Failed to prepare captured audio for post processing.");
 			}

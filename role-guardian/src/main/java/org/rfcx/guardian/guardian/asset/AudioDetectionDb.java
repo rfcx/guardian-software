@@ -2,10 +2,14 @@ package org.rfcx.guardian.guardian.asset;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.text.TextUtils;
 
+import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -15,6 +19,7 @@ public class AudioDetectionDb {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbUnfiltered = new DbUnfiltered(context);
+		this.dbFiltered = new DbFiltered(context);
 	}
 
 	private int VERSION = 1;
@@ -91,8 +96,73 @@ public class AudioDetectionDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 
+		public void deleteSingleRow(String classificationTag, String audioId) {
+			this.dbUtils.deleteRowsWithinQueryByTwoColumns( TABLE, C_CLASSIFICATION_TAG, classificationTag, C_AUDIO_ID, audioId);
+		}
+
 	}
 	public final DbUnfiltered dbUnfiltered;
+
+
+	public class DbFiltered {
+
+		final DbUtils dbUtils;
+		public String FILEPATH = "";
+
+		private String TABLE = "filtered";
+
+		public DbFiltered(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
+		}
+
+		public int insert(String classificationTag, String classifierId, String classifierName, String classifierVersion, String filterId, String audioId, long beginsAt, long windowSize, long stepSize, String confidenceJson) {
+
+			ContentValues values = new ContentValues();
+			values.put(C_CREATED_AT, (new Date()).getTime());
+			values.put(C_CLASSIFICATION_TAG, classificationTag);
+			values.put(C_CLASSIFIER_ID, classifierId);
+			values.put(C_CLASSIFIER_NAME, classifierName);
+			values.put(C_CLASSIFIER_VERSION, classifierVersion);
+			values.put(C_FILTER_ID, filterId);
+			values.put(C_AUDIO_ID, audioId);
+			values.put(C_BEGINS_AT, beginsAt);
+			values.put(C_WINDOW_SIZE, windowSize);
+			values.put(C_STEP_SIZE, stepSize);
+			values.put(C_CONFIDENCE_JSON, confidenceJson);
+			values.put(C_LAST_ACCESSED_AT, 0);
+
+			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
+
+		public void deleteSingleRow(String classificationTag, String audioId) {
+			this.dbUtils.deleteRowsWithinQueryByTwoColumns( TABLE, C_CLASSIFICATION_TAG, classificationTag, C_AUDIO_ID, audioId);
+		}
+
+		public String getSimplifiedConcatRows() {
+			String concatRows = null;
+			ArrayList<String> rowList = new ArrayList<String>();
+			try {
+				for (String[] row : getAllRows()) {
+					rowList.add(TextUtils.join("*", new String[] { row[1], row[3]+"-v"+row[4], row[7], row[9], row[10] }));
+				}
+				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
+			} catch (Exception e) {
+				RfcxLog.logExc(RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioDetectionDb"), e);
+			}
+			return concatRows;
+		}
+
+		public void clearRowsBefore(Date date) {
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_CREATED_AT, date);
+		}
+
+	}
+	public final DbFiltered dbFiltered;
 	
 	
 }

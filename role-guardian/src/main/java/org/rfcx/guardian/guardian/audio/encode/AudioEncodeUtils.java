@@ -78,6 +78,7 @@ public class AudioEncodeUtils {
 		FileUtils.copy(preVaultFile, vaultFile);
 		FileUtils.delete(preVaultFile);
 		if (FileUtils.exists(vaultFile)) {
+			FileUtils.chmod(vaultFile, "rw", "rw");
 			Log.d(logTag, "Audio saved to Vault: "+audioTimestamp+", "+FileUtils.bytesAsReadableString(FileUtils.getFileSizeInBytes(vaultFile))+", "+vaultFile.getAbsolutePath());
 			return true;
 		} else {

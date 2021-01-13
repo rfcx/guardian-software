@@ -79,9 +79,10 @@ public class RfcxAudioFileUtils {
 //		return audioCaptureDir(context) + "/" + timestamp + "." + fileExtension;
 //	}
 
-	public static String getAudioFileName(String rfcxDeviceId, long timestamp, String audioCodec, int sampleRate) {
-		return 	rfcxDeviceId
+	public static String getAudioFileName(String originTag, long timestamp, String audioCodec, long audioLength, int sampleRate) {
+		return 	originTag
 				+ "_" + fileDateTimeFormat.format(new Date(timestamp))
+				+ audioLengthTag(audioLength)
 				+ sampleRateTag(sampleRate)
 				+ "." + getFileExt(audioCodec);
 	}
@@ -99,15 +100,15 @@ public class RfcxAudioFileUtils {
 	}
 
 	public static String getAudioFileLocation_GZip(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
-		return audioFinalDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
+		return audioFinalDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0,0) + ".gz";
 	}
 
 	public static String getAudioFileLocation_Queue(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
-		return audioQueueDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
+		return audioQueueDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0,0) + ".gz";
 	}
 
 	public static String getAudioFileLocation_Stash(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
-		return audioStashDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
+		return audioStashDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0,0) + ".gz";
 	}
 
 	public static String getAudioFileLocation_Cache(Context context, long timestamp, String audioCodec) {
@@ -115,15 +116,15 @@ public class RfcxAudioFileUtils {
 	}
 
 	public static String getAudioFileLocation_Library(Context context, long timestamp, String audioCodec) {
-		return audioLibraryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName("library", timestamp, audioCodec, 0);
+		return audioLibraryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName("library", timestamp, audioCodec, 0, 0);
 	}
 
-	public static String getAudioFileLocation_Vault(String rfcxDeviceId, long timestamp, String audioCodec, int sampleRate) {
-		return audioVaultDir() + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, sampleRate);
+	public static String getAudioFileLocation_Vault(String rfcxDeviceId, long timestamp, String audioCodec, long audioLength, int sampleRate) {
+		return audioVaultDir() + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, audioLength, sampleRate);
 	}
 
 	public static String getAudioFileLocation_ExternalStorage(String rfcxDeviceId, long timestamp, String audioCodec) {
-		return audioSdCardDir() + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0) + ".gz";
+		return audioSdCardDir() + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0,0) + ".gz";
 	}
 	
 	public static String getFileExt(String audioCodecOrFileExtension) {
@@ -140,6 +141,10 @@ public class RfcxAudioFileUtils {
 
 	private static String sampleRateTag(int sampleRate) {
 		return ((sampleRate == 0) ? "" : "_" + (Math.round(sampleRate/1000) + "kHz"));
+	}
+
+	private static String audioLengthTag(long audioLength) {
+		return ((audioLength == 0) ? "" : "_" + (String.format(Locale.US, "%.3f", (Float.parseFloat(""+audioLength)/1000)) + "s"));
 	}
 
 	private static String miscTag(String tagLabel) {

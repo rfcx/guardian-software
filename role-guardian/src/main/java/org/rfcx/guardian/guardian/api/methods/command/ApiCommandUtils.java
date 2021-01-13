@@ -50,7 +50,7 @@ public class ApiCommandUtils {
 						if (chkId.length() > 0) {
 							long[] checkInStats = app.apiCheckInHealthUtils.getInFlightCheckInStatsEntry(audId);
 							if (checkInStats != null) {
-								app.apiCheckInStatsDb.dbCheckInLatency.insert(chkId, checkInStats[1], checkInStats[2]);
+								app.latencyStatsDb.dbCheckInLatency.insert(chkId, checkInStats[1], checkInStats[2]);
 								Calendar rightNow = GregorianCalendar.getInstance();
 								rightNow.setTime(new Date());
 
