@@ -199,11 +199,21 @@ public class ApiCheckInHealthUtils {
 
 
 	public JSONObject apiCheckInStatusAsJsonObj() {
+
 		JSONObject statusObj = null;
 		try {
+			// Put dummy data first, in case the calls fail
 			statusObj = new JSONObject();
-			statusObj.put("is_allowed", isApiCheckInAllowed(false, false));
-			statusObj.put("is_disabled", isApiCheckInDisabled(false));
+			statusObj.put("is_allowed", true);
+			statusObj.put("is_disabled", false);
+
+			// Now add real data
+			boolean isAllowed = isApiCheckInAllowed(false, false);
+			boolean isDisabled = isApiCheckInDisabled(false);
+			statusObj = new JSONObject();
+			statusObj.put("is_allowed", isAllowed);
+			statusObj.put("is_disabled", isDisabled);
+
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}

@@ -180,14 +180,25 @@ public class AudioCaptureUtils {
 	}
 
 	public JSONObject audioCaptureStatusAsJsonObj() {
+
 		JSONObject statusObj = null;
         try {
-            statusObj = new JSONObject();
-            statusObj.put("is_allowed", isAudioCaptureAllowed(false, false));
-			statusObj.put("is_disabled", isAudioCaptureDisabled(false));
+        	// Put dummy data first, in case the calls fail
+			statusObj = new JSONObject();
+			statusObj.put("is_allowed", true);
+			statusObj.put("is_disabled", false);
+
+			// Now add real data
+			boolean isAllowed = isAudioCaptureAllowed(false, false);
+			boolean isDisabled = isAudioCaptureDisabled(false);
+			statusObj = new JSONObject();
+			statusObj.put("is_allowed", isAllowed);
+			statusObj.put("is_disabled", isDisabled);
+
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
+
         return statusObj;
 	}
 

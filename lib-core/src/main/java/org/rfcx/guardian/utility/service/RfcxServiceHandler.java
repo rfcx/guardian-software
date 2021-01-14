@@ -32,7 +32,7 @@ public class RfcxServiceHandler {
 	private Map<String, long[]> svcLastReportedActiveAt = new HashMap<String, long[]>();
 
 	public static String intentServiceTags(boolean isNotificationTag, String appRole, String svcName) {
-		return "org.rfcx.org.rfcx.guardian.guardian." +
+		return "org.rfcx.guardian.guardian." +
 				appRole.toLowerCase(Locale.US) +
 				(isNotificationTag ? ".RECEIVE_" : ".") +
 				svcName.toUpperCase(Locale.US) +
@@ -101,8 +101,6 @@ public class RfcxServiceHandler {
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			}
-		} else { 
-//			Log.w(logTag, (new StringBuilder()).append("Service '").append(svcName).append("' is already running...").toString());
 		}
 	}
 	
@@ -242,7 +240,7 @@ public class RfcxServiceHandler {
 
 		long lastActiveAt = getLastReportedActiveAt(svcName);
 		if ((lastActiveAt > 0) && ((System.currentTimeMillis() - lastActiveAt) > timeOutDuration)) {
-			Log.e(logTag, "Service '" + svcName + "' timed out... Forcing re-trigger...");
+			Log.e(logTag, "Service '" + svcName + "' has not registered as active within the last "+DateTimeUtils.milliSecondDurationAsReadableString(timeOutDuration)+"... Forcing re-trigger...");
 			triggerService(svcName, true);
 		} else {
 			triggerService(svcName, false);

@@ -485,12 +485,20 @@ public class SentinelPowerUtils {
     }
 
     public JSONObject sentinelPowerStatusAsJsonObj(String activityTag) {
+
         JSONObject statusObj = null;
         try {
-
+            // Put dummy data first, in case the calls fail
             statusObj = new JSONObject();
-            statusObj.put("is_allowed", !isReducedCaptureModeActive_BasedOnSentinelPower(activityTag) );
+            statusObj.put("is_allowed", true);
             statusObj.put("is_disabled", false);
+
+            // Now add real data
+            boolean isAllowed = !isReducedCaptureModeActive_BasedOnSentinelPower(activityTag);
+            boolean isDisabled = false;
+            statusObj = new JSONObject();
+            statusObj.put("is_allowed", isAllowed);
+            statusObj.put("is_disabled", isDisabled);
 
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);

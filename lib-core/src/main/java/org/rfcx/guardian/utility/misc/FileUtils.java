@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -122,23 +123,19 @@ public class FileUtils {
 
 //				Log.d(logTag, "chmod: " + owner_rwx + "-" + everybody_rwx + " " + file.getAbsolutePath());
 
-				if (owner_rwx.toLowerCase().indexOf("r") >= 0) {
-					if (everybody_rwx.toLowerCase().indexOf("r") >= 0) { file.setReadable(true, false); } else { file.setReadable(true); }
+				if (owner_rwx.toLowerCase().contains("r")) {
+					if (everybody_rwx.toLowerCase().contains("r")) { file.setReadable(true, false); } else { file.setReadable(true); }
 				}
-				if (owner_rwx.toLowerCase().indexOf("w") >= 0) {
-					if (everybody_rwx.toLowerCase().indexOf("w") >= 0) { file.setWritable(true, false); } else { file.setWritable(true); }
+				if (owner_rwx.toLowerCase().contains("w")) {
+					if (everybody_rwx.toLowerCase().contains("w")) { file.setWritable(true, false); } else { file.setWritable(true); }
 				}
-				if (owner_rwx.toLowerCase().indexOf("x") >= 0) {
-					if (everybody_rwx.toLowerCase().indexOf("x") >= 0) { file.setExecutable(true, false); } else { file.setExecutable(true); }
+				if (owner_rwx.toLowerCase().contains("x")) {
+					if (everybody_rwx.toLowerCase().contains("x")) { file.setExecutable(true, false); } else { file.setExecutable(true); }
 				}
 
 				return true;
 			}
 
-		} catch (SecurityException e) {
-			RfcxLog.logExc(logTag, e);
-		} catch (IllegalArgumentException e) {
-			RfcxLog.logExc(logTag, e);
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -248,15 +245,13 @@ public class FileUtils {
 		List<File> files = new ArrayList<File>();
 		File dirObj = new File(directoryFilePath);
 		if (dirObj.isDirectory()) {
-			for (File file : dirObj.listFiles()) {
+			for (File file : Objects.requireNonNull(dirObj.listFiles())) {
 				try {
 					if (!file.isDirectory()) {
 						files.add(file);
 					} else if (isRecursive) {
 						List<File> innerFiles = getDirectoryContents(file.getAbsolutePath(), isRecursive);
-						for (File innerFile : innerFiles) {
-							files.add(innerFile);
-						}
+						files.addAll(innerFiles);
 					}
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
@@ -271,14 +266,13 @@ public class FileUtils {
 		File dirObj = new File(directoryFilePath);
 		if (dirObj.isDirectory()) {
 			File[] innerFiles = dirObj.listFiles();
+			assert innerFiles != null;
 			if (innerFiles.length == 0) {
 				dirs.add(dirObj);
 			} else {
 				for (File innerFile : innerFiles) {
 					List<File> innerDirs = getEmptyDirectories(innerFile.getAbsolutePath());
-					for (File innerDir : innerDirs) {
-						dirs.add(innerDir);
-					}
+					dirs.addAll(innerDirs);
 				}
 			}
 		}
@@ -288,7 +282,7 @@ public class FileUtils {
 
 	public static void deleteDirectoryContents(String directoryFilePath) {
 		File directory = new File(directoryFilePath);
-		for (File file : directory.listFiles()) {
+		for (File file : Objects.requireNonNull(directory.listFiles())) {
 			try { 
 				file.delete();
 				Log.d(logTag, "Deleted "+file.getName()+" from "+directory.getName()+" directory.");
@@ -300,7 +294,7 @@ public class FileUtils {
 	
 	public static void deleteDirectoryContents(String directoryFilePath, List<String> excludeFilePaths) {
 		File directory = new File(directoryFilePath);
-		for (File file : directory.listFiles()) {
+		for (File file : Objects.requireNonNull(directory.listFiles())) {
 			try { 
 				if (!excludeFilePaths.contains(file.getAbsolutePath())) {
 					file.delete();
@@ -314,9 +308,9 @@ public class FileUtils {
 	
 	public static void deleteDirectoryContentsIfOlderThanExpirationAge(String directoryFilePath, int expirationAgeInMinutes) {
 		File directory = new File(directoryFilePath);
-		for (File file : directory.listFiles()) {
+		for (File file : Objects.requireNonNull(directory.listFiles())) {
 			try { 
-				int fileAgeInMinutes = Math.round((millisecondsSinceLastModified(file) / 1000 ) / 60);
+				int fileAgeInMinutes = (int) Math.round((((double) millisecondsSinceLastModified(file)) / 1000 ) / 60);
 				if (fileAgeInMinutes > expirationAgeInMinutes) {
 					file.delete();
 					Log.d(logTag, "Deleted "+file.getName()+" from "+directory.getName()+" directory ("+fileAgeInMinutes+" minutes old).");
@@ -362,8 +356,6 @@ public class FileUtils {
 					}
 				}
 				tarOutputStream.close();
-			} catch (FileNotFoundException e) {
-				RfcxLog.logExc(logTag, e);
 			} catch (IOException e) {
 				RfcxLog.logExc(logTag, e);
 			}
@@ -392,8 +384,6 @@ public class FileUtils {
             fileOutputStream.close();
             fileInputStream.close();
             
-		} catch (FileNotFoundException e) {
-			RfcxLog.logExc(logTag, e);
 		} catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -423,8 +413,6 @@ public class FileUtils {
             gZipInputStream.close();
             fileInputStream.close();
             
-		} catch (FileNotFoundException e) {
-			RfcxLog.logExc(logTag, e);
 		} catch (IOException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -433,13 +421,6 @@ public class FileUtils {
 	public static void gUnZipFile(String inputFilePath, String outputFilePath) {
 		gUnZipFile( (new File(inputFilePath)), (new File(outputFilePath)));
 	}
-	
-	
-	public static String getSystemApplicationDirPath(Context context) {
-		String currentAppFilesDir = context.getFilesDir().getAbsolutePath();
-		return currentAppFilesDir.substring(0, currentAppFilesDir.indexOf("org.rfcx.org.rfcx.guardian.guardian."));
-	}
-
 
 	public static String bytesAsReadableString(int bytes) {
 		return bytesAsReadableString(Long.parseLong(""+bytes));
@@ -448,19 +429,19 @@ public class FileUtils {
 	public static String bytesAsReadableString(long bytes) {
 		StringBuilder sizeStr = new StringBuilder();
 
-		int MB = (int) Math.floor( bytes / 1048576 );
-		int kB = (int) Math.floor( (bytes - (MB * 1048576)) / 1024 );
+		int MB = (int) Math.floor( ((double) bytes) / 1048576 );
+		int kB = (int) Math.floor( (((double) bytes) - (MB * 1048576)) / 1024 );
 		int B = (int) Math.floor( (bytes - (MB * 1048576) - (kB * 1024)));
 
 		if (MB > 0) {
 			sizeStr.append(MB);
-			int fracVal = (int) Math.floor(100*kB/1024);
+			int fracVal = (int) Math.floor(100 * ((double) kB) / 1024);
 			sizeStr.append(".").append( (fracVal < 10) ? "0" : "").append(fracVal);
 			sizeStr.append(" MB");
 
 		} else if (kB > 1) {
 			sizeStr.append(kB);
-			int fracVal = (int) Math.floor(10*B/1024);
+			int fracVal = (int) Math.floor(10 * ((double) B) / 1024);
 			if (kB < 10) { sizeStr.append(".").append(fracVal); }
 			sizeStr.append(" kB");
 

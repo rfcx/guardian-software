@@ -22,6 +22,7 @@ import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxVideoFileUtils;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
@@ -345,15 +346,12 @@ public class ApiMqttUtils implements MqttCallback {
 
 		boolean isSent = false;
 
-		if (app.apiCheckInHealthUtils.isApiCheckInAllowed(true, false)) {
-
+		if (areMqttApiInteractionsAllowed()) {
 			try {
-
 				publishMessageOnConfirmedConnection( this.mqttTopic_Publish_Ping, 1, false, packageMqttPingPayload( app.apiPingJsonUtils.injectGuardianIdentityIntoJson( pingJson ) ) );
 				isSent = true;
 
 			} catch (Exception e) {
-
 				RfcxLog.logExc(logTag, e, "sendMqttPing");
 				handleMqttPingPublicationExceptions(e);
 			}
@@ -544,6 +542,23 @@ public class ApiMqttUtils implements MqttCallback {
 				}
 			}
 		}
+	}
+
+
+	private boolean areMqttApiInteractionsAllowed() {
+
+		if (	(app != null)
+			&&	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "mqtt")
+			&&	app.deviceConnectivity.isConnected()
+			&&	app.apiCheckInHealthUtils.isApiCheckInAllowed(true, false)
+		) {
+			return true;
+
+		} else {
+			Log.d(logTag, "MQTT Api interaction blocked.");
+			closeConnectionToBroker();
+		}
+		return false;
 	}
 
 }
