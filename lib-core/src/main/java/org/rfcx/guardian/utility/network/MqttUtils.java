@@ -36,8 +36,8 @@ public class MqttUtils implements MqttCallback {
 		this.mqttClientId = "rfcx-guardian-" + guardianGuid.toLowerCase(Locale.US) + "-" + appRole.toLowerCase(Locale.US);
 	}
 
-	private Context context;
-	private String logTag;
+	private final Context context;
+	private final String logTag;
 
 
 	private String mqttClientId = null;
@@ -49,11 +49,15 @@ public class MqttUtils implements MqttCallback {
 	private String mqttBrokerAuthUserName = null;
 	private String mqttBrokerAuthPassword = null;
 	private MqttClient mqttClient = null;
-	private List<String> mqttTopics_Subscribe = new ArrayList<String>();;
+	private final List<String> mqttTopics_Subscribe = new ArrayList<String>();;
 	private int mqttSubscriptionQoS = 1;
 	private MqttCallback mqttCallback = this;
 	
 	private long mqttActionTimeout = 0;
+	private static final int minMqttConnectionTimeoutInSeconds = 45;
+	private static final int minMqttKeepAliveIntervalInSeconds = 30;
+	private int mqttConnectionTimeoutInSeconds = minMqttConnectionTimeoutInSeconds;
+	private int mqttKeepAliveIntervalInSeconds = minMqttKeepAliveIntervalInSeconds;
 	
 	private long msgSendStart = System.currentTimeMillis();
 	
@@ -65,15 +69,14 @@ public class MqttUtils implements MqttCallback {
 		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html
 
 		connectOptions.setCleanSession(true); // If false, both the client and server will maintain state across restarts of the client, the server and the connection.
-		connectOptions.setConnectionTimeout(30); // in seconds
-		connectOptions.setKeepAliveInterval(45); // in seconds
+		connectOptions.setConnectionTimeout(this.mqttConnectionTimeoutInSeconds); // in seconds
+		connectOptions.setKeepAliveInterval(this.mqttKeepAliveIntervalInSeconds); // in seconds
 		connectOptions.setAutomaticReconnect(false); // automatically attempt to reconnect to the server if the connection is lost
 		connectOptions.setMaxInflight(1); // limits how many messages can be sent without receiving acknowledgments
 
 		if (this.mqttBrokerProtocol.equalsIgnoreCase("ssl")) {
 			try {
-//				InputStream brokerKeystore = context.getAssets().open(this.mqttBrokerAddress.replaceAll("\\.", "_")+".bks");
-				InputStream brokerKeystore = context.getAssets().open("staging-api-mqtt.rfcx.org".replaceAll("\\.", "_")+".bks");
+				InputStream brokerKeystore = context.getAssets().open(this.mqttBrokerAddress.replaceAll("\\.", "_")+".bks");
 				connectOptions.setSocketFactory(getSSLSocketFactory(brokerKeystore, mqttBrokerKeystorePassphrase));
 			} catch (IOException e) {
 				RfcxLog.logExc(logTag, e);
@@ -95,6 +98,19 @@ public class MqttUtils implements MqttCallback {
 		// https://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttClient.html#setTimeToWait-long-
 		this.mqttActionTimeout = timeToWaitInMillis;
 		Log.v(logTag, "MQTT client action timeout set to: "+DateTimeUtils.milliSecondDurationAsReadableString(this.mqttActionTimeout, true));
+	}
+
+	public void setConnectionTimeouts( int connectionTimeoutInSeconds, int keepAliveIntervalInSeconds ) {
+
+		boolean reportUpdatedValuesToLog = 	(this.mqttConnectionTimeoutInSeconds != Math.max(connectionTimeoutInSeconds, minMqttConnectionTimeoutInSeconds))
+										|| 	(this.mqttKeepAliveIntervalInSeconds != Math.min(keepAliveIntervalInSeconds, minMqttKeepAliveIntervalInSeconds));
+
+		this.mqttConnectionTimeoutInSeconds = Math.max(connectionTimeoutInSeconds, minMqttConnectionTimeoutInSeconds);
+		this.mqttKeepAliveIntervalInSeconds = Math.min(keepAliveIntervalInSeconds, minMqttKeepAliveIntervalInSeconds);
+
+		if (reportUpdatedValuesToLog) {
+			Log.v(logTag, "MQTT timeouts set for Connection ("+DateTimeUtils.milliSecondDurationAsReadableString(this.mqttConnectionTimeoutInSeconds*1000)+") and Keep-Alive Interval ("+DateTimeUtils.milliSecondDurationAsReadableString(this.mqttKeepAliveIntervalInSeconds*1000)+")");
+		}
 	}
 	
 	public void addSubscribeTopic(String subscribeTopic) {
@@ -198,7 +214,7 @@ public class MqttUtils implements MqttCallback {
 	}
 	
 	@Override
-	public void messageArrived(String messageTopic, MqttMessage mqttMessage) throws Exception {
+	public void messageArrived(String messageTopic, MqttMessage mqttMessage) {
 		Log.i(this.logTag, "Message Arrived: "+new String(mqttMessage.getPayload()));
 	}
 	
@@ -214,16 +230,16 @@ public class MqttUtils implements MqttCallback {
 		RfcxLog.logThrowable(logTag, cause);
 	}
 
-	private SSLSocketFactory getSSLSocketFactory(InputStream keyStore, String passphrase) throws MqttSecurityException {
+	private SSLSocketFactory getSSLSocketFactory(InputStream keyStoreInputStream, String passphrase) throws MqttSecurityException {
 		try {
-			KeyStore ts = KeyStore.getInstance("BKS");
-			ts.load(keyStore, passphrase.toCharArray());
-			TrustManagerFactory tmf = TrustManagerFactory.getInstance("X509");
-			tmf.init(ts);
-			TrustManager[] tm = tmf.getTrustManagers();
-			SSLContext ctx = SSLContext.getInstance("TLSv1");
-			ctx.init(null, tm, null);
-			return new TLSSocketFactory(ctx.getSocketFactory(),
+			KeyStore keyStore = KeyStore.getInstance("BKS");
+			keyStore.load(keyStoreInputStream, passphrase.toCharArray());
+			TrustManagerFactory tmFactory = TrustManagerFactory.getInstance("X509");
+			tmFactory.init(keyStore);
+			TrustManager[] trustManager = tmFactory.getTrustManagers();
+			SSLContext sslContext = SSLContext.getInstance("TLSv1");
+			sslContext.init(null, trustManager, null);
+			return new TLSSocketFactory(sslContext.getSocketFactory(),
 										new String[]{
 													"TLSv1"//,
 												//	"TLSv1.1"//,  // v1.1 and v1.2 require enabling at the Android OS level
@@ -234,9 +250,3 @@ public class MqttUtils implements MqttCallback {
 		}
 	}
 }
-
-
-
-
-
-

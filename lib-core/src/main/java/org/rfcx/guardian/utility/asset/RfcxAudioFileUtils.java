@@ -79,11 +79,11 @@ public class RfcxAudioFileUtils {
 //		return audioCaptureDir(context) + "/" + timestamp + "." + fileExtension;
 //	}
 
-	public static String getAudioFileName(String originTag, long timestamp, String audioCodec, long audioLength, int sampleRate) {
+	public static String getAudioFileName(String originTag, long timestamp, String audioCodec, int audioLength, int sampleRate) {
 		return 	originTag
 				+ "_" + fileDateTimeFormat.format(new Date(timestamp))
-				+ audioLengthTag(audioLength)
 				+ sampleRateTag(sampleRate)
+				+ audioLengthTag(audioLength)
 				+ "." + getFileExt(audioCodec);
 	}
 
@@ -119,7 +119,7 @@ public class RfcxAudioFileUtils {
 		return audioLibraryDir(context) + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName("library", timestamp, audioCodec, 0, 0);
 	}
 
-	public static String getAudioFileLocation_Vault(String rfcxDeviceId, long timestamp, String audioCodec, long audioLength, int sampleRate) {
+	public static String getAudioFileLocation_Vault(String rfcxDeviceId, long timestamp, String audioCodec, int audioLength, int sampleRate) {
 		return audioVaultDir() + "/" + dirDateTimeFormat_DayOnly.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, audioLength, sampleRate);
 	}
 
@@ -140,11 +140,15 @@ public class RfcxAudioFileUtils {
 	}
 
 	private static String sampleRateTag(int sampleRate) {
-		return ((sampleRate == 0) ? "" : "_" + (Math.round(sampleRate/1000) + "kHz"));
+		return ((sampleRate == 0) ? "" : "_" + (Math.round(((double) sampleRate)/1000) + "kHz"));
 	}
 
-	private static String audioLengthTag(long audioLength) {
-		return ((audioLength == 0) ? "" : "_" + (String.format(Locale.US, "%.3f", (Float.parseFloat(""+audioLength)/1000)) + "s"));
+	private static String audioLengthTag(int audioLength) {
+		return ((audioLength == 0) ? "" : "_" + (
+				//String.format(Locale.US, "%.3f", (((double) audioLength)/1000))
+				Math.round(((double) audioLength)/1000)
+				+ "secs")
+		);
 	}
 
 	private static String miscTag(String tagLabel) {

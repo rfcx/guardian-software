@@ -167,7 +167,7 @@ public class ApiCheckInArchiveService extends Service {
 							String[] audioMeta = audioJson.getString("audio").split("\\*");
 
 							long measuredAt = Long.parseLong(audioMeta[1]);
-							long audioDuration = Long.parseLong(audioMeta[10]);
+							int audioDuration = Integer.parseInt(audioMeta[10]);
 							int sampleRate = Integer.parseInt(audioMeta[4]);
 
 							String archivedAudioFileName = RfcxAudioFileUtils.getAudioFileName(rfcxDeviceId, measuredAt, audioMeta[2], audioDuration, sampleRate);

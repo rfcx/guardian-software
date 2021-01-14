@@ -244,6 +244,12 @@
 		android:entryValues="@array/prefs_values_audio_encode_bitrate"
 		android:defaultValue="@string/prefs_value_default_audio_stream_bitrate" />
 
+	<EditTextPreference
+			android:key="audio_stream_gain"
+			android:title="audio_stream_gain"
+			android:summary="float - volume increase/decrease"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_audio_stream_gain" />
 
 
 	<ListPreference
@@ -272,6 +278,13 @@
 			android:entries="@array/prefs_labels_audio_encode_bitrate"
 			android:entryValues="@array/prefs_values_audio_encode_bitrate"
 			android:defaultValue="@string/prefs_value_default_audio_vault_bitrate" />
+
+	<EditTextPreference
+			android:key="audio_vault_gain"
+			android:title="audio_vault_gain"
+			android:summary="float - volume increase/decrease"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_audio_vault_gain" />
 
 
 
@@ -530,15 +543,6 @@
 			android:entries="@array/prefs_values_true_or_false"
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_socket"/>
-
-	<ListPreference
-			android:key="audio_classify_allow_gpu"
-			android:title="audio_classify_allow_gpu"
-			android:dialogTitle="audio_classify_allow_gpu"
-			android:summary="string - Yes/No"
-			android:entries="@array/prefs_values_true_or_false"
-			android:entryValues="@array/prefs_values_true_or_false"
-			android:defaultValue="@string/prefs_value_default_audio_classify_allow_gpu"/>
  	
  	
 </PreferenceScreen>

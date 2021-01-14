@@ -59,12 +59,12 @@ public class ApiMqttUtils implements MqttCallback {
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiMqttUtils");
 
-	private RfcxGuardian app;
-	private MqttUtils mqttCheckInClient = null;
+	private final RfcxGuardian app;
+	private final MqttUtils mqttCheckInClient;
 
-	private String mqttTopic_Subscribe_Command = null;
-	private String mqttTopic_Publish_CheckIn = null;
-	private String mqttTopic_Publish_Ping = null;
+	private final String mqttTopic_Subscribe_Command;
+	private final String mqttTopic_Publish_CheckIn;
+	private final String mqttTopic_Publish_Ping;
 
 	private long checkInPublishTimeOutLength = 0;
 	private long checkInPublishCompletedAt = System.currentTimeMillis();
@@ -79,6 +79,7 @@ public class ApiMqttUtils implements MqttCallback {
 		String[] authUserPswd = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_AUTH_CREDS).split(",");
 		String authUser = !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_MQTT_AUTH) ? null : authUserPswd[0];
 		String authPswd = !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_MQTT_AUTH) ? null : authUserPswd[1];
+		assert authUser != null;
 		this.mqttCheckInClient.setOrResetBroker(
 			this.app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_PROTOCOL),
 			this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.API_MQTT_PORT),
@@ -86,7 +87,11 @@ public class ApiMqttUtils implements MqttCallback {
 			this.app.rfcxGuardianIdentity.getKeystorePassphrase(),
 			!authUser.equalsIgnoreCase("[guid]") ? authUser : app.rfcxGuardianIdentity.getGuid(),
 			!authPswd.equalsIgnoreCase("[token]") ? authPswd : app.rfcxGuardianIdentity.getAuthToken()
-		);
+			);
+		this.mqttCheckInClient.setConnectionTimeouts(
+			(int) Math.round( this.app.rfcxPrefs.getPrefAsInt( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION ) * 0.667 ),
+			(int) Math.round( this.app.rfcxPrefs.getPrefAsInt( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION ) * 0.333 )
+			);
 	}
 
 	public long getSetCheckInPublishTimeOutLength() {
@@ -319,8 +324,6 @@ public class ApiMqttUtils implements MqttCallback {
 			} catch (MqttException e) {
 				RfcxLog.logExc(logTag, e, "confirmOrCreateConnectionToBroker");
 			}
-		} else {
-//			Log.e(logTag, "Last broker connection attempt was less than " + DateTimeUtils.milliSecondDurationAsReadableString(minDelayBetweenConnectionAttempts) + " ago");
 		}
 	}
 
@@ -354,7 +357,6 @@ public class ApiMqttUtils implements MqttCallback {
 				RfcxLog.logExc(logTag, e, "sendMqttPing");
 				handleMqttPingPublicationExceptions(e);
 			}
-
 		}
 
 		return isSent;
@@ -465,8 +467,6 @@ public class ApiMqttUtils implements MqttCallback {
         }
     }
 
-
-
 	public void initializeFailedCheckInThresholds() {
 
 		String[] checkInThresholdsStr = TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS), ",");
@@ -496,16 +496,16 @@ public class ApiMqttUtils implements MqttCallback {
 		if (this.failedCheckInThresholds.length > 0) {
 
 			int minsSinceSuccess = (int) Math.floor(((System.currentTimeMillis() - this.checkInPublishCompletedAt) / 1000) / 60);
-			//		int minsSinceConnected = (int) Math.floor(((System.currentTimeMillis() - app.deviceConnectivity.lastConnectedAt()) / 1000) / 60);
+			//int minsSinceConnected = (int) Math.floor(((System.currentTimeMillis() - app.deviceConnectivity.lastConnectedAt()) / 1000) / 60);
 
 			if (	// ...we haven't yet reached the first threshold for bad connectivity
 					(minsSinceSuccess < this.failedCheckInThresholds[0])
-							// OR... we are explicitly in offline mode
-							|| app.apiCheckInHealthUtils.isApiCheckInDisabled(false)
-							// OR... checkins are explicitly paused due to low battery level
-							|| !app.apiCheckInHealthUtils.isBatteryChargeSufficientForCheckIn()
-				// OR... this is likely the first checkin after a period of disconnection
-				//	|| (app.deviceConnectivity.isConnected() && (minsSinceConnected < this.failedCheckInThresholds[0]))
+					// OR... we are explicitly in offline mode
+					|| app.apiCheckInHealthUtils.isApiCheckInDisabled(false)
+					// OR... checkins are explicitly paused due to low battery level
+					|| !app.apiCheckInHealthUtils.isBatteryChargeSufficientForCheckIn()
+					// OR... this is likely the first checkin after a period of disconnection
+					//	|| (app.deviceConnectivity.isConnected() && (minsSinceConnected < this.failedCheckInThresholds[0]))
 			) {
 				for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
 					this.failedCheckInThresholdsReached[i] = false;

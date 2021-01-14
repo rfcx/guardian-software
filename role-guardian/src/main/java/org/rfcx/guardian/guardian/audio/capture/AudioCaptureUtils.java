@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.audio.capture;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
@@ -18,8 +19,14 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
+import android.media.MediaExtractor;
+import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -289,19 +296,17 @@ public class AudioCaptureUtils {
 		if (captureFile.exists()) {
 			try {
 
-				double inputGain = 1.0;
-
 				if (isToBeEncoded) {
-					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, "g"+Math.round(inputGain*10)));
+					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, "g10"));
 					FileUtils.copy(captureFile, preEncodeFile);
-		//			FileUtils.chmod(preEncodeFile, "rw", "rw");
+					FileUtils.chmod(preEncodeFile, "rw", "rw");
 					isEncodeFileMoved = preEncodeFile.exists();
 				}
 
 				if (isToBeClassified) {
-					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, sampleRate, "g"+Math.round(inputGain*10)));
+					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, sampleRate, "g10"));
 					FileUtils.copy(captureFile, preClassifyFile);
-		//			FileUtils.chmod(preClassifyFile, "rw", "rw");
+					FileUtils.chmod(preClassifyFile, "rw", "rw");
 					isClassifyFileMoved = preClassifyFile.exists();
 				}
 
@@ -338,14 +343,28 @@ public class AudioCaptureUtils {
 
 		} else {
 
-			// create resample copy of the audio file
-			// as a placeholder, for now, we just copy it...
-//			FileUtils.copy(inputFilePath, outputFilePath);
 			WavResampler.resampleWavWithGain(inputFilePath, outputFilePath, inputSampleRate, outputSampleRate, outputGain);
 
 			return (new File(outputFilePath));
 		}
 
+	}
+
+	public static int getAudioFileDurationInMilliseconds(File audioFileObj, int fallbackDuration) {
+		int audioDuration = fallbackDuration;
+//		try {
+//			if (audioFileObj.exists()) {
+//				MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+//			//	AssetFileDescriptor afd = new AssetFileDescriptor();
+//				mmr.setDataSource(audioFileObj.getAbsolutePath());
+//			//	me.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+//				audioDuration = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+//				mmr.close();
+//			}
+//		} catch (Exception e) {
+//			RfcxLog.logExc(logTag, e);
+//		}
+		return audioDuration;
 	}
 
 

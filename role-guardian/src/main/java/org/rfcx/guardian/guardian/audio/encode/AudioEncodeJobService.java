@@ -99,12 +99,13 @@ public class AudioEncodeJobService extends Service {
 						String encodePurpose = latestQueuedAudioToEncode[9];
 						String timestamp = latestQueuedAudioToEncode[1];
 						String inputFileExt = latestQueuedAudioToEncode[2];
-						long audioDuration = Long.parseLong(latestQueuedAudioToEncode[7]);
+						int targetAudioFileCaptureDuration = Integer.parseInt(latestQueuedAudioToEncode[7]);
 						String codec = latestQueuedAudioToEncode[6];
 						int bitRate = Integer.parseInt(latestQueuedAudioToEncode[5]);
 						int inputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[11]);
 						int outputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[4]);
-						double outputGain = 1.0;
+
+						double outputGain = encodePurpose.equalsIgnoreCase("stream") ? Double.parseDouble(app.rfcxPrefs.getPrefAsString( RfcxPrefs.Pref.AUDIO_STREAM_GAIN )) : Double.parseDouble(app.rfcxPrefs.getPrefAsString( RfcxPrefs.Pref.AUDIO_VAULT_GAIN ));
 						
 						File preEncodeFile = new File(latestQueuedAudioToEncode[10]);
 						File finalDestinationFile = null;
@@ -169,8 +170,8 @@ public class AudioEncodeJobService extends Service {
 										if (app.apiCheckInUtils.sendEncodedAudioToQueue(timestamp, gZippedFile, finalDestinationFile)) {
 
 											app.audioEncodeDb.dbEncoded.insert(
-													timestamp, RfcxAudioFileUtils.getFileExt(codec), encodedFileDigest, outputSampleRate, measuredBitRate,
-													codec, audioDuration, encodeDuration, encodePurpose, finalDestinationFile.getAbsolutePath(), inputSampleRate
+													timestamp, RfcxAudioFileUtils.getFileExt(codec), encodedFileDigest, outputSampleRate, measuredBitRate, codec,
+													targetAudioFileCaptureDuration, encodeDuration, encodePurpose, finalDestinationFile.getAbsolutePath(), inputSampleRate
 											);
 										}
 
@@ -178,18 +179,20 @@ public class AudioEncodeJobService extends Service {
 
 								} else if (encodePurpose.equalsIgnoreCase("vault")) {
 
-									finalDestinationFile = new File(RfcxAudioFileUtils.getAudioFileLocation_Vault(app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec), audioDuration, outputSampleRate));
+									int measuredAudioFileDuration = AudioCaptureUtils.getAudioFileDurationInMilliseconds(postEncodeFile, targetAudioFileCaptureDuration);
+
+									finalDestinationFile = new File(RfcxAudioFileUtils.getAudioFileLocation_Vault( app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec), measuredAudioFileDuration, outputSampleRate));
 
 									if (AudioEncodeUtils.sendEncodedAudioToVault(timestamp, postEncodeFile, finalDestinationFile)) {
 
 										String vaultRowId = AudioEncodeUtils.vaultStatsDayId.format(new Date(Long.parseLong(timestamp)));
 
 										if (app.audioVaultDb.dbVault.getCountById(vaultRowId) > 0) {
-											app.audioVaultDb.dbVault.incrementSingleRowDuration(vaultRowId, Math.round(audioDuration/1000));
+											app.audioVaultDb.dbVault.incrementSingleRowDuration(vaultRowId, Math.round(((double) measuredAudioFileDuration)/1000));
 											app.audioVaultDb.dbVault.incrementSingleRowRecordCount(vaultRowId, 1);
 											app.audioVaultDb.dbVault.incrementSingleRowFileSize(vaultRowId, FileUtils.getFileSizeInBytes(finalDestinationFile));
 										} else {
-											app.audioVaultDb.dbVault.insert(vaultRowId, Math.round(audioDuration/1000), 1, FileUtils.getFileSizeInBytes(finalDestinationFile));
+											app.audioVaultDb.dbVault.insert(vaultRowId, Math.round(((double) measuredAudioFileDuration)/1000), 1, FileUtils.getFileSizeInBytes(finalDestinationFile));
 										}
 
 									}

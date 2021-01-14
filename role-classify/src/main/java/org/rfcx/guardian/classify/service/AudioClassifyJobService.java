@@ -84,8 +84,6 @@ public class AudioClassifyJobService extends Service {
 
 			try {
 
-				boolean allowGpu = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.AUDIO_CLASSIFY_ALLOW_GPU);
-
 				List<String[]> latestQueuedAudioFilesToClassify = app.audioClassifyDb.dbQueued.getAllRows();
 				if (latestQueuedAudioFilesToClassify.size() == 0) { Log.d(logTag, "No classification jobs are currently queued."); }
 				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
@@ -130,7 +128,7 @@ public class AudioClassifyJobService extends Service {
 
 							} else {
 
-								boolean isClassifierInitialized = app.audioClassifyUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, allowGpu, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
+								boolean isClassifierInitialized = app.audioClassifyUtils.confirmOrLoadClassifier(classifierId, clsfrFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
 
 								if (!isClassifierInitialized) {
 
