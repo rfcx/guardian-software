@@ -105,8 +105,6 @@ public class AudioEncodeJobService extends Service {
 						int inputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[11]);
 						int outputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[4]);
 
-						double outputGain = encodePurpose.equalsIgnoreCase("stream") ? Double.parseDouble(app.rfcxPrefs.getPrefAsString( RfcxPrefs.Pref.AUDIO_STREAM_GAIN )) : Double.parseDouble(app.rfcxPrefs.getPrefAsString( RfcxPrefs.Pref.AUDIO_VAULT_GAIN ));
-						
 						File preEncodeFile = new File(latestQueuedAudioToEncode[10]);
 						File finalDestinationFile = null;
 						
@@ -127,14 +125,14 @@ public class AudioEncodeJobService extends Service {
 
 							Log.i(logTag, "Beginning Audio Encode Job ("+ StringUtils.capitalizeFirstChar(encodePurpose) +"): "
 												+ timestamp + ", "
-												+ inputFileExt.toUpperCase(Locale.US) + " ("+Math.round(inputSampleRate/1000)+" kHz) "
-												+"to " + codec.toUpperCase(Locale.US)+" ("+Math.round(outputSampleRate/1000)+" kHz"+ ((codec.equalsIgnoreCase("opus")) ? (", "+Math.round(bitRate/1024)+" kbps") : "")+")"
+												+ inputFileExt.toUpperCase(Locale.US) + " ("+Math.round((double) inputSampleRate/1000)+" kHz) "
+												+"to " + codec.toUpperCase(Locale.US)+" ("+Math.round((double) outputSampleRate/1000)+" kHz"+ ((codec.equalsIgnoreCase("opus")) ? (", "+Math.round(bitRate/1024)+" kbps") : "")+")"
 							);
 
 							app.audioEncodeDb.dbQueued.incrementSingleRowAttempts(timestamp);
 
 							// if needed, re-sample wav file prior to encoding
-							preEncodeFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, encodePurpose, preEncodeFile.getAbsolutePath(), Long.parseLong(timestamp), inputFileExt, inputSampleRate, outputSampleRate, outputGain);
+							preEncodeFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, encodePurpose, preEncodeFile.getAbsolutePath(), Long.parseLong(timestamp), inputFileExt, inputSampleRate, outputSampleRate, 1);
 
 							File postEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PostEncode(context, Long.parseLong(timestamp), codec, outputSampleRate, encodePurpose));
 

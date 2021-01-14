@@ -198,26 +198,23 @@ public class ApiCheckInHealthUtils {
 
 
 
-	public JSONObject apiCheckInStatusAsJsonObj() {
+	public String apiCheckInStatusAsJsonObjStr() {
 
-		JSONObject statusObj = null;
+		String statusObjStr = "{\"is_allowed\":true,\"is_disabled\":false}";
+
 		try {
-			// Put dummy data first, in case the calls fail
-			statusObj = new JSONObject();
-			statusObj.put("is_allowed", true);
-			statusObj.put("is_disabled", false);
-
 			// Now add real data
 			boolean isAllowed = isApiCheckInAllowed(false, false);
 			boolean isDisabled = isApiCheckInDisabled(false);
-			statusObj = new JSONObject();
+			JSONObject statusObj = new JSONObject();
 			statusObj.put("is_allowed", isAllowed);
 			statusObj.put("is_disabled", isDisabled);
-
+			statusObjStr = statusObj.toString();
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
-		return statusObj;
+
+		return statusObjStr;
 	}
 
 
@@ -267,7 +264,7 @@ public class ApiCheckInHealthUtils {
 		StringBuilder msgIfDisabled = new StringBuilder();
 
 		if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH)) {
-			msgIfDisabled.append("preference 'enable_checkin_publish' being explicitly set to false.");
+			msgIfDisabled.append("preference '"+RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH.toLowerCase()+"' being explicitly set to false.");
 			areApiChecksInDisabledRightNow = true;
 
 		// This section is commented out because there is currently no mechanism by which the checkins are filtered by time of day (off hours)

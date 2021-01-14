@@ -90,16 +90,15 @@ public class RfcxPrefs {
 		public static final String AUDIO_CUTOFF_SENTINEL_BATTERY = "audio_cutoff_sentinel_battery";
 
 		public static final String AUDIO_CAPTURE_SAMPLE_RATE = "audio_capture_sample_rate";
+		public static final String AUDIO_CAPTURE_GAIN = "audio_capture_gain";
 
 		public static final String AUDIO_STREAM_SAMPLE_RATE = "audio_stream_sample_rate";
 		public static final String AUDIO_STREAM_CODEC = "audio_stream_codec";
 		public static final String AUDIO_STREAM_BITRATE = "audio_stream_bitrate";
-		public static final String AUDIO_STREAM_GAIN = "audio_stream_gain";
 
 		public static final String AUDIO_VAULT_SAMPLE_RATE = "audio_vault_sample_rate";
 		public static final String AUDIO_VAULT_CODEC = "audio_vault_codec";
 		public static final String AUDIO_VAULT_BITRATE = "audio_vault_bitrate";
-		public static final String AUDIO_VAULT_GAIN = "audio_vault_gain";
 
 		public static final String CHECKIN_FAILURE_THRESHOLDS = "checkin_failure_thresholds";
 		public static final String CHECKIN_FAILURE_LIMIT = "checkin_failure_limit";
@@ -195,16 +194,15 @@ public class RfcxPrefs {
 //			put("audio_sample_rate", "24000");
 
 			put(Pref.AUDIO_CAPTURE_SAMPLE_RATE, "24000");
+			put(Pref.AUDIO_CAPTURE_GAIN, "1.0");
 
 			put(Pref.AUDIO_STREAM_SAMPLE_RATE, "24000");
 			put(Pref.AUDIO_STREAM_CODEC, "opus");
 			put(Pref.AUDIO_STREAM_BITRATE, "28672");
-			put(Pref.AUDIO_STREAM_GAIN, "1.0");
 
 			put(Pref.AUDIO_VAULT_SAMPLE_RATE, "24000");
 			put(Pref.AUDIO_VAULT_CODEC, "flac");
 			put(Pref.AUDIO_VAULT_BITRATE, "28672");
-			put(Pref.AUDIO_VAULT_GAIN, "1.0");
 
 			put(Pref.CHECKIN_FAILURE_THRESHOLDS, "15,30,50,70,90");
 			put(Pref.CHECKIN_FAILURE_LIMIT, "3");

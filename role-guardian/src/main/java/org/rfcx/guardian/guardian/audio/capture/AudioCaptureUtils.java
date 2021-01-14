@@ -1,38 +1,29 @@
 package org.rfcx.guardian.guardian.audio.capture;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.Locale;
+import android.content.Context;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.text.TextUtils;
+import android.util.Log;
+import android.util.Pair;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.audio.wav.WavResampler;
+import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceStorage;
-import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
+import org.rfcx.guardian.utility.device.capture.DeviceStorage;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
-import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaExtractor;
-import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.ParcelFileDescriptor;
-import android.text.TextUtils;
-import android.util.Log;
-import android.util.Pair;
-
-import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 
 public class AudioCaptureUtils {
 
@@ -133,11 +124,7 @@ public class AudioCaptureUtils {
 					JSONObject jsonObj = jsonArray.getJSONObject(0);
 					if (jsonObj.has("audio_capture")) {
 						JSONObject apiCheckInObj = jsonObj.getJSONObject("audio_capture");
-						if (apiCheckInObj.has("is_allowed")) {
-							if (!apiCheckInObj.getBoolean(("is_allowed"))) {
-								return true;
-							}
-						}
+						return apiCheckInObj.has("is_allowed") && !apiCheckInObj.getBoolean("is_allowed");
 					}
 				}
 			} catch (JSONException e) {
@@ -179,27 +166,23 @@ public class AudioCaptureUtils {
 		return (this.samplingRatioIteration == 1);
 	}
 
-	public JSONObject audioCaptureStatusAsJsonObj() {
+	public String audioCaptureStatusAsJsonObjStr() {
 
-		JSONObject statusObj = null;
+		String statusObjStr = "{\"is_allowed\":true,\"is_disabled\":false}";
+
         try {
-        	// Put dummy data first, in case the calls fail
-			statusObj = new JSONObject();
-			statusObj.put("is_allowed", true);
-			statusObj.put("is_disabled", false);
-
 			// Now add real data
 			boolean isAllowed = isAudioCaptureAllowed(false, false);
 			boolean isDisabled = isAudioCaptureDisabled(false);
-			statusObj = new JSONObject();
+			JSONObject statusObj = new JSONObject();
 			statusObj.put("is_allowed", isAllowed);
 			statusObj.put("is_disabled", isDisabled);
-
+			statusObjStr = statusObj.toString();
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
 
-        return statusObj;
+        return statusObjStr;
 	}
 
 	public boolean isAudioCaptureAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
@@ -253,7 +236,7 @@ public class AudioCaptureUtils {
 		StringBuilder msgNoCapture = new StringBuilder();
 
 		if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
-			msgNoCapture.append("it being explicitly disabled ('enable_audio_capture' is set to false).");
+			msgNoCapture.append("it being explicitly disabled ('"+RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE.toLowerCase()+"' is set to false).");
 			isAudioCaptureDisabledRightNow = true;
 
 		} else if (limitBasedOnTimeOfDay()) {
