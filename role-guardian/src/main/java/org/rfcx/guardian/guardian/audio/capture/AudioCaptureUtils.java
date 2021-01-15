@@ -1,21 +1,5 @@
 package org.rfcx.guardian.guardian.audio.capture;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.rfcx.guardian.audio.wav.WavResampler;
-import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.device.capture.DeviceStorage;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
-
 import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -23,8 +7,23 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.rfcx.guardian.audio.wav.WavResampler;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
+import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
+import org.rfcx.guardian.utility.device.capture.DeviceStorage;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 
 public class AudioCaptureUtils {
 
@@ -125,11 +124,7 @@ public class AudioCaptureUtils {
 					JSONObject jsonObj = jsonArray.getJSONObject(0);
 					if (jsonObj.has("audio_capture")) {
 						JSONObject apiCheckInObj = jsonObj.getJSONObject("audio_capture");
-						if (apiCheckInObj.has("is_allowed")) {
-							if (!apiCheckInObj.getBoolean(("is_allowed"))) {
-								return true;
-							}
-						}
+						return apiCheckInObj.has("is_allowed") && !apiCheckInObj.getBoolean("is_allowed");
 					}
 				}
 			} catch (JSONException e) {
@@ -171,16 +166,23 @@ public class AudioCaptureUtils {
 		return (this.samplingRatioIteration == 1);
 	}
 
-	public JSONObject audioCaptureStatusAsJsonObj() {
-		JSONObject statusObj = null;
+	public String audioCaptureStatusAsJsonObjStr() {
+
+		String statusObjStr = "{\"is_allowed\":true,\"is_disabled\":false}";
+
         try {
-            statusObj = new JSONObject();
-            statusObj.put("is_allowed", isAudioCaptureAllowed(false, false));
-			statusObj.put("is_disabled", isAudioCaptureDisabled(false));
+			// Now add real data
+			boolean isAllowed = isAudioCaptureAllowed(false, false);
+			boolean isDisabled = isAudioCaptureDisabled(false);
+			JSONObject statusObj = new JSONObject();
+			statusObj.put("is_allowed", isAllowed);
+			statusObj.put("is_disabled", isDisabled);
+			statusObjStr = statusObj.toString();
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
-        return statusObj;
+
+        return statusObjStr;
 	}
 
 	public boolean isAudioCaptureAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
@@ -234,7 +236,7 @@ public class AudioCaptureUtils {
 		StringBuilder msgNoCapture = new StringBuilder();
 
 		if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
-			msgNoCapture.append("it being explicitly disabled ('enable_audio_capture' is set to false).");
+			msgNoCapture.append("it being explicitly disabled ('"+RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE.toLowerCase()+"' is set to false).");
 			isAudioCaptureDisabledRightNow = true;
 
 		} else if (limitBasedOnTimeOfDay()) {
@@ -289,14 +291,14 @@ public class AudioCaptureUtils {
 			try {
 
 				if (isToBeEncoded) {
-					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, null));
+					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, sampleRate, "g10"));
 					FileUtils.copy(captureFile, preEncodeFile);
 					FileUtils.chmod(preEncodeFile, "rw", "rw");
 					isEncodeFileMoved = preEncodeFile.exists();
 				}
 
 				if (isToBeClassified) {
-					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, sampleRate, null));
+					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, sampleRate, "g10"));
 					FileUtils.copy(captureFile, preClassifyFile);
 					FileUtils.chmod(preClassifyFile, "rw", "rw");
 					isClassifyFileMoved = preClassifyFile.exists();
@@ -315,12 +317,12 @@ public class AudioCaptureUtils {
 	}
 
 
-	public static File checkOrCreateReSampledWav(Context context, String purpose, String inputFilePath, long timestamp, String fileExt, int inputSampleRate, int outputSampleRate) throws IOException {
+	public static File checkOrCreateReSampledWav(Context context, String purpose, String inputFilePath, long timestamp, String fileExt, int inputSampleRate, int outputSampleRate, double outputGain) throws IOException {
 
-		String outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, outputSampleRate, null);
+		String outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestamp, fileExt, outputSampleRate, "g"+Math.round(outputGain*10));
 
 		if (purpose.equalsIgnoreCase("classify")) {
-			outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, outputSampleRate, null);
+			outputFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestamp, fileExt, outputSampleRate, "g"+Math.round(outputGain*10));
 		}
 
 		if (FileUtils.exists(outputFilePath)) {
@@ -335,15 +337,28 @@ public class AudioCaptureUtils {
 
 		} else {
 
-			// create resample copy of the audio file
-			// as a placeholder, for now, we just copy it...
-			FileUtils.copy(inputFilePath, outputFilePath);
-			WavResampler wavResampler = new WavResampler();//.resampleWav(inputFilePath, outputFilePath, 48000, 44100, 1);
-			FileUtils.chmod(outputFilePath, "rw", "rw");
+			WavResampler.resampleWavWithGain(inputFilePath, outputFilePath, inputSampleRate, outputSampleRate, outputGain);
 
 			return (new File(outputFilePath));
 		}
 
+	}
+
+	public static int getAudioFileDurationInMilliseconds(File audioFileObj, int fallbackDuration) {
+		int audioDuration = fallbackDuration;
+//		try {
+//			if (audioFileObj.exists()) {
+//				MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+//			//	AssetFileDescriptor afd = new AssetFileDescriptor();
+//				mmr.setDataSource(audioFileObj.getAbsolutePath());
+//			//	me.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+//				audioDuration = Integer.parseInt(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+//				mmr.close();
+//			}
+//		} catch (Exception e) {
+//			RfcxLog.logExc(logTag, e);
+//		}
+		return audioDuration;
 	}
 
 

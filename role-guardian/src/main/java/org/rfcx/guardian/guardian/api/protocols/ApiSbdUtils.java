@@ -36,12 +36,11 @@ public class ApiSbdUtils {
 			String sbdMsgBody = (msgBody != null) ? msgBody : "";
 			String sbdMsgUrlBlob = TextUtils.join("|", new String[]{ sbdSendAt, RfcxComm.urlEncode(sbdSendTo), RfcxComm.urlEncode(sbdMsgBody) });
 
-			Cursor sbdQueueContentProviderResponse =
-					app.getResolver().query(
+			Cursor sbdQueueResponse = app.getResolver().query(
 							RfcxComm.getUri("satellite", "sbd_queue", sbdMsgUrlBlob),
 							RfcxComm.getProjection("satellite", "sbd_queue"),
 							null, null, null);
-			sbdQueueContentProviderResponse.close();
+			if (sbdQueueResponse != null) { sbdQueueResponse.close(); }
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

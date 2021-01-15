@@ -78,7 +78,7 @@ public class RfcxGuardian extends Application {
         if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[] {
-//                    "ApiUpdateRequestTrigger"
+//                    ApiUpdateRequestTrigger.SERVICE_NAME
 //                            +"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
 //                            +"|"+ ( ( 2 * ApiUpdateRequestUtils.minimumAllowedIntervalBetweenUpdateRequests) * ( 60 * 1000 ) ) // repeats hourly
             };

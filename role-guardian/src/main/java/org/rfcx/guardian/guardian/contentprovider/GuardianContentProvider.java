@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
@@ -77,10 +78,8 @@ public class GuardianContentProvider extends ContentProvider {
 				JSONArray statusArr = new JSONArray();
 				try {
 					JSONObject statusObj = new JSONObject();
-					JSONObject statusAudioCapture = app.audioCaptureUtils.audioCaptureStatusAsJsonObj();
-					if (statusAudioCapture != null) { statusObj.put("audio_capture", statusAudioCapture); }
-					JSONObject statusApiCheckIn = app.apiCheckInHealthUtils.apiCheckInStatusAsJsonObj();
-					if (statusApiCheckIn != null) { statusObj.put("api_checkin", statusApiCheckIn); }
+					statusObj.put("audio_capture", new JSONObject( app.audioCaptureUtils.audioCaptureStatusAsJsonObjStr()) );
+					statusObj.put("api_checkin", new JSONObject( app.apiCheckInHealthUtils.apiCheckInStatusAsJsonObjStr()) );
 					statusArr.put(statusObj);
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e, "GuardianContentProvider - "+logFuncVal);

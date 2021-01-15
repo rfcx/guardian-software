@@ -46,14 +46,14 @@ public class AudioClassifyUtils {
 	private final Map<String, Float> classifierStepSizes = new HashMap<String, Float>();
 
 
-	public boolean confirmOrLoadClassifier(String classifierId, String tfLiteFilePath, boolean useGpuIfPossible, int sampleRate, float windowSize, float stepSize, String classificationsStr) {
+	public boolean confirmOrLoadClassifier(String classifierId, String tfLiteFilePath, int sampleRate, float windowSize, float stepSize, String classificationsStr) {
 
 		String clsfrId = classifierId.toLowerCase(Locale.US);
 
 
 		if (!this.classifiers.containsKey(clsfrId)) {
 
-			AudioClassifier audioClassifier = new AudioClassifier(tfLiteFilePath, useGpuIfPossible, sampleRate, windowSize, stepSize, ArrayUtils.toList(classificationsStr.split(",")));
+			AudioClassifier audioClassifier = new AudioClassifier(tfLiteFilePath, sampleRate, windowSize, stepSize, ArrayUtils.toList(classificationsStr.split(",")));
 			audioClassifier.loadClassifier();
 
 			this.classifierClassifications.put( clsfrId, classificationsStr.split(",") );
@@ -142,15 +142,12 @@ public class AudioClassifyUtils {
 
 	public void sendClassifyOutputToGuardianRole(JSONObject jsonObj) {
 
-		Log.d(logTag, "Sending Detections Blob to Guardian role...");
-
-		Cursor sendClassificationsContentProviderResponse =
+		Cursor sendDetectionsResponse =
 			app.getResolver().query(
 				RfcxComm.getUri("guardian", "detections_create", RfcxComm.urlEncode(StringUtils.stringToGZipBase64(jsonObj.toString()))),
 				RfcxComm.getProjection("guardian", "detections_create"),
 				null, null, null);
-		sendClassificationsContentProviderResponse.close();
-
+		if (sendDetectionsResponse != null) { sendDetectionsResponse.close(); }
 	}
 
 

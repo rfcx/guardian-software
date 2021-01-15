@@ -48,7 +48,7 @@ public class ApiCheckInQueueService extends IntentService {
 								(RfcxAudioFileUtils.isEncodedWithVbr(encodedAudio[6]) ? "vbr" : "cbr"), //	cbr or vbr
 								encodedAudio[8], // encode duration
 								"16bit",         // sample precision, in bits
-								encodedAudio[7] // capture duration
+								encodedAudio[7] // recorded duration
 						}, encodedAudio[10]);
 				}
 			}

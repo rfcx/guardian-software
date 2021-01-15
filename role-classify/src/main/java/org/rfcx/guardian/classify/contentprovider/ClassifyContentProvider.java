@@ -94,7 +94,13 @@ public class ClassifyContentProvider extends ContentProvider {
 				String classes = clsfyJob[8];
 
 				app.audioClassifyDb.dbQueued.insert(audioId, clsfrId, clsfrVer, 0, sampleRate, audioFile, clsfrFile, windowSize, stepSize, classes);
-				Log.d(logTag, "Audio added to Classify Queue: " + TextUtils.join(", ", clsfyJob));
+
+				Log.d(logTag, "Audio Classify Job added to Queue"
+									+ " - Audio: " + audioId + " - Classifier: " + clsfrId + ", "
+									+ "v" + clsfrVer + ", " + classes + ", "
+									+ Math.round((double) sampleRate/1000) + "kHz, "
+									+ Float.parseFloat(windowSize) + ", " + Float.parseFloat(stepSize));
+
 				app.rfcxServiceHandler.triggerService( AudioClassifyJobService.SERVICE_NAME, false);
 
 				return RfcxComm.getProjectionCursor(appRole, "classify_queue", new Object[]{ audioId+"|"+clsfrId, null, System.currentTimeMillis()});

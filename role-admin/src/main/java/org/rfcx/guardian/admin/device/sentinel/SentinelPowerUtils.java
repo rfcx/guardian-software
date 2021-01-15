@@ -26,7 +26,6 @@ public class SentinelPowerUtils {
     public SentinelPowerUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         initSentinelPowerI2cOptions();
-        setOrResetSentinelPowerChip();
     }
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelPowerUtils");
@@ -484,18 +483,22 @@ public class SentinelPowerUtils {
         return jsonObj;
     }
 
-    public JSONObject sentinelPowerStatusAsJsonObj(String activityTag) {
-        JSONObject statusObj = null;
+    public String sentinelPowerStatusAsJsonObjStr(String activityTag) {
+
+        String statusObjStr = "{\"is_allowed\":true,\"is_disabled\":false}";
+
         try {
-
-            statusObj = new JSONObject();
-            statusObj.put("is_allowed", !isReducedCaptureModeActive_BasedOnSentinelPower(activityTag) );
-            statusObj.put("is_disabled", false);
-
+            // Now add real data
+            boolean isAllowed = !isReducedCaptureModeActive_BasedOnSentinelPower(activityTag);
+            boolean isDisabled = false;
+            JSONObject statusObj = new JSONObject();
+            statusObj.put("is_allowed", isAllowed);
+            statusObj.put("is_disabled", isDisabled);
+            statusObjStr = statusObj.toString();
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
-        return statusObj;
+        return statusObjStr;
     }
 
     public boolean isReducedCaptureModeActive_BasedOnSentinelPower(String activityTag) {
@@ -503,7 +506,7 @@ public class SentinelPowerUtils {
         boolean isAllowed;
 
         if  (   this.reducedCaptureModeLastValue.containsKey(activityTag) && this.reducedCaptureModeLastValueSetAt.containsKey(activityTag)
-            &&  (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureModeLastValueSetAt.get(activityTag))) <= this.reducedCaptureModeLastValueExpiresAfter)
+            &&  (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureModeLastValueSetAt.get(activityTag))) <= reducedCaptureModeLastValueExpiresAfter)
         ) {
 
             isAllowed = this.reducedCaptureModeLastValue.get(activityTag);

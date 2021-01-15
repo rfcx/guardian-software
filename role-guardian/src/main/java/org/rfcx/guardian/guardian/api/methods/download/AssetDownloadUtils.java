@@ -67,10 +67,10 @@ public class AssetDownloadUtils {
 		long numericAssetId = Long.parseLong(assetId);
 
 		if (assetType.equalsIgnoreCase("classifier")) {
-			return RfcxClassifierFileUtils.getClassifierFileLocation_Download(context, numericAssetId);
+			return RfcxClassifierFileUtils.getClassifierFileLocation_Cache(context, numericAssetId);
 
 		} else if (assetType.equalsIgnoreCase("audio")) {
-			return RfcxAudioFileUtils.getAudioFileLocation_Download(context, numericAssetId, fileType);
+			return RfcxAudioFileUtils.getAudioFileLocation_Cache(context, numericAssetId, fileType);
 
 		}
 
@@ -83,23 +83,23 @@ public class AssetDownloadUtils {
 		Log.i(logTag, "Following up on successful download...");
 
 		String tmpPath = getPostDownloadAssetFilePath(assetType, assetId, fileType);
-		String galleryPath = app.assetGalleryUtils.getGalleryAssetFilePath(assetType, assetId, fileType);
-		FileUtils.initializeDirectoryRecursively(galleryPath.substring(0, galleryPath.lastIndexOf("/")), false);
+		String libraryPath = app.assetLibraryUtils.getLibraryAssetFilePath(assetType, assetId, fileType);
+		FileUtils.initializeDirectoryRecursively(libraryPath.substring(0, libraryPath.lastIndexOf("/")), false);
 
-		FileUtils.delete(galleryPath);
-		FileUtils.copy(tmpPath, galleryPath);
+		FileUtils.delete(libraryPath);
+		FileUtils.copy(tmpPath, libraryPath);
 
-		if (assetType.equalsIgnoreCase("classifier") && (app.assetGalleryDb.dbClassifier.getCountByAssetId(assetId) == 0)) {
+		if (assetType.equalsIgnoreCase("classifier") && (app.assetLibraryDb.dbClassifier.getCountByAssetId(assetId) == 0)) {
 
-			app.assetGalleryDb.dbClassifier.insert( assetId, "classifier", fileType, checksum, galleryPath,
-					FileUtils.getFileSizeInBytes(galleryPath), metaJsonBlob,0,0);
+			app.assetLibraryDb.dbClassifier.insert( assetId, "classifier", fileType, checksum, libraryPath,
+					FileUtils.getFileSizeInBytes(libraryPath), metaJsonBlob,0,0);
 
 			app.audioClassifyUtils.activateClassifier(assetId);
 
-		} else if (assetType.equalsIgnoreCase("audio") && (app.assetGalleryDb.dbAudio.getCountByAssetId(assetId) == 0)) {
+		} else if (assetType.equalsIgnoreCase("audio") && (app.assetLibraryDb.dbAudio.getCountByAssetId(assetId) == 0)) {
 
-			app.assetGalleryDb.dbAudio.insert( assetId, "audio", fileType, checksum, galleryPath,
-					FileUtils.getFileSizeInBytes(galleryPath), metaJsonBlob, 0, 0);
+			app.assetLibraryDb.dbAudio.insert( assetId, "audio", fileType, checksum, libraryPath,
+					FileUtils.getFileSizeInBytes(libraryPath), metaJsonBlob, 0, 0);
 
 		}
 

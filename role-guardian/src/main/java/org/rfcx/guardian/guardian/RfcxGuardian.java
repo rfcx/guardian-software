@@ -15,14 +15,15 @@ import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSbdUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
-import org.rfcx.guardian.guardian.asset.AssetGalleryDb;
-import org.rfcx.guardian.guardian.asset.AssetGalleryUtils;
+import org.rfcx.guardian.guardian.asset.AssetLibraryDb;
+import org.rfcx.guardian.guardian.asset.AssetLibraryUtils;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInHealthUtils;
 import org.rfcx.guardian.guardian.asset.AudioDetectionDb;
+import org.rfcx.guardian.guardian.asset.AudioDetectionFilterJobService;
 import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJsonUtils;
-import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInStatsDb;
+import org.rfcx.guardian.guardian.asset.LatencyStatsDb;
 import org.rfcx.guardian.guardian.api.methods.ping.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentDb;
 import org.rfcx.guardian.guardian.asset.ScheduledAssetCleanupService;
@@ -96,7 +97,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioVaultDb audioVaultDb = null;
     public ApiCheckInDb apiCheckInDb = null;
     public MetaDb metaDb = null;
-    public ApiCheckInStatsDb apiCheckInStatsDb = null;
+    public LatencyStatsDb latencyStatsDb = null;
     public AssetExchangeLogDb assetExchangeLogDb = null;
     public ApiCheckInArchiveDb apiCheckInArchiveDb = null;
     public ApiSegmentDb apiSegmentDb = null;
@@ -108,7 +109,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioDetectionDb audioDetectionDb = null;
     public AudioClassifierDb audioClassifierDb = null;
     public AudioPlaybackDb audioPlaybackDb = null;
-    public AssetGalleryDb assetGalleryDb = null;
+    public AssetLibraryDb assetLibraryDb = null;
 
     // Receivers
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -123,7 +124,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiSmsUtils apiSmsUtils = null;
     public ApiRestUtils apiRestUtils = null;
     public AssetDownloadUtils assetDownloadUtils = null;
-    public AssetGalleryUtils assetGalleryUtils = null;
+    public AssetLibraryUtils assetLibraryUtils = null;
     public ApiSbdUtils apiSbdUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
     public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
@@ -142,8 +143,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public String[] RfcxCoreServices =
             new String[]{
-                    "AudioCapture",
-                    "ApiCheckInJob",
+                    AudioCaptureService.SERVICE_NAME,
+                    ApiCheckInJobService.SERVICE_NAME,
                     AudioEncodeJobService.SERVICE_NAME,
                     AudioClassifyPrepareService.SERVICE_NAME,
                     InstructionsCycleService.SERVICE_NAME
@@ -179,7 +180,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiSbdUtils = new ApiSbdUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.assetDownloadUtils = new AssetDownloadUtils(this);
-        this.assetGalleryUtils = new AssetGalleryUtils(this);
+        this.assetLibraryUtils = new AssetLibraryUtils(this);
         this.apiCheckInJsonUtils = new ApiCheckInJsonUtils(this);
         this.apiPingJsonUtils = new ApiPingJsonUtils(this);
         this.apiPingUtils = new ApiPingUtils(this);
@@ -246,15 +247,15 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[]{
-                    "ServiceMonitor"
+                    ServiceMonitor.SERVICE_NAME
                             + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
                             + "|" + ServiceMonitor.SERVICE_MONITOR_CYCLE_DURATION
                             ,
-                    "ScheduledAssetCleanup"
+                    ScheduledAssetCleanupService.SERVICE_NAME
                             + "|" + DateTimeUtils.nowPlusThisLong("00:03:00").getTimeInMillis() // waits three minutes before running
                             + "|" + ( ScheduledAssetCleanupService.ASSET_CLEANUP_CYCLE_DURATION_MINUTES * 60 * 1000 )
                             ,
-                    "ScheduledClockSync"
+                    ScheduledClockSyncService.SERVICE_NAME
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
                             + "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_CLOCK_SYNC_CYCLE_DURATION) * 60 * 1000 )
                             ,
@@ -278,11 +279,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioEncodeDb = new AudioEncodeDb(this, this.version);
         this.audioPlaybackDb = new AudioPlaybackDb(this, this.version);
-        this.assetGalleryDb = new AssetGalleryDb(this, this.version);
+        this.assetLibraryDb = new AssetLibraryDb(this, this.version);
         this.audioVaultDb = new AudioVaultDb(this, this.version);
         this.apiCheckInDb = new ApiCheckInDb(this, this.version);
         this.metaDb = new MetaDb(this, this.version);
-        this.apiCheckInStatsDb = new ApiCheckInStatsDb(this, this.version);
+        this.latencyStatsDb = new LatencyStatsDb(this, this.version);
         this.assetExchangeLogDb = new AssetExchangeLogDb(this, this.version);
         this.apiCheckInArchiveDb = new ApiCheckInArchiveDb(this, this.version);
         this.apiSegmentDb = new ApiSegmentDb(this, this.version);
@@ -319,6 +320,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxServiceHandler.addService( MetaSnapshotService.SERVICE_NAME, MetaSnapshotService.class);
 
         this.rfcxServiceHandler.addService( AssetDownloadJobService.SERVICE_NAME, AssetDownloadJobService.class);
+        this.rfcxServiceHandler.addService( AudioDetectionFilterJobService.SERVICE_NAME, AudioDetectionFilterJobService.class);
 
         this.rfcxServiceHandler.addService( InstructionsCycleService.SERVICE_NAME, InstructionsCycleService.class);
         this.rfcxServiceHandler.addService( InstructionsExecutionService.SERVICE_NAME, InstructionsExecutionService.class);
@@ -363,20 +365,25 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public void onPrefReSync(String prefKey) {
 
-        if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)) {
+        if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION )) {
             this.apiMqttUtils.getSetCheckInPublishTimeOutLength();
 
-        } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET)) {
+        } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET )) {
             this.rfcxServiceHandler.triggerService("WifiCommunication", false);
 
-        } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)) {
+        } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS )) {
             this.apiMqttUtils.initializeFailedCheckInThresholds();
 
-        } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH)) {
-            this.apiMqttUtils.initializeFailedCheckInThresholds();
-            this.rfcxServiceHandler.triggerService( ApiCheckInJobService.SERVICE_NAME, false);
+        } else if ( prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH )
+                ||  prefKey.equalsIgnoreCase( RfcxPrefs.Pref.API_MQTT_HOST )
+                ||  prefKey.equalsIgnoreCase( RfcxPrefs.Pref.API_MQTT_PROTOCOL )
+                ||  prefKey.equalsIgnoreCase( RfcxPrefs.Pref.API_MQTT_PORT )
+                ||  prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ENABLE_MQTT_AUTH )
+                ||  prefKey.equalsIgnoreCase( RfcxPrefs.Pref.API_MQTT_AUTH_CREDS )
+        ) {
+            this.apiMqttUtils.updateMqttConnectionBasedOnConfigChange();
 
-        } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO)) {
+        } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO )) {
             this.audioCaptureUtils.samplingRatioIteration = 0;
 
         }

@@ -90,6 +90,7 @@ public class RfcxPrefs {
 		public static final String AUDIO_CUTOFF_SENTINEL_BATTERY = "audio_cutoff_sentinel_battery";
 
 		public static final String AUDIO_CAPTURE_SAMPLE_RATE = "audio_capture_sample_rate";
+		public static final String AUDIO_CAPTURE_GAIN = "audio_capture_gain";
 
 		public static final String AUDIO_STREAM_SAMPLE_RATE = "audio_stream_sample_rate";
 		public static final String AUDIO_STREAM_CODEC = "audio_stream_codec";
@@ -137,8 +138,6 @@ public class RfcxPrefs {
 		public static final String ADMIN_ENABLE_SENTINEL_SENSOR = "admin_enable_sentinel_sensor";
 
 		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
-
-		public static final String AUDIO_CLASSIFY_ALLOW_GPU = "audio_classify_allow_gpu";
 
 	}
 
@@ -195,6 +194,7 @@ public class RfcxPrefs {
 //			put("audio_sample_rate", "24000");
 
 			put(Pref.AUDIO_CAPTURE_SAMPLE_RATE, "24000");
+			put(Pref.AUDIO_CAPTURE_GAIN, "1.0");
 
 			put(Pref.AUDIO_STREAM_SAMPLE_RATE, "24000");
 			put(Pref.AUDIO_STREAM_CODEC, "opus");
@@ -242,8 +242,6 @@ public class RfcxPrefs {
 			put(Pref.ADMIN_ENABLE_SENTINEL_SENSOR, "false");
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
-
-			put(Pref.AUDIO_CLASSIFY_ALLOW_GPU, "true");
 		}}
 	);
 

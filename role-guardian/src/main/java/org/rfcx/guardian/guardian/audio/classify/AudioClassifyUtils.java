@@ -5,8 +5,10 @@ import android.database.Cursor;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.guardian.asset.AudioDetectionFilterJobService;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
@@ -16,6 +18,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class AudioClassifyUtils {
@@ -46,12 +49,11 @@ public class AudioClassifyUtils {
 					RfcxComm.urlEncode(classifierClasses)
 				});
 
-			Cursor classifyQueueContentProviderResponse =
-					app.getResolver().query(
+			Cursor classifyQueueResponse = app.getResolver().query(
 							RfcxComm.getUri("classify", "classify_queue", classifyJobUrlBlob),
 							RfcxComm.getProjection("classify", "classify_queue"),
 							null, null, null);
-			classifyQueueContentProviderResponse.close();
+			if (classifyQueueResponse != null) { classifyQueueResponse.close(); }
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -64,14 +66,33 @@ public class AudioClassifyUtils {
 		try {
 			JSONObject jsonObj = new JSONObject(StringUtils.gZipBase64ToUnGZipString(classificationPayload));
 
-			Log.d(logTag, "Classifications Blob Received: " + jsonObj.toString() );
-
 			String classifierId = jsonObj.getString("classifier_id");
 			String audioId = jsonObj.getString("audio_id");
-			long classifyDuration = Long.parseLong(jsonObj.getString("classify_duration"));
-			int sampleRate = Integer.parseInt(jsonObj.getString("sample_rate"));
+			String stepSize = jsonObj.getString("step_size");
+			String windowSize = jsonObj.getString("window_size");
 
-//			app.audioClassificationDb.dbUnfiltered.insert()
+			Log.d(logTag, "Classify Detections Received: Audio: " + audioId + ", Classifier: " + classifierId );
+
+			String[] classiferLibraryInfo = app.assetLibraryDb.dbClassifier.getSingleRowById(classifierId);
+			JSONObject classiferJsonMeta = new JSONObject(classiferLibraryInfo[7]);
+			String classifierName = classiferJsonMeta.getString("classifier_name");
+			String classifierVersion = classiferJsonMeta.getString("classifier_version");
+
+			for (Iterator<String> classificationNames = jsonObj.getJSONObject("detections").keys(); classificationNames.hasNext(); ) {
+				String classificationTag = classificationNames.next();
+				JSONArray detections = jsonObj.getJSONObject("detections").getJSONArray(classificationTag);
+				app.audioDetectionDb.dbUnfiltered.insert(
+						classificationTag, classifierId, classifierName, classifierVersion, "-",
+						audioId, audioId, windowSize, stepSize, detections.toString()
+				);
+			}
+
+			// save classify job stats
+			long classifyJobDuration = Long.parseLong(jsonObj.getString("classify_duration"));
+			long classifyAudioSize = Long.parseLong(jsonObj.getString("audio_size"));
+			app.latencyStatsDb.dbClassifyLatency.insert(classifierName + "-v" + classifierVersion, classifyJobDuration, classifyAudioSize);
+
+			app.rfcxServiceHandler.triggerService( AudioDetectionFilterJobService.SERVICE_NAME, false);
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
@@ -82,21 +103,21 @@ public class AudioClassifyUtils {
 
 		try {
 
-			if (app.assetGalleryDb.dbClassifier.getCountByAssetId(clsfrId) == 0) {
-				Log.e(logTag, "Classifier could not be activated because it does not exist in the Asset Gallery.");
+			if (app.assetLibraryDb.dbClassifier.getCountByAssetId(clsfrId) == 0) {
+				Log.e(logTag, "Classifier could not be activated because it does not exist in the Asset Library.");
 
 			} else {
 
-				String[] galleryEntry = app.assetGalleryDb.dbClassifier.getSingleRowById(clsfrId);
+				String[] libraryEntry = app.assetLibraryDb.dbClassifier.getSingleRowById(clsfrId);
 
-				if (galleryEntry[0] != null) {
+				if (libraryEntry[0] != null) {
 
-					String clsfrFormat = galleryEntry[3];
-					String clsfrDigest = galleryEntry[4];
-					String clsfrGalleryFilePath = galleryEntry[5];
+					String clsfrFormat = libraryEntry[3];
+					String clsfrDigest = libraryEntry[4];
+					String clsfrLibraryFilePath = libraryEntry[5];
 					String clsfrActiveFilePath = RfcxClassifierFileUtils.getClassifierFileLocation_Active(app.getApplicationContext(), Long.parseLong(clsfrId));
 
-					JSONObject jsonMeta = new JSONObject(galleryEntry[7]);
+					JSONObject jsonMeta = new JSONObject(libraryEntry[7]);
 
 					String clsfrName = jsonMeta.getString("classifier_name");
 					String clsfrVersion = jsonMeta.getString("classifier_version");
@@ -108,7 +129,7 @@ public class AudioClassifyUtils {
 					app.audioClassifierDb.dbActive.insert(clsfrId, clsfrName, clsfrVersion, clsfrFormat, clsfrDigest, clsfrActiveFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
 
 					FileUtils.delete(clsfrActiveFilePath);
-					FileUtils.copy(clsfrGalleryFilePath, clsfrActiveFilePath);
+					FileUtils.copy(clsfrLibraryFilePath, clsfrActiveFilePath);
 
 					return FileUtils.sha1Hash(clsfrActiveFilePath).equalsIgnoreCase(clsfrDigest);
 				}

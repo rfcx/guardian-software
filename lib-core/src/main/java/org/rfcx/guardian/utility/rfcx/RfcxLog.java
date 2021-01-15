@@ -3,6 +3,8 @@ package org.rfcx.guardian.utility.rfcx;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
+
 public class RfcxLog {
 
 	public static String generateLogTag(String appRole, Class logClass) {
@@ -39,7 +41,7 @@ public class RfcxLog {
 	
 	public static void logExc(String logTag, Exception exc, String optionalExtraTag) {
 		String extraTag = ( (optionalExtraTag == null) || (optionalExtraTag.length() == 0) ) ? "" : ("Tag: " + optionalExtraTag + " ||| ");
-		Log.e( logTag, extraTag + getExceptionContentAsString(exc) );
+		Log.e( logTag, DateTimeUtils.getDateTime() + " ||| " + extraTag + getExceptionContentAsString(exc) );
 	}
 
 	public static void logExc(String logTag, Exception exc) {
@@ -47,7 +49,7 @@ public class RfcxLog {
 	}
 	
 	public static void logThrowable(String logTag, Throwable thrw) {
-		Log.e( logTag, getThrowableContentAsString(thrw));
+		Log.e( logTag, DateTimeUtils.getDateTime() + " ||| " + getThrowableContentAsString(thrw));
 	}
 
 }

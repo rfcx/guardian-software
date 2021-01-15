@@ -105,14 +105,14 @@ public class DateTimeUtils {
 	public static String milliSecondDurationAsReadableString(long milliSeconds, boolean displayEvenIfZero) {
 		StringBuilder tmStr = new StringBuilder();
 		
-		int hours = (int) Math.floor( milliSeconds / 3600000 );
+		int hours = (int) Math.floor( ((double) milliSeconds) / 3600000 );
 		if (hours > 0) { tmStr.append(hours).append(" hour").append((hours != 1) ? "s" : ""); }
 		
-		int minutes = (int) Math.floor( (milliSeconds - (hours * 3600000)) / 60000 );
+		int minutes = (int) Math.floor( (((double) milliSeconds) - (((double) hours) * 3600000)) / 60000 );
 		if (minutes > 0) { tmStr.append((hours > 0) ? ", " : "").append(minutes).append(" minute").append((minutes != 1) ? "s" : ""); }
 		
-		int seconds = (int) Math.floor((milliSeconds - (hours * 3600000) - (minutes * 60000)) / 1000);
-		int subSeconds = Math.round((milliSeconds - (hours * 3600000) - (minutes * 60000) - (seconds * 1000)) / 100);
+		int seconds = (int) Math.floor((((double) milliSeconds) - (((double) hours) * 3600000) - (((double) minutes) * 60000)) / 1000);
+		long subSeconds = Math.round((((double) milliSeconds) - (((double) hours) * 3600000) - (((double) minutes) * 60000) - (((double) seconds) * 1000)) / 100);
 		if (((hours+minutes) == 0) || (seconds > 0) || displayEvenIfZero) {
 			tmStr.append(((hours > 0) || (minutes > 0)) ? ", " : "").append(seconds).append(
 				(((hours+minutes) == 0) && (seconds < 10) && !(displayEvenIfZero && (seconds == 0) && (subSeconds == 0))) ? "."+subSeconds : ""

@@ -1,5 +1,7 @@
 package org.rfcx.guardian.utility.network;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -11,14 +13,32 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+
 public class TLSSocketFactory extends SSLSocketFactory {
 
     private SSLSocketFactory delegate;
+    private String[] enabledProtocols = new String[]{ "TLSv1", "TLSv1.1", "TLSv1.2" };
 
     public TLSSocketFactory() throws KeyManagementException, NoSuchAlgorithmException {
-        SSLContext context = SSLContext.getInstance("TLS");
+        SSLContext context = SSLContext.getInstance("TLSv1");
         context.init(null, null, null);
-        delegate = context.getSocketFactory();
+        this.delegate = context.getSocketFactory();
+    }
+
+    public TLSSocketFactory(SSLSocketFactory delegate) {
+        this.delegate = delegate;
+    }
+
+    public TLSSocketFactory(SSLSocketFactory delegate, String[] enabledProtocols) {
+        this.delegate = delegate;
+        this.enabledProtocols = enabledProtocols;
+    }
+
+    public TLSSocketFactory(String[] enabledProtocols) throws NoSuchAlgorithmException, KeyManagementException {
+        SSLContext context = SSLContext.getInstance("TLSv1");
+        context.init(null, null, null);
+        this.delegate = context.getSocketFactory();
+        this.enabledProtocols = enabledProtocols;
     }
 
     @Override
@@ -62,9 +82,11 @@ public class TLSSocketFactory extends SSLSocketFactory {
     }
 
     private Socket enableTLSOnSocket(Socket socket) {
-        if (socket != null && (socket instanceof SSLSocket)) {
-            ((SSLSocket) socket).setEnabledProtocols(new String[]{"TLSv1.1", "TLSv1.2"});
+        if (socket instanceof SSLSocket) {
+            ((SSLSocket) socket).setEnabledProtocols(enabledProtocols);
         }
         return socket;
     }
+
+
 }

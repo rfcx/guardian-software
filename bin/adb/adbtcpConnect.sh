@@ -34,4 +34,5 @@ if [ "$IS_CONNECTED" = "yes" ]; then
 	echo "RFCx Logcat Feed:"
 	echo "-"
 	$SCRIPT_DIR/adblogcatRfcx.sh
+	export ATTEMPT=`$ADB disconnect; $ADB kill-server; $ADB devices;`;
 fi

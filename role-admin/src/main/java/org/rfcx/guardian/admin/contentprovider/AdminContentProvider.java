@@ -14,7 +14,6 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
 import org.rfcx.guardian.admin.sms.SmsUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
-import org.rfcx.guardian.utility.device.control.DeviceGPIO;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -92,16 +91,12 @@ public class AdminContentProvider extends ContentProvider {
                 JSONArray statusArr = new JSONArray();
                 try {
                     JSONObject statusObj = new JSONObject();
-                    JSONObject statusSentinelAudio = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("audio_capture");
-                    if (statusSentinelAudio != null) { statusObj.put("audio_capture", statusSentinelAudio); }
-                    JSONObject statusSentinelCheckIn = app.sentinelPowerUtils.sentinelPowerStatusAsJsonObj("api_checkin");
-                    if (statusSentinelCheckIn != null) { statusObj.put("api_checkin", statusSentinelCheckIn); }
+                    statusObj.put("audio_capture", new JSONObject( app.sentinelPowerUtils.sentinelPowerStatusAsJsonObjStr("audio_capture") ) );
+                    statusObj.put("api_checkin", new JSONObject( app.sentinelPowerUtils.sentinelPowerStatusAsJsonObjStr("api_checkin") ) );
                     statusArr.put(statusObj);
                 } catch (Exception e) {
                     RfcxLog.logExc(logTag, e, "AdminContentProvider - "+logFuncVal);
                 }
-                //Log.v(logTag, statusArr.toString());
-
                 return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 
             // "control" function endpoints

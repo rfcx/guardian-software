@@ -69,28 +69,16 @@ public class ApiRestUtils {
 
 	}
 
-	private boolean areRestApiRequestsAllowed(boolean printLoggingFeedbackIfNotAllowed) {
-		if (app != null) {
-			if (ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "rest")) {
-				if (app.deviceConnectivity.isConnected()) {
+	private boolean areRestApiRequestsAllowed() {
 
-//				long timeElapsedSinceLastUpdateRequest = System.currentTimeMillis() - this.lastUpdateRequestTriggered;
-//				if (timeElapsedSinceLastUpdateRequest > (minimumAllowedIntervalBetweenUpdateRequests * (60 * 1000))) {
-//					this.lastUpdateRequestTriggered = System.currentTimeMillis();
-//					return true;
-//				} else if (printLoggingFeedbackIfNotAllowed) {
-//					Log.e(logTag, "Update Request blocked b/c minimum allowed interval has not yet elapsed"
-//							+" - Elapsed: " + DateTimeUtils.milliSecondDurationAsReadableString(timeElapsedSinceLastUpdateRequest)
-//							+" - Required: " + minimumAllowedIntervalBetweenUpdateRequests + " minutes");
-//				}
-					return true;
+		if (	(app != null)
+			&&	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "rest")
+			&&	app.deviceConnectivity.isConnected()
+		) {
+			return true;
 
-				} else {
-					Log.d(logTag, "Rest Api request blocked because there is no internet connectivity.");
-				}
-			} else {
-				Log.d(logTag, "Rest Api request blocked because this protocol is explicitly disabled in preferences..");
-			}
+		} else {
+			Log.d(logTag, "REST Api request blocked.");
 		}
 		return false;
 	}
@@ -100,8 +88,7 @@ public class ApiRestUtils {
 
 		boolean isSent = false;
 
-		if (areRestApiRequestsAllowed(true)) {
-
+		if (areRestApiRequestsAllowed()) {
 			try {
 				List<String[]> postParams = new ArrayList<>();
 				postParams.add(new String[] { "meta", StringUtils.stringToGZipBase64( pingJson ) });

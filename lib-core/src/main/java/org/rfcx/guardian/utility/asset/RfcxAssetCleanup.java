@@ -39,7 +39,7 @@ public class RfcxAssetCleanup {
 		for (File assetFile : eligibleAssetFilesFromScan) {
 			String relFilePath = conciseFilePath(assetFile.getAbsolutePath(), this.appRole);
 			if (	!ArrayUtils.doesStringListContainString( relativeAssetPathsFromDb, relFilePath )
-				&&	!ArrayUtils.doesStringArrayContainString( assetDirsToScan, relFilePath )
+				&&	!ArrayUtils.doesStringArrayContainString( assetDirsToScan, assetFile.getAbsolutePath() )
 			) {
 					assetFilesToDelete.add(assetFile);
 			}

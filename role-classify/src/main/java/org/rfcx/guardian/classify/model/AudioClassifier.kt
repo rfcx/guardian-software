@@ -7,7 +7,7 @@ import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import kotlin.math.roundToInt
 
-class AudioClassifier(private val tfLiteFilePath: String, private val useGpuIfPossible: Boolean, private val sampleRate: Int, private val windowSize: Float, private val step: Float, private val outputList: List<String>) {
+class AudioClassifier(private val tfLiteFilePath: String, private val sampleRate: Int, private val windowSize: Float, private val step: Float, private val outputList: List<String>) {
 
     private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioClassifier")
 

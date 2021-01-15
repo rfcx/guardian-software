@@ -169,7 +169,7 @@ public class HttpGet {
 	        conn.setRequestMethod("GET");
 	        conn.setUseCaches(useCaches);
 	        conn.setDoInput(true);
-	        conn.setDoOutput(true);
+	        conn.setDoOutput(false);
 	        conn.setRequestProperty("Connection", "Keep-Alive");
 	        conn.setRequestProperty("Accept-Encoding", "gzip");
 			for (String[] keyValueHeader : this.customHttpHeaders) { conn.setRequestProperty(keyValueHeader[0], keyValueHeader[1]); }
@@ -196,6 +196,7 @@ public class HttpGet {
 	        conn.setUseCaches(useCaches);
 	        conn.setDoInput(true);
 	        conn.setDoOutput(false);
+	        conn.setSSLSocketFactory(new TLSSocketFactory());
 	        conn.setRequestProperty("Connection", "Keep-Alive");
 			conn.setRequestProperty("Accept-Encoding", "gzip");
 			for (String[] keyValueHeader : this.customHttpHeaders) {
@@ -280,7 +281,7 @@ public class HttpGet {
 		        conn.setRequestMethod("GET");
 		        conn.setUseCaches(this.useCaches);
 		        conn.setDoInput(true);
-		        conn.setDoOutput(true);
+		        conn.setDoOutput(false);
 		        conn.setRequestProperty("Connection", "Keep-Alive");
 		        conn.connect();
 		        if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
