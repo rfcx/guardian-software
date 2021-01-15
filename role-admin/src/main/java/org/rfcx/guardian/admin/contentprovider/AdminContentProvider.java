@@ -97,7 +97,6 @@ public class AdminContentProvider extends ContentProvider {
                 } catch (Exception e) {
                     RfcxLog.logExc(logTag, e, "AdminContentProvider - "+logFuncVal);
                 }
-
                 return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 
             // "control" function endpoints

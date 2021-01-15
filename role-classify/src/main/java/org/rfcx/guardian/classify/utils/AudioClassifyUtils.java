@@ -142,15 +142,12 @@ public class AudioClassifyUtils {
 
 	public void sendClassifyOutputToGuardianRole(JSONObject jsonObj) {
 
-		Log.d(logTag, "Sending Detections Blob to Guardian role...");
-
-		Cursor sendClassificationsContentProviderResponse =
+		Cursor sendDetectionsResponse =
 			app.getResolver().query(
 				RfcxComm.getUri("guardian", "detections_create", RfcxComm.urlEncode(StringUtils.stringToGZipBase64(jsonObj.toString()))),
 				RfcxComm.getProjection("guardian", "detections_create"),
 				null, null, null);
-		sendClassificationsContentProviderResponse.close();
-
+		if (sendDetectionsResponse != null) { sendDetectionsResponse.close(); }
 	}
 
 

@@ -25,13 +25,14 @@ public class DeviceControlUtils {
 			try {
 				String targetRole = controlCommand.equalsIgnoreCase("software_update") ? "updater" : "admin";
 				Log.v(logTag, "Triggering '"+controlCommand+"' via "+targetRole+" role content provider.");
-				Cursor deviceControlResponse =
-						contentResolver.query(
+				Cursor deviceControlResponse = contentResolver.query(
 							RfcxComm.getUri(targetRole, "control", controlCommand),
 							RfcxComm.getProjection(targetRole, "control"),
 							null, null, null);
-				Log.v(logTag, deviceControlResponse.toString());
-				deviceControlResponse.close();
+				if (deviceControlResponse != null) {
+					Log.v(logTag, deviceControlResponse.toString());
+					deviceControlResponse.close();
+				}
 				return true;
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

@@ -89,7 +89,7 @@ public class AudioClassifyPrepareService extends Service {
 				List<String[]> latestQueuedAudioFilesToClassify = app.audioClassifyDb.dbQueued.getAllRows();
 				if (latestQueuedAudioFilesToClassify.size() == 0) { Log.d(logTag, "No classification jobs are currently queued."); }
 				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
-				AudioClassifyUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( 1.0 * audioCycleDuration ) );
+				AudioClassifyUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( 2.0 * audioCycleDuration ) );
 
 				for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
 

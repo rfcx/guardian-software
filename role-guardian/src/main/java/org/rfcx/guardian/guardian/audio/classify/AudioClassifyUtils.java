@@ -49,12 +49,11 @@ public class AudioClassifyUtils {
 					RfcxComm.urlEncode(classifierClasses)
 				});
 
-			Cursor classifyQueueContentProviderResponse =
-					app.getResolver().query(
+			Cursor classifyQueueResponse = app.getResolver().query(
 							RfcxComm.getUri("classify", "classify_queue", classifyJobUrlBlob),
 							RfcxComm.getProjection("classify", "classify_queue"),
 							null, null, null);
-			classifyQueueContentProviderResponse.close();
+			if (classifyQueueResponse != null) { classifyQueueResponse.close(); }
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

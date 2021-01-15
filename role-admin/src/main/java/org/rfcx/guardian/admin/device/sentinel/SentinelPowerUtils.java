@@ -26,7 +26,6 @@ public class SentinelPowerUtils {
     public SentinelPowerUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
         initSentinelPowerI2cOptions();
-        setOrResetSentinelPowerChip();
     }
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelPowerUtils");
@@ -507,7 +506,7 @@ public class SentinelPowerUtils {
         boolean isAllowed;
 
         if  (   this.reducedCaptureModeLastValue.containsKey(activityTag) && this.reducedCaptureModeLastValueSetAt.containsKey(activityTag)
-            &&  (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureModeLastValueSetAt.get(activityTag))) <= this.reducedCaptureModeLastValueExpiresAfter)
+            &&  (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureModeLastValueSetAt.get(activityTag))) <= reducedCaptureModeLastValueExpiresAfter)
         ) {
 
             isAllowed = this.reducedCaptureModeLastValue.get(activityTag);

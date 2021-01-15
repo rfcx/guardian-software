@@ -75,7 +75,7 @@ public class SentinelCompassUtils {
             app.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues, i2cMainAddr);
 
         } else {
-            Log.e(logTag, "Skipping setOrResetSentinelCompassChip() because Sentinel capture is not allowed or not possible.");
+            Log.e(logTag, "Skipping setOrResetSentinelCompassChip() because Sentinel Compass capture is not allowed or not possible.");
         }
     }
 

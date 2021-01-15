@@ -36,12 +36,11 @@ public class ApiSmsUtils {
 			String smsMsgBody = (msgBody != null) ? msgBody : "";
 			String smsMsgUrlBlob = TextUtils.join("|", new String[]{ smsSendAt, RfcxComm.urlEncode(smsSendTo), RfcxComm.urlEncode(smsMsgBody) });
 
-			Cursor smsQueueContentProviderResponse =
-					app.getResolver().query(
+			Cursor smsQueueResponse = app.getResolver().query(
 							RfcxComm.getUri("admin", "sms_queue", smsMsgUrlBlob),
 							RfcxComm.getProjection("admin", "sms_queue"),
 							null, null, null);
-			smsQueueContentProviderResponse.close();
+			if (smsQueueResponse != null) { smsQueueResponse.close(); }
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
