@@ -10,6 +10,9 @@ import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelUtils;
+import org.rfcx.guardian.admin.sbd.SbdDispatchCycleService;
+import org.rfcx.guardian.admin.sbd.SbdDispatchService;
+import org.rfcx.guardian.admin.sbd.SbdMessageDb;
 import org.rfcx.guardian.admin.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
@@ -91,6 +94,7 @@ public class RfcxGuardian extends Application {
     public DeviceDataTransferDb deviceDataTransferDb = null;
     public DeviceSpaceDb deviceSpaceDb = null;
     public SmsMessageDb smsMessageDb = null;
+    public SbdMessageDb sbdMessageDb = null;
 
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -120,7 +124,8 @@ public class RfcxGuardian extends Application {
 			new String[] {
 				DeviceSystemService.SERVICE_NAME,
 				DeviceSentinelService.SERVICE_NAME,
-				SmsDispatchCycleService.SERVICE_NAME
+				SmsDispatchCycleService.SERVICE_NAME,
+				SbdDispatchCycleService.SERVICE_NAME
 			};
 
 	@Override
@@ -241,6 +246,7 @@ public class RfcxGuardian extends Application {
         this.deviceDataTransferDb = new DeviceDataTransferDb(this, this.version);
         this.deviceSpaceDb = new DeviceSpaceDb(this, this.version);
         this.smsMessageDb = new SmsMessageDb(this, this.version);
+        this.sbdMessageDb = new SbdMessageDb(this, this.version);
 		this.deviceMobilePhone = new DeviceMobilePhone(this);
 	}
 
@@ -256,6 +262,9 @@ public class RfcxGuardian extends Application {
 
         this.rfcxServiceHandler.addService( SmsDispatchService.SERVICE_NAME, SmsDispatchService.class);
 		this.rfcxServiceHandler.addService( SmsDispatchCycleService.SERVICE_NAME, SmsDispatchCycleService.class);
+
+		this.rfcxServiceHandler.addService( SbdDispatchService.SERVICE_NAME, SbdDispatchService.class);
+		this.rfcxServiceHandler.addService( SbdDispatchCycleService.SERVICE_NAME, SbdDispatchCycleService.class);
 
 		this.rfcxServiceHandler.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
 		this.rfcxServiceHandler.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);

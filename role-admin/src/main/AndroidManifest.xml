@@ -82,6 +82,8 @@
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
         <service android:name=".sms.SmsDispatchCycleService" />
+        <service android:name=".sbd.SbdDispatchService" />
+        <service android:name=".sbd.SbdDispatchCycleService" />
         <service android:name=".device.android.ssh.SSHServerControlService" />
 
         <!-- IntentServices -->
