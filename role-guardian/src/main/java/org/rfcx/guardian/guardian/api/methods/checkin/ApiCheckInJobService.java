@@ -39,7 +39,7 @@ public class ApiCheckInJobService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.apiCheckInJob.start();
 		} catch (IllegalThreadStateException e) {
@@ -52,7 +52,7 @@ public class ApiCheckInJobService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.apiCheckInJob.interrupt();
 		this.apiCheckInJob = null;
 //		Log.v(logTag, "Stopping service: "+logTag);
@@ -77,7 +77,7 @@ public class ApiCheckInJobService extends Service {
 					&& 	( (app.apiCheckInDb.dbQueued.getCount() > 0) || !app.apiMqttUtils.isConnectedToBroker() )
 				) {
 
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				try {
 						
@@ -90,7 +90,7 @@ public class ApiCheckInJobService extends Service {
 
 						// This ensures that the service registers as active more frequently than the wait loop duration
 						for (int waitLoopIteration = 0; waitLoopIteration < waitLoopIterationCount; waitLoopIteration++) {
-							app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+							app.rfcxSvc.reportAsActive(SERVICE_NAME);
 							Thread.sleep( Math.round( prefsAudioCycleDuration / 2 ) );
 						}
 
@@ -155,16 +155,16 @@ public class ApiCheckInJobService extends Service {
 
 					}
 					
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
-					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+					app.rfcxSvc.setRunState(SERVICE_NAME, false);
 					apiCheckInJobInstance.runFlag = false;
 				}
 			}
 
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			apiCheckInJobInstance.runFlag = false;
 		}
 	}

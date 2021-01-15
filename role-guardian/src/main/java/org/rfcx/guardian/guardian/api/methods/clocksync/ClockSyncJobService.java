@@ -40,7 +40,7 @@ public class ClockSyncJobService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.clockSyncJob.start();
 		} catch (IllegalThreadStateException e) {
@@ -53,7 +53,7 @@ public class ClockSyncJobService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.clockSyncJob.interrupt();
 		this.clockSyncJob = null;
 	}
@@ -73,7 +73,7 @@ public class ClockSyncJobService extends Service {
 			
 			try {
 				
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 				
 				long[] sntpClockValues = SntpUtils.getSntpClockValues(app.deviceConnectivity.isConnected(), app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_NTP_HOST));
 
@@ -87,8 +87,8 @@ public class ClockSyncJobService extends Service {
 				RfcxLog.logExc(logTag, e);
 			} finally {
 				clockSyncJobInstance.runFlag = false;
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.stopService(SERVICE_NAME, false);
 			}
 		}
 	}

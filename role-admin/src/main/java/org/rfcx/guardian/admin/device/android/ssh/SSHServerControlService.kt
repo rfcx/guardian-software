@@ -37,7 +37,7 @@ class SSHServerControlService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.v(logTag, "Starting service: $logTag")
         runFlag = true
-        app!!.rfcxServiceHandler.setRunState(SERVICE_NAME, true)
+        app!!.rfcxSvc.setRunState(SERVICE_NAME, true)
         try {
             sshServerControl!!.start()
         } catch (e: IllegalThreadStateException) {
@@ -49,7 +49,7 @@ class SSHServerControlService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         runFlag = false
-        app!!.rfcxServiceHandler.setRunState(SERVICE_NAME, false)
+        app!!.rfcxSvc.setRunState(SERVICE_NAME, false)
         sshServerControl!!.interrupt()
         sshServerControl = null
     }
@@ -70,8 +70,8 @@ class SSHServerControlService : Service() {
                 RfcxLog.logExc(logTag, e)
             } finally {
                 runFlag = false
-                app!!.rfcxServiceHandler.setRunState(SERVICE_NAME, false)
-                app!!.rfcxServiceHandler.stopService(SERVICE_NAME)
+                app!!.rfcxSvc.setRunState(SERVICE_NAME, false)
+                app!!.rfcxSvc.stopService(SERVICE_NAME)
             }
         }
     }

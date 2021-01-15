@@ -38,7 +38,7 @@ public class InstructionsCycleService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.instructionsCycleSvc.start();
 		} catch (IllegalThreadStateException e) {
@@ -51,7 +51,7 @@ public class InstructionsCycleService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.instructionsCycleSvc.interrupt();
 		this.instructionsCycleSvc = null;
 	}
@@ -71,11 +71,11 @@ public class InstructionsCycleService extends Service {
 
 				try {
 
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 					if (app.instructionsDb.dbQueued.getCount() > 0) {
 
-						app.rfcxServiceHandler.triggerService( InstructionsExecutionService.SERVICE_NAME, false);
+						app.rfcxSvc.triggerService( InstructionsExecutionService.SERVICE_NAME, false);
 
 					}
 
@@ -83,12 +83,12 @@ public class InstructionsCycleService extends Service {
 
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
-					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+					app.rfcxSvc.setRunState(SERVICE_NAME, false);
 					instructionsCycleInstance.runFlag = false;
 				}
 			}
 
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			instructionsCycleInstance.runFlag = false;
 			Log.v(logTag, "Stopping service: "+logTag);
 		}

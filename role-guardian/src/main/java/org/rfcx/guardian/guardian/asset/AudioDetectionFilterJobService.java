@@ -7,11 +7,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -49,7 +46,7 @@ public class AudioDetectionFilterJobService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.audioDetectionFilterJob.start();
 		} catch (IllegalThreadStateException e) {
@@ -62,7 +59,7 @@ public class AudioDetectionFilterJobService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.audioDetectionFilterJob.interrupt();
 		this.audioDetectionFilterJob = null;
 	}
@@ -79,7 +76,7 @@ public class AudioDetectionFilterJobService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 
-			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+			app.rfcxSvc.reportAsActive(SERVICE_NAME);
 			
 			try {
 
@@ -89,7 +86,7 @@ public class AudioDetectionFilterJobService extends Service {
 
 				for (String[] latestUnfilteredRow : latestUnfilteredDetections) {
 
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 					if (latestUnfilteredRow[0] != null) {
 
@@ -154,11 +151,11 @@ public class AudioDetectionFilterJobService extends Service {
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
 				audioDetectionFilterJobInstance.runFlag = false;
 			}
 			
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			audioDetectionFilterJobInstance.runFlag = false;
 
 		}

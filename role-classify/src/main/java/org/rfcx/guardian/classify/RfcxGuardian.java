@@ -12,7 +12,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 public class RfcxGuardian extends Application {
 
@@ -24,7 +24,7 @@ public class RfcxGuardian extends Application {
 
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
-    public RfcxServiceHandler rfcxServiceHandler = null;
+    public RfcxSvc rfcxSvc = null;
 
     public AudioClassifyModelUtils audioClassifyModelUtils = null;
     public AudioClassifyUtils audioClassifyUtils = null;
@@ -47,7 +47,7 @@ public class RfcxGuardian extends Application {
 
         this.rfcxGuardianIdentity = new RfcxGuardianIdentity(this, APP_ROLE);
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
-        this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
+        this.rfcxSvc = new RfcxSvc(this, APP_ROLE);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
@@ -75,7 +75,7 @@ public class RfcxGuardian extends Application {
 
     public void initializeRoleServices() {
 
-        if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+        if (!this.rfcxSvc.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[] {
 //                    ApiUpdateRequestTrigger.SERVICE_NAME
@@ -86,7 +86,7 @@ public class RfcxGuardian extends Application {
             String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
             System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
             System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-            this.rfcxServiceHandler.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, true, 0);
+            this.rfcxSvc.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, true, 0);
         }
 
     }
@@ -99,8 +99,8 @@ public class RfcxGuardian extends Application {
 
     private void setServiceHandlers() {
 
-        this.rfcxServiceHandler.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
-        this.rfcxServiceHandler.addService( AudioClassifyJobService.SERVICE_NAME, AudioClassifyJobService.class);
+        this.rfcxSvc.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
+        this.rfcxSvc.addService( AudioClassifyJobService.SERVICE_NAME, AudioClassifyJobService.class);
 
     }
 

@@ -43,7 +43,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 import org.rfcx.guardian.admin.device.android.capture.LogcatDb;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
@@ -81,7 +81,7 @@ public class RfcxGuardian extends Application {
 
 	public RfcxGuardianIdentity rfcxGuardianIdentity = null;
 	public RfcxPrefs rfcxPrefs = null;
-	public RfcxServiceHandler rfcxServiceHandler = null;
+	public RfcxSvc rfcxSvc = null;
 	
 	public ScreenShotDb screenShotDb = null;
 	public CameraCaptureDb cameraCaptureDb = null;
@@ -135,7 +135,7 @@ public class RfcxGuardian extends Application {
 
 		this.rfcxGuardianIdentity = new RfcxGuardianIdentity(this, APP_ROLE);
 		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
-		this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
+		this.rfcxSvc = new RfcxSvc(this, APP_ROLE);
 
 		this.version = RfcxRole.getRoleVersion(this, logTag);
 		RfcxRole.writeVersionToFile(this, logTag, this.version);
@@ -190,7 +190,7 @@ public class RfcxGuardian extends Application {
 	
 	public void initializeRoleServices() {
 		
-		if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+		if (!this.rfcxSvc.hasRun("OnLaunchServiceSequence")) {
 			
 			String[] runOnceOnlyOnLaunch = new String[] {
 					ServiceMonitor.SERVICE_NAME
@@ -229,7 +229,7 @@ public class RfcxGuardian extends Application {
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
 			System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
 			System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-			this.rfcxServiceHandler.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, false, 0);
+			this.rfcxSvc.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, false, 0);
 		}
 	}
 	
@@ -251,53 +251,53 @@ public class RfcxGuardian extends Application {
 	}
 
 	private void setServiceHandlers() {
-		this.rfcxServiceHandler.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
-		this.rfcxServiceHandler.addService( ScheduledAssetCleanupService.SERVICE_NAME, ScheduledAssetCleanupService.class);
+		this.rfcxSvc.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
+		this.rfcxSvc.addService( ScheduledAssetCleanupService.SERVICE_NAME, ScheduledAssetCleanupService.class);
 
-		this.rfcxServiceHandler.addService( AirplaneModeToggleService.SERVICE_NAME, AirplaneModeToggleService.class);
-		this.rfcxServiceHandler.addService( AirplaneModeEnableService.SERVICE_NAME, AirplaneModeEnableService.class);
+		this.rfcxSvc.addService( AirplaneModeToggleService.SERVICE_NAME, AirplaneModeToggleService.class);
+		this.rfcxSvc.addService( AirplaneModeEnableService.SERVICE_NAME, AirplaneModeEnableService.class);
 
-		this.rfcxServiceHandler.addService( WifiHotspotStateSetService.SERVICE_NAME, WifiHotspotStateSetService.class);
-		this.rfcxServiceHandler.addService( ADBStateSetService.SERVICE_NAME, ADBStateSetService.class);
+		this.rfcxSvc.addService( WifiHotspotStateSetService.SERVICE_NAME, WifiHotspotStateSetService.class);
+		this.rfcxSvc.addService( ADBStateSetService.SERVICE_NAME, ADBStateSetService.class);
 
-        this.rfcxServiceHandler.addService( SmsDispatchService.SERVICE_NAME, SmsDispatchService.class);
-		this.rfcxServiceHandler.addService( SmsDispatchCycleService.SERVICE_NAME, SmsDispatchCycleService.class);
+        this.rfcxSvc.addService( SmsDispatchService.SERVICE_NAME, SmsDispatchService.class);
+		this.rfcxSvc.addService( SmsDispatchCycleService.SERVICE_NAME, SmsDispatchCycleService.class);
 
-		this.rfcxServiceHandler.addService( SbdDispatchService.SERVICE_NAME, SbdDispatchService.class);
-		this.rfcxServiceHandler.addService( SbdDispatchCycleService.SERVICE_NAME, SbdDispatchCycleService.class);
+		this.rfcxSvc.addService( SbdDispatchService.SERVICE_NAME, SbdDispatchService.class);
+		this.rfcxSvc.addService( SbdDispatchCycleService.SERVICE_NAME, SbdDispatchCycleService.class);
 
-		this.rfcxServiceHandler.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
-		this.rfcxServiceHandler.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);
+		this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
+		this.rfcxSvc.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);
 
-		this.rfcxServiceHandler.addService( ForceRoleRelaunchService.SERVICE_NAME, ForceRoleRelaunchService.class);
+		this.rfcxSvc.addService( ForceRoleRelaunchService.SERVICE_NAME, ForceRoleRelaunchService.class);
 
-		this.rfcxServiceHandler.addService( RebootTriggerService.SERVICE_NAME, RebootTriggerService.class);
-		this.rfcxServiceHandler.addService( ScheduledRebootService.SERVICE_NAME, ScheduledRebootService.class);
+		this.rfcxSvc.addService( RebootTriggerService.SERVICE_NAME, RebootTriggerService.class);
+		this.rfcxSvc.addService( ScheduledRebootService.SERVICE_NAME, ScheduledRebootService.class);
 
-		this.rfcxServiceHandler.addService( DeviceSystemService.SERVICE_NAME, DeviceSystemService.class);
-		this.rfcxServiceHandler.addService( DeviceSentinelService.SERVICE_NAME, DeviceSentinelService.class);
+		this.rfcxSvc.addService( DeviceSystemService.SERVICE_NAME, DeviceSystemService.class);
+		this.rfcxSvc.addService( DeviceSentinelService.SERVICE_NAME, DeviceSentinelService.class);
 
-		this.rfcxServiceHandler.addService( ScreenShotCaptureService.SERVICE_NAME, ScreenShotCaptureService.class);
-		this.rfcxServiceHandler.addService( ScheduledScreenShotCaptureService.SERVICE_NAME, ScheduledScreenShotCaptureService.class);
+		this.rfcxSvc.addService( ScreenShotCaptureService.SERVICE_NAME, ScreenShotCaptureService.class);
+		this.rfcxSvc.addService( ScheduledScreenShotCaptureService.SERVICE_NAME, ScheduledScreenShotCaptureService.class);
 
-		this.rfcxServiceHandler.addService( LogcatCaptureService.SERVICE_NAME, LogcatCaptureService.class);
-		this.rfcxServiceHandler.addService( ScheduledLogcatCaptureService.SERVICE_NAME, ScheduledLogcatCaptureService.class);
+		this.rfcxSvc.addService( LogcatCaptureService.SERVICE_NAME, LogcatCaptureService.class);
+		this.rfcxSvc.addService( ScheduledLogcatCaptureService.SERVICE_NAME, ScheduledLogcatCaptureService.class);
 
-		this.rfcxServiceHandler.addService( CameraCaptureService.SERVICE_NAME, CameraCaptureService.class);
-		this.rfcxServiceHandler.addService( ScheduledCameraCaptureService.SERVICE_NAME, ScheduledCameraCaptureService.class);
+		this.rfcxSvc.addService( CameraCaptureService.SERVICE_NAME, CameraCaptureService.class);
+		this.rfcxSvc.addService( ScheduledCameraCaptureService.SERVICE_NAME, ScheduledCameraCaptureService.class);
 
-		this.rfcxServiceHandler.addService("SSHServerControl", SSHServerControlService.class);
+		this.rfcxSvc.addService("SSHServerControl", SSHServerControlService.class);
 
 	}
 
 	public void onPrefReSync(String prefKey) {
 
 		if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI)) {
-			rfcxServiceHandler.triggerService( WifiHotspotStateSetService.SERVICE_NAME, false);
-			rfcxServiceHandler.triggerService( ADBStateSetService.SERVICE_NAME, false);
+			rfcxSvc.triggerService( WifiHotspotStateSetService.SERVICE_NAME, false);
+			rfcxSvc.triggerService( ADBStateSetService.SERVICE_NAME, false);
 
 		} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB)) {
-			rfcxServiceHandler.triggerService( ADBStateSetService.SERVICE_NAME, false);
+			rfcxSvc.triggerService( ADBStateSetService.SERVICE_NAME, false);
 
 		} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE)) {
 			DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE), this);
@@ -306,10 +306,10 @@ public class RfcxGuardian extends Application {
 			Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
 
 		} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER)) {
-			rfcxServiceHandler.triggerService("SSHServerControl", false);
+			rfcxSvc.triggerService("SSHServerControl", false);
 
 		} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE) || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_GEOPOSITION_CAPTURE_CYCLE)) {
-			rfcxServiceHandler.triggerService( DeviceSystemService.SERVICE_NAME, true);
+			rfcxSvc.triggerService( DeviceSystemService.SERVICE_NAME, true);
 		}
 	}
 

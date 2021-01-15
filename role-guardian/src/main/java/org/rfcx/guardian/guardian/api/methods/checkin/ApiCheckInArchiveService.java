@@ -69,7 +69,7 @@ public class ApiCheckInArchiveService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.apiCheckInArchive.start();
 		} catch (IllegalThreadStateException e) {
@@ -82,7 +82,7 @@ public class ApiCheckInArchiveService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.apiCheckInArchive.interrupt();
 		this.apiCheckInArchive = null;
 //		Log.v(logTag, "Stopping service: "+logTag);
@@ -251,8 +251,8 @@ public class ApiCheckInArchiveService extends Service {
 			}
 			
 			apiCheckInArchiveInstance.runFlag = false;
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.stopService(SERVICE_NAME, false);
 		}
 	}
 

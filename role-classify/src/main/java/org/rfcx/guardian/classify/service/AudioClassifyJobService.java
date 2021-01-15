@@ -49,7 +49,7 @@ public class AudioClassifyJobService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.audioClassifyJobSvc.start();
 		} catch (IllegalThreadStateException e) {
@@ -62,7 +62,7 @@ public class AudioClassifyJobService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.audioClassifyJobSvc.interrupt();
 		this.audioClassifyJobSvc = null;
 	}
@@ -80,7 +80,7 @@ public class AudioClassifyJobService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+			app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 			try {
 
@@ -91,7 +91,7 @@ public class AudioClassifyJobService extends Service {
 
 				for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
 
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 					// only proceed with classify process if there is a valid queued audio file in the database
 					if (latestQueuedAudioToClassify[0] != null) {
@@ -174,11 +174,11 @@ public class AudioClassifyJobService extends Service {
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
 				audioClassifyJobInstance.runFlag = false;
 			}
 			
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			audioClassifyJobInstance.runFlag = false;
 
 		}

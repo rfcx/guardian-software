@@ -39,7 +39,7 @@ public class InstallAppService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.installApp.start();
 		} catch (IllegalThreadStateException e) {
@@ -52,7 +52,7 @@ public class InstallAppService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.installApp.interrupt();
 		this.installApp = null;
 	}
@@ -90,8 +90,8 @@ public class InstallAppService extends Service {
 				app.apiUpdateRequestUtils.lastUpdateRequestTriggered = 0;
 			}
 
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			app.rfcxServiceHandler.stopService(SERVICE_NAME);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.stopService(SERVICE_NAME);
 		}
 	}
 

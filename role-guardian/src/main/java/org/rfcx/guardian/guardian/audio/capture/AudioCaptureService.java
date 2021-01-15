@@ -46,7 +46,7 @@ public class AudioCaptureService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.audioCaptureSvc.start();
 		} catch (IllegalThreadStateException e) {
@@ -59,7 +59,7 @@ public class AudioCaptureService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.audioCaptureSvc.interrupt();
 		this.audioCaptureSvc = null;
 	}
@@ -77,7 +77,7 @@ public class AudioCaptureService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+			app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 			app.audioCaptureUtils.queueCaptureTimeStamp = new long[] { 0, 0 };
 			
@@ -113,28 +113,28 @@ public class AudioCaptureService extends Service {
 						
 					// queueing the last capture file (if there is one) for post-processing
 					if (app.audioCaptureUtils.updateCaptureQueue(captureTimeStamp, audioSampleRate)) {
-						app.rfcxServiceHandler.triggerIntentServiceImmediately( AudioQueuePostProcessingService.SERVICE_NAME);
+						app.rfcxSvc.triggerIntentServiceImmediately( AudioQueuePostProcessingService.SERVICE_NAME);
 					}
 
 					// This ensures that the service registers as active more frequently than the capture loop duration
 					for (int innerLoopIteration = 0; innerLoopIteration < innerLoopIterationCount; innerLoopIteration++) {
-						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+						app.rfcxSvc.reportAsActive(SERVICE_NAME);
 						Thread.sleep(innerLoopIterationDuration);
 					}
 
 					// Triggering creation of a metadata snapshot.
 					// This is not directly related to audio capture, but putting it here ensures that snapshots will...
 					// ...continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
-					app.rfcxServiceHandler.triggerIntentServiceImmediately( MetaSnapshotService.SERVICE_NAME);
+					app.rfcxSvc.triggerIntentServiceImmediately( MetaSnapshotService.SERVICE_NAME);
 					
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
-					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+					app.rfcxSvc.setRunState(SERVICE_NAME, false);
 					audioCaptureService.runFlag = false;
 				}
 			}
 			
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			audioCaptureService.runFlag = false;
 
 			Log.v(logTag, "Stopping service: "+logTag);

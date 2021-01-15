@@ -92,7 +92,7 @@ public class AudioClassifyUtils {
 			long classifyAudioSize = Long.parseLong(jsonObj.getString("audio_size"));
 			app.latencyStatsDb.dbClassifyLatency.insert(classifierName + "-v" + classifierVersion, classifyJobDuration, classifyAudioSize);
 
-			app.rfcxServiceHandler.triggerService( AudioDetectionFilterJobService.SERVICE_NAME, false);
+			app.rfcxSvc.triggerService( AudioDetectionFilterJobService.SERVICE_NAME, false);
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

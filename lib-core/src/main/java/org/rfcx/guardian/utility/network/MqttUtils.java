@@ -183,7 +183,7 @@ public class MqttUtils implements MqttCallback {
 				Log.v(logTag, "Subscribed to MQTT topic: "+subscribeTopic+" (QoS: "+this.mqttSubscriptionQoS +")");
 			}
 			mqttBrokerSubscriptionLatency = System.currentTimeMillis() - (mqttBrokerConnectionLastAttemptedAt + mqttBrokerConnectionLatency);
-				
+
 		}
 				
 		return allowBasedOnDeviceConnectivity && this.mqttClient.isConnected();
@@ -237,13 +237,13 @@ public class MqttUtils implements MqttCallback {
 			TrustManagerFactory tmFactory = TrustManagerFactory.getInstance("X509");
 			tmFactory.init(keyStore);
 			TrustManager[] trustManager = tmFactory.getTrustManagers();
-			SSLContext sslContext = SSLContext.getInstance("TLSv1");
+			SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
 			sslContext.init(null, trustManager, null);
 			return new TLSSocketFactory(sslContext.getSocketFactory(),
 										new String[]{
-													"TLSv1"//,
-												//	"TLSv1.1"//,  // v1.1 and v1.2 require enabling at the Android OS level
-												//	"TLSv1.2"
+												//	"TLSv1",
+												//	"TLSv1.1",//,  // v1.1 and v1.2 require enabling at the Android OS level
+													"TLSv1.2"
 											});
 		} catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException | KeyManagementException e) {
 			throw new MqttSecurityException(e);

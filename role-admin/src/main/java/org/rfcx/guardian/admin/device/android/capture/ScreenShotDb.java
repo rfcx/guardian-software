@@ -4,12 +4,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
 import android.content.ContentValues;
 import android.content.Context;
 

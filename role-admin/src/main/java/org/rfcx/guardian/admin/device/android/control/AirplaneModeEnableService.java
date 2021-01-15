@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 public class AirplaneModeEnableService extends Service {
 
@@ -37,7 +36,7 @@ public class AirplaneModeEnableService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.airplaneModeEnable.start();
 		} catch (IllegalThreadStateException e) {
@@ -50,7 +49,7 @@ public class AirplaneModeEnableService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.airplaneModeEnable.interrupt();
 		this.airplaneModeEnable = null;
 	}
@@ -70,7 +69,7 @@ public class AirplaneModeEnableService extends Service {
 			Context context = app.getApplicationContext();
 			
 			try {
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				app.deviceAirplaneMode.setOn(context);
 					
@@ -78,8 +77,8 @@ public class AirplaneModeEnableService extends Service {
 				RfcxLog.logExc(logTag, e);
 			} finally {
 				airplaneModeEnableInstance.runFlag = false;
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.stopService(SERVICE_NAME, false);
 			}
 		}
 	}

@@ -69,7 +69,7 @@ public class ApiUpdateRequestUtils {
 				
 				if (isBatteryChargeSufficientForDownloadAndInstall()) {
 					Log.d(logTag, "Update required. Latest release version ("+focusVersion+") detected and download triggered.");
-					app.rfcxServiceHandler.triggerService( DownloadFileService.SERVICE_NAME, true);
+					app.rfcxSvc.triggerService( DownloadFileService.SERVICE_NAME, true);
 				} else {
 					Log.i(logTag, "Update required, but will not be triggered due to low battery level"
 							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+installationBatteryCutoffPercentage+"%)."
@@ -111,7 +111,7 @@ public class ApiUpdateRequestUtils {
 
 	public void attemptToTriggerUpdateRequest(boolean forceRequest, boolean printLoggingFeedbackIfNotAllowed) {
 		if (forceRequest || isUpdateRequestAllowed(printLoggingFeedbackIfNotAllowed)) {
-			app.rfcxServiceHandler.triggerService( ApiUpdateRequestService.SERVICE_NAME, false);
+			app.rfcxSvc.triggerService( ApiUpdateRequestService.SERVICE_NAME, false);
 		}
 	}
 	

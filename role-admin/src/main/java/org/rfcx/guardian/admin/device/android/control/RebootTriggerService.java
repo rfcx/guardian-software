@@ -40,7 +40,7 @@ public class RebootTriggerService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.rebootTrigger.start();
 		} catch (IllegalThreadStateException e) {
@@ -53,7 +53,7 @@ public class RebootTriggerService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.rebootTrigger.interrupt();
 		this.rebootTrigger = null;
 	}
@@ -73,7 +73,7 @@ public class RebootTriggerService extends Service {
 			
 			try {
 				
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				// Halting the Guardian role services
 				Log.d(logTag, "Reboot: Requesting that Guardian role stop all services...");
@@ -106,15 +106,15 @@ public class RebootTriggerService extends Service {
 //				startActivity(actionReboot);
 
 				Log.d(logTag, "System should be shutting down now...");
-				app.rfcxServiceHandler.stopAllServices();
+				app.rfcxSvc.stopAllServices();
 
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
 				rebootTriggerInstance.runFlag = false;
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.stopService(SERVICE_NAME, false);
 			}
 		}
 	}

@@ -3,25 +3,18 @@ package org.rfcx.guardian.guardian.audio.classify;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeUtils;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
-import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.misc.StringUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.io.File;
 import java.util.List;
-
-import static androidx.core.content.FileProvider.getUriForFile;
 
 public class AudioClassifyPrepareService extends Service {
 
@@ -51,7 +44,7 @@ public class AudioClassifyPrepareService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.audioClassifyPrepare.start();
 		} catch (IllegalThreadStateException e) {
@@ -64,7 +57,7 @@ public class AudioClassifyPrepareService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.audioClassifyPrepare.interrupt();
 		this.audioClassifyPrepare = null;
 	}
@@ -82,7 +75,7 @@ public class AudioClassifyPrepareService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+			app.rfcxSvc.reportAsActive(SERVICE_NAME);
 			
 			try {
 
@@ -93,7 +86,7 @@ public class AudioClassifyPrepareService extends Service {
 
 				for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
 
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 					// only proceed with classify process if there is a valid queued audio file in the database
 					if (latestQueuedAudioToClassify[0] != null) {
@@ -157,11 +150,11 @@ public class AudioClassifyPrepareService extends Service {
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
 				audioClassifyPrepareInstance.runFlag = false;
 			}
 			
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			audioClassifyPrepareInstance.runFlag = false;
 
 		}

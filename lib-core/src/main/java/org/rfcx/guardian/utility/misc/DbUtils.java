@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.database;
+package org.rfcx.guardian.utility.misc;
 
 import java.util.ArrayList;
 import java.util.Date;

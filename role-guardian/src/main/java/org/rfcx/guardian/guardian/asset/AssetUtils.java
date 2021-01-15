@@ -15,7 +15,7 @@ import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxScreenShotFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxVideoFileUtils;
-import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;

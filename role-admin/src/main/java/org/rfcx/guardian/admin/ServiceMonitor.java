@@ -1,7 +1,7 @@
 package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -22,17 +22,17 @@ public class ServiceMonitor extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		Intent intent = new Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
-		sendBroadcast(intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
+		Intent intent = new Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
+		sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		if (app.rfcxServiceHandler.isRunning(SERVICE_NAME)) {
+		if (app.rfcxSvc.isRunning(SERVICE_NAME)) {
 			
-			app.rfcxServiceHandler.triggerServiceSequence( "ServiceMonitorSequence", app.RfcxCoreServices, false, SERVICE_MONITOR_CYCLE_DURATION);
+			app.rfcxSvc.triggerServiceSequence( "ServiceMonitorSequence", app.RfcxCoreServices, false, SERVICE_MONITOR_CYCLE_DURATION);
 		}
 		
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 	}
 	
 	

@@ -44,7 +44,7 @@ public class LogcatCaptureService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.logcatCapture.start();
 		} catch (IllegalThreadStateException e) {
@@ -57,7 +57,7 @@ public class LogcatCaptureService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.logcatCapture.interrupt();
 		this.logcatCapture = null;
 	}
@@ -84,7 +84,7 @@ public class LogcatCaptureService extends Service {
 			
 			try {
 				
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 				
 				long captureCycleBeginningTimeStamp = System.currentTimeMillis();
 				
@@ -128,11 +128,11 @@ public class LogcatCaptureService extends Service {
 				
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
 				logcatCaptureInstance.runFlag = false;
 			}
 			
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			logcatCaptureInstance.runFlag = false;
 			
 		}

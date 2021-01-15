@@ -64,7 +64,7 @@ public class DeviceSentinelService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.deviceSentinelSvc.start();
 		} catch (IllegalThreadStateException e) {
@@ -77,7 +77,7 @@ public class DeviceSentinelService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.deviceSentinelSvc.interrupt();
 		this.deviceSentinelSvc = null;
 	}
@@ -110,7 +110,7 @@ public class DeviceSentinelService extends Service {
 
 					if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
 
-						app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+						app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 						// Outer Loop Behavior
 						outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
@@ -119,7 +119,7 @@ public class DeviceSentinelService extends Service {
 
 				} catch (InterruptedException e) {
 					deviceSentinelService.runFlag = false;
-					app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+					app.rfcxSvc.setRunState(SERVICE_NAME, false);
 					RfcxLog.logExc(logTag, e);
 				}
 

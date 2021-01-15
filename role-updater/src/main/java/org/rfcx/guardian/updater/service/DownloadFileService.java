@@ -38,7 +38,7 @@ public class DownloadFileService extends Service {
 		super.onStartCommand(intent, flags, startId);
 		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.downloadFile.start();
 		} catch (IllegalThreadStateException e) {
@@ -51,7 +51,7 @@ public class DownloadFileService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.downloadFile.interrupt();
 		this.downloadFile = null;
 	}
@@ -91,7 +91,7 @@ public class DownloadFileService extends Service {
 						if (FileUtils.sha1Hash(app.installUtils.apkPathExternal).equalsIgnoreCase(FileUtils.sha1Hash(app.installUtils.apkPathPostDownload))) {
 
 							FileUtils.delete(app.installUtils.apkPathPostDownload);
-							app.rfcxServiceHandler.triggerService( InstallAppService.SERVICE_NAME, false);
+							app.rfcxSvc.triggerService( InstallAppService.SERVICE_NAME, false);
 						}
 
 					} else {
@@ -105,8 +105,8 @@ public class DownloadFileService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.stopService(SERVICE_NAME);
 			}
 		}
 	}

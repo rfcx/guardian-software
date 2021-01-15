@@ -40,7 +40,7 @@ public class CameraCaptureService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.cameraCapture.start();
 		} catch (IllegalThreadStateException e) {
@@ -53,7 +53,7 @@ public class CameraCaptureService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.cameraCapture.interrupt();
 		this.cameraCapture = null;
 	}
@@ -82,7 +82,7 @@ public class CameraCaptureService extends Service {
 			FileUtils.deleteDirectoryContentsIfOlderThanExpirationAge(videoCaptureDir, 60);
 
 			try {
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				if (	 confirmOrSetCameraCaptureParameters() ) {
 
@@ -95,8 +95,8 @@ public class CameraCaptureService extends Service {
 				RfcxLog.logExc(logTag, e);
 			} finally {
 				cameraCaptureInstance.runFlag = false;
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.stopService(SERVICE_NAME, false);
 			}
 		}
 	}

@@ -3,14 +3,9 @@ package org.rfcx.guardian.admin.sbd;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.DeviceSmsUtils;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.List;
 
@@ -44,7 +39,7 @@ public class SbdDispatchService extends Service {
 		super.onStartCommand(intent, flags, startId);
 	//	Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.sbdDispatch.start();
 		} catch (IllegalThreadStateException e) {
@@ -57,7 +52,7 @@ public class SbdDispatchService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.sbdDispatch.interrupt();
 		this.sbdDispatch = null;
 	}
@@ -77,7 +72,7 @@ public class SbdDispatchService extends Service {
 
 			try {
 
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				List<String[]> sbdQueuedForDispatch = app.sbdMessageDb.dbSbdQueued.getRowsInOrderOfTimestamp();
 
@@ -120,8 +115,8 @@ public class SbdDispatchService extends Service {
 				RfcxLog.logExc(logTag, e);
 
 			} finally {
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.stopService(SERVICE_NAME, false);
 				sbdDispatchInstance.runFlag = false;
 			}
 

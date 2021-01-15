@@ -83,7 +83,7 @@ public class SmsUtils {
 				Log.w(logTag, "SMS Queued (ID " + msgId + "): To " + sendTo + " at " + DateTimeUtils.getDateTime(sendAtOrAfter) + ": \"" + msgBody + "\"");
 			}
 
-			if (triggerDispatchService) { app.rfcxServiceHandler.triggerService( SmsDispatchService.SERVICE_NAME, false); }
+			if (triggerDispatchService) { app.rfcxSvc.triggerService( SmsDispatchService.SERVICE_NAME, false); }
 		}
 		return isQueued;
 	}

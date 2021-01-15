@@ -44,7 +44,7 @@ public class SmsDispatchService extends Service {
 		super.onStartCommand(intent, flags, startId);
 	//	Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.smsDispatch.start();
 		} catch (IllegalThreadStateException e) {
@@ -57,7 +57,7 @@ public class SmsDispatchService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.smsDispatch.interrupt();
 		this.smsDispatch = null;
 	}
@@ -77,7 +77,7 @@ public class SmsDispatchService extends Service {
 
 			try {
 
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				String apiSmsAddress = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SMS_ADDRESS);
 
@@ -122,8 +122,8 @@ public class SmsDispatchService extends Service {
 				RfcxLog.logExc(logTag, e);
 
 			} finally {
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.stopService(SERVICE_NAME, false);
 				smsDispatchInstance.runFlag = false;
 			}
 

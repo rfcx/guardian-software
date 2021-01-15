@@ -13,7 +13,6 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
@@ -104,7 +103,7 @@ public class GuardianContentProvider extends ContentProvider {
 			// "control" function endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) { logFuncVal = "control-kill";
-				app.rfcxServiceHandler.stopAllServices();
+				app.rfcxSvc.stopAllServices();
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"kill", null, System.currentTimeMillis()});
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "initialize")) { logFuncVal = "control-initialize";

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.service;
+package org.rfcx.guardian.utility.rfcx;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -14,11 +14,11 @@ import android.util.Log;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-public class RfcxServiceHandler {
+public class RfcxSvc {
 
-	public RfcxServiceHandler(Context context, String appRole) {
+	public RfcxSvc(Context context, String appRole) {
 		this.context = context;
-		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxSvcHandler");
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxSvc");
 	}	
 
 	Context context;

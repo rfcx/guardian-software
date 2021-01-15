@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 public class AirplaneModeToggleService extends Service {
 
@@ -37,7 +36,7 @@ public class AirplaneModeToggleService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.airplaneModeToggle.start();
 		} catch (IllegalThreadStateException e) {
@@ -50,7 +49,7 @@ public class AirplaneModeToggleService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.airplaneModeToggle.interrupt();
 		this.airplaneModeToggle = null;
 	}
@@ -70,18 +69,18 @@ public class AirplaneModeToggleService extends Service {
 			Context context = app.getApplicationContext();
 			
 			try {
-				app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				app.deviceAirplaneMode.setOff(context);
 
-				app.rfcxServiceHandler.triggerService( WifiHotspotStateSetService.SERVICE_NAME, false);
+				app.rfcxSvc.triggerService( WifiHotspotStateSetService.SERVICE_NAME, false);
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 			} finally {
 				airplaneModeToggleInstance.runFlag = false;
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-				app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.stopService(SERVICE_NAME, false);
 			}
 		}
 	}

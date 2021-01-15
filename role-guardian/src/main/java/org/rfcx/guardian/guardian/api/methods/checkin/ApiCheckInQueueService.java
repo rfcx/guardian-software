@@ -3,11 +3,10 @@ package org.rfcx.guardian.guardian.api.methods.checkin;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
@@ -23,12 +22,12 @@ public class ApiCheckInQueueService extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		Intent intent = new Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
-		sendBroadcast(intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
+		Intent intent = new Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
+		sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
-		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+		app.rfcxSvc.reportAsActive(SERVICE_NAME);
 		
 		try {
 
@@ -56,7 +55,7 @@ public class ApiCheckInQueueService extends IntentService {
 
 			if (!app.apiCheckInHealthUtils.isApiCheckInDisabled(true)) {
 
-				app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut( ApiCheckInJobService.SERVICE_NAME, 3 * app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000);
+				app.rfcxSvc.triggerOrForceReTriggerIfTimedOut( ApiCheckInJobService.SERVICE_NAME, 3 * app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000);
 
 				// this helps to ensure that the queue is growing before checking thresholds
 				// this helps avoid thresholds being executed when new stream files are not being added, or if this is the first checkin loaded after downtime
@@ -72,8 +71,8 @@ public class ApiCheckInQueueService extends IntentService {
 			RfcxLog.logExc(logTag, e);
 			
 		} finally {
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.stopService(SERVICE_NAME, false);
 		}
 		
 	}

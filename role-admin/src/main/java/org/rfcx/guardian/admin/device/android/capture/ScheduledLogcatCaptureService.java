@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.util.Log;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 public class ScheduledLogcatCaptureService extends IntentService {
 
@@ -20,13 +20,13 @@ public class ScheduledLogcatCaptureService extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		Intent intent = new Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
-		sendBroadcast(intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
+		Intent intent = new Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
+		sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		
 		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_LOG_CAPTURE)) {
-			app.rfcxServiceHandler.triggerService( LogcatCaptureService.SERVICE_NAME, true);
+			app.rfcxSvc.triggerService( LogcatCaptureService.SERVICE_NAME, true);
 		} else {
 			Log.i(logTag, "Scheduled Logcat Capture is currently disabled in preferences.");
 		}

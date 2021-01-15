@@ -7,7 +7,6 @@ import java.util.Locale;
 
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
-import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -49,7 +48,7 @@ public class AudioEncodeJobService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.audioEncodeJob.start();
 		} catch (IllegalThreadStateException e) {
@@ -62,7 +61,7 @@ public class AudioEncodeJobService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.audioEncodeJob.interrupt();
 		this.audioEncodeJob = null;
 	}
@@ -80,7 +79,7 @@ public class AudioEncodeJobService extends Service {
 			app = (RfcxGuardian) getApplication();
 			Context context = app.getApplicationContext();
 
-			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+			app.rfcxSvc.reportAsActive(SERVICE_NAME);
 			
 			try {
 				
@@ -91,7 +90,7 @@ public class AudioEncodeJobService extends Service {
 				
 				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
 
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 									
 					// only proceed with encode process if there is a valid queued audio file in the database
 					if (latestQueuedAudioToEncode[0] != null) {
@@ -124,9 +123,9 @@ public class AudioEncodeJobService extends Service {
 						} else {
 
 							Log.i(logTag, "Beginning Audio Encode Job ("+ StringUtils.capitalizeFirstChar(encodePurpose) +"): "
-												+ timestamp + ", "
-												+ inputFileExt.toUpperCase(Locale.US) + " ("+Math.round((double) inputSampleRate/1000)+" kHz) "
-												+"to " + codec.toUpperCase(Locale.US)+" ("+Math.round((double) outputSampleRate/1000)+" kHz"+ ((codec.equalsIgnoreCase("opus")) ? (", "+Math.round(bitRate/1024)+" kbps") : "")+")"
+									+ timestamp + ", "
+									+ inputFileExt.toUpperCase(Locale.US) + " ("+Math.round((double) inputSampleRate/1000)+" kHz) "
+									+"to " + codec.toUpperCase(Locale.US)+" ("+Math.round((double) outputSampleRate/1000)+" kHz"+ ((codec.equalsIgnoreCase("opus")) ? (", "+Math.round(bitRate/1024)+" kbps") : "")+")"
 							);
 
 							app.audioEncodeDb.dbQueued.incrementSingleRowAttempts(timestamp);
@@ -172,7 +171,6 @@ public class AudioEncodeJobService extends Service {
 													targetAudioFileCaptureDuration, encodeDuration, encodePurpose, finalDestinationFile.getAbsolutePath(), inputSampleRate
 											);
 										}
-
 									}
 
 								} else if (encodePurpose.equalsIgnoreCase("vault")) {
@@ -206,15 +204,15 @@ public class AudioEncodeJobService extends Service {
 					}
 				}
 
-				app.rfcxServiceHandler.triggerIntentServiceImmediately( ApiCheckInQueueService.SERVICE_NAME );
+				app.rfcxSvc.triggerIntentServiceImmediately( ApiCheckInQueueService.SERVICE_NAME );
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
 				audioEncodeJobInstance.runFlag = false;
 			}
 			
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			audioEncodeJobInstance.runFlag = false;
 
 		}

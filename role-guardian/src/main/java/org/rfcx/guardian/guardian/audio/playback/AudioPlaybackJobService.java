@@ -2,6 +2,7 @@ package org.rfcx.guardian.guardian.audio.playback;
 
 import android.app.Service;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -39,7 +40,7 @@ public class AudioPlaybackJobService extends Service {
 		super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
 		this.runFlag = true;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, true);
+		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
 			this.audioPlaybackJob.start();
 		} catch (IllegalThreadStateException e) {
@@ -52,7 +53,7 @@ public class AudioPlaybackJobService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		this.runFlag = false;
-		app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+		app.rfcxSvc.setRunState(SERVICE_NAME, false);
 		this.audioPlaybackJob.interrupt();
 		this.audioPlaybackJob = null;
 	}
@@ -69,7 +70,7 @@ public class AudioPlaybackJobService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 
-			app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+			app.rfcxSvc.reportAsActive(SERVICE_NAME);
 			
 			try {
 
@@ -77,7 +78,7 @@ public class AudioPlaybackJobService extends Service {
 
 				for (String[] latestQueuedAudio : latestQueuedAudioFilesForPlayback) {
 
-					app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 					if (latestQueuedAudio[0] != null) {
 
@@ -111,9 +112,10 @@ public class AudioPlaybackJobService extends Service {
 
 							long playbackStartTime = System.currentTimeMillis();
 
-
-							Log.e(logTag, "Play the audio file...");
-
+							MediaPlayer mediaPlayer = new MediaPlayer();
+							mediaPlayer.setDataSource(audioFilePath);
+							mediaPlayer.prepare();
+							mediaPlayer.start();
 
 							long playbackDuration = (System.currentTimeMillis() - playbackStartTime);
 
@@ -132,11 +134,11 @@ public class AudioPlaybackJobService extends Service {
 					
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
-				app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
 				audioPlaybackJobInstance.runFlag = false;
 			}
 			
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			audioPlaybackJobInstance.runFlag = false;
 
 		}

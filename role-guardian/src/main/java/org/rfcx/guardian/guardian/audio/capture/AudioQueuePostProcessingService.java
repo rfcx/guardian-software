@@ -3,12 +3,10 @@ package org.rfcx.guardian.guardian.audio.capture;
 
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyPrepareService;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
-import org.rfcx.guardian.utility.asset.RfcxAsset;
-import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -17,7 +15,6 @@ import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
 import java.util.List;
-import java.util.Locale;
 
 public class AudioQueuePostProcessingService extends IntentService {
 
@@ -31,13 +28,13 @@ public class AudioQueuePostProcessingService extends IntentService {
 	
 	@Override
 	protected void onHandleIntent(Intent inputIntent) {
-		Intent intent = new Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
-		sendBroadcast(intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
+		Intent intent = new Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
+		sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
 		
-		app.rfcxServiceHandler.reportAsActive(SERVICE_NAME);
+		app.rfcxSvc.reportAsActive(SERVICE_NAME);
 	
 		try {
 			
@@ -120,8 +117,8 @@ public class AudioQueuePostProcessingService extends IntentService {
 				Log.e(logTag, "Failed to prepare captured audio for post processing.");
 			}
 
-			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut( AudioEncodeJobService.SERVICE_NAME, 4 * captureLoopPeriod );
-			app.rfcxServiceHandler.triggerOrForceReTriggerIfTimedOut( AudioClassifyPrepareService.SERVICE_NAME, 4 * captureLoopPeriod );
+			app.rfcxSvc.triggerOrForceReTriggerIfTimedOut( AudioEncodeJobService.SERVICE_NAME, 4 * captureLoopPeriod );
+			app.rfcxSvc.triggerOrForceReTriggerIfTimedOut( AudioClassifyPrepareService.SERVICE_NAME, 4 * captureLoopPeriod );
 
 //			if ((jobCount_Encode+jobCount_Classify) == 0) {
 //				// Scan Encode, Capture & Classify Directories for cleanup
@@ -135,8 +132,8 @@ public class AudioQueuePostProcessingService extends IntentService {
 			RfcxLog.logExc(logTag, e);
 			
 		} finally {
-			app.rfcxServiceHandler.setRunState(SERVICE_NAME, false);
-			app.rfcxServiceHandler.stopService(SERVICE_NAME, false);
+			app.rfcxSvc.setRunState(SERVICE_NAME, false);
+			app.rfcxSvc.stopService(SERVICE_NAME, false);
 		}
 		
 	}

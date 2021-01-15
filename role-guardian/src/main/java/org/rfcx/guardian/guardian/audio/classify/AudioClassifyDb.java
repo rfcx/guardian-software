@@ -3,7 +3,7 @@ package org.rfcx.guardian.guardian.audio.classify;
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.utility.database.DbUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;

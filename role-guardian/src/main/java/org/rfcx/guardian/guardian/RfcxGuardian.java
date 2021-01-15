@@ -49,7 +49,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
-import org.rfcx.guardian.utility.service.RfcxServiceHandler;
+import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 import android.app.Application;
 import android.content.BroadcastReceiver;
@@ -88,7 +88,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
-    public RfcxServiceHandler rfcxServiceHandler = null;
+    public RfcxSvc rfcxSvc = null;
 
     public SharedPreferences sharedPrefs = null;
 
@@ -157,7 +157,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.rfcxGuardianIdentity = new RfcxGuardianIdentity(this, APP_ROLE);
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
-        this.rfcxServiceHandler = new RfcxServiceHandler(this, APP_ROLE);
+        this.rfcxSvc = new RfcxSvc(this, APP_ROLE);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
@@ -244,7 +244,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public void initializeRoleServices() {
 
-        if (!this.rfcxServiceHandler.hasRun("OnLaunchServiceSequence")) {
+        if (!this.rfcxSvc.hasRun("OnLaunchServiceSequence")) {
 
             String[] runOnceOnlyOnLaunch = new String[]{
                     ServiceMonitor.SERVICE_NAME
@@ -271,7 +271,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
             System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
             System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-            this.rfcxServiceHandler.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, false, 0);
+            this.rfcxSvc.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, false, 0);
         }
     }
 
@@ -298,34 +298,34 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     private void setServiceHandlers() {
 
-        this.rfcxServiceHandler.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
-        this.rfcxServiceHandler.addService( ScheduledAssetCleanupService.SERVICE_NAME, ScheduledAssetCleanupService.class);
+        this.rfcxSvc.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
+        this.rfcxSvc.addService( ScheduledAssetCleanupService.SERVICE_NAME, ScheduledAssetCleanupService.class);
 
-        this.rfcxServiceHandler.addService( AudioCaptureService.SERVICE_NAME, AudioCaptureService.class);
-        this.rfcxServiceHandler.addService( AudioQueuePostProcessingService.SERVICE_NAME, AudioQueuePostProcessingService.class);
-        this.rfcxServiceHandler.addService( AudioEncodeJobService.SERVICE_NAME, AudioEncodeJobService.class);
-        this.rfcxServiceHandler.addService( AudioClassifyPrepareService.SERVICE_NAME, AudioClassifyPrepareService.class);
-        this.rfcxServiceHandler.addService( AudioPlaybackJobService.SERVICE_NAME, AudioPlaybackJobService.class);
+        this.rfcxSvc.addService( AudioCaptureService.SERVICE_NAME, AudioCaptureService.class);
+        this.rfcxSvc.addService( AudioQueuePostProcessingService.SERVICE_NAME, AudioQueuePostProcessingService.class);
+        this.rfcxSvc.addService( AudioEncodeJobService.SERVICE_NAME, AudioEncodeJobService.class);
+        this.rfcxSvc.addService( AudioClassifyPrepareService.SERVICE_NAME, AudioClassifyPrepareService.class);
+        this.rfcxSvc.addService( AudioPlaybackJobService.SERVICE_NAME, AudioPlaybackJobService.class);
 
-        this.rfcxServiceHandler.addService( ApiCheckInQueueService.SERVICE_NAME, ApiCheckInQueueService.class);
-        this.rfcxServiceHandler.addService( ApiCheckInJobService.SERVICE_NAME, ApiCheckInJobService.class);
+        this.rfcxSvc.addService( ApiCheckInQueueService.SERVICE_NAME, ApiCheckInQueueService.class);
+        this.rfcxSvc.addService( ApiCheckInJobService.SERVICE_NAME, ApiCheckInJobService.class);
 
-        this.rfcxServiceHandler.addService( ScheduledApiPingService.SERVICE_NAME, ScheduledApiPingService.class);
-        this.rfcxServiceHandler.addService( SendApiPingService.SERVICE_NAME, SendApiPingService.class);
+        this.rfcxSvc.addService( ScheduledApiPingService.SERVICE_NAME, ScheduledApiPingService.class);
+        this.rfcxSvc.addService( SendApiPingService.SERVICE_NAME, SendApiPingService.class);
 
-        this.rfcxServiceHandler.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
-        this.rfcxServiceHandler.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);
+        this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
+        this.rfcxSvc.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);
 
-        this.rfcxServiceHandler.addService( ApiCheckInArchiveService.SERVICE_NAME, ApiCheckInArchiveService.class);
-        this.rfcxServiceHandler.addService( MetaSnapshotService.SERVICE_NAME, MetaSnapshotService.class);
+        this.rfcxSvc.addService( ApiCheckInArchiveService.SERVICE_NAME, ApiCheckInArchiveService.class);
+        this.rfcxSvc.addService( MetaSnapshotService.SERVICE_NAME, MetaSnapshotService.class);
 
-        this.rfcxServiceHandler.addService( AssetDownloadJobService.SERVICE_NAME, AssetDownloadJobService.class);
-        this.rfcxServiceHandler.addService( AudioDetectionFilterJobService.SERVICE_NAME, AudioDetectionFilterJobService.class);
+        this.rfcxSvc.addService( AssetDownloadJobService.SERVICE_NAME, AssetDownloadJobService.class);
+        this.rfcxSvc.addService( AudioDetectionFilterJobService.SERVICE_NAME, AudioDetectionFilterJobService.class);
 
-        this.rfcxServiceHandler.addService( InstructionsCycleService.SERVICE_NAME, InstructionsCycleService.class);
-        this.rfcxServiceHandler.addService( InstructionsExecutionService.SERVICE_NAME, InstructionsExecutionService.class);
+        this.rfcxSvc.addService( InstructionsCycleService.SERVICE_NAME, InstructionsCycleService.class);
+        this.rfcxSvc.addService( InstructionsExecutionService.SERVICE_NAME, InstructionsExecutionService.class);
 
-        this.rfcxServiceHandler.addService("WifiCommunication", WifiCommunicationService.class);
+        this.rfcxSvc.addService("WifiCommunication", WifiCommunicationService.class);
     }
 
     @Override
@@ -369,7 +369,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             this.apiMqttUtils.getSetCheckInPublishTimeOutLength();
 
         } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET )) {
-            this.rfcxServiceHandler.triggerService("WifiCommunication", false);
+            this.rfcxSvc.triggerService("WifiCommunication", false);
 
         } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS )) {
             this.apiMqttUtils.initializeFailedCheckInThresholds();

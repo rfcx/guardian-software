@@ -66,7 +66,7 @@ public class UpdaterContentProvider extends ContentProvider {
 				// "control" function endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) { logFuncVal = "control-kill";
-				app.rfcxServiceHandler.stopAllServices();
+				app.rfcxSvc.stopAllServices();
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{ "kill", null, System.currentTimeMillis()});
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "initialize")) { logFuncVal = "control-initialize";

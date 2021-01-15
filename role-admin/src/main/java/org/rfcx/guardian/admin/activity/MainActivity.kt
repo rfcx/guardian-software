@@ -37,15 +37,15 @@ class MainActivity : Activity() {
         }
 
         clockSyncButton.setOnClickListener {
-            app.rfcxServiceHandler.triggerService( ClockSyncJobService.SERVICE_NAME, true)
+            app.rfcxSvc.triggerService( ClockSyncJobService.SERVICE_NAME, true)
         }
 
         screenshotButton.setOnClickListener {
-            app.rfcxServiceHandler.triggerService( ScreenShotCaptureService.SERVICE_NAME, true)
+            app.rfcxSvc.triggerService( ScreenShotCaptureService.SERVICE_NAME, true)
         }
 
         rebootButton.setOnClickListener {
-            app.rfcxServiceHandler.triggerService( RebootTriggerService.SERVICE_NAME, true)
+            app.rfcxSvc.triggerService( RebootTriggerService.SERVICE_NAME, true)
         }
 
     }

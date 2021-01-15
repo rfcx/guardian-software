@@ -6,7 +6,7 @@ import android.util.Log
 import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
-import org.rfcx.guardian.utility.service.RfcxServiceHandler
+import org.rfcx.guardian.utility.rfcx.RfcxSvc
 
 class WifiCommunicationService : IntentService("WifiCommunication") {
 
@@ -18,12 +18,12 @@ class WifiCommunicationService : IntentService("WifiCommunication") {
     )
 
     override fun onHandleIntent(p0: Intent?) {
-        val intent = Intent(RfcxServiceHandler.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME))
-        sendBroadcast( intent, RfcxServiceHandler.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME))
+        val intent = Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME))
+        sendBroadcast( intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME))
 
         val app = application as RfcxGuardian
 
-        app.rfcxServiceHandler.reportAsActive(SERVICE_NAME)
+        app.rfcxSvc.reportAsActive(SERVICE_NAME)
 
         val prefsAdminEnableWifiSocket = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET)
 

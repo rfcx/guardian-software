@@ -132,7 +132,7 @@ public class ApiCheckInUtils {
 		}
 
 		if (app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows() >= ((stashFileSizeBuffer+archiveFileSizeTarget)*1024*1024)) {
-			app.rfcxServiceHandler.triggerService( ApiCheckInArchiveService.SERVICE_NAME, false);
+			app.rfcxSvc.triggerService( ApiCheckInArchiveService.SERVICE_NAME, false);
 		}
 	}
 

@@ -69,7 +69,7 @@ public class ClassifyContentProvider extends ContentProvider {
 				// "control" function endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "kill")) { logFuncVal = "control-kill";
-				app.rfcxServiceHandler.stopAllServices();
+				app.rfcxSvc.stopAllServices();
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{ "kill", null, System.currentTimeMillis()});
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "control", "initialize")) { logFuncVal = "control-initialize";
@@ -101,7 +101,7 @@ public class ClassifyContentProvider extends ContentProvider {
 									+ Math.round((double) sampleRate/1000) + "kHz, "
 									+ Float.parseFloat(windowSize) + ", " + Float.parseFloat(stepSize));
 
-				app.rfcxServiceHandler.triggerService( AudioClassifyJobService.SERVICE_NAME, false);
+				app.rfcxSvc.triggerService( AudioClassifyJobService.SERVICE_NAME, false);
 
 				return RfcxComm.getProjectionCursor(appRole, "classify_queue", new Object[]{ audioId+"|"+clsfrId, null, System.currentTimeMillis()});
 
