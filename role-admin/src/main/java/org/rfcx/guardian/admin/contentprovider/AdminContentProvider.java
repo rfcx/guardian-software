@@ -27,7 +27,7 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,18 +146,26 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSeg = uri.getLastPathSegment();
                 String pathSegAddr = pathSeg.substring(0, pathSeg.indexOf("|"));
                 String pathSegHighOrLow = pathSeg.substring(1+pathSeg.indexOf("|")).toLowerCase(Locale.US);
-                app.deviceGPIO.runGPIOCommand("DOUT", pathSegAddr, pathSegHighOrLow.equalsIgnoreCase("high") );
+                app.deviceGPIOUtils.runGPIOCommand("DOUT", pathSegAddr, pathSegHighOrLow.equalsIgnoreCase("high") );
                 return RfcxComm.getProjectionCursor(appRole, "gpio_set", new Object[] { pathSegAddr, pathSegHighOrLow, System.currentTimeMillis() });
 
 
             } else if (RfcxComm.uriMatch(uri, appRole, "sms_queue", "*")) { logFuncVal = "sms_queue-*";
                 String pathSeg = uri.getLastPathSegment();
-                String pathSegSendAt = pathSeg.substring(0, pathSeg.indexOf("|"));
-                String pathSegAfterSendAt = pathSeg.substring(pathSegSendAt.length()+1);
-                String pathSegAddress = pathSegAfterSendAt.substring(0, pathSegAfterSendAt.indexOf("|"));
-                String pathSegMessage = pathSegAfterSendAt.substring(1 + pathSegAfterSendAt.indexOf("|"));
-                SmsUtils.addScheduledSmsToQueue(Long.parseLong(pathSegSendAt), pathSegAddress, pathSegMessage, app.getApplicationContext(), false);
-                return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{ pathSegSendAt+"|"+pathSegAddress+"|"+pathSegMessage, null, System.currentTimeMillis()});
+                String[] smsQueue = TextUtils.split(pathSeg,"\\|");
+                long smsSendAt = Long.parseLong(smsQueue[0]);
+                String smsAddr = smsQueue[1];
+                String smsMsg = smsQueue[2];
+                SmsUtils.addScheduledSmsToQueue(smsSendAt, smsAddr, smsMsg, app.getApplicationContext(), false);
+                return RfcxComm.getProjectionCursor(appRole, "sms_queue", new Object[]{ smsSendAt+"|"+smsAddr+"|"+smsMsg, null, System.currentTimeMillis()});
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "sbd_queue", "*")) { logFuncVal = "sbd_queue-*";
+                String pathSeg = uri.getLastPathSegment();
+                String[] sbdQueue = TextUtils.split(pathSeg,"\\|");
+                long sbdSendAt = Long.parseLong(sbdQueue[0]);
+                String sbdPayload = sbdQueue[1];
+          //      SbdUtils.addScheduledSmsToQueue(sbdSendAt, sbdPayload, app.getApplicationContext(), false);
+                return RfcxComm.getProjectionCursor(appRole, "sbd_queue", new Object[]{ sbdSendAt+"|"+sbdPayload, null, System.currentTimeMillis()});
 
 
             // get momentary values endpoints

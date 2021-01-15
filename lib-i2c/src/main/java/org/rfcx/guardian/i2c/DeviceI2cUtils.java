@@ -11,7 +11,11 @@ import java.util.List;
 
 public class DeviceI2cUtils {
 
-	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceI2cUtils");
+	public DeviceI2cUtils(String appRole) {
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceI2cUtils");
+	}
+
+	private String logTag;
 
 	private I2cTools i2cTools;
 	private int i2cAdapterReceipt;

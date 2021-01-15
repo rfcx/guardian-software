@@ -2,6 +2,7 @@ package org.rfcx.guardian.utility.device.control;
 
 import android.util.Log;
 
+import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
@@ -11,9 +12,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class DeviceGPIO {
+public class DeviceGPIOUtils {
 
-	public DeviceGPIO(String appRole) {
+	public DeviceGPIOUtils(String appRole) {
 		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceGPIO");
 	}
 
@@ -31,13 +32,19 @@ public class DeviceGPIO {
 	}
 
 	public void setPinByName(String pinName, String pinNumber) {
-		setPinByName(pinName, (int) Integer.parseInt(pinNumber));
+		setPinByName(pinName, Integer.parseInt(pinNumber));
+	}
+
+	public void setPinsByName(Map<String, String> pinMap) {
+		for (Map.Entry pins : pinMap.entrySet()) {
+			setPinByName(pins.getKey().toString(), pinMap.get(pins.getKey().toString()));
+		}
 	}
 
 	private int getPinByName(String pinName) {
 		int pinNmbr = 0;
 		if (this.pinMap.containsKey(pinName.toUpperCase(Locale.US))) {
-			pinNmbr = (int) Integer.parseInt(this.pinMap.get(pinName.toUpperCase(Locale.US)));
+			pinNmbr = Integer.parseInt(this.pinMap.get(pinName.toUpperCase(Locale.US)));
 		}
 		return pinNmbr;
 	}

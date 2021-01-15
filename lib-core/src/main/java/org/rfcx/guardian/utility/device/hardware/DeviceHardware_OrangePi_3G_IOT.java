@@ -30,7 +30,9 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	public static final String DEVICE_GPIO_HANDLER_FILEPATH = "/sys/devices/virtual/misc/mtgpio/pin";
 	public static final Map<String, String> DEVICE_GPIO_PINMAP = Collections.unmodifiableMap( new HashMap<String, String>() {{
 		put("iridium_power", "26");
-		put("iridium_clear", "10");
+		put("unassigned_a", "56");
+		put("unassigned_b", "128");
+		put("unassigned_c", "58");
 	}});
 		
 	public static boolean isDevice_OrangePi_3G_IOT() {

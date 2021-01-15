@@ -28,8 +28,9 @@ import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.capture.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.capture.DeviceNetworkStats;
-import org.rfcx.guardian.utility.device.control.DeviceGPIO;
+import org.rfcx.guardian.utility.device.control.DeviceGPIOUtils;
 import org.rfcx.guardian.utility.device.control.DeviceNetworkName;
+import org.rfcx.guardian.utility.device.control.DeviceUARTUtils;
 import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
@@ -67,12 +68,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 public class RfcxGuardian extends Application {
 	
 	public String version;
@@ -109,12 +104,13 @@ public class RfcxGuardian extends Application {
 	public DeviceMobileNetwork deviceMobileNetwork = new DeviceMobileNetwork(APP_ROLE);
 	public AssetUtils assetUtils = null;
 
-	public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils();
+	public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils(APP_ROLE);
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelCompassUtils sentinelCompassUtils = null;
 	public SentinelAccelUtils sentinelAccelUtils = null;
 
-	public DeviceGPIO deviceGPIO = new DeviceGPIO(APP_ROLE);
+	public DeviceGPIOUtils deviceGPIOUtils = new DeviceGPIOUtils(APP_ROLE);
+	public DeviceUARTUtils deviceUARTUtils = new DeviceUARTUtils(APP_ROLE);
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -326,11 +322,12 @@ public class RfcxGuardian extends Application {
 			// Sets I2C interface
 			this.deviceI2cUtils.setInterface(DeviceHardware_OrangePi_3G_IOT.DEVICE_I2C_INTERFACE);
 
-			// Sets GPIO handler
-			this.deviceGPIO.setGpioHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_HANDLER_FILEPATH);
-			for (Map.Entry pins : DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_PINMAP.entrySet()) {
-				this.deviceGPIO.setPinByName(pins.getKey().toString(), DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_PINMAP.get(pins.getKey().toString()));
-			}
+			// Sets GPIO interface
+			this.deviceGPIOUtils.setGpioHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_HANDLER_FILEPATH);
+			this.deviceGPIOUtils.setPinsByName(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_PINMAP);
+
+			// Sets UART interface
+			this.deviceUARTUtils.setInterface(DeviceHardware_OrangePi_3G_IOT.DEVICE_UART_INTERFACE);
 
 		}
 
