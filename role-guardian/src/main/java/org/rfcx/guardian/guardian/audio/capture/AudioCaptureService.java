@@ -8,6 +8,7 @@ import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -159,7 +160,9 @@ public class AudioCaptureService extends Service {
 				this.audioCycleDuration = prefsAudioCycleDuration;
 				innerLoopIterationDuration = Math.round( (prefsAudioCycleDuration * 1000) / innerLoopIterationCount );
 				
-				Log.d(logTag, "Audio Capture Params: " + prefsAudioCycleDuration + " seconds, " + prefsAudioCaptureSampleRate + " Hz");
+				Log.d(logTag, "Audio Capture Params"
+						+ " - Cycle: " + DateTimeUtils.milliSecondDurationAsReadableString(prefsAudioCycleDuration*1000)
+						+ " - Sample Rate: " + Math.round(((double) prefsAudioCaptureSampleRate)/1000) + " kHz");
 			}
 			
 		} else {

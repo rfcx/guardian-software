@@ -483,6 +483,8 @@ public class SentinelPowerUtils {
         return jsonObj;
     }
 
+
+
     public String sentinelPowerStatusAsJsonObjStr(String activityTag) {
 
         String statusObjStr = "{\"is_allowed\":true,\"is_disabled\":false}";

@@ -9,10 +9,14 @@ import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class ApiSegmentUtils {
@@ -46,14 +50,6 @@ public class ApiSegmentUtils {
 		}}
 	);
 
-//	public static int getSegmentPayloadMaxLength(String protocol) {
-//		if (SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL.containsKey(protocol.toLowerCase())) {
-//			return (SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL.get(protocol.toLowerCase()) - GROUP_ID_LENGTH - SEGMENT_ID_LENGTH);
-//		} else {
-//			return 100;
-//		}
-//	}
-
 	public static String generateSegmentGroupId() {
 		return StringUtils.randomAlphanumericString(GROUP_ID_LENGTH, true);
 	}
@@ -71,15 +67,23 @@ public class ApiSegmentUtils {
 	public void receiveSegment(String segmentPayload, String originProtocol) {
 
 		try {
-			String groupId = segmentPayload.substring(0, GROUP_ID_LENGTH);
-			int segmentId = segmentId_paddedHexToDec(segmentPayload.substring(GROUP_ID_LENGTH, GROUP_ID_LENGTH + SEGMENT_ID_LENGTH));
-			String segmentBody = segmentPayload.substring(GROUP_ID_LENGTH + SEGMENT_ID_LENGTH);
+
+			boolean isByteArr = originProtocol.equalsIgnoreCase("sbd");
+
+			String segPayloadStr = (isByteArr) ? "" : segmentPayload;
+			byte[] segPayloadByte = (isByteArr) ? StringUtils.base64StringToByteArray(segmentPayload) : new byte[]{};
+
+			String groupId = (isByteArr) ? new String(Arrays.copyOfRange(segPayloadByte, 0, GROUP_ID_LENGTH)) : segPayloadStr.substring(0, GROUP_ID_LENGTH);
+			int segmentId = segmentId_paddedHexToDec( (isByteArr) ? new String(Arrays.copyOfRange(segPayloadByte, GROUP_ID_LENGTH, GROUP_ID_LENGTH + SEGMENT_ID_LENGTH)) : segmentPayload.substring(GROUP_ID_LENGTH, GROUP_ID_LENGTH + SEGMENT_ID_LENGTH) );
+
+			String segmentBodyStr = (isByteArr) ? "" : segmentPayload.substring(GROUP_ID_LENGTH + SEGMENT_ID_LENGTH);
+			byte[] segmentBodyByte = (isByteArr) ? Arrays.copyOfRange(segPayloadByte, GROUP_ID_LENGTH + SEGMENT_ID_LENGTH, segPayloadByte.length - GROUP_ID_LENGTH - SEGMENT_ID_LENGTH) : new byte[]{};
 
 			if ( isSegmentAnInitialGroupHeader(segmentId) ) {
-				parseSegmentInitialGroupHeader(groupId, segmentBody, originProtocol);
+				parseSegmentInitialGroupHeader(groupId, (isByteArr) ? StringUtils.byteArrayToBase64String(segmentBodyByte) : segmentBodyStr, originProtocol);
 
-			} else if ( /*canSegmentBeAssociatedWithValidGroup(groupId, segmentId) &&*/ !isSegmentAlreadyReceived(groupId, segmentId) ) {
-				saveReceivedSegment(groupId, segmentId, segmentBody);
+			} else if ( !isSegmentAlreadyReceived(groupId, segmentId) ) {
+				saveReceivedSegment(groupId, segmentId, (isByteArr) ? StringUtils.byteArrayToBase64String(segmentBodyByte) : segmentBodyStr);
 
 			} else {
 				Log.e(logTag, "Received segment was not saved: " + segmentPayload +" ("+segmentPayload.length()+" chars)");
@@ -92,12 +96,23 @@ public class ApiSegmentUtils {
 
 	private void parseSegmentInitialGroupHeader(String groupId, String segmentBody, String originProtocol) {
 
-		String guardianGuid = segmentBody.substring(0, RfcxGuardianIdentity.GUID_LENGTH);
-		String guardianPinCode = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH);
-		String msgType = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH);
-		String msgChecksumSnippet = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_SNIPPET_LENGTH);
-		int segmentCount = segmentId_paddedHexToDec(segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_SNIPPET_LENGTH, RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_SNIPPET_LENGTH + SEGMENT_ID_LENGTH));
-		String segmentBodyZero = segmentBody.substring(RfcxGuardianIdentity.GUID_LENGTH + RfcxGuardianIdentity.PINCODE_LENGTH + MSG_TYPE_LENGTH + MSG_CHECKSUM_SNIPPET_LENGTH + SEGMENT_ID_LENGTH);
+		boolean isByteArr = originProtocol.equalsIgnoreCase("sbd");
+
+		int guidLen = RfcxGuardianIdentity.GUID_LENGTH;
+		int pinLen = RfcxGuardianIdentity.PINCODE_LENGTH;
+		int typLen = MSG_TYPE_LENGTH;
+		int chkLen = MSG_CHECKSUM_SNIPPET_LENGTH;
+		int idLen = SEGMENT_ID_LENGTH;
+
+		String segBdyStr = (isByteArr) ? "" : segmentBody;
+		byte[] segBdyByte = (isByteArr) ? StringUtils.base64StringToByteArray(segmentBody) : new byte[]{};
+
+		String guardianGuid = (isByteArr) ? new String(Arrays.copyOfRange(segBdyByte, 0, guidLen)) : segBdyStr.substring(0, guidLen);
+		String guardianPinCode = (isByteArr) ? new String(Arrays.copyOfRange(segBdyByte, guidLen, guidLen + pinLen)) : segBdyStr.substring(guidLen, guidLen + pinLen);
+		String msgType = (isByteArr) ? new String(Arrays.copyOfRange(segBdyByte, guidLen + pinLen, guidLen + pinLen + typLen)) : segBdyStr.substring(guidLen + pinLen, guidLen + pinLen + typLen);
+		String msgChecksumSnippet = (isByteArr) ? new String(Arrays.copyOfRange(segBdyByte, guidLen + pinLen + typLen, guidLen + pinLen + typLen + chkLen)) : segBdyStr.substring(guidLen + pinLen + typLen, guidLen + pinLen + typLen + chkLen);
+		int segmentCount = segmentId_paddedHexToDec((isByteArr) ? new String(Arrays.copyOfRange(segBdyByte, guidLen + pinLen + typLen + chkLen, guidLen + pinLen + typLen + chkLen + idLen)) : segBdyStr.substring(guidLen + pinLen + typLen + chkLen, guidLen + pinLen + typLen + chkLen + idLen));
+		String segmentBodyZero = (isByteArr) ? StringUtils.byteArrayToBase64String(Arrays.copyOfRange(segBdyByte, guidLen + pinLen + typLen + chkLen + idLen, segBdyByte.length - (guidLen + pinLen + typLen + chkLen + idLen) )) : segBdyStr.substring(guidLen + pinLen + typLen + chkLen + idLen);
 
 		if (!guardianGuid.equalsIgnoreCase(app.rfcxGuardianIdentity.getGuid())) {
 			Log.e(logTag, "Specified Guardian ID ("+guardianGuid+") in Segment Group Header does not match this guardian: " + app.rfcxGuardianIdentity.getGuid());
@@ -178,15 +193,26 @@ public class ApiSegmentUtils {
 				String msgProtocol = grpInfo[4];
 				String msgType = grpInfo[5];
 
+				boolean isByteArr = msgProtocol.equalsIgnoreCase("sbd");
+
+				List<String[]> segmentRows = app.apiSegmentDb.dbReceived.getAllSegmentsForGroupOrderedBySegmentId(groupId);
+				ByteArrayOutputStream byteArrSegments = new ByteArrayOutputStream();
 				StringBuilder concatSegments = new StringBuilder();
-				for (String[] segmentRow : app.apiSegmentDb.dbReceived.getAllSegmentsForGroupOrderedBySegmentId(groupId)) {
-					concatSegments.append(segmentRow[3]);
+				for (String[] segmentRow : segmentRows) {
+					if (isByteArr) {
+						byteArrSegments.write(StringUtils.base64StringToByteArray(segmentRow[3]));
+					} else {
+						concatSegments.append(segmentRow[3]);
+					}
 				}
-				String concatMsg = concatSegments.toString();
+				byteArrSegments.close();
+				String concatMsgStr = concatSegments.toString();
+				byte[] concatMsgByte = byteArrSegments.toByteArray();
+
 
 				if (ArrayUtils.doesStringArrayContainString(JSON_MSG_TYPES, msgType)) {
 
-					String msgJson = StringUtils.gZipBase64ToUnGZipString(concatMsg);
+					String msgJson = (isByteArr) ? StringUtils.gZipByteArrayToUnGZipString(concatMsgByte) : StringUtils.gZipBase64ToUnGZipString(concatMsgStr);
 
 					if (msgChecksum.equalsIgnoreCase(StringUtils.getSha1HashOfString(msgJson).substring(0, MSG_CHECKSUM_SNIPPET_LENGTH))) {
 
@@ -221,6 +247,8 @@ public class ApiSegmentUtils {
 
 	public String constructSegmentsGroupForQueue(String msgType, String apiProtocol, String msgJson, String attachmentFilePath) {
 
+		boolean isByteArr = apiProtocol.equalsIgnoreCase("sbd");
+
 		String groupId = generateSegmentGroupId();
 		int segMaxLength = SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL.get(apiProtocol);
 		int segBodyMaxLength = segMaxLength - GROUP_ID_LENGTH - SEGMENT_ID_LENGTH;
@@ -232,37 +260,79 @@ public class ApiSegmentUtils {
 
 				String msgChecksumSnippet = StringUtils.getSha1HashOfString(msgJson).substring(0, MSG_CHECKSUM_SNIPPET_LENGTH);
 				int msgOriginalLength = msgJson.length();
-				String msgPayloadFull = StringUtils.stringToGZipBase64(msgJson);
-				int msgPayloadFullLength = msgPayloadFull.length();
 
-				String initSegHeader = groupId + segmentId_decToPaddedHex(0) + app.rfcxGuardianIdentity.getGuid() + app.rfcxGuardianIdentity.getPinCode() + msgType + msgChecksumSnippet;
-				int initSegBodyLength = segMaxLength - initSegHeader.length() - SEGMENT_ID_LENGTH;
+				String msgPayloadFullStr = (isByteArr) ? "" : StringUtils.stringToGZipBase64(msgJson);
+				byte[] msgPayloadFullByte = (isByteArr) ? StringUtils.stringToGZipByteArray(msgJson) : new byte[]{};
+
+				int msgPayloadFullLength = (isByteArr) ? msgPayloadFullByte.length : msgPayloadFullStr.length();
+
+				String initSegHeaderStr = groupId + segmentId_decToPaddedHex(0) + app.rfcxGuardianIdentity.getGuid() + app.rfcxGuardianIdentity.getPinCode() + msgType + msgChecksumSnippet;
+				byte[] initSegHeaderByte = initSegHeaderStr.getBytes(StandardCharsets.UTF_8);
+				int initSegHeaderLength = (isByteArr) ? initSegHeaderByte.length : initSegHeaderStr.length();
+
+				int initSegBodyLength = segMaxLength - initSegHeaderLength - SEGMENT_ID_LENGTH;
 				if (initSegBodyLength > msgPayloadFullLength) { initSegBodyLength = msgPayloadFullLength; }
-				String initSegBody = msgPayloadFull.substring(0, initSegBodyLength);
+				String initSegBodyStr = (isByteArr) ? "" : msgPayloadFullStr.substring(0, initSegBodyLength);
+				byte[] initSegBodyByte = (isByteArr) ? Arrays.copyOfRange(msgPayloadFullByte, 0, initSegBodyLength) : new byte[]{};
 
 				double segCount = 1 + (((double) msgPayloadFullLength - initSegBodyLength) / segBodyMaxLength);
 				int segCountCeil = (int) Math.ceil(segCount);
-				int fullLengthOfSegments = msgPayloadFullLength + ((segCountCeil-1)*(GROUP_ID_LENGTH+SEGMENT_ID_LENGTH)) + initSegHeader.length() + SEGMENT_ID_LENGTH;
+				int fullLengthOfSegments = msgPayloadFullLength + ( (segCountCeil - 1) * (GROUP_ID_LENGTH + SEGMENT_ID_LENGTH) ) + initSegHeaderLength + SEGMENT_ID_LENGTH;
 
-				Log.d(logTag, "Segment Group Created: "+groupId+", "+segCountCeil+" segment(s), "+fullLengthOfSegments+" encoded characters to be transferred, "+msgOriginalLength+" original length");
+				Log.d(logTag, "Segment Group Created: "+groupId+", "+segCountCeil+" segment(s), "+fullLengthOfSegments+" compressed "+((isByteArr) ? "bytes" : "characters")+" to be transferred, "+msgOriginalLength+" original character length");
 
 				if (segCount > 1) {
 					for (int i = 0; i < Math.ceil(segCount-1); i++) {
+
 						int segBodyOffset = (initSegBodyLength + (i * segBodyMaxLength));
 						int segBodyLength = ((segBodyOffset + segBodyMaxLength) <= msgPayloadFullLength) ? segBodyMaxLength : (msgPayloadFullLength - segBodyOffset);
-						segments.add(groupId + segmentId_decToPaddedHex(i + 1) + msgPayloadFull.substring(segBodyOffset, segBodyOffset + segBodyLength));
+
+						String segmentHdrStr = groupId + segmentId_decToPaddedHex(i + 1);
+						String segPayload = "";
+
+						if (isByteArr) {
+							// as byte array
+							byte[] segmentHdrByte = segmentHdrStr.getBytes(StandardCharsets.UTF_8);
+							byte[] segmentBdyByte = Arrays.copyOfRange(msgPayloadFullByte, segBodyOffset, segBodyOffset + segBodyLength);
+							byte[] segmentByte = new byte[segmentHdrByte.length + segmentBdyByte.length];
+							System.arraycopy(segmentHdrByte, 0, segmentByte, 0, segmentHdrByte.length);
+							System.arraycopy(segmentBdyByte, 0, segmentByte, segmentHdrByte.length, segmentBdyByte.length);
+							segPayload = StringUtils.byteArrayToBase64String(segmentByte);
+
+						} else {
+							// as string
+							segPayload = segmentHdrStr + msgPayloadFullStr.substring(segBodyOffset, segBodyOffset + segBodyLength);
+						}
+
+						segments.add(segPayload);
 					}
 				}
 
 				app.apiSegmentDb.dbGroups.insert(groupId, segCountCeil, msgChecksumSnippet, msgType.toLowerCase(), apiProtocol.toLowerCase());
 
-				String initSegPayload = initSegHeader + segmentId_decToPaddedHex(segCountCeil) + initSegBody;
+				String segCountStr = segmentId_decToPaddedHex(segCountCeil);
+				String initSegPayload = "";
+
+				if (isByteArr) {
+					// as byte array
+					byte[] segCountByte = segCountStr.getBytes(StandardCharsets.UTF_8);
+					byte[] initSegPayloadByte = new byte[ initSegHeaderByte.length + segCountByte.length + initSegBodyByte.length ];
+					System.arraycopy(initSegHeaderByte, 0, initSegPayloadByte, 0, initSegHeaderByte.length);
+					System.arraycopy(segCountByte, 0, initSegPayloadByte, initSegHeaderByte.length, segCountByte.length);
+					System.arraycopy(initSegBodyByte, 0, initSegPayloadByte, initSegHeaderByte.length + segCountByte.length, initSegBodyByte.length);
+					initSegPayload = StringUtils.byteArrayToBase64String(initSegPayloadByte);
+
+				} else {
+					// as string
+					initSegPayload = initSegHeaderStr + segCountStr + initSegBodyStr;
+				}
+
 				app.apiSegmentDb.dbQueued.insert(groupId, 0, initSegPayload);
-				//Log.d(logTag,  String.format(Locale.US, "%04d", 1) + ") " + initSegPayload);
+				Log.d(logTag,  String.format(Locale.US, "%04d", 1) + ") " + initSegPayload);
 
 				for (int i = 0; i < segments.size(); i++) {
 					app.apiSegmentDb.dbQueued.insert(groupId, i+1, segments.get(i) );
-				//	Log.d(logTag,String.format(Locale.US, "%04d", (i+2)) + ") " + segments.get(i));
+					Log.d(logTag,String.format(Locale.US, "%04d", (i+2)) + ") " + segments.get(i));
 				}
 
 				return groupId;
@@ -369,10 +439,11 @@ public class ApiSegmentUtils {
 					String segBody = segmentRow[3];
 					int segId = Integer.parseInt(segmentRow[2]);
 
-					if (msgProtocol.equalsIgnoreCase("sms")) {
+					if (	(msgProtocol.equalsIgnoreCase("sms") && app.apiSmsUtils.queueSmsToApiToSendImmediately(segBody))
+						||	(msgProtocol.equalsIgnoreCase("sbd") && app.apiSbdUtils.queueSbdToApiToSendImmediately(segBody))
+						) {
 
-						app.apiSmsUtils.queueSmsToApiToSendImmediately(segBody);
-						app.apiSegmentDb.dbQueued.updateLastAccessedAt(groupId, segId);
+						app.apiSegmentDb.dbQueued.deleteSegmentsByGroupAndId(groupId, segId);
 
 					} else {
 

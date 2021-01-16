@@ -299,9 +299,13 @@ public class ApiMqttUtils implements MqttCallback {
 
 	public void confirmOrCreateConnectionToBroker(boolean overrideDelayBetweenAttempts) {
 
-		long minDelayBetweenConnectionAttempts = 10000;
+		long minDelayBetweenAttempts = 10000;
 
-		if (overrideDelayBetweenAttempts || (mqttCheckInClient.mqttBrokerConnectionLastAttemptedAt < (app.deviceConnectivity.lastConnectedAt() - minDelayBetweenConnectionAttempts))) {
+		if (	areMqttApiInteractionsAllowed()
+			&&	(	overrideDelayBetweenAttempts
+				|| 	(mqttCheckInClient.mqttBrokerConnectionLastAttemptedAt < (app.deviceConnectivity.lastConnectedAt() - minDelayBetweenAttempts))
+				)
+			) {
 			try {
 
 				setOrResetBrokerConfig();

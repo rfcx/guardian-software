@@ -83,7 +83,7 @@ public class RfcxAudioFileUtils {
 		return 	originTag
 				+ "_" + fileDateTimeFormat.format(new Date(timestamp))
 				+ sampleRateTag(sampleRate)
-				+ audioLengthTag(audioLength)
+				+ audioLengthTag(audioLength, true)
 				+ "." + getFileExt(audioCodec);
 	}
 
@@ -143,10 +143,9 @@ public class RfcxAudioFileUtils {
 		return ((sampleRate == 0) ? "" : "_" + (Math.round(((double) sampleRate)/1000) + "kHz"));
 	}
 
-	private static String audioLengthTag(int audioLength) {
+	private static String audioLengthTag(int audioLength, boolean useFractionalTime) {
 		return ((audioLength == 0) ? "" : "_" + (
-				//String.format(Locale.US, "%.3f", (((double) audioLength)/1000))
-				Math.round(((double) audioLength)/1000)
+				((useFractionalTime) ? String.format(Locale.US, "%.3f", (((double) audioLength)/1000)) : Math.round(((double) audioLength)/1000))
 				+ "secs")
 		);
 	}

@@ -147,6 +147,8 @@ public class AudioEncodeJobService extends Service {
 
 							if (measuredBitRate >= 0) {
 
+								int measuredAudioFileDuration = AudioCaptureUtils.getAudioFileDurationInMilliseconds(preEncodeFile, targetAudioFileCaptureDuration, true);
+
 								// generate file checksum of encoded file
 								String encodedFileDigest = FileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
 
@@ -168,14 +170,12 @@ public class AudioEncodeJobService extends Service {
 
 											app.audioEncodeDb.dbEncoded.insert(
 													timestamp, RfcxAudioFileUtils.getFileExt(codec), encodedFileDigest, outputSampleRate, measuredBitRate, codec,
-													targetAudioFileCaptureDuration, encodeDuration, encodePurpose, finalDestinationFile.getAbsolutePath(), inputSampleRate
+													measuredAudioFileDuration, encodeDuration, encodePurpose, finalDestinationFile.getAbsolutePath(), inputSampleRate
 											);
 										}
 									}
 
 								} else if (encodePurpose.equalsIgnoreCase("vault")) {
-
-									int measuredAudioFileDuration = AudioCaptureUtils.getAudioFileDurationInMilliseconds(postEncodeFile, targetAudioFileCaptureDuration);
 
 									finalDestinationFile = new File(RfcxAudioFileUtils.getAudioFileLocation_Vault( app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec), measuredAudioFileDuration, outputSampleRate));
 

@@ -35,6 +35,9 @@ elif [ "$KEY" = "asset_cleanup" ]; then
 
 	$ADB shell content query --uri content://org.rfcx.guardian.$CNTL/control/asset_cleanup;
 
+elif [ "$CNTL" = "keycode" ]; then
+
+	$ADB shell content query --uri content://org.rfcx.guardian.admin/keycode/$KEY;
 
 elif [ "$CNTL" = "gpio_set" ]; then
 

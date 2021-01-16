@@ -20,15 +20,15 @@ public class ApiSmsUtils {
 
 	private RfcxGuardian app;
 
-	public void queueSmsToApiToSendImmediately(String msgBody) {
-		queueSmsToSend(null, null, msgBody);
+	public boolean queueSmsToApiToSendImmediately(String msgBody) {
+		return queueSmsToSend(null, null, msgBody);
 	}
 
-	public void queueSmsToSendImmediately(String sendTo, String msgBody) {
-		queueSmsToSend(null, sendTo, msgBody);
+	public boolean queueSmsToSendImmediately(String sendTo, String msgBody) {
+		return queueSmsToSend(null, sendTo, msgBody);
 	}
 
-	public void queueSmsToSend(String sendAt, String sendTo, String msgBody) {
+	public boolean queueSmsToSend(String sendAt, String sendTo, String msgBody) {
 
 		try {
 			String smsSendAt = ((sendAt != null) && (sendAt.length() > 0) && (!sendAt.equalsIgnoreCase("0"))) ? ""+Long.parseLong(sendAt) : ""+System.currentTimeMillis();
@@ -40,12 +40,15 @@ public class ApiSmsUtils {
 							RfcxComm.getUri("admin", "sms_queue", smsMsgUrlBlob),
 							RfcxComm.getProjection("admin", "sms_queue"),
 							null, null, null);
-			if (smsQueueResponse != null) { smsQueueResponse.close(); }
+			if (smsQueueResponse != null) {
+				smsQueueResponse.close();
+				return true;
+			}
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
-
+		return false;
 	}
 
 

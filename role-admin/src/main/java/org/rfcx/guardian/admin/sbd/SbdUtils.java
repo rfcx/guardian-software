@@ -41,30 +41,24 @@ public class SbdUtils {
 
 	// Incoming Message Tools
 
-//	public static void processIncomingSms(JSONObject smsObj, Context context) throws JSONException {
-//
-//		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-//		String apiSmsAddress = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SMS_ADDRESS);
-//
-//		if (!smsObj.getString("address").equalsIgnoreCase(apiSmsAddress)) {
-//			// In this case, since message did not arrive from the specified API SMS address, we just save the message.
-//			String msgId = DeviceSmsUtils.generateMessageId();
-//			app.smsMessageDb.dbSmsReceived.insert(smsObj.getString("received_at"), smsObj.getString("address"), smsObj.getString("body"), msgId);
-//			Log.w(logTag, "SMS Received (ID " + msgId + ") from " + smsObj.getString("address") + " at " + DateTimeUtils.getDateTime((long) Long.parseLong(smsObj.getString("received_at"))) + ": \"" + smsObj.getString("body") + "\"");
-//
-//		} else {
-//			// In this case, the message arrived from the API SMS address, so we attempt to parse it
-//			Log.w(logTag, "SMS received from API '"+apiSmsAddress+"'.");
-//			String segmentPayload = smsObj.getString("body");
-//			Cursor smsSegmentReceivedContentProviderResponse =
-//					app.getResolver().query(
-//							RfcxComm.getUri("guardian", "segment_receive_sms", RfcxComm.urlEncode(segmentPayload)),
-//							RfcxComm.getProjection("guardian", "segment_receive_sms"),
-//							null, null, null);
-//			smsSegmentReceivedContentProviderResponse.close();
-//		}
-//
-//	}
+	public static void processIncomingSbd(JSONObject smsObj, Context context) throws JSONException {
+
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+
+		// In this case, the message arrived from the API SMS address, so we attempt to parse it
+		Log.w(logTag, "SBD received from API ''.");
+		String segmentPayload = smsObj.getString("body");
+		Cursor sbdSegmentReceivedResponse =
+				app.getResolver().query(
+						RfcxComm.getUri("guardian", "segment_receive_sbd", RfcxComm.urlEncode(segmentPayload)),
+						RfcxComm.getProjection("guardian", "segment_receive_sbd"),
+						null, null, null);
+
+		if (sbdSegmentReceivedResponse != null) {
+			sbdSegmentReceivedResponse.close();
+		}
+
+	}
 
 	// Scheduling Tools
 

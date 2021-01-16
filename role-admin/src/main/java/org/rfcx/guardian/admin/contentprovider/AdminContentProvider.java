@@ -14,6 +14,7 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
 import org.rfcx.guardian.admin.sms.SmsUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
+import org.rfcx.guardian.utility.device.control.DeviceKeyEntry;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -140,6 +141,12 @@ public class AdminContentProvider extends ContentProvider {
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "asset_cleanup")) { logFuncVal = "control-asset_cleanup";
                 app.assetUtils.runFileSystemAssetCleanup();
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"asset_cleanup", null, System.currentTimeMillis()});
+
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "keycode", "*")) { logFuncVal = "keycode-*";
+                String pathSeg = uri.getLastPathSegment();
+                DeviceKeyEntry.executeKeyCodeSequence(pathSeg);
+                return RfcxComm.getProjectionCursor(appRole, "keycode", new Object[]{ pathSeg, System.currentTimeMillis()});
 
 
             } else if (RfcxComm.uriMatch(uri, appRole, "gpio_set", "*")) { logFuncVal = "gpio_set-*";

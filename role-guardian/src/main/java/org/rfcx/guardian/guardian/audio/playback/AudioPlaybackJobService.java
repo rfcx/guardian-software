@@ -71,6 +71,8 @@ public class AudioPlaybackJobService extends Service {
 			app = (RfcxGuardian) getApplication();
 
 			app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
+			MediaPlayer mediaPlayer = new MediaPlayer();
 			
 			try {
 
@@ -87,8 +89,12 @@ public class AudioPlaybackJobService extends Service {
 						String audioFormat = latestQueuedAudio[2];
 						int audioSampleRate = Integer.parseInt(latestQueuedAudio[3]);
 						String audioFilePath = latestQueuedAudio[4];
-						long intendedDuration = Long.parseLong(latestQueuedAudio[5]);
 						int playbackAttempts = Integer.parseInt(latestQueuedAudio[6]);
+						int playbackLoops = 2;
+
+						long intendedDuration = playbackLoops * Long.parseLong(latestQueuedAudio[5]);
+						long expectedDuration = 0;
+						long measuredDuration = 0;
 
 						if (!FileUtils.exists(audioFilePath)) {
 
@@ -105,19 +111,30 @@ public class AudioPlaybackJobService extends Service {
 
 						} else {
 
-
 							Log.i(logTag, "Beginning Audio Playback Job: " + assetId + ", " + audioFormat);
 
 							app.audioPlaybackDb.dbQueued.incrementSingleRowAttempts(queuedAt);
 
+							// Build the player
+							mediaPlayer.reset();
+							mediaPlayer.setDataSource(audioFilePath);
+							mediaPlayer.setVolume(100, 100);
+							mediaPlayer.setLooping(false);
+							mediaPlayer.prepare();
+							expectedDuration = playbackLoops * mediaPlayer.getDuration();
+
 							long playbackStartTime = System.currentTimeMillis();
 
-							MediaPlayer mediaPlayer = new MediaPlayer();
-							mediaPlayer.setDataSource(audioFilePath);
-							mediaPlayer.prepare();
-							mediaPlayer.start();
+							for (int loopIteration = 0; loopIteration < playbackLoops; loopIteration++) {
+								mediaPlayer.start();
+							}
 
-							long playbackDuration = (System.currentTimeMillis() - playbackStartTime);
+							measuredDuration = (System.currentTimeMillis() - playbackStartTime);
+
+							// Release the player
+							mediaPlayer.stop();
+
+				//			app.audioPlaybackDb.dbCompleted.insert();
 
 							app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
 
@@ -136,6 +153,8 @@ public class AudioPlaybackJobService extends Service {
 				RfcxLog.logExc(logTag, e);
 				app.rfcxSvc.setRunState(SERVICE_NAME, false);
 				audioPlaybackJobInstance.runFlag = false;
+			} finally {
+				mediaPlayer.release();
 			}
 			
 			app.rfcxSvc.setRunState(SERVICE_NAME, false);

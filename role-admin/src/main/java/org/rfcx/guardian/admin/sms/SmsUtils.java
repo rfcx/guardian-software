@@ -55,12 +55,15 @@ public class SmsUtils {
 			// In this case, the message arrived from the API SMS address, so we attempt to parse it
 			Log.w(logTag, "SMS received from API '"+apiSmsAddress+"'.");
 			String segmentPayload = smsObj.getString("body");
-			Cursor smsSegmentReceivedContentProviderResponse =
+			Cursor smsSegmentReceivedResponse =
 					app.getResolver().query(
 							RfcxComm.getUri("guardian", "segment_receive_sms", RfcxComm.urlEncode(segmentPayload)),
 							RfcxComm.getProjection("guardian", "segment_receive_sms"),
 							null, null, null);
-			smsSegmentReceivedContentProviderResponse.close();
+
+			if (smsSegmentReceivedResponse != null) {
+				smsSegmentReceivedResponse.close();
+			}
 		}
 
 	}

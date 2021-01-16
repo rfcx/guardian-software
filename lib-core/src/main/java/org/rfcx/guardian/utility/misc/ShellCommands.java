@@ -56,7 +56,7 @@ public class ShellCommands {
 				    
 			    		long deleteOldScriptFileIfOlderThan = 3000;
 			    		long loopDelay = 300;
-			    		int maxLoops = ( (int) Math.ceil(deleteOldScriptFileIfOlderThan / loopDelay) ) + 1;
+			    		int maxLoops = ( (int) Math.ceil((double) deleteOldScriptFileIfOlderThan / loopDelay) ) + 1;
 			    		
 			    		try {
 			    			int delayLoop = 0;
@@ -66,7 +66,7 @@ public class ShellCommands {
 			    				long msSinceModified = FileUtils.millisecondsSinceLastModified(rootScriptObj);
 				    			if (msSinceModified > deleteOldScriptFileIfOlderThan) { 
 				    				Log.e(logTag,"Deleting old script file... ("+DateTimeUtils.milliSecondDurationAsReadableString(msSinceModified)+" old)");
-				    				rootScriptObj.delete();
+				    				FileUtils.delete(rootScriptObj);
 				    			} else {
 				    				 Thread.sleep(loopDelay);
 				    			}
@@ -77,7 +77,7 @@ public class ShellCommands {
 
 			    	StringBuilder commandContent = (new StringBuilder()).append("#!/system/bin/sh\n");
 			    	for (String commandLine : commandLines) {
-						commandContent/*.append("su -c ")*/.append(commandLine).append(";\n");
+						commandContent.append(commandLine).append(";\n");
 					}
 
 					BufferedWriter rootFileWriter = new BufferedWriter(new FileWriter(rootScriptPath));
@@ -90,49 +90,8 @@ public class ShellCommands {
 
 				    if (rootScriptObj.exists()) {
 
-////						shellProcess = Runtime.getRuntime().exec("/system/xbin/su");
-//						shellProcess = Runtime.getRuntime().exec("/system/bin/sh");
-//						DataOutputStream shellOutput = new DataOutputStream(shellProcess.getOutputStream());
-//						shellReader = new BufferedReader (new InputStreamReader(shellProcess.getInputStream()));
-//
-//                        for (String commandLine : commandLines) {
-//                        	Log.i(logTag, "Line: "+commandLine);
-//                            shellOutput.writeBytes("su -c "+commandLine+";\n");
-//                            shellOutput.flush();
-//                        }
-////						shellOutput.writeBytes(tmpScriptObj.getAbsolutePath()+";\n");
-////						shellOutput.flush();
-//
-//						shellOutput.writeBytes("exit;\n");
-//						shellOutput.flush();
-//
-//						shellProcess.waitFor();
-//						shellOutput.close();
-
-//						for (String commandLine : commandLines) {
-//							shellProcess = Runtime.getRuntime().exec("su");
-//							DataOutputStream dos = new DataOutputStream(shellProcess.getOutputStream());
-//							dos.writeBytes(commandLine + "\n");
-//							dos.writeBytes("exit\n");
-//							dos.flush();
-//							dos.close();
-//							shellProcess.waitFor();
-//							Log.i(logTag, "Line: " + commandLine);
-//						}
-
 						shellProcess = Runtime.getRuntime().exec(new String[] { "su", "-c", tmpScriptObj.getAbsolutePath() });
 						shellProcess.waitFor();
-
-
-						//				try {
-//					Process proc = Runtime.getRuntime()
-//							.exec(new String[]{ "su", "0", "reboot", "-p" });
-//					proc.waitFor();
-//				} catch (Exception ex) {
-//					ex.printStackTrace();
-//				}
-
-
 				    }
 				}
 			
@@ -152,7 +111,6 @@ public class ShellCommands {
 				shellProcess.waitFor();
 			}
 
-			
 //			String shellLineContent;
 //			while ((shellLineContent = shellReader.readLine()) != null) {
 //				String thisLine = shellLineContent.replaceAll("\\p{Z}","");
@@ -162,10 +120,13 @@ public class ShellCommands {
 //			}
 			
 		} catch (Exception e) {
+
 			RfcxLog.logExc(logTag, e);
+
 	    } finally {
-			if ((rootScriptObj != null) && rootScriptObj.exists()) { rootScriptObj.delete(); }
-			if ((tmpScriptObj != null) && tmpScriptObj.exists()) { tmpScriptObj.delete(); }
+
+			FileUtils.delete(rootScriptObj);
+			FileUtils.delete(tmpScriptObj);
 	    }
 
 		Log.e(logTag, "Exec"+(asRoot ? " (as root)" : "")+": "+ TextUtils.join(" | ",commandLines));

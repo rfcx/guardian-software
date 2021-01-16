@@ -3,12 +3,10 @@ package org.rfcx.guardian.guardian.api.protocols;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
-import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class ApiSbdUtils {
 
@@ -20,32 +18,30 @@ public class ApiSbdUtils {
 
 	private RfcxGuardian app;
 
-	public void queueSbdToApiToSendImmediately(String msgBody) {
-		queueSbdToSend(null, null, msgBody);
+	public boolean queueSbdToApiToSendImmediately(String msgBody) {
+		return queueSbdToSend(null, msgBody);
 	}
 
-	public void queueSbdToSendImmediately(String sendTo, String msgBody) {
-		queueSbdToSend(null, sendTo, msgBody);
-	}
-
-	public void queueSbdToSend(String sendAt, String sendTo, String msgBody) {
+	public boolean queueSbdToSend(String sendAt, String msgBody) {
 
 		try {
 			String sbdSendAt = ((sendAt != null) && (sendAt.length() > 0) && (!sendAt.equalsIgnoreCase("0"))) ? ""+Long.parseLong(sendAt) : ""+System.currentTimeMillis();
-			String sbdSendTo = ((sendTo != null) && (sendTo.length() > 0)) ? sendTo : app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SMS_ADDRESS);
 			String sbdMsgBody = (msgBody != null) ? msgBody : "";
-			String sbdMsgUrlBlob = TextUtils.join("|", new String[]{ sbdSendAt, RfcxComm.urlEncode(sbdSendTo), RfcxComm.urlEncode(sbdMsgBody) });
+			String sbdMsgUrlBlob = TextUtils.join("|", new String[]{ sbdSendAt, RfcxComm.urlEncode(sbdMsgBody) });
 
 			Cursor sbdQueueResponse = app.getResolver().query(
-							RfcxComm.getUri("satellite", "sbd_queue", sbdMsgUrlBlob),
-							RfcxComm.getProjection("satellite", "sbd_queue"),
+							RfcxComm.getUri("admin", "sbd_queue", sbdMsgUrlBlob),
+							RfcxComm.getProjection("admin", "sbd_queue"),
 							null, null, null);
-			if (sbdQueueResponse != null) { sbdQueueResponse.close(); }
+			if (sbdQueueResponse != null) {
+				sbdQueueResponse.close();
+				return true;
+			}
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
-
+		return false;
 	}
 
 
@@ -56,9 +52,11 @@ public class ApiSbdUtils {
 		boolean isSent = false;
 
 		try {
-			// String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, false);
-			//Log.d(logTag, pingJson);
-			//		publishMessageOnConfirmedConnection(this.mqttTopic_Publish_Ping, 1,false, packageMqttPingPayload());
+
+			String groupId = app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sbd", pingJson, null);
+
+			app.apiSegmentUtils.queueSegmentsForDispatch(groupId);
+
 			isSent = true;
 
 		} catch (Exception e) {
@@ -95,7 +93,7 @@ public class ApiSbdUtils {
 ////                }
 //			}
 		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e, "handleSmsPingPublicationExceptions");
+			RfcxLog.logExc(logTag, e, "handleSbdPingPublicationExceptions");
 		}
 	}
 

@@ -1,63 +1,99 @@
 package org.rfcx.guardian.utility.device.control;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class DeviceKeyEntry {
 
-	public DeviceKeyEntry(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceKeyEntry");
-		defineKeyCodeMap();
-	}
+	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceKeyEntry");
 
-	private String logTag;
-	
-	private Map<String, int[]> keyCodeMap = new HashMap<String, int[]>();
-	
-	private void defineKeyCodeMap() {
-		
-		Map<String, int[]> keyCodeMap = new HashMap<String, int[]>();
-		
-		keyCodeMap.put("0", new int[] { 7 } );
-		keyCodeMap.put("1", new int[] { 8 } );
-		keyCodeMap.put("2", new int[] { 9 } );
-		keyCodeMap.put("3", new int[] { 10 } );
-		keyCodeMap.put("4", new int[] { 11 } );
-		keyCodeMap.put("5", new int[] { 12 } );
-		keyCodeMap.put("6", new int[] { 13 } );
-		keyCodeMap.put("7", new int[] { 14 } );
-		keyCodeMap.put("8", new int[] { 15 } );
-		keyCodeMap.put("9", new int[] { 16 } );
-		
-		keyCodeMap.put("*", new int[] { 17 } ); // star/asterisk
-		keyCodeMap.put("#", new int[] { 18 } ); // pound
-		keyCodeMap.put("|", new int[] { 23 } ); // enter
+	private static final Map<String, Integer> keyCodeMap = Collections.unmodifiableMap(
+		new HashMap<String, Integer>() {{
 
-		keyCodeMap.put("^", new int[] { 19 } ); // up
-		keyCodeMap.put("v", new int[] { 20 } ); // down
-		keyCodeMap.put("<", new int[] { 21 } ); // left
-		keyCodeMap.put(">", new int[] { 22 } ); // right
-		
-		this.keyCodeMap = keyCodeMap;
-	}
+			put("0", 7);
+			put("1", 8);
+			put("2", 9);
+			put("3", 10);
+			put("4", 11);
+			put("5", 12);
+			put("6", 13);
+			put("7", 14);
+			put("8", 15);
+			put("9", 16);
+
+			put("*", 17); // star/asterisk
+			put("#", 18); // pound
+			put("|", 23); // enter
+
+			put("∧", 19); // up
+			put("∨", 20); // down
+			put("<", 21); // left
+			put(">", 22); // right
+
+			put("a", 29);
+			put("b", 30);
+			put("c", 31);
+			put("d", 32);
+			put("e", 33);
+			put("f", 34);
+			put("g", 35);
+			put("h", 36);
+			put("i", 37);
+			put("j", 38);
+			put("k", 39);
+			put("l", 40);
+			put("m", 41);
+			put("n", 42);
+			put("o", 43);
+			put("p", 44);
+			put("q", 45);
+			put("r", 46);
+			put("s", 47);
+			put("t", 48);
+			put("u", 49);
+			put("v", 50);
+			put("w", 51);
+			put("x", 52);
+			put("y", 53);
+			put("z", 54);
+
+			//	put("", 23); // center
+			//	put("", 26); // power
+			//	put("", 27); // camera
+			//	put("", 28); // clear
+			//	put("", 4); // back
+			//	put("", 3); // home
+			//	put("", 1); // menu
+			//	put("", 55); // comma
+			//	put("", 56); // period
+			// see more options below
+
+		}}
+	);
 	
-	
-	private String getKeyCodeSequenceShellCommand(String keyCodeSequence) {
-		
-		char[] keyCodeChars = keyCodeSequence.toCharArray();
-		String[] keyEvents = new String[keyCodeChars.length];
-		
-		for (int i = 0; i < keyCodeChars.length; i++) {
-			keyEvents[i] = "input keyevent " + this.keyCodeMap.get(String.valueOf(keyCodeChars[i]))[0];
+	private static String getKeyCodeSequenceShellCommand(String keyCodeSequence) {
+
+		List<String> keyCmds = new ArrayList<>();
+		for (char cha : keyCodeSequence.toLowerCase(Locale.US).toCharArray()) {
+			if (keyCodeMap.containsKey(String.valueOf(cha))) {
+				keyCmds.add("input keyevent " + keyCodeMap.get(String.valueOf(cha)));
+			} else {
+				Log.e(logTag, "No expected key code for character '"+cha+"'");
+			}
 		}
-		return TextUtils.join(" && ", keyEvents)+";\n";
+		return TextUtils.join(" && ", keyCmds);
 	}
 	
-	public void testExecuteString(String keyCodeSequence) {
+	public static void executeKeyCodeSequence(String keyCodeSequence) {
 		
 		Log.d(logTag, getKeyCodeSequenceShellCommand(keyCodeSequence) );
 	}
