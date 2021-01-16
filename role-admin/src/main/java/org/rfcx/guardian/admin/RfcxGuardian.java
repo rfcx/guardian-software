@@ -251,6 +251,7 @@ public class RfcxGuardian extends Application {
 	}
 
 	private void setServiceHandlers() {
+
 		this.rfcxSvc.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
 		this.rfcxSvc.addService( ScheduledAssetCleanupService.SERVICE_NAME, ScheduledAssetCleanupService.class);
 

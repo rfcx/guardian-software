@@ -159,12 +159,10 @@ public class DeviceSentinelService extends Service {
 			outerLoopIncrement = 1;
 		}
 
-		boolean isReducedCaptureModeChanging = isReducedCaptureModeChanging();
 
 		// run this on every loop, if allowed
 		if (this.isSentinelPowerCaptureAllowed) {
 			app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(true);
-			if (isReducedCaptureModeChanging) { app.sentinelPowerUtils.setOrResetSentinelPowerChip(); }
 		}
 
 
@@ -182,6 +180,10 @@ public class DeviceSentinelService extends Service {
 
 		}
 
+		if (isReducedCaptureModeChanging()) {
+			if (this.isSentinelPowerCaptureAllowed) { app.sentinelPowerUtils.setOrResetSentinelPowerChip(); }
+		}
+
 		return outerLoopIncrement;
 	}
 
@@ -189,7 +191,7 @@ public class DeviceSentinelService extends Service {
 
 		boolean newIsReducedCaptureModeActive =
 				(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
-				||	DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
+				||	app.deviceUtils.isReducedCaptureModeActive_BasedOnGuardianRoleStatus("audio_capture")
 				);
 		boolean isModeChanging = (this.isReducedCaptureModeActive != newIsReducedCaptureModeActive);
 		this.isReducedCaptureModeActive = newIsReducedCaptureModeActive;

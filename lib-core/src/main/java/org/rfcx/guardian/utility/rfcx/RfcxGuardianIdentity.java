@@ -235,7 +235,6 @@ public class RfcxGuardianIdentity {
 							RfcxComm.getProjection(targetAppRole, "identity_resync"),
 							null, null, null);
 			if (targetAppRoleResponse != null) {
-			//	Log.v(logTag, targetAppRoleResponse.toString());
 				targetAppRoleResponse.close();
 			}
 		} catch (Exception e) {

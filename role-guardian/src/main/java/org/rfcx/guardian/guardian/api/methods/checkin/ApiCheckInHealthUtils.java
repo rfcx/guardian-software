@@ -221,8 +221,7 @@ public class ApiCheckInHealthUtils {
 	private boolean isCheckInDisabledLastValue = false;
 	private long isCheckInAllowedLastValueSetAt = 0;
 	private long isCheckInDisabledLastValueSetAt = 0;
-	private static final long isCheckInAllowedLastValueExpiresAfter = 5000;
-	private static final long isCheckInDisabledLastValueExpiresAfter = 5000;
+	private static final long checkInStatusCacheExpiresAfter = 3333;
 
 	public boolean isApiCheckInAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
 
@@ -230,7 +229,7 @@ public class ApiCheckInHealthUtils {
 		// we then return the resulting true/false value
 		boolean isApiCheckInAllowedUnderKnownConditions = true;
 
-		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCheckInAllowedLastValueSetAt)) <= isCheckInAllowedLastValueExpiresAfter)) {
+		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCheckInAllowedLastValueSetAt)) <= checkInStatusCacheExpiresAfter)) {
 
 			isApiCheckInAllowedUnderKnownConditions = this.isCheckInAllowedLastValue;
 
@@ -279,7 +278,7 @@ public class ApiCheckInHealthUtils {
 		// we then return the resulting true/false value
 		boolean areApiChecksInDisabledRightNow = false;
 
-		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCheckInDisabledLastValueSetAt)) <= isCheckInDisabledLastValueExpiresAfter)) {
+		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCheckInDisabledLastValueSetAt)) <= checkInStatusCacheExpiresAfter)) {
 
 			areApiChecksInDisabledRightNow = this.isCheckInDisabledLastValue;
 

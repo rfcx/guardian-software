@@ -538,7 +538,6 @@ public class SentinelPowerUtils {
 
             this.reducedCaptureModeLastValue.put(activityTag, isAllowed);
             this.reducedCaptureModeLastValueSetAt.put(activityTag, System.currentTimeMillis());
-
         }
 
         return !isAllowed;

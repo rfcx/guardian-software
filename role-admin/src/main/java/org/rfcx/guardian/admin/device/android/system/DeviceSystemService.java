@@ -272,9 +272,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			outerLoopIncrement = 1;
 		}
 
-		setOrUnSetReducedCaptureMode();
-		setOrUnSetReducedCaptureModeListeners();
-
 		// capture and cache cpu usage info
 		cpuUsageValues.add(app.deviceCPU.getCurrentStats());
 		saveSnapshotValuesToDatabase("cpu");
@@ -311,6 +308,9 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 		}
 
+		setOrUnSetReducedCaptureMode();
+		setOrUnSetReducedCaptureModeListeners();
+
 		return outerLoopIncrement;
 	}
 
@@ -319,7 +319,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 		this.isReducedCaptureModeActive =
 			(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
-			||	DeviceUtils.isReducedCaptureModeActive("audio_capture", app.getApplicationContext())
+			||	app.deviceUtils.isReducedCaptureModeActive_BasedOnGuardianRoleStatus("audio_capture")
 			);
 	}
 

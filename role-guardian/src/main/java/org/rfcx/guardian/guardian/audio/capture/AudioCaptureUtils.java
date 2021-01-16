@@ -117,18 +117,27 @@ public class AudioCaptureUtils {
 		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY));
 	}
 
+	private boolean isAudioCaptureLimitedBySentinelBatteryLastValue = false;
+	private long isAudioCaptureLimitedBySentinelBatteryLastValueSetAt = 0;
+	private static final long isAudioCaptureLimitedBySentinelBatteryCacheExpiresAfter = 6666;
+
 	private boolean limitBasedOnSentinelBatteryLevel() {
 
 		if (this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY)) {
 			try {
-				JSONArray jsonArray = RfcxComm.getQuery("admin", "status", "*", app.getResolver());
-				if (jsonArray.length() > 0) {
-					JSONObject jsonObj = jsonArray.getJSONObject(0);
-					if (jsonObj.has("audio_capture")) {
-						JSONObject apiCheckInObj = jsonObj.getJSONObject("audio_capture");
-						return apiCheckInObj.has("is_allowed") && !apiCheckInObj.getBoolean("is_allowed");
+				if (!(Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isAudioCaptureLimitedBySentinelBatteryLastValueSetAt)) <= isAudioCaptureLimitedBySentinelBatteryCacheExpiresAfter)) {
+					Log.w(logTag, "Updating value for limitBasedOnSentinelBatteryLevel based on Admin role status via ContentProvider...");
+					JSONArray jsonArray = RfcxComm.getQuery("admin", "status", "*", app.getResolver());
+					if (jsonArray.length() > 0) {
+						JSONObject jsonObj = jsonArray.getJSONObject(0);
+						if (jsonObj.has("audio_capture")) {
+							JSONObject apiCheckInObj = jsonObj.getJSONObject("audio_capture");
+							this.isAudioCaptureLimitedBySentinelBatteryLastValue = apiCheckInObj.has("is_allowed") && !apiCheckInObj.getBoolean("is_allowed");
+							this.isAudioCaptureLimitedBySentinelBatteryLastValueSetAt = System.currentTimeMillis();
+						}
 					}
 				}
+				return this.isAudioCaptureLimitedBySentinelBatteryLastValue;
 			} catch (JSONException e) {
 				RfcxLog.logExc(logTag, e);
 				return false;
@@ -192,8 +201,7 @@ public class AudioCaptureUtils {
 	private boolean isCaptureDisabledLastValue = false;
 	private long isCaptureAllowedLastValueSetAt = 0;
 	private long isCaptureDisabledLastValueSetAt = 0;
-	private static final long isCaptureAllowedLastValueExpiresAfter = 5000;
-	private static final long isCaptureDisabledLastValueExpiresAfter = 5000;
+	private static final long captureStatusCacheExpiresAfter = 3333;
 
 	public boolean isAudioCaptureAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
 
@@ -201,7 +209,7 @@ public class AudioCaptureUtils {
 		// we then return the resulting true/false value
 		boolean isAudioCaptureAllowedUnderKnownConditions = true;
 
-		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCaptureAllowedLastValueSetAt)) <= isCaptureAllowedLastValueExpiresAfter)) {
+		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCaptureAllowedLastValueSetAt)) <= captureStatusCacheExpiresAfter)) {
 
 			isAudioCaptureAllowedUnderKnownConditions = this.isCaptureAllowedLastValue;
 
@@ -255,7 +263,7 @@ public class AudioCaptureUtils {
 		// we then return the resulting true/false value
 		boolean isAudioCaptureDisabledRightNow = false;
 
-		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCaptureDisabledLastValueSetAt)) <= isCaptureDisabledLastValueExpiresAfter)) {
+		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCaptureDisabledLastValueSetAt)) <= captureStatusCacheExpiresAfter)) {
 
 			isAudioCaptureDisabledRightNow = this.isCaptureDisabledLastValue;
 
@@ -381,10 +389,10 @@ public class AudioCaptureUtils {
 			MediaPlayer mediaPlayer = new MediaPlayer();
 			FileInputStream fileInputStream = new FileInputStream(audioFileObj);
 			mediaPlayer.setDataSource(fileInputStream.getFD());
-			fileInputStream.close();
 			mediaPlayer.prepare();
 			audioDuration = mediaPlayer.getDuration();
 			mediaPlayer.release();
+			fileInputStream.close();
 			if (printResultsToLog) {
 				Log.v(logTag, "Measured Audio Duration: "+audioDuration+" ms, "
 						+ RfcxAssetCleanup.conciseFilePath(audioFileObj.getAbsolutePath(), RfcxGuardian.APP_ROLE)

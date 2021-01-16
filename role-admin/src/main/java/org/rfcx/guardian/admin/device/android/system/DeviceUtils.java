@@ -27,11 +27,13 @@ public class DeviceUtils {
 
 	public DeviceUtils(Context context) {
 		this.context = context;
+		this.app = (RfcxGuardian) context;
 	}
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceUtils");
 
 	private Context context;
+	private RfcxGuardian app;
 
 	private boolean allowListenerRegistration_telephony = true;
 	private boolean allowListenerRegistration_light = true;
@@ -48,7 +50,7 @@ public class DeviceUtils {
 		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
 			return this.allowListenerRegistration_telephony;
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition")) {
-			return this.allowListenerRegistration_geoposition && ((RfcxGuardian) this.context.getApplicationContext()).rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE);
+			return this.allowListenerRegistration_geoposition && app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE);
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_gps")) {
 			return this.allowListenerRegistration_geoposition_gps;
 		} else if (sensorAbbrev.equalsIgnoreCase("geoposition_network")) {
@@ -106,19 +108,30 @@ public class DeviceUtils {
 	private List<double[]> recentValuesGeoLocation = new ArrayList<double[]>();
 
 
-	public static boolean isReducedCaptureModeActive(String activityTag, Context context) {
+	private boolean isAudioCaptureAllowedLastValue = true;
+	private boolean isAudioCaptureDisabledLastValue = false;
+	private long reducedCaptureLastValueSetAt = 0;
+	private static final long reducedCaptureCacheExpiresAfter = 6666;
+
+	public boolean isReducedCaptureModeActive_BasedOnGuardianRoleStatus(String activityTag) {
 		try {
-			if (((RfcxGuardian) context.getApplicationContext()).isGuardianRegistered()) {
-				JSONArray jsonArray = RfcxComm.getQuery("guardian", "status", "*", context.getContentResolver());
-				if (jsonArray.length() > 0) {
-					JSONObject jsonObj = jsonArray.getJSONObject(0);
-					if (jsonObj.has(activityTag)) {
-						JSONObject audioCaptureObj = jsonObj.getJSONObject(activityTag);
-						if (audioCaptureObj.has("is_allowed") && audioCaptureObj.has("is_disabled")) {
-							return !audioCaptureObj.getBoolean("is_allowed") || audioCaptureObj.getBoolean("is_disabled");
+			if (app.isGuardianRegistered()) {
+				if  (!(Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureLastValueSetAt)) <= reducedCaptureCacheExpiresAfter)) {
+					Log.w(logTag, "Updating value for isReducedCaptureModeActive based on Guardian role status via ContentProvider...");
+					JSONArray jsonArray = RfcxComm.getQuery("guardian", "status", "*", app.getResolver());
+					if (jsonArray.length() > 0) {
+						JSONObject jsonObj = jsonArray.getJSONObject(0);
+						if (jsonObj.has(activityTag)) {
+							JSONObject audioCaptureObj = jsonObj.getJSONObject(activityTag);
+							if (audioCaptureObj.has("is_allowed") && audioCaptureObj.has("is_disabled")) {
+								this.isAudioCaptureAllowedLastValue = audioCaptureObj.getBoolean("is_allowed");
+								this.isAudioCaptureDisabledLastValue = audioCaptureObj.getBoolean("is_disabled");
+								this.reducedCaptureLastValueSetAt = System.currentTimeMillis();
+							}
 						}
 					}
 				}
+				return !this.isAudioCaptureAllowedLastValue || this.isAudioCaptureDisabledLastValue;
 			}
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
@@ -172,8 +185,6 @@ public class DeviceUtils {
 		
 		if ((accelSensorSnapshotAverages.length == 5) && (accelSensorSnapshotAverages[4] > 0)) {
 
-			RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
-
 			Log.i(logTag, "Snapshot —— Accelerometer"
 					+" —— x: "+accelSensorSnapshotAverages[1]+", y: "+accelSensorSnapshotAverages[2]+", z: "+accelSensorSnapshotAverages[3]
 					+" —— "+Math.round(accelSensorSnapshotAverages[4])+" sample(s)"
@@ -215,8 +226,6 @@ public class DeviceUtils {
 						+" —— "+DateTimeUtils.getDateTime(dateTimeSourceLastSyncedAt_gps)
 						+" —— Clock Discrepancy: "+dateTimeDiscrepancyFromSystemClock_gps+" ms"
 						);
-
-				RfcxGuardian app = (RfcxGuardian) this.context.getApplicationContext();
 
 				app.deviceSystemDb.dbDateTimeOffsets.insert(dateTimeSourceLastSyncedAt_gps, "gps", dateTimeDiscrepancyFromSystemClock_gps, DateTimeUtils.getTimeZoneOffset());
 				app.deviceSensorDb.dbGeoPosition.insert(geoPos[0], geoPos[1], geoPos[2], geoPos[3], geoPos[4]);
@@ -296,11 +305,11 @@ public class DeviceUtils {
 				metaJson.put("memory", memoryStats[0] + "*" + memoryStats[1] + "*" + memoryStats[2] + "*" + memoryStats[3] );
 
 			} else if ("cpu".equalsIgnoreCase(metaTag)) {
-				int[] cpuStats = ((RfcxGuardian) this.context.getApplicationContext()).deviceCPU.getCurrentStats();
+				int[] cpuStats = app.deviceCPU.getCurrentStats();
 				metaJson.put("cpu",System.currentTimeMillis() + "*" + cpuStats[0] + "*" + cpuStats[1]);
 
 			} else if ("network".equalsIgnoreCase(metaTag)) {
-				String[] networkStats = ((RfcxGuardian) this.context.getApplicationContext()).deviceMobileNetwork.getMobileNetworkSummary();
+				String[] networkStats = app.deviceMobileNetwork.getMobileNetworkSummary();
 				if ((networkStats[2] != null) && (networkStats[3] != null)) {
 					metaJson.put("network", networkStats[0] + "*" + networkStats[1] + "*" + networkStats[2] + "*" + networkStats[3]);
 				}
