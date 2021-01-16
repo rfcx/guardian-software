@@ -51,7 +51,7 @@ public class ApiPingJsonUtils {
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {
-			pingObj.put("prefs", app.apiCheckInJsonUtils.buildCheckInPrefsJsonObj());
+			pingObj.put("prefs", app.apiCheckInJsonUtils.buildCheckInPrefsJsonObj(true));
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "purged")) {

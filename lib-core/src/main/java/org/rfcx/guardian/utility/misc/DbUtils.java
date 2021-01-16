@@ -215,7 +215,14 @@ public class DbUtils {
 		closeDb();
 		return jsonRows;
 	}
-	
+
+	public List<String[]> getRowsWithNumericColumnHigherOrLowerThan(String tableName, String[] tableColumns, String numericColumnName, long lowerOrHigherThanValue, boolean isLowerNotHigher, String orderBy, int maxRows) {
+		SQLiteDatabase db = openDb();
+		List<String[]> rows = getRows(db, tableName, tableColumns, numericColumnName+" "+((isLowerNotHigher) ? "<" : ">")+" ?", new String[] { ""+lowerOrHigherThanValue }, orderBy, 0, maxRows);
+		closeDb();
+		return rows;
+	}
+
 	public void deleteRowsOlderThan(String tableName, String dateColumn, Date olderThanDate) {
 		SQLiteDatabase db = openDb();
 		try {

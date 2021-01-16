@@ -108,6 +108,30 @@ public class DeviceUtils {
 	private List<double[]> recentValuesGeoLocation = new ArrayList<double[]>();
 
 
+
+	public boolean isReducedCaptureModeActive = false;
+	public long reducedCaptureModeLastChangedAt = 0;
+
+	public void setOrUnSetReducedCaptureMode() {
+
+		boolean newIsReducedCaptureModeActive =
+			(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
+			||	isReducedCaptureModeActive_BasedOnGuardianRoleStatus("audio_capture")
+			);
+
+		if (this.isReducedCaptureModeActive != newIsReducedCaptureModeActive) {
+			this.reducedCaptureModeLastChangedAt = System.currentTimeMillis();
+		}
+
+		this.isReducedCaptureModeActive = newIsReducedCaptureModeActive;
+	}
+
+
+	public boolean isReducedCaptureModeChanging(int audioCycleDurationInSeconds) {
+		return Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureModeLastChangedAt)) < getCaptureCycleDuration(audioCycleDurationInSeconds);
+	}
+
+
 	private boolean isAudioCaptureAllowedLastValue = true;
 	private boolean isAudioCaptureDisabledLastValue = false;
 	private long reducedCaptureLastValueSetAt = 0;

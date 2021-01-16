@@ -5,6 +5,7 @@ import android.content.Context;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -14,33 +15,7 @@ public class SentinelUtils {
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelUtils");
 
-    public static final long captureLoopIncrementFullDurationInMilliseconds = 1000;
-    public static final long captureCycleMinimumAllowedDurationInMilliseconds = 30000;
-    public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
-
     public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 3;
-
-    public static long getCaptureCycleDuration(int audioCycleDurationInSeconds) {
-        long captureCycleDuration = Math.round( audioCycleDurationInSeconds * 1000 * captureCycleDurationRatioComparedToAudioCycleDuration );
-        if (captureCycleDuration < captureCycleMinimumAllowedDurationInMilliseconds) {
-            captureCycleDuration = captureCycleMinimumAllowedDurationInMilliseconds;
-        }
-        return captureCycleDuration;
-    }
-
-    public static int getInnerLoopsPerCaptureCycle(int audioCycleDurationInSeconds) {
-        return Math.round( getCaptureCycleDuration(audioCycleDurationInSeconds) / captureLoopIncrementFullDurationInMilliseconds );
-    }
-
-    public static int getOuterLoopCaptureCount(int audioCycleDurationInSeconds) {
-//		return (int) ( Math.round( geoPositionMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
-        return 3;
-    }
-
-    public static long getInnerLoopDelayRemainder(int audioCycleDurationInSeconds, double captureCycleDurationPercentageMultiplier, long samplingOperationDuration) {
-        return (long) ( Math.round( ( getCaptureCycleDuration(audioCycleDurationInSeconds) / getInnerLoopsPerCaptureCycle(audioCycleDurationInSeconds) ) - samplingOperationDuration ) * captureCycleDurationPercentageMultiplier );
-    }
-
 
     public static JSONArray getSentinelSensorValuesAsJsonArray(Context context) {
 

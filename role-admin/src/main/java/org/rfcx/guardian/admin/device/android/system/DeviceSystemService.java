@@ -57,8 +57,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private int outerLoopIncrement = 0;
 	private int outerLoopCaptureCount = 0;
 
-	private boolean isReducedCaptureModeActive = false;
-
 	private SignalStrengthListener signalStrengthListener;
 
 	private LocationManager locationManager;
@@ -219,7 +217,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 			// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
 			// however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-			int prefsReferenceCycleDuration = this.isReducedCaptureModeActive ? (audioCycleDuration * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
+			int prefsReferenceCycleDuration = app.deviceUtils.isReducedCaptureModeActive ? (audioCycleDuration * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
 
 			if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
 
@@ -230,7 +228,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				long samplingOperationDuration = DeviceCPU.SAMPLE_DURATION_MILLISECONDS;
 				this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
 
-				Log.d(logTag, "SystemStats Capture" + (this.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
+				Log.d(logTag, "SystemStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
 						"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
 			}
 
@@ -272,6 +270,13 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			outerLoopIncrement = 1;
 		}
 
+		// Update Reduced Capture Mode.
+		// This updated value is also used by other services, but only updated here.
+		// So, it's important to leave this as is.
+		app.deviceUtils.setOrUnSetReducedCaptureMode();
+		setOrUnSetReducedCaptureModeListeners();
+
+
 		// capture and cache cpu usage info
 		cpuUsageValues.add(app.deviceCPU.getCurrentStats());
 		saveSnapshotValuesToDatabase("cpu");
@@ -308,24 +313,13 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 		}
 
-		setOrUnSetReducedCaptureMode();
-		setOrUnSetReducedCaptureModeListeners();
-
 		return outerLoopIncrement;
 	}
 
 
-	private void setOrUnSetReducedCaptureMode() {
-
-		this.isReducedCaptureModeActive =
-			(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
-			||	app.deviceUtils.isReducedCaptureModeActive_BasedOnGuardianRoleStatus("audio_capture")
-			);
-	}
-
 	private void setOrUnSetReducedCaptureModeListeners() {
 
-		if (this.isReducedCaptureModeActive) {
+		if (app.deviceUtils.isReducedCaptureModeActive) {
 
 			unRegisterListener("geoposition");
 

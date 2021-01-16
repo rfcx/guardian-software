@@ -70,7 +70,11 @@ public class MetaDb {
 		public List<String[]> getRowsWithOffset(int rowOffset, int rowLimit) {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, rowOffset, rowLimit);
 		}
-		
+
+		public List<String[]> getLatestRowsNotAccessedSinceWithLimit(long notAccessedSince, int maxRows) {
+			return this.dbUtils.getRowsWithNumericColumnHigherOrLowerThan(TABLE, ALL_COLUMNS, C_LAST_ACCESSED_AT, notAccessedSince, true, C_CREATED_AT, maxRows);
+		}
+
 		public List<String[]> getLatestRowsWithLimit(int maxRows) {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, maxRows);
 		}

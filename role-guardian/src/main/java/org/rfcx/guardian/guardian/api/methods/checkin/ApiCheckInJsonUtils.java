@@ -41,7 +41,7 @@ public class ApiCheckInJsonUtils {
 
 	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta, String[] photoFileMeta, String[] videoFileMeta) throws JSONException, IOException {
 
-		JSONObject checkInMetaJson = retrieveAndBundleMetaJson();
+		JSONObject checkInMetaJson = retrieveAndBundleMetaJson(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
 
 		// Adding Audio JSON fields from checkin table
 		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
@@ -57,7 +57,7 @@ public class ApiCheckInJsonUtils {
 		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 
 		// Adding checksum of current prefs values
-		checkInMetaJson.put("prefs", app.apiCheckInJsonUtils.buildCheckInPrefsJsonObj());
+		checkInMetaJson.put("prefs", app.apiCheckInJsonUtils.buildCheckInPrefsJsonObj(false));
 
 		// Adding instructions, if there are any
 		if (app.instructionsUtils.getInstructionsCount() > 0) {
@@ -357,7 +357,7 @@ public class ApiCheckInJsonUtils {
 		}
 	}
 
-	public JSONObject buildCheckInPrefsJsonObj() {
+	public JSONObject buildCheckInPrefsJsonObj(boolean overrideLimitByLastAccessedAt) {
 
 		JSONObject prefsObj = new JSONObject();
 		try {
@@ -368,7 +368,7 @@ public class ApiCheckInJsonUtils {
 
 			if (	(app.rfcxPrefs.prefsSha1FullApiSync != null)
 					&&	!app.rfcxPrefs.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
-					&& 	(milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength())
+					&& 	(overrideLimitByLastAccessedAt || (milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength()))
 			) {
 				Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent.");
 				prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
@@ -381,68 +381,60 @@ public class ApiCheckInJsonUtils {
 	}
 
 
-	private JSONObject retrieveAndBundleMetaJson() throws JSONException {
-
-		int maxMetaRowsToBundle = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT);
-		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO)) {
-			maxMetaRowsToBundle = maxMetaRowsToBundle + app.audioCaptureUtils.samplingRatioArr[0] + app.audioCaptureUtils.samplingRatioArr[1];
-		}
+	private JSONObject retrieveAndBundleMetaJson(int maxMetaRowsToBundle, boolean overrideLimitByLastAccessedAt) throws JSONException {
 
 		JSONObject metaJsonBundledSnapshotsObj = null;
 		JSONArray metaJsonBundledSnapshotsIds = new JSONArray();
 		long metaMeasuredAtValue = 0;
 
-		for (String[] metaRow : app.metaDb.dbMeta.getLatestRowsWithLimit(3 * maxMetaRowsToBundle)) {
+		List<String[]> metaRows = (overrideLimitByLastAccessedAt) ? app.metaDb.dbMeta.getLatestRowsWithLimit(maxMetaRowsToBundle) :
+				app.metaDb.dbMeta.getLatestRowsNotAccessedSinceWithLimit( (System.currentTimeMillis() - app.apiMqttUtils.getSetCheckInPublishTimeOutLength()), maxMetaRowsToBundle);
 
-			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(Long.parseLong(metaRow[3])));
+		for (String[] metaRow : metaRows) {
 
-			if (milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength()) {
+			// add meta snapshot ID to array of IDs
+			metaJsonBundledSnapshotsIds.put(metaRow[1]);
 
-				// add meta snapshot ID to array of IDs
-				metaJsonBundledSnapshotsIds.put(metaRow[1]);
+			// if this is the first row to be examined, initialize the bundled object with this JSON blob
+			if (metaJsonBundledSnapshotsObj == null) {
+				metaJsonBundledSnapshotsObj = new JSONObject(metaRow[2]);
 
-				// if this is the first row to be examined, initialize the bundled object with this JSON blob
-				if (metaJsonBundledSnapshotsObj == null) {
-					metaJsonBundledSnapshotsObj = new JSONObject(metaRow[2]);
+			} else {
+				JSONObject metaJsonObjToAppend = new JSONObject(metaRow[2]);
+				Iterator<String> jsonKeys = metaJsonBundledSnapshotsObj.keys();
+				while (jsonKeys.hasNext()) {
+					String jsonKey = jsonKeys.next();
 
-				} else {
-					JSONObject metaJsonObjToAppend = new JSONObject(metaRow[2]);
-					Iterator<String> jsonKeys = metaJsonBundledSnapshotsObj.keys();
-					while (jsonKeys.hasNext()) {
-						String jsonKey = jsonKeys.next();
-
-						if (	(metaJsonBundledSnapshotsObj.get(jsonKey) instanceof String)
-								&&	metaJsonObjToAppend.has(jsonKey)
-								&&	(metaJsonObjToAppend.get(jsonKey) != null)
-								&&	(metaJsonObjToAppend.get(jsonKey) instanceof String)
-						) {
-							String origStr = metaJsonBundledSnapshotsObj.getString(jsonKey);
-							String newStr = metaJsonObjToAppend.getString(jsonKey);
-							if (	 (origStr.length() > 0) && (newStr.length() > 0) ) {
-								metaJsonBundledSnapshotsObj.put(jsonKey, origStr+"|"+newStr);
-							} else {
-								metaJsonBundledSnapshotsObj.put(jsonKey, origStr+newStr);
-							}
-							if (jsonKey.equalsIgnoreCase("measured_at")) {
-								long measuredAt = Long.parseLong(newStr);
-								Log.e(logTag, "measured_at: "+DateTimeUtils.getDateTime(measuredAt));
-								if (measuredAt > metaMeasuredAtValue) {
-									metaMeasuredAtValue = measuredAt;
-								}
+					if (	(metaJsonBundledSnapshotsObj.get(jsonKey) instanceof String)
+							&&	metaJsonObjToAppend.has(jsonKey)
+							&&	(metaJsonObjToAppend.get(jsonKey) instanceof String)
+					) {
+						String origStr = metaJsonBundledSnapshotsObj.getString(jsonKey);
+						String newStr = metaJsonObjToAppend.getString(jsonKey);
+						if (	 (origStr.length() > 0) && (newStr.length() > 0) ) {
+							metaJsonBundledSnapshotsObj.put(jsonKey, origStr+"|"+newStr);
+						} else {
+							metaJsonBundledSnapshotsObj.put(jsonKey, origStr+newStr);
+						}
+						if (jsonKey.equalsIgnoreCase("measured_at")) {
+							long measuredAt = Long.parseLong(newStr);
+							Log.e(logTag, "measured_at: "+DateTimeUtils.getDateTime(measuredAt));
+							if (measuredAt > metaMeasuredAtValue) {
+								metaMeasuredAtValue = measuredAt;
 							}
 						}
 					}
 				}
-
-				// Overwrite meta_ids attribute with updated array of snapshot IDs
-				metaJsonBundledSnapshotsObj.put("meta_ids", metaJsonBundledSnapshotsIds);
-
-				// mark this row as accessed in the database
-				app.metaDb.dbMeta.updateLastAccessedAtByTimestamp(metaRow[1]);
-
-				// if the bundle already contains max number of snapshots, stop here
-				if (metaJsonBundledSnapshotsIds.length() >= maxMetaRowsToBundle) { break; }
 			}
+
+			// Overwrite meta_ids attribute with updated array of snapshot IDs
+			metaJsonBundledSnapshotsObj.put("meta_ids", metaJsonBundledSnapshotsIds);
+
+			// mark this row as accessed in the database
+			app.metaDb.dbMeta.updateLastAccessedAtByTimestamp(metaRow[1]);
+
+			// if the bundle already contains max number of snapshots, stop here
+			if (metaJsonBundledSnapshotsIds.length() >= maxMetaRowsToBundle) { break; }
 		}
 
 		// if no meta data was available to bundle, then we create an empty object
