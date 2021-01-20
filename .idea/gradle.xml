@@ -12,6 +12,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/lib-audio" />
+            <option value="$PROJECT_DIR$/lib-compress" />
             <option value="$PROJECT_DIR$/lib-core" />
             <option value="$PROJECT_DIR$/lib-i2c" />
             <option value="$PROJECT_DIR$/role-admin" />
