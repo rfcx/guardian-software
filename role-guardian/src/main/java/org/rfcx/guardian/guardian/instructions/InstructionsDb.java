@@ -207,6 +207,10 @@ public class InstructionsDb {
 			return rightNow;
 		}
 
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
+
 	}
 	public final DbExecuted dbExecuted;
 	

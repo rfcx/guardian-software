@@ -91,7 +91,7 @@ public class ApiRestUtils {
 		if (areRestApiRequestsAllowed()) {
 			try {
 				List<String[]> postParams = new ArrayList<>();
-				postParams.add(new String[] { "meta", StringUtils.stringToGZipBase64( pingJson ) });
+				postParams.add(new String[] { "json", StringUtils.stringToGZipBase64( pingJson ) });
 
 				String pingResponse = httpPost.doMultipartPost( apiRequestUrl(restUrlPath_Ping, false), postParams, null);
 

@@ -91,7 +91,11 @@ public class AudioDetectionDb {
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}
-		
+
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
+		}
+
 		public List<String[]> getAllRows() {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
@@ -133,6 +137,10 @@ public class AudioDetectionDb {
 			values.put(C_LAST_ACCESSED_AT, 0);
 
 			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public int getCount() {
+			return this.dbUtils.getCount(TABLE, null, null);
 		}
 
 		public List<String[]> getAllRows() {

@@ -20,7 +20,8 @@ public class RfcxAsset {
 			"video",		// 5
 			"sms",			// 6
 			"apk",			// 7
-			"detection"		// 8
+			"detection",	// 8
+			"classifier"	// 9
 	};
 
 	public static final String[]
@@ -33,7 +34,8 @@ public class RfcxAsset {
 			"videos",
 			"messages",
 			"apks",
-			"detections"
+			"detections",
+			"classifiers"
 	};
 
 	public static final String[]
@@ -46,19 +48,20 @@ public class RfcxAsset {
 			"vid",
 			"sms",
 			"apk",
-			"det"
+			"det",
+			"cls"
 	};
 
 
-	private static String getName(String assetType) {
+	public static String getName(String assetType) {
 		return TYPES[getInd(assetType)];
 	}
 
-	private static String getPlural(String assetType) {
+	public static String getPlural(String assetType) {
 		return TYPES_PLURAL[getInd(assetType)];
 	}
 
-	private static String getAbbrev(String assetType) {
+	public static String getAbbrev(String assetType) {
 		return TYPES_ABBREV[getInd(assetType)];
 	}
 

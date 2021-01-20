@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
+import java.util.regex.Pattern;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -17,6 +18,7 @@ import java.util.zip.GZIPOutputStream;
 import android.util.Base64;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.vendor.Base85;
 
 public class StringUtils {
 	
@@ -76,6 +78,22 @@ public class StringUtils {
 //
 //		return byteArrayOutputStream.toByteArray();
 //	}
+
+	public static String stringToGZipAscii85(String inputString) {
+		return byteArrayToAscii85String( stringToGZipByteArray( inputString ) );
+	}
+
+	public static String byteArrayToAscii85String(byte[] byteArray) {
+		return Base85.getRfc1924Encoder().encodeToString( byteArray );
+	}
+
+	public static String gZipAscii85ToUnGZipString(String ascii85String) {
+		return gZipByteArrayToUnGZipString( ascii85StringToByteArray( ascii85String ) );
+	}
+
+	public static byte[] ascii85StringToByteArray(String ascii85String) {
+		return Base85.getRfc1924Decoder().decodeToBytes(ascii85String);
+	}
 
 
 	public static String stringToGZipBase64(String inputString) {
@@ -169,16 +187,33 @@ public class StringUtils {
 		return str.substring(0,1).toUpperCase()+str.substring(1);
 	}
 
-//	public static String smsDecode(String origStr) {
-//		String encoded = origStr
-////						.replaceAll("\\^",",")
-////						.replaceAll("\\[","_").replaceAll("\\]","¿")
-////						.replaceAll("\\{","é").replaceAll("\\}","è");
-//						.replaceAll(Pattern.quote(","), "^")
-//						.replaceAll(Pattern.quote("["), "_").replaceAll(Pattern.quote("]"), "¿")
-//						.replaceAll(Pattern.quote("{"), "é").replaceAll(Pattern.quote("}"), "è");
-//		return encoded;
-//	}
+	public static String smsEncodeAscii85(String unEncodedStr) {
+		return unEncodedStr
+			.replaceAll(Pattern.quote("-"), "ä")
+			.replaceAll(Pattern.quote("="), "ö")
+			.replaceAll(Pattern.quote(">"), "Ä")
+			.replaceAll(Pattern.quote("?"), "¿")
+			.replaceAll(Pattern.quote("^"), "Ö")
+			.replaceAll(Pattern.quote("`"), "ø")
+			.replaceAll(Pattern.quote("{"), "Ø")
+			.replaceAll(Pattern.quote("|"), "è")
+			.replaceAll(Pattern.quote("}"), "é")
+			.replaceAll(Pattern.quote("~"), "ù");
+	}
+
+	public static String smsDecodeAscii85(String unDecodedStr) {
+		return unDecodedStr
+			.replaceAll(Pattern.quote("ä"), "-")
+			.replaceAll(Pattern.quote("ö"), "=")
+			.replaceAll(Pattern.quote("Ä"), ">")
+			.replaceAll(Pattern.quote("¿"), "?")
+			.replaceAll(Pattern.quote("Ö"), "^")
+			.replaceAll(Pattern.quote("ø"), "`")
+			.replaceAll(Pattern.quote("Ø"), "{")
+			.replaceAll(Pattern.quote("è"), "|")
+			.replaceAll(Pattern.quote("é"), "}")
+			.replaceAll(Pattern.quote("ù"), "~");
+	}
 
 //	public static String smsDecode(String origStr) {
 //

@@ -31,6 +31,7 @@ public class RfcxAudioFileUtils {
 		FileUtils.initializeDirectoryRecursively(audioFinalDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioQueueDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioStashDir(context), false);
+		FileUtils.initializeDirectoryRecursively(audioSnippetDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioClassifyDir(context), false);
 		FileUtils.initializeDirectoryRecursively(audioLibraryDir(context), false);
 	}
@@ -74,6 +75,10 @@ public class RfcxAudioFileUtils {
 	public static String audioStashDir(Context context) {
 		return context.getFilesDir().toString() + "/audio/stash";
 	}
+
+	public static String audioSnippetDir(Context context) {
+		return context.getFilesDir().toString() + "/audio/snippet";
+	}
 	
 //	public static String getAudioFileLocation_Capture(Context context, long timestamp, String fileExtension) {
 //		return audioCaptureDir(context) + "/" + timestamp + "." + fileExtension;
@@ -109,6 +114,10 @@ public class RfcxAudioFileUtils {
 
 	public static String getAudioFileLocation_Stash(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
 		return audioStashDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0,0) + ".gz";
+	}
+
+	public static String getAudioFileLocation_Snippet(String rfcxDeviceId, Context context, long timestamp, String audioCodec) {
+		return audioSnippetDir(context) + "/" + dirDateTimeFormat.format(new Date(timestamp)) + "/" + getAudioFileName(rfcxDeviceId, timestamp, audioCodec, 0,0);
 	}
 
 	public static String getAudioFileLocation_Cache(Context context, long timestamp, String audioCodec) {

@@ -97,14 +97,15 @@ public class AudioQueuePostProcessingService extends IntentService {
 							String classifierGuid = classiferRow[2];
 							String classifierVersion = classiferRow[3];
 							int classifierSampleRate = Integer.parseInt(classiferRow[7]);
+							double classifierInputGain = Double.parseDouble(classiferRow[8]);
 							String classifierFilePath = classiferRow[6];
-							String classifierWindowSize = classiferRow[8];
-							String classifierStepSize = classiferRow[9];
-							String classifierClasses = classiferRow[10];
+							String classifierWindowSize = classiferRow[9];
+							String classifierStepSize = classiferRow[10];
+							String classifierClasses = classiferRow[11];
 
 							jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
 									"" + captureTimeStamp, classifierId, classifierVersion,
-											captureSampleRate, classifierSampleRate,
+											captureSampleRate, classifierSampleRate, classifierInputGain,
 											preClassifyFilePath, classifierFilePath,
 											classifierWindowSize, classifierStepSize, classifierClasses);
 						}
@@ -117,17 +118,9 @@ public class AudioQueuePostProcessingService extends IntentService {
 				Log.e(logTag, "Failed to prepare captured audio for post processing.");
 			}
 
-			app.rfcxSvc.triggerOrForceReTriggerIfTimedOut( AudioEncodeJobService.SERVICE_NAME, 4 * captureLoopPeriod );
 			app.rfcxSvc.triggerOrForceReTriggerIfTimedOut( AudioClassifyPrepareService.SERVICE_NAME, 4 * captureLoopPeriod );
+			app.rfcxSvc.triggerOrForceReTriggerIfTimedOut( AudioEncodeJobService.SERVICE_NAME, 4 * captureLoopPeriod );
 
-//			if ((jobCount_Encode+jobCount_Classify) == 0) {
-//				// Scan Encode, Capture & Classify Directories for cleanup
-//				RfcxAssetCleanup assetCleanup = new RfcxAssetCleanup(RfcxGuardian.APP_ROLE);
-//				assetCleanup.runCleanupOnOneDirectory(RfcxAudioFileUtils.audioCaptureDir(context), 2 * captureLoopPeriod, false);
-//				assetCleanup.runCleanupOnOneDirectory(RfcxAudioFileUtils.audioEncodeDir(context), 2 * captureLoopPeriod, false);
-//				assetCleanup.runCleanupOnOneDirectory(RfcxAudioFileUtils.audioClassifyDir(context), 2 * captureLoopPeriod, false);
-//			}
-//
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 			

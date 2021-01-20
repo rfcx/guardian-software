@@ -146,10 +146,11 @@ public class ApiCheckInJobService extends Service {
 						}
 
 						if (!app.apiMqttUtils.isConnectedToBroker()) {
-							long loopDelayBeforeReconnectAttempt = Math.round(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)/10);
-							if (loopDelayBeforeReconnectAttempt < 8) { loopDelayBeforeReconnectAttempt = 8; }
+							long loopDelayBeforeReconnectAttempt = Math.round(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 0.100);
+							loopDelayBeforeReconnectAttempt = Math.min(loopDelayBeforeReconnectAttempt, 8);
+							loopDelayBeforeReconnectAttempt = Math.max(loopDelayBeforeReconnectAttempt, 16);
 							Log.e(logTag, "Broker not connected. Delaying "+loopDelayBeforeReconnectAttempt+" seconds and trying again...");
-							Thread.sleep(loopDelayBeforeReconnectAttempt*1000);
+							Thread.sleep(loopDelayBeforeReconnectAttempt * 1000);
 							app.apiMqttUtils.confirmOrCreateConnectionToBroker(true);
 						}
 

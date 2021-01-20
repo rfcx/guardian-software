@@ -54,9 +54,9 @@ public class MqttUtils implements MqttCallback {
 	private MqttCallback mqttCallback = this;
 	
 	private long mqttActionTimeout = 0;
-	private static final int minMqttConnectionTimeoutInSeconds = 45;
+	private static final int mqttConnectionTimeoutInSeconds_min = 45;
 	private static final int minMqttKeepAliveIntervalInSeconds = 30;
-	private int mqttConnectionTimeoutInSeconds = minMqttConnectionTimeoutInSeconds;
+	private int mqttConnectionTimeoutInSeconds = mqttConnectionTimeoutInSeconds_min;
 	private int mqttKeepAliveIntervalInSeconds = minMqttKeepAliveIntervalInSeconds;
 	
 	private long msgSendStart = System.currentTimeMillis();
@@ -102,10 +102,10 @@ public class MqttUtils implements MqttCallback {
 
 	public void setConnectionTimeouts( int connectionTimeoutInSeconds, int keepAliveIntervalInSeconds ) {
 
-		boolean reportUpdatedValuesToLog = 	(this.mqttConnectionTimeoutInSeconds != Math.max(connectionTimeoutInSeconds, minMqttConnectionTimeoutInSeconds))
+		boolean reportUpdatedValuesToLog = 	(this.mqttConnectionTimeoutInSeconds != Math.max(connectionTimeoutInSeconds, mqttConnectionTimeoutInSeconds_min))
 										|| 	(this.mqttKeepAliveIntervalInSeconds != Math.min(keepAliveIntervalInSeconds, minMqttKeepAliveIntervalInSeconds));
 
-		this.mqttConnectionTimeoutInSeconds = Math.max(connectionTimeoutInSeconds, minMqttConnectionTimeoutInSeconds);
+		this.mqttConnectionTimeoutInSeconds = Math.max(connectionTimeoutInSeconds, mqttConnectionTimeoutInSeconds_min);
 		this.mqttKeepAliveIntervalInSeconds = Math.min(keepAliveIntervalInSeconds, minMqttKeepAliveIntervalInSeconds);
 
 		if (reportUpdatedValuesToLog) {

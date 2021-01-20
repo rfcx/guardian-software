@@ -90,7 +90,7 @@ public class ApiMqttUtils implements MqttCallback {
 			);
 		this.mqttCheckInClient.setConnectionTimeouts(
 			(int) Math.round( this.app.rfcxPrefs.getPrefAsInt( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION ) * 0.667 ),
-			(int) Math.round( this.app.rfcxPrefs.getPrefAsInt( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION ) * 0.333 )
+			(int) Math.round( this.app.rfcxPrefs.getPrefAsInt( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION ) * 0.500 )
 			);
 	}
 
@@ -108,7 +108,6 @@ public class ApiMqttUtils implements MqttCallback {
 		closeConnectionToBroker();
 		if (app.rfcxPrefs.getPrefAsBoolean( RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH )) {
 			confirmOrCreateConnectionToBroker(false);
-			app.rfcxSvc.triggerService( ApiCheckInJobService.SERVICE_NAME, false);
 		} else {
 			app.rfcxSvc.stopService( ApiCheckInJobService.SERVICE_NAME );
 		}
@@ -120,6 +119,8 @@ public class ApiMqttUtils implements MqttCallback {
 		String guardianGuid = app.rfcxGuardianIdentity.getGuid();
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+		// Prepare asset attachments
 
 		String[] screenShotMeta = app.assetUtils.getLatestExternalAssetMeta("screenshots", this.checkInPublishTimeOutLength);
 		if (screenShotMeta[0] != null) {
@@ -157,8 +158,13 @@ public class ApiMqttUtils implements MqttCallback {
 			}
 		}
 
+
+
         // Build JSON blob from included assets
-		byte[] jsonBlobAsBytes = StringUtils.stringToGZipByteArray(app.apiCheckInJsonUtils.buildCheckInJson(checkInJsonString, screenShotMeta, logFileMeta, photoFileMeta, videoFileMeta));
+		String jsonBlob = app.apiPingJsonUtils.injectGuardianIdentityIntoJson( app.apiCheckInJsonUtils.buildCheckInJson( checkInJsonString, screenShotMeta, logFileMeta, photoFileMeta, videoFileMeta ) );
+
+		// Package JSON Blob
+		byte[] jsonBlobAsBytes = StringUtils.stringToGZipByteArray(jsonBlob);
 		String jsonBlobMetaSection = String.format(Locale.US, "%012d", jsonBlobAsBytes.length);
 		byteArrayOutputStream.write(jsonBlobMetaSection.getBytes(StandardCharsets.UTF_8));
 		byteArrayOutputStream.write(jsonBlobAsBytes);
@@ -218,7 +224,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 			if (FileUtils.exists(audioPath)) {
 
-				byte[] checkInPayload = packageMqttCheckInPayload(audioJson, audioPath);
+				byte[] checkInPayload = packageMqttCheckInPayload( audioJson, audioPath );
 
 				app.apiCheckInHealthUtils.updateInFlightCheckInOnSend(audioId, checkInDbEntry);
 				this.inFlightCheckInAttemptCounter++;
@@ -363,7 +369,7 @@ public class ApiMqttUtils implements MqttCallback {
 		return isSent;
 	}
 
-	private byte[] packageMqttPingPayload(String pingJsonString) throws UnsupportedEncodingException, IOException, JSONException {
+	private byte[] packageMqttPingPayload(String pingJsonString) throws IOException {
 
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -393,8 +399,9 @@ public class ApiMqttUtils implements MqttCallback {
 			boolean unableToConnect = excStr.contains("Unable to connect to server");
 
 			boolean socketTimeout = excStr.contains("SocketTimeoutException: failed to connect to");
-			boolean brokerConnectionLost = excStr.contains("java.io.IOException: Connection is lost.");
 			boolean unexpectedError = excStr.contains("Message: Unexpected error");
+			boolean connectionLost = excStr.contains("java.io.IOException: Connection is lost.");
+			boolean connectionLostEof = excStr.contains("Cause: java.io.EOFException");
 
 			if ( unknownHost || brokenPipe || noRouteToHost || unresolvedHost || unableToConnect || tooManyPublishes || isTimedOut ) {
 
@@ -410,26 +417,25 @@ public class ApiMqttUtils implements MqttCallback {
 				}
 
 				if (isTimedOut || (tooManyPublishes && (this.inFlightCheckInAttemptCounter > 1))) {
-					Log.v(logTag, "Kill ApiCheckInQueue Service, Close MQTT Connection & Re-Connect");
-					app.rfcxSvc.stopService( ApiCheckInQueueService.SERVICE_NAME );
-					this.mqttCheckInClient.closeConnection();
-					confirmOrCreateConnectionToBroker(true);
+					killConnectionAndReLaunchCheckInServices();
 				}
 
-			} else if ( badUserNameOrPswd || brokerConnectionLost || unexpectedError || socketTimeout ) {
+			} else if ( badUserNameOrPswd || connectionLostEof || connectionLost || unexpectedError || socketTimeout ) {
 
-				String logErrorMsg = "";
+				String logErrorMsg = DateTimeUtils.getDateTime()+" - ";
 				if (badUserNameOrPswd) { logErrorMsg = "Broker Credentials Rejected."; }
-				else if (brokerConnectionLost) { logErrorMsg = "Broker Connection Lost."; }
+				else if (connectionLost) { logErrorMsg = "Broker Connection Lost."; }
 				else if (unexpectedError) { logErrorMsg = "Unexpected Error."; }
 
 				// This might be something we should remove if we find out that 'Connection Lost" isn't always due to the broker itself having problems
-				// This line assumes that the issue is NOT with the Guardian's internet connection
+				// These lines assume that the issue is NOT with the Guardian's internet connection
 				if (app.deviceConnectivity.isConnected()) {
 					initializeFailedCheckInThresholds();
 				}
 
-				long additionalDelay = Math.round(this.app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 0.667);
+				long additionalDelay = Math.round(this.app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 0.333);
+				additionalDelay = Math.min(additionalDelay, 10);
+				additionalDelay = Math.max(additionalDelay, 30);
 				Log.e(logTag, logErrorMsg+" Delaying "+additionalDelay+" seconds before trying again...");
 				Thread.sleep(additionalDelay*1000);
 
@@ -438,6 +444,18 @@ public class ApiMqttUtils implements MqttCallback {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
+	}
+
+	private void killConnectionAndReLaunchCheckInServices() {
+		if (this.mqttCheckInClient.isConnected()) {
+			Log.v(logTag, "Close MQTT Connection");
+			this.mqttCheckInClient.closeConnection();
+		}
+		Log.v(logTag, "Killing ApiCheckInQueue & ApiCheckInJobService Services");
+		app.rfcxSvc.stopService( ApiCheckInJobService.SERVICE_NAME );
+		app.rfcxSvc.stopService( ApiCheckInQueueService.SERVICE_NAME );
+		confirmOrCreateConnectionToBroker(true);
+		app.rfcxSvc.triggerService( ApiCheckInJobService.SERVICE_NAME, false);
 	}
 
     private void handleMqttPingPublicationExceptions(Exception inputExc) {

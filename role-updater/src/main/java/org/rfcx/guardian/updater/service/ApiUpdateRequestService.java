@@ -84,8 +84,7 @@ public class ApiUpdateRequestService extends Service {
 									+ "://"
 									+ app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_REST_HOST)
 									+"/v2/guardians/" + app.rfcxGuardianIdentity.getGuid() + "/software/all"
-									+ "?" + "battery="+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)
-									+ "&" + "timestamp="+System.currentTimeMillis()
+									+ "?" + "timestamp="+System.currentTimeMillis()
 									;
 
 					Log.d(logTag, "Time elapsed since last update request: "+ DateTimeUtils.milliSecondDurationAsReadableString((System.currentTimeMillis() - app.apiUpdateRequestUtils.lastUpdateRequestTime)));

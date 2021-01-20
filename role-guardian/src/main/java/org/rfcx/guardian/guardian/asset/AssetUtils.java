@@ -104,6 +104,7 @@ public class AssetUtils {
 					filePaths.add(RfcxAudioFileUtils.getAudioFileLocation_GZip(rfcxDeviceId, context, numericAssetId, fileExtension));
 					filePaths.add(RfcxAudioFileUtils.getAudioFileLocation_Queue(rfcxDeviceId, context, numericAssetId, fileExtension));
 					filePaths.add(RfcxAudioFileUtils.getAudioFileLocation_Stash(rfcxDeviceId, context, numericAssetId, fileExtension));
+					filePaths.add(RfcxAudioFileUtils.getAudioFileLocation_Snippet(rfcxDeviceId, context, numericAssetId, fileExtension));
 					filePaths.add(RfcxAudioFileUtils.getAudioFileLocation_ExternalStorage(rfcxDeviceId, numericAssetId, fileExtension));
 				}
 

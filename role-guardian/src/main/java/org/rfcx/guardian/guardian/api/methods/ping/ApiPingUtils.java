@@ -30,7 +30,7 @@ public class ApiPingUtils {
 
 	private RfcxGuardian app;
 
-	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, String forceProtocol) {
+	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, int includeMetaJsonBundles, String forceProtocol) {
 
 		String[] apiProtocols = app.rfcxPrefs.getDefaultPrefValueAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(",");
 		if (forceProtocol.equalsIgnoreCase("all")) {
@@ -44,7 +44,7 @@ public class ApiPingUtils {
 
 		try {
 
-			String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields);
+			String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, includeMetaJsonBundles);
 
 			for (String apiProtocol : apiProtocols) {
 
@@ -79,11 +79,11 @@ public class ApiPingUtils {
 	}
 
 	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields) {
-		return sendPing(includeAllExtraFields, includeExtraFields, "all");
+		return sendPing(includeAllExtraFields, includeExtraFields, 0, "all");
 	}
 
 	public boolean sendPing() {
-		return sendPing(true, new String[]{}, "all");
+		return sendPing(true, new String[]{}, 0, "all");
 	}
 
 }

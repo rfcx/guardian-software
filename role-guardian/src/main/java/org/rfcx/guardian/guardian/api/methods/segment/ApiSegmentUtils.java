@@ -262,6 +262,7 @@ public class ApiSegmentUtils {
 				int msgOriginalLength = msgJson.length();
 
 				String msgPayloadFullStr = (isByteArr) ? "" : StringUtils.stringToGZipBase64(msgJson);
+			//	String msgPayloadFullStr = (isByteArr) ? "" : StringUtils.smsEncodeAscii85(StringUtils.stringToGZipAscii85(msgJson));
 				byte[] msgPayloadFullByte = (isByteArr) ? StringUtils.stringToGZipByteArray(msgJson) : new byte[]{};
 
 				int msgPayloadFullLength = (isByteArr) ? msgPayloadFullByte.length : msgPayloadFullStr.length();
@@ -279,7 +280,7 @@ public class ApiSegmentUtils {
 				int segCountCeil = (int) Math.ceil(segCount);
 				int fullLengthOfSegments = msgPayloadFullLength + ( (segCountCeil - 1) * (GROUP_ID_LENGTH + SEGMENT_ID_LENGTH) ) + initSegHeaderLength + SEGMENT_ID_LENGTH;
 
-				Log.d(logTag, "Segment Group Created: "+groupId+", "+segCountCeil+" segment(s), "+fullLengthOfSegments+" compressed "+((isByteArr) ? "bytes" : "characters")+" to be transferred, "+msgOriginalLength+" original character length");
+				Log.d(logTag, "Segment Group Created: "+groupId+", "+segCountCeil+" segment(s), "+fullLengthOfSegments+((isByteArr) ? " bytes" : " characters")+" to be transferred, "+msgOriginalLength+" original character length");
 
 				if (segCount > 1) {
 					for (int i = 0; i < Math.ceil(segCount-1); i++) {

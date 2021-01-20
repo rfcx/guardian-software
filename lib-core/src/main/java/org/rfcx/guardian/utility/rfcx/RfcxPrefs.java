@@ -193,16 +193,16 @@ public class RfcxPrefs {
 //			put("audio_encode_bitrate", "28672");
 //			put("audio_sample_rate", "24000");
 
-			put(Pref.AUDIO_CAPTURE_SAMPLE_RATE, "24000");
+			put(Pref.AUDIO_CAPTURE_SAMPLE_RATE, "12000");
 			put(Pref.AUDIO_CAPTURE_GAIN, "1.0");
 
-			put(Pref.AUDIO_STREAM_SAMPLE_RATE, "24000");
+			put(Pref.AUDIO_STREAM_SAMPLE_RATE, "12000");
 			put(Pref.AUDIO_STREAM_CODEC, "opus");
-			put(Pref.AUDIO_STREAM_BITRATE, "28672");
+			put(Pref.AUDIO_STREAM_BITRATE, "16384");
 
-			put(Pref.AUDIO_VAULT_SAMPLE_RATE, "24000");
+			put(Pref.AUDIO_VAULT_SAMPLE_RATE, "12000");
 			put(Pref.AUDIO_VAULT_CODEC, "flac");
-			put(Pref.AUDIO_VAULT_BITRATE, "28672");
+			put(Pref.AUDIO_VAULT_BITRATE, "16384");
 
 			put(Pref.CHECKIN_FAILURE_THRESHOLDS, "15,30,50,70,90");
 			put(Pref.CHECKIN_FAILURE_LIMIT, "3");

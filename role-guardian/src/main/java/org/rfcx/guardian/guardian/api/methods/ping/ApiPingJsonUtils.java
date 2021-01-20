@@ -28,91 +28,110 @@ public class ApiPingJsonUtils {
 
 	private RfcxGuardian app;
 
-	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields) throws JSONException {
+	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeMetaJsonBundles) throws JSONException {
 
-		JSONObject pingObj = new JSONObject();
+		JSONObject jsonObj = new JSONObject();
 
 		boolean includeMeasuredAt = false;
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "battery")) {
-			pingObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
+			jsonObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
 			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {
-			pingObj.put("checkins", app.apiCheckInJsonUtils.getCheckInStatusInfoForJson(new String[] {}));
+			jsonObj.put("checkins", app.apiCheckInJsonUtils.getCheckInStatusInfoForJson(new String[] {}));
 			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "instructions")) {
 			if (app.instructionsUtils.getInstructionsCount() > 0) {
-				pingObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+				jsonObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+			}
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "library")) {
+			if (app.assetLibraryUtils.getLibraryAssetCount() > 0) {
+				jsonObj.put("library", app.assetLibraryUtils.getLibraryInfoAsJson());
+			}
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "detections")) {
+			if (app.audioDetectionDb.dbFiltered.getCount() > 0) {
+				jsonObj.put("detections", app.audioDetectionDb.dbFiltered.getSimplifiedConcatRows());
 			}
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {
-			pingObj.put("prefs", app.apiCheckInJsonUtils.buildCheckInPrefsJsonObj(true));
+			jsonObj.put("prefs", app.apiCheckInJsonUtils.buildCheckInPrefsJsonObj(true));
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "purged")) {
-			pingObj.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT)));
+			jsonObj.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT)));
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sms")) {
 			JSONArray smsArr = RfcxComm.getQuery("admin", "database_get_all_rows", "sms", app.getResolver());
-			if (smsArr.length() > 0) { pingObj.put("messages", smsArr); }
+			if (smsArr.length() > 0) { jsonObj.put("messages", smsArr); }
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "device")) {
 			JSONObject deviceJsonObj = new JSONObject();
 			deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
 			deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
-			pingObj.put("device", deviceJsonObj);
+			jsonObj.put("device", deviceJsonObj);
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "software")) {
-			pingObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
+			jsonObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sentinel_power")) {
 			String sentinelPower = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "sentinel_power", app.getResolver()));
-			if (sentinelPower.length() > 0) { pingObj.put("sentinel_power", sentinelPower); }
+			if (sentinelPower.length() > 0) { jsonObj.put("sentinel_power", sentinelPower); }
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sentinel_sensor")) {
 			String sentinelSensor = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "sentinel_sensor", app.getResolver()));
-			if (sentinelSensor.length() > 0) { pingObj.put("sentinel_sensor", sentinelSensor); }
+			if (sentinelSensor.length() > 0) { jsonObj.put("sentinel_sensor", sentinelSensor); }
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "storage")) {
 			String systemStorage = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_storage", app.getResolver()));
-			if (systemStorage.length() > 0) { pingObj.put("storage", systemStorage); }
+			if (systemStorage.length() > 0) { jsonObj.put("storage", systemStorage); }
 			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "memory")) {
 			String systemMemory = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_memory", app.getResolver()));
-			if (systemMemory.length() > 0) { pingObj.put("memory", systemMemory); }
+			if (systemMemory.length() > 0) { jsonObj.put("memory", systemMemory); }
 			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "cpu")) {
 			String systemCPU = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_cpu", app.getResolver()));
-			if (systemCPU.length() > 0) { pingObj.put("cpu", systemCPU); }
+			if (systemCPU.length() > 0) { jsonObj.put("cpu", systemCPU); }
 			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "network")) {
 			String systemNetwork = ApiCheckInJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_network", app.getResolver()));
-			if (systemNetwork.length() > 0) { pingObj.put("network", systemNetwork); }
+			if (systemNetwork.length() > 0) { jsonObj.put("network", systemNetwork); }
 			includeMeasuredAt = true;
 		}
 
-		if (includeMeasuredAt) { pingObj.put("measured_at", System.currentTimeMillis()); }
+		if (includeMeasuredAt) { jsonObj.put("measured_at", System.currentTimeMillis()); }
 
-		Log.d(logTag, pingObj.toString());
+		if ((includeAllExtraFields && (includeMetaJsonBundles > 0)) || ArrayUtils.doesStringArrayContainString(includeExtraFields, "meta")) {
 
-		return pingObj.toString();
+			jsonObj = app.apiCheckInJsonUtils.retrieveAndBundleMetaJson(jsonObj, Math.max(includeMetaJsonBundles, 1), false);
+		}
+
+		int limitLogsTo = 1500;
+		String strLogs = jsonObj.toString();
+		Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
+
+		return jsonObj.toString();
 	}
 
 

@@ -29,13 +29,14 @@ public class AudioClassifierDb {
 	static final String C_DIGEST = "digest";
 	static final String C_FILEPATH = "filepath";
 	static final String C_INPUT_SAMPLE_RATE = "input_sample_rate";
+	static final String C_INPUT_GAIN = "input_gain";
 	static final String C_WINDOW_SIZE = "window_size";
 	static final String C_STEP_SIZE = "step_size";
 	static final String C_CLASSES = "classes";
 	
-	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_CLASSIFIER_ID, C_CLASSIFIER_NAME, C_CLASSIFIER_VERSION, C_FORMAT, C_DIGEST, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_WINDOW_SIZE, C_STEP_SIZE, C_CLASSES };
+	private static final String[] ALL_COLUMNS = new String[] {  C_CREATED_AT, C_CLASSIFIER_ID, C_CLASSIFIER_NAME, C_CLASSIFIER_VERSION, C_FORMAT, C_DIGEST, C_FILEPATH, C_INPUT_SAMPLE_RATE, C_INPUT_GAIN, C_WINDOW_SIZE, C_STEP_SIZE, C_CLASSES };
 
-	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
+	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { "0.6.81" }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
 	
 	private static String createColumnString(String tableName) {
@@ -49,6 +50,7 @@ public class AudioClassifierDb {
 			.append(", ").append(C_DIGEST).append(" TEXT")
 			.append(", ").append(C_FILEPATH).append(" TEXT")
 			.append(", ").append(C_INPUT_SAMPLE_RATE).append(" INTEGER")
+			.append(", ").append(C_INPUT_GAIN).append(" TEXT")
 			.append(", ").append(C_WINDOW_SIZE).append(" TEXT")
 			.append(", ").append(C_STEP_SIZE).append(" TEXT")
 			.append(", ").append(C_CLASSES).append(" TEXT")
@@ -67,7 +69,7 @@ public class AudioClassifierDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
-		public int insert(String classifierId, String classifierName, String version, String format, String digest, String filepath, int inputSampleRate, String windowSize, String stepSize, String classes) {
+		public int insert(String classifierId, String classifierName, String version, String format, String digest, String filepath, int inputSampleRate, double inputGain, String windowSize, String stepSize, String classes) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -78,6 +80,7 @@ public class AudioClassifierDb {
 			values.put(C_DIGEST, digest);
 			values.put(C_FILEPATH, filepath);
 			values.put(C_INPUT_SAMPLE_RATE, inputSampleRate);
+			values.put(C_INPUT_GAIN, inputGain);
 			values.put(C_WINDOW_SIZE, windowSize);
 			values.put(C_STEP_SIZE, stepSize);
 			values.put(C_CLASSES, classes);

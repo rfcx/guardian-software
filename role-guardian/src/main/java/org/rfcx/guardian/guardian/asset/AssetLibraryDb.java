@@ -70,12 +70,12 @@ public class AssetLibraryDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 		
-		public int insert(String assetId, String assetType, String format, String digest, String filePath, long fileSize, String metaText, long metaNumeric_1, long metaNumeric_2) {
+		public int insert(String assetId, String format, String digest, String filePath, long fileSize, String metaText, long metaNumeric_1, long metaNumeric_2) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_ASSET_ID, assetId);
-			values.put(C_ASSET_TYPE, assetType);
+			values.put(C_ASSET_TYPE, "audio");
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			values.put(C_FILEPATH, filePath);
@@ -100,6 +100,12 @@ public class AssetLibraryDb {
 		public int getCountByAssetId(String assetId) {
 			return this.dbUtils.getCount(TABLE, C_ASSET_ID +"=?",new String[] { assetId });
 		}
+
+		public long updateLastAccessedAtById(String assetId) {
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByOneColumn(TABLE, C_LAST_ACCESSED_AT, rightNow, C_ASSET_ID, assetId);
+			return rightNow;
+		}
 		
 	}
 	public final DbAudio dbAudio;
@@ -115,12 +121,12 @@ public class AssetLibraryDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
-		public int insert(String assetId, String assetType, String format, String digest, String filePath, long fileSize, String metaTag, long metaNumeric_1, long metaNumeric_2) {
+		public int insert(String assetId, String format, String digest, String filePath, long fileSize, String metaTag, long metaNumeric_1, long metaNumeric_2) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
 			values.put(C_ASSET_ID, assetId);
-			values.put(C_ASSET_TYPE, assetType);
+			values.put(C_ASSET_TYPE, "classifier");
 			values.put(C_FORMAT, format);
 			values.put(C_DIGEST, digest);
 			values.put(C_FILEPATH, filePath);
@@ -154,6 +160,11 @@ public class AssetLibraryDb {
 			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_ASSET_ID, assetId);
 		}
 
+		public long updateLastAccessedAtById(String assetId) {
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByOneColumn(TABLE, C_LAST_ACCESSED_AT, rightNow, C_ASSET_ID, assetId);
+			return rightNow;
+		}
 
 	}
 	public final DbClassifier dbClassifier;

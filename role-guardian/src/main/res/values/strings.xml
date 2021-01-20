@@ -39,16 +39,16 @@
 
 	<string name="prefs_value_default_audio_cycle_duration">90</string>
 
-	<string name="prefs_value_default_audio_capture_sample_rate">24000</string>
+	<string name="prefs_value_default_audio_capture_sample_rate">12000</string>
 	<string name="prefs_value_default_audio_capture_gain">1.0</string>
 
-	<string name="prefs_value_default_audio_stream_sample_rate">24000</string>
+	<string name="prefs_value_default_audio_stream_sample_rate">12000</string>
 	<string name="prefs_value_default_audio_stream_codec">opus</string>
-	<string name="prefs_value_default_audio_stream_bitrate">28672</string>
+	<string name="prefs_value_default_audio_stream_bitrate">16384</string>
 
-	<string name="prefs_value_default_audio_vault_sample_rate">24000</string>
+	<string name="prefs_value_default_audio_vault_sample_rate">12000</string>
 	<string name="prefs_value_default_audio_vault_codec">flac</string>
-	<string name="prefs_value_default_audio_vault_bitrate">28672</string>
+	<string name="prefs_value_default_audio_vault_bitrate">16384</string>
 
 	<string name="prefs_value_default_enable_cutoffs_internal_battery">true</string>
 	<string name="prefs_value_default_checkin_cutoff_internal_battery">100</string>

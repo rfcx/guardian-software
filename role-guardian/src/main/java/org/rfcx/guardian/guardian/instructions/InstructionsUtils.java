@@ -83,39 +83,6 @@ public class InstructionsUtils {
 		}
 	}
 
-//	public String getSingleInstructionInfoAsSerializedString(String instrId) {
-//
-//		String[] instrInfo = new String[]{
-//				app.rfcxGuardianIdentity.getGuid(),
-//				"in",
-//				"",		// instr_id
-//				"",		// received_at
-//				"",		// executed_at
-//				"",		// attempts
-//				""		// response
-//		};
-//
-//		for (String[] receivedRow : app.instructionsDb.dbQueuedInstructions.getRowsInOrderOfExecution()) {
-//			if ((receivedRow[0] != null) && instrId.equalsIgnoreCase(receivedRow[1])) {
-//				instrInfo[2] = receivedRow[1];	// instr_id
-//				instrInfo[3] = receivedRow[0];	// received_at
-//				break;
-//			}
-//		}
-//
-//		for (String[] executedRow : app.instructionsDb.dbExecutedInstructions.getRowsInOrderOfExecution()) {
-//			if ((executedRow[0] != null) && instrId.equalsIgnoreCase(executedRow[1])) {
-//				instrInfo[2] = executedRow[1];    // instr_id
-//				instrInfo[3] = executedRow[7];    // received_at
-//				instrInfo[4] = executedRow[0];    // executed_at
-//				instrInfo[5] = executedRow[6];    // attempts
-//				instrInfo[6] = executedRow[5];    // response
-//				break;
-//			}
-//		}
-//		return TextUtils.join("|", instrInfo);
-//	}
-
 	public JSONObject getInstructionsInfoAsJson() {
 
 		JSONObject instrObj = new JSONObject();
@@ -155,7 +122,7 @@ public class InstructionsUtils {
 	}
 
 	public int getInstructionsCount() {
-		return app.instructionsDb.dbQueued.getRowsInOrderOfExecution().size()+app.instructionsDb.dbExecuted.getRowsInOrderOfExecution().size();
+		return app.instructionsDb.dbQueued.getCount() + app.instructionsDb.dbExecuted.getCount();
 	}
 
 

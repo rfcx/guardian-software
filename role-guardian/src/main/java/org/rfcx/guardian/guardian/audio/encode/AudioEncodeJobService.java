@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
 import org.rfcx.guardian.guardian.audio.capture.AudioCaptureUtils;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
@@ -86,7 +87,7 @@ public class AudioEncodeJobService extends Service {
 				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbQueued.getAllRows();
 				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
 				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
-				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode, Math.round( 3.0 * audioCycleDuration ) );
+				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode, Math.round( RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration ) );
 				
 				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
 
@@ -175,6 +176,8 @@ public class AudioEncodeJobService extends Service {
 										}
 									}
 
+									app.rfcxSvc.triggerIntentServiceImmediately( ApiCheckInQueueService.SERVICE_NAME );
+
 								} else if (encodePurpose.equalsIgnoreCase("vault")) {
 
 									finalDestinationFile = new File(RfcxAudioFileUtils.getAudioFileLocation_Vault( app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec), measuredAudioFileDuration, outputSampleRate));
@@ -203,8 +206,6 @@ public class AudioEncodeJobService extends Service {
 						
 					}
 				}
-
-				app.rfcxSvc.triggerIntentServiceImmediately( ApiCheckInQueueService.SERVICE_NAME );
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

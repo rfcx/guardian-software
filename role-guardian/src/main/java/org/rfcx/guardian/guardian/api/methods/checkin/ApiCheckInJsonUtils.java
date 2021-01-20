@@ -41,64 +41,74 @@ public class ApiCheckInJsonUtils {
 
 	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta, String[] photoFileMeta, String[] videoFileMeta) throws JSONException, IOException {
 
-		JSONObject checkInMetaJson = retrieveAndBundleMetaJson(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
+		JSONObject jsonObj = retrieveAndBundleMetaJson(null, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
 
 		// Adding Audio JSON fields from checkin table
 		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
-		checkInMetaJson.put("queued_at", checkInJsonObj.getLong("queued_at"));
-		checkInMetaJson.put("audio", checkInJsonObj.getString("audio"));
+		jsonObj.put("queued_at", checkInJsonObj.getLong("queued_at"));
+		jsonObj.put("audio", checkInJsonObj.getString("audio"));
 
 		// Recording number of currently queued/skipped/stashed checkins
-		checkInMetaJson.put("checkins", getCheckInStatusInfoForJson( new String[] { "sent" } ));
+		jsonObj.put("checkins", getCheckInStatusInfoForJson( new String[] { "sent" } ));
 
-		checkInMetaJson.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT)));
+		jsonObj.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT)));
 
 		// Adding software role versions
-		checkInMetaJson.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
+		jsonObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 
 		// Adding checksum of current prefs values
-		checkInMetaJson.put("prefs", app.apiCheckInJsonUtils.buildCheckInPrefsJsonObj(false));
+		jsonObj.put("prefs", app.apiCheckInJsonUtils.buildCheckInPrefsJsonObj(false));
 
 		// Adding instructions, if there are any
 		if (app.instructionsUtils.getInstructionsCount() > 0) {
-			checkInMetaJson.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+			jsonObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+		}
+
+		// Adding detections, if there are any
+//		if (app.audioDetectionDb.dbFiltered.getCount() > 0) {
+//			checkInMetaJson.put("detections", app.audioDetectionDb.dbFiltered.getSimplifiedConcatRows());
+//		}
+
+		// Adding library assets, if there are any
+		if (app.assetLibraryUtils.getLibraryAssetCount() > 0) {
+			jsonObj.put("library", app.assetLibraryUtils.getLibraryInfoAsJson());
 		}
 
 		// Adding messages to JSON blob
 		JSONArray smsArr = RfcxComm.getQuery("admin", "database_get_all_rows", "sms", app.getResolver());
-		if (smsArr.length() > 0) { checkInMetaJson.put("messages", smsArr); }
+		if (smsArr.length() > 0) { jsonObj.put("messages", smsArr); }
 
 		// Adding screenshot meta to JSON blob
 		if (screenShotMeta[0] != null) {
-			checkInMetaJson.put("screenshots", TextUtils.join("*", new String[]{screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6]}));
+			jsonObj.put("screenshots", TextUtils.join("*", new String[]{screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6]}));
 		}
 
 		// Adding logs meta to JSON blob
 		if (logFileMeta[0] != null) {
-			checkInMetaJson.put("logs", TextUtils.join("*", new String[]{logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4]}));
+			jsonObj.put("logs", TextUtils.join("*", new String[]{logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4]}));
 		}
 
 		// Adding photos meta to JSON blob
 		if (photoFileMeta[0] != null) {
-			checkInMetaJson.put("photos", TextUtils.join("*", new String[]{photoFileMeta[1], photoFileMeta[2], photoFileMeta[3], photoFileMeta[4], photoFileMeta[5], photoFileMeta[6]}));
+			jsonObj.put("photos", TextUtils.join("*", new String[]{photoFileMeta[1], photoFileMeta[2], photoFileMeta[3], photoFileMeta[4], photoFileMeta[5], photoFileMeta[6]}));
 		}
 
 		// Adding videos meta to JSON blob
 		if (videoFileMeta[0] != null) {
-			checkInMetaJson.put("videos", TextUtils.join("*", new String[]{videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6]}));
+			jsonObj.put("videos", TextUtils.join("*", new String[]{videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6]}));
 		}
 
 		int limitLogsTo = 1500;
-		String strLogs = checkInMetaJson.toString();
+		String strLogs = jsonObj.toString();
 		Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
 
-		// Adding Guardian GUID and Auth Token
-		JSONObject guardianObj = new JSONObject();
-		guardianObj.put("guid", this.app.rfcxGuardianIdentity.getGuid());
-		guardianObj.put("token", this.app.rfcxGuardianIdentity.getAuthToken());
-		checkInMetaJson.put("guardian", guardianObj);
+//		// Adding Guardian GUID and Auth Token
+//		JSONObject guardianObj = new JSONObject();
+//		guardianObj.put("guid", this.app.rfcxGuardianIdentity.getGuid());
+//		guardianObj.put("token", this.app.rfcxGuardianIdentity.getAuthToken());
+//		checkInMetaJson.put("guardian", guardianObj);
 
-		return checkInMetaJson.toString();
+		return jsonObj.toString();
 
 	}
 
@@ -187,8 +197,6 @@ public class ApiCheckInJsonUtils {
 		// Adding latency data from previous classify jobs
 		metaDataJsonObj.put("previous_classify", app.latencyStatsDb.dbClassifyLatency.getConcatRows());
 
-		metaDataJsonObj.put("detections", app.audioDetectionDb.dbFiltered.getSimplifiedConcatRows());
-
 		// Adding system metadata, if they can be retrieved from admin role via content provider
 		JSONArray systemMetaJsonArray = RfcxComm.getQuery("admin", "database_get_all_rows",
 				"system_meta", app.getResolver());
@@ -242,8 +250,6 @@ public class ApiCheckInJsonUtils {
 			app.deviceSystemDb.dbMqttBroker.clearRowsBefore(deleteBefore);
 			app.latencyStatsDb.dbCheckInLatency.clearRowsBefore(deleteBefore);
 			app.latencyStatsDb.dbClassifyLatency.clearRowsBefore(deleteBefore);
-
-			app.audioDetectionDb.dbFiltered.clearRowsBefore(deleteBefore);
 
 			RfcxComm.deleteQuery("admin", "database_delete_rows_before", "system_meta|" + deleteBefore.getTime(), app.getResolver());
 
@@ -381,13 +387,13 @@ public class ApiCheckInJsonUtils {
 	}
 
 
-	private JSONObject retrieveAndBundleMetaJson(int maxMetaRowsToBundle, boolean overrideLimitByLastAccessedAt) throws JSONException {
+	public JSONObject retrieveAndBundleMetaJson(JSONObject inputMetaJson, int maxMetaRowsToBundle, boolean overrideFilterByLastAccessedAt) throws JSONException {
 
-		JSONObject metaJsonBundledSnapshotsObj = null;
+		JSONObject metaJsonBundledSnapshotsObj = inputMetaJson;
 		JSONArray metaJsonBundledSnapshotsIds = new JSONArray();
-		long metaMeasuredAtValue = 0;
+		long metaMeasuredAtValue = ((metaJsonBundledSnapshotsObj == null) || (!metaJsonBundledSnapshotsObj.has("measured_at"))) ? 0 : metaJsonBundledSnapshotsObj.getLong("measured_at");
 
-		List<String[]> metaRows = (overrideLimitByLastAccessedAt) ? app.metaDb.dbMeta.getLatestRowsWithLimit(maxMetaRowsToBundle) :
+		List<String[]> metaRows = (overrideFilterByLastAccessedAt) ? app.metaDb.dbMeta.getLatestRowsWithLimit(maxMetaRowsToBundle) :
 				app.metaDb.dbMeta.getLatestRowsNotAccessedSinceWithLimit( (System.currentTimeMillis() - app.apiMqttUtils.getSetCheckInPublishTimeOutLength()), maxMetaRowsToBundle);
 
 		for (String[] metaRow : metaRows) {
@@ -401,27 +407,40 @@ public class ApiCheckInJsonUtils {
 
 			} else {
 				JSONObject metaJsonObjToAppend = new JSONObject(metaRow[2]);
-				Iterator<String> jsonKeys = metaJsonBundledSnapshotsObj.keys();
-				while (jsonKeys.hasNext()) {
-					String jsonKey = jsonKeys.next();
 
-					if (	(metaJsonBundledSnapshotsObj.get(jsonKey) instanceof String)
+				Iterator<String> appendKeys = metaJsonObjToAppend.keys();
+				Iterator<String> bundleKeys = metaJsonBundledSnapshotsObj.keys();
+				List<String> allKeys = new ArrayList<>();
+				while (bundleKeys.hasNext()) { String bndlKey = bundleKeys.next(); if (!ArrayUtils.doesStringListContainString(allKeys, bndlKey)) { allKeys.add(bndlKey); } }
+				while (appendKeys.hasNext()) { String apnKey = appendKeys.next(); if (!ArrayUtils.doesStringListContainString(allKeys, apnKey)) { allKeys.add(apnKey); } }
+
+				for (String jsonKey : allKeys) {
+
+					if (	!metaJsonBundledSnapshotsObj.has(jsonKey)
+							&&	metaJsonObjToAppend.has(jsonKey)
+							&&	(metaJsonObjToAppend.get(jsonKey) instanceof String)
+					) {
+						String newStr = metaJsonObjToAppend.getString(jsonKey);
+						metaJsonBundledSnapshotsObj.put(jsonKey, newStr);
+
+					} else if (	metaJsonBundledSnapshotsObj.has(jsonKey)
+							&&	(metaJsonBundledSnapshotsObj.get(jsonKey) instanceof String)
 							&&	metaJsonObjToAppend.has(jsonKey)
 							&&	(metaJsonObjToAppend.get(jsonKey) instanceof String)
 					) {
 						String origStr = metaJsonBundledSnapshotsObj.getString(jsonKey);
 						String newStr = metaJsonObjToAppend.getString(jsonKey);
-						if (	 (origStr.length() > 0) && (newStr.length() > 0) ) {
+						if ( (origStr.length() > 0) && (newStr.length() > 0) ) {
 							metaJsonBundledSnapshotsObj.put(jsonKey, origStr+"|"+newStr);
 						} else {
 							metaJsonBundledSnapshotsObj.put(jsonKey, origStr+newStr);
 						}
-						if (jsonKey.equalsIgnoreCase("measured_at")) {
-							long measuredAt = Long.parseLong(newStr);
-							Log.e(logTag, "measured_at: "+DateTimeUtils.getDateTime(measuredAt));
-							if (measuredAt > metaMeasuredAtValue) {
-								metaMeasuredAtValue = measuredAt;
-							}
+
+					} else if (jsonKey.equalsIgnoreCase("measured_at")) {
+
+						long measuredAt = metaJsonObjToAppend.getLong(jsonKey);
+						if (measuredAt > metaMeasuredAtValue) {
+							metaMeasuredAtValue = measuredAt;
 						}
 					}
 				}

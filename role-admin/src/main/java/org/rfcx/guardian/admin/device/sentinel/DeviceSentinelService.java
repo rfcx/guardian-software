@@ -158,12 +158,10 @@ public class DeviceSentinelService extends Service {
 			outerLoopIncrement = 1;
 		}
 
-
 		// run this on every loop, if allowed
 		if (this.isSentinelPowerCaptureAllowed) {
 			app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(true);
 		}
-
 
 		// run these on specific outer loop iterations
 		if (outerLoopIncrement == outerLoopCaptureCount) {
@@ -175,14 +173,6 @@ public class DeviceSentinelService extends Service {
 			if (this.isSentinelCompassCaptureAllowed) {
 				app.sentinelCompassUtils.saveSentinelCompassValuesToDatabase(true);
 				app.sentinelCompassUtils.setOrResetSentinelCompassChip();
-			}
-
-		}
-
-		if (app.deviceUtils.isReducedCaptureModeChanging(this.referenceCycleDuration)) {
-
-			if (this.isSentinelPowerCaptureAllowed) {
-				app.sentinelPowerUtils.setOrResetSentinelPowerChip();
 			}
 		}
 

@@ -122,11 +122,12 @@ public class AudioClassifyUtils {
 					String clsfrName = jsonMeta.getString("classifier_name");
 					String clsfrVersion = jsonMeta.getString("classifier_version");
 					int clsfrSampleRate = Integer.parseInt(jsonMeta.getString("sample_rate"));
+					double clsfrInputGain = Double.parseDouble(jsonMeta.getString("input_gain"));
 					String clsfrWindowSize = jsonMeta.getString("window_size");
 					String clsfrStepSize = jsonMeta.getString("step_size");
 					String clsfrClassifications = jsonMeta.getString("classifications");
 
-					app.audioClassifierDb.dbActive.insert(clsfrId, clsfrName, clsfrVersion, clsfrFormat, clsfrDigest, clsfrActiveFilePath, clsfrSampleRate, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
+					app.audioClassifierDb.dbActive.insert(clsfrId, clsfrName, clsfrVersion, clsfrFormat, clsfrDigest, clsfrActiveFilePath, clsfrSampleRate, clsfrInputGain, clsfrWindowSize, clsfrStepSize, clsfrClassifications);
 
 					FileUtils.delete(clsfrActiveFilePath);
 					FileUtils.copy(clsfrLibraryFilePath, clsfrActiveFilePath);

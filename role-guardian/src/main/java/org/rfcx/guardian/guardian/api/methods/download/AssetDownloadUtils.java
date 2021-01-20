@@ -45,6 +45,7 @@ public class AssetDownloadUtils {
 						+"\"classifier_name\":\"threat\","
 						+"\"classifier_version\":\"1\","
 						+"\"sample_rate\":\"12000\","
+						+"\"input_gain\":\"1.1\","
 						+"\"window_size\":\"0.9750\","
 						+"\"step_size\":\"1\","
 						+"\"classifications\":\"chainsaw,gunshot,vehicle\""
@@ -91,14 +92,14 @@ public class AssetDownloadUtils {
 
 		if (assetType.equalsIgnoreCase("classifier") && (app.assetLibraryDb.dbClassifier.getCountByAssetId(assetId) == 0)) {
 
-			app.assetLibraryDb.dbClassifier.insert( assetId, "classifier", fileType, checksum, libraryPath,
+			app.assetLibraryDb.dbClassifier.insert( assetId, fileType, checksum, libraryPath,
 					FileUtils.getFileSizeInBytes(libraryPath), metaJsonBlob,0,0);
 
 			app.audioClassifyUtils.activateClassifier(assetId);
 
 		} else if (assetType.equalsIgnoreCase("audio") && (app.assetLibraryDb.dbAudio.getCountByAssetId(assetId) == 0)) {
 
-			app.assetLibraryDb.dbAudio.insert( assetId, "audio", fileType, checksum, libraryPath,
+			app.assetLibraryDb.dbAudio.insert( assetId, fileType, checksum, libraryPath,
 					FileUtils.getFileSizeInBytes(libraryPath), metaJsonBlob, 0, 0);
 
 		}

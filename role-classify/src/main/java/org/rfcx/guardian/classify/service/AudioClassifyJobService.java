@@ -87,7 +87,7 @@ public class AudioClassifyJobService extends Service {
 				List<String[]> latestQueuedAudioFilesToClassify = app.audioClassifyDb.dbQueued.getAllRows();
 				if (latestQueuedAudioFilesToClassify.size() == 0) { Log.d(logTag, "No classification jobs are currently queued."); }
 				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
-				AudioClassifyUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( 3.0 * audioCycleDuration ) );
+				AudioClassifyUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration ) );
 
 				for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
 
@@ -99,15 +99,15 @@ public class AudioClassifyJobService extends Service {
 						String classifierId = latestQueuedAudioToClassify[2];
 						String clsfrVersion = latestQueuedAudioToClassify[3];
 						int clsfrSampleRate = Integer.parseInt(latestQueuedAudioToClassify[5]);
-						float clsfrWindowSize = Float.parseFloat(latestQueuedAudioToClassify[8]);
-						float clsfrStepSize = Float.parseFloat(latestQueuedAudioToClassify[9]);
-						String clsfrClassifications = latestQueuedAudioToClassify[10];
+						float clsfrWindowSize = Float.parseFloat(latestQueuedAudioToClassify[9]);
+						float clsfrStepSize = Float.parseFloat(latestQueuedAudioToClassify[10]);
+						String clsfrClassifications = latestQueuedAudioToClassify[11];
 						String clsfLoggingSummary = classifierId + ", v" + clsfrVersion + ", " + clsfrClassifications + ", " + Math.round(clsfrSampleRate/1000) + "kHz, " + clsfrWindowSize + ", " + clsfrStepSize;
 						String audioId = latestQueuedAudioToClassify[1];
 						long audioStartsAt = Long.parseLong(latestQueuedAudioToClassify[1]);
-						String audioOrigRelativePath = latestQueuedAudioToClassify[6];
+						String audioOrigRelativePath = latestQueuedAudioToClassify[7];
 
-						if (Integer.parseInt(latestQueuedAudioToClassify[11]) >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
+						if (Integer.parseInt(latestQueuedAudioToClassify[12]) >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
 
 							Log.e(logTag, "Skipping Audio Classify Job for " + audioId + " after " + AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 
@@ -146,7 +146,7 @@ public class AudioClassifyJobService extends Service {
 
 									} else {
 
-										Log.i(logTag, "Beginning Audio Classify Job - Audio: " + audioId + " - Classifier: " + clsfLoggingSummary);
+										Log.i(logTag, "Beginning Audio Classify Job - Audio: " + audioId + " - Classifier: " + classifierId);
 
 										long classifyStartTime = System.currentTimeMillis();
 										List<float[]> classifyOutput = app.audioClassifyUtils.getClassifier(classifierId).classify(audioFilePath);

@@ -24,6 +24,9 @@ public class RfcxAssetCleanup {
 	private String appRole;
 
 
+	public static final double DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER = 3.5;
+
+
 	public void runFileSystemAssetCleanup(String[] assetDirsToScan, List<String> assetPathsFromDb, int checkFilesUnModifiedSinceThisManyMinutes) {
 		runFileSystemAssetCleanup(assetDirsToScan, assetPathsFromDb, checkFilesUnModifiedSinceThisManyMinutes, true, true);
 	}
@@ -46,8 +49,7 @@ public class RfcxAssetCleanup {
 		}
 
 		if (verboseLogging) {
-			Log.d(logTag, "Asset Cleanup - "
-					+ allAssetFilesFromScan.size() + " file" + ((allAssetFilesFromScan.size() != 1) ? "" : "s") + " found in scan. "
+			Log.d(logTag, allAssetFilesFromScan.size() + " file" + ((allAssetFilesFromScan.size() != 1) ? "" : "s") + " found in scan. "
 					+ ((eligibleAssetFilesFromScan.size() == 0) ? "None" : eligibleAssetFilesFromScan.size())
 					+ " are older than cleanup threshold of " + DateTimeUtils.milliSecondDurationAsReadableString(checkFilesUnModifiedSinceThisManyMinutes * 60 * 1000) + ". "
 					+ ((assetFilesToDelete.size() == 0) ? "" : (assetFilesToDelete.size() + " will be deleted."))
@@ -59,7 +61,7 @@ public class RfcxAssetCleanup {
 			deletedAssetPaths.add(conciseFilePath(filePath, this.appRole));
 		}
 		if (deletedAssetPaths.size() > 0) {
-			Log.d(logTag, "Asset Cleanup - Deleted - " + TextUtils.join(", ", deletedAssetPaths));
+			Log.d(logTag, "Deleted - " + TextUtils.join(", ", deletedAssetPaths));
 		}
 
 		List<String> deletedAssetDirs = new ArrayList<String>();
@@ -74,9 +76,9 @@ public class RfcxAssetCleanup {
 		}
 
 		if (deletedAssetDirs.size() > 0) {
-			Log.d(logTag, "Asset Cleanup - Empty Directories - " + TextUtils.join(", ", deletedAssetDirs));
+			Log.d(logTag, "Empty Directories - " + TextUtils.join(", ", deletedAssetDirs));
 		} else if (verboseLogging) {
-			Log.d(logTag, "Asset Cleanup - No Empty Directories were eligible for cleanup.");
+			Log.d(logTag, "No Empty Directories were eligible for cleanup.");
 		}
 	}
 

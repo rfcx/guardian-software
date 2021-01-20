@@ -82,7 +82,7 @@ public class AudioClassifyPrepareService extends Service {
 				List<String[]> latestQueuedAudioFilesToClassify = app.audioClassifyDb.dbQueued.getAllRows();
 				if (latestQueuedAudioFilesToClassify.size() == 0) { Log.d(logTag, "No classification jobs are currently queued."); }
 				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
-				AudioClassifyUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( 3.0 * audioCycleDuration ) );
+				AudioClassifyUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration ) );
 
 				for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
 
@@ -92,16 +92,16 @@ public class AudioClassifyPrepareService extends Service {
 					if (latestQueuedAudioToClassify[0] != null) {
 
 						String audioId = latestQueuedAudioToClassify[1];
-						double audioOutputGain = 1.0;
 						String classifierId = latestQueuedAudioToClassify[2];
 						String classifierVersion = latestQueuedAudioToClassify[3];
 						int captureSampleRate = Integer.parseInt(latestQueuedAudioToClassify[4]);
 						int classifierSampleRate = Integer.parseInt(latestQueuedAudioToClassify[5]);
-						String classifierWindowSize = latestQueuedAudioToClassify[8];
-						String classifierStepSize = latestQueuedAudioToClassify[9];
-						String classifierClasses = latestQueuedAudioToClassify[10];
-						File classifierFile = new File(latestQueuedAudioToClassify[7]);
-						File preClassifyAudioFile = new File(latestQueuedAudioToClassify[6]);
+						double classifierInputGain = Double.parseDouble(latestQueuedAudioToClassify[6]);
+						String classifierWindowSize = latestQueuedAudioToClassify[9];
+						String classifierStepSize = latestQueuedAudioToClassify[10];
+						String classifierClasses = latestQueuedAudioToClassify[11];
+						File classifierFile = new File(latestQueuedAudioToClassify[8]);
+						File preClassifyAudioFile = new File(latestQueuedAudioToClassify[7]);
 
 
 						if (!classifierFile.exists()) {
@@ -114,7 +114,7 @@ public class AudioClassifyPrepareService extends Service {
 							Log.e(logTag, "Skipping Audio Classify Job because input audio file could not be found: "+RfcxAssetCleanup.conciseFilePath(preClassifyAudioFile.getAbsolutePath(), RfcxGuardian.APP_ROLE));
 							app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
 
-						} else if (Integer.parseInt(latestQueuedAudioToClassify[11]) >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
+						} else if (Integer.parseInt(latestQueuedAudioToClassify[12]) >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
 
 							Log.e(logTag, "Skipping Audio Classify Job for " + audioId + " after " + AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 
@@ -126,7 +126,7 @@ public class AudioClassifyPrepareService extends Service {
 							app.audioClassifyDb.dbQueued.incrementSingleRowAttempts(audioId, classifierId);
 
 
-							preClassifyAudioFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, "classify", preClassifyAudioFile.getAbsolutePath(), Long.parseLong(audioId), "wav", captureSampleRate, classifierSampleRate, audioOutputGain);
+							preClassifyAudioFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, "classify", preClassifyAudioFile.getAbsolutePath(), Long.parseLong(audioId), "wav", captureSampleRate, classifierSampleRate, classifierInputGain);
 
 							Log.d(logTag, "Sending Classify Job to Classify Role...");
 

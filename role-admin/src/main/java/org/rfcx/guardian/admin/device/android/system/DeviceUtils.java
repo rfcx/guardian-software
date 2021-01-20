@@ -128,7 +128,7 @@ public class DeviceUtils {
 
 
 	public boolean isReducedCaptureModeChanging(int audioCycleDurationInSeconds) {
-		return Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureModeLastChangedAt)) < getCaptureCycleDuration(audioCycleDurationInSeconds);
+		return (reducedCaptureModeLastChangedAt != 0) && (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(reducedCaptureModeLastChangedAt)) < getCaptureCycleDuration(audioCycleDurationInSeconds));
 	}
 
 
