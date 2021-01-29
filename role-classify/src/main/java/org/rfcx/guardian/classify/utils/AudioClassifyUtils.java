@@ -171,4 +171,14 @@ public class AudioClassifyUtils {
 		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxClassifierFileUtils.classifierActiveDir(context) }, excludeFilePathList, Math.round(maxAgeInMilliseconds/60000), false, false );
 	}
 
+	public static void cleanupSnippetDirectory(Context context, List<String[]> audioSnippetsQueued, long maxAgeInMilliseconds) {
+
+		ArrayList<String> audioSnippets = new ArrayList<String>();
+		for (String[] queuedRow : audioSnippetsQueued) {
+			audioSnippets.add(queuedRow[6]);
+		}
+
+		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxAudioFileUtils.audioSnippetDir(context) }, audioSnippets, Math.round(maxAgeInMilliseconds/60000), false, false );
+	}
+
 }

@@ -19,7 +19,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 3
-        versionName "0.7.29"
+        versionName "0.7.30"
         resConfigs "en"
         setProperty("archivesBaseName", "updater-$versionName")
 

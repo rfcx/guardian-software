@@ -7,6 +7,7 @@ export ADB="$ANDROID_SDK_ROOT/platform-tools/adb";
 export CNTL=$1;
 export KEY=$2;
 export VAL=$3;
+export XTRA=$4;
 
 if [ "$CNTL" = "help" ]; then
 
@@ -39,9 +40,17 @@ elif [ "$CNTL" = "keycode" ]; then
 
 	$ADB shell content query --uri content://org.rfcx.guardian.admin/keycode/$KEY;
 
+elif [ "$CNTL" = "system_settings_set" ]; then
+
+	$ADB shell content query --uri content://org.rfcx.guardian.admin/system_settings_set/$KEY%7C$VAL%7C$XTRA;
+
 elif [ "$CNTL" = "gpio_set" ]; then
 
 	$ADB shell content query --uri content://org.rfcx.guardian.admin/gpio_set/$KEY%7C$VAL;
+
+elif [ "$CNTL" = "gpio_get" ]; then
+
+	$ADB shell content query --uri content://org.rfcx.guardian.admin/gpio_get/$KEY;
 
 elif [ "$CNTL" = "software_update" ]; then
 

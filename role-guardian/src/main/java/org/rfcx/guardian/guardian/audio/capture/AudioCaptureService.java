@@ -28,7 +28,7 @@ public class AudioCaptureService extends Service {
 	private int audioSampleRate = 0;
 
 	private long innerLoopIterationDuration = 0;
-	private static final int innerLoopIterationCount = 4;
+	private static final int innerLoopIterationCount = 5;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -80,18 +80,21 @@ public class AudioCaptureService extends Service {
 
 			app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-			app.audioCaptureUtils.queueCaptureTimeStamp = new long[] { 0, 0 };
+			app.audioCaptureUtils.queueCaptureTimestamp_File = new long[] { 0, 0 };
 			
 			String captureDir = RfcxAudioFileUtils.audioCaptureDir(context);
 			FileUtils.deleteDirectoryContents(captureDir);
 			
 			AudioCaptureWavRecorder wavRecorder = null;
 
-			long captureTimeStamp = 0; // timestamp at beginning of capture loop
+			long lastValue = 0;
 				
 			while (audioCaptureService.runFlag) {
 				
 				try {
+
+					long captureTimestampFile = 0;
+					long captureTimestampActual = 0;
 
 					boolean isAudioCaptureDisabled = app.audioCaptureUtils.isAudioCaptureDisabled(true);
 					boolean isAudioCaptureAllowed = !isAudioCaptureDisabled && app.audioCaptureUtils.isAudioCaptureAllowed(true, true);
@@ -99,35 +102,40 @@ public class AudioCaptureService extends Service {
 					if ( confirmOrSetAudioCaptureParameters() && !isAudioCaptureDisabled && isAudioCaptureAllowed ) {
 
 						// in this case, we are starting the audio capture from a stopped/pre-initialized state
-						captureTimeStamp = System.currentTimeMillis();
-						wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimeStamp, audioSampleRate);
+						captureTimestampFile = System.currentTimeMillis();
+						wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimestampFile, audioSampleRate);
 						wavRecorder.startRecorder();
+						captureTimestampActual = System.currentTimeMillis();
 							
 					} else if (wavRecorder != null) {
 						// in this case, we assume that the state has changed and capture is no longer allowed... 
 						// ...but there is a capture in progress, so we take a snapshot and halt the recorder.
-						captureTimeStamp = 0;
 						wavRecorder.haltRecording();
 						wavRecorder = null;
 						Log.i(logTag, "Stopping audio capture.");
 					}
-						
-					// queueing the last capture file (if there is one) for post-processing
-					if (app.audioCaptureUtils.updateCaptureQueue(captureTimeStamp, audioSampleRate)) {
-						app.rfcxSvc.triggerIntentServiceImmediately( AudioQueuePostProcessingService.SERVICE_NAME);
-					}
 
-					// This ensures that the service registers as active more frequently than the capture loop duration
-					for (int innerLoopIteration = 0; innerLoopIteration < innerLoopIterationCount; innerLoopIteration++) {
-						app.rfcxSvc.reportAsActive(SERVICE_NAME);
-						Thread.sleep(innerLoopIterationDuration);
+					// queueing the last capture file (if there is one) for post-processing
+					if (app.audioCaptureUtils.updateCaptureQueue(captureTimestampFile, captureTimestampActual, audioSampleRate)) {
+						app.rfcxSvc.triggerIntentServiceImmediately( AudioQueuePostProcessingService.SERVICE_NAME);
 					}
 
 					// Triggering creation of a metadata snapshot.
 					// This is not directly related to audio capture, but putting it here ensures that snapshots will...
 					// ...continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
 					app.rfcxSvc.triggerIntentServiceImmediately( MetaSnapshotService.SERVICE_NAME);
-					
+
+					Log.e(logTag, "Timestamp: "+(captureTimestampActual - lastValue));
+
+					// This ensures that the service registers as active more frequently than the capture loop duration
+					for (int innerLoopIteration = 1; innerLoopIteration <= innerLoopIterationCount; innerLoopIteration++) {
+						app.rfcxSvc.reportAsActive(SERVICE_NAME);
+						long slp = ((innerLoopIteration != innerLoopIterationCount) || (captureTimestampActual == 0)) ? innerLoopIterationDuration : ( audioCycleDuration * 1000 ) - ( System.currentTimeMillis() - captureTimestampActual );
+						Thread.sleep( slp );
+					}
+
+					lastValue = captureTimestampActual;
+
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
 					app.rfcxSvc.setRunState(SERVICE_NAME, false);

@@ -5,13 +5,13 @@ import org.rfcx.guardian.utility.misc.ShellCommands
 
 object SSHServerUtils {
 
-    fun startServer(context: Context) {
+    fun startServer() {
         //start sshd < cli
-        ShellCommands.executeCommandAsRoot("start sshd", context)
+        ShellCommands.executeCommandAsRoot("start sshd")
     }
 
-    fun stopServer(context: Context) {
+    fun stopServer() {
         //stop sshd < cli
-        ShellCommands.executeCommandAsRoot("stop sshd", context)
+        ShellCommands.executeCommandAsRoot("stop sshd")
     }
 }

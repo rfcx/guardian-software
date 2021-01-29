@@ -157,9 +157,9 @@ public class DateTimeUtils {
 		return isTimeStampWithinTimeRange(timeStamp, startHour, startMinute, startSecond, endHour, endMinute, endSecond);
 	}
 
-	public static void resetDateTimeReadWritePermissions(Context context) {
+	public static void resetDateTimeReadWritePermissions() {
 		Log.v(logTag, "Resetting Permissions on DateTime Alarm Handlers...");
-		ShellCommands.executeCommandAsRootAndIgnoreOutput("chmod 666 /dev/alarm;", context);
+		ShellCommands.executeCommandAsRootAndIgnoreOutput("chmod 666 /dev/alarm;");
 	}
 
 	public static void setSystemTimezone(String timezoneInTzFormat, Context context) {

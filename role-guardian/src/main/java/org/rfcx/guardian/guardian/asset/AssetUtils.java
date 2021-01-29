@@ -195,6 +195,7 @@ public class AssetUtils {
 			RfcxAudioFileUtils.audioFinalDir(app.getApplicationContext()),
 			RfcxAudioFileUtils.audioQueueDir(app.getApplicationContext()),
 			RfcxAudioFileUtils.audioClassifyDir(app.getApplicationContext()),
+			RfcxAudioFileUtils.audioSnippetDir(app.getApplicationContext()),
 			// Audio Library Directories
 			RfcxAudioFileUtils.audioLibraryDir(app.getApplicationContext()),
 			RfcxAudioFileUtils.audioCacheDir(app.getApplicationContext()),
@@ -213,6 +214,7 @@ public class AssetUtils {
 		// Audio Encode Databases
 		for (String[] row : app.audioEncodeDb.dbEncoded.getAllRows()) { assetFilePathsFromDatabase.add(row[10]); }
 		for (String[] row : app.audioClassifyDb.dbQueued.getAllRows()) { assetFilePathsFromDatabase.add(row[6]); }
+		//for (String[] row : app.audioSnippetDb.dbQueued.getAllRows()) { assetFilePathsFromDatabase.add(row[6]); }
 		// Asset Library Databases
 		for (String[] row : app.assetLibraryDb.dbAudio.getAllRows()) { assetFilePathsFromDatabase.add(row[5]); }
 		for (String[] row : app.assetLibraryDb.dbClassifier.getAllRows()) { assetFilePathsFromDatabase.add(row[5]); }

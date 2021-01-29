@@ -65,8 +65,12 @@ public class RfcxComm {
 				"ping", new String[] { "sent_at" });
 			roleFuncProj.get(role).put(
 				"keycode", new String[] { "keycode_command", "received_at" });
+//			roleFuncProj.get(role).put(
+//				"system_settings_set", new String[] { "group key", "value", "received_at" });
 			roleFuncProj.get(role).put(
 				"gpio_set", new String[] { "address", "value", "received_at" });
+			roleFuncProj.get(role).put(
+				"gpio_get", new String[] { "address", "value", "received_at" });
 			roleFuncProj.get(role).put(
 				"control", new String[] { "command", "result", "received_at" });
 			roleFuncProj.get(role).put(

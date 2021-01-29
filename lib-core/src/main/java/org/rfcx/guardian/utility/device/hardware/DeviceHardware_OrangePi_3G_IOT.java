@@ -28,12 +28,13 @@ public class DeviceHardware_OrangePi_3G_IOT {
 
 	// GPIO settings for OrangePi 3G-IoT
 	public static final String DEVICE_GPIO_HANDLER_FILEPATH = "/sys/devices/virtual/misc/mtgpio/pin";
-	public static final Map<String, String> DEVICE_GPIO_PINMAP = Collections.unmodifiableMap( new HashMap<String, String>() {{
-		put("iridium_power", "26");
-		put("unassigned_a", "56");
-		put("unassigned_b", "128");
-		put("unassigned_c", "58");
+	public static final Map<String, String[]> DEVICE_GPIO_MAP = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
+		put("iridium_power", 	new String[] { "26", "write" });
+		put("iridium_netav", 	new String[] { "128", "read" });
+//		put("unassigned_a", 	new String[] { "56", "write" });
+//		put("unassigned_b", 	new String[] { "58", "write" });
 	}});
+
 		
 	public static boolean isDevice_OrangePi_3G_IOT() {
 		for (String manufacturer : DEVICE_MANUFACTURER) { if (DeviceHardwareUtils.getManufacturer().equalsIgnoreCase(manufacturer)) {
@@ -58,5 +59,20 @@ public class DeviceHardware_OrangePi_3G_IOT {
 			SystemBuildDotPropFile.updateBuildDotPropFile(hardwareIdentificationPropertiesAndValues, context, true);
 		}
 	}
+
+	public static final Map<String, String[]> DEVICE_SYSTEM_SETTINGS = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
+		put("user_setup_complete", 			new String[] { "secure", "i", "1" });
+		put("data_roaming", 				new String[] { "global", "i", "1" });
+		put("auto_time_zone", 				new String[] { "system", "i", "0" });
+		put("sms_default_application", 		new String[] { "secure", "s", "org.rfcx.guardian.admin" });
+		put("sms_outgoing_check_max_count", new String[] { "global", "i", "99999" });
+		put("assisted_gps_enabled", 		new String[] { "global", "i", "1" });
+		put("airplane_mode_radios", 		new String[] { "global", "s", "cell,bluetooth,nfc,wimax" });
+		put("set_install_location", 		new String[] { "global", "i", "1" });
+		put("power_sounds_enabled", 		new String[] { "global", "i", "0" });
+		put("lockscreen_sounds_enabled", 	new String[] { "system", "i", "0" });
+
+
+	}});
 
 }

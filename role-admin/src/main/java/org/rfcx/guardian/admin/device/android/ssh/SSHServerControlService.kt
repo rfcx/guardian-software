@@ -62,9 +62,9 @@ class SSHServerControlService : Service() {
             try {
                 val state = app!!.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER)
                 if (state) {
-                    SSHServerUtils.startServer(applicationContext)
+                    SSHServerUtils.startServer()
                 } else {
-                    SSHServerUtils.stopServer(applicationContext)
+                    SSHServerUtils.stopServer()
                 }
             } catch (e: Exception) {
                 RfcxLog.logExc(logTag, e)

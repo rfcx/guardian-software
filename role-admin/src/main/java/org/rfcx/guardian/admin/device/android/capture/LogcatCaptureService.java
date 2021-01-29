@@ -93,7 +93,7 @@ public class LogcatCaptureService extends Service {
 				long scriptDurationInSeconds = Math.round((app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_LOG_CAPTURE_CYCLE) * 60) * 0.9);
 				
 				String execCmd = scriptFilePath+" "+captureFilePath+" "+postCaptureFilePath+" "+scriptDurationInSeconds;
-				ShellCommands.executeCommandAsRootAndIgnoreOutput(execCmd, context);
+				ShellCommands.executeCommandAsRootAndIgnoreOutput(execCmd);
 
 				long captureCycleEndingTimeStamp = System.currentTimeMillis();
 

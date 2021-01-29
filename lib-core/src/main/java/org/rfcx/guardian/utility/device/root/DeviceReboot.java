@@ -16,7 +16,7 @@ public class DeviceReboot {
 
 
 
-	public static boolean triggerForcedRebootAsRoot(Context context) {
+	public static boolean triggerForcedRebootAsRoot() {
 
 		RfcxGarbageCollection.runAndroidGarbageCollection();
 
@@ -31,7 +31,7 @@ public class DeviceReboot {
 						+" && umount -vl "+ Environment.getExternalStorageDirectory().toString()
 						+" && reboot; "
 						+"sleep "+rebootPreDelay+" && reboot; "
-				, context);
+				);
 
 		return true;
 	}

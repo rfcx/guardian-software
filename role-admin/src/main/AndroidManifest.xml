@@ -96,6 +96,7 @@
         <service android:name=".device.android.capture.ScheduledLogcatCaptureService" />
         <service android:name=".device.android.capture.ScheduledCameraCaptureService" />
         <service android:name=".device.android.control.ScheduledClockSyncService" />
+        <service android:name=".device.android.control.SystemSettingsService" />
 
         <!--                     -->
         <!-- START: SMS settings -->

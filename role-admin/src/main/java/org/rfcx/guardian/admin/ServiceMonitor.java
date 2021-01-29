@@ -12,7 +12,7 @@ public class ServiceMonitor extends IntentService {
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ServiceMonitor");
 	
-	public static final long SERVICE_MONITOR_CYCLE_DURATION = 600000;
+	public static final long SERVICE_MONITOR_CYCLE_DURATION = 10 * 60 * 1000;
 	// Please note that services that register as 'active' less frequently than this cycle duration will be forced to retrigger.
 	// For continuous, long running services, measures should be taken to ensure that they register as 'active' more often than this monitor runs.
 		

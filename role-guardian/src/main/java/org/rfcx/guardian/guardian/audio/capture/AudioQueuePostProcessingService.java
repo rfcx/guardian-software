@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.audio.capture;
 
 import org.rfcx.guardian.guardian.audio.classify.AudioClassifyPrepareService;
 import org.rfcx.guardian.guardian.audio.encode.AudioEncodeJobService;
+import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -40,7 +41,8 @@ public class AudioQueuePostProcessingService extends IntentService {
 			
 			long captureLoopPeriod = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000 ;
 			String captureFileExt = "wav";
-			long captureTimeStamp = app.audioCaptureUtils.queueCaptureTimeStamp[0];
+			long captureTimestampFile = app.audioCaptureUtils.queueCaptureTimestamp_File[0];
+			long captureTimestampActual = app.audioCaptureUtils.queueCaptureTimestamp_Actual[0];
 			int captureSampleRate = app.audioCaptureUtils.queueCaptureSampleRate[0];
 			double captureGain = 1.0;
 
@@ -51,10 +53,10 @@ public class AudioQueuePostProcessingService extends IntentService {
 			boolean isEnabled_audioVault = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_VAULT);
 			boolean isEnabled_audioClassify = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CLASSIFY);
 
-			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, (isEnabled_audioStream || isEnabled_audioVault), isEnabled_audioClassify, captureTimeStamp, captureSampleRate, captureFileExt)) {
+			if (AudioCaptureUtils.reLocateAudioCaptureFile(context, (isEnabled_audioStream || isEnabled_audioVault), isEnabled_audioClassify, captureTimestampFile, captureTimestampActual, captureSampleRate, captureFileExt)) {
 
-				String preEncodeFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, captureTimeStamp, captureFileExt, captureSampleRate, "g"+Math.round(captureGain*10));
-				String preClassifyFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, captureTimeStamp, captureFileExt, captureSampleRate, "g"+Math.round(captureGain*10));
+				String preEncodeFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, captureTimestampActual, captureFileExt, captureSampleRate, "g"+Math.round(captureGain*10));
+				String preClassifyFilePath = RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, captureTimestampActual, captureFileExt, captureSampleRate, "g"+Math.round(captureGain*10));
 
 				// Queue Encoding for Stream
 				if (isEnabled_audioStream) {
@@ -64,7 +66,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 					int streamBitrate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE);
 
 					jobCount_Encode += app.audioEncodeDb.dbQueued.insert(
-						""+captureTimeStamp, captureFileExt, "-", streamSampleRate,
+						""+captureTimestampActual, captureFileExt, "-", streamSampleRate,
 							streamBitrate, streamCodec, captureLoopPeriod, captureLoopPeriod, "stream", preEncodeFilePath, captureSampleRate );
 				}
 
@@ -78,7 +80,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 					int vaultBitrate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_VAULT_BITRATE);
 
 					jobCount_Encode += app.audioEncodeDb.dbQueued.insert(
-							""+captureTimeStamp, captureFileExt, "-", vaultSampleRate,
+							""+captureTimestampActual, captureFileExt, "-", vaultSampleRate,
 							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath, captureSampleRate );
 				}
 
@@ -104,7 +106,7 @@ public class AudioQueuePostProcessingService extends IntentService {
 							String classifierClasses = classiferRow[11];
 
 							jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
-									"" + captureTimeStamp, classifierId, classifierVersion,
+									"" + captureTimestampActual, classifierId, classifierVersion,
 											captureSampleRate, classifierSampleRate, classifierInputGain,
 											preClassifyFilePath, classifierFilePath,
 											classifierWindowSize, classifierStepSize, classifierClasses);
@@ -112,14 +114,14 @@ public class AudioQueuePostProcessingService extends IntentService {
 					}
 				}
 
-
-
 			} else {
 				Log.e(logTag, "Failed to prepare captured audio for post processing.");
 			}
 
 			app.rfcxSvc.triggerOrForceReTriggerIfTimedOut( AudioClassifyPrepareService.SERVICE_NAME, 4 * captureLoopPeriod );
 			app.rfcxSvc.triggerOrForceReTriggerIfTimedOut( AudioEncodeJobService.SERVICE_NAME, 4 * captureLoopPeriod );
+
+			AudioCaptureUtils.cleanupCaptureDirectory(context, Math.round( RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * captureLoopPeriod ));
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

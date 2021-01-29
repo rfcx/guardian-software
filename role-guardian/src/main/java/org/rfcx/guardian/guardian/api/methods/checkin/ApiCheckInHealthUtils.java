@@ -256,17 +256,15 @@ public class ApiCheckInHealthUtils {
 
 			}
 
-			if (!isApiCheckInAllowedUnderKnownConditions) {
-				if (printFeedbackInLog) {
-					Log.d(logTag, msgNotAllowed
-							.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn not allowed due to ")
-							.append(" Waiting ").append(reportedDelay).append(" seconds before next attempt.")
-							.toString());
-				}
-			}
-
 			this.isCheckInAllowedLastValue = isApiCheckInAllowedUnderKnownConditions;
 			this.isCheckInAllowedLastValueSetAt = System.currentTimeMillis();
+
+			if (!isApiCheckInAllowedUnderKnownConditions && printFeedbackInLog) {
+				Log.d(logTag, msgNotAllowed
+						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn not allowed due to ")
+						.append(" Waiting ").append(reportedDelay).append(" seconds before next attempt.")
+						.toString());
+			}
 		}
 
 		return isApiCheckInAllowedUnderKnownConditions;
@@ -303,39 +301,40 @@ public class ApiCheckInHealthUtils {
 
 			}
 
-			if (areApiChecksInDisabledRightNow) {
-				if (printFeedbackInLog) {
-					Log.d(logTag, msgIfDisabled
-							.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn disabled due to ")
-							.toString());
-				}
-			}
-
 			this.isCheckInDisabledLastValue = areApiChecksInDisabledRightNow;
 			this.isCheckInDisabledLastValueSetAt = System.currentTimeMillis();
+
+			if (areApiChecksInDisabledRightNow && printFeedbackInLog) {
+				Log.d(logTag, msgIfDisabled
+						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn disabled due to ")
+						.toString());
+			}
 		}
 
 		return areApiChecksInDisabledRightNow;
 	}
 
-
+	private boolean isApiCheckInLimitedBySentinelBatteryLastValue = false;
+	private long isApiCheckInLimitedBySentinelBatteryLastValueSetAt = 0;
+	private static final long isApiCheckInLimitedBySentinelBatteryCacheExpiresAfter = 6666;
 
 	private boolean limitBasedOnSentinelBatteryLevel() {
 
 		if (this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY)) {
 			try {
-				JSONArray jsonArray = RfcxComm.getQuery("admin", "status", "*", app.getResolver());
-				if (jsonArray.length() > 0) {
-					JSONObject jsonObj = jsonArray.getJSONObject(0);
-					if (jsonObj.has("api_checkin")) {
-						JSONObject apiCheckInObj = jsonObj.getJSONObject("api_checkin");
-						if (apiCheckInObj.has("is_allowed")) {
-							if (!apiCheckInObj.getBoolean(("is_allowed"))) {
-								return true;
-							}
+				if (!(Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isApiCheckInLimitedBySentinelBatteryLastValueSetAt)) <= isApiCheckInLimitedBySentinelBatteryCacheExpiresAfter)) {
+					Log.w(logTag, "Updating value for limitBasedOnSentinelBatteryLevel based on Admin role status via ContentProvider...");
+					JSONArray jsonArray = RfcxComm.getQuery("admin", "status", "*", app.getResolver());
+					if (jsonArray.length() > 0) {
+						JSONObject jsonObj = jsonArray.getJSONObject(0);
+						if (jsonObj.has("api_checkin")) {
+							JSONObject apiCheckInObj = jsonObj.getJSONObject("api_checkin");
+							this.isApiCheckInLimitedBySentinelBatteryLastValue = apiCheckInObj.has("is_allowed") && !apiCheckInObj.getBoolean("is_allowed");
+							this.isApiCheckInLimitedBySentinelBatteryLastValueSetAt = System.currentTimeMillis();
 						}
 					}
 				}
+				return this.isApiCheckInLimitedBySentinelBatteryLastValue;
 			} catch (JSONException e) {
 				RfcxLog.logExc(logTag, e);
 				return false;

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.control;
+package org.rfcx.guardian.utility.device.external;
 
 import android.util.Log;
 
@@ -8,8 +8,9 @@ import java.io.File;
 
 public class DeviceUARTUtils {
 
-	public DeviceUARTUtils(String appRole) {
+	public DeviceUARTUtils(String appRole, int uartInterface) {
 		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceUART");
+		this.uartInterface = uartInterface;
 	}
 
 	private String logTag;
@@ -17,11 +18,7 @@ public class DeviceUARTUtils {
 	private int uartAdapterReceipt;
 
 	// uartInterface should be a low integer, including zero, as in /dev/ttyMT0 or /dev/ttyMT1
-	private int uartInterface = 0;
-
-	public void setInterface(int uartInterface) {
-		this.uartInterface = uartInterface;
-	}
+	private final int uartInterface;
 
 	public void initializeOrReInitialize() {
 

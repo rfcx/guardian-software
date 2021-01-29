@@ -138,6 +138,7 @@ public class RfcxPrefs {
 		public static final String ADMIN_ENABLE_SENTINEL_SENSOR = "admin_enable_sentinel_sensor";
 
 		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
+		public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";
 
 	}
 
@@ -189,10 +190,6 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY, "20");
 			put(Pref.AUDIO_CUTOFF_SENTINEL_BATTERY, "20");
 
-//			put("audio_encode_codec", "opus");
-//			put("audio_encode_bitrate", "28672");
-//			put("audio_sample_rate", "24000");
-
 			put(Pref.AUDIO_CAPTURE_SAMPLE_RATE, "12000");
 			put(Pref.AUDIO_CAPTURE_GAIN, "1.0");
 
@@ -242,6 +239,7 @@ public class RfcxPrefs {
 			put(Pref.ADMIN_ENABLE_SENTINEL_SENSOR, "false");
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
+			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "preferred_network_mode:global,i,0;");
 		}}
 	);
 

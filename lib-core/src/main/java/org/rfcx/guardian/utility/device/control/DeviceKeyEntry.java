@@ -9,6 +9,8 @@ import java.util.Map;
 
 import android.text.TextUtils;
 import android.util.Log;
+
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -94,8 +96,7 @@ public class DeviceKeyEntry {
 	}
 	
 	public static void executeKeyCodeSequence(String keyCodeSequence) {
-		
-		Log.d(logTag, getKeyCodeSequenceShellCommand(keyCodeSequence) );
+		ShellCommands.executeCommandAndIgnoreOutput( getKeyCodeSequenceShellCommand(keyCodeSequence) );
 	}
 	
 

@@ -122,22 +122,27 @@ public class AudioClassifyPrepareService extends Service {
 
 						} else {
 
-
 							app.audioClassifyDb.dbQueued.incrementSingleRowAttempts(audioId, classifierId);
-
 
 							preClassifyAudioFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, "classify", preClassifyAudioFile.getAbsolutePath(), Long.parseLong(audioId), "wav", captureSampleRate, classifierSampleRate, classifierInputGain);
 
-							Log.d(logTag, "Sending Classify Job to Classify Role...");
+							if (!preClassifyAudioFile.exists()) {
 
-							app.audioClassifyUtils.queueClassifyJobAcrossRoles(
-									audioId, classifierId, classifierVersion, classifierSampleRate,
-									RfcxAssetCleanup.conciseFilePath(preClassifyAudioFile.getAbsolutePath(), RfcxGuardian.APP_ROLE),
-									RfcxAssetCleanup.conciseFilePath(classifierFile.getAbsolutePath(), RfcxGuardian.APP_ROLE),
-									classifierWindowSize, classifierStepSize, classifierClasses
-							);
+								Log.d(logTag, "Pre-Classify preparation of audio file was not successful: "+RfcxAssetCleanup.conciseFilePath(preClassifyAudioFile.getAbsolutePath(), RfcxGuardian.APP_ROLE));
 
-							app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+							} else {
+
+								Log.d(logTag, "Sending Classify Job to Classify Role...");
+
+								app.audioClassifyUtils.queueClassifyJobAcrossRoles(
+										audioId, classifierId, classifierVersion, classifierSampleRate,
+										RfcxAssetCleanup.conciseFilePath(preClassifyAudioFile.getAbsolutePath(), RfcxGuardian.APP_ROLE),
+										RfcxAssetCleanup.conciseFilePath(classifierFile.getAbsolutePath(), RfcxGuardian.APP_ROLE),
+										classifierWindowSize, classifierStepSize, classifierClasses
+								);
+
+								app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+							}
 
 						}
 

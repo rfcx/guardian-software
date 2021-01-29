@@ -198,7 +198,8 @@ public class FileUtils {
 
 	
 	public static boolean delete(File fileObj) {
-		
+
+		if (fileObj == null) { return true; }
 		if (!fileObj.exists()) { return true; }
 		if (!fileObj.isDirectory()) { return fileObj.delete(); }
 
@@ -217,6 +218,7 @@ public class FileUtils {
 	}
 	
 	public static boolean delete(String filePath) {
+		if (filePath == null) { return true; }
 		return delete(new File(filePath));
 	}
 

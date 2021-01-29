@@ -37,6 +37,7 @@ import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackJobService;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
+import org.rfcx.guardian.guardian.instructions.InstructionsSchedulerService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
 import org.rfcx.guardian.guardian.socket.WifiCommunicationService;
 import org.rfcx.guardian.guardian.socket.WifiCommunicationUtils;
@@ -147,7 +148,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     ApiCheckInJobService.SERVICE_NAME,
                     AudioEncodeJobService.SERVICE_NAME,
                     AudioClassifyPrepareService.SERVICE_NAME,
-                    InstructionsCycleService.SERVICE_NAME
+                    InstructionsCycleService.SERVICE_NAME,
+                    InstructionsSchedulerService.SERVICE_NAME
             };
 
     @Override
@@ -222,6 +224,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                 this.rfcxGuardianIdentity.setAuthToken(regJson.getString("token"));
                 this.rfcxGuardianIdentity.setKeystorePassPhrase(regJson.getString("keystore_passphrase"));
                 if (regJson.has("pin_code")) { this.rfcxGuardianIdentity.setPinCode(regJson.getString("pin_code")); }
+                reSyncIdentityAcrossRoles();
                 if (regJson.has("api_mqtt_host")) { setSharedPref("api_mqtt_host", regJson.getString("api_mqtt_host")); }
                 if (regJson.has("api_sms_address")) { setSharedPref("api_sms_address", regJson.getString("api_sms_address")); }
             } else {
@@ -324,6 +327,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.rfcxSvc.addService( InstructionsCycleService.SERVICE_NAME, InstructionsCycleService.class);
         this.rfcxSvc.addService( InstructionsExecutionService.SERVICE_NAME, InstructionsExecutionService.class);
+        this.rfcxSvc.addService( InstructionsSchedulerService.SERVICE_NAME, InstructionsSchedulerService.class);
 
         this.rfcxSvc.addService("WifiCommunication", WifiCommunicationService.class);
     }

@@ -1,20 +1,20 @@
 package org.rfcx.guardian.admin.device.android.control;
 
-import org.rfcx.guardian.admin.RfcxGuardian;
 import android.app.IntentService;
 import android.content.Intent;
+
+import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
-public class ScheduledRebootService extends IntentService {
+public class SystemSettingsService extends IntentService {
 
-	public static final String SERVICE_NAME = "ScheduledReboot";
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledRebootService");
+	public static final String SERVICE_NAME = "SystemSettings";
 
-	public static final long SCHEDULED_REBOOT_CYCLE_DURATION = 24 * 60 * 60 * 1000;
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SystemSettingsService");
 
-	public ScheduledRebootService() {
+	public SystemSettingsService() {
 		super(logTag);
 	}
 	
@@ -24,9 +24,10 @@ public class ScheduledRebootService extends IntentService {
 		sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
-		
-		app.rfcxSvc.triggerService( RebootTriggerService.SERVICE_NAME, true);
-	
+
+		app.deviceSystemSettings.checkSetDefaultVals();
+		app.deviceSystemSettings.loadAndSetSerializedValsMap(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE));
+
 	}
 	
 	

@@ -89,7 +89,7 @@ public class ApiMqttUtils implements MqttCallback {
 			!authPswd.equalsIgnoreCase("[token]") ? authPswd : app.rfcxGuardianIdentity.getAuthToken()
 			);
 		this.mqttCheckInClient.setConnectionTimeouts(
-			(int) Math.round( this.app.rfcxPrefs.getPrefAsInt( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION ) * 0.667 ),
+			(int) Math.round( this.app.rfcxPrefs.getPrefAsInt( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION ) * 0.800 ),
 			(int) Math.round( this.app.rfcxPrefs.getPrefAsInt( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION ) * 0.500 )
 			);
 	}

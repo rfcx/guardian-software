@@ -44,7 +44,7 @@ public class RfcxAssetCleanup {
 			if (	!ArrayUtils.doesStringListContainString( relativeAssetPathsFromDb, relFilePath )
 				&&	!ArrayUtils.doesStringArrayContainString( assetDirsToScan, assetFile.getAbsolutePath() )
 			) {
-					assetFilesToDelete.add(assetFile);
+				assetFilesToDelete.add(assetFile);
 			}
 		}
 

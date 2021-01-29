@@ -19,6 +19,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AudioClassifyJobService extends Service {
@@ -88,6 +89,7 @@ public class AudioClassifyJobService extends Service {
 				if (latestQueuedAudioFilesToClassify.size() == 0) { Log.d(logTag, "No classification jobs are currently queued."); }
 				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
 				AudioClassifyUtils.cleanupClassifyDirectory( context, latestQueuedAudioFilesToClassify, Math.round( RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration ) );
+				AudioClassifyUtils.cleanupSnippetDirectory( context, new ArrayList<String[]>(), Math.round( RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration ) );
 
 				for (String[] latestQueuedAudioToClassify : latestQueuedAudioFilesToClassify) {
 

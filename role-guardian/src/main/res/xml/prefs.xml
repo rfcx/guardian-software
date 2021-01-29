@@ -518,6 +518,14 @@
 			android:entryValues="@array/tz_timezones"
 			android:defaultValue="@string/prefs_value_default_admin_system_timezone" />
 
+	<EditTextPreference
+			android:key="admin_system_settings_override"
+			android:title="admin_system_settings_override"
+			android:summary="string - comma separated, semicolon separated"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_system_settings_override" />
+
+
 	<ListPreference
 			android:key="admin_enable_ssh_server"
 			android:title="admin_ssh_server_state"

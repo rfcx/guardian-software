@@ -149,12 +149,31 @@ public class AdminContentProvider extends ContentProvider {
                 return RfcxComm.getProjectionCursor(appRole, "keycode", new Object[]{ pathSeg, System.currentTimeMillis()});
 
 
+
+//            } else if (RfcxComm.uriMatch(uri, appRole, "system_settings_set", "*")) { logFuncVal = "system_settings_set-*";
+//                String pathSeg = uri.getLastPathSegment();
+//                String[] settingsOpts = TextUtils.split(pathSeg,"\\|");
+//                String pathSegGroup = settingsOpts[0].toLowerCase(Locale.US);
+//                String pathSegKey = settingsOpts[1].toLowerCase(Locale.US);
+//                String pathSegValue = settingsOpts[2].toLowerCase(Locale.US);
+//                app.deviceSystemSettings.setInt(pathSegGroup, pathSegKey, Integer.parseInt(pathSegValue));
+//                return RfcxComm.getProjectionCursor(appRole, "system_settings_set", new Object[] { pathSegGroup+" "+pathSegKey, pathSegValue, System.currentTimeMillis() });
+
+
+
             } else if (RfcxComm.uriMatch(uri, appRole, "gpio_set", "*")) { logFuncVal = "gpio_set-*";
                 String pathSeg = uri.getLastPathSegment();
-                String pathSegAddr = pathSeg.substring(0, pathSeg.indexOf("|"));
-                String pathSegHighOrLow = pathSeg.substring(1+pathSeg.indexOf("|")).toLowerCase(Locale.US);
-                app.deviceGPIOUtils.runGPIOCommand("DOUT", pathSegAddr, pathSegHighOrLow.equalsIgnoreCase("high") );
+                String[] gpioOpts = TextUtils.split(pathSeg,"\\|");
+                String pathSegAddr = gpioOpts[0];
+                String pathSegHighOrLow = gpioOpts[1].toLowerCase(Locale.US);
+                app.deviceGPIOUtils.runGPIOCommand("DOUT", pathSegAddr, pathSegHighOrLow.equalsIgnoreCase("high"));
                 return RfcxComm.getProjectionCursor(appRole, "gpio_set", new Object[] { pathSegAddr, pathSegHighOrLow, System.currentTimeMillis() });
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "gpio_get", "*")) { logFuncVal = "gpio_get-*";
+                String pathSeg = uri.getLastPathSegment();
+
+                boolean gpioVal = app.deviceGPIOUtils.readGPIOPin(pathSeg, "DOUT");
+                return RfcxComm.getProjectionCursor(appRole, "gpio_get", new Object[] { pathSeg, gpioVal, System.currentTimeMillis() });
 
 
             } else if (RfcxComm.uriMatch(uri, appRole, "sms_queue", "*")) { logFuncVal = "sms_queue-*";
