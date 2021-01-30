@@ -1,5 +1,6 @@
 package org.rfcx.guardian.utility.device.control;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
@@ -24,7 +25,7 @@ public class DeviceWifi {
 
 	private boolean isWifiEnabled() {
 		if (this.wifiManager != null) {
-			int wifiState = this.wifiManager.getWifiState();
+			@SuppressLint("MissingPermission") int wifiState = this.wifiManager.getWifiState();
 			switch (wifiState) {
 				case WifiManager.WIFI_STATE_DISABLED:
 	            		return false;
@@ -39,6 +40,7 @@ public class DeviceWifi {
 		return false;
 	}
 	
+	@SuppressLint("MissingPermission")
 	public void setPowerOn() {
 		if (!isWifiEnabled()) {
 	    	Log.v(logTag, "Activating Wifi Power");
@@ -46,6 +48,7 @@ public class DeviceWifi {
 		}
 	}
 	
+	@SuppressLint("MissingPermission")
 	public void setPowerOff() {
 		if (isWifiEnabled()) {
 			Log.v(logTag, "Deactivating Wifi Power");
@@ -128,6 +131,7 @@ public class DeviceWifi {
 									if (thisMethod.getName().equals("getWifiApState")) {
 										int apState = (Integer) thisMethod.invoke(wifiManager);
 										Log.v(logTag, "Wifi Hotspot Network Name: '" + wifiConfig.SSID + "' (" + wifiConfig.preSharedKey + ")");
+										DeviceSystemSettings.setVal("wifi_hotspot_auto_disable", "system", "i", "0");
 										break;
 									}
 								}

@@ -2,12 +2,14 @@ package org.rfcx.guardian.utility.device.control;
 
 
 import android.text.TextUtils;
-import android.util.Log;
 
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -19,20 +21,19 @@ public class DeviceSystemSettings {
 	}
 
 	private String logTag;
-	private boolean haveDefaultValsBeenSet = false;
+	private boolean haveActiveValsBeenSet = false;
 
 	private Map<String, String[]> activeValsMap = new HashMap<>();
 
-	public void checkSetDefaultVals() {
-		if (!this.haveDefaultValsBeenSet) {
+	public void checkSetActiveVals() {
+		if (!this.haveActiveValsBeenSet) {
 			setVals(this.activeValsMap);
 		}
-		this.haveDefaultValsBeenSet = true;
+		this.haveActiveValsBeenSet = true;
 	}
 
-	public void loadAndSetSerializedValsMap(String serializedValsMap) {
+	public void setSerializedValsMap(String serializedValsMap) {
 		Map<String, String[]> deserializedValsMap = deserializeValsMap(serializedValsMap);
-		addActiveVals(deserializedValsMap);
 		setVals(deserializedValsMap);
 	}
 
@@ -47,30 +48,30 @@ public class DeviceSystemSettings {
 		this.activeValsMap.put(valKey.toLowerCase(Locale.US), valMeta);
 	}
 
-	public void setVals(Map<String, String[]> valsMap) {
+	public static void setVals(Map<String, String[]> valsMap) {
+		List<String> execList = new ArrayList<>();
 		for (Map.Entry valMap : valsMap.entrySet()) {
 			String valKey = valMap.getKey().toString();
 			String[] valMeta = valsMap.get(valKey);
 			if (valMeta.length == 3) {
-				setVal(valKey, valMeta[0], valMeta[1], valMeta[2]);
+				execList.add(setValExecStr(valKey, valMeta[0], valMeta[1], valMeta[2]));
 			}
 		}
+		ShellCommands.executeCommandAsRootAndIgnoreOutput(ArrayUtils.toArray(execList));
 	}
 
-	public void setVal(String valKey, String valGrp, String valType, String valVal) {
-		try {
-			String execStr = "content update"
-					+ " --uri content://settings"
-					+ "/" + valGrp.toLowerCase(Locale.US)
-					+ "/" + valKey.toLowerCase(Locale.US)
-					+ " --bind value:" + valType.toLowerCase(Locale.US) + ":" + valVal;
-			ShellCommands.executeCommandAsRootAndIgnoreOutput(execStr);
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
+	public static void setVal(String valKey, String valGrp, String valType, String valVal) {
+		ShellCommands.executeCommandAsRootAndIgnoreOutput( setValExecStr(valKey, valGrp, valType, valVal) );
 	}
 
-	public void loadDefaultVals(Map<String, String[]> valsMap) {
+	private static String setValExecStr(String valKey, String valGrp, String valType, String valVal) {
+		return 	"content update --uri content://settings"
+				+ "/" + valGrp.toLowerCase(Locale.US)
+				+ "/" + valKey.toLowerCase(Locale.US)
+				+ " --bind value:" + valType.toLowerCase(Locale.US) + ":" + valVal;
+	}
+
+	public void loadActiveVals(Map<String, String[]> valsMap) {
 		for (Map.Entry valMap : valsMap.entrySet()) {
 			String valKey = valMap.getKey().toString().toLowerCase(Locale.US);
 			String[] valMeta = valsMap.get(valKey);

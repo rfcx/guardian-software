@@ -48,7 +48,7 @@ public class ShellCommands {
 			RfcxLog.logExc(logTag, e);
 	    }
 
-		Log.i(logTag, "Exec"+(asRoot ? " (as root)" : "")+": "+ TextUtils.join(" | ",commandLines));
+		Log.i(logTag, "Exec"+(asRoot ? " (as root)" : "")+": "+ TextUtils.join("; ",commandLines));
 
 		return outputLines;
 	}

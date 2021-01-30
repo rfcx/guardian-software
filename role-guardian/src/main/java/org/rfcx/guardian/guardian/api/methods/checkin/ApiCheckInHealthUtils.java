@@ -197,74 +197,38 @@ public class ApiCheckInHealthUtils {
 
 
 
-
-	public String apiCheckInStatusAsJsonObjStr() {
-
-		String statusObjStr = "{\"is_allowed\":true,\"is_disabled\":false}";
-
-		try {
-			// Now add real data
-			boolean isAllowed = isApiCheckInAllowed(false, false);
-			boolean isDisabled = isApiCheckInDisabled(false);
-			JSONObject statusObj = new JSONObject();
-			statusObj.put("is_allowed", isAllowed);
-			statusObj.put("is_disabled", isDisabled);
-			statusObjStr = statusObj.toString();
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
-
-		return statusObjStr;
-	}
-
-	private boolean isCheckInAllowedLastValue = true;
-	private boolean isCheckInDisabledLastValue = false;
-	private long isCheckInAllowedLastValueSetAt = 0;
-	private long isCheckInDisabledLastValueSetAt = 0;
-	private static final long checkInStatusCacheExpiresAfter = 3333;
-
 	public boolean isApiCheckInAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
 
 		// we set this to true, and cycle through conditions that might make it false
 		// we then return the resulting true/false value
 		boolean isApiCheckInAllowedUnderKnownConditions = true;
 
-		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCheckInAllowedLastValueSetAt)) <= checkInStatusCacheExpiresAfter)) {
+		StringBuilder msgNotAllowed = new StringBuilder();
+		int reportedDelay = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 2;
 
-			isApiCheckInAllowedUnderKnownConditions = this.isCheckInAllowedLastValue;
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY) && !isBatteryChargeSufficientForCheckIn()) {
+			msgNotAllowed.append("low battery level")
+					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
+					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_INTERNAL_BATTERY)).append("%).");
+			isApiCheckInAllowedUnderKnownConditions = false;
 
-		} else {
+		} else if (!app.deviceConnectivity.isConnected()) {
+			msgNotAllowed.append("a lack of network connectivity.");
+			isApiCheckInAllowedUnderKnownConditions = false;
+			reportedDelay = Math.round(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) / 2);
 
-			StringBuilder msgNotAllowed = new StringBuilder();
-			int reportedDelay = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 2;
+		} else if (includeSentinel && !app.statusUtils.getFetchedStatus("api_checkin", "allowed")) {
+			msgNotAllowed.append("Low Sentinel Battery level")
+					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY)).append("%).");
+			isApiCheckInAllowedUnderKnownConditions = false;
 
-			if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY) && !isBatteryChargeSufficientForCheckIn()) {
-				msgNotAllowed.append("low battery level")
-						.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
-						.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_INTERNAL_BATTERY)).append("%).");
-				isApiCheckInAllowedUnderKnownConditions = false;
+		}
 
-			} else if (!app.deviceConnectivity.isConnected()) {
-				msgNotAllowed.append("a lack of network connectivity.");
-				isApiCheckInAllowedUnderKnownConditions = false;
-				reportedDelay = Math.round(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) / 2);
-
-			} else if (includeSentinel && limitBasedOnSentinelBatteryLevel()) {
-				msgNotAllowed.append("Low Sentinel Battery level")
-						.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY)).append("%).");
-				isApiCheckInAllowedUnderKnownConditions = false;
-
-			}
-
-			this.isCheckInAllowedLastValue = isApiCheckInAllowedUnderKnownConditions;
-			this.isCheckInAllowedLastValueSetAt = System.currentTimeMillis();
-
-			if (!isApiCheckInAllowedUnderKnownConditions && printFeedbackInLog) {
-				Log.d(logTag, msgNotAllowed
-						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn not allowed due to ")
-						.append(" Waiting ").append(reportedDelay).append(" seconds before next attempt.")
-						.toString());
-			}
+		if (!isApiCheckInAllowedUnderKnownConditions && printFeedbackInLog) {
+			Log.d(logTag, msgNotAllowed
+					.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn not allowed due to ")
+					.append(" Waiting ").append(reportedDelay).append(" seconds before next attempt.")
+					.toString());
 		}
 
 		return isApiCheckInAllowedUnderKnownConditions;
@@ -276,72 +240,34 @@ public class ApiCheckInHealthUtils {
 		// we then return the resulting true/false value
 		boolean areApiChecksInDisabledRightNow = false;
 
-		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCheckInDisabledLastValueSetAt)) <= checkInStatusCacheExpiresAfter)) {
+		StringBuilder msgIfDisabled = new StringBuilder();
 
-			areApiChecksInDisabledRightNow = this.isCheckInDisabledLastValue;
+		if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH)) {
+			msgIfDisabled.append("preference '" + RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH.toLowerCase() + "' being explicitly set to false.");
+			areApiChecksInDisabledRightNow = true;
 
-		} else {
-
-			StringBuilder msgIfDisabled = new StringBuilder();
-
-			if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH)) {
-				msgIfDisabled.append("preference '" + RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH.toLowerCase() + "' being explicitly set to false.");
-				areApiChecksInDisabledRightNow = true;
-
-				// This section is commented out because there is currently no mechanism by which the checkins are filtered by time of day (off hours)
-				// ...But we assume this is something that might be added at a future date, as it works for audio capture.
+			// This section is commented out because there is currently no mechanism by which the checkins are filtered by time of day (off hours)
+			// ...But we assume this is something that might be added at a future date, as it works for audio capture.
 //		} else if (limitBasedOnTimeOfDay()) {
 //			msgIfDisabled.append("current time of day/night")
 //					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SCHEDULE_OFF_HOURS)).append("'.");
 //			areApiChecksInDisabledRightNow = true;
 
-			} else if (!app.isGuardianRegistered()) {
-				msgIfDisabled.append("the Guardian not having been registered.");
-				areApiChecksInDisabledRightNow = true;
+		} else if (!app.isGuardianRegistered()) {
+			msgIfDisabled.append("the Guardian not having been registered.");
+			areApiChecksInDisabledRightNow = true;
 
-			}
+		}
 
-			this.isCheckInDisabledLastValue = areApiChecksInDisabledRightNow;
-			this.isCheckInDisabledLastValueSetAt = System.currentTimeMillis();
-
-			if (areApiChecksInDisabledRightNow && printFeedbackInLog) {
-				Log.d(logTag, msgIfDisabled
-						.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn disabled due to ")
-						.toString());
-			}
+		if (areApiChecksInDisabledRightNow && printFeedbackInLog) {
+			Log.d(logTag, msgIfDisabled
+					.insert(0, DateTimeUtils.getDateTime() + " - ApiCheckIn disabled due to ")
+					.toString());
 		}
 
 		return areApiChecksInDisabledRightNow;
 	}
 
-	private boolean isApiCheckInLimitedBySentinelBatteryLastValue = false;
-	private long isApiCheckInLimitedBySentinelBatteryLastValueSetAt = 0;
-	private static final long isApiCheckInLimitedBySentinelBatteryCacheExpiresAfter = 6666;
-
-	private boolean limitBasedOnSentinelBatteryLevel() {
-
-		if (this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY)) {
-			try {
-				if (!(Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isApiCheckInLimitedBySentinelBatteryLastValueSetAt)) <= isApiCheckInLimitedBySentinelBatteryCacheExpiresAfter)) {
-					Log.w(logTag, "Updating value for limitBasedOnSentinelBatteryLevel based on Admin role status via ContentProvider...");
-					JSONArray jsonArray = RfcxComm.getQuery("admin", "status", "*", app.getResolver());
-					if (jsonArray.length() > 0) {
-						JSONObject jsonObj = jsonArray.getJSONObject(0);
-						if (jsonObj.has("api_checkin")) {
-							JSONObject apiCheckInObj = jsonObj.getJSONObject("api_checkin");
-							this.isApiCheckInLimitedBySentinelBatteryLastValue = apiCheckInObj.has("is_allowed") && !apiCheckInObj.getBoolean("is_allowed");
-							this.isApiCheckInLimitedBySentinelBatteryLastValueSetAt = System.currentTimeMillis();
-						}
-					}
-				}
-				return this.isApiCheckInLimitedBySentinelBatteryLastValue;
-			} catch (JSONException e) {
-				RfcxLog.logExc(logTag, e);
-				return false;
-			}
-		}
-		return false;
-	}
 
 
 	public boolean isBatteryChargeSufficientForCheckIn() {

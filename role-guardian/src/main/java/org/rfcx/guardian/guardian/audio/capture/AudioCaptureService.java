@@ -96,10 +96,14 @@ public class AudioCaptureService extends Service {
 					long captureTimestampFile = 0;
 					long captureTimestampActual = 0;
 
-					boolean isAudioCaptureDisabled = app.audioCaptureUtils.isAudioCaptureDisabled(true);
-					boolean isAudioCaptureAllowed = !isAudioCaptureDisabled && app.audioCaptureUtils.isAudioCaptureAllowed(true, true);
 
-					if ( confirmOrSetAudioCaptureParameters() && !isAudioCaptureDisabled && isAudioCaptureAllowed ) {
+					boolean isAudioCaptureEnabled = app.statusUtils.getLocalStatus("audio_capture", "enabled", true);
+
+					boolean isAudioCaptureAllowed = isAudioCaptureEnabled
+													&& app.statusUtils.getLocalStatus("audio_capture", "allowed", true)
+													&& app.statusUtils.getFetchedStatus("audio_capture", "allowed");
+
+					if ( confirmOrSetAudioCaptureParameters() && isAudioCaptureEnabled && isAudioCaptureAllowed ) {
 
 						// in this case, we are starting the audio capture from a stopped/pre-initialized state
 						captureTimestampFile = System.currentTimeMillis();

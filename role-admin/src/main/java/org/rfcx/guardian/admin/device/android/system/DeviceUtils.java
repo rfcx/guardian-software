@@ -115,8 +115,8 @@ public class DeviceUtils {
 	public void setOrUnSetReducedCaptureMode() {
 
 		boolean newIsReducedCaptureModeActive =
-			(	app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower("audio_capture")
-			||	isReducedCaptureModeActive_BasedOnGuardianRoleStatus("audio_capture")
+			(	!app.statusUtils.getLocalStatus("audio_capture", "allowed", false)
+			||	!app.statusUtils.getFetchedStatus("audio_capture", "allowed")
 			);
 
 		if (this.isReducedCaptureModeActive != newIsReducedCaptureModeActive) {
@@ -129,38 +129,6 @@ public class DeviceUtils {
 
 	public boolean isReducedCaptureModeChanging(int audioCycleDurationInSeconds) {
 		return (reducedCaptureModeLastChangedAt != 0) && (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(reducedCaptureModeLastChangedAt)) < getCaptureCycleDuration(audioCycleDurationInSeconds));
-	}
-
-
-	private boolean isAudioCaptureAllowedLastValue = true;
-	private boolean isAudioCaptureDisabledLastValue = false;
-	private long reducedCaptureLastValueSetAt = 0;
-	private static final long reducedCaptureCacheExpiresAfter = 6666;
-
-	public boolean isReducedCaptureModeActive_BasedOnGuardianRoleStatus(String activityTag) {
-		try {
-			if (app.isGuardianRegistered()) {
-				if  (!(Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureLastValueSetAt)) <= reducedCaptureCacheExpiresAfter)) {
-					Log.w(logTag, "Updating value for isReducedCaptureModeActive based on Guardian role status via ContentProvider...");
-					JSONArray jsonArray = RfcxComm.getQuery("guardian", "status", "*", app.getResolver());
-					if (jsonArray.length() > 0) {
-						JSONObject jsonObj = jsonArray.getJSONObject(0);
-						if (jsonObj.has(activityTag)) {
-							JSONObject audioCaptureObj = jsonObj.getJSONObject(activityTag);
-							if (audioCaptureObj.has("is_allowed") && audioCaptureObj.has("is_disabled")) {
-								this.isAudioCaptureAllowedLastValue = audioCaptureObj.getBoolean("is_allowed");
-								this.isAudioCaptureDisabledLastValue = audioCaptureObj.getBoolean("is_disabled");
-								this.reducedCaptureLastValueSetAt = System.currentTimeMillis();
-							}
-						}
-					}
-				}
-				return !this.isAudioCaptureAllowedLastValue || this.isAudioCaptureDisabledLastValue;
-			}
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return true;
 	}
 
 	public static long getCaptureCycleDuration(int audioCycleDurationInSeconds) {

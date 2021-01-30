@@ -520,7 +520,7 @@ public class ApiMqttUtils implements MqttCallback {
 			if (	// ...we haven't yet reached the first threshold for bad connectivity
 					(minsSinceSuccess < this.failedCheckInThresholds[0])
 					// OR... we are explicitly in offline mode
-					|| app.apiCheckInHealthUtils.isApiCheckInDisabled(false)
+					|| !app.statusUtils.getLocalStatus("api_checkin", "enabled", false)
 					// OR... checkins are explicitly paused due to low battery level
 					|| !app.apiCheckInHealthUtils.isBatteryChargeSufficientForCheckIn()
 					// OR... this is likely the first checkin after a period of disconnection
@@ -571,7 +571,7 @@ public class ApiMqttUtils implements MqttCallback {
 		if (	(app != null)
 			&&	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "mqtt")
 			&&	app.deviceConnectivity.isConnected()
-			&&	app.apiCheckInHealthUtils.isApiCheckInAllowed(true, false)
+			&&	app.statusUtils.getLocalStatus("api_checkin", "allowed", false)
 		) {
 			return true;
 

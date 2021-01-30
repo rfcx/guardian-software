@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.capture;
+package org.rfcx.guardian.utility.device.telephony;
 
 import android.net.TrafficStats;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -9,8 +9,8 @@ public class DeviceNetworkStats {
 		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceNetworkStats");
 	}
 	
-	private String logTag = RfcxLog.generateLogTag("Utils", DeviceNetworkStats.class);
-	
+	private String logTag;
+
 	private long networkStatsStart = System.currentTimeMillis();
 	private long networkStatsEnd = System.currentTimeMillis();
 	private long networkStatsReceived = 0;
@@ -24,7 +24,7 @@ public class DeviceNetworkStats {
 		
 		long mobileRxBytes = TrafficStats.getMobileRxBytes();
 		long mobileTxBytes = TrafficStats.getMobileTxBytes();
-		
+
 		this.networkStatsStart = this.networkStatsEnd;
 		this.networkStatsEnd = System.currentTimeMillis();
 		this.networkStatsReceived = mobileRxBytes - this.networkStatsReceivedTotal;
@@ -32,8 +32,8 @@ public class DeviceNetworkStats {
 		this.networkStatsReceivedTotal = mobileRxBytes;
 		this.networkStatsSentTotal = mobileTxBytes;
 				
-		return new long[] { 
-				this.networkStatsStart, 
+		return new long[] {
+				this.networkStatsStart,
 				this.networkStatsEnd, 
 				this.networkStatsReceived, 
 				this.networkStatsSent, 

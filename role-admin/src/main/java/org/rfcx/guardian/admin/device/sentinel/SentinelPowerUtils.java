@@ -44,12 +44,6 @@ public class SentinelPowerUtils {
 
     private boolean verboseLogging = false;
 
-//    private boolean reducedCaptureModeLastValue = false;
-    private Map<String, Boolean> reducedCaptureModeLastValue = new HashMap<>();
-//    private long reducedCaptureModeLastValueSetAt = 0;
-    private Map<String, Long> reducedCaptureModeLastValueSetAt = new HashMap<>();
-    private static final long reducedCaptureModeLastValueExpiresAfter = 5000;
-
     private static final double qCountCalibrationVoltageMin = 2750;
 
     private static final double qCountMeasurementRange = 65535;
@@ -484,63 +478,30 @@ public class SentinelPowerUtils {
     }
 
 
-
-    public String sentinelPowerStatusAsJsonObjStr(String activityTag) {
-
-        String statusObjStr = "{\"is_allowed\":true,\"is_disabled\":false}";
-
-        try {
-            // Now add real data
-            boolean isAllowed = !isReducedCaptureModeActive_BasedOnSentinelPower(activityTag);
-            boolean isDisabled = false;
-            JSONObject statusObj = new JSONObject();
-            statusObj.put("is_allowed", isAllowed);
-            statusObj.put("is_disabled", isDisabled);
-            statusObjStr = statusObj.toString();
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e);
-        }
-        return statusObjStr;
-    }
-
     public boolean isReducedCaptureModeActive_BasedOnSentinelPower(String activityTag) {
 
-        boolean isAllowed;
+        boolean isReduced = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY);
 
-        if  (   this.reducedCaptureModeLastValue.containsKey(activityTag) && this.reducedCaptureModeLastValueSetAt.containsKey(activityTag)
-            &&  (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.reducedCaptureModeLastValueSetAt.get(activityTag))) <= reducedCaptureModeLastValueExpiresAfter)
-        ) {
+        if (isReduced) {
 
-            isAllowed = this.reducedCaptureModeLastValue.get(activityTag);
-
-        } else {
-
-            isAllowed = !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY);
-
-            if (!isAllowed) {
-
-                if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) {
-                    updateSentinelPowerValues();
-                }
-
-                if (this.powerBatteryValues.size() > 0) {
-
-                    long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
-                    int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY);
-                    isAllowed = battPct >= (prefsVal * 100);
-
-                } else if (!isCaptureAllowed()) {
-
-                    isAllowed = true;
-
-                }
+            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) {
+                updateSentinelPowerValues();
             }
 
-            this.reducedCaptureModeLastValue.put(activityTag, isAllowed);
-            this.reducedCaptureModeLastValueSetAt.put(activityTag, System.currentTimeMillis());
+            if (this.powerBatteryValues.size() > 0) {
+
+                long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
+                int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY);
+                isReduced = !(battPct >= (prefsVal * 100));
+
+            } else if (!isCaptureAllowed()) {
+
+                isReduced = false;
+
+            }
         }
 
-        return !isAllowed;
+        return isReduced;
     }
 
     private static long _v(String fieldName, long val) {

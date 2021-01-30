@@ -139,6 +139,7 @@ public class RfcxPrefs {
 
 		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
 		public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";
+		public static final String ADMIN_WIFI_PASSWORD = "admin_wifi_password";
 
 	}
 
@@ -240,6 +241,7 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "preferred_network_mode:global,i,0;");
+			put(Pref.ADMIN_WIFI_PASSWORD, "rfcxrfcx");
 		}}
 	);
 

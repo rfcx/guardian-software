@@ -73,7 +73,7 @@ public class ApiCheckInJobService extends Service {
 			String lastCheckInId = null;
 				
 			while (		apiCheckInJobInstance.runFlag
-					&&	!app.apiCheckInHealthUtils.isApiCheckInDisabled(true)
+					&&	app.statusUtils.getLocalStatus("api_checkin", "enabled", true)
 					&& 	( (app.apiCheckInDb.dbQueued.getCount() > 0) || !app.apiMqttUtils.isConnectedToBroker() )
 				) {
 
@@ -84,7 +84,7 @@ public class ApiCheckInJobService extends Service {
 					long prefsAudioCycleDuration = Math.round( app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000 );
 					int prefsCheckInFailureLimit = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_FAILURE_LIMIT);
 					
-					if (!app.apiCheckInHealthUtils.isApiCheckInAllowed(true, true)) {
+					if (!app.statusUtils.getLocalStatus("api_checkin", "allowed", true)) {
 
 						int waitLoopIterationCount = !app.deviceConnectivity.isConnected() ? 1 : 4;
 

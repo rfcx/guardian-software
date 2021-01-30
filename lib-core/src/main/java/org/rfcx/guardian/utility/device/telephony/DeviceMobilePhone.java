@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.capture;
+package org.rfcx.guardian.utility.device.telephony;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.telephony.TelephonyManager;
-import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class DeviceMobilePhone {
@@ -18,7 +17,7 @@ public class DeviceMobilePhone {
 		this.context = context;
 	}
 	
-	private Context context;
+	private final Context context;
 	
 	private String simPhoneNumber = null;
 	private String simSerial = null;
@@ -59,25 +58,25 @@ public class DeviceMobilePhone {
 		}
 	}
 	
-	@SuppressLint("MissingPermission")
+	@SuppressLint({"MissingPermission", "HardwareIds"})
 	private String getSimSerial() {
 		setSimSerial(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getSimSerialNumber());
 		return this.simSerial;
 	}
 
-	@SuppressLint("MissingPermission")
+	@SuppressLint({"MissingPermission", "HardwareIds"})
 	private String getSimPhoneNumber() {
 		setSimPhoneNumber(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number());
 		return this.simPhoneNumber;
 	}
 
-	@SuppressLint("MissingPermission")
+	@SuppressLint({"MissingPermission", "HardwareIds"})
 	private String getDeviceIMSI() {
 		setDeviceIMSI(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getSubscriberId());
 		return this.deviceIMSI;
 	}
 
-	@SuppressLint("MissingPermission")
+	@SuppressLint({"MissingPermission", "HardwareIds"})
 	private String getDeviceIMEI() {
 		setDeviceIMEI(((TelephonyManager) this.context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId());
 		return this.deviceIMEI;
@@ -102,7 +101,7 @@ public class DeviceMobilePhone {
 	}
 	
 	private List<String[]> getMobilePhoneInfo() {
-		List<String[]> phoneInfo = new ArrayList<String[]>();
+		List<String[]> phoneInfo = new ArrayList<>();
 		phoneInfo.add(new String[] { "sim", getSimSerial() });
 		phoneInfo.add(new String[] { "number", getSimPhoneNumber() });
 		phoneInfo.add(new String[] { "imsi", getDeviceIMSI() });

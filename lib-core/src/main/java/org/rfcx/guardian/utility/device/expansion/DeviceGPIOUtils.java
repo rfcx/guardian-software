@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.external;
+package org.rfcx.guardian.utility.device.expansion;
 
 import android.util.Log;
 

@@ -238,6 +238,12 @@ public class ArrayUtils {
 		return lst;
 	}
 
+	public static String[] toArray(List<String> lst) {
+		String[] arr = new String[lst.size()];
+		for (int i = 0; i < lst.size(); i++) { arr[i] = lst.get(i); }
+		return arr;
+	}
+
 
 //	public static List<String> concatStringLists(List<String> strListA, List<String> strListB) {
 //		for (String str : strListB) {

@@ -2,6 +2,7 @@ package org.rfcx.guardian.utility.device;
 
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.provider.Settings;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 

@@ -93,17 +93,7 @@ else
 fi
 
 sleep 1;
-echo "7) System: Disabling WiFi Hotspot Timeout..."  
-SET_HOTSPOT=`$ADB shell "am start -n com.android.settings/com.android.settings.SubSettings -e :android:show_fragment com.mediatek.wifi.hotspot.TetherWifiSettings && sleep 2 && input keyevent $KEYCODE_ENTER && input keyevent $KEYCODE_UP && input keyevent $KEYCODE_ENTER && input keyevent $KEYCODE_BACK"`
-GET_HOTSPOT=`$ADB shell "content query --uri content://settings/system/wifi_hotspot_auto_disable" | grep ' value' | cut -d',' -f 3`
-if [[ $GET_HOTSPOT != *"=0" ]]; then
-	echo "   - Success";
-else
-	echo "   - Failure";
-fi
-
-sleep 1;
-echo "8) Installing RFCx Guardian Role..."
+echo "7) Installing RFCx Guardian Role..."
 APK_ROLE="guardian"
 INSTALL_APK=`$SCRIPT_DIR/../apk/deploy-apk.sh $APK_ROLE nobuild;`
 CLOSE_APP=`$ADB shell "input keyevent $KEYCODE_HOME"`
@@ -112,7 +102,7 @@ GUID="$CHECK_INSTALL";
 echo "   - $CHECK_INSTALL";
 
 sleep 1;
-echo "9) Installing RFCx Admin Role..."
+echo "8) Installing RFCx Admin Role..."
 APK_ROLE="admin"
 INSTALL_APK=`$SCRIPT_DIR/../apk/deploy-apk.sh $APK_ROLE nobuild;`
 CLOSE_APP=`$ADB shell "input keyevent $KEYCODE_HOME"`
@@ -124,7 +114,7 @@ else
 fi
 
 sleep 1;
-echo "10) Installing RFCx Classify Role..."
+echo "9) Installing RFCx Classify Role..."
 APK_ROLE="classify"
 INSTALL_APK=`$SCRIPT_DIR/../apk/deploy-apk.sh $APK_ROLE nobuild;`
 CLOSE_APP=`$ADB shell "input keyevent $KEYCODE_HOME"`
@@ -136,7 +126,7 @@ else
 fi
 
 sleep 1;
-echo "11) Installing RFCx Updater Role..."
+echo "10) Installing RFCx Updater Role..."
 APK_ROLE="updater"
 INSTALL_APK=`$SCRIPT_DIR/../apk/deploy-apk.sh $APK_ROLE nobuild;`
 CLOSE_APP=`$ADB shell "input keyevent $KEYCODE_HOME"`
@@ -152,7 +142,7 @@ FINAL_GUID=`$ADB shell "cat /data/data/org.rfcx.guardian.guardian/files/txt/guid
 MINI_GUID=`echo "${FINAL_GUID:0:8}" | awk '{print toupper($0)}'`
 
 echo "";
-echo "12) Guardian Setup Complete..."  
+echo "11) Guardian Setup Complete..."  
 echo -e "   - GUID: $GRN${MINI_GUID}$RST";
 
 

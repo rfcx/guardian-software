@@ -119,36 +119,6 @@ public class AudioCaptureUtils {
 		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY));
 	}
 
-	private boolean isAudioCaptureLimitedBySentinelBatteryLastValue = false;
-	private long isAudioCaptureLimitedBySentinelBatteryLastValueSetAt = 0;
-	private static final long isAudioCaptureLimitedBySentinelBatteryCacheExpiresAfter = 6666;
-
-	private boolean limitBasedOnSentinelBatteryLevel() {
-
-		if (this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY)) {
-			try {
-				if (!(Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isAudioCaptureLimitedBySentinelBatteryLastValueSetAt)) <= isAudioCaptureLimitedBySentinelBatteryCacheExpiresAfter)) {
-					Log.w(logTag, "Updating value for limitBasedOnSentinelBatteryLevel based on Admin role status via ContentProvider...");
-					JSONArray jsonArray = RfcxComm.getQuery("admin", "status", "*", app.getResolver());
-					if (jsonArray.length() > 0) {
-						JSONObject jsonObj = jsonArray.getJSONObject(0);
-						if (jsonObj.has("audio_capture")) {
-							JSONObject audioCaptureObj = jsonObj.getJSONObject("audio_capture");
-							this.isAudioCaptureLimitedBySentinelBatteryLastValue = audioCaptureObj.has("is_allowed") && !audioCaptureObj.getBoolean("is_allowed");
-							this.isAudioCaptureLimitedBySentinelBatteryLastValueSetAt = System.currentTimeMillis();
-						}
-					}
-				}
-				return this.isAudioCaptureLimitedBySentinelBatteryLastValue;
-			} catch (JSONException e) {
-				RfcxLog.logExc(logTag, e);
-				return false;
-			}
-		}
-		return false;
-	}
-
-
 
 	private boolean limitBasedOnInternalStorage() {
 		return (DeviceStorage.getInternalDiskFreeMegaBytes() <= requiredFreeDiskSpaceForAudioCapture);
@@ -179,79 +149,43 @@ public class AudioCaptureUtils {
 		return (this.samplingRatioIteration == 1);
 	}
 
-	public String audioCaptureStatusAsJsonObjStr() {
-
-		String statusObjStr = "{\"is_allowed\":true,\"is_disabled\":false}";
-
-        try {
-			// Now add real data
-			boolean isAllowed = isAudioCaptureAllowed(false, false);
-			boolean isDisabled = isAudioCaptureDisabled(false);
-			JSONObject statusObj = new JSONObject();
-			statusObj.put("is_allowed", isAllowed);
-			statusObj.put("is_disabled", isDisabled);
-			statusObjStr = statusObj.toString();
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e);
-        }
-
-        return statusObjStr;
-	}
-
-
-	private boolean isCaptureAllowedLastValue = true;
-	private boolean isCaptureDisabledLastValue = false;
-	private long isCaptureAllowedLastValueSetAt = 0;
-	private long isCaptureDisabledLastValueSetAt = 0;
-	private static final long captureStatusCacheExpiresAfter = 3333;
-
 	public boolean isAudioCaptureAllowed(boolean includeSentinel, boolean printFeedbackInLog) {
 
 		// we set this to true, and cycle through conditions that might make it false
 		// we then return the resulting true/false value
 		boolean isAudioCaptureAllowedUnderKnownConditions = true;
 
-		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCaptureAllowedLastValueSetAt)) <= captureStatusCacheExpiresAfter)) {
+		StringBuilder msgNoCapture = new StringBuilder();
 
-			isAudioCaptureAllowedUnderKnownConditions = this.isCaptureAllowedLastValue;
+		if (limitBasedOnBatteryLevel()) {
+			msgNoCapture.append("Low Battery level")
+					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
+					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY)).append("%).");
+			isAudioCaptureAllowedUnderKnownConditions = false;
 
-		} else {
+		} else if (includeSentinel && !app.statusUtils.getFetchedStatus("audio_capture", "allowed")) {
+			msgNoCapture.append("Low Sentinel Battery level")
+					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY)).append("%).");
+			isAudioCaptureAllowedUnderKnownConditions = false;
 
-			StringBuilder msgNoCapture = new StringBuilder();
+		} else if (limitBasedOnInternalStorage()) {
+			msgNoCapture.append("a lack of sufficient free internal disk storage.")
+					.append(" (current: ").append(DeviceStorage.getInternalDiskFreeMegaBytes()).append("MB)")
+					.append(" (required: ").append(requiredFreeDiskSpaceForAudioCapture).append("MB).");
+			isAudioCaptureAllowedUnderKnownConditions = false;
 
-			if (limitBasedOnBatteryLevel()) {
-				msgNoCapture.append("Low Battery level")
-						.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
-						.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY)).append("%).");
-				isAudioCaptureAllowedUnderKnownConditions = false;
+		} else if (!doesHardwareSupportCaptureSampleRate()) {
+			msgNoCapture.append("lack of hardware support for capture sample rate: ")
+					.append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)).append(" Hz.");
+			isAudioCaptureAllowedUnderKnownConditions = false;
 
-			} else if (includeSentinel && limitBasedOnSentinelBatteryLevel()) {
-				msgNoCapture.append("Low Sentinel Battery level")
-						.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY)).append("%).");
-				isAudioCaptureAllowedUnderKnownConditions = false;
+		}
 
-			} else if (limitBasedOnInternalStorage()) {
-				msgNoCapture.append("a lack of sufficient free internal disk storage.")
-						.append(" (current: ").append(DeviceStorage.getInternalDiskFreeMegaBytes()).append("MB)")
-						.append(" (required: ").append(requiredFreeDiskSpaceForAudioCapture).append("MB).");
-				isAudioCaptureAllowedUnderKnownConditions = false;
-
-			} else if (!doesHardwareSupportCaptureSampleRate()) {
-				msgNoCapture.append("lack of hardware support for capture sample rate: ")
-						.append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)).append(" Hz.");
-				isAudioCaptureAllowedUnderKnownConditions = false;
-
-			}
-
-			this.isCaptureAllowedLastValue = isAudioCaptureAllowedUnderKnownConditions;
-			this.isCaptureAllowedLastValueSetAt = System.currentTimeMillis();
-
-			if (!isAudioCaptureAllowedUnderKnownConditions && printFeedbackInLog) {
-				Log.d(logTag, msgNoCapture
-						.insert(0, DateTimeUtils.getDateTime() + " - AudioCapture not allowed due to ")
-						.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)).append(" seconds before next attempt.")
-						.toString());
-			}
+		if (!isAudioCaptureAllowedUnderKnownConditions && printFeedbackInLog) {
+			Log.d(logTag, msgNoCapture
+					.insert(0, DateTimeUtils.getDateTime() + " - AudioCapture not allowed due to ")
+					.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)).append(" seconds before next attempt.")
+					.toString());
 		}
 
 		return isAudioCaptureAllowedUnderKnownConditions;
@@ -263,44 +197,34 @@ public class AudioCaptureUtils {
 		// we then return the resulting true/false value
 		boolean isAudioCaptureDisabledRightNow = false;
 
-		if  ((Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(this.isCaptureDisabledLastValueSetAt)) <= captureStatusCacheExpiresAfter)) {
+		StringBuilder msgNoCapture = new StringBuilder();
 
-			isAudioCaptureDisabledRightNow = this.isCaptureDisabledLastValue;
+		if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
+			msgNoCapture.append("it being explicitly disabled ('" + RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE.toLowerCase() + "' is set to false).");
+			isAudioCaptureDisabledRightNow = true;
 
-		} else {
+		} else if (limitBasedOnTimeOfDay()) {
+			msgNoCapture.append("current time of day/night")
+					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SCHEDULE_OFF_HOURS)).append("'.");
+			isAudioCaptureDisabledRightNow = true;
 
-			StringBuilder msgNoCapture = new StringBuilder();
+		} else if (limitBasedOnCaptureSamplingRatio()) {
+			msgNoCapture.append("a sampling ratio definition. ")
+					.append("Ratio is '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO)).append("'. ")
+					.append("Currently on iteration ").append(this.samplingRatioIteration).append(" of ").append(this.samplingRatioArr[0] + this.samplingRatioArr[1]).append(".");
+			isAudioCaptureDisabledRightNow = true;
 
-			if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
-				msgNoCapture.append("it being explicitly disabled ('" + RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE.toLowerCase() + "' is set to false).");
-				isAudioCaptureDisabledRightNow = true;
+		} else if (!app.isGuardianRegistered()) {
+			msgNoCapture.append("the Guardian not having been registered.");
+			isAudioCaptureDisabledRightNow = true;
 
-			} else if (limitBasedOnTimeOfDay()) {
-				msgNoCapture.append("current time of day/night")
-						.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SCHEDULE_OFF_HOURS)).append("'.");
-				isAudioCaptureDisabledRightNow = true;
+		}
 
-			} else if (limitBasedOnCaptureSamplingRatio()) {
-				msgNoCapture.append("a sampling ratio definition. ")
-						.append("Ratio is '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SAMPLING_RATIO)).append("'. ")
-						.append("Currently on iteration ").append(this.samplingRatioIteration).append(" of ").append(this.samplingRatioArr[0] + this.samplingRatioArr[1]).append(".");
-				isAudioCaptureDisabledRightNow = true;
-
-			} else if (!app.isGuardianRegistered()) {
-				msgNoCapture.append("the Guardian not having been registered.");
-				isAudioCaptureDisabledRightNow = true;
-
-			}
-
-			this.isCaptureDisabledLastValue = isAudioCaptureDisabledRightNow;
-			this.isCaptureDisabledLastValueSetAt = System.currentTimeMillis();
-
-			if (isAudioCaptureDisabledRightNow && printFeedbackInLog) {
-				Log.d(logTag, msgNoCapture
-						.insert(0, DateTimeUtils.getDateTime() + " - AudioCapture paused due to ")
-						.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)).append(" seconds before next attempt.")
-						.toString());
-			}
+		if (isAudioCaptureDisabledRightNow && printFeedbackInLog) {
+			Log.d(logTag, msgNoCapture
+					.insert(0, DateTimeUtils.getDateTime() + " - AudioCapture paused due to ")
+					.append(" Waiting ").append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)).append(" seconds before next attempt.")
+					.toString());
 		}
 
 		return isAudioCaptureDisabledRightNow;

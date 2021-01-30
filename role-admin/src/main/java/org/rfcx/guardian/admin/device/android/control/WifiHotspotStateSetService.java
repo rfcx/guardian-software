@@ -30,7 +30,10 @@ public class WifiHotspotStateSetService extends IntentService {
 		boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI);
 
 		DeviceWifi deviceWifi = new DeviceWifi(context);
-		deviceWifi.setHotspotConfig("rfcx-"+app.rfcxGuardianIdentity.getGuid().substring(0,8), "rfcxrfcx", true);
+		deviceWifi.setHotspotConfig(
+				"rfcx-"+app.rfcxGuardianIdentity.getGuid().substring(0,8),
+				app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_PASSWORD),
+				true);
 
 		if (prefsAdminEnableWifi) {
 			// turn hotspot ON

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.capture;
+package org.rfcx.guardian.utility.device.telephony;
 
 import java.util.Date;
 

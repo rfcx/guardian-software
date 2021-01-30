@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.control;
+package org.rfcx.guardian.utility.device.telephony;
 
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 

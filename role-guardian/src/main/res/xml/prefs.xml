@@ -543,6 +543,13 @@
 			android:entries="@array/prefs_values_true_or_false"
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_socket"/>
+
+	<EditTextPreference
+			android:key="admin_wifi_password"
+			android:title="admin_wifi_password"
+			android:summary="string - password"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_wifi_password" />
  	
  	
 </PreferenceScreen>

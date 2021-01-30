@@ -25,8 +25,8 @@ public class SystemSettingsService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 
-		app.deviceSystemSettings.checkSetDefaultVals();
-		app.deviceSystemSettings.loadAndSetSerializedValsMap(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE));
+		app.deviceSystemSettings.checkSetActiveVals();
+		app.deviceSystemSettings.setSerializedValsMap(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE));
 
 	}
 	

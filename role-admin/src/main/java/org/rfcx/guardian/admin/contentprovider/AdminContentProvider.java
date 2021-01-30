@@ -88,16 +88,7 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) { logFuncVal = "status-*";
                 String statusTarget = uri.getLastPathSegment();
-
-                JSONArray statusArr = new JSONArray();
-                try {
-                    JSONObject statusObj = new JSONObject();
-                    statusObj.put("audio_capture", new JSONObject( app.sentinelPowerUtils.sentinelPowerStatusAsJsonObjStr("audio_capture") ) );
-                    statusObj.put("api_checkin", new JSONObject( app.sentinelPowerUtils.sentinelPowerStatusAsJsonObjStr("api_checkin") ) );
-                    statusArr.put(statusObj);
-                } catch (Exception e) {
-                    RfcxLog.logExc(logTag, e, "AdminContentProvider - "+logFuncVal);
-                }
+                JSONArray statusArr = app.statusUtils.getCompositeLocalStatusAsJsonArr();
                 return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 
             // "control" function endpoints
