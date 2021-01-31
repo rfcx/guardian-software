@@ -20,14 +20,14 @@ public class ClassifyStatus extends RfcxStatus {
 	private final RfcxGuardian app;
 
 	@Override
-	protected boolean getStatusBasedOnRoleSpecificLogic(int group, int statusType, boolean fallbackValue, boolean printFeedbackInLog) {
-		boolean statusValue = fallbackValue;
+	protected boolean[] getStatusBasedOnRoleSpecificLogic(int group, boolean[] fallbackValues, boolean printFeedbackInLog) {
+		boolean[] statusValues = fallbackValues;
 		boolean reportUpdate = false;
 
 		// we'd put some functionality here
 
-		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
-		return statusValue;
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"'"); }
+		return statusValues;
 	}
 
 

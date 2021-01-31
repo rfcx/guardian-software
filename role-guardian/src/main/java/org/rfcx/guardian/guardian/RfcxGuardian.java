@@ -42,6 +42,7 @@ import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
 import org.rfcx.guardian.guardian.socket.WifiCommunicationService;
 import org.rfcx.guardian.guardian.socket.WifiCommunicationUtils;
 import org.rfcx.guardian.guardian.status.GuardianStatus;
+import org.rfcx.guardian.guardian.status.StatusCacheService;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -305,6 +306,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     private void setServiceHandlers() {
 
         this.rfcxSvc.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
+        this.rfcxSvc.addService( StatusCacheService.SERVICE_NAME, StatusCacheService.class);
         this.rfcxSvc.addService( ScheduledAssetCleanupService.SERVICE_NAME, ScheduledAssetCleanupService.class);
 
         this.rfcxSvc.addService( AudioCaptureService.SERVICE_NAME, AudioCaptureService.class);

@@ -19,12 +19,14 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.status.StatusCacheService;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceMemory;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,14 +47,15 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	private int innerLoopIncrement = 1;
 	private int innerLoopsPerCaptureCycle = 1;
+	private int innerLoopUponWhichToTriggerStatusCacheUpdate = 1;
 	private long innerLoopDelayRemainderInMilliseconds = 0;
 
 	// Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
 	// This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
 	private double captureCycleLastDurationPercentageMultiplier = 0.98;
 	private long captureCycleLastStartTime = 0;
-	private long[] captureCycleMeasuredDurations = new long[] { 0, 0, 0 };
-	private double[] captureCyclePercentageMultipliers = new double[] { 0, 0, 0 };
+	private final long[] captureCycleMeasuredDurations = new long[] { 0, 0, 0 };
+	private final double[] captureCyclePercentageMultipliers = new double[] { 0, 0, 0 };
 
 	private int outerLoopIncrement = 0;
 	private int outerLoopCaptureCount = 0;
@@ -69,14 +72,14 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 	private double lightSensorLastValue = Float.MAX_VALUE;
 
-	private List<String[]> telephonyValues = new ArrayList<String[]>();
-	private List<long[]> lightSensorValues = new ArrayList<long[]>();
-	private List<long[]> dataTransferValues = new ArrayList<long[]>();
-	private List<int[]> batteryLevelValues = new ArrayList<int[]>();
-	private List<long[]> storageValues = new ArrayList<long[]>();
-	private List<long[]> memoryValues = new ArrayList<long[]>();
-	private List<int[]> cpuUsageValues = new ArrayList<int[]>();
-	private List<double[]> accelSensorValues = new ArrayList<double[]>();
+	private List<String[]> telephonyValues = new ArrayList<>();
+	private List<long[]> lightSensorValues = new ArrayList<>();
+	private List<long[]> dataTransferValues = new ArrayList<>();
+	private List<int[]> batteryLevelValues = new ArrayList<>();
+	private List<long[]> storageValues = new ArrayList<>();
+	private List<long[]> memoryValues = new ArrayList<>();
+	private List<int[]> cpuUsageValues = new ArrayList<>();
+	private List<double[]> accelSensorValues = new ArrayList<>();
 
 	private boolean isListenerRegistered_telephony = false;
 	private boolean isListenerRegistered_light = false;
@@ -94,16 +97,18 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		if (DeviceUtils.isAppRoleApprovedForGeoPositionAccess(app.getApplicationContext())) {
 			if (this.locationManager == null) {
 				this.locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-				app.deviceUtils.allowOrDisableSensorListener("geoposition_gps", this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
-				app.deviceUtils.allowOrDisableSensorListener("geoposition_network", this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
-				if (app.deviceUtils.isSensorListenerAllowed("geoposition_gps")) {
-					this.geoPositionProviderInfo = LocationManager.GPS_PROVIDER;
-					Log.d(logTag, "GeoPosition will be provided via GPS.");
-					isGeoPositionAccessApproved = true;
-				} else if (app.deviceUtils.isSensorListenerAllowed("geoposition_network")) {
-					this.geoPositionProviderInfo = LocationManager.NETWORK_PROVIDER;
-					Log.d(logTag, "GeoPosition will be provided via Mobile Network.");
-					isGeoPositionAccessApproved = true;
+				if (this.locationManager != null) {
+					app.deviceUtils.allowOrDisableSensorListener("geoposition_gps", this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER));
+					app.deviceUtils.allowOrDisableSensorListener("geoposition_network", this.locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
+					if (app.deviceUtils.isSensorListenerAllowed("geoposition_gps")) {
+						this.geoPositionProviderInfo = LocationManager.GPS_PROVIDER;
+						Log.d(logTag, "GeoPosition will be provided via GPS.");
+						isGeoPositionAccessApproved = true;
+					} else if (app.deviceUtils.isSensorListenerAllowed("geoposition_network")) {
+						this.geoPositionProviderInfo = LocationManager.NETWORK_PROVIDER;
+						Log.d(logTag, "GeoPosition will be provided via Mobile Network.");
+						isGeoPositionAccessApproved = true;
+					}
 				}
 			} else {
 				isGeoPositionAccessApproved = true;
@@ -188,12 +193,15 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
 
 					if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
-
 						app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 						// Outer Loop Behavior
 						outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
 
+					} else if (innerLoopIncrement == innerLoopUponWhichToTriggerStatusCacheUpdate) {
+
+						// Trigger Status Cache Update in advance
+						app.rfcxSvc.triggerIntentServiceImmediately(StatusCacheService.SERVICE_NAME);
 					}
 
 				} catch (InterruptedException e) {
@@ -211,7 +219,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 		if ((app != null) && (innerLoopIncrement == 1)) {
 
-			this.captureCycleLastStartTime = System.currentTimeMillis();
+			captureCycleLastStartTime = System.currentTimeMillis();
 
 			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
 
@@ -219,17 +227,17 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			// however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
 			int prefsReferenceCycleDuration = app.deviceUtils.isReducedCaptureModeActive ? (audioCycleDuration * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
 
-			if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
+			if (referenceCycleDuration != prefsReferenceCycleDuration) {
 
-				this.referenceCycleDuration = prefsReferenceCycleDuration;
-				this.innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
-				this.outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
-				app.deviceCPU.setReportingSampleCount(this.innerLoopsPerCaptureCycle);
-				long samplingOperationDuration = DeviceCPU.SAMPLE_DURATION_MILLISECONDS;
-				this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration);
+				referenceCycleDuration = prefsReferenceCycleDuration;
+				innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
+				outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
+				app.deviceCPU.setReportingSampleCount(innerLoopsPerCaptureCycle);
+				innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, captureCycleLastDurationPercentageMultiplier, DeviceCPU.SAMPLE_DURATION_MILLISECONDS);
+				innerLoopUponWhichToTriggerStatusCacheUpdate = DeviceUtils.getInnerLoopUponWhichToTriggerStatusCacheUpdate(prefsReferenceCycleDuration, innerLoopsPerCaptureCycle);
 
 				Log.d(logTag, "SystemStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
-						"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
+						"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000.0) + " seconds.");
 			}
 
 		} else {

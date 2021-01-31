@@ -28,6 +28,7 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.status.AdminStatus;
+import org.rfcx.guardian.admin.status.StatusCacheService;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
@@ -271,6 +272,7 @@ public class RfcxGuardian extends Application {
 	private void setServiceHandlers() {
 
 		this.rfcxSvc.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
+		this.rfcxSvc.addService( StatusCacheService.SERVICE_NAME, StatusCacheService.class);
 		this.rfcxSvc.addService( ScheduledAssetCleanupService.SERVICE_NAME, ScheduledAssetCleanupService.class);
 
 		this.rfcxSvc.addService( AirplaneModeToggleService.SERVICE_NAME, AirplaneModeToggleService.class);

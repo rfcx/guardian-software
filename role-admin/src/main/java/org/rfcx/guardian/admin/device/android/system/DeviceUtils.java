@@ -131,11 +131,7 @@ public class DeviceUtils {
 	}
 
 	public static long getCaptureCycleDuration(int audioCycleDurationInSeconds) {
-		long captureCycleDuration = Math.round( audioCycleDurationInSeconds * 1000 * captureCycleDurationRatioComparedToAudioCycleDuration );
-		if (captureCycleDuration < captureCycleMinimumAllowedDurationInMilliseconds) { 
-			captureCycleDuration = captureCycleMinimumAllowedDurationInMilliseconds;
-		}
-		return captureCycleDuration;
+		return Math.max( Math.round( audioCycleDurationInSeconds * 1000 * captureCycleDurationRatioComparedToAudioCycleDuration ), captureCycleMinimumAllowedDurationInMilliseconds );
 	}
 	
 	public static int getInnerLoopsPerCaptureCycle(int audioCycleDurationInSeconds) {
@@ -149,6 +145,11 @@ public class DeviceUtils {
 	public static int getOuterLoopCaptureCount(int audioCycleDurationInSeconds) {
 //		return (int) ( Math.round( geoPositionMinTimeElapsedBetweenUpdatesInSeconds[0] / ( getCaptureCycleDuration(audioCycleDurationInSeconds) / 1000 ) ) );
 		return 3;
+	}
+
+	public static int getInnerLoopUponWhichToTriggerStatusCacheUpdate(int audioCycleDurationInSeconds, int innerLoopsPerCaptureCycle) {
+		double fullCycleDuration = getCaptureCycleDuration(audioCycleDurationInSeconds);
+		return (int) Math.ceil(innerLoopsPerCaptureCycle * ( ( fullCycleDuration - ( 0.9 * RfcxStatus.localCacheExpirationBounds[0] ) ) / fullCycleDuration ));
 	}
 	
 	public static double[] generateAverageAccelValues(List<double[]> accelValues) {

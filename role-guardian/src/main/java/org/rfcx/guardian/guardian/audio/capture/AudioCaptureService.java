@@ -7,6 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
+import org.rfcx.guardian.guardian.status.StatusCacheService;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -29,7 +30,7 @@ public class AudioCaptureService extends Service {
 	private int audioSampleRate = 0;
 
 	private long innerLoopIterationDuration = 0;
-	private static final int innerLoopIterationCount = 5;
+//	private static final int innerLoopIterationCount = 5;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -87,8 +88,6 @@ public class AudioCaptureService extends Service {
 			FileUtils.deleteDirectoryContents(captureDir);
 			
 			AudioCaptureWavRecorder wavRecorder = null;
-
-			long lastValue = 0;
 				
 			while (audioCaptureService.runFlag) {
 				
@@ -96,7 +95,6 @@ public class AudioCaptureService extends Service {
 
 					long captureTimestampFile = 0;
 					long captureTimestampActual = 0;
-
 
 					boolean isAudioCaptureEnabled = app.rfcxStatus.getLocalStatus( RfcxStatus.Group.AUDIO_CAPTURE, RfcxStatus.Type.ENABLED, true);
 
@@ -111,13 +109,14 @@ public class AudioCaptureService extends Service {
 						wavRecorder = AudioCaptureUtils.initializeWavRecorder(captureDir, captureTimestampFile, audioSampleRate);
 						wavRecorder.startRecorder();
 						captureTimestampActual = System.currentTimeMillis();
+						Log.i(logTag, "Start of Audio Capture Loop...");
 							
 					} else if (wavRecorder != null) {
 						// in this case, we assume that the state has changed and capture is no longer allowed... 
 						// ...but there is a capture in progress, so we take a snapshot and halt the recorder.
 						wavRecorder.haltRecording();
 						wavRecorder = null;
-						Log.i(logTag, "Stopping audio capture.");
+						Log.i(logTag, "Halting Audio Capture...");
 					}
 
 					// queueing the last capture file (if there is one) for post-processing
@@ -130,16 +129,16 @@ public class AudioCaptureService extends Service {
 					// ...continue to be taken, whether or not CheckIns are actually being sent or whether audio is being captured.
 					app.rfcxSvc.triggerIntentServiceImmediately( MetaSnapshotService.SERVICE_NAME);
 
-					Log.e(logTag, "Timestamp: "+(captureTimestampActual - lastValue));
-
 					// This ensures that the service registers as active more frequently than the capture loop duration
-					for (int innerLoopIteration = 1; innerLoopIteration <= innerLoopIterationCount; innerLoopIteration++) {
+					for (int innerLoopIteration = 1; innerLoopIteration <= RfcxStatus.ratioExpirationToAudioCycleDuration; innerLoopIteration++) {
 						app.rfcxSvc.reportAsActive(SERVICE_NAME);
-						long slp = ((innerLoopIteration != innerLoopIterationCount) || (captureTimestampActual == 0)) ? innerLoopIterationDuration : ( audioCycleDuration * 1000 ) - ( System.currentTimeMillis() - captureTimestampActual );
-						Thread.sleep( slp );
+						if ((innerLoopIteration != RfcxStatus.ratioExpirationToAudioCycleDuration) || (captureTimestampActual == 0)) {
+							Thread.sleep( innerLoopIterationDuration );
+						} else {
+							app.rfcxSvc.triggerIntentServiceImmediately( StatusCacheService.SERVICE_NAME );
+							Thread.sleep( ( audioCycleDuration * 1000 ) - ( System.currentTimeMillis() - captureTimestampActual ) );
+						}
 					}
-
-					lastValue = captureTimestampActual;
 
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);
@@ -171,7 +170,7 @@ public class AudioCaptureService extends Service {
 
 				this.audioSampleRate = prefsAudioCaptureSampleRate;
 				this.audioCycleDuration = prefsAudioCycleDuration;
-				innerLoopIterationDuration = Math.round( (prefsAudioCycleDuration * 1000) / innerLoopIterationCount );
+				innerLoopIterationDuration = Math.round( (prefsAudioCycleDuration * 1000) / RfcxStatus.ratioExpirationToAudioCycleDuration );
 				
 				Log.d(logTag, "Audio Capture Params"
 						+ " - Cycle: " + DateTimeUtils.milliSecondDurationAsReadableString(prefsAudioCycleDuration*1000)

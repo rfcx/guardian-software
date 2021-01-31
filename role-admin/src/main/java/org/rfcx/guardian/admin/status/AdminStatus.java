@@ -20,19 +20,18 @@ public class AdminStatus extends RfcxStatus {
 	private final RfcxGuardian app;
 
 	@Override
-	protected boolean getStatusBasedOnRoleSpecificLogic(int group, int statusType, boolean fallbackValue, boolean printFeedbackInLog) {
-
-		boolean statusValue = fallbackValue;
+	protected boolean[] getStatusBasedOnRoleSpecificLogic(int group, boolean[] fallbackValues, boolean printFeedbackInLog) {
+		boolean[] statusValues = fallbackValues;
 		boolean reportUpdate = false;
+		for (int statusType = 0; statusType < statusTypes.length; statusType++) {
 
-		if (isStatusType( Type.ALLOWED, statusType)) {
-			statusValue = !app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower(statusGroups[group]);
-			reportUpdate = true;
+			if (isStatusType(Type.ALLOWED, statusType)) {
+				statusValues[statusType] = !app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower(statusGroups[group]);
+			}
+
 		}
-
-		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
-
-		return statusValue;
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"'"); }
+		return statusValues;
 	}
 
 

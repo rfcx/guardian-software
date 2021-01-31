@@ -31,25 +31,26 @@ public class RfcxStatus {
 
 	protected static final String[] statusGroups = new String[] { Group.AUDIO_CAPTURE, Group.API_CHECKIN, Group.SBD_COMMUNICATION };
 
-	private static final long[] localExpirationBounds = new long[] { 3333, 9999 };
-	private static final int ratioLocalToFetchedExpiration = 3;
-	private static final double ratioExpirationToAudioCycleDuration = 15.0;
+	public static final long[] localCacheExpirationBounds = new long[] { 5000, 15000 };
+	private static final int ratioLocalToFetchedCacheExpiration = 3;
+	public static final double ratioExpirationToAudioCycleDuration = 10;
 
 	protected String logTag;
 	private final RfcxGuardianIdentity rfcxGuardianIdentity;
 	private final ContentResolver contentResolver;
 
-	private final String fetchTargetRole;
-	private final boolean[] hasLocalCache = new boolean[statusGroups.length];
 	private final Map<Integer, boolean[]> lastLocalValue = new HashMap<>();
 	private final Map<Integer, long[]> lastLocalValueSetAt = new HashMap<>();
+	private final boolean[] hasLocalCache = new boolean[statusGroups.length];
 
-	private boolean hasFetchedCache = false;
-	private long lastFetchedValueSetAt = 0;
 	private Map<Integer, boolean[]> lastFetchedValue = new HashMap<>();
+	private long lastFetchedValueSetAt = 0;
+	private boolean hasFetchedCache = false;
+	private boolean isFetchQueryInFlight = false;
+	private final String fetchTargetRole;
 
-	private static final long[] fetchedExpirationBounds = new long[] { ratioLocalToFetchedExpiration * localExpirationBounds[0], ratioLocalToFetchedExpiration * localExpirationBounds[1] };
-	private long localValueCacheExpiresAfter = Math.round((localExpirationBounds[0]+localExpirationBounds[1])/2.0);
+	private static final long[] fetchedExpirationBounds = new long[] { ratioLocalToFetchedCacheExpiration * localCacheExpirationBounds[0], ratioLocalToFetchedCacheExpiration * localCacheExpirationBounds[1] };
+	private long localValueCacheExpiresAfter = Math.round((localCacheExpirationBounds[0]+ localCacheExpirationBounds[1])/2.0);
 	private long fetchedValueCacheExpiresAfter = Math.round((fetchedExpirationBounds[0]+fetchedExpirationBounds[1])/2.0);
 
 	public RfcxStatus(String appRole, String fetchTargetRole, RfcxGuardianIdentity rfcxGuardianIdentity, ContentResolver contentResolver) {
@@ -63,14 +64,14 @@ public class RfcxStatus {
 	//
 	// The function below should be over-ridden within each role that makes use of this class
 	//
-	protected boolean getStatusBasedOnRoleSpecificLogic(int group, int statusType, boolean fallbackValue, boolean printFeedbackInLog) {
-		boolean statusValue = fallbackValue;
+	protected boolean[] getStatusBasedOnRoleSpecificLogic(int group, boolean[] fallbackValues, boolean printFeedbackInLog) {
+		boolean[] statusValues = fallbackValues;
 		boolean reportUpdate = false;
 		Log.e(logTag, "Using Generic 'getStatusBasedOnRoleSpecificLogic' function. No role-specific functionality has been declared.");
 		// This is where the role specific logic would be.
 		// Just in case this function is not over-ridden, we report an error below, so that we'll be informed.
-		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
-		return statusValue;
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"'"); }
+		return statusValues;
 	}
 	//
 	// The function above should be over-ridden within each role that makes use of this class
@@ -78,15 +79,21 @@ public class RfcxStatus {
 
 	private void updateLocalStatus(int group, boolean printFeedbackInLog) {
 		boolean[] updatedStatus = lastLocalValue.containsKey(group) ? lastLocalValue.get(group) : statusDefaults;
-		for (int statusType = 0; statusType < statusTypes.length; statusType++) {
-			updatedStatus[statusType] = getStatusBasedOnRoleSpecificLogic(group, statusType, updatedStatus[statusType], printFeedbackInLog);
-		}
+		updatedStatus = getStatusBasedOnRoleSpecificLogic(group, updatedStatus, printFeedbackInLog);
 		lastLocalValue.put(group, updatedStatus);
 		lastLocalValueSetAt.put(group, new long[] { System.currentTimeMillis(), System.currentTimeMillis() } );
 		hasLocalCache[group] = true;
 	}
 
+	public void forceUpdatesForAllGroups(boolean printFeedbackInLog) {
+		updateFetchedStatus();
+		for (int group = 0; group < statusGroups.length; group++) {
+			updateLocalStatus(group, printFeedbackInLog);
+		}
+	}
+
 	private void updateFetchedStatus() {
+		isFetchQueryInFlight = true;
 		Map<Integer, boolean[]> _lastFetchedValue = lastFetchedValue;
 		try {
 			if ((fetchTargetRole != null) && isGuardianRegistered()) {
@@ -114,10 +121,11 @@ public class RfcxStatus {
 		lastFetchedValue = _lastFetchedValue;
 		lastFetchedValueSetAt = System.currentTimeMillis();
 		hasFetchedCache = true;
+		isFetchQueryInFlight = false;
 	}
 
 	private boolean getFetchedStatus(int group, int statusType) {
-		if  ( hasFetchedCache && (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(lastFetchedValueSetAt)) <= fetchedValueCacheExpiresAfter) ) {
+		if ( isFetchQueryInFlight || ( hasFetchedCache && (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(lastFetchedValueSetAt)) <= fetchedValueCacheExpiresAfter) ) ) {
 			return lastFetchedValue.get(group)[statusType];
 		} else {
 			updateFetchedStatus();
@@ -201,13 +209,14 @@ public class RfcxStatus {
 			lastFetchedValue.put(group, valueArr);
 			lastFetchedValueSetAt = 0;
 			hasFetchedCache = false;
+			isFetchQueryInFlight = false;
 		}
 	}
 
 	public void setOrResetCacheExpirations(int audioCycleDurationInSeconds) {
 		long audioCycleDuration =  audioCycleDurationInSeconds * 1000;
-		localValueCacheExpiresAfter = Math.min( Math.max( Math.round( audioCycleDuration / ratioExpirationToAudioCycleDuration), localExpirationBounds[0] ), localExpirationBounds[1] );
-		fetchedValueCacheExpiresAfter = Math.min( Math.max( Math.round( ratioLocalToFetchedExpiration * audioCycleDuration / ratioExpirationToAudioCycleDuration), fetchedExpirationBounds[0] ), fetchedExpirationBounds[1] );
+		localValueCacheExpiresAfter = Math.min( Math.max( Math.round( audioCycleDuration / ratioExpirationToAudioCycleDuration), localCacheExpirationBounds[0] ), localCacheExpirationBounds[1] );
+		fetchedValueCacheExpiresAfter = Math.min( Math.max( Math.round( ratioLocalToFetchedCacheExpiration * audioCycleDuration / ratioExpirationToAudioCycleDuration), fetchedExpirationBounds[0] ), fetchedExpirationBounds[1] );
 		Log.w(logTag, "Updated Status Cache Timeouts "
 				+"- Local: "+DateTimeUtils.milliSecondDurationAsReadableString(localValueCacheExpiresAfter)
 				+", Fetched: "+DateTimeUtils.milliSecondDurationAsReadableString(fetchedValueCacheExpiresAfter));

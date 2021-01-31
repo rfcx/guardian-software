@@ -112,10 +112,11 @@ public class DateTimeUtils {
 		if (minutes > 0) { tmStr.append((hours > 0) ? ", " : "").append(minutes).append(" minute").append((minutes != 1) ? "s" : ""); }
 		
 		int seconds = (int) Math.floor((((double) milliSeconds) - (((double) hours) * 3600000) - (((double) minutes) * 60000)) / 1000);
-		long subSeconds = Math.round((((double) milliSeconds) - (((double) hours) * 3600000) - (((double) minutes) * 60000) - (((double) seconds) * 1000)) / 100);
+		long deciSeconds = Math.round((((double) milliSeconds) - (((double) hours) * 3600000) - (((double) minutes) * 60000) - (((double) seconds) * 1000)) / 100);
+		if (deciSeconds == 10) { deciSeconds = 0; seconds++; }
 		if (((hours+minutes) == 0) || (seconds > 0) || displayEvenIfZero) {
 			tmStr.append(((hours > 0) || (minutes > 0)) ? ", " : "").append(seconds).append(
-				(((hours+minutes) == 0) && (seconds < 10) && !(displayEvenIfZero && (seconds == 0) && (subSeconds == 0))) ? "."+subSeconds : ""
+				(((hours+minutes) == 0) && (seconds < 10) && !(displayEvenIfZero && (seconds == 0) && (deciSeconds == 0))) ? "."+deciSeconds : ""
 			).append(" seconds");
 		}
 		return tmStr.toString();

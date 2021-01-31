@@ -20,46 +20,42 @@ public class GuardianStatus extends RfcxStatus {
 	private final RfcxGuardian app;
 
 	@Override
-	protected boolean getStatusBasedOnRoleSpecificLogic(int group, int statusType, boolean fallbackValue, boolean printFeedbackInLog) {
-		boolean statusValue = fallbackValue;
+	protected boolean[] getStatusBasedOnRoleSpecificLogic(int group, boolean[] fallbackValues, boolean printFeedbackInLog) {
+		boolean[] statusValues = fallbackValues;
 		boolean reportUpdate = false;
+		for (int statusType = 0; statusType < statusTypes.length; statusType++) {
 
-		if (isGroup( Group.AUDIO_CAPTURE, group)) {
+			if (isGroup( Group.AUDIO_CAPTURE, group)) {
 
-			if (isStatusType( Type.ALLOWED, statusType)) {
-				statusValue = app.audioCaptureUtils.isAudioCaptureAllowed( true, printFeedbackInLog);
-				reportUpdate = true;
+				if (isStatusType( Type.ALLOWED, statusType)) {
+					statusValues[statusType] = app.audioCaptureUtils.isAudioCaptureAllowed(true, printFeedbackInLog);
 
-			} else if (isStatusType( Type.ENABLED, statusType)) {
-				statusValue = !app.audioCaptureUtils.isAudioCaptureDisabled(printFeedbackInLog);
-				reportUpdate = true;
+				} else if (isStatusType( Type.ENABLED, statusType)) {
+					statusValues[statusType] = !app.audioCaptureUtils.isAudioCaptureDisabled(printFeedbackInLog);
+				}
+
+			} else if (isGroup( Group.API_CHECKIN, group)) {
+
+				if (isStatusType( Type.ALLOWED, statusType)) {
+					statusValues[statusType] = app.apiCheckInHealthUtils.isApiCheckInAllowed(true, printFeedbackInLog);
+
+				} else if (isStatusType( Type.ENABLED, statusType)) {
+					statusValues[statusType] = !app.apiCheckInHealthUtils.isApiCheckInDisabled(printFeedbackInLog);
+				}
+
+			} else if (isGroup( Group.SBD_COMMUNICATION, group)) {
+
+				if (isStatusType( Type.ALLOWED, statusType)) {
+					statusValues[statusType] = fallbackValues[statusType];
+
+				} else if (isStatusType( Type.ENABLED, statusType)) {
+					statusValues[statusType] = fallbackValues[statusType];
+				}
 			}
 
-		} else if (isGroup( Group.API_CHECKIN, group)) {
-
-			if (isStatusType( Type.ALLOWED, statusType)) {
-				statusValue = app.apiCheckInHealthUtils.isApiCheckInAllowed(true, printFeedbackInLog);
-				reportUpdate = true;
-
-			} else if (isStatusType( Type.ENABLED, statusType)) {
-				statusValue = !app.apiCheckInHealthUtils.isApiCheckInDisabled(printFeedbackInLog);
-				reportUpdate = true;
-			}
-
-		}/* else if (isGroup( Tag.SBD_COMMUNICATION, group)) {
-
-			if (isStatusType( Type.ALLOWED, statusType)) {
-				statusValue = fallbackValue;
-				reportUpdate = true;
-
-			} else if (isStatusType( Type.ENABLED, statusType)) {
-				statusValue = fallbackValue;
-				reportUpdate = true;
-			}
-		}*/
-
-		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
-		return statusValue;
+		}
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"'"); }
+		return statusValues;
 	}
 
 
