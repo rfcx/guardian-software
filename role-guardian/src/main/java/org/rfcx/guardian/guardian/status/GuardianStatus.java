@@ -24,7 +24,7 @@ public class GuardianStatus extends RfcxStatus {
 		boolean statusValue = fallbackValue;
 		boolean reportUpdate = false;
 
-		if (isGroup( Tag.AUDIO_CAPTURE, group)) {
+		if (isGroup( Group.AUDIO_CAPTURE, group)) {
 
 			if (isStatusType( Type.ALLOWED, statusType)) {
 				statusValue = app.audioCaptureUtils.isAudioCaptureAllowed( true, printFeedbackInLog);
@@ -35,7 +35,7 @@ public class GuardianStatus extends RfcxStatus {
 				reportUpdate = true;
 			}
 
-		} else if (isGroup( Tag.API_CHECKIN, group)) {
+		} else if (isGroup( Group.API_CHECKIN, group)) {
 
 			if (isStatusType( Type.ALLOWED, statusType)) {
 				statusValue = app.apiCheckInHealthUtils.isApiCheckInAllowed(true, printFeedbackInLog);
@@ -58,7 +58,7 @@ public class GuardianStatus extends RfcxStatus {
 			}
 		}*/
 
-		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ groups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
 		return statusValue;
 	}
 

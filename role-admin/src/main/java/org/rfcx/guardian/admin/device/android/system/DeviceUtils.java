@@ -114,8 +114,8 @@ public class DeviceUtils {
 	public void setOrUnSetReducedCaptureMode() {
 
 		boolean newIsReducedCaptureModeActive =
-			(	!app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED, false)
-			||	!app.rfcxStatus.getFetchedStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED)
+			(	!app.rfcxStatus.getLocalStatus( RfcxStatus.Group.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED, false)
+			||	!app.rfcxStatus.getFetchedStatus( RfcxStatus.Group.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED)
 			);
 
 		if (this.isReducedCaptureModeActive != newIsReducedCaptureModeActive) {

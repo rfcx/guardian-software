@@ -26,7 +26,7 @@ public class ClassifyStatus extends RfcxStatus {
 
 		// we'd put some functionality here
 
-		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ groups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
 		return statusValue;
 	}
 

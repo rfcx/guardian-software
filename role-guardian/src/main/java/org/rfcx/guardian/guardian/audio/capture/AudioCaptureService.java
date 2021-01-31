@@ -98,11 +98,11 @@ public class AudioCaptureService extends Service {
 					long captureTimestampActual = 0;
 
 
-					boolean isAudioCaptureEnabled = app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ENABLED, true);
+					boolean isAudioCaptureEnabled = app.rfcxStatus.getLocalStatus( RfcxStatus.Group.AUDIO_CAPTURE, RfcxStatus.Type.ENABLED, true);
 
 					boolean isAudioCaptureAllowed = isAudioCaptureEnabled
-													&& app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED, true)
-													&& app.rfcxStatus.getFetchedStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED);
+													&& app.rfcxStatus.getLocalStatus( RfcxStatus.Group.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED, true)
+													&& app.rfcxStatus.getFetchedStatus( RfcxStatus.Group.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED);
 
 					if ( confirmOrSetAudioCaptureParameters() && isAudioCaptureEnabled && isAudioCaptureAllowed ) {
 

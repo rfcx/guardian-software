@@ -160,7 +160,7 @@ public class AudioCaptureUtils {
 					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
-		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED)) {
+		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus( RfcxStatus.Group.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED)) {
 			msgNoCapture.append("Low Sentinel Battery level")
 					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;

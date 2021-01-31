@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class RfcxStatus {
 
-	public static final class Tag {
+	public static final class Group {
 		public static final String AUDIO_CAPTURE = "audio_capture";
 		public static final String API_CHECKIN = "api_checkin";
 		public static final String SBD_COMMUNICATION = "sbd_comm";
@@ -29,7 +29,7 @@ public class RfcxStatus {
 	protected static final String[] statusTypes = 	new String[] { 		Type.ALLOWED, 	Type.ENABLED 	};
 	protected static final boolean[] statusDefaults = new boolean[] { 	true, 			true 			};
 
-	protected static final String[] groups = new String[] { Tag.AUDIO_CAPTURE, Tag.API_CHECKIN, Tag.SBD_COMMUNICATION };
+	protected static final String[] statusGroups = new String[] { Group.AUDIO_CAPTURE, Group.API_CHECKIN, Group.SBD_COMMUNICATION };
 
 	private static final long[] localExpirationBounds = new long[] { 3333, 9999 };
 	private static final int ratioLocalToFetchedExpiration = 3;
@@ -40,7 +40,7 @@ public class RfcxStatus {
 	private final ContentResolver contentResolver;
 
 	private final String fetchTargetRole;
-	private final boolean[] hasLocalCache = new boolean[groups.length];
+	private final boolean[] hasLocalCache = new boolean[statusGroups.length];
 	private final Map<Integer, boolean[]> lastLocalValue = new HashMap<>();
 	private final Map<Integer, long[]> lastLocalValueSetAt = new HashMap<>();
 
@@ -69,7 +69,7 @@ public class RfcxStatus {
 		Log.e(logTag, "Using Generic 'getStatusBasedOnRoleSpecificLogic' function. No role-specific functionality has been declared.");
 		// This is where the role specific logic would be.
 		// Just in case this function is not over-ridden, we report an error below, so that we'll be informed.
-		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ groups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
 		return statusValue;
 	}
 	//
@@ -94,10 +94,10 @@ public class RfcxStatus {
 				JSONArray jsonArray = RfcxComm.getQuery(fetchTargetRole, "status", "*", contentResolver);
 				if (jsonArray.length() > 0) {
 					JSONObject jsonObj = jsonArray.getJSONObject(0);
-					for (int group = 0; group < groups.length; group++) {
+					for (int group = 0; group < statusGroups.length; group++) {
 						boolean[] updatedStatus = _lastFetchedValue.containsKey(group) ? _lastFetchedValue.get(group) : statusDefaults;
-						if (jsonObj.has(groups[group])) {
-							JSONObject groupStatusObj = jsonObj.getJSONObject(groups[group]);
+						if (jsonObj.has(statusGroups[group])) {
+							JSONObject groupStatusObj = jsonObj.getJSONObject(statusGroups[group]);
 							for (int statusType = 0; statusType < statusTypes.length; statusType++) {
 								if (groupStatusObj.has("is_"+statusTypes[statusType])) {
 									updatedStatus[statusType] = groupStatusObj.getBoolean("is_" + statusTypes[statusType]);
@@ -152,7 +152,7 @@ public class RfcxStatus {
 	}
 
 	protected static int getGroup(String group) {
-		return ArrayUtils.indexOfStringInStringArray(groups, group);
+		return ArrayUtils.indexOfStringInStringArray(statusGroups, group);
 	}
 
 	protected static int getStatusType(String statusType) {
@@ -175,8 +175,8 @@ public class RfcxStatus {
 		JSONArray compositeStatusArr = new JSONArray();
 		JSONObject compositeStatusObj = new JSONObject();
 		try {
-			for (int group = 0; group < groups.length; group++) {
-				compositeStatusObj.put(groups[group], getLocalStatusAsJsonObj(group));
+			for (int group = 0; group < statusGroups.length; group++) {
+				compositeStatusObj.put(statusGroups[group], getLocalStatusAsJsonObj(group));
 			}
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
@@ -186,7 +186,7 @@ public class RfcxStatus {
 	}
 
 	private void initializeCaches() {
-		for (int group = 0; group < groups.length; group++) {
+		for (int group = 0; group < statusGroups.length; group++) {
 			boolean[] valueArr = new boolean[statusTypes.length];
 			long[] valueSetAtArr = new long[statusTypes.length];
 			for (int statusType = 0; statusType < statusTypes.length; statusType++) {

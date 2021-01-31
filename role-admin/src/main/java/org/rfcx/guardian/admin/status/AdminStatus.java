@@ -26,11 +26,11 @@ public class AdminStatus extends RfcxStatus {
 		boolean reportUpdate = false;
 
 		if (isStatusType( Type.ALLOWED, statusType)) {
-			statusValue = !app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower(groups[group]);
+			statusValue = !app.sentinelPowerUtils.isReducedCaptureModeActive_BasedOnSentinelPower(statusGroups[group]);
 			reportUpdate = true;
 		}
 
-		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ groups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ statusGroups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
 
 		return statusValue;
 	}

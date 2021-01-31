@@ -54,7 +54,7 @@ public class ApiCheckInQueueService extends IntentService {
 			}
 
 
-			if (app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.API_CHECKIN, RfcxStatus.Type.ENABLED, true)) {
+			if (app.rfcxStatus.getLocalStatus( RfcxStatus.Group.API_CHECKIN, RfcxStatus.Type.ENABLED, true)) {
 
 				app.rfcxSvc.triggerOrForceReTriggerIfTimedOut( ApiCheckInJobService.SERVICE_NAME, 3 * app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000);
 

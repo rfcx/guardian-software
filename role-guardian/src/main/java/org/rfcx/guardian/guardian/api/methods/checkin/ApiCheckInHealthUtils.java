@@ -214,7 +214,7 @@ public class ApiCheckInHealthUtils {
 			isApiCheckInAllowedUnderKnownConditions = false;
 			reportedDelay = Math.round(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) / 2);
 
-		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus( RfcxStatus.Tag.API_CHECKIN, RfcxStatus.Type.ALLOWED)) {
+		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus( RfcxStatus.Group.API_CHECKIN, RfcxStatus.Type.ALLOWED)) {
 			msgNotAllowed.append("Low Sentinel Battery level")
 					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY)).append("%).");
 			isApiCheckInAllowedUnderKnownConditions = false;

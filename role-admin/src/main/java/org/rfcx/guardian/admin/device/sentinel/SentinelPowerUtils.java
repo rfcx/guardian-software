@@ -492,7 +492,7 @@ public class SentinelPowerUtils {
             if (this.powerBatteryValues.size() > 0) {
 
                 long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
-                int prefsVal = groupTag.equalsIgnoreCase(RfcxStatus.Tag.AUDIO_CAPTURE) ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY);
+                int prefsVal = groupTag.equalsIgnoreCase(RfcxStatus.Group.AUDIO_CAPTURE) ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY);
                 isReduced = !(battPct >= (prefsVal * 100));
 
             } else if (!isCaptureAllowed()) {
