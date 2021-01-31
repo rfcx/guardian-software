@@ -2,7 +2,6 @@ package org.rfcx.guardian.guardian.api.protocols;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Locale;
@@ -307,10 +306,10 @@ public class ApiMqttUtils implements MqttCallback {
 
 		long minDelayBetweenAttempts = 10000;
 
-		if (	areMqttApiInteractionsAllowed()
-			&&	(	overrideDelayBetweenAttempts
+		if (	(	overrideDelayBetweenAttempts
 				|| 	(mqttCheckInClient.mqttBrokerConnectionLastAttemptedAt < (app.deviceConnectivity.lastConnectedAt() - minDelayBetweenAttempts))
 				)
+			&&	areMqttApiInteractionsAllowed()
 			) {
 			try {
 
@@ -520,7 +519,7 @@ public class ApiMqttUtils implements MqttCallback {
 			if (	// ...we haven't yet reached the first threshold for bad connectivity
 					(minsSinceSuccess < this.failedCheckInThresholds[0])
 					// OR... we are explicitly in offline mode
-					|| !app.statusUtils.getLocalStatus("api_checkin", "enabled", false)
+					|| !app.rfcxStatus.getLocalStatus("api_checkin", "enabled", false)
 					// OR... checkins are explicitly paused due to low battery level
 					|| !app.apiCheckInHealthUtils.isBatteryChargeSufficientForCheckIn()
 					// OR... this is likely the first checkin after a period of disconnection
@@ -571,7 +570,7 @@ public class ApiMqttUtils implements MqttCallback {
 		if (	(app != null)
 			&&	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "mqtt")
 			&&	app.deviceConnectivity.isConnected()
-			&&	app.statusUtils.getLocalStatus("api_checkin", "allowed", false)
+			&&	app.rfcxStatus.getLocalStatus("api_checkin", "allowed", false)
 		) {
 			return true;
 

@@ -88,7 +88,7 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) { logFuncVal = "status-*";
                 String statusTarget = uri.getLastPathSegment();
-                JSONArray statusArr = app.statusUtils.getCompositeLocalStatusAsJsonArr();
+                JSONArray statusArr = app.rfcxStatus.getCompositeLocalStatusAsJsonArr();
                 return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 
             // "control" function endpoints

@@ -73,8 +73,8 @@ public class ApiCheckInJobService extends Service {
 			String lastCheckInId = null;
 				
 			while (		apiCheckInJobInstance.runFlag
-					&&	app.statusUtils.getLocalStatus("api_checkin", "enabled", true)
 					&& 	( (app.apiCheckInDb.dbQueued.getCount() > 0) || !app.apiMqttUtils.isConnectedToBroker() )
+					&&	app.rfcxStatus.getLocalStatus("api_checkin", "enabled", true)
 				) {
 
 				app.rfcxSvc.reportAsActive(SERVICE_NAME);
@@ -84,7 +84,7 @@ public class ApiCheckInJobService extends Service {
 					long prefsAudioCycleDuration = Math.round( app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000 );
 					int prefsCheckInFailureLimit = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_FAILURE_LIMIT);
 					
-					if (!app.statusUtils.getLocalStatus("api_checkin", "allowed", true)) {
+					if (!app.rfcxStatus.getLocalStatus("api_checkin", "allowed", true)) {
 
 						int waitLoopIterationCount = !app.deviceConnectivity.isConnected() ? 1 : 4;
 
@@ -146,9 +146,7 @@ public class ApiCheckInJobService extends Service {
 						}
 
 						if (!app.apiMqttUtils.isConnectedToBroker()) {
-							long loopDelayBeforeReconnectAttempt = Math.round(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 0.100);
-							loopDelayBeforeReconnectAttempt = Math.min(loopDelayBeforeReconnectAttempt, 8);
-							loopDelayBeforeReconnectAttempt = Math.max(loopDelayBeforeReconnectAttempt, 16);
+							long loopDelayBeforeReconnectAttempt = Math.min( Math.max( Math.round(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 0.100), 8), 16);
 							Log.e(logTag, "Broker not connected. Delaying "+loopDelayBeforeReconnectAttempt+" seconds and trying again...");
 							Thread.sleep(loopDelayBeforeReconnectAttempt * 1000);
 							app.apiMqttUtils.confirmOrCreateConnectionToBroker(true);

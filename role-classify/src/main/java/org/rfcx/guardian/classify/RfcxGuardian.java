@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.ContentResolver;
 
 import org.rfcx.guardian.classify.service.AudioClassifyJobService;
+import org.rfcx.guardian.classify.status.ClassifyStatus;
 import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
 import org.rfcx.guardian.classify.utils.AudioClassifyDb;
 import org.rfcx.guardian.classify.utils.AudioClassifyModelUtils;
@@ -25,6 +26,7 @@ public class RfcxGuardian extends Application {
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
     public RfcxSvc rfcxSvc = null;
+    public ClassifyStatus rfcxStatus = null;
 
     public AudioClassifyModelUtils audioClassifyModelUtils = null;
     public AudioClassifyUtils audioClassifyUtils = null;
@@ -48,6 +50,7 @@ public class RfcxGuardian extends Application {
         this.rfcxGuardianIdentity = new RfcxGuardianIdentity(this, APP_ROLE);
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
         this.rfcxSvc = new RfcxSvc(this, APP_ROLE);
+        this.rfcxStatus = new ClassifyStatus(this);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);

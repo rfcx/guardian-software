@@ -8,9 +8,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.rfcx.guardian.audio.wav.WavUtils;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
@@ -18,7 +15,6 @@ import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -163,7 +159,7 @@ public class AudioCaptureUtils {
 					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
-		} else if (includeSentinel && !app.statusUtils.getFetchedStatus("audio_capture", "allowed")) {
+		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus("audio_capture", "allowed")) {
 			msgNoCapture.append("Low Sentinel Battery level")
 					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;

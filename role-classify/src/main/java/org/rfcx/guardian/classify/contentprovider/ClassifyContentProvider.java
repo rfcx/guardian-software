@@ -1,5 +1,6 @@
 package org.rfcx.guardian.classify.contentprovider;
 
+import org.json.JSONArray;
 import org.rfcx.guardian.classify.RfcxGuardian;
 import org.rfcx.guardian.classify.service.AudioClassifyJobService;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
@@ -60,6 +61,13 @@ public class ClassifyContentProvider extends ContentProvider {
 				String idKey = uri.getLastPathSegment();
 				app.rfcxGuardianIdentity.reSyncGuardianIdentity();
 				return RfcxComm.getProjectionCursor(appRole, "identity_resync", new Object[]{ idKey, System.currentTimeMillis() });
+
+				// get status of services
+
+			} else if (RfcxComm.uriMatch(uri, appRole, "status", "*")) { logFuncVal = "status-*";
+				String statusTarget = uri.getLastPathSegment();
+				JSONArray statusArr = app.rfcxStatus.getCompositeLocalStatusAsJsonArr();
+				return RfcxComm.getProjectionCursor(appRole, "status", new Object[] { statusTarget, statusArr.toString(), System.currentTimeMillis()});
 
 				// "process" function endpoints
 

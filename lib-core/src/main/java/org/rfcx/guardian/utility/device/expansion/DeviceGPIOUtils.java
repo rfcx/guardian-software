@@ -67,7 +67,7 @@ public class DeviceGPIOUtils {
 		this.gpioHandlerFilepath = handlerFilepath;
 	}
 
-	public void runGPIOCommand(String cmd, String pinName, boolean enableOrDisable) {
+	public void runGPIOCommand(String cmd, String pinName, boolean setToHigh) {
 
 		try {
 
@@ -79,10 +79,10 @@ public class DeviceGPIOUtils {
 				String execStr = "echo"
 						+ " -w" + pinCmd.toLowerCase(Locale.US)
 						+ " " + pinAddr
-						+ " " + (enableOrDisable ? "1" : "0")
-						+ " > " + gpioHandlerFilepath + ";";
+						+ " " + (setToHigh ? "1" : "0")
+						+ " > " + gpioHandlerFilepath;
 
-				Log.v(logTag, ((enableOrDisable) ? "Enabling" : "Disabling") + " GPIO "+pinCmd.toUpperCase(Locale.US)+" " + pinName);
+				Log.v(logTag, "GPIO '"+pinName+"' pin command: "+pinCmd.toUpperCase(Locale.US) + " -> " + ((setToHigh) ? "HIGH" : "LOW"));
 
 				ShellCommands.executeCommandAndIgnoreOutput(execStr);
 			}
@@ -101,7 +101,7 @@ public class DeviceGPIOUtils {
 
 			if (checkSetIsHandlerAccessible() && (pinAddr != 0)) {
 
-				String execStr = "cat " + gpioHandlerFilepath + " | grep '" + pinAddr + ":';";
+				String execStr = "cat " + gpioHandlerFilepath + " | grep '" + pinAddr + ":'";
 
 				for (String execRtrn : ShellCommands.executeCommand(execStr)) {
 					String rtrnStr = execRtrn.substring(execRtrn.indexOf(":")+1, execRtrn.lastIndexOf("-"));

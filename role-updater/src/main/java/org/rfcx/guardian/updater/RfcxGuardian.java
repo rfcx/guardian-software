@@ -7,6 +7,7 @@ import org.rfcx.guardian.updater.service.ApiUpdateRequestService;
 import org.rfcx.guardian.updater.service.DownloadFileService;
 import org.rfcx.guardian.updater.service.InstallAppService;
 import org.rfcx.guardian.updater.service.RebootTriggerService;
+import org.rfcx.guardian.updater.status.UpdaterStatus;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -34,6 +35,7 @@ public class RfcxGuardian extends Application {
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
     public RfcxSvc rfcxSvc = null;
+    public UpdaterStatus rfcxStatus = null;
 
     private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 
@@ -56,6 +58,7 @@ public class RfcxGuardian extends Application {
         this.rfcxGuardianIdentity = new RfcxGuardianIdentity(this, APP_ROLE);
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
         this.rfcxSvc = new RfcxSvc(this, APP_ROLE);
+        this.rfcxStatus = new UpdaterStatus(this);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);

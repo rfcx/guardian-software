@@ -41,7 +41,7 @@ import org.rfcx.guardian.guardian.instructions.InstructionsSchedulerService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
 import org.rfcx.guardian.guardian.socket.WifiCommunicationService;
 import org.rfcx.guardian.guardian.socket.WifiCommunicationUtils;
-import org.rfcx.guardian.guardian.status.StatusUtils;
+import org.rfcx.guardian.guardian.status.GuardianStatus;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -91,6 +91,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public RfcxGuardianIdentity rfcxGuardianIdentity = null;
     public RfcxPrefs rfcxPrefs = null;
     public RfcxSvc rfcxSvc = null;
+    public GuardianStatus rfcxStatus = null;
 
     public SharedPreferences sharedPrefs = null;
 
@@ -136,7 +137,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiSegmentUtils apiSegmentUtils = null;
     public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
     public AssetUtils assetUtils = null;
-    public StatusUtils statusUtils = null;
     public InstructionsUtils instructionsUtils = null;
     public WifiCommunicationUtils wifiCommunicationUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
@@ -162,6 +162,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxGuardianIdentity = new RfcxGuardianIdentity(this, APP_ROLE);
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
         this.rfcxSvc = new RfcxSvc(this, APP_ROLE);
+        this.rfcxStatus = new GuardianStatus(this);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
@@ -192,7 +193,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiSegmentUtils = new ApiSegmentUtils(this);
         this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);
         this.assetUtils = new AssetUtils(this);
-        this.statusUtils = new StatusUtils(this, "admin");
         this.instructionsUtils = new InstructionsUtils(this);
         this.wifiCommunicationUtils = new WifiCommunicationUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
@@ -374,7 +374,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION )) {
             this.apiMqttUtils.getSetCheckInPublishTimeOutLength();
-            this.statusUtils.setOrResetCacheExpirations();
+            this.rfcxStatus.setOrResetCacheExpirations( this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) );
 
         } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET )) {
             this.rfcxSvc.triggerService("WifiCommunication", false);

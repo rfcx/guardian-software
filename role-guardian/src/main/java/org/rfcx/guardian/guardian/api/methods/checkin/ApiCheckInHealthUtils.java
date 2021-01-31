@@ -3,13 +3,9 @@ package org.rfcx.guardian.guardian.api.methods.checkin;
 import android.content.Context;
 import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -217,7 +213,7 @@ public class ApiCheckInHealthUtils {
 			isApiCheckInAllowedUnderKnownConditions = false;
 			reportedDelay = Math.round(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) / 2);
 
-		} else if (includeSentinel && !app.statusUtils.getFetchedStatus("api_checkin", "allowed")) {
+		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus("api_checkin", "allowed")) {
 			msgNotAllowed.append("Low Sentinel Battery level")
 					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY)).append("%).");
 			isApiCheckInAllowedUnderKnownConditions = false;

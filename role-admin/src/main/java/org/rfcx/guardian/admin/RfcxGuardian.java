@@ -27,8 +27,7 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSensorDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
-import org.rfcx.guardian.admin.status.StatusMonitorService;
-import org.rfcx.guardian.admin.status.StatusUtils;
+import org.rfcx.guardian.admin.status.AdminStatus;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
@@ -88,6 +87,7 @@ public class RfcxGuardian extends Application {
 	public RfcxGuardianIdentity rfcxGuardianIdentity = null;
 	public RfcxPrefs rfcxPrefs = null;
 	public RfcxSvc rfcxSvc = null;
+	public AdminStatus rfcxStatus = null;
 	
 	public ScreenShotDb screenShotDb = null;
 	public CameraCaptureDb cameraCaptureDb = null;
@@ -114,7 +114,6 @@ public class RfcxGuardian extends Application {
 	public DeviceMobileNetwork deviceMobileNetwork = new DeviceMobileNetwork(APP_ROLE);
 	public DeviceSystemSettings deviceSystemSettings = new DeviceSystemSettings(APP_ROLE);
 	public AssetUtils assetUtils = null;
-	public StatusUtils statusUtils = null;
 
 	public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils(APP_ROLE);
 	public SentinelPowerUtils sentinelPowerUtils = null;
@@ -135,8 +134,7 @@ public class RfcxGuardian extends Application {
 				DeviceSystemService.SERVICE_NAME,
 				DeviceSentinelService.SERVICE_NAME,
 				SmsDispatchCycleService.SERVICE_NAME,
-				SbdDispatchCycleService.SERVICE_NAME,
-				StatusMonitorService.SERVICE_NAME
+				SbdDispatchCycleService.SERVICE_NAME
 			};
 
 	@Override
@@ -147,6 +145,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxGuardianIdentity = new RfcxGuardianIdentity(this, APP_ROLE);
 		this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
 		this.rfcxSvc = new RfcxSvc(this, APP_ROLE);
+		this.rfcxStatus = new AdminStatus(this);
 
 		this.version = RfcxRole.getRoleVersion(this, logTag);
 		RfcxRole.writeVersionToFile(this, logTag, this.version);
@@ -162,7 +161,6 @@ public class RfcxGuardian extends Application {
 		this.sentinelCompassUtils = new SentinelCompassUtils(this);
 		this.sentinelAccelUtils = new SentinelAccelUtils(this);
 		this.assetUtils = new AssetUtils(this);
-		this.statusUtils = new StatusUtils(this, "guardian");
 		this.iridiumUtils = new IridiumUtils(this);
 
 		// Hardware-specific hacks and modifications
@@ -273,7 +271,6 @@ public class RfcxGuardian extends Application {
 	private void setServiceHandlers() {
 
 		this.rfcxSvc.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
-		this.rfcxSvc.addService( StatusMonitorService.SERVICE_NAME, StatusMonitorService.class);
 		this.rfcxSvc.addService( ScheduledAssetCleanupService.SERVICE_NAME, ScheduledAssetCleanupService.class);
 
 		this.rfcxSvc.addService( AirplaneModeToggleService.SERVICE_NAME, AirplaneModeToggleService.class);
@@ -323,7 +320,7 @@ public class RfcxGuardian extends Application {
 			rfcxSvc.triggerService( ADBStateSetService.SERVICE_NAME, false);
 
 		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION )) {
-			this.statusUtils.setOrResetCacheExpirations();
+			this.rfcxStatus.setOrResetCacheExpirations( this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) );
 
 		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE )) {
 			DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString( RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE ), this);
