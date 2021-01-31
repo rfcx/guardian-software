@@ -4,10 +4,12 @@ import android.app.Application;
 import android.content.ContentResolver;
 
 import org.rfcx.guardian.classify.service.AudioClassifyJobService;
+import org.rfcx.guardian.classify.service.AudioDetectionSendService;
 import org.rfcx.guardian.classify.status.ClassifyStatus;
 import org.rfcx.guardian.classify.utils.AudioClassifyUtils;
 import org.rfcx.guardian.classify.utils.AudioClassifyDb;
 import org.rfcx.guardian.classify.utils.AudioClassifyModelUtils;
+import org.rfcx.guardian.classify.utils.AudioDetectionDb;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -33,13 +35,15 @@ public class RfcxGuardian extends Application {
 
     // Database Handlers
     public AudioClassifyDb audioClassifyDb = null;
+    public AudioDetectionDb audioDetectionDb = null;
 
     // for checking battery level
     public DeviceBattery deviceBattery = new DeviceBattery(APP_ROLE);
 
     public String[] RfcxCoreServices =
             new String[]{
-                    AudioClassifyJobService.SERVICE_NAME
+                    AudioClassifyJobService.SERVICE_NAME,
+                    AudioDetectionSendService.SERVICE_NAME
             };
 
     @Override
@@ -97,18 +101,23 @@ public class RfcxGuardian extends Application {
     private void setDbHandlers() {
 
         this.audioClassifyDb = new AudioClassifyDb(this, this.version);
-
+        this.audioDetectionDb = new AudioDetectionDb(this, this.version);
     }
 
     private void setServiceHandlers() {
 
         this.rfcxSvc.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
         this.rfcxSvc.addService( AudioClassifyJobService.SERVICE_NAME, AudioClassifyJobService.class);
+        this.rfcxSvc.addService( AudioDetectionSendService.SERVICE_NAME, AudioDetectionSendService.class);
 
     }
 
     public void onPrefReSync(String prefKey) {
 
+        if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION )) {
+            this.rfcxStatus.setOrResetCacheExpirations( this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) );
+
+        }
     }
 
 }

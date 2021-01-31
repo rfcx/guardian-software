@@ -37,6 +37,7 @@ public class AudioClassifyUtils {
 	private final RfcxGuardian app;
 
 	public static final int CLASSIFY_FAILURE_SKIP_THRESHOLD = 3;
+	public static final int DETECTION_SEND_FAILURE_SKIP_THRESHOLD = 10;
 
 	private final Map<String, AudioClassifier> classifiers = new HashMap<String, AudioClassifier>();
 
@@ -140,11 +141,11 @@ public class AudioClassifyUtils {
 	}
 
 
-	public void sendClassifyOutputToGuardianRole(JSONObject jsonObj) {
+	public void sendClassifyOutputToGuardianRole(String jsonObjStr) {
 
 		Cursor sendDetectionsResponse =
 			app.getResolver().query(
-				RfcxComm.getUri("guardian", "detections_create", RfcxComm.urlEncode(StringUtils.stringToGZipBase64(jsonObj.toString()))),
+				RfcxComm.getUri("guardian", "detections_create", RfcxComm.urlEncode(StringUtils.stringToGZipBase64(jsonObjStr))),
 				RfcxComm.getProjection("guardian", "detections_create"),
 				null, null, null);
 		if (sendDetectionsResponse != null) { sendDetectionsResponse.close(); }

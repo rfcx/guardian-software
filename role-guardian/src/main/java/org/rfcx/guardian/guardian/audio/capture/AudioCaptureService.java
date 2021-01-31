@@ -12,6 +12,7 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
 public class AudioCaptureService extends Service {
 
@@ -97,11 +98,11 @@ public class AudioCaptureService extends Service {
 					long captureTimestampActual = 0;
 
 
-					boolean isAudioCaptureEnabled = app.rfcxStatus.getLocalStatus("audio_capture", "enabled", true);
+					boolean isAudioCaptureEnabled = app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ENABLED, true);
 
 					boolean isAudioCaptureAllowed = isAudioCaptureEnabled
-													&& app.rfcxStatus.getLocalStatus("audio_capture", "allowed", true)
-													&& app.rfcxStatus.getFetchedStatus("audio_capture", "allowed");
+													&& app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED, true)
+													&& app.rfcxStatus.getFetchedStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED);
 
 					if ( confirmOrSetAudioCaptureParameters() && isAudioCaptureEnabled && isAudioCaptureAllowed ) {
 

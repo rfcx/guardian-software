@@ -23,6 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.util.Log;
 
 public class RfcxGuardian extends Application {
 
@@ -120,6 +121,10 @@ public class RfcxGuardian extends Application {
 
     public void onPrefReSync(String prefKey) {
 
+        if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION )) {
+            this.rfcxStatus.setOrResetCacheExpirations( this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) );
+
+        }
     }
 
 }

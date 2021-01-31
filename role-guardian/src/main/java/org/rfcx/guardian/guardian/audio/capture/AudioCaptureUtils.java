@@ -17,6 +17,7 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -159,7 +160,7 @@ public class AudioCaptureUtils {
 					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
-		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus("audio_capture", "allowed")) {
+		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED)) {
 			msgNoCapture.append("Low Sentinel Battery level")
 					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;

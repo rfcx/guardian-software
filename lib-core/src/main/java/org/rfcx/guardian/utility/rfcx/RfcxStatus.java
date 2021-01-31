@@ -15,28 +15,32 @@ import java.util.Map;
 
 public class RfcxStatus {
 
-	public RfcxStatus(String appRole, String fetchTargetRole, RfcxGuardianIdentity rfcxGuardianIdentity, ContentResolver contentResolver) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxStatus");
-		this.fetchTargetRole = ArrayUtils.doesStringArrayContainString(validFetchTargetRoles, fetchTargetRole) ? fetchTargetRole.toLowerCase(Locale.US) : null;
-		this.rfcxGuardianIdentity = rfcxGuardianIdentity;
-		this.contentResolver = contentResolver;
-		initializeCaches();
+	public static final class Tag {
+		public static final String AUDIO_CAPTURE = "audio_capture";
+		public static final String API_CHECKIN = "api_checkin";
+		public static final String SBD_COMMUNICATION = "sbd_comm";
 	}
 
+	public static final class Type {
+		public static final String ALLOWED = "allowed";
+		public static final String ENABLED = "enabled";
+	}
+
+	protected static final String[] statusTypes = 	new String[] { 		Type.ALLOWED, 	Type.ENABLED 	};
+	protected static final boolean[] statusDefaults = new boolean[] { 	true, 			true 			};
+
+	protected static final String[] groups = new String[] { Tag.AUDIO_CAPTURE, Tag.API_CHECKIN, Tag.SBD_COMMUNICATION };
+
+	private static final long[] localExpirationBounds = new long[] { 3333, 9999 };
+	private static final int ratioLocalToFetchedExpiration = 3;
+	private static final double ratioExpirationToAudioCycleDuration = 15.0;
+
 	protected String logTag;
-	private RfcxGuardianIdentity rfcxGuardianIdentity;
-	private ContentResolver contentResolver;
+	private final RfcxGuardianIdentity rfcxGuardianIdentity;
+	private final ContentResolver contentResolver;
 
-	protected static final String[] activityTypes =	new String[] { "audio_capture", "api_checkin" };
-	protected static final String[] statusTypes = 	new String[] { "allowed", "enabled" };
-
-	protected static final String[] validFetchTargetRoles = new String[] { "guardian", "admin" };
-	private String fetchTargetRole;
-
-	private static final boolean[] statusValueLocalFallbacks = new boolean[] { true, true };
-	private static final boolean[] statusValueFetchedFallbacks = new boolean[] { true, true };
-
-	private final boolean[] hasLocalCache = new boolean[] { false, false };
+	private final String fetchTargetRole;
+	private final boolean[] hasLocalCache = new boolean[groups.length];
 	private final Map<Integer, boolean[]> lastLocalValue = new HashMap<>();
 	private final Map<Integer, long[]> lastLocalValueSetAt = new HashMap<>();
 
@@ -44,36 +48,42 @@ public class RfcxStatus {
 	private long lastFetchedValueSetAt = 0;
 	private Map<Integer, boolean[]> lastFetchedValue = new HashMap<>();
 
-	private long localValueCacheExpiresAfter = 10000;
-	private long fetchedValueCacheExpiresAfter = 20000;
+	private static final long[] fetchedExpirationBounds = new long[] { ratioLocalToFetchedExpiration * localExpirationBounds[0], ratioLocalToFetchedExpiration * localExpirationBounds[1] };
+	private long localValueCacheExpiresAfter = Math.round((localExpirationBounds[0]+localExpirationBounds[1])/2.0);
+	private long fetchedValueCacheExpiresAfter = Math.round((fetchedExpirationBounds[0]+fetchedExpirationBounds[1])/2.0);
 
-
-
-	// This should be over-ridden within each role that makes use of this class
-	protected boolean getStatusBasedOnRoleSpecificLogic(int activityType, int statusType, boolean fallbackValue, boolean printFeedbackInLog) {
-
-		boolean statusValue = fallbackValue;
-
-		// This is where the role specific logic would be.
-		// Just in case this function is not over-ridden, we report an error below, so that we'll be informed.
-		Log.e(logTag, "Using Generic 'getStatusBasedOnRoleSpecificLogic' function. No role-specific functionality could be included.");
-
-		return statusValue;
+	public RfcxStatus(String appRole, String fetchTargetRole, RfcxGuardianIdentity rfcxGuardianIdentity, ContentResolver contentResolver) {
+		this.logTag = RfcxLog.generateLogTag(appRole, "RfcxStatus");
+		this.fetchTargetRole = ArrayUtils.doesStringArrayContainString(RfcxRole.ALL_ROLES, fetchTargetRole) ? fetchTargetRole.toLowerCase(Locale.US) : null;
+		this.rfcxGuardianIdentity = rfcxGuardianIdentity;
+		this.contentResolver = contentResolver;
+		initializeCaches();
 	}
 
-
 	//
-	//	Everything below this part should be generic, and usable across all roles that make use of status information
+	// The function below should be over-ridden within each role that makes use of this class
+	//
+	protected boolean getStatusBasedOnRoleSpecificLogic(int group, int statusType, boolean fallbackValue, boolean printFeedbackInLog) {
+		boolean statusValue = fallbackValue;
+		boolean reportUpdate = false;
+		Log.e(logTag, "Using Generic 'getStatusBasedOnRoleSpecificLogic' function. No role-specific functionality has been declared.");
+		// This is where the role specific logic would be.
+		// Just in case this function is not over-ridden, we report an error below, so that we'll be informed.
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ groups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
+		return statusValue;
+	}
+	//
+	// The function above should be over-ridden within each role that makes use of this class
 	//
 
-	private void updateLocalStatus(int activityType, boolean printFeedbackInLog) {
-		boolean[] updatedStatus = lastLocalValue.containsKey(activityType) ? lastLocalValue.get(activityType) : statusValueLocalFallbacks;
+	private void updateLocalStatus(int group, boolean printFeedbackInLog) {
+		boolean[] updatedStatus = lastLocalValue.containsKey(group) ? lastLocalValue.get(group) : statusDefaults;
 		for (int statusType = 0; statusType < statusTypes.length; statusType++) {
-			updatedStatus[statusType] = getStatusBasedOnRoleSpecificLogic(activityType, statusType, updatedStatus[statusType], printFeedbackInLog);
+			updatedStatus[statusType] = getStatusBasedOnRoleSpecificLogic(group, statusType, updatedStatus[statusType], printFeedbackInLog);
 		}
-		lastLocalValue.put(activityType, updatedStatus);
-		lastLocalValueSetAt.put(activityType, new long[] { System.currentTimeMillis(), System.currentTimeMillis() } );
-		hasLocalCache[activityType] = true;
+		lastLocalValue.put(group, updatedStatus);
+		lastLocalValueSetAt.put(group, new long[] { System.currentTimeMillis(), System.currentTimeMillis() } );
+		hasLocalCache[group] = true;
 	}
 
 	private void updateFetchedStatus() {
@@ -84,17 +94,17 @@ public class RfcxStatus {
 				JSONArray jsonArray = RfcxComm.getQuery(fetchTargetRole, "status", "*", contentResolver);
 				if (jsonArray.length() > 0) {
 					JSONObject jsonObj = jsonArray.getJSONObject(0);
-					for (int activityType = 0; activityType < activityTypes.length; activityType++) {
-						boolean[] updatedStatus = _lastFetchedValue.containsKey(activityType) ? _lastFetchedValue.get(activityType) : statusValueFetchedFallbacks;
-						if (jsonObj.has(activityTypes[activityType])) {
-							JSONObject activityStatusObj = jsonObj.getJSONObject(activityTypes[activityType]);
+					for (int group = 0; group < groups.length; group++) {
+						boolean[] updatedStatus = _lastFetchedValue.containsKey(group) ? _lastFetchedValue.get(group) : statusDefaults;
+						if (jsonObj.has(groups[group])) {
+							JSONObject groupStatusObj = jsonObj.getJSONObject(groups[group]);
 							for (int statusType = 0; statusType < statusTypes.length; statusType++) {
-								if (activityStatusObj.has("is_"+statusTypes[statusType])) {
-									updatedStatus[statusType] = activityStatusObj.getBoolean("is_" + statusTypes[statusType]);
+								if (groupStatusObj.has("is_"+statusTypes[statusType])) {
+									updatedStatus[statusType] = groupStatusObj.getBoolean("is_" + statusTypes[statusType]);
 								}
 							}
-							_lastFetchedValue.put(activityType, updatedStatus);
 						}
+						_lastFetchedValue.put(group, updatedStatus);
 					}
 				}
 			}
@@ -106,61 +116,67 @@ public class RfcxStatus {
 		hasFetchedCache = true;
 	}
 
-	private boolean getFetchedStatus(int activityType, int statusType) {
+	private boolean getFetchedStatus(int group, int statusType) {
 		if  ( hasFetchedCache && (Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(lastFetchedValueSetAt)) <= fetchedValueCacheExpiresAfter) ) {
-			return lastFetchedValue.get(activityType)[statusType];
+			return lastFetchedValue.get(group)[statusType];
 		} else {
 			updateFetchedStatus();
-			return lastFetchedValue.containsKey(activityType) ? lastFetchedValue.get(activityType)[statusType] : statusValueFetchedFallbacks[statusType];
+			return lastFetchedValue.containsKey(group) ? lastFetchedValue.get(group)[statusType] : statusDefaults[statusType];
 		}
 	}
 
-	public boolean getFetchedStatus(String activityType, String statusType) {
-		return getFetchedStatus(getActivityType(activityType), getStatusType(statusType));
-	}
-
-	private boolean getLocalStatus(int activityType, int statusType, boolean printFeedbackInLog) {
-
-		if  ( 	hasLocalCache[activityType] && lastLocalValueSetAt.containsKey(activityType)
-			&&	(Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(lastLocalValueSetAt.get(activityType)[statusType])) <= localValueCacheExpiresAfter) ) {
-			return lastLocalValue.get(activityType)[statusType];
+	private boolean getLocalStatus(int group, int statusType, boolean printFeedbackInLog) {
+		if  ( 	hasLocalCache[group] && lastLocalValueSetAt.containsKey(group)
+			&&	(Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(lastLocalValueSetAt.get(group)[statusType])) <= localValueCacheExpiresAfter) ) {
+			return lastLocalValue.get(group)[statusType];
 		} else {
-			updateLocalStatus(activityType, printFeedbackInLog);
-			Log.w(logTag, "Refreshed local status cache: "+activityTypes[activityType]);
-			return lastLocalValue.containsKey(activityType) ? lastLocalValue.get(activityType)[statusType] : statusValueLocalFallbacks[statusType];
+			updateLocalStatus(group, printFeedbackInLog);
+			return lastLocalValue.containsKey(group) ? lastLocalValue.get(group)[statusType] : statusDefaults[statusType];
 		}
 	}
 
-	public boolean getLocalStatus(String activityType, String statusType, boolean printFeedbackInLog) {
-		return getLocalStatus(getActivityType(activityType), getStatusType(statusType), printFeedbackInLog);
+	public boolean getFetchedStatus(String group, String statusType) {
+		return getFetchedStatus(getGroup(group), getStatusType(statusType));
 	}
 
-	protected static int getActivityType(String activityType) {
-		return ArrayUtils.indexOfStringInStringArray(activityTypes, activityType);
+	public boolean getLocalStatus(String group, String statusType, boolean printFeedbackInLog) {
+		return getLocalStatus(getGroup(group), getStatusType(statusType), printFeedbackInLog);
+	}
+
+	protected static boolean isGroup(String tag, int group) {
+		return group == getGroup(tag);
+	}
+
+	protected static boolean isStatusType(String tag, int statusType) {
+		return statusType == getStatusType(tag);
+	}
+
+	protected static int getGroup(String group) {
+		return ArrayUtils.indexOfStringInStringArray(groups, group);
 	}
 
 	protected static int getStatusType(String statusType) {
 		return ArrayUtils.indexOfStringInStringArray(statusTypes, statusType);
 	}
 
-	private JSONObject getLocalStatusAsJsonObj(int activityType) throws JSONException {
+	private JSONObject getLocalStatusAsJsonObj(int group) throws JSONException {
 		JSONObject statusObj = new JSONObject();
 		for (int statusType = 0; statusType < statusTypes.length; statusType++) {
-			statusObj.put("is_"+statusTypes[statusType], getLocalStatus(activityType, statusType, false));
+			statusObj.put("is_"+statusTypes[statusType], getLocalStatus(group, statusType, false));
 		}
 		return statusObj;
 	}
 
-	private JSONObject getLocalStatusAsJsonObj(String activityType) throws JSONException {
-		return getLocalStatusAsJsonObj(getActivityType(activityType));
+	private JSONObject getLocalStatusAsJsonObj(String group) throws JSONException {
+		return getLocalStatusAsJsonObj(getGroup(group));
 	}
 
 	public JSONArray getCompositeLocalStatusAsJsonArr() {
 		JSONArray compositeStatusArr = new JSONArray();
 		JSONObject compositeStatusObj = new JSONObject();
 		try {
-			for (int activityType = 0; activityType < activityTypes.length; activityType++) {
-				compositeStatusObj.put(activityTypes[activityType], getLocalStatusAsJsonObj(activityType));
+			for (int group = 0; group < groups.length; group++) {
+				compositeStatusObj.put(groups[group], getLocalStatusAsJsonObj(group));
 			}
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
@@ -170,19 +186,19 @@ public class RfcxStatus {
 	}
 
 	private void initializeCaches() {
-		for (int activityType = 0; activityType < activityTypes.length; activityType++) {
+		for (int group = 0; group < groups.length; group++) {
 			boolean[] valueArr = new boolean[statusTypes.length];
 			long[] valueSetAtArr = new long[statusTypes.length];
 			for (int statusType = 0; statusType < statusTypes.length; statusType++) {
-				valueArr[statusType] = true;
+				valueArr[statusType] = statusDefaults[statusType];
 				valueSetAtArr[statusType] = 0;
 			}
 
-			lastLocalValue.put(activityType, valueArr);
-			lastLocalValueSetAt.put(activityType, valueSetAtArr);
-			hasLocalCache[activityType] = false;
+			lastLocalValue.put(group, valueArr);
+			lastLocalValueSetAt.put(group, valueSetAtArr);
+			hasLocalCache[group] = false;
 
-			lastFetchedValue.put(activityType, valueArr);
+			lastFetchedValue.put(group, valueArr);
 			lastFetchedValueSetAt = 0;
 			hasFetchedCache = false;
 		}
@@ -190,8 +206,8 @@ public class RfcxStatus {
 
 	public void setOrResetCacheExpirations(int audioCycleDurationInSeconds) {
 		long audioCycleDuration =  audioCycleDurationInSeconds * 1000;
-		localValueCacheExpiresAfter = Math.min( Math.max( Math.round( audioCycleDuration / 13.5 ), 3333 ), 10000 );
-		fetchedValueCacheExpiresAfter = Math.min( Math.max( Math.round( audioCycleDuration / 8.0 ), 5000 ), 15000 );
+		localValueCacheExpiresAfter = Math.min( Math.max( Math.round( audioCycleDuration / ratioExpirationToAudioCycleDuration), localExpirationBounds[0] ), localExpirationBounds[1] );
+		fetchedValueCacheExpiresAfter = Math.min( Math.max( Math.round( ratioLocalToFetchedExpiration * audioCycleDuration / ratioExpirationToAudioCycleDuration), fetchedExpirationBounds[0] ), fetchedExpirationBounds[1] );
 		Log.w(logTag, "Updated Status Cache Timeouts "
 				+"- Local: "+DateTimeUtils.milliSecondDurationAsReadableString(localValueCacheExpiresAfter)
 				+", Fetched: "+DateTimeUtils.milliSecondDurationAsReadableString(fetchedValueCacheExpiresAfter));

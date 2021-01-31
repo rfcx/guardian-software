@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.api.methods.checkin;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 import android.app.IntentService;
@@ -53,7 +54,7 @@ public class ApiCheckInQueueService extends IntentService {
 			}
 
 
-			if (app.rfcxStatus.getLocalStatus("api_checkin", "enabled", true)) {
+			if (app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.API_CHECKIN, RfcxStatus.Type.ENABLED, true)) {
 
 				app.rfcxSvc.triggerOrForceReTriggerIfTimedOut( ApiCheckInJobService.SERVICE_NAME, 3 * app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000);
 

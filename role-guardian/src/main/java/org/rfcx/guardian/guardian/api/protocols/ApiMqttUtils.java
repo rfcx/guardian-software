@@ -33,6 +33,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
 public class ApiMqttUtils implements MqttCallback {
 
@@ -519,7 +520,7 @@ public class ApiMqttUtils implements MqttCallback {
 			if (	// ...we haven't yet reached the first threshold for bad connectivity
 					(minsSinceSuccess < this.failedCheckInThresholds[0])
 					// OR... we are explicitly in offline mode
-					|| !app.rfcxStatus.getLocalStatus("api_checkin", "enabled", false)
+					|| !app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.API_CHECKIN, RfcxStatus.Type.ENABLED, false)
 					// OR... checkins are explicitly paused due to low battery level
 					|| !app.apiCheckInHealthUtils.isBatteryChargeSufficientForCheckIn()
 					// OR... this is likely the first checkin after a period of disconnection
@@ -570,7 +571,7 @@ public class ApiMqttUtils implements MqttCallback {
 		if (	(app != null)
 			&&	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "mqtt")
 			&&	app.deviceConnectivity.isConnected()
-			&&	app.rfcxStatus.getLocalStatus("api_checkin", "allowed", false)
+			&&	app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.API_CHECKIN, RfcxStatus.Type.ALLOWED, false)
 		) {
 			return true;
 

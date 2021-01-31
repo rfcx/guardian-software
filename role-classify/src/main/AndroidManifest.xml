@@ -70,6 +70,7 @@
 
 		<!-- Services -->
 		<service android:name=".service.AudioClassifyJobService" />
+		<service android:name=".service.AudioDetectionSendService" />
 
 		<!-- IntentServices -->
 		<service android:name=".ServiceMonitor" android:exported="false" />

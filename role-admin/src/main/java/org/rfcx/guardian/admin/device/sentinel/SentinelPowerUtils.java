@@ -20,6 +20,7 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
 public class SentinelPowerUtils {
 
@@ -478,7 +479,7 @@ public class SentinelPowerUtils {
     }
 
 
-    public boolean isReducedCaptureModeActive_BasedOnSentinelPower(String activityTag) {
+    public boolean isReducedCaptureModeActive_BasedOnSentinelPower(String groupTag) {
 
         boolean isReduced = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY);
 
@@ -491,7 +492,7 @@ public class SentinelPowerUtils {
             if (this.powerBatteryValues.size() > 0) {
 
                 long battPct = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getMinimumValuesAsArrayFromArrayList(this.powerBatteryValues))[2];
-                int prefsVal = activityTag.equalsIgnoreCase("audio_capture") ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY);
+                int prefsVal = groupTag.equalsIgnoreCase(RfcxStatus.Tag.AUDIO_CAPTURE) ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY);
                 isReduced = !(battPct >= (prefsVal * 100));
 
             } else if (!isCaptureAllowed()) {

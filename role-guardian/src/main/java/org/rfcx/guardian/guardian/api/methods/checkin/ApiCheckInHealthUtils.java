@@ -8,6 +8,7 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -213,7 +214,7 @@ public class ApiCheckInHealthUtils {
 			isApiCheckInAllowedUnderKnownConditions = false;
 			reportedDelay = Math.round(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) / 2);
 
-		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus("api_checkin", "allowed")) {
+		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus( RfcxStatus.Tag.API_CHECKIN, RfcxStatus.Type.ALLOWED)) {
 			msgNotAllowed.append("Low Sentinel Battery level")
 					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY)).append("%).");
 			isApiCheckInAllowedUnderKnownConditions = false;

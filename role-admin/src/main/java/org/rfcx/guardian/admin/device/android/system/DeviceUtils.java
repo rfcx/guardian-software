@@ -7,16 +7,15 @@ import android.location.Location;
 import android.util.Log;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceMemory;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,8 +114,8 @@ public class DeviceUtils {
 	public void setOrUnSetReducedCaptureMode() {
 
 		boolean newIsReducedCaptureModeActive =
-			(	!app.rfcxStatus.getLocalStatus("audio_capture", "allowed", false)
-			||	!app.rfcxStatus.getFetchedStatus("audio_capture", "allowed")
+			(	!app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED, false)
+			||	!app.rfcxStatus.getFetchedStatus( RfcxStatus.Tag.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED)
 			);
 
 		if (this.isReducedCaptureModeActive != newIsReducedCaptureModeActive) {

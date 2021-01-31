@@ -1,6 +1,7 @@
 package org.rfcx.guardian.classify.status;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.rfcx.guardian.classify.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -19,12 +20,13 @@ public class ClassifyStatus extends RfcxStatus {
 	private final RfcxGuardian app;
 
 	@Override
-	protected boolean getStatusBasedOnRoleSpecificLogic(int activityType, int statusType, boolean fallbackValue, boolean printFeedbackInLog) {
-
+	protected boolean getStatusBasedOnRoleSpecificLogic(int group, int statusType, boolean fallbackValue, boolean printFeedbackInLog) {
 		boolean statusValue = fallbackValue;
+		boolean reportUpdate = false;
 
 		// we'd put some functionality here
 
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ groups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
 		return statusValue;
 	}
 

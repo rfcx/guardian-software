@@ -108,8 +108,9 @@ public class AudioClassifyJobService extends Service {
 						String audioId = latestQueuedAudioToClassify[1];
 						long audioStartsAt = Long.parseLong(latestQueuedAudioToClassify[1]);
 						String audioOrigRelativePath = latestQueuedAudioToClassify[7];
+						int previousAttempts = Integer.parseInt(latestQueuedAudioToClassify[12]);
 
-						if (Integer.parseInt(latestQueuedAudioToClassify[12]) >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
+						if (previousAttempts >= AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD) {
 
 							Log.e(logTag, "Skipping Audio Classify Job for " + audioId + " after " + AudioClassifyUtils.CLASSIFY_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 
@@ -158,21 +159,21 @@ public class AudioClassifyJobService extends Service {
 										classifyOutputJson.put("classify_duration", (System.currentTimeMillis()-classifyStartTime)+"" );
 										classifyOutputJson.put("audio_size", FileUtils.getFileSizeInBytes(audioFilePath)+"" );
 
-										app.audioClassifyUtils.sendClassifyOutputToGuardianRole(classifyOutputJson);
+										app.audioDetectionDb.dbQueued.insert(classifyOutputJson.toString());
 
 										app.audioClassifyDb.dbQueued.deleteSingleRow(audioId, classifierId);
+
+										app.rfcxSvc.triggerService( AudioDetectionSendService.SERVICE_NAME, false );
 									}
 								}
 							}
 						}
 
 					} else {
-						Log.d(logTag, "Queued classify job definitoin from database is invalid.");
+						Log.d(logTag, "Queued classify job definition from database is invalid.");
 
 					}
 				}
-
-// 		maybe some code to queue sending the detections back to the guardian role
 
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);

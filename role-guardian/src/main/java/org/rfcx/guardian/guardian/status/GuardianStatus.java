@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.status;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -19,24 +20,45 @@ public class GuardianStatus extends RfcxStatus {
 	private final RfcxGuardian app;
 
 	@Override
-	protected boolean getStatusBasedOnRoleSpecificLogic(int activityType, int statusType, boolean fallbackValue, boolean printFeedbackInLog) {
+	protected boolean getStatusBasedOnRoleSpecificLogic(int group, int statusType, boolean fallbackValue, boolean printFeedbackInLog) {
 		boolean statusValue = fallbackValue;
+		boolean reportUpdate = false;
 
-		if (activityType == getActivityType("audio_capture"))  {
-			if (statusType == getStatusType("allowed")) {
+		if (isGroup( Tag.AUDIO_CAPTURE, group)) {
+
+			if (isStatusType( Type.ALLOWED, statusType)) {
 				statusValue = app.audioCaptureUtils.isAudioCaptureAllowed( true, printFeedbackInLog);
-			} else if (statusType == getStatusType("enabled")) {
+				reportUpdate = true;
+
+			} else if (isStatusType( Type.ENABLED, statusType)) {
 				statusValue = !app.audioCaptureUtils.isAudioCaptureDisabled(printFeedbackInLog);
+				reportUpdate = true;
 			}
 
-		} else if (activityType == getActivityType("api_checkin")) {
-			if (statusType == getStatusType("allowed")) {
+		} else if (isGroup( Tag.API_CHECKIN, group)) {
+
+			if (isStatusType( Type.ALLOWED, statusType)) {
 				statusValue = app.apiCheckInHealthUtils.isApiCheckInAllowed(true, printFeedbackInLog);
-			} else if (statusType == getStatusType("enabled")) {
-				statusValue = !app.apiCheckInHealthUtils.isApiCheckInDisabled(printFeedbackInLog);
-			}
-		}
+				reportUpdate = true;
 
+			} else if (isStatusType( Type.ENABLED, statusType)) {
+				statusValue = !app.apiCheckInHealthUtils.isApiCheckInDisabled(printFeedbackInLog);
+				reportUpdate = true;
+			}
+
+		}/* else if (isGroup( Tag.SBD_COMMUNICATION, group)) {
+
+			if (isStatusType( Type.ALLOWED, statusType)) {
+				statusValue = fallbackValue;
+				reportUpdate = true;
+
+			} else if (isStatusType( Type.ENABLED, statusType)) {
+				statusValue = fallbackValue;
+				reportUpdate = true;
+			}
+		}*/
+
+		if (reportUpdate) { Log.w(logTag, "Refreshed local status cache for '"+ groups[group]+"', 'is_"+statusTypes[statusType]+"'"); }
 		return statusValue;
 	}
 

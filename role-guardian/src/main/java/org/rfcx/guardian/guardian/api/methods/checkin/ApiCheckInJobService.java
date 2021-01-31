@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.util.Log;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
 public class ApiCheckInJobService extends Service {
 
@@ -74,7 +75,7 @@ public class ApiCheckInJobService extends Service {
 				
 			while (		apiCheckInJobInstance.runFlag
 					&& 	( (app.apiCheckInDb.dbQueued.getCount() > 0) || !app.apiMqttUtils.isConnectedToBroker() )
-					&&	app.rfcxStatus.getLocalStatus("api_checkin", "enabled", true)
+					&&	app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.API_CHECKIN, RfcxStatus.Type.ENABLED, true)
 				) {
 
 				app.rfcxSvc.reportAsActive(SERVICE_NAME);
@@ -84,7 +85,7 @@ public class ApiCheckInJobService extends Service {
 					long prefsAudioCycleDuration = Math.round( app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000 );
 					int prefsCheckInFailureLimit = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_FAILURE_LIMIT);
 					
-					if (!app.rfcxStatus.getLocalStatus("api_checkin", "allowed", true)) {
+					if (!app.rfcxStatus.getLocalStatus( RfcxStatus.Tag.API_CHECKIN, RfcxStatus.Type.ALLOWED, true)) {
 
 						int waitLoopIterationCount = !app.deviceConnectivity.isConnected() ? 1 : 4;
 
