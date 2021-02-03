@@ -43,6 +43,7 @@ android {
 
 dependencies {
     implementation project(':lib-core')
+    implementation project(':lib-audio')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

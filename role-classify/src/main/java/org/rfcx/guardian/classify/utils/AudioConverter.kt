@@ -32,6 +32,14 @@ object AudioConverter {
         return floats
     }
 
+    fun doubleMe(pcms: FloatArray): DoubleArray? {
+        val doubles = DoubleArray(pcms.size)
+        pcms.forEachIndexed { index, fl ->
+            doubles[index] = fl.toDouble()
+        }
+        return doubles
+    }
+
 
     /**
      * To slide an audio to windows of (sample rate * window size) length
