@@ -218,9 +218,13 @@ Before you start, you will need to generate a suitable IMEI number. Please use t
     5. In the newer version There are checkboxes called **"Load AP DB from DUT"** and **"Load modem DB from DUT"**. Make sure that you uncheck these two box before the next step.
     6. Save and then Start
     7. Put the IMEI Number with 15 digit
-6. Make sure that Orange Pi do not connect to PC.
-7. Click OK and then connect Orange Pi to PC immediately (be quick else the device will not be detected in time and you will have to disconnect/start again).
-8. In Vysor, go to Settings -> About Phone -> Status and scroll down to verify that IMEI number you entered during the flashing process is shown there. (If there is an error then repeat step 5).
+6. In the menus
+   1. Open **Identify** -> **Engineer** -> **Enable AutoGen**
+   2. In **IMEI** section, Edit **End** field to change the first digit to **9** (change no other digits in the field value)
+   3. Click **OK** to save the settings
+8. Make sure that Orange Pi is not connected to the PC.
+9. Click OK and then connect Orange Pi to PC immediately (be quick else the device will not be detected in time and you will have to disconnect/start again).
+10. In Vysor, go to Settings -> About Phone -> Status and scroll down to verify that IMEI number you entered during the flashing process is shown there. (If there is an error then repeat step 5).
 
    ![](docs/images/checkimei.png?raw=true)
 
