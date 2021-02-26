@@ -8,6 +8,7 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.Date;
 
@@ -16,6 +17,14 @@ public class SentinelUtils {
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelUtils");
 
     public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 3;
+
+    public static void setVerboseSentinelLogging(Context context) {
+        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+        boolean isVerbose = app.rfcxPrefs.getPrefAsBoolean( RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL );
+        app.sentinelPowerUtils.verboseLogging = isVerbose;
+        app.sentinelAccelUtils.verboseLogging = isVerbose;
+        app.sentinelCompassUtils.verboseLogging = isVerbose;
+    }
 
     public static JSONArray getSentinelSensorValuesAsJsonArray(Context context) {
 

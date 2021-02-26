@@ -8,10 +8,10 @@ import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraCaptureServ
 import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
 import org.rfcx.guardian.admin.device.android.control.SystemSettingsService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
-import org.rfcx.guardian.admin.sbd.IridiumUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelUtils;
+import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
 import org.rfcx.guardian.admin.sbd.SbdDispatchCycleService;
 import org.rfcx.guardian.admin.sbd.SbdDispatchService;
 import org.rfcx.guardian.admin.sbd.SbdMessageDb;
@@ -30,15 +30,15 @@ import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.status.AdminStatus;
 import org.rfcx.guardian.admin.status.StatusCacheService;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
+import org.rfcx.guardian.uart.DeviceUartUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.telephony.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.telephony.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.telephony.DeviceNetworkStats;
 import org.rfcx.guardian.utility.device.control.DeviceSystemProperties;
-import org.rfcx.guardian.utility.device.expansion.DeviceGPIOUtils;
+import org.rfcx.guardian.gpio.DeviceGpioUtils;
 import org.rfcx.guardian.utility.device.control.DeviceSystemSettings;
-import org.rfcx.guardian.utility.device.expansion.DeviceUARTUtils;
 import org.rfcx.guardian.utility.device.control.DeviceWallpaper;
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
@@ -75,6 +75,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.os.PowerManager;
 import android.util.Log;
 
 public class RfcxGuardian extends Application {
@@ -117,13 +118,12 @@ public class RfcxGuardian extends Application {
 	public AssetUtils assetUtils = null;
 
 	public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils(APP_ROLE);
+	public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
+	public DeviceUartUtils deviceUartUtils= new DeviceUartUtils(APP_ROLE);
+
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelCompassUtils sentinelCompassUtils = null;
 	public SentinelAccelUtils sentinelAccelUtils = null;
-
-	public IridiumUtils iridiumUtils = null;
-	public DeviceGPIOUtils deviceGPIOUtils = new DeviceGPIOUtils(APP_ROLE);
-	public DeviceUARTUtils deviceUARTUtils = null;
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -161,8 +161,8 @@ public class RfcxGuardian extends Application {
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		this.sentinelCompassUtils = new SentinelCompassUtils(this);
 		this.sentinelAccelUtils = new SentinelAccelUtils(this);
+		SentinelUtils.setVerboseSentinelLogging(this);
 		this.assetUtils = new AssetUtils(this);
-		this.iridiumUtils = new IridiumUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();
@@ -330,6 +330,9 @@ public class RfcxGuardian extends Application {
 		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.REBOOT_FORCED_DAILY_AT )) {
 			Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
 
+		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL )) {
+			SentinelUtils.setVerboseSentinelLogging(this);
+
 		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER )) {
 			rfcxSvc.triggerService("SSHServerControl", false);
 
@@ -363,11 +366,13 @@ public class RfcxGuardian extends Application {
 			this.deviceI2cUtils.setInterface(DeviceHardware_OrangePi_3G_IOT.DEVICE_I2C_INTERFACE);
 
 			// Sets GPIO interface
-			this.deviceGPIOUtils.setGpioHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_HANDLER_FILEPATH);
-			this.deviceGPIOUtils.setupPins(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_MAP);
+			this.deviceGpioUtils.setGpioHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_HANDLER_FILEPATH);
+			this.deviceGpioUtils.setupAddresses(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_MAP);
 
 			// Sets UART interface
-			this.deviceUARTUtils = new DeviceUARTUtils(APP_ROLE, DeviceHardware_OrangePi_3G_IOT.DEVICE_UART_INTERFACE);
+			this.deviceUartUtils.setUartHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_UART_HANDLER_FILEPATH);
+			this.deviceUartUtils.setupAddresses(DeviceHardware_OrangePi_3G_IOT.DEVICE_UART_MAP);
+
 
 		}
 

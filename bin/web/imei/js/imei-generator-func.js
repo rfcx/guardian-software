@@ -5,14 +5,37 @@
 // Modified from: http://bradconte.com/cc_generator
 //
 
+function get_rfcx_serial() {
+
+    var sn_field = document.getElementById('rfcx_serial_num').value;
+
+    if (sn_field != "") {
+        return Number(sn_field);
+    } else {
+        return 0;
+    }
+
+}
+
+function set_sn_field() {
+
+    var sn_param = 0;
+    const urlParams = new URLSearchParams(location.search);
+    for (const [key, value] of urlParams) {
+        if (key === "sn") {
+            document.getElementById('rfcx_serial_num').value = Number(value);
+        }
+    } 
+}
+
 function imei_gen() {
     var pos;
-    var str = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    var str = new Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     var sum = 0;
     var final_digit = 0;
     var t = 0;
     var len_offset = 0;
-    var len = 14;
+    var len = str.length;
     var issuer;
 
     //
@@ -26,8 +49,7 @@ function imei_gen() {
     // str[1] = Number(arr[1]);
     // pos = 2;
 
-
-    var rfcx_rbi = ["0","0","4","4","0","3","2","2"];
+    var rfcx_rbi = ["3","5","8","8","7","7","8","4"];
     for (var i = 0; i < rfcx_rbi.length; i++) {
         str[i] = Number(rfcx_rbi[i]);
     }
@@ -37,8 +59,20 @@ function imei_gen() {
     // Fill all the remaining numbers except for the last one with random values.
     //
 
+    var sn_strlen = len - 1 - rfcx_rbi.length;
+
+    var sn_rfcx = get_rfcx_serial();
+
+    var sn_str = ("000000000"+sn_rfcx).slice(0 - sn_strlen);
+
+    var sn_str_i = 0;
+
     while (pos < len - 1) {
-        str[pos++] = Math.floor(Math.random() * 10) % 10;
+        if (sn_rfcx == 0) {
+            str[pos++] = Math.floor(Math.random() * 10) % 10;
+        }
+        str[pos++] = Number(sn_str.substr(sn_str_i,1));
+        sn_str_i++;
     }
 
     //
@@ -66,6 +100,7 @@ function imei_gen() {
     final_digit = (10 - (sum % 10)) % 10;
     str[len - 1] = final_digit;
 
+
     // Output the IMEI value.
     t = str.join('');
     t = t.substr(0, len);
@@ -77,11 +112,11 @@ function set_usable_imei() {
 
     var imei = "_";
 
-    while (imei.substr(0,1) != "0") {
+    while (imei.substr(0,8) != "35887784") {
         imei = imei_gen();
     }
 
-	var imei_display = imei.substr(0,4) + "" + imei.substr(4,3) + "" + imei.substr(7,4) + "" + imei.substr(11,4);
+	var imei_display = imei.substr(0,4) + "" + imei.substr(4,3) + "" + imei.substr(7,4) + "" + imei.substr(11);
 
     document.getElementById('imei_num').value = imei_display;
 }

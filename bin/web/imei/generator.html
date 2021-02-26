@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <head>
-	<script type="text/javascript" src="js/imei-generator-func.js?v4"></script>
+	<script type="text/javascript" src="js/imei-generator-func.js?v5"></script>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>RFCx IMEI Generator</title>
 </head>
-<body>
+<body onLoad="set_sn_field()">
+	<br />
+	<span style="font-family:Courier;text-align:center;font-size:24px;padding:8px 36px 8px 24px;margin-bottom:20px;cursor:pointer;border-width:2px;">
+	RFCx Serial Number:
+</span>
+	<br />
+	<input style="font-family:Courier;text-align:center;font-size:24px;margin-left:20px;padding:8px 8px 8px 8px;margin-bottom:20px;" type="text" value="" size="19" id="rfcx_serial_num" />
 	<br />
 	<input style="font-family:Courier;text-align:center;font-size:24px;margin-left:20px;padding:8px 36px 8px 36px;margin-bottom:20px;cursor:pointer;border-width:2px;" type="button" onclick="set_usable_imei()" value="Generate IMEI &gt;" />
 	<br />

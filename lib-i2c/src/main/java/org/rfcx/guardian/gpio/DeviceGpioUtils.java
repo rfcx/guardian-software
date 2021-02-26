@@ -1,4 +1,4 @@
-package org.rfcx.guardian.utility.device.expansion;
+package org.rfcx.guardian.gpio;
 
 import android.util.Log;
 
@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class DeviceGPIOUtils {
+public class DeviceGpioUtils {
 
-	public DeviceGPIOUtils(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceGPIO");
+	public DeviceGpioUtils(String appRole) {
+		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceGpioUtils");
 	}
 
 	private final String logTag;
@@ -22,17 +22,20 @@ public class DeviceGPIOUtils {
 	private String gpioHandlerFilepath;
 	private boolean isHandlerReadable = false;
 
+	private final Map<String, String> addrMap = new HashMap<String, String>();
+	private final Map<String, String> dirMap = new HashMap<String, String>();
+
 	private static final String[] GPIO_POSSIBLE_COMMANDS = new String[] { "MODE", "PULL_SEL", "DOUT", "PULL_EN", "DIR", "IES", "SMT" };
 
-	private final Map<String, String> pinAddrMap = new HashMap<String, String>();
-	private final Map<String, String> pinDirMap = new HashMap<String, String>();
+	public void setGpioHandlerFilepath(String handlerFilepath) {
+		this.gpioHandlerFilepath = handlerFilepath;
+	}
 
-
-	public void setupPins(Map<String, String[]> pinMap) {
-		for (Map.Entry pins : pinMap.entrySet()) {
-			String pinName = pins.getKey().toString();
-			setPinAddrByName(pinName, pinMap.get(pinName)[0]);
-			setPinDirByName(pinName, pinMap.get(pinName)[1]);
+	public void setupAddresses(Map<String, String[]> addrMap) {
+		for (Map.Entry addr : addrMap.entrySet()) {
+			String addrName = addr.getKey().toString();
+			setAddrNumByName(addrName, addrMap.get(addrName)[0]);
+			setAddrDirByName(addrName, addrMap.get(addrName)[1]);
 		}
 	}
 
@@ -63,26 +66,22 @@ public class DeviceGPIOUtils {
 		return outputCmd;
 	}
 
-	public void setGpioHandlerFilepath(String handlerFilepath) {
-		this.gpioHandlerFilepath = handlerFilepath;
-	}
-
-	public void runGPIOCommand(String cmd, String pinName, boolean setToHigh) {
+	public void runGpioCommand(String cmd, String addrName, boolean setToHigh) {
 
 		try {
 
-			int pinAddr = getPinAddrByName(pinName);
-			String pinCmd = checkSetGpioCommand(cmd);
+			int addrNum = getAddrNumByName(addrName);
+			String execCmd = checkSetGpioCommand(cmd);
 
-			if (checkSetIsHandlerAccessible() && (pinAddr != 0) && (pinCmd != null)) {
+			if (checkSetIsHandlerAccessible() && (addrNum != 0) && (execCmd != null)) {
 
 				String execStr = "echo"
-						+ " -w" + pinCmd.toLowerCase(Locale.US)
-						+ " " + pinAddr
+						+ " -w" + execCmd.toLowerCase(Locale.US)
+						+ " " + addrNum
 						+ " " + (setToHigh ? "1" : "0")
 						+ " > " + gpioHandlerFilepath;
 
-				Log.v(logTag, "GPIO '"+pinName+"' pin command: "+pinCmd.toUpperCase(Locale.US) + " -> " + ((setToHigh) ? "HIGH" : "LOW"));
+				Log.v(logTag, "Running GPIO command on '"+addrName+"': "+execCmd.toUpperCase(Locale.US) + " -> " + ((setToHigh) ? "HIGH" : "LOW"));
 
 				ShellCommands.executeCommandAndIgnoreOutput(execStr);
 			}
@@ -93,15 +92,15 @@ public class DeviceGPIOUtils {
 	}
 
 
-	public boolean readGPIOPin(String address, String readField) {
+	public boolean readGpioValue(String addrName, String readField) {
 
 		try {
 
-			int pinAddr = getPinAddrByName(address);
+			int addrNum = getAddrNumByName(addrName);
 
-			if (checkSetIsHandlerAccessible() && (pinAddr != 0)) {
+			if (checkSetIsHandlerAccessible() && (addrNum != 0)) {
 
-				String execStr = "cat " + gpioHandlerFilepath + " | grep '" + pinAddr + ":'";
+				String execStr = "cat " + gpioHandlerFilepath + " | grep '" + addrNum + ":'";
 
 				for (String execRtrn : ShellCommands.executeCommand(execStr)) {
 					String rtrnStr = execRtrn.substring(execRtrn.indexOf(":")+1, execRtrn.lastIndexOf("-"));
@@ -120,42 +119,42 @@ public class DeviceGPIOUtils {
 
 
 
-	private void setPinAddrByName(String pinName, int pinNumber) {
-		this.pinAddrMap.remove(pinName.toUpperCase(Locale.US));
-		this.pinAddrMap.put(pinName.toUpperCase(Locale.US), ""+pinNumber);
+	private void setAddrNumByName(String addrName, int addrNum) {
+		this.addrMap.remove(addrName.toUpperCase(Locale.US));
+		this.addrMap.put(addrName.toUpperCase(Locale.US), ""+addrNum);
 	}
 
-	private void setPinAddrByName(String pinName, String pinNumber) {
-		setPinAddrByName(pinName, Integer.parseInt(pinNumber));
+	private void setAddrNumByName(String addrName, String addrNum) {
+		setAddrNumByName(addrName, Integer.parseInt(addrNum));
 	}
 
-	private int getPinAddrByName(String pinName) {
-		int pinNmbr = 0;
-		if (this.pinAddrMap.containsKey(pinName.toUpperCase(Locale.US))) {
-			pinNmbr = Integer.parseInt(this.pinAddrMap.get(pinName.toUpperCase(Locale.US)));
+	private int getAddrNumByName(String addrName) {
+		int addrNum = 0;
+		if (this.addrMap.containsKey(addrName.toUpperCase(Locale.US))) {
+			addrNum = Integer.parseInt(this.addrMap.get(addrName.toUpperCase(Locale.US)));
 		} else {
-			Log.e(logTag, "No GPIO pin assignment for '"+pinName+"'");
+			Log.e(logTag, "No GPIO Numeric Address assignment for '"+addrName+"'");
 		}
-		return pinNmbr;
+		return addrNum;
 	}
 
 
 
-	private void setPinDirByName(String pinName, String pinDirection) {
-		this.pinDirMap.remove(pinName.toUpperCase(Locale.US));
-		this.pinDirMap.put(pinName.toUpperCase(Locale.US), pinDirection);
-		boolean isWrite = pinDirection.equalsIgnoreCase("write") || pinDirection.equalsIgnoreCase("w");
-		runGPIOCommand("DIR", pinName, isWrite);
+	private void setAddrDirByName(String addrName, String addrDir) {
+		this.dirMap.remove(addrName.toUpperCase(Locale.US));
+		this.dirMap.put(addrName.toUpperCase(Locale.US), addrDir);
+		boolean isWrite = addrDir.equalsIgnoreCase("write") || addrDir.equalsIgnoreCase("w");
+		runGpioCommand("DIR", addrName, isWrite);
 	}
 
-	private String getPinDirByName(String pinName) {
-		String pinDir = "write";
-		if (this.pinDirMap.containsKey(pinName.toUpperCase(Locale.US))) {
-			pinDir = this.pinDirMap.get(pinName.toUpperCase(Locale.US));
+	private String getAddrDirByName(String addrName) {
+		String addrDir = "write";
+		if (this.dirMap.containsKey(addrName.toUpperCase(Locale.US))) {
+			addrDir = this.dirMap.get(addrName.toUpperCase(Locale.US));
 		} else {
-			Log.e(logTag, "No GPIO direction assignment for '"+pinName+"'");
+			Log.e(logTag, "No GPIO Direction assignment for '"+addrName+"'");
 		}
-		return pinDir;
+		return addrDir;
 	}
 
 }

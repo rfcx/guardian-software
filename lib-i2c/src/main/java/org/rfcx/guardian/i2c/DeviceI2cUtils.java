@@ -3,6 +3,7 @@ package org.rfcx.guardian.i2c;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.File;
 import java.math.BigInteger;

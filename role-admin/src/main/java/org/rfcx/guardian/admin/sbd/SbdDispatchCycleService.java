@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class SbdDispatchCycleService extends Service {

@@ -1,7 +1,6 @@
 package org.rfcx.guardian.admin.contentprovider;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeEnableService;
@@ -133,6 +132,11 @@ public class AdminContentProvider extends ContentProvider {
                 app.assetUtils.runFileSystemAssetCleanup();
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"asset_cleanup", null, System.currentTimeMillis()});
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "test_serial")) { logFuncVal = "control-test_serial";
+                app.deviceUartUtils.testSerialConn();
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"test_serial", null, System.currentTimeMillis()});
+
+
 
             } else if (RfcxComm.uriMatch(uri, appRole, "keycode", "*")) { logFuncVal = "keycode-*";
                 String pathSeg = uri.getLastPathSegment();
@@ -157,13 +161,13 @@ public class AdminContentProvider extends ContentProvider {
                 String[] gpioOpts = TextUtils.split(pathSeg,"\\|");
                 String pathSegAddr = gpioOpts[0];
                 String pathSegHighOrLow = gpioOpts[1].toLowerCase(Locale.US);
-                app.deviceGPIOUtils.runGPIOCommand("DOUT", pathSegAddr, pathSegHighOrLow.equalsIgnoreCase("high"));
+                app.deviceGpioUtils.runGpioCommand("DOUT", pathSegAddr, pathSegHighOrLow.equalsIgnoreCase("high"));
                 return RfcxComm.getProjectionCursor(appRole, "gpio_set", new Object[] { pathSegAddr, pathSegHighOrLow, System.currentTimeMillis() });
 
             } else if (RfcxComm.uriMatch(uri, appRole, "gpio_get", "*")) { logFuncVal = "gpio_get-*";
                 String pathSeg = uri.getLastPathSegment();
 
-                boolean gpioVal = app.deviceGPIOUtils.readGPIOPin(pathSeg, "DOUT");
+                boolean gpioVal = app.deviceGpioUtils.readGpioValue(pathSeg, "DOUT");
                 return RfcxComm.getProjectionCursor(appRole, "gpio_get", new Object[] { pathSeg, gpioVal, System.currentTimeMillis() });
 
 

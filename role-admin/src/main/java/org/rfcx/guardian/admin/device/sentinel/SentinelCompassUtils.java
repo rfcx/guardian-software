@@ -35,7 +35,7 @@ public class SentinelCompassUtils {
 
     private List<double[]> compassValues = new ArrayList<>();
 
-    private boolean verboseLogging = false;
+    public boolean verboseLogging = false;
 
     private void initSentinelCompassI2cOptions() {
 

@@ -35,7 +35,7 @@ public class SentinelAccelUtils {
 
     private List<double[]> accelValues = new ArrayList<>();
 
-    private boolean verboseLogging = false;
+    public boolean verboseLogging = false;
 
     private void initSentinelAccelI2cOptions() {
 

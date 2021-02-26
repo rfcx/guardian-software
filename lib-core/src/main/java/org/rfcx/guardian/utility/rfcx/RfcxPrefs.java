@@ -136,6 +136,7 @@ public class RfcxPrefs {
 
 		public static final String ADMIN_ENABLE_SENTINEL_POWER = "admin_enable_sentinel_power";
 		public static final String ADMIN_ENABLE_SENTINEL_SENSOR = "admin_enable_sentinel_sensor";
+		public static final String ADMIN_VERBOSE_SENTINEL = "admin_verbose_sentinel";
 
 		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
 		public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";
@@ -238,6 +239,7 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_ENABLE_SENTINEL_POWER, "true");
 			put(Pref.ADMIN_ENABLE_SENTINEL_SENSOR, "false");
+			put(Pref.ADMIN_VERBOSE_SENTINEL, "false");
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "preferred_network_mode:global,i,0;");

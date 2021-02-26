@@ -43,7 +43,7 @@ public class SentinelPowerUtils {
     private List<double[]> powerInputValues = new ArrayList<>();
     private List<double[]> powerSystemValues = new ArrayList<>();
 
-    private boolean verboseLogging = false;
+    public boolean verboseLogging = false;
 
     private static final double qCountCalibrationVoltageMin = 2750;
 
@@ -521,6 +521,5 @@ public class SentinelPowerUtils {
 
         return Math.round(divVal);
     }
-
 
 }

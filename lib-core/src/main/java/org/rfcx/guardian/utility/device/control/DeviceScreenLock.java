@@ -46,5 +46,10 @@ public class DeviceScreenLock {
 			Log.d(this.logTag,"WakeLock released & KeyGuardLock enabled.");
 		}
 	}
+
+
+	public static boolean isScreenOn(Context context) {
+		return ((PowerManager) context.getSystemService(Context.POWER_SERVICE)).isScreenOn();
+	}
 	
 }

@@ -19,6 +19,12 @@ public class SbdUtils {
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdUtils");
 
 
+
+//	public void setPower(boolean setToOn) {
+//		app.deviceGpioUtils.runGpioCommand("DOUT", "iridium_power", !setToOn);
+//	}
+
+
 //	public static boolean testSmsQueue(String address, long delayInterval, int smsCount, Context context) {
 //		return sendSms(address, "", delayInterval, smsCount, context);
 //	}
