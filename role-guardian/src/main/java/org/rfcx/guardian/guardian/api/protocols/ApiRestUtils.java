@@ -69,21 +69,6 @@ public class ApiRestUtils {
 
 	}
 
-	private boolean areRestApiRequestsAllowed() {
-
-		if (	(app != null)
-			&&	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "rest")
-			&&	app.deviceConnectivity.isConnected()
-		) {
-			return true;
-
-		} else {
-			Log.d(logTag, "REST API interaction blocked.");
-		}
-		return false;
-	}
-
-
 	public boolean sendRestPing(String pingJson) {
 
 		boolean isSent = false;
@@ -140,6 +125,18 @@ public class ApiRestUtils {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e, "handleRestPingPublicationExceptions");
 		}
+	}
+
+	private boolean areRestApiRequestsAllowed() {
+
+		if (	(app != null)
+			&&	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "rest")
+			&&	app.deviceConnectivity.isConnected()
+		) {
+			return true;
+		}
+		Log.d(logTag, "REST API interaction blocked.");
+		return false;
 	}
 
 

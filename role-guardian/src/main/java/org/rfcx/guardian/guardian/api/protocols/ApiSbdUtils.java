@@ -106,18 +106,11 @@ public class ApiSbdUtils {
 
 	private boolean areSbdApiMessagesAllowed() {
 
-		if ((app != null)
-				&& ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "sbd")
+		if (	(app != null)
+			&& 	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "sbd")
 		) {
-
-//			TelephonyManager telephonyManager = (TelephonyManager) app.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-//			assert telephonyManager != null;
-//			if (telephonyManager.getNetworkOperator() == null || !telephonyManager.getNetworkOperator().equals("")) {
-				return true;
-//			}
-
+			return true;
 		}
-
 		Log.d(logTag, "SBD API interaction blocked.");
 		return false;
 	}

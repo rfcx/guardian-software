@@ -109,18 +109,15 @@ public class ApiSmsUtils {
 
 	private boolean areSmsApiMessagesAllowed() {
 
-		if ((app != null)
-				&& ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "sms")
+		if (	(app != null)
+			&&	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "sms")
 		) {
-
 			TelephonyManager telephonyManager = (TelephonyManager) app.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
 			assert telephonyManager != null;
 			if (telephonyManager.getNetworkOperator() == null || !telephonyManager.getNetworkOperator().equals("")) {
 				return true;
 			}
-
 		}
-
 		Log.d(logTag, "SMS API interaction blocked.");
 		return false;
 	}

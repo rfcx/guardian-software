@@ -3,6 +3,7 @@ package org.rfcx.guardian.guardian.api.protocols;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
@@ -80,6 +81,7 @@ public class ApiMqttUtils implements MqttCallback {
 		String authUser = !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_MQTT_AUTH) ? null : authUserPswd[0];
 		String authPswd = !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_MQTT_AUTH) ? null : authUserPswd[1];
 		assert authUser != null;
+		assert authPswd != null;
 		this.mqttCheckInClient.setOrResetBroker(
 			this.app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_MQTT_PROTOCOL),
 			this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.API_MQTT_PORT),
@@ -526,9 +528,7 @@ public class ApiMqttUtils implements MqttCallback {
 					// OR... this is likely the first checkin after a period of disconnection
 					//	|| (app.deviceConnectivity.isConnected() && (minsSinceConnected < this.failedCheckInThresholds[0]))
 			) {
-				for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
-					this.failedCheckInThresholdsReached[i] = false;
-				}
+				Arrays.fill(this.failedCheckInThresholdsReached, false);
 			} else {
 				int j = 0;
 				for (int toggleThreshold : this.failedCheckInThresholds) {
@@ -545,9 +545,7 @@ public class ApiMqttUtils implements MqttCallback {
 										+ " minutes since last successful CheckIn)");
 								app.deviceControlUtils.runOrTriggerDeviceControl("relaunch", app.getResolver());
 
-								for (int i = 0; i < this.failedCheckInThresholdsReached.length; i++) {
-									this.failedCheckInThresholdsReached[i] = false;
-								}
+								Arrays.fill(this.failedCheckInThresholdsReached, false);
 								this.inFlightCheckInAttemptCounter = 0;
 							}
 						} else { //} else if (!app.deviceConnectivity.isConnected()) {
@@ -574,11 +572,9 @@ public class ApiMqttUtils implements MqttCallback {
 			&&	app.rfcxStatus.getLocalStatus( RfcxStatus.Group.API_CHECKIN, RfcxStatus.Type.ALLOWED, false)
 		) {
 			return true;
-
-		} else {
-			Log.d(logTag, "MQTT API interaction blocked.");
-			closeConnectionToBroker();
 		}
+		Log.d(logTag, "MQTT API interaction blocked.");
+		closeConnectionToBroker();
 		return false;
 	}
 
