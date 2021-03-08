@@ -20,7 +20,7 @@ public class SbdDispatchCycleService extends Service {
 	private boolean runFlag = false;
 	private SbdDispatchCycleSvc sbdDispatchCycleSvc;
 
-	private long sbdDispatchCycleDuration = 5000;
+	private long sbdDispatchCycleDuration = 15000;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -74,9 +74,22 @@ public class SbdDispatchCycleService extends Service {
 
 					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-					if (app.sbdMessageDb.dbSbdQueued.getCount() > 0) {
+					if (app.sbdMessageDb.dbSbdQueued.getCount() == 0) {
 
-						app.rfcxSvc.triggerService( SbdDispatchService.SERVICE_NAME, false);
+						// let's add something that checks and eventually powers off the satellite board if not used for a little while
+
+					} else {
+
+						boolean isAbleToSend = app.sbdUtils.isPowerOn();
+
+						if (!isAbleToSend) {
+							app.sbdUtils.setPower(true);
+							isAbleToSend = app.sbdUtils.isPowerOn();
+						}
+
+						if (isAbleToSend && app.sbdUtils.isNetworkAvailable()) {
+							app.rfcxSvc.triggerService(SbdDispatchService.SERVICE_NAME, false);
+						}
 
 					}
 

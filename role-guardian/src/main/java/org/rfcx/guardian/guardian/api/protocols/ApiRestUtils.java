@@ -78,7 +78,7 @@ public class ApiRestUtils {
 			return true;
 
 		} else {
-			Log.d(logTag, "REST Api request blocked.");
+			Log.d(logTag, "REST API interaction blocked.");
 		}
 		return false;
 	}

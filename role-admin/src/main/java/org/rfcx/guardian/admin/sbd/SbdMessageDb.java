@@ -159,6 +159,11 @@ public class SbdMessageDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_TIMESTAMP+" ASC");
 		}
 
+		public int deleteSingleRowByMessageId(String message_id) {
+			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_MESSAGE_ID, message_id);
+			return 0;
+		}
+
 	}
 	public final DbSbdQueued dbSbdQueued;
 	

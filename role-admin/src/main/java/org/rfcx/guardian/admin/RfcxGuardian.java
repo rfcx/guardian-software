@@ -15,6 +15,7 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
 import org.rfcx.guardian.admin.sbd.SbdDispatchCycleService;
 import org.rfcx.guardian.admin.sbd.SbdDispatchService;
 import org.rfcx.guardian.admin.sbd.SbdMessageDb;
+import org.rfcx.guardian.admin.sbd.SbdUtils;
 import org.rfcx.guardian.admin.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
@@ -125,6 +126,8 @@ public class RfcxGuardian extends Application {
 	public SentinelCompassUtils sentinelCompassUtils = null;
 	public SentinelAccelUtils sentinelAccelUtils = null;
 
+	public SbdUtils sbdUtils = null;
+
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
 	private final BroadcastReceiver airplaneModeReceiver = new AirplaneModeReceiver();
@@ -163,6 +166,7 @@ public class RfcxGuardian extends Application {
 		this.sentinelAccelUtils = new SentinelAccelUtils(this);
 		SentinelUtils.setVerboseSentinelLogging(this);
 		this.assetUtils = new AssetUtils(this);
+		this.sbdUtils = new SbdUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();

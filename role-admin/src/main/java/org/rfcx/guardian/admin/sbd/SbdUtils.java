@@ -21,32 +21,18 @@ import java.util.List;
 import java.util.Locale;
 
 public class SbdUtils {
+
+	public SbdUtils(Context context) {
+		this.app = (RfcxGuardian) context.getApplicationContext();
+	}
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdUtils");
 
-
+	RfcxGuardian app;
 	private static final int sdbBaudRate = 19200;
 	private static final String sdbUartPath = "/dev/ttyMT1";
 
 
-
-	//echo 'AT&K0\r\n' | busybox microcom -t 3000 -s 19200 /dev/ttyMT1 && echo 'AT+SBDWT=FLUSH_MT\r\n' | busybox microcom -t 3000 -s 19200 /dev/ttyMT1 && echo 'AT+SBDWT=1234\r\n' | busybox microcom -t 3000 -s 19200 /dev/ttyMT1 && echo 'AT+SBDIX\r' | busybox microcom -t 3000 -s 19200 /dev/ttyMT1
-
-
-
-//	public void setPower(boolean setToOn) {
-//		app.deviceGpioUtils.runGpioCommand("DOUT", "iridium_power", !setToOn);
-//	}
-
-
-//	public static boolean testSmsQueue(String address, long delayInterval, int smsCount, Context context) {
-//		return sendSms(address, "", delayInterval, smsCount, context);
-//	}
-//
-//	// with user's defined message
-//	public static boolean processSendingSms(String address, String message, long delayInterval, int smsCount, Context context) {
-//		return sendSms(address, message, delayInterval, smsCount, context);
-//	}
 
 	public static boolean sendSbdMessage(String message) {
 		List<String> execSteps = new ArrayList<>();
@@ -83,6 +69,26 @@ public class SbdUtils {
 		}
 
 	}
+
+
+
+
+
+
+	public void setPower(boolean setToOn) {
+		app.deviceGpioUtils.runGpioCommand("DOUT", "iridium_power", !setToOn);
+	}
+
+	public boolean isPowerOn() {
+		return app.deviceGpioUtils.readGpioValue("iridium_power", "DOUT");
+	}
+
+	public boolean isNetworkAvailable() {
+		return app.deviceGpioUtils.readGpioValue("iridium_netav", "DOUT");
+	}
+
+
+
 
 	// Scheduling Tools
 

@@ -2,11 +2,15 @@ package org.rfcx.guardian.guardian.api.protocols;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class ApiSbdUtils {
 
@@ -51,19 +55,21 @@ public class ApiSbdUtils {
 
 		boolean isSent = false;
 
-		try {
+		if (areSbdApiMessagesAllowed()) {
+			try {
 
-			String groupId = app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sbd", pingJson, null);
+				String groupId = app.apiSegmentUtils.constructSegmentsGroupForQueue("png", "sbd", pingJson, null);
 
-			app.apiSegmentUtils.queueSegmentsForDispatch(groupId);
+				app.apiSegmentUtils.queueSegmentsForDispatch(groupId);
 
-			isSent = true;
+				isSent = true;
 
-		} catch (Exception e) {
+			} catch (Exception e) {
 
-			RfcxLog.logExc(logTag, e, "sendSbdPing");
-			handleSbdPingPublicationExceptions(e);
+				RfcxLog.logExc(logTag, e, "sendSbdPing");
+				handleSbdPingPublicationExceptions(e);
 
+			}
 		}
 
 		return isSent;
@@ -95,6 +101,25 @@ public class ApiSbdUtils {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e, "handleSbdPingPublicationExceptions");
 		}
+	}
+
+
+	private boolean areSbdApiMessagesAllowed() {
+
+		if ((app != null)
+				&& ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "sbd")
+		) {
+
+//			TelephonyManager telephonyManager = (TelephonyManager) app.getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
+//			assert telephonyManager != null;
+//			if (telephonyManager.getNetworkOperator() == null || !telephonyManager.getNetworkOperator().equals("")) {
+				return true;
+//			}
+
+		}
+
+		Log.d(logTag, "SBD API interaction blocked.");
+		return false;
 	}
 
 

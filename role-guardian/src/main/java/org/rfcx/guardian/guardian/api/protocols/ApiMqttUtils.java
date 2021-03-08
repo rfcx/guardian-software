@@ -576,7 +576,7 @@ public class ApiMqttUtils implements MqttCallback {
 			return true;
 
 		} else {
-			Log.d(logTag, "MQTT Api interaction blocked.");
+			Log.d(logTag, "MQTT API interaction blocked.");
 			closeConnectionToBroker();
 		}
 		return false;
