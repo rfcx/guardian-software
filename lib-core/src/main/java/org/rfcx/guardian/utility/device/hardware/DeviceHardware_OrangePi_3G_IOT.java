@@ -26,7 +26,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	// UART for OrangePi 3G-IoT
 	public static final String DEVICE_UART_HANDLER_FILEPATH = "/dev/ttyMT";
 	public static final Map<String, String[]> DEVICE_UART_MAP = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
-		put("iridium_data", 	new String[] { "1" });
+		put("iridium_data", 	new String[] { "1", "19200" });
 	}});
 
 	// GPIO settings for OrangePi 3G-IoT
@@ -34,7 +34,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	public static final Map<String, String[]> DEVICE_GPIO_MAP = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
 		put("iridium_power", 	new String[] { "26", "write" });
 		put("iridium_netav", 	new String[] { "128", "read" });
-//		put("unassigned_a", 	new String[] { "56", "write" });
+		put("voltage_refr", 	new String[] { "56", "write" });
 //		put("unassigned_b", 	new String[] { "58", "write" });
 	}});
 
@@ -74,7 +74,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 		put("set_install_location", 		new String[] { "global", "i", "1" });
 		put("power_sounds_enabled", 		new String[] { "global", "i", "0" });
 		put("lockscreen_sounds_enabled", 	new String[] { "system", "i", "0" });
-		put("screen_off_timeout", 			new String[] { "system", "i", "20000" });
+		put("screen_off_timeout", 			new String[] { "system", "i", "120000" });
 
 
 	}});

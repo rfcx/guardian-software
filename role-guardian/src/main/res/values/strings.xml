@@ -55,8 +55,8 @@
 	<string name="prefs_value_default_audio_cutoff_internal_battery">100</string>
 
 	<string name="prefs_value_default_enable_cutoffs_sentinel_battery">true</string>
-	<string name="prefs_value_default_checkin_cutoff_sentinel_battery">20</string>
-	<string name="prefs_value_default_audio_cutoff_sentinel_battery">20</string>
+	<string name="prefs_value_default_checkin_cutoff_sentinel_battery">30</string>
+	<string name="prefs_value_default_audio_cutoff_sentinel_battery">30</string>
 
 	<string name="prefs_value_default_checkin_failure_thresholds">15,30,50,70,90</string>
 	<string name="prefs_value_default_checkin_failure_limit">3</string>

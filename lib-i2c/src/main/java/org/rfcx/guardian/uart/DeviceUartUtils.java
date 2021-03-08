@@ -70,136 +70,47 @@ public class DeviceUartUtils {
 		return addrNum;
 	}
 
-//	// uartInterface should be a low integer, including zero, as in /dev/ttyMT0 or /dev/ttyMT1
-//	private final int uartInterface;
-//
-//	public void initializeOrReInitialize() {
-//
-//		Log.i(logTag, "Attempting to initialize UART interface '/dev/ttyMT"+this.uartInterface +"'");
-//
-//		if (isUartHandlerAccessible()) {
-//
-////			this.i2cTools = new I2cTools();
-////			this.i2cTools.i2cDeInit(this.uartInterface);
-////			this.uartAdapterReceipt = i2cTools.i2cInit(this.uartInterface);
-//
+	public void initializeOrReInitialize(int uartInterface) {
+
+		Log.i(logTag, "Attempting to initialize UART interface '/dev/ttyMT"+uartInterface +"'");
+
+		if (isUartHandlerAccessible(uartInterface)) {
+
 //			if (isInitialized(true)) {
-//				Log.i(logTag, "UART interface '/dev/ttyMT" + this.uartInterface + "' successfully initialized.");
+//				Log.i(logTag, "UART interface '/dev/ttyMT" + uartInterface + "' successfully initialized.");
 //			}
-//
-//		} else {
-//			Log.e(logTag, "UART handler '/dev/ttyMT"+this.uartInterface +"' is NOT accessible. Initialization failed.");
-//		}
-//	}
-//
-//	public boolean isInitialized(boolean printFeedbackInLog) {
+
+		} else {
+			Log.e(logTag, "UART handler '/dev/ttyMT"+uartInterface +"' is NOT accessible. Initialization failed.");
+		}
+	}
+
+//	public boolean isInitialized(boolean printFeedbackInLog, int uartInterface) {
 //
 //		boolean isInitialized = (this.uartAdapterReceipt >= 0) && isUartHandlerAccessible();
 //
 //		if (printFeedbackInLog && !isInitialized) {
-//			Log.e(logTag, "UART interface '/dev/ttyMT"+this.uartInterface +"' is NOT initialized.");
+//			Log.e(logTag, "UART interface '/dev/ttyMT"+uartInterface +"' is NOT initialized.");
 //		}
 //
 //		return isInitialized;
 //	}
 //
-//	private void throwExceptionIfNotInitialized() throws Exception {
-//		if (!isInitialized(false)) {
-//			throw new Exception("UART Initialization Failed");
-//		}
-//	}
-//
-//	public boolean isUartHandlerAccessible() {
-//		return (new File("/dev/ttyMT"+this.uartInterface)).canRead();
-//	}
+////	private void throwExceptionIfNotInitialized() throws Exception {
+////		if (!isInitialized(false)) {
+////			throw new Exception("UART Initialization Failed");
+////		}
+////	}
 
-
-
-
-
-
-
-
-	protected SerialPort mSerialPort;
-	protected OutputStream mOutputStream;
-	private InputStream mInputStream;
-
-	byte[] mBuffer;
-
-
-	protected void onDataReceived(final byte[] buffer, final int size) {
-
+	public static boolean isUartHandlerAccessible(int uartInterface) {
+		return (new File("/dev/ttyMT"+uartInterface)).canRead() && (new File("/dev/ttyMT"+uartInterface)).canWrite();
 	}
 
 
-	public void testSerialConn() {
 
 
-		try {
-
-			mSerialPort = new SerialPort(new File("/dev/ttyMT0"), 19200, 0);
-
-//			mOutputStream = mSerialPort.getOutputStream();
-//			mInputStream = mSerialPort.getInputStream();
-//
-//			mBuffer = new byte[512];
-//			Arrays.fill(mBuffer, (byte) 0x55);
-//
-//
-//			try {
-//				if (mOutputStream != null) {
-//					mOutputStream.write(mBuffer);
-//				} else {
-//					return;
-//				}
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-
-//			int size;
-//			try {
-//				byte[] buffer = new byte[64];
-//				if (mInputStream == null) return;
-//				size = mInputStream.read(buffer);
-//				if (size > 0) {
-//					onDataReceived(buffer, size);
-//				}
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
 
 
-//			if (mSerialPort != null) {
-//				mSerialPort.close();
-//				mSerialPort = null;
-//			}
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-//		SerialPort[] comPort = SerialPort.getCommPorts();
-//
-//		Log.e(logTag, "Serial Ports: "+comPort.length);
-
-//		comPort.openPort();
-//		comPort.addDataListener(new SerialPortDataListener() {
-//			@Override
-//			public int getListeningEvents() {
-//				return SerialPort.LISTENING_EVENT_DATA_RECEIVED;
-//			}
-//
-//			@Override
-//			public void serialEvent(SerialPortEvent event) {
-//				byte[] newData = event.getReceivedData();
-//				Log.e(logTag, "Received data of size: " + newData.length);
-//				String str = "Data: ";
-//				for (int i = 0; i < newData.length; ++i) {
-//					str += (char) newData[i];
-//				}
-//				Log.e(logTag, str);
-//			}
-//		});
-	}
 
 }

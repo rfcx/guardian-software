@@ -2,6 +2,7 @@ package org.rfcx.guardian.admin.sbd;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -10,13 +11,26 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.sms.SmsDispatchService;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 public class SbdUtils {
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdUtils");
+
+
+	private static final int sdbBaudRate = 19200;
+	private static final String sdbUartPath = "/dev/ttyMT1";
+
+
+
+	//echo 'AT&K0\r\n' | busybox microcom -t 3000 -s 19200 /dev/ttyMT1 && echo 'AT+SBDWT=FLUSH_MT\r\n' | busybox microcom -t 3000 -s 19200 /dev/ttyMT1 && echo 'AT+SBDWT=1234\r\n' | busybox microcom -t 3000 -s 19200 /dev/ttyMT1 && echo 'AT+SBDIX\r' | busybox microcom -t 3000 -s 19200 /dev/ttyMT1
 
 
 
@@ -33,17 +47,21 @@ public class SbdUtils {
 //	public static boolean processSendingSms(String address, String message, long delayInterval, int smsCount, Context context) {
 //		return sendSms(address, message, delayInterval, smsCount, context);
 //	}
-//
-//	private static boolean sendSms(String address, String message, long delayInterval, int smsCount, Context context) {
-//		long thisTime = System.currentTimeMillis();
-//
-//		for (int i = 1; i <= smsCount; i++) {
-//			addScheduledSmsToQueue(thisTime, address, i+") SMS Test Message: " + ((!message.isEmpty()) ? message : DateTimeUtils.getDateTime(thisTime)), context, true);
-//			thisTime = thisTime + (delayInterval*1000);
-//		}
-//
-//		return true;
-//	}
+
+	public static boolean sendSbdMessage(String message) {
+		List<String> execSteps = new ArrayList<>();
+		execSteps.add(atCmdExecStr("AT&K0", 3000));
+		execSteps.add(atCmdExecStr("AT+SBDWT=FLUSH_MT", 3000));
+		execSteps.add(atCmdExecStr("AT+SBDWT="+message, 3000));
+		execSteps.add(atCmdExecStr("AT+SBDIX", 10000));
+		execSteps.add(atCmdExecStr("AT&K0", 3000));
+		ShellCommands.executeCommandAsRootAndIgnoreOutput(TextUtils.join("; ", execSteps));
+		return true;
+	}
+
+	private static String atCmdExecStr(String cmdStr, int waitMs) {
+		return "echo -n '" + cmdStr + "<br_r>" + "' | /system/xbin/busybox microcom -t " + waitMs + " -s " + sdbBaudRate + " " + sdbUartPath;
+	}
 
 	// Incoming Message Tools
 

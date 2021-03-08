@@ -26,7 +26,7 @@ public class ShellCommands {
 			BufferedReader shellReader = new BufferedReader (new InputStreamReader(shellProcess.getInputStream()));
 
 			for (String commandLine : commandLines) {
-				shellOutput.writeBytes(commandLine+"\n");
+				shellOutput.writeBytes(customEscapeActions(commandLine, false) + "\n");
 			}
 			shellOutput.writeBytes("exit\n");
 			shellOutput.flush();
@@ -48,7 +48,7 @@ public class ShellCommands {
 			RfcxLog.logExc(logTag, e);
 	    }
 
-		Log.i(logTag, "Exec"+(asRoot ? " (as root)" : "")+": "+ TextUtils.join("; ",commandLines));
+		Log.i(logTag, "Exec"+(asRoot ? " (as root)" : "")+": "+ customEscapeActions( TextUtils.join("; ",commandLines), true) );
 
 		return outputLines;
 	}
@@ -136,6 +136,14 @@ public class ShellCommands {
 	
 	public static void triggerNeedForRootAccess() {
 		executeCommandInShell(new String[] { "pm list features" }, true);
+	}
+
+
+	private static String customEscapeActions(String toEscape, boolean addExtraEscapeSlash) {
+		return toEscape
+				.replaceAll("<br_r>", (addExtraEscapeSlash) ? "\\\\\\\\\\\\\\\\r" : "\\\\r")
+				.replaceAll("<br_n>","\\\\n")
+				;
 	}
 
 	
