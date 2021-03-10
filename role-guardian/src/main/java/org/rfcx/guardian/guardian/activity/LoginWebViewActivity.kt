@@ -188,7 +188,7 @@ class LoginWebViewActivity : Activity(){
     companion object{
         private const val redirectUrl = "rfcx://login"
         private const val audience = "https://rfcx.org"
-        private const val scope = "openid%20profile"
+        private const val scope = "openid%20email%20profile"
         private const val clientId = "CdlIIeJDapQxW29kn93wDw26fTTNyDkp"
         const val baseUrl = "https://auth.rfcx.org/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&audience=${audience}&scope=${scope}"
     }
