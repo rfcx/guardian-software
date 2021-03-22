@@ -302,6 +302,15 @@
 		android:defaultValue="@string/prefs_value_default_audio_cutoff_internal_battery" />
 
 	<ListPreference
+			android:key="install_cutoff_internal_battery"
+			android:title="install_cutoff_internal_battery"
+			android:dialogTitle="install_cutoff_internal_battery"
+			android:summary="int - percentage"
+			android:entries="@array/prefs_labels_percent"
+			android:entryValues="@array/prefs_values_percent"
+			android:defaultValue="@string/prefs_value_default_install_cutoff_internal_battery" />
+
+	<ListPreference
 		android:key="checkin_cutoff_sentinel_battery"
 		android:title="checkin_cutoff_sentinel_battery"
 		android:dialogTitle="checkin_cutoff_sentinel_battery"

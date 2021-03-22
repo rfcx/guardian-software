@@ -16,6 +16,7 @@ import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.device.control.DeviceKeyEntry;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -136,7 +137,7 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "test_serial")) { logFuncVal = "control-test_serial";
            //     app.deviceUartUtils.testSerialConn();
-                SbdUtils.sendSbdMessage(DateTimeUtils.getDateTime());
+                app.sbdUtils.sendSbdMessage(StringUtils.randomAlphanumericString(64, false));
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"test_serial", null, System.currentTimeMillis()});
 
 

@@ -94,7 +94,7 @@ public class SbdDispatchService extends Service {
 
 							if (app.sbdUtils.isNetworkAvailable()) {
 
-								SbdUtils.sendSbdMessage(msgBody);
+							//	SbdUtils.sendSbdMessage(msgBody);
 
 								app.sbdMessageDb.dbSbdQueued.deleteSingleRowByMessageId(msgId);
 

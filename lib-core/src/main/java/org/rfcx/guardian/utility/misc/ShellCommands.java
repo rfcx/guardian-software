@@ -5,6 +5,13 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,6 +21,14 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class ShellCommands {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "ShellCommands");
+
+	private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
+
+	private static <T> T timedCall(Callable<T> c, long timeout, TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
+		FutureTask<T> task = new FutureTask<T>(c);
+		THREAD_POOL.execute(task);
+		return task.get(timeout, timeUnit);
+	}
 	
 	private static List<String> executeCommandInShell(String[] commandLines, boolean asRoot) {
 
@@ -142,7 +157,7 @@ public class ShellCommands {
 	private static String customEscapeActions(String toEscape, boolean addExtraEscapeSlash) {
 		return toEscape
 				.replaceAll("<br_r>", (addExtraEscapeSlash) ? "\\\\\\\\\\\\\\\\r" : "\\\\r")
-				.replaceAll("<br_n>","\\\\n")
+			//	.replaceAll("<br_n>",(addExtraEscapeSlash) ? "\\\\\\\\\\\\\\\\n" : "\\\\n")
 				;
 	}
 

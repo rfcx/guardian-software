@@ -84,6 +84,7 @@ public class RfcxPrefs {
 		public static final String ENABLE_CUTOFFS_INTERNAL_BATTERY = "enable_cutoffs_internal_battery";
 		public static final String CHECKIN_CUTOFF_INTERNAL_BATTERY = "checkin_cutoff_internal_battery";
 		public static final String AUDIO_CUTOFF_INTERNAL_BATTERY = "audio_cutoff_internal_battery";
+		public static final String INSTALL_CUTOFF_INTERNAL_BATTERY = "install_cutoff_internal_battery";
 
 		public static final String ENABLE_CUTOFFS_SENTINEL_BATTERY = "enable_cutoffs_sentinel_battery";
 		public static final String CHECKIN_CUTOFF_SENTINEL_BATTERY = "checkin_cutoff_sentinel_battery";
@@ -187,6 +188,7 @@ public class RfcxPrefs {
 			put(Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY, "true");
 			put(Pref.CHECKIN_CUTOFF_INTERNAL_BATTERY, "100");
 			put(Pref.AUDIO_CUTOFF_INTERNAL_BATTERY, "100");
+			put(Pref.INSTALL_CUTOFF_INTERNAL_BATTERY, "10");
 
 			put(Pref.ENABLE_CUTOFFS_SENTINEL_BATTERY, "true");
 			put(Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY, "30");

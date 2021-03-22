@@ -10,6 +10,7 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.Context;
@@ -30,8 +31,6 @@ public class ApiUpdateRequestUtils {
 	public static final long minimumAllowedIntervalBetweenUpdateRequests = 30; // in minutes
 	public long lastUpdateRequestTriggered = 0;
 	public long lastUpdateRequestTime = System.currentTimeMillis();
-
-	private static final int installationBatteryCutoffPercentage = 50;
 
 	public boolean apiUpdateRequestFollowUp(String targetRole, List<JSONObject> jsonList) {
 		
@@ -72,7 +71,7 @@ public class ApiUpdateRequestUtils {
 					app.rfcxSvc.triggerService( DownloadFileService.SERVICE_NAME, true);
 				} else {
 					Log.i(logTag, "Update required, but will not be triggered due to low battery level"
-							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+installationBatteryCutoffPercentage+"%)."
+							+" (current: "+app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)+"%, required: "+app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.INSTALL_CUTOFF_INTERNAL_BATTERY)+"%)."
 							);
 				}
 				return true;
@@ -116,7 +115,7 @@ public class ApiUpdateRequestUtils {
 	}
 	
 	private boolean isBatteryChargeSufficientForDownloadAndInstall() {
-		return (app.deviceBattery.getBatteryChargePercentage(context, null) >= installationBatteryCutoffPercentage);
+		return (app.deviceBattery.getBatteryChargePercentage(context, null) >= app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.INSTALL_CUTOFF_INTERNAL_BATTERY));
 	}
 	
 }

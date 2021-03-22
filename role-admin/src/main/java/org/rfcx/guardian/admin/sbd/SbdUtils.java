@@ -33,20 +33,49 @@ public class SbdUtils {
 	private static final String sdbUartPath = "/dev/ttyMT1";
 
 
+	public void setupSbdUtils() {
+		ttySetup();
+	}
 
-	public static boolean sendSbdMessage(String message) {
-		List<String> execSteps = new ArrayList<>();
-		execSteps.add(atCmdExecStr("AT&K0", 3000));
-		execSteps.add(atCmdExecStr("AT+SBDWT=FLUSH_MT", 3000));
-		execSteps.add(atCmdExecStr("AT+SBDWT="+message, 3000));
-		execSteps.add(atCmdExecStr("AT+SBDIX", 10000));
-		execSteps.add(atCmdExecStr("AT&K0", 3000));
-		ShellCommands.executeCommandAsRootAndIgnoreOutput(TextUtils.join("; ", execSteps));
+	public boolean sendSbdMessage(String msgStr) {
+
+		if (!isNetworkAvailable()) {
+			Log.e(logTag, "No Iridium network currently available");
+		} else {
+			ShellCommands.executeCommandAsRootAndIgnoreOutput(atCmdExecStr(new String[]{"AT+SBDWT=FLUSH_MT", "AT&K0", "AT+SBDWT=" + msgStr, "AT+SBDI"}));
+		}
+
 		return true;
 	}
 
-	private static String atCmdExecStr(String cmdStr, int waitMs) {
-		return "echo -n '" + cmdStr + "<br_r>" + "' | /system/xbin/busybox microcom -t " + waitMs + " -s " + sdbBaudRate + " " + sdbUartPath;
+	private static String atCmdExecStr(String[] execSteps) {
+		StringBuilder execFull = new StringBuilder();
+		for (int i = 0; i < execSteps.length; i++) {
+			int waitMs = 500;
+			String joinStr = "; sleep 1; ";
+			execFull.append("echo -n '").append(execSteps[i]).append("<br_r>");
+
+			if (i == (execSteps.length-1)) {
+				execFull.append("<br_r>");
+				waitMs = 5000;
+				joinStr = "";
+			}
+
+			execFull.append("' | /system/xbin/busybox microcom -t ").append(waitMs).append(" -s ").append(sdbBaudRate).append(" ").append(sdbUartPath).append(joinStr);
+		}
+		return execFull.toString();
+	}
+
+	private void ttySetup() {
+
+		app.deviceGpioUtils.runGpioCommand("DOUT", "voltage_refr", true);
+		setPower(true);
+
+		ShellCommands.executeCommandAsRootAndIgnoreOutput(
+				"/system/xbin/busybox stty -F " + sdbUartPath + " " + sdbBaudRate + " cs8 -cstopb -parenb"
+				+ "; sleep 1; "
+				+ atCmdExecStr( new String[] { "AT", "AT+SBDWT=FLUSH_MT" } )
+		);
 	}
 
 	// Incoming Message Tools
@@ -76,7 +105,7 @@ public class SbdUtils {
 
 
 	public void setPower(boolean setToOn) {
-		app.deviceGpioUtils.runGpioCommand("DOUT", "iridium_power", !setToOn);
+		app.deviceGpioUtils.runGpioCommand("DOUT", "iridium_power", setToOn);
 	}
 
 	public boolean isPowerOn() {

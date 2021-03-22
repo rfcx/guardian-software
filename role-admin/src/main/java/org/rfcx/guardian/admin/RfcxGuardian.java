@@ -376,7 +376,7 @@ public class RfcxGuardian extends Application {
 			// Sets UART interface
 			this.deviceUartUtils.setUartHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_UART_HANDLER_FILEPATH);
 			this.deviceUartUtils.setupAddresses(DeviceHardware_OrangePi_3G_IOT.DEVICE_UART_MAP);
-
+			this.sbdUtils.setupSbdUtils();
 
 		}
 
