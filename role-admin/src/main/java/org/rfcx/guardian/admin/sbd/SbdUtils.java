@@ -8,17 +8,12 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.sms.SmsDispatchService;
-import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class SbdUtils {
 
@@ -29,8 +24,9 @@ public class SbdUtils {
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdUtils");
 
 	RfcxGuardian app;
-	private static final int sdbBaudRate = 19200;
-	private static final String sdbUartPath = "/dev/ttyMT1";
+	private static final String busyBoxBin = "/system/xbin/busybox";
+	private static final int baudRate = 19200;
+	private static final String ttyPath = "/dev/ttyMT1";
 
 
 	public void setupSbdUtils() {
@@ -39,29 +35,46 @@ public class SbdUtils {
 
 	public boolean sendSbdMessage(String msgStr) {
 
-		if (!isNetworkAvailable()) {
-			Log.e(logTag, "No Iridium network currently available");
-		} else {
-			ShellCommands.executeCommandAsRootAndIgnoreOutput(atCmdExecStr(new String[]{"AT+SBDWT=FLUSH_MT", "AT&K0", "AT+SBDWT=" + msgStr, "AT+SBDI"}));
+		String errorMsg = "SBD Message was NOT successfully delivered.";
+
+		try {
+
+			if (!isNetworkAvailable()) {
+				errorMsg = "No Iridium network currently available";
+			} else {
+				String[] atCmdSeq = new String[]{"AT", "AT&K0", "AT+SBDWT=" + msgStr, "AT+SBDIX"};
+				Log.d(logTag, "Attempting AT Command Sequence: " + TextUtils.join(", ", atCmdSeq));
+				List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(atCmdSeq));
+				for (String atCmdResponseLine : atCmdResponseLines) {
+					if (atCmdResponseLine.indexOf("+SBDIX:") >= 0) {
+						if (Integer.parseInt(atCmdResponseLine.substring(atCmdResponseLine.indexOf(":") + 1, atCmdResponseLine.indexOf(","))) == 0) {
+							Log.i(logTag, DateTimeUtils.getDateTime() + " - SBD Message was successfully delivered.");
+							return true;
+						}
+					}
+				}
+				errorMsg += " AT Response: " + TextUtils.join(", ", atCmdResponseLines);
+			}
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
 		}
 
-		return true;
+		Log.e(logTag, errorMsg);
+		return false;
 	}
 
 	private static String atCmdExecStr(String[] execSteps) {
 		StringBuilder execFull = new StringBuilder();
+
+		execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb");
+
 		for (int i = 0; i < execSteps.length; i++) {
-			int waitMs = 500;
-			String joinStr = "; sleep 1; ";
-			execFull.append("echo -n '").append(execSteps[i]).append("<br_r>");
-
-			if (i == (execSteps.length-1)) {
-				execFull.append("<br_r>");
-				waitMs = 5000;
-				joinStr = "";
-			}
-
-			execFull.append("' | /system/xbin/busybox microcom -t ").append(waitMs).append(" -s ").append(sdbBaudRate).append(" ").append(sdbUartPath).append(joinStr);
+			int waitMs = (execSteps[i].equalsIgnoreCase("AT+SBDIX")) ? 20000 : 1000;
+			execFull.append(" && ")
+					.append("echo").append(" -n").append(" '").append(execSteps[i]).append("<br_r>'")
+					.append(" | ")
+					.append(busyBoxBin).append(" microcom -t ").append(waitMs).append(" -s ").append(baudRate).append(" ").append(ttyPath);
 		}
 		return execFull.toString();
 	}
@@ -72,9 +85,9 @@ public class SbdUtils {
 		setPower(true);
 
 		ShellCommands.executeCommandAsRootAndIgnoreOutput(
-				"/system/xbin/busybox stty -F " + sdbUartPath + " " + sdbBaudRate + " cs8 -cstopb -parenb"
-				+ "; sleep 1; "
-				+ atCmdExecStr( new String[] { "AT", "AT+SBDWT=FLUSH_MT" } )
+				"/system/xbin/busybox stty -F " + ttyPath + " " + baudRate + " cs8 -cstopb -parenb"
+			//	+ "; sleep 1; "
+			//	+ atCmdExecStr( new String[] { "AT", "AT+SBDWT=FLUSH_MT" } )
 		);
 	}
 

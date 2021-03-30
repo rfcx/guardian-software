@@ -14,6 +14,7 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelAccelUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
 import org.rfcx.guardian.admin.sbd.SbdDispatchCycleService;
 import org.rfcx.guardian.admin.sbd.SbdDispatchService;
+import org.rfcx.guardian.admin.sbd.SbdDispatchTimeoutService;
 import org.rfcx.guardian.admin.sbd.SbdMessageDb;
 import org.rfcx.guardian.admin.sbd.SbdUtils;
 import org.rfcx.guardian.admin.sms.SmsDispatchCycleService;
@@ -291,6 +292,7 @@ public class RfcxGuardian extends Application {
 
 		this.rfcxSvc.addService( SbdDispatchService.SERVICE_NAME, SbdDispatchService.class);
 		this.rfcxSvc.addService( SbdDispatchCycleService.SERVICE_NAME, SbdDispatchCycleService.class);
+		this.rfcxSvc.addService( SbdDispatchTimeoutService.SERVICE_NAME, SbdDispatchTimeoutService.class);
 
 		this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
 		this.rfcxSvc.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);

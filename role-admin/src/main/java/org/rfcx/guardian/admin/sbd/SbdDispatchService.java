@@ -81,7 +81,7 @@ public class SbdDispatchService extends Service {
 
 				for (String[] sbdForDispatch : sbdQueuedForDispatch) {
 
-					// only proceed with dispatch process if there is a valid queued sms message in the database
+					// only proceed with dispatch process if there is a valid queued sbd message in the database
 					if (sbdForDispatch[0] != null) {
 
 						long sendAtOrAfter = Long.parseLong(sbdForDispatch[1]);
@@ -92,7 +92,11 @@ public class SbdDispatchService extends Service {
 							String msgId = sbdForDispatch[4];
 							String msgBody = sbdForDispatch[3];
 
-							if (app.sbdUtils.isNetworkAvailable()) {
+							if (!app.sbdUtils.isNetworkAvailable()) {
+
+
+
+							} else {
 
 							//	SbdUtils.sendSbdMessage(msgBody);
 

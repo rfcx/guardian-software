@@ -135,10 +135,10 @@ public class AdminContentProvider extends ContentProvider {
                 app.assetUtils.runFileSystemAssetCleanup();
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"asset_cleanup", null, System.currentTimeMillis()});
 
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "test_serial")) { logFuncVal = "control-test_serial";
-           //     app.deviceUartUtils.testSerialConn();
-                app.sbdUtils.sendSbdMessage(StringUtils.randomAlphanumericString(64, false));
-                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"test_serial", null, System.currentTimeMillis()});
+            } else if (RfcxComm.uriMatch(uri, appRole, "control", "test_sbd")) { logFuncVal = "control-test_sbd";
+                String randomString = StringUtils.randomAlphanumericString(64, false);
+                boolean isSuccessful = app.sbdUtils.sendSbdMessage(randomString);
+                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"test_sbd", isSuccessful, System.currentTimeMillis()});
 
 
 

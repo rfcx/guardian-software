@@ -80,15 +80,26 @@ public class SbdDispatchCycleService extends Service {
 
 					} else {
 
+						Log.i(logTag, "SBD Message is queued for dispatch. Attempting to send...");
+
 						boolean isAbleToSend = app.sbdUtils.isPowerOn();
 
 						if (!isAbleToSend) {
+							Log.i(logTag, "Iridium board is powered OFF. Turning power ON...");
 							app.sbdUtils.setPower(true);
 							isAbleToSend = app.sbdUtils.isPowerOn();
 						}
 
-						if (isAbleToSend && app.sbdUtils.isNetworkAvailable()) {
+						if (!isAbleToSend) {
+							Log.e(logTag, "Iridium board is STILL powered off. Unable to proceed with SBD send...");
+						} else if (!app.sbdUtils.isNetworkAvailable()) {
+							Log.e(logTag, "Iridium Network is not available. Unable to proceed with SBD send...");
+						} else {
+							Log.i(logTag, "Iridium board is powered ON and network is available. Proceeding with SBD send...");
 							app.rfcxSvc.triggerService(SbdDispatchService.SERVICE_NAME, false);
+
+							// Adding extra delay
+							Thread.sleep(3 * sbdDispatchCycleDuration);
 						}
 
 					}
