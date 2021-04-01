@@ -31,24 +31,24 @@ public class AssetDownloadUtils {
 
 	public void createDummyRow() {
 
-		long classifierId = Long.parseLong("1610252810821");
+		long classifierId = Long.parseLong("1617208867754");
 
 		app.assetDownloadDb.dbQueued.insert(
 				"classifier",
 				""+classifierId,
-				"b905c4091870453d19591af400b02f161552fad0",
+				"accfb018701e52696835c9d1c02600a67a228db1",
 				"http",
-				"http://install.rfcx.org/rfcx-guardian/guardian-asset-classifier/1610252810820.tflite.gz",
-				12476227,
+				"http://192.168.43.107:8080/cdn/img/1617208867754.tflite.gz",
+				12465841,
 				"tflite",
 				"{"
-						+"\"classifier_name\":\"threat\","
-						+"\"classifier_version\":\"1\","
+						+"\"classifier_name\":\"chainsaw\","
+						+"\"classifier_version\":\"5\","
 						+"\"sample_rate\":\"12000\","
-						+"\"input_gain\":\"1.1\","
+						+"\"input_gain\":\"1.0\","
 						+"\"window_size\":\"0.9750\","
 						+"\"step_size\":\"1\","
-						+"\"classifications\":\"chainsaw,gunshot,vehicle\""
+						+"\"classifications\":\"chainsaw,environment\""
 						+"}"
 				);
 

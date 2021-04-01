@@ -42,7 +42,7 @@ public class SbdUtils {
 			if (!isNetworkAvailable()) {
 				errorMsg = "No Iridium network currently available";
 			} else {
-				String[] atCmdSeq = new String[]{"AT", "AT&K0", "AT+SBDWT=" + msgStr, "AT+SBDIX"};
+				String[] atCmdSeq = new String[]{ "AT&K0", "AT+SBDD", "AT+SBDWT=" + msgStr, "AT+SBDIX" };
 				Log.d(logTag, "Attempting AT Command Sequence: " + TextUtils.join(", ", atCmdSeq));
 				List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(atCmdSeq));
 				for (String atCmdResponseLine : atCmdResponseLines) {
@@ -70,7 +70,7 @@ public class SbdUtils {
 		execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb");
 
 		for (int i = 0; i < execSteps.length; i++) {
-			int waitMs = (execSteps[i].equalsIgnoreCase("AT+SBDIX")) ? 20000 : 1000;
+			int waitMs = (execSteps[i].equalsIgnoreCase("AT+SBDIX")) ? 40000 : 500;
 			execFull.append(" && ")
 					.append("echo").append(" -n").append(" '").append(execSteps[i]).append("<br_r>'")
 					.append(" | ")
@@ -84,11 +84,11 @@ public class SbdUtils {
 		app.deviceGpioUtils.runGpioCommand("DOUT", "voltage_refr", true);
 		setPower(true);
 
-		ShellCommands.executeCommandAsRootAndIgnoreOutput(
-				"/system/xbin/busybox stty -F " + ttyPath + " " + baudRate + " cs8 -cstopb -parenb"
-			//	+ "; sleep 1; "
-			//	+ atCmdExecStr( new String[] { "AT", "AT+SBDWT=FLUSH_MT" } )
-		);
+//		ShellCommands.executeCommandAsRootAndIgnoreOutput(
+//				"/system/xbin/busybox stty -F " + ttyPath + " " + baudRate + " cs8 -cstopb -parenb"
+//			//	+ "; sleep 1; "
+//			//	+ atCmdExecStr( new String[] { "AT", "AT+SBDWT=FLUSH_MT" } )
+//		);
 	}
 
 	// Incoming Message Tools

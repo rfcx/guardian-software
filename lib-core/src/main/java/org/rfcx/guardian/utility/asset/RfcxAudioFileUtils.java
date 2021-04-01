@@ -41,7 +41,7 @@ public class RfcxAudioFileUtils {
 	}
 
 	private static String audioVaultDir() {
-		return Environment.getExternalStorageDirectory().toString() + "/rfcx/vault";
+		return Environment.getExternalStorageDirectory().toString() + "/rfcx/vault/audio";
 	}
 
 	public static String audioCacheDir(Context context) {

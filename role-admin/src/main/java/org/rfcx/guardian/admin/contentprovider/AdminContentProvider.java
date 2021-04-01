@@ -136,7 +136,7 @@ public class AdminContentProvider extends ContentProvider {
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"asset_cleanup", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "test_sbd")) { logFuncVal = "control-test_sbd";
-                String randomString = StringUtils.randomAlphanumericString(64, false);
+                String randomString = StringUtils.randomAlphanumericString(180, false);
                 boolean isSuccessful = app.sbdUtils.sendSbdMessage(randomString);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"test_sbd", isSuccessful, System.currentTimeMillis()});
 

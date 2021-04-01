@@ -2,6 +2,7 @@ package org.rfcx.guardian.guardian.audio.classify;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -12,14 +13,18 @@ import org.rfcx.guardian.guardian.asset.AudioDetectionFilterJobService;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 public class AudioClassifyUtils {
 
@@ -78,6 +83,7 @@ public class AudioClassifyUtils {
 			String classifierName = classiferJsonMeta.getString("classifier_name");
 			String classifierVersion = classiferJsonMeta.getString("classifier_version");
 
+			JSONArray detectionsJsonArr = new JSONArray();
 			for (Iterator<String> classificationNames = jsonObj.getJSONObject("detections").keys(); classificationNames.hasNext(); ) {
 				String classificationTag = classificationNames.next();
 				JSONArray detections = jsonObj.getJSONObject("detections").getJSONArray(classificationTag);
@@ -85,7 +91,20 @@ public class AudioClassifyUtils {
 						classificationTag, classifierId, classifierName, classifierVersion, "-",
 						audioId, audioId, windowSize, stepSize, detections.toString()
 				);
+
+				JSONObject detectionObj = new JSONObject();
+				detectionObj.put("classifier_name", classifierName + "-v" + classifierVersion);
+				detectionObj.put("classifier_id", classifierId);
+				detectionObj.put("classification_tag", classificationTag);
+				detectionObj.put("audio_id", audioId);
+				detectionObj.put("measured_at", (new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US)).format(new Date(Long.parseLong(audioId))));
+				detectionObj.put("detections", detections);
+				detectionObj.put("step_size", stepSize);
+				detectionObj.put("window_size", windowSize);
+				detectionsJsonArr.put(detectionObj);
 			}
+
+			createClassificationPayloadSnapshot(audioId, classifierName, classifierVersion, detectionsJsonArr);
 
 			// save classify job stats
 			long classifyJobDuration = Long.parseLong(jsonObj.getString("classify_duration"));
@@ -93,6 +112,26 @@ public class AudioClassifyUtils {
 			app.latencyStatsDb.dbClassifyLatency.insert(classifierName + "-v" + classifierVersion, classifyJobDuration, classifyAudioSize);
 
 			app.rfcxSvc.triggerService( AudioDetectionFilterJobService.SERVICE_NAME, false);
+
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+	}
+
+	private void createClassificationPayloadSnapshot(String audioId, String classifierName, String classifierVersion, JSONArray detectionsArr) {
+		try {
+			Long audioTimeStamp = Long.parseLong(audioId);
+			String detectionJsobBlobDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/vault/detections/" + (new SimpleDateFormat("yyyy-MM-dd", Locale.US)).format(new Date(audioTimeStamp));
+			FileUtils.initializeDirectoryRecursively(detectionJsobBlobDir, true);
+			String detectionJsobBlobFilePath = detectionJsobBlobDir+"/"+classifierName+"-v"+classifierVersion+"_"+(new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US)).format(new Date(audioTimeStamp))+".json";
+			StringUtils.saveStringToFile(detectionsArr.toString(), detectionJsobBlobFilePath);
+			FileUtils.gZipFile(detectionJsobBlobFilePath, detectionJsobBlobFilePath+".gz");
+			FileUtils.delete(detectionJsobBlobFilePath);
+			if (FileUtils.exists(detectionJsobBlobFilePath+".gz")) {
+				Log.i(logTag, "Detection blob has been archived to " + detectionJsobBlobFilePath);
+			} else {
+				Log.e(logTag, "Detection blob archive process failed...");
+			}
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
