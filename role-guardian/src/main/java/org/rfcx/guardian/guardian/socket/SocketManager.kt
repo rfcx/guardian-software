@@ -68,14 +68,6 @@ object SocketManager {
                                 "configure" -> sendConfigurationMessage()
                                 "microphone_test" -> sendMicrophoneTestMessage()
                                 "signal" -> sendSignalMessage()
-                                "checkin" -> {
-                                    requireCheckInTest = if (!requireCheckInTest) {
-                                        sendCheckInTestMessage(CheckInState.NOT_PUBLISHED)
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                }
                                 "sentinel" -> sendSentinelValues()
                                 "is_registered" -> sendIfGuardianRegistered()
                                 "is_recording" -> sendRecorderState()
@@ -97,6 +89,16 @@ object SocketManager {
                                             val isProduction =
                                                 registerInfo.getBoolean("is_production")
                                             sendRegistrationStatus(tokenId, isProduction)
+                                        }
+                                        "checkin" -> {
+                                            val checkinInfo = commandObject.getJSONObject("checkin")
+                                            val command = checkinInfo.getString("wantTo")
+                                            requireCheckInTest = if (command == "start") {
+                                                sendCheckInTestMessage(CheckInState.NOT_PUBLISHED)
+                                                true
+                                            } else {
+                                                false
+                                            }
                                         }
                                     }
                                 }
@@ -231,7 +233,7 @@ object SocketManager {
                     streamOutput?.writeUTF(micTestObject.toString())
                     streamOutput?.flush()
                 } else {
-                    val audioChunks = audioPair.first.toSmallChunk(10)
+                    val audioChunks = audioPair.first.toSmallChunk(15)
                     audioChunks.forEachIndexed { index, audio ->
                         val readSize = audio.size
                         val audioChunkString = Base64.encodeToString(audio, Base64.DEFAULT)
