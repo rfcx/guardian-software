@@ -13,11 +13,11 @@ import org.rfcx.guardian.guardian.asset.AudioDetectionFilterJobService;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -83,7 +83,9 @@ public class AudioClassifyUtils {
 			String classifierName = classiferJsonMeta.getString("classifier_name");
 			String classifierVersion = classiferJsonMeta.getString("classifier_version");
 
-			JSONArray detectionsJsonArr = new JSONArray();
+			JSONArray vaultJsonArr = new JSONArray();
+			boolean isVaultEnabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_VAULT);
+
 			for (Iterator<String> classificationNames = jsonObj.getJSONObject("detections").keys(); classificationNames.hasNext(); ) {
 				String classificationTag = classificationNames.next();
 				JSONArray detections = jsonObj.getJSONObject("detections").getJSONArray(classificationTag);
@@ -92,19 +94,23 @@ public class AudioClassifyUtils {
 						audioId, audioId, windowSize, stepSize, detections.toString()
 				);
 
-				JSONObject detectionObj = new JSONObject();
-				detectionObj.put("classifier_name", classifierName + "-v" + classifierVersion);
-				detectionObj.put("classifier_id", classifierId);
-				detectionObj.put("classification_tag", classificationTag);
-				detectionObj.put("audio_id", audioId);
-				detectionObj.put("measured_at", (new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US)).format(new Date(Long.parseLong(audioId))));
-				detectionObj.put("detections", detections);
-				detectionObj.put("step_size", stepSize);
-				detectionObj.put("window_size", windowSize);
-				detectionsJsonArr.put(detectionObj);
+				if (isVaultEnabled) {
+					JSONObject vaultJsonObj = new JSONObject();
+					vaultJsonObj.put("classifier_name", classifierName + "-v" + classifierVersion);
+					vaultJsonObj.put("classifier_id", classifierId);
+					vaultJsonObj.put("classification_tag", classificationTag);
+					vaultJsonObj.put("audio_id", audioId);
+					vaultJsonObj.put("measured_at", (new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZZZ", Locale.US)).format(new Date(Long.parseLong(audioId))));
+					vaultJsonObj.put("detections", detections);
+					vaultJsonObj.put("step_size", stepSize);
+					vaultJsonObj.put("window_size", windowSize);
+					vaultJsonArr.put(vaultJsonObj);
+				}
 			}
 
-			createClassificationPayloadSnapshot(audioId, classifierName, classifierVersion, detectionsJsonArr);
+			if (isVaultEnabled) {
+				saveClassificationPayloadSnapshotToVault(audioId, classifierName, classifierVersion, vaultJsonArr);
+			}
 
 			// save classify job stats
 			long classifyJobDuration = Long.parseLong(jsonObj.getString("classify_duration"));
@@ -118,7 +124,7 @@ public class AudioClassifyUtils {
 		}
 	}
 
-	private void createClassificationPayloadSnapshot(String audioId, String classifierName, String classifierVersion, JSONArray detectionsArr) {
+	private void saveClassificationPayloadSnapshotToVault(String audioId, String classifierName, String classifierVersion, JSONArray detectionsArr) {
 		try {
 			Long audioTimeStamp = Long.parseLong(audioId);
 			String detectionJsobBlobDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/vault/detections/" + (new SimpleDateFormat("yyyy-MM-dd", Locale.US)).format(new Date(audioTimeStamp));

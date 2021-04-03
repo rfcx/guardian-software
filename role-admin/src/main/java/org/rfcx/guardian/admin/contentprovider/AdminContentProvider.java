@@ -30,7 +30,9 @@ import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.os.SystemClock;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -158,7 +160,15 @@ public class AdminContentProvider extends ContentProvider {
 //                app.deviceSystemSettings.setInt(pathSegGroup, pathSegKey, Integer.parseInt(pathSegValue));
 //                return RfcxComm.getProjectionCursor(appRole, "system_settings_set", new Object[] { pathSegGroup+" "+pathSegKey, pathSegValue, System.currentTimeMillis() });
 
+            } else if (RfcxComm.uriMatch(uri, appRole, "clock_set", "*")) { logFuncVal = "clock_set-*";
 
+                long nowSystem = System.currentTimeMillis();
+                long nowSetTo = Long.parseLong(uri.getLastPathSegment());
+                String nowSystemStr = DateTimeUtils.getDateTime(nowSystem) +"."+ (""+(1000+nowSystem-Math.round(1000*Math.floor(nowSystem/1000)))).substring(1);
+                Log.v(logTag, "DateTime Sync: System time is "+nowSystemStr.substring(1+nowSystemStr.indexOf(" "))
+                        +" —— "+Math.abs(nowSystem-nowSetTo)+"ms "+((nowSystem >= nowSetTo) ? "ahead of" : "behind")+" specified value.");
+                SystemClock.setCurrentTimeMillis(nowSetTo);
+                return RfcxComm.getProjectionCursor(appRole, "clock_set", new Object[]{"clock_set", nowSetTo, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "gpio_set", "*")) { logFuncVal = "gpio_set-*";
                 String pathSeg = uri.getLastPathSegment();

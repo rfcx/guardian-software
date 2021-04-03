@@ -39,7 +39,12 @@ elif [ "$RW" = "r" ]; then
 
 elif [ "$RW" = "w" ]; then
 
-	$ADB shell content query --uri content://org.rfcx.guardian.guardian/prefs_set/$KEY%7C$VAL;
+	if [ "$KEY" = "admin_system_timezone" ]; then
+		$ADB shell content query --uri content://org.rfcx.guardian.guardian/prefs_set/$KEY%7C$VAL%2F$4;
+	else 
+		$ADB shell content query --uri content://org.rfcx.guardian.guardian/prefs_set/$KEY%7C$VAL;
+	fi
+
 fi
 
 

@@ -68,6 +68,8 @@ public class RfcxComm {
 //			roleFuncProj.get(role).put(
 //				"system_settings_set", new String[] { "group key", "value", "received_at" });
 			roleFuncProj.get(role).put(
+				"clock_set", new String[] { "command", "value", "received_at" });
+			roleFuncProj.get(role).put(
 				"gpio_set", new String[] { "address", "value", "received_at" });
 			roleFuncProj.get(role).put(
 				"gpio_get", new String[] { "address", "value", "received_at" });

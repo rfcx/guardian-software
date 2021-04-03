@@ -2,6 +2,8 @@
 
 export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
+GNU_DATE_BIN="date"; if [[ "$OSTYPE" == "darwin"* ]]; then GNU_DATE_BIN="gdate"; fi;
+
 export ADB="$ANDROID_SDK_ROOT/platform-tools/adb";
 
 export CNTL=$1;
@@ -51,6 +53,11 @@ elif [ "$CNTL" = "gpio_set" ]; then
 elif [ "$CNTL" = "gpio_get" ]; then
 
 	$ADB shell content query --uri content://org.rfcx.guardian.admin/gpio_get/$KEY;
+
+elif [ "$CNTL" = "clock_set" ]; then
+
+	export NOW=$(($($GNU_DATE_BIN '+%s%N' | cut -b1-13)+0))
+	$ADB shell content query --uri content://org.rfcx.guardian.admin/clock_set/$NOW;
 
 elif [ "$CNTL" = "software_update" ]; then
 
