@@ -77,7 +77,6 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
-import android.os.PowerManager;
 import android.util.Log;
 
 public class RfcxGuardian extends Application {
@@ -320,7 +319,7 @@ public class RfcxGuardian extends Application {
 
 	public void onPrefReSync(String prefKey) {
 
-		if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI ) || prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_WIFI_PASSWORD )) {
+		if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT) || prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD)) {
 			rfcxSvc.triggerService( WifiHotspotStateSetService.SERVICE_NAME, false);
 			rfcxSvc.triggerService( ADBStateSetService.SERVICE_NAME, false);
 

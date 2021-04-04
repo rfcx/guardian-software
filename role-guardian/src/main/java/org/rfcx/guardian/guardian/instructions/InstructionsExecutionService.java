@@ -104,7 +104,7 @@ public class InstructionsExecutionService extends Service {
 							// send execution receipt
 							String[] pingFields = new String[] { "instructions" };
 							if (type.equalsIgnoreCase("set") && command.equalsIgnoreCase("prefs")) { pingFields = new String[] { "instructions", "prefs" }; }
-							app.apiPingUtils.sendPing(false, pingFields);
+							app.apiPingUtils.sendPing(false, pingFields, true);
 
 						}
 					}

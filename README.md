@@ -292,7 +292,7 @@ Before you start, you will need to generate a suitable IMEI number. Please use t
 
 3. Open **Preferences setting** at top right menu
 
-4. Set **admin_enable_wifi** and **admin_enable_tcp_adb** to true
+4. Set **admin_enable_wifi_hotspot** and **admin_enable_tcp_adb** to true
 
    ![](docs/images/pref_setting.PNG?raw=true)
 

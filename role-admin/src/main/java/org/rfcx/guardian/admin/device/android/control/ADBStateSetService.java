@@ -32,12 +32,12 @@ public class ADBStateSetService extends IntentService {
 		// set ADB networking state
 		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB);
 
-		boolean prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI);
-		if (prefsAdminEnableAdb && !prefsAdminEnableWifi) {
-			Log.e(logTag,"ADB over TCP could not be enabled because 'admin_enable_wifi' is disabled");
+		boolean prefsAdminEnableWifiHotspot = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT);
+		if (prefsAdminEnableAdb && !prefsAdminEnableWifiHotspot) {
+			Log.e(logTag,"ADB over TCP could not be enabled because '"+RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT+"' is disabled");
 		}
 
-		boolean enableOrDisable = prefsAdminEnableAdb && prefsAdminEnableWifi;
+		boolean enableOrDisable = prefsAdminEnableAdb && prefsAdminEnableWifiHotspot;
 		Log.v(logTag, ((enableOrDisable) ? "Enabling" : "Disabling") + " ADB over TCP on port "+DEFAULT_TCP_PORT);
 		DeviceSystemProperties.setVal("persist.adb.tcp.port", (enableOrDisable) ? ""+DEFAULT_TCP_PORT : "");
 	

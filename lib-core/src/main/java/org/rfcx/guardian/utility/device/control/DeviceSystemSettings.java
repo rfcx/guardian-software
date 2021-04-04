@@ -57,7 +57,7 @@ public class DeviceSystemSettings {
 				execList.add(setValExecStr(valKey, valMeta[0], valMeta[1], valMeta[2]));
 			}
 		}
-		ShellCommands.executeCommandAsRootAndIgnoreOutput(ArrayUtils.toArray(execList));
+		ShellCommands.executeCommandAsRootAndIgnoreOutput(ArrayUtils.ListToStringArray(execList));
 	}
 
 	public static void setVal(String valKey, String valGrp, String valType, String valVal) {

@@ -46,7 +46,7 @@ public class ApiSegmentUtils {
 	private static final Map<String, Integer> SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL =
 		Collections.unmodifiableMap( new HashMap<String, Integer>() {{
 			put("sms", 160 );
-			put("sbd", 340 );
+			put("sbd", 100 );
 		}}
 	);
 
@@ -68,7 +68,7 @@ public class ApiSegmentUtils {
 
 		try {
 
-			boolean isByteArr = originProtocol.equalsIgnoreCase("sbd");
+			boolean isByteArr = false;//originProtocol.equalsIgnoreCase("sbd");
 
 			String segPayloadStr = (isByteArr) ? "" : segmentPayload;
 			byte[] segPayloadByte = (isByteArr) ? StringUtils.base64StringToByteArray(segmentPayload) : new byte[]{};
@@ -96,7 +96,7 @@ public class ApiSegmentUtils {
 
 	private void parseSegmentInitialGroupHeader(String groupId, String segmentBody, String originProtocol) {
 
-		boolean isByteArr = originProtocol.equalsIgnoreCase("sbd");
+		boolean isByteArr = false;//originProtocol.equalsIgnoreCase("sbd");
 
 		int guidLen = RfcxGuardianIdentity.GUID_LENGTH;
 		int pinLen = RfcxGuardianIdentity.PINCODE_LENGTH;
@@ -193,7 +193,7 @@ public class ApiSegmentUtils {
 				String msgProtocol = grpInfo[4];
 				String msgType = grpInfo[5];
 
-				boolean isByteArr = msgProtocol.equalsIgnoreCase("sbd");
+				boolean isByteArr = false;//msgProtocol.equalsIgnoreCase("sbd");
 
 				List<String[]> segmentRows = app.apiSegmentDb.dbReceived.getAllSegmentsForGroupOrderedBySegmentId(groupId);
 				ByteArrayOutputStream byteArrSegments = new ByteArrayOutputStream();
@@ -247,7 +247,7 @@ public class ApiSegmentUtils {
 
 	public String constructSegmentsGroupForQueue(String msgType, String apiProtocol, String msgJson, String attachmentFilePath) {
 
-		boolean isByteArr = apiProtocol.equalsIgnoreCase("sbd");
+		boolean isByteArr = false;//apiProtocol.equalsIgnoreCase("sbd");
 
 		String groupId = generateSegmentGroupId();
 		int segMaxLength = SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL.get(apiProtocol);

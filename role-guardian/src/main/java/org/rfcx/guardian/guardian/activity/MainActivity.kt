@@ -282,7 +282,7 @@ class MainActivity : Activity(),
         deviceIdText.text = " $deviceIdTxt"
         Log.i(logTag, "onGuardianCheckSuccess: Successfully Verified Registration")
         showToast("Successfully Verified Registration")
-        app.apiPingUtils.sendPing(true, arrayOf<String>())
+        app.apiPingUtils.sendPing(true, arrayOf<String>(), true)
     }
 
     override fun onGuardianCheckFailed(t: Throwable?, message: String?) {

@@ -401,78 +401,90 @@ public class SentinelPowerUtils {
 
         JSONArray powerJsonArray = new JSONArray();
 
-        if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) { updateSentinelPowerValues(); }
+        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTINEL_POWER)) {
 
-        long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
-        long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
-        long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
+            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) {
+                updateSentinelPowerValues();
+            }
 
-        double measuredAtAvg = (sVals[4]+bVals[4]+iVals[4])/3;
-        long measuredAt = Math.round(measuredAtAvg);
+            long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
+            long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
+            long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
 
-        try {
-            JSONObject powerJson = new JSONObject();
+            double measuredAtAvg = (sVals[4] + bVals[4] + iVals[4]) / 3;
+            long measuredAt = Math.round(measuredAtAvg);
 
-            long bPct = _v("percent", bVals[2]);
-            String bPctStr = (bPct+"").substring(0, (bPct+"").length()-2) +"."+ (bPct+"").substring((bPct+"").length()-2);
+            try {
+                JSONObject powerJson = new JSONObject();
 
-            powerJson.put("system", "system*"+measuredAt
-                                                    +"*"+ _v("voltage", sVals[0])
-                                                    +"*"+ _v("current", sVals[1])
-                                                    +"*"+ _v("temp", sVals[2])
-                                                    +"*"+ _v("power", sVals[3]) );
-            powerJson.put("battery", "battery*"+measuredAt
-                                                    +"*"+ _v("voltage", bVals[0])
-                                                    +"*"+ _v("current", bVals[1])
-                                                    +"*"+bPctStr
-                                                    +"*"+ _v("power", bVals[3]) );
-            powerJson.put("input", "input*"+measuredAt
-                                                    +"*"+ _v("voltage", iVals[0])
-                                                    +"*"+ _v("current", iVals[1])
-                                                    +"*"+ _v("misc", iVals[2])
-                                                    +"*"+ _v("power", iVals[3]) );
-            powerJsonArray.put(powerJson);
+                long bPct = _v("percent", bVals[2]);
+                String bPctStr = (bPct + "").substring(0, (bPct + "").length() - 2) + "." + (bPct + "").substring((bPct + "").length() - 2);
 
-        } catch (Exception e) {
-            RfcxLog.logExc(logTag, e);
+                powerJson.put("system", "system*" + measuredAt
+                        + "*" + _v("voltage", sVals[0])
+                        + "*" + _v("current", sVals[1])
+                        + "*" + _v("temp", sVals[2])
+                        + "*" + _v("power", sVals[3]));
+                powerJson.put("battery", "battery*" + measuredAt
+                        + "*" + _v("voltage", bVals[0])
+                        + "*" + _v("current", bVals[1])
+                        + "*" + bPctStr
+                        + "*" + _v("power", bVals[3]));
+                powerJson.put("input", "input*" + measuredAt
+                        + "*" + _v("voltage", iVals[0])
+                        + "*" + _v("current", iVals[1])
+                        + "*" + _v("misc", iVals[2])
+                        + "*" + _v("power", iVals[3]));
+                powerJsonArray.put(powerJson);
 
-        } finally {
-            return powerJsonArray;
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+
+            }
+
         }
+
+        return powerJsonArray;
+
     }
 
     public JSONObject getMomentarySentinelPowerValuesAsJson() {
 
         JSONObject jsonObj = new JSONObject();
 
-        try {
+        if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTINEL_POWER)) {
 
-            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) { updateSentinelPowerValues(); }
+            try {
 
-            long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
-            JSONObject jsonBatteryObj = new JSONObject();
-            jsonBatteryObj.put("percentage", Math.round(bVals[2]/100) );
-            jsonBatteryObj.put("voltage", bVals[0]);
-            jsonBatteryObj.put("current", bVals[1]);
-            jsonBatteryObj.put("power", bVals[3]);
-            jsonObj.put("battery", jsonBatteryObj);
+                if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) {
+                    updateSentinelPowerValues();
+                }
 
-            long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
-            JSONObject jsonInputObj = new JSONObject();
-            jsonInputObj.put("voltage", iVals[0]);
-            jsonInputObj.put("current", iVals[1]);
-            jsonInputObj.put("power", iVals[3]);
-            jsonObj.put("input", jsonInputObj);
+                long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
+                JSONObject jsonBatteryObj = new JSONObject();
+                jsonBatteryObj.put("percentage", Math.round(bVals[2] / 100));
+                jsonBatteryObj.put("voltage", bVals[0]);
+                jsonBatteryObj.put("current", bVals[1]);
+                jsonBatteryObj.put("power", bVals[3]);
+                jsonObj.put("battery", jsonBatteryObj);
 
-            long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
-            JSONObject jsonSystemObj = new JSONObject();
-            jsonSystemObj.put("voltage", sVals[0]);
-            jsonSystemObj.put("current", sVals[1]);
-            jsonSystemObj.put("power", sVals[3]);
-            jsonObj.put("system", jsonSystemObj);
+                long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
+                JSONObject jsonInputObj = new JSONObject();
+                jsonInputObj.put("voltage", iVals[0]);
+                jsonInputObj.put("current", iVals[1]);
+                jsonInputObj.put("power", iVals[3]);
+                jsonObj.put("input", jsonInputObj);
 
-        } catch (JSONException e) {
-            RfcxLog.logExc(logTag, e);
+                long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
+                JSONObject jsonSystemObj = new JSONObject();
+                jsonSystemObj.put("voltage", sVals[0]);
+                jsonSystemObj.put("current", sVals[1]);
+                jsonSystemObj.put("power", sVals[3]);
+                jsonObj.put("system", jsonSystemObj);
+
+            } catch (JSONException e) {
+                RfcxLog.logExc(logTag, e);
+            }
         }
 
         return jsonObj;

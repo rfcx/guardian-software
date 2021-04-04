@@ -23,7 +23,7 @@ public class SbdDispatchService extends Service {
 	private boolean runFlag = false;
 	private SbdDispatch sbdDispatch;
 
-	private long forcedPauseBetweenEachDispatch = 10000;
+	private long forcedPauseBetweenEachDispatch = 3333;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -81,6 +81,8 @@ public class SbdDispatchService extends Service {
 
 				for (String[] sbdForDispatch : sbdQueuedForDispatch) {
 
+					app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
 					// only proceed with dispatch process if there is a valid queued sbd message in the database
 					if (sbdForDispatch[0] != null) {
 
@@ -92,22 +94,29 @@ public class SbdDispatchService extends Service {
 							String msgId = sbdForDispatch[4];
 							String msgBody = sbdForDispatch[3];
 
-							if (!app.sbdUtils.isNetworkAvailable()) {
+							if (app.sbdUtils.sendSbdMessage(msgBody)) {
 
+								app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-
-							} else {
-
-							//	SbdUtils.sendSbdMessage(msgBody);
-
+								app.sbdUtils.consecutiveDeliveryFailureCount = 0;
 								app.sbdMessageDb.dbSbdQueued.deleteSingleRowByMessageId(msgId);
 
-								String concatSegId = msgBody.substring(0,4) + "-" + msgBody.substring(4,7);
-								Log.v(logTag, DateTimeUtils.getDateTime(rightNow)+" - Segment '"+concatSegId + "' sent by SBD ("+msgBody.length()+" chars)");
+								String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
+								Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SBD (" + msgBody.length() + " chars)");
 								RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
 
-								Thread.sleep(forcedPauseBetweenEachDispatch);
+							} else {
+								app.sbdUtils.consecutiveDeliveryFailureCount++;
+								Log.e(logTag, "SBD Send Failure (Consecutive Failures: " + app.sbdUtils.consecutiveDeliveryFailureCount + ")...");
+								if (app.sbdUtils.consecutiveDeliveryFailureCount >= SbdUtils.powerCycleAfterThisManyConsecutiveDeliveryFailures) {
+									app.sbdUtils.setPower(false);
+									app.sbdUtils.setPower(true);
+									app.sbdUtils.consecutiveDeliveryFailureCount = 0;
+									break;
+								}
 							}
+							
+							Thread.sleep(forcedPauseBetweenEachDispatch);
 						}
 					}
 				}

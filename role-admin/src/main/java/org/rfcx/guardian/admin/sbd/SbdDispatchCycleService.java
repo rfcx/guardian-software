@@ -68,19 +68,27 @@ public class SbdDispatchCycleService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 
+			int cyclesSinceLastActivity = 0;
+			int powerOffAfterThisManyInactiveCycles = 8;
+
 			while (sbdDispatchCycleInstance.runFlag) {
 
 				try {
 
 					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
+					Thread.sleep(sbdDispatchCycleDuration);
+
 					if (app.sbdMessageDb.dbSbdQueued.getCount() == 0) {
 
 						// let's add something that checks and eventually powers off the satellite board if not used for a little while
+						if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
+							app.sbdUtils.setPower(false);
+						}
+						cyclesSinceLastActivity++;
 
-					} else {
 
-						Log.i(logTag, "SBD Message is queued for dispatch. Attempting to send...");
+					} else if (!app.sbdUtils.isInFlight) {
 
 						boolean isAbleToSend = app.sbdUtils.isPowerOn();
 
@@ -95,16 +103,16 @@ public class SbdDispatchCycleService extends Service {
 						} else if (!app.sbdUtils.isNetworkAvailable()) {
 							Log.e(logTag, "Iridium Network is not available. Unable to proceed with SBD send...");
 						} else {
-							Log.i(logTag, "Iridium board is powered ON and network is available. Proceeding with SBD send...");
-							app.rfcxSvc.triggerService(SbdDispatchService.SERVICE_NAME, false);
-
-							// Adding extra delay
-							Thread.sleep(3 * sbdDispatchCycleDuration);
+							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SbdDispatchService.SERVICE_NAME, Math.round( 1.5 * SbdUtils.sendTimeout ) );
+							cyclesSinceLastActivity = 0;
 						}
 
-					}
+					} else {
 
-					Thread.sleep(sbdDispatchCycleDuration);
+						app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SbdDispatchService.SERVICE_NAME, Math.round( 1.5 * SbdUtils.sendTimeout ) );
+						cyclesSinceLastActivity = 0;
+
+					}
 
 				} catch (Exception e) {
 					RfcxLog.logExc(logTag, e);

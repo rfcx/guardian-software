@@ -238,8 +238,14 @@ public class ArrayUtils {
 		return lst;
 	}
 
-	public static String[] toArray(List<String> lst) {
+	public static String[] ListToStringArray(List<String> lst) {
 		String[] arr = new String[lst.size()];
+		for (int i = 0; i < lst.size(); i++) { arr[i] = lst.get(i); }
+		return arr;
+	}
+
+	public static int[] ListToIntArray(List<Integer> lst) {
+		int[] arr = new int[lst.size()];
 		for (int i = 0; i < lst.size(); i++) { arr[i] = lst.get(i); }
 		return arr;
 	}

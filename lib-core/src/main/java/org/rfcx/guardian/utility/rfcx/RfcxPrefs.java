@@ -114,13 +114,13 @@ public class RfcxPrefs {
 		public static final String CHECKIN_META_SEND_BUNDLE_LIMIT = "checkin_meta_send_bundle_limit";
 		public static final String CHECKIN_META_QUEUE_FILESIZE_LIMIT = "checkin_meta_queue_filesize_limit";
 
-		public static final String ADMIN_ENABLE_WIFI = "admin_enable_wifi";
 		public static final String ADMIN_ENABLE_TCP_ADB = "admin_enable_tcp_adb";
 		public static final String ADMIN_ENABLE_WIFI_SOCKET = "admin_enable_wifi_socket";
 		public static final String ADMIN_ENABLE_SSH_SERVER = "admin_enable_ssh_server";
 
 		public static final String API_CLOCK_SYNC_CYCLE_DURATION = "api_clock_sync_cycle_duration";
 		public static final String API_PING_CYCLE_DURATION = "api_ping_cycle_duration";
+		public static final String API_PING_CYCLE_FIELDS = "api_ping_cycle_fields";
 
 		public static final String ADMIN_ENABLE_LOG_CAPTURE = "admin_enable_log_capture";
 		public static final String ADMIN_LOG_CAPTURE_CYCLE = "admin_log_capture_cycle";
@@ -141,7 +141,9 @@ public class RfcxPrefs {
 
 		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
 		public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";
-		public static final String ADMIN_WIFI_PASSWORD = "admin_wifi_password";
+
+		public static final String ADMIN_ENABLE_WIFI_HOTSPOT = "admin_enable_wifi_hotspot";
+		public static final String ADMIN_WIFI_HOTSPOT_PASSWORD = "admin_wifi_hotspot_password";
 
 	}
 
@@ -218,13 +220,15 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_META_SEND_BUNDLE_LIMIT, "16");
 			put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
 
-			put(Pref.ADMIN_ENABLE_WIFI, "true");
+			put(Pref.ADMIN_ENABLE_WIFI_HOTSPOT, "true");
 			put(Pref.ADMIN_ENABLE_TCP_ADB, "true");
 			put(Pref.ADMIN_ENABLE_WIFI_SOCKET, "true");
 			put(Pref.ADMIN_ENABLE_SSH_SERVER, "false");
 
 			put(Pref.API_CLOCK_SYNC_CYCLE_DURATION, "30");
+
 			put(Pref.API_PING_CYCLE_DURATION, "30");
+			put(Pref.API_PING_CYCLE_FIELDS, "all");
 
 			put(Pref.ADMIN_ENABLE_LOG_CAPTURE, "false");
 			put(Pref.ADMIN_LOG_CAPTURE_CYCLE, "30");
@@ -245,7 +249,7 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "preferred_network_mode:global,i,0;");
-			put(Pref.ADMIN_WIFI_PASSWORD, "rfcxrfcx");
+			put(Pref.ADMIN_WIFI_HOTSPOT_PASSWORD, "rfcxrfcx");
 		}}
 	);
 

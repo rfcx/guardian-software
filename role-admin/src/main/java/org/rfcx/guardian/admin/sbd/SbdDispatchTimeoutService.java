@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class SbdDispatchTimeoutService extends Service {
@@ -67,54 +68,33 @@ public class SbdDispatchTimeoutService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 
-			while (sbdDispatchTimeoutInstance.runFlag) {
+			int checkIntervalCount = Math.round( SbdUtils.sendTimeout / 1000 );
 
-				try {
+			try {
 
-					app.rfcxSvc.reportAsActive(SERVICE_NAME);
+				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-//					if (app.sbdMessageDb.dbSbdQueued.getCount() == 0) {
-//
-//						// let's add something that checks and eventually powers off the satellite board if not used for a little while
-//
-//					} else {
-//
-//						Log.i(logTag, "SBD Message is queued for dispatch. Attempting to send...");
-//
-//						boolean isAbleToSend = app.sbdUtils.isPowerOn();
-//
-//						if (!isAbleToSend) {
-//							Log.i(logTag, "Iridium board is powered OFF. Turning power ON...");
-//							app.sbdUtils.setPower(true);
-//							isAbleToSend = app.sbdUtils.isPowerOn();
-//						}
-//
-//						if (!isAbleToSend) {
-//							Log.e(logTag, "Iridium board is STILL powered off. Unable to proceed with SBD send...");
-//						} else if (!app.sbdUtils.isNetworkAvailable()) {
-//							Log.e(logTag, "Iridium Network is not available. Unable to proceed with SBD send...");
-//						} else {
-//							Log.i(logTag, "Iridium board is powered ON and network is available. Proceeding with SBD send...");
-//							app.rfcxSvc.triggerService(SbdDispatchService.SERVICE_NAME, false);
-//
-//							// Adding extra delay
-//							Thread.sleep(3 * sbdDispatchTimeoutDuration);
-//						}
-//
-//					}
-
-					Thread.sleep(sbdDispatchTimeoutDuration);
-
-				} catch (Exception e) {
-					RfcxLog.logExc(logTag, e);
-					app.rfcxSvc.setRunState(SERVICE_NAME, false);
-					sbdDispatchTimeoutInstance.runFlag = false;
+				for (int i = 0; i <= checkIntervalCount; i++) {
+					if (app.sbdUtils.isInFlight) {
+						Thread.sleep(1000);
+						if (i == checkIntervalCount) {
+							Log.e(logTag, "Timeout Reached for SBD Send. Killing serial processes...");
+							ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
+						}
+					} else {
+						break;
+					}
 				}
+
+			} catch (Exception e) {
+				RfcxLog.logExc(logTag, e);
+				app.rfcxSvc.setRunState(SERVICE_NAME, false);
+				sbdDispatchTimeoutInstance.runFlag = false;
 			}
 
 			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			sbdDispatchTimeoutInstance.runFlag = false;
-			Log.v(logTag, "Stopping service: "+logTag);
+		//	Log.v(logTag, "Stopping service: "+logTag);
 		}
 	}
 

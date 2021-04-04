@@ -87,7 +87,7 @@ public class GuardianContentProvider extends ContentProvider {
 				String pathSeg = uri.getLastPathSegment();
 				String pathSegProtocol = pathSeg.substring(0, pathSeg.indexOf("|"));
 				String pathSegField = pathSeg.substring(1 + pathSeg.indexOf("|"));
-				app.apiPingUtils.sendPing(pathSegField.equalsIgnoreCase("all"), new String[]{ pathSegField }, 0, pathSegProtocol );
+				app.apiPingUtils.sendPing(pathSegField.equalsIgnoreCase("all"), new String[]{ pathSegField }, 0, pathSegProtocol, true );
 				return RfcxComm.getProjectionCursor(appRole, "ping", new Object[] { System.currentTimeMillis() });
 
 			// "control" function endpoints

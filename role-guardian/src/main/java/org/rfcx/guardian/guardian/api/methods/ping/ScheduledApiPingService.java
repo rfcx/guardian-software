@@ -4,7 +4,9 @@ import android.app.IntentService;
 import android.content.Intent;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 public class ScheduledApiPingService extends IntentService {
@@ -26,7 +28,17 @@ public class ScheduledApiPingService extends IntentService {
 		
 		app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-		app.apiPingUtils.sendPing(true, new String[]{});
+		String[] includePingFields = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PING_CYCLE_FIELDS).split(",");
+
+		app.apiPingUtils.sendPing(
+				ArrayUtils.doesStringArrayContainString(includePingFields, "all"),
+				includePingFields,
+				ArrayUtils.doesStringArrayContainString(includePingFields, "meta") ? 1 : 0,
+				"all",
+				app.apiPingUtils.hasScheduledPingAlreadyRun
+		);
+
+		app.apiPingUtils.hasScheduledPingAlreadyRun = true;
 		
 	}
 	

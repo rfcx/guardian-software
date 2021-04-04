@@ -4,18 +4,11 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJsonUtils;
-import org.rfcx.guardian.utility.device.hardware.DeviceHardwareUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
-import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
-import java.io.IOException;
 import java.util.Locale;
 
 public class ApiPingUtils {
@@ -30,7 +23,9 @@ public class ApiPingUtils {
 
 	private RfcxGuardian app;
 
-	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, int includeMetaJsonBundles, String forceProtocol) {
+	public boolean hasScheduledPingAlreadyRun = false;
+
+	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, int includeMetaJsonBundles, String forceProtocol, boolean allowSegmentProtocols) {
 
 		String[] apiProtocols = app.rfcxPrefs.getDefaultPrefValueAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(",");
 		if (forceProtocol.equalsIgnoreCase("all")) {
@@ -56,15 +51,19 @@ public class ApiPingUtils {
 					||	(	apiProtocol.equalsIgnoreCase("rest")
 						&&  app.apiRestUtils.sendRestPing(pingJson)
 						)
-					||	(	apiProtocol.equalsIgnoreCase("sms")
-						&& 	app.apiSmsUtils.sendSmsPing(pingJson)
-						)
-					||	(	apiProtocol.equalsIgnoreCase("sbd")
-						&& 	app.apiSbdUtils.sendSbdPing(pingJson)
+					|| 	(	allowSegmentProtocols
+						&&	(	(	apiProtocol.equalsIgnoreCase("sms")
+								&& 	app.apiSmsUtils.sendSmsPing(pingJson)
+								)
+							||	(	apiProtocol.equalsIgnoreCase("sbd")
+								&& 	app.apiSbdUtils.sendSbdPing(pingJson)
+								)
+							)
 						)
 				) {
 					isPublished = true;
-					Log.v(logTag, "Ping has been published via "+apiProtocol.toUpperCase(Locale.US)+".");
+					String actionVerb = (apiProtocol.equalsIgnoreCase("mqtt") || apiProtocol.equalsIgnoreCase("rest")) ? "publish" : "queue";
+					Log.v(logTag, "Ping has been "+actionVerb+"ed via "+apiProtocol.toUpperCase(Locale.US)+".");
 					break;
 				}
 			}
@@ -78,12 +77,12 @@ public class ApiPingUtils {
 		return isPublished;
 	}
 
-	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields) {
-		return sendPing(includeAllExtraFields, includeExtraFields, 0, "all");
+	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, boolean allowSegmentProtocols) {
+		return sendPing(includeAllExtraFields, includeExtraFields, 0, "all", allowSegmentProtocols);
 	}
 
-	public boolean sendPing() {
-		return sendPing(true, new String[]{}, 0, "all");
-	}
+//	public boolean sendPing() {
+//		return sendPing(true, new String[]{}, 0, "all");
+//	}
 
 }

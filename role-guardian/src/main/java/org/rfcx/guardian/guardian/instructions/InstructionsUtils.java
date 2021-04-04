@@ -72,7 +72,7 @@ public class InstructionsUtils {
 
 				// confirm receipt
 				if (queuedInstrIds.size() > 0) {
-					this.app.apiPingUtils.sendPing(false, new String[]{"instructions"});
+					this.app.apiPingUtils.sendPing(false, new String[]{"instructions"}, true);
 				}
 
 			}
@@ -161,7 +161,7 @@ public class InstructionsUtils {
                     for (int i = 0; i < inclFieldsArr.length(); i++) {
                         inclFields[i] = inclFieldsArr.getString(i).toLowerCase();
                     }
-					app.apiPingUtils.sendPing(false, inclFields);
+					app.apiPingUtils.sendPing(false, inclFields, true);
 
                 } else if (instrCmd.equalsIgnoreCase("sms")) {
 

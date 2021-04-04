@@ -138,7 +138,7 @@ public class AdminContentProvider extends ContentProvider {
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"asset_cleanup", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "test_sbd")) { logFuncVal = "control-test_sbd";
-                String randomString = StringUtils.randomAlphanumericString(180, false);
+                String randomString = "abcd"+"001"+StringUtils.randomAlphanumericString(113, false);
                 boolean isSuccessful = app.sbdUtils.sendSbdMessage(randomString);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"test_sbd", isSuccessful, System.currentTimeMillis()});
 
@@ -199,7 +199,7 @@ public class AdminContentProvider extends ContentProvider {
                 String[] sbdQueue = TextUtils.split(pathSeg,"\\|");
                 long sbdSendAt = Long.parseLong(sbdQueue[0]);
                 String sbdPayload = sbdQueue[1];
-          //      SbdUtils.addScheduledSmsToQueue(sbdSendAt, sbdPayload, app.getApplicationContext(), false);
+                SbdUtils.addScheduledSbdToQueue(sbdSendAt, sbdPayload, app.getApplicationContext(), false);
                 return RfcxComm.getProjectionCursor(appRole, "sbd_queue", new Object[]{ sbdSendAt+"|"+sbdPayload, null, System.currentTimeMillis()});
 
 
@@ -208,31 +208,37 @@ public class AdminContentProvider extends ContentProvider {
             } else if (RfcxComm.uriMatch(uri, appRole, "get_momentary_values", "*")) { logFuncVal = "get_momentary_values-*";
                 String pathSeg = uri.getLastPathSegment();
 
-                if (pathSeg.equalsIgnoreCase("sentinel_power")) {
-                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"sentinel_power", app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray().toString(), System.currentTimeMillis()});
+                JSONArray momentaryValueArr = new JSONArray();
 
-                } else if (pathSeg.equalsIgnoreCase("sentinel_sensor")) {
-                     return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"sentinel_sensor", SentinelUtils.getMomentarySentinelSensorValuesAsJsonArray(true, app.getApplicationContext()).toString(), System.currentTimeMillis()});
+                try {
+                    if (pathSeg.equalsIgnoreCase("sentinel_power")) {
+                        momentaryValueArr = app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray();
 
-                } else if (pathSeg.equalsIgnoreCase("system_storage")) {
-                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_storage", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("storage").toString(), System.currentTimeMillis()});
+                    } else if (pathSeg.equalsIgnoreCase("sentinel_sensor")) {
+                        momentaryValueArr = SentinelUtils.getMomentarySentinelSensorValuesAsJsonArray(true, app.getApplicationContext());
 
-                } else if (pathSeg.equalsIgnoreCase("system_memory")) {
-                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_memory", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("memory").toString(), System.currentTimeMillis()});
+                    } else if (pathSeg.equalsIgnoreCase("system_storage")) {
+                        momentaryValueArr = app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("storage");
 
-                } else if (pathSeg.equalsIgnoreCase("system_cpu")) {
-                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_cpu", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("cpu").toString(), System.currentTimeMillis()});
+                    } else if (pathSeg.equalsIgnoreCase("system_memory")) {
+                        momentaryValueArr = app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("memory");
 
-                } else if (pathSeg.equalsIgnoreCase("system_network")) {
-                    return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{"system_network", app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("network").toString(), System.currentTimeMillis()});
+                    } else if (pathSeg.equalsIgnoreCase("system_cpu")) {
+                        momentaryValueArr = app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("cpu");
 
+                    } else if (pathSeg.equalsIgnoreCase("system_network")) {
+                        momentaryValueArr = app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("network");
 
-                } else {
-                    return null;
+                    }
+                } catch (Exception e) {
+                    RfcxLog.logExc(logTag, e);
                 }
 
+                return RfcxComm.getProjectionCursor(appRole, "get_momentary_values", new Object[]{ pathSeg, momentaryValueArr.toString(), System.currentTimeMillis()});
 
-            // "database" function endpoints
+
+
+                // "database" function endpoints
 
             } else if (RfcxComm.uriMatch(uri, appRole, "database_get_all_rows", "*")) { logFuncVal = "database_get_all_rows-*";
                 String pathSeg = uri.getLastPathSegment();
@@ -343,7 +349,7 @@ public class AdminContentProvider extends ContentProvider {
             } else if (RfcxComm.uriMatch(uri, appRole, "signal", "*")) { logFuncVal = "signal-*";
                 return RfcxComm.getProjectionCursor(appRole, "signal", new Object[]{ app.deviceMobileNetwork.getSignalStrengthAsJsonArray() });
             } else if (RfcxComm.uriMatch(uri, appRole, "sentinel_values", "*")) { logFuncVal = "sentinel_values-*";
-                return RfcxComm.getProjectionCursor(appRole, "sentinel_values", new Object[]{ new JSONArray().put(app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJson())});
+                return RfcxComm.getProjectionCursor(appRole, "sentinel_values", new Object[]{ app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray() });
             }
 
 

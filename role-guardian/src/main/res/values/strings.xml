@@ -74,6 +74,7 @@
 
 	<string name="prefs_value_default_api_clock_sync_cycle_duration">30</string>
 	<string name="prefs_value_default_api_ping_cycle_duration">30</string>
+	<string name="prefs_value_default_api_ping_cycle_fields">all,meta</string>
 
 	<string name="prefs_value_default_admin_enable_log_capture">false</string>
 	<string name="prefs_value_default_admin_log_capture_level">Warn</string>
@@ -89,7 +90,6 @@
 	<string name="prefs_value_default_admin_camera_capture_cycle">180</string>
 
 	<string name="prefs_value_default_admin_enable_tcp_adb">true</string>
-	<string name="prefs_value_default_admin_enable_wifi">true</string>
 	<string name="prefs_value_default_admin_enable_ssh_server">false</string>
 	<string name="prefs_value_default_admin_enable_wifi_socket">true</string>
 
@@ -99,7 +99,9 @@
 
 	<string name="prefs_value_default_admin_system_settings_override">preferred_network_mode:global,i,0;</string>
 	<string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>
-	<string name="prefs_value_default_admin_wifi_password">rfcxrfcx</string>
+
+	<string name="prefs_value_default_admin_enable_wifi_hotspot">true</string>
+	<string name="prefs_value_default_admin_wifi_hotspot_password">rfcxrfcx</string>
 
     <string-array name="prefs_values_true_or_false">
 		<item>true</item>

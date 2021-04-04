@@ -48,6 +48,7 @@ public class AssetDownloadUtils {
 						+"\"input_gain\":\"1.0\","
 						+"\"window_size\":\"0.9750\","
 						+"\"step_size\":\"1\","
+						+"\"filter_threshold\":\"0.9\","
 						+"\"classifications\":\"chainsaw,environment\""
 						+"}"
 				);

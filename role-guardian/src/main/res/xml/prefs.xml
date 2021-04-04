@@ -406,6 +406,13 @@
 		android:summary="int - minutes"
 		android:enabled="true"
 		android:defaultValue="@string/prefs_value_default_api_ping_cycle_duration" />
+
+	<EditTextPreference
+			android:key="api_ping_cycle_fields"
+			android:title="api_ping_cycle_fields"
+			android:summary="string - comma separated"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_api_ping_cycle_fields" />
  	
  	<!-- Admin Controls -->
  	
@@ -483,15 +490,6 @@
 			android:defaultValue="@string/prefs_value_default_admin_enable_camera_capture" />
 
 	<ListPreference
-		android:key="admin_enable_wifi"
-		android:title="admin_enable_wifi"
-		android:dialogTitle="admin_enable_wifi"
-		android:summary="string - true/false"
-		android:entries="@array/prefs_values_true_or_false"
-		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_admin_enable_wifi" />
-
-	<ListPreference
 		android:key="admin_enable_tcp_adb"
 		android:title="admin_enable_tcp_adb"
 		android:dialogTitle="admin_enable_tcp_adb"
@@ -562,12 +560,22 @@
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_socket"/>
 
+
+	<ListPreference
+			android:key="admin_enable_wifi_hotspot"
+			android:title="admin_enable_wifi_hotspot"
+			android:dialogTitle="admin_enable_wifi_hotspot"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_hotspot" />
+
 	<EditTextPreference
-			android:key="admin_wifi_password"
-			android:title="admin_wifi_password"
+			android:key="admin_wifi_hotspot_password"
+			android:title="admin_wifi_hotspot_password"
 			android:summary="string - password"
 			android:enabled="true"
-			android:defaultValue="@string/prefs_value_default_admin_wifi_password" />
+			android:defaultValue="@string/prefs_value_default_admin_wifi_hotspot_password" />
  	
  	
 </PreferenceScreen>

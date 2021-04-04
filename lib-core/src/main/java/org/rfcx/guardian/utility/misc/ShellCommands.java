@@ -148,6 +148,12 @@ public class ShellCommands {
 		String grepExclude = (excludeTerm != null) ? " grep -v "+excludeTerm+" |" : "";
 		executeCommandInShell(new String[] { "kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)" }, true);
 	}
+
+	public static void killProcessesByIds(int[] processIds) {
+		for (int processId : processIds) {
+			ShellCommands.executeCommandAsRoot("kill -9 " + processId);
+		}
+	}
 	
 	public static void triggerNeedForRootAccess() {
 		executeCommandInShell(new String[] { "pm list features" }, true);
