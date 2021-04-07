@@ -16,6 +16,8 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
+import java.util.Date;
+
 public class ApiPingJsonUtils {
 
 	public ApiPingJsonUtils(Context context) {
@@ -59,6 +61,7 @@ public class ApiPingJsonUtils {
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "detections")) {
 			if (app.audioDetectionDb.dbFiltered.getCount() > 0) {
 				jsonObj.put("detections", app.audioDetectionDb.dbFiltered.getSimplifiedConcatRows());
+				app.audioDetectionDb.dbFiltered.clearRowsBefore(new Date(System.currentTimeMillis()));
 			}
 		}
 

@@ -31,11 +31,12 @@ public class SbdUtils {
 	private static final int baudRate = 19200;
 	private static final String ttyPath = "/dev/ttyMT1";
 
-	public static final long sendTimeout = 90000;
+	public static final long sendCmdTimeout = 65000;
+	public static final long prepCmdTimeout = 2500;
 
 	public boolean isInFlight = false;
 	public int consecutiveDeliveryFailureCount = 0;
-	public static final int powerCycleAfterThisManyConsecutiveDeliveryFailures = 3;
+	public static final int powerCycleAfterThisManyConsecutiveDeliveryFailures = 10;
 
 
 	public void setupSbdUtils() {
@@ -54,7 +55,7 @@ public class SbdUtils {
 			if (!isNetworkAvailable()) {
 				errorMsg = "No Iridium network currently available";
 			} else {
-				String[] atCmdSeq = new String[]{ "AT&K0", "AT+SBDD", "AT+SBDWT=" + msgStr, "AT+SBDIX" };
+				String[] atCmdSeq = new String[]{ "AT&K0", "AT+SBDD0", "AT+SBDWT=" + msgStr, "AT+SBDIX" };
 				Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting AT Command Sequence: " + TextUtils.join(", ", atCmdSeq));
 				isInFlight = true;
 				app.rfcxSvc.triggerService(SbdDispatchTimeoutService.SERVICE_NAME, true);
@@ -87,7 +88,7 @@ public class SbdUtils {
 		execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb");
 
 		for (int i = 0; i < execSteps.length; i++) {
-			long waitMs = (execSteps[i].equalsIgnoreCase("AT+SBDIX")) ? Math.round( sendTimeout * 0.5 ) : 500;
+			long waitMs = (execSteps[i].equalsIgnoreCase("AT+SBDIX")) ? Math.round( sendCmdTimeout * 0.5 ) : prepCmdTimeout;
 			execFull.append(" && ")
 					.append("echo").append(" -n").append(" '").append(execSteps[i]).append("<br_r>'")
 					.append(" | ")
@@ -122,14 +123,13 @@ public class SbdUtils {
 	public int[] findRunningSerialProcessIds() {
 
 		List<Integer> processIds = new ArrayList<>();
-
 		isInFlight = false;
 
 		List<String> processScan = ShellCommands.executeCommandAsRoot(busyBoxBin + " ps -ef | grep /dev/ttyMT");
 
 		for (String scanRtrn : processScan) {
 			if ((scanRtrn.contains("microcom")) || (scanRtrn.contains("stty"))) {
-				String processId = scanRtrn.substring(0, scanRtrn.indexOf("root"));ShellCommands.executeCommandAsRoot("kill -9 " + processId);
+				String processId = scanRtrn.substring(0, scanRtrn.indexOf("root"));
 				processIds.add(Integer.parseInt(processId));
 			}
 		}

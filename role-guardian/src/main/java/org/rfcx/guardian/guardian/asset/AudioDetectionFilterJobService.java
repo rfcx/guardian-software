@@ -109,8 +109,9 @@ public class AudioDetectionFilterJobService extends Service {
 //						filterRow = filters.get(filterId);
 
 						String[] allowedClassifications = new String[] { "chainsaw" };
-						double filterConfidenceMinThreshold = 0.99;
+						double filterConfidenceMinThreshold = 0.92;
 						double filterConfidenceMinCountPerMinute = 4;
+						int detectionSigFigs = 2;
 
 
 
@@ -123,7 +124,7 @@ public class AudioDetectionFilterJobService extends Service {
 							for (int i = 0; i < confidences.length(); i++) {
 								double confVal = Double.parseDouble(confidences.getString(i));
 								if (filterConfidenceMinThreshold <= confVal) {
-									filteredConfidences.add(String.format(Locale.US, "%.4f", confVal));
+									filteredConfidences.add(String.format(Locale.US, "%."+detectionSigFigs+"f", confVal));
 //									if (eligibleDetectionsCount == 0) { timeAtFirstAndLastDetections[0] += stepSizeMs; }
 //									timeAtFirstAndLastDetections[1] += stepSizeMs;
 									eligibleDetectionsCount++;

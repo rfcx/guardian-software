@@ -32,7 +32,8 @@
 	<string name="prefs_value_default_reboot_forced_daily_at">23:55:00</string>
 
 	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">false</string>
-	<string name="prefs_value_default_audio_schedule_off_hours">23:56-23:58,23:58-00:00</string>
+	<string name="prefs_value_default_audio_schedule_off_hours">23:55-23:56,23:56-23:57</string>
+	<string name="prefs_value_default_api_schedule_off_hours">23:55-23:56,23:56-23:57</string>
 
 	<string name="prefs_value_default_enable_cutoffs_sampling_ratio">false</string>
 	<string name="prefs_value_default_audio_sampling_ratio">1:2</string>

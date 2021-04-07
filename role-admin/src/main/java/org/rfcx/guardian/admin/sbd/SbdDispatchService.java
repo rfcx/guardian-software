@@ -115,7 +115,7 @@ public class SbdDispatchService extends Service {
 									break;
 								}
 							}
-							
+
 							Thread.sleep(forcedPauseBetweenEachDispatch);
 						}
 					}

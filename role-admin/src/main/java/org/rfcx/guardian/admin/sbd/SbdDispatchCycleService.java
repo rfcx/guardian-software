@@ -6,7 +6,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.control.DeviceScreenLock;
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class SbdDispatchCycleService extends Service {
@@ -71,6 +71,8 @@ public class SbdDispatchCycleService extends Service {
 			int cyclesSinceLastActivity = 0;
 			int powerOffAfterThisManyInactiveCycles = 8;
 
+			ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
+
 			while (sbdDispatchCycleInstance.runFlag) {
 
 				try {
@@ -103,13 +105,13 @@ public class SbdDispatchCycleService extends Service {
 						} else if (!app.sbdUtils.isNetworkAvailable()) {
 							Log.e(logTag, "Iridium Network is not available. Unable to proceed with SBD send...");
 						} else {
-							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SbdDispatchService.SERVICE_NAME, Math.round( 1.5 * SbdUtils.sendTimeout ) );
+							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SbdDispatchService.SERVICE_NAME, Math.round( 1.5 * SbdUtils.sendCmdTimeout) );
 							cyclesSinceLastActivity = 0;
 						}
 
 					} else {
 
-						app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SbdDispatchService.SERVICE_NAME, Math.round( 1.5 * SbdUtils.sendTimeout ) );
+						app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SbdDispatchService.SERVICE_NAME, Math.round( 1.5 * SbdUtils.sendCmdTimeout) );
 						cyclesSinceLastActivity = 0;
 
 					}

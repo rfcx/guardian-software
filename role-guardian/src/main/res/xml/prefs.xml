@@ -175,6 +175,13 @@
 		android:summary="string - protocols, ordered, comma separated"
 		android:enabled="true"
 		android:defaultValue="@string/prefs_value_api_protocol_escalation_order" />
+
+	<EditTextPreference
+			android:key="api_schedule_off_hours"
+			android:title="api_schedule_off_hours"
+			android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_api_schedule_off_hours" />
  	
  	<EditTextPreference
         android:key="reboot_forced_daily_at"

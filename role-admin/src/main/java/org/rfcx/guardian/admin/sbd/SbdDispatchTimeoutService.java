@@ -20,8 +20,6 @@ public class SbdDispatchTimeoutService extends Service {
 	private boolean runFlag = false;
 	private SbdDispatchTimeoutSvc sbdDispatchTimeoutSvc;
 
-	private long sbdDispatchTimeoutDuration = 15000;
-
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
@@ -68,7 +66,7 @@ public class SbdDispatchTimeoutService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 
-			int checkIntervalCount = Math.round( SbdUtils.sendTimeout / 1000 );
+			int checkIntervalCount = Math.round( ( SbdUtils.sendCmdTimeout + ( 3 * SbdUtils.prepCmdTimeout) ) / 667 );
 
 			try {
 
@@ -76,7 +74,7 @@ public class SbdDispatchTimeoutService extends Service {
 
 				for (int i = 0; i <= checkIntervalCount; i++) {
 					if (app.sbdUtils.isInFlight) {
-						Thread.sleep(1000);
+						Thread.sleep(667);
 						if (i == checkIntervalCount) {
 							Log.e(logTag, "Timeout Reached for SBD Send. Killing serial processes...");
 							ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());

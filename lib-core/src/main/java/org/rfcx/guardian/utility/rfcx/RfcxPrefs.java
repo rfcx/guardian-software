@@ -77,6 +77,7 @@ public class RfcxPrefs {
 
 		public static final String ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS = "enable_cutoffs_schedule_off_hours";
 		public static final String AUDIO_SCHEDULE_OFF_HOURS = "audio_schedule_off_hours";
+		public static final String API_SCHEDULE_OFF_HOURS = "api_schedule_off_hours";
 
 		public static final String ENABLE_CUTOFFS_SAMPLING_RATIO = "enable_cutoffs_sampling_ratio";
 		public static final String AUDIO_SAMPLING_RATIO = "audio_sampling_ratio";
@@ -182,7 +183,8 @@ public class RfcxPrefs {
 			put(Pref.AUDIO_CYCLE_DURATION, "90");
 
 			put(Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS, "false");
-			put(Pref.AUDIO_SCHEDULE_OFF_HOURS, "23:56-23:58,23:58-00:00");
+			put(Pref.AUDIO_SCHEDULE_OFF_HOURS, "23:55-23:56,23:56-23:57");
+			put(Pref.API_SCHEDULE_OFF_HOURS, "23:55-23:56,23:56-23:57");
 
 			put(Pref.ENABLE_CUTOFFS_SAMPLING_RATIO, "false");
 			put(Pref.AUDIO_SAMPLING_RATIO, "1:2");

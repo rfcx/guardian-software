@@ -150,8 +150,15 @@ public class ShellCommands {
 	}
 
 	public static void killProcessesByIds(int[] processIds) {
-		for (int processId : processIds) {
-			ShellCommands.executeCommandAsRoot("kill -9 " + processId);
+		List<String> cmdList = new ArrayList<>();
+		for (int pId : processIds) {
+			String killCmd = "kill -9 " + pId;
+			if (!ArrayUtils.doesStringListContainString(cmdList, killCmd)) {
+				cmdList.add(killCmd);
+			}
+		}
+		if (cmdList.size() > 0) {
+			ShellCommands.executeCommandAsRoot(ArrayUtils.ListToStringArray(cmdList));
 		}
 	}
 	
