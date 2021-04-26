@@ -156,7 +156,7 @@ public class AudioDetectionDb {
 			ArrayList<String> rowList = new ArrayList<String>();
 			try {
 				for (String[] row : getAllRows()) {
-					rowList.add(TextUtils.join("*", new String[] { row[1], row[3]+"-v"+row[4], row[7], row[9], row[10] }));
+					rowList.add(TextUtils.join("*", new String[] { row[1], row[3]+"-v"+row[4], row[7], ""+Math.round(Double.parseDouble(row[8])*1000), row[10] }));
 				}
 				concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
 			} catch (Exception e) {

@@ -20,7 +20,7 @@ public class SbdDispatchCycleService extends Service {
 	private boolean runFlag = false;
 	private SbdDispatchCycleSvc sbdDispatchCycleSvc;
 
-	private long sbdDispatchCycleDuration = 15000;
+	private final long sbdDispatchCycleDuration = 15000;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -69,7 +69,7 @@ public class SbdDispatchCycleService extends Service {
 			app = (RfcxGuardian) getApplication();
 
 			int cyclesSinceLastActivity = 0;
-			int powerOffAfterThisManyInactiveCycles = 8;
+			int powerOffAfterThisManyInactiveCycles = 6;
 
 			ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
 

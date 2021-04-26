@@ -177,11 +177,18 @@
 		android:defaultValue="@string/prefs_value_api_protocol_escalation_order" />
 
 	<EditTextPreference
-			android:key="api_schedule_off_hours"
-			android:title="api_schedule_off_hours"
-			android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
-			android:enabled="true"
-			android:defaultValue="@string/prefs_value_default_api_schedule_off_hours" />
+		android:key="api_ping_schedule_off_hours"
+		android:title="api_ping_schedule_off_hours"
+		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_ping_schedule_off_hours" />
+
+	<EditTextPreference
+		android:key="audio_classify_schedule_off_hours"
+		android:title="audio_classify_schedule_off_hours"
+		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_audio_classify_schedule_off_hours" />
  	
  	<EditTextPreference
         android:key="reboot_forced_daily_at"
@@ -583,6 +590,15 @@
 			android:summary="string - password"
 			android:enabled="true"
 			android:defaultValue="@string/prefs_value_default_admin_wifi_hotspot_password" />
+
+	<ListPreference
+			android:key="admin_enable_wifi_connection"
+			android:title="admin_enable_wifi_connection"
+			android:dialogTitle="admin_enable_wifi_connection"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_connection" />
  	
  	
 </PreferenceScreen>

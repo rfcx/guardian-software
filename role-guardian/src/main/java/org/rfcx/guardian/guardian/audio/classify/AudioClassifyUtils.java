@@ -13,6 +13,7 @@ import org.rfcx.guardian.guardian.asset.AudioDetectionFilterJobService;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -206,6 +207,17 @@ public class AudioClassifyUtils {
 		}
 
 		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( new String[]{ RfcxAudioFileUtils.audioClassifyDir(context) }, audioQueuedForClassification, Math.round(maxAgeInMilliseconds/60000), false, false );
+	}
+
+	public boolean isClassifyAllowedAtThisTimeOfDay(String classifierId) {
+		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CLASSIFY_SCHEDULE_OFF_HOURS), ",")) {
+			String[] offHours = TextUtils.split(offHoursRange, "-");
+			if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
+				Log.d(logTag, "Audio Classifier ("+classifierId+") not allowed at this time of day...");
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

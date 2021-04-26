@@ -6,9 +6,11 @@ import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
+import java.util.Date;
 import java.util.Locale;
 
 public class ApiPingUtils {
@@ -84,5 +86,15 @@ public class ApiPingUtils {
 //	public boolean sendPing() {
 //		return sendPing(true, new String[]{}, 0, "all");
 //	}
+
+	public boolean isScheduledPingAllowedAtThisTimeOfDay() {
+		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PING_SCHEDULE_OFF_HOURS), ",")) {
+			String[] offHours = TextUtils.split(offHoursRange, "-");
+			if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }

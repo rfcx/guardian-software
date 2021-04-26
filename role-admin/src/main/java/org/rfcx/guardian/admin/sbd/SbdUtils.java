@@ -31,12 +31,12 @@ public class SbdUtils {
 	private static final int baudRate = 19200;
 	private static final String ttyPath = "/dev/ttyMT1";
 
-	public static final long sendCmdTimeout = 65000;
+	public static final long sendCmdTimeout = 70000;
 	public static final long prepCmdTimeout = 2500;
 
 	public boolean isInFlight = false;
 	public int consecutiveDeliveryFailureCount = 0;
-	public static final int powerCycleAfterThisManyConsecutiveDeliveryFailures = 10;
+	public static final int powerCycleAfterThisManyConsecutiveDeliveryFailures = 5;
 
 
 	public void setupSbdUtils() {

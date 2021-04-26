@@ -131,7 +131,6 @@ public class DeviceWifi {
 									if (thisMethod.getName().equals("getWifiApState")) {
 										int apState = (Integer) thisMethod.invoke(wifiManager);
 										Log.v(logTag, "Wifi Hotspot Network Name: '" + wifiConfig.SSID + "' (" + wifiConfig.preSharedKey + ")");
-										DeviceSystemSettings.setVal("wifi_hotspot_auto_disable", "system", "i", "0");
 										break;
 									}
 								}

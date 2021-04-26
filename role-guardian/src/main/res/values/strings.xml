@@ -32,8 +32,9 @@
 	<string name="prefs_value_default_reboot_forced_daily_at">23:55:00</string>
 
 	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">false</string>
-	<string name="prefs_value_default_audio_schedule_off_hours">23:55-23:56,23:56-23:57</string>
-	<string name="prefs_value_default_api_schedule_off_hours">23:55-23:56,23:56-23:57</string>
+	<string name="prefs_value_default_audio_schedule_off_hours">23:55-23:56,23:57-23:59</string>
+	<string name="prefs_value_default_api_ping_schedule_off_hours">23:55-23:56,23:57-23:59</string>
+	<string name="prefs_value_default_audio_classify_schedule_off_hours">23:55-23:56,23:57-23:59</string>
 
 	<string name="prefs_value_default_enable_cutoffs_sampling_ratio">false</string>
 	<string name="prefs_value_default_audio_sampling_ratio">1:2</string>
@@ -101,6 +102,7 @@
 	<string name="prefs_value_default_admin_system_settings_override">preferred_network_mode:global,i,0;</string>
 	<string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>
 
+	<string name="prefs_value_default_admin_enable_wifi_connection">false</string>
 	<string name="prefs_value_default_admin_enable_wifi_hotspot">true</string>
 	<string name="prefs_value_default_admin_wifi_hotspot_password">rfcxrfcx</string>
 
