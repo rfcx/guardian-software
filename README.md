@@ -204,7 +204,7 @@ Before following the instruction below. You need to download Vysor first.
 
 ### Step 3: Set the IMEI number
 
-Before you start, you will need to generate a suitable IMEI number. Please use this [Online IMEI Generator](https://static.rfcx.org/tools/imei/generator.html) to create a valid value. Use this sheet to keep track of the generated IMEI's:[IMEI Tracker](https://docs.google.com/spreadsheets/d/1FEOK2BMLc4xjuV1slUhLb8irDu9ld1TLiD39v8UPoZ8/edit#gid=0) [IMEI # Tracker] ()
+Before you start, you will need to generate a suitable IMEI number. Please use this [Online IMEI Generator](https://static.rfcx.org/tools/imei/generator.html) to create a valid value. Use this sheet to keep track of the generated IMEI's:[IMEI Tracker](https://docs.google.com/spreadsheets/d/1FEOK2BMLc4xjuV1slUhLb8irDu9ld1TLiD39v8UPoZ8/edit#gid=0)
 
 1. Make sure that COM 2 jumper is OFF (removed).
 2. Make sure you do not have the SD Card inserted.
