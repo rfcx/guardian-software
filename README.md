@@ -204,13 +204,14 @@ Before following the instruction below. You need to download Vysor first.
 
 ### Step 3: Set the IMEI number
 
-Before you start, you will need to generate a suitable IMEI number. Please use this [Online IMEI Generator](https://static.rfcx.org/tools/imei/generator.html) to create a valid value.
+Before you start, you will need to generate a suitable IMEI number. Please use this [Online IMEI Generator](https://static.rfcx.org/tools/imei/generator.html) to create a valid value. Use this sheet to keep track of the generated IMEI's: [IMEI # Tracker] (https://docs.google.com/spreadsheets/d/1FEOK2BMLc4xjuV1slUhLb8irDu9ld1TLiD39v8UPoZ8/edit#gid=0)
 
 1. Make sure that COM 2 jumper is OFF (removed).
-2. First download [IMEI Writer](https://static.rfcx.org/tools/orangepi-3g-iot/sn_writer_tool_exe_v1.1716.00.zip) (for Windows)
-3. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
-4. Choose **USB VCOM** and **Smart Phone**
-5. Open System Config
+2. Make sure you do not have the SD Card inserted.
+3. First download [IMEI Writer](https://static.rfcx.org/tools/orangepi-3g-iot/sn_writer_tool_exe_v1.1716.00.zip) (for Windows)
+4. Extract and open **SN Write** in **SN_Writer_Tool_exe_v1.1716.00** directory
+5. Choose **USB VCOM** and **Smart Phone**
+6. Open System Config
     1. In **Write Option** choose **IMEI**
     2. In **IMEI Option** and **Header Option**, choose nothing
     3. In **MD1_DB** choose **BPLGUInfoCustomAppSrcP_MT6572_S00_MOLY_WR8_W1315_MD_WG_MP_V47_1_wg_n** in *Android_OS_for_Orange_Pi_3G-IoT\modem* (directory of android image)
@@ -218,7 +219,7 @@ Before you start, you will need to generate a suitable IMEI number. Please use t
     5. In the newer version There are checkboxes called **"Load AP DB from DUT"** and **"Load modem DB from DUT"**. Make sure that you uncheck these two box before the next step.
     6. Save and then Start
     7. Put the IMEI Number with 15 digit
-6. In the menus
+7. In the menus
    1. Open **Identify** -> **Engineer** -> **Enable AutoGen**
    2. In **IMEI** section, Edit **End** field to change the first digit to **9** (change no other digits in the field value)
    3. Click **OK** to save the settings
