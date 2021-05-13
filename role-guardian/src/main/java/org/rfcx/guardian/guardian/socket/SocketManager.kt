@@ -125,6 +125,7 @@ object SocketManager {
             streamInput?.close()
             streamInput = null
 
+            streamOutput?.flush()
             streamOutput?.close()
             streamOutput = null
 
@@ -143,7 +144,7 @@ object SocketManager {
             val prefsJsonArray = app?.rfcxPrefs?.prefsAsJsonArray
             val prefsJson = JSONObject().put("prefs", prefsJsonArray)
             streamOutput?.writeUTF(prefsJson.toString())
-            streamOutput?.flush()
+
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
@@ -153,7 +154,7 @@ object SocketManager {
     private fun sendConnectionMessage() {
         try {
             streamOutput?.writeUTF(getConnectionResponse())
-            streamOutput?.flush()
+
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
@@ -189,7 +190,7 @@ object SocketManager {
             diagnosticJson.put("prefs", prefsJsonArray)
 
             streamOutput?.writeUTF(diagnosticJson.toString())
-            streamOutput?.flush()
+
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
@@ -209,7 +210,7 @@ object SocketManager {
                 val configurationJson =
                     JSONObject().put("configure", jsonObject)
                 streamOutput?.writeUTF(configurationJson.toString())
-                streamOutput?.flush()
+
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
@@ -231,12 +232,12 @@ object SocketManager {
                 val micTestObject = JSONObject().put("microphone_test", audioJsonObject)
                 if (micTestObject.toString().length <= 65535) {
                     streamOutput?.writeUTF(micTestObject.toString())
-                    streamOutput?.flush()
+
                 } else {
-                    val audioChunks = audioPair.first.toSmallChunk(15)
+                    val audioChunks = audioPair.first.toSmallChunk(10)
                     audioChunks.forEachIndexed { index, audio ->
                         val readSize = audio.size
-                        val audioChunkString = Base64.encodeToString(audio, Base64.DEFAULT)
+                        val audioChunkString = Base64.encodeToString(audio, Base64.URL_SAFE)
                         val audioChunkJsonObject = JSONObject()
                             .put("amount", audioChunks.size)
                             .put("number", index + 1) // make it real number
@@ -245,7 +246,7 @@ object SocketManager {
                         val micTestChunkObject =
                             JSONObject().put("microphone_test", audioChunkJsonObject)
                         streamOutput?.writeUTF(micTestChunkObject.toString())
-                        streamOutput?.flush()
+
                     }
                 }
             }
@@ -275,7 +276,7 @@ object SocketManager {
                 val signalInfoJson = JSONObject()
                     .put("signal_info", signalJson)
                 streamOutput?.writeUTF(signalInfoJson.toString())
-                streamOutput?.flush()
+
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
                 verifySocketError(e.message ?: "null")
@@ -305,7 +306,7 @@ object SocketManager {
             syncResponse = getSyncResponse("failed")
         } finally {
             streamOutput?.writeUTF(syncResponse)
-            streamOutput?.flush()
+
         }
     }
 
@@ -319,7 +320,7 @@ object SocketManager {
                 val checkInTestJson = JSONObject()
                     .put("checkin", checkInJson)
                 streamOutput?.writeUTF(checkInTestJson.toString())
-                streamOutput?.flush()
+
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
@@ -341,7 +342,7 @@ object SocketManager {
                 val sentinelInfoJson = JSONObject()
                     .put("sentinel", sentinelJson)
                 streamOutput?.writeUTF(sentinelInfoJson.toString())
-                streamOutput?.flush()
+
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
                 verifySocketError(e.message ?: "null")
@@ -355,7 +356,7 @@ object SocketManager {
             val isRegisteredJson = JSONObject()
                 .put("is_registered", isRegistered)
             streamOutput?.writeUTF(isRegisteredJson.toString())
-            streamOutput?.flush()
+
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
@@ -375,7 +376,7 @@ object SocketManager {
                             .put("status", "success")
                         registerJson.put("register", registerInfo)
                         streamOutput?.writeUTF(registerJson.toString())
-                        streamOutput?.flush()
+
                     } catch (e: Exception) {
                         RfcxLog.logExc(LOGTAG, e)
                         verifySocketError(e.message ?: "null")
@@ -388,7 +389,7 @@ object SocketManager {
                             .put("status", "failed")
                         registerJson.put("register", registerInfo)
                         streamOutput?.writeUTF(registerJson.toString())
-                        streamOutput?.flush()
+
                     } catch (e: Exception) {
                         RfcxLog.logExc(LOGTAG, e)
                         verifySocketError(e.message ?: "null")
@@ -405,7 +406,7 @@ object SocketManager {
             val recorderStateJson = JSONObject()
                 .put("is_recording", recorderState)
             streamOutput?.writeUTF(recorderStateJson.toString())
-            streamOutput?.flush()
+
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
