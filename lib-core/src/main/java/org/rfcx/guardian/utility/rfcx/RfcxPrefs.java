@@ -77,7 +77,8 @@ public class RfcxPrefs {
 
 		public static final String ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS = "enable_cutoffs_schedule_off_hours";
 		public static final String AUDIO_SCHEDULE_OFF_HOURS = "audio_schedule_off_hours";
-		public static final String API_SCHEDULE_OFF_HOURS = "api_schedule_off_hours";
+		public static final String API_PING_SCHEDULE_OFF_HOURS = "api_ping_schedule_off_hours";
+		public static final String AUDIO_CLASSIFY_SCHEDULE_OFF_HOURS = "audio_classify_schedule_off_hours";
 
 		public static final String ENABLE_CUTOFFS_SAMPLING_RATIO = "enable_cutoffs_sampling_ratio";
 		public static final String AUDIO_SAMPLING_RATIO = "audio_sampling_ratio";
@@ -143,6 +144,7 @@ public class RfcxPrefs {
 		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
 		public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";
 
+		public static final String ADMIN_ENABLE_WIFI_CONNECTION = "admin_enable_wifi_connection";
 		public static final String ADMIN_ENABLE_WIFI_HOTSPOT = "admin_enable_wifi_hotspot";
 		public static final String ADMIN_WIFI_HOTSPOT_PASSWORD = "admin_wifi_hotspot_password";
 
@@ -183,8 +185,9 @@ public class RfcxPrefs {
 			put(Pref.AUDIO_CYCLE_DURATION, "90");
 
 			put(Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS, "false");
-			put(Pref.AUDIO_SCHEDULE_OFF_HOURS, "23:55-23:56,23:56-23:57");
-			put(Pref.API_SCHEDULE_OFF_HOURS, "23:55-23:56,23:56-23:57");
+			put(Pref.AUDIO_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
+			put(Pref.API_PING_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
+			put(Pref.AUDIO_CLASSIFY_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
 
 			put(Pref.ENABLE_CUTOFFS_SAMPLING_RATIO, "false");
 			put(Pref.AUDIO_SAMPLING_RATIO, "1:2");
@@ -222,6 +225,7 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_META_SEND_BUNDLE_LIMIT, "16");
 			put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
 
+			put(Pref.ADMIN_ENABLE_WIFI_CONNECTION, "false");
 			put(Pref.ADMIN_ENABLE_WIFI_HOTSPOT, "true");
 			put(Pref.ADMIN_ENABLE_TCP_ADB, "true");
 			put(Pref.ADMIN_ENABLE_WIFI_SOCKET, "true");

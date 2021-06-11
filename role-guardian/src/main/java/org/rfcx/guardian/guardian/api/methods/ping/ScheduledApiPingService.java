@@ -2,6 +2,7 @@ package org.rfcx.guardian.guardian.api.methods.ping;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
@@ -30,13 +31,18 @@ public class ScheduledApiPingService extends IntentService {
 
 		String[] includePingFields = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PING_CYCLE_FIELDS).split(",");
 
-		app.apiPingUtils.sendPing(
-				ArrayUtils.doesStringArrayContainString(includePingFields, "all"),
-				includePingFields,
-				ArrayUtils.doesStringArrayContainString(includePingFields, "meta") ? 1 : 0,
-				"all",
-				app.apiPingUtils.hasScheduledPingAlreadyRun
-		);
+		if (app.apiPingUtils.isScheduledPingAllowedAtThisTimeOfDay()) {
+			app.apiPingUtils.sendPing(
+					ArrayUtils.doesStringArrayContainString(includePingFields, "all"),
+					includePingFields,
+					ArrayUtils.doesStringArrayContainString(includePingFields, "meta") ? 1 : 0,
+					"all",
+					app.apiPingUtils.hasScheduledPingAlreadyRun
+			);
+		} else {
+
+			Log.e(logTag, "Scheduled Ping blocked due to time of day.");
+		}
 
 		app.apiPingUtils.hasScheduledPingAlreadyRun = true;
 		

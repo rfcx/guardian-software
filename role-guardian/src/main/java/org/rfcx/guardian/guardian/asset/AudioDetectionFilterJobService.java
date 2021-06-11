@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -101,6 +102,8 @@ public class AudioDetectionFilterJobService extends Service {
 						long stepSizeMs = Math.round(Float.parseFloat(latestUnfilteredRow[9]) * 1000);
 						JSONArray confidences = new JSONArray(latestUnfilteredRow[10]);
 
+						String[] clsfrProfile = app.assetLibraryDb.dbClassifier.getSingleRowById(clsfrId);
+						JSONObject clsfrProfileJson = new JSONObject(clsfrProfile[7]);
 
 						String[] filterRow = new String[] {};
 //						if (!filters.containsKey(filterId)) {
@@ -109,7 +112,7 @@ public class AudioDetectionFilterJobService extends Service {
 //						filterRow = filters.get(filterId);
 
 						String[] allowedClassifications = new String[] { "chainsaw" };
-						double filterConfidenceMinThreshold = 0.92;
+						double filterConfidenceMinThreshold = 0.95;
 						double filterConfidenceMinCountPerMinute = 4;
 						int detectionSigFigs = 2;
 
@@ -118,6 +121,7 @@ public class AudioDetectionFilterJobService extends Service {
 						if (ArrayUtils.doesStringArrayContainString(allowedClassifications, classTag)) {
 
 							List<String> filteredConfidences = new ArrayList<>();
+							List<String> unFilteredConfidences = new ArrayList<>();
 		//					long[] timeAtFirstAndLastDetections = new long[] { beginsAtMs, beginsAtMs };
 							int eligibleDetectionsCount = 0;
 
@@ -130,6 +134,7 @@ public class AudioDetectionFilterJobService extends Service {
 									eligibleDetectionsCount++;
 								} else {
 									filteredConfidences.add("");
+									unFilteredConfidences.add(String.format(Locale.US, "%."+detectionSigFigs+"f", confVal));
 								}
 							}
 
@@ -137,7 +142,9 @@ public class AudioDetectionFilterJobService extends Service {
 								app.audioDetectionDb.dbFiltered.insert(
 										classTag, clsfrId, clsfrName, clsfrVersion, filterId,
 										audioId, beginsAtMs, windowSizeMs, stepSizeMs, TextUtils.join(",", filteredConfidences));
-								Log.e(logTag, TextUtils.join(",", filteredConfidences));
+								Log.v(logTag, eligibleDetectionsCount+" detection windows ("+Math.round((Double.parseDouble(""+eligibleDetectionsCount)/Double.parseDouble(""+confidences.length()))*100)+"%) for classification '"+classTag+"' are above the "+filterConfidenceMinThreshold+" confidence threshold and have been preserved (required per minute: "+Math.round(filterConfidenceMinCountPerMinute)+").");
+							} else {
+								Log.w(logTag, eligibleDetectionsCount+" detection windows ("+Math.round((Double.parseDouble(""+eligibleDetectionsCount)/Double.parseDouble(""+confidences.length()))*100)+"%) for classification '"+classTag+"' are above the "+filterConfidenceMinThreshold+" confidence threshold (required per minute: "+Math.round(filterConfidenceMinCountPerMinute)+"). None will be preserved.");
 							}
 						}
 

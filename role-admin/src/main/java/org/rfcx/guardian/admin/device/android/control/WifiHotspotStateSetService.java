@@ -28,6 +28,7 @@ public class WifiHotspotStateSetService extends IntentService {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
 		boolean prefsAdminEnableWifiHotspot = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT);
+		boolean prefsAdminEnableWifiConnection = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_CONNECTION);
 
 		DeviceWifi deviceWifi = new DeviceWifi(context);
 		deviceWifi.setHotspotConfig(
@@ -41,11 +42,23 @@ public class WifiHotspotStateSetService extends IntentService {
 //			Log.e(logTag, "Blocking WiFi hotspot function because of an apparent bug in DeviceWiFi (core library) that spikes CPU usage. This needs to be fixed...");
 			deviceWifi.setHotspotOn();
 
+		} else if (prefsAdminEnableWifiConnection) {
+
+			// turn Wifi power on
+			deviceWifi.setPowerOn();
+
 		} else {
 			// turn hotspot OFF
 			deviceWifi.setPowerOff();
 //			Log.e(logTag, "Blocking WiFi hotspot function because of an apparent bug in DeviceWiFi (core library) that spikes CPU usage. This needs to be fixed...");
 			deviceWifi.setHotspotOff();
+
+		}
+
+		if (prefsAdminEnableWifiConnection) {
+
+			// turn Wifi power on
+			deviceWifi.setPowerOn();
 
 		}
 

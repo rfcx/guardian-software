@@ -319,9 +319,9 @@ public class RfcxGuardian extends Application {
 
 	public void onPrefReSync(String prefKey) {
 
-		if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT) || prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD)) {
-			rfcxSvc.triggerService( WifiHotspotStateSetService.SERVICE_NAME, false);
-			rfcxSvc.triggerService( ADBStateSetService.SERVICE_NAME, false);
+		if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT) || prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD) || prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_CONNECTION) ) {
+			rfcxSvc.triggerService(WifiHotspotStateSetService.SERVICE_NAME, false);
+			rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 
 		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB )) {
 			rfcxSvc.triggerService( ADBStateSetService.SERVICE_NAME, false);

@@ -20,7 +20,7 @@ if [ "$CNTL" = "help" ]; then
 	echo "";
 	echo "Example Actions:";
 	echo "adbcontrol.sh [reboot, screenshot, software_update, airplanemode_toggle, clock_sync]";
-	echo "adbcontrol.sh ping [all, instructions, etc]";
+	echo "adbcontrol.sh ping [all, mqtt, rest, sms, sbd] [all, instructions, etc]";
 	echo "adbcontrol.sh identity_set [key] [value]";
 
 	echo "";

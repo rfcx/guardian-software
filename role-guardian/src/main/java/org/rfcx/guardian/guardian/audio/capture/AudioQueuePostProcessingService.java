@@ -105,11 +105,14 @@ public class AudioQueuePostProcessingService extends IntentService {
 							String classifierStepSize = classiferRow[10];
 							String classifierClasses = classiferRow[11];
 
-							jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
-									"" + captureTimestampActual, classifierId, classifierVersion,
-											captureSampleRate, classifierSampleRate, classifierInputGain,
-											preClassifyFilePath, classifierFilePath,
-											classifierWindowSize, classifierStepSize, classifierClasses);
+							if (app.audioClassifyUtils.isClassifyAllowedAtThisTimeOfDay(classifierId)) {
+
+								jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
+										"" + captureTimestampActual, classifierId, classifierVersion,
+										captureSampleRate, classifierSampleRate, classifierInputGain,
+										preClassifyFilePath, classifierFilePath,
+										classifierWindowSize, classifierStepSize, classifierClasses);
+							}
 						}
 					}
 				}

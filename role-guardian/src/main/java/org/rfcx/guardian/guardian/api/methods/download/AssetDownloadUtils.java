@@ -36,7 +36,7 @@ public class AssetDownloadUtils {
 				"1617208867756",
 				"accfb018701e52696835c9d1c02600a67a228db1",
 				"http",
-				"http://192.168.0.179:8080/cdn/tflite/chainsaw_v5.tflite.gz",
+				"http://192.168.43.107:8080/cdn/tflite/chainsaw_v5.tflite.gz",
 				12465841,
 				"tflite",
 				"{"
@@ -47,30 +47,30 @@ public class AssetDownloadUtils {
 						+"\"window_size\":\"0.9750\","
 						+"\"step_size\":\"1\","
 						+"\"classifications\":\"chainsaw,environment\","
-						+"\"classifications_filter_threshold\":\"0.90,1.00\""
+						+"\"classifications_filter_threshold\":\"0.95,1.00\""
 						+"}"
 				);
 
 
-		app.assetDownloadDb.dbQueued.insert(
-				"classifier",
-				"1617208867757",
-				"5ad4aafdf92cbb4c2fc795962548a711581273aa",
-				"http",
-				"http://192.168.0.179:8080/cdn/tflite/chainsaw_v2.tflite.gz",
-				12500443,
-				"tflite",
-				"{"
-						+"\"classifier_name\":\"chainsaw\","
-						+"\"classifier_version\":\"2\","
-						+"\"sample_rate\":\"12000\","
-						+"\"input_gain\":\"1.0\","
-						+"\"window_size\":\"0.9750\","
-						+"\"step_size\":\"1\","
-						+"\"classifications\":\"chainsaw,environment\","
-						+"\"classifications_filter_threshold\":\"0.90,1.00\""
-						+"}"
-		);
+//		app.assetDownloadDb.dbQueued.insert(
+//				"classifier",
+//				"1617208867757",
+//				"5ad4aafdf92cbb4c2fc795962548a711581273aa",
+//				"http",
+//				"http://192.168.0.179:8080/cdn/tflite/chainsaw_v2.tflite.gz",
+//				12500443,
+//				"tflite",
+//				"{"
+//						+"\"classifier_name\":\"chainsaw\","
+//						+"\"classifier_version\":\"2\","
+//						+"\"sample_rate\":\"12000\","
+//						+"\"input_gain\":\"1.0\","
+//						+"\"window_size\":\"0.9750\","
+//						+"\"step_size\":\"1\","
+//						+"\"classifications\":\"chainsaw,environment\","
+//						+"\"classifications_filter_threshold\":\"0.90,1.00\""
+//						+"}"
+//		);
 
 	}
 
