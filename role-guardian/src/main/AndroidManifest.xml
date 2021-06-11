@@ -90,6 +90,7 @@
         <service android:name=".instructions.InstructionsCycleService" android:exported="false" />
         <service android:name=".instructions.InstructionsSchedulerService" android:exported="false" />
         <service android:name=".instructions.InstructionsExecutionService" android:exported="false" />
+        <service android:name=".api.methods.ping.ApiPingCycleService" android:exported="false" />
         <service android:name=".audio.classify.AudioClassifyPrepareService" android:exported="false" />
         <service android:name=".audio.playback.AudioPlaybackJobService" android:exported="false" />
         <service android:name=".api.methods.download.AssetDownloadJobService" android:exported="false" />
@@ -98,7 +99,6 @@
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" android:exported="false" />
         <service android:name=".api.methods.checkin.ApiCheckInQueueService" android:exported="false" />
-        <service android:name=".api.methods.ping.ScheduledApiPingService" android:exported="false" />
         <service android:name=".api.methods.ping.SendApiPingService" android:exported="false" />
         <service android:name=".asset.ScheduledAssetCleanupService" android:exported="false" />
         <service android:name=".audio.capture.AudioQueuePostProcessingService" android:exported="false" />

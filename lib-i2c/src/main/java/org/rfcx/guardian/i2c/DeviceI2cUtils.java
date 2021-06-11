@@ -72,7 +72,7 @@ public class DeviceI2cUtils {
 
 	public boolean i2cSet(List<String[]> i2cLabelsAddressesValues, String mainAddr/*, boolean parseAsHex*/) {
 
-		boolean isSet = false;
+		boolean isSet = (i2cLabelsAddressesValues.size() == 0);
 
 		for (String[] i2cRow : i2cLabelsAddressesValues) {
 

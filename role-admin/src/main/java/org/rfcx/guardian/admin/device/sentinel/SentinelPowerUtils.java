@@ -59,7 +59,7 @@ public class SentinelPowerUtils {
     private boolean isBatteryCharged = false;
     private boolean isBatteryChargingAllowed = true;
 
-    public boolean isCaptureAllowed() {
+    public boolean isChipAccessibleByI2c() {
 
         boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTINEL_POWER);
         boolean isI2cHandlerAccessible = false;
@@ -88,40 +88,68 @@ public class SentinelPowerUtils {
         resetI2cTmpValues();
     }
 
-    public void setOrResetSentinelPowerChip() {
+    public void checkSetChipConfigByI2c() {
 
-        if (isCaptureAllowed()) {
+        if (isChipAccessibleByI2c()) {
 
-            List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
+            Map<String, String[]> chipConfig = new HashMap<String, String[]>();
 
-            String configBits = (this.isBatteryChargingAllowed) ? "0x001c" : "0x011c";                  // 000011100 (binary)  // set bits 2, 3, 4 to "1" (include bit 8 at "1" to suspend charger)
-            i2cLabelsAddressesValues.add(new String[]{ "config_bits",           "0x14", configBits});   // 000011100 (binary)  // set bits 2, 3, 4 to "1"
-                                                                                                        // 'en_qcount' (bit 2) enabled
-                                                                                                        // 'mppt_en_i2c' (bit 3) enabled
-                                                                                                        // 'force_meas_sys_on' (bit 4) enabled
-                                                                                                        // 'run_bsr' (bit 5) disabled
-                                                                                                        // 'suspend_charger' (bit 8) disabled
+            chipConfig.put("config_bits", new String[] { "0x14", (this.isBatteryChargingAllowed) ? "0x001c" : "0x011c" });
+            // 000011100 (binary)  // set bits 2, 3, 4 to "1" (include bit 8 at "1" to suspend charger)
+            // 000011100 (binary)  // set bits 2, 3, 4 to "1"
+            // 'en_qcount' (bit 2) enabled
+            // 'mppt_en_i2c' (bit 3) enabled
+            // 'force_meas_sys_on' (bit 4) enabled
+            // 'run_bsr' (bit 5) disabled
+            // 'suspend_charger' (bit 8) disabled
 
-            i2cLabelsAddressesValues.add(new String[]{ "charger_config_bits",    "0x29", "0x0004"});    // 0100 (binary)  // set bit 2 to "1"
-                                                                                                        // 'en_c_over_x_term' (bit 2) enabled
-                                                                                                        // 'en_lead_acid_temp_comp' (bit 1) disabled
-                                                                                                        // 'en_jeita' (bit 0) disabled
+            chipConfig.put("charger_config_bits", new String[] { "0x29", "0x0004" });
+            // 0100 (binary)  // set bit 2 to "1"
+            // 'en_c_over_x_term' (bit 2) enabled
+            // 'en_lead_acid_temp_comp' (bit 1) disabled
+            // 'en_jeita' (bit 0) disabled
 
-            i2cLabelsAddressesValues.add(new String[]{ "max_cv_time",            "0x1d", "0x0000"});    // setting value (in seconds) to zero to disable charging timeout
-            i2cLabelsAddressesValues.add(new String[]{ "max_charge_time",        "0x1e", "0x0000"});    // setting value (in seconds) to zero to disable charging timeout
-//            i2cLabelsAddressesValues.add(new String[]{ "max_absorb_time",        "0x2b", "0x0000"});    // setting value (in seconds) to zero to disable charging timeout
+            chipConfig.put("max_cv_time", new String[] { "0x1d", "0x0000" });       // setting value (in seconds) to zero to disable charging timeout
+            chipConfig.put("max_charge_time", new String[] { "0x1e", "0x0000" });   // setting value (in seconds) to zero to disable charging timeout
+            chipConfig.put("max_absorb_time", new String[] { "0x2b", "0x0000" });   // setting value (in seconds) to zero to disable charging timeout
 
-            i2cLabelsAddressesValues.add(new String[]{ "qcount_prescale_factor", "0x12", "0x002d"});    // 45 (decimal) is QCOUNT_PRESCALE_FACTOR
-                                                                                                        // LiFePO4 Battery Capacity: 16.5 Ah * 3600 sec = 59400C
-                                                                                                        // qLSB (max) = 59400C / 65535 =  0.906
-                                                                                                        //  K_QC: 8333.33 Hz/V       //  R_SNSB: 0.003 Ohms
-                                                                                                        //  QCOUNT_PRESCALE_FACTOR = 2 * (qLSB * K_QC * R_SNSB)
-            app.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues, i2cMainAddr);
+            chipConfig.put("qcount_prescale_factor", new String[] { "0x12", "0x002d" });
+            // 45 (decimal) is QCOUNT_PRESCALE_FACTOR
+            // LiFePO4 Battery Capacity: 16.5 Ah * 3600 sec = 59400C
+            // qLSB (max) = 59400C / 65535 =  0.906
+            //  K_QC: 8333.33 Hz/V
+            //  R_SNSB: 0.003 Ohms
+            //  QCOUNT_PRESCALE_FACTOR = 2 * (qLSB * K_QC * R_SNSB)
 
-            Log.e(logTag, "setOrResetSentinelPowerChip() has run.");
+
+
+            List<String[]> chipConfigI2cLabelsAndSubAddresses = new ArrayList<String[]>();
+
+            // Get config values over I2c
+
+            for (String configLabel : chipConfig.keySet()) {
+                if (chipConfig.get(configLabel)[0] != null) {
+                    chipConfigI2cLabelsAndSubAddresses.add(new String[]{ configLabel, chipConfig.get(configLabel)[0] });
+                }
+            }
+
+            for (String[] i2cLabeledOutput : app.deviceI2cUtils.i2cGet(chipConfigI2cLabelsAndSubAddresses, i2cMainAddr, false, new String[] { })) {
+                Log.e(logTag, "I2c config: "+i2cLabeledOutput[0]+" - "+i2cLabeledOutput[1]);
+            }
+
+
+            List<String[]> i2cSetConfigLabelsAddressesValues = new ArrayList<String[]>();
+
+            if (i2cSetConfigLabelsAddressesValues.size() == 0) {
+                Log.e(logTag, "Sentinel Power Chip configuration is already correctly set.");
+            } else if (!app.deviceI2cUtils.i2cSet(i2cSetConfigLabelsAddressesValues, i2cMainAddr)) {
+                Log.e(logTag, "Sentinel Power Chip configuration attempted and failed to be set over I2C.");
+            } else {
+                Log.e(logTag, "Sentinel Power Chip configuration was successfully updated.");
+            }
 
         } else {
-            Log.e(logTag, "Skipping setOrResetSentinelPowerChip() because Sentinel Power Capture is not allowed or not possible.");
+            Log.e(logTag, "Sentinel Power Chip is not accessible. Configuration could not be verified over I2C.");
         }
     }
 
@@ -278,7 +306,7 @@ public class SentinelPowerUtils {
         }
 
         if (doReCalibration) {
-            if (isCaptureAllowed()) {
+            if (isChipAccessibleByI2c()) {
                 List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
                 i2cLabelsAddressesValues.add(new String[]{ "qcount", "0x13", "0x"+Long.toHexString(Long.parseLong(""+Math.round(qCountVal)))});
                 app.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues, i2cMainAddr);
@@ -403,7 +431,7 @@ public class SentinelPowerUtils {
 
         if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTINEL_POWER)) {
 
-            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) {
+            if ((this.powerBatteryValues.size() == 0) && isChipAccessibleByI2c()) {
                 updateSentinelPowerValues();
             }
 
@@ -456,7 +484,7 @@ public class SentinelPowerUtils {
 
             try {
 
-                if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) {
+                if ((this.powerBatteryValues.size() == 0) && isChipAccessibleByI2c()) {
                     updateSentinelPowerValues();
                 }
 
@@ -497,7 +525,7 @@ public class SentinelPowerUtils {
 
         if (isReduced) {
 
-            if ((this.powerBatteryValues.size() == 0) && isCaptureAllowed()) {
+            if ((this.powerBatteryValues.size() == 0) && isChipAccessibleByI2c()) {
                 updateSentinelPowerValues();
             }
 
@@ -507,7 +535,7 @@ public class SentinelPowerUtils {
                 int prefsVal = groupTag.equalsIgnoreCase(RfcxStatus.Group.AUDIO_CAPTURE) ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY);
                 isReduced = !(battPct >= (prefsVal * 100));
 
-            } else if (!isCaptureAllowed()) {
+            } else if (!isChipAccessibleByI2c()) {
 
                 isReduced = false;
 

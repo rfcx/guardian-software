@@ -8,6 +8,7 @@ import org.rfcx.guardian.guardian.api.methods.command.ApiCommandUtils;
 import org.rfcx.guardian.guardian.api.methods.download.AssetDownloadDb;
 import org.rfcx.guardian.guardian.api.methods.download.AssetDownloadJobService;
 import org.rfcx.guardian.guardian.api.methods.download.AssetDownloadUtils;
+import org.rfcx.guardian.guardian.api.methods.ping.ApiPingCycleService;
 import org.rfcx.guardian.guardian.api.methods.ping.ApiPingJsonUtils;
 import org.rfcx.guardian.guardian.api.methods.ping.ApiPingUtils;
 import org.rfcx.guardian.guardian.api.methods.ping.SendApiPingService;
@@ -24,7 +25,6 @@ import org.rfcx.guardian.guardian.asset.AudioDetectionFilterJobService;
 import org.rfcx.guardian.guardian.asset.MetaSnapshotService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJsonUtils;
 import org.rfcx.guardian.guardian.asset.LatencyStatsDb;
-import org.rfcx.guardian.guardian.api.methods.ping.ScheduledApiPingService;
 import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentDb;
 import org.rfcx.guardian.guardian.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.guardian.asset.AudioClassifierDb;
@@ -152,7 +152,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     AudioEncodeJobService.SERVICE_NAME,
                     AudioClassifyPrepareService.SERVICE_NAME,
                     InstructionsCycleService.SERVICE_NAME,
-                    InstructionsSchedulerService.SERVICE_NAME
+                    InstructionsSchedulerService.SERVICE_NAME,
+                    ApiPingCycleService.SERVICE_NAME
             };
 
     @Override
@@ -266,10 +267,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
                             + "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_CLOCK_SYNC_CYCLE_DURATION) * 60 * 1000 )
                             ,
-                    ScheduledApiPingService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits two minutes before running
-                            + "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_PING_CYCLE_DURATION) * 60 * 1000 )
-                            ,
                     "WifiCommunication"
                             + "|" + DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minutes before running
                             + "|" + "norepeat"
@@ -318,7 +315,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxSvc.addService( ApiCheckInQueueService.SERVICE_NAME, ApiCheckInQueueService.class);
         this.rfcxSvc.addService( ApiCheckInJobService.SERVICE_NAME, ApiCheckInJobService.class);
 
-        this.rfcxSvc.addService( ScheduledApiPingService.SERVICE_NAME, ScheduledApiPingService.class);
+        this.rfcxSvc.addService( ApiPingCycleService.SERVICE_NAME, ApiPingCycleService.class);
         this.rfcxSvc.addService( SendApiPingService.SERVICE_NAME, SendApiPingService.class);
 
         this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
@@ -395,6 +392,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO )) {
             this.audioCaptureUtils.samplingRatioIteration = 0;
+
+        } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.API_PING_CYCLE_DURATION )) {
+            this.apiPingUtils.updateRepeatingPingCycleDuration();
 
         }
     }

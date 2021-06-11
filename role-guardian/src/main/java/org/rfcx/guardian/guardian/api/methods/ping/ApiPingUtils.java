@@ -18,14 +18,23 @@ public class ApiPingUtils {
 	public ApiPingUtils(Context context) {
 
 		this.app = (RfcxGuardian) context.getApplicationContext();
-
+		updateRepeatingPingCycleDuration();
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiPingUtils");
 
 	private RfcxGuardian app;
 
-	public boolean hasScheduledPingAlreadyRun = false;
+	public static final long delayInitialRepeatingPingCycleByThisManyMs = (2 * 60 * 1000);
+	public long repeatingPingCycleDuration;
+
+	public long repeatingPingLastAttemptedAt = 0;
+	public long repeatingPingLastQueuedAt = 0;
+	public long repeatingPingLastCompletedAt = 0;
+
+	public void updateRepeatingPingCycleDuration() {
+		this.repeatingPingCycleDuration = ( app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_PING_CYCLE_DURATION) * 60 * 1000 );
+	}
 
 	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, int includeMetaJsonBundles, String forceProtocol, boolean allowSegmentProtocols) {
 

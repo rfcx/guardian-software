@@ -185,7 +185,7 @@ public class DeviceSentinelService extends Service {
 
 			this.captureCycleLastStartTime = System.currentTimeMillis();
 
-			this.isSentinelPowerCaptureAllowed = /*!this.isReducedCaptureModeActive && */app.sentinelPowerUtils.isCaptureAllowed();
+			this.isSentinelPowerCaptureAllowed = /*!this.isReducedCaptureModeActive && */app.sentinelPowerUtils.isChipAccessibleByI2c();
 			this.isSentinelAccelCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentinelAccelUtils.isCaptureAllowed();
 			this.isSentinelCompassCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentinelCompassUtils.isCaptureAllowed();
 
@@ -208,7 +208,7 @@ public class DeviceSentinelService extends Service {
 				this.innerLoopsPerCaptureCycle_Compass = Math.ceil((double) this.innerLoopsPerCaptureCycle / SentinelCompassUtils.samplesTakenPerCaptureCycle);
 				this.innerLoopsPerCaptureCycle_Accelerometer = Math.ceil((double) this.innerLoopsPerCaptureCycle / SentinelAccelUtils.samplesTakenPerCaptureCycle);
 
-				app.sentinelPowerUtils.setOrResetSentinelPowerChip();
+				app.sentinelPowerUtils.checkSetChipConfigByI2c();
 				app.sentinelCompassUtils.setOrResetSentinelCompassChip();
 
 				Log.d(logTag, "SentinelStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
