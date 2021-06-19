@@ -52,52 +52,57 @@ object SocketManager {
                         socket = serverSocket?.accept()
                         socket?.tcpNoDelay = true
 
-                        streamInput = DataInputStream(socket?.getInputStream())
-                        val message = streamInput?.readUTF()
+                        val socketInput = socket!!.getInputStream()
+                        if (socketInput != null) {
+                            streamInput = DataInputStream(socketInput)
+                            val message = streamInput?.readUTF()
 
-                        if (!message.isNullOrBlank()) {
+                            if (!message.isNullOrBlank()) {
 
-                            val receiveJson = JSONObject(message)
+                                val receiveJson = JSONObject(message)
 
-                            //send response back
-                            streamOutput = DataOutputStream(socket?.getOutputStream())
-                            when (receiveJson.get("command")) {
-                                "prefs" -> sendPrefsMessage()
-                                "connection" -> sendConnectionMessage()
-                                "diagnostic" -> sendDiagnosticMessage()
-                                "configure" -> sendConfigurationMessage()
-                                "microphone_test" -> sendMicrophoneTestMessage()
-                                "signal" -> sendSignalMessage()
-                                "sentinel" -> sendSentinelValues()
-                                "is_registered" -> sendIfGuardianRegistered()
-                                "is_recording" -> sendRecorderState()
-                                "stop_wifi" -> stopWiFiService()
-                                else -> {
-                                    val commandObject =
-                                        JSONObject(receiveJson.get("command").toString())
-                                    val commandKey = commandObject.keys().asSequence().toList()[0]
-                                    when (commandKey) {
-                                        "sync" -> sendSyncConfigurationMessage(
-                                            commandObject.getJSONArray(
-                                                "sync"
+                                //send response back
+                                streamOutput = DataOutputStream(socket?.getOutputStream())
+                                when (receiveJson.get("command")) {
+                                    "prefs" -> sendPrefsMessage()
+                                    "connection" -> sendConnectionMessage()
+                                    "diagnostic" -> sendDiagnosticMessage()
+                                    "configure" -> sendConfigurationMessage()
+                                    "microphone_test" -> sendMicrophoneTestMessage()
+                                    "signal" -> sendSignalMessage()
+                                    "sentinel" -> sendSentinelValues()
+                                    "is_registered" -> sendIfGuardianRegistered()
+                                    "is_recording" -> sendRecorderState()
+                                    "stop_wifi" -> stopWiFiService()
+                                    else -> {
+                                        val commandObject =
+                                            JSONObject(receiveJson.get("command").toString())
+                                        val commandKey =
+                                            commandObject.keys().asSequence().toList()[0]
+                                        when (commandKey) {
+                                            "sync" -> sendSyncConfigurationMessage(
+                                                commandObject.getJSONArray(
+                                                    "sync"
+                                                )
                                             )
-                                        )
-                                        "register" -> {
-                                            val registerInfo =
-                                                commandObject.getJSONObject("register")
-                                            val tokenId = registerInfo.getString("token_id")
-                                            val isProduction =
-                                                registerInfo.getBoolean("is_production")
-                                            sendRegistrationStatus(tokenId, isProduction)
-                                        }
-                                        "checkin" -> {
-                                            val checkinInfo = commandObject.getJSONObject("checkin")
-                                            val command = checkinInfo.getString("wantTo")
-                                            requireCheckInTest = if (command == "start") {
-                                                sendCheckInTestMessage(CheckInState.NOT_PUBLISHED)
-                                                true
-                                            } else {
-                                                false
+                                            "register" -> {
+                                                val registerInfo =
+                                                    commandObject.getJSONObject("register")
+                                                val tokenId = registerInfo.getString("token_id")
+                                                val isProduction =
+                                                    registerInfo.getBoolean("is_production")
+                                                sendRegistrationStatus(tokenId, isProduction)
+                                            }
+                                            "checkin" -> {
+                                                val checkinInfo =
+                                                    commandObject.getJSONObject("checkin")
+                                                val command = checkinInfo.getString("wantTo")
+                                                requireCheckInTest = if (command == "start") {
+                                                    sendCheckInTestMessage(CheckInState.NOT_PUBLISHED)
+                                                    true
+                                                } else {
+                                                    false
+                                                }
                                             }
                                         }
                                     }
@@ -125,6 +130,7 @@ object SocketManager {
             streamInput?.close()
             streamInput = null
 
+            streamOutput?.flush()
             streamOutput?.close()
             streamOutput = null
 
@@ -144,6 +150,7 @@ object SocketManager {
             val prefsJson = JSONObject().put("prefs", prefsJsonArray)
             streamOutput?.writeUTF(prefsJson.toString())
             streamOutput?.flush()
+
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
@@ -154,6 +161,7 @@ object SocketManager {
         try {
             streamOutput?.writeUTF(getConnectionResponse())
             streamOutput?.flush()
+
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
@@ -190,6 +198,7 @@ object SocketManager {
 
             streamOutput?.writeUTF(diagnosticJson.toString())
             streamOutput?.flush()
+
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
@@ -210,6 +219,7 @@ object SocketManager {
                     JSONObject().put("configure", jsonObject)
                 streamOutput?.writeUTF(configurationJson.toString())
                 streamOutput?.flush()
+
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
@@ -232,11 +242,12 @@ object SocketManager {
                 if (micTestObject.toString().length <= 65535) {
                     streamOutput?.writeUTF(micTestObject.toString())
                     streamOutput?.flush()
+
                 } else {
-                    val audioChunks = audioPair.first.toSmallChunk(15)
+                    val audioChunks = audioPair.first.toSmallChunk(10)
                     audioChunks.forEachIndexed { index, audio ->
                         val readSize = audio.size
-                        val audioChunkString = Base64.encodeToString(audio, Base64.DEFAULT)
+                        val audioChunkString = Base64.encodeToString(audio, Base64.URL_SAFE)
                         val audioChunkJsonObject = JSONObject()
                             .put("amount", audioChunks.size)
                             .put("number", index + 1) // make it real number
@@ -246,9 +257,12 @@ object SocketManager {
                             JSONObject().put("microphone_test", audioChunkJsonObject)
                         streamOutput?.writeUTF(micTestChunkObject.toString())
                         streamOutput?.flush()
+
                     }
                 }
             }
+            streamOutput?.flush()
+            streamOutput?.close()
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
@@ -276,6 +290,7 @@ object SocketManager {
                     .put("signal_info", signalJson)
                 streamOutput?.writeUTF(signalInfoJson.toString())
                 streamOutput?.flush()
+
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
                 verifySocketError(e.message ?: "null")
@@ -306,6 +321,7 @@ object SocketManager {
         } finally {
             streamOutput?.writeUTF(syncResponse)
             streamOutput?.flush()
+
         }
     }
 
@@ -320,6 +336,7 @@ object SocketManager {
                     .put("checkin", checkInJson)
                 streamOutput?.writeUTF(checkInTestJson.toString())
                 streamOutput?.flush()
+
             }
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
@@ -342,6 +359,7 @@ object SocketManager {
                     .put("sentinel", sentinelJson)
                 streamOutput?.writeUTF(sentinelInfoJson.toString())
                 streamOutput?.flush()
+
             } catch (e: Exception) {
                 RfcxLog.logExc(LOGTAG, e)
                 verifySocketError(e.message ?: "null")
@@ -356,6 +374,7 @@ object SocketManager {
                 .put("is_registered", isRegistered)
             streamOutput?.writeUTF(isRegisteredJson.toString())
             streamOutput?.flush()
+
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
@@ -376,6 +395,7 @@ object SocketManager {
                         registerJson.put("register", registerInfo)
                         streamOutput?.writeUTF(registerJson.toString())
                         streamOutput?.flush()
+
                     } catch (e: Exception) {
                         RfcxLog.logExc(LOGTAG, e)
                         verifySocketError(e.message ?: "null")
@@ -389,6 +409,7 @@ object SocketManager {
                         registerJson.put("register", registerInfo)
                         streamOutput?.writeUTF(registerJson.toString())
                         streamOutput?.flush()
+
                     } catch (e: Exception) {
                         RfcxLog.logExc(LOGTAG, e)
                         verifySocketError(e.message ?: "null")
@@ -406,6 +427,7 @@ object SocketManager {
                 .put("is_recording", recorderState)
             streamOutput?.writeUTF(recorderStateJson.toString())
             streamOutput?.flush()
+
         } catch (e: Exception) {
             RfcxLog.logExc(LOGTAG, e)
             verifySocketError(e.message ?: "null")
