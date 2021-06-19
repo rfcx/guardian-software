@@ -5,6 +5,7 @@ import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraCaptureService;
+import org.rfcx.guardian.admin.device.android.control.AirplaneModeSetService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
 import org.rfcx.guardian.admin.device.android.control.SystemSettingsService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
@@ -59,7 +60,6 @@ import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledLogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
-import org.rfcx.guardian.admin.device.android.control.AirplaneModeEnableService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledRebootService;
 import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService;
 import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
@@ -247,6 +247,10 @@ public class RfcxGuardian extends Application {
 					ADBStateSetService.SERVICE_NAME
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:12").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
+					,
+					AirplaneModeSetService.SERVICE_NAME
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:16").getTimeInMillis() // waits a few seconds before running
+							+ "|" + "norepeat"
 			};
 			
 			String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
@@ -280,7 +284,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( ScheduledAssetCleanupService.SERVICE_NAME, ScheduledAssetCleanupService.class);
 
 		this.rfcxSvc.addService( AirplaneModeToggleService.SERVICE_NAME, AirplaneModeToggleService.class);
-		this.rfcxSvc.addService( AirplaneModeEnableService.SERVICE_NAME, AirplaneModeEnableService.class);
+		this.rfcxSvc.addService( AirplaneModeSetService.SERVICE_NAME, AirplaneModeSetService.class);
 
 		this.rfcxSvc.addService( WifiHotspotStateSetService.SERVICE_NAME, WifiHotspotStateSetService.class);
 		this.rfcxSvc.addService( ADBStateSetService.SERVICE_NAME, ADBStateSetService.class);
@@ -320,11 +324,14 @@ public class RfcxGuardian extends Application {
 	public void onPrefReSync(String prefKey) {
 
 		if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT) || prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD) || prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_CONNECTION) ) {
-			rfcxSvc.triggerService(WifiHotspotStateSetService.SERVICE_NAME, false);
-			rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
+			rfcxSvc.triggerService( WifiHotspotStateSetService.SERVICE_NAME, false);
+			rfcxSvc.triggerService( ADBStateSetService.SERVICE_NAME, false);
 
 		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB )) {
 			rfcxSvc.triggerService( ADBStateSetService.SERVICE_NAME, false);
+
+		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_AIRPLANE_MODE )) {
+			rfcxSvc.triggerService( AirplaneModeSetService.SERVICE_NAME, false);
 
 		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION )) {
 			this.rfcxStatus.setOrResetCacheExpirations( this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) );

@@ -533,27 +533,40 @@ public class ApiMqttUtils implements MqttCallback {
 				int j = 0;
 				for (int toggleThreshold : this.failedCheckInThresholds) {
 					if ((minsSinceSuccess >= toggleThreshold) && !this.failedCheckInThresholdsReached[j]) {
+
 						this.failedCheckInThresholdsReached[j] = true;
+						this.inFlightCheckInAttemptCounter = 0;
+						String failureMsg = "Failure Threshold Reached. " + toggleThreshold + " minutes since last successful CheckIn.";
+
 						if (toggleThreshold == this.failedCheckInThresholds[this.failedCheckInThresholds.length - 1]) {
-							// last threshold
-							if (!app.deviceConnectivity.isConnected() && !app.deviceMobilePhone.hasSim()) {
-								Log.d(logTag, "Failure Threshold Reached: Forced reboot due to missing SIM card (" + toggleThreshold
-										+ " minutes since last successful CheckIn)");
+
+							// We have reached the last allowed failure threshold
+							Arrays.fill(this.failedCheckInThresholdsReached, false);
+
+							if ( !app.deviceMobilePhone.hasSim() && !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_AIRPLANE_MODE) && !app.deviceConnectivity.isConnected() ) {
+								Log.w(logTag, failureMsg + " Issue: No SIM Card Detected. Action: Reboot Device");
 								app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getResolver());
+
 							} else {
-								Log.d(logTag, "Failure Threshold Reached: Forced Relaunch (" + toggleThreshold
-										+ " minutes since last successful CheckIn)");
+								Log.w(logTag, failureMsg + " Action: Forced Relaunch");
 								app.deviceControlUtils.runOrTriggerDeviceControl("relaunch", app.getResolver());
 
-								Arrays.fill(this.failedCheckInThresholdsReached, false);
-								this.inFlightCheckInAttemptCounter = 0;
 							}
-						} else { //} else if (!app.deviceConnectivity.isConnected()) {
-							// any threshold // and not connected
-							Log.d(logTag, "Failure Threshold Reached: Airplane Mode (" + toggleThreshold
-									+ " minutes since last successful CheckIn)");
-							app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
-							this.inFlightCheckInAttemptCounter = 0;
+
+						} else {
+
+							if (!app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_AIRPLANE_MODE)) {
+								Log.w(logTag, failureMsg + " Action: Toggle Airplane Mode");
+								app.deviceControlUtils.runOrTriggerDeviceControl( "airplanemode_toggle", app.getResolver());
+
+							} else if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_CONNECTION) && !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT)) {
+								Log.w(logTag, failureMsg + " Action: Toggle WiFi Radio");
+								app.deviceControlUtils.runOrTriggerDeviceControl( "wifi_toggle", app.getResolver());
+
+							} else {
+								Log.w(logTag, failureMsg + " No Action Taken.");
+
+							}
 						}
 						break;
 					}

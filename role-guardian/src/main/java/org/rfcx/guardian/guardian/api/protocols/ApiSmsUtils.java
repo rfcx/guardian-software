@@ -83,24 +83,8 @@ public class ApiSmsUtils {
 		try {
 			String excStr = RfcxLog.getExceptionContentAsString(inputExc);
 
-//			if (excStr.contains("Too many publishes in progress")) {
-////                app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-////                app.rfcxServiceHandler.triggerService("ApiCheckInJob", true);
-//
-//			} else if (	excStr.contains("UnknownHostException")
-//					||	excStr.contains("Broken pipe")
-//					||	excStr.contains("Timed out waiting for a response from the server")
-//					||	excStr.contains("No route to host")
-//					||	excStr.contains("Host is unresolved")
-//			) {
-////                Log.i(logTag, "Connection has failed "+this.inFlightCheckInAttemptCounter +" times (max: "+this.inFlightCheckInAttemptCounterLimit +")");
-////                app.apiCheckInDb.dbQueued.decrementSingleRowAttempts(audioId);
-////                if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit) {
-////                    Log.d(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
-////                    app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
-////                    this.inFlightCheckInAttemptCounter = 0;
-////                }
-//			}
+			// This is where we would put contingencies and reactions for various exceptions. See ApiMqttUtils for reference.
+
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e, "handleSmsPingPublicationExceptions");
 		}

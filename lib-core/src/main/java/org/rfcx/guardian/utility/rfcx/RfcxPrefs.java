@@ -144,6 +144,7 @@ public class RfcxPrefs {
 		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
 		public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";
 
+		public static final String ADMIN_ENABLE_AIRPLANE_MODE = "admin_enable_airplane_mode";
 		public static final String ADMIN_ENABLE_WIFI_CONNECTION = "admin_enable_wifi_connection";
 		public static final String ADMIN_ENABLE_WIFI_HOTSPOT = "admin_enable_wifi_hotspot";
 		public static final String ADMIN_WIFI_HOTSPOT_PASSWORD = "admin_wifi_hotspot_password";
@@ -225,6 +226,7 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_META_SEND_BUNDLE_LIMIT, "16");
 			put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
 
+			put(Pref.ADMIN_ENABLE_AIRPLANE_MODE, "false");
 			put(Pref.ADMIN_ENABLE_WIFI_CONNECTION, "false");
 			put(Pref.ADMIN_ENABLE_WIFI_HOTSPOT, "true");
 			put(Pref.ADMIN_ENABLE_TCP_ADB, "true");
@@ -254,7 +256,7 @@ public class RfcxPrefs {
 			put(Pref.ADMIN_VERBOSE_SENTINEL, "false");
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
-			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "preferred_network_mode:global,i,0;");
+			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "auto_time_zone:system,i,0;");
 			put(Pref.ADMIN_WIFI_HOTSPOT_PASSWORD, "rfcxrfcx");
 		}}
 	);

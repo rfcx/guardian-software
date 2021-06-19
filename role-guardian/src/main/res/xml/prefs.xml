@@ -599,6 +599,17 @@
 			android:entries="@array/prefs_values_true_or_false"
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_connection" />
- 	
+
+	<ListPreference
+			android:key="admin_enable_airplane_mode"
+			android:title="admin_enable_airplane_mode"
+			android:dialogTitle="admin_enable_airplane_mode"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_airplane_mode" />
+
+
+
  	
 </PreferenceScreen>

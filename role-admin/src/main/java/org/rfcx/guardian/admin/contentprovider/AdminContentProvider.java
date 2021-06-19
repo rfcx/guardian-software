@@ -3,7 +3,6 @@ package org.rfcx.guardian.admin.contentprovider;
 import org.json.JSONArray;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
-import org.rfcx.guardian.admin.device.android.control.AirplaneModeEnableService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
 import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService;
 import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
@@ -124,10 +123,6 @@ public class AdminContentProvider extends ContentProvider {
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_toggle")) { logFuncVal = "control-airplanemode_toggle";
                 app.rfcxSvc.triggerService( AirplaneModeToggleService.SERVICE_NAME, true);
                 return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_toggle", null, System.currentTimeMillis()});
-
-            } else if (RfcxComm.uriMatch(uri, appRole, "control", "airplanemode_enable")) { logFuncVal = "control-airplanemode_enable";
-                app.rfcxSvc.triggerService( AirplaneModeEnableService.SERVICE_NAME, true);
-                return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{"airplanemode_enable", null, System.currentTimeMillis()});
 
             } else if (RfcxComm.uriMatch(uri, appRole, "control", "clock_sync")) { logFuncVal = "control-clock_sync";
                 app.rfcxSvc.triggerService( ClockSyncJobService.SERVICE_NAME, true);

@@ -66,7 +66,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	public static final Map<String, String[]> DEVICE_SYSTEM_SETTINGS = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
 		put("user_setup_complete", 			new String[] { "secure", "i", "1" });
 		put("data_roaming", 				new String[] { "global", "i", "1" });
-		put("auto_time_zone", 				new String[] { "system", "i", "0" });
+		put("preferred_network_mode", 		new String[] { "global", "i", "0" });
 		put("sms_default_application", 		new String[] { "secure", "s", "org.rfcx.guardian.admin" });
 		put("sms_outgoing_check_max_count", new String[] { "global", "i", "99999" });
 		put("assisted_gps_enabled", 		new String[] { "global", "i", "1" });
