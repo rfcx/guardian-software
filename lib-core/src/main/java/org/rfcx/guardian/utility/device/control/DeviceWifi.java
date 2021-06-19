@@ -16,12 +16,10 @@ public class DeviceWifi {
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceWifi");
 
 	public DeviceWifi(Context context) {
-		this.context = context;
-		this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+		this.wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 	}
 
-	private Context context;
-	private WifiManager wifiManager;
+	private final WifiManager wifiManager;
 
 	private boolean isWifiEnabled() {
 		if (this.wifiManager != null) {
@@ -61,11 +59,7 @@ public class DeviceWifi {
 			Method wifiManagerMethods = this.wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
 			wifiManagerMethods.setAccessible(true);
 			return (Boolean) wifiManagerMethods.invoke(this.wifiManager);
-		} catch (NoSuchMethodException e) {
-			RfcxLog.logExc(logTag, e);
-		} catch (IllegalAccessException e) {
-			RfcxLog.logExc(logTag, e);
-		} catch (InvocationTargetException e) {
+		} catch (NullPointerException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
 			RfcxLog.logExc(logTag, e);
 		}
 		return false;
@@ -138,11 +132,7 @@ public class DeviceWifi {
 						}
 					}
 
-				} catch (IllegalArgumentException e) {
-					RfcxLog.logExc(logTag, e);
-				} catch (IllegalAccessException e) {
-					RfcxLog.logExc(logTag, e);
-				} catch (InvocationTargetException e) {
+				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 					RfcxLog.logExc(logTag, e);
 				}
 			}
