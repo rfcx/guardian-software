@@ -1,10 +1,12 @@
 package org.rfcx.guardian.guardian.contentprovider;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import android.content.ContentProvider;
@@ -16,6 +18,8 @@ import android.os.ParcelFileDescriptor;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 
+import java.util.Objects;
+
 public class GuardianContentProvider extends ContentProvider {
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "GuardianContentProvider");
@@ -23,12 +27,13 @@ public class GuardianContentProvider extends ContentProvider {
 	private static final String appRole = RfcxGuardian.APP_ROLE;
 
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		
-		RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
+	public Cursor query(@NotNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+
 		String logFuncVal = "";
 		
 		try {
+
+			RfcxGuardian app = (RfcxGuardian) Objects.requireNonNull(getContext()).getApplicationContext();
 
 			// get role "version" endpoints
 
@@ -39,7 +44,7 @@ public class GuardianContentProvider extends ContentProvider {
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "prefs", null)) { logFuncVal = "prefs";
 				MatrixCursor cursor = RfcxComm.getProjectionCursor(appRole, "prefs", null);
-				for (String prefKey : app.rfcxPrefs.listPrefsKeys()) {
+				for (String prefKey : RfcxPrefs.listPrefsKeys()) {
 					cursor.addRow(new Object[] { prefKey, app.rfcxPrefs.getPrefAsString(prefKey) });
 				}
 				return cursor;
@@ -200,19 +205,19 @@ public class GuardianContentProvider extends ContentProvider {
 		return null;
 	}
 
-	public ParcelFileDescriptor openFile(Uri uri, String mode) {
+	public ParcelFileDescriptor openFile(@NotNull Uri uri, @NotNull String mode) {
 		return RfcxComm.serveAssetFileRequest(uri, mode, getContext(), RfcxGuardian.APP_ROLE, logTag);
 	}
 
 
 	
 	@Override
-	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	public int update(@NotNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		return 0;
 	}
 
 	@Override
-	public Uri insert(Uri uri, ContentValues values) {
+	public Uri insert(@NotNull Uri uri, ContentValues values) {
 		return null;
 	}
 
@@ -223,12 +228,12 @@ public class GuardianContentProvider extends ContentProvider {
 	}
 	
 	@Override
-	public String getType(Uri uri) {
+	public String getType(@NotNull Uri uri) {
 		return null;
 	}
 	
 	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
+	public int delete(@NotNull Uri uri, String selection, String[] selectionArgs) {
 		return 0;
 	}
 	

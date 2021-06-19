@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 if (project.file("../gradle/signing/${PLATFORM_KEY_STORE}").exists() || properties.containsKey("jksPath")) {
     apply from: "../gradle/signing/platform_signing.gradle"
@@ -44,4 +46,5 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation "com.android.support:support-core-utils:28.0.0"
+    implementation 'org.jetbrains:annotations:15.0'
 }

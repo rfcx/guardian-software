@@ -26,13 +26,12 @@ public class DeviceWifi {
 			@SuppressLint("MissingPermission") int wifiState = this.wifiManager.getWifiState();
 			switch (wifiState) {
 				case WifiManager.WIFI_STATE_DISABLED:
-	            		return false;
+				case WifiManager.WIFI_STATE_UNKNOWN:
 				case WifiManager.WIFI_STATE_DISABLING:
-            			return false;
+					return false;
 				case WifiManager.WIFI_STATE_ENABLED:
-            			return true;
 				case WifiManager.WIFI_STATE_ENABLING:
-        				return true;
+					return true;
 			}
 		}
 		return false;

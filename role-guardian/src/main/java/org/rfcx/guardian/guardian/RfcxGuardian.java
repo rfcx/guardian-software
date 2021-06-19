@@ -371,30 +371,34 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
     public void onPrefReSync(String prefKey) {
 
-        if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION )) {
-            this.apiMqttUtils.getSetCheckInPublishTimeOutLength();
-            this.rfcxStatus.setOrResetCacheExpirations( this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) );
+        if (prefKey != null) {
 
-        } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET )) {
-            this.rfcxSvc.triggerService("WifiCommunication", false);
+            if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)) {
+                this.apiMqttUtils.getSetCheckInPublishTimeOutLength();
+                this.rfcxStatus.setOrResetCacheExpirations(this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION));
 
-        } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS )) {
-            this.apiMqttUtils.initializeFailedCheckInThresholds();
+            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET)) {
+                this.rfcxSvc.triggerService("WifiCommunication", false);
 
-        } else if ( prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH )
-                ||  prefKey.equalsIgnoreCase( RfcxPrefs.Pref.API_MQTT_HOST )
-                ||  prefKey.equalsIgnoreCase( RfcxPrefs.Pref.API_MQTT_PROTOCOL )
-                ||  prefKey.equalsIgnoreCase( RfcxPrefs.Pref.API_MQTT_PORT )
-                ||  prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ENABLE_MQTT_AUTH )
-                ||  prefKey.equalsIgnoreCase( RfcxPrefs.Pref.API_MQTT_AUTH_CREDS )
-        ) {
-            this.apiMqttUtils.updateMqttConnectionBasedOnConfigChange();
+            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)) {
+                this.apiMqttUtils.initializeFailedCheckInThresholds();
 
-        } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO )) {
-            this.audioCaptureUtils.samplingRatioIteration = 0;
+            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH)
+                    || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_MQTT_HOST)
+                    || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_MQTT_PROTOCOL)
+                    || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_MQTT_PORT)
+                    || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_MQTT_AUTH)
+                    || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_MQTT_AUTH_CREDS)
+            ) {
+                this.apiMqttUtils.updateMqttConnectionBasedOnConfigChange();
 
-        } else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.API_PING_CYCLE_DURATION )) {
-            this.apiPingUtils.updateRepeatingPingCycleDuration();
+            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO)) {
+                this.audioCaptureUtils.samplingRatioIteration = 0;
+
+            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_PING_CYCLE_DURATION)) {
+                this.apiPingUtils.updateRepeatingPingCycleDuration();
+
+            }
 
         }
     }
