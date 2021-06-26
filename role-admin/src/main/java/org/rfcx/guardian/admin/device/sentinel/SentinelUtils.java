@@ -23,7 +23,6 @@ public class SentinelUtils {
         boolean isVerbose = app.rfcxPrefs.getPrefAsBoolean( RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL );
         app.sentinelPowerUtils.verboseLogging = isVerbose;
         app.sentinelAccelUtils.verboseLogging = isVerbose;
-        app.sentinelCompassUtils.verboseLogging = isVerbose;
     }
 
     public static JSONArray getSentinelSensorValuesAsJsonArray(Context context) {
@@ -33,7 +32,7 @@ public class SentinelUtils {
         try {
             JSONObject sensorJson = new JSONObject();
             sensorJson.put("accelerometer", app.sentinelSensorDb.dbAccelerometer.getConcatRowsWithLabelPrepended("accelerometer"));
-            sensorJson.put("compass", app.sentinelSensorDb.dbCompass.getConcatRowsWithLabelPrepended("compass"));
+//            sensorJson.put("compass", app.sentinelSensorDb.dbCompass.getConcatRowsWithLabelPrepended("compass"));
             accelJsonArray.put(sensorJson);
 
         } catch (Exception e) {
@@ -51,7 +50,7 @@ public class SentinelUtils {
         Date clearBefore = new Date(Long.parseLong(timeStamp));
 
         app.sentinelSensorDb.dbAccelerometer.clearRowsBefore(clearBefore);
-        app.sentinelSensorDb.dbCompass.clearRowsBefore(clearBefore);
+//        app.sentinelSensorDb.dbCompass.clearRowsBefore(clearBefore);
 
         return 1;
     }
@@ -69,10 +68,10 @@ public class SentinelUtils {
                 app.sentinelAccelUtils.updateSentinelAccelValues();
             }
 
-            if (app.sentinelCompassUtils.isCaptureAllowed()) {
-                app.sentinelCompassUtils.resetCompassValues();
-                app.sentinelCompassUtils.updateSentinelCompassValues();
-            }
+//            if (app.sentinelCompassUtils.isCaptureAllowed()) {
+//                app.sentinelCompassUtils.resetCompassValues();
+//                app.sentinelCompassUtils.updateSentinelCompassValues();
+//            }
         }
 
         try {
@@ -83,10 +82,10 @@ public class SentinelUtils {
                 sensorJson.put("accelerometer", "accelerometer*"+accelVals[4]+"*"+accelVals[0]+"*"+accelVals[1]+"*"+accelVals[2]+"*"+accelVals[3] );
             }
 
-            if (app.sentinelCompassUtils.getCompassValues().size() > 0) {
-                long[] compassVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentinelCompassUtils.getCompassValues()));
-                sensorJson.put("compass", "compass*"+compassVals[4]+"*"+compassVals[0]+"*"+compassVals[1]+"*"+compassVals[2]+"*"+compassVals[3]);
-            }
+//            if (app.sentinelCompassUtils.getCompassValues().size() > 0) {
+//                long[] compassVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentinelCompassUtils.getCompassValues()));
+//                sensorJson.put("compass", "compass*"+compassVals[4]+"*"+compassVals[0]+"*"+compassVals[1]+"*"+compassVals[2]+"*"+compassVals[3]);
+//            }
 
             sensorJsonArray.put(sensorJson);
 

@@ -9,7 +9,6 @@ import org.rfcx.guardian.admin.device.android.control.AirplaneModeSetService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
 import org.rfcx.guardian.admin.device.android.control.SystemSettingsService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
-import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
@@ -127,7 +126,6 @@ public class RfcxGuardian extends Application {
 	public DeviceUartUtils deviceUartUtils= new DeviceUartUtils(APP_ROLE);
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
-	public SentinelCompassUtils sentinelCompassUtils = null;
 	public SentinelAccelUtils sentinelAccelUtils = null;
 
 	public SbdUtils sbdUtils = null;
@@ -167,7 +165,6 @@ public class RfcxGuardian extends Application {
 
 		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
-		this.sentinelCompassUtils = new SentinelCompassUtils(this);
 		this.sentinelAccelUtils = new SentinelAccelUtils(this);
 		SentinelUtils.setVerboseSentinelLogging(this);
 		this.assetUtils = new AssetUtils(this);
