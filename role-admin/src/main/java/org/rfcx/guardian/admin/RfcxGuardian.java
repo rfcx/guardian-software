@@ -13,11 +13,12 @@ import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
-import org.rfcx.guardian.admin.sbd.SbdDispatchCycleService;
-import org.rfcx.guardian.admin.sbd.SbdDispatchService;
-import org.rfcx.guardian.admin.sbd.SbdDispatchTimeoutService;
-import org.rfcx.guardian.admin.sbd.SbdMessageDb;
-import org.rfcx.guardian.admin.sbd.SbdUtils;
+import org.rfcx.guardian.admin.satellite.sbd.SbdDispatchCycleService;
+import org.rfcx.guardian.admin.satellite.sbd.SbdDispatchService;
+import org.rfcx.guardian.admin.satellite.sbd.SbdDispatchTimeoutService;
+import org.rfcx.guardian.admin.satellite.sbd.SbdMessageDb;
+import org.rfcx.guardian.admin.satellite.sbd.SbdUtils;
+import org.rfcx.guardian.admin.satellite.swm.SwmDispatchTimeoutService;
 import org.rfcx.guardian.admin.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
@@ -32,6 +33,8 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.status.AdminStatus;
 import org.rfcx.guardian.admin.status.StatusCacheService;
+import org.rfcx.guardian.admin.satellite.swm.SwmMessageDb;
+import org.rfcx.guardian.admin.satellite.swm.SwmUtils;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
 import org.rfcx.guardian.uart.DeviceUartUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
@@ -104,6 +107,7 @@ public class RfcxGuardian extends Application {
     public DeviceSpaceDb deviceSpaceDb = null;
     public SmsMessageDb smsMessageDb = null;
     public SbdMessageDb sbdMessageDb = null;
+	public SwmMessageDb swmMessageDb = null;
 
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -127,6 +131,7 @@ public class RfcxGuardian extends Application {
 	public SentinelAccelUtils sentinelAccelUtils = null;
 
 	public SbdUtils sbdUtils = null;
+	public SwmUtils swmUtils = null;
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -167,6 +172,7 @@ public class RfcxGuardian extends Application {
 		SentinelUtils.setVerboseSentinelLogging(this);
 		this.assetUtils = new AssetUtils(this);
 		this.sbdUtils = new SbdUtils(this);
+		this.swmUtils = new SwmUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();
@@ -274,6 +280,7 @@ public class RfcxGuardian extends Application {
         this.deviceSpaceDb = new DeviceSpaceDb(this, this.version);
         this.smsMessageDb = new SmsMessageDb(this, this.version);
         this.sbdMessageDb = new SbdMessageDb(this, this.version);
+		this.swmMessageDb = new SwmMessageDb(this, this.version);
 		this.deviceMobilePhone = new DeviceMobilePhone(this);
 	}
 
@@ -296,6 +303,10 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( SbdDispatchService.SERVICE_NAME, SbdDispatchService.class);
 		this.rfcxSvc.addService( SbdDispatchCycleService.SERVICE_NAME, SbdDispatchCycleService.class);
 		this.rfcxSvc.addService( SbdDispatchTimeoutService.SERVICE_NAME, SbdDispatchTimeoutService.class);
+
+//		this.rfcxSvc.addService( SwmDispatchService.SERVICE_NAME, SwmDispatchService.class);
+//		this.rfcxSvc.addService( SwmDispatchCycleService.SERVICE_NAME, SwmDispatchCycleService.class);
+		this.rfcxSvc.addService( SwmDispatchTimeoutService.SERVICE_NAME, SwmDispatchTimeoutService.class);
 
 		this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
 		this.rfcxSvc.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);
@@ -384,10 +395,9 @@ public class RfcxGuardian extends Application {
 			this.deviceGpioUtils.setGpioHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_HANDLER_FILEPATH);
 			this.deviceGpioUtils.setupAddresses(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_MAP);
 
-			// Sets UART interface
-			this.deviceUartUtils.setUartHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_UART_HANDLER_FILEPATH);
-			this.deviceUartUtils.setupAddresses(DeviceHardware_OrangePi_3G_IOT.DEVICE_UART_MAP);
+			// Sets Satellite interfaces
 			this.sbdUtils.setupSbdUtils();
+			this.swmUtils.setupSwmUtils();
 
 		}
 

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.sbd;
+package org.rfcx.guardian.admin.satellite.sbd;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -140,15 +140,15 @@ public class SbdUtils {
 
 
 	public void setPower(boolean setToOn) {
-		app.deviceGpioUtils.runGpioCommand("DOUT", "iridium_power", setToOn);
+		app.deviceGpioUtils.runGpioCommand("DOUT", "satellite_power", setToOn);
 	}
 
 	public boolean isPowerOn() {
-		return app.deviceGpioUtils.readGpioValue("iridium_power", "DOUT");
+		return app.deviceGpioUtils.readGpioValue("satellite_power", "DOUT");
 	}
 
 	public boolean isNetworkAvailable() {
-		return app.deviceGpioUtils.readGpioValue("iridium_netav", "DOUT");
+		return app.deviceGpioUtils.readGpioValue("satellite_state", "DOUT");
 	}
 
 

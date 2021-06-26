@@ -41,13 +41,13 @@ public class ApiSegmentUtils {
 	public static final String[] JSON_MSG_TYPES = new String[] { "cmd", "png", "chk" };
 	public static final String[] BINARY_MSG_TYPES = new String[] {  };
 
-	public static final String[] SEGMENT_PROTOCOLS = new String[] { "sms", "sbd", "swarm" };
+	public static final String[] SEGMENT_PROTOCOLS = new String[] { "sms", "sbd", "swm" };
 
 	private static final Map<String, Integer> SEGMENT_PAYLOAD_MAX_SEND_LENGTH_BY_PROTOCOL =
 		Collections.unmodifiableMap( new HashMap<String, Integer>() {{
 			put("sms", 160 );
 			put("sbd", 100 );
-			put("swarm", 192 );
+			put("swm", 192 );
 		}}
 	);
 

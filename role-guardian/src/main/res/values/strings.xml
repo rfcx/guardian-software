@@ -107,6 +107,14 @@
 	<string name="prefs_value_default_admin_enable_wifi_hotspot">true</string>
 	<string name="prefs_value_default_admin_wifi_hotspot_password">rfcxrfcx</string>
 
+	<string name="prefs_value_default_api_satellite_protocol">off</string>
+
+	<string-array name="prefs_values_api_satellite_protocol">
+		<item>off</item>
+		<item>swm</item>
+		<item>sbd</item>
+	</string-array>
+
     <string-array name="prefs_values_true_or_false">
 		<item>true</item>
 		<item>false</item>

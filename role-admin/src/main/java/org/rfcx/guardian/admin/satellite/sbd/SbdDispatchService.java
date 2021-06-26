@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.sbd;
+package org.rfcx.guardian.admin.satellite.sbd;
 
 import android.app.Service;
 import android.content.Intent;

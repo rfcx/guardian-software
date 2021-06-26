@@ -81,11 +81,14 @@
         <service android:name=".device.android.control.ClockSyncJobService" />
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
-        <service android:name=".sms.SmsDispatchCycleService" />
-        <service android:name=".sbd.SbdDispatchService" />
-        <service android:name=".sbd.SbdDispatchCycleService" />
-        <service android:name=".sbd.SbdDispatchTimeoutService" />
         <service android:name=".device.android.ssh.SSHServerControlService" />
+        <service android:name=".sms.SmsDispatchCycleService" />
+        <service android:name=".satellite.sbd.SbdDispatchService" />
+        <service android:name=".satellite.sbd.SbdDispatchCycleService" />
+        <service android:name=".satellite.sbd.SbdDispatchTimeoutService" />
+<!--        <service android:name=".satellite.swm.SwmDispatchService" />-->
+<!--        <service android:name=".satellite.swm.SwmDispatchCycleService" />-->
+        <service android:name=".satellite.swm.SwmDispatchTimeoutService" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" />
