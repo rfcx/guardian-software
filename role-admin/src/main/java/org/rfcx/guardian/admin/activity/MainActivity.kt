@@ -11,7 +11,7 @@ import org.rfcx.guardian.admin.RfcxGuardian
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService
 import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService
 import org.rfcx.guardian.admin.device.android.control.RebootTriggerService
-import org.rfcx.guardian.admin.sms.ComposeSmsActivity
+import org.rfcx.guardian.admin.comms.sms.ComposeSmsActivity
 
 class MainActivity : Activity() {
 

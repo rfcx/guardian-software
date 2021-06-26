@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.sms
+package org.rfcx.guardian.admin.comms.sms
 
 import android.app.Activity
 import android.content.Intent

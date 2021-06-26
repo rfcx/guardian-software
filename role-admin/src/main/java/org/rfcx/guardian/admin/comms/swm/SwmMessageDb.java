@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.satellite.swm;
+package org.rfcx.guardian.admin.comms.swm;
 
 import android.content.ContentValues;
 import android.content.Context;

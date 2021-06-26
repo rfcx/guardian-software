@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.satellite.sbd;
+package org.rfcx.guardian.admin.comms.swm;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +8,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchService;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
@@ -18,17 +20,17 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SbdUtils {
+public class SwmUtils {
 
-	public SbdUtils(Context context) {
+	public SwmUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 	}
 	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdUtils");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils");
 
 	RfcxGuardian app;
 	private static final String busyBoxBin = "/system/xbin/busybox";
-	private static final int baudRate = 19200;
+	private static final int baudRate = 115200;
 	private static final String ttyPath = "/dev/ttyMT1";
 
 	public static final long sendCmdTimeout = 70000;
@@ -39,15 +41,15 @@ public class SbdUtils {
 	public static final int powerCycleAfterThisManyConsecutiveDeliveryFailures = 5;
 
 
-	public void setupSbdUtils() {
+	public void setupSwmUtils() {
 		app.deviceGpioUtils.runGpioCommand("DOUT", "voltage_refr", true);
 		setPower(true);
 		setPower(false);
 	}
 
-	public boolean sendSbdMessage(String msgStr) {
+	public boolean sendSwmMessage(String msgStr) {
 
-		String errorMsg = "SBD Message was NOT successfully delivered.";
+		String errorMsg = "SWM Message was NOT successfully delivered.";
 		isInFlight = false;
 
 		try {
@@ -99,21 +101,21 @@ public class SbdUtils {
 
 	// Incoming Message Tools
 
-	public static void processIncomingSbd(JSONObject smsObj, Context context) throws JSONException {
+	public static void processIncomingSwm(JSONObject smsObj, Context context) throws JSONException {
 
 		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
 		// In this case, the message arrived from the API SMS address, so we attempt to parse it
-		Log.w(logTag, "SBD received from API ''.");
+		Log.w(logTag, "SWM received from API ''.");
 		String segmentPayload = smsObj.getString("body");
-		Cursor sbdSegmentReceivedResponse =
+		Cursor swmSegmentReceivedResponse =
 				app.getResolver().query(
-						RfcxComm.getUri("guardian", "segment_receive_sbd", RfcxComm.urlEncode(segmentPayload)),
-						RfcxComm.getProjection("guardian", "segment_receive_sbd"),
+						RfcxComm.getUri("guardian", "segment_receive_swm", RfcxComm.urlEncode(segmentPayload)),
+						RfcxComm.getProjection("guardian", "segment_receive_swm"),
 						null, null, null);
 
-		if (sbdSegmentReceivedResponse != null) {
-			sbdSegmentReceivedResponse.close();
+		if (swmSegmentReceivedResponse != null) {
+			swmSegmentReceivedResponse.close();
 		}
 
 	}
@@ -156,7 +158,7 @@ public class SbdUtils {
 
 	// Scheduling Tools
 
-	public static boolean addScheduledSbdToQueue(long sendAtOrAfter, String msgPayload, Context context, boolean triggerDispatchService) {
+	public static boolean addScheduledSwmToQueue(long sendAtOrAfter, String msgPayload, Context context, boolean triggerDispatchService) {
 
 		boolean isQueued = false;
 
@@ -173,8 +175,8 @@ public class SbdUtils {
 		return isQueued;
 	}
 
-	public static boolean addImmediateSbdToQueue(String msgPayload, Context context) {
-		return addScheduledSbdToQueue(System.currentTimeMillis(), msgPayload, context, true);
+	public static boolean addImmediateSwmToQueue(String msgPayload, Context context) {
+		return addScheduledSwmToQueue(System.currentTimeMillis(), msgPayload, context, true);
 	}
 
 

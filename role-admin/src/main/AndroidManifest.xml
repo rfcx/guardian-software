@@ -82,13 +82,13 @@
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
         <service android:name=".device.android.ssh.SSHServerControlService" />
-        <service android:name=".sms.SmsDispatchCycleService" />
-        <service android:name=".satellite.sbd.SbdDispatchService" />
-        <service android:name=".satellite.sbd.SbdDispatchCycleService" />
-        <service android:name=".satellite.sbd.SbdDispatchTimeoutService" />
+        <service android:name="org.rfcx.guardian.admin.comms.sms.SmsDispatchCycleService" />
+        <service android:name=".comms.sbd.SbdDispatchService" />
+        <service android:name=".comms.sbd.SbdDispatchCycleService" />
+        <service android:name=".comms.sbd.SbdDispatchTimeoutService" />
 <!--        <service android:name=".satellite.swm.SwmDispatchService" />-->
 <!--        <service android:name=".satellite.swm.SwmDispatchCycleService" />-->
-        <service android:name=".satellite.swm.SwmDispatchTimeoutService" />
+        <service android:name=".comms.swm.SwmDispatchTimeoutService" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" />
@@ -108,7 +108,7 @@
         <!-- START: SMS settings -->
         <!--                     -->
         <service
-                android:name=".sms.SmsDispatchService"
+                android:name="org.rfcx.guardian.admin.comms.sms.SmsDispatchService"
                 android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE">
             <intent-filter>
                 <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
@@ -123,7 +123,7 @@
         </service>
 
         <receiver
-                android:name=".sms.SmsReceiver"
+                android:name="org.rfcx.guardian.admin.comms.sms.SmsReceiver"
                 android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_DELIVER" />
@@ -131,7 +131,7 @@
             </intent-filter>
         </receiver>
         <receiver
-                android:name=".sms.MmsReceiver"
+                android:name="org.rfcx.guardian.admin.comms.sms.MmsReceiver"
                 android:permission="android.permission.BROADCAST_WAP_PUSH">
             <intent-filter>
                 <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
@@ -141,7 +141,7 @@
         </receiver>
 
 
-        <activity android:name=".sms.ComposeSmsActivity">
+        <activity android:name="org.rfcx.guardian.admin.comms.sms.ComposeSmsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SENDTO" />
