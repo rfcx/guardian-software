@@ -86,8 +86,8 @@
         <service android:name=".comms.sbd.SbdDispatchService" />
         <service android:name=".comms.sbd.SbdDispatchCycleService" />
         <service android:name=".comms.sbd.SbdDispatchTimeoutService" />
-<!--        <service android:name=".satellite.swm.SwmDispatchService" />-->
-<!--        <service android:name=".satellite.swm.SwmDispatchCycleService" />-->
+        <service android:name=".comms.swm.SwmDispatchService" />
+        <service android:name=".comms.swm.SwmDispatchCycleService" />
         <service android:name=".comms.swm.SwmDispatchTimeoutService" />
 
         <!-- IntentServices -->

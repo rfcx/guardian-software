@@ -77,7 +77,7 @@ public class SwmDispatchTimeoutService extends Service {
 						Thread.sleep(667);
 						if (i == checkIntervalCount) {
 							Log.e(logTag, "Timeout Reached for SWM Send. Killing serial processes...");
-							ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
+							ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
 						}
 					} else {
 						break;

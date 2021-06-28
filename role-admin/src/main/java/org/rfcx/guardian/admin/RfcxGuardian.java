@@ -2,6 +2,8 @@ package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.asset.AssetUtils;
 import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
+import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
+import org.rfcx.guardian.admin.comms.swm.SwmDispatchService;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraCaptureService;
@@ -141,7 +143,8 @@ public class RfcxGuardian extends Application {
 				DeviceSystemService.SERVICE_NAME,
 				DeviceSentinelService.SERVICE_NAME,
 				SmsDispatchCycleService.SERVICE_NAME,
-				SbdDispatchCycleService.SERVICE_NAME
+				SbdDispatchCycleService.SERVICE_NAME,
+				SwmDispatchCycleService.SERVICE_NAME
 			};
 
 	@Override
@@ -301,8 +304,8 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( SbdDispatchCycleService.SERVICE_NAME, SbdDispatchCycleService.class);
 		this.rfcxSvc.addService( SbdDispatchTimeoutService.SERVICE_NAME, SbdDispatchTimeoutService.class);
 
-//		this.rfcxSvc.addService( SwmDispatchService.SERVICE_NAME, SwmDispatchService.class);
-//		this.rfcxSvc.addService( SwmDispatchCycleService.SERVICE_NAME, SwmDispatchCycleService.class);
+		this.rfcxSvc.addService( SwmDispatchService.SERVICE_NAME, SwmDispatchService.class);
+		this.rfcxSvc.addService( SwmDispatchCycleService.SERVICE_NAME, SwmDispatchCycleService.class);
 		this.rfcxSvc.addService( SwmDispatchTimeoutService.SERVICE_NAME, SwmDispatchTimeoutService.class);
 
 		this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
