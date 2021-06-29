@@ -82,7 +82,7 @@
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />
         <service android:name=".device.android.ssh.SSHServerControlService" />
-        <service android:name="org.rfcx.guardian.admin.comms.sms.SmsDispatchCycleService" />
+        <service android:name=".comms.sms.SmsDispatchCycleService" />
         <service android:name=".comms.sbd.SbdDispatchService" />
         <service android:name=".comms.sbd.SbdDispatchCycleService" />
         <service android:name=".comms.sbd.SbdDispatchTimeoutService" />

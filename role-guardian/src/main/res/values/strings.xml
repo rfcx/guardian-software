@@ -52,7 +52,7 @@
 	<string name="prefs_value_default_audio_vault_codec">flac</string>
 	<string name="prefs_value_default_audio_vault_bitrate">16384</string>
 
-	<string name="prefs_value_default_enable_cutoffs_internal_battery">true</string>
+	<string name="prefs_value_default_enable_cutoffs_internal_battery">false</string>
 	<string name="prefs_value_default_checkin_cutoff_internal_battery">100</string>
 	<string name="prefs_value_default_audio_cutoff_internal_battery">100</string>
 	<string name="prefs_value_default_install_cutoff_internal_battery">10</string>

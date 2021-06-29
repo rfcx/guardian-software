@@ -175,7 +175,9 @@ public class DeviceSentinelService extends Service {
 
 			this.captureCycleLastStartTime = System.currentTimeMillis();
 
-			this.isSentinelPowerCaptureAllowed = /*!this.isReducedCaptureModeActive && */app.sentinelPowerUtils.isChipAccessibleByI2c();
+			this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.isChipAccessibleByI2c();
+			app.sentinelPowerUtils.checkSetChipConfigByI2c();
+
 			this.isSentinelAccelCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentinelAccelUtils.isCaptureAllowed();
 
 			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
@@ -195,8 +197,6 @@ public class DeviceSentinelService extends Service {
 
 				this.innerLoopsPerCaptureCycle_Power = 1;
 				this.innerLoopsPerCaptureCycle_Accelerometer = Math.ceil((double) this.innerLoopsPerCaptureCycle / SentinelAccelUtils.samplesTakenPerCaptureCycle);
-
-				app.sentinelPowerUtils.checkSetChipConfigByI2c();
 
 				Log.d(logTag, "SentinelStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
 						"Snapshots (all metrics) taken every " + Math.round((double) DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000) + " seconds.");
