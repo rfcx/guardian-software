@@ -11,6 +11,7 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -52,7 +53,9 @@ public class SbdUtils {
 
 		try {
 
-			if (!isNetworkAvailable()) {
+			if (!FileUtils.exists(busyBoxBin)) {
+				errorMsg = "BusyBox binary not found on system";
+			} else if (!isNetworkAvailable()) {
 				errorMsg = "No Iridium network currently available";
 			} else {
 				String[] atCmdSeq = new String[]{ "AT&K0", "AT+SBDD0", "AT+SBDWT=" + msgStr, "AT+SBDIX" };
@@ -125,12 +128,16 @@ public class SbdUtils {
 		List<Integer> processIds = new ArrayList<>();
 		isInFlight = false;
 
-		List<String> processScan = ShellCommands.executeCommandAsRoot(busyBoxBin + " ps -ef | grep /dev/ttyMT");
+		if (!FileUtils.exists(busyBoxBin)) {
+			Log.e(logTag, "Could not run findRunningSerialProcessIds(). BusyBox binary not found on system.");
+		} else {
+			List<String> processScan = ShellCommands.executeCommandAsRoot(busyBoxBin + " ps -ef | grep /dev/ttyMT");
 
-		for (String scanRtrn : processScan) {
-			if ((scanRtrn.contains("microcom")) || (scanRtrn.contains("stty"))) {
-				String processId = scanRtrn.substring(0, scanRtrn.indexOf("root"));
-				processIds.add(Integer.parseInt(processId));
+			for (String scanRtrn : processScan) {
+				if ((scanRtrn.contains("microcom")) || (scanRtrn.contains("stty"))) {
+					String processId = scanRtrn.substring(0, scanRtrn.indexOf("root"));
+					processIds.add(Integer.parseInt(processId));
+				}
 			}
 		}
 
@@ -150,8 +157,6 @@ public class SbdUtils {
 	public boolean isNetworkAvailable() {
 		return app.deviceGpioUtils.readGpioValue("satellite_state", "DOUT");
 	}
-
-
 
 
 	// Scheduling Tools
