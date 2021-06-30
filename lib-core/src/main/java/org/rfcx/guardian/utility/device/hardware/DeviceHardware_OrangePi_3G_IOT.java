@@ -23,19 +23,13 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	// I2C settings for OrangePi 3G-IoT
 	public static final int DEVICE_I2C_INTERFACE = 1;
 
-	// UART for OrangePi 3G-IoT
-	public static final String DEVICE_UART_HANDLER_FILEPATH = "/dev/ttyMT";
-	public static final Map<String, String[]> DEVICE_UART_MAP = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
-		put("iridium_data", 	new String[] { "1", "19200" });
-	}});
-
 	// GPIO settings for OrangePi 3G-IoT
 	public static final String DEVICE_GPIO_HANDLER_FILEPATH = "/sys/devices/virtual/misc/mtgpio/pin";
 	public static final Map<String, String[]> DEVICE_GPIO_MAP = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
-		put("iridium_power", 	new String[] { "26", "write" });
-		put("iridium_netav", 	new String[] { "128", "read" });
-		put("voltage_refr", 	new String[] { "56", "write" });
-//		put("unassigned_b", 	new String[] { "58", "write" });
+		put("satellite_power", 	new String[] { "26", "write" });
+		put("satellite_state", 	new String[] { "128", "read" });
+		put("sentry_power", 	new String[] { "56", "write" });
+		put("voltage_refr", 	new String[] { "58", "write" });
 	}});
 
 		

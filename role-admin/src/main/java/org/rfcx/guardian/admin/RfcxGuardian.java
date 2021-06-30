@@ -2,6 +2,8 @@ package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.asset.AssetUtils;
 import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
+import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
+import org.rfcx.guardian.admin.comms.swm.SwmDispatchService;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraCaptureService;
@@ -9,19 +11,19 @@ import org.rfcx.guardian.admin.device.android.control.AirplaneModeSetService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
 import org.rfcx.guardian.admin.device.android.control.SystemSettingsService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
-import org.rfcx.guardian.admin.device.sentinel.SentinelCompassUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.sentinel.SentinelAccelUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
-import org.rfcx.guardian.admin.sbd.SbdDispatchCycleService;
-import org.rfcx.guardian.admin.sbd.SbdDispatchService;
-import org.rfcx.guardian.admin.sbd.SbdDispatchTimeoutService;
-import org.rfcx.guardian.admin.sbd.SbdMessageDb;
-import org.rfcx.guardian.admin.sbd.SbdUtils;
-import org.rfcx.guardian.admin.sms.SmsDispatchCycleService;
-import org.rfcx.guardian.admin.sms.SmsMessageDb;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchCycleService;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchService;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
+import org.rfcx.guardian.admin.comms.sbd.SbdMessageDb;
+import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
+import org.rfcx.guardian.admin.comms.swm.SwmDispatchTimeoutService;
+import org.rfcx.guardian.admin.comms.sms.SmsDispatchCycleService;
+import org.rfcx.guardian.admin.comms.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
-import org.rfcx.guardian.admin.sms.SmsDispatchService;
+import org.rfcx.guardian.admin.comms.sms.SmsDispatchService;
 import org.rfcx.guardian.admin.device.android.control.WifiHotspotStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSpaceDb;
@@ -32,6 +34,8 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.status.AdminStatus;
 import org.rfcx.guardian.admin.status.StatusCacheService;
+import org.rfcx.guardian.admin.comms.swm.SwmMessageDb;
+import org.rfcx.guardian.admin.comms.swm.SwmUtils;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
 import org.rfcx.guardian.uart.DeviceUartUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
@@ -104,6 +108,7 @@ public class RfcxGuardian extends Application {
     public DeviceSpaceDb deviceSpaceDb = null;
     public SmsMessageDb smsMessageDb = null;
     public SbdMessageDb sbdMessageDb = null;
+	public SwmMessageDb swmMessageDb = null;
 
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -123,10 +128,10 @@ public class RfcxGuardian extends Application {
 	public DeviceUartUtils deviceUartUtils= new DeviceUartUtils(APP_ROLE);
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
-	public SentinelCompassUtils sentinelCompassUtils = null;
 	public SentinelAccelUtils sentinelAccelUtils = null;
 
 	public SbdUtils sbdUtils = null;
+	public SwmUtils swmUtils = null;
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -138,7 +143,8 @@ public class RfcxGuardian extends Application {
 				DeviceSystemService.SERVICE_NAME,
 				DeviceSentinelService.SERVICE_NAME,
 				SmsDispatchCycleService.SERVICE_NAME,
-				SbdDispatchCycleService.SERVICE_NAME
+				SbdDispatchCycleService.SERVICE_NAME,
+				SwmDispatchCycleService.SERVICE_NAME
 			};
 
 	@Override
@@ -162,11 +168,11 @@ public class RfcxGuardian extends Application {
 
 		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
-		this.sentinelCompassUtils = new SentinelCompassUtils(this);
 		this.sentinelAccelUtils = new SentinelAccelUtils(this);
 		SentinelUtils.setVerboseSentinelLogging(this);
 		this.assetUtils = new AssetUtils(this);
 		this.sbdUtils = new SbdUtils(this);
+		this.swmUtils = new SwmUtils(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();
@@ -274,6 +280,7 @@ public class RfcxGuardian extends Application {
         this.deviceSpaceDb = new DeviceSpaceDb(this, this.version);
         this.smsMessageDb = new SmsMessageDb(this, this.version);
         this.sbdMessageDb = new SbdMessageDb(this, this.version);
+		this.swmMessageDb = new SwmMessageDb(this, this.version);
 		this.deviceMobilePhone = new DeviceMobilePhone(this);
 	}
 
@@ -296,6 +303,10 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( SbdDispatchService.SERVICE_NAME, SbdDispatchService.class);
 		this.rfcxSvc.addService( SbdDispatchCycleService.SERVICE_NAME, SbdDispatchCycleService.class);
 		this.rfcxSvc.addService( SbdDispatchTimeoutService.SERVICE_NAME, SbdDispatchTimeoutService.class);
+
+		this.rfcxSvc.addService( SwmDispatchService.SERVICE_NAME, SwmDispatchService.class);
+		this.rfcxSvc.addService( SwmDispatchCycleService.SERVICE_NAME, SwmDispatchCycleService.class);
+		this.rfcxSvc.addService( SwmDispatchTimeoutService.SERVICE_NAME, SwmDispatchTimeoutService.class);
 
 		this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
 		this.rfcxSvc.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);
@@ -323,36 +334,39 @@ public class RfcxGuardian extends Application {
 
 	public void onPrefReSync(String prefKey) {
 
-		if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT) || prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD) || prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_CONNECTION) ) {
-			rfcxSvc.triggerService( WifiHotspotStateSetService.SERVICE_NAME, false);
-			rfcxSvc.triggerService( ADBStateSetService.SERVICE_NAME, false);
+		if (prefKey != null) {
 
-		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB )) {
-			rfcxSvc.triggerService( ADBStateSetService.SERVICE_NAME, false);
+			if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT) || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD) || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_CONNECTION)) {
+				rfcxSvc.triggerService(WifiHotspotStateSetService.SERVICE_NAME, false);
+				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 
-		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_AIRPLANE_MODE )) {
-			rfcxSvc.triggerService( AirplaneModeSetService.SERVICE_NAME, false);
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB)) {
+				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 
-		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION )) {
-			this.rfcxStatus.setOrResetCacheExpirations( this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) );
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_AIRPLANE_MODE)) {
+				rfcxSvc.triggerService(AirplaneModeSetService.SERVICE_NAME, false);
 
-		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE )) {
-			DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString( RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE ), this);
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)) {
+				this.rfcxStatus.setOrResetCacheExpirations(this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION));
 
-		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.REBOOT_FORCED_DAILY_AT )) {
-			Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE)) {
+				DateTimeUtils.setSystemTimezone(this.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_SYSTEM_TIMEZONE), this);
 
-		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL )) {
-			SentinelUtils.setVerboseSentinelLogging(this);
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.REBOOT_FORCED_DAILY_AT)) {
+				Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
 
-		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER )) {
-			rfcxSvc.triggerService("SSHServerControl", false);
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL)) {
+				SentinelUtils.setVerboseSentinelLogging(this);
 
-		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE )) {
-			rfcxSvc.triggerService( SystemSettingsService.SERVICE_NAME, false);
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER)) {
+				rfcxSvc.triggerService("SSHServerControl", false);
 
-		} else if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE ) || prefKey.equalsIgnoreCase( RfcxPrefs.Pref.ADMIN_GEOPOSITION_CAPTURE_CYCLE )) {
-			rfcxSvc.triggerService( DeviceSystemService.SERVICE_NAME, true);
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE)) {
+				rfcxSvc.triggerService(SystemSettingsService.SERVICE_NAME, false);
+
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE) || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_GEOPOSITION_CAPTURE_CYCLE)) {
+				rfcxSvc.triggerService(DeviceSystemService.SERVICE_NAME, true);
+			}
 		}
 	}
 
@@ -381,10 +395,9 @@ public class RfcxGuardian extends Application {
 			this.deviceGpioUtils.setGpioHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_HANDLER_FILEPATH);
 			this.deviceGpioUtils.setupAddresses(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_MAP);
 
-			// Sets UART interface
-			this.deviceUartUtils.setUartHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_UART_HANDLER_FILEPATH);
-			this.deviceUartUtils.setupAddresses(DeviceHardware_OrangePi_3G_IOT.DEVICE_UART_MAP);
+			// Sets Satellite interfaces
 			this.sbdUtils.setupSbdUtils();
+			this.swmUtils.setupSwmUtils();
 
 		}
 

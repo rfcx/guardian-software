@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.sbd;
+package org.rfcx.guardian.admin.comms.swm;
 
 import android.app.Service;
 import android.content.Intent;
@@ -9,16 +9,16 @@ import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
-public class SbdDispatchTimeoutService extends Service {
+public class SwmDispatchTimeoutService extends Service {
 
-	public static final String SERVICE_NAME = "SbdDispatchTimeout";
+	public static final String SERVICE_NAME = "SwmDispatchTimeout";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdDispatchTimeoutService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchTimeoutService");
 	
 	private RfcxGuardian app;
 	
 	private boolean runFlag = false;
-	private SbdDispatchTimeoutSvc sbdDispatchTimeoutSvc;
+	private SwmDispatchTimeoutSvc swmDispatchTimeoutSvc;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -28,7 +28,7 @@ public class SbdDispatchTimeoutService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.sbdDispatchTimeoutSvc = new SbdDispatchTimeoutSvc();
+		this.swmDispatchTimeoutSvc = new SwmDispatchTimeoutSvc();
 		app = (RfcxGuardian) getApplication();
 	}
 	
@@ -39,7 +39,7 @@ public class SbdDispatchTimeoutService extends Service {
 		this.runFlag = true;
 		app.rfcxSvc.setRunState(SERVICE_NAME, true);
 		try {
-			this.sbdDispatchTimeoutSvc.start();
+			this.swmDispatchTimeoutSvc.start();
 		} catch (IllegalThreadStateException e) {
 			RfcxLog.logExc(logTag, e);
 		}
@@ -51,33 +51,33 @@ public class SbdDispatchTimeoutService extends Service {
 		super.onDestroy();
 		this.runFlag = false;
 		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.sbdDispatchTimeoutSvc.interrupt();
-		this.sbdDispatchTimeoutSvc = null;
+		this.swmDispatchTimeoutSvc.interrupt();
+		this.swmDispatchTimeoutSvc = null;
 	}
 	
 	
-	private class SbdDispatchTimeoutSvc extends Thread {
+	private class SwmDispatchTimeoutSvc extends Thread {
 		
-		public SbdDispatchTimeoutSvc() { super("SbdDispatchTimeoutService-SbdDispatchTimeoutSvc"); }
+		public SwmDispatchTimeoutSvc() { super("SwmDispatchTimeoutService-SwmDispatchTimeoutSvc"); }
 		
 		@Override
 		public void run() {
-			SbdDispatchTimeoutService sbdDispatchTimeoutInstance = SbdDispatchTimeoutService.this;
+			SwmDispatchTimeoutService swmDispatchTimeoutInstance = SwmDispatchTimeoutService.this;
 			
 			app = (RfcxGuardian) getApplication();
 
-			int checkIntervalCount = Math.round( ( SbdUtils.sendCmdTimeout + ( 3 * SbdUtils.prepCmdTimeout) ) / 667 );
+			int checkIntervalCount = Math.round( ( SwmUtils.sendCmdTimeout + ( 3 * SwmUtils.prepCmdTimeout) ) / 667 );
 
 			try {
 
 				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				for (int i = 0; i <= checkIntervalCount; i++) {
-					if (app.sbdUtils.isInFlight) {
+					if (app.swmUtils.isInFlight) {
 						Thread.sleep(667);
 						if (i == checkIntervalCount) {
-							Log.e(logTag, "Timeout Reached for SBD Send. Killing serial processes...");
-							ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
+							Log.e(logTag, "Timeout Reached for SWM Send. Killing serial processes...");
+							ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
 						}
 					} else {
 						break;
@@ -87,11 +87,11 @@ public class SbdDispatchTimeoutService extends Service {
 			} catch (Exception e) {
 				RfcxLog.logExc(logTag, e);
 				app.rfcxSvc.setRunState(SERVICE_NAME, false);
-				sbdDispatchTimeoutInstance.runFlag = false;
+				swmDispatchTimeoutInstance.runFlag = false;
 			}
 
 			app.rfcxSvc.setRunState(SERVICE_NAME, false);
-			sbdDispatchTimeoutInstance.runFlag = false;
+			swmDispatchTimeoutInstance.runFlag = false;
 		//	Log.v(logTag, "Stopping service: "+logTag);
 		}
 	}

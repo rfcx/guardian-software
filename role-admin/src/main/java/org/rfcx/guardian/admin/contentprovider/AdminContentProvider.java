@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin.contentprovider;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
@@ -9,8 +10,8 @@ import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
 import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
-import org.rfcx.guardian.admin.sbd.SbdUtils;
-import org.rfcx.guardian.admin.sms.SmsUtils;
+import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
+import org.rfcx.guardian.admin.comms.sms.SmsUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.device.control.DeviceKeyEntry;
@@ -18,6 +19,7 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
@@ -36,6 +38,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class AdminContentProvider extends ContentProvider {
 
@@ -44,12 +47,13 @@ public class AdminContentProvider extends ContentProvider {
     private static final String appRole = RfcxGuardian.APP_ROLE;
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NotNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
-        RfcxGuardian app = (RfcxGuardian) getContext().getApplicationContext();
         String logFuncVal = "";
 
         try {
+
+            RfcxGuardian app = (RfcxGuardian) Objects.requireNonNull(getContext()).getApplicationContext();
 
             // get role "version" endpoints
 
@@ -60,7 +64,7 @@ public class AdminContentProvider extends ContentProvider {
 
             } else if (RfcxComm.uriMatch(uri, appRole, "prefs", null)) { logFuncVal = "prefs";
                 MatrixCursor cursor = RfcxComm.getProjectionCursor(appRole, "prefs", null);
-                for (String prefKey : app.rfcxPrefs.listPrefsKeys()) {
+                for (String prefKey : RfcxPrefs.listPrefsKeys()) {
                     cursor.addRow(new Object[]{prefKey, app.rfcxPrefs.getPrefAsString(prefKey)});
                 }
                 return cursor;
@@ -356,17 +360,17 @@ public class AdminContentProvider extends ContentProvider {
         return null;
     }
 
-    public ParcelFileDescriptor openFile(Uri uri, String mode) {
+    public ParcelFileDescriptor openFile(@NotNull Uri uri, @NotNull String mode) {
         return RfcxComm.serveAssetFileRequest(uri, mode, getContext(), RfcxGuardian.APP_ROLE, logTag);
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NotNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         return 0;
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NotNull Uri uri, String selection, String[] selectionArgs) {
         return 0;
     }
 
@@ -376,12 +380,12 @@ public class AdminContentProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NotNull Uri uri) {
         return null;
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NotNull Uri uri, ContentValues values) {
         return null;
     }
 

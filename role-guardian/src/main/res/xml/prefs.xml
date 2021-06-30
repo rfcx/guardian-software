@@ -609,6 +609,15 @@
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_airplane_mode" />
 
+	<ListPreference
+			android:key="api_satellite_protocol"
+			android:title="api_satellite_protocol"
+			android:dialogTitle="api_satellite_protocol"
+			android:summary="string - off/swm/sbd"
+			android:entries="@array/prefs_values_api_satellite_protocol"
+			android:entryValues="@array/prefs_values_api_satellite_protocol"
+			android:defaultValue="@string/prefs_value_default_api_satellite_protocol" />
+
 
 
  	

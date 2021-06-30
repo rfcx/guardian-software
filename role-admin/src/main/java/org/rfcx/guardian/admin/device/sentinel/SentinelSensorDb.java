@@ -17,7 +17,7 @@ public class SentinelSensorDb {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbAccelerometer = new DbAccelerometer(context);
-		this.dbCompass = new DbCompass(context);
+		this.dbEnvironment = new DbEnvironment(context);
 	}
 
 	private int VERSION = 1;
@@ -91,18 +91,16 @@ public class SentinelSensorDb {
 	}
 	public final DbAccelerometer dbAccelerometer;
 
-
-
-
-
-	public class DbCompass {
+	public class DbEnvironment {
 
 		final DbUtils dbUtils;
+		public String FILEPATH;
 
-		private String TABLE = "compass";
+		private String TABLE = "environment";
 
-		public DbCompass(Context context) {
+		public DbEnvironment(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 
 		public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {
@@ -138,7 +136,9 @@ public class SentinelSensorDb {
 		}
 
 	}
-	public final DbCompass dbCompass;
+	public final DbEnvironment dbEnvironment;
+
+
 	
 	
 

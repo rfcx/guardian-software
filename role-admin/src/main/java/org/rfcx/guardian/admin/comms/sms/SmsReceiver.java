@@ -1,15 +1,14 @@
-package org.rfcx.guardian.admin.sms;
+package org.rfcx.guardian.admin.comms.sms;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+
 import org.rfcx.guardian.admin.RfcxGuardian;
 
 public class SmsReceiver extends BroadcastReceiver {

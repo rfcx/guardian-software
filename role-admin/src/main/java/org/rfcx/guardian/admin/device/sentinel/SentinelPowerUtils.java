@@ -18,6 +18,7 @@ import android.util.Log;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxStatus;
@@ -123,7 +124,7 @@ public class SentinelPowerUtils {
 
 
 
-            List<String[]> chipConfigI2cLabelsAndSubAddresses = new ArrayList<String[]>();
+            List<String[]> chipConfigI2cLabelsAndSubAddresses = new ArrayList<>();
 
             // Get config values over I2c
 
@@ -133,19 +134,25 @@ public class SentinelPowerUtils {
                 }
             }
 
+            List<String[]> i2cSetConfigLabelsAddressesValues = new ArrayList<>();
+
             for (String[] i2cLabeledOutput : app.deviceI2cUtils.i2cGet(chipConfigI2cLabelsAndSubAddresses, i2cMainAddr, false, new String[] { })) {
-                Log.e(logTag, "I2c config: "+i2cLabeledOutput[0]+" - "+i2cLabeledOutput[1]);
+
+                String outputValue = "0x" + StringUtils.leftPadStringWithChar( i2cLabeledOutput[1].substring(2), 4, "0");
+
+                if (!chipConfig.get(i2cLabeledOutput[0])[1].equalsIgnoreCase(outputValue)) {
+                    Log.v(logTag, "I2C Config Queued: "+i2cLabeledOutput[0]+" - "+outputValue);
+                    i2cSetConfigLabelsAddressesValues.add(new String[]{ i2cLabeledOutput[0], chipConfig.get(i2cLabeledOutput[0])[0], chipConfig.get(i2cLabeledOutput[0])[1] });
+                }
             }
 
 
-            List<String[]> i2cSetConfigLabelsAddressesValues = new ArrayList<String[]>();
-
             if (i2cSetConfigLabelsAddressesValues.size() == 0) {
-                Log.e(logTag, "Sentinel Power Chip configuration is already correctly set.");
+                Log.i(logTag, "Sentinel Power I2C Configuration verified.");
             } else if (!app.deviceI2cUtils.i2cSet(i2cSetConfigLabelsAddressesValues, i2cMainAddr)) {
                 Log.e(logTag, "Sentinel Power Chip configuration attempted and failed to be set over I2C.");
             } else {
-                Log.e(logTag, "Sentinel Power Chip configuration was successfully updated.");
+                Log.v(logTag, "Sentinel Power I2C Configuration was successfully updated.");
             }
 
         } else {

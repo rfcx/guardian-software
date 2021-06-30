@@ -1,27 +1,27 @@
-package org.rfcx.guardian.admin.sbd;
+package org.rfcx.guardian.admin.comms.swm;
 
 import android.content.ContentValues;
 import android.content.Context;
 
-import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DbUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import java.util.Date;
 import java.util.List;
 
-public class SbdMessageDb {
+public class SwmMessageDb {
 
-	public SbdMessageDb(Context context, String appVersion) {
+	public SwmMessageDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-		this.dbSbdReceived = new DbSbdReceived(context);
-		this.dbSbdSent = new DbSbdSent(context);
-		this.dbSbdQueued = new DbSbdQueued(context);
+		this.dbSwmReceived = new DbSwmReceived(context);
+		this.dbSwmSent = new DbSwmSent(context);
+		this.dbSwmQueued = new DbSwmQueued(context);
 	}
 
 	private int VERSION = 1;
-	static final String DATABASE = "sbd";
+	static final String DATABASE = "swm";
 	static final String C_CREATED_AT = "created_at";
 	static final String C_TIMESTAMP = "timestamp";
 	static final String C_ADDRESS = "address";
@@ -46,14 +46,14 @@ public class SbdMessageDb {
 		return sbOut.toString();
 	}
 
-	public class DbSbdReceived {
+	public class DbSwmReceived {
 
 		final DbUtils dbUtils;
 		public String FILEPATH;
 
 		private String TABLE = "received";
 
-		public DbSbdReceived(Context context) {
+		public DbSwmReceived(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
@@ -84,15 +84,15 @@ public class SbdMessageDb {
 		}
 
 	}
-	public final DbSbdReceived dbSbdReceived;
+	public final DbSwmReceived dbSwmReceived;
 
-	public class DbSbdSent {
+	public class DbSwmSent {
 
 		final DbUtils dbUtils;
 
 		private String TABLE = "sent";
 
-		public DbSbdSent(Context context) {
+		public DbSwmSent(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
@@ -122,15 +122,15 @@ public class SbdMessageDb {
 		}
 
 	}
-	public final DbSbdSent dbSbdSent;
+	public final DbSwmSent dbSwmSent;
 
-	public class DbSbdQueued {
+	public class DbSwmQueued {
 
 		final DbUtils dbUtils;
 
 		private String TABLE = "queued";
 
-		public DbSbdQueued(Context context) {
+		public DbSwmQueued(Context context) {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
@@ -165,6 +165,6 @@ public class SbdMessageDb {
 		}
 
 	}
-	public final DbSbdQueued dbSbdQueued;
+	public final DbSwmQueued dbSwmQueued;
 	
 }

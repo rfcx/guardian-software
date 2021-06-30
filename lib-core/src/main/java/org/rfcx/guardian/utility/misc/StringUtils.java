@@ -183,6 +183,18 @@ public class StringUtils {
     		return fileObj.exists();
 	}
 
+	public static String leftPadStringWithChar(String inputStr, int targetLength, String padWithChar) {
+		StringBuilder paddedStr = new StringBuilder();
+		if (inputStr.length() < targetLength) {
+			for (int i = 0; i < targetLength-inputStr.length(); i++) {
+				paddedStr.append(padWithChar);
+			}
+			paddedStr.append(inputStr);
+			return paddedStr.toString();
+		}
+		return inputStr;
+	}
+
 	public static String capitalizeFirstChar(String str) {
 		return str.substring(0,1).toUpperCase()+str.substring(1);
 	}

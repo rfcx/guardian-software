@@ -114,8 +114,12 @@ public class RfcxGuardian extends Application {
 
     public void onPrefReSync(String prefKey) {
 
-        if (prefKey.equalsIgnoreCase( RfcxPrefs.Pref.AUDIO_CYCLE_DURATION )) {
-            this.rfcxStatus.setOrResetCacheExpirations( this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) );
+        if (prefKey != null) {
+
+            if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)) {
+                this.rfcxStatus.setOrResetCacheExpirations(this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION));
+
+            }
 
         }
     }

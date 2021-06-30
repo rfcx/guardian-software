@@ -149,6 +149,8 @@ public class RfcxPrefs {
 		public static final String ADMIN_ENABLE_WIFI_HOTSPOT = "admin_enable_wifi_hotspot";
 		public static final String ADMIN_WIFI_HOTSPOT_PASSWORD = "admin_wifi_hotspot_password";
 
+		public static final String API_SATELLITE_PROTOCOL = "api_satellite_protocol";
+
 	}
 
 
@@ -180,6 +182,8 @@ public class RfcxPrefs {
 			put(Pref.API_SMS_ADDRESS, "+14154803657");
 
 			put(Pref.API_PROTOCOL_ESCALATION_ORDER, "mqtt,rest,sms,sbd");
+			
+			put(Pref.API_SATELLITE_PROTOCOL, "off");
 
 			put(Pref.REBOOT_FORCED_DAILY_AT, "23:55:00");
 
@@ -193,7 +197,7 @@ public class RfcxPrefs {
 			put(Pref.ENABLE_CUTOFFS_SAMPLING_RATIO, "false");
 			put(Pref.AUDIO_SAMPLING_RATIO, "1:2");
 
-			put(Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY, "true");
+			put(Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY, "false");
 			put(Pref.CHECKIN_CUTOFF_INTERNAL_BATTERY, "100");
 			put(Pref.AUDIO_CUTOFF_INTERNAL_BATTERY, "100");
 			put(Pref.INSTALL_CUTOFF_INTERNAL_BATTERY, "10");
@@ -258,6 +262,7 @@ public class RfcxPrefs {
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "auto_time_zone:system,i,0;");
 			put(Pref.ADMIN_WIFI_HOTSPOT_PASSWORD, "rfcxrfcx");
+
 		}}
 	);
 
