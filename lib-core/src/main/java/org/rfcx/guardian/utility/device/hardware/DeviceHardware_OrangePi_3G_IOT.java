@@ -23,6 +23,9 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	// I2C settings for OrangePi 3G-IoT
 	public static final int DEVICE_I2C_INTERFACE = 1;
 
+	// UART settings for OrangePi 3G-IoT
+	public static final String DEVICE_TTY_FILEPATH_SATELLITE = "/dev/ttyMT1";
+
 	// GPIO settings for OrangePi 3G-IoT
 	public static final String DEVICE_GPIO_HANDLER_FILEPATH = "/sys/devices/virtual/misc/mtgpio/pin";
 	public static final Map<String, String[]> DEVICE_GPIO_MAP = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
@@ -32,6 +35,8 @@ public class DeviceHardware_OrangePi_3G_IOT {
 		put("voltage_refr", 	new String[] { "58", "write" });
 	}});
 
+	// Busybox filepath for OrangePi 3G-IoT
+	public static final String BUSYBOX_FILEPATH = "/system/xbin/busybox";
 		
 	public static boolean isDevice_OrangePi_3G_IOT() {
 		for (String manufacturer : DEVICE_MANUFACTURER) { if (DeviceHardwareUtils.getManufacturer().equalsIgnoreCase(manufacturer)) {

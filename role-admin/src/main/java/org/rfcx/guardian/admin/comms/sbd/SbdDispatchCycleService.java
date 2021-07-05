@@ -8,6 +8,7 @@ import android.util.Log;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class SbdDispatchCycleService extends Service {
 
@@ -65,61 +66,67 @@ public class SbdDispatchCycleService extends Service {
 		@Override
 		public void run() {
 			SbdDispatchCycleService sbdDispatchCycleInstance = SbdDispatchCycleService.this;
-			
+
 			app = (RfcxGuardian) getApplication();
 
-			int cyclesSinceLastActivity = 0;
-			int powerOffAfterThisManyInactiveCycles = 6;
+			app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-			ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
+			if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("sbd")) {
 
-			while (sbdDispatchCycleInstance.runFlag) {
+				int cyclesSinceLastActivity = 0;
+				int powerOffAfterThisManyInactiveCycles = 6;
 
-				try {
+				ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
+				app.sbdUtils.setupSbdUtils();
 
-					app.rfcxSvc.reportAsActive(SERVICE_NAME);
+				while (sbdDispatchCycleInstance.runFlag) {
 
-					Thread.sleep(sbdDispatchCycleDuration);
+					try {
 
-					if (app.sbdMessageDb.dbSbdQueued.getCount() == 0) {
+						app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-						// let's add something that checks and eventually powers off the satellite board if not used for a little while
-						if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-							app.sbdUtils.setPower(false);
-						}
-						cyclesSinceLastActivity++;
+						Thread.sleep(sbdDispatchCycleDuration);
+
+						if (app.sbdMessageDb.dbSbdQueued.getCount() == 0) {
+
+							// let's add something that checks and eventually powers off the satellite board if not used for a little while
+							if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
+								app.sbdUtils.setPower(false);
+							}
+							cyclesSinceLastActivity++;
 
 
-					} else if (!app.sbdUtils.isInFlight) {
+						} else if (!app.sbdUtils.isInFlight) {
 
-						boolean isAbleToSend = app.sbdUtils.isPowerOn();
+							boolean isAbleToSend = app.sbdUtils.isPowerOn();
 
-						if (!isAbleToSend) {
-							Log.i(logTag, "Iridium board is powered OFF. Turning power ON...");
-							app.sbdUtils.setPower(true);
-							isAbleToSend = app.sbdUtils.isPowerOn();
-						}
+							if (!isAbleToSend) {
+								Log.i(logTag, "Iridium board is powered OFF. Turning power ON...");
+								app.sbdUtils.setPower(true);
+								isAbleToSend = app.sbdUtils.isPowerOn();
+							}
 
-						if (!isAbleToSend) {
-							Log.e(logTag, "Iridium board is STILL powered off. Unable to proceed with SBD send...");
-						} else if (!app.sbdUtils.isNetworkAvailable()) {
-							Log.e(logTag, "Iridium Network is not available. Unable to proceed with SBD send...");
+							if (!isAbleToSend) {
+								Log.e(logTag, "Iridium board is STILL powered off. Unable to proceed with SBD send...");
+							} else if (!app.sbdUtils.isNetworkAvailable()) {
+								Log.e(logTag, "Iridium Network is not available. Unable to proceed with SBD send...");
+							} else {
+								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SbdDispatchService.SERVICE_NAME, Math.round(1.5 * SbdUtils.sendCmdTimeout));
+								cyclesSinceLastActivity = 0;
+							}
+
 						} else {
-							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SbdDispatchService.SERVICE_NAME, Math.round( 1.5 * SbdUtils.sendCmdTimeout) );
+
+							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SbdDispatchService.SERVICE_NAME, Math.round(1.5 * SbdUtils.sendCmdTimeout));
 							cyclesSinceLastActivity = 0;
+
 						}
 
-					} else {
-
-						app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SbdDispatchService.SERVICE_NAME, Math.round( 1.5 * SbdUtils.sendCmdTimeout) );
-						cyclesSinceLastActivity = 0;
-
+					} catch (Exception e) {
+						RfcxLog.logExc(logTag, e);
+						app.rfcxSvc.setRunState(SERVICE_NAME, false);
+						sbdDispatchCycleInstance.runFlag = false;
 					}
-
-				} catch (Exception e) {
-					RfcxLog.logExc(logTag, e);
-					app.rfcxSvc.setRunState(SERVICE_NAME, false);
-					sbdDispatchCycleInstance.runFlag = false;
 				}
 			}
 

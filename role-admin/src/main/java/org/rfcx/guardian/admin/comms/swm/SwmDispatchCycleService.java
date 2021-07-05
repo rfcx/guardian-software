@@ -10,6 +10,7 @@ import org.rfcx.guardian.admin.comms.sbd.SbdDispatchService;
 import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class SwmDispatchCycleService extends Service {
 
@@ -70,58 +71,64 @@ public class SwmDispatchCycleService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 
-			int cyclesSinceLastActivity = 0;
-			int powerOffAfterThisManyInactiveCycles = 6;
+			app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-			ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
+			if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
 
-			while (swmDispatchCycleInstance.runFlag) {
+				int cyclesSinceLastActivity = 0;
+				int powerOffAfterThisManyInactiveCycles = 6;
 
-				try {
+				ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
+				app.swmUtils.setupSwmUtils();
 
-					app.rfcxSvc.reportAsActive(SERVICE_NAME);
+				while (swmDispatchCycleInstance.runFlag) {
 
-					Thread.sleep(swmDispatchCycleDuration);
+					try {
 
-					if (app.swmMessageDb.dbSwmQueued.getCount() == 0) {
+						app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-						// let's add something that checks and eventually powers off the satellite board if not used for a little while
-						if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-							app.swmUtils.setPower(false);
-						}
-						cyclesSinceLastActivity++;
+						Thread.sleep(swmDispatchCycleDuration);
+
+						if (app.swmMessageDb.dbSwmQueued.getCount() == 0) {
+
+							// let's add something that checks and eventually powers off the satellite board if not used for a little while
+							if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
+								app.swmUtils.setPower(false);
+							}
+							cyclesSinceLastActivity++;
 
 
-					} else if (!app.swmUtils.isInFlight) {
+						} else if (!app.swmUtils.isInFlight) {
 
-						boolean isAbleToSend = app.swmUtils.isPowerOn();
+							boolean isAbleToSend = app.swmUtils.isPowerOn();
 
-						if (!isAbleToSend) {
-							Log.i(logTag, "Iridium board is powered OFF. Turning power ON...");
-							app.swmUtils.setPower(true);
-							isAbleToSend = app.swmUtils.isPowerOn();
-						}
+							if (!isAbleToSend) {
+								Log.i(logTag, "Swarm board is powered OFF. Turning power ON...");
+								app.swmUtils.setPower(true);
+								isAbleToSend = app.swmUtils.isPowerOn();
+							}
 
-						if (!isAbleToSend) {
-							Log.e(logTag, "Iridium board is STILL powered off. Unable to proceed with SWM send...");
-						} else if (!app.swmUtils.isNetworkAvailable()) {
-							Log.e(logTag, "Iridium Network is not available. Unable to proceed with SWM send...");
+							if (!isAbleToSend) {
+								Log.e(logTag, "Swarm board is STILL powered off. Unable to proceed with SWM send...");
+							} else if (!app.swmUtils.isNetworkAvailable()) {
+								Log.e(logTag, "Swarm Network is not available. Unable to proceed with SWM send...");
+							} else {
+								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
+								cyclesSinceLastActivity = 0;
+							}
+
 						} else {
-							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round( 1.5 * SwmUtils.sendCmdTimeout) );
+
+							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 							cyclesSinceLastActivity = 0;
+
 						}
 
-					} else {
-
-						app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round( 1.5 * SwmUtils.sendCmdTimeout) );
-						cyclesSinceLastActivity = 0;
-
+					} catch (Exception e) {
+						RfcxLog.logExc(logTag, e);
+						app.rfcxSvc.setRunState(SERVICE_NAME, false);
+						swmDispatchCycleInstance.runFlag = false;
 					}
-
-				} catch (Exception e) {
-					RfcxLog.logExc(logTag, e);
-					app.rfcxSvc.setRunState(SERVICE_NAME, false);
-					swmDispatchCycleInstance.runFlag = false;
 				}
 			}
 

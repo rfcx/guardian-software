@@ -2,6 +2,7 @@ package org.rfcx.guardian.admin.contentprovider;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.rfcx.guardian.admin.comms.swm.SwmUtils;
 import org.rfcx.guardian.admin.device.android.capture.LogcatCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScreenShotCaptureService;
 import org.rfcx.guardian.admin.device.android.control.AirplaneModeToggleService;
@@ -200,6 +201,14 @@ public class AdminContentProvider extends ContentProvider {
                 String sbdPayload = sbdQueue[1];
                 SbdUtils.addScheduledSbdToQueue(sbdSendAt, sbdPayload, app.getApplicationContext(), false);
                 return RfcxComm.getProjectionCursor(appRole, "sbd_queue", new Object[]{ sbdSendAt+"|"+sbdPayload, null, System.currentTimeMillis()});
+
+            } else if (RfcxComm.uriMatch(uri, appRole, "swm_queue", "*")) { logFuncVal = "swm_queue-*";
+                String pathSeg = uri.getLastPathSegment();
+                String[] swmQueue = TextUtils.split(pathSeg,"\\|");
+                long swmSendAt = Long.parseLong(swmQueue[0]);
+                String swmPayload = swmQueue[1];
+                SwmUtils.addScheduledSwmToQueue(swmSendAt, swmPayload, app.getApplicationContext(), false);
+                return RfcxComm.getProjectionCursor(appRole, "swm_queue", new Object[]{ swmSendAt+"|"+swmPayload, null, System.currentTimeMillis()});
 
 
             // get momentary values endpoints

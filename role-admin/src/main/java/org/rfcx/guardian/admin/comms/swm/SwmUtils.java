@@ -30,9 +30,9 @@ public class SwmUtils {
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils");
 
 	RfcxGuardian app;
-	private static final String busyBoxBin = "/system/xbin/busybox";
 	private static final int baudRate = 115200;
-	private static final String ttyPath = "/dev/ttyMT1";
+	private String busyBoxBin = null;
+	private String ttyPath = null;
 
 	public static final long sendCmdTimeout = 70000;
 	public static final long prepCmdTimeout = 2500;
@@ -41,6 +41,10 @@ public class SwmUtils {
 	public int consecutiveDeliveryFailureCount = 0;
 	public static final int powerCycleAfterThisManyConsecutiveDeliveryFailures = 5;
 
+	public void init(String ttyPath, String busyBoxBin) {
+		this.ttyPath = ttyPath;
+		this.busyBoxBin = busyBoxBin;
+	}
 
 	public void setupSwmUtils() {
 		app.deviceGpioUtils.runGpioCommand("DOUT", "voltage_refr", true);
@@ -55,7 +59,7 @@ public class SwmUtils {
 
 		try {
 
-			if (!FileUtils.exists(busyBoxBin)) {
+			if ((busyBoxBin == null) || !FileUtils.exists(busyBoxBin)) {
 				errorMsg = "BusyBox binary not found on system";
 			} else if (!isNetworkAvailable()) {
 				errorMsg = "No Swarm network currently available";
@@ -65,7 +69,7 @@ public class SwmUtils {
 				isInFlight = true;
 				app.rfcxSvc.triggerService(SbdDispatchTimeoutService.SERVICE_NAME, true);
 				long atCmdLaunchedAt = System.currentTimeMillis();
-				List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(atCmdSeq));
+				List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
 				isInFlight = false;
 				for (String atCmdResponseLine : atCmdResponseLines) {
 					if (atCmdResponseLine.contains("+SBDIX:")) {
@@ -87,7 +91,7 @@ public class SwmUtils {
 		return false;
 	}
 
-	private static String atCmdExecStr(String[] execSteps) {
+	private static String atCmdExecStr(String ttyPath, String busyBoxBin, String[] execSteps) {
 		StringBuilder execFull = new StringBuilder();
 
 		execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb");
@@ -175,9 +179,9 @@ public class SwmUtils {
 
 			String msgId = DeviceSmsUtils.generateMessageId();
 
-			app.sbdMessageDb.dbSbdQueued.insert(sendAtOrAfter, "", msgPayload, msgId);
+			app.swmMessageDb.dbSwmQueued.insert(sendAtOrAfter, "", msgPayload, msgId);
 
-			if (triggerDispatchService) { app.rfcxSvc.triggerService( SbdDispatchService.SERVICE_NAME, false); }
+			if (triggerDispatchService) { app.rfcxSvc.triggerService( SwmDispatchService.SERVICE_NAME, false); }
 		}
 		return isQueued;
 	}

@@ -245,17 +245,17 @@ public class RfcxGuardian extends Application {
 					SystemSettingsService.SERVICE_NAME
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:04").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
-							,
-					WifiHotspotStateSetService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:08").getTimeInMillis() // waits a few seconds before running
-							+ "|" + "norepeat"
-							,
-					ADBStateSetService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:12").getTimeInMillis() // waits a few seconds before running
-							+ "|" + "norepeat"
 					,
 					AirplaneModeSetService.SERVICE_NAME
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:16").getTimeInMillis() // waits a few seconds before running
+							+ "|" + "norepeat"
+							,
+					WifiHotspotStateSetService.SERVICE_NAME
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits a few seconds before running
+							+ "|" + "norepeat"
+							,
+					ADBStateSetService.SERVICE_NAME
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:24").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 			};
 			
@@ -366,7 +366,12 @@ public class RfcxGuardian extends Application {
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_GEOPOSITION_CAPTURE) || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_GEOPOSITION_CAPTURE_CYCLE)) {
 				rfcxSvc.triggerService(DeviceSystemService.SERVICE_NAME, true);
+
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL)) {
+				rfcxSvc.triggerService(SbdDispatchCycleService.SERVICE_NAME, true);
+				rfcxSvc.triggerService(SwmDispatchCycleService.SERVICE_NAME, true);
 			}
+
 		}
 	}
 
@@ -395,9 +400,9 @@ public class RfcxGuardian extends Application {
 			this.deviceGpioUtils.setGpioHandlerFilepath(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_HANDLER_FILEPATH);
 			this.deviceGpioUtils.setupAddresses(DeviceHardware_OrangePi_3G_IOT.DEVICE_GPIO_MAP);
 
-			// Sets Satellite interfaces
-			this.sbdUtils.setupSbdUtils();
-			this.swmUtils.setupSwmUtils();
+			// Sets Satellite Serial interface
+			this.sbdUtils.init(DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE, DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH);
+			this.swmUtils.init(DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE, DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH);
 
 		}
 
