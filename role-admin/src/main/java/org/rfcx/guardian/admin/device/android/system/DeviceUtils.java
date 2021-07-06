@@ -297,8 +297,8 @@ public class DeviceUtils {
 				metaJson.put("memory", memoryStats[0] + "*" + memoryStats[1] + "*" + memoryStats[2] + "*" + memoryStats[3] );
 
 			} else if ("cpu".equalsIgnoreCase(metaTag)) {
-				int[] cpuStats = app.deviceCPU.getCurrentStats();
-				metaJson.put("cpu",System.currentTimeMillis() + "*" + cpuStats[0] + "*" + cpuStats[1]);
+				int[] cpuStats = app.deviceCPU.getCurrentValues();
+				metaJson.put("cpu",System.currentTimeMillis() + "*" + cpuStats[0] + "*" + cpuStats[1] + "*" + cpuStats[2]);
 
 			} else if ("network".equalsIgnoreCase(metaTag)) {
 				String[] networkStats = app.deviceMobileNetwork.getMobileNetworkSummary();

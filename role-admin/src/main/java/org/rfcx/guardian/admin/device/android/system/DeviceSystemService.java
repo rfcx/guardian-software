@@ -26,7 +26,6 @@ import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -232,7 +231,6 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				referenceCycleDuration = prefsReferenceCycleDuration;
 				innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
 				outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
-			//	app.deviceCPU.setReportingSampleCount(innerLoopsPerCaptureCycle);
 				innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, captureCycleLastDurationPercentageMultiplier, DeviceCPU.SAMPLE_DURATION_MILLISECONDS);
 				innerLoopUponWhichToTriggerStatusCacheUpdate = DeviceUtils.getInnerLoopUponWhichToTriggerStatusCacheUpdate(prefsReferenceCycleDuration, innerLoopsPerCaptureCycle);
 
@@ -286,7 +284,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 
 		// capture and cache cpu usage info
-		cpuUsageValues.add(app.deviceCPU.getCurrentStats());
+		cpuUsageValues.add(app.deviceCPU.getAverageOfCachedValuesAndClearCache());
 		saveSnapshotValuesToDatabase("cpu");
 
 		// capture and cache data transfer info
@@ -495,7 +493,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				for (int[] cpuVals : cpuUsageValuesCache) {
 					// make sure the values are valid
 					if ((cpuVals[0] <= 100) && (cpuVals[0] >= 0)) {
-						app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1]);
+						app.deviceSystemDb.dbCPU.insert(new Date(), cpuVals[0], cpuVals[1], cpuVals[2]);
 					}
 				}
 				
