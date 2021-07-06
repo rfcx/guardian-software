@@ -161,8 +161,6 @@ public class DeviceSentinelService extends Service {
 		// run these on specific outer loop iterations
 		if (outerLoopIncrement == outerLoopCaptureCount) {
 
-			app.sentinelPowerUtils.checkSetChipConfigByI2c();
-
 			if (this.isSentinelAccelCaptureAllowed) {
 				app.sentinelAccelUtils.saveSentinelAccelValuesToDatabase(true);
 			}
@@ -177,7 +175,7 @@ public class DeviceSentinelService extends Service {
 
 			this.captureCycleLastStartTime = System.currentTimeMillis();
 
-			this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.isChipAccessibleByI2c();
+			this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.checkSetChipConfigByI2c();
 
 			this.isSentinelAccelCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentinelAccelUtils.isCaptureAllowed();
 
@@ -188,8 +186,6 @@ public class DeviceSentinelService extends Service {
 			int prefsReferenceCycleDuration = app.deviceUtils.isReducedCaptureModeActive ? (audioCycleDuration * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
 
 			if (this.referenceCycleDuration != prefsReferenceCycleDuration) {
-
-				app.sentinelPowerUtils.checkSetChipConfigByI2c();
 
 				this.referenceCycleDuration = prefsReferenceCycleDuration;
 				this.innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);

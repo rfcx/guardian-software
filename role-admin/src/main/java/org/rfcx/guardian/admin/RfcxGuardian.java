@@ -40,6 +40,7 @@ import org.rfcx.guardian.i2c.DeviceI2cUtils;
 import org.rfcx.guardian.uart.DeviceUartUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
+import org.rfcx.guardian.utility.device.control.DeviceCPUGovernor;
 import org.rfcx.guardian.utility.device.telephony.DeviceMobileNetwork;
 import org.rfcx.guardian.utility.device.telephony.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.telephony.DeviceNetworkStats;
@@ -125,7 +126,6 @@ public class RfcxGuardian extends Application {
 
 	public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils(APP_ROLE);
 	public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
-	public DeviceUartUtils deviceUartUtils= new DeviceUartUtils(APP_ROLE);
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
 	public SentinelAccelUtils sentinelAccelUtils = null;
@@ -403,6 +403,9 @@ public class RfcxGuardian extends Application {
 			// Sets Satellite Serial interface
 			this.sbdUtils.init(DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE, DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH);
 			this.swmUtils.init(DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE, DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH);
+
+			// CPU Governor settings
+			DeviceCPUGovernor.setParams(DeviceHardware_OrangePi_3G_IOT.DEVICE_CPU_GOVERNOR_DIRPATH, DeviceHardware_OrangePi_3G_IOT.DEVICE_CPU_GOVERNOR_SETTINGS);
 
 		}
 
