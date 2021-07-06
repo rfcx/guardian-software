@@ -193,6 +193,20 @@
 		android:defaultValue="@string/prefs_value_default_api_ping_schedule_off_hours" />
 
 	<EditTextPreference
+		android:key="api_checkin_send_schedule_off_hours"
+		android:title="api_checkin_send_schedule_off_hours"
+		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_checkin_send_schedule_off_hours" />
+
+	<EditTextPreference
+		android:key="api_checkin_requeue_schedule_off_hours"
+		android:title="api_checkin_requeue_schedule_off_hours"
+		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_api_checkin_requeue_schedule_off_hours" />
+
+	<EditTextPreference
 		android:key="audio_classify_schedule_off_hours"
 		android:title="audio_classify_schedule_off_hours"
 		android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
@@ -216,11 +230,11 @@
         android:defaultValue="@string/prefs_value_default_audio_cycle_duration" />
  	
  	<EditTextPreference
-        android:key="audio_schedule_off_hours"
-        android:title="audio_schedule_off_hours"
+        android:key="audio_capture_schedule_off_hours"
+        android:title="audio_capture_schedule_off_hours"
         android:summary="string - time ranges, comma separated - Ex: HH:mm-HH:mm,HH:mm-HH:mm"
         android:enabled="true"
-        android:defaultValue="@string/prefs_value_default_audio_schedule_off_hours" />
+        android:defaultValue="@string/prefs_value_default_audio_capture_schedule_off_hours" />
 
 	<EditTextPreference
 		android:key="audio_sampling_ratio"
@@ -394,13 +408,6 @@
         android:summary="int - megabytes"
         android:enabled="true"
         android:defaultValue="@string/prefs_value_default_checkin_archive_filesize_target" />
-
-	<EditTextPreference
-		android:key="checkin_requeue_bounds_hours"
-		android:title="checkin_requeue_bounds_hours"
-		android:summary="string - hours, comma separated"
-		android:enabled="true"
-		android:defaultValue="@string/prefs_value_default_checkin_requeue_bounds_hours" />
 
 	<EditTextPreference
 		android:key="checkin_meta_send_bundle_limit"

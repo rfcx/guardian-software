@@ -57,8 +57,7 @@ public class ApiCommandUtils {
 								app.apiCheckInUtils.reQueueStashedCheckInIfAllowedByHealthCheck(new long[]{
 										/* latency */        checkInStats[1],
 										/* queued */        (long) app.apiCheckInDb.dbQueued.getCount(),
-										/* recent */        checkInStats[0],
-										/* time-of-day */   (long) rightNow.get(Calendar.HOUR_OF_DAY)
+										/* recent */        checkInStats[0]
 								});
 							}
 						}
