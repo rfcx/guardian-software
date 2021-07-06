@@ -31,7 +31,7 @@
 
 	<string name="prefs_value_default_reboot_forced_daily_at">23:55:00</string>
 
-	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">false</string>
+	<string name="prefs_value_default_enable_cutoffs_schedule_off_hours">true</string>
 	<string name="prefs_value_default_audio_capture_schedule_off_hours">23:55-23:56,23:57-23:59</string>
 	<string name="prefs_value_default_audio_classify_schedule_off_hours">23:55-23:56,23:57-23:59</string>
 	<string name="prefs_value_default_api_ping_schedule_off_hours">23:55-23:56,23:57-23:59</string>
