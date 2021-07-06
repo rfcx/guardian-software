@@ -92,7 +92,7 @@ public class DeviceUtils {
 	// Static constant values for adjusting and tuning the system service behavior
 	//
 
-	public static final long captureLoopIncrementFullDurationInMilliseconds = 667;
+	public static final long captureLoopIncrementFullDurationInMilliseconds = 1000;
 	public static final long captureCycleMinimumAllowedDurationInMilliseconds = 30000;
 	public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 

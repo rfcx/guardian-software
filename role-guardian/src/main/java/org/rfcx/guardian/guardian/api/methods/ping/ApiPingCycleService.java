@@ -84,28 +84,42 @@ public class ApiPingCycleService extends Service {
 
 					} else {
 
-						if (DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(app.apiPingUtils.repeatingPingLastAttemptedAt) >= app.apiPingUtils.repeatingPingCycleDuration) {
+						long msSinceLastAttempt = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(app.apiPingUtils.repeatingPingLastAttemptedAt));
+
+						if (msSinceLastAttempt >= app.apiPingUtils.repeatingPingCycleDuration) {
+
+							Log.v(logTag, "Ping Cycle Launched ("+DateTimeUtils.milliSecondDurationAsReadableString(msSinceLastAttempt)+" since last attempt)");
 
 							app.apiPingUtils.repeatingPingLastAttemptedAt = System.currentTimeMillis();
 
-							if (app.apiPingUtils.isScheduledPingAllowedAtThisTimeOfDay()) {
+							if (!app.apiPingUtils.isScheduledPingAllowedAtThisTimeOfDay()) {
+
+								app.apiPingUtils.repeatingPingLastCompletedOrSkippedAt = System.currentTimeMillis();
+								Log.e(logTag, "Repeating Ping blocked due to time of day.");
+
+							} else {
 
 								String[] includePingFields = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PING_CYCLE_FIELDS).split(",");
 
 								app.apiPingUtils.repeatingPingLastQueuedAt = System.currentTimeMillis();
 
-								app.apiPingUtils.sendPing(
+								if ( app.apiPingUtils.sendPing(
 										ArrayUtils.doesStringArrayContainString(includePingFields, "all"),
 										includePingFields,
-										ArrayUtils.doesStringArrayContainString(includePingFields, "meta") ? 1 : 0,
+										ArrayUtils.doesStringArrayContainString(includePingFields, "meta") ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT) : 0,
 										"all",
-										app.apiPingUtils.repeatingPingLastCompletedAt > 0
-								);
-								app.apiPingUtils.repeatingPingLastCompletedAt = System.currentTimeMillis();
+										true
+									)) {
+									app.apiPingUtils.repeatingPingLastCompletedOrSkippedAt = System.currentTimeMillis();
 
-							} else {
+								} else {
 
-								Log.e(logTag, "Repeating Ping blocked due to time of day.");
+									// If the ping tries but fails (across all allowed protocols), then what behavior should we have?
+									// Should we skip until next time, or attempt to resend (after, say airplane mode toggling, etc)
+//									Log.e(logTag, "Ping publication failed. Delaying an extra "+CYCLE_DURATION+"ms and trying again...");
+//									Thread.sleep(CYCLE_DURATION);
+								}
+
 							}
 
 						}

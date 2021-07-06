@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.device.android.control;
+package org.rfcx.guardian.admin.device.android.network;
 
 import android.app.IntentService;
 import android.content.Context;

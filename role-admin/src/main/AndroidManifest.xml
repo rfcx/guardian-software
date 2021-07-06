@@ -77,7 +77,7 @@
         <service android:name=".device.android.capture.CameraCaptureService" />
         <service android:name=".device.android.control.RebootTriggerService" />
         <service android:name=".device.android.control.AirplaneModeToggleService" />
-        <service android:name=".device.android.control.WifiHotspotStateSetService" />
+        <service android:name=".device.android.network.WifiHotspotStateSetService" />
         <service android:name=".device.android.control.ClockSyncJobService" />
         <service android:name=".device.android.system.DeviceSystemService" />
         <service android:name=".device.sentinel.DeviceSentinelService" />

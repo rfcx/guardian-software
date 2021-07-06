@@ -24,7 +24,7 @@ import org.rfcx.guardian.admin.comms.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.comms.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.comms.sms.SmsDispatchService;
-import org.rfcx.guardian.admin.device.android.control.WifiHotspotStateSetService;
+import org.rfcx.guardian.admin.device.android.network.WifiHotspotStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSpaceDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceRebootDb;
@@ -243,11 +243,11 @@ public class RfcxGuardian extends Application {
 							+ "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_CAMERA_CAPTURE_CYCLE) * 60 * 1000 )
 							,
 					SystemSettingsService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:04").getTimeInMillis() // waits a few seconds before running
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:00").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
-					,
+							,
 					AirplaneModeSetService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:16").getTimeInMillis() // waits a few seconds before running
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 							,
 					WifiHotspotStateSetService.SERVICE_NAME
@@ -255,7 +255,7 @@ public class RfcxGuardian extends Application {
 							+ "|" + "norepeat"
 							,
 					ADBStateSetService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:24").getTimeInMillis() // waits a few seconds before running
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 			};
 			

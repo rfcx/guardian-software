@@ -15,7 +15,7 @@ import org.json.JSONException;
 
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJobService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
-import org.rfcx.guardian.guardian.socket.SocketManager;
+import org.rfcx.guardian.guardian.companion.SocketManager;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;

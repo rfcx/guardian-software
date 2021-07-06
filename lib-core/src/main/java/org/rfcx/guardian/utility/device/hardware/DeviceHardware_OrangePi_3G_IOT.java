@@ -73,7 +73,8 @@ public class DeviceHardware_OrangePi_3G_IOT {
 		put("set_install_location", 		new String[] { "global", "i", "1" });
 		put("power_sounds_enabled", 		new String[] { "global", "i", "0" });
 		put("lockscreen_sounds_enabled", 	new String[] { "system", "i", "0" });
-		put("screen_off_timeout", 			new String[] { "system", "i", "120000" });
+//		put("screen_off_timeout", 			new String[] { "system", "i", "120000" });
+		put("screen_off_timeout", 			new String[] { "system", "i", "-1" });
 
 
 	}});

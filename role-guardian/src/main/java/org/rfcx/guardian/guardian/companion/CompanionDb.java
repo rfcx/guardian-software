@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.socket;
+package org.rfcx.guardian.guardian.companion;
 
 import android.content.ContentValues;
 import android.content.Context;

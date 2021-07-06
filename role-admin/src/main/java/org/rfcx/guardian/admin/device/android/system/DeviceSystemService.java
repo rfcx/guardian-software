@@ -187,7 +187,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					}
 
 					// Sample CPU Stats
-					app.deviceCPU.update();
+					app.deviceCPU.update(false);
 
 					// Inner Loop Behavior
 					innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
@@ -232,7 +232,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 				referenceCycleDuration = prefsReferenceCycleDuration;
 				innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
 				outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
-				app.deviceCPU.setReportingSampleCount(innerLoopsPerCaptureCycle);
+			//	app.deviceCPU.setReportingSampleCount(innerLoopsPerCaptureCycle);
 				innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, captureCycleLastDurationPercentageMultiplier, DeviceCPU.SAMPLE_DURATION_MILLISECONDS);
 				innerLoopUponWhichToTriggerStatusCacheUpdate = DeviceUtils.getInnerLoopUponWhichToTriggerStatusCacheUpdate(prefsReferenceCycleDuration, innerLoopsPerCaptureCycle);
 
