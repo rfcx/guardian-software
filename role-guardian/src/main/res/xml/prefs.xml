@@ -11,6 +11,24 @@
 		android:defaultValue="@string/prefs_value_default_show_ui" />
 
 	<ListPreference
+			android:key="admin_verbose_sentinel"
+			android:title="admin_verbose_sentinel"
+			android:dialogTitle="admin_verbose_sentinel"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_verbose_sentinel" />
+
+	<ListPreference
+			android:key="admin_verbose_cpu"
+			android:title="admin_verbose_cpu"
+			android:dialogTitle="admin_verbose_cpu"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_verbose_cpu" />
+
+	<ListPreference
 			android:key="enable_audio_capture"
 			android:title="enable_audio_capture"
 			android:dialogTitle="enable_audio_capture"
@@ -545,15 +563,6 @@
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_sensor" />
-
-	<ListPreference
-			android:key="admin_verbose_sentinel"
-			android:title="admin_verbose_sentinel"
-			android:dialogTitle="admin_verbose_sentinel"
-			android:summary="string - true/false"
-			android:entries="@array/prefs_values_true_or_false"
-			android:entryValues="@array/prefs_values_true_or_false"
-			android:defaultValue="@string/prefs_value_default_admin_verbose_sentinel" />
 
 	<ListPreference
 			android:key="admin_system_timezone"

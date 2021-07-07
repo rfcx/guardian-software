@@ -37,7 +37,6 @@ import org.rfcx.guardian.admin.status.StatusCacheService;
 import org.rfcx.guardian.admin.comms.swm.SwmMessageDb;
 import org.rfcx.guardian.admin.comms.swm.SwmUtils;
 import org.rfcx.guardian.i2c.DeviceI2cUtils;
-import org.rfcx.guardian.uart.DeviceUartUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.control.DeviceCPUGovernor;
@@ -169,10 +168,12 @@ public class RfcxGuardian extends Application {
 		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		this.sentinelAccelUtils = new SentinelAccelUtils(this);
-		SentinelUtils.setVerboseSentinelLogging(this);
 		this.assetUtils = new AssetUtils(this);
 		this.sbdUtils = new SbdUtils(this);
 		this.swmUtils = new SwmUtils(this);
+
+		SentinelUtils.setSentinelLoggingVerbosity(this);
+		DeviceUtils.setSystemLoggingVerbosity(this);
 
 		// Hardware-specific hacks and modifications
 		runHardwareSpecificModifications();
@@ -356,7 +357,10 @@ public class RfcxGuardian extends Application {
 				Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL)) {
-				SentinelUtils.setVerboseSentinelLogging(this);
+				SentinelUtils.setSentinelLoggingVerbosity(this);
+
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_VERBOSE_CPU)) {
+				DeviceUtils.setSystemLoggingVerbosity(this);
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER)) {
 				rfcxSvc.triggerService("SSHServerControl", false);

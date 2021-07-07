@@ -5,11 +5,13 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class DeviceCPU {
 	
@@ -18,6 +20,8 @@ public class DeviceCPU {
 	}
 
 	private String logTag;
+
+	public boolean verboseLogging = false;
 
 	public static final long SAMPLE_DURATION_MILLISECONDS = 0;
 
@@ -37,7 +41,7 @@ public class DeviceCPU {
 			(cpuSpdVals.size() > 0) ? (int) Math.round(ArrayUtils.getAverage(cpuSpdVals)) : 0,
 			(cpuCntVals.size() > 0) ? (int) Math.round(ArrayUtils.getAverage(cpuCntVals)) : 0
 		};
-		Log.v(logTag, DateTimeUtils.getDateTime()+" - CPU - " + avgVals[0] + "% at " + avgVals[1] + " MHz with "+avgVals[2]+"% core usage (" + cpuPctVals.size() + " samples)");
+		Log.d(logTag, "Avg of "+cpuPctVals.size()+" samples for "+DateTimeUtils.getDateTime()+" [ total: " + avgVals[0] + "%, " + avgVals[1] + " MHz, "+avgVals[2]+"% core usage ]");
 		cpuPctVals = new ArrayList<>();
 		cpuSpdVals = new ArrayList<>();
 		return avgVals;
@@ -51,7 +55,7 @@ public class DeviceCPU {
 		};
 	}
 	
-	public void update(boolean verboseLogging) {
+	public void update() {
 
 		double[] currCpuPctAll = getCurrentCPUPercentage(this.logTag);
 		double[] currCpuPct = new double[] { currCpuPctAll[0], currCpuPctAll[1] };
@@ -76,11 +80,7 @@ public class DeviceCPU {
 				cpuCntVals.add(cpuCnt);
 
 				if (verboseLogging) {
-					Log.d(logTag, DateTimeUtils.getDateTime()+" - CPU - " + Math.round(cpuPct) + "%"
-							//	+" ( "+Math.round(cpu0Pct)+"% / "+Math.round(cpu1Pct)+"%)"
-							+ " at " + Math.round(cpuClk) + " MHz"
-							+ " with " + Math.round(cpuCnt) + "% core usage"
-					);
+					Log.d(logTag, "[ total: " + Math.round(cpuPct) + "%, " + Math.round(cpuClk) + " MHz, " + Math.round(cpuCnt/100) + " core(s) ]");
 				}
 			}
 
@@ -139,5 +139,5 @@ public class DeviceCPU {
 		}
 		return cpuClockSpeed;
 	}
-	
+
 }

@@ -34,6 +34,11 @@ public class DeviceUtils {
 	private Context context;
 	private RfcxGuardian app;
 
+	public static void setSystemLoggingVerbosity(Context context) {
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		app.deviceCPU.verboseLogging = app.rfcxPrefs.getPrefAsBoolean( RfcxPrefs.Pref.ADMIN_VERBOSE_CPU );
+	}
+
 	private boolean allowListenerRegistration_telephony = true;
 	private boolean allowListenerRegistration_light = true;
 	private boolean allowListenerRegistration_accel = true;

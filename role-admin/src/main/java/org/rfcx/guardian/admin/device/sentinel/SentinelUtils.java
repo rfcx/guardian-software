@@ -18,7 +18,7 @@ public class SentinelUtils {
 
     public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 3;
 
-    public static void setVerboseSentinelLogging(Context context) {
+    public static void setSentinelLoggingVerbosity(Context context) {
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         boolean isVerbose = app.rfcxPrefs.getPrefAsBoolean( RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL );
         app.sentinelPowerUtils.verboseLogging = isVerbose;

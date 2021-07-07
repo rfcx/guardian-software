@@ -186,7 +186,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 					}
 
 					// Sample CPU Stats
-					app.deviceCPU.update(false);
+					app.deviceCPU.update();
 
 					// Inner Loop Behavior
 					innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);

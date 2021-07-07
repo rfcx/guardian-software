@@ -66,7 +66,7 @@ public class ApiPingUtils {
 						&&	(	(	apiProtocol.equalsIgnoreCase("sms")
 								&& 	app.apiSmsUtils.sendSmsPing(pingJson)
 								)
-							||	(	apiProtocol.equalsIgnoreCase("sat")
+							||	(	( apiProtocol.equalsIgnoreCase("sat") || apiProtocol.equalsIgnoreCase("sbd") || apiProtocol.equalsIgnoreCase("swm") )
 								&& 	app.apiSatUtils.sendSatPing(pingJson)
 								)
 							)

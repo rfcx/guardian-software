@@ -13,7 +13,7 @@ public class DeviceCPUGovernor {
 	private static final String logTag = RfcxLog.generateLogTag("Utils", "DeviceCPUGovernor");
 
 	public static void setParams(String cpuGovernorDirPath, Map<String, String[]> paramMap) {
-		List<String> execList = new ArrayList<>();
+		List<String> execList = presetParamsExecStr(cpuGovernorDirPath);
 		for (Map.Entry pMap : paramMap.entrySet()) {
 			String paramKey = pMap.getKey().toString();
 			String[] paramMeta = paramMap.get(paramKey);
@@ -25,8 +25,19 @@ public class DeviceCPUGovernor {
 	}
 
 	private static String setParamExecStr(String dirPath, String govName, String paramName, String paramVal) {
-		return 	"echo " + paramVal + " > " + dirPath + "/" + govName + "/" + paramName;
+		return 	"echo " + paramVal + " > " + dirPath + "/cpufreq/" + govName + "/" + paramName;
 	}
 
+	private static List<String> presetParamsExecStr(String cpuGovernorDirPath) {
+		int setCpuCount = 1;
+		List<String> execList = new ArrayList<>();
+		for (int cpuNum = 0; cpuNum < setCpuCount; cpuNum++) {
+			execList.add("chmod 666 "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_governor");
+			execList.add("echo hotplug > "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_governor");
+			execList.add("chmod 666 "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_max_freq");
+			execList.add("chmod 666 "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_min_freq");
+		}
+		return execList;
+	}
 
 }
