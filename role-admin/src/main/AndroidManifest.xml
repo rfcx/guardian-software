@@ -102,6 +102,7 @@
         <service android:name=".device.android.capture.ScheduledCameraCaptureService" />
         <service android:name=".device.android.control.ScheduledClockSyncService" />
         <service android:name=".device.android.control.SystemSettingsService" />
+        <service android:name=".device.android.control.SystemCPUGovernorService" />
         <service android:name=".status.StatusCacheService" />
 
         <!--                     -->

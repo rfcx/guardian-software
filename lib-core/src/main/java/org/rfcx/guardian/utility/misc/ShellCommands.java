@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -34,6 +35,8 @@ public class ShellCommands {
 
 		List<String> outputLines = new ArrayList<String>();
 
+		long startedAt = System.currentTimeMillis();
+
 		try {
 
 			Process shellProcess = (asRoot) ? Runtime.getRuntime().exec( new String[] { "su", "-c", "sh" } ) : Runtime.getRuntime().exec("sh");
@@ -63,7 +66,7 @@ public class ShellCommands {
 			RfcxLog.logExc(logTag, e);
 	    }
 
-		Log.i(logTag, "Executed in Shell"+(asRoot ? " (as root)" : "")+": "+ customEscapeActions( TextUtils.join("; ",commandLines), true) );
+		Log.i(logTag, "Executed in Shell"+(asRoot ? " (as root)" : "")+" ("+ DateTimeUtils.timeStampDifferenceFromNowAsReadableString(startedAt) +"): "+ customEscapeActions( TextUtils.join("; ",commandLines), true) );
 
 		return outputLines;
 	}
