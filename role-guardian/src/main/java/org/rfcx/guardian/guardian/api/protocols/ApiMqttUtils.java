@@ -559,7 +559,7 @@ public class ApiMqttUtils implements MqttCallback {
 								Log.w(logTag, failureMsg + " Action: Toggle Airplane Mode");
 								app.deviceControlUtils.runOrTriggerDeviceControl( "airplanemode_toggle", app.getResolver());
 
-							} else if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_CONNECTION) && !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT)) {
+							} else if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION).equalsIgnoreCase("client")) {
 								Log.w(logTag, failureMsg + " Action: Toggle WiFi Radio");
 								app.deviceControlUtils.runOrTriggerDeviceControl( "wifi_toggle", app.getResolver());
 
