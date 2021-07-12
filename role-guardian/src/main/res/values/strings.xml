@@ -105,8 +105,7 @@
 	<string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>
 
 	<string name="prefs_value_default_admin_enable_airplane_mode">false</string>
-	<string name="prefs_value_default_admin_enable_wifi_connection">false</string>
-	<string name="prefs_value_default_admin_enable_wifi_hotspot">true</string>
+	<string name="prefs_value_default_admin_wifi_function">hotspot</string>
 	<string name="prefs_value_default_admin_wifi_hotspot_password">rfcxrfcx</string>
 
 	<string name="prefs_value_default_api_satellite_protocol">off</string>
@@ -115,6 +114,12 @@
 		<item>off</item>
 		<item>swm</item>
 		<item>sbd</item>
+	</string-array>
+
+	<string-array name="prefs_values_admin_wifi_function">
+		<item>off</item>
+		<item>hotspot</item>
+		<item>client</item>
 	</string-array>
 
     <string-array name="prefs_values_true_or_false">

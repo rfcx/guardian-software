@@ -435,7 +435,7 @@ object SocketManager {
     }
 
     private fun stopWiFiService() {
-        app?.setSharedPref(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT, "false")
+//        app?.setSharedPref(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT, "false")
     }
 
     private fun getFullCheckInUrl(): String {

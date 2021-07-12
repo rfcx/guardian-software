@@ -601,13 +601,13 @@
 
 
 	<ListPreference
-			android:key="admin_enable_wifi_hotspot"
-			android:title="admin_enable_wifi_hotspot"
-			android:dialogTitle="admin_enable_wifi_hotspot"
-			android:summary="string - true/false"
-			android:entries="@array/prefs_values_true_or_false"
-			android:entryValues="@array/prefs_values_true_or_false"
-			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_hotspot" />
+			android:key="admin_wifi_function"
+			android:title="admin_wifi_function"
+			android:dialogTitle="admin_wifi_function"
+			android:summary="string - off/hotspot/client"
+			android:entries="@array/prefs_values_admin_wifi_function"
+			android:entryValues="@array/prefs_values_admin_wifi_function"
+			android:defaultValue="@string/prefs_value_default_admin_wifi_function" />
 
 	<EditTextPreference
 			android:key="admin_wifi_hotspot_password"
@@ -615,15 +615,6 @@
 			android:summary="string - password"
 			android:enabled="true"
 			android:defaultValue="@string/prefs_value_default_admin_wifi_hotspot_password" />
-
-	<ListPreference
-			android:key="admin_enable_wifi_connection"
-			android:title="admin_enable_wifi_connection"
-			android:dialogTitle="admin_enable_wifi_connection"
-			android:summary="string - true/false"
-			android:entries="@array/prefs_values_true_or_false"
-			android:entryValues="@array/prefs_values_true_or_false"
-			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_connection" />
 
 	<ListPreference
 			android:key="admin_enable_airplane_mode"

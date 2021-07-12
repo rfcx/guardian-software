@@ -10,13 +10,13 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
-public class WifiHotspotStateSetService extends IntentService {
+public class WifiStateSetService extends IntentService {
 
-	public static final String SERVICE_NAME = "WifiHotspot";
+	public static final String SERVICE_NAME = "WifiStateSet";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "WifiHotspotStateSetService");
+	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "WifiStateSetService");
 
-	public WifiHotspotStateSetService() {
+	public WifiStateSetService() {
 		super(logTag);
 	}
 	

@@ -152,8 +152,8 @@ public class RfcxPrefs {
 		public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";
 
 		public static final String ADMIN_ENABLE_AIRPLANE_MODE = "admin_enable_airplane_mode";
-		public static final String ADMIN_ENABLE_WIFI_CONNECTION = "admin_enable_wifi_connection";
-		public static final String ADMIN_ENABLE_WIFI_HOTSPOT = "admin_enable_wifi_hotspot";
+
+		public static final String ADMIN_WIFI_FUNCTION = "admin_wifi_function";
 		public static final String ADMIN_WIFI_HOTSPOT_PASSWORD = "admin_wifi_hotspot_password";
 
 		public static final String API_SATELLITE_PROTOCOL = "api_satellite_protocol";
@@ -240,8 +240,6 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
 
 			put(Pref.ADMIN_ENABLE_AIRPLANE_MODE, "false");
-			put(Pref.ADMIN_ENABLE_WIFI_CONNECTION, "false");
-			put(Pref.ADMIN_ENABLE_WIFI_HOTSPOT, "true");
 			put(Pref.ADMIN_ENABLE_TCP_ADB, "true");
 			put(Pref.ADMIN_ENABLE_WIFI_SOCKET, "true");
 			put(Pref.ADMIN_ENABLE_SSH_SERVER, "false");
@@ -272,6 +270,7 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "auto_time_zone:system,i,0;");
+			put(Pref.ADMIN_WIFI_FUNCTION, "rfcxrfcx");
 			put(Pref.ADMIN_WIFI_HOTSPOT_PASSWORD, "rfcxrfcx");
 
 		}}

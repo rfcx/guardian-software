@@ -25,7 +25,7 @@ import org.rfcx.guardian.admin.comms.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.comms.sms.SmsMessageDb;
 import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
 import org.rfcx.guardian.admin.comms.sms.SmsDispatchService;
-import org.rfcx.guardian.admin.device.android.network.WifiHotspotStateSetService;
+import org.rfcx.guardian.admin.device.android.network.WifiStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSpaceDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceRebootDb;
@@ -257,7 +257,7 @@ public class RfcxGuardian extends Application {
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 							,
-					WifiHotspotStateSetService.SERVICE_NAME
+					WifiStateSetService.SERVICE_NAME
 							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 							,
@@ -300,7 +300,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( AirplaneModeToggleService.SERVICE_NAME, AirplaneModeToggleService.class);
 		this.rfcxSvc.addService( AirplaneModeSetService.SERVICE_NAME, AirplaneModeSetService.class);
 
-		this.rfcxSvc.addService( WifiHotspotStateSetService.SERVICE_NAME, WifiHotspotStateSetService.class);
+		this.rfcxSvc.addService( WifiStateSetService.SERVICE_NAME, WifiStateSetService.class);
 		this.rfcxSvc.addService( ADBStateSetService.SERVICE_NAME, ADBStateSetService.class);
 		this.rfcxSvc.addService( SystemSettingsService.SERVICE_NAME, SystemSettingsService.class);
 		this.rfcxSvc.addService( SystemCPUGovernorService.SERVICE_NAME, SystemCPUGovernorService.class);
@@ -344,8 +344,8 @@ public class RfcxGuardian extends Application {
 
 		if (prefKey != null) {
 
-			if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT) || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD) || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_CONNECTION)) {
-				rfcxSvc.triggerService(WifiHotspotStateSetService.SERVICE_NAME, false);
+			if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION) || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD)) {
+				rfcxSvc.triggerService(WifiStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB)) {

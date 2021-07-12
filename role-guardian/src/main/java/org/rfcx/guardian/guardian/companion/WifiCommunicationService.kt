@@ -27,7 +27,8 @@ class WifiCommunicationService : IntentService("WifiCommunication") {
 
         val prefsAdminEnableWifiSocket = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET)
 
-        val prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT)
+        val prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION).equalsIgnoreCase("")
+
         if (prefsAdminEnableWifiSocket && !prefsAdminEnableWifi) {
             Log.e( logTag, "WiFi Socket Server could not be enabled because 'admin_enable_wifi_hotspot' is disabled")
         }
