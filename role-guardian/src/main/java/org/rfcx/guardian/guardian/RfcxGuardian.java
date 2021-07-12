@@ -381,7 +381,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                 this.rfcxSvc.triggerService("WifiCommunication", false);
 
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)
-                    || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_CHECKIN_SEND_SCHEDULE_OFF_HOURS)
+                    || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS)
             ) {
                 this.apiMqttUtils.initializeFailedCheckInThresholds();
 

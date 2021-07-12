@@ -233,9 +233,9 @@ public class ApiCheckInHealthUtils {
 			msgIfDisabled.append("preference '" + RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH.toLowerCase() + "' being explicitly set to false.");
 			areApiChecksInDisabledRightNow = true;
 
-		} else if (!isCheckInSendAllowedAtThisTimeOfDay()) {
+		} else if (!isCheckInPublishAllowedAtThisTimeOfDay()) {
 			msgIfDisabled.append("current time of day/night")
-					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_CHECKIN_SEND_SCHEDULE_OFF_HOURS)).append("'.");
+					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS)).append("'.");
 			areApiChecksInDisabledRightNow = true;
 
 		} else if (!app.isGuardianRegistered()) {
@@ -267,9 +267,9 @@ public class ApiCheckInHealthUtils {
 	}
 
 
-	private boolean isCheckInSendAllowedAtThisTimeOfDay() {
+	private boolean isCheckInPublishAllowedAtThisTimeOfDay() {
 		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS)) {
-			String prefsOffHours = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_CHECKIN_SEND_SCHEDULE_OFF_HOURS);
+			String prefsOffHours = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS);
 			for (String offHoursRange : TextUtils.split(prefsOffHours, ",")) {
 				String[] offHours = TextUtils.split(offHoursRange, "-");
 				if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {

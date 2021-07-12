@@ -81,7 +81,7 @@ public class RfcxPrefs {
 		public static final String API_PING_SCHEDULE_OFF_HOURS = "api_ping_schedule_off_hours";
 
 		/// must still be implemented
-		public static final String API_CHECKIN_SEND_SCHEDULE_OFF_HOURS = "api_checkin_send_schedule_off_hours";
+		public static final String API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS = "api_checkin_publish_schedule_off_hours";
 		public static final String API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS = "api_checkin_requeue_schedule_off_hours";
 		/// must still be implemented
 
@@ -200,7 +200,7 @@ public class RfcxPrefs {
 			put(Pref.AUDIO_CAPTURE_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
 			put(Pref.AUDIO_CLASSIFY_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
 			put(Pref.API_PING_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
-			put(Pref.API_CHECKIN_SEND_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
+			put(Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
 			put(Pref.API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS, "00:01-10:00,14:00-23:59");
 
 			put(Pref.ENABLE_CUTOFFS_SAMPLING_RATIO, "false");
