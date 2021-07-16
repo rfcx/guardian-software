@@ -82,6 +82,7 @@ public class ApiPingJsonUtils {
 			JSONObject deviceJsonObj = new JSONObject();
 			deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
 			deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
+			deviceJsonObj.put("hardware", DeviceHardwareUtils.getInfoAsJson());
 			jsonObj.put("device", deviceJsonObj);
 		}
 
