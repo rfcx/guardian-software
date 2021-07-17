@@ -25,12 +25,12 @@ public class ApiPingUtils {
 
 	private RfcxGuardian app;
 
-	public static final long delayInitialRepeatingPingCycleByThisManyMs = (2 * 60 * 1000);
+	public static final long delayInitialRepeatingPingCycleByThisManyMs = 2 * 60 * 1000; // two minutes
 	public long repeatingPingCycleDuration;
 
 	public long repeatingPingLastAttemptedAt = 0;
 	public long repeatingPingLastQueuedAt = 0;
-	public long repeatingPingLastCompletedAt = 0;
+	public long repeatingPingLastCompletedOrSkippedAt = 0;
 
 	public void updateRepeatingPingCycleDuration() {
 		this.repeatingPingCycleDuration = ( app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_PING_CYCLE_DURATION) * 60 * 1000 );
@@ -66,8 +66,8 @@ public class ApiPingUtils {
 						&&	(	(	apiProtocol.equalsIgnoreCase("sms")
 								&& 	app.apiSmsUtils.sendSmsPing(pingJson)
 								)
-							||	(	apiProtocol.equalsIgnoreCase("sbd")
-								&& 	app.apiSbdUtils.sendSbdPing(pingJson)
+							||	(	( apiProtocol.equalsIgnoreCase("sat") || apiProtocol.equalsIgnoreCase("sbd") || apiProtocol.equalsIgnoreCase("swm") )
+								&& 	app.apiSatUtils.sendSatPing(pingJson)
 								)
 							)
 						)

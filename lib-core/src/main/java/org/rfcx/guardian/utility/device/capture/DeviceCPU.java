@@ -2,9 +2,16 @@ package org.rfcx.guardian.utility.device.capture;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
 
-import android.os.SystemClock;
+import android.content.Context;
+import android.util.Log;
+
+import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class DeviceCPU {
 	
@@ -13,89 +20,114 @@ public class DeviceCPU {
 	}
 
 	private String logTag;
-	
-	private int reportingSampleCount = 60;
-	
-	public void setReportingSampleCount(int reportingSampleCount) {
-		this.reportingSampleCount = reportingSampleCount;
-		cpuPercentage_Previous = new float[this.reportingSampleCount];
-		cpuClockSpeed_Previous = new float[this.reportingSampleCount];
+
+	public boolean verboseLogging = false;
+
+	public static final long SAMPLE_DURATION_MILLISECONDS = 0;
+
+	private List<Double> cpuPctVals = new ArrayList<>();
+	private List<Double> cpuSpdVals = new ArrayList<>();
+	private List<Double> cpuCntVals = new ArrayList<>();
+
+	double[] prevCpuPct = new double[] { -1, -1 };
+	double prevCpuClk = 0;
+	double[] prevCpu0Pct = new double[] { -1, -1 };
+	double[] prevCpu1Pct = new double[] { -1, -1 };
+	double prevCpuCnt = 0;
+
+	public int[] getAverageOfCachedValuesAndClearCache() {
+		int[] avgVals = new int[] {
+			(cpuPctVals.size() > 0) ? (int) Math.round(ArrayUtils.getAverage(cpuPctVals)) : 0,
+			(cpuSpdVals.size() > 0) ? (int) Math.round(ArrayUtils.getAverage(cpuSpdVals)) : 0,
+			(cpuCntVals.size() > 0) ? (int) Math.round(ArrayUtils.getAverage(cpuCntVals)) : 0
+		};
+		Log.d(logTag, "Avg of "+cpuPctVals.size()+" samples for "+DateTimeUtils.getDateTime()+" [ total: " + avgVals[0] + "%, " + avgVals[1] + " MHz, "+avgVals[2]+"% core usage ]");
+		cpuPctVals = new ArrayList<>();
+		cpuSpdVals = new ArrayList<>();
+		return avgVals;
 	}
 
-	public static final long SAMPLE_DURATION_MILLISECONDS = 360;
-	
-	private float cpuPercentage_Current = 0;
-	private float cpuPercentage_Average = 0;
-	private float[] cpuPercentage_Previous = new float[this.reportingSampleCount];
-	
-	private float cpuClockSpeed_Current = 0;
-	private float cpuClockSpeed_Average = 0;
-	private float[] cpuClockSpeed_Previous = new float[this.reportingSampleCount];
-	private boolean isCPUClockSpeedSamplingAllowed = false;
-
-	public int[] getCurrentStats() {
-		return new int[] { Math.round(100*this.cpuPercentage_Average), Math.round(this.cpuClockSpeed_Average/1000) };
+	public int[] getCurrentValues() {
+		return new int[] {
+			(cpuPctVals.size() > 0) ? (int) Math.round(ArrayUtils.getAverage(cpuPctVals)) : 0,
+			(cpuSpdVals.size() > 0) ? (int) Math.round(ArrayUtils.getAverage(cpuSpdVals)) : 0,
+			(cpuCntVals.size() > 0) ? (int) Math.round(ArrayUtils.getAverage(cpuCntVals)) : 0
+		};
 	}
 	
 	public void update() {
-		
-		this.cpuPercentage_Current = getCurrentCPUPercentage(this.logTag);
-		incrementPercentageAverage();
-		
-		if (this.isCPUClockSpeedSamplingAllowed) { this.cpuClockSpeed_Current = getCurrentCPUClockSpeed(this.logTag); }
-		incrementClockSpeedAverage();
-		
-		this.isCPUClockSpeedSamplingAllowed = !this.isCPUClockSpeedSamplingAllowed;
-	}
-	
-	private void incrementPercentageAverage() {
-		float percentageAverage_Total = 0;
-		for (int i = 0; i < this.reportingSampleCount-1; i++) {
-			this.cpuPercentage_Previous[i] = this.cpuPercentage_Previous[i+1];
-			percentageAverage_Total = percentageAverage_Total + this.cpuPercentage_Previous[i+1];
+
+		double[] currCpuPctAll = getCurrentCPUPercentage(this.logTag);
+		double[] currCpuPct = new double[] { currCpuPctAll[0], currCpuPctAll[1] };
+		double currCpuClk = getCurrentCPUClockSpeed(this.logTag);
+		double[] currCpu0Pct = new double[] { currCpuPctAll[2], currCpuPctAll[3] };
+		double[] currCpu1Pct = new double[] { currCpuPctAll[4], currCpuPctAll[5] };
+		double currCpuCnt = ((currCpu1Pct[0]+currCpu1Pct[1]) > 0) ? 2 : 1;
+
+		if (((prevCpuPct[0]+prevCpuPct[1]) > 0) && ((currCpuPct[0]+currCpuPct[1]) > 0)) {
+
+			double cpuPct = 100 * (currCpuPct[1] - prevCpuPct[1]) / ((currCpuPct[1] + currCpuPct[0]) - (prevCpuPct[1] + prevCpuPct[0]));
+//			double cpu0Pct = 100 * (currCpu0Pct[1] - prevCpu0Pct[1]) / ((currCpu0Pct[1] + currCpu0Pct[0]) - (prevCpu0Pct[1] + prevCpu0Pct[0]));
+//			double cpu1Pct = 100 * (currCpu1Pct[1] - prevCpu1Pct[1]) / ((currCpu1Pct[1] + currCpu1Pct[0]) - (prevCpu1Pct[1] + prevCpu1Pct[0]));
+
+			if ((cpuPct <= 100) && (cpuPct > 0)) {
+
+				double cpuClk = ((currCpuClk + prevCpuClk) / 2) / 1000;
+				double cpuCnt = 100 * (currCpuCnt + prevCpuCnt) / 2;
+
+				cpuPctVals.add(cpuPct);
+				cpuSpdVals.add(cpuClk);
+				cpuCntVals.add(cpuCnt);
+
+				if (verboseLogging) {
+					Log.d(logTag, "[ total: " + Math.round(cpuPct) + "%, " + Math.round(cpuClk) + " MHz, " + Math.round(cpuCnt/100) + " core(s) ]");
+				}
+			}
+
 		}
-		this.cpuPercentage_Previous[this.reportingSampleCount-1] = this.cpuPercentage_Current;
-		this.cpuPercentage_Average = (percentageAverage_Total + this.cpuPercentage_Current) / this.reportingSampleCount;
+		prevCpuPct = currCpuPct;
+		prevCpuClk = currCpuClk;
+		prevCpuCnt = currCpuCnt;
+		prevCpu0Pct = currCpu0Pct;
+		prevCpu1Pct = currCpu1Pct;
 	}
 	
-	private void incrementClockSpeedAverage() {
-		float clockSpeedAverage_Total = 0;
-		for (int i = 0; i < this.reportingSampleCount-1; i++) {
-			this.cpuClockSpeed_Previous[i] = this.cpuClockSpeed_Previous[i+1];
-			clockSpeedAverage_Total = clockSpeedAverage_Total + this.cpuClockSpeed_Previous[i+1];
-		}
-		this.cpuClockSpeed_Previous[this.reportingSampleCount-1] = this.cpuClockSpeed_Current;
-		this.cpuClockSpeed_Average = (clockSpeedAverage_Total + this.cpuClockSpeed_Current) / this.reportingSampleCount;
-	}
-	
-	private static float getCurrentCPUPercentage(String logTag) {
+	private double[] getCurrentCPUPercentage(String logTag) {
+		double[] rtrnVals = new double[] { -1, -1, -1, -1, -1, -1 };
         try {
+
             RandomAccessFile reader = new RandomAccessFile("/proc/stat", "r");
-            String load = reader.readLine();
-            String[] toks = load.split(" ");
-            long idle1 = Long.parseLong(toks[5]);
-            long cpu1 = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[4])
-                    + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
-            try {
-                SystemClock.sleep(SAMPLE_DURATION_MILLISECONDS);
-            } catch (Exception e) {
-                RfcxLog.logExc(logTag, e);
-            }
-            reader.seek(0);
-            load = reader.readLine();
-            reader.close();
-            toks = load.split(" ");
-            long idle2 = Long.parseLong(toks[5]);
-            long cpu2 = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[4])
-                    + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
-            return (float) (cpu2 - cpu1) / ((cpu2 + idle2) - (cpu1 + idle1));
+
+            String cpuLine = reader.readLine();
+			String[] cpuVals = cpuLine.split(" ");
+			if (cpuVals[0].equalsIgnoreCase("cpu")) {
+				rtrnVals[0] = Long.parseLong(cpuVals[5]);
+				rtrnVals[1] = Long.parseLong(cpuVals[2]) + Long.parseLong(cpuVals[3]) + Long.parseLong(cpuVals[4]) + Long.parseLong(cpuVals[6]) + Long.parseLong(cpuVals[7]) + Long.parseLong(cpuVals[8]);
+			}
+
+			String cpu0Line = reader.readLine();
+			String[] cpu0Vals = cpu0Line.split(" ");
+			if (cpu0Vals[0].equalsIgnoreCase("cpu0")) {
+				rtrnVals[2] = Long.parseLong(cpu0Vals[5]);
+				rtrnVals[3] = Long.parseLong(cpu0Vals[2]) + Long.parseLong(cpu0Vals[3]) + Long.parseLong(cpu0Vals[4]) + Long.parseLong(cpu0Vals[6]) + Long.parseLong(cpu0Vals[7]) + Long.parseLong(cpu0Vals[8]);
+			}
+
+			String cpu1Line = reader.readLine();
+			String[] cpu1Vals = cpu1Line.split(" ");
+			if (cpu1Vals[0].equalsIgnoreCase("cpu1")) {
+				rtrnVals[4] = Long.parseLong(cpu1Vals[5]);
+				rtrnVals[5] = Long.parseLong(cpu1Vals[2]) + Long.parseLong(cpu1Vals[3]) + Long.parseLong(cpu1Vals[4]) + Long.parseLong(cpu1Vals[6]) + Long.parseLong(cpu1Vals[7]) + Long.parseLong(cpu1Vals[8]);
+			}
+
+			reader.close();
+
         } catch (IOException e) {
             RfcxLog.logExc(logTag, e);
         }
-		return 0;
+		return rtrnVals;
 	}
 	
-	private static float getCurrentCPUClockSpeed(String logTag) {
+	private static double getCurrentCPUClockSpeed(String logTag) {
 		float cpuClockSpeed = 0;
 		try {
 			RandomAccessFile scaling_cur_freq = new RandomAccessFile("/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq", "r");
@@ -107,5 +139,5 @@ public class DeviceCPU {
 		}
 		return cpuClockSpeed;
 	}
-	
+
 }

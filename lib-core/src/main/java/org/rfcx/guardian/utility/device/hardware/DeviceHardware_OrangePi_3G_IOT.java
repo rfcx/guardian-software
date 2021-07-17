@@ -23,6 +23,9 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	// I2C settings for OrangePi 3G-IoT
 	public static final int DEVICE_I2C_INTERFACE = 1;
 
+	// UART settings for OrangePi 3G-IoT
+	public static final String DEVICE_TTY_FILEPATH_SATELLITE = "/dev/ttyMT1";
+
 	// GPIO settings for OrangePi 3G-IoT
 	public static final String DEVICE_GPIO_HANDLER_FILEPATH = "/sys/devices/virtual/misc/mtgpio/pin";
 	public static final Map<String, String[]> DEVICE_GPIO_MAP = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
@@ -32,6 +35,8 @@ public class DeviceHardware_OrangePi_3G_IOT {
 		put("voltage_refr", 	new String[] { "58", "write" });
 	}});
 
+	// Busybox filepath for OrangePi 3G-IoT
+	public static final String BUSYBOX_FILEPATH = "/system/xbin/busybox";
 		
 	public static boolean isDevice_OrangePi_3G_IOT() {
 		for (String manufacturer : DEVICE_MANUFACTURER) { if (DeviceHardwareUtils.getManufacturer().equalsIgnoreCase(manufacturer)) {
@@ -68,9 +73,44 @@ public class DeviceHardware_OrangePi_3G_IOT {
 		put("set_install_location", 		new String[] { "global", "i", "1" });
 		put("power_sounds_enabled", 		new String[] { "global", "i", "0" });
 		put("lockscreen_sounds_enabled", 	new String[] { "system", "i", "0" });
-		put("screen_off_timeout", 			new String[] { "system", "i", "120000" });
+//		put("screen_off_timeout", 			new String[] { "system", "i", "15000" });
+		put("screen_off_timeout", 			new String[] { "system", "i", "-1" });
+	}});
 
+
+	public static final String DEVICE_CPU_GOVERNOR_DIRPATH = "/sys/devices/system/cpu";
+	public static final Map<String, String[]> DEVICE_CPU_GOVERNOR_SETTINGS = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
+		put("cpu_down_avg_times",			new String[] { "hotplug", "5" });
+		put("cpu_up_avg_times",				new String[] { "hotplug", "333000" });
+		put("cpu_down_differential",		new String[] { "hotplug", "30" });
+		put("down_differential",			new String[] { "hotplug", "30" });
+		put("cpu_up_threshold",				new String[] { "hotplug", "98" });
+		put("up_threshold",					new String[] { "hotplug", "98" });
+
+		put("cpu_input_boost_enable",		new String[] { "hotplug", "1" });
+		put("is_cpu_hotplug_disable",		new String[] { "hotplug", "0" });
+
+		put("cpu_num_base",					new String[] { "hotplug", "1" });//new String[] { "hotplug", "1" });
+
+		put("cpu_num_limit",				new String[] { "hotplug", "2" });
+		put("ignore_nice_load",				new String[] { "hotplug", "0" });
+		put("io_is_busy",					new String[] { "hotplug", "1" });
+		put("od_threshold",					new String[] { "hotplug", "99" });
+		put("powersave_bias",				new String[] { "hotplug", "150" });
+		put("sampling_down_factor",			new String[] { "hotplug", "1" });
+		put("sampling_rate",				new String[] { "hotplug", "30000" });
+		put("thermal_dispatch_avg_times",	new String[] { "hotplug", "30" });
+
+
+//		put("cpu_hotplug_disable",			new String[] { "hotplug", "0" });
+//		put("screenoff_maxfreq",			new String[] { "hotplug", "0" });
+//		put("cpu_input_boost_num",			new String[] { "hotplug", "2" });
+//		put("sampling_rate_min",			new String[] { "hotplug", "30000" });
 
 	}});
+
+
+
+
 
 }

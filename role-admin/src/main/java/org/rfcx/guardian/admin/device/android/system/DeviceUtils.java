@@ -34,6 +34,11 @@ public class DeviceUtils {
 	private Context context;
 	private RfcxGuardian app;
 
+	public static void setSystemLoggingVerbosity(Context context) {
+		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+		app.deviceCPU.verboseLogging = app.rfcxPrefs.getPrefAsBoolean( RfcxPrefs.Pref.ADMIN_VERBOSE_CPU );
+	}
+
 	private boolean allowListenerRegistration_telephony = true;
 	private boolean allowListenerRegistration_light = true;
 	private boolean allowListenerRegistration_accel = true;
@@ -92,7 +97,7 @@ public class DeviceUtils {
 	// Static constant values for adjusting and tuning the system service behavior
 	//
 
-	public static final long captureLoopIncrementFullDurationInMilliseconds = 667;
+	public static final long captureLoopIncrementFullDurationInMilliseconds = 1000;
 	public static final long captureCycleMinimumAllowedDurationInMilliseconds = 30000;
 	public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 
@@ -297,8 +302,8 @@ public class DeviceUtils {
 				metaJson.put("memory", memoryStats[0] + "*" + memoryStats[1] + "*" + memoryStats[2] + "*" + memoryStats[3] );
 
 			} else if ("cpu".equalsIgnoreCase(metaTag)) {
-				int[] cpuStats = app.deviceCPU.getCurrentStats();
-				metaJson.put("cpu",System.currentTimeMillis() + "*" + cpuStats[0] + "*" + cpuStats[1]);
+				int[] cpuStats = app.deviceCPU.getCurrentValues();
+				metaJson.put("cpu",System.currentTimeMillis() + "*" + cpuStats[0] + "*" + cpuStats[1] + "*" + cpuStats[2]);
 
 			} else if ("network".equalsIgnoreCase(metaTag)) {
 				String[] networkStats = app.deviceMobileNetwork.getMobileNetworkSummary();

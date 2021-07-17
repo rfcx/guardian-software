@@ -76,9 +76,14 @@ public class RfcxPrefs {
 		public static final String AUDIO_CYCLE_DURATION = "audio_cycle_duration";
 
 		public static final String ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS = "enable_cutoffs_schedule_off_hours";
-		public static final String AUDIO_SCHEDULE_OFF_HOURS = "audio_schedule_off_hours";
-		public static final String API_PING_SCHEDULE_OFF_HOURS = "api_ping_schedule_off_hours";
+		public static final String AUDIO_CAPTURE_SCHEDULE_OFF_HOURS = "audio_capture_schedule_off_hours";
 		public static final String AUDIO_CLASSIFY_SCHEDULE_OFF_HOURS = "audio_classify_schedule_off_hours";
+		public static final String API_PING_SCHEDULE_OFF_HOURS = "api_ping_schedule_off_hours";
+
+		/// must still be implemented
+		public static final String API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS = "api_checkin_publish_schedule_off_hours";
+		public static final String API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS = "api_checkin_requeue_schedule_off_hours";
+		/// must still be implemented
 
 		public static final String ENABLE_CUTOFFS_SAMPLING_RATIO = "enable_cutoffs_sampling_ratio";
 		public static final String AUDIO_SAMPLING_RATIO = "audio_sampling_ratio";
@@ -139,14 +144,16 @@ public class RfcxPrefs {
 
 		public static final String ADMIN_ENABLE_SENTINEL_POWER = "admin_enable_sentinel_power";
 		public static final String ADMIN_ENABLE_SENTINEL_SENSOR = "admin_enable_sentinel_sensor";
+
 		public static final String ADMIN_VERBOSE_SENTINEL = "admin_verbose_sentinel";
+		public static final String ADMIN_VERBOSE_CPU = "admin_verbose_cpu";
 
 		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
 		public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";
 
 		public static final String ADMIN_ENABLE_AIRPLANE_MODE = "admin_enable_airplane_mode";
-		public static final String ADMIN_ENABLE_WIFI_CONNECTION = "admin_enable_wifi_connection";
-		public static final String ADMIN_ENABLE_WIFI_HOTSPOT = "admin_enable_wifi_hotspot";
+
+		public static final String ADMIN_WIFI_FUNCTION = "admin_wifi_function";
 		public static final String ADMIN_WIFI_HOTSPOT_PASSWORD = "admin_wifi_hotspot_password";
 
 		public static final String API_SATELLITE_PROTOCOL = "api_satellite_protocol";
@@ -181,7 +188,7 @@ public class RfcxPrefs {
 			put(Pref.API_NTP_HOST, "time.apple.com");
 			put(Pref.API_SMS_ADDRESS, "+14154803657");
 
-			put(Pref.API_PROTOCOL_ESCALATION_ORDER, "mqtt,rest,sms,sbd");
+			put(Pref.API_PROTOCOL_ESCALATION_ORDER, "mqtt,rest,sms,sat");
 			
 			put(Pref.API_SATELLITE_PROTOCOL, "off");
 
@@ -189,10 +196,12 @@ public class RfcxPrefs {
 
 			put(Pref.AUDIO_CYCLE_DURATION, "90");
 
-			put(Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS, "false");
-			put(Pref.AUDIO_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
-			put(Pref.API_PING_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
+			put(Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS, "true");
+			put(Pref.AUDIO_CAPTURE_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
 			put(Pref.AUDIO_CLASSIFY_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
+			put(Pref.API_PING_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
+			put(Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS, "23:55-23:56,23:57-23:59");
+			put(Pref.API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS, "00:01-10:00,14:00-23:59");
 
 			put(Pref.ENABLE_CUTOFFS_SAMPLING_RATIO, "false");
 			put(Pref.AUDIO_SAMPLING_RATIO, "1:2");
@@ -225,22 +234,20 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_STASH_FILESIZE_BUFFER, "160");
 			put(Pref.CHECKIN_ARCHIVE_FILESIZE_TARGET, "32");
 
-			put(Pref.CHECKIN_REQUEUE_BOUNDS_HOURS, "10-14");
+//			put(Pref.CHECKIN_REQUEUE_BOUNDS_HOURS, "10-14");
 
 			put(Pref.CHECKIN_META_SEND_BUNDLE_LIMIT, "16");
 			put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
 
 			put(Pref.ADMIN_ENABLE_AIRPLANE_MODE, "false");
-			put(Pref.ADMIN_ENABLE_WIFI_CONNECTION, "false");
-			put(Pref.ADMIN_ENABLE_WIFI_HOTSPOT, "true");
 			put(Pref.ADMIN_ENABLE_TCP_ADB, "true");
 			put(Pref.ADMIN_ENABLE_WIFI_SOCKET, "true");
 			put(Pref.ADMIN_ENABLE_SSH_SERVER, "false");
 
-			put(Pref.API_CLOCK_SYNC_CYCLE_DURATION, "30");
+			put(Pref.API_CLOCK_SYNC_CYCLE_DURATION, "180");
 
 			put(Pref.API_PING_CYCLE_DURATION, "30");
-			put(Pref.API_PING_CYCLE_FIELDS, "all");
+			put(Pref.API_PING_CYCLE_FIELDS, "all,meta");
 
 			put(Pref.ADMIN_ENABLE_LOG_CAPTURE, "false");
 			put(Pref.ADMIN_LOG_CAPTURE_CYCLE, "30");
@@ -257,10 +264,13 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_ENABLE_SENTINEL_POWER, "true");
 			put(Pref.ADMIN_ENABLE_SENTINEL_SENSOR, "false");
+
 			put(Pref.ADMIN_VERBOSE_SENTINEL, "false");
+			put(Pref.ADMIN_VERBOSE_CPU, "false");
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "auto_time_zone:system,i,0;");
+			put(Pref.ADMIN_WIFI_FUNCTION, "rfcxrfcx");
 			put(Pref.ADMIN_WIFI_HOTSPOT_PASSWORD, "rfcxrfcx");
 
 		}}

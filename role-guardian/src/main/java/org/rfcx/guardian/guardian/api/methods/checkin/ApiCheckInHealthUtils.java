@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.api.methods.checkin;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
@@ -11,6 +12,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxStatus;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +26,8 @@ public class ApiCheckInHealthUtils {
 
 	private RfcxGuardian app;
 
-	private Map<String, long[]> healthCheckMonitors = new HashMap<String, long[]>();
-	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent", "time-of-day" };
+	private Map<String, long[]> healthCheckMonitors = new HashMap<>();
+	private static final String[] healthCheckCategories = new String[] { "latency", "queued", "recent" };
 	private long[] healthCheckTargetLowerBounds = new long[healthCheckCategories.length];
 	private long[] healthCheckTargetUpperBounds = new long[healthCheckCategories.length];
 	private static final int healthCheckMeasurementCount = 6;
@@ -33,13 +35,11 @@ public class ApiCheckInHealthUtils {
 	private boolean doCheckInConditionsAllowCheckInRequeuing = false;
 
 	private long lastKnownAudioCycleDuration = 0;
-	private long lastKnownTimeOfDayLowerBound = 0;
-	private long lastKnownTimeOfDayUpperBound = 0;
 
 	private String inFlightCheckInAudioId = null;
 	private String latestCheckInAudioId = null;
-	private Map<String, String[]> inFlightCheckInEntries = new HashMap<String, String[]>();
-	private Map<String, long[]> inFlightCheckInStats = new HashMap<String, long[]>();
+	private Map<String, String[]> inFlightCheckInEntries = new HashMap<>();
+	private Map<String, long[]> inFlightCheckInStats = new HashMap<>();
 
 	public void updateInFlightCheckInOnSend(String audioId, String[] checkInDbEntry) {
 		this.inFlightCheckInAudioId = audioId;
@@ -91,19 +91,15 @@ public class ApiCheckInHealthUtils {
 		doCheckInConditionsAllowCheckInRequeuing = false;
 	}
 
-	private void setOrResetRecentCheckInHealthCheck(long prefsAudioCycleDuration, long prefsTimeOfDayLowerBound, long prefsTimeOfDayUpperBound) {
+	private void setOrResetRecentCheckInHealthCheck(long prefsAudioCycleDuration) {
 
 		if (	!healthCheckMonitors.containsKey(healthCheckCategories[0])
 			|| 	(lastKnownAudioCycleDuration != prefsAudioCycleDuration)
-			|| 	(lastKnownTimeOfDayLowerBound != prefsTimeOfDayLowerBound)
-			|| 	(lastKnownTimeOfDayUpperBound != prefsTimeOfDayUpperBound)
 		) {
 
 			Log.v(logTag, "Resetting RecentCheckInHealthCheck metrics...");
 
 			lastKnownAudioCycleDuration = prefsAudioCycleDuration;
-			lastKnownTimeOfDayLowerBound = prefsTimeOfDayLowerBound;
-			lastKnownTimeOfDayUpperBound = prefsTimeOfDayUpperBound;
 
 			resetRecentCheckInHealthMonitors();
 
@@ -125,18 +121,12 @@ public class ApiCheckInHealthUtils {
 
 			/* recent */		healthCheckTargetLowerBounds[2] = 0;
 								healthCheckTargetUpperBounds[2] = ( healthCheckMeasurementCount / 2 ) * (lastKnownAudioCycleDuration * 1000);
-
-			/* time-of-day */	healthCheckTargetLowerBounds[3] = lastKnownTimeOfDayLowerBound;
-								healthCheckTargetUpperBounds[3] = lastKnownTimeOfDayUpperBound;
 		}
 	}
 
-	public boolean validateRecentCheckInHealthCheck(long prefsAudioCycleDuration, String prefsTimeOfDayBounds, long[] currentCheckInStats) {
+	public boolean validateRecentCheckInHealthCheck(long prefsAudioCycleDuration, long[] currentCheckInStats) {
 
-		setOrResetRecentCheckInHealthCheck(	prefsAudioCycleDuration,
-										(prefsTimeOfDayBounds.contains("-") ? Long.parseLong(prefsTimeOfDayBounds.split("-")[0]) : 11),
-										(prefsTimeOfDayBounds.contains("-") ? Long.parseLong(prefsTimeOfDayBounds.split("-")[1]) : 13)
-									);
+		setOrResetRecentCheckInHealthCheck(prefsAudioCycleDuration);
 
 		long[] currAvgVals = new long[healthCheckCategories.length]; Arrays.fill(currAvgVals, 0);
 
@@ -173,7 +163,7 @@ public class ApiCheckInHealthUtils {
 					.append((healthCheckTargetLowerBounds[j] > 1) ? healthCheckTargetLowerBounds[j] + "-" : "")
 					.append(healthCheckTargetUpperBounds[j]);
 
-			if (healthCheckCategories[j].equalsIgnoreCase("time-of-day") && (currAvgVal > 24)) {
+			if (healthCheckCategories[j].equalsIgnoreCase("queued") && (currAvgVal > 10000)) {
 				// In this case, we suppress logging, as we can be sure that there are less than 6 checkin samples gathered
 				displayLogging = false;
 			}
@@ -243,12 +233,10 @@ public class ApiCheckInHealthUtils {
 			msgIfDisabled.append("preference '" + RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH.toLowerCase() + "' being explicitly set to false.");
 			areApiChecksInDisabledRightNow = true;
 
-			// This section is commented out because there is currently no mechanism by which the checkins are filtered by time of day (off hours)
-			// ...But we assume this is something that might be added at a future date, as it works for audio capture.
-//		} else if (limitBasedOnTimeOfDay()) {
-//			msgIfDisabled.append("current time of day/night")
-//					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SCHEDULE_OFF_HOURS)).append("'.");
-//			areApiChecksInDisabledRightNow = true;
+		} else if (!isCheckInPublishAllowedAtThisTimeOfDay()) {
+			msgIfDisabled.append("current time of day/night")
+					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS)).append("'.");
+			areApiChecksInDisabledRightNow = true;
 
 		} else if (!app.isGuardianRegistered()) {
 			msgIfDisabled.append("the Guardian not having been registered.");
@@ -278,4 +266,31 @@ public class ApiCheckInHealthUtils {
 		return isBatteryChargeSufficient;
 	}
 
+
+	private boolean isCheckInPublishAllowedAtThisTimeOfDay() {
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS)) {
+			String prefsOffHours = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS);
+			for (String offHoursRange : TextUtils.split(prefsOffHours, ",")) {
+				String[] offHours = TextUtils.split(offHoursRange, "-");
+				if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public boolean isCheckInReQueueAllowedAtThisTimeOfDay() {
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS)) {
+			String prefsOffHours = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS);
+			for (String offHoursRange : TextUtils.split(prefsOffHours, ",")) {
+				String[] offHours = TextUtils.split(offHoursRange, "-");
+				if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
+					Log.w(logTag, "Stashed CheckIn Requeuing blocked due to current time of day/night (off hours: '" + prefsOffHours + "')");
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 }

@@ -57,6 +57,7 @@ public class SentinelAccelUtils {
             if (isI2cHandlerAccessible) {
                 String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x00", i2cMainAddr, true);
                 isI2cAccelChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
+                Log.e(logTag, "Is Accelerometer Accessible: "+isI2cAccelChipConnected);
             }
         }
         return isNotExplicitlyDisabled && isI2cHandlerAccessible && isI2cAccelChipConnected;

@@ -143,7 +143,7 @@ public class ArrayUtils {
 		return new double[] {};
 	}
 	
-	private static double getAverage(List<Double> lst) {
+	public static double getAverage(List<Double> lst) {
 		double sum = 0;
 		for (double val : lst) { sum = sum + val; }
 		return sum / lst.size();

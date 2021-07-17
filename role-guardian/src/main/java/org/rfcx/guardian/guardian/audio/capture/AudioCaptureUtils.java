@@ -125,7 +125,7 @@ public class AudioCaptureUtils {
 
 
 	private boolean isCaptureAllowedAtThisTimeOfDay() {
-		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SCHEDULE_OFF_HOURS), ",")) {
+		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CAPTURE_SCHEDULE_OFF_HOURS), ",")) {
 			String[] offHours = TextUtils.split(offHoursRange, "-");
 			if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
 				return false;
@@ -202,7 +202,7 @@ public class AudioCaptureUtils {
 
 		} else if (limitBasedOnTimeOfDay()) {
 			msgNoCapture.append("current time of day/night")
-					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_SCHEDULE_OFF_HOURS)).append("'.");
+					.append(" (off hours: '").append(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CAPTURE_SCHEDULE_OFF_HOURS)).append("'.");
 			isAudioCaptureDisabledRightNow = true;
 
 		} else if (limitBasedOnCaptureSamplingRatio()) {

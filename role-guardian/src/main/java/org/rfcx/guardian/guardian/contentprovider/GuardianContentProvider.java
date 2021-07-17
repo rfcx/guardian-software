@@ -121,6 +121,11 @@ public class GuardianContentProvider extends ContentProvider {
 				app.apiSegmentUtils.receiveSegment(segmentPayload, "sbd");
 				return RfcxComm.getProjectionCursor(appRole, "segment_receive_sbd", new Object[]{ segmentPayload, null, System.currentTimeMillis()});
 
+			} else if (RfcxComm.uriMatch(uri, appRole, "segment_receive_swm", "*")) { logFuncVal = "segment_receive_swm-*";
+				String segmentPayload = uri.getLastPathSegment();
+				app.apiSegmentUtils.receiveSegment(segmentPayload, "swm");
+				return RfcxComm.getProjectionCursor(appRole, "segment_receive_swm", new Object[]{ segmentPayload, null, System.currentTimeMillis()});
+
 			// "classifications" endpoints
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "detections_create", "*")) { logFuncVal = "detections_create-*";

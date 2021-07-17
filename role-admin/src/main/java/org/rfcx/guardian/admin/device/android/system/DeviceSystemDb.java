@@ -53,12 +53,12 @@ public class DeviceSystemDb {
 			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
-		public int insert(Date measured_at, int cpu_percent, int cpu_clock) {
+		public int insert(Date measured_at, int cpu_percent, int cpu_clock, int cpu_core_usage) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_MEASURED_AT, measured_at.getTime());
 			values.put(C_VALUE_1, cpu_percent);
-			values.put(C_VALUE_2, cpu_clock);
+			values.put(C_VALUE_2, cpu_clock+"*"+cpu_core_usage);
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}

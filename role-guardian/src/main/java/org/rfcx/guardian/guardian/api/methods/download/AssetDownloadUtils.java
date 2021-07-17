@@ -36,7 +36,7 @@ public class AssetDownloadUtils {
 				"1617208867756",
 				"accfb018701e52696835c9d1c02600a67a228db1",
 				"http",
-				"http://192.168.43.107:8080/cdn/tflite/chainsaw_v5.tflite.gz",
+				"https://rfcx-install.s3.eu-west-1.amazonaws.com/rfcx-guardian/guardian-asset-classifier/1617208867756.tflite.gz",
 				12465841,
 				"tflite",
 				"{"

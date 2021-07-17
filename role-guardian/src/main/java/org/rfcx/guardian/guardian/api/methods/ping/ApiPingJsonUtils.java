@@ -82,8 +82,15 @@ public class ApiPingJsonUtils {
 			JSONObject deviceJsonObj = new JSONObject();
 			deviceJsonObj.put("phone", app.deviceMobilePhone.getMobilePhoneInfoJson());
 			deviceJsonObj.put("android", DeviceHardwareUtils.getInfoAsJson());
+			deviceJsonObj.put("hardware", DeviceHardwareUtils.getInfoAsJson());
 			jsonObj.put("device", deviceJsonObj);
 		}
+
+//		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "guardian")) {
+//			JSONObject guardianJsonObj = new JSONObject();
+//			guardianJsonObj.put("is_registered", app.isGuardianRegistered());
+//			jsonObj.put("guardian", guardianJsonObj);
+//		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "software")) {
 			jsonObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.socket
+package org.rfcx.guardian.guardian.companion
 
 import android.content.Context
 import android.os.Looper
@@ -435,7 +435,7 @@ object SocketManager {
     }
 
     private fun stopWiFiService() {
-        app?.setSharedPref(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT, "false")
+//        app?.setSharedPref(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_HOTSPOT, "false")
     }
 
     private fun getFullCheckInUrl(): String {

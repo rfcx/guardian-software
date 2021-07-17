@@ -8,6 +8,7 @@ import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -15,6 +16,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ApiCheckInUtils {
@@ -207,16 +209,14 @@ public class ApiCheckInUtils {
 
 	public void reQueueStashedCheckInIfAllowedByHealthCheck(long[] currentCheckInStats) {
 
-		if (	app.apiCheckInHealthUtils.validateRecentCheckInHealthCheck(
-					app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION),
-					app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.CHECKIN_REQUEUE_BOUNDS_HOURS),
-					currentCheckInStats
-				)
+		if (	app.apiCheckInHealthUtils.validateRecentCheckInHealthCheck( app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION), currentCheckInStats )
 			&& 	(app.apiCheckInDb.dbStashed.getCount() > 0)
+			&&	app.apiCheckInHealthUtils.isCheckInReQueueAllowedAtThisTimeOfDay()
 		) {
 			reQueueAudioAssetForCheckIn("stashed", app.apiCheckInDb.dbStashed.getLatestRow()[1]);
 		}
 	}
+
 
 	public void moveCheckInEntryToSentDatabase(String inFlightCheckInAudioId) {
 

@@ -14,7 +14,7 @@ import org.rfcx.guardian.guardian.api.methods.ping.ApiPingUtils;
 import org.rfcx.guardian.guardian.api.methods.ping.SendApiPingService;
 import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
-import org.rfcx.guardian.guardian.api.protocols.ApiSbdUtils;
+import org.rfcx.guardian.guardian.api.protocols.ApiSatUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
 import org.rfcx.guardian.guardian.asset.AssetLibraryDb;
 import org.rfcx.guardian.guardian.asset.AssetLibraryUtils;
@@ -39,8 +39,8 @@ import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
 import org.rfcx.guardian.guardian.instructions.InstructionsSchedulerService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
-import org.rfcx.guardian.guardian.socket.WifiCommunicationService;
-import org.rfcx.guardian.guardian.socket.WifiCommunicationUtils;
+import org.rfcx.guardian.guardian.companion.WifiCommunicationService;
+import org.rfcx.guardian.guardian.companion.WifiCommunicationUtils;
 import org.rfcx.guardian.guardian.status.GuardianStatus;
 import org.rfcx.guardian.guardian.status.StatusCacheService;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
@@ -49,6 +49,7 @@ import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.telephony.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
+import org.rfcx.guardian.utility.device.hardware.RfcxHardwarePeripherals;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -93,6 +94,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public RfcxPrefs rfcxPrefs = null;
     public RfcxSvc rfcxSvc = null;
     public GuardianStatus rfcxStatus = null;
+    public RfcxHardwarePeripherals rfcxHardwarePeripherals = null;
 
     public SharedPreferences sharedPrefs = null;
 
@@ -125,11 +127,11 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioCaptureUtils audioCaptureUtils = null;
     public AudioClassifyUtils audioClassifyUtils = null;
     public ApiMqttUtils apiMqttUtils = null;
-    public ApiSmsUtils apiSmsUtils = null;
     public ApiRestUtils apiRestUtils = null;
+    public ApiSmsUtils apiSmsUtils = null;
+    public ApiSatUtils apiSatUtils = null;
     public AssetDownloadUtils assetDownloadUtils = null;
     public AssetLibraryUtils assetLibraryUtils = null;
-    public ApiSbdUtils apiSbdUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
     public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
     public ApiPingJsonUtils apiPingJsonUtils = null;
@@ -165,6 +167,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
         this.rfcxSvc = new RfcxSvc(this, APP_ROLE);
         this.rfcxStatus = new GuardianStatus(this);
+        this.rfcxHardwarePeripherals = new RfcxHardwarePeripherals(this, APP_ROLE);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
@@ -182,9 +185,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.audioCaptureUtils = new AudioCaptureUtils(this);
         this.audioClassifyUtils = new AudioClassifyUtils(this);
         this.apiMqttUtils = new ApiMqttUtils(this);
-        this.apiSmsUtils = new ApiSmsUtils(this);
         this.apiRestUtils = new ApiRestUtils(this);
-        this.apiSbdUtils = new ApiSbdUtils(this);
+        this.apiSmsUtils = new ApiSmsUtils(this);
+        this.apiSatUtils = new ApiSatUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.assetDownloadUtils = new AssetDownloadUtils(this);
         this.assetLibraryUtils = new AssetLibraryUtils(this);
@@ -380,7 +383,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET)) {
                 this.rfcxSvc.triggerService("WifiCommunication", false);
 
-            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)) {
+            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)
+                    || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS)
+            ) {
                 this.apiMqttUtils.initializeFailedCheckInThresholds();
 
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_CHECKIN_PUBLISH)

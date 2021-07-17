@@ -175,8 +175,7 @@ public class DeviceSentinelService extends Service {
 
 			this.captureCycleLastStartTime = System.currentTimeMillis();
 
-			this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.isChipAccessibleByI2c();
-			app.sentinelPowerUtils.checkSetChipConfigByI2c();
+			this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.checkSetChipConfigByI2c();
 
 			this.isSentinelAccelCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentinelAccelUtils.isCaptureAllowed();
 

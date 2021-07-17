@@ -28,9 +28,9 @@ public class SbdUtils {
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdUtils");
 
 	RfcxGuardian app;
-	private static final String busyBoxBin = "/system/xbin/busybox";
 	private static final int baudRate = 19200;
-	private static final String ttyPath = "/dev/ttyMT1";
+	private String busyBoxBin = null;
+	private String ttyPath = null;
 
 	public static final long sendCmdTimeout = 70000;
 	public static final long prepCmdTimeout = 2500;
@@ -39,6 +39,10 @@ public class SbdUtils {
 	public int consecutiveDeliveryFailureCount = 0;
 	public static final int powerCycleAfterThisManyConsecutiveDeliveryFailures = 5;
 
+	public void init(String ttyPath, String busyBoxBin) {
+		this.ttyPath = ttyPath;
+		this.busyBoxBin = busyBoxBin;
+	}
 
 	public void setupSbdUtils() {
 		app.deviceGpioUtils.runGpioCommand("DOUT", "voltage_refr", true);
@@ -53,7 +57,7 @@ public class SbdUtils {
 
 		try {
 
-			if (!FileUtils.exists(busyBoxBin)) {
+			if ((busyBoxBin == null) || !FileUtils.exists(busyBoxBin)) {
 				errorMsg = "BusyBox binary not found on system";
 			} else if (!isNetworkAvailable()) {
 				errorMsg = "No Iridium network currently available";
@@ -63,7 +67,7 @@ public class SbdUtils {
 				isInFlight = true;
 				app.rfcxSvc.triggerService(SbdDispatchTimeoutService.SERVICE_NAME, true);
 				long atCmdLaunchedAt = System.currentTimeMillis();
-				List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(atCmdSeq));
+				List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
 				isInFlight = false;
 				for (String atCmdResponseLine : atCmdResponseLines) {
 					if (atCmdResponseLine.contains("+SBDIX:")) {
@@ -85,7 +89,7 @@ public class SbdUtils {
 		return false;
 	}
 
-	private static String atCmdExecStr(String[] execSteps) {
+	private static String atCmdExecStr(String ttyPath, String busyBoxBin, String[] execSteps) {
 		StringBuilder execFull = new StringBuilder();
 
 		execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb");
