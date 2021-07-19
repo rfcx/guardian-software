@@ -266,7 +266,7 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "auto_time_zone:system,i,0;");
-			put(Pref.ADMIN_WIFI_FUNCTION, "rfcxrfcx");
+			put(Pref.ADMIN_WIFI_FUNCTION, "hotspot");
 			put(Pref.ADMIN_WIFI_HOTSPOT_PASSWORD, "rfcxrfcx");
 
 		}}
