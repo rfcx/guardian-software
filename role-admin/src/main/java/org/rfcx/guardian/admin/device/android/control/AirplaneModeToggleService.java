@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin.device.android.control;
 
 import org.rfcx.guardian.admin.device.android.network.WifiStateSetService;
+import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
@@ -72,7 +73,10 @@ public class AirplaneModeToggleService extends Service {
 			try {
 				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-				app.deviceAirplaneMode.setOff(context);
+				if (!DeviceAirplaneMode.isEnabled(context)) {
+					app.deviceAirplaneMode.setOn(context);
+					app.deviceAirplaneMode.setOff(context);
+				}
 
 				app.rfcxSvc.triggerService( WifiStateSetService.SERVICE_NAME, false);
 					
