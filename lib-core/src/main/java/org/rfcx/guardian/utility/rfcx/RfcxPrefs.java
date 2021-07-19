@@ -116,8 +116,6 @@ public class RfcxPrefs {
 		public static final String CHECKIN_STASH_FILESIZE_BUFFER = "checkin_stash_filesize_buffer";
 		public static final String CHECKIN_ARCHIVE_FILESIZE_TARGET = "checkin_archive_filesize_target";
 
-		public static final String CHECKIN_REQUEUE_BOUNDS_HOURS = "checkin_requeue_bounds_hours";
-
 		public static final String CHECKIN_META_SEND_BUNDLE_LIMIT = "checkin_meta_send_bundle_limit";
 		public static final String CHECKIN_META_QUEUE_FILESIZE_LIMIT = "checkin_meta_queue_filesize_limit";
 
@@ -233,8 +231,6 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_SENT_FILESIZE_BUFFER, "80");
 			put(Pref.CHECKIN_STASH_FILESIZE_BUFFER, "160");
 			put(Pref.CHECKIN_ARCHIVE_FILESIZE_TARGET, "32");
-
-//			put(Pref.CHECKIN_REQUEUE_BOUNDS_HOURS, "10-14");
 
 			put(Pref.CHECKIN_META_SEND_BUNDLE_LIMIT, "16");
 			put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
