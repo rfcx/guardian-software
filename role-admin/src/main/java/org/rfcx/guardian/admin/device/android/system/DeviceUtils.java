@@ -97,7 +97,7 @@ public class DeviceUtils {
 	// Static constant values for adjusting and tuning the system service behavior
 	//
 
-	public static final long captureLoopIncrementFullDurationInMilliseconds = 1000;
+//	public static final long captureLoopIncrementFullDurationInMilliseconds = 1500;
 	public static final long captureCycleMinimumAllowedDurationInMilliseconds = 30000;
 	public static final double captureCycleDurationRatioComparedToAudioCycleDuration = 0.66666667;
 
@@ -139,12 +139,12 @@ public class DeviceUtils {
 		return Math.max( Math.round( audioCycleDurationInSeconds * 1000 * captureCycleDurationRatioComparedToAudioCycleDuration ), captureCycleMinimumAllowedDurationInMilliseconds );
 	}
 	
-	public static int getInnerLoopsPerCaptureCycle(int audioCycleDurationInSeconds) {
-		return Math.round( getCaptureCycleDuration(audioCycleDurationInSeconds) / captureLoopIncrementFullDurationInMilliseconds );
+	public static int getInnerLoopsPerCaptureCycle(int audioCycleDurationInSeconds, int telemetryCaptureCycleInMilliseconds) {
+		return Math.round( getCaptureCycleDuration(audioCycleDurationInSeconds) / telemetryCaptureCycleInMilliseconds );
 	}
 	
-	public static long getInnerLoopDelayRemainder(int audioCycleDurationInSeconds, double captureCycleDurationPercentageMultiplier, long samplingOperationDuration) {
-		return (long) ( Math.round( ( getCaptureCycleDuration(audioCycleDurationInSeconds) / getInnerLoopsPerCaptureCycle(audioCycleDurationInSeconds) ) - samplingOperationDuration ) * captureCycleDurationPercentageMultiplier );
+	public static long getInnerLoopDelayRemainder(int audioCycleDurationInSeconds, double captureCycleDurationPercentageMultiplier, long samplingOperationDuration, int telemetryCaptureCycleInMilliseconds) {
+		return (long) ( Math.round( ( getCaptureCycleDuration(audioCycleDurationInSeconds) / getInnerLoopsPerCaptureCycle(audioCycleDurationInSeconds,telemetryCaptureCycleInMilliseconds) ) - samplingOperationDuration ) * captureCycleDurationPercentageMultiplier );
 	}
 	
 	public static int getOuterLoopCaptureCount(int audioCycleDurationInSeconds) {

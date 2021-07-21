@@ -564,6 +564,13 @@
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_sensor" />
 
+	<EditTextPreference
+			android:key="admin_telemetry_capture_cycle"
+			android:title="admin_telemetry_capture_cycle"
+			android:summary="int - milliseconds"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_telemetry_capture_cycle" />
+
 	<ListPreference
 			android:key="admin_system_timezone"
 			android:title="admin_system_timezone"

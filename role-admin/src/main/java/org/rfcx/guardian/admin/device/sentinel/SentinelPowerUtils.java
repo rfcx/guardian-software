@@ -46,13 +46,13 @@ public class SentinelPowerUtils {
 
     public boolean verboseLogging = false;
 
-    private static final double qCountCalibrationVoltageMin = 3050;
+    private static final double qCountCalibrationVoltageMin = 3000;
 
     private static final double qCountMeasurementRange = 65535;
     private static final double qCountCalibratedMin = Math.round(qCountMeasurementRange / 4);
     private static final double qCountCalibratedMax = Math.round(qCountMeasurementRange - qCountCalibratedMin);
     private static final double qCountCalibratedQuarterOfOnePercent = (qCountCalibratedMax - qCountCalibratedMin) / (4 * 100);
-    private static final int qCountCalibrationDelayCounterMax = 28;
+    private static final int qCountCalibrationDelayCounterMax = 20;
     private int qCountCalibrationDelayCounter = qCountCalibrationDelayCounterMax;
 
     public boolean isInputPowerAtZero = false;
@@ -255,9 +255,6 @@ public class SentinelPowerUtils {
 
             if (calculateMissingValuesAndValidateResults()) {
                 cacheI2cTmpValues();
-            } else {
-                Log.e(logTag, "Not Saved: "+this.i2cTmpValues.get("battery")[0]);
-
             }
 
         } catch (Exception e) {
@@ -286,7 +283,7 @@ public class SentinelPowerUtils {
         battVals[2] = (10000*(battVals[2]-this.qCountCalibratedMin)/32768);
         this.i2cTmpValues.put("battery", battVals);
 
-        return (battVals[0] >= (this.qCountCalibrationVoltageMin/2));
+        return (battVals[0] >= this.qCountCalibrationVoltageMin) || ((battVals[0] >= (this.qCountCalibrationVoltageMin/2)) && (battVals[2] < 1000));
     }
 
     private double checkSetQCountCalibration(double qCountVal, double voltageVal) {
@@ -310,7 +307,7 @@ public class SentinelPowerUtils {
 
         } else if ((voltageVal <= this.qCountCalibrationVoltageMin) && (voltageVal >= (this.qCountCalibrationVoltageMin)/2)) {
 //            if (verboseLogging) {
-            Log.e(logTag, "Battery Voltage at "+Math.round(voltageVal)+" mV, Countdown to Coulomb Counter reset: "+this.qCountCalibrationDelayCounter+"/"+this.qCountCalibrationDelayCounterMax);
+            Log.e(logTag, "Battery Voltage considered extremely low at "+Math.round(voltageVal)+" mV. Countdown to Coulomb Counter reset: "+this.qCountCalibrationDelayCounter+"/"+this.qCountCalibrationDelayCounterMax);
             //  }
 
             this.qCountCalibrationDelayCounter--;
@@ -452,40 +449,39 @@ public class SentinelPowerUtils {
                 updateSentinelPowerValues();
             }
 
-            long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
-            long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
-            long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
+            if (this.powerBatteryValues.size() > 0) {
 
-            double measuredAtAvg = (sVals[4] + bVals[4] + iVals[4]) / 3;
-            long measuredAt = Math.round(measuredAtAvg);
+                long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerBatteryValues));
+                long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
+                long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerSystemValues));
 
-            try {
-                JSONObject powerJson = new JSONObject();
+                double measuredAtAvg = (sVals[4] + bVals[4] + iVals[4]) / 3;
+                long measuredAt = Math.round(measuredAtAvg);
 
-               // long bPct = _v("percent", bVals[2]);
+                try {
+                    JSONObject powerJson = new JSONObject();
 
-             //   String bPctStr = (bPct + "").substring(0, (bPct + "").length() - 2) + "." + (bPct + "").substring((bPct + "").length() - 2);
+                    powerJson.put("system", "system*" + measuredAt
+                            + "*" + _v("voltage", sVals[0])
+                            + "*" + _v("current", sVals[1])
+                            + "*" + _v("temp", sVals[2])
+                            + "*" + _v("power", sVals[3]));
+                    powerJson.put("battery", "battery*" + measuredAt
+                            + "*" + _v("voltage", bVals[0])
+                            + "*" + _v("current", bVals[1])
+                            + "*" + battValAsPctStr(_v("percent", bVals[2]))
+                            + "*" + _v("power", bVals[3]));
+                    powerJson.put("input", "input*" + measuredAt
+                            + "*" + _v("voltage", iVals[0])
+                            + "*" + _v("current", iVals[1])
+                            + "*" + _v("misc", iVals[2])
+                            + "*" + _v("power", iVals[3]));
+                    powerJsonArray.put(powerJson);
 
-                powerJson.put("system", "system*" + measuredAt
-                        + "*" + _v("voltage", sVals[0])
-                        + "*" + _v("current", sVals[1])
-                        + "*" + _v("temp", sVals[2])
-                        + "*" + _v("power", sVals[3]));
-                powerJson.put("battery", "battery*" + measuredAt
-                        + "*" + _v("voltage", bVals[0])
-                        + "*" + _v("current", bVals[1])
-                        + "*" + battValAsPctStr(_v("percent", bVals[2]))
-                        + "*" + _v("power", bVals[3]));
-                powerJson.put("input", "input*" + measuredAt
-                        + "*" + _v("voltage", iVals[0])
-                        + "*" + _v("current", iVals[1])
-                        + "*" + _v("misc", iVals[2])
-                        + "*" + _v("power", iVals[3]));
-                powerJsonArray.put(powerJson);
+                } catch (Exception e) {
+                    RfcxLog.logExc(logTag, e);
 
-            } catch (Exception e) {
-                RfcxLog.logExc(logTag, e);
-
+                }
             }
 
         }
@@ -553,9 +549,8 @@ public class SentinelPowerUtils {
                 int prefsVal = groupTag.equalsIgnoreCase(RfcxStatus.Group.AUDIO_CAPTURE) ? app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY);
                 isReduced = !(battPct >= (prefsVal * 100));
 
-            } else if (!isChipAccessibleByI2c()) {
-
-                isReduced = false;
+            } else /*if (!isChipAccessibleByI2c())*/ {
+                isReduced = isChipAccessibleByI2c();
 
             }
         }

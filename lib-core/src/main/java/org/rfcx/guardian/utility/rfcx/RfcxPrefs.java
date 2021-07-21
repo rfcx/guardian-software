@@ -143,6 +143,8 @@ public class RfcxPrefs {
 		public static final String ADMIN_ENABLE_SENTINEL_POWER = "admin_enable_sentinel_power";
 		public static final String ADMIN_ENABLE_SENTINEL_SENSOR = "admin_enable_sentinel_sensor";
 
+		public static final String ADMIN_TELEMETRY_CAPTURE_CYCLE = "admin_telemetry_capture_cycle";
+
 		public static final String ADMIN_VERBOSE_SENTINEL = "admin_verbose_sentinel";
 		public static final String ADMIN_VERBOSE_CPU = "admin_verbose_cpu";
 
@@ -260,6 +262,8 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_ENABLE_SENTINEL_POWER, "true");
 			put(Pref.ADMIN_ENABLE_SENTINEL_SENSOR, "false");
+
+			put(Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE, "1000");
 
 			put(Pref.ADMIN_VERBOSE_SENTINEL, "false");
 			put(Pref.ADMIN_VERBOSE_CPU, "false");

@@ -22,11 +22,11 @@ public class RfcxHardwarePeripherals {
 	private String appRole;
 
 
-	private String pcb_sentinel_version;
-	private String pcb_sentry_version;
-	private String pcb_satellite_version;
-	private String modem_satellite_iridium_imei;
-	private String modem_satellite_swarm_serial;
+	private String pcb_sentinel_version = "0.0.0";
+	private String pcb_sentry_version = "0.0.0";
+	private String pcb_satellite_version = "0.0.0";
+	private String modem_satellite_iridium_imei = "0";
+	private String modem_satellite_swarm_serial = "0";
 
 
 //	private void checkSetPreDefinedGuid() {
