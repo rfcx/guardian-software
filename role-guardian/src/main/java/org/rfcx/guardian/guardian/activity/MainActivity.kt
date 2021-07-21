@@ -274,7 +274,6 @@ class MainActivity : Activity(),
     override fun onGuardianCheckSuccess(t: Throwable?, response: String?) {
         setVisibilityRegisterSuccess()
         app.apiMqttUtils.initializeFailedCheckInThresholds()
-        app.apiCheckInJsonUtils.clearPrePackageMetaData()
         app.initializeRoleServices()
         setUIByRecordingState()
         setUIByGuidState()

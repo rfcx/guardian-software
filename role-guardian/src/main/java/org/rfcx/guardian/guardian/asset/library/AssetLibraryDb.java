@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.asset;
+package org.rfcx.guardian.guardian.asset.library;
 
 import android.content.ContentValues;
 import android.content.Context;

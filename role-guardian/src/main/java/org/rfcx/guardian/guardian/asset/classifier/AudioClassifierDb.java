@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.asset;
+package org.rfcx.guardian.guardian.asset.classifier;
 
 import android.content.ContentValues;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.asset;
+package org.rfcx.guardian.guardian.asset.meta;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -27,7 +27,7 @@ public class MetaSnapshotService extends IntentService {
 
 		try {
 
-			app.apiCheckInJsonUtils.createSystemMetaDataJsonSnapshot();
+			app.metaJsonUtils.createSystemMetaDataJsonSnapshot();
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);

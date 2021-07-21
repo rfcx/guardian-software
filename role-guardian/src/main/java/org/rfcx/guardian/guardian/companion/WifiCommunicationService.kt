@@ -26,23 +26,23 @@ class WifiCommunicationService : IntentService("WifiCommunication") {
         app.rfcxSvc.reportAsActive(SERVICE_NAME)
 
         val prefsAdminEnableWifiSocket = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET)
+        val prefsAdminWifiFunction = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
+        val isWifiEnabled = prefsAdminWifiFunction.equals("hotspot") || prefsAdminWifiFunction.equals("client")
 
-//        val prefsAdminEnableWifi = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION).equalsIgnoreCase("")
-
-        if (prefsAdminEnableWifiSocket/* && !prefsAdminEnableWifi*/) {
-            Log.e( logTag, "WiFi Socket Server could not be enabled because 'admin_enable_wifi_hotspot' is disabled")
+        if (prefsAdminEnableWifiSocket && !isWifiEnabled) {
+            Log.e( logTag, "WiFi Socket Server could not be enabled because 'admin_wifi_function' is set to off.")
         }
         try {
-            if (prefsAdminEnableWifiSocket/* && prefsAdminEnableWifi*/) {
-                if (!SocketManager.isRunning) {
+            if (prefsAdminEnableWifiSocket && isWifiEnabled) {
+                if (!ClassicSocketManager.isRunning) {
                     Log.d(logTag, "Starting WifiCommunication service")
-                    SocketManager.stopServerSocket()
-                    SocketManager.startServerSocket(applicationContext)
+                    ClassicSocketManager.stopServerSocket()
+                    ClassicSocketManager.startServerSocket(applicationContext)
                 }
             } else {
-                if (SocketManager.isRunning) {
+                if (ClassicSocketManager.isRunning) {
                     Log.d(logTag, "Stopping WifiCommunication service")
-                    SocketManager.stopServerSocket()
+                    ClassicSocketManager.stopServerSocket()
                 }
             }
         } catch (e: Exception) {
