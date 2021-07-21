@@ -133,7 +133,7 @@ public class DeviceI2cUtils {
 
 				String i2cStrValue = i2cValue;
 
-				if (parseAsHex && i2cValue.substring(0,2).equalsIgnoreCase("0x")) {
+				if (parseAsHex && (i2cValue.indexOf("0x") == 0)) {
 
 					if (!ArrayUtils.doesStringArrayContainString(rtrnValsWithoutTwosComplement, i2cLabelsAndSubAddresses.get(lineIndex)[0])) {
 						i2cStrValue = twosComplementHexToDec(i2cValue.substring(1 + i2cValue.indexOf("x"))) + "";

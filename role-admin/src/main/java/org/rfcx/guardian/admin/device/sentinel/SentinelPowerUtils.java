@@ -46,7 +46,7 @@ public class SentinelPowerUtils {
 
     public boolean verboseLogging = false;
 
-    private static final double qCountCalibrationVoltageMin = 2750;
+    private static final double qCountCalibrationVoltageMin = 3050;
 
     private static final double qCountMeasurementRange = 65535;
     private static final double qCountCalibratedMin = Math.round(qCountMeasurementRange / 4);
@@ -201,8 +201,7 @@ public class SentinelPowerUtils {
             powerBatteryValues.add(new double[] { battVals[0], battVals[1], battVals[2], battVals[3], rightNow });
             if (verboseLogging) {
                 long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(battVals);
-                String bPctStr = (bVals[2]+"").substring(0,(bVals[2]+"").length()-2)+"."+(bVals[2]+"").substring((bVals[2]+"").length()-2);
-                logStr.append(" [ battery: ").append(bPctStr).append(" %, ").append(bVals[0]).append(" mV, ").append(bVals[1]).append(" mA, ").append(bVals[3]).append(" mW").append(" ]");
+                logStr.append(" [ battery: ").append(battValAsPctStr(bVals[2])).append(" %, ").append(bVals[0]).append(" mV, ").append(bVals[1]).append(" mA, ").append(bVals[3]).append(" mW").append(" ]");
             }
         }
         double[] inpVals = this.i2cTmpValues.get("input");
@@ -391,8 +390,7 @@ public class SentinelPowerUtils {
             long[] misc = new long[] { _v("temp", sysVals[2]), _v("percent", battVals[2]), _v("misc", inpVals[2]) };
             long[] powers = new long[] { _v("power", sysVals[3]), _v("power", battVals[3]), _v("power", inpVals[3]) };
 
-            String bPctStr = (misc[1]+"").substring(0, (misc[1]+"").length()-2) +"."+ (misc[1]+"").substring((misc[1]+"").length()-2);
-            if ((misc[1] > -10) && (misc[1] < 10)) { if (misc[1] < 0) { bPctStr = "-0.0"+Math.abs(misc[1]); } else if (misc[1] >= 0) { bPctStr = "0.0"+misc[1]; } }
+            String bPctStr = battValAsPctStr(misc[1]);
 
             app.sentinelPowerDb.dbSentinelPowerSystem.insert( measuredAt, voltages[0], currents[0], misc[0], powers[0] );
             app.sentinelPowerDb.dbSentinelPowerBattery.insert( measuredAt, voltages[1], currents[1], bPctStr, powers[1] );
@@ -464,8 +462,9 @@ public class SentinelPowerUtils {
             try {
                 JSONObject powerJson = new JSONObject();
 
-                long bPct = _v("percent", bVals[2]);
-                String bPctStr = (bPct + "").substring(0, (bPct + "").length() - 2) + "." + (bPct + "").substring((bPct + "").length() - 2);
+               // long bPct = _v("percent", bVals[2]);
+
+             //   String bPctStr = (bPct + "").substring(0, (bPct + "").length() - 2) + "." + (bPct + "").substring((bPct + "").length() - 2);
 
                 powerJson.put("system", "system*" + measuredAt
                         + "*" + _v("voltage", sVals[0])
@@ -475,7 +474,7 @@ public class SentinelPowerUtils {
                 powerJson.put("battery", "battery*" + measuredAt
                         + "*" + _v("voltage", bVals[0])
                         + "*" + _v("current", bVals[1])
-                        + "*" + bPctStr
+                        + "*" + battValAsPctStr(_v("percent", bVals[2]))
                         + "*" + _v("power", bVals[3]));
                 powerJson.put("input", "input*" + measuredAt
                         + "*" + _v("voltage", iVals[0])
@@ -579,6 +578,11 @@ public class SentinelPowerUtils {
         }
 
         return Math.round(divVal);
+    }
+
+    private static String battValAsPctStr(long bValAsLong) {
+        String bValsStr = (bValAsLong >= 100) ? (""+Math.abs(bValAsLong)) : (bValAsLong >= 10) ? ("0"+Math.abs(bValAsLong)) : ("00"+Math.abs(bValAsLong)) ;
+        return ((bValAsLong >= 0) ? "" : "-") + bValsStr.substring(0,bValsStr.length()-2)+"."+bValsStr.substring(bValsStr.length()-2);
     }
 
 }
