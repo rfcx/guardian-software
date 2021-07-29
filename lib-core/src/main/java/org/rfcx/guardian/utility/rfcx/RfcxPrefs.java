@@ -116,8 +116,6 @@ public class RfcxPrefs {
 		public static final String CHECKIN_STASH_FILESIZE_BUFFER = "checkin_stash_filesize_buffer";
 		public static final String CHECKIN_ARCHIVE_FILESIZE_TARGET = "checkin_archive_filesize_target";
 
-		public static final String CHECKIN_REQUEUE_BOUNDS_HOURS = "checkin_requeue_bounds_hours";
-
 		public static final String CHECKIN_META_SEND_BUNDLE_LIMIT = "checkin_meta_send_bundle_limit";
 		public static final String CHECKIN_META_QUEUE_FILESIZE_LIMIT = "checkin_meta_queue_filesize_limit";
 
@@ -144,6 +142,8 @@ public class RfcxPrefs {
 
 		public static final String ADMIN_ENABLE_SENTINEL_POWER = "admin_enable_sentinel_power";
 		public static final String ADMIN_ENABLE_SENTINEL_SENSOR = "admin_enable_sentinel_sensor";
+
+		public static final String ADMIN_TELEMETRY_CAPTURE_CYCLE = "admin_telemetry_capture_cycle";
 
 		public static final String ADMIN_VERBOSE_SENTINEL = "admin_verbose_sentinel";
 		public static final String ADMIN_VERBOSE_CPU = "admin_verbose_cpu";
@@ -234,8 +234,6 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_STASH_FILESIZE_BUFFER, "160");
 			put(Pref.CHECKIN_ARCHIVE_FILESIZE_TARGET, "32");
 
-//			put(Pref.CHECKIN_REQUEUE_BOUNDS_HOURS, "10-14");
-
 			put(Pref.CHECKIN_META_SEND_BUNDLE_LIMIT, "16");
 			put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
 
@@ -265,12 +263,14 @@ public class RfcxPrefs {
 			put(Pref.ADMIN_ENABLE_SENTINEL_POWER, "true");
 			put(Pref.ADMIN_ENABLE_SENTINEL_SENSOR, "false");
 
+			put(Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE, "1000");
+
 			put(Pref.ADMIN_VERBOSE_SENTINEL, "false");
 			put(Pref.ADMIN_VERBOSE_CPU, "false");
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "auto_time_zone:system,i,0;");
-			put(Pref.ADMIN_WIFI_FUNCTION, "rfcxrfcx");
+			put(Pref.ADMIN_WIFI_FUNCTION, "hotspot");
 			put(Pref.ADMIN_WIFI_HOTSPOT_PASSWORD, "rfcxrfcx");
 
 		}}

@@ -4,7 +4,13 @@ export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )";
 
 export ADB="$ANDROID_SDK_ROOT/platform-tools/adb";
 
-export GUARDIAN_IP="192.168.43.1"
+export ALT_GUARDIAN_IP=$1
+if [ "$ALT_GUARDIAN_IP" = "" ]; then
+	export GUARDIAN_IP="192.168.43.1"
+else
+	export GUARDIAN_IP="$ALT_GUARDIAN_IP"
+fi
+
 export PORT="7329"
 export IS_CONNECTED="no"
 

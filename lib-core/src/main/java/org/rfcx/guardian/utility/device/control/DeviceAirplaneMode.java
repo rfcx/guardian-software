@@ -20,19 +20,12 @@ public class DeviceAirplaneMode {
 	
 	public void setOn(Context context) {
 		Log.v(logTag, "Turning AirplaneMode ON");
-	    	if (!isEnabled(context)) {
-	    		setAirplaneMode(context, 1, logTag);
-	    	}
+		setAirplaneMode(context, 1, logTag);
 	}
 	
 	public void setOff(Context context) {
 		Log.v(logTag, "Turning AirplaneMode OFF");
-	    	if (!isEnabled(context)) {
-	    		setAirplaneMode(context, 1, logTag);
-	    		setAirplaneMode(context, 0, logTag);
-	    	} else {
-	    		setAirplaneMode(context, 0, logTag);
-	    	}
+		setAirplaneMode(context, 0, logTag);
 	}
 	
 	private static void setAirplaneMode(Context context, int value, String logTag) {

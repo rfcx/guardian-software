@@ -43,6 +43,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 	private DeviceSystemSvc deviceSystemSvc;
 
 	private int referenceCycleDuration = 1;
+	private int referenceLoopDuration = 1;
 
 	private int innerLoopIncrement = 1;
 	private int innerLoopsPerCaptureCycle = 1;
@@ -220,22 +221,24 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 
 			captureCycleLastStartTime = System.currentTimeMillis();
 
-			int audioCycleDuration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
-
 			// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
 			// however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-			int prefsReferenceCycleDuration = app.deviceUtils.isReducedCaptureModeActive ? (audioCycleDuration * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : audioCycleDuration;
+			int prefsCycleDuration = app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
+			int prefsLoopDuration = /*app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE) * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) :*/ app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE);
 
-			if (referenceCycleDuration != prefsReferenceCycleDuration) {
+			if (	(referenceCycleDuration != prefsCycleDuration)
+				|| 	(referenceLoopDuration != prefsLoopDuration)
+			) {
 
-				referenceCycleDuration = prefsReferenceCycleDuration;
-				innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsReferenceCycleDuration);
-				outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsReferenceCycleDuration);
-				innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsReferenceCycleDuration, captureCycleLastDurationPercentageMultiplier, DeviceCPU.SAMPLE_DURATION_MILLISECONDS);
-				innerLoopUponWhichToTriggerStatusCacheUpdate = DeviceUtils.getInnerLoopUponWhichToTriggerStatusCacheUpdate(prefsReferenceCycleDuration, innerLoopsPerCaptureCycle);
+				referenceCycleDuration = prefsCycleDuration;
+				referenceLoopDuration = prefsLoopDuration;
+				innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsCycleDuration, prefsLoopDuration);
+				outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsCycleDuration);
+				innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsCycleDuration, captureCycleLastDurationPercentageMultiplier, DeviceCPU.SAMPLE_DURATION_MILLISECONDS, prefsLoopDuration);
+				innerLoopUponWhichToTriggerStatusCacheUpdate = DeviceUtils.getInnerLoopUponWhichToTriggerStatusCacheUpdate(prefsCycleDuration, innerLoopsPerCaptureCycle);
 
 				Log.d(logTag, "SystemStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
-						"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsReferenceCycleDuration) / 1000.0) + " seconds.");
+						"Snapshots (all metrics) taken every " + Math.round(DeviceUtils.getCaptureCycleDuration(prefsCycleDuration) / 1000.0) + " seconds.");
 			}
 
 		} else {
