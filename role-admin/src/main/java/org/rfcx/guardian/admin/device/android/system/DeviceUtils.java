@@ -108,8 +108,8 @@ public class DeviceUtils {
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
-	private List<double[]> recentValuesAccelSensor = new ArrayList<double[]>();
-	private List<double[]> recentValuesGeoLocation = new ArrayList<double[]>();
+	private final List<double[]> recentValuesAccelSensor = new ArrayList<>();
+	private final List<double[]> recentValuesGeoLocation = new ArrayList<>();
 
 
 
