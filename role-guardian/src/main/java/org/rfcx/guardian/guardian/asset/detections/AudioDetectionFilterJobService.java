@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.asset;
+package org.rfcx.guardian.guardian.asset.detections;
 
 import android.app.Service;
 import android.content.Intent;

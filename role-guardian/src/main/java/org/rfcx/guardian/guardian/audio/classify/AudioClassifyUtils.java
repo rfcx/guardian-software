@@ -9,7 +9,7 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.guardian.asset.AudioDetectionFilterJobService;
+import org.rfcx.guardian.guardian.asset.detections.AudioDetectionFilterJobService;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;

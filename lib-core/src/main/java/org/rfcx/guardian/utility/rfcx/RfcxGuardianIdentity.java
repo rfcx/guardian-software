@@ -3,6 +3,9 @@ package org.rfcx.guardian.utility.rfcx;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.utility.misc.StringUtils;
 
 public class RfcxGuardianIdentity {
@@ -280,5 +283,25 @@ public class RfcxGuardianIdentity {
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
+	}
+
+	public String injectAuthInfoIntoJson(String jsonBlobStr) {
+
+		String outputJsonStr = jsonBlobStr;
+
+		try {
+
+			JSONObject jsonObj = new JSONObject(jsonBlobStr);
+			JSONObject guardianObj = new JSONObject();
+			guardianObj.put("guid", getGuid());
+			guardianObj.put("token", getAuthToken());
+			jsonObj.put("guardian", guardianObj);
+			outputJsonStr = jsonObj.toString();
+
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+
+		return outputJsonStr;
 	}
 }

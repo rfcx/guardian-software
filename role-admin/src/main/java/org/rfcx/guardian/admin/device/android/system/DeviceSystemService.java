@@ -546,12 +546,12 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			} else if (statAbbrev.equalsIgnoreCase("datatransfer")) {
 			
 				List<long[]> dataTransferValuesCache = this.dataTransferValues;
-				this.dataTransferValues = new ArrayList<long[]>();
+				this.dataTransferValues = new ArrayList<>();
 				
 				for (long[] dataTransferVals : dataTransferValuesCache) {
 					// before saving, make sure this isn't the first time the stats are being generated (that throws off the net change figures)
-					if (dataTransferVals[6] == 0) {
-						app.deviceDataTransferDb.dbTransferred.insert(new Date(), new Date(dataTransferVals[0]), new Date(dataTransferVals[1]), dataTransferVals[2], dataTransferVals[3], dataTransferVals[4], dataTransferVals[5]);
+					if (dataTransferVals[10] == 0) {
+						app.deviceDataTransferDb.dbTransferred.insert(new Date(), new Date(dataTransferVals[0]), new Date(dataTransferVals[1]), dataTransferVals[2], dataTransferVals[3], dataTransferVals[4], dataTransferVals[5], dataTransferVals[6], dataTransferVals[7], dataTransferVals[8], dataTransferVals[9]);
 					}
 				}
 				

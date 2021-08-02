@@ -19,9 +19,9 @@ import java.io.DataOutputStream
 import java.net.ServerSocket
 import java.net.Socket
 
-object SocketManager {
+object ClassicSocketManager {
 
-    private val LOGTAG = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SocketManager")
+    private val LOGTAG = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ClassicSocketManager")
 
     private var serverSocket: ServerSocket? = null
     private var serverThread: Thread? = null
@@ -58,7 +58,7 @@ object SocketManager {
                             val message = streamInput?.readUTF()
 
                             if (!message.isNullOrBlank()) {
-
+                                Log.e(LOGTAG, message);
                                 val receiveJson = JSONObject(message)
 
                                 //send response back

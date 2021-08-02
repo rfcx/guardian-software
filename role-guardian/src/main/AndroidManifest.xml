@@ -94,7 +94,7 @@
         <service android:name=".audio.classify.AudioClassifyPrepareService" android:exported="false" />
         <service android:name=".audio.playback.AudioPlaybackJobService" android:exported="false" />
         <service android:name=".api.methods.download.AssetDownloadJobService" android:exported="false" />
-        <service android:name=".asset.AudioDetectionFilterJobService" android:exported="false" />
+        <service android:name=".asset.detections.AudioDetectionFilterJobService" android:exported="false" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" android:exported="false" />
@@ -103,7 +103,7 @@
         <service android:name=".asset.ScheduledAssetCleanupService" android:exported="false" />
         <service android:name=".audio.capture.AudioQueuePostProcessingService" android:exported="false" />
         <service android:name=".api.methods.clocksync.ScheduledClockSyncService" android:exported="false" />
-        <service android:name=".asset.MetaSnapshotService" android:exported="false" />
+        <service android:name=".asset.meta.MetaSnapshotService" android:exported="false" />
         <service android:name=".companion.WifiCommunicationService" android:exported="false" />
         <service android:name=".status.StatusCacheService" android:exported="false" />
 

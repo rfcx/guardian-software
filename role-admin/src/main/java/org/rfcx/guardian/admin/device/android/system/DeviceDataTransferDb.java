@@ -14,7 +14,7 @@ public class DeviceDataTransferDb {
 	
 	public DeviceDataTransferDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+		this.DROP_TABLE_ON_UPGRADE = true; //ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
 		this.dbTransferred = new DbTransferred(context);
 	}
 
@@ -23,11 +23,15 @@ public class DeviceDataTransferDb {
 	static final String C_CREATED_AT = "created_at";
 	static final String C_START_TIME = "start_time";
 	static final String C_END_TIME = "end_time";
-	static final String C_BYTES_RECEIVED_CURRENT = "bytes_received_current";
-	static final String C_BYTES_SENT_CURRENT = "bytes_sent_current";
-	static final String C_BYTES_RECEIVED_TOTAL = "bytes_received_total";
-	static final String C_BYTES_SENT_TOTAL = "bytes_sent_total";
-	private static final String[] ALL_COLUMNS = new String[] { C_START_TIME, C_END_TIME, C_BYTES_RECEIVED_CURRENT, C_BYTES_SENT_CURRENT, C_BYTES_RECEIVED_TOTAL, C_BYTES_SENT_TOTAL };
+	static final String C_MOBILE_BYTES_RECEIVED_CURRENT = "mobile_bytes_received_current";
+	static final String C_MOBILE_BYTES_SENT_CURRENT = "mobile_bytes_sent_current";
+	static final String C_MOBILE_BYTES_RECEIVED_TOTAL = "mobile_bytes_received_total";
+	static final String C_MOBILE_BYTES_SENT_TOTAL = "mobile_bytes_sent_total";
+	static final String C_NETWORK_BYTES_RECEIVED_CURRENT = "network_bytes_received_current";
+	static final String C_NETWORK_BYTES_SENT_CURRENT = "network_bytes_sent_current";
+	static final String C_NETWORK_BYTES_RECEIVED_TOTAL = "network_bytes_received_total";
+	static final String C_NETWORK_BYTES_SENT_TOTAL = "network_bytes_sent_total";
+	private static final String[] ALL_COLUMNS = new String[] { C_START_TIME, C_END_TIME, C_MOBILE_BYTES_RECEIVED_CURRENT, C_MOBILE_BYTES_SENT_CURRENT, C_MOBILE_BYTES_RECEIVED_TOTAL, C_MOBILE_BYTES_SENT_TOTAL, C_NETWORK_BYTES_RECEIVED_CURRENT, C_NETWORK_BYTES_SENT_CURRENT, C_NETWORK_BYTES_RECEIVED_TOTAL, C_NETWORK_BYTES_SENT_TOTAL };
 
 	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -38,10 +42,14 @@ public class DeviceDataTransferDb {
 			.append("(").append(C_CREATED_AT).append(" INTEGER")
 			.append(", ").append(C_START_TIME).append(" INTEGER")
 			.append(", ").append(C_END_TIME).append(" INTEGER")
-			.append(", ").append(C_BYTES_RECEIVED_CURRENT).append(" INTEGER")
-			.append(", ").append(C_BYTES_SENT_CURRENT).append(" INTEGER")
-			.append(", ").append(C_BYTES_RECEIVED_TOTAL).append(" INTEGER")
-			.append(", ").append(C_BYTES_SENT_TOTAL).append(" INTEGER")
+			.append(", ").append(C_MOBILE_BYTES_RECEIVED_CURRENT).append(" INTEGER")
+			.append(", ").append(C_MOBILE_BYTES_SENT_CURRENT).append(" INTEGER")
+			.append(", ").append(C_MOBILE_BYTES_RECEIVED_TOTAL).append(" INTEGER")
+			.append(", ").append(C_MOBILE_BYTES_SENT_TOTAL).append(" INTEGER")
+			.append(", ").append(C_NETWORK_BYTES_RECEIVED_CURRENT).append(" INTEGER")
+			.append(", ").append(C_NETWORK_BYTES_SENT_CURRENT).append(" INTEGER")
+			.append(", ").append(C_NETWORK_BYTES_RECEIVED_TOTAL).append(" INTEGER")
+			.append(", ").append(C_NETWORK_BYTES_SENT_TOTAL).append(" INTEGER")
 			.append(")");
 		return sbOut.toString();
 	}
@@ -58,16 +66,20 @@ public class DeviceDataTransferDb {
 			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
 		}
 		
-		public int insert(Date created_at, Date start_time, Date end_time, long bytes_rx_current, long bytes_tx_current, long bytes_rx_total, long bytes_tx_total) {
+		public int insert(Date created_at, Date start_time, Date end_time, long mobile_bytes_rx_current, long mobile_bytes_tx_current, long mobile_bytes_rx_total, long mobile_bytes_tx_total, long network_bytes_rx_current, long network_bytes_tx_current, long network_bytes_rx_total, long network_bytes_tx_total) {
 			
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, created_at.getTime());
 			values.put(C_START_TIME, start_time.getTime());
 			values.put(C_END_TIME, end_time.getTime());
-			values.put(C_BYTES_RECEIVED_CURRENT, bytes_rx_current);
-			values.put(C_BYTES_SENT_CURRENT, bytes_tx_current);
-			values.put(C_BYTES_RECEIVED_TOTAL, bytes_rx_total);
-			values.put(C_BYTES_SENT_TOTAL, bytes_tx_total);
+			values.put(C_MOBILE_BYTES_RECEIVED_CURRENT, mobile_bytes_rx_current);
+			values.put(C_MOBILE_BYTES_SENT_CURRENT, mobile_bytes_tx_current);
+			values.put(C_MOBILE_BYTES_RECEIVED_TOTAL, mobile_bytes_rx_total);
+			values.put(C_MOBILE_BYTES_SENT_TOTAL, mobile_bytes_tx_total);
+			values.put(C_NETWORK_BYTES_RECEIVED_CURRENT, network_bytes_rx_current);
+			values.put(C_NETWORK_BYTES_SENT_CURRENT, network_bytes_tx_current);
+			values.put(C_NETWORK_BYTES_RECEIVED_TOTAL, network_bytes_rx_total);
+			values.put(C_NETWORK_BYTES_SENT_TOTAL, network_bytes_tx_total);
 			
 			return this.dbUtils.insertRow(TABLE, values);
 		}

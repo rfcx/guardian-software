@@ -15,7 +15,7 @@ import org.json.JSONException;
 
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJobService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
-import org.rfcx.guardian.guardian.companion.SocketManager;
+import org.rfcx.guardian.guardian.companion.ClassicSocketManager;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
@@ -163,7 +163,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 
         // Build JSON blob from included assets
-		String jsonBlob = app.apiPingJsonUtils.injectGuardianIdentityIntoJson( app.apiCheckInJsonUtils.buildCheckInJson( checkInJsonString, screenShotMeta, logFileMeta, photoFileMeta, videoFileMeta ) );
+		String jsonBlob = app.rfcxGuardianIdentity.injectAuthInfoIntoJson( app.apiCheckInJsonUtils.buildCheckInJson( checkInJsonString, screenShotMeta, logFileMeta, photoFileMeta, videoFileMeta ) );
 
 		// Package JSON Blob
 		byte[] jsonBlobAsBytes = StringUtils.stringToGZipByteArray(jsonBlob);
@@ -277,7 +277,7 @@ public class ApiMqttUtils implements MqttCallback {
 					app.apiCheckInHealthUtils.setInFlightCheckInStats(app.apiCheckInHealthUtils.getInFlightCheckInAudioId(), 0, publishDuration, 0);
 					this.checkInPublishCompletedAt = System.currentTimeMillis();
 					String publishDurationReadable = DateTimeUtils.milliSecondDurationAsReadableString(publishDuration, true);
-					SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHED, publishDurationReadable);
+					ClassicSocketManager.INSTANCE.sendCheckInTestMessage(ClassicSocketManager.CheckInState.PUBLISHED, publishDurationReadable);
 					Log.i(logTag, "CheckIn delivery time: " + publishDurationReadable);
 				}
 
@@ -341,7 +341,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 	private long publishMessageOnConfirmedConnection(String publishTopic, int publishQoS, boolean trackDuration, byte[] messageByteArray) throws MqttException {
 		confirmOrCreateConnectionToBroker(true);
-		if (publishTopic.equalsIgnoreCase(this.mqttTopic_Publish_CheckIn)) { SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHING, null); }
+		if (publishTopic.equalsIgnoreCase(this.mqttTopic_Publish_CheckIn)) { ClassicSocketManager.INSTANCE.sendCheckInTestMessage(ClassicSocketManager.CheckInState.PUBLISHING, null); }
 		return this.mqttCheckInClient.publishMessage(publishTopic, publishQoS, trackDuration, messageByteArray);
 	}
 
@@ -359,7 +359,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 		if (areMqttApiInteractionsAllowed()) {
 			try {
-				publishMessageOnConfirmedConnection( this.mqttTopic_Publish_Ping, 1, false, packageMqttPingPayload( app.apiPingJsonUtils.injectGuardianIdentityIntoJson( pingJson ) ) );
+				publishMessageOnConfirmedConnection( this.mqttTopic_Publish_Ping, 1, false, packageMqttPingPayload( app.rfcxGuardianIdentity.injectAuthInfoIntoJson( pingJson ) ) );
 				isSent = true;
 
 			} catch (Exception e) {
