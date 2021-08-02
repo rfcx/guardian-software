@@ -49,6 +49,7 @@ import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.telephony.DeviceMobilePhone;
 import org.rfcx.guardian.utility.device.control.DeviceControlUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
+import org.rfcx.guardian.utility.device.hardware.RfcxHardwarePeripherals;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
@@ -93,6 +94,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public RfcxPrefs rfcxPrefs = null;
     public RfcxSvc rfcxSvc = null;
     public GuardianStatus rfcxStatus = null;
+    public RfcxHardwarePeripherals rfcxHardwarePeripherals = null;
 
     public SharedPreferences sharedPrefs = null;
 
@@ -165,6 +167,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxPrefs = new RfcxPrefs(this, APP_ROLE);
         this.rfcxSvc = new RfcxSvc(this, APP_ROLE);
         this.rfcxStatus = new GuardianStatus(this);
+        this.rfcxHardwarePeripherals = new RfcxHardwarePeripherals(this, APP_ROLE);
 
         this.version = RfcxRole.getRoleVersion(this, logTag);
         RfcxRole.writeVersionToFile(this, logTag, this.version);
