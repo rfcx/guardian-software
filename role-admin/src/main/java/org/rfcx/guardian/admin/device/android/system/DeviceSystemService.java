@@ -24,6 +24,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceMemory;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -557,7 +558,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			} else if (statAbbrev.equalsIgnoreCase("battery")) {
 				
 				List<int[]> batteryLevelValuesCache = this.batteryLevelValues;
-				this.batteryLevelValues = new ArrayList<int[]>();
+				this.batteryLevelValues = new ArrayList<>();
 				
 				for (int[] batteryLevelVals : batteryLevelValuesCache) {
 					if ((batteryLevelVals[0] <= 100) && (batteryLevelVals[0] >= 0)) {
@@ -567,6 +568,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 								app.deviceUtils.allowMeasurement_battery_is_charging ? batteryLevelVals[2] : 0,
 								app.deviceUtils.allowMeasurement_battery_is_fully_charged ? batteryLevelVals[3] : 0
 							);
+						Log.d(logTag, DateTimeUtils.getDateTime() + " [ battery: " + (app.deviceUtils.allowMeasurement_battery_percentage ? batteryLevelVals[0] : 0) + "% ]");
 					}
 				}
 				
