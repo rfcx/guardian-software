@@ -101,10 +101,6 @@ public class MetaJsonUtils {
 
 	}
 
-	public void clearPrePackageMetaData() {
-		clearPrePackageMetaData(new Date(System.currentTimeMillis()));
-	}
-
 	private void clearPrePackageMetaData(Date deleteBefore) {
 		try {
 
