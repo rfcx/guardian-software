@@ -617,6 +617,13 @@
 			android:defaultValue="@string/prefs_value_default_admin_wifi_function" />
 
 	<EditTextPreference
+			android:key="admin_wifi_client_auth_creds"
+			android:title="admin_wifi_client_auth_creds"
+			android:summary="string - colon separated (default to known networks)"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_wifi_client_auth_creds" />
+
+	<EditTextPreference
 			android:key="admin_wifi_hotspot_password"
 			android:title="admin_wifi_hotspot_password"
 			android:summary="string - password"

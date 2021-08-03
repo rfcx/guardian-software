@@ -108,6 +108,8 @@
 
 	<string name="prefs_value_default_admin_enable_airplane_mode">false</string>
 	<string name="prefs_value_default_admin_wifi_function">hotspot</string>
+
+	<string name="prefs_value_default_admin_wifi_client_auth_creds">[ssid]:[password]</string>
 	<string name="prefs_value_default_admin_wifi_hotspot_password">rfcxrfcx</string>
 
 	<string name="prefs_value_default_api_satellite_protocol">off</string>

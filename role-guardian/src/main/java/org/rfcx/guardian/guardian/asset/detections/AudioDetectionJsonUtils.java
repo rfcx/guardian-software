@@ -39,11 +39,10 @@ public class AudioDetectionJsonUtils {
 
 
 
-	public JSONObject retrieveAndBundleMetaJson(JSONObject inputDtcnJson, int maxDtcnRowsToBundle, boolean overrideFilterByLastAccessedAt) throws JSONException {
+	public JSONObject retrieveAndBundleDetectionJson(JSONObject inputDtcnJson, int maxDtcnRowsToBundle, boolean overrideFilterByLastAccessedAt) throws JSONException {
 
 		JSONObject dtcnJsonBundledSnapshotsObj = inputDtcnJson;
 		JSONArray dtcnJsonBundledSnapshotsIds = new JSONArray();
-//		long dtcnMeasuredAtValue = ((dtcnJsonBundledSnapshotsObj == null) || (!dtcnJsonBundledSnapshotsObj.has("measured_at"))) ? 0 : dtcnJsonBundledSnapshotsObj.getLong("measured_at");
 
 		List<String[]> dtcnRows = (overrideFilterByLastAccessedAt) ? app.metaDb.dbMeta.getLatestRowsWithLimit(maxDtcnRowsToBundle) :
 				app.metaDb.dbMeta.getLatestRowsNotAccessedSinceWithLimit( (System.currentTimeMillis() - app.apiMqttUtils.getSetCheckInPublishTimeOutLength()), maxDtcnRowsToBundle);
@@ -88,12 +87,6 @@ public class AudioDetectionJsonUtils {
 							dtcnJsonBundledSnapshotsObj.put(jsonKey, origStr+newStr);
 						}
 
-					} else if (jsonKey.equalsIgnoreCase("measured_at")) {
-
-						long measuredAt = metaJsonObjToAppend.getLong(jsonKey);
-						if (measuredAt > dtcnMeasuredAtValue) {
-							dtcnMeasuredAtValue = measuredAt;
-						}
 					}
 				}
 			}
@@ -111,8 +104,6 @@ public class AudioDetectionJsonUtils {
 		// if no meta data was available to bundle, then we create an empty object
 		if (dtcnJsonBundledSnapshotsObj == null) { dtcnJsonBundledSnapshotsObj = new JSONObject(); }
 
-		// use highest measured_at value, or if empty, set to current time
-		dtcnJsonBundledSnapshotsObj.put("measured_at", ((dtcnMeasuredAtValue == 0) ? System.currentTimeMillis() : dtcnMeasuredAtValue) );
 
 		return dtcnJsonBundledSnapshotsObj;
 	}

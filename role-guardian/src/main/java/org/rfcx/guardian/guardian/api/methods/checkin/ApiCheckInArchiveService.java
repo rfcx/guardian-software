@@ -220,7 +220,7 @@ public class ApiCheckInArchiveService extends Service {
 									new Date(archiveTimestamp),        // archived_at
 									new Date(oldestCheckInTimestamp),    // archive_begins_at
 									new Date(newestCheckInTimestamp),    // archive_ends_at
-									stashedCheckInsBeyondBuffer.size(),    // record_count
+									stashedCheckInsBeyondBuffer.size(),  // record_count
 									archiveFileSize,                    // filesize in bytes
 									archiveFinalFilePath                // filepath
 							);

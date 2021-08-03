@@ -369,7 +369,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
 
 			if (app.deviceMobileNetwork.isInitializedTelephonyManager() && app.deviceMobileNetwork.isInitializedSignalStrength()) {
-				this.telephonyValues.add(app.deviceMobileNetwork.getMobileNetworkSummary());
+
+				String[] newTelephonyValue = app.deviceMobileNetwork.getMobileNetworkSummary();
+				app.deviceUtils.checkReportMobileNetworkChange(this.telephonyValues, newTelephonyValue);
+				this.telephonyValues.add(newTelephonyValue);
 			} else {
 				Log.e(logTag, "could not cache telephony");
 			}
@@ -492,7 +495,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			if (statAbbrev.equalsIgnoreCase("cpu")) {
 				
 				List<int[]> cpuUsageValuesCache = this.cpuUsageValues;
-				this.cpuUsageValues = new ArrayList<int[]>();
+				this.cpuUsageValues = new ArrayList<>();
 				
 				for (int[] cpuVals : cpuUsageValuesCache) {
 					// make sure the values are valid
@@ -504,7 +507,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			} else if (statAbbrev.equalsIgnoreCase("light")) {
 				
 				List<long[]> lightSensorValuesCache = this.lightSensorValues;
-				this.lightSensorValues = new ArrayList<long[]>();
+				this.lightSensorValues = new ArrayList<>();
 				
 				for (long[] lightVals : lightSensorValuesCache) {
 					app.deviceSensorDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
@@ -513,7 +516,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			} else if (statAbbrev.equalsIgnoreCase("accel")) {
 				
 				List<double[]> accelSensorValuesCache = this.accelSensorValues;
-				this.accelSensorValues = new ArrayList<double[]>();
+				this.accelSensorValues = new ArrayList<>();
 				
 				double[] accelSensorAverages = DeviceUtils.generateAverageAccelValues(accelSensorValuesCache);
 				
@@ -528,7 +531,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			} else if (statAbbrev.equalsIgnoreCase("telephony")) {
 				
 				List<String[]> telephonyValuesCache = this.telephonyValues;
-				this.telephonyValues = new ArrayList<String[]>();
+				this.telephonyValues = new ArrayList<>();
 
 				String[] prevTelephonyVals = new String[] { "", "", "", "" };
 
@@ -568,7 +571,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 								app.deviceUtils.allowMeasurement_battery_is_charging ? batteryLevelVals[2] : 0,
 								app.deviceUtils.allowMeasurement_battery_is_fully_charged ? batteryLevelVals[3] : 0
 							);
-						Log.d(logTag, DateTimeUtils.getDateTime() + " [ battery: " + (app.deviceUtils.allowMeasurement_battery_percentage ? batteryLevelVals[0] : 0) + "% ]");
+						Log.d(logTag, DateTimeUtils.getDateTime() + " [ internal battery: " + (app.deviceUtils.allowMeasurement_battery_percentage ? batteryLevelVals[0] : 0) + "% ]");
 					}
 				}
 				

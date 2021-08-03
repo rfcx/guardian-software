@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.device.sentinel;
+package org.rfcx.guardian.admin.device.i2c.sentinel;
 
 import java.util.ArrayList;
 import java.util.Date;

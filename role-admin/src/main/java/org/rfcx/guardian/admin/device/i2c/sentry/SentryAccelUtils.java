@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.device.sentinel;
+package org.rfcx.guardian.admin.device.i2c.sentry;
 
 import android.content.Context;
 import android.util.Log;
@@ -15,14 +15,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SentinelAccelUtils {
+public class SentryAccelUtils {
 
-    public SentinelAccelUtils(Context context) {
+    public SentryAccelUtils(Context context) {
         this.app = (RfcxGuardian) context.getApplicationContext();
-        initSentinelAccelI2cOptions();
+        initSentryAccelI2cOptions();
     }
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelAccelUtils");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentryAccelUtils");
 
     public static final long samplesTakenPerCaptureCycle = 1;
 
@@ -37,7 +37,7 @@ public class SentinelAccelUtils {
 
     public boolean verboseLogging = false;
 
-    private void initSentinelAccelI2cOptions() {
+    private void initSentryAccelI2cOptions() {
 
         this.i2cValueIndex = new String[]{             "x",        "y",        "z",        "temp"     };
         this.i2cAddresses.put("accel", new String[]{   "0x04",     "0x06",      "0x02",     null  });
@@ -103,7 +103,7 @@ public class SentinelAccelUtils {
         return i2cLabelsAndSubAddresses;
     }
 
-    public void updateSentinelAccelValues() {
+    public void updateSentryAccelValues() {
         try {
 
             resetI2cTmpValues();
@@ -145,7 +145,7 @@ public class SentinelAccelUtils {
         return modifiedValue;
     }
 
-    public void saveSentinelAccelValuesToDatabase(boolean printValuesToLog) {
+    public void saveSentryAccelValuesToDatabase(boolean printValuesToLog) {
 
         int sampleCount = this.accelValues.size();
 
@@ -153,7 +153,7 @@ public class SentinelAccelUtils {
 
             long[] accVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.accelValues));
             this.accelValues = new ArrayList<>();
-            app.sentinelSensorDb.dbAccelerometer.insert(accVals[4], accVals[0]+"", accVals[1]+"", accVals[2]+"", accVals[3]+"");
+            app.sentrySensorDb.dbAccelerometer.insert(accVals[4], accVals[0]+"", accVals[1]+"", accVals[2]+"", accVals[3]+"");
 
             if (printValuesToLog) {
                 Log.d(logTag,

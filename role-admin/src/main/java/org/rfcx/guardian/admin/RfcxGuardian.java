@@ -12,9 +12,9 @@ import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
 import org.rfcx.guardian.admin.device.android.control.SystemCPUGovernorService;
 import org.rfcx.guardian.admin.device.android.control.SystemSettingsService;
 import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
-import org.rfcx.guardian.admin.device.sentinel.SentinelSensorDb;
-import org.rfcx.guardian.admin.device.sentinel.SentinelAccelUtils;
-import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
+import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
+import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
+import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.admin.comms.sbd.SbdDispatchCycleService;
 import org.rfcx.guardian.admin.comms.sbd.SbdDispatchService;
 import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
@@ -33,6 +33,7 @@ import org.rfcx.guardian.admin.device.android.system.DeviceSensorDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemDb;
 import org.rfcx.guardian.admin.device.android.system.DeviceSystemService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
+import org.rfcx.guardian.admin.device.i2c.sentry.SentrySensorDb;
 import org.rfcx.guardian.admin.status.AdminStatus;
 import org.rfcx.guardian.admin.status.StatusCacheService;
 import org.rfcx.guardian.admin.comms.swm.SwmMessageDb;
@@ -69,9 +70,9 @@ import org.rfcx.guardian.admin.device.android.control.ScheduledRebootService;
 import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService;
 import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
 import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
-import org.rfcx.guardian.admin.device.sentinel.DeviceSentinelService;
-import org.rfcx.guardian.admin.device.sentinel.SentinelPowerDb;
-import org.rfcx.guardian.admin.device.sentinel.SentinelPowerUtils;
+import org.rfcx.guardian.admin.device.i2c.DeviceI2cService;
+import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerDb;
+import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
 import org.rfcx.guardian.admin.receiver.AirplaneModeReceiver;
 import org.rfcx.guardian.admin.receiver.ConnectivityReceiver;
 
@@ -102,6 +103,7 @@ public class RfcxGuardian extends Application {
 	public LogcatDb logcatDb = null;
 	public SentinelPowerDb sentinelPowerDb = null;
 	public SentinelSensorDb sentinelSensorDb = null;
+	public SentrySensorDb sentrySensorDb = null;
 	public DeviceSystemDb deviceSystemDb = null;
     public DeviceSensorDb deviceSensorDb = null;
     public DeviceRebootDb rebootDb = null;
@@ -129,7 +131,7 @@ public class RfcxGuardian extends Application {
 	public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
 
 	public SentinelPowerUtils sentinelPowerUtils = null;
-	public SentinelAccelUtils sentinelAccelUtils = null;
+	public SentryAccelUtils sentryAccelUtils = null;
 
 	public SbdUtils sbdUtils = null;
 	public SwmUtils swmUtils = null;
@@ -142,7 +144,7 @@ public class RfcxGuardian extends Application {
 	public String[] RfcxCoreServices = 
 			new String[] {
 				DeviceSystemService.SERVICE_NAME,
-				DeviceSentinelService.SERVICE_NAME,
+				DeviceI2cService.SERVICE_NAME,
 				SmsDispatchCycleService.SERVICE_NAME,
 				SbdDispatchCycleService.SERVICE_NAME,
 				SwmDispatchCycleService.SERVICE_NAME
@@ -169,12 +171,12 @@ public class RfcxGuardian extends Application {
 
 		this.deviceUtils = new DeviceUtils(this);
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
-		this.sentinelAccelUtils = new SentinelAccelUtils(this);
+		this.sentryAccelUtils = new SentryAccelUtils(this);
 		this.assetUtils = new AssetUtils(this);
 		this.sbdUtils = new SbdUtils(this);
 		this.swmUtils = new SwmUtils(this);
 
-		SentinelUtils.setSentinelLoggingVerbosity(this);
+		DeviceI2CUtils.setSentinelLoggingVerbosity(this);
 		DeviceUtils.setSystemLoggingVerbosity(this);
 
 		// Hardware-specific hacks and modifications
@@ -277,6 +279,7 @@ public class RfcxGuardian extends Application {
 		
 		this.sentinelPowerDb = new SentinelPowerDb(this, this.version);
 		this.sentinelSensorDb = new SentinelSensorDb(this, this.version);
+		this.sentrySensorDb = new SentrySensorDb(this, this.version);
 		this.screenShotDb = new ScreenShotDb(this, this.version);
 		this.cameraCaptureDb = new CameraCaptureDb(this, this.version);
 		this.logcatDb = new LogcatDb(this, this.version);
@@ -325,7 +328,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( ScheduledRebootService.SERVICE_NAME, ScheduledRebootService.class);
 
 		this.rfcxSvc.addService( DeviceSystemService.SERVICE_NAME, DeviceSystemService.class);
-		this.rfcxSvc.addService( DeviceSentinelService.SERVICE_NAME, DeviceSentinelService.class);
+		this.rfcxSvc.addService( DeviceI2cService.SERVICE_NAME, DeviceI2cService.class);
 
 		this.rfcxSvc.addService( ScreenShotCaptureService.SERVICE_NAME, ScreenShotCaptureService.class);
 		this.rfcxSvc.addService( ScheduledScreenShotCaptureService.SERVICE_NAME, ScheduledScreenShotCaptureService.class);
@@ -344,7 +347,10 @@ public class RfcxGuardian extends Application {
 
 		if (prefKey != null) {
 
-			if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION) || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD)) {
+			if (	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
+				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD)
+				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS)
+			) {
 				rfcxSvc.triggerService(WifiStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 
@@ -364,7 +370,7 @@ public class RfcxGuardian extends Application {
 				Log.e(logTag, "Pref ReSync: ADD CODE FOR FORCING RESET OF SCHEDULED REBOOT");
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL)) {
-				SentinelUtils.setSentinelLoggingVerbosity(this);
+				DeviceI2CUtils.setSentinelLoggingVerbosity(this);
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_VERBOSE_CPU)) {
 				DeviceUtils.setSystemLoggingVerbosity(this);

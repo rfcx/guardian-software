@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.device.sentinel;
+package org.rfcx.guardian.admin.device.i2c.sentinel;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,8 +16,8 @@ public class SentinelSensorDb {
 	public SentinelSensorDb(Context context, String appVersion) {
 		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
 		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-		this.dbAccelerometer = new DbAccelerometer(context);
 		this.dbEnvironment = new DbEnvironment(context);
+		this.dbBattery = new DbBattery(context);
 	}
 
 	private int VERSION = 1;
@@ -43,53 +43,6 @@ public class SentinelSensorDb {
 			.append(")");
 		return sbOut.toString();
 	}
-	
-	public class DbAccelerometer {
-
-		final DbUtils dbUtils;
-		public String FILEPATH;
-
-		private String TABLE = "accelerometer";
-		
-		public DbAccelerometer(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
-			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
-		}
-		
-		public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {
-			
-			ContentValues values = new ContentValues();
-			values.put(C_MEASURED_AT, measured_at);
-			values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
-			
-			return this.dbUtils.insertRow(TABLE, values);
-		}
-
-		public JSONArray getLatestRowAsJsonArray() {
-			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
-		}
-		
-		private List<String[]> getAllRows() {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
-		}
-		
-		public void clearRowsBefore(Date date) {
-			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
-		}
-		
-		public String getConcatRows() {
-			return DbUtils.getConcatRows(getAllRows());
-		}
-		
-		public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
-			return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
-		}
-
-	}
-	public final DbAccelerometer dbAccelerometer;
 
 	public class DbEnvironment {
 
@@ -137,6 +90,53 @@ public class SentinelSensorDb {
 
 	}
 	public final DbEnvironment dbEnvironment;
+
+	public class DbBattery {
+
+		final DbUtils dbUtils;
+		public String FILEPATH;
+
+		private String TABLE = "battery";
+
+		public DbBattery(Context context) {
+			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
+		}
+
+		public int insert(long measured_at, String value_1, String value_2, String value_3, String value_4) {
+
+			ContentValues values = new ContentValues();
+			values.put(C_MEASURED_AT, measured_at);
+			values.put(C_VALUE_1, value_1.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_2, value_2.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_3, value_3.replaceAll("\\*", "-").replaceAll("\\|","-"));
+			values.put(C_VALUE_4, value_4.replaceAll("\\*", "-").replaceAll("\\|","-"));
+
+			return this.dbUtils.insertRow(TABLE, values);
+		}
+
+		public JSONArray getLatestRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
+		}
+
+		private List<String[]> getAllRows() {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
+		}
+
+		public void clearRowsBefore(Date date) {
+			this.dbUtils.deleteRowsOlderThan(TABLE, C_MEASURED_AT, date);
+		}
+
+		public String getConcatRows() {
+			return DbUtils.getConcatRows(getAllRows());
+		}
+
+		public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
+			return DbUtils.getConcatRowsWithLabelPrepended(labelToPrepend, getAllRows());
+		}
+
+	}
+	public final DbBattery dbBattery;
 
 
 	

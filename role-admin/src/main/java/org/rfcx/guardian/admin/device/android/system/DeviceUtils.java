@@ -323,4 +323,24 @@ public class DeviceUtils {
 
 	}
 
+
+	public void checkReportMobileNetworkChange(List<String[]> cachedValsList, String[] latestVal) {
+
+		String[] logVal = new String[] {};
+
+		if (cachedValsList.size() == 0) {
+			logVal = latestVal;
+		} else {
+			String[] lastCachedVals = cachedValsList.get(cachedValsList.size()-1);
+			if ( !lastCachedVals[1].equalsIgnoreCase(latestVal[1]) || !lastCachedVals[2].equalsIgnoreCase(latestVal[2]) || !lastCachedVals[3].equalsIgnoreCase(latestVal[3]) ) {
+				logVal = lastCachedVals;
+			}
+		}
+
+		if (logVal.length > 0) {
+			Log.d(logTag, "Mobile Network at "+DateTimeUtils.getDateTime()+" [ name: "+latestVal[3]+", type: "+latestVal[2]+", signal: "+latestVal[1]+" dBm ]");
+		}
+
+	}
+
 }

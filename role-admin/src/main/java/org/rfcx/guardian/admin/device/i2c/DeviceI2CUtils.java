@@ -1,20 +1,19 @@
-package org.rfcx.guardian.admin.device.sentinel;
+package org.rfcx.guardian.admin.device.i2c;
 
 import android.content.Context;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.Date;
 
-public class SentinelUtils {
+public class DeviceI2CUtils {
 
-    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SentinelUtils");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceI2CUtils");
 
     public static final int inReducedCaptureModeExtendCaptureCycleByFactorOf = 3;
 
@@ -22,50 +21,50 @@ public class SentinelUtils {
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         boolean isVerbose = app.rfcxPrefs.getPrefAsBoolean( RfcxPrefs.Pref.ADMIN_VERBOSE_SENTINEL );
         app.sentinelPowerUtils.verboseLogging = isVerbose;
-        app.sentinelAccelUtils.verboseLogging = isVerbose;
+        app.sentryAccelUtils.verboseLogging = isVerbose;
     }
 
-    public static JSONArray getSentinelSensorValuesAsJsonArray(Context context) {
+    public static JSONArray getI2cSensorValuesAsJsonArray(Context context) {
 
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-        JSONArray accelJsonArray = new JSONArray();
+        JSONArray sensorJsonArray = new JSONArray();
         try {
             JSONObject sensorJson = new JSONObject();
-            sensorJson.put("accelerometer", app.sentinelSensorDb.dbAccelerometer.getConcatRowsWithLabelPrepended("accelerometer"));
-//            sensorJson.put("compass", app.sentinelSensorDb.dbCompass.getConcatRowsWithLabelPrepended("compass"));
-            accelJsonArray.put(sensorJson);
+            sensorJson.put("environment", app.sentinelSensorDb.dbEnvironment.getConcatRowsWithLabelPrepended("environment"));
+            sensorJson.put("battery", app.sentinelSensorDb.dbBattery.getConcatRowsWithLabelPrepended("battery"));
+            sensorJsonArray.put(sensorJson);
 
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
 
         } finally {
-            return accelJsonArray;
+            return sensorJsonArray;
         }
     }
 
-    public static int deleteSentinelSensorValuesBeforeTimestamp(String timeStamp, Context context) {
+    public static int deleteI2cSensorValuesBeforeTimestamp(String timeStamp, Context context) {
 
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
         Date clearBefore = new Date(Long.parseLong(timeStamp));
 
-        app.sentinelSensorDb.dbAccelerometer.clearRowsBefore(clearBefore);
-//        app.sentinelSensorDb.dbCompass.clearRowsBefore(clearBefore);
+        app.sentinelSensorDb.dbEnvironment.clearRowsBefore(clearBefore);
+        app.sentinelSensorDb.dbBattery.clearRowsBefore(clearBefore);
 
         return 1;
     }
 
 
-    public static JSONArray getMomentarySentinelSensorValuesAsJsonArray(boolean forceUpdate, Context context) {
+    public static JSONArray getMomentaryI2cSensorValuesAsJsonArray(boolean forceUpdate, Context context) {
 
         RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
         JSONArray sensorJsonArray = new JSONArray();
 
         if (forceUpdate) {
 
-            if (app.sentinelAccelUtils.isCaptureAllowed()) {
-                app.sentinelAccelUtils.resetAccelValues();
-                app.sentinelAccelUtils.updateSentinelAccelValues();
+            if (app.sentryAccelUtils.isCaptureAllowed()) {
+                app.sentryAccelUtils.resetAccelValues();
+                app.sentryAccelUtils.updateSentryAccelValues();
             }
 
 //            if (app.sentinelCompassUtils.isCaptureAllowed()) {
@@ -77,8 +76,8 @@ public class SentinelUtils {
         try {
             JSONObject sensorJson = new JSONObject();
 
-            if (app.sentinelAccelUtils.getAccelValues().size() > 0) {
-                long[] accelVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentinelAccelUtils.getAccelValues()));
+            if (app.sentryAccelUtils.getAccelValues().size() > 0) {
+                long[] accelVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(app.sentryAccelUtils.getAccelValues()));
                 sensorJson.put("accelerometer", "accelerometer*"+accelVals[4]+"*"+accelVals[0]+"*"+accelVals[1]+"*"+accelVals[2]+"*"+accelVals[3] );
             }
 
@@ -92,9 +91,9 @@ public class SentinelUtils {
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
 
-        } finally {
-            return sensorJsonArray;
         }
+
+        return sensorJsonArray;
     }
 
 }
