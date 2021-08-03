@@ -62,7 +62,7 @@ public class DeviceI2CUtils {
 
         if (forceUpdate) {
 
-            if (app.sentryAccelUtils.isCaptureAllowed()) {
+            if (app.sentryAccelUtils.isChipAccessibleByI2c()) {
                 app.sentryAccelUtils.resetAccelValues();
                 app.sentryAccelUtils.updateSentryAccelValues();
             }

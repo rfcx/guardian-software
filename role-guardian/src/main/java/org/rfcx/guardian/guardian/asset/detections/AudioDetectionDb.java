@@ -147,13 +147,27 @@ public class AudioDetectionDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 
+		public List<String[]> getLatestRowsNotAccessedSinceWithLimit(long notAccessedSince, int maxRows) {
+			return this.dbUtils.getRowsWithNumericColumnHigherOrLowerThan(TABLE, ALL_COLUMNS, C_LAST_ACCESSED_AT, notAccessedSince, true, C_CREATED_AT, maxRows);
+		}
+
+		public List<String[]> getLatestRowsWithLimit(int maxRows) {
+			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, maxRows);
+		}
+
+		public long updateLastAccessedAtByCreatedAt(String createdAt) {
+			long rightNow = (new Date()).getTime();
+			this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_CREATED_AT, createdAt);
+			return rightNow;
+		}
+
 		public void deleteSingleRow(String classificationTag, String audioId) {
 			this.dbUtils.deleteRowsWithinQueryByTwoColumns( TABLE, C_CLASSIFICATION_TAG, classificationTag, C_AUDIO_ID, audioId);
 		}
 
 		public String getSimplifiedConcatRows() {
 			String concatRows = null;
-			ArrayList<String> rowList = new ArrayList<String>();
+			ArrayList<String> rowList = new ArrayList<>();
 			try {
 				for (String[] row : getAllRows()) {
 					rowList.add(TextUtils.join("*", new String[] { row[1], row[3]+"-v"+row[4], row[7], ""+Math.round(Double.parseDouble(row[8])*1000), row[10] }));

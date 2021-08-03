@@ -39,73 +39,35 @@ public class AudioDetectionJsonUtils {
 
 
 
-	public JSONObject retrieveAndBundleDetectionJson(JSONObject inputDtcnJson, int maxDtcnRowsToBundle, boolean overrideFilterByLastAccessedAt) throws JSONException {
+	public JSONObject retrieveAndBundleDetectionJson(JSONObject insertDetectionsInto, int maxDtcnRowsToBundle, boolean overrideFilterByLastAccessedAt) throws JSONException {
 
-		JSONObject dtcnJsonBundledSnapshotsObj = inputDtcnJson;
-		JSONArray dtcnJsonBundledSnapshotsIds = new JSONArray();
+		if (insertDetectionsInto == null) { insertDetectionsInto = new JSONObject(); }
 
-		List<String[]> dtcnRows = (overrideFilterByLastAccessedAt) ? app.metaDb.dbMeta.getLatestRowsWithLimit(maxDtcnRowsToBundle) :
-				app.metaDb.dbMeta.getLatestRowsNotAccessedSinceWithLimit( (System.currentTimeMillis() - app.apiMqttUtils.getSetCheckInPublishTimeOutLength()), maxDtcnRowsToBundle);
+		JSONArray dtcnIds = new JSONArray();
+		ArrayList<String> dtcnList = new ArrayList<>();
+
+		List<String[]> dtcnRows = (overrideFilterByLastAccessedAt) ? app.audioDetectionDb.dbFiltered.getLatestRowsWithLimit(maxDtcnRowsToBundle) :
+				app.audioDetectionDb.dbFiltered.getLatestRowsNotAccessedSinceWithLimit( (System.currentTimeMillis() - app.apiMqttUtils.getSetCheckInPublishTimeOutLength()), maxDtcnRowsToBundle);
 
 		for (String[] dtcnRow : dtcnRows) {
 
-			// add meta snapshot ID to array of IDs
-			dtcnJsonBundledSnapshotsIds.put(dtcnRow[1]);
-
-			// if this is the first row to be examined, initialize the bundled object with this JSON blob
-			if (dtcnJsonBundledSnapshotsObj == null) {
-				dtcnJsonBundledSnapshotsObj = new JSONObject(dtcnRow[2]);
-
-			} else {
-				JSONObject metaJsonObjToAppend = new JSONObject(dtcnRow[2]);
-
-				Iterator<String> appendKeys = metaJsonObjToAppend.keys();
-				Iterator<String> bundleKeys = dtcnJsonBundledSnapshotsObj.keys();
-				List<String> allKeys = new ArrayList<>();
-				while (bundleKeys.hasNext()) { String bndlKey = bundleKeys.next(); if (!ArrayUtils.doesStringListContainString(allKeys, bndlKey)) { allKeys.add(bndlKey); } }
-				while (appendKeys.hasNext()) { String apnKey = appendKeys.next(); if (!ArrayUtils.doesStringListContainString(allKeys, apnKey)) { allKeys.add(apnKey); } }
-
-				for (String jsonKey : allKeys) {
-
-					if (	!dtcnJsonBundledSnapshotsObj.has(jsonKey)
-							&&	metaJsonObjToAppend.has(jsonKey)
-							&&	(metaJsonObjToAppend.get(jsonKey) instanceof String)
-					) {
-						String newStr = metaJsonObjToAppend.getString(jsonKey);
-						dtcnJsonBundledSnapshotsObj.put(jsonKey, newStr);
-
-					} else if (	dtcnJsonBundledSnapshotsObj.has(jsonKey)
-							&&	(dtcnJsonBundledSnapshotsObj.get(jsonKey) instanceof String)
-							&&	metaJsonObjToAppend.has(jsonKey)
-							&&	(metaJsonObjToAppend.get(jsonKey) instanceof String)
-					) {
-						String origStr = dtcnJsonBundledSnapshotsObj.getString(jsonKey);
-						String newStr = metaJsonObjToAppend.getString(jsonKey);
-						if ( (origStr.length() > 0) && (newStr.length() > 0) ) {
-							dtcnJsonBundledSnapshotsObj.put(jsonKey, origStr+"|"+newStr);
-						} else {
-							dtcnJsonBundledSnapshotsObj.put(jsonKey, origStr+newStr);
-						}
-
-					}
-				}
-			}
-
-			// Overwrite meta_ids attribute with updated array of snapshot IDs
-			dtcnJsonBundledSnapshotsObj.put("meta_ids", dtcnJsonBundledSnapshotsIds);
+			// add detection set ID to array of IDs
+			dtcnIds.put(dtcnRow[0]);
+			dtcnList.add(TextUtils.join("*", new String[] { dtcnRow[1], dtcnRow[3]+"-v"+dtcnRow[4], dtcnRow[7], ""+Math.round(Double.parseDouble(dtcnRow[8])*1000), dtcnRow[10] }));
 
 			// mark this row as accessed in the database
-			app.metaDb.dbMeta.updateLastAccessedAtByTimestamp(dtcnRow[1]);
+			app.audioDetectionDb.dbFiltered.updateLastAccessedAtByCreatedAt(dtcnRow[0]);
 
 			// if the bundle already contains max number of snapshots, stop here
-			if (dtcnJsonBundledSnapshotsIds.length() >= maxDtcnRowsToBundle) { break; }
+			if (dtcnIds.length() >= maxDtcnRowsToBundle) { break; }
 		}
 
-		// if no meta data was available to bundle, then we create an empty object
-		if (dtcnJsonBundledSnapshotsObj == null) { dtcnJsonBundledSnapshotsObj = new JSONObject(); }
+		if (dtcnList.size() > 0) {
+			insertDetectionsInto.put("detections", TextUtils.join("|", dtcnList));
+			insertDetectionsInto.put("detection_ids", dtcnIds);
+		}
 
-
-		return dtcnJsonBundledSnapshotsObj;
+		return insertDetectionsInto;
 	}
 
 

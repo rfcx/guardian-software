@@ -41,7 +41,11 @@ public class ApiCheckInJsonUtils {
 
 	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta, String[] photoFileMeta, String[] videoFileMeta) throws JSONException, IOException {
 
+		// bundle and add meta blobs
 		JSONObject jsonObj = app.metaJsonUtils.retrieveAndBundleMetaJson(null, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
+
+		// bundle and add detections
+		jsonObj = app.audioDetectionJsonUtils.retrieveAndBundleDetectionJson( jsonObj, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
 
 		// Adding Audio JSON fields from checkin table
 		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);

@@ -179,7 +179,7 @@ public class DeviceI2cService extends Service {
 
 			this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.checkSetChipConfigByI2c();
 
-			this.isSentinelAccelCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentryAccelUtils.isCaptureAllowed();
+			this.isSentinelAccelCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentryAccelUtils.isChipAccessibleByI2c();
 
 			// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
 			// however, we slow the capture cycle by the multiple indicated in SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf

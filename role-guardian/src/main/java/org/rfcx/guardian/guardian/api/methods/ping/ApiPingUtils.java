@@ -36,7 +36,7 @@ public class ApiPingUtils {
 		this.repeatingPingCycleDuration = ( app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_PING_CYCLE_DURATION) * 60 * 1000 );
 	}
 
-	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, int includeMetaJsonBundles, String forceProtocol, boolean allowSegmentProtocols) {
+	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount, String forceProtocol, boolean allowSegmentProtocols) {
 
 		String[] apiProtocols = app.rfcxPrefs.getDefaultPrefValueAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(",");
 		if (forceProtocol.equalsIgnoreCase("all")) {
@@ -50,7 +50,7 @@ public class ApiPingUtils {
 
 		try {
 
-			String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, includeMetaJsonBundles);
+			String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, includeAssetBundleCount);
 
 			for (String apiProtocol : apiProtocols) {
 

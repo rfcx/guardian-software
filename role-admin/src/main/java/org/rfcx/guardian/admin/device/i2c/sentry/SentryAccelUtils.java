@@ -46,9 +46,9 @@ public class SentryAccelUtils {
 
     }
 
-    public boolean isCaptureAllowed() {
+    public boolean isChipAccessibleByI2c() {
 
-        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTINEL_SENSOR);
+        boolean isNotExplicitlyDisabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SENTRY_SENSOR);
         boolean isI2cHandlerAccessible = false;
         boolean isI2cAccelChipConnected = false;
 
@@ -57,7 +57,7 @@ public class SentryAccelUtils {
             if (isI2cHandlerAccessible) {
                 String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x00", i2cMainAddr, true);
                 isI2cAccelChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
-                Log.e(logTag, "Is Accelerometer Accessible: "+isI2cAccelChipConnected);
+                if (!isI2cAccelChipConnected) { Log.e(logTag, "Sentry Accelerometer Chip is NOT Accessible via I2C..."); }
             }
         }
         return isNotExplicitlyDisabled && isI2cHandlerAccessible && isI2cAccelChipConnected;

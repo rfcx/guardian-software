@@ -16,6 +16,7 @@ import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSatUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
+import org.rfcx.guardian.guardian.asset.detections.AudioDetectionJsonUtils;
 import org.rfcx.guardian.guardian.asset.library.AssetLibraryDb;
 import org.rfcx.guardian.guardian.asset.library.AssetLibraryUtils;
 import org.rfcx.guardian.guardian.asset.AssetUtils;
@@ -142,6 +143,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
     public AssetUtils assetUtils = null;
     public MetaJsonUtils metaJsonUtils = null;
+    public AudioDetectionJsonUtils audioDetectionJsonUtils = null;
     public InstructionsUtils instructionsUtils = null;
     public WifiCommunicationUtils wifiCommunicationUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
@@ -201,6 +203,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);
         this.assetUtils = new AssetUtils(this);
         this.metaJsonUtils = new MetaJsonUtils(this);
+        this.audioDetectionJsonUtils = new AudioDetectionJsonUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.wifiCommunicationUtils = new WifiCommunicationUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);

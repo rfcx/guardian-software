@@ -326,22 +326,22 @@ public class DeviceUtils {
 
 	public void checkReportMobileNetworkChange(List<String[]> cachedValsList, String[] latestVal) {
 
-		String[] reportableValue = new String[] {};
+		String[] reportableValue = new String[] { };
 
-		if (cachedValsList.size() > 0) {
+		if (cachedValsList.size() == 0) {
+			reportableValue = latestVal;
+		} else {
 			String[] lastCachedVals = cachedValsList.get(cachedValsList.size()-1);
 			if ( 	!lastCachedVals[1].equalsIgnoreCase(latestVal[1]) // signal strength
-				|| 	!lastCachedVals[3].equalsIgnoreCase(latestVal[3]) // network name
+				|| 	!lastCachedVals[3].equalsIgnoreCase(latestVal[3]) // network provider
 			//	|| 	!lastCachedVals[2].equalsIgnoreCase(latestVal[2]) // connection type/speed
 			) {
 				reportableValue = lastCachedVals;
 			}
-		} else {
-			reportableValue = latestVal;
 		}
 
 		if (reportableValue.length > 0) {
-			Log.d(logTag, "Mobile Network at "+DateTimeUtils.getDateTime(Long.parseLong(reportableValue[0]))+" [ name: "+reportableValue[3]+", signal: "+reportableValue[1]+" dBm, type: "+reportableValue[2]+" ]");
+			Log.d(logTag, "Mobile Network at "+DateTimeUtils.getDateTime(Long.parseLong(reportableValue[0]))+" [ provider: "+reportableValue[3]+", strength: "+reportableValue[1]+" dBm, type: "+reportableValue[2]+" ]");
 		}
 
 	}

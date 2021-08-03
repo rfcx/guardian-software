@@ -564,6 +564,15 @@
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_sensor" />
 
+	<ListPreference
+			android:key="admin_enable_sentry_sensor"
+			android:title="admin_enable_sentry_sensor"
+			android:dialogTitle="admin_enable_sentry_sensor"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_sentry_sensor" />
+
 	<EditTextPreference
 			android:key="admin_telemetry_capture_cycle"
 			android:title="admin_telemetry_capture_cycle"

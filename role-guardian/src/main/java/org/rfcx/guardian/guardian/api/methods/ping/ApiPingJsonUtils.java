@@ -30,11 +30,12 @@ public class ApiPingJsonUtils {
 
 	private RfcxGuardian app;
 
-	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeMetaJsonBundles) throws JSONException {
+	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount) throws JSONException {
 
 		JSONObject jsonObj = new JSONObject();
 
 		boolean includeMeasuredAt = false;
+		boolean includePurgedAssetList = false;
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "battery")) {
 			jsonObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
@@ -58,19 +59,8 @@ public class ApiPingJsonUtils {
 			}
 		}
 
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "detections")) {
-			if (app.audioDetectionDb.dbFiltered.getCount() > 0) {
-				jsonObj.put("detections", app.audioDetectionDb.dbFiltered.getSimplifiedConcatRows());
-				app.audioDetectionDb.dbFiltered.clearRowsBefore(new Date(System.currentTimeMillis()));
-			}
-		}
-
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {
 			jsonObj.put("prefs", app.metaJsonUtils.buildPrefsJsonObj(true));
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "purged")) {
-			jsonObj.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT)));
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sms")) {
@@ -130,12 +120,21 @@ public class ApiPingJsonUtils {
 			includeMeasuredAt = true;
 		}
 
-		if (includeMeasuredAt) { jsonObj.put("measured_at", System.currentTimeMillis()); }
-
-		if ((includeAllExtraFields && (includeMetaJsonBundles > 0)) || ArrayUtils.doesStringArrayContainString(includeExtraFields, "meta")) {
-
-			jsonObj = app.metaJsonUtils.retrieveAndBundleMetaJson(jsonObj, Math.max(includeMetaJsonBundles, 1), false);
+		if ((includeAllExtraFields && (includeAssetBundleCount > 0)) || ArrayUtils.doesStringArrayContainString(includeExtraFields, "meta")) {
+			jsonObj = app.metaJsonUtils.retrieveAndBundleMetaJson(jsonObj, Math.max(includeAssetBundleCount, 1), false);
+			includePurgedAssetList = true;
 		}
+
+		if ((includeAllExtraFields && (includeAssetBundleCount > 0)) || ArrayUtils.doesStringArrayContainString(includeExtraFields, "detections")) {
+			jsonObj = app.audioDetectionJsonUtils.retrieveAndBundleDetectionJson(jsonObj, Math.max(includeAssetBundleCount, 1), false);
+			includePurgedAssetList = true;
+		}
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "purged") || includePurgedAssetList) {
+			jsonObj.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT)));
+		}
+
+		if (includeMeasuredAt) { jsonObj.put("measured_at", System.currentTimeMillis()); }
 
 		int limitLogsTo = 1500;
 		String strLogs = jsonObj.toString();
