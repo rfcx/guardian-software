@@ -11,7 +11,7 @@ import org.rfcx.guardian.admin.device.android.control.AirplaneModeSetService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
 import org.rfcx.guardian.admin.device.android.control.SystemCPUGovernorService;
 import org.rfcx.guardian.admin.device.android.control.SystemSettingsService;
-import org.rfcx.guardian.admin.device.android.ssh.SSHServerControlService;
+import org.rfcx.guardian.admin.device.android.network.SSHStateSetService;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
 import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
@@ -23,7 +23,7 @@ import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchTimeoutService;
 import org.rfcx.guardian.admin.comms.sms.SmsDispatchCycleService;
 import org.rfcx.guardian.admin.comms.sms.SmsMessageDb;
-import org.rfcx.guardian.admin.device.android.control.ADBStateSetService;
+import org.rfcx.guardian.admin.device.android.network.ADBStateSetService;
 import org.rfcx.guardian.admin.comms.sms.SmsDispatchService;
 import org.rfcx.guardian.admin.device.android.network.WifiStateSetService;
 import org.rfcx.guardian.admin.device.android.system.DeviceDataTransferDb;
@@ -53,6 +53,7 @@ import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
 import org.rfcx.guardian.utility.device.control.DeviceAirplaneMode;
+import org.rfcx.guardian.utility.network.SSHServerUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxGuardianIdentity;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -260,11 +261,15 @@ public class RfcxGuardian extends Application {
 							+ "|" + "norepeat"
 							,
 					WifiStateSetService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits a few seconds before running
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:15").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 							,
 					ADBStateSetService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits a few seconds before running
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits a few seconds before running
+							+ "|" + "norepeat"
+							,
+					SSHStateSetService.SERVICE_NAME
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 			};
 			
@@ -305,6 +310,7 @@ public class RfcxGuardian extends Application {
 
 		this.rfcxSvc.addService( WifiStateSetService.SERVICE_NAME, WifiStateSetService.class);
 		this.rfcxSvc.addService( ADBStateSetService.SERVICE_NAME, ADBStateSetService.class);
+		this.rfcxSvc.addService( SSHStateSetService.SERVICE_NAME, SSHStateSetService.class);
 		this.rfcxSvc.addService( SystemSettingsService.SERVICE_NAME, SystemSettingsService.class);
 		this.rfcxSvc.addService( SystemCPUGovernorService.SERVICE_NAME, SystemCPUGovernorService.class);
 
@@ -339,8 +345,6 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( CameraCaptureService.SERVICE_NAME, CameraCaptureService.class);
 		this.rfcxSvc.addService( ScheduledCameraCaptureService.SERVICE_NAME, ScheduledCameraCaptureService.class);
 
-		this.rfcxSvc.addService("SSHServerControl", SSHServerControlService.class);
-
 	}
 
 	public void onPrefReSync(String prefKey) {
@@ -353,9 +357,13 @@ public class RfcxGuardian extends Application {
 			) {
 				rfcxSvc.triggerService(WifiStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
+				rfcxSvc.triggerService(SSHStateSetService.SERVICE_NAME, false);
 
-			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB)) {
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_ADB_OVER_TCP)) {
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
+
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER)) {
+				rfcxSvc.triggerService(SSHStateSetService.SERVICE_NAME, false);
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_AIRPLANE_MODE)) {
 				rfcxSvc.triggerService(AirplaneModeSetService.SERVICE_NAME, false);
@@ -374,9 +382,6 @@ public class RfcxGuardian extends Application {
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_VERBOSE_CPU)) {
 				DeviceUtils.setSystemLoggingVerbosity(this);
-
-			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER)) {
-				rfcxSvc.triggerService("SSHServerControl", false);
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE)) {
 				rfcxSvc.triggerService(SystemSettingsService.SERVICE_NAME, false);
@@ -425,6 +430,7 @@ public class RfcxGuardian extends Application {
 			this.sbdUtils.init(DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE, DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH);
 			this.swmUtils.init(DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE, DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH);
 
+			SSHServerUtils.serverInit(this);
 
 		}
 

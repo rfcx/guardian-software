@@ -91,7 +91,7 @@
 	<string name="prefs_value_default_admin_enable_camera_capture">false</string>
 	<string name="prefs_value_default_admin_camera_capture_cycle">180</string>
 
-	<string name="prefs_value_default_admin_enable_tcp_adb">true</string>
+	<string name="prefs_value_default_admin_enable_adb_over_tcp">true</string>
 	<string name="prefs_value_default_admin_enable_ssh_server">false</string>
 	<string name="prefs_value_default_admin_enable_wifi_socket">true</string>
 

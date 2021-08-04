@@ -4,10 +4,13 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 import java.util.Random;
 
 import java.util.regex.Pattern;
@@ -236,5 +239,30 @@ public class StringUtils {
 //		public GZIPOutputStream_BestCompression(OutputStream out) throws IOException { super(out); }
 //		public void setToBest() { def.setLevel(Deflater.BEST_COMPRESSION); }
 //	}
+
+
+
+	public static String readStringFromFile(String filePath) {
+		try {
+
+			File fileObj = new File(filePath);
+
+			if (fileObj.exists()) {
+				FileInputStream input = new FileInputStream(fileObj);
+				StringBuilder fileContent = new StringBuilder();
+				byte[] buffer = new byte[256];
+				while (input.read(buffer) != -1) {
+					fileContent.append(new String(buffer));
+				}
+				String txtFileContents = fileContent.toString().trim();
+				input.close();
+				return txtFileContents;
+			}
+		} catch (IOException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return null;
+	}
+
 
 }

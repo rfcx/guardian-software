@@ -41,9 +41,9 @@ public class SystemBuildDotPropFile {
 		shellScriptContents.append("cat ").append(origFilePath).append(" | grep -v -E \"").append(TextUtils.join("|", propertyKeys)).append("\" > ").append(tmpFilePath).append("\n");
 
 		// Cmd: Iterate through each intended property+value and append them to the snapshot of build.prop
-		List<String> appendCmds = new ArrayList<String>();
+		List<String> appendCmds = new ArrayList<>();
 		for (String propertyWithValue : propertiesWithValues) {
-			appendCmds.add((new StringBuilder()).append("echo \"").append(propertyWithValue).append("\" >> ").append(tmpFilePath).toString());
+			appendCmds.add("echo \"" + propertyWithValue + "\" >> " + tmpFilePath);
 		}
 		shellScriptContents.append(TextUtils.join(" && ", appendCmds)).append(";\n");
 
