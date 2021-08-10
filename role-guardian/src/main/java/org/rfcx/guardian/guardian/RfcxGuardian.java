@@ -395,7 +395,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                 this.apiMqttUtils.getSetCheckInPublishTimeOutLength();
                 this.rfcxStatus.setOrResetCacheExpirations(this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION));
 
-            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET)) {
+            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)) {
                 this.rfcxSvc.triggerService( SocketServerSetService.SERVICE_NAME, true);
 
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)

@@ -120,7 +120,7 @@ public class RfcxPrefs {
 		public static final String CHECKIN_META_QUEUE_FILESIZE_LIMIT = "checkin_meta_queue_filesize_limit";
 
 		public static final String ADMIN_ENABLE_ADB_OVER_TCP = "admin_enable_adb_over_tcp";
-		public static final String ADMIN_ENABLE_WIFI_SOCKET = "admin_enable_wifi_socket";
+		public static final String ADMIN_ENABLE_SOCKET_SERVER = "admin_enable_socket_server";
 		public static final String ADMIN_ENABLE_SSH_SERVER = "admin_enable_ssh_server";
 
 		public static final String API_CLOCK_SYNC_CYCLE_DURATION = "api_clock_sync_cycle_duration";
@@ -241,7 +241,7 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_ENABLE_AIRPLANE_MODE, "false");
 			put(Pref.ADMIN_ENABLE_ADB_OVER_TCP, "true");
-			put(Pref.ADMIN_ENABLE_WIFI_SOCKET, "true");
+			put(Pref.ADMIN_ENABLE_SOCKET_SERVER, "true");
 			put(Pref.ADMIN_ENABLE_SSH_SERVER, "false");
 
 			put(Pref.API_CLOCK_SYNC_CYCLE_DURATION, "180");

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
-import org.rfcx.guardian.guardian.api.methods.clocksync.ClockSyncJobService;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
@@ -27,16 +26,16 @@ public class SocketServerSetService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 
-		boolean prefsAdminEnableWifiSocket = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET);
+		boolean prefsAdminEnableSocketServer = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER);
 		String prefsAdminWifiFunction = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
 		boolean isWifiEnabled = prefsAdminWifiFunction.equals("hotspot") || prefsAdminWifiFunction.equals("client");
 
-		if (prefsAdminEnableWifiSocket && !isWifiEnabled) {
+		if (prefsAdminEnableSocketServer && !isWifiEnabled) {
 			Log.e( logTag, "WiFi Socket Server could not be enabled because 'admin_wifi_function' is set to off.");
 		}
 
 		try {
-			if (prefsAdminEnableWifiSocket && isWifiEnabled) {
+			if (prefsAdminEnableSocketServer && isWifiEnabled) {
 				app.apiSocketUtils.startServer();
 			} else {
 				app.apiSocketUtils.stopServer();
