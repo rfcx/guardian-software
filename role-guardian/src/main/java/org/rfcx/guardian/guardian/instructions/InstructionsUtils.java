@@ -110,7 +110,7 @@ public class InstructionsUtils {
 			JSONArray receivedInstrArr = new JSONArray();
 			for (String[] receivedRow : app.instructionsDb.dbQueued.getRowsInOrderOfExecution()) {
 				if (receivedRow[0] != null) {
-					if ( (includeOnlyOriginProtocols.length == 0) || ArrayUtils.doesStringArrayContainString(includeOnlyOriginProtocols, receivedRow[10]) ) {
+					if ( (includeOnlyOriginProtocols.length == 0) || ((receivedRow[10] != null) && ArrayUtils.doesStringArrayContainString(includeOnlyOriginProtocols, receivedRow[10])) ) {
 						JSONObject receivedObj = new JSONObject();
 						receivedObj.put("id", receivedRow[1]);
 						receivedObj.put("received_at", receivedRow[0]);
@@ -124,7 +124,7 @@ public class InstructionsUtils {
 			JSONArray executedInstrArr = new JSONArray();
 			for (String[] executedRow : app.instructionsDb.dbExecuted.getRowsInOrderOfExecution()) {
 				if (executedRow[0] != null) {
-					if ( (includeOnlyOriginProtocols.length == 0) || ArrayUtils.doesStringArrayContainString(includeOnlyOriginProtocols, executedRow[10]) ) {
+					if ( (includeOnlyOriginProtocols.length == 0) || ((executedRow[10] != null) && ArrayUtils.doesStringArrayContainString(includeOnlyOriginProtocols, executedRow[10])) ) {
 						JSONObject executedObj = new JSONObject();
 						executedObj.put("id", executedRow[1]);
 						executedObj.put("received_at", executedRow[7]);
@@ -158,12 +158,14 @@ public class InstructionsUtils {
 			// Set Pref[s]
 			if ( instrType.equalsIgnoreCase("set") && instrCmd.equalsIgnoreCase("prefs") ) {
 
-				JSONObject prefsKeysVals = instrMeta;
-				Iterator<String> prefsKeys = prefsKeysVals.keys();
-				while (prefsKeys.hasNext()) {
-					String prefKey = prefsKeys.next();
-					if (prefsKeysVals.getString(prefKey) instanceof String) {
-						app.setSharedPref(prefKey.toLowerCase(), prefsKeysVals.getString(prefKey).toLowerCase());
+				if (!instrMeta.toString().equalsIgnoreCase("{}")) {
+					JSONObject prefsKeysVals = instrMeta;
+					Iterator<String> prefsKeys = prefsKeysVals.keys();
+					while (prefsKeys.hasNext()) {
+						String prefKey = prefsKeys.next();
+						if (prefsKeysVals.getString(prefKey) instanceof String) {
+							app.setSharedPref(prefKey.toLowerCase(), prefsKeysVals.getString(prefKey).toLowerCase());
+						}
 					}
 				}
 
@@ -172,13 +174,15 @@ public class InstructionsUtils {
 
 				String commandValue = null;
 
-				JSONObject metaKeysVals = instrMeta;
-				Iterator<String> metaKeys = metaKeysVals.keys();
-				while (metaKeys.hasNext()) {
-					String metaKey = metaKeys.next();
-					if (metaKeysVals.getString(metaKey) instanceof String) {
-						commandValue = metaKeysVals.getString(metaKey);
-						break;
+				if (!instrMeta.toString().equalsIgnoreCase("{}")) {
+					JSONObject metaKeysVals = instrMeta;
+					Iterator<String> metaKeys = metaKeysVals.keys();
+					while (metaKeys.hasNext()) {
+						String metaKey = metaKeys.next();
+						if (metaKeysVals.getString(metaKey) instanceof String) {
+							commandValue = metaKeysVals.getString(metaKey);
+							break;
+						}
 					}
 				}
 

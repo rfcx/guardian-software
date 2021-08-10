@@ -25,9 +25,9 @@ public class ApiSocketUtils {
 
 	private RfcxGuardian app;
 
+	private Socket socket = null;
 	private ServerSocket serverSocket = null;
 	private Thread serverThread = null;
-	private Socket socket = null;
 	private DataInputStream streamInput = null;
 	private DataOutputStream streamOutput = null;
 

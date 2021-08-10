@@ -15,7 +15,6 @@ import org.json.JSONException;
 
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJobService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
-import org.rfcx.guardian.guardian.companion.ClassicSocketManager;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
@@ -277,7 +276,8 @@ public class ApiMqttUtils implements MqttCallback {
 					app.apiCheckInHealthUtils.setInFlightCheckInStats(app.apiCheckInHealthUtils.getInFlightCheckInAudioId(), 0, publishDuration, 0);
 					this.checkInPublishCompletedAt = System.currentTimeMillis();
 					String publishDurationReadable = DateTimeUtils.milliSecondDurationAsReadableString(publishDuration, true);
-					ClassicSocketManager.INSTANCE.sendCheckInTestMessage(ClassicSocketManager.CheckInState.PUBLISHED, publishDurationReadable);
+					Log.e(logTag, "****** ADD CHECKIN NOTIFICATION ******");
+//					ClassicSocketManager.INSTANCE.sendCheckInTestMessage(ClassicSocketManager.CheckInState.PUBLISHED, publishDurationReadable);
 					Log.i(logTag, "CheckIn delivery time: " + publishDurationReadable);
 				}
 
@@ -341,7 +341,10 @@ public class ApiMqttUtils implements MqttCallback {
 
 	private long publishMessageOnConfirmedConnection(String publishTopic, int publishQoS, boolean trackDuration, byte[] messageByteArray) throws MqttException {
 		confirmOrCreateConnectionToBroker(true);
-		if (publishTopic.equalsIgnoreCase(this.mqttTopic_Publish_CheckIn)) { ClassicSocketManager.INSTANCE.sendCheckInTestMessage(ClassicSocketManager.CheckInState.PUBLISHING, null); }
+		if (publishTopic.equalsIgnoreCase(this.mqttTopic_Publish_CheckIn)) {
+			Log.e(logTag, "****** ADD CHECKIN NOTIFICATION ******");
+		//	ClassicSocketManager.INSTANCE.sendCheckInTestMessage(ClassicSocketManager.CheckInState.PUBLISHING, null);
+		}
 		return this.mqttCheckInClient.publishMessage(publishTopic, publishQoS, trackDuration, messageByteArray);
 	}
 

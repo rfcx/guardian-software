@@ -37,12 +37,12 @@ import org.rfcx.guardian.guardian.audio.classify.AudioClassifyUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioVaultDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackJobService;
+import org.rfcx.guardian.guardian.companion.SocketServerSetService;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
 import org.rfcx.guardian.guardian.instructions.InstructionsSchedulerService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
-import org.rfcx.guardian.guardian.companion.WifiCommunicationService;
 import org.rfcx.guardian.guardian.companion.WifiCommunicationUtils;
 import org.rfcx.guardian.guardian.status.GuardianStatus;
 import org.rfcx.guardian.guardian.status.StatusCacheService;
@@ -285,8 +285,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
                             + "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_CLOCK_SYNC_CYCLE_DURATION) * 60 * 1000 )
                             ,
-                    "WifiCommunication"
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:01:00").getTimeInMillis() // waits one minutes before running
+                    SocketServerSetService.SERVICE_NAME
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
                             + "|" + "norepeat"
             };
 
@@ -349,7 +349,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxSvc.addService( InstructionsExecutionService.SERVICE_NAME, InstructionsExecutionService.class);
         this.rfcxSvc.addService( InstructionsSchedulerService.SERVICE_NAME, InstructionsSchedulerService.class);
 
-        this.rfcxSvc.addService("WifiCommunication", WifiCommunicationService.class);
+        this.rfcxSvc.addService( SocketServerSetService.SERVICE_NAME, SocketServerSetService.class);
     }
 
     @Override
@@ -396,7 +396,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                 this.rfcxStatus.setOrResetCacheExpirations(this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION));
 
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_WIFI_SOCKET)) {
-                this.rfcxSvc.triggerService("WifiCommunication", false);
+                this.rfcxSvc.triggerService( SocketServerSetService.SERVICE_NAME, true);
 
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)
                     || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS)
