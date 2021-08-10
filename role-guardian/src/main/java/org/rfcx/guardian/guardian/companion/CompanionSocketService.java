@@ -20,9 +20,9 @@ public class CompanionSocketService extends Service {
 	private CompanionSocketSvc companionSocketSvc;
 
 	private static final long CYCLE_DURATION = 1250;
-	private static final int ifFailingThenExtendLoopByAFactorOf = 4;
 
-	private static final int maxFailureThreshold = 12;
+	private static final int ifSendFailsThenExtendLoopByAFactorOf = 6;
+	private static final int maxSendFailureThreshold = 12;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -72,7 +72,7 @@ public class CompanionSocketService extends Service {
 
 			if (app.apiSocketUtils.isSocketServerEnabled(true)) {
 
-				int currFailureThreshold = maxFailureThreshold+1;
+				int currFailureThreshold = maxSendFailureThreshold +1;
 
 				while (companionSocketInstance.runFlag) {
 
@@ -80,8 +80,8 @@ public class CompanionSocketService extends Service {
 
 						app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-						if (currFailureThreshold >= maxFailureThreshold) {
-							if (currFailureThreshold == maxFailureThreshold) { Log.v(logTag, "Restarting Socket Server..."); }
+						if (currFailureThreshold >= maxSendFailureThreshold) {
+							if (currFailureThreshold == maxSendFailureThreshold) { Log.v(logTag, "Restarting Socket Server..."); }
 							app.apiSocketUtils.stopServer();
 							app.apiSocketUtils.startServer();
 							Thread.sleep( CYCLE_DURATION );
@@ -94,7 +94,7 @@ public class CompanionSocketService extends Service {
 							currFailureThreshold = 0;
 							app.apiSocketUtils.updatePingJson();
 						} else {
-							Thread.sleep(ifFailingThenExtendLoopByAFactorOf * CYCLE_DURATION );
+							Thread.sleep(ifSendFailsThenExtendLoopByAFactorOf * CYCLE_DURATION );
 							currFailureThreshold++;
 						}
 
