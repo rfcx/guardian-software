@@ -31,7 +31,7 @@ public class SocketServerSetService extends IntentService {
 			if (app.apiSocketUtils.isSocketServerEnabled(true)) {
 
 				app.apiSocketUtils.startServer();
-				app.rfcxSvc.triggerService( CompanionCommunicationService.SERVICE_NAME, false);
+				app.rfcxSvc.triggerService( CompanionCommunicationService.SERVICE_NAME, true);
 
 			} else {
 
