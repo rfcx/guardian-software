@@ -49,7 +49,7 @@ public class ApiPingJsonUtils {
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "instructions")) {
 			if (app.instructionsUtils.getInstructionsCount() > 0) {
-				jsonObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+				jsonObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson( new String[] { } ));
 			}
 		}
 

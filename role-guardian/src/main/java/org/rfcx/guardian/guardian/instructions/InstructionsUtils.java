@@ -27,7 +27,7 @@ public class InstructionsUtils {
 
 	private RfcxGuardian app = null;
 
-	private static final String[] localProtocols = new String[] { "socket" };
+	private static final String[] localProtocols = new String[] { "socket", "contentprovider" };
 
 	public void processReceivedInstructionJson(String jsonStr, String originProtocol) {
 		try {
@@ -63,7 +63,9 @@ public class InstructionsUtils {
 
 							JSONObject instrMetaObj = (instrObj.getString("meta").length() > 0) ? new JSONObject(instrObj.getString("meta")) : new JSONObject();
 
-							long instrExecuteAt = ( (instrObj.getString("at").length() > 0) ? Long.parseLong(instrObj.getString("at")) : System.currentTimeMillis() ) + InstructionsCycleService.CYCLE_DURATION;
+							long executionBuffer = ArrayUtils.doesStringArrayContainString(localProtocols, originProtocol) ? 0 : InstructionsCycleService.CYCLE_DURATION;
+
+							long instrExecuteAt = ( (instrObj.getString("at").length() > 0) ? Long.parseLong(instrObj.getString("at")) : System.currentTimeMillis() ) + executionBuffer;
 
 							this.app.instructionsDb.dbQueued.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString(), originProtocol );
 
@@ -100,7 +102,7 @@ public class InstructionsUtils {
 		}
 	}
 
-	public JSONObject getInstructionsInfoAsJson() {
+	public JSONObject getInstructionsInfoAsJson(String[] includeOnlyOriginProtocols) {
 
 		JSONObject instrObj = new JSONObject();
 		try {
@@ -108,11 +110,13 @@ public class InstructionsUtils {
 			JSONArray receivedInstrArr = new JSONArray();
 			for (String[] receivedRow : app.instructionsDb.dbQueued.getRowsInOrderOfExecution()) {
 				if (receivedRow[0] != null) {
-					JSONObject receivedObj = new JSONObject();
-					receivedObj.put("id", receivedRow[1]);
-					receivedObj.put("received_at", receivedRow[0]);
-					receivedInstrArr.put(receivedObj);
-					app.instructionsDb.dbQueued.updateLastAccessedAtById(receivedRow[1]);
+					if ( (includeOnlyOriginProtocols.length == 0) || ArrayUtils.doesStringArrayContainString(includeOnlyOriginProtocols, receivedRow[10]) ) {
+						JSONObject receivedObj = new JSONObject();
+						receivedObj.put("id", receivedRow[1]);
+						receivedObj.put("received_at", receivedRow[0]);
+						receivedInstrArr.put(receivedObj);
+						app.instructionsDb.dbQueued.updateLastAccessedAtById(receivedRow[1]);
+					}
 				}
 			}
 			instrObj.put("received", receivedInstrArr);
@@ -120,14 +124,16 @@ public class InstructionsUtils {
 			JSONArray executedInstrArr = new JSONArray();
 			for (String[] executedRow : app.instructionsDb.dbExecuted.getRowsInOrderOfExecution()) {
 				if (executedRow[0] != null) {
-					JSONObject executedObj = new JSONObject();
-					executedObj.put("id", executedRow[1]);
-					executedObj.put("received_at", executedRow[7]);
-					executedObj.put("executed_at", executedRow[0]);
-					executedObj.put("attempts", executedRow[6]);
-					executedObj.put("response", executedRow[5]);
-					executedInstrArr.put(executedObj);
-					app.instructionsDb.dbExecuted.updateLastAccessedAtById(executedRow[1]);
+					if ( (includeOnlyOriginProtocols.length == 0) || ArrayUtils.doesStringArrayContainString(includeOnlyOriginProtocols, executedRow[10]) ) {
+						JSONObject executedObj = new JSONObject();
+						executedObj.put("id", executedRow[1]);
+						executedObj.put("received_at", executedRow[7]);
+						executedObj.put("executed_at", executedRow[0]);
+						executedObj.put("attempts", executedRow[6]);
+						executedObj.put("response", executedRow[5]);
+						executedInstrArr.put(executedObj);
+						app.instructionsDb.dbExecuted.updateLastAccessedAtById(executedRow[1]);
+					}
 				}
 			}
 			instrObj.put("executed", executedInstrArr);
@@ -150,9 +156,7 @@ public class InstructionsUtils {
 		try {
 
 			// Set Pref[s]
-			if (	instrType.equalsIgnoreCase("set")
-				&& 	instrCmd.equalsIgnoreCase("prefs")
-			) {
+			if ( instrType.equalsIgnoreCase("set") && instrCmd.equalsIgnoreCase("prefs") ) {
 
 				JSONObject prefsKeysVals = instrMeta;
 				Iterator<String> prefsKeys = prefsKeysVals.keys();
@@ -190,7 +194,16 @@ public class InstructionsUtils {
 
                 }
 
-            }
+			// Set Identity / Registration (only works if guardian is unregistered, or has no auth token)
+            } else if ( instrType.equalsIgnoreCase("set") && instrCmd.equalsIgnoreCase("identity") ) {
+
+				if (!app.isGuardianRegistered() && app.saveGuardianRegistration(instrMeta.toString())) {
+					responseJson = instrMeta;
+				}/* else {
+
+
+				}*/
+			}
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);

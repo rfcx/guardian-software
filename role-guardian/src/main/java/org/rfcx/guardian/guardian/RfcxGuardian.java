@@ -234,22 +234,28 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         return this.getApplicationContext().getContentResolver();
     }
 
-    public void saveGuardianRegistration(String regJsonStr) {
+    public boolean saveGuardianRegistration(String regJsonStr) {
         try {
             JSONObject regJson = new JSONObject(regJsonStr);
             if (regJson.has("guid") && regJson.has("token")) {
-                this.rfcxGuardianIdentity.setAuthToken(regJson.getString("token"));
-                this.rfcxGuardianIdentity.setKeystorePassPhrase(regJson.getString("keystore_passphrase"));
-                if (regJson.has("pin_code")) { this.rfcxGuardianIdentity.setPinCode(regJson.getString("pin_code")); }
-                reSyncIdentityAcrossRoles();
-                if (regJson.has("api_mqtt_host")) { setSharedPref("api_mqtt_host", regJson.getString("api_mqtt_host")); }
-                if (regJson.has("api_sms_address")) { setSharedPref("api_sms_address", regJson.getString("api_sms_address")); }
+                if (regJson.getString("guid").equalsIgnoreCase(this.rfcxGuardianIdentity.getGuid())) {
+                    this.rfcxGuardianIdentity.setAuthToken(regJson.getString("token"));
+                    this.rfcxGuardianIdentity.setKeystorePassPhrase(regJson.getString("keystore_passphrase"));
+                    if (regJson.has("pin_code")) { this.rfcxGuardianIdentity.setPinCode(regJson.getString("pin_code")); }
+                    reSyncIdentityAcrossRoles();
+                    if (regJson.has("api_mqtt_host")) { setSharedPref("api_mqtt_host", regJson.getString("api_mqtt_host")); }
+                    if (regJson.has("api_sms_address")) { setSharedPref("api_sms_address", regJson.getString("api_sms_address")); }
+                    return true;
+                } else {
+                    Log.e(logTag, "guardian guid does not match: "+regJson.getString("guid")+", "+this.rfcxGuardianIdentity.getGuid());
+                }
             } else {
                 Log.e(logTag, "doesn't have token or guid");
             }
         } catch (Exception e) {
             RfcxLog.logExc(logTag, e);
         }
+        return false;
     }
 
     public void clearRegistration() {

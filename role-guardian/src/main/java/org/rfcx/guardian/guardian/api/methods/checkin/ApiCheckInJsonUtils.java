@@ -65,7 +65,7 @@ public class ApiCheckInJsonUtils {
 
 		// Adding instructions, if there are any
 		if (app.instructionsUtils.getInstructionsCount() > 0) {
-			jsonObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+			jsonObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson( new String[] { } ));
 		}
 
 		// Adding library assets, if there are any

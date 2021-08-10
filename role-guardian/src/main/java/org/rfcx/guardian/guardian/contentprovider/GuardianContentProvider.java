@@ -137,7 +137,7 @@ public class GuardianContentProvider extends ContentProvider {
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "instructions", "*")) { logFuncVal = "instructions-*";
 				JSONObject instrObj = new JSONObject(uri.getLastPathSegment());
-				app.instructionsUtils.processReceivedInstructionJson(instrObj, false);
+				app.instructionsUtils.processReceivedInstructionJson(instrObj, "contentprovider");
 				return RfcxComm.getProjectionCursor(appRole, "instructions", new Object[]{ instrObj.toString(), System.currentTimeMillis() });
 
 
