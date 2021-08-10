@@ -58,7 +58,7 @@ public class GuardianContentProvider extends ContentProvider {
 				String pathSegPrefKey = pathSeg.substring(0, pathSeg.indexOf("|"));
 				String pathSegPrefVal = pathSeg.substring(1 + pathSeg.indexOf("|"));
 				app.setSharedPref(pathSegPrefKey, pathSegPrefVal);
-				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{pathSegPrefKey, pathSegPrefVal, app.wifiCommunicationUtils.getPrefsChangesAsJson(), System.currentTimeMillis()});
+				return RfcxComm.getProjectionCursor(appRole, "prefs_set", new Object[]{pathSegPrefKey, pathSegPrefVal, app.oldWifiCommunicationUtils.getPrefsChangesAsJson(), System.currentTimeMillis()});
 
 			// guardian identity info
 
@@ -177,7 +177,7 @@ public class GuardianContentProvider extends ContentProvider {
 				String configurationTarget = uri.getLastPathSegment();
 				JSONArray configurationResultJsonArray = new JSONArray();
 				if (configurationTarget.equalsIgnoreCase("configuration")) {
-					configurationResultJsonArray = app.wifiCommunicationUtils.getCurrentConfigurationAsJson();
+					configurationResultJsonArray = app.oldWifiCommunicationUtils.getCurrentConfigurationAsJson();
 				}
 				return RfcxComm.getProjectionCursor(appRole, "configuration", new Object[]{configurationTarget, configurationResultJsonArray.toString(), System.currentTimeMillis() });
 
@@ -188,7 +188,7 @@ public class GuardianContentProvider extends ContentProvider {
 				String microphoneTarget = uri.getLastPathSegment();
 				JSONArray microphoneResultJsonArray = new JSONArray();
 				if (microphoneTarget.equalsIgnoreCase("microphone_test")) {
-					microphoneResultJsonArray = app.wifiCommunicationUtils.getAudioBufferAsJson();
+					microphoneResultJsonArray = app.oldWifiCommunicationUtils.getAudioBufferAsJson();
 				}
 				return RfcxComm.getProjectionCursor(appRole, "microphone_test", new Object[]{microphoneTarget, microphoneResultJsonArray.toString(), System.currentTimeMillis() });
 
@@ -199,7 +199,7 @@ public class GuardianContentProvider extends ContentProvider {
 				String diagnosticTarget = uri.getLastPathSegment();
 				JSONArray diagnosticResultJsonArray = new JSONArray();
 				if (diagnosticTarget.equalsIgnoreCase("diagnostic")) {
-					diagnosticResultJsonArray = app.wifiCommunicationUtils.getDiagnosticAsJson();
+					diagnosticResultJsonArray = app.oldWifiCommunicationUtils.getDiagnosticAsJson();
 				}
 				return RfcxComm.getProjectionCursor(appRole, "diagnostic", new Object[]{diagnosticTarget, diagnosticResultJsonArray.toString(), System.currentTimeMillis()});
 			}

@@ -19,9 +19,9 @@ import java.io.DataOutputStream
 import java.net.ServerSocket
 import java.net.Socket
 
-object ClassicSocketManager {
+object OldSocketManager {
 
-    private val LOGTAG = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ClassicSocketManager")
+    private val LOGTAG = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "OldSocketManager")
 
     private var serverSocket: ServerSocket? = null
     private var serverThread: Thread? = null

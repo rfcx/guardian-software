@@ -43,7 +43,7 @@ import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
 import org.rfcx.guardian.guardian.instructions.InstructionsSchedulerService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
-import org.rfcx.guardian.guardian.companion.WifiCommunicationUtils;
+import org.rfcx.guardian.guardian.companion.OldWifiCommunicationUtils;
 import org.rfcx.guardian.guardian.status.GuardianStatus;
 import org.rfcx.guardian.guardian.status.StatusCacheService;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
@@ -147,7 +147,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public MetaJsonUtils metaJsonUtils = null;
     public AudioDetectionJsonUtils audioDetectionJsonUtils = null;
     public InstructionsUtils instructionsUtils = null;
-    public WifiCommunicationUtils wifiCommunicationUtils = null;
+    public OldWifiCommunicationUtils oldWifiCommunicationUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
@@ -208,7 +208,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.metaJsonUtils = new MetaJsonUtils(this);
         this.audioDetectionJsonUtils = new AudioDetectionJsonUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
-        this.wifiCommunicationUtils = new WifiCommunicationUtils(this);
+        this.oldWifiCommunicationUtils = new OldWifiCommunicationUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
 
     //    reSyncIdentityAcrossRoles();
