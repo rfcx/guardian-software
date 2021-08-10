@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.companion
+package org.rfcx.guardian.guardian.companion.old
 
 import android.content.Context
 import android.os.Looper
@@ -38,12 +38,12 @@ object OldSocketManager {
 
     fun startServerSocket(context: Context) {
         if (!isRunning) {
-            this.context = context
+            OldSocketManager.context = context
             app = context.applicationContext as RfcxGuardian
             serverThread = Thread(Runnable {
                 Looper.prepare()
                 try {
-                    serverSocket = ServerSocket(9999)
+                    serverSocket = ServerSocket(9900)
                     serverSocket?.reuseAddress = true
 
                     while (true) {

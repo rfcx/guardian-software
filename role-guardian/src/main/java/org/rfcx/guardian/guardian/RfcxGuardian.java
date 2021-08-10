@@ -37,14 +37,12 @@ import org.rfcx.guardian.guardian.audio.classify.AudioClassifyUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioVaultDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackJobService;
-import org.rfcx.guardian.guardian.companion.CompanionCommunicationService;
-import org.rfcx.guardian.guardian.companion.SocketServerSetService;
+import org.rfcx.guardian.guardian.companion.CompanionSocketService;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
 import org.rfcx.guardian.guardian.instructions.InstructionsSchedulerService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
-import org.rfcx.guardian.guardian.companion.OldWifiCommunicationUtils;
 import org.rfcx.guardian.guardian.status.GuardianStatus;
 import org.rfcx.guardian.guardian.status.StatusCacheService;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
@@ -148,7 +146,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public MetaJsonUtils metaJsonUtils = null;
     public AudioDetectionJsonUtils audioDetectionJsonUtils = null;
     public InstructionsUtils instructionsUtils = null;
-    public OldWifiCommunicationUtils oldWifiCommunicationUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
@@ -163,7 +160,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     InstructionsCycleService.SERVICE_NAME,
                     InstructionsSchedulerService.SERVICE_NAME,
                     ApiPingCycleService.SERVICE_NAME,
-                    CompanionCommunicationService.SERVICE_NAME
+                    CompanionSocketService.SERVICE_NAME
             };
 
     @Override
@@ -210,7 +207,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.metaJsonUtils = new MetaJsonUtils(this);
         this.audioDetectionJsonUtils = new AudioDetectionJsonUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
-        this.oldWifiCommunicationUtils = new OldWifiCommunicationUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
 
     //    reSyncIdentityAcrossRoles();
@@ -286,10 +282,6 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     ScheduledClockSyncService.SERVICE_NAME
                             + "|" + DateTimeUtils.nowPlusThisLong("00:05:00").getTimeInMillis() // waits five minutes before running
                             + "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_CLOCK_SYNC_CYCLE_DURATION) * 60 * 1000 )
-                            ,
-                    SocketServerSetService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
-                            + "|" + "norepeat"
             };
 
             String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
@@ -351,8 +343,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxSvc.addService( InstructionsExecutionService.SERVICE_NAME, InstructionsExecutionService.class);
         this.rfcxSvc.addService( InstructionsSchedulerService.SERVICE_NAME, InstructionsSchedulerService.class);
 
-        this.rfcxSvc.addService( SocketServerSetService.SERVICE_NAME, SocketServerSetService.class);
-        this.rfcxSvc.addService( CompanionCommunicationService.SERVICE_NAME, CompanionCommunicationService.class);
+        this.rfcxSvc.addService( CompanionSocketService.SERVICE_NAME, CompanionSocketService.class);
     }
 
     @Override
@@ -401,7 +392,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             } else if ( prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)
                     ||  prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
             ) {
-                this.rfcxSvc.triggerService( SocketServerSetService.SERVICE_NAME, true);
+                this.rfcxSvc.triggerService( CompanionSocketService.SERVICE_NAME, false);
 
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)
                     || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS)

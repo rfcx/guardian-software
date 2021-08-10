@@ -102,7 +102,7 @@ public class InstructionsUtils {
 		}
 	}
 
-	public JSONObject getInstructionsInfoAsJson(String[] includeOnlyOriginProtocols) {
+	public JSONObject getInstructionsInfoAsJson() {
 
 		JSONObject instrObj = new JSONObject();
 		try {
@@ -110,13 +110,13 @@ public class InstructionsUtils {
 			JSONArray receivedInstrArr = new JSONArray();
 			for (String[] receivedRow : app.instructionsDb.dbQueued.getRowsInOrderOfExecution()) {
 				if (receivedRow[0] != null) {
-					if ( (includeOnlyOriginProtocols.length == 0) || ((receivedRow[10] != null) && ArrayUtils.doesStringArrayContainString(includeOnlyOriginProtocols, receivedRow[10])) ) {
+	//				if ( (includeOnlyOriginProtocols.length == 0) || ((receivedRow[10] != null) && ArrayUtils.doesStringArrayContainString(includeOnlyOriginProtocols, receivedRow[10])) ) {
 						JSONObject receivedObj = new JSONObject();
 						receivedObj.put("id", receivedRow[1]);
 						receivedObj.put("received_at", receivedRow[0]);
 						receivedInstrArr.put(receivedObj);
 						app.instructionsDb.dbQueued.updateLastAccessedAtById(receivedRow[1]);
-					}
+	//				}
 				}
 			}
 			instrObj.put("received", receivedInstrArr);
@@ -124,7 +124,7 @@ public class InstructionsUtils {
 			JSONArray executedInstrArr = new JSONArray();
 			for (String[] executedRow : app.instructionsDb.dbExecuted.getRowsInOrderOfExecution()) {
 				if (executedRow[0] != null) {
-					if ( (includeOnlyOriginProtocols.length == 0) || ((executedRow[10] != null) && ArrayUtils.doesStringArrayContainString(includeOnlyOriginProtocols, executedRow[10])) ) {
+	//				if ( (includeOnlyOriginProtocols.length == 0) || ((executedRow[10] != null) && ArrayUtils.doesStringArrayContainString(includeOnlyOriginProtocols, executedRow[10])) ) {
 						JSONObject executedObj = new JSONObject();
 						executedObj.put("id", executedRow[1]);
 						executedObj.put("received_at", executedRow[7]);
@@ -133,7 +133,7 @@ public class InstructionsUtils {
 						executedObj.put("response", executedRow[5]);
 						executedInstrArr.put(executedObj);
 						app.instructionsDb.dbExecuted.updateLastAccessedAtById(executedRow[1]);
-					}
+	//				}
 				}
 			}
 			instrObj.put("executed", executedInstrArr);

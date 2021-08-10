@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ApiSocketUtils {
 
@@ -39,7 +40,8 @@ public class ApiSocketUtils {
 
 	private JSONObject pingJson = new JSONObject();
 
-	private static final String[] includeFields = new String[] { "battery", "instructions", "prefs", "cpu" };
+	private static final String[] includeFields = new String[] { "battery", "instructions", "prefs", "software", "library", "device", "guardian" };
+	//"network" "sentinel_power"
 
 	public void updatePingJson() {
 		try {
@@ -62,7 +64,6 @@ public class ApiSocketUtils {
 
 			} catch (Exception e) {
 
-				RfcxLog.logExc(logTag, e, "sendSocketPing");
 				handleSocketPingPublicationExceptions(e);
 			}
 		}
@@ -104,14 +105,16 @@ public class ApiSocketUtils {
 
 	public void startServer() {
 
-		if (!isServerRunning) {
+//		if (!isServerRunning) {
+
 			serverThread = new Thread(() -> {
 				Looper.prepare();
 
 				try {
 					serverSocket = new ServerSocket(socketServerPort);
-					serverSocket.setReuseAddress(true);
+					serverSocket.setReuseAddress(false);
 
+					//while (!Thread.currentThread().isInterrupted()) {
 					while (true) {
 
 						socket = serverSocket.accept();
@@ -131,7 +134,7 @@ public class ApiSocketUtils {
 						}
 					}
 
-				} catch (Exception e) {
+				} catch (IOException e) {
 					RfcxLog.logExc(logTag, e);
 				}
 
@@ -140,34 +143,33 @@ public class ApiSocketUtils {
 
 			serverThread.start();
 			isServerRunning = true;
-		}
+	//	}
 	}
 
 
-	public void stopServer() throws IOException {
+	public void stopServer() {
 
-		if (isServerRunning) {
+	//	if (isServerRunning) {
+			try {
 
-			if (serverThread != null) { serverThread.interrupt(); }
-			serverThread = null;
+				if (serverThread != null) { serverThread.interrupt(); }
+				if (streamInput != null) { streamInput.close(); }
+				if (streamOutput != null) { streamOutput.flush(); streamOutput.close(); }
+				if (socket != null) { socket.close(); }
+				if (serverSocket != null) { serverSocket.close(); }
 
-			if (streamInput != null) { streamInput.close(); }
-			streamInput = null;
-
-			if (streamOutput != null) {
-				streamOutput.flush();
-				streamOutput.close();
+			} catch (IOException e) {
+				RfcxLog.logExc(logTag, e);
 			}
+
+			serverThread = null;
+			streamInput = null;
 			streamOutput = null;
-
-			if (socket != null) { socket.close(); }
 			socket = null;
-
-			if (serverSocket != null) { serverSocket.close(); }
 			serverSocket = null;
 
 			isServerRunning = false;
-		}
+//		}
 	}
 
 
