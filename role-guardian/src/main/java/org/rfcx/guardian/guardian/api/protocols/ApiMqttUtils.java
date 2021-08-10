@@ -414,7 +414,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit){
 					Log.v(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
-					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
+					app.deviceControlUtils.runOrTriggerDeviceCommand("airplanemode_toggle", null, app.getResolver());
 					this.inFlightCheckInAttemptCounter = 0;
 				}
 
@@ -545,11 +545,11 @@ public class ApiMqttUtils implements MqttCallback {
 
 							if ( !app.deviceMobilePhone.hasSim() && !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_AIRPLANE_MODE) && !app.deviceConnectivity.isConnected() ) {
 								Log.w(logTag, failureMsg + " Issue: No SIM Card Detected. Action: Reboot Device");
-								app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getResolver());
+								app.deviceControlUtils.runOrTriggerDeviceCommand("reboot", null, app.getResolver());
 
 							} else {
 								Log.w(logTag, failureMsg + " Action: Forced Relaunch");
-								app.deviceControlUtils.runOrTriggerDeviceControl("relaunch", app.getResolver());
+								app.deviceControlUtils.runOrTriggerDeviceCommand("relaunch", null, app.getResolver());
 
 							}
 
@@ -557,11 +557,11 @@ public class ApiMqttUtils implements MqttCallback {
 
 							if (!app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_AIRPLANE_MODE)) {
 								Log.w(logTag, failureMsg + " Action: Toggle Airplane Mode");
-								app.deviceControlUtils.runOrTriggerDeviceControl( "airplanemode_toggle", app.getResolver());
+								app.deviceControlUtils.runOrTriggerDeviceCommand( "airplanemode_toggle", null, app.getResolver());
 
 							} else if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION).equalsIgnoreCase("client")) {
 								Log.w(logTag, failureMsg + " Action: Toggle WiFi Radio");
-								app.deviceControlUtils.runOrTriggerDeviceControl( "wifi_toggle", app.getResolver());
+								app.deviceControlUtils.runOrTriggerDeviceCommand( "wifi_toggle",null,  app.getResolver());
 
 							} else {
 								Log.w(logTag, failureMsg + " No Action Taken.");

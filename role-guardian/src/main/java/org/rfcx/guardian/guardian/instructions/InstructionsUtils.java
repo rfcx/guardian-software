@@ -170,7 +170,19 @@ public class InstructionsUtils {
 			// Execute Control Command
 			} else if (instrType.equalsIgnoreCase("ctrl")) {
 
-				app.deviceControlUtils.runOrTriggerDeviceControl(instrCmd, app.getResolver());
+				String commandValue = null;
+
+				JSONObject metaKeysVals = instrMeta;
+				Iterator<String> metaKeys = metaKeysVals.keys();
+				while (metaKeys.hasNext()) {
+					String metaKey = metaKeys.next();
+					if (metaKeysVals.getString(metaKey) instanceof String) {
+						commandValue = metaKeysVals.getString(metaKey);
+						break;
+					}
+				}
+
+				app.deviceControlUtils.runOrTriggerDeviceCommand(instrCmd, commandValue, app.getResolver());
 
 			// Execute Send Command
             } else if (instrType.equalsIgnoreCase("send")) {
