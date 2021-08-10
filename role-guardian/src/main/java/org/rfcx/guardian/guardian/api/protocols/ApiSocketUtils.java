@@ -4,9 +4,11 @@ import android.content.Context;
 import android.os.Looper;
 import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -37,28 +39,39 @@ public class ApiSocketUtils {
 
 	private JSONObject pingJson = new JSONObject();
 
-	public boolean sendSocketPing(String pingJson) {
+
+	public void updatePingJson() {
+		try {
+			pingJson = new JSONObject( app.apiPingJsonUtils.buildPingJson(true, new String[]{}, 0) );
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e, "updatePingJson");
+		}
+	}
+
+	private boolean sendSocketPing(String pingJson) {
 
 		boolean isSent = false;
 
 		if (areSocketApiInteractionsAllowed()) {
 			try {
 
-
+				streamOutput.writeUTF(pingJson);
+				streamOutput.flush();
+				isSent = true;
 
 			} catch (Exception e) {
 
 				RfcxLog.logExc(logTag, e, "sendSocketPing");
 				handleSocketPingPublicationExceptions(e);
-
 			}
 		}
 
 		return isSent;
 	}
 
-
-
+	public boolean sendSocketPing() {
+		return sendSocketPing(pingJson.toString());
+	}
 
 	private void handleSocketPingPublicationExceptions(Exception inputExc) {
 
@@ -75,6 +88,8 @@ public class ApiSocketUtils {
 	private boolean areSocketApiInteractionsAllowed() {
 
 		if (	(app != null)
+				&&	isServerRunning
+
 //				&&	ArrayUtils.doesStringArrayContainString(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(","), "rest")
 //				&&	app.deviceConnectivity.isConnected()
 		) {
@@ -106,6 +121,8 @@ public class ApiSocketUtils {
 
 							streamInput = new DataInputStream(socketInput);
 							String jsonCmdStr = streamInput.readUTF();
+
+							streamOutput = new DataOutputStream(socket.getOutputStream());
 
 							if (jsonCmdStr != null) {
 								app.apiCommandUtils.processApiCommandJson(jsonCmdStr, "socket");
@@ -150,6 +167,21 @@ public class ApiSocketUtils {
 
 			isServerRunning = false;
 		}
+	}
+
+
+
+	public boolean isSocketServerEnabled(boolean verboseLogging) {
+
+		boolean prefsAdminEnableSocketServer = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER);
+		String prefsAdminWifiFunction = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
+		boolean isWifiEnabled = prefsAdminWifiFunction.equals("hotspot") || prefsAdminWifiFunction.equals("client");
+
+		if (verboseLogging && prefsAdminEnableSocketServer && !isWifiEnabled) {
+			Log.e( logTag, "WiFi Socket Server could not be enabled because 'admin_wifi_function' is set to off.");
+		}
+
+		return prefsAdminEnableSocketServer && isWifiEnabled;
 	}
 
 }

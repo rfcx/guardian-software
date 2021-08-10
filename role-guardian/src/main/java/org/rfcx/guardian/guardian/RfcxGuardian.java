@@ -37,6 +37,7 @@ import org.rfcx.guardian.guardian.audio.classify.AudioClassifyUtils;
 import org.rfcx.guardian.guardian.audio.encode.AudioVaultDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackJobService;
+import org.rfcx.guardian.guardian.companion.CompanionCommunicationService;
 import org.rfcx.guardian.guardian.companion.SocketServerSetService;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
@@ -161,7 +162,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     AudioClassifyPrepareService.SERVICE_NAME,
                     InstructionsCycleService.SERVICE_NAME,
                     InstructionsSchedulerService.SERVICE_NAME,
-                    ApiPingCycleService.SERVICE_NAME
+                    ApiPingCycleService.SERVICE_NAME,
+                    CompanionCommunicationService.SERVICE_NAME
             };
 
     @Override
@@ -286,7 +288,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                             + "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_CLOCK_SYNC_CYCLE_DURATION) * 60 * 1000 )
                             ,
                     SocketServerSetService.SERVICE_NAME
-                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:30").getTimeInMillis() // waits thirty seconds before running
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits ten seconds before running
                             + "|" + "norepeat"
             };
 
@@ -350,6 +352,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxSvc.addService( InstructionsSchedulerService.SERVICE_NAME, InstructionsSchedulerService.class);
 
         this.rfcxSvc.addService( SocketServerSetService.SERVICE_NAME, SocketServerSetService.class);
+        this.rfcxSvc.addService( CompanionCommunicationService.SERVICE_NAME, CompanionCommunicationService.class);
     }
 
     @Override
@@ -395,7 +398,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                 this.apiMqttUtils.getSetCheckInPublishTimeOutLength();
                 this.rfcxStatus.setOrResetCacheExpirations(this.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION));
 
-            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)) {
+            } else if ( prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)
+                    ||  prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
+            ) {
                 this.rfcxSvc.triggerService( SocketServerSetService.SERVICE_NAME, true);
 
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)

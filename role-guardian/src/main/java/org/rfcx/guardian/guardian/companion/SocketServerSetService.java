@@ -26,25 +26,23 @@ public class SocketServerSetService extends IntentService {
 		
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 
-		boolean prefsAdminEnableSocketServer = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER);
-		String prefsAdminWifiFunction = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
-		boolean isWifiEnabled = prefsAdminWifiFunction.equals("hotspot") || prefsAdminWifiFunction.equals("client");
-
-		if (prefsAdminEnableSocketServer && !isWifiEnabled) {
-			Log.e( logTag, "WiFi Socket Server could not be enabled because 'admin_wifi_function' is set to off.");
-		}
-
 		try {
-			if (prefsAdminEnableSocketServer && isWifiEnabled) {
+
+			if (app.apiSocketUtils.isSocketServerEnabled(true)) {
+
 				app.apiSocketUtils.startServer();
+				app.rfcxSvc.triggerService( CompanionCommunicationService.SERVICE_NAME, false);
+
 			} else {
+
+				app.rfcxSvc.stopService( CompanionCommunicationService.SERVICE_NAME);
 				app.apiSocketUtils.stopServer();
 			}
+
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}
 
-	
 	}
 	
 	
