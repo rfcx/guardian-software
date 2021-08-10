@@ -81,7 +81,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	public static final String DEVICE_CPU_GOVERNOR_DIRPATH = "/sys/devices/system/cpu";
 	public static final Map<String, String[]> DEVICE_CPU_GOVERNOR_SETTINGS = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
 		put("cpu_down_avg_times",			new String[] { "hotplug", "5" });
-		put("cpu_up_avg_times",				new String[] { "hotplug", "333000" });
+		put("cpu_up_avg_times",				new String[] { "hotplug", "444000" });
 		put("cpu_down_differential",		new String[] { "hotplug", "30" });
 		put("down_differential",			new String[] { "hotplug", "30" });
 		put("cpu_up_threshold",				new String[] { "hotplug", "98" });

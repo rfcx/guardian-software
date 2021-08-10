@@ -1,11 +1,11 @@
-package org.rfcx.guardian.guardian.companion;
+package org.rfcx.guardian.admin.companion;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class CompanionSocketService extends Service {

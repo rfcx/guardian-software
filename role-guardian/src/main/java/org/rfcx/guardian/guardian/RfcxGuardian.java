@@ -16,7 +16,7 @@ import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSatUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
-import org.rfcx.guardian.guardian.api.protocols.ApiSocketUtils;
+import org.rfcx.guardian.guardian.companion.CompanionSocketUtils;
 import org.rfcx.guardian.guardian.asset.detections.AudioDetectionJsonUtils;
 import org.rfcx.guardian.guardian.asset.library.AssetLibraryDb;
 import org.rfcx.guardian.guardian.asset.library.AssetLibraryUtils;
@@ -132,7 +132,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiRestUtils apiRestUtils = null;
     public ApiSmsUtils apiSmsUtils = null;
     public ApiSatUtils apiSatUtils = null;
-    public ApiSocketUtils apiSocketUtils = null;
+    public CompanionSocketUtils companionSocketUtils = null;
     public AssetDownloadUtils assetDownloadUtils = null;
     public AssetLibraryUtils assetLibraryUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
@@ -193,7 +193,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiRestUtils = new ApiRestUtils(this);
         this.apiSmsUtils = new ApiSmsUtils(this);
         this.apiSatUtils = new ApiSatUtils(this);
-        this.apiSocketUtils = new ApiSocketUtils(this);
+        this.companionSocketUtils = new CompanionSocketUtils(this, 9999);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.assetDownloadUtils = new AssetDownloadUtils(this);
         this.assetLibraryUtils = new AssetLibraryUtils(this);
@@ -392,7 +392,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             } else if ( prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)
                     ||  prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
             ) {
-                this.rfcxSvc.triggerService( CompanionSocketService.SERVICE_NAME, false);
+                this.rfcxSvc.triggerService( CompanionSocketService.SERVICE_NAME, true);
 
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)
                     || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS)

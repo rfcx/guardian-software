@@ -4,6 +4,8 @@ import org.rfcx.guardian.admin.asset.AssetUtils;
 import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchService;
+import org.rfcx.guardian.admin.companion.CompanionSocketService;
+import org.rfcx.guardian.admin.companion.CompanionSocketUtils;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureService;
 import org.rfcx.guardian.admin.device.android.capture.ScheduledCameraCaptureService;
@@ -127,6 +129,7 @@ public class RfcxGuardian extends Application {
 	public DeviceSystemSettings deviceSystemSettings = new DeviceSystemSettings(APP_ROLE);
 	public DeviceCPUGovernor deviceCPUGovernor = new DeviceCPUGovernor(APP_ROLE);
 	public AssetUtils assetUtils = null;
+	public CompanionSocketUtils companionSocketUtils = null;
 
 	public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils(APP_ROLE);
 	public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
@@ -136,6 +139,7 @@ public class RfcxGuardian extends Application {
 
 	public SbdUtils sbdUtils = null;
 	public SwmUtils swmUtils = null;
+
 
 	// Receivers
 	private final BroadcastReceiver connectivityReceiver = new ConnectivityReceiver();
@@ -148,7 +152,8 @@ public class RfcxGuardian extends Application {
 				DeviceI2cService.SERVICE_NAME,
 				SmsDispatchCycleService.SERVICE_NAME,
 				SbdDispatchCycleService.SERVICE_NAME,
-				SwmDispatchCycleService.SERVICE_NAME
+				SwmDispatchCycleService.SERVICE_NAME,
+				CompanionSocketService.SERVICE_NAME
 			};
 
 	@Override
@@ -174,6 +179,7 @@ public class RfcxGuardian extends Application {
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		this.sentryAccelUtils = new SentryAccelUtils(this);
 		this.assetUtils = new AssetUtils(this);
+		this.companionSocketUtils = new CompanionSocketUtils(this, 9998);
 		this.sbdUtils = new SbdUtils(this);
 		this.swmUtils = new SwmUtils(this);
 
@@ -345,6 +351,8 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( CameraCaptureService.SERVICE_NAME, CameraCaptureService.class);
 		this.rfcxSvc.addService( ScheduledCameraCaptureService.SERVICE_NAME, ScheduledCameraCaptureService.class);
 
+		this.rfcxSvc.addService( CompanionSocketService.SERVICE_NAME, CompanionSocketService.class);
+
 	}
 
 	public void onPrefReSync(String prefKey) {
@@ -358,6 +366,11 @@ public class RfcxGuardian extends Application {
 				rfcxSvc.triggerService(WifiStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(SSHStateSetService.SERVICE_NAME, false);
+
+			} else if ( prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)
+					||  prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
+			) {
+				rfcxSvc.triggerService( CompanionSocketService.SERVICE_NAME, true);
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_ADB_OVER_TCP)) {
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
