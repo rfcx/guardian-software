@@ -74,7 +74,7 @@ public class SocketUtils {
 				RfcxLog.logExc(logTag, e);
 			}
 		}
-
+		
 		serverThread = null;
 		streamInput = null;
 		streamOutput = null;

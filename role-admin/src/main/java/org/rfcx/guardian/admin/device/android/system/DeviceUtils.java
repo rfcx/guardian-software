@@ -111,7 +111,7 @@ public class DeviceUtils {
 	private final List<double[]> recentValuesAccelSensor = new ArrayList<>();
 	private final List<double[]> recentValuesGeoLocation = new ArrayList<>();
 
-
+	public static final int minTelemetryCaptureCycleMs = 667;
 
 	public boolean isReducedCaptureModeActive = false;
 	public long reducedCaptureModeLastChangedAt = 0;

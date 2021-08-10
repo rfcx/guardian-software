@@ -20,6 +20,7 @@ public class CompanionSocketService extends Service {
 	private boolean runFlag = false;
 	private CompanionSocketSvc companionSocketSvc;
 
+	private static final long minPushCycleDurationMs = 667;
 	private static final int ifSendFailsThenExtendLoopByAFactorOf = 6;
 	private static final int maxSendFailureThreshold = 20;
 
@@ -72,7 +73,7 @@ public class CompanionSocketService extends Service {
 			if (app.companionSocketUtils.socketUtils.isSocketServerEnabled(true, app.rfcxPrefs)) {
 
 				int currFailureThreshold = maxSendFailureThreshold +1;
-				long pingPushCycleDurationMs = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE);
+				long pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
 
 				while (companionSocketInstance.runFlag) {
 
@@ -85,7 +86,7 @@ public class CompanionSocketService extends Service {
 							app.companionSocketUtils.socketUtils.stopServer();
 							app.companionSocketUtils.startServer();
 							currFailureThreshold = 0;
-							pingPushCycleDurationMs = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE);
+							pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
 							Thread.sleep(pingPushCycleDurationMs);
 							app.companionSocketUtils.updatePingJson();
 						}
