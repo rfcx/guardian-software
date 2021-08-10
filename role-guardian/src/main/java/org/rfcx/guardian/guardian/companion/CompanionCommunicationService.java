@@ -68,24 +68,27 @@ public class CompanionCommunicationService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 
-			app.apiSocketUtils.updatePingJson();
+			if (app.apiSocketUtils.isSocketServerEnabled(false)) {
 
-			while (companionCommunicationInstance.runFlag) {
+				app.apiSocketUtils.updatePingJson();
 
-				try {
+				while (companionCommunicationInstance.runFlag) {
 
-					app.rfcxSvc.reportAsActive(SERVICE_NAME);
+					try {
 
-					Thread.sleep(CYCLE_DURATION);
+						app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-					if (!app.apiSocketUtils.sendSocketPing()) {
-						Thread.sleep(3 * CYCLE_DURATION);
+						Thread.sleep(CYCLE_DURATION);
+
+						if (!app.apiSocketUtils.sendSocketPing()) {
+							Thread.sleep(3 * CYCLE_DURATION);
+						}
+
+					} catch (Exception e) {
+						RfcxLog.logExc(logTag, e);
+						app.rfcxSvc.setRunState(SERVICE_NAME, false);
+						companionCommunicationInstance.runFlag = false;
 					}
-
-				} catch (Exception e) {
-					RfcxLog.logExc(logTag, e);
-					app.rfcxSvc.setRunState(SERVICE_NAME, false);
-					companionCommunicationInstance.runFlag = false;
 				}
 			}
 
