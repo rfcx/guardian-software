@@ -53,6 +53,7 @@ public class RfcxPrefs {
 		public static final String ENABLE_AUDIO_STREAM = "enable_audio_stream";
 		public static final String ENABLE_AUDIO_VAULT = "enable_audio_vault";
 		public static final String ENABLE_AUDIO_CLASSIFY = "enable_audio_classify";
+		public static final String ENABLE_AUDIO_CAST = "enable_audio_cast";
 
 		public static final String ENABLE_CHECKIN_PUBLISH = "enable_checkin_publish";
 		public static final String ENABLE_CHECKIN_ARCHIVE = "enable_checkin_archive";
@@ -145,6 +146,7 @@ public class RfcxPrefs {
 		public static final String ADMIN_ENABLE_SENTRY_SENSOR = "admin_enable_sentry_sensor";
 
 		public static final String ADMIN_TELEMETRY_CAPTURE_CYCLE = "admin_telemetry_capture_cycle";
+		public static final String COMPANION_TELEMETRY_PUSH_CYCLE = "companion_telemetry_push_cycle";
 
 		public static final String ADMIN_VERBOSE_SENTINEL = "admin_verbose_sentinel";
 		public static final String ADMIN_VERBOSE_CPU = "admin_verbose_cpu";
@@ -174,6 +176,7 @@ public class RfcxPrefs {
 			put(Pref.ENABLE_AUDIO_STREAM, "true");
 			put(Pref.ENABLE_AUDIO_VAULT, "false");
 			put(Pref.ENABLE_AUDIO_CLASSIFY, "false");
+			put(Pref.ENABLE_AUDIO_CAST, "false");
 
 			put(Pref.ENABLE_CHECKIN_PUBLISH, "true");
 			put(Pref.ENABLE_CHECKIN_ARCHIVE, "true");
@@ -267,6 +270,7 @@ public class RfcxPrefs {
 			put(Pref.ADMIN_ENABLE_SENTRY_SENSOR, "false");
 
 			put(Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE, "1333");
+			put(Pref.COMPANION_TELEMETRY_PUSH_CYCLE, "1250");
 
 			put(Pref.ADMIN_VERBOSE_SENTINEL, "false");
 			put(Pref.ADMIN_VERBOSE_CPU, "false");

@@ -7,6 +7,7 @@ import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class CompanionSocketService extends Service {
 
@@ -19,10 +20,8 @@ public class CompanionSocketService extends Service {
 	private boolean runFlag = false;
 	private CompanionSocketSvc companionSocketSvc;
 
-	private static final long CYCLE_DURATION = 1250;
-
 	private static final int ifSendFailsThenExtendLoopByAFactorOf = 6;
-	private static final int maxSendFailureThreshold = 14;
+	private static final int maxSendFailureThreshold = 20;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -73,6 +72,7 @@ public class CompanionSocketService extends Service {
 			if (app.companionSocketUtils.socketUtils.isSocketServerEnabled(true, app.rfcxPrefs)) {
 
 				int currFailureThreshold = maxSendFailureThreshold +1;
+				long pingPushCycleDurationMs = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE);
 
 				while (companionSocketInstance.runFlag) {
 
@@ -81,20 +81,21 @@ public class CompanionSocketService extends Service {
 						app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 						if (currFailureThreshold >= maxSendFailureThreshold) {
-							if (currFailureThreshold == maxSendFailureThreshold) { Log.v(logTag, "Restarting Socket Server..."); }
+							if (currFailureThreshold == maxSendFailureThreshold) { Log.v(logTag, "Resetting Socket Server..."); }
 							app.companionSocketUtils.socketUtils.stopServer();
 							app.companionSocketUtils.startServer();
-							Thread.sleep( CYCLE_DURATION );
 							currFailureThreshold = 0;
+							pingPushCycleDurationMs = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE);
+							Thread.sleep(pingPushCycleDurationMs);
 							app.companionSocketUtils.updatePingJson();
 						}
 
 						if (app.companionSocketUtils.sendSocketPing()) {
-							Thread.sleep( CYCLE_DURATION );
+							Thread.sleep(pingPushCycleDurationMs);
 							currFailureThreshold = 0;
 							app.companionSocketUtils.updatePingJson();
 						} else {
-							Thread.sleep(ifSendFailsThenExtendLoopByAFactorOf * CYCLE_DURATION );
+							Thread.sleep(ifSendFailsThenExtendLoopByAFactorOf * pingPushCycleDurationMs );
 							currFailureThreshold++;
 						}
 

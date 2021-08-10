@@ -78,7 +78,9 @@ public class CompanionSocketUtils {
 					}
 				}
 			} catch (IOException e) {
-				RfcxLog.logExc(logTag, e);
+				if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
+					RfcxLog.logExc(logTag, e);
+				}
 			}
 			Looper.loop();
 		});

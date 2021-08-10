@@ -65,6 +65,15 @@
 			android:defaultValue="@string/prefs_value_default_enable_audio_classify" />
 
 	<ListPreference
+			android:key="enable_audio_cast"
+			android:title="enable_audio_cast"
+			android:dialogTitle="enable_audio_cast"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_audio_cast" />
+
+	<ListPreference
 			android:key="enable_checkin_publish"
 			android:title="enable_checkin_publish"
 			android:dialogTitle="enable_checkin_publish"
@@ -579,6 +588,13 @@
 			android:summary="int - milliseconds"
 			android:enabled="true"
 			android:defaultValue="@string/prefs_value_default_admin_telemetry_capture_cycle" />
+
+	<EditTextPreference
+			android:key="companion_telemetry_push_cycle"
+			android:title="companion_telemetry_push_cycle"
+			android:summary="int - milliseconds"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_companion_telemetry_push_cycle" />
 
 	<ListPreference
 			android:key="admin_system_timezone"

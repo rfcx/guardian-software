@@ -28,7 +28,6 @@ public class CompanionSocketUtils {
 
 	private static final String[] includePingFields = new String[] {
 			"battery", "instructions", "prefs", "software", "library", "device", "guardian"
-//			"network", "sentinel_power"
 	};
 
 	private String pingJson = (new JSONObject()).toString();
@@ -79,7 +78,9 @@ public class CompanionSocketUtils {
 					}
 				}
 			} catch (IOException e) {
-				RfcxLog.logExc(logTag, e);
+				if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
+					RfcxLog.logExc(logTag, e);
+				}
 			}
 			Looper.loop();
 		});

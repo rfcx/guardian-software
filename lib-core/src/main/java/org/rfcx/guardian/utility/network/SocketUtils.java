@@ -70,7 +70,9 @@ public class SocketUtils {
 			if (serverSocket != null) { serverSocket.close(); }
 
 		} catch (IOException e) {
-			RfcxLog.logExc(logTag, e);
+			if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
+				RfcxLog.logExc(logTag, e);
+			}
 		}
 
 		serverThread = null;

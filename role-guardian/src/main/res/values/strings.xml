@@ -11,6 +11,7 @@
 	<string name="prefs_value_default_enable_audio_stream">true</string>
 	<string name="prefs_value_default_enable_audio_vault">false</string>
 	<string name="prefs_value_default_enable_audio_classify">false</string>
+	<string name="prefs_value_default_enable_audio_cast">false</string>
 
 	<string name="prefs_value_default_enable_checkin_publish">true</string>
 	<string name="prefs_value_default_enable_checkin_archive">true</string>
@@ -100,6 +101,7 @@
 	<string name="prefs_value_default_admin_enable_sentry_sensor">false</string>
 
 	<string name="prefs_value_default_admin_telemetry_capture_cycle">1333</string>
+	<string name="prefs_value_default_companion_telemetry_push_cycle">1250</string>
 
 	<string name="prefs_value_default_admin_verbose_sentinel">false</string>
 	<string name="prefs_value_default_admin_verbose_cpu">false</string>
