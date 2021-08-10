@@ -53,6 +53,7 @@ public class RfcxPrefs {
 		public static final String ENABLE_AUDIO_STREAM = "enable_audio_stream";
 		public static final String ENABLE_AUDIO_VAULT = "enable_audio_vault";
 		public static final String ENABLE_AUDIO_CLASSIFY = "enable_audio_classify";
+		public static final String ENABLE_AUDIO_CAST = "enable_audio_cast";
 
 		public static final String ENABLE_CHECKIN_PUBLISH = "enable_checkin_publish";
 		public static final String ENABLE_CHECKIN_ARCHIVE = "enable_checkin_archive";
@@ -119,8 +120,8 @@ public class RfcxPrefs {
 		public static final String CHECKIN_META_SEND_BUNDLE_LIMIT = "checkin_meta_send_bundle_limit";
 		public static final String CHECKIN_META_QUEUE_FILESIZE_LIMIT = "checkin_meta_queue_filesize_limit";
 
-		public static final String ADMIN_ENABLE_TCP_ADB = "admin_enable_tcp_adb";
-		public static final String ADMIN_ENABLE_WIFI_SOCKET = "admin_enable_wifi_socket";
+		public static final String ADMIN_ENABLE_ADB_OVER_TCP = "admin_enable_adb_over_tcp";
+		public static final String ADMIN_ENABLE_SOCKET_SERVER = "admin_enable_socket_server";
 		public static final String ADMIN_ENABLE_SSH_SERVER = "admin_enable_ssh_server";
 
 		public static final String API_CLOCK_SYNC_CYCLE_DURATION = "api_clock_sync_cycle_duration";
@@ -142,8 +143,10 @@ public class RfcxPrefs {
 
 		public static final String ADMIN_ENABLE_SENTINEL_POWER = "admin_enable_sentinel_power";
 		public static final String ADMIN_ENABLE_SENTINEL_SENSOR = "admin_enable_sentinel_sensor";
+		public static final String ADMIN_ENABLE_SENTRY_SENSOR = "admin_enable_sentry_sensor";
 
 		public static final String ADMIN_TELEMETRY_CAPTURE_CYCLE = "admin_telemetry_capture_cycle";
+		public static final String COMPANION_TELEMETRY_PUSH_CYCLE = "companion_telemetry_push_cycle";
 
 		public static final String ADMIN_VERBOSE_SENTINEL = "admin_verbose_sentinel";
 		public static final String ADMIN_VERBOSE_CPU = "admin_verbose_cpu";
@@ -154,6 +157,7 @@ public class RfcxPrefs {
 		public static final String ADMIN_ENABLE_AIRPLANE_MODE = "admin_enable_airplane_mode";
 
 		public static final String ADMIN_WIFI_FUNCTION = "admin_wifi_function";
+		public static final String ADMIN_WIFI_CLIENT_AUTH_CREDS = "admin_wifi_client_auth_creds";
 		public static final String ADMIN_WIFI_HOTSPOT_PASSWORD = "admin_wifi_hotspot_password";
 
 		public static final String API_SATELLITE_PROTOCOL = "api_satellite_protocol";
@@ -172,6 +176,7 @@ public class RfcxPrefs {
 			put(Pref.ENABLE_AUDIO_STREAM, "true");
 			put(Pref.ENABLE_AUDIO_VAULT, "false");
 			put(Pref.ENABLE_AUDIO_CLASSIFY, "false");
+			put(Pref.ENABLE_AUDIO_CAST, "false");
 
 			put(Pref.ENABLE_CHECKIN_PUBLISH, "true");
 			put(Pref.ENABLE_CHECKIN_ARCHIVE, "true");
@@ -238,8 +243,8 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
 
 			put(Pref.ADMIN_ENABLE_AIRPLANE_MODE, "false");
-			put(Pref.ADMIN_ENABLE_TCP_ADB, "true");
-			put(Pref.ADMIN_ENABLE_WIFI_SOCKET, "true");
+			put(Pref.ADMIN_ENABLE_ADB_OVER_TCP, "true");
+			put(Pref.ADMIN_ENABLE_SOCKET_SERVER, "true");
 			put(Pref.ADMIN_ENABLE_SSH_SERVER, "false");
 
 			put(Pref.API_CLOCK_SYNC_CYCLE_DURATION, "180");
@@ -262,15 +267,19 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_ENABLE_SENTINEL_POWER, "true");
 			put(Pref.ADMIN_ENABLE_SENTINEL_SENSOR, "false");
+			put(Pref.ADMIN_ENABLE_SENTRY_SENSOR, "false");
 
-			put(Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE, "1000");
+			put(Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE, "1333");
+			put(Pref.COMPANION_TELEMETRY_PUSH_CYCLE, "1250");
 
 			put(Pref.ADMIN_VERBOSE_SENTINEL, "false");
 			put(Pref.ADMIN_VERBOSE_CPU, "false");
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "auto_time_zone:system,i,0;");
+
 			put(Pref.ADMIN_WIFI_FUNCTION, "hotspot");
+			put(Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS, "[ssid]:[password]");
 			put(Pref.ADMIN_WIFI_HOTSPOT_PASSWORD, "rfcxrfcx");
 
 		}}

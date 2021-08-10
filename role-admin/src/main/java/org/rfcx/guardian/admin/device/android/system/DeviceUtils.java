@@ -108,10 +108,10 @@ public class DeviceUtils {
 	private List<double[]> accelSensorSnapshotValues = new ArrayList<double[]>();
 	public static final int accelSensorSnapshotsPerCaptureCycle = 2;
 
-	private List<double[]> recentValuesAccelSensor = new ArrayList<double[]>();
-	private List<double[]> recentValuesGeoLocation = new ArrayList<double[]>();
+	private final List<double[]> recentValuesAccelSensor = new ArrayList<>();
+	private final List<double[]> recentValuesGeoLocation = new ArrayList<>();
 
-
+	public static final int minTelemetryCaptureCycleMs = 667;
 
 	public boolean isReducedCaptureModeActive = false;
 	public long reducedCaptureModeLastChangedAt = 0;
@@ -319,6 +319,29 @@ public class DeviceUtils {
 
 		} finally {
 			return metaJsonArray;
+		}
+
+	}
+
+
+	public void checkReportMobileNetworkChange(List<String[]> cachedValsList, String[] latestVal) {
+
+		String[] reportableValue = new String[] { };
+
+		if (cachedValsList.size() == 0) {
+			reportableValue = latestVal;
+		} else {
+			String[] lastCachedVals = cachedValsList.get(cachedValsList.size()-1);
+			if ( 	!lastCachedVals[1].equalsIgnoreCase(latestVal[1]) // signal strength
+				|| 	!lastCachedVals[3].equalsIgnoreCase(latestVal[3]) // network provider
+			//	|| 	!lastCachedVals[2].equalsIgnoreCase(latestVal[2]) // connection type/speed
+			) {
+				reportableValue = lastCachedVals;
+			}
+		}
+
+		if (reportableValue.length > 0) {
+			Log.d(logTag, "Mobile Network at "+DateTimeUtils.getDateTime(Long.parseLong(reportableValue[0]))+" [ provider: "+reportableValue[3]+", strength: "+reportableValue[1]+" dBm, type: "+reportableValue[2]+" ]");
 		}
 
 	}

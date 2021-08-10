@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.device.sentinel;
+package org.rfcx.guardian.admin.device.i2c.sentinel;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,6 +71,7 @@ public class SentinelPowerUtils {
             if (isI2cHandlerAccessible) {
                 String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x4a", i2cMainAddr, true);
                 isI2cPowerChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
+                if (!isI2cPowerChipConnected) { Log.e(logTag, "Sentinel Power Chip is NOT Accessible via I2C..."); }
             }
         }
         return isNotExplicitlyDisabled && isI2cHandlerAccessible && isI2cPowerChipConnected;

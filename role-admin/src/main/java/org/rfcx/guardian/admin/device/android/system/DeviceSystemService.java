@@ -24,6 +24,7 @@ import org.rfcx.guardian.utility.device.capture.DeviceCPU;
 import org.rfcx.guardian.utility.device.capture.DeviceMemory;
 import org.rfcx.guardian.utility.device.capture.DeviceStorage;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
+import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -224,7 +225,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
 			// however, we slow the capture cycle by the multiple indicated in DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
 			int prefsCycleDuration = app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * DeviceUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
-			int prefsLoopDuration = /*app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE) * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) :*/ app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE);
+			int prefsLoopDuration = Math.max(DeviceUtils.minTelemetryCaptureCycleMs, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE)); /*app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE) * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) :*/
 
 			if (	(referenceCycleDuration != prefsCycleDuration)
 				|| 	(referenceLoopDuration != prefsLoopDuration)
@@ -368,7 +369,10 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 		} else if (sensorAbbrev.equalsIgnoreCase("telephony")) {
 
 			if (app.deviceMobileNetwork.isInitializedTelephonyManager() && app.deviceMobileNetwork.isInitializedSignalStrength()) {
-				this.telephonyValues.add(app.deviceMobileNetwork.getMobileNetworkSummary());
+
+				String[] newTelephonyValue = app.deviceMobileNetwork.getMobileNetworkSummary();
+				app.deviceUtils.checkReportMobileNetworkChange(this.telephonyValues, newTelephonyValue);
+				this.telephonyValues.add(newTelephonyValue);
 			} else {
 				Log.e(logTag, "could not cache telephony");
 			}
@@ -491,7 +495,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			if (statAbbrev.equalsIgnoreCase("cpu")) {
 				
 				List<int[]> cpuUsageValuesCache = this.cpuUsageValues;
-				this.cpuUsageValues = new ArrayList<int[]>();
+				this.cpuUsageValues = new ArrayList<>();
 				
 				for (int[] cpuVals : cpuUsageValuesCache) {
 					// make sure the values are valid
@@ -503,7 +507,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			} else if (statAbbrev.equalsIgnoreCase("light")) {
 				
 				List<long[]> lightSensorValuesCache = this.lightSensorValues;
-				this.lightSensorValues = new ArrayList<long[]>();
+				this.lightSensorValues = new ArrayList<>();
 				
 				for (long[] lightVals : lightSensorValuesCache) {
 					app.deviceSensorDb.dbLightMeter.insert(new Date(lightVals[0]), lightVals[1], "");
@@ -512,7 +516,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			} else if (statAbbrev.equalsIgnoreCase("accel")) {
 				
 				List<double[]> accelSensorValuesCache = this.accelSensorValues;
-				this.accelSensorValues = new ArrayList<double[]>();
+				this.accelSensorValues = new ArrayList<>();
 				
 				double[] accelSensorAverages = DeviceUtils.generateAverageAccelValues(accelSensorValuesCache);
 				
@@ -527,7 +531,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			} else if (statAbbrev.equalsIgnoreCase("telephony")) {
 				
 				List<String[]> telephonyValuesCache = this.telephonyValues;
-				this.telephonyValues = new ArrayList<String[]>();
+				this.telephonyValues = new ArrayList<>();
 
 				String[] prevTelephonyVals = new String[] { "", "", "", "" };
 
@@ -545,19 +549,19 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			} else if (statAbbrev.equalsIgnoreCase("datatransfer")) {
 			
 				List<long[]> dataTransferValuesCache = this.dataTransferValues;
-				this.dataTransferValues = new ArrayList<long[]>();
+				this.dataTransferValues = new ArrayList<>();
 				
 				for (long[] dataTransferVals : dataTransferValuesCache) {
 					// before saving, make sure this isn't the first time the stats are being generated (that throws off the net change figures)
-					if (dataTransferVals[6] == 0) {
-						app.deviceDataTransferDb.dbTransferred.insert(new Date(), new Date(dataTransferVals[0]), new Date(dataTransferVals[1]), dataTransferVals[2], dataTransferVals[3], dataTransferVals[4], dataTransferVals[5]);
+					if (dataTransferVals[10] == 0) {
+						app.deviceDataTransferDb.dbTransferred.insert(new Date(), new Date(dataTransferVals[0]), new Date(dataTransferVals[1]), dataTransferVals[2], dataTransferVals[3], dataTransferVals[4], dataTransferVals[5], dataTransferVals[6], dataTransferVals[7], dataTransferVals[8], dataTransferVals[9]);
 					}
 				}
 				
 			} else if (statAbbrev.equalsIgnoreCase("battery")) {
 				
 				List<int[]> batteryLevelValuesCache = this.batteryLevelValues;
-				this.batteryLevelValues = new ArrayList<int[]>();
+				this.batteryLevelValues = new ArrayList<>();
 				
 				for (int[] batteryLevelVals : batteryLevelValuesCache) {
 					if ((batteryLevelVals[0] <= 100) && (batteryLevelVals[0] >= 0)) {
@@ -567,6 +571,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 								app.deviceUtils.allowMeasurement_battery_is_charging ? batteryLevelVals[2] : 0,
 								app.deviceUtils.allowMeasurement_battery_is_fully_charged ? batteryLevelVals[3] : 0
 							);
+						Log.d(logTag, DateTimeUtils.getDateTime() + " [ internal battery: " + (app.deviceUtils.allowMeasurement_battery_percentage ? batteryLevelVals[0] : 0) + "% ]");
 					}
 				}
 				

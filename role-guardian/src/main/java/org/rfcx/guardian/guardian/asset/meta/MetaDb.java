@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.asset;
+package org.rfcx.guardian.guardian.asset.meta;
 
 import java.util.Date;
 import java.util.List;

@@ -65,6 +65,15 @@
 			android:defaultValue="@string/prefs_value_default_enable_audio_classify" />
 
 	<ListPreference
+			android:key="enable_audio_cast"
+			android:title="enable_audio_cast"
+			android:dialogTitle="enable_audio_cast"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_audio_cast" />
+
+	<ListPreference
 			android:key="enable_checkin_publish"
 			android:title="enable_checkin_publish"
 			android:dialogTitle="enable_checkin_publish"
@@ -538,13 +547,13 @@
 			android:defaultValue="@string/prefs_value_default_admin_enable_camera_capture" />
 
 	<ListPreference
-		android:key="admin_enable_tcp_adb"
-		android:title="admin_enable_tcp_adb"
-		android:dialogTitle="admin_enable_tcp_adb"
+		android:key="admin_enable_adb_over_tcp"
+		android:title="admin_enable_adb_over_tcp"
+		android:dialogTitle="admin_enable_adb_over_tcp"
 		android:summary="string - true/false"
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_admin_enable_tcp_adb" />
+		android:defaultValue="@string/prefs_value_default_admin_enable_adb_over_tcp" />
 
 	<ListPreference
 		android:key="admin_enable_sentinel_power"
@@ -564,12 +573,28 @@
 		android:entryValues="@array/prefs_values_true_or_false"
 		android:defaultValue="@string/prefs_value_default_admin_enable_sentinel_sensor" />
 
+	<ListPreference
+			android:key="admin_enable_sentry_sensor"
+			android:title="admin_enable_sentry_sensor"
+			android:dialogTitle="admin_enable_sentry_sensor"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_enable_sentry_sensor" />
+
 	<EditTextPreference
 			android:key="admin_telemetry_capture_cycle"
 			android:title="admin_telemetry_capture_cycle"
 			android:summary="int - milliseconds"
 			android:enabled="true"
 			android:defaultValue="@string/prefs_value_default_admin_telemetry_capture_cycle" />
+
+	<EditTextPreference
+			android:key="companion_telemetry_push_cycle"
+			android:title="companion_telemetry_push_cycle"
+			android:summary="int - milliseconds"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_companion_telemetry_push_cycle" />
 
 	<ListPreference
 			android:key="admin_system_timezone"
@@ -590,21 +615,21 @@
 
 	<ListPreference
 			android:key="admin_enable_ssh_server"
-			android:title="admin_ssh_server_state"
-			android:dialogTitle="admin_ssh_server_state"
+			android:title="admin_enable_ssh_server"
+			android:dialogTitle="admin_enable_ssh_server"
 			android:summary="string - On/Off"
 			android:entries="@array/prefs_values_true_or_false"
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_ssh_server" />
 
 	<ListPreference
-			android:key="admin_enable_wifi_socket"
-			android:title="admin_wifi_socket_state"
-			android:dialogTitle="admin_wifi_socket_state"
+			android:key="admin_enable_socket_server"
+			android:title="admin_enable_socket_server"
+			android:dialogTitle="admin_enable_socket_server"
 			android:summary="string - On/Off"
 			android:entries="@array/prefs_values_true_or_false"
 			android:entryValues="@array/prefs_values_true_or_false"
-			android:defaultValue="@string/prefs_value_default_admin_enable_wifi_socket"/>
+			android:defaultValue="@string/prefs_value_default_admin_enable_socket_server"/>
 
 
 	<ListPreference
@@ -615,6 +640,13 @@
 			android:entries="@array/prefs_values_admin_wifi_function"
 			android:entryValues="@array/prefs_values_admin_wifi_function"
 			android:defaultValue="@string/prefs_value_default_admin_wifi_function" />
+
+	<EditTextPreference
+			android:key="admin_wifi_client_auth_creds"
+			android:title="admin_wifi_client_auth_creds"
+			android:summary="string - colon separated (default to known networks)"
+			android:enabled="true"
+			android:defaultValue="@string/prefs_value_default_admin_wifi_client_auth_creds" />
 
 	<EditTextPreference
 			android:key="admin_wifi_hotspot_password"

@@ -11,6 +11,7 @@
 	<string name="prefs_value_default_enable_audio_stream">true</string>
 	<string name="prefs_value_default_enable_audio_vault">false</string>
 	<string name="prefs_value_default_enable_audio_classify">false</string>
+	<string name="prefs_value_default_enable_audio_cast">false</string>
 
 	<string name="prefs_value_default_enable_checkin_publish">true</string>
 	<string name="prefs_value_default_enable_checkin_archive">true</string>
@@ -91,14 +92,16 @@
 	<string name="prefs_value_default_admin_enable_camera_capture">false</string>
 	<string name="prefs_value_default_admin_camera_capture_cycle">180</string>
 
-	<string name="prefs_value_default_admin_enable_tcp_adb">true</string>
+	<string name="prefs_value_default_admin_enable_adb_over_tcp">true</string>
 	<string name="prefs_value_default_admin_enable_ssh_server">false</string>
-	<string name="prefs_value_default_admin_enable_wifi_socket">true</string>
+	<string name="prefs_value_default_admin_enable_socket_server">true</string>
 
 	<string name="prefs_value_default_admin_enable_sentinel_power">true</string>
 	<string name="prefs_value_default_admin_enable_sentinel_sensor">false</string>
+	<string name="prefs_value_default_admin_enable_sentry_sensor">false</string>
 
-	<string name="prefs_value_default_admin_telemetry_capture_cycle">1000</string>
+	<string name="prefs_value_default_admin_telemetry_capture_cycle">1333</string>
+	<string name="prefs_value_default_companion_telemetry_push_cycle">1250</string>
 
 	<string name="prefs_value_default_admin_verbose_sentinel">false</string>
 	<string name="prefs_value_default_admin_verbose_cpu">false</string>
@@ -108,6 +111,8 @@
 
 	<string name="prefs_value_default_admin_enable_airplane_mode">false</string>
 	<string name="prefs_value_default_admin_wifi_function">hotspot</string>
+
+	<string name="prefs_value_default_admin_wifi_client_auth_creds">[ssid]:[password]</string>
 	<string name="prefs_value_default_admin_wifi_hotspot_password">rfcxrfcx</string>
 
 	<string name="prefs_value_default_api_satellite_protocol">off</string>

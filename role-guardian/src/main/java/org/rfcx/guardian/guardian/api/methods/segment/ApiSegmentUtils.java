@@ -218,7 +218,7 @@ public class ApiSegmentUtils {
 					if (msgChecksum.equalsIgnoreCase(StringUtils.getSha1HashOfString(msgJson).substring(0, MSG_CHECKSUM_SNIPPET_LENGTH))) {
 
 						if (msgType.equalsIgnoreCase("cmd")) {
-							app.apiCommandUtils.processApiCommandJson(msgJson);
+							app.apiCommandUtils.processApiCommandJson(msgJson, msgProtocol);
 							deleteSegmentsById(groupId);
 
 						} else {

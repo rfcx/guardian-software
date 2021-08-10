@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.device.android.control;
+package org.rfcx.guardian.admin.device.android.network;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -30,7 +30,7 @@ public class ADBStateSetService extends IntentService {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 
 		// set ADB networking state
-		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_TCP_ADB);
+		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_ADB_OVER_TCP);
 		String prefsAdminWifiFunction = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
 		boolean isWifiEnabled = !prefsAdminWifiFunction.equalsIgnoreCase("off");
 

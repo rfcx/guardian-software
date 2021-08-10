@@ -31,8 +31,9 @@ public class InstructionsDb {
 	static final String C_TIMESTAMP_EXTRA = "timestamp_extra";
 	static final String C_RECEIVED_BY = "received_by";
 	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
+	static final String C_ORIGIN = "origin";
 
-	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_INSTR_ID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA, C_RECEIVED_BY, C_LAST_ACCESSED_AT };
+	private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_INSTR_ID, C_TYPE, C_COMMAND, C_EXECUTE_AT, C_JSON, C_ATTEMPTS, C_TIMESTAMP_EXTRA, C_RECEIVED_BY, C_LAST_ACCESSED_AT, C_ORIGIN };
 
 	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
 	private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -50,6 +51,7 @@ public class InstructionsDb {
 			.append(", ").append(C_TIMESTAMP_EXTRA).append(" INTEGER")
 			.append(", ").append(C_RECEIVED_BY).append(" TEXT")
 			.append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
+			.append(", ").append(C_ORIGIN).append(" TEXT")
 			.append(")");
 		return sbOut.toString();
 	}
@@ -66,23 +68,7 @@ public class InstructionsDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
-		public int insert(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson) {
-
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_INSTR_ID, instructionId);
-			values.put(C_TYPE, instructionType);
-			values.put(C_COMMAND, instructionCommand);
-			values.put(C_EXECUTE_AT, executeAtOrAfter);
-			values.put(C_JSON, metaJson);
-			values.put(C_ATTEMPTS, 0);
-			values.put(C_TIMESTAMP_EXTRA, (new Date()).getTime());
-			values.put(C_LAST_ACCESSED_AT, 0);
-
-			return this.dbUtils.insertRow(TABLE, values);
-		}
-
-		public int findByIdOrCreate(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson) {
+		public int findByIdOrCreate(String instructionId, String instructionType, String instructionCommand, long executeAtOrAfter, String metaJson, String origin) {
 
 			if (getCountById(instructionId) == 0) {
 				ContentValues values = new ContentValues();
@@ -93,6 +79,7 @@ public class InstructionsDb {
 				values.put(C_EXECUTE_AT, executeAtOrAfter);
 				values.put(C_JSON, metaJson);
 				values.put(C_ATTEMPTS, 0);
+				values.put(C_ORIGIN, origin);
 				values.put(C_TIMESTAMP_EXTRA, (new Date()).getTime());
 				values.put(C_LAST_ACCESSED_AT, (new Date()).getTime());
 				this.dbUtils.insertRow(TABLE, values);
@@ -102,10 +89,6 @@ public class InstructionsDb {
 
 		public int getCountById(String instructionId) {
 			return this.dbUtils.getCount(TABLE, C_INSTR_ID +"=?",new String[] { instructionId });
-		}
-
-		public List<String[]> getAllRows() {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 
 		public List<String[]> getRowsInOrderOfExecution() {
@@ -146,23 +129,7 @@ public class InstructionsDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
-		public int insert(String instructionId, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra) {
-
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_INSTR_ID, instructionId);
-			values.put(C_TYPE, instructionType);
-			values.put(C_COMMAND, instructionCommand);
-			values.put(C_EXECUTE_AT, executedAt);
-			values.put(C_JSON, responseJson);
-			values.put(C_ATTEMPTS, attempts);
-			values.put(C_TIMESTAMP_EXTRA, timestampExtra);
-			values.put(C_LAST_ACCESSED_AT, 0);
-
-			return this.dbUtils.insertRow(TABLE, values);
-		}
-
-		public int findByIdOrCreate(String instructionId, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra) {
+		public int findByIdOrCreate(String instructionId, String instructionType, String instructionCommand, long executedAt, String responseJson, int attempts, long timestampExtra, String origin) {
 
 			if (getCountById(instructionId) == 0) {
 				ContentValues values = new ContentValues();
@@ -173,6 +140,7 @@ public class InstructionsDb {
 				values.put(C_EXECUTE_AT, executedAt);
 				values.put(C_JSON, responseJson);
 				values.put(C_ATTEMPTS, attempts);
+				values.put(C_ORIGIN, origin);
 				values.put(C_TIMESTAMP_EXTRA, timestampExtra);
 				values.put(C_LAST_ACCESSED_AT, (new Date()).getTime());
 				this.dbUtils.insertRow(TABLE, values);
@@ -182,10 +150,6 @@ public class InstructionsDb {
 
 		public int getCountById(String instructionId) {
 			return this.dbUtils.getCount(TABLE, C_INSTR_ID +"=?",new String[] { instructionId });
-		}
-
-		public List<String[]> getAllRows() {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 
 		public List<String[]> getRowsInOrderOfExecution() {

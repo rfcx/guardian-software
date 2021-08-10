@@ -80,8 +80,7 @@
         <service android:name=".device.android.network.WifiStateSetService" />
         <service android:name=".device.android.control.ClockSyncJobService" />
         <service android:name=".device.android.system.DeviceSystemService" />
-        <service android:name=".device.sentinel.DeviceSentinelService" />
-        <service android:name=".device.android.ssh.SSHServerControlService" />
+        <service android:name=".device.i2c.DeviceI2cService" />
         <service android:name=".comms.sms.SmsDispatchCycleService" />
         <service android:name=".comms.sbd.SbdDispatchService" />
         <service android:name=".comms.sbd.SbdDispatchCycleService" />
@@ -89,11 +88,13 @@
         <service android:name=".comms.swm.SwmDispatchService" />
         <service android:name=".comms.swm.SwmDispatchCycleService" />
         <service android:name=".comms.swm.SwmDispatchTimeoutService" />
+        <service android:name=".companion.CompanionSocketService" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" />
         <service android:name=".asset.ScheduledAssetCleanupService" />
-        <service android:name=".device.android.control.ADBStateSetService" />
+        <service android:name=".device.android.network.ADBStateSetService" />
+        <service android:name=".device.android.network.SSHStateSetService" />
         <service android:name=".device.android.control.AirplaneModeSetService" />
         <service android:name=".device.android.control.ForceRoleRelaunchService" />
         <service android:name=".device.android.control.ScheduledRebootService" />

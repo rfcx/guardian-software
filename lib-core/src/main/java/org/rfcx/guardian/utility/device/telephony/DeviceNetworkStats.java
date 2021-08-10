@@ -6,39 +6,56 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 public class DeviceNetworkStats {
 	
 	public DeviceNetworkStats(String appRole) {
-		this.logTag = RfcxLog.generateLogTag(appRole, "DeviceNetworkStats");
+		logTag = RfcxLog.generateLogTag(appRole, "DeviceNetworkStats");
 	}
 	
 	private String logTag;
 
-	private long networkStatsStart = System.currentTimeMillis();
-	private long networkStatsEnd = System.currentTimeMillis();
-	private long networkStatsReceived = 0;
-	private long networkStatsSent = 0;
-	private long networkStatsReceivedTotal = 0;
-	private long networkStatsSentTotal = 0;
+	private long statsStartAt = System.currentTimeMillis();
+	private long statsEndsAt = System.currentTimeMillis();
+
+	private long mobileRxNow = 0;
+	private long mobileTxNow = 0;
+	private long mobileRxTotal = 0;
+	private long mobileTxTotal = 0;
+
+	private long networkRxNow = 0;
+	private long networkTxNow = 0;
+	private long networkRxTotal = 0;
+	private long networkTxTotal = 0;
 	
 	public long[] getDataTransferStatsSnapshot() {
 
-		boolean isFirstRun = ((this.networkStatsReceivedTotal == 0) && (this.networkStatsSentTotal == 0));
-		
+		boolean isFirstRun = ((networkRxTotal == 0) && (networkTxTotal == 0));
+
 		long mobileRxBytes = TrafficStats.getMobileRxBytes();
 		long mobileTxBytes = TrafficStats.getMobileTxBytes();
+		mobileRxNow = mobileRxBytes - mobileRxTotal;
+		mobileTxNow = mobileTxBytes - mobileTxTotal;
+		mobileRxTotal = mobileRxBytes;
+		mobileTxTotal = mobileTxBytes;
 
-		this.networkStatsStart = this.networkStatsEnd;
-		this.networkStatsEnd = System.currentTimeMillis();
-		this.networkStatsReceived = mobileRxBytes - this.networkStatsReceivedTotal;
-		this.networkStatsSent = mobileTxBytes - this.networkStatsSentTotal;
-		this.networkStatsReceivedTotal = mobileRxBytes;
-		this.networkStatsSentTotal = mobileTxBytes;
-				
+		long networkRxBytes = TrafficStats.getTotalRxBytes() - mobileRxBytes;
+		long networkTxBytes = TrafficStats.getTotalTxBytes() - mobileTxBytes;
+		networkRxNow = networkRxBytes - networkRxTotal;
+		networkTxNow = networkTxBytes - networkTxTotal;
+		networkRxTotal = networkRxBytes;
+		networkTxTotal = networkTxBytes;
+
+		statsStartAt = statsEndsAt;
+		statsEndsAt = System.currentTimeMillis();
+
 		return new long[] {
-				this.networkStatsStart,
-				this.networkStatsEnd, 
-				this.networkStatsReceived, 
-				this.networkStatsSent, 
-				this.networkStatsReceivedTotal, 
-				this.networkStatsSentTotal,
+				statsStartAt,
+				statsEndsAt,
+				mobileRxNow,
+				mobileTxNow,
+				mobileRxTotal,
+				mobileTxTotal,
+				networkRxNow,
+				networkTxNow,
+				networkRxTotal,
+				networkTxTotal,
 				(isFirstRun) ? 1 : 0
 			};
 	}

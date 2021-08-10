@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.companion
+package org.rfcx.guardian.guardian.companion.old
 
 import android.content.Context
 import android.util.Base64
@@ -8,12 +8,12 @@ import org.rfcx.guardian.guardian.RfcxGuardian
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
-class WifiCommunicationUtils(private val context: Context) {
+class OldWifiCommunicationUtils(private val context: Context) {
 
     private val app = context.applicationContext as RfcxGuardian
     private val logTag = RfcxLog.generateLogTag(
         RfcxGuardian.APP_ROLE,
-        "WifiCommunicationUtils"
+        "OldWifiCommunicationUtils"
     )
 
     fun getCurrentConfigurationAsJson(): JSONArray {

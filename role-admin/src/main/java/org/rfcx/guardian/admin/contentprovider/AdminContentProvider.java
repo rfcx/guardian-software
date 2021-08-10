@@ -10,7 +10,7 @@ import org.rfcx.guardian.admin.device.android.control.ClockSyncJobService;
 import org.rfcx.guardian.admin.device.android.control.ForceRoleRelaunchService;
 import org.rfcx.guardian.admin.device.android.control.RebootTriggerService;
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils;
-import org.rfcx.guardian.admin.device.sentinel.SentinelUtils;
+import org.rfcx.guardian.admin.device.i2c.DeviceI2CUtils;
 import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
 import org.rfcx.guardian.admin.comms.sms.SmsUtils;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
@@ -24,7 +24,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.device.sentinel.SentinelPowerUtils;
+import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelPowerUtils;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -223,7 +223,7 @@ public class AdminContentProvider extends ContentProvider {
                         momentaryValueArr = app.sentinelPowerUtils.getMomentarySentinelPowerValuesAsJsonArray();
 
                     } else if (pathSeg.equalsIgnoreCase("sentinel_sensor")) {
-                        momentaryValueArr = SentinelUtils.getMomentarySentinelSensorValuesAsJsonArray(true, app.getApplicationContext());
+                        momentaryValueArr = DeviceI2CUtils.getMomentaryI2cSensorValuesAsJsonArray(true, app.getApplicationContext());
 
                     } else if (pathSeg.equalsIgnoreCase("system_storage")) {
                         momentaryValueArr = app.deviceUtils.getMomentaryConcatSystemMetaValuesAsJsonArray("storage");
@@ -262,7 +262,7 @@ public class AdminContentProvider extends ContentProvider {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_power", SentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("sentinel_sensor")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_sensor", SentinelUtils.getSentinelSensorValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_sensor", DeviceI2CUtils.getI2cSensorValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"system_meta", DeviceUtils.getSystemMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
@@ -326,7 +326,7 @@ public class AdminContentProvider extends ContentProvider {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SentinelPowerUtils.deleteSentinelPowerValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
                 } else if (pathSegTable.equalsIgnoreCase("sentinel_sensor")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SentinelUtils.deleteSentinelSensorValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
+                    return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, DeviceI2CUtils.deleteI2cSensorValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
                 } else if (pathSegTable.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, DeviceUtils.deleteSystemMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});

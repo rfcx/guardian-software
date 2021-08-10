@@ -15,7 +15,6 @@ import org.json.JSONException;
 
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInJobService;
 import org.rfcx.guardian.guardian.api.methods.checkin.ApiCheckInQueueService;
-import org.rfcx.guardian.guardian.companion.SocketManager;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxLogcatFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxPhotoFileUtils;
@@ -163,7 +162,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 
         // Build JSON blob from included assets
-		String jsonBlob = app.apiPingJsonUtils.injectGuardianIdentityIntoJson( app.apiCheckInJsonUtils.buildCheckInJson( checkInJsonString, screenShotMeta, logFileMeta, photoFileMeta, videoFileMeta ) );
+		String jsonBlob = app.rfcxGuardianIdentity.injectAuthInfoIntoJson( app.apiCheckInJsonUtils.buildCheckInJson( checkInJsonString, screenShotMeta, logFileMeta, photoFileMeta, videoFileMeta ) );
 
 		// Package JSON Blob
 		byte[] jsonBlobAsBytes = StringUtils.stringToGZipByteArray(jsonBlob);
@@ -257,7 +256,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 		// this is a command message receive from the API
 		if (messageTopic.equalsIgnoreCase(this.mqttTopic_Subscribe_Command)) {
-			app.apiCommandUtils.processApiCommandJson(StringUtils.gZipByteArrayToUnGZipString(messagePayload));
+			app.apiCommandUtils.processApiCommandJson(StringUtils.gZipByteArrayToUnGZipString(messagePayload), "mqtt");
 		}
 	}
 
@@ -277,7 +276,8 @@ public class ApiMqttUtils implements MqttCallback {
 					app.apiCheckInHealthUtils.setInFlightCheckInStats(app.apiCheckInHealthUtils.getInFlightCheckInAudioId(), 0, publishDuration, 0);
 					this.checkInPublishCompletedAt = System.currentTimeMillis();
 					String publishDurationReadable = DateTimeUtils.milliSecondDurationAsReadableString(publishDuration, true);
-					SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHED, publishDurationReadable);
+					Log.e(logTag, "****** ADD CHECKIN NOTIFICATION ******");
+//					ClassicSocketManager.INSTANCE.sendCheckInTestMessage(ClassicSocketManager.CheckInState.PUBLISHED, publishDurationReadable);
 					Log.i(logTag, "CheckIn delivery time: " + publishDurationReadable);
 				}
 
@@ -341,7 +341,10 @@ public class ApiMqttUtils implements MqttCallback {
 
 	private long publishMessageOnConfirmedConnection(String publishTopic, int publishQoS, boolean trackDuration, byte[] messageByteArray) throws MqttException {
 		confirmOrCreateConnectionToBroker(true);
-		if (publishTopic.equalsIgnoreCase(this.mqttTopic_Publish_CheckIn)) { SocketManager.INSTANCE.sendCheckInTestMessage(SocketManager.CheckInState.PUBLISHING, null); }
+		if (publishTopic.equalsIgnoreCase(this.mqttTopic_Publish_CheckIn)) {
+			Log.e(logTag, "****** ADD CHECKIN NOTIFICATION ******");
+		//	ClassicSocketManager.INSTANCE.sendCheckInTestMessage(ClassicSocketManager.CheckInState.PUBLISHING, null);
+		}
 		return this.mqttCheckInClient.publishMessage(publishTopic, publishQoS, trackDuration, messageByteArray);
 	}
 
@@ -359,7 +362,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 		if (areMqttApiInteractionsAllowed()) {
 			try {
-				publishMessageOnConfirmedConnection( this.mqttTopic_Publish_Ping, 1, false, packageMqttPingPayload( app.apiPingJsonUtils.injectGuardianIdentityIntoJson( pingJson ) ) );
+				publishMessageOnConfirmedConnection( this.mqttTopic_Publish_Ping, 1, false, packageMqttPingPayload( app.rfcxGuardianIdentity.injectAuthInfoIntoJson( pingJson ) ) );
 				isSent = true;
 
 			} catch (Exception e) {
@@ -414,7 +417,7 @@ public class ApiMqttUtils implements MqttCallback {
 
 				if (this.inFlightCheckInAttemptCounter >= this.inFlightCheckInAttemptCounterLimit){
 					Log.v(logTag, "Max Connection Failure Loop Reached: Airplane Mode will be toggled.");
-					app.deviceControlUtils.runOrTriggerDeviceControl("airplanemode_toggle", app.getResolver());
+					app.deviceControlUtils.runOrTriggerDeviceCommand("airplanemode_toggle", null, app.getResolver());
 					this.inFlightCheckInAttemptCounter = 0;
 				}
 
@@ -545,11 +548,11 @@ public class ApiMqttUtils implements MqttCallback {
 
 							if ( !app.deviceMobilePhone.hasSim() && !app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_AIRPLANE_MODE) && !app.deviceConnectivity.isConnected() ) {
 								Log.w(logTag, failureMsg + " Issue: No SIM Card Detected. Action: Reboot Device");
-								app.deviceControlUtils.runOrTriggerDeviceControl("reboot", app.getResolver());
+								app.deviceControlUtils.runOrTriggerDeviceCommand("reboot", null, app.getResolver());
 
 							} else {
 								Log.w(logTag, failureMsg + " Action: Forced Relaunch");
-								app.deviceControlUtils.runOrTriggerDeviceControl("relaunch", app.getResolver());
+								app.deviceControlUtils.runOrTriggerDeviceCommand("relaunch", null, app.getResolver());
 
 							}
 
@@ -557,11 +560,11 @@ public class ApiMqttUtils implements MqttCallback {
 
 							if (!app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_AIRPLANE_MODE)) {
 								Log.w(logTag, failureMsg + " Action: Toggle Airplane Mode");
-								app.deviceControlUtils.runOrTriggerDeviceControl( "airplanemode_toggle", app.getResolver());
+								app.deviceControlUtils.runOrTriggerDeviceCommand( "airplanemode_toggle", null, app.getResolver());
 
 							} else if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION).equalsIgnoreCase("client")) {
 								Log.w(logTag, failureMsg + " Action: Toggle WiFi Radio");
-								app.deviceControlUtils.runOrTriggerDeviceControl( "wifi_toggle", app.getResolver());
+								app.deviceControlUtils.runOrTriggerDeviceCommand( "wifi_toggle",null,  app.getResolver());
 
 							} else {
 								Log.w(logTag, failureMsg + " No Action Taken.");

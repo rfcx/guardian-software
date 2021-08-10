@@ -27,6 +27,7 @@ public class WifiStateSetService extends IntentService {
 
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 		Context context = app.getApplicationContext();
+
 		String prefsAdminWifiFunction = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
 		boolean enableWifiAsHotspot = prefsAdminWifiFunction.equalsIgnoreCase("hotspot");
 		boolean enableWifiAsClient = prefsAdminWifiFunction.equalsIgnoreCase("client");

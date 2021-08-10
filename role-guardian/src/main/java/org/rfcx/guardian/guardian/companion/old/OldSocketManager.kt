@@ -1,4 +1,4 @@
-package org.rfcx.guardian.guardian.companion
+package org.rfcx.guardian.guardian.companion.old
 
 import android.content.Context
 import android.os.Looper
@@ -19,16 +19,14 @@ import java.io.DataOutputStream
 import java.net.ServerSocket
 import java.net.Socket
 
-object SocketManager {
+object OldSocketManager {
 
-    private val LOGTAG = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SocketManager")
+    private val LOGTAG = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "OldSocketManager")
 
     private var serverSocket: ServerSocket? = null
     private var serverThread: Thread? = null
     private var socket: Socket? = null
-
     private var streamInput: DataInputStream? = null
-
     private var streamOutput: DataOutputStream? = null
 
     private var context: Context? = null
@@ -40,12 +38,12 @@ object SocketManager {
 
     fun startServerSocket(context: Context) {
         if (!isRunning) {
-            this.context = context
+            OldSocketManager.context = context
             app = context.applicationContext as RfcxGuardian
             serverThread = Thread(Runnable {
                 Looper.prepare()
                 try {
-                    serverSocket = ServerSocket(9999)
+                    serverSocket = ServerSocket(9900)
                     serverSocket?.reuseAddress = true
 
                     while (true) {
@@ -58,22 +56,22 @@ object SocketManager {
                             val message = streamInput?.readUTF()
 
                             if (!message.isNullOrBlank()) {
-
+                                Log.e(LOGTAG, message);
                                 val receiveJson = JSONObject(message)
 
                                 //send response back
                                 streamOutput = DataOutputStream(socket?.getOutputStream())
                                 when (receiveJson.get("command")) {
-                                    "prefs" -> sendPrefsMessage()
-                                    "connection" -> sendConnectionMessage()
-                                    "diagnostic" -> sendDiagnosticMessage()
-                                    "configure" -> sendConfigurationMessage()
-                                    "microphone_test" -> sendMicrophoneTestMessage()
-                                    "signal" -> sendSignalMessage()
-                                    "sentinel" -> sendSentinelValues()
-                                    "is_registered" -> sendIfGuardianRegistered()
-                                    "is_recording" -> sendRecorderState()
-                                    "stop_wifi" -> stopWiFiService()
+//                                    "prefs" -> sendPrefsMessage()
+//                                    "connection" -> sendConnectionMessage()
+//                                    "diagnostic" -> sendDiagnosticMessage()
+//                                    "configure" -> sendConfigurationMessage()
+//                                    "microphone_test" -> sendMicrophoneTestMessage()
+//                                    "signal" -> sendSignalMessage()
+//                                    "sentinel" -> sendSentinelValues()
+//                                    "is_registered" -> sendIfGuardianRegistered()
+//                                    "is_recording" -> sendRecorderState()
+//                                    "stop_wifi" -> stopWiFiService()
                                     else -> {
                                         val commandObject =
                                             JSONObject(receiveJson.get("command").toString())

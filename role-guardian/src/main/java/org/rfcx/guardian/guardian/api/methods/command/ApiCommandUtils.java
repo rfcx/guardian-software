@@ -27,7 +27,7 @@ public class ApiCommandUtils {
 
 	private final RfcxGuardian app;
 
-	public void processApiCommandJson(String jsonStr) {
+	public void processApiCommandJson(String jsonStr, String originProtocol) {
 
 		if (!jsonStr.equalsIgnoreCase("{}")) {
 
@@ -210,8 +210,7 @@ public class ApiCommandUtils {
 
 				// parse 'instructions' array
 				if (jsonObj.has("instructions") || jsonObj.has("ins")) {
-					app.instructionsUtils.processReceivedInstructionJson((new JSONObject()).put("instructions", jsonObj.has("ins") ? jsonObj.getJSONArray("ins") : jsonObj.getJSONArray("instructions")));
-					//	app.rfcxServiceHandler.triggerService("InstructionsExecution", false);
+					app.instructionsUtils.processReceivedInstructionJson((new JSONObject()).put("instructions", jsonObj.has("ins") ? jsonObj.getJSONArray("ins") : jsonObj.getJSONArray("instructions")), originProtocol);
 				}
 
 			} catch (JSONException e) {
