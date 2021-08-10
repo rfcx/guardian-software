@@ -39,10 +39,11 @@ public class ApiSocketUtils {
 
 	private JSONObject pingJson = new JSONObject();
 
+	private static final String[] includeFields = new String[] { "battery", "instructions", "prefs", "cpu" };
 
 	public void updatePingJson() {
 		try {
-			pingJson = new JSONObject( app.apiPingJsonUtils.buildPingJson(true, new String[]{}, 0) );
+			pingJson = new JSONObject( app.apiPingJsonUtils.buildPingJson(false, includeFields, 0) );
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e, "updatePingJson");
 		}
