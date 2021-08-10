@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -14,6 +15,7 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 public class InstructionsUtils {
 
@@ -25,15 +27,17 @@ public class InstructionsUtils {
 
 	private RfcxGuardian app = null;
 
-	public void processReceivedInstructionJson(String jsonStr) {
+	private static final String[] localProtocols = new String[] { "socket" };
+
+	public void processReceivedInstructionJson(String jsonStr, String originProtocol) {
 		try {
-			processReceivedInstructionJson(new JSONObject(jsonStr));
+			processReceivedInstructionJson(new JSONObject(jsonStr), originProtocol);
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);
 		}
 	}
 
-	public void processReceivedInstructionJson(JSONObject jsonObj) {
+	public void processReceivedInstructionJson(JSONObject jsonObj, String originProtocol) {
 		try {
 			if (jsonObj.has("instructions")) {
 
@@ -61,18 +65,31 @@ public class InstructionsUtils {
 
 							long instrExecuteAt = ( (instrObj.getString("at").length() > 0) ? Long.parseLong(instrObj.getString("at")) : System.currentTimeMillis() ) + InstructionsCycleService.CYCLE_DURATION;
 
-							this.app.instructionsDb.dbQueued.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString());
+							this.app.instructionsDb.dbQueued.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString(), originProtocol );
 
-							Log.i(logTag, "Instruction Received with ID '" + instrId + "', Type: '" + instrType + "', Command: '" + instrCmd + "', Send at " + DateTimeUtils.getDateTime(instrExecuteAt) + ", JSON Meta: '" + instrMetaObj.toString() + "'");
+							Log.i(logTag, "Instruction Received (via " + originProtocol.toUpperCase(Locale.US) + ") with ID '" + instrId + "', Type: '" + instrType + "', Command: '" + instrCmd + "', Send at " + DateTimeUtils.getDateTime(instrExecuteAt) + ", JSON Meta: '" + instrMetaObj.toString() + "'");
 
 							queuedInstrIds.add(instrId);
 						}
 					}
 				}
 
-				// confirm receipt
-				if (queuedInstrIds.size() > 0) {
-					this.app.apiPingUtils.sendPing(false, new String[]{"instructions"}, true);
+				// Origin if from a Remote source
+				if (!ArrayUtils.doesStringArrayContainString(localProtocols, originProtocol)) {
+
+					// Send reception receipt to remote API
+					if (queuedInstrIds.size() > 0) {
+						this.app.apiPingUtils.sendPing(false, new String[] { "instructions" }, true);
+					}
+
+				// Origin if from a Local source
+				} else {
+
+					// Attempt to execute instruction immediately, without waiting for instruction cycle
+					if (app.instructionsDb.dbQueued.getCount() > 0) {
+						app.rfcxSvc.triggerService( InstructionsExecutionService.SERVICE_NAME, false);
+					}
+
 				}
 
 			}
@@ -182,5 +199,7 @@ public class InstructionsUtils {
 
 		return responseJson.toString();
 	}
+
+
 
 }

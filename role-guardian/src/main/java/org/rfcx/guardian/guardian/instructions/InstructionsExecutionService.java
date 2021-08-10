@@ -85,6 +85,7 @@ public class InstructionsExecutionService extends Service {
 							String type = queuedRow[2];
 							String command = queuedRow[3];
 							JSONObject metaJson = new JSONObject(queuedRow[5]);
+							String origin = queuedRow[10];
 
 							if (app.instructionsDb.dbExecuted.getCountById(instrId) == 0) {
 								app.instructionsDb.dbQueued.incrementSingleRowAttemptsById(instrId);
@@ -93,7 +94,7 @@ public class InstructionsExecutionService extends Service {
 								// Execute the instruction
 								String responseJsonStr = app.instructionsUtils.executeInstruction(type, command, metaJson);
 
-								app.instructionsDb.dbExecuted.findByIdOrCreate(instrId, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt);
+								app.instructionsDb.dbExecuted.findByIdOrCreate(instrId, queuedRow[2], queuedRow[3], System.currentTimeMillis(), responseJsonStr, execAttempts, receivedAt, origin);
 								app.instructionsDb.dbQueued.deleteSingleRowById(instrId);
 								Log.w(logTag, "Instruction "+instrId+" executed: Attempts: " + execAttempts + ", " + type + ", " + command + ", " + metaJson.toString());
 							} else {

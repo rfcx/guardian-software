@@ -34,15 +34,15 @@ class WifiCommunicationService : IntentService("WifiCommunication") {
         }
         try {
             if (prefsAdminEnableWifiSocket && isWifiEnabled) {
-                if (!ClassicSocketManager.isRunning) {
+                if (!app.apiSocketUtils.isServerRunning) {
                     Log.d(logTag, "Starting WifiCommunication service")
-                    ClassicSocketManager.stopServerSocket()
-                    ClassicSocketManager.startServerSocket(applicationContext)
+                    app.apiSocketUtils.stopServer();
+                    app.apiSocketUtils.startServer();
                 }
             } else {
-                if (ClassicSocketManager.isRunning) {
+                if (app.apiSocketUtils.isServerRunning) {
                     Log.d(logTag, "Stopping WifiCommunication service")
-                    ClassicSocketManager.stopServerSocket()
+                    app.apiSocketUtils.stopServer()
                 }
             }
         } catch (e: Exception) {

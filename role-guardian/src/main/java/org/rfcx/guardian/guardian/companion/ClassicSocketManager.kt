@@ -26,9 +26,7 @@ object ClassicSocketManager {
     private var serverSocket: ServerSocket? = null
     private var serverThread: Thread? = null
     private var socket: Socket? = null
-
     private var streamInput: DataInputStream? = null
-
     private var streamOutput: DataOutputStream? = null
 
     private var context: Context? = null
@@ -64,16 +62,16 @@ object ClassicSocketManager {
                                 //send response back
                                 streamOutput = DataOutputStream(socket?.getOutputStream())
                                 when (receiveJson.get("command")) {
-                                    "prefs" -> sendPrefsMessage()
-                                    "connection" -> sendConnectionMessage()
-                                    "diagnostic" -> sendDiagnosticMessage()
-                                    "configure" -> sendConfigurationMessage()
-                                    "microphone_test" -> sendMicrophoneTestMessage()
-                                    "signal" -> sendSignalMessage()
-                                    "sentinel" -> sendSentinelValues()
-                                    "is_registered" -> sendIfGuardianRegistered()
-                                    "is_recording" -> sendRecorderState()
-                                    "stop_wifi" -> stopWiFiService()
+//                                    "prefs" -> sendPrefsMessage()
+//                                    "connection" -> sendConnectionMessage()
+//                                    "diagnostic" -> sendDiagnosticMessage()
+//                                    "configure" -> sendConfigurationMessage()
+//                                    "microphone_test" -> sendMicrophoneTestMessage()
+//                                    "signal" -> sendSignalMessage()
+//                                    "sentinel" -> sendSentinelValues()
+//                                    "is_registered" -> sendIfGuardianRegistered()
+//                                    "is_recording" -> sendRecorderState()
+//                                    "stop_wifi" -> stopWiFiService()
                                     else -> {
                                         val commandObject =
                                             JSONObject(receiveJson.get("command").toString())

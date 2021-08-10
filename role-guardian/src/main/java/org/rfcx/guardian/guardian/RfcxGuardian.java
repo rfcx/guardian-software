@@ -16,6 +16,7 @@ import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSatUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
+import org.rfcx.guardian.guardian.api.protocols.ApiSocketUtils;
 import org.rfcx.guardian.guardian.asset.detections.AudioDetectionJsonUtils;
 import org.rfcx.guardian.guardian.asset.library.AssetLibraryDb;
 import org.rfcx.guardian.guardian.asset.library.AssetLibraryUtils;
@@ -132,6 +133,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiRestUtils apiRestUtils = null;
     public ApiSmsUtils apiSmsUtils = null;
     public ApiSatUtils apiSatUtils = null;
+    public ApiSocketUtils apiSocketUtils = null;
     public AssetDownloadUtils assetDownloadUtils = null;
     public AssetLibraryUtils assetLibraryUtils = null;
     public ApiCheckInUtils apiCheckInUtils = null;
@@ -192,6 +194,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiRestUtils = new ApiRestUtils(this);
         this.apiSmsUtils = new ApiSmsUtils(this);
         this.apiSatUtils = new ApiSatUtils(this);
+        this.apiSocketUtils = new ApiSocketUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.assetDownloadUtils = new AssetDownloadUtils(this);
         this.assetLibraryUtils = new AssetLibraryUtils(this);

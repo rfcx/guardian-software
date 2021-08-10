@@ -22,7 +22,7 @@ public class ApiPingCycleService extends Service {
 	private boolean runFlag = false;
 	private ApiPingCycleSvc apiPingCycleSvc;
 
-	public static final long CYCLE_DURATION = ( 20 * 1000 );
+	public static final long CYCLE_DURATION = ( 15 * 1000 );
 
 	@Override
 	public IBinder onBind(Intent intent) {

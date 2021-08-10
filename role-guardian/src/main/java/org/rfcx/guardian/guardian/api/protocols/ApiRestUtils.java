@@ -81,7 +81,7 @@ public class ApiRestUtils {
 				String pingResponse = httpPost.doMultipartPost( apiRequestUrl(restUrlPath_Ping, false), postParams, null);
 
 				if (pingResponse != null) {
-					app.apiCommandUtils.processApiCommandJson(pingResponse);
+					app.apiCommandUtils.processApiCommandJson(pingResponse, "rest");
 					isSent = true;
 				}
 
