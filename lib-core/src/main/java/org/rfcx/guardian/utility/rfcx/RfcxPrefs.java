@@ -158,7 +158,7 @@ public class RfcxPrefs {
 
 		public static final String ADMIN_WIFI_FUNCTION = "admin_wifi_function";
 		public static final String ADMIN_WIFI_CLIENT_AUTH_CREDS = "admin_wifi_client_auth_creds";
-		public static final String ADMIN_WIFI_HOTSPOT_PASSWORD = "admin_wifi_hotspot_password";
+		public static final String ADMIN_WIFI_HOTSPOT_AUTH_CREDS = "admin_wifi_hotspot_auth_creds";
 
 		public static final String API_SATELLITE_PROTOCOL = "api_satellite_protocol";
 
@@ -280,7 +280,7 @@ public class RfcxPrefs {
 
 			put(Pref.ADMIN_WIFI_FUNCTION, "hotspot");
 			put(Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS, "[ssid]:[password]");
-			put(Pref.ADMIN_WIFI_HOTSPOT_PASSWORD, "rfcxrfcx");
+			put(Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS, "[ssid]:rfcxrfcx");
 
 		}}
 	);

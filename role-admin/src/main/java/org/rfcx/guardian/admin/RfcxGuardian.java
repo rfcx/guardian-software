@@ -4,6 +4,7 @@ import org.rfcx.guardian.admin.asset.AssetUtils;
 import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchService;
+import org.rfcx.guardian.admin.companion.CompanionPingJsonUtils;
 import org.rfcx.guardian.admin.companion.CompanionSocketService;
 import org.rfcx.guardian.admin.companion.CompanionSocketUtils;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
@@ -130,6 +131,7 @@ public class RfcxGuardian extends Application {
 	public DeviceCPUGovernor deviceCPUGovernor = new DeviceCPUGovernor(APP_ROLE);
 	public AssetUtils assetUtils = null;
 	public CompanionSocketUtils companionSocketUtils = null;
+	public CompanionPingJsonUtils companionPingJsonUtils = null;
 
 	public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils(APP_ROLE);
 	public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
@@ -179,7 +181,8 @@ public class RfcxGuardian extends Application {
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		this.sentryAccelUtils = new SentryAccelUtils(this);
 		this.assetUtils = new AssetUtils(this);
-		this.companionSocketUtils = new CompanionSocketUtils(this, 9998);
+		this.companionSocketUtils = new CompanionSocketUtils(this);
+		this.companionPingJsonUtils = new CompanionPingJsonUtils(this);
 		this.sbdUtils = new SbdUtils(this);
 		this.swmUtils = new SwmUtils(this);
 
@@ -360,17 +363,16 @@ public class RfcxGuardian extends Application {
 		if (prefKey != null) {
 
 			if (	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
-				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD)
+				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS)
 				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS)
 			) {
 				rfcxSvc.triggerService(WifiStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(SSHStateSetService.SERVICE_NAME, false);
+				rfcxSvc.triggerService(CompanionSocketService.SERVICE_NAME, true);
 
-			} else if ( prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)
-					||  prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
-			) {
-				rfcxSvc.triggerService( CompanionSocketService.SERVICE_NAME, true);
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)) {
+				rfcxSvc.triggerService(CompanionSocketService.SERVICE_NAME, true);
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_ADB_OVER_TCP)) {
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);

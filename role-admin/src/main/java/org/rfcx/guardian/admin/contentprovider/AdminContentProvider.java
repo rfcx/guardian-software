@@ -252,11 +252,7 @@ public class AdminContentProvider extends ContentProvider {
                 String pathSeg = uri.getLastPathSegment();
 
                 if (pathSeg.equalsIgnoreCase("sms")) {
-                    List<JSONArray> smsJsonArrays =  new ArrayList<JSONArray>();
-                    smsJsonArrays.add(DeviceSmsUtils.getSmsMessagesFromSystemAsJsonArray(app.getResolver()));
-                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray("received", app.smsMessageDb.dbSmsReceived.getAllRows()));
-                    smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray("sent",app.smsMessageDb.dbSmsSent.getAllRows()));
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sms", DeviceSmsUtils.combineSmsMessageJsonArrays(smsJsonArrays).toString(), System.currentTimeMillis()});
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sms", SmsUtils.getSmsMessagesAsJsonArray(app).toString(), System.currentTimeMillis()});
 
                 } else if (pathSeg.equalsIgnoreCase("sentinel_power")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"sentinel_power", SentinelPowerUtils.getSentinelPowerValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});

@@ -76,12 +76,6 @@ public class ApiPingJsonUtils {
 			jsonObj.put("device", deviceJsonObj);
 		}
 
-//		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "guardian")) {
-//			JSONObject guardianJsonObj = new JSONObject();
-//			guardianJsonObj.put("is_registered", app.isGuardianRegistered());
-//			jsonObj.put("guardian", guardianJsonObj);
-//		}
-
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "software")) {
 			jsonObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 		}
@@ -135,6 +129,14 @@ public class ApiPingJsonUtils {
 		}
 
 		if (includeMeasuredAt) { jsonObj.put("measured_at", System.currentTimeMillis()); }
+
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "companion")) {
+			JSONObject companionJsonObj = new JSONObject();
+			companionJsonObj.put("guid", app.rfcxGuardianIdentity.getGuid());
+			companionJsonObj.put("name", app.rfcxGuardianIdentity.getName());
+			companionJsonObj.put("is_registered", app.isGuardianRegistered());
+			jsonObj.put("companion", companionJsonObj);
+		}
 
 		int limitLogsTo = 1500;
 		String strLogs = jsonObj.toString();

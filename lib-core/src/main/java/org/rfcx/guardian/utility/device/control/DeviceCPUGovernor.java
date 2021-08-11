@@ -34,10 +34,10 @@ public class DeviceCPUGovernor {
 		int setCpuCount = 1;
 		List<String> execList = new ArrayList<>();
 		for (int cpuNum = 0; cpuNum < setCpuCount; cpuNum++) {
-//			execList.add("chmod 666 "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_governor");
-//			execList.add("echo hotplug > "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_governor");
-//			execList.add("chmod 666 "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_max_freq");
-//			execList.add("chmod 666 "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_min_freq");
+			execList.add("chmod 666 "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_governor");
+			execList.add("echo hotplug > "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_governor");
+			execList.add("chmod 666 "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_max_freq");
+			execList.add("chmod 666 "+cpuGovernorDirPath+"/cpu"+cpuNum+"/cpufreq/scaling_min_freq");
 		}
 		return execList;
 	}

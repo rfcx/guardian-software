@@ -193,7 +193,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiRestUtils = new ApiRestUtils(this);
         this.apiSmsUtils = new ApiSmsUtils(this);
         this.apiSatUtils = new ApiSatUtils(this);
-        this.companionSocketUtils = new CompanionSocketUtils(this, 9999);
+        this.companionSocketUtils = new CompanionSocketUtils(this);
         this.apiCheckInUtils = new ApiCheckInUtils(this);
         this.assetDownloadUtils = new AssetDownloadUtils(this);
         this.assetLibraryUtils = new AssetLibraryUtils(this);

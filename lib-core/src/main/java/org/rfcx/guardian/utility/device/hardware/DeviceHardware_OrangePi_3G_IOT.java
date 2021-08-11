@@ -88,7 +88,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 		put("up_threshold",					new String[] { "hotplug", "98" });
 
 		put("cpu_input_boost_enable",		new String[] { "hotplug", "1" });
-		put("is_cpu_hotplug_disable",		new String[] { "hotplug", "0" });
+		put("is_cpu_hotplug_disable",		new String[] { "hotplug", "1" });//0
 
 		put("cpu_num_base",					new String[] { "hotplug", "1" });//new String[] { "hotplug", "1" });
 

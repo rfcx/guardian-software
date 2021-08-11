@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -31,6 +32,14 @@ import android.util.Log;
 public class RfcxComm {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxComm.class);
+
+	public static final Map<String, Integer> TCP_PORTS = Collections.unmodifiableMap(new HashMap<String, Integer>() {{
+		put("adb_admin", 				7329 );
+		put("ssh_admin", 				22 );
+		put("socket_json_guardian", 	9999 );
+		put("socket_json_admin", 		9998 );
+		put("socket_cast_guardian", 	9000 );
+	}});
 
 	public static final String fileProviderAssetDirUriNamespacePrepend = "/files_";
 	

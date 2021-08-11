@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
@@ -12,6 +13,9 @@ import org.rfcx.guardian.utility.device.DeviceSmsUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SmsUtils {
 	
@@ -95,5 +99,13 @@ public class SmsUtils {
 		return addScheduledSmsToQueue(System.currentTimeMillis(), sendTo, msgBody, context, true);
 	}
 
+
+	public static JSONArray getSmsMessagesAsJsonArray(RfcxGuardian app) {
+		List<JSONArray> smsJsonArrays = new ArrayList<>();
+		smsJsonArrays.add(DeviceSmsUtils.getSmsMessagesFromSystemAsJsonArray(app.getResolver()));
+		smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray("received", app.smsMessageDb.dbSmsReceived.getAllRows()));
+		smsJsonArrays.add(DeviceSmsUtils.formatSmsMessagesFromDatabaseAsJsonArray("sent",app.smsMessageDb.dbSmsSent.getAllRows()));
+		return DeviceSmsUtils.combineSmsMessageJsonArrays(smsJsonArrays);
+	}
 
 }

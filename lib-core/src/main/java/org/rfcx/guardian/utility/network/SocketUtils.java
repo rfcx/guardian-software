@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SocketUtils {
 
@@ -51,12 +54,6 @@ public class SocketUtils {
 		this.streamOutput = new DataOutputStream(this.socket.getOutputStream());
 		return jsonStr;
 	}
-
-//	public void threadStart() {
-//		this.serverThread.start();
-//		this.isServerRunning = true;
-//	}
-
 
 	public void stopServer() {
 
