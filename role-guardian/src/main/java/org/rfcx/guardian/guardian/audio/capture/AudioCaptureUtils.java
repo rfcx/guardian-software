@@ -36,6 +36,8 @@ public class AudioCaptureUtils {
 
 	private final RfcxGuardian app;
 
+	private static final int[] allowedCaptureSampleRates = new int[]{ 8000, 12000, 16000, 24000, 48000 };
+
 	public String[] samplingRatioStrArr = new String[] {};
 	public int[] samplingRatioArr = new int[] {};
 	public int samplingRatioIteration = 0;
@@ -44,7 +46,6 @@ public class AudioCaptureUtils {
 	public long[] queueCaptureTimestamp_Actual = new long[] { 0, 0 };
 	public int[] queueCaptureSampleRate = new int[] { 0, 0 };
 
-	private boolean isAudioCaptureHardwareSupported = false;
 	private static final int requiredFreeDiskSpaceForAudioCapture = 64;
 
 	private static AudioCaptureWavRecorder wavRecorderForCompanion = null;
@@ -64,50 +65,54 @@ public class AudioCaptureUtils {
 	}
 
 
-//	public int getRequiredCaptureSampleRate() {
-//
-//		int prefsStreamSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_SAMPLE_RATE);
-//		int prefsVaultSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_VAULT_SAMPLE_RATE);
-//		// max classify model sample rate
-//		//
-//
-//	}
+	public int getRequiredCaptureSampleRate() {
 
-	private boolean doesHardwareSupportCaptureSampleRate() {
+		boolean isStreamEnabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_STREAM);
+		boolean isVaultEnabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_VAULT);
+		boolean isClassifyEnabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CLASSIFY);
+		boolean isCastEnabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAST);
 
-		if (!this.isAudioCaptureHardwareSupported) {
+		int streamSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_SAMPLE_RATE);
+		int vaultSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_VAULT_SAMPLE_RATE);
+		int classifySampleRate = (app.audioClassifierDb.dbActive.getCount() > 0) ? app.audioClassifierDb.dbActive.getMaxSampleRateAmongstAllRows() : 0;
 
-			int[] defaultSampleRateOptions = new int[]{ 8000, 12000, 16000, 24000, 48000 };
-			int originalSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE);
-			int verifiedOrUpdatedSampleRate = originalSampleRate;
+		int minRequiredSampleRate = allowedCaptureSampleRates[0];
 
-			for (int i = 0; i < defaultSampleRateOptions.length; i++) {
-				if ((defaultSampleRateOptions[i] >= originalSampleRate)
-						&& (AudioRecord.getMinBufferSize(defaultSampleRateOptions[i], AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT) > 0)
-				) {
+		if (isStreamEnabled) { minRequiredSampleRate = Math.max(minRequiredSampleRate, streamSampleRate); }
+		if (isVaultEnabled) { minRequiredSampleRate = Math.max(minRequiredSampleRate, vaultSampleRate); }
+		if (isClassifyEnabled) { minRequiredSampleRate = Math.max(minRequiredSampleRate, classifySampleRate); }
 
-					verifiedOrUpdatedSampleRate = defaultSampleRateOptions[i];
-					this.isAudioCaptureHardwareSupported = true;
-					break;
+		if (isCastEnabled && !isStreamEnabled && !isVaultEnabled && !isClassifyEnabled) {
+			minRequiredSampleRate = Math.max(minRequiredSampleRate, streamSampleRate);
+			minRequiredSampleRate = Math.max(minRequiredSampleRate, vaultSampleRate);
+			minRequiredSampleRate = Math.max(minRequiredSampleRate, classifySampleRate);
+		}
 
-				} else if (i == (defaultSampleRateOptions.length - 1)) {
-					this.isAudioCaptureHardwareSupported = false;
-					Log.e(logTag, "Failed to verify hardware support for any of the provided audio sample rates...");
-				}
-			}
+		// we may need something in here soon in order to deal with the scenario when somebody wants to be audio casting, but none of the other services are enabled
+		// ...or when the other services are enabled, but they want to be casting at a higher sample rate than the other services.
 
-			if (verifiedOrUpdatedSampleRate != originalSampleRate) {
-				app.setSharedPref(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE, "" + verifiedOrUpdatedSampleRate);
-				Log.e(logTag, "Audio capture sample rate of " + originalSampleRate + " Hz not supported. Sample rate updated to " + verifiedOrUpdatedSampleRate + " Hz.");
-				this.isAudioCaptureHardwareSupported = true;
-			}
+		return verifyOrUpdateCaptureSampleRateHardwareSupport(minRequiredSampleRate);
+	}
 
-			if (this.isAudioCaptureHardwareSupported) {
-				Log.v(logTag, "Hardware support verified for audio capture sample rate of " + verifiedOrUpdatedSampleRate + " Hz.");
+	private static int verifyOrUpdateCaptureSampleRateHardwareSupport(int targetSampleRate) {
+
+		int verifiedOrUpdatedSampleRate = targetSampleRate;
+		for (int i = 0; i < allowedCaptureSampleRates.length; i++) {
+			if ((allowedCaptureSampleRates[i] >= targetSampleRate)
+					&& (AudioRecord.getMinBufferSize(allowedCaptureSampleRates[i], AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT) > 0)
+			) {
+				verifiedOrUpdatedSampleRate = allowedCaptureSampleRates[i];
+				break;
+
+			} else if (i == (allowedCaptureSampleRates.length - 1)) {
+				Log.e(logTag, "Failed to verify hardware support for any of the provided audio sample rates...");
 			}
 		}
 
-		return this.isAudioCaptureHardwareSupported;
+		if (verifiedOrUpdatedSampleRate != targetSampleRate) {
+			Log.e(logTag, "Audio capture sample rate of " + targetSampleRate + " Hz not supported. Sample rate updated to " + verifiedOrUpdatedSampleRate + " Hz.");
+		}
+		return verifiedOrUpdatedSampleRate;
 	}
 
 	private boolean isBatteryChargeSufficientForCapture() {
@@ -178,11 +183,6 @@ public class AudioCaptureUtils {
 			msgNoCapture.append("a lack of sufficient free internal disk storage.")
 					.append(" (current: ").append(DeviceStorage.getInternalDiskFreeMegaBytes()).append("MB)")
 					.append(" (required: ").append(requiredFreeDiskSpaceForAudioCapture).append("MB).");
-			isAudioCaptureAllowedUnderKnownConditions = false;
-
-		} else if (!doesHardwareSupportCaptureSampleRate()) {
-			msgNoCapture.append("lack of hardware support for capture sample rate: ")
-					.append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)).append(" Hz.");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		}

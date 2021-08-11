@@ -98,7 +98,6 @@ public class RfcxPrefs {
 		public static final String CHECKIN_CUTOFF_SENTINEL_BATTERY = "checkin_cutoff_sentinel_battery";
 		public static final String AUDIO_CUTOFF_SENTINEL_BATTERY = "audio_cutoff_sentinel_battery";
 
-		public static final String AUDIO_CAPTURE_SAMPLE_RATE = "audio_capture_sample_rate";
 		public static final String AUDIO_CAPTURE_GAIN = "audio_capture_gain";
 
 		public static final String AUDIO_STREAM_SAMPLE_RATE = "audio_stream_sample_rate";
@@ -220,7 +219,6 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY, "30");
 			put(Pref.AUDIO_CUTOFF_SENTINEL_BATTERY, "30");
 
-			put(Pref.AUDIO_CAPTURE_SAMPLE_RATE, "12000");
 			put(Pref.AUDIO_CAPTURE_GAIN, "1.0");
 
 			put(Pref.AUDIO_STREAM_SAMPLE_RATE, "12000");

@@ -44,7 +44,6 @@
 
 	<string name="prefs_value_default_audio_cycle_duration">90</string>
 
-	<string name="prefs_value_default_audio_capture_sample_rate">12000</string>
 	<string name="prefs_value_default_audio_capture_gain">1.0</string>
 
 	<string name="prefs_value_default_audio_stream_sample_rate">12000</string>

@@ -30,7 +30,7 @@ public class ApiPingJsonUtils {
 
 	private RfcxGuardian app;
 
-	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount, boolean printJsonToLogs) throws JSONException {
+	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount, boolean printJsonToLogs, String[] excludeFieldsFromLogs) throws JSONException {
 
 		JSONObject jsonObj = new JSONObject();
 
@@ -141,8 +141,13 @@ public class ApiPingJsonUtils {
 		}
 
 		if (printJsonToLogs) {
-			int limitLogsTo = 1500;
-			String strLogs = jsonObj.toString();
+			int limitLogsTo = 1800;
+			JSONObject jsonLogObj = jsonObj;
+			for (String excludeField : excludeFieldsFromLogs) {
+				jsonLogObj.remove(excludeField);
+				jsonLogObj.put(excludeField, "{...}");
+			}
+			String strLogs = jsonLogObj.toString();
 			Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
 		}
 

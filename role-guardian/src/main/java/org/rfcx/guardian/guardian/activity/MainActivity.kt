@@ -44,7 +44,7 @@ class MainActivity : Activity(),
     override fun onResume() {
         super.onResume()
 
-        setConfiguration()
+
         setVisibilityByPrefs()
         setUIByLoginState()
         setUIByGuidState()
@@ -130,37 +130,6 @@ class MainActivity : Activity(),
         appVersionText.text = "version: ${app.version}"
     }
 
-    private fun setConfiguration() {
-        sampleRate = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)
-        fileFormat = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_CODEC)
-        bitRate = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE)
-        duration = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)
-
-        audioSettingButton.setOnClickListener {
-            AudioSettingsDialog.build(this, object : OnAudioSettingsSet {
-                override fun onSet(settings: AudioSettings) {
-                    sampleRate = settings.sampleRate
-                    bitRate = settings.bitRate
-                    fileFormat = settings.fileFormat
-                    app.setSharedPref(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE, sampleRate)
-                    app.setSharedPref(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE, bitRate)
-                    app.setSharedPref(RfcxPrefs.Pref.AUDIO_STREAM_CODEC, fileFormat)
-                    updateAudioSettingsInfo()
-                }
-            }).show()
-        }
-
-        durationButton.setOnClickListener {
-            DurationPickerDialog.build(this, object : OnDurationSet {
-                override fun onSet(seconds: Int) {
-                    duration = seconds.toString()
-                    app.setSharedPref(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION, duration)
-                    updateAudioSettingsInfo()
-                }
-            }).show()
-        }
-        updateAudioSettingsInfo()
-    }
 
     private fun updateAudioSettingsInfo() {
         val audioSettingUtils = AudioSettingUtils(this)

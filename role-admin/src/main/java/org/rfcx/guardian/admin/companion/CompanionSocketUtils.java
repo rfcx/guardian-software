@@ -27,6 +27,8 @@ public class CompanionSocketUtils {
 			"network", "sentinel_power", "sentinel_sensor", "cpu", "storage"
 	};
 
+	private static final String[] excludeFromLogs = new String[] { };
+
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionSocketUtils");
 
 	private RfcxGuardian app;
@@ -35,7 +37,7 @@ public class CompanionSocketUtils {
 
 	public void updatePingJson(boolean printJsonToLogs) {
 		try {
-			pingJson =  app.companionPingJsonUtils.buildPingJson(false, includePingFields, 0, printJsonToLogs);
+			pingJson =  app.companionPingJsonUtils.buildPingJson(false, includePingFields, 0, printJsonToLogs, excludeFromLogs);
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e, "updatePingJson");
 		}

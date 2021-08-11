@@ -272,21 +272,12 @@
  	
  	<!-- Audio Capture Formatting -->
 
-	<ListPreference
-		android:key="audio_capture_sample_rate"
-		android:title="audio_capture_sample_rate"
-		android:dialogTitle="audio_capture_sample_rate"
-		android:summary="int - hertz"
-		android:entries="@array/prefs_labels_audio_sample_rate"
-		android:entryValues="@array/prefs_values_audio_sample_rate"
-		android:defaultValue="@string/prefs_value_default_audio_capture_sample_rate" />
-
 	<EditTextPreference
-			android:key="audio_capture_gain"
-			android:title="audio_capture_gain"
-			android:summary="float - volume increase/decrease"
-			android:enabled="true"
-			android:defaultValue="@string/prefs_value_default_audio_capture_gain" />
+		android:key="audio_capture_gain"
+		android:title="audio_capture_gain"
+		android:summary="float - volume increase/decrease"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_audio_capture_gain" />
 
 	<ListPreference
 		android:key="audio_stream_sample_rate"
