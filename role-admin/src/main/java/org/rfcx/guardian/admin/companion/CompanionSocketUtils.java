@@ -33,9 +33,9 @@ public class CompanionSocketUtils {
 	public SocketUtils socketUtils;
 	private String pingJson = (new JSONObject()).toString();
 
-	public void updatePingJson() {
+	public void updatePingJson(boolean printJsonToLogs) {
 		try {
-			pingJson =  app.companionPingJsonUtils.buildPingJson(false, includePingFields, 0);
+			pingJson =  app.companionPingJsonUtils.buildPingJson(false, includePingFields, 0, printJsonToLogs);
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e, "updatePingJson");
 		}

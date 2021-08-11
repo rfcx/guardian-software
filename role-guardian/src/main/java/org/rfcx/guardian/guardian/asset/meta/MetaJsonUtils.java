@@ -200,7 +200,7 @@ public class MetaJsonUtils {
 
 
 
-	public JSONObject buildPrefsJsonObj(boolean overrideLimitByLastAccessedAt) {
+	public JSONObject buildPrefsJsonObj(boolean overrideLimitByLastAccessedAt, boolean forceFullValuesDump) {
 
 		JSONObject prefsObj = new JSONObject();
 		try {
@@ -209,11 +209,13 @@ public class MetaJsonUtils {
 			String prefsSha1 = app.rfcxPrefs.getPrefsChecksum();
 			prefsObj.put("sha1", prefsSha1);
 
-			if (	(app.rfcxPrefs.prefsSha1FullApiSync != null)
-					&&	!app.rfcxPrefs.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
-					&& 	(overrideLimitByLastAccessedAt || (milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength()))
+			if (	forceFullValuesDump
+					||	(	(app.rfcxPrefs.prefsSha1FullApiSync != null)
+						&&	!app.rfcxPrefs.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
+						&& 	(overrideLimitByLastAccessedAt || (milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength()))
+						)
 			) {
-				Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent.");
+				if (!forceFullValuesDump) { Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent."); }
 				prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
 				app.rfcxPrefs.prefsTimestampLastFullApiSync = System.currentTimeMillis();
 			}

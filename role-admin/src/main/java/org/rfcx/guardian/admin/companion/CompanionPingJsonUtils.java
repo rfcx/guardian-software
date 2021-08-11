@@ -28,7 +28,7 @@ public class CompanionPingJsonUtils {
 
 	private RfcxGuardian app;
 
-	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount) throws JSONException {
+	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount, boolean printJsonToLogs) throws JSONException {
 
 		JSONObject jsonObj = new JSONObject();
 
@@ -80,9 +80,11 @@ public class CompanionPingJsonUtils {
 			jsonObj.put("companion", companionJsonObj);
 		}
 
-		int limitLogsTo = 1500;
-		String strLogs = jsonObj.toString();
-		Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
+		if (printJsonToLogs) {
+			int limitLogsTo = 1500;
+			String strLogs = jsonObj.toString();
+			Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
+		}
 
 		return jsonObj.toString();
 	}

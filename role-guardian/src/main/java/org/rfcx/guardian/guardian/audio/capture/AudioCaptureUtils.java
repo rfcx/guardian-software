@@ -64,6 +64,15 @@ public class AudioCaptureUtils {
 	}
 
 
+//	public int getRequiredCaptureSampleRate() {
+//
+//		int prefsStreamSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_SAMPLE_RATE);
+//		int prefsVaultSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_VAULT_SAMPLE_RATE);
+//		// max classify model sample rate
+//		//
+//
+//	}
+
 	private boolean doesHardwareSupportCaptureSampleRate() {
 
 		if (!this.isAudioCaptureHardwareSupported) {

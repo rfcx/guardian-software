@@ -30,7 +30,7 @@ public class ApiPingJsonUtils {
 
 	private RfcxGuardian app;
 
-	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount) throws JSONException {
+	public String buildPingJson(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount, boolean printJsonToLogs) throws JSONException {
 
 		JSONObject jsonObj = new JSONObject();
 
@@ -59,8 +59,10 @@ public class ApiPingJsonUtils {
 			}
 		}
 
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {
-			jsonObj.put("prefs", app.metaJsonUtils.buildPrefsJsonObj(true));
+		if (ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs_full")) {
+			jsonObj.put("prefs", app.metaJsonUtils.buildPrefsJsonObj(true, true));
+		} else if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "prefs")) {
+			jsonObj.put("prefs", app.metaJsonUtils.buildPrefsJsonObj(true, false));
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "sms")) {
@@ -138,9 +140,11 @@ public class ApiPingJsonUtils {
 			jsonObj.put("companion", companionJsonObj);
 		}
 
-		int limitLogsTo = 1500;
-		String strLogs = jsonObj.toString();
-		Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
+		if (printJsonToLogs) {
+			int limitLogsTo = 1500;
+			String strLogs = jsonObj.toString();
+			Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
+		}
 
 		return jsonObj.toString();
 	}
