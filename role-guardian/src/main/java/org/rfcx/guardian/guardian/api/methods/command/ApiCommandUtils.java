@@ -203,7 +203,9 @@ public class ApiCommandUtils {
 					for (int i = 0; i < prfJson.length(); i++) {
 						JSONObject prfObj = prfJson.getJSONObject(i);
 						if (prfObj.has("sha1")) {
-							app.rfcxPrefs.prefsSha1FullApiSync = prfObj.getString("sha1").toLowerCase();
+							if (!originProtocol.equalsIgnoreCase("socket")) {
+								app.rfcxPrefs.prefsSha1FullApiSync = prfObj.getString("sha1").toLowerCase();
+							}
 						}
 					}
 				}
