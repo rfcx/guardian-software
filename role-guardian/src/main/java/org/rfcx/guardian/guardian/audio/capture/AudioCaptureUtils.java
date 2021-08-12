@@ -51,7 +51,7 @@ public class AudioCaptureUtils {
 	private static AudioCaptureWavRecorder wavRecorderForCompanion = null;
 
 	public static AudioCaptureWavRecorder initializeWavRecorder(String captureDir, long timestamp, int sampleRate) throws Exception {
-		wavRecorderForCompanion = AudioCaptureWavRecorder.getInstance(sampleRate);;
+		wavRecorderForCompanion = AudioCaptureWavRecorder.getInstance(sampleRate);
 		wavRecorderForCompanion.setOutputFile(getCaptureFilePath(captureDir, timestamp, "wav"));
 		wavRecorderForCompanion.prepareRecorder();
 		return wavRecorderForCompanion;
@@ -88,8 +88,8 @@ public class AudioCaptureUtils {
 			minRequiredSampleRate = Math.max(minRequiredSampleRate, classifySampleRate);
 		}
 
-		// we may need something in here soon in order to deal with the scenario when somebody wants to be audio casting, but none of the other services are enabled
-		// ...or when the other services are enabled, but they want to be casting at a higher sample rate than the other services.
+		// we may need something in here soon in order to deal with the scenario when somebody wants to be audio casting
+		// ...but they want to be casting at a higher sample rate than the other services.
 
 		return verifyOrUpdateCaptureSampleRateHardwareSupport(minRequiredSampleRate);
 	}
@@ -116,18 +116,18 @@ public class AudioCaptureUtils {
 	}
 
 	private boolean isBatteryChargeSufficientForCapture() {
-		int batteryChargeCutoff = this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY);
-		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
+		int batteryChargeCutoff = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY);
+		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 		boolean isBatteryChargeSufficient = (batteryCharge >= batteryChargeCutoff);
 		if (isBatteryChargeSufficient && (batteryChargeCutoff == 100)) {
-			isBatteryChargeSufficient = this.app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null);
+			isBatteryChargeSufficient = app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null);
 			if (!isBatteryChargeSufficient) { Log.d(logTag, "Battery is at 100% but is not yet fully charged."); }
 		}
 		return isBatteryChargeSufficient;
 	}
 
 	private boolean limitBasedOnBatteryLevel() {
-		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY));
+		return (!isBatteryChargeSufficientForCapture() && app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY));
 	}
 
 
@@ -149,11 +149,11 @@ public class AudioCaptureUtils {
 	}
 
 	private boolean limitBasedOnTimeOfDay() {
-		return (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS));
+		return (!isCaptureAllowedAtThisTimeOfDay() && app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS));
 	}
 
 	private boolean limitBasedOnCaptureSamplingRatio() {
-		return (!isCaptureAllowedAtThisSamplingRatioIteration() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO));
+		return (!isCaptureAllowedAtThisSamplingRatioIteration() && app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO));
 	}
 
 	private boolean isCaptureAllowedAtThisSamplingRatioIteration() {
@@ -170,13 +170,13 @@ public class AudioCaptureUtils {
 
 		if (limitBasedOnBatteryLevel()) {
 			msgNoCapture.append("Low Battery level")
-					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
-					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY)).append("%).");
+					.append(" (current: ").append(app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)).append("%,")
+					.append(" required: ").append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus( RfcxStatus.Group.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED)) {
 			msgNoCapture.append("Low Sentinel Battery level")
-					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY)).append("%).");
+					.append(" (required: ").append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		} else if (limitBasedOnInternalStorage()) {
@@ -205,7 +205,7 @@ public class AudioCaptureUtils {
 
 		StringBuilder msgNoCapture = new StringBuilder();
 
-		if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
+		if (!app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
 			msgNoCapture.append("it being explicitly disabled ('" + RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE.toLowerCase() + "' is set to false).");
 			isAudioCaptureDisabledRightNow = true;
 
@@ -221,7 +221,7 @@ public class AudioCaptureUtils {
 			isAudioCaptureDisabledRightNow = true;
 
 		} else if (!app.isGuardianRegistered()) {
-			msgNoCapture.append("the Guardian not having been registered.");
+			msgNoCapture.append("the Guardian not having been activated/registered.");
 			isAudioCaptureDisabledRightNow = true;
 
 		}
