@@ -36,10 +36,10 @@ class MainActivity : Activity(),
     private lateinit var app: RfcxGuardian
 
     //Audio settings
-    private var sampleRate: String? = null
-    private var fileFormat: String? = null
-    private var bitRate: String? = null
-    private var duration: String? = null
+//    private var sampleRate: String? = null
+//    private var fileFormat: String? = null
+//    private var bitRate: String? = null
+//    private var duration: String? = null
 
     override fun onResume() {
         super.onResume()
@@ -86,13 +86,6 @@ class MainActivity : Activity(),
             app.rfcxSvc.triggerService( AssetDownloadJobService.SERVICE_NAME, false );
         }
 
-        audioCaptureButton.setOnClickListener {
-            val isAudioCaptureOn = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)
-            app.setSharedPref(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE, (!isAudioCaptureOn).toString().toLowerCase())
-            audioCaptureButton.text = if (!isAudioCaptureOn) "stop" else "record"
-            setUIByRecordingState()
-        }
-
         registerButton.setOnClickListener {
             if (!GuardianUtils.isNetworkAvailable(this)) {
                 showToast("There is not internet connection. Please turn it on.")
@@ -130,16 +123,6 @@ class MainActivity : Activity(),
         appVersionText.text = "version: ${app.version}"
     }
 
-
-    private fun updateAudioSettingsInfo() {
-        val audioSettingUtils = AudioSettingUtils(this)
-        audioSettingsInfoText.text =
-            "${audioSettingUtils.getSampleRateLabel(sampleRate!!)}, ${fileFormat}, ${audioSettingUtils.getBitRateLabel(
-                bitRate!!
-            )}"
-        durationInfoText.text = "$duration seconds per file"
-    }
-
     private fun showToast(message: String) {
         Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
     }
@@ -147,7 +130,6 @@ class MainActivity : Activity(),
     private fun startServices() {
         Handler().postDelayed({
             app.initializeRoleServices()
-            setUIByRecordingState()
         }, 1000)
     }
 
@@ -156,22 +138,6 @@ class MainActivity : Activity(),
             rootView.visibility = View.VISIBLE
         } else {
             rootView.visibility = View.INVISIBLE
-        }
-    }
-
-    private fun setUIByRecordingState() {
-        if (GuardianUtils.isGuardianRegistered(this)) {
-            var deviceIdTxt = app.rfcxGuardianIdentity.guid
-            deviceIdText.text = " $deviceIdTxt"
-            if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
-                recordStatusText.text = " recording"
-                recordStatusText.setTextColor(resources.getColor(R.color.primary))
-                audioCaptureButton.text = "stop"
-            } else {
-                recordStatusText.text = " stopped"
-                recordStatusText.setTextColor(resources.getColor(R.color.grey_default))
-                audioCaptureButton.text = "record"
-            }
         }
     }
 
@@ -244,7 +210,6 @@ class MainActivity : Activity(),
         setVisibilityRegisterSuccess()
         app.apiMqttUtils.initializeFailedCheckInThresholds()
         app.initializeRoleServices()
-        setUIByRecordingState()
         setUIByGuidState()
         val deviceIdTxt = app.rfcxGuardianIdentity.guid
         deviceIdText.text = " $deviceIdTxt"
