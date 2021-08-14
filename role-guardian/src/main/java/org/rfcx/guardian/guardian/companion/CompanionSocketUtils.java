@@ -20,7 +20,7 @@ public class CompanionSocketUtils {
 	public CompanionSocketUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 		this.socketUtils = new SocketUtils();
-		this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.get("socket_json_guardian"));
+		this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.JSON);
 	}
 
 	private static final String[] includePingFields = new String[] {
@@ -34,6 +34,25 @@ public class CompanionSocketUtils {
 	private RfcxGuardian app;
 	public SocketUtils socketUtils;
 	private String pingJson = (new JSONObject()).toString();
+
+
+	public JSONObject getCompanionPingJsonObj() {
+		JSONObject companionObj = new JSONObject();
+		try {
+
+			JSONObject guardianObj = new JSONObject();
+			guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
+			guardianObj.put("name", app.rfcxGuardianIdentity.getName());
+
+			companionObj.put("is_registered", app.isGuardianRegistered());
+
+			companionObj.put("guardian", guardianObj);
+
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return companionObj;
+	}
 
 	public void updatePingJson(boolean printJsonToLogs) {
 		try {
@@ -91,7 +110,5 @@ public class CompanionSocketUtils {
 		socketUtils.isServerRunning = true;
 		//	}
 	}
-
-
 
 }

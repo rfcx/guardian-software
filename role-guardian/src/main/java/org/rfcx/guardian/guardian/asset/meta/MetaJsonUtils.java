@@ -298,7 +298,7 @@ public class MetaJsonUtils {
 		if (metaJsonBundledSnapshotsObj == null) { metaJsonBundledSnapshotsObj = new JSONObject(); }
 
 		// use highest measured_at value, or if empty, set to current time
-		metaJsonBundledSnapshotsObj.put("measured_at", ((metaMeasuredAtValue == 0) ? System.currentTimeMillis() : metaMeasuredAtValue) );
+		metaJsonBundledSnapshotsObj.put("measured_at", ""+((metaMeasuredAtValue == 0) ? System.currentTimeMillis() : metaMeasuredAtValue) );
 
 		return metaJsonBundledSnapshotsObj;
 	}

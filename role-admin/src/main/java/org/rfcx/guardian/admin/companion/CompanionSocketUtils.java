@@ -20,7 +20,7 @@ public class CompanionSocketUtils {
 	public CompanionSocketUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 		this.socketUtils = new SocketUtils();
-		this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.get("socket_json_admin"));
+		this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.ADMIN.SOCKET.JSON);
 	}
 
 	private static final String[] includePingFields = new String[] {

@@ -33,13 +33,23 @@ public class RfcxComm {
 
 	private static final String logTag = RfcxLog.generateLogTag("Utils", RfcxComm.class);
 
-	public static final Map<String, Integer> TCP_PORTS = Collections.unmodifiableMap(new HashMap<String, Integer>() {{
-		put("adb_admin", 				7329 );
-		put("ssh_admin", 				22 );
-		put("socket_json_guardian", 	9999 );
-		put("socket_json_admin", 		9998 );
-		put("socket_cast_guardian", 	9000 );
-	}});
+	public static final class TCP_PORTS {
+
+		public static final class ADMIN {
+			public static final int ADB = 7329;
+			public static final int SSH = 22;
+			public static final class SOCKET {
+				public static final int JSON = 9998;
+			}
+		}
+
+		public static final class GUARDIAN {
+			public static final class SOCKET {
+				public static final int JSON = 9999;
+				public static final int CAST = 9997;
+			}
+		}
+	}
 
 	public static final String fileProviderAssetDirUriNamespacePrepend = "/files_";
 	

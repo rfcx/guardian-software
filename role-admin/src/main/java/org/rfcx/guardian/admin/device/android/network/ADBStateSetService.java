@@ -40,8 +40,8 @@ public class ADBStateSetService extends IntentService {
 		}
 
 		boolean enableOrDisable = prefsAdminEnableAdb && isWifiEnabled;
-		Log.v(logTag, ((enableOrDisable) ? "Enabling" : "Disabling") + " ADB over TCP on port "+ RfcxComm.TCP_PORTS.get("adb_admin"));
-		DeviceSystemProperties.setVal("persist.adb.tcp.port", (enableOrDisable) ? ""+RfcxComm.TCP_PORTS.get("adb_admin") : "");
+		Log.v(logTag, ((enableOrDisable) ? "Enabling" : "Disabling") + " ADB over TCP on port "+ RfcxComm.TCP_PORTS.ADMIN.ADB);
+		DeviceSystemProperties.setVal("persist.adb.tcp.port", (enableOrDisable) ? ""+RfcxComm.TCP_PORTS.ADMIN.ADB : "");
 	
 	}
 	

@@ -34,17 +34,10 @@ public class ApiPingJsonUtils {
 
 		JSONObject jsonObj = new JSONObject();
 
-		boolean includeMeasuredAt = false;
 		boolean includePurgedAssetList = false;
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "battery")) {
 			jsonObj.put("battery", app.deviceBattery.getBatteryStateAsConcatString(app.getApplicationContext(), null) );
-			includeMeasuredAt = true;
-		}
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {
-			jsonObj.put("checkins", app.metaJsonUtils.getCheckInStatusInfoForJson(new String[] {}));
-			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "instructions")) {
@@ -95,25 +88,21 @@ public class ApiPingJsonUtils {
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "storage")) {
 			String systemStorage = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_storage", app.getResolver()));
 			if (systemStorage.length() > 0) { jsonObj.put("storage", systemStorage); }
-			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "memory")) {
 			String systemMemory = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_memory", app.getResolver()));
 			if (systemMemory.length() > 0) { jsonObj.put("memory", systemMemory); }
-			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "cpu")) {
 			String systemCPU = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_cpu", app.getResolver()));
 			if (systemCPU.length() > 0) { jsonObj.put("cpu", systemCPU); }
-			includeMeasuredAt = true;
 		}
 
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "network")) {
 			String systemNetwork = MetaJsonUtils.getConcatMetaField(RfcxComm.getQuery("admin", "get_momentary_values", "system_network", app.getResolver()));
 			if (systemNetwork.length() > 0) { jsonObj.put("network", systemNetwork); }
-			includeMeasuredAt = true;
 		}
 
 		if ((includeAllExtraFields && (includeAssetBundleCount > 0)) || ArrayUtils.doesStringArrayContainString(includeExtraFields, "meta")) {
@@ -126,18 +115,17 @@ public class ApiPingJsonUtils {
 			includePurgedAssetList = true;
 		}
 
+		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "checkins")) {
+			jsonObj.put("checkins", app.metaJsonUtils.getCheckInStatusInfoForJson(new String[] {}));
+			jsonObj.put("measured_at", ""+System.currentTimeMillis());
+		}
+
 		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "purged") || includePurgedAssetList) {
 			jsonObj.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT)));
 		}
 
-		if (includeMeasuredAt) { jsonObj.put("measured_at", System.currentTimeMillis()); }
-
-		if (includeAllExtraFields || ArrayUtils.doesStringArrayContainString(includeExtraFields, "companion")) {
-			JSONObject companionJsonObj = new JSONObject();
-			companionJsonObj.put("guid", app.rfcxGuardianIdentity.getGuid());
-			companionJsonObj.put("name", app.rfcxGuardianIdentity.getName());
-			companionJsonObj.put("is_registered", app.isGuardianRegistered());
-			jsonObj.put("companion", companionJsonObj);
+		if (ArrayUtils.doesStringArrayContainString(includeExtraFields, "companion")) {
+			jsonObj.put("companion", app.companionSocketUtils.getCompanionPingJsonObj());
 		}
 
 		if (printJsonToLogs) {
