@@ -21,8 +21,8 @@ public class CompanionSocketService extends Service {
 	private CompanionSocketSvc companionSocketSvc;
 
 	private static final long minPushCycleDurationMs = 667;
-	private static final int ifSendFailsThenExtendLoopByAFactorOf = 6;
-	private static final int maxSendFailureThreshold = 20;
+	private static final int ifSendFailsThenExtendLoopByAFactorOf = 4;
+	private static final int maxSendFailureThreshold = 24;
 
 	@Override
 	public IBinder onBind(Intent intent) {

@@ -267,7 +267,7 @@ public class RfcxPrefs {
 			put(Pref.ADMIN_ENABLE_SENTINEL_SENSOR, "false");
 			put(Pref.ADMIN_ENABLE_SENTRY_SENSOR, "false");
 
-			put(Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE, "1333");
+			put(Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE, "1250");
 			put(Pref.COMPANION_TELEMETRY_PUSH_CYCLE, "1250");
 
 			put(Pref.ADMIN_VERBOSE_SENTINEL, "false");

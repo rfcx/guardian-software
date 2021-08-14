@@ -99,7 +99,7 @@
 	<string name="prefs_value_default_admin_enable_sentinel_sensor">false</string>
 	<string name="prefs_value_default_admin_enable_sentry_sensor">false</string>
 
-	<string name="prefs_value_default_admin_telemetry_capture_cycle">1333</string>
+	<string name="prefs_value_default_admin_telemetry_capture_cycle">1250</string>
 	<string name="prefs_value_default_companion_telemetry_push_cycle">1250</string>
 
 	<string name="prefs_value_default_admin_verbose_sentinel">false</string>
