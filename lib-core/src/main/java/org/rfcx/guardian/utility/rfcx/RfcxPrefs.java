@@ -44,8 +44,9 @@ public class RfcxPrefs {
 	
 	private final Map<String, String> cachedPrefs = new HashMap<String, String>();
 
-	public String prefsSha1FullApiSync = null;
-	public long prefsTimestampLastFullApiSync = 0;
+	public static final int prefsSync_Sha1CharLimit = 16;
+	public String prefsSync_Sha1Value = null;
+	public long prefsSync_TimestampLastSync = 0;
 
 	public static final class Pref {
 
@@ -80,11 +81,8 @@ public class RfcxPrefs {
 		public static final String AUDIO_CAPTURE_SCHEDULE_OFF_HOURS = "audio_capture_schedule_off_hours";
 		public static final String AUDIO_CLASSIFY_SCHEDULE_OFF_HOURS = "audio_classify_schedule_off_hours";
 		public static final String API_PING_SCHEDULE_OFF_HOURS = "api_ping_schedule_off_hours";
-
-		/// must still be implemented
 		public static final String API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS = "api_checkin_publish_schedule_off_hours";
 		public static final String API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS = "api_checkin_requeue_schedule_off_hours";
-		/// must still be implemented
 
 		public static final String ENABLE_CUTOFFS_SAMPLING_RATIO = "enable_cutoffs_sampling_ratio";
 		public static final String AUDIO_SAMPLING_RATIO = "audio_sampling_ratio";
@@ -248,7 +246,7 @@ public class RfcxPrefs {
 			put(Pref.API_CLOCK_SYNC_CYCLE_DURATION, "180");
 
 			put(Pref.API_PING_CYCLE_DURATION, "30");
-			put(Pref.API_PING_CYCLE_FIELDS, "all,meta");
+			put(Pref.API_PING_CYCLE_FIELDS, "checkins,instructions,prefs,sms,meta,detections,purged");
 
 			put(Pref.ADMIN_ENABLE_LOG_CAPTURE, "false");
 			put(Pref.ADMIN_LOG_CAPTURE_CYCLE, "30");

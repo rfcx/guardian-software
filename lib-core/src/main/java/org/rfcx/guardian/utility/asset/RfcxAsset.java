@@ -1,13 +1,9 @@
 package org.rfcx.guardian.utility.asset;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
-import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +28,7 @@ public class RfcxAsset {
 		public static final String INSTRUCTION = "instruction";
 		public static final String PREF = "pref";
 		public static final String SEGMENT = "segment";
+		public static final String SNIPPET = "snippet";
 	}
 
 	private static final Map<String, String> typePlural = Collections.unmodifiableMap(
@@ -49,6 +46,7 @@ public class RfcxAsset {
 			put(Type.INSTRUCTION, "instructions");
 			put(Type.PREF, "prefs");
 			put(Type.SEGMENT, "segments");
+			put(Type.SNIPPET, "snippets");
 		}}
 	);
 
@@ -67,6 +65,7 @@ public class RfcxAsset {
 			put(Type.INSTRUCTION, "ins");
 			put(Type.PREF, "prf");
 			put(Type.SEGMENT, "seg");
+			put(Type.SNIPPET, "sni");
 		}}
 	);
 
@@ -85,19 +84,19 @@ public class RfcxAsset {
 	);
 
 
-	public static boolean doesJsonHaveField(JSONObject jsonObj, String assetTypeOrStatus) {
-		boolean hasField = jsonObj.has(assetTypeOrStatus);
-		if (!hasField && isValidType(assetTypeOrStatus)) {
-			hasField = jsonObj.has(getTypeAbbrev(assetTypeOrStatus)) || jsonObj.has(getTypePlural(assetTypeOrStatus));
-		} else if (!hasField && isValidStatus(assetTypeOrStatus)) {
-			hasField = jsonObj.has(getStatusAbbrev(assetTypeOrStatus));
-		}
-		return hasField;
-	}
+//	public static boolean doesJsonHaveField(JSONObject jsonObj, String assetTypeOrStatus) {
+//		boolean hasField = jsonObj.has(assetTypeOrStatus);
+//		if (!hasField && isValidType(assetTypeOrStatus)) {
+//			hasField = jsonObj.has(getTypeAbbrev(assetTypeOrStatus)) || jsonObj.has(getTypePlural(assetTypeOrStatus));
+//		} else if (!hasField && isValidStatus(assetTypeOrStatus)) {
+//			hasField = jsonObj.has(getStatusAbbrev(assetTypeOrStatus));
+//		}
+//		return hasField;
+//	}
 
 	public static JSONArray getJsonArrayForField(JSONObject jsonObj, String assetTypeOrStatus) throws JSONException {
 		JSONArray jsonArr = new JSONArray();
-		String assetType = getType(assetTypeOrStatus);
+		String assetType = getAssetTypeName(assetTypeOrStatus);
 		if (assetType != null) {
 			if (jsonObj.has(assetType)) {
 				jsonArr = jsonObj.getJSONArray(assetType);
@@ -127,7 +126,7 @@ public class RfcxAsset {
 	public static String getStatusAbbrev(String assetStatus) { return statusAbbrev.get(assetStatus); }
 
 
-	public static String getType(String label) {
+	public static String getAssetTypeName(String label) {
 		String labeledAs = label.toLowerCase(Locale.US);
 		if (isValidType(labeledAs)) {
 			return labeledAs;

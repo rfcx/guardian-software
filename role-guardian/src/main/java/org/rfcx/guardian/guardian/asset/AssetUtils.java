@@ -70,11 +70,13 @@ public class AssetUtils {
 			Context appContext = app.getApplicationContext();
 			List<String> idList = new ArrayList<>();
 			for (String assetId : assetIdList) {
-				String[] purgeReport = purgeSingleAsset(assetType, rfcxDeviceId, appContext, assetId);
-				if (purgeReport.length > 2) {
-					Log.d(logTag, "Purged Asset: " + TextUtils.join(", ", purgeReport));
-				} else {
-					idList.add(purgeReport[1]);
+				if (assetId != null) {
+					String[] purgeReport = purgeSingleAsset(assetType, rfcxDeviceId, appContext, assetId);
+					if (purgeReport.length > 2) {
+						Log.d(logTag, "Purged Asset: " + TextUtils.join(", ", purgeReport));
+					} else {
+						idList.add(purgeReport[1]);
+					}
 				}
 			}
 			if (idList.size() > 0) {

@@ -16,9 +16,7 @@ import org.rfcx.guardian.utility.misc.StringUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-import org.rfcx.guardian.utility.rfcx.RfcxRole;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -205,19 +203,20 @@ public class MetaJsonUtils {
 		JSONObject prefsObj = new JSONObject();
 		try {
 
-			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(app.rfcxPrefs.prefsTimestampLastFullApiSync));
+			long milliSecondsSinceAccessed = Math.abs(DateTimeUtils.timeStampDifferenceFromNowInMilliSeconds(app.rfcxPrefs.prefsSync_TimestampLastSync));
 			String prefsSha1 = app.rfcxPrefs.getPrefsChecksum();
-			prefsObj.put("sha1", prefsSha1);
+			prefsObj.put("sha1", prefsSha1.substring(0, RfcxPrefs.prefsSync_Sha1CharLimit));
 
 			if (	forceFullValuesDump
-					||	(	(app.rfcxPrefs.prefsSha1FullApiSync != null)
-						&&	!app.rfcxPrefs.prefsSha1FullApiSync.equalsIgnoreCase(prefsSha1)
+					||	(	(app.rfcxPrefs.prefsSync_Sha1Value != null)
+						&&	!app.rfcxPrefs.prefsSync_Sha1Value.equalsIgnoreCase(prefsSha1.substring(0, RfcxPrefs.prefsSync_Sha1CharLimit))
+						&&	!app.rfcxPrefs.prefsSync_Sha1Value.equalsIgnoreCase(prefsSha1)
 						&& 	(overrideLimitByLastAccessedAt || (milliSecondsSinceAccessed > app.apiMqttUtils.getSetCheckInPublishTimeOutLength()))
 						)
 			) {
 				if (!forceFullValuesDump) { Log.v(logTag, "Prefs local checksum mismatch with API. Local Prefs snapshot will be sent."); }
 				prefsObj.put("vals", app.rfcxPrefs.getPrefsAsJsonObj());
-				app.rfcxPrefs.prefsTimestampLastFullApiSync = System.currentTimeMillis();
+				app.rfcxPrefs.prefsSync_TimestampLastSync = System.currentTimeMillis();
 			}
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);

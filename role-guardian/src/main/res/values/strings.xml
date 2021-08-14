@@ -76,7 +76,7 @@
 
 	<string name="prefs_value_default_api_clock_sync_cycle_duration">180</string>
 	<string name="prefs_value_default_api_ping_cycle_duration">30</string>
-	<string name="prefs_value_default_api_ping_cycle_fields">all,meta</string>
+	<string name="prefs_value_default_api_ping_cycle_fields">checkins,instructions,prefs,sms,meta,detections,purged</string>
 
 	<string name="prefs_value_default_admin_enable_log_capture">false</string>
 	<string name="prefs_value_default_admin_log_capture_level">Warn</string>

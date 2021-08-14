@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.rfcx.guardian.utility.device.AppProcessInfo;
+import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -91,8 +92,8 @@ public class GuardianContentProvider extends ContentProvider {
 			} else if (RfcxComm.uriMatch(uri, appRole, "ping", "*")) { logFuncVal = "ping-*";
 				String pathSeg = uri.getLastPathSegment();
 				String pathSegProtocol = pathSeg.substring(0, pathSeg.indexOf("|"));
-				String pathSegField = pathSeg.substring(1 + pathSeg.indexOf("|"));
-				app.apiPingUtils.sendPing(pathSegField.equalsIgnoreCase("all"), new String[]{ pathSegField }, 0, pathSegProtocol, true );
+				String[] pathSegFields = pathSeg.substring(1 + pathSeg.indexOf("|")).split(",");
+				app.apiPingUtils.sendPing(ArrayUtils.doesStringArrayContainString(pathSegFields, "all"), pathSegFields, 0, pathSegProtocol, true );
 				return RfcxComm.getProjectionCursor(appRole, "ping", new Object[] { System.currentTimeMillis() });
 
 			// "control" function endpoints
@@ -137,7 +138,8 @@ public class GuardianContentProvider extends ContentProvider {
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "instructions", "*")) { logFuncVal = "instructions-*";
 				JSONObject instrObj = new JSONObject(uri.getLastPathSegment());
-				app.instructionsUtils.processReceivedInstructionJson(instrObj, "contentprovider");
+				JSONArray instrArr = (new JSONArray()).put(instrObj);
+				app.instructionsUtils.processReceivedInstructionJson(instrArr, "contentprovider");
 				return RfcxComm.getProjectionCursor(appRole, "instructions", new Object[]{ instrObj.toString(), System.currentTimeMillis() });
 
 
