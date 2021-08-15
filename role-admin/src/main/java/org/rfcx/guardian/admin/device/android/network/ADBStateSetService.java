@@ -11,8 +11,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
-import java.util.Locale;
-
 public class ADBStateSetService extends IntentService {
 
 	public static final String SERVICE_NAME = "ADBStateSet";
@@ -31,7 +29,7 @@ public class ADBStateSetService extends IntentService {
 		RfcxGuardian app = (RfcxGuardian) getApplication();
 
 		// set ADB networking state
-		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_ADB_OVER_TCP);
+		boolean prefsAdminEnableAdb = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_ADB_SERVER);
 		String prefsAdminWifiFunction = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
 		boolean isWifiEnabled = !prefsAdminWifiFunction.equalsIgnoreCase("off");
 

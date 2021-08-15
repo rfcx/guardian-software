@@ -371,19 +371,18 @@ public class RfcxGuardian extends Application {
 			if (	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
 				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS)
 				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS)
+				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION)
 			) {
 				rfcxSvc.triggerService(WifiStateSetService.SERVICE_NAME, false);
+				rfcxSvc.triggerService(BluetoothStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(SSHStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(CompanionSocketService.SERVICE_NAME, true);
 
-			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION)) {
-				rfcxSvc.triggerService(BluetoothStateSetService.SERVICE_NAME, false);
-
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)) {
 				rfcxSvc.triggerService(CompanionSocketService.SERVICE_NAME, true);
 
-			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_ADB_OVER_TCP)) {
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_ADB_SERVER)) {
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER)) {
