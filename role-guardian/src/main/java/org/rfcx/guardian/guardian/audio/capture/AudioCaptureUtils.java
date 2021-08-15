@@ -67,29 +67,19 @@ public class AudioCaptureUtils {
 
 	public int getRequiredCaptureSampleRate() {
 
-		boolean isStreamEnabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_STREAM);
-		boolean isVaultEnabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_VAULT);
-		boolean isClassifyEnabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CLASSIFY);
-		boolean isCastEnabled = app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAST);
+		int minRequiredSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAST_SAMPLE_RATE_MINIMUM);
 
-		int streamSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_SAMPLE_RATE);
-		int vaultSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_VAULT_SAMPLE_RATE);
-		int classifySampleRate = (app.audioClassifierDb.dbActive.getCount() > 0) ? app.audioClassifierDb.dbActive.getMaxSampleRateAmongstAllRows() : 0;
-
-		int minRequiredSampleRate = allowedCaptureSampleRates[0];
-
-		if (isStreamEnabled) { minRequiredSampleRate = Math.max(minRequiredSampleRate, streamSampleRate); }
-		if (isVaultEnabled) { minRequiredSampleRate = Math.max(minRequiredSampleRate, vaultSampleRate); }
-		if (isClassifyEnabled) { minRequiredSampleRate = Math.max(minRequiredSampleRate, classifySampleRate); }
-
-		if (isCastEnabled && !isStreamEnabled && !isVaultEnabled && !isClassifyEnabled) {
-			minRequiredSampleRate = Math.max(minRequiredSampleRate, streamSampleRate);
-			minRequiredSampleRate = Math.max(minRequiredSampleRate, vaultSampleRate);
-			minRequiredSampleRate = Math.max(minRequiredSampleRate, classifySampleRate);
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_STREAM)) {
+			minRequiredSampleRate = Math.max(minRequiredSampleRate, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_SAMPLE_RATE));
 		}
 
-		// we may need something in here soon in order to deal with the scenario when somebody wants to be audio casting
-		// ...but they want to be casting at a higher sample rate than the other services.
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_VAULT)) {
+			minRequiredSampleRate = Math.max(minRequiredSampleRate, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_VAULT_SAMPLE_RATE));
+		}
+
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CLASSIFY) && (app.audioClassifierDb.dbActive.getCount() > 0) ) {
+			minRequiredSampleRate = Math.max(minRequiredSampleRate, app.audioClassifierDb.dbActive.getMaxSampleRateAmongstAllRows());
+		}
 
 		return verifyOrUpdateCaptureSampleRateHardwareSupport(minRequiredSampleRate);
 	}

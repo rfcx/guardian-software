@@ -69,7 +69,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 		put("sms_default_application", 		new String[] { "secure", "s", "org.rfcx.guardian.admin" });
 		put("sms_outgoing_check_max_count", new String[] { "global", "i", "99999" });
 		put("assisted_gps_enabled", 		new String[] { "global", "i", "1" });
-		put("airplane_mode_radios", 		new String[] { "global", "s", "cell,bluetooth,nfc,wimax" });
+		put("airplane_mode_radios", 		new String[] { "global", "s", "cell,nfc,wimax" });
 		put("set_install_location", 		new String[] { "global", "i", "1" });
 		put("power_sounds_enabled", 		new String[] { "global", "i", "0" });
 		put("lockscreen_sounds_enabled", 	new String[] { "system", "i", "0" });

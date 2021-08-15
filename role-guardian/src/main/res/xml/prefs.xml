@@ -333,6 +333,15 @@
 			android:entryValues="@array/prefs_values_audio_encode_bitrate"
 			android:defaultValue="@string/prefs_value_default_audio_vault_bitrate" />
 
+	<ListPreference
+			android:key="audio_cast_sample_rate_minimum"
+			android:title="audio_cast_sample_rate_minimum"
+			android:dialogTitle="audio_cast_sample_rate_minimum"
+			android:summary="int - hertz"
+			android:entries="@array/prefs_labels_audio_sample_rate"
+			android:entryValues="@array/prefs_values_audio_sample_rate"
+			android:defaultValue="@string/prefs_value_default_audio_cast_sample_rate_minimum" />
+
 
 
  	

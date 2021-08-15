@@ -70,7 +70,7 @@ public class CompanionSocketService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 
-			if (app.companionSocketUtils.socketUtils.isSocketServerEnabled(true, app.rfcxPrefs)) {
+			if (app.companionSocketUtils.socketUtils.isSocketServerEnablable(true, app.rfcxPrefs)) {
 
 				int currFailureThreshold = maxSendFailureThreshold +1;
 				long pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);

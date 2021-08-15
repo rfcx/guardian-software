@@ -50,9 +50,11 @@
 	<string name="prefs_value_default_audio_stream_codec">opus</string>
 	<string name="prefs_value_default_audio_stream_bitrate">16384</string>
 
-	<string name="prefs_value_default_audio_vault_sample_rate">12000</string>
-	<string name="prefs_value_default_audio_vault_codec">flac</string>
-	<string name="prefs_value_default_audio_vault_bitrate">16384</string>
+	<string name="prefs_value_default_audio_vault_sample_rate">24000</string>
+	<string name="prefs_value_default_audio_vault_codec">opus</string>
+	<string name="prefs_value_default_audio_vault_bitrate">40960</string>
+
+	<string name="prefs_value_default_audio_cast_sample_rate_minimum">12000</string>
 
 	<string name="prefs_value_default_enable_cutoffs_internal_battery">false</string>
 	<string name="prefs_value_default_checkin_cutoff_internal_battery">100</string>

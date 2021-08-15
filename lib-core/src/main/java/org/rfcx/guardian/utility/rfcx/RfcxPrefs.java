@@ -106,6 +106,8 @@ public class RfcxPrefs {
 		public static final String AUDIO_VAULT_CODEC = "audio_vault_codec";
 		public static final String AUDIO_VAULT_BITRATE = "audio_vault_bitrate";
 
+		public static final String AUDIO_CAST_SAMPLE_RATE_MINIMUM = "audio_cast_sample_rate_minimum";
+
 		public static final String CHECKIN_FAILURE_THRESHOLDS = "checkin_failure_thresholds";
 		public static final String CHECKIN_FAILURE_LIMIT = "checkin_failure_limit";
 
@@ -224,9 +226,11 @@ public class RfcxPrefs {
 			put(Pref.AUDIO_STREAM_CODEC, "opus");
 			put(Pref.AUDIO_STREAM_BITRATE, "16384");
 
-			put(Pref.AUDIO_VAULT_SAMPLE_RATE, "12000");
-			put(Pref.AUDIO_VAULT_CODEC, "flac");
-			put(Pref.AUDIO_VAULT_BITRATE, "16384");
+			put(Pref.AUDIO_VAULT_SAMPLE_RATE, "24000");
+			put(Pref.AUDIO_VAULT_CODEC, "opus");
+			put(Pref.AUDIO_VAULT_BITRATE, "40960");
+
+			put(Pref.AUDIO_CAST_SAMPLE_RATE_MINIMUM, "12000");
 
 			put(Pref.CHECKIN_FAILURE_THRESHOLDS, "15,30,50,70,90");
 			put(Pref.CHECKIN_FAILURE_LIMIT, "3");

@@ -16,6 +16,8 @@ import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSatUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
+import org.rfcx.guardian.guardian.audio.cast.AudioCastSocketService;
+import org.rfcx.guardian.guardian.audio.cast.AudioCastUtils;
 import org.rfcx.guardian.guardian.companion.CompanionSocketUtils;
 import org.rfcx.guardian.guardian.asset.detections.AudioDetectionJsonUtils;
 import org.rfcx.guardian.guardian.asset.library.AssetLibraryDb;
@@ -128,6 +130,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     // Misc
     public AudioCaptureUtils audioCaptureUtils = null;
     public AudioClassifyUtils audioClassifyUtils = null;
+    public AudioCastUtils audioCastUtils = null;
     public ApiMqttUtils apiMqttUtils = null;
     public ApiRestUtils apiRestUtils = null;
     public ApiSmsUtils apiSmsUtils = null;
@@ -189,6 +192,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
         this.audioCaptureUtils = new AudioCaptureUtils(this);
         this.audioClassifyUtils = new AudioClassifyUtils(this);
+        this.audioCastUtils = new AudioCastUtils(this);
         this.apiMqttUtils = new ApiMqttUtils(this);
         this.apiRestUtils = new ApiRestUtils(this);
         this.apiSmsUtils = new ApiSmsUtils(this);
@@ -323,6 +327,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxSvc.addService( AudioEncodeJobService.SERVICE_NAME, AudioEncodeJobService.class);
         this.rfcxSvc.addService( AudioClassifyPrepareService.SERVICE_NAME, AudioClassifyPrepareService.class);
         this.rfcxSvc.addService( AudioPlaybackJobService.SERVICE_NAME, AudioPlaybackJobService.class);
+        this.rfcxSvc.addService( AudioCastSocketService.SERVICE_NAME, AudioCastSocketService.class);
 
         this.rfcxSvc.addService( ApiCheckInQueueService.SERVICE_NAME, ApiCheckInQueueService.class);
         this.rfcxSvc.addService( ApiCheckInJobService.SERVICE_NAME, ApiCheckInJobService.class);
@@ -393,6 +398,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     ||  prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
             ) {
                 this.rfcxSvc.triggerService( CompanionSocketService.SERVICE_NAME, true);
+
+            } else if ( prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_AUDIO_CAST) ) {
+                this.rfcxSvc.triggerService( AudioCastSocketService.SERVICE_NAME, true);
 
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)
                     || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS)

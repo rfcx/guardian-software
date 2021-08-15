@@ -84,17 +84,21 @@ public class SocketUtils {
 
 
 
-	public boolean isSocketServerEnabled(boolean verboseLogging, RfcxPrefs rfcxPrefs) {
+	public boolean isSocketServerEnablable(boolean verboseLogging, RfcxPrefs rfcxPrefs) {
 
-		boolean prefsAdminEnableSocketServer = rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER);
-		String prefsAdminWifiFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
-		boolean isWifiEnabled = prefsAdminWifiFunction.equals("hotspot") || prefsAdminWifiFunction.equals("client");
+		boolean prefsEnableSocketServer = rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER);
 
-		if (verboseLogging && prefsAdminEnableSocketServer && !isWifiEnabled) {
-			Log.e( logTag, "Socket Server could not be enabled because '"+RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION+"' is set to off.");
+		String prefsWifiFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION);
+		boolean isWifiEnabled = prefsWifiFunction.equals("hotspot") || prefsWifiFunction.equals("client");
+
+		String prefsBluetoothFunction = rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION);
+		boolean isBluetoothEnabled = prefsBluetoothFunction.equals("pan");
+
+		if (verboseLogging && prefsEnableSocketServer && !isWifiEnabled && !isBluetoothEnabled) {
+			Log.e( logTag, "Socket Server could not be enabled because '"+RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION+"' and '"+RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION+"' are set to off.");
 		}
 
-		return prefsAdminEnableSocketServer && isWifiEnabled;
+		return prefsEnableSocketServer && (isWifiEnabled || isBluetoothEnabled);
 	}
 
 
