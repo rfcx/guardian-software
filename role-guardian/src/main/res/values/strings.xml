@@ -110,6 +110,7 @@
 
 	<string name="prefs_value_default_admin_enable_airplane_mode">false</string>
 	<string name="prefs_value_default_admin_wifi_function">hotspot</string>
+	<string name="prefs_value_default_admin_bluetooth_function">off</string>
 
 	<string name="prefs_value_default_admin_wifi_client_auth_creds">[ssid]:[password]</string>
 	<string name="prefs_value_default_admin_wifi_hotspot_auth_creds">[ssid]:rfcxrfcx</string>
@@ -126,6 +127,11 @@
 		<item>off</item>
 		<item>hotspot</item>
 		<item>client</item>
+	</string-array>
+
+	<string-array name="prefs_values_admin_bluetooth_function">
+		<item>off</item>
+		<item>pan</item>
 	</string-array>
 
     <string-array name="prefs_values_true_or_false">

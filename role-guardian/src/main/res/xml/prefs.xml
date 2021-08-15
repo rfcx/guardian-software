@@ -646,6 +646,16 @@
 			android:enabled="true"
 			android:defaultValue="@string/prefs_value_default_admin_wifi_hotspot_auth_creds" />
 
+
+	<ListPreference
+			android:key="admin_bluetooth_function"
+			android:title="admin_bluetooth_function"
+			android:dialogTitle="admin_bluetooth_function"
+			android:summary="string - off/pan"
+			android:entries="@array/prefs_values_admin_bluetooth_function"
+			android:entryValues="@array/prefs_values_admin_bluetooth_function"
+			android:defaultValue="@string/prefs_value_default_admin_bluetooth_function" />
+
 	<ListPreference
 			android:key="admin_enable_airplane_mode"
 			android:title="admin_enable_airplane_mode"

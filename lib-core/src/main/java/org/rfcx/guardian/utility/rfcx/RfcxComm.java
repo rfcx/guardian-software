@@ -39,14 +39,14 @@ public class RfcxComm {
 			public static final int ADB = 7329;
 			public static final int SSH = 22;
 			public static final class SOCKET {
-				public static final int JSON = 9998;
+				public static final int JSON = 9997;
 			}
 		}
 
 		public static final class GUARDIAN {
 			public static final class SOCKET {
 				public static final int JSON = 9999;
-				public static final int CAST = 9997;
+				public static final int AUDIO = 9998;
 			}
 		}
 	}
