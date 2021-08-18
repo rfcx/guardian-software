@@ -106,6 +106,7 @@
 
 	<string name="prefs_value_default_admin_verbose_sentinel">false</string>
 	<string name="prefs_value_default_admin_verbose_cpu">false</string>
+	<string name="prefs_value_default_admin_verbose_network">false</string>
 
 	<string name="prefs_value_default_admin_system_settings_override">auto_time_zone:system,i,0;</string>
 	<string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>

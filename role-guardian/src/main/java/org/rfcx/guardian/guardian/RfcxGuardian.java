@@ -396,6 +396,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
             } else if ( prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)
                     ||  prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
+                    ||  prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION)
             ) {
                 this.rfcxSvc.triggerService( CompanionSocketService.SERVICE_NAME, true);
 

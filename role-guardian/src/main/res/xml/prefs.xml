@@ -29,6 +29,15 @@
 			android:defaultValue="@string/prefs_value_default_admin_verbose_cpu" />
 
 	<ListPreference
+			android:key="admin_verbose_network"
+			android:title="admin_verbose_network"
+			android:dialogTitle="admin_verbose_network"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_verbose_network" />
+
+	<ListPreference
 			android:key="enable_audio_capture"
 			android:title="enable_audio_capture"
 			android:dialogTitle="enable_audio_capture"

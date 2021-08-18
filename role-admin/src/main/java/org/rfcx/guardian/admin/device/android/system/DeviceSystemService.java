@@ -371,7 +371,7 @@ public class DeviceSystemService extends Service implements SensorEventListener,
 			if (app.deviceMobileNetwork.isInitializedTelephonyManager() && app.deviceMobileNetwork.isInitializedSignalStrength()) {
 
 				String[] newTelephonyValue = app.deviceMobileNetwork.getMobileNetworkSummary();
-				app.deviceUtils.checkReportMobileNetworkChange(this.telephonyValues, newTelephonyValue);
+				if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ADMIN_VERBOSE_NETWORK)) { app.deviceUtils.checkReportMobileNetworkChange(this.telephonyValues, newTelephonyValue); }
 				this.telephonyValues.add(newTelephonyValue);
 			} else {
 				Log.e(logTag, "could not cache telephony");

@@ -253,12 +253,14 @@ public class AudioCaptureUtils {
 
 				if (isToBeEncoded) {
 					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestampActual, fileExt, sampleRate, "g10"));
+					FileUtils.initializeDirectoryRecursively(RfcxAudioFileUtils.audioEncodeDir(context), false);
 					WavUtils.copyWavFile(captureFile.getAbsolutePath(), preEncodeFile.getAbsolutePath(), sampleRate);
 					isEncodeFileMoved = preEncodeFile.exists();
 				}
 
 				if (isToBeClassified) {
 					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestampActual, fileExt, sampleRate, "g10"));
+					FileUtils.initializeDirectoryRecursively(RfcxAudioFileUtils.audioClassifyDir(context), false);
 					WavUtils.copyWavFile(captureFile.getAbsolutePath(), preClassifyFile.getAbsolutePath(), sampleRate);
 					isClassifyFileMoved = preClassifyFile.exists();
 				}
