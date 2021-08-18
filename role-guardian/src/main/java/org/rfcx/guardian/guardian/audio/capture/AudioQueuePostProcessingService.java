@@ -65,9 +65,13 @@ public class AudioQueuePostProcessingService extends IntentService {
 					String streamCodec = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_CODEC);
 					int streamBitrate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE);
 
-					jobCount_Encode += app.audioEncodeDb.dbQueued.insert(
-						""+captureTimestampActual, captureFileExt, "-", streamSampleRate,
-							streamBitrate, streamCodec, captureLoopPeriod, captureLoopPeriod, "stream", preEncodeFilePath, captureSampleRate );
+					if (streamSampleRate <= captureSampleRate) {
+						jobCount_Encode += app.audioEncodeDb.dbQueued.insert(
+								"" + captureTimestampActual, captureFileExt, "-", streamSampleRate,
+								streamBitrate, streamCodec, captureLoopPeriod, captureLoopPeriod, "stream", preEncodeFilePath, captureSampleRate);
+					} else {
+						Log.e(logTag, "Stream encoding job skipped because Stream Sample Rate (" + streamSampleRate + ") is higher than Capture Sample Rate (" + captureSampleRate + ").");
+					}
 				}
 
 
@@ -79,9 +83,13 @@ public class AudioQueuePostProcessingService extends IntentService {
 					String vaultCodec = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_VAULT_CODEC);
 					int vaultBitrate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_VAULT_BITRATE);
 
-					jobCount_Encode += app.audioEncodeDb.dbQueued.insert(
-							""+captureTimestampActual, captureFileExt, "-", vaultSampleRate,
-							vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath, captureSampleRate );
+					if (vaultSampleRate <= captureSampleRate) {
+						jobCount_Encode += app.audioEncodeDb.dbQueued.insert(
+								"" + captureTimestampActual, captureFileExt, "-", vaultSampleRate,
+								vaultBitrate, vaultCodec, captureLoopPeriod, captureLoopPeriod, "vault", preEncodeFilePath, captureSampleRate);
+					} else {
+						Log.e(logTag, "Vault encoding job skipped because Vault Sample Rate (" + vaultSampleRate + ") is higher than Capture Sample Rate (" + captureSampleRate + ").");
+					}
 				}
 
 
@@ -106,12 +114,15 @@ public class AudioQueuePostProcessingService extends IntentService {
 							String classifierClasses = classiferRow[11];
 
 							if (app.audioClassifyUtils.isClassifyAllowedAtThisTimeOfDay(classifierId)) {
-
-								jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
-										"" + captureTimestampActual, classifierId, classifierVersion,
-										captureSampleRate, classifierSampleRate, classifierInputGain,
-										preClassifyFilePath, classifierFilePath,
-										classifierWindowSize, classifierStepSize, classifierClasses);
+								if (classifierSampleRate <= captureSampleRate) {
+									jobCount_Classify += app.audioClassifyDb.dbQueued.insert(
+											"" + captureTimestampActual, classifierId, classifierVersion,
+											captureSampleRate, classifierSampleRate, classifierInputGain,
+											preClassifyFilePath, classifierFilePath,
+											classifierWindowSize, classifierStepSize, classifierClasses);
+								} else {
+									Log.e(logTag, "Classification job skipped because Classifier Sample Rate (" + classifierSampleRate + ") is higher than Capture Sample Rate (" + captureSampleRate + ").");
+								}
 							}
 						}
 					}

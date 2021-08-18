@@ -65,7 +65,7 @@ public class AssetLibraryUtils {
 					app.assetLibraryDb.dbClassifier.updateLastAccessedAtById(classifierId);
 				}
 			}
-			libObj.put( RfcxAsset.getPlural("classifier"), classifierLibArr);
+			libObj.put( RfcxAsset.getTypePlural("classifier"), classifierLibArr);
 
 			JSONArray audioLibArr = new JSONArray();
 			for (String[] audioRow : app.assetLibraryDb.dbAudio.getAllRows()) {
@@ -80,7 +80,7 @@ public class AssetLibraryUtils {
 					app.assetLibraryDb.dbAudio.updateLastAccessedAtById(audioId);
 				}
 			}
-			libObj.put( RfcxAsset.getPlural("audio"), audioLibArr);
+			libObj.put( RfcxAsset.getTypePlural("audio"), audioLibArr);
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);

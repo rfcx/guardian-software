@@ -8,6 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.utility.misc.StringUtils;
 
+import java.util.Locale;
+
 public class RfcxGuardianIdentity {
 
 	public RfcxGuardianIdentity(Context context, String appRole) {
@@ -25,11 +27,26 @@ public class RfcxGuardianIdentity {
 	public static final int GUID_LENGTH = 12;
 	public static final int PINCODE_LENGTH = 4;
 
+	private String name;
 	private String guid;
 	private String serial;
 	private String authToken;
 	private String keystorePassPhrase;
 	private String pinCode;
+
+	private void checkSetPreDefinedName() {
+		String fromContentProvider = readIdentityInfoFromContentProvider("name");
+		if (fromContentProvider != null) {
+			Log.v(logTag, "Predefined Guardian Name retrieved via content provider");
+			setName(fromContentProvider);
+		} else {
+			String fromTxtFile = RfcxPrefs.readFromGuardianRoleTxtFile(this.context, this.logTag, this.appRole, this.appRole, "name");
+			if (fromTxtFile != null) {
+				Log.v(logTag, "Predefined Guardian Name retrieved from file");
+				this.name = fromTxtFile;
+			}
+		}
+	}
 
 	private void checkSetPreDefinedGuid() {
 		String fromContentProvider = readIdentityInfoFromContentProvider("guid");
@@ -102,7 +119,9 @@ public class RfcxGuardianIdentity {
 	}
 
 	public void setIdentityValue(String idKey, String idVal) {
-		if (idKey.equalsIgnoreCase("guid")) {
+		if (idKey.equalsIgnoreCase("name")) {
+			setName(idVal);
+		} else if (idKey.equalsIgnoreCase("guid")) {
 			setGuid(idVal.toLowerCase());
 		} else if (idKey.equalsIgnoreCase("serial")) {
 			setSerial(idVal.toLowerCase());
@@ -113,6 +132,11 @@ public class RfcxGuardianIdentity {
 		} else if (idKey.equalsIgnoreCase("pin_code")) {
 			setPinCode(idVal);
 		}
+	}
+
+	public void setName(String name) {
+		RfcxPrefs.writeToGuardianRoleTxtFile(this.context, this.logTag, "name", name, true);
+		this.name = name;
 	}
 
 	public void setGuid(String guid) {
@@ -141,7 +165,10 @@ public class RfcxGuardianIdentity {
 	}
 
 	public void unSetIdentityValue(String idKey) {
-		if (idKey.equalsIgnoreCase("guid")) {
+		if (idKey.equalsIgnoreCase("name")) {
+			this.name = null;
+			RfcxPrefs.deleteGuardianRoleTxtFile(this.context, "name");
+		} else if (idKey.equalsIgnoreCase("guid")) {
 			this.guid = null;
 			RfcxPrefs.deleteGuardianRoleTxtFile(this.context, "guid");
 		} else if (idKey.equalsIgnoreCase("serial")) {
@@ -160,7 +187,9 @@ public class RfcxGuardianIdentity {
 	}
 
 	public String getIdentityValue(String idKey) {
-		if (idKey.equalsIgnoreCase("guid")) {
+		if (idKey.equalsIgnoreCase("name")) {
+			return getName();
+		} else if (idKey.equalsIgnoreCase("guid")) {
 			return getGuid();
 		} else if (idKey.equalsIgnoreCase("serial")) {
 			return getSerial();
@@ -174,7 +203,19 @@ public class RfcxGuardianIdentity {
 			return null;
 		}
 	}
-	
+
+	public String getName() {
+		if (this.name == null) {
+			checkSetPreDefinedName();
+			if (this.name == null) {
+				Log.e(logTag, "Failed to find pre-defined name.");
+				setName( "RFCx Guardian ("+getGuid().substring(0,8).toUpperCase(Locale.US)+")" );
+				Log.e(logTag, "New Guardian Name generated (random): "+this.name);
+			}
+		}
+		return this.guid;
+	}
+
     public String getGuid() {
 		if (this.guid == null) {
 			checkSetPreDefinedGuid();
@@ -263,6 +304,7 @@ public class RfcxGuardianIdentity {
 	}
 
 	public void reSyncGuardianIdentity() {
+		if (this.name != null) { this.name = null; checkSetPreDefinedName(); }
 		if (this.guid != null) { this.guid = null; checkSetPreDefinedGuid(); }
 		if (this.serial != null) { this.serial = null; checkSetPreDefinedSerial(); }
 		if (this.authToken != null) { this.authToken = null; checkSetPreDefinedAuthToken(); }

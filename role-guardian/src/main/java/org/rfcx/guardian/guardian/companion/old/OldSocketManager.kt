@@ -55,13 +55,13 @@ object OldSocketManager {
                             streamInput = DataInputStream(socketInput)
                             val message = streamInput?.readUTF()
 
-                            if (!message.isNullOrBlank()) {
-                                Log.e(LOGTAG, message);
-                                val receiveJson = JSONObject(message)
-
-                                //send response back
-                                streamOutput = DataOutputStream(socket?.getOutputStream())
-                                when (receiveJson.get("command")) {
+//                            if (!message.isNullOrBlank()) {
+//                                Log.e(LOGTAG, message);
+//                                val receiveJson = JSONObject(message)
+//
+//                                //send response back
+//                                streamOutput = DataOutputStream(socket?.getOutputStream())
+//                                when (receiveJson.get("command")) {
 //                                    "prefs" -> sendPrefsMessage()
 //                                    "connection" -> sendConnectionMessage()
 //                                    "diagnostic" -> sendDiagnosticMessage()
@@ -72,40 +72,40 @@ object OldSocketManager {
 //                                    "is_registered" -> sendIfGuardianRegistered()
 //                                    "is_recording" -> sendRecorderState()
 //                                    "stop_wifi" -> stopWiFiService()
-                                    else -> {
-                                        val commandObject =
-                                            JSONObject(receiveJson.get("command").toString())
-                                        val commandKey =
-                                            commandObject.keys().asSequence().toList()[0]
-                                        when (commandKey) {
-                                            "sync" -> sendSyncConfigurationMessage(
-                                                commandObject.getJSONArray(
-                                                    "sync"
-                                                )
-                                            )
-                                            "register" -> {
-                                                val registerInfo =
-                                                    commandObject.getJSONObject("register")
-                                                val tokenId = registerInfo.getString("token_id")
-                                                val isProduction =
-                                                    registerInfo.getBoolean("is_production")
-                                                sendRegistrationStatus(tokenId, isProduction)
-                                            }
-                                            "checkin" -> {
-                                                val checkinInfo =
-                                                    commandObject.getJSONObject("checkin")
-                                                val command = checkinInfo.getString("wantTo")
-                                                requireCheckInTest = if (command == "start") {
-                                                    sendCheckInTestMessage(CheckInState.NOT_PUBLISHED)
-                                                    true
-                                                } else {
-                                                    false
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+//                                    else -> {
+//                                        val commandObject =
+//                                            JSONObject(receiveJson.get("command").toString())
+//                                        val commandKey =
+//                                            commandObject.keys().asSequence().toList()[0]
+//                                        when (commandKey) {
+//                                            "sync" -> sendSyncConfigurationMessage(
+//                                                commandObject.getJSONArray(
+//                                                    "sync"
+//                                                )
+//                                            )
+//                                            "register" -> {
+//                                                val registerInfo =
+//                                                    commandObject.getJSONObject("register")
+//                                                val tokenId = registerInfo.getString("token_id")
+//                                                val isProduction =
+//                                                    registerInfo.getBoolean("is_production")
+//                                                sendRegistrationStatus(tokenId, isProduction)
+//                                            }
+//                                            "checkin" -> {
+//                                                val checkinInfo =
+//                                                    commandObject.getJSONObject("checkin")
+//                                                val command = checkinInfo.getString("wantTo")
+//                                                requireCheckInTest = if (command == "start") {
+//                                                    sendCheckInTestMessage(CheckInState.NOT_PUBLISHED)
+//                                                    true
+//                                                } else {
+//                                                    false
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
                         }
                     }
                 } catch (e: Exception) {

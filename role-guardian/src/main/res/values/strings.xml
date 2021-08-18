@@ -44,16 +44,17 @@
 
 	<string name="prefs_value_default_audio_cycle_duration">90</string>
 
-	<string name="prefs_value_default_audio_capture_sample_rate">12000</string>
 	<string name="prefs_value_default_audio_capture_gain">1.0</string>
 
 	<string name="prefs_value_default_audio_stream_sample_rate">12000</string>
 	<string name="prefs_value_default_audio_stream_codec">opus</string>
 	<string name="prefs_value_default_audio_stream_bitrate">16384</string>
 
-	<string name="prefs_value_default_audio_vault_sample_rate">12000</string>
-	<string name="prefs_value_default_audio_vault_codec">flac</string>
-	<string name="prefs_value_default_audio_vault_bitrate">16384</string>
+	<string name="prefs_value_default_audio_vault_sample_rate">24000</string>
+	<string name="prefs_value_default_audio_vault_codec">opus</string>
+	<string name="prefs_value_default_audio_vault_bitrate">40960</string>
+
+	<string name="prefs_value_default_audio_cast_sample_rate_minimum">12000</string>
 
 	<string name="prefs_value_default_enable_cutoffs_internal_battery">false</string>
 	<string name="prefs_value_default_checkin_cutoff_internal_battery">100</string>
@@ -77,7 +78,7 @@
 
 	<string name="prefs_value_default_api_clock_sync_cycle_duration">180</string>
 	<string name="prefs_value_default_api_ping_cycle_duration">30</string>
-	<string name="prefs_value_default_api_ping_cycle_fields">all,meta</string>
+	<string name="prefs_value_default_api_ping_cycle_fields">checkins,instructions,prefs,sms,meta,detections,purged</string>
 
 	<string name="prefs_value_default_admin_enable_log_capture">false</string>
 	<string name="prefs_value_default_admin_log_capture_level">Warn</string>
@@ -92,28 +93,30 @@
 	<string name="prefs_value_default_admin_enable_camera_capture">false</string>
 	<string name="prefs_value_default_admin_camera_capture_cycle">180</string>
 
-	<string name="prefs_value_default_admin_enable_adb_over_tcp">true</string>
-	<string name="prefs_value_default_admin_enable_ssh_server">false</string>
+	<string name="prefs_value_default_admin_enable_adb_server">true</string>
+	<string name="prefs_value_default_admin_enable_ssh_server">true</string>
 	<string name="prefs_value_default_admin_enable_socket_server">true</string>
 
 	<string name="prefs_value_default_admin_enable_sentinel_power">true</string>
 	<string name="prefs_value_default_admin_enable_sentinel_sensor">false</string>
 	<string name="prefs_value_default_admin_enable_sentry_sensor">false</string>
 
-	<string name="prefs_value_default_admin_telemetry_capture_cycle">1333</string>
+	<string name="prefs_value_default_admin_telemetry_capture_cycle">1250</string>
 	<string name="prefs_value_default_companion_telemetry_push_cycle">1250</string>
 
 	<string name="prefs_value_default_admin_verbose_sentinel">false</string>
 	<string name="prefs_value_default_admin_verbose_cpu">false</string>
+	<string name="prefs_value_default_admin_verbose_network">false</string>
 
 	<string name="prefs_value_default_admin_system_settings_override">auto_time_zone:system,i,0;</string>
 	<string name="prefs_value_default_admin_system_timezone">[ Not Set ]</string>
 
 	<string name="prefs_value_default_admin_enable_airplane_mode">false</string>
 	<string name="prefs_value_default_admin_wifi_function">hotspot</string>
+	<string name="prefs_value_default_admin_bluetooth_function">off</string>
 
 	<string name="prefs_value_default_admin_wifi_client_auth_creds">[ssid]:[password]</string>
-	<string name="prefs_value_default_admin_wifi_hotspot_password">rfcxrfcx</string>
+	<string name="prefs_value_default_admin_wifi_hotspot_auth_creds">[ssid]:rfcxrfcx</string>
 
 	<string name="prefs_value_default_api_satellite_protocol">off</string>
 
@@ -127,6 +130,11 @@
 		<item>off</item>
 		<item>hotspot</item>
 		<item>client</item>
+	</string-array>
+
+	<string-array name="prefs_values_admin_bluetooth_function">
+		<item>off</item>
+		<item>pan</item>
 	</string-array>
 
     <string-array name="prefs_values_true_or_false">

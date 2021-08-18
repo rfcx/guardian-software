@@ -16,55 +16,7 @@ class OldWifiCommunicationUtils(private val context: Context) {
         "OldWifiCommunicationUtils"
     )
 
-    fun getCurrentConfigurationAsJson(): JSONArray {
-        val configurationJsonArray = JSONArray()
-        try {
-            val configurationJson = JSONObject()
-            val sampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)
-            val bitrate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE)
-            val fileFormat = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_CODEC)
-            val duration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION)
 
-            configurationJson.let {
-                it.put("sample_rate", sampleRate)
-                it.put("bitrate", bitrate)
-                it.put("file_format", fileFormat)
-                it.put("duration", duration)
-            }
-
-            configurationJsonArray.put(configurationJson)
-        } catch (e: Exception) {
-            RfcxLog.logExc(logTag, e)
-        } finally {
-            return configurationJsonArray
-        }
-    }
-
-    fun getDiagnosticAsJson(): JSONArray {
-        val diagnosticJsonArray = JSONArray()
-        try {
-            val diagnosticJson = JSONObject()
-            val battery = app.deviceBattery.getBatteryChargePercentage(this.context, null)
-
-            diagnosticJson.let {
-                it.put("battery_percentage", battery)
-            }
-
-            diagnosticJsonArray.put(diagnosticJson)
-        } catch (e: Exception) {
-            RfcxLog.logExc(logTag, e)
-        } finally {
-            return diagnosticJsonArray
-        }
-    }
-
-    fun getPrefsChangesAsJson(): JSONArray {
-        val jsonArray = JSONArray()
-        val jsonObject = JSONObject()
-        jsonObject.put("result", "success")
-        jsonArray.put(jsonObject)
-        return  jsonArray
-    }
 
     fun getAudioBufferAsJson(): JSONArray? {
         if (app.audioCaptureUtils.isAudioChanged) {

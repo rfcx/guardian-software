@@ -36,6 +36,8 @@ public class AudioCaptureUtils {
 
 	private final RfcxGuardian app;
 
+	private static final int[] allowedCaptureSampleRates = new int[]{ 8000, 12000, 16000, 24000, 48000 };
+
 	public String[] samplingRatioStrArr = new String[] {};
 	public int[] samplingRatioArr = new int[] {};
 	public int samplingRatioIteration = 0;
@@ -44,13 +46,12 @@ public class AudioCaptureUtils {
 	public long[] queueCaptureTimestamp_Actual = new long[] { 0, 0 };
 	public int[] queueCaptureSampleRate = new int[] { 0, 0 };
 
-	private boolean isAudioCaptureHardwareSupported = false;
 	private static final int requiredFreeDiskSpaceForAudioCapture = 64;
 
 	private static AudioCaptureWavRecorder wavRecorderForCompanion = null;
 
 	public static AudioCaptureWavRecorder initializeWavRecorder(String captureDir, long timestamp, int sampleRate) throws Exception {
-		wavRecorderForCompanion = AudioCaptureWavRecorder.getInstance(sampleRate);;
+		wavRecorderForCompanion = AudioCaptureWavRecorder.getInstance(sampleRate);
 		wavRecorderForCompanion.setOutputFile(getCaptureFilePath(captureDir, timestamp, "wav"));
 		wavRecorderForCompanion.prepareRecorder();
 		return wavRecorderForCompanion;
@@ -64,56 +65,59 @@ public class AudioCaptureUtils {
 	}
 
 
-	private boolean doesHardwareSupportCaptureSampleRate() {
+	public int getRequiredCaptureSampleRate() {
 
-		if (!this.isAudioCaptureHardwareSupported) {
+		int minRequiredSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAST_SAMPLE_RATE_MINIMUM);
 
-			int[] defaultSampleRateOptions = new int[]{ 8000, 12000, 16000, 24000, 48000 };
-			int originalSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE);
-			int verifiedOrUpdatedSampleRate = originalSampleRate;
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_STREAM)) {
+			minRequiredSampleRate = Math.max(minRequiredSampleRate, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_STREAM_SAMPLE_RATE));
+		}
 
-			for (int i = 0; i < defaultSampleRateOptions.length; i++) {
-				if ((defaultSampleRateOptions[i] >= originalSampleRate)
-						&& (AudioRecord.getMinBufferSize(defaultSampleRateOptions[i], AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT) > 0)
-				) {
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_VAULT)) {
+			minRequiredSampleRate = Math.max(minRequiredSampleRate, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_VAULT_SAMPLE_RATE));
+		}
 
-					verifiedOrUpdatedSampleRate = defaultSampleRateOptions[i];
-					this.isAudioCaptureHardwareSupported = true;
-					break;
+		if (app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CLASSIFY) && (app.audioClassifierDb.dbActive.getCount() > 0) ) {
+			minRequiredSampleRate = Math.max(minRequiredSampleRate, app.audioClassifierDb.dbActive.getMaxSampleRateAmongstAllRows());
+		}
 
-				} else if (i == (defaultSampleRateOptions.length - 1)) {
-					this.isAudioCaptureHardwareSupported = false;
-					Log.e(logTag, "Failed to verify hardware support for any of the provided audio sample rates...");
-				}
-			}
+		return verifyOrUpdateCaptureSampleRateHardwareSupport(minRequiredSampleRate);
+	}
 
-			if (verifiedOrUpdatedSampleRate != originalSampleRate) {
-				app.setSharedPref(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE, "" + verifiedOrUpdatedSampleRate);
-				Log.e(logTag, "Audio capture sample rate of " + originalSampleRate + " Hz not supported. Sample rate updated to " + verifiedOrUpdatedSampleRate + " Hz.");
-				this.isAudioCaptureHardwareSupported = true;
-			}
+	private static int verifyOrUpdateCaptureSampleRateHardwareSupport(int targetSampleRate) {
 
-			if (this.isAudioCaptureHardwareSupported) {
-				Log.v(logTag, "Hardware support verified for audio capture sample rate of " + verifiedOrUpdatedSampleRate + " Hz.");
+		int verifiedOrUpdatedSampleRate = targetSampleRate;
+		for (int i = 0; i < allowedCaptureSampleRates.length; i++) {
+			if ((allowedCaptureSampleRates[i] >= targetSampleRate)
+					&& (AudioRecord.getMinBufferSize(allowedCaptureSampleRates[i], AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT) > 0)
+			) {
+				verifiedOrUpdatedSampleRate = allowedCaptureSampleRates[i];
+				break;
+
+			} else if (i == (allowedCaptureSampleRates.length - 1)) {
+				Log.e(logTag, "Failed to verify hardware support for any of the provided audio sample rates...");
 			}
 		}
 
-		return this.isAudioCaptureHardwareSupported;
+		if (verifiedOrUpdatedSampleRate != targetSampleRate) {
+			Log.e(logTag, "Audio capture sample rate of " + targetSampleRate + " Hz not supported. Sample rate updated to " + verifiedOrUpdatedSampleRate + " Hz.");
+		}
+		return verifiedOrUpdatedSampleRate;
 	}
 
 	private boolean isBatteryChargeSufficientForCapture() {
-		int batteryChargeCutoff = this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY);
-		int batteryCharge = this.app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
+		int batteryChargeCutoff = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY);
+		int batteryCharge = app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null);
 		boolean isBatteryChargeSufficient = (batteryCharge >= batteryChargeCutoff);
 		if (isBatteryChargeSufficient && (batteryChargeCutoff == 100)) {
-			isBatteryChargeSufficient = this.app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null);
+			isBatteryChargeSufficient = app.deviceBattery.isBatteryCharged(app.getApplicationContext(), null);
 			if (!isBatteryChargeSufficient) { Log.d(logTag, "Battery is at 100% but is not yet fully charged."); }
 		}
 		return isBatteryChargeSufficient;
 	}
 
 	private boolean limitBasedOnBatteryLevel() {
-		return (!isBatteryChargeSufficientForCapture() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY));
+		return (!isBatteryChargeSufficientForCapture() && app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_INTERNAL_BATTERY));
 	}
 
 
@@ -135,11 +139,11 @@ public class AudioCaptureUtils {
 	}
 
 	private boolean limitBasedOnTimeOfDay() {
-		return (!isCaptureAllowedAtThisTimeOfDay() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS));
+		return (!isCaptureAllowedAtThisTimeOfDay() && app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SCHEDULE_OFF_HOURS));
 	}
 
 	private boolean limitBasedOnCaptureSamplingRatio() {
-		return (!isCaptureAllowedAtThisSamplingRatioIteration() && this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO));
+		return (!isCaptureAllowedAtThisSamplingRatioIteration() && app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CUTOFFS_SAMPLING_RATIO));
 	}
 
 	private boolean isCaptureAllowedAtThisSamplingRatioIteration() {
@@ -156,24 +160,19 @@ public class AudioCaptureUtils {
 
 		if (limitBasedOnBatteryLevel()) {
 			msgNoCapture.append("Low Battery level")
-					.append(" (current: ").append(this.app.deviceBattery.getBatteryChargePercentage(this.app.getApplicationContext(), null)).append("%,")
-					.append(" required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY)).append("%).");
+					.append(" (current: ").append(app.deviceBattery.getBatteryChargePercentage(app.getApplicationContext(), null)).append("%,")
+					.append(" required: ").append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_INTERNAL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		} else if (includeSentinel && !app.rfcxStatus.getFetchedStatus( RfcxStatus.Group.AUDIO_CAPTURE, RfcxStatus.Type.ALLOWED)) {
 			msgNoCapture.append("Low Sentinel Battery level")
-					.append(" (required: ").append(this.app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY)).append("%).");
+					.append(" (required: ").append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CUTOFF_SENTINEL_BATTERY)).append("%).");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		} else if (limitBasedOnInternalStorage()) {
 			msgNoCapture.append("a lack of sufficient free internal disk storage.")
 					.append(" (current: ").append(DeviceStorage.getInternalDiskFreeMegaBytes()).append("MB)")
 					.append(" (required: ").append(requiredFreeDiskSpaceForAudioCapture).append("MB).");
-			isAudioCaptureAllowedUnderKnownConditions = false;
-
-		} else if (!doesHardwareSupportCaptureSampleRate()) {
-			msgNoCapture.append("lack of hardware support for capture sample rate: ")
-					.append(app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)).append(" Hz.");
 			isAudioCaptureAllowedUnderKnownConditions = false;
 
 		}
@@ -196,7 +195,7 @@ public class AudioCaptureUtils {
 
 		StringBuilder msgNoCapture = new StringBuilder();
 
-		if (!this.app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
+		if (!app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE)) {
 			msgNoCapture.append("it being explicitly disabled ('" + RfcxPrefs.Pref.ENABLE_AUDIO_CAPTURE.toLowerCase() + "' is set to false).");
 			isAudioCaptureDisabledRightNow = true;
 
@@ -212,7 +211,7 @@ public class AudioCaptureUtils {
 			isAudioCaptureDisabledRightNow = true;
 
 		} else if (!app.isGuardianRegistered()) {
-			msgNoCapture.append("the Guardian not having been registered.");
+			msgNoCapture.append("the Guardian not having been activated/registered.");
 			isAudioCaptureDisabledRightNow = true;
 
 		}
@@ -254,12 +253,14 @@ public class AudioCaptureUtils {
 
 				if (isToBeEncoded) {
 					File preEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreEncode(context, timestampActual, fileExt, sampleRate, "g10"));
+					FileUtils.initializeDirectoryRecursively(RfcxAudioFileUtils.audioEncodeDir(context), false);
 					WavUtils.copyWavFile(captureFile.getAbsolutePath(), preEncodeFile.getAbsolutePath(), sampleRate);
 					isEncodeFileMoved = preEncodeFile.exists();
 				}
 
 				if (isToBeClassified) {
 					File preClassifyFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PreClassify(context, timestampActual, fileExt, sampleRate, "g10"));
+					FileUtils.initializeDirectoryRecursively(RfcxAudioFileUtils.audioClassifyDir(context), false);
 					WavUtils.copyWavFile(captureFile.getAbsolutePath(), preClassifyFile.getAbsolutePath(), sampleRate);
 					isClassifyFileMoved = preClassifyFile.exists();
 				}

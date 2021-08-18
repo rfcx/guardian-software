@@ -8,33 +8,55 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.network.SocketUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 public class CompanionSocketUtils {
 
-	public CompanionSocketUtils(Context context, int socketServerPort) {
+	public CompanionSocketUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 		this.socketUtils = new SocketUtils();
-		this.socketUtils.setSocketPort(socketServerPort);
+		this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.JSON);
 	}
+
+	private static final String[] includePingFields = new String[] {
+			"battery", "instructions", "prefs_full", "software", "library", "device", "companion"
+	};
+
+	private static final String[] excludeFromLogs = new String[] { "prefs" };
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionSocketUtils");
 
 	private RfcxGuardian app;
 	public SocketUtils socketUtils;
-
-	private static final String[] includePingFields = new String[] {
-			"battery", "instructions", "prefs", "software", "library", "device", "guardian"
-	};
-
 	private String pingJson = (new JSONObject()).toString();
 
-	public void updatePingJson() {
+
+	public JSONObject getCompanionPingJsonObj() {
+		JSONObject companionObj = new JSONObject();
 		try {
-			pingJson =  app.apiPingJsonUtils.buildPingJson(false, includePingFields, 0);
+
+			JSONObject guardianObj = new JSONObject();
+			guardianObj.put("guid", app.rfcxGuardianIdentity.getGuid());
+			guardianObj.put("name", app.rfcxGuardianIdentity.getName());
+
+			companionObj.put("is_registered", app.isGuardianRegistered());
+
+			companionObj.put("guardian", guardianObj);
+
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return companionObj;
+	}
+
+	public void updatePingJson(boolean printJsonToLogs) {
+		try {
+			pingJson =  app.apiPingJsonUtils.buildPingJson(false, includePingFields, 0, printJsonToLogs, excludeFromLogs );
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e, "updatePingJson");
 		}
@@ -88,7 +110,5 @@ public class CompanionSocketUtils {
 		socketUtils.isServerRunning = true;
 		//	}
 	}
-
-
 
 }

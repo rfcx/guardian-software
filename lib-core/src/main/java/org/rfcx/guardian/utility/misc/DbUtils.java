@@ -424,9 +424,31 @@ public class DbUtils {
 
 	public long getMinValueOfColumn(String tableName, String minValueOfWhichColumn, String selection, String[] selectionArgs) {
 		SQLiteDatabase db = openDb();
-		long minVal = getSumOfColumn(db, tableName, minValueOfWhichColumn, selection, selectionArgs);
+		long minVal = getMinValueOfColumn(db, tableName, minValueOfWhichColumn, selection, selectionArgs);
 		closeDb();
 		return minVal;
+	}
+
+	public static long getMaxValueOfColumn(SQLiteDatabase db, String tableName, String maxValueOfWhichColumn, String selection, String[] selectionArgs) {
+		long maxVal = 0;
+		try {
+			for (String[] singleRow : getRows(db, tableName, new String[] { "MAX("+maxValueOfWhichColumn+")" }, selection, selectionArgs, null, 0, 1)) {
+				if (singleRow[0] != null) {
+					maxVal = Long.parseLong(singleRow[0]);
+					break;
+				}
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return maxVal;
+	}
+
+	public long getMaxValueOfColumn(String tableName, String maxValueOfWhichColumn, String selection, String[] selectionArgs) {
+		SQLiteDatabase db = openDb();
+		long maxVal = getMaxValueOfColumn(db, tableName, maxValueOfWhichColumn, selection, selectionArgs);
+		closeDb();
+		return maxVal;
 	}
 
 	public static int getCount(SQLiteDatabase db, String tableName, String selection, String[] selectionArgs) {

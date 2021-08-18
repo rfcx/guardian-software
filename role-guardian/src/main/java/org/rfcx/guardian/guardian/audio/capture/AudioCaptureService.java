@@ -161,20 +161,20 @@ public class AudioCaptureService extends Service {
 
 			app.audioCaptureUtils.updateSamplingRatioIteration();
 
-			int prefsAudioCaptureSampleRate = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE);
+			int captureSampleRate = app.audioCaptureUtils.getRequiredCaptureSampleRate();
 			int prefsAudioCycleDuration = app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
 			
-			if (	(this.audioSampleRate != prefsAudioCaptureSampleRate)
+			if (	(this.audioSampleRate != captureSampleRate)
 				||	(this.audioCycleDuration != prefsAudioCycleDuration)
 				) {
 
-				this.audioSampleRate = prefsAudioCaptureSampleRate;
+				this.audioSampleRate = captureSampleRate;
 				this.audioCycleDuration = prefsAudioCycleDuration;
 				innerLoopIterationDuration = Math.round( (prefsAudioCycleDuration * 1000) / RfcxStatus.ratioExpirationToAudioCycleDuration );
 				
 				Log.d(logTag, "Audio Capture Params"
 						+ " - Cycle: " + DateTimeUtils.milliSecondDurationAsReadableString(prefsAudioCycleDuration*1000)
-						+ " - Sample Rate: " + Math.round(((double) prefsAudioCaptureSampleRate)/1000) + " kHz");
+						+ " - Sample Rate: " + Math.round(((double) captureSampleRate)/1000) + " kHz");
 			}
 			
 		} else {

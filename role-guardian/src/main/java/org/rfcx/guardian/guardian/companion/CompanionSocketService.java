@@ -21,8 +21,8 @@ public class CompanionSocketService extends Service {
 	private CompanionSocketSvc companionSocketSvc;
 
 	private static final long minPushCycleDurationMs = 667;
-	private static final int ifSendFailsThenExtendLoopByAFactorOf = 6;
-	private static final int maxSendFailureThreshold = 20;
+	private static final int ifSendFailsThenExtendLoopByAFactorOf = 4;
+	private static final int maxSendFailureThreshold = 24;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -70,7 +70,7 @@ public class CompanionSocketService extends Service {
 			
 			app = (RfcxGuardian) getApplication();
 
-			if (app.companionSocketUtils.socketUtils.isSocketServerEnabled(true, app.rfcxPrefs)) {
+			if (app.companionSocketUtils.socketUtils.isSocketServerEnablable(true, app.rfcxPrefs)) {
 
 				int currFailureThreshold = maxSendFailureThreshold +1;
 				long pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
@@ -82,19 +82,18 @@ public class CompanionSocketService extends Service {
 						app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 						if (currFailureThreshold >= maxSendFailureThreshold) {
-							if (currFailureThreshold == maxSendFailureThreshold) { Log.v(logTag, "Resetting Socket Server..."); }
 							app.companionSocketUtils.socketUtils.stopServer();
 							app.companionSocketUtils.startServer();
 							currFailureThreshold = 0;
 							pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
 							Thread.sleep(pingPushCycleDurationMs);
-							app.companionSocketUtils.updatePingJson();
+							app.companionSocketUtils.updatePingJson(false);
 						}
 
 						if (app.companionSocketUtils.sendSocketPing()) {
 							Thread.sleep(pingPushCycleDurationMs);
 							currFailureThreshold = 0;
-							app.companionSocketUtils.updatePingJson();
+							app.companionSocketUtils.updatePingJson(true);
 						} else {
 							Thread.sleep(ifSendFailsThenExtendLoopByAFactorOf * pingPushCycleDurationMs );
 							currFailureThreshold++;

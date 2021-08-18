@@ -69,7 +69,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 		put("sms_default_application", 		new String[] { "secure", "s", "org.rfcx.guardian.admin" });
 		put("sms_outgoing_check_max_count", new String[] { "global", "i", "99999" });
 		put("assisted_gps_enabled", 		new String[] { "global", "i", "1" });
-		put("airplane_mode_radios", 		new String[] { "global", "s", "cell,bluetooth,nfc,wimax" });
+		put("airplane_mode_radios", 		new String[] { "global", "s", "cell,nfc,wimax" });
 		put("set_install_location", 		new String[] { "global", "i", "1" });
 		put("power_sounds_enabled", 		new String[] { "global", "i", "0" });
 		put("lockscreen_sounds_enabled", 	new String[] { "system", "i", "0" });
@@ -88,7 +88,7 @@ public class DeviceHardware_OrangePi_3G_IOT {
 		put("up_threshold",					new String[] { "hotplug", "98" });
 
 		put("cpu_input_boost_enable",		new String[] { "hotplug", "1" });
-		put("is_cpu_hotplug_disable",		new String[] { "hotplug", "0" });
+		put("is_cpu_hotplug_disable",		new String[] { "hotplug", "1" });//0
 
 		put("cpu_num_base",					new String[] { "hotplug", "1" });//new String[] { "hotplug", "1" });
 

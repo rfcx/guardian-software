@@ -61,7 +61,7 @@ public class ApiCheckInJsonUtils {
 		jsonObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
 
 		// Adding checksum of current prefs values
-		jsonObj.put("prefs", app.metaJsonUtils.buildPrefsJsonObj(false));
+		jsonObj.put("prefs", app.metaJsonUtils.buildPrefsJsonObj(false, false));
 
 		// Adding instructions, if there are any
 		if (app.instructionsUtils.getInstructionsCount() > 0) {

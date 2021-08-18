@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.asset.RfcxAsset;
 import org.rfcx.guardian.utility.asset.RfcxAssetCleanup;
 import org.rfcx.guardian.utility.asset.RfcxAudioFileUtils;
 import org.rfcx.guardian.utility.asset.RfcxClassifierFileUtils;
@@ -64,19 +65,23 @@ public class AssetUtils {
 	}
 
 	public void purgeListOfAssets(String assetType, List<String> assetIdList) {
-		String rfcxDeviceId = app.rfcxGuardianIdentity.getGuid();
-		Context appContext = app.getApplicationContext();
-		List<String> idList = new ArrayList<>();
-		for (String assetId : assetIdList) {
-			String[] purgeReport = purgeSingleAsset( assetType, rfcxDeviceId, appContext, assetId );
-			if (purgeReport.length > 2) {
-				Log.d(logTag, "Purged Asset: "+ TextUtils.join(", ", purgeReport));
-			} else {
-				idList.add(purgeReport[1]);
+		if (assetIdList.size() > 0) {
+			String rfcxDeviceId = app.rfcxGuardianIdentity.getGuid();
+			Context appContext = app.getApplicationContext();
+			List<String> idList = new ArrayList<>();
+			for (String assetId : assetIdList) {
+				if (assetId != null) {
+					String[] purgeReport = purgeSingleAsset(assetType, rfcxDeviceId, appContext, assetId);
+					if (purgeReport.length > 2) {
+						Log.d(logTag, "Purged Asset: " + TextUtils.join(", ", purgeReport));
+					} else {
+						idList.add(purgeReport[1]);
+					}
+				}
 			}
-		}
-		if (idList.size() > 0) {
-			Log.d(logTag, "Purged Asset" + ((idList.size() > 1) ? "s" : "") + ": " + assetType + ", " + TextUtils.join(" ", idList));
+			if (idList.size() > 0) {
+				Log.d(logTag, "Purged Asset" + ((idList.size() > 1) ? "s" : "") + ": " + assetType + ", " + TextUtils.join(" ", idList));
+			}
 		}
 	}
 
@@ -92,9 +97,9 @@ public class AssetUtils {
 		try {
 
 			long numericAssetId = Long.parseLong(assetId);
-			List<String> filePaths =  new ArrayList<String>();
+			List<String> filePaths = new ArrayList<>();
 
-			if (assetType.equals("audio")) {
+			if (assetType.equals(RfcxAsset.Type.AUDIO)) {
 				app.audioEncodeDb.dbEncoded.deleteSingleRow(assetId);
 				app.apiCheckInDb.dbQueued.deleteSingleRowByAudioAttachmentId(assetId);
 				app.apiCheckInDb.dbSkipped.deleteSingleRowByAudioAttachmentId(assetId);
@@ -108,45 +113,44 @@ public class AssetUtils {
 					filePaths.add(RfcxAudioFileUtils.getAudioFileLocation_ExternalStorage(rfcxDeviceId, numericAssetId, fileExtension));
 				}
 
-			} else if (assetType.equals("screenshot")) {
+			} else if (assetType.equals(RfcxAsset.Type.META)) {
+				app.metaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
+				app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
+
+			} else if (assetType.equals(RfcxAsset.Type.SCREENSHOT)) {
 				RfcxComm.deleteQuery("admin", "database_delete_row", "screenshots|" + assetId, app.getResolver());
 				filePaths.add(RfcxScreenShotFileUtils.getScreenShotFileLocation_Queue(rfcxDeviceId, context, numericAssetId));
 
-			} else if (assetType.equals("log")) {
+			} else if (assetType.equals(RfcxAsset.Type.LOG)) {
 				RfcxComm.deleteQuery("admin", "database_delete_row", "logs|" + assetId, app.getResolver());
 				filePaths.add(RfcxLogcatFileUtils.getLogcatFileLocation_Queue(rfcxDeviceId, context, numericAssetId));
 
-			} else if (assetType.equals("photo")) {
+			} else if (assetType.equals(RfcxAsset.Type.PHOTO)) {
 				RfcxComm.deleteQuery("admin", "database_delete_row", "photos|" + assetId, app.getResolver());
 				filePaths.add(RfcxPhotoFileUtils.getPhotoFileLocation_Queue(rfcxDeviceId, context, numericAssetId));
 
-			} else if (assetType.equals("video")) {
+			} else if (assetType.equals(RfcxAsset.Type.VIDEO)) {
 				RfcxComm.deleteQuery("admin", "database_delete_row", "videos|" + assetId, app.getResolver());
 				filePaths.add(RfcxVideoFileUtils.getVideoFileLocation_Queue(rfcxDeviceId, context, numericAssetId));
 				filePaths.add(RfcxVideoFileUtils.getVideoFileLocation_ExternalStorage(rfcxDeviceId, numericAssetId));
 
-			} else if (assetType.equals("classifier")) {
+			} else if (assetType.equals(RfcxAsset.Type.CLASSIFIER)) {
 				app.audioClassifierDb.dbActive.deleteSingleRow(assetId);
 				filePaths.add(RfcxClassifierFileUtils.getClassifierFileLocation_Active(context, numericAssetId));
 				filePaths.add(RfcxClassifierFileUtils.getClassifierFileLocation_Cache(context, numericAssetId));
 
-			} else if (assetType.equals("sms")) {
+			} else if (assetType.equals(RfcxAsset.Type.SMS)) {
 				RfcxComm.deleteQuery("admin", "database_delete_row", "sms|" + assetId, app.getResolver());
 
-			} else if (assetType.equals("meta")) {
-				app.metaDb.dbMeta.deleteSingleRowByTimestamp(assetId);
-				app.assetExchangeLogDb.dbPurged.insert(assetType, assetId);
-
-			} else if (assetType.equals("instruction")) {
+			} else if (assetType.equals(RfcxAsset.Type.INSTRUCTION)) {
 				app.instructionsDb.dbExecuted.deleteSingleRowById(assetId);
 				app.instructionsDb.dbQueued.deleteSingleRowById(assetId);
 
-			} else if (assetType.equals("segment")) {
+			} else if (assetType.equals(RfcxAsset.Type.SEGMENT)) {
 				app.apiSegmentUtils.deleteSegmentsById(assetId);
 
-			} else if (assetType.equals("classification")) {
-//				app.apiSegmentUtils.deleteSegmentsById(assetId);
-
+			} else {
+				Log.e(logTag, "no purging possible for asset of type:"+assetType);
 			}
 
 			// delete asset file after it has been purged from records

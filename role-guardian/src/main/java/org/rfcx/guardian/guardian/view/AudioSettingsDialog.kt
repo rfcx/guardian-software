@@ -57,7 +57,7 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
         app = context.applicationContext as RfcxGuardian
         val remainFileFormat = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_CODEC)
         fileFormat = remainFileFormat
-        val remainSampleRate = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_CAPTURE_SAMPLE_RATE)
+        val remainSampleRate = app.audioCaptureUtils.requiredCaptureSampleRate
         val remainBitRate = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.AUDIO_STREAM_BITRATE)
 
         if (remainFileFormat == "opus") {
@@ -70,7 +70,6 @@ class AudioSettingsDialog(context: Context) : AlertDialog(context) {
             bitRateLabel.visibility = View.GONE
         }
 
-        sampleRatePicker.value = sampleRateList.indexOf(remainSampleRate)
         bitRatePicker.value = bitRateList.indexOf(remainBitRate)
 
         setRadioActionListener()

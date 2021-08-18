@@ -50,7 +50,7 @@ public class ApiPingUtils {
 
 		try {
 
-			String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, includeAssetBundleCount);
+			String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, includeAssetBundleCount, true, new String[]{} );
 
 			for (String apiProtocol : apiProtocols) {
 
@@ -73,8 +73,8 @@ public class ApiPingUtils {
 						)
 				) {
 					isPublished = true;
-					String actionVerb = (apiProtocol.equalsIgnoreCase("mqtt") || apiProtocol.equalsIgnoreCase("rest")) ? "publish" : "queue";
-					Log.v(logTag, "Ping has been "+actionVerb+"ed via "+apiProtocol.toUpperCase(Locale.US)+".");
+					String actionVerb = (apiProtocol.equalsIgnoreCase("mqtt") || apiProtocol.equalsIgnoreCase("rest")) ? "published" : "queued to be sent";
+					Log.v(logTag, "Ping has been "+actionVerb+" via "+apiProtocol.toUpperCase(Locale.US)+".");
 					break;
 				}
 			}
@@ -91,10 +91,6 @@ public class ApiPingUtils {
 	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, boolean allowSegmentProtocols) {
 		return sendPing(includeAllExtraFields, includeExtraFields, 0, "all", allowSegmentProtocols);
 	}
-
-//	public boolean sendPing() {
-//		return sendPing(true, new String[]{}, 0, "all");
-//	}
 
 	public boolean isScheduledPingAllowedAtThisTimeOfDay() {
 		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PING_SCHEDULE_OFF_HOURS), ",")) {

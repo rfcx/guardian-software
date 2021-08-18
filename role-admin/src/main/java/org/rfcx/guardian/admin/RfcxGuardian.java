@@ -4,6 +4,7 @@ import org.rfcx.guardian.admin.asset.AssetUtils;
 import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchService;
+import org.rfcx.guardian.admin.companion.CompanionPingJsonUtils;
 import org.rfcx.guardian.admin.companion.CompanionSocketService;
 import org.rfcx.guardian.admin.companion.CompanionSocketUtils;
 import org.rfcx.guardian.admin.device.android.capture.CameraCaptureDb;
@@ -13,6 +14,7 @@ import org.rfcx.guardian.admin.device.android.control.AirplaneModeSetService;
 import org.rfcx.guardian.admin.device.android.control.ScheduledClockSyncService;
 import org.rfcx.guardian.admin.device.android.control.SystemCPUGovernorService;
 import org.rfcx.guardian.admin.device.android.control.SystemSettingsService;
+import org.rfcx.guardian.admin.device.android.network.BluetoothStateSetService;
 import org.rfcx.guardian.admin.device.android.network.SSHStateSetService;
 import org.rfcx.guardian.admin.device.i2c.sentinel.SentinelSensorDb;
 import org.rfcx.guardian.admin.device.i2c.sentry.SentryAccelUtils;
@@ -130,6 +132,7 @@ public class RfcxGuardian extends Application {
 	public DeviceCPUGovernor deviceCPUGovernor = new DeviceCPUGovernor(APP_ROLE);
 	public AssetUtils assetUtils = null;
 	public CompanionSocketUtils companionSocketUtils = null;
+	public CompanionPingJsonUtils companionPingJsonUtils = null;
 
 	public DeviceI2cUtils deviceI2cUtils = new DeviceI2cUtils(APP_ROLE);
 	public DeviceGpioUtils deviceGpioUtils = new DeviceGpioUtils(APP_ROLE);
@@ -179,7 +182,8 @@ public class RfcxGuardian extends Application {
 		this.sentinelPowerUtils = new SentinelPowerUtils(this);
 		this.sentryAccelUtils = new SentryAccelUtils(this);
 		this.assetUtils = new AssetUtils(this);
-		this.companionSocketUtils = new CompanionSocketUtils(this, 9998);
+		this.companionSocketUtils = new CompanionSocketUtils(this);
+		this.companionPingJsonUtils = new CompanionPingJsonUtils(this);
 		this.sbdUtils = new SbdUtils(this);
 		this.swmUtils = new SwmUtils(this);
 
@@ -255,15 +259,19 @@ public class RfcxGuardian extends Application {
 							+ "|" + ( this.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.ADMIN_CAMERA_CAPTURE_CYCLE) * 60 * 1000 )
 							,
 					SystemSettingsService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:00").getTimeInMillis() // waits a few seconds before running
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:03").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 							,
 					SystemCPUGovernorService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:05").getTimeInMillis() // waits a few seconds before running
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:06").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 							,
 					AirplaneModeSetService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:10").getTimeInMillis() // waits a few seconds before running
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:09").getTimeInMillis() // waits a few seconds before running
+							+ "|" + "norepeat"
+							,
+					BluetoothStateSetService.SERVICE_NAME
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:12").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 							,
 					WifiStateSetService.SERVICE_NAME
@@ -271,11 +279,11 @@ public class RfcxGuardian extends Application {
 							+ "|" + "norepeat"
 							,
 					ADBStateSetService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits a few seconds before running
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:18").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 							,
 					SSHStateSetService.SERVICE_NAME
-							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:20").getTimeInMillis() // waits a few seconds before running
+							+ "|" + DateTimeUtils.nowPlusThisLong("00:00:18").getTimeInMillis() // waits a few seconds before running
 							+ "|" + "norepeat"
 			};
 			
@@ -315,6 +323,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( AirplaneModeSetService.SERVICE_NAME, AirplaneModeSetService.class);
 
 		this.rfcxSvc.addService( WifiStateSetService.SERVICE_NAME, WifiStateSetService.class);
+		this.rfcxSvc.addService( BluetoothStateSetService.SERVICE_NAME, BluetoothStateSetService.class);
 		this.rfcxSvc.addService( ADBStateSetService.SERVICE_NAME, ADBStateSetService.class);
 		this.rfcxSvc.addService( SSHStateSetService.SERVICE_NAME, SSHStateSetService.class);
 		this.rfcxSvc.addService( SystemSettingsService.SERVICE_NAME, SystemSettingsService.class);
@@ -360,19 +369,20 @@ public class RfcxGuardian extends Application {
 		if (prefKey != null) {
 
 			if (	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
-				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD)
+				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS)
 				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS)
+				|| 	prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION)
 			) {
 				rfcxSvc.triggerService(WifiStateSetService.SERVICE_NAME, false);
+				rfcxSvc.triggerService(BluetoothStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 				rfcxSvc.triggerService(SSHStateSetService.SERVICE_NAME, false);
+				rfcxSvc.triggerService(CompanionSocketService.SERVICE_NAME, true);
 
-			} else if ( prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)
-					||  prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION)
-			) {
-				rfcxSvc.triggerService( CompanionSocketService.SERVICE_NAME, true);
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SOCKET_SERVER)) {
+				rfcxSvc.triggerService(CompanionSocketService.SERVICE_NAME, true);
 
-			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_ADB_OVER_TCP)) {
+			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_ADB_SERVER)) {
 				rfcxSvc.triggerService(ADBStateSetService.SERVICE_NAME, false);
 
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ADMIN_ENABLE_SSH_SERVER)) {

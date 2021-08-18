@@ -8,36 +8,39 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.network.SocketUtils;
+import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 
 public class CompanionSocketUtils {
 
-	public CompanionSocketUtils(Context context, int socketServerPort) {
+	public CompanionSocketUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 		this.socketUtils = new SocketUtils();
-		this.socketUtils.setSocketPort(socketServerPort);
+		this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.ADMIN.SOCKET.JSON);
 	}
+
+	private static final String[] includePingFields = new String[] {
+			"network", "sentinel_power", "sentinel_sensor", "cpu", "storage"
+	};
+
+	private static final String[] excludeFromLogs = new String[] { };
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "CompanionSocketUtils");
 
 	private RfcxGuardian app;
 	public SocketUtils socketUtils;
-
-	private static final String[] includePingFields = new String[] {
-			"network", "sentinel_power"
-	};
-
 	private String pingJson = (new JSONObject()).toString();
 
-	public void updatePingJson() {
-//		try {
-			pingJson =  (new JSONObject()).toString();//app.apiPingJsonUtils.buildPingJson(false, includePingFields, 0);
-//		} catch (JSONException e) {
-//			RfcxLog.logExc(logTag, e, "updatePingJson");
-//		}
+	public void updatePingJson(boolean printJsonToLogs) {
+		try {
+			pingJson =  app.companionPingJsonUtils.buildPingJson(false, includePingFields, 0, printJsonToLogs, excludeFromLogs);
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e, "updatePingJson");
+		}
 	}
 
 	public boolean sendSocketPing() {

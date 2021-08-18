@@ -29,6 +29,15 @@
 			android:defaultValue="@string/prefs_value_default_admin_verbose_cpu" />
 
 	<ListPreference
+			android:key="admin_verbose_network"
+			android:title="admin_verbose_network"
+			android:dialogTitle="admin_verbose_network"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_admin_verbose_network" />
+
+	<ListPreference
 			android:key="enable_audio_capture"
 			android:title="enable_audio_capture"
 			android:dialogTitle="enable_audio_capture"
@@ -272,21 +281,12 @@
  	
  	<!-- Audio Capture Formatting -->
 
-	<ListPreference
-		android:key="audio_capture_sample_rate"
-		android:title="audio_capture_sample_rate"
-		android:dialogTitle="audio_capture_sample_rate"
-		android:summary="int - hertz"
-		android:entries="@array/prefs_labels_audio_sample_rate"
-		android:entryValues="@array/prefs_values_audio_sample_rate"
-		android:defaultValue="@string/prefs_value_default_audio_capture_sample_rate" />
-
 	<EditTextPreference
-			android:key="audio_capture_gain"
-			android:title="audio_capture_gain"
-			android:summary="float - volume increase/decrease"
-			android:enabled="true"
-			android:defaultValue="@string/prefs_value_default_audio_capture_gain" />
+		android:key="audio_capture_gain"
+		android:title="audio_capture_gain"
+		android:summary="float - volume increase/decrease"
+		android:enabled="true"
+		android:defaultValue="@string/prefs_value_default_audio_capture_gain" />
 
 	<ListPreference
 		android:key="audio_stream_sample_rate"
@@ -341,6 +341,15 @@
 			android:entries="@array/prefs_labels_audio_encode_bitrate"
 			android:entryValues="@array/prefs_values_audio_encode_bitrate"
 			android:defaultValue="@string/prefs_value_default_audio_vault_bitrate" />
+
+	<ListPreference
+			android:key="audio_cast_sample_rate_minimum"
+			android:title="audio_cast_sample_rate_minimum"
+			android:dialogTitle="audio_cast_sample_rate_minimum"
+			android:summary="int - hertz"
+			android:entries="@array/prefs_labels_audio_sample_rate"
+			android:entryValues="@array/prefs_values_audio_sample_rate"
+			android:defaultValue="@string/prefs_value_default_audio_cast_sample_rate_minimum" />
 
 
 
@@ -547,13 +556,13 @@
 			android:defaultValue="@string/prefs_value_default_admin_enable_camera_capture" />
 
 	<ListPreference
-		android:key="admin_enable_adb_over_tcp"
-		android:title="admin_enable_adb_over_tcp"
-		android:dialogTitle="admin_enable_adb_over_tcp"
+		android:key="admin_enable_adb_server"
+		android:title="admin_enable_adb_server"
+		android:dialogTitle="admin_enable_adb_server"
 		android:summary="string - true/false"
 		android:entries="@array/prefs_values_true_or_false"
 		android:entryValues="@array/prefs_values_true_or_false"
-		android:defaultValue="@string/prefs_value_default_admin_enable_adb_over_tcp" />
+		android:defaultValue="@string/prefs_value_default_admin_enable_adb_server" />
 
 	<ListPreference
 		android:key="admin_enable_sentinel_power"
@@ -649,11 +658,21 @@
 			android:defaultValue="@string/prefs_value_default_admin_wifi_client_auth_creds" />
 
 	<EditTextPreference
-			android:key="admin_wifi_hotspot_password"
-			android:title="admin_wifi_hotspot_password"
-			android:summary="string - password"
+			android:key="admin_wifi_hotspot_auth_creds"
+			android:title="admin_wifi_hotspot_auth_creds"
+			android:summary="string - colon separated"
 			android:enabled="true"
-			android:defaultValue="@string/prefs_value_default_admin_wifi_hotspot_password" />
+			android:defaultValue="@string/prefs_value_default_admin_wifi_hotspot_auth_creds" />
+
+
+	<ListPreference
+			android:key="admin_bluetooth_function"
+			android:title="admin_bluetooth_function"
+			android:dialogTitle="admin_bluetooth_function"
+			android:summary="string - off/pan"
+			android:entries="@array/prefs_values_admin_bluetooth_function"
+			android:entryValues="@array/prefs_values_admin_bluetooth_function"
+			android:defaultValue="@string/prefs_value_default_admin_bluetooth_function" />
 
 	<ListPreference
 			android:key="admin_enable_airplane_mode"

@@ -25,76 +25,63 @@ public class InstructionsUtils {
 	
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "InstructionsUtils");
 
-	private RfcxGuardian app = null;
+	private RfcxGuardian app;
 
 	private static final String[] localProtocols = new String[] { "socket", "contentprovider" };
 
-	public void processReceivedInstructionJson(String jsonStr, String originProtocol) {
+	public void processReceivedInstructionJson(JSONArray instrJsonArr, String originProtocol) {
 		try {
-			processReceivedInstructionJson(new JSONObject(jsonStr), originProtocol);
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-	}
+			List<String> queuedInstrIds = new ArrayList<>();
 
-	public void processReceivedInstructionJson(JSONObject jsonObj, String originProtocol) {
-		try {
-			if (jsonObj.has("instructions")) {
+			for (int i = 0; i < instrJsonArr.length(); i++) {
 
-				JSONArray instrArr = jsonObj.getJSONArray("instructions");
+				JSONObject instrObj = instrJsonArr.getJSONObject(i);
 
-				List<String> queuedInstrIds = new ArrayList<>();
+				if (instrObj.has("id")) {
 
-				for (int i = 0; i < instrArr.length(); i++) {
+					String instrId = instrObj.getString("id");
 
-					JSONObject instrObj = instrArr.getJSONObject(i);
+					if (	(this.app.instructionsDb.dbExecuted.getCountById(instrId) == 0)
+						&&	(this.app.instructionsDb.dbQueued.getCountById(instrId) == 0)
+						) {
 
-					if (instrObj.has("id")) {
+						String instrType = instrObj.getString("type");
 
-						String instrId = instrObj.getString("id");
+						String instrCmd = instrObj.getString("cmd");
 
-						if (	(this.app.instructionsDb.dbExecuted.getCountById(instrId) == 0)
-							&&	(this.app.instructionsDb.dbQueued.getCountById(instrId) == 0)
-							) {
+						JSONObject instrMetaObj = (instrObj.getString("meta").length() > 0) ? new JSONObject(instrObj.getString("meta")) : new JSONObject();
 
-							String instrType = instrObj.getString("type");
+						long executionBuffer = ArrayUtils.doesStringArrayContainString(localProtocols, originProtocol) ? 0 : InstructionsCycleService.CYCLE_DURATION;
 
-							String instrCmd = instrObj.getString("cmd");
+						long instrExecuteAt = ( (instrObj.getString("at").length() > 0) ? Long.parseLong(instrObj.getString("at")) : System.currentTimeMillis() ) + executionBuffer;
 
-							JSONObject instrMetaObj = (instrObj.getString("meta").length() > 0) ? new JSONObject(instrObj.getString("meta")) : new JSONObject();
+						this.app.instructionsDb.dbQueued.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString(), originProtocol );
 
-							long executionBuffer = ArrayUtils.doesStringArrayContainString(localProtocols, originProtocol) ? 0 : InstructionsCycleService.CYCLE_DURATION;
+						Log.i(logTag, "Instruction Received (via " + originProtocol.toUpperCase(Locale.US) + ") with ID '" + instrId + "', Type: '" + instrType + "', Command: '" + instrCmd + "', Send at " + DateTimeUtils.getDateTime(instrExecuteAt) + ", JSON Meta: '" + instrMetaObj.toString() + "'");
 
-							long instrExecuteAt = ( (instrObj.getString("at").length() > 0) ? Long.parseLong(instrObj.getString("at")) : System.currentTimeMillis() ) + executionBuffer;
-
-							this.app.instructionsDb.dbQueued.findByIdOrCreate(instrId, instrType, instrCmd, instrExecuteAt, instrMetaObj.toString(), originProtocol );
-
-							Log.i(logTag, "Instruction Received (via " + originProtocol.toUpperCase(Locale.US) + ") with ID '" + instrId + "', Type: '" + instrType + "', Command: '" + instrCmd + "', Send at " + DateTimeUtils.getDateTime(instrExecuteAt) + ", JSON Meta: '" + instrMetaObj.toString() + "'");
-
-							queuedInstrIds.add(instrId);
-						}
+						queuedInstrIds.add(instrId);
 					}
 				}
+			}
 
-				// Origin if from a Remote source
-				if (!ArrayUtils.doesStringArrayContainString(localProtocols, originProtocol)) {
+			// Origin if from a Remote source
+			if (!ArrayUtils.doesStringArrayContainString(localProtocols, originProtocol)) {
 
-					// Send reception receipt to remote API
-					if (queuedInstrIds.size() > 0) {
-						this.app.apiPingUtils.sendPing(false, new String[] { "instructions" }, true);
-					}
+				// Send reception receipt to remote API
+				if (queuedInstrIds.size() > 0) {
+					this.app.apiPingUtils.sendPing(false, new String[] { "instructions" }, true);
+				}
 
-				// Origin if from a Local source
-				} else {
+			// Origin if from a Local source
+			} else {
 
-					// Attempt to execute instruction immediately, without waiting for instruction cycle
-					if (app.instructionsDb.dbQueued.getCount() > 0) {
-						app.rfcxSvc.triggerService( InstructionsExecutionService.SERVICE_NAME, false);
-					}
-
+				// Attempt to execute instruction immediately, without waiting for instruction cycle
+				if (app.instructionsDb.dbQueued.getCount() > 0) {
+					app.rfcxSvc.triggerService( InstructionsExecutionService.SERVICE_NAME, false);
 				}
 
 			}
+
 
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e);

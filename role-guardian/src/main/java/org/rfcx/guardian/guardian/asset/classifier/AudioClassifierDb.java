@@ -103,6 +103,10 @@ public class AudioClassifierDb {
 		public int getCountByAssetId(String assetId) {
 			return this.dbUtils.getCount(TABLE, C_CLASSIFIER_ID +"=?",new String[] { assetId });
 		}
+
+		public int getMaxSampleRateAmongstAllRows() {
+			return (int) this.dbUtils.getMaxValueOfColumn(TABLE, C_INPUT_SAMPLE_RATE, null, null);
+		}
 	}
 	public final DbActive dbActive;
 

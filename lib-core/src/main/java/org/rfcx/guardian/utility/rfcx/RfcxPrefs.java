@@ -44,8 +44,9 @@ public class RfcxPrefs {
 	
 	private final Map<String, String> cachedPrefs = new HashMap<String, String>();
 
-	public String prefsSha1FullApiSync = null;
-	public long prefsTimestampLastFullApiSync = 0;
+	public static final int prefsSync_Sha1CharLimit = 16;
+	public String prefsSync_Sha1Value = null;
+	public long prefsSync_TimestampLastSync = 0;
 
 	public static final class Pref {
 
@@ -80,11 +81,8 @@ public class RfcxPrefs {
 		public static final String AUDIO_CAPTURE_SCHEDULE_OFF_HOURS = "audio_capture_schedule_off_hours";
 		public static final String AUDIO_CLASSIFY_SCHEDULE_OFF_HOURS = "audio_classify_schedule_off_hours";
 		public static final String API_PING_SCHEDULE_OFF_HOURS = "api_ping_schedule_off_hours";
-
-		/// must still be implemented
 		public static final String API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS = "api_checkin_publish_schedule_off_hours";
 		public static final String API_CHECKIN_REQUEUE_SCHEDULE_OFF_HOURS = "api_checkin_requeue_schedule_off_hours";
-		/// must still be implemented
 
 		public static final String ENABLE_CUTOFFS_SAMPLING_RATIO = "enable_cutoffs_sampling_ratio";
 		public static final String AUDIO_SAMPLING_RATIO = "audio_sampling_ratio";
@@ -98,7 +96,6 @@ public class RfcxPrefs {
 		public static final String CHECKIN_CUTOFF_SENTINEL_BATTERY = "checkin_cutoff_sentinel_battery";
 		public static final String AUDIO_CUTOFF_SENTINEL_BATTERY = "audio_cutoff_sentinel_battery";
 
-		public static final String AUDIO_CAPTURE_SAMPLE_RATE = "audio_capture_sample_rate";
 		public static final String AUDIO_CAPTURE_GAIN = "audio_capture_gain";
 
 		public static final String AUDIO_STREAM_SAMPLE_RATE = "audio_stream_sample_rate";
@@ -108,6 +105,8 @@ public class RfcxPrefs {
 		public static final String AUDIO_VAULT_SAMPLE_RATE = "audio_vault_sample_rate";
 		public static final String AUDIO_VAULT_CODEC = "audio_vault_codec";
 		public static final String AUDIO_VAULT_BITRATE = "audio_vault_bitrate";
+
+		public static final String AUDIO_CAST_SAMPLE_RATE_MINIMUM = "audio_cast_sample_rate_minimum";
 
 		public static final String CHECKIN_FAILURE_THRESHOLDS = "checkin_failure_thresholds";
 		public static final String CHECKIN_FAILURE_LIMIT = "checkin_failure_limit";
@@ -120,7 +119,7 @@ public class RfcxPrefs {
 		public static final String CHECKIN_META_SEND_BUNDLE_LIMIT = "checkin_meta_send_bundle_limit";
 		public static final String CHECKIN_META_QUEUE_FILESIZE_LIMIT = "checkin_meta_queue_filesize_limit";
 
-		public static final String ADMIN_ENABLE_ADB_OVER_TCP = "admin_enable_adb_over_tcp";
+		public static final String ADMIN_ENABLE_ADB_SERVER = "admin_enable_adb_server";
 		public static final String ADMIN_ENABLE_SOCKET_SERVER = "admin_enable_socket_server";
 		public static final String ADMIN_ENABLE_SSH_SERVER = "admin_enable_ssh_server";
 
@@ -150,6 +149,7 @@ public class RfcxPrefs {
 
 		public static final String ADMIN_VERBOSE_SENTINEL = "admin_verbose_sentinel";
 		public static final String ADMIN_VERBOSE_CPU = "admin_verbose_cpu";
+		public static final String ADMIN_VERBOSE_NETWORK = "admin_verbose_network";
 
 		public static final String ADMIN_SYSTEM_TIMEZONE = "admin_system_timezone";
 		public static final String ADMIN_SYSTEM_SETTINGS_OVERRIDE = "admin_system_settings_override";
@@ -158,7 +158,8 @@ public class RfcxPrefs {
 
 		public static final String ADMIN_WIFI_FUNCTION = "admin_wifi_function";
 		public static final String ADMIN_WIFI_CLIENT_AUTH_CREDS = "admin_wifi_client_auth_creds";
-		public static final String ADMIN_WIFI_HOTSPOT_PASSWORD = "admin_wifi_hotspot_password";
+		public static final String ADMIN_WIFI_HOTSPOT_AUTH_CREDS = "admin_wifi_hotspot_auth_creds";
+		public static final String ADMIN_BLUETOOTH_FUNCTION = "admin_bluetooth_function";
 
 		public static final String API_SATELLITE_PROTOCOL = "api_satellite_protocol";
 
@@ -220,16 +221,17 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_CUTOFF_SENTINEL_BATTERY, "30");
 			put(Pref.AUDIO_CUTOFF_SENTINEL_BATTERY, "30");
 
-			put(Pref.AUDIO_CAPTURE_SAMPLE_RATE, "12000");
 			put(Pref.AUDIO_CAPTURE_GAIN, "1.0");
 
 			put(Pref.AUDIO_STREAM_SAMPLE_RATE, "12000");
 			put(Pref.AUDIO_STREAM_CODEC, "opus");
 			put(Pref.AUDIO_STREAM_BITRATE, "16384");
 
-			put(Pref.AUDIO_VAULT_SAMPLE_RATE, "12000");
-			put(Pref.AUDIO_VAULT_CODEC, "flac");
-			put(Pref.AUDIO_VAULT_BITRATE, "16384");
+			put(Pref.AUDIO_VAULT_SAMPLE_RATE, "24000");
+			put(Pref.AUDIO_VAULT_CODEC, "opus");
+			put(Pref.AUDIO_VAULT_BITRATE, "40960");
+
+			put(Pref.AUDIO_CAST_SAMPLE_RATE_MINIMUM, "12000");
 
 			put(Pref.CHECKIN_FAILURE_THRESHOLDS, "15,30,50,70,90");
 			put(Pref.CHECKIN_FAILURE_LIMIT, "3");
@@ -243,14 +245,14 @@ public class RfcxPrefs {
 			put(Pref.CHECKIN_META_QUEUE_FILESIZE_LIMIT, "8");
 
 			put(Pref.ADMIN_ENABLE_AIRPLANE_MODE, "false");
-			put(Pref.ADMIN_ENABLE_ADB_OVER_TCP, "true");
+			put(Pref.ADMIN_ENABLE_ADB_SERVER, "true");
 			put(Pref.ADMIN_ENABLE_SOCKET_SERVER, "true");
-			put(Pref.ADMIN_ENABLE_SSH_SERVER, "false");
+			put(Pref.ADMIN_ENABLE_SSH_SERVER, "true");
 
 			put(Pref.API_CLOCK_SYNC_CYCLE_DURATION, "180");
 
 			put(Pref.API_PING_CYCLE_DURATION, "30");
-			put(Pref.API_PING_CYCLE_FIELDS, "all,meta");
+			put(Pref.API_PING_CYCLE_FIELDS, "checkins,instructions,prefs,sms,meta,detections,purged");
 
 			put(Pref.ADMIN_ENABLE_LOG_CAPTURE, "false");
 			put(Pref.ADMIN_LOG_CAPTURE_CYCLE, "30");
@@ -269,18 +271,20 @@ public class RfcxPrefs {
 			put(Pref.ADMIN_ENABLE_SENTINEL_SENSOR, "false");
 			put(Pref.ADMIN_ENABLE_SENTRY_SENSOR, "false");
 
-			put(Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE, "1333");
+			put(Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE, "1250");
 			put(Pref.COMPANION_TELEMETRY_PUSH_CYCLE, "1250");
 
 			put(Pref.ADMIN_VERBOSE_SENTINEL, "false");
 			put(Pref.ADMIN_VERBOSE_CPU, "false");
+			put(Pref.ADMIN_VERBOSE_NETWORK, "false");
 
 			put(Pref.ADMIN_SYSTEM_TIMEZONE, "[ Not Set ]");
 			put(Pref.ADMIN_SYSTEM_SETTINGS_OVERRIDE, "auto_time_zone:system,i,0;");
 
 			put(Pref.ADMIN_WIFI_FUNCTION, "hotspot");
 			put(Pref.ADMIN_WIFI_CLIENT_AUTH_CREDS, "[ssid]:[password]");
-			put(Pref.ADMIN_WIFI_HOTSPOT_PASSWORD, "rfcxrfcx");
+			put(Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS, "[ssid]:rfcxrfcx");
+			put(Pref.ADMIN_BLUETOOTH_FUNCTION, "off");
 
 		}}
 	);

@@ -32,11 +32,12 @@ public class WifiStateSetService extends IntentService {
 		boolean enableWifiAsHotspot = prefsAdminWifiFunction.equalsIgnoreCase("hotspot");
 		boolean enableWifiAsClient = prefsAdminWifiFunction.equalsIgnoreCase("client");
 
+		String[] authCreds = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS).split(":");
+		String wifiSsid = !authCreds[0].equalsIgnoreCase("[ssid]") ? authCreds[0] : "rfcx-"+app.rfcxGuardianIdentity.getGuid().substring(0,8);
+		String wifiPswd = !authCreds[1].equalsIgnoreCase("[password]") ? authCreds[1] : "rfcxrfcx";
+
 		DeviceWifi deviceWifi = new DeviceWifi(context);
-		deviceWifi.setHotspotConfig(
-				"rfcx-"+app.rfcxGuardianIdentity.getGuid().substring(0,8),
-				app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.ADMIN_WIFI_HOTSPOT_PASSWORD),
-				true);
+		deviceWifi.setHotspotConfig( wifiSsid, wifiPswd, true);
 
 		if (enableWifiAsHotspot) {
 			// turn hotspot ON
