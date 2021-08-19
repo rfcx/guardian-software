@@ -13,6 +13,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SocketUtils {
@@ -112,6 +113,26 @@ public class SocketUtils {
 			try {
 
 				publishText(jsonStr);
+				isSent = true;
+
+			} catch (Exception e) {
+
+				handleSocketJsonPublicationExceptions(e);
+			}
+		}
+
+		return isSent;
+	}
+
+	public boolean sendSocketJson(List<String> jsonListStr, boolean areSocketInteractionsAllowed) {
+
+		boolean isSent = false;
+
+		if (areSocketInteractionsAllowed) {
+			try {
+				for (String jsonStr: jsonListStr) {
+					publishText(jsonStr);
+				}
 				isSent = true;
 
 			} catch (Exception e) {
