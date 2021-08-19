@@ -16,6 +16,7 @@ import org.rfcx.guardian.guardian.api.methods.segment.ApiSegmentUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiRestUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSatUtils;
 import org.rfcx.guardian.guardian.api.protocols.ApiSmsUtils;
+import org.rfcx.guardian.guardian.audio.cast.AudioCastPingUtils;
 import org.rfcx.guardian.guardian.audio.cast.AudioCastSocketService;
 import org.rfcx.guardian.guardian.audio.cast.AudioCastUtils;
 import org.rfcx.guardian.guardian.companion.CompanionSocketUtils;
@@ -142,6 +143,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public ApiCheckInJsonUtils apiCheckInJsonUtils = null;
     public ApiPingJsonUtils apiPingJsonUtils = null;
     public ApiPingUtils apiPingUtils = null;
+    public AudioCastPingUtils audioCastPingUtils = null;
     public ApiCommandUtils apiCommandUtils = null;
     public ApiSegmentUtils apiSegmentUtils = null;
     public ApiCheckInHealthUtils apiCheckInHealthUtils = null;
@@ -204,6 +206,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.apiCheckInJsonUtils = new ApiCheckInJsonUtils(this);
         this.apiPingJsonUtils = new ApiPingJsonUtils(this);
         this.apiPingUtils = new ApiPingUtils(this);
+        this.audioCastPingUtils = new AudioCastPingUtils(this);
         this.apiCommandUtils = new ApiCommandUtils(this);
         this.apiSegmentUtils = new ApiSegmentUtils(this);
         this.apiCheckInHealthUtils = new ApiCheckInHealthUtils(this);

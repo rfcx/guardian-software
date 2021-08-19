@@ -14,23 +14,34 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AudioCastUtils {
 
 	public AudioCastUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
-//		this.socketUtils = new SocketUtils();
-//		this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.AUDIO);
+		this.socketUtils = new SocketUtils();
+		this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.AUDIO);
 	}
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioCastUtils");
 
 	private RfcxGuardian app;
+	public SocketUtils socketUtils;
+	private List<String> pingJson;
 
+	public void updatePingJson(boolean printJsonToLogs) {
+		try {
+			pingJson =  app.audioCastPingUtils.buildPingJson();
+		} catch (JSONException e) {
+			RfcxLog.logExc(logTag, e, "updatePingJson");
+		}
+	}
 
-
-
-
+	public boolean sendSocketPing() {
+		return this.socketUtils.sendSocketJson(pingJson, isAudioCastEnablable(false, app.rfcxPrefs));
+	}
 
 	public boolean isAudioCastEnablable(boolean verboseLogging, RfcxPrefs rfcxPrefs) {
 
@@ -49,6 +60,34 @@ public class AudioCastUtils {
 		return prefsEnableAudioCast && (isWifiEnabled || isBluetoothEnabled);
 	}
 
+	private void processReceivedJson(String jsonStr) {
+		// do nothing — we don't expect to receive anything
+	}
 
+	public void startServer() {
+
+		socketUtils.serverThread = new Thread(() -> {
+			Looper.prepare();
+			try {
+				socketUtils.serverSetup();
+				while (true) {
+					InputStream socketInput = socketUtils.socketSetup();
+					if (socketInput != null) {
+						String jsonStr = socketUtils.streamSetup(socketInput);
+						if (jsonStr != null) {
+							processReceivedJson(jsonStr);
+						}
+					}
+				}
+			} catch (IOException e) {
+				if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
+					RfcxLog.logExc(logTag, e);
+				}
+			}
+			Looper.loop();
+		});
+		socketUtils.serverThread.start();
+		socketUtils.isServerRunning = true;
+	}
 
 }
