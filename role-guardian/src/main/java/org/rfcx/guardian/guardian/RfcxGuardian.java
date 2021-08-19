@@ -165,7 +165,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     InstructionsCycleService.SERVICE_NAME,
                     InstructionsSchedulerService.SERVICE_NAME,
                     ApiPingCycleService.SERVICE_NAME,
-                    CompanionSocketService.SERVICE_NAME
+                    CompanionSocketService.SERVICE_NAME,
+                    AudioCastSocketService.SERVICE_NAME
             };
 
     @Override

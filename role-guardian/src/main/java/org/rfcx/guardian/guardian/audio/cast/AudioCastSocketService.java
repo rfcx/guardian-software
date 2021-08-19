@@ -20,7 +20,7 @@ public class AudioCastSocketService extends Service {
 	private boolean runFlag = false;
 	private AudioCastSocketSvc audioCastSocketSvc;
 
-	private static final long minPushCycleDurationMs = 667;
+	private static final long minPushCycleDurationMs = 100;
 	private static final int ifSendFailsThenExtendLoopByAFactorOf = 4;
 	private static final int maxSendFailureThreshold = 24;
 
@@ -73,7 +73,7 @@ public class AudioCastSocketService extends Service {
 			if (app.audioCastUtils.isAudioCastEnablable(true, app.rfcxPrefs)) {
 
 				int currFailureThreshold = maxSendFailureThreshold +1;
-				long pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
+				long pingPushCycleDurationMs = 100;
 
 				while (audioCastSocketInstance.runFlag) {
 
@@ -85,7 +85,7 @@ public class AudioCastSocketService extends Service {
 							app.audioCastUtils.socketUtils.stopServer();
 							app.audioCastUtils.startServer();
 							currFailureThreshold = 0;
-							pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
+							pingPushCycleDurationMs = minPushCycleDurationMs;
 							Thread.sleep(pingPushCycleDurationMs);
 							app.audioCastUtils.updatePingJson(false);
 						}
