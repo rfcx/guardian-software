@@ -2,6 +2,7 @@ package org.rfcx.guardian.guardian.audio.cast;
 
 import android.content.Context;
 import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 
 import org.json.JSONException;
@@ -23,7 +24,7 @@ public class AudioCastPingUtils {
 
     private RfcxGuardian app;
 
-    public List<String> buildPingJson() throws JSONException {
+    public List<String> buildPingJson(boolean printJsonToLogs) throws JSONException {
         ArrayList<String> jsonList = new ArrayList<>();
         Pair<byte[], Integer> audioPair = app.audioCaptureUtils.getAudioBuffer();
         if (audioPair != null) {
@@ -49,6 +50,15 @@ public class AudioCastPingUtils {
                     jsonList.add(audioChunkJsonObject.toString());
                 }
             }
+        }
+        if (printJsonToLogs) {
+            int limitLogsTo = 1800;
+            StringBuilder result = new StringBuilder("[");
+            for (String str : jsonList) {
+                result.append(str).append(",");
+            }
+            result.append("]");
+            Log.d(logTag, (result.length() <= limitLogsTo) ? result.toString() : result.substring(0, limitLogsTo) + "...");
         }
         return jsonList;
     }

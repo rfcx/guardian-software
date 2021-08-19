@@ -33,7 +33,7 @@ public class AudioCastUtils {
 
 	public void updatePingJson(boolean printJsonToLogs) {
 		try {
-			pingJson =  app.audioCastPingUtils.buildPingJson();
+			pingJson =  app.audioCastPingUtils.buildPingJson(printJsonToLogs);
 		} catch (JSONException e) {
 			RfcxLog.logExc(logTag, e, "updatePingJson");
 		}
