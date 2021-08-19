@@ -5,7 +5,6 @@ import android.os.Looper;
 import android.util.Log;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.network.SocketUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -14,7 +13,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 public class AudioCastUtils {
@@ -40,7 +38,7 @@ public class AudioCastUtils {
 	}
 
 	public boolean sendSocketPing() {
-		return this.socketUtils.sendSocketJson(pingJson, isAudioCastEnablable(false, app.rfcxPrefs));
+		return this.socketUtils.sendAudioSocketJson(pingJson, isAudioCastEnablable(false, app.rfcxPrefs));
 	}
 
 	public boolean isAudioCastEnablable(boolean verboseLogging, RfcxPrefs rfcxPrefs) {
