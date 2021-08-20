@@ -2,6 +2,8 @@ package org.rfcx.guardian.utility.network;
 
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -13,6 +15,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SocketUtils {
@@ -104,7 +107,7 @@ public class SocketUtils {
 
 
 
-	public boolean sendSocketJson(String jsonStr, boolean areSocketInteractionsAllowed) {
+	public boolean sendAudioSocketJson(String jsonStr, boolean areSocketInteractionsAllowed) {
 
 		boolean isSent = false;
 
@@ -112,6 +115,26 @@ public class SocketUtils {
 			try {
 
 				publishText(jsonStr);
+				isSent = true;
+
+			} catch (Exception e) {
+
+				handleSocketJsonPublicationExceptions(e);
+			}
+		}
+
+		return isSent;
+	}
+
+	public boolean sendAudioSocketJson(List<String> jsonListStr, boolean areSocketInteractionsAllowed) {
+
+		boolean isSent = false;
+
+		if (areSocketInteractionsAllowed) {
+			try {
+				for (String jsonStr: jsonListStr) {
+					publishText(jsonStr);
+				}
 				isSent = true;
 
 			} catch (Exception e) {

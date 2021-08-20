@@ -13,7 +13,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 
 public class CompanionSocketUtils {
 
@@ -44,7 +43,7 @@ public class CompanionSocketUtils {
 	}
 
 	public boolean sendSocketPing() {
-		return this.socketUtils.sendSocketJson(pingJson, areSocketInteractionsAllowed() );
+		return this.socketUtils.sendAudioSocketJson(pingJson, areSocketInteractionsAllowed() );
 	}
 
 
