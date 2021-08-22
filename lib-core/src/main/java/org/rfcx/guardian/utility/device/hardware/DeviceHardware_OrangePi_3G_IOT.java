@@ -31,8 +31,8 @@ public class DeviceHardware_OrangePi_3G_IOT {
 	public static final Map<String, String[]> DEVICE_GPIO_MAP = Collections.unmodifiableMap(new HashMap<String, String[]>() {{
 		put("satellite_power", 	new String[] { "26", "write" });
 		put("satellite_state", 	new String[] { "128", "read" });
-		put("sentry_power", 	new String[] { "56", "write" });
-		put("voltage_refr", 	new String[] { "58", "write" });
+		put("sentry_power", 	new String[] { "58", "write" });
+		put("voltage_refr", 	new String[] { "56", "write" });
 	}});
 
 	// Busybox filepath for OrangePi 3G-IoT
