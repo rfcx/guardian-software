@@ -1,6 +1,7 @@
 package org.rfcx.guardian.guardian.file;
 
 import android.content.Context;
+import android.os.Environment;
 import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
@@ -138,7 +139,7 @@ public class FileSocketUtils {
 
     private boolean writeStreamToDisk(InputStream body, String role, String version) {
         try {
-            File dir = new File(app.getApplicationContext().getExternalFilesDir(null), "softwares");
+            File dir = new File(Environment.getExternalStorageDirectory().toString()+"/rfcx/apk", "softwares");
             if (!dir.exists()) {
                 dir.mkdir();
             }
