@@ -69,7 +69,7 @@ public class FileSocketUtils {
     private void processReceivedJson(String jsonStr) {
         try {
             JSONObject json = new JSONObject(jsonStr);
-            String type = json.getString("type");
+            String type = json.getString("type"); // type of file
             if (type.equals("apk")) {
                 processAPKTypeMessage(json);
             }
