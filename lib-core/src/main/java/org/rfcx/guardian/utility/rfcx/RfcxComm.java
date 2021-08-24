@@ -47,6 +47,7 @@ public class RfcxComm {
 			public static final class SOCKET {
 				public static final int JSON = 9999;
 				public static final int AUDIO = 9998;
+				public static final int FILE = 9996;
 			}
 		}
 	}

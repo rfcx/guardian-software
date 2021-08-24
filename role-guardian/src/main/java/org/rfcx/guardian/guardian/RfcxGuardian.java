@@ -41,6 +41,8 @@ import org.rfcx.guardian.guardian.audio.encode.AudioVaultDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackJobService;
 import org.rfcx.guardian.guardian.companion.CompanionSocketService;
+import org.rfcx.guardian.guardian.file.FileSocketService;
+import org.rfcx.guardian.guardian.file.FileSocketUtils;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -152,6 +154,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioDetectionJsonUtils audioDetectionJsonUtils = null;
     public InstructionsUtils instructionsUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
+    public FileSocketUtils fileSocketUtils = null;
+
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
     public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
@@ -166,7 +170,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     InstructionsSchedulerService.SERVICE_NAME,
                     ApiPingCycleService.SERVICE_NAME,
                     CompanionSocketService.SERVICE_NAME,
-                    AudioCastSocketService.SERVICE_NAME
+                    AudioCastSocketService.SERVICE_NAME,
+                    FileSocketService.SERVICE_NAME
             };
 
     @Override
@@ -216,6 +221,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.audioDetectionJsonUtils = new AudioDetectionJsonUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
+        this.fileSocketUtils = new FileSocketUtils(this);
 
     //    reSyncIdentityAcrossRoles();
         reSyncPrefAcrossRoles("all");

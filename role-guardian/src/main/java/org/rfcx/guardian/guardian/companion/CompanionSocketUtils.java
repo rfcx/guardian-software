@@ -62,7 +62,7 @@ public class CompanionSocketUtils {
 	}
 
 	public boolean sendSocketPing() {
-		return this.socketUtils.sendAudioSocketJson(pingJson, areSocketInteractionsAllowed() );
+		return this.socketUtils.sendJson(pingJson, areSocketInteractionsAllowed() );
 	}
 
 

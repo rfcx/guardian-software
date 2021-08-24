@@ -107,7 +107,7 @@ public class SocketUtils {
 
 
 
-	public boolean sendAudioSocketJson(String jsonStr, boolean areSocketInteractionsAllowed) {
+	public boolean sendJson(String jsonStr, boolean areSocketInteractionsAllowed) {
 
 		boolean isSent = false;
 
