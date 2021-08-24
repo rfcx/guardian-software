@@ -413,6 +413,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
             } else if ( prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_AUDIO_CAST) ) {
                 this.rfcxSvc.triggerService( AudioCastSocketService.SERVICE_NAME, true);
 
+            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_FILE_SOCKET)) {
+                this.rfcxSvc.triggerService(FileSocketService.SERVICE_NAME, true);
+
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)
                     || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS)
             ) {
