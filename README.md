@@ -167,7 +167,7 @@ OrangePi has already been rooted and signed key also same as in the Android imag
        Choose WIN8 if you are using Windows 8 or above.
        (Some users report failures during install -- [this is the solution](https://static.rfcx.org/tools/orangepi-3g-iot/video-how-to-resolve-mediatek-driver-install-failed-issue-on-windows10-64bit.mp4))
     2. [MTK Flash Tool](https://static.rfcx.org/tools/orangepi-3g-iot/sp_flash_tool_v5.1644_win.zip)
-    3. Orange Pi Android image: [Android Image Downloads](https://bit.ly/rfcx-3giot-img)
+    3. Orange Pi Android image: [Android Image Downloads](https://github.com/rfcx/guardian-opi-android-source/releases/)
 2. Open the MTK Flash Tool *(flash_tool)*
     1. Make sure the Orange Pi is NOT connected.
     2. Choose the scatter-loading file **MT6572_Android_scatter** *(This is in the Android_OS_for_Orange_Pi_3G-IoT/images/ folder after extracting the image.)*
