@@ -359,6 +359,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxSvc.addService( InstructionsSchedulerService.SERVICE_NAME, InstructionsSchedulerService.class);
 
         this.rfcxSvc.addService( CompanionSocketService.SERVICE_NAME, CompanionSocketService.class);
+
+        this.rfcxSvc.addService( FileSocketService.SERVICE_NAME, FileSocketService.class);
     }
 
     @Override

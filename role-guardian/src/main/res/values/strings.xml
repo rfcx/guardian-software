@@ -120,6 +120,8 @@
 
 	<string name="prefs_value_default_api_satellite_protocol">off</string>
 
+	<string name="prefs_value_default_enable_file_socket">false</string>
+
 	<string-array name="prefs_values_api_satellite_protocol">
 		<item>off</item>
 		<item>swm</item>

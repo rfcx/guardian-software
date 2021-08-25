@@ -66,23 +66,13 @@ public class FileSocketService extends Service {
             app = (RfcxGuardian) getApplication();
 
             if (app.fileSocketUtils.isSocketServerEnablable(true, app.rfcxPrefs)) {
-                while (fileSocketServiceInstance.runFlag) {
-                    // there is no need to send any ping here since this socket will wait for client to send files to the server
-                    try {
-                        app.fileSocketUtils.startServer();
-                    } catch (Exception e) {
-                        RfcxLog.logExc(logTag, e);
-                        app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                        fileSocketServiceInstance.runFlag = false;
-                    }
-                }
+                app.fileSocketUtils.startServer();
             } else {
                 app.fileSocketUtils.socketUtils.stopServer();
+                app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                fileSocketServiceInstance.runFlag = false;
+                Log.v(logTag, "Stopping service: "+logTag);
             }
-
-            app.rfcxSvc.setRunState(SERVICE_NAME, false);
-            fileSocketServiceInstance.runFlag = false;
-            Log.v(logTag, "Stopping service: "+logTag);
         }
     }
 
