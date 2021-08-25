@@ -66,9 +66,10 @@ public class FileSocketService extends Service {
             app = (RfcxGuardian) getApplication();
 
             if (app.fileSocketUtils.isSocketServerEnablable(true, app.rfcxPrefs)) {
+                app.fileSocketUtils.socketUtils.stopServer();
                 app.fileSocketUtils.startServer();
             } else {
-                app.fileSocketUtils.socketUtils.stopServer();
+
                 app.rfcxSvc.setRunState(SERVICE_NAME, false);
                 fileSocketServiceInstance.runFlag = false;
                 Log.v(logTag, "Stopping service: "+logTag);
