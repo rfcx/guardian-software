@@ -206,6 +206,10 @@ public class InstructionsUtils {
 
 
 				}*/
+			} else if (instrType.equalsIgnoreCase("set") && instrCmd.equalsIgnoreCase("site")) {
+				// do something for site
+				String siteId = instrMeta.has("site_id") ? instrMeta.getString("site_id") : "null";
+				Log.d(logTag, "Received site id: "+ siteId);
 			}
 
 		} catch (Exception e) {
