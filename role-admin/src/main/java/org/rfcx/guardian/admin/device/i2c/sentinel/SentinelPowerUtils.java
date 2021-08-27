@@ -68,7 +68,9 @@ public class SentinelPowerUtils {
 
         if (isNotExplicitlyDisabled) {
             isI2cHandlerAccessible = app.deviceI2cUtils.isI2cHandlerAccessible();
-            if (isI2cHandlerAccessible) {
+            if (!isI2cHandlerAccessible) {
+                Log.e(logTag, "Sentinel Power Chip could not be accessed because I2C handler is not accessible...");
+            } else {
                 String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x4a", i2cMainAddr, true);
                 isI2cPowerChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
                 if (!isI2cPowerChipConnected) { Log.e(logTag, "Sentinel Power Chip is NOT Accessible via I2C..."); }
