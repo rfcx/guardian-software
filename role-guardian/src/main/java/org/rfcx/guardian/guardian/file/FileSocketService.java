@@ -7,6 +7,7 @@ import android.util.Log;
 
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class FileSocketService extends Service {
 
@@ -18,6 +19,10 @@ public class FileSocketService extends Service {
 
     private boolean runFlag = false;
     private FileSocketSvc fileSocketSvc;
+
+    private static final long minPushCycleDurationMs = 667;
+    private static final int ifSendFailsThenExtendLoopByAFactorOf = 4;
+    private static final int maxSendFailureThreshold = 24;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -34,7 +39,7 @@ public class FileSocketService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        Log.v(logTag, "Starting service: "+logTag);
+        Log.v(logTag, "Starting service: " + logTag);
         this.runFlag = true;
         app.rfcxSvc.setRunState(SERVICE_NAME, true);
         try {
@@ -57,7 +62,9 @@ public class FileSocketService extends Service {
 
     private class FileSocketSvc extends Thread {
 
-        public FileSocketSvc() { super("FileSocketService-FileSocketSvc"); }
+        public FileSocketSvc() {
+            super("FileSocketService-FileSocketSvc");
+        }
 
         @Override
         public void run() {
@@ -65,15 +72,43 @@ public class FileSocketService extends Service {
 
             app = (RfcxGuardian) getApplication();
 
-            if (app.fileSocketUtils.isSocketServerEnablable(true, app.rfcxPrefs)) {
-                app.fileSocketUtils.socketUtils.stopServer();
-                app.fileSocketUtils.startServer();
-            } else {
+            int currFailureThreshold = maxSendFailureThreshold + 1;
+            long pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
 
-                app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                fileSocketServiceInstance.runFlag = false;
-                Log.v(logTag, "Stopping service: "+logTag);
+            if (app.fileSocketUtils.isSocketServerEnablable(true, app.rfcxPrefs)) {
+                while (fileSocketServiceInstance.runFlag) {
+
+                    try {
+
+                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
+                        if (currFailureThreshold >= maxSendFailureThreshold) {
+                            app.fileSocketUtils.socketUtils.stopServer();
+                            app.fileSocketUtils.startServer();
+                            currFailureThreshold = 0;
+                            pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
+                            Thread.sleep(pingPushCycleDurationMs);
+                        }
+
+                        if (app.fileSocketUtils.sendPingCheckingConnection()) {
+                            Thread.sleep(pingPushCycleDurationMs);
+                            currFailureThreshold = 0;
+                        } else {
+                            Thread.sleep(ifSendFailsThenExtendLoopByAFactorOf * pingPushCycleDurationMs);
+                            currFailureThreshold++;
+                        }
+                    } catch (Exception e) {
+                        RfcxLog.logExc(logTag, e);
+                        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                        fileSocketServiceInstance.runFlag = false;
+                    }
+                }
+            } else {
+                app.fileSocketUtils.socketUtils.stopServer();
             }
+            app.rfcxSvc.setRunState(SERVICE_NAME, false);
+            fileSocketServiceInstance.runFlag = false;
+            Log.v(logTag, "Stopping service: " + logTag);
         }
     }
 

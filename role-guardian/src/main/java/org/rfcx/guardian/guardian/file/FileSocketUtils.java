@@ -11,13 +11,17 @@ import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 public class FileSocketUtils {
 
@@ -32,8 +36,14 @@ public class FileSocketUtils {
     private final RfcxGuardian app;
     public SocketUtils socketUtils;
 
+    private boolean isReading = false;
+
     public boolean sendDownloadResult(String result) {
         return this.socketUtils.sendJson(result, areSocketInteractionsAllowed());
+    }
+
+    public boolean sendPingCheckingConnection() {
+        return this.socketUtils.sendJson("file socket check", areSocketInteractionsAllowed());
     }
 
     private boolean areSocketInteractionsAllowed() {
@@ -56,7 +66,7 @@ public class FileSocketUtils {
         boolean isBluetoothEnabled = prefsBluetoothFunction.equals("pan");
 
         if (verboseLogging && prefsEnableSocketServer && !isWifiEnabled && !isBluetoothEnabled) {
-            Log.e( logTag, "Socket Server could not be enabled because '"+RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION+"' and '"+RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION+"' are set to off.");
+            Log.e(logTag, "Socket Server could not be enabled because '" + RfcxPrefs.Pref.ADMIN_WIFI_FUNCTION + "' and '" + RfcxPrefs.Pref.ADMIN_BLUETOOTH_FUNCTION + "' are set to off.");
         }
 
         return prefsEnableSocketServer && (isWifiEnabled || isBluetoothEnabled);
@@ -70,26 +80,48 @@ public class FileSocketUtils {
                 socketUtils.serverSetup();
                 while (true) {
                     InputStream socketInput = socketUtils.socketSetup();
-                    if (socketInput.available() != 0) {
+                    if (socketInput != null) {
+                        InputStream fileInput = socketUtils.streamFileSetup(socketInput);
                         StringBuilder fileName = new StringBuilder();
 
-                        BufferedReader br = new BufferedReader(new InputStreamReader(socketInput));
-                        String read;
-                        int derimeter = 0;
                         //read until reach '|'
-                        while ((read = br.readLine()) != null) {
-                            derimeter = read.indexOf("|");
-                            if (derimeter == -1) {
-                                break;
-                            }
-                            fileName.append(read.substring(0, derimeter));
-                        }
+                        if (!isReading) {
+                            isReading = true;
 
-                        socketInput.skip(derimeter);
-                        // TODO: Send socket message for it
-                        boolean result = writeStreamToDisk(socketInput, fileName.toString());
-                        if (result) {
-//                            sendDownloadResult(result);
+                            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+
+                            int bRead;
+                            byte[] buffer = new byte[8192];
+
+                            while ((bRead = fileInput.read(buffer, 0, buffer.length)) != -1) {
+                                if (Character.toString((char) (buffer[0] & 0xFF)).equals("*")) {
+                                    break;
+                                }
+                                byteOut.write(buffer, 0, bRead);
+                            }
+
+                            byte[] fullRead = byteOut.toByteArray();
+
+                            int derimeter = -1;
+                            int count = 0;
+                            while (true) {
+                                char chr = (char) (fullRead[count] & 0xFF);
+                                if (Character.toString(chr).equals("|")) {
+                                    break;
+                                }
+                                count++;
+                                derimeter = count;
+                                fileName.append(chr);
+                            }
+
+                            if (derimeter != -1) {
+                                InputStream fullInput = new ByteArrayInputStream(Arrays.copyOfRange(fullRead, count + 1, fullRead.length));
+                                boolean result = writeStreamToDisk(fullInput, fileName.toString());
+                                isReading = false;
+                                if (result) {
+                                    sendDownloadResult(fileName.toString().split("-")[0]);
+                                }
+                            }
                         }
                     }
                 }
@@ -106,43 +138,39 @@ public class FileSocketUtils {
 
     private boolean writeStreamToDisk(InputStream body, String fullFileName) {
         try {
-            File dir = new File(Environment.getExternalStorageDirectory().toString()+"/rfcx/apk", "softwares");
+            File dir = new File(Environment.getExternalStorageDirectory().toString() + "/rfcx/apk", "softwares");
             if (!dir.exists()) {
                 dir.mkdir();
             }
+            FileOutputStream output = null;
             File file = new File(dir, fullFileName);
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
 
-            try {
-                byte[] fileReader = new byte[4096];
+            try  {
+                output = new FileOutputStream(file);
+                byte[] buffer = new byte[8192]; // or other buffer size
+                int read;
 
-                inputStream = body;
-                outputStream = new FileOutputStream(file);
-
-                while (true) {
-                    int read = inputStream.read(fileReader);
-
-                    if (read == -1) {
-                        break;
+                while ((read = body.read(buffer)) != -1) {
+                    if (read > 0) {
+                        output.write(buffer, 0, read);
                     }
-                    outputStream.write(fileReader, 0, read);
                 }
 
-                outputStream.flush();
+                output.flush();
                 return true;
             } catch (IOException e) {
+                RfcxLog.logExc(logTag, e);
                 return false;
             } finally {
-                if (inputStream != null) {
-                    inputStream.close();
+                if (body != null) {
+                    body.close();
                 }
-
-                if (outputStream != null) {
-                    outputStream.close();
+                if (output != null) {
+                    output.close();
                 }
             }
         } catch (IOException e) {
+            RfcxLog.logExc(logTag, e);
             return false;
         }
     }
