@@ -5,6 +5,8 @@ import android.os.Environment;
 import android.os.Looper;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.network.SocketUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -37,13 +39,34 @@ public class FileSocketUtils {
     public SocketUtils socketUtils;
 
     private boolean isReading = false;
+    private JSONObject pingObj = null;
 
     public boolean sendDownloadResult(String result) {
         return this.socketUtils.sendJson(result, areSocketInteractionsAllowed());
     }
 
     public boolean sendPingCheckingConnection() {
-        return this.socketUtils.sendJson("file socket check", areSocketInteractionsAllowed());
+        return this.socketUtils.sendJson(getPingObject().toString(), areSocketInteractionsAllowed());
+    }
+
+    public void setPingObject() {
+        pingObj = new JSONObject();
+        try {
+            pingObj.put("admin", false);
+            pingObj.put("classify", false);
+            pingObj.put("guardian", false);
+            pingObj.put("updater", false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void resetPingObject() {
+        this.pingObj = null;
+    }
+
+    public JSONObject getPingObject() {
+        return this.pingObj;
     }
 
     private boolean areSocketInteractionsAllowed() {
@@ -119,13 +142,15 @@ public class FileSocketUtils {
                                 boolean result = writeStreamToDisk(fullInput, fileName.toString());
                                 isReading = false;
                                 if (result) {
-                                    sendDownloadResult(fileName.toString().split("-")[0]);
+                                    String role = fileName.toString().split("-")[0];
+                                    this.pingObj.remove(role);
+                                    this.pingObj.put(role, true);
                                 }
                             }
                         }
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | JSONException e) {
                 if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
                     RfcxLog.logExc(logTag, e);
                 }

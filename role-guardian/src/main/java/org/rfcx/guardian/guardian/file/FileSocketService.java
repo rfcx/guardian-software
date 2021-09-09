@@ -81,7 +81,7 @@ public class FileSocketService extends Service {
                     try {
 
                         app.rfcxSvc.reportAsActive(SERVICE_NAME);
-
+                        app.fileSocketUtils.setPingObject();
                         if (currFailureThreshold >= maxSendFailureThreshold) {
                             app.fileSocketUtils.socketUtils.stopServer();
                             app.fileSocketUtils.startServer();
@@ -104,10 +104,12 @@ public class FileSocketService extends Service {
                     }
                 }
             } else {
+                app.fileSocketUtils.resetPingObject();
                 app.fileSocketUtils.socketUtils.stopServer();
             }
             app.rfcxSvc.setRunState(SERVICE_NAME, false);
             fileSocketServiceInstance.runFlag = false;
+            app.fileSocketUtils.resetPingObject();
             Log.v(logTag, "Stopping service: " + logTag);
         }
     }
