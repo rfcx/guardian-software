@@ -103,7 +103,12 @@ public class FileSocketUtils {
                             byte[] buffer = new byte[8192];
 
                             while ((bRead = fileInput.read(buffer, 0, buffer.length)) != -1) {
-                                if (Character.toString((char) (buffer[0] & 0xFF)).equals("*")) {
+                                String firstChr = Character.toString((char) (buffer[0] & 0xFF));
+                                String secondChr = Character.toString((char) (buffer[1] & 0xFF));
+                                String thirdChr = Character.toString((char) (buffer[2] & 0xFF));
+                                String forthChr = Character.toString((char) (buffer[3] & 0xFF));
+                                String exit = firstChr + secondChr + thirdChr + forthChr;
+                                if (exit.equals("****")) {
                                     break;
                                 }
                                 byteOut.write(buffer, 0, bRead);
