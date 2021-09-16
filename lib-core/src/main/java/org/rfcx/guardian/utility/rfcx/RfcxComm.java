@@ -133,6 +133,8 @@ public class RfcxComm {
 					"signal", new String[] { "result" });
 			roleFuncProj.get(role).put(
 					"sentinel_values", new String[] { "result" });
+			roleFuncProj.get(role).put(
+					"software_install_companion", new String[] { "result" });
 		}
 		return roleFuncProj;
 	}

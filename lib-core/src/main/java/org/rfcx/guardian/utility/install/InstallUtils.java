@@ -1,12 +1,15 @@
 package org.rfcx.guardian.utility.install;
 
 import java.io.File;
+import java.util.List;
 
 import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -63,6 +66,29 @@ public class InstallUtils {
 		this.apkPathExternal = this.apkDirExternal+"/"+this.apkFileName;
 	}
 
+	public void setInstallConfig(String role, String version) {
+		this.installRole = role;
+		this.installVersion = version;
+
+		this.apkFileName = this.installRole+"-"+this.installVersion+".apk";
+		this.apkFileNameDownload = this.apkFileName+".gz";
+		this.apkPathDownload = this.apkDirExternal+"/"+this.apkFileNameDownload;
+		this.apkPathPostDownload = this.apkDirExternal+"/"+this.apkFileName;
+		this.apkPathExternal = this.apkDirExternal+"/"+this.apkFileName;
+	}
+
+	public void installFromContentProvider(String json) throws JSONException {
+		JSONObject installJson = new JSONObject(json);
+		this.installRole = installJson.getString("role");
+		this.installVersion = installJson.getString("version");
+
+		this.apkFileName = this.installRole+"-"+this.installVersion+".apk";
+		this.apkPathExternal = this.apkDirExternal+"/"+this.apkFileName;
+		boolean installResult = installApkAndVerify();
+		FileUtils.delete(this.apkPathExternal);
+		Log.d(logTag, this.installRole + "-"+ this.installVersion + " APK installed: " + installResult);
+	}
+
 	public boolean installApkAndVerify() {
 
 		try {
@@ -74,7 +100,9 @@ public class InstallUtils {
 			String[] installCommands = new String[] { "/system/bin/pm", "install", "-r", apkPathExternal };
 			if (targetRoleCurrentVersion == null) installCommands = new String[] { "/system/bin/pm", "install", apkPathExternal };
 
-			ShellCommands.executeCommand(TextUtils.join(" ", installCommands));
+			List<String> output = ShellCommands.executeCommand(TextUtils.join(" ", installCommands));
+
+			Log.d(logTag, "Shell output " + output.size() + " length");
 
 			// After installation attempt, check version of target role, to determine if it was successfully installed (and that it launches)
 			targetRoleCurrentVersion = RfcxRole.getRoleVersionByName(installRole, thisAppRole, context);

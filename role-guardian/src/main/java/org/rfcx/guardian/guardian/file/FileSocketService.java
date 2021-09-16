@@ -81,10 +81,10 @@ public class FileSocketService extends Service {
                     try {
 
                         app.rfcxSvc.reportAsActive(SERVICE_NAME);
-                        app.fileSocketUtils.setPingObject();
                         if (currFailureThreshold >= maxSendFailureThreshold) {
                             app.fileSocketUtils.socketUtils.stopServer();
                             app.fileSocketUtils.startServer();
+                            app.fileSocketUtils.resetPingObject();
                             currFailureThreshold = 0;
                             pingPushCycleDurationMs = Math.max(app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.COMPANION_TELEMETRY_PUSH_CYCLE), minPushCycleDurationMs);
                             Thread.sleep(pingPushCycleDurationMs);

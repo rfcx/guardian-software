@@ -90,6 +90,11 @@ public class UpdaterContentProvider extends ContentProvider {
 				app.apiUpdateRequestUtils.attemptToTriggerUpdateRequest(true, true);
 				return RfcxComm.getProjectionCursor(appRole, "control", new Object[]{ "software_update", null, System.currentTimeMillis()});
 
+			} else if (RfcxComm.uriMatch(uri, appRole, "software_install_companion", "*")) {  logFuncVal = "software_install_companion";
+				String installJsonString = uri.getLastPathSegment();
+				app.installUtils.installFromContentProvider(installJsonString);
+				return RfcxComm.getProjectionCursor(appRole, "software_install_companion", new Object[]{ null });
+
 			}
 
 		} catch (Exception e) {
@@ -126,5 +131,5 @@ public class UpdaterContentProvider extends ContentProvider {
 	public Uri insert(@NotNull Uri uri, ContentValues values) {
 		return null;
 	}
-	
+
 }

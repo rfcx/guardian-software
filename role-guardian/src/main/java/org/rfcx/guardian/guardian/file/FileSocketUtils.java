@@ -8,21 +8,18 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
+import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.network.SocketUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.Arrays;
 
 public class FileSocketUtils {
@@ -31,6 +28,7 @@ public class FileSocketUtils {
         this.app = (RfcxGuardian) context.getApplicationContext();
         this.socketUtils = new SocketUtils();
         this.socketUtils.setSocketPort(RfcxComm.TCP_PORTS.GUARDIAN.SOCKET.FILE);
+        this.pingObj = new JSONObject();
     }
 
     private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "FileSocketUtils");
@@ -39,7 +37,7 @@ public class FileSocketUtils {
     public SocketUtils socketUtils;
 
     private boolean isReading = false;
-    private JSONObject pingObj = null;
+    private JSONObject pingObj;
 
     public boolean sendDownloadResult(String result) {
         return this.socketUtils.sendJson(result, areSocketInteractionsAllowed());
@@ -49,20 +47,8 @@ public class FileSocketUtils {
         return this.socketUtils.sendJson(getPingObject().toString(), areSocketInteractionsAllowed());
     }
 
-    public void setPingObject() {
-        pingObj = new JSONObject();
-        try {
-            pingObj.put("admin", false);
-            pingObj.put("classify", false);
-            pingObj.put("guardian", false);
-            pingObj.put("updater", false);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void resetPingObject() {
-        this.pingObj = null;
+        this.pingObj = new JSONObject();
     }
 
     public JSONObject getPingObject() {
@@ -138,22 +124,43 @@ public class FileSocketUtils {
                             }
 
                             if (derimeter != -1) {
+                                Log.d(logTag, "Writing: " + fileName.toString());
                                 InputStream fullInput = new ByteArrayInputStream(Arrays.copyOfRange(fullRead, count + 1, fullRead.length));
                                 boolean result = writeStreamToDisk(fullInput, fileName.toString());
+                                Log.d(logTag, "Writing: " + fileName.toString() + " " + result);
                                 isReading = false;
                                 if (result) {
                                     String role = fileName.toString().split("-")[0];
-                                    this.pingObj.remove(role);
-                                    this.pingObj.put(role, true);
+                                    String versionWithExtension = fileName.toString().split("-")[1];
+                                    if (versionWithExtension.endsWith(".apk.gz")) {
+                                        String version = versionWithExtension.substring(0, versionWithExtension.length() - ".apk.gz".length());
+                                        app.installUtils.setInstallConfig(role, version);
+
+                                        FileUtils.gUnZipFile(app.installUtils.apkPathDownload, app.installUtils.apkPathPostDownload);
+                                        Log.d(logTag, "APK Uncompresssed. Moving APK file to external storage...");
+                                        FileUtils.delete(app.installUtils.apkPathDownload);
+                                        FileUtils.chmod(app.installUtils.apkPathPostDownload, "rw", "rw");
+
+                                        JSONObject installInfo = new JSONObject();
+                                        installInfo.put("role", role);
+                                        installInfo.put("version", version);
+                                        RfcxComm.getQuery(
+                                                "updater",
+                                                "software_install_companion",
+                                                installInfo.toString(),
+                                                app.getContentResolver());
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            } catch (IOException | JSONException e) {
+            } catch (IOException e) {
                 if (!e.getMessage().equalsIgnoreCase("Socket closed")) {
                     RfcxLog.logExc(logTag, e);
                 }
+            } catch (JSONException e) {
+                RfcxLog.logExc(logTag, e);
             }
             Looper.loop();
         });
@@ -163,14 +170,14 @@ public class FileSocketUtils {
 
     private boolean writeStreamToDisk(InputStream body, String fullFileName) {
         try {
-            File dir = new File(Environment.getExternalStorageDirectory().toString() + "/rfcx/apk", "softwares");
+            File dir = new File(Environment.getExternalStorageDirectory().toString() + "/rfcx", "apk");
             if (!dir.exists()) {
                 dir.mkdir();
             }
             FileOutputStream output = null;
             File file = new File(dir, fullFileName);
 
-            try  {
+            try {
                 output = new FileOutputStream(file);
                 byte[] buffer = new byte[8192]; // or other buffer size
                 int read;

@@ -50,6 +50,7 @@ import org.rfcx.guardian.guardian.instructions.InstructionsSchedulerService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
 import org.rfcx.guardian.guardian.status.GuardianStatus;
 import org.rfcx.guardian.guardian.status.StatusCacheService;
+import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -155,6 +156,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public InstructionsUtils instructionsUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
     public FileSocketUtils fileSocketUtils = null;
+    public InstallUtils installUtils = null;
 
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
@@ -222,6 +224,7 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.instructionsUtils = new InstructionsUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
         this.fileSocketUtils = new FileSocketUtils(this);
+        this.installUtils = new InstallUtils(this, APP_ROLE);
 
     //    reSyncIdentityAcrossRoles();
         reSyncPrefAcrossRoles("all");
