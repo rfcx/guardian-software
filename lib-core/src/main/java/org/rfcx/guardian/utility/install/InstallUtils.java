@@ -100,9 +100,7 @@ public class InstallUtils {
 			String[] installCommands = new String[] { "/system/bin/pm", "install", "-r", apkPathExternal };
 			if (targetRoleCurrentVersion == null) installCommands = new String[] { "/system/bin/pm", "install", apkPathExternal };
 
-			List<String> output = ShellCommands.executeCommand(TextUtils.join(" ", installCommands));
-
-			Log.d(logTag, "Shell output " + output.size() + " length");
+			ShellCommands.executeCommand(TextUtils.join(" ", installCommands));
 
 			// After installation attempt, check version of target role, to determine if it was successfully installed (and that it launches)
 			targetRoleCurrentVersion = RfcxRole.getRoleVersionByName(installRole, thisAppRole, context);
