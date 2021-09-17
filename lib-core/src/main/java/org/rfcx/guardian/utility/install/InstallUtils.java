@@ -8,6 +8,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.utility.misc.FileUtils;
@@ -77,7 +78,7 @@ public class InstallUtils {
 		this.apkPathExternal = this.apkDirExternal+"/"+this.apkFileName;
 	}
 
-	public void installFromContentProvider(String json) throws JSONException {
+	public JSONArray installFromContentProvider(String json) throws JSONException {
 		JSONObject installJson = new JSONObject(json);
 		this.installRole = installJson.getString("role");
 		this.installVersion = installJson.getString("version");
@@ -87,6 +88,13 @@ public class InstallUtils {
 		boolean installResult = installApkAndVerify();
 		FileUtils.delete(this.apkPathExternal);
 		Log.d(logTag, this.installRole + "-"+ this.installVersion + " APK installed: " + installResult);
+
+		JSONArray jsonArray = new JSONArray();
+		JSONObject jsonObject = new JSONObject();
+		jsonObject.put(this.installRole, installResult);
+		jsonArray.put(jsonObject);
+
+		return jsonArray;
 	}
 
 	public boolean installApkAndVerify() {

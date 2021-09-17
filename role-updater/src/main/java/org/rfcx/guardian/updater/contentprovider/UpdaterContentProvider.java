@@ -92,8 +92,7 @@ public class UpdaterContentProvider extends ContentProvider {
 
 			} else if (RfcxComm.uriMatch(uri, appRole, "software_install_companion", "*")) {  logFuncVal = "software_install_companion";
 				String installJsonString = uri.getLastPathSegment();
-				app.installUtils.installFromContentProvider(installJsonString);
-				return RfcxComm.getProjectionCursor(appRole, "software_install_companion", new Object[]{ null });
+				return RfcxComm.getProjectionCursor(appRole, "software_install_companion", new Object[]{ app.installUtils.installFromContentProvider(installJsonString) });
 
 			}
 

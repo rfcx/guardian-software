@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.os.Looper;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.guardian.RfcxGuardian;
@@ -149,11 +150,18 @@ public class FileSocketUtils {
                                         JSONObject installInfo = new JSONObject();
                                         installInfo.put("role", role);
                                         installInfo.put("version", version);
-                                        RfcxComm.getQuery(
+                                        JSONArray installResult = RfcxComm.getQuery(
                                                 "updater",
                                                 "software_install_companion",
                                                 installInfo.toString(),
                                                 app.getContentResolver());
+
+                                        JSONObject resultJson = new JSONObject();
+                                        resultJson.put(role, false);
+                                        if (installResult.length() > 0) {
+                                            resultJson = installResult.getJSONObject(0);
+                                        }
+                                        sendDownloadResult(resultJson.toString());
                                     }
                                 }
                             }
