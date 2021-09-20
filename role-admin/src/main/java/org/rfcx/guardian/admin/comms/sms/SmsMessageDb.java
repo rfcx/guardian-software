@@ -125,6 +125,10 @@ public class SmsMessageDb {
 			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, null);
 		}
 
+		public JSONArray getSingleRowAsJsonArray() {
+			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, C_CREATED_AT, 0, 1);
+		}
+
 		public JSONArray getLatestRowAsJsonArray() {
 			return this.dbUtils.getRowsAsJsonArray(TABLE, ALL_COLUMNS, null, null, null);
 		}
