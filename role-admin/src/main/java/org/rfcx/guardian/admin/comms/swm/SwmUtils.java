@@ -190,5 +190,24 @@ public class SwmUtils {
 		return addScheduledSwmToQueue(System.currentTimeMillis(), msgPayload, context, true);
 	}
 
+	public static String getNMEAChecksum(String inputStr) {
+
+		int checksum = 0;
+		if (inputStr.startsWith("$")) {
+			inputStr = inputStr.substring(1);
+		}
+
+		int end = inputStr.indexOf('*');
+		if (end == -1)
+			end = inputStr.length();
+		for (int i = 0; i < end; i++) {
+			checksum = checksum ^ inputStr.charAt(i);
+		}
+		String hex = Integer.toHexString(checksum);
+		if (hex.length() == 1)
+			hex = "0" + hex;
+		return hex.toUpperCase();
+
+	}
 
 }
