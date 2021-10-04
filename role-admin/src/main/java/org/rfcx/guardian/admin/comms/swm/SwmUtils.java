@@ -64,10 +64,10 @@ public class SwmUtils {
 			} else if (!isNetworkAvailable()) {
 				errorMsg = "No Swarm network currently available";
 			} else {
-				String[] atCmdSeq = new String[]{ "AT&K0", "AT+SBDD0", "AT+SBDWT=" + msgStr, "AT+SBDIX" };
-				Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting AT Command Sequence: " + TextUtils.join(", ", atCmdSeq));
+				String[] atCmdSeq = new String[]{ "$TD " + msgStr + "*" + getNMEAChecksum(msgStr) };
+				Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting TD Command Sequence: " + TextUtils.join(", ", atCmdSeq));
 				isInFlight = true;
-				app.rfcxSvc.triggerService(SbdDispatchTimeoutService.SERVICE_NAME, true);
+				app.rfcxSvc.triggerService(SwmDispatchService.SERVICE_NAME, true);
 				long atCmdLaunchedAt = System.currentTimeMillis();
 				List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
 				isInFlight = false;
@@ -79,7 +79,7 @@ public class SwmUtils {
 						}
 					}
 				}
-				errorMsg += " ("+DateTimeUtils.timeStampDifferenceFromNowAsReadableString(atCmdLaunchedAt)+") AT Response: " + TextUtils.join(", ", atCmdResponseLines);
+				errorMsg += " ("+DateTimeUtils.timeStampDifferenceFromNowAsReadableString(atCmdLaunchedAt)+") TD Response: " + TextUtils.join(", ", atCmdResponseLines);
 			}
 
 		} catch (Exception e) {
@@ -97,11 +97,10 @@ public class SwmUtils {
 		execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb");
 
 		for (int i = 0; i < execSteps.length; i++) {
-			long waitMs = (execSteps[i].equalsIgnoreCase("AT+SBDIX")) ? Math.round( sendCmdTimeout * 0.5 ) : prepCmdTimeout;
 			execFull.append(" && ")
-					.append("echo").append(" -n").append(" '").append(execSteps[i]).append("<br_r>'")
+					.append("echo").append(" -n").append(" '").append(execSteps[i]).append("'")
 					.append(" | ")
-					.append(busyBoxBin).append(" microcom -t ").append(waitMs).append(" -s ").append(baudRate).append(" ").append(ttyPath);
+					.append(busyBoxBin).append(" microcom -t ").append(prepCmdTimeout).append(" -s ").append(baudRate).append(" ").append(ttyPath);
 		}
 		return execFull.toString();
 	}
@@ -188,6 +187,24 @@ public class SwmUtils {
 
 	public static boolean addImmediateSwmToQueue(String msgPayload, Context context) {
 		return addScheduledSwmToQueue(System.currentTimeMillis(), msgPayload, context, true);
+	}
+
+	private static String getNMEAChecksum(String in) {
+		int checksum = 0;
+		if (in.startsWith("$")) {
+			in = in.substring(1);
+		}
+
+		int end = in.indexOf('*');
+		if (end == -1)
+			end = in.length();
+		for (int i = 0; i < end; i++) {
+			checksum = checksum ^ in.charAt(i);
+		}
+		String hex = Integer.toHexString(checksum);
+		if (hex.length() == 1)
+			hex = "0" + hex;
+		return hex.toUpperCase();
 	}
 
 

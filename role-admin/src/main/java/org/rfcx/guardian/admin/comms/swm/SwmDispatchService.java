@@ -95,27 +95,27 @@ public class SwmDispatchService extends Service {
 							String msgId = swmForDispatch[4];
 							String msgBody = swmForDispatch[3];
 
-//							if (app.swmUtils.sendSwmMessage(msgBody)) {
-//
-//								app.rfcxSvc.reportAsActive(SERVICE_NAME);
-//
-//								app.swmUtils.consecutiveDeliveryFailureCount = 0;
-//								app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);
-//
-//								String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
-//								Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
-//								RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
-//
-//							} else {
-//								app.swmUtils.consecutiveDeliveryFailureCount++;
-//								Log.e(logTag, "SWM Send Failure (Consecutive Failures: " + app.swmUtils.consecutiveDeliveryFailureCount + ")...");
-//								if (app.swmUtils.consecutiveDeliveryFailureCount >= SwmUtils.powerCycleAfterThisManyConsecutiveDeliveryFailures) {
-//									app.swmUtils.setPower(false);
-//									app.swmUtils.setPower(true);
-//									app.swmUtils.consecutiveDeliveryFailureCount = 0;
-//									break;
-//								}
-//							}
+							if (app.swmUtils.sendSwmMessage(msgBody)) {
+
+								app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
+								app.swmUtils.consecutiveDeliveryFailureCount = 0;
+								app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);
+
+								String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
+								Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
+								RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
+
+							} else {
+								app.swmUtils.consecutiveDeliveryFailureCount++;
+								Log.e(logTag, "SWM Send Failure (Consecutive Failures: " + app.swmUtils.consecutiveDeliveryFailureCount + ")...");
+								if (app.swmUtils.consecutiveDeliveryFailureCount >= SwmUtils.powerCycleAfterThisManyConsecutiveDeliveryFailures) {
+									app.swmUtils.setPower(false);
+									app.swmUtils.setPower(true);
+									app.swmUtils.consecutiveDeliveryFailureCount = 0;
+									break;
+								}
+							}
 
 							Thread.sleep(forcedPauseBetweenEachDispatch);
 						}
