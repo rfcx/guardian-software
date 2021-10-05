@@ -26,7 +26,7 @@ public class SwmUtils {
 	public SwmUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 	}
-	
+
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils");
 
 	RfcxGuardian app;
@@ -52,56 +52,16 @@ public class SwmUtils {
 		setPower(false);
 	}
 
-	public boolean sendSwmMessage(String msgStr) {
-
-		String errorMsg = "SWM Message was NOT successfully delivered.";
-		isInFlight = false;
-
-		try {
-
-			if ((busyBoxBin == null) || !FileUtils.exists(busyBoxBin)) {
-				errorMsg = "BusyBox binary not found on system";
-			} else if (!isNetworkAvailable()) {
-				errorMsg = "No Swarm network currently available";
-			} else {
-				String[] atCmdSeq = new String[]{ "AT&K0", "AT+SBDD0", "AT+SBDWT=" + msgStr, "AT+SBDIX" };
-				Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting AT Command Sequence: " + TextUtils.join(", ", atCmdSeq));
-				isInFlight = true;
-				app.rfcxSvc.triggerService(SbdDispatchTimeoutService.SERVICE_NAME, true);
-				long atCmdLaunchedAt = System.currentTimeMillis();
-				List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
-				isInFlight = false;
-				for (String atCmdResponseLine : atCmdResponseLines) {
-					if (atCmdResponseLine.contains("+SBDIX:")) {
-						if (Integer.parseInt(atCmdResponseLine.substring(atCmdResponseLine.indexOf(":") + 1, atCmdResponseLine.indexOf(","))) <= 2) {
-							Log.i(logTag, DateTimeUtils.getDateTime() + " - SBD Message was successfully transmitted ("+DateTimeUtils.timeStampDifferenceFromNowAsReadableString(atCmdLaunchedAt)+").");
-							return true;
-						}
-					}
-				}
-				errorMsg += " ("+DateTimeUtils.timeStampDifferenceFromNowAsReadableString(atCmdLaunchedAt)+") AT Response: " + TextUtils.join(", ", atCmdResponseLines);
-			}
-
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
-
-		isInFlight = false;
-		Log.e(logTag, errorMsg);
-		return false;
-	}
-
 	private static String atCmdExecStr(String ttyPath, String busyBoxBin, String[] execSteps) {
 		StringBuilder execFull = new StringBuilder();
 
 		execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb");
 
 		for (int i = 0; i < execSteps.length; i++) {
-			long waitMs = (execSteps[i].equalsIgnoreCase("AT+SBDIX")) ? Math.round( sendCmdTimeout * 0.5 ) : prepCmdTimeout;
 			execFull.append(" && ")
-					.append("echo").append(" -n").append(" '").append(execSteps[i]).append("<br_r>'")
+					.append("echo").append(" -n").append(" '").append(execSteps[i]).append("'")
 					.append(" | ")
-					.append(busyBoxBin).append(" microcom -t ").append(waitMs).append(" -s ").append(baudRate).append(" ").append(ttyPath);
+					.append(busyBoxBin).append(" microcom -t ").append(prepCmdTimeout).append(" -s ").append(baudRate).append(" ").append(ttyPath);
 		}
 		return execFull.toString();
 	}
@@ -190,18 +150,17 @@ public class SwmUtils {
 		return addScheduledSwmToQueue(System.currentTimeMillis(), msgPayload, context, true);
 	}
 
-	public static String getNMEAChecksum(String inputStr) {
-
+	private static String getNMEAChecksum(String in) {
 		int checksum = 0;
-		if (inputStr.startsWith("$")) {
-			inputStr = inputStr.substring(1);
+		if (in.startsWith("$")) {
+			in = in.substring(1);
 		}
 
-		int end = inputStr.indexOf('*');
+		int end = in.indexOf('*');
 		if (end == -1)
-			end = inputStr.length();
+			end = in.length();
 		for (int i = 0; i < end; i++) {
-			checksum = checksum ^ inputStr.charAt(i);
+			checksum = checksum ^ in.charAt(i);
 		}
 		String hex = Integer.toHexString(checksum);
 		if (hex.length() == 1)
@@ -209,5 +168,91 @@ public class SwmUtils {
 		return hex.toUpperCase();
 
 	}
+
+	public boolean sendSwmMessage(String msgStr) {
+
+		String errorMsg = "SWM Message was NOT successfully delivered.";
+
+		try {
+
+			if (!FileUtils.exists(busyBoxBin)) {
+				errorMsg = "BusyBox binary not found on system";
+			} else {
+				String command = "TD " + msgStr;
+				String[] atCmdSeq = new String[]{ "$" + command + "*" + getNMEAChecksum(command) };
+				Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting TD Command Sequence: " + TextUtils.join(", ", atCmdSeq));
+				app.rfcxSvc.triggerService(SwmDispatchService.SERVICE_NAME, true);
+				List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
+				for (String atCmdResponseLine : atCmdResponseLines) {
+					if (atCmdResponseLine.contains("OK")) {
+						Log.i(logTag, DateTimeUtils.getDateTime() + " - SWM Sending Message was successfully transmitted ");
+						return true;
+					} else {
+						errorMsg += " TD Response: " + TextUtils.join(", ", atCmdResponseLines);
+					}
+				}
+			}
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+
+		Log.e(logTag, errorMsg);
+		return false;
+	}
+
+	private boolean updateQueueMessagesFromSwarm() {
+        String errorMsg = "SWM Sleep Command was NOT successfully delivered.";
+
+        try {
+            List<String[]> guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.getAllRows();
+            ArrayList<String> swarmMessageIdQueues = new ArrayList<>();
+            String command = "MT L=U";
+            String[] atCmdSeq = new String[]{ "$" + command + "*" + getNMEAChecksum(command) };
+            Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting Query Unsent Message Command : " + TextUtils.join(", ", atCmdSeq));
+            List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
+            for (String atCmdResponseLine : atCmdResponseLines) {
+            	//                            hexdecimal data         message id   timestamp
+            	// Example message : $MT 68692066726f6d20737761726d,4428826476689,1605639598*55
+				swarmMessageIdQueues.add(atCmdResponseLine.split(",")[1]);
+            }
+            for (String[] guardianMessage: guardianMessageIdQueues) {
+            	if (!swarmMessageIdQueues.contains(guardianMessage[4])) {
+            		app.swmMessageDb.dbSwmSent.insert(Long.parseLong(guardianMessage[1]), guardianMessage[2], guardianMessage[3], guardianMessage[4]);
+            		app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(guardianMessage[4]);
+				}
+			}
+            return true;
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
+
+        Log.e(logTag, errorMsg);
+        return false;
+    }
+
+	private boolean setSleep(long time) {
+        String errorMsg = "SWM Sleep Command was NOT successfully delivered.";
+		try {
+		    String command = "SL S=" + time;
+		    String[] atCmdSeq = new String[]{ "$" + command + "*" + getNMEAChecksum(command) };
+		    Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting Sleep Command : " + TextUtils.join(", ", atCmdSeq));
+		    List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
+		    for (String atCmdResponseLine : atCmdResponseLines) {
+		        if (atCmdResponseLine.contains("OK")) {
+		            Log.i(logTag, DateTimeUtils.getDateTime() + " - Sleep Command was successfully delivered ");
+		            return true;
+		        } else if (atCmdResponseLine.contains("WAKE")) {
+		            errorMsg = "Swarm has woken from sleep mode (getting message while sleeping)";
+                }
+		    }
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+        Log.e(logTag, errorMsg);
+		return false;
+	}
+
+
+
 
 }
