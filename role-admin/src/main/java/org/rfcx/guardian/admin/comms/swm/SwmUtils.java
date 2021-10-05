@@ -26,7 +26,7 @@ public class SwmUtils {
 	public SwmUtils(Context context) {
 		this.app = (RfcxGuardian) context.getApplicationContext();
 	}
-	
+
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils");
 
 	RfcxGuardian app;
@@ -187,6 +187,57 @@ public class SwmUtils {
 
 	public static boolean addImmediateSwmToQueue(String msgPayload, Context context) {
 		return addScheduledSwmToQueue(System.currentTimeMillis(), msgPayload, context, true);
+	}
+
+	private boolean updateQueueMessagesFromSwarm() {
+        String errorMsg = "SWM Sleep Command was NOT successfully delivered.";
+
+        try {
+            List<String[]> guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.getAllRows();
+            ArrayList<String> swarmMessageIdQueues = new ArrayList<>();
+            String command = "MT L=U";
+            String[] atCmdSeq = new String[]{ "$" + command + "*" + getNMEAChecksum(command) };
+            Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting Query Unsent Message Command : " + TextUtils.join(", ", atCmdSeq));
+            List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
+            for (String atCmdResponseLine : atCmdResponseLines) {
+            	//                            hexdecimal data         message id   timestamp
+            	// Example message : $MT 68692066726f6d20737761726d,4428826476689,1605639598*55
+				swarmMessageIdQueues.add(atCmdResponseLine.split(",")[1]);
+            }
+            for (String[] guardianMessage: guardianMessageIdQueues) {
+            	if (!swarmMessageIdQueues.contains(guardianMessage[4])) {
+            		app.swmMessageDb.dbSwmSent.insert(Long.parseLong(guardianMessage[1]), guardianMessage[2], guardianMessage[3], guardianMessage[4]);
+            		app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(guardianMessage[4]);
+				}
+			}
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
+
+        Log.e(logTag, errorMsg);
+        return false;
+    }
+
+	private boolean setSleep(long time) {
+        String errorMsg = "SWM Sleep Command was NOT successfully delivered.";
+		try {
+		    String command = "SL S=" + time;
+		    String[] atCmdSeq = new String[]{ "$" + command + "*" + getNMEAChecksum(command) };
+		    Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting Sleep Command : " + TextUtils.join(", ", atCmdSeq));
+		    List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
+		    for (String atCmdResponseLine : atCmdResponseLines) {
+		        if (atCmdResponseLine.contains("OK")) {
+		            Log.i(logTag, DateTimeUtils.getDateTime() + " - Sleep Command was successfully delivered ");
+		            return true;
+		        } else if (atCmdResponseLine.contains("WAKE")) {
+		            errorMsg = "Swarm has woken from sleep mode (getting message while sleeping)";
+                }
+		    }
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+        Log.e(logTag, errorMsg);
+		return false;
 	}
 
 	private static String getNMEAChecksum(String in) {
