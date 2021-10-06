@@ -8,7 +8,6 @@ import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
 import org.rfcx.guardian.utility.misc.ArrayUtils
-import org.rfcx.guardian.utility.misc.DateTimeUtils
 import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
 import org.rfcx.guardian.utility.rfcx.RfcxComm
@@ -17,6 +16,7 @@ import java.util.*
 
 class SwmUtils(context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
+    private var swmCommand: SwmCommand? = null
     private var busyBoxBin: String? = null
     private var ttyPath: String? = null
 
@@ -25,9 +25,10 @@ class SwmUtils(context: Context) {
 
     @kotlin.jvm.JvmField
     var consecutiveDeliveryFailureCount = 0
-    fun init(ttyPath: String?, busyBoxBin: String?) {
+    fun init(ttyPath: String, busyBoxBin: String) {
         this.ttyPath = ttyPath
         this.busyBoxBin = busyBoxBin
+        this.swmCommand = SwmCommand(SwmUartShell(ttyPath, busyBoxBin, baudRate))
     }
 
     fun setupSwmUtils() {
@@ -66,51 +67,21 @@ class SwmUtils(context: Context) {
     val isNetworkAvailable: Boolean
         get() = app.deviceGpioUtils.readGpioValue("satellite_state", "DOUT")
 
-    private fun sendSwarmCommand(type: SwarmCommand, command: String): List<String>? {
-        var errorMsg = "${type.name} Command was NOT successfully delivered."
-        isInFlight = false
-        try {
-            if (!FileUtils.exists(busyBoxBin)) {
-                errorMsg = "BusyBox binary not found on system"
-            } else {
-                isInFlight = true
-                val fullCommand = "${type.name} $command"
-                val atCmdSeq = arrayOf("$" + fullCommand + "*" + getNMEAChecksum(fullCommand))
-                Log.d(
-                    logTag,
-                    DateTimeUtils.getDateTime() + " - Attempting ${type.name} Command Sequence: " + TextUtils.join(
-                        ", ",
-                        atCmdSeq
-                    )
-                )
-                val atCmdResponseLines =
-                    ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq))
-                isInFlight = false
-                return parse(type, atCmdResponseLines)
-            }
-        } catch (e: Exception) {
-            RfcxLog.logExc(logTag, e)
-        }
-        Log.e(logTag, errorMsg)
-        return null
-    }
 
     fun sendSwmMessage(msgStr: String): Boolean {
-        val responses = sendSwarmCommand(SwarmCommand.TD, msgStr)
+        val responses = swmCommand?.transmitData(msgStr)
         if (responses != null) {
-            val parsedResponses = parse(SwarmCommand.TD, responses)
             return true
         }
         return false
     }
 
     private fun updateQueueMessagesFromSwarm(): Boolean {
-        val responses = sendSwarmCommand(SwarmCommand.MT, "L=U")
+        val responses = swmCommand?.getUnsentMessages()
         if (responses != null) {
-            val parsedResponses = parse(SwarmCommand.MT, responses)
             val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows
             val swarmMessageIdQueues = ArrayList<String>()
-            for (response in parsedResponses) {
+            for (response in responses) {
                 //                            hexdecimal data         message id   timestamp
                 // Example message : $MT 68692066726f6d20737761726d,4428826476689,1605639598*55
                 swarmMessageIdQueues.add(response.split(",").toTypedArray()[1])
@@ -132,73 +103,30 @@ class SwmUtils(context: Context) {
     }
 
     private fun setSleep(time: Long): Boolean {
-        val responses = sendSwarmCommand(SwarmCommand.SL, "S=$time")
+        val responses = swmCommand?.sleep(time)
         if (responses != null) {
-            val parsedResponses = parse(SwarmCommand.SL, responses)
             return true
         }
         return false
     }
 
     private fun getRecentSatelliteSignal(): Boolean {
-        val responses = sendSwarmCommand(SwarmCommand.RT, "@")
+        val responses = swmCommand?.getRecentSignal()
         if (responses != null) {
-            val parsedResponses = parse(SwarmCommand.RT, responses)
             return true
         }
         return false
     }
 
-    private fun parse(command: SwarmCommand, responses: List<String>): List<String> {
-        when (command) {
-            SwarmCommand.TD -> {
-
-            }
-            SwarmCommand.MT -> {
-
-            }
-            SwarmCommand.SL -> {
-
-            }
-            SwarmCommand.RT -> {
-
-            }
+    private fun getDateTime(): Boolean {
+        val responses = swmCommand?.getDateTime()
+        if (responses != null) {
+            return true
         }
-        return responses
-    }
-
-    private fun getNMEAChecksum(command: String): String {
-        var tempCommand = command
-        var checksum = 0
-        if (tempCommand.startsWith("$")) {
-            tempCommand = command.substring(1)
-        }
-        var end = tempCommand.indexOf('*')
-        if (end == -1) end = tempCommand.length
-        for (i in 0 until end) {
-            checksum = checksum xor tempCommand[i].toInt()
-        }
-        var hex = Integer.toHexString(checksum)
-        if (hex.length == 1) hex = "0$hex"
-        return hex.toUpperCase(Locale.getDefault())
-    }
-
-    private fun atCmdExecStr(ttyPath: String?, busyBoxBin: String?, execSteps: Array<String>): String {
-        val execFull = StringBuilder()
-        execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb")
-        for (i in execSteps.indices) {
-            execFull.append(" && ")
-                .append("echo").append(" -n").append(" '").append(execSteps[i]).append("'")
-                .append(" | ")
-                .append(busyBoxBin).append(" microcom -t ").append(prepCmdTimeout).append(" -s ").append(baudRate).append(" ").append(ttyPath)
-        }
-        return execFull.toString()
+        return false
     }
 
     companion object {
-
-        enum class SwarmCommand { TD, MT, SL, RT }
-
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils")
         private const val baudRate = 115200
         const val sendCmdTimeout: Long = 70000
