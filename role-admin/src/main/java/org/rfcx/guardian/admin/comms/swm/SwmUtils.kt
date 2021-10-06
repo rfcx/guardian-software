@@ -68,10 +68,12 @@ class SwmUtils(context: Context) {
 
     private fun sendSwarmCommand(type: SwarmCommand, command: String): List<String>? {
         var errorMsg = "${type.name} Command was NOT successfully delivered."
+        isInFlight = false
         try {
             if (!FileUtils.exists(busyBoxBin)) {
                 errorMsg = "BusyBox binary not found on system"
             } else {
+                isInFlight = true
                 val fullCommand = "${type.name} $command"
                 val atCmdSeq = arrayOf("$" + fullCommand + "*" + getNMEAChecksum(fullCommand))
                 Log.d(
@@ -83,6 +85,7 @@ class SwmUtils(context: Context) {
                 )
                 val atCmdResponseLines =
                     ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq))
+                isInFlight = false
                 return parse(type, atCmdResponseLines)
             }
         } catch (e: Exception) {
@@ -95,7 +98,7 @@ class SwmUtils(context: Context) {
     fun sendSwmMessage(msgStr: String): Boolean {
         val responses = sendSwarmCommand(SwarmCommand.TD, msgStr)
         if (responses != null) {
-            parse(SwarmCommand.TD, responses)
+            val parsedResponses = parse(SwarmCommand.TD, responses)
             return true
         }
         return false
@@ -131,16 +134,16 @@ class SwmUtils(context: Context) {
     private fun setSleep(time: Long): Boolean {
         val responses = sendSwarmCommand(SwarmCommand.SL, "S=$time")
         if (responses != null) {
-            parse(SwarmCommand.SL, responses)
+            val parsedResponses = parse(SwarmCommand.SL, responses)
             return true
         }
         return false
     }
 
     private fun getRecentSatelliteSignal(): Boolean {
-        val responses = sendSwarmCommand(SwarmCommand.RT, "$")
+        val responses = sendSwarmCommand(SwarmCommand.RT, "@")
         if (responses != null) {
-            parse(SwarmCommand.SL, responses)
+            val parsedResponses = parse(SwarmCommand.RT, responses)
             return true
         }
         return false
@@ -180,23 +183,14 @@ class SwmUtils(context: Context) {
         return hex.toUpperCase(Locale.getDefault())
     }
 
-    private fun atCmdExecStr(
-        ttyPath: String?,
-        busyBoxBin: String?,
-        execSteps: Array<String>
-    ): String {
+    private fun atCmdExecStr(ttyPath: String?, busyBoxBin: String?, execSteps: Array<String>): String {
         val execFull = StringBuilder()
-        execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(
-            baudRate
-        ).append(" cs8 -cstopb -parenb")
+        execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb")
         for (i in execSteps.indices) {
             execFull.append(" && ")
                 .append("echo").append(" -n").append(" '").append(execSteps[i]).append("'")
                 .append(" | ")
-                .append(busyBoxBin).append(" microcom -t ").append(prepCmdTimeout)
-                .append(" -s ").append(
-                    baudRate
-                ).append(" ").append(ttyPath)
+                .append(busyBoxBin).append(" microcom -t ").append(prepCmdTimeout).append(" -s ").append(baudRate).append(" ").append(ttyPath)
         }
         return execFull.toString()
     }
