@@ -43,19 +43,19 @@ class SwmCommand(private val shell: SwmShell) {
         if (responses == null) return null
         when (command) {
             SwarmCommand.TD -> {
-
+                return responses.filter { it.contains(command.name) }
             }
             SwarmCommand.MT -> {
-
+                return responses.filter { it.contains(command.name) }
             }
             SwarmCommand.SL -> {
-
+                return responses.filter { it.contains(command.name) }
             }
             SwarmCommand.RT -> {
-
+                return responses.filter { it.contains(command.name) }
             }
             SwarmCommand.DT -> {
-
+                return responses.filter { it.contains(command.name) }
             }
         }
     }
