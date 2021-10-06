@@ -71,7 +71,7 @@ class SwmUtils(context: Context) {
                 errorMsg = "BusyBox binary not found on system"
             } else {
                 val command = "TD $msgStr"
-                val atCmdSeq = arrayOf("$" + command + "*" + getNMEAChecksum(command))
+                val atCmdSeq = arrayOf("$" + command + "*" + SwmCommandChecksum.get(command))
                 Log.d(
                     logTag,
                     DateTimeUtils.getDateTime() + " - Attempting TD Command Sequence: " + TextUtils.join(
@@ -107,7 +107,7 @@ class SwmUtils(context: Context) {
             val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows
             val swarmMessageIdQueues = ArrayList<String>()
             val command = "MT L=U"
-            val atCmdSeq = arrayOf("$" + command + "*" + getNMEAChecksum(command))
+            val atCmdSeq = arrayOf("$" + command + "*" + SwmCommandChecksum.get(command))
             Log.d(
                 logTag,
                 DateTimeUtils.getDateTime() + " - Attempting Query Unsent Message Command : " + TextUtils.join(
@@ -145,7 +145,7 @@ class SwmUtils(context: Context) {
         var errorMsg = "SWM Sleep Command was NOT successfully delivered."
         try {
             val command = "SL S=$time"
-            val atCmdSeq = arrayOf("$" + command + "*" + getNMEAChecksum(command))
+            val atCmdSeq = arrayOf("$" + command + "*" + SwmCommandChecksum.get(command))
             Log.d(
                 logTag,
                 DateTimeUtils.getDateTime() + " - Attempting Sleep Command : " + TextUtils.join(
@@ -242,22 +242,6 @@ class SwmUtils(context: Context) {
 
         fun addImmediateSwmToQueue(msgPayload: String?, context: Context): Boolean {
             return addScheduledSwmToQueue(System.currentTimeMillis(), msgPayload, context, true)
-        }
-
-        private fun getNMEAChecksum(`in`: String): String {
-            var `in` = `in`
-            var checksum = 0
-            if (`in`.startsWith("$")) {
-                `in` = `in`.substring(1)
-            }
-            var end = `in`.indexOf('*')
-            if (end == -1) end = `in`.length
-            for (i in 0 until end) {
-                checksum = checksum xor `in`[i].toInt()
-            }
-            var hex = Integer.toHexString(checksum)
-            if (hex.length == 1) hex = "0$hex"
-            return hex.toUpperCase()
         }
     }
 
