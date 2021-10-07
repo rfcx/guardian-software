@@ -4,6 +4,7 @@ import org.rfcx.guardian.admin.asset.AssetUtils;
 import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchService;
+import org.rfcx.guardian.admin.comms.swm.SwmMetaDb;
 import org.rfcx.guardian.admin.companion.CompanionPingJsonUtils;
 import org.rfcx.guardian.admin.companion.CompanionSocketService;
 import org.rfcx.guardian.admin.companion.CompanionSocketUtils;
@@ -117,6 +118,7 @@ public class RfcxGuardian extends Application {
     public SmsMessageDb smsMessageDb = null;
     public SbdMessageDb sbdMessageDb = null;
 	public SwmMessageDb swmMessageDb = null;
+	public SwmMetaDb swmMetaDb = null;
 
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -310,6 +312,7 @@ public class RfcxGuardian extends Application {
         this.smsMessageDb = new SmsMessageDb(this, this.version);
         this.sbdMessageDb = new SbdMessageDb(this, this.version);
 		this.swmMessageDb = new SwmMessageDb(this, this.version);
+		this.swmMetaDb = new SwmMetaDb(this, this.version);
 		this.deviceMobilePhone = new DeviceMobilePhone(this);
 	}
 

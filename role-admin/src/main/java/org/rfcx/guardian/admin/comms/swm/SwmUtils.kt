@@ -3,20 +3,23 @@ package org.rfcx.guardian.admin.comms.swm
 import android.content.Context
 import android.text.TextUtils
 import android.util.Log
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.admin.device.android.system.DeviceUtils
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
 import org.rfcx.guardian.utility.misc.ArrayUtils
 import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
 import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
+import java.lang.Exception
 import java.util.*
 
 class SwmUtils(context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
-    private var swmCommand: SwmCommand? = null
+    var swmCommand: SwmCommand? = null
     private var busyBoxBin: String? = null
     private var ttyPath: String? = null
 
@@ -175,6 +178,28 @@ class SwmUtils(context: Context) {
 
         fun addImmediateSwmToQueue(msgPayload: String?, context: Context): Boolean {
             return addScheduledSwmToQueue(System.currentTimeMillis(), msgPayload, context, true)
+        }
+
+        @kotlin.jvm.JvmStatic
+        fun getSwmMetaValuesAsJsonArray(context: Context): JSONArray {
+            val app = context.applicationContext as RfcxGuardian
+            val metaJsonArray = JSONArray()
+            try {
+                val metaJson = JSONObject()
+                metaJson.put("diagnostic", app.swmMetaDb.dbSwmDiagnostic.concatRows)
+                metaJsonArray.put(metaJson)
+            } catch (e: Exception) {
+                RfcxLog.logExc(logTag, e)
+            }
+            return metaJsonArray
+        }
+
+        @kotlin.jvm.JvmStatic
+        fun deleteSwmMetaValuesBeforeTimestamp(timeStamp: String, context: Context): Int {
+            val app = context.applicationContext as RfcxGuardian
+            val clearBefore = Date(timeStamp.toLong())
+            app.swmMetaDb.dbSwmDiagnostic.clearRowsBefore(clearBefore)
+            return 1
         }
     }
 }
