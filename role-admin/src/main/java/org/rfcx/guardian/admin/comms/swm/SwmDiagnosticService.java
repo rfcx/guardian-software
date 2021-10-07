@@ -6,14 +6,9 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.status.StatusCacheService;
-import org.rfcx.guardian.utility.misc.DateTimeUtils;
-import org.rfcx.guardian.utility.misc.ShellCommands;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRT;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
-
-import java.util.Date;
-import java.util.List;
 
 public class SwmDiagnosticService extends Service {
 
@@ -85,17 +80,16 @@ public class SwmDiagnosticService extends Service {
 
                         if (!app.swmUtils.isInFlight) {
                             app.swmUtils.isInFlight = true;
-                            Signal signal = app.swmUtils.getSwmCommand().getSignal();
+                            SwmRT swmRT = app.swmUtils.getSwmCommand().getSignal();
                             app.swmUtils.isInFlight = false;
 
-                            if (signal != null) {
+                            if (swmRT != null) {
                                 app.swmMetaDb.dbSwmDiagnostic.insert(
-                                        signal.getRssiBackground(),
-                                        signal.getRssiSatellite(),
-                                        signal.getSignalToNoiseRatio(),
-                                        signal.getFrequencyDeviation(),
-                                        signal.getPacketTimestamp(),
-                                        signal.getSatelliteId()
+                                        swmRT.getRssiSatellite(),
+                                        swmRT.getSignalToNoiseRatio(),
+                                        swmRT.getFrequencyDeviation(),
+                                        swmRT.getPacketTimestamp(),
+                                        swmRT.getSatelliteId()
                                 );
                             }
                         }

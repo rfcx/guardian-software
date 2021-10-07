@@ -22,13 +22,12 @@ public class SwmMetaDb {
     private int VERSION = 1;
     static final String DATABASE = "swm-meta";
     static final String C_CREATED_AT = "created_at";
-    static final String C_RSSI_BACKGROUND = "rssi_background";
     static final String C_RSSI_SAT = "rssi_sat";
     static final String C_SNR = "snr";
     static final String C_FDEV = "fdev";
     static final String C_TIME = "time";
     static final String C_SAT_ID = "sat_id";
-    private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_RSSI_BACKGROUND, C_RSSI_SAT, C_SNR, C_FDEV, C_TIME, C_SAT_ID };
+    private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_RSSI_SAT, C_SNR, C_FDEV, C_TIME, C_SAT_ID };
 
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
     private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -37,7 +36,6 @@ public class SwmMetaDb {
         StringBuilder sbOut = new StringBuilder();
         sbOut.append("CREATE TABLE ").append(tableName)
                 .append("(").append(C_CREATED_AT).append(" INTEGER")
-                .append(", ").append(C_RSSI_BACKGROUND).append(" INTEGER")
                 .append(", ").append(C_RSSI_SAT).append(" INTEGER")
                 .append(", ").append(C_SNR).append(" INTEGER")
                 .append(", ").append(C_FDEV).append(" INTEGER")
@@ -59,11 +57,10 @@ public class SwmMetaDb {
             FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
         }
 
-        public int insert(int rssiBackground, int rssiSat, int snr, int fdev, String time, String satId) {
+        public int insert(int rssiSat, int snr, int fdev, String time, String satId) {
 
             ContentValues values = new ContentValues();
             values.put(C_CREATED_AT, (new Date()).getTime());
-            values.put(C_RSSI_BACKGROUND, rssiBackground);
             values.put(C_RSSI_SAT, rssiSat);
             values.put(C_SNR, snr);
             values.put(C_FDEV, fdev);
