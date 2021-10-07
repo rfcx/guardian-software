@@ -33,4 +33,19 @@ class SwmCommandTest {
         assertEquals(signal.rssiBackground, -101)
         assertNull(signal.rssiSatellite)
     }
+
+    @Test
+    fun canGetSignalBackgroundOnlyTakeFirst() {
+        // Arrange
+        val shell = SwmMockShell(listOf("\$RT RSSI=-103*1f", "\$RT RSSI=-102*1e", "\$RT RSSI=-101*1d"))
+        val command = SwmCommand(shell)
+
+        // Act
+        val signal = command.getSignal()
+
+        // Assert
+        assertNotNull(signal)
+        assertEquals(signal.rssiBackground, -103)
+        assertNull(signal.rssiSatellite)
+    }
 }
