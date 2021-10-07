@@ -7,9 +7,9 @@ class SwmCommand(private val shell: SwmShell) {
 
     enum class SwarmCommand { TD, MT, SL, RT, DT }
 
-    private fun execute(command: SwarmCommand, arguments: String): List<String> {
+    private fun execute(command: SwarmCommand, arguments: String, timeout: Int = 500): List<String> {
         val request = makeRequest(command.name, arguments)
-        val responseLines = shell.execute(request)
+        val responseLines = shell.execute(request, timeout)
         return findResponseMatching(responseLines, command)
     }
 
@@ -52,6 +52,10 @@ class SwmCommand(private val shell: SwmShell) {
     }
 
     fun getRTBackground(): SwmRTBackground? {
+        // Set the background rate to 1s and wait 1.5s to get a result
+        val results = execute(SwarmCommand.RT, "1", 1500)
+        // Set the rate back to off
+        execute(SwarmCommand.RT, "0")
         return null
     }
 
