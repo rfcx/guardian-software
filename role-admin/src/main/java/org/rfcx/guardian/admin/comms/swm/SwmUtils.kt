@@ -1,20 +1,17 @@
 package org.rfcx.guardian.admin.comms.swm
 
 import android.content.Context
-import android.text.TextUtils
 import android.util.Log
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
-import org.rfcx.guardian.admin.device.android.system.DeviceUtils
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
 import org.rfcx.guardian.utility.misc.ArrayUtils
 import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
 import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
-import java.lang.Exception
 import java.util.*
 
 class SwmUtils(context: Context) {
@@ -66,7 +63,7 @@ class SwmUtils(context: Context) {
 
 
     fun sendSwmMessage(msgStr: String): Boolean {
-        val responses = swmCommand.transmitData(msgStr) ?: return false
+        swmCommand.transmitData(msgStr) ?: return false
         return true
     }
 
@@ -90,11 +87,6 @@ class SwmUtils(context: Context) {
                 app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(guardianMessage[4])
             }
         }
-        return true
-    }
-
-    private fun setSleep(time: Long): Boolean {
-        val responses = swmCommand.sleep(time) ?: return false
         return true
     }
 

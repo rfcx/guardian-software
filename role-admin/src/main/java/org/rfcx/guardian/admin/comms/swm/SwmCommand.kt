@@ -53,10 +53,15 @@ class SwmCommand(private val shell: SwmShell) {
 
     fun getRTBackground(): SwmRTBackground? {
         // Set the background rate to 1s and wait 1.5s to get a result
-        val results = execute(SwarmCommand.RT, "1", 1500)
+        val results = execute(SwarmCommand.RT, "1", 1500).filter { !it.contains("OK") }.firstOrNull()?.let { payload ->
+            "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { result ->
+                val (rssi) = result.destructured
+                SwmRTBackground(rssi = rssi.toInt())
+            }
+        }
         // Set the rate back to off
         execute(SwarmCommand.RT, "0")
-        return null
+        return results
     }
 
     fun getDateTime(): Date? {

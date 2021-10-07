@@ -34,6 +34,20 @@ class SwmCommandTest {
     }
 
     @Test
+    fun canGetSignalBackgroundCombineWithOKResponse() {
+        // Arrange
+        val shell = SwmMockShell(listOf("\$RT OK*23", "\$RT RSSI=-102*1e"))
+        val command = SwmCommand(shell)
+
+        // Act
+        val rtBackground = command.getRTBackground()
+
+        // Assert
+        assertNotNull(rtBackground)
+        assertEquals(rtBackground.rssi, -102)
+    }
+
+    @Test
     fun canGetSignalBackgroundOnlyTakeFirst() {
         // Arrange
         val shell = SwmMockShell(listOf("\$RT RSSI=-103*1f", "\$RT RSSI=-102*1e", "\$RT RSSI=-101*1d"))
