@@ -80,7 +80,7 @@ public class SwmDiagnosticService extends Service {
 
                         if (!app.swmUtils.isInFlight) {
                             app.swmUtils.isInFlight = true;
-                            SwmRT swmRT = app.swmUtils.getSwmCommand().getSignal();
+                            SwmRT swmRT = app.swmUtils.getRecentSatelliteSignal();
                             app.swmUtils.isInFlight = false;
 
                             if (swmRT != null) {

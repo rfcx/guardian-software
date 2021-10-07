@@ -7,6 +7,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.admin.comms.swm.data.SwmRT
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
 import org.rfcx.guardian.utility.misc.ArrayUtils
@@ -66,53 +67,40 @@ class SwmUtils(context: Context) {
 
 
     fun sendSwmMessage(msgStr: String): Boolean {
-        val responses = swmCommand.transmitData(msgStr)
-        if (responses.size > 0) {
-            return true
-        }
-        return false
+        val responses = swmCommand.transmitData(msgStr) ?: return false
+        return true
     }
 
     private fun updateQueueMessagesFromSwarm(): Boolean {
-        val responses = swmCommand?.getUnsentMessages()
-        if (responses != null) {
-            val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows
-            val swarmMessageIdQueues = ArrayList<String>()
-            for (response in responses) {
-                //                            hexdecimal data         message id   timestamp
-                // Example message : $MT 68692066726f6d20737761726d,4428826476689,1605639598*55
-                swarmMessageIdQueues.add(response.split(",").toTypedArray()[1])
-            }
-            for (guardianMessage in guardianMessageIdQueues) {
-                if (!swarmMessageIdQueues.contains(guardianMessage[4])) {
-                    app.swmMessageDb.dbSwmSent.insert(
-                        guardianMessage[1].toLong(),
-                        guardianMessage[2],
-                        guardianMessage[3],
-                        guardianMessage[4]
-                    )
-                    app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(guardianMessage[4])
-                }
-            }
-            return true
+        val responses = swmCommand.getUnsentMessages() ?: return false
+        val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows
+        val swarmMessageIdQueues = ArrayList<String>()
+        for (response in responses.unsentMessages) {
+            //                            hexdecimal data         message id   timestamp
+            // Example message : $MT 68692066726f6d20737761726d,4428826476689,1605639598*55
+            swarmMessageIdQueues.add(response.messageId)
         }
-        return false
+        for (guardianMessage in guardianMessageIdQueues) {
+            if (!swarmMessageIdQueues.contains(guardianMessage[4])) {
+                app.swmMessageDb.dbSwmSent.insert(
+                    guardianMessage[1].toLong(),
+                    guardianMessage[2],
+                    guardianMessage[3],
+                    guardianMessage[4]
+                )
+                app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(guardianMessage[4])
+            }
+        }
+        return true
     }
 
     private fun setSleep(time: Long): Boolean {
-        val responses = swmCommand?.sleep(time)
-        if (responses != null) {
-            return true
-        }
-        return false
+        val responses = swmCommand.sleep(time) ?: return false
+        return true
     }
 
-    private fun getRecentSatelliteSignal(): Boolean {
-        val responses = swmCommand.getSignal()
-        if (responses != null) {
-            return true
-        }
-        return false
+    fun getRecentSatelliteSignal(): SwmRT? {
+        return swmCommand.getSignal()
     }
 
     private fun getDateTime(): Boolean {
