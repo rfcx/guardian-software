@@ -70,7 +70,7 @@ public class SwmDiagnosticService extends Service {
 
             app = (RfcxGuardian) getApplication();
 
-            int checkIntervalCount = 6000;
+            int checkIntervalCount = 60000;
 
             if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
                 while (swmDiagnosticInstance.runFlag) {

@@ -6,8 +6,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.comms.sbd.SbdDispatchService;
-import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -114,14 +112,12 @@ public class SwmDispatchCycleService extends Service {
 								Log.e(logTag, "Swarm Network is not available. Unable to proceed with SWM send...");
 							} else {
 								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
-								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDiagnosticService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 								cyclesSinceLastActivity = 0;
 							}
 
 						} else {
 
 							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
-							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDiagnosticService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 							cyclesSinceLastActivity = 0;
 
 						}

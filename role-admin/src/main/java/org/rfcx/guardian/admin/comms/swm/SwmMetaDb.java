@@ -59,7 +59,7 @@ public class SwmMetaDb {
             FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
         }
 
-        public int insert(int rssiBackground, int rssiSat, int snr, int fdev, String time, String satId) {
+        public int insert(Integer rssiBackground, Integer rssiSat, Integer snr, Integer fdev, String time, String satId) {
 
             ContentValues values = new ContentValues();
             values.put(C_CREATED_AT, (new Date()).getTime());

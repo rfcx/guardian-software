@@ -154,12 +154,13 @@ public class RfcxGuardian extends Application {
 	
 	public String[] RfcxCoreServices = 
 			new String[] {
-				DeviceSystemService.SERVICE_NAME,
-				DeviceI2cService.SERVICE_NAME,
-				SmsDispatchCycleService.SERVICE_NAME,
-				SbdDispatchCycleService.SERVICE_NAME,
-				SwmDispatchCycleService.SERVICE_NAME,
-				CompanionSocketService.SERVICE_NAME
+					DeviceSystemService.SERVICE_NAME,
+					DeviceI2cService.SERVICE_NAME,
+					SmsDispatchCycleService.SERVICE_NAME,
+					SbdDispatchCycleService.SERVICE_NAME,
+					SwmDispatchCycleService.SERVICE_NAME,
+					SwmDiagnosticService.SERVICE_NAME,
+					CompanionSocketService.SERVICE_NAME,
 			};
 
 	@Override
@@ -343,7 +344,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( SwmDispatchService.SERVICE_NAME, SwmDispatchService.class);
 		this.rfcxSvc.addService( SwmDispatchCycleService.SERVICE_NAME, SwmDispatchCycleService.class);
 		this.rfcxSvc.addService( SwmDispatchTimeoutService.SERVICE_NAME, SwmDispatchTimeoutService.class);
-		this.rfcxSvc.addService(SwmDiagnosticService.SERVICE_NAME, SwmDiagnosticService.class);
+		this.rfcxSvc.addService( SwmDiagnosticService.SERVICE_NAME, SwmDiagnosticService.class);
 
 		this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
 		this.rfcxSvc.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);
@@ -420,6 +421,7 @@ public class RfcxGuardian extends Application {
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL)) {
 				rfcxSvc.triggerService(SbdDispatchCycleService.SERVICE_NAME, true);
 				rfcxSvc.triggerService(SwmDispatchCycleService.SERVICE_NAME, true);
+				rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME,  true);
 			}
 
 		}
