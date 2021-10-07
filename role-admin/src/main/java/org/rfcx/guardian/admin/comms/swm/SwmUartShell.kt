@@ -2,38 +2,42 @@ package org.rfcx.guardian.admin.comms.swm
 
 import android.util.Log
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT
 import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.lang.Exception
 
-class SwmUartShell(private val ttyPath: String, private val busyboxBin: String, private val baudRate: Int): SwmShell {
+class SwmUartShell(
+    private val executeTimeout: Int = 1000,
+    private val ttyPath: String = DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE,
+    private val busyboxBin: String = DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH,
+    private val baudRate: Int = 115200): SwmShell {
 
     private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUartShell")
+
+    init {
+        if (!FileUtils.exists(busyboxBin)) {
+            Log.e(logTag, "BusyBox binary not found on system")
+        }
+    }
 
     /**
      * Execute a command on tty and read the returned responses (one per line)
      */
-    override fun execute(request: String): List<String>? {
+    override fun execute(request: String): List<String> {
         val ttyCommand = makeTtyCommand(request)
-        var errorMsg = "$request was NOT successfully delivered."
         try {
-            if (!FileUtils.exists(busyboxBin)) {
-                errorMsg = "BusyBox binary not found on system"
-            } else {
-                return ShellCommands.executeCommandAsRoot(ttyCommand)
-            }
+            return ShellCommands.executeCommandAsRoot(ttyCommand)
         } catch (e: Exception) {
             RfcxLog.logExc(logTag, e)
         }
-        Log.e(logTag, errorMsg)
-        return null
+        return listOf()
     }
 
     private fun makeTtyCommand(input: String): String {
-        val timeout = 1000 // TODO make this a param or class var
         val stty = "$busyboxBin stty -F $ttyPath $baudRate cs8 -cstopb -parenb && "
-        val echo = "echo -n '${input}' | $busyboxBin microcom -t $timeout -s $baudRate $ttyPath"
+        val echo = "echo -n '${input}' | $busyboxBin microcom -t $executeTimeout -s $baudRate $ttyPath"
         return "$stty && $echo"
     }
 }

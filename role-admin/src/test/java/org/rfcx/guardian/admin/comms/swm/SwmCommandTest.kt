@@ -2,7 +2,7 @@ package org.rfcx.guardian.admin.comms.swm
 
 import org.junit.Test
 import java.util.*
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class SwmCommandTest {
 
@@ -19,4 +19,18 @@ class SwmCommandTest {
         assertEquals(Date.parse("2021-10-01 12:13:14"), dateTime.time)
     }
 
+    @Test
+    fun canGetSignalBackgroundOnly() {
+        // Arrange
+        val shell = SwmMockShell(listOf("\$RT RSSI=-101*1d"))
+        val command = SwmCommand(shell)
+
+        // Act
+        val signal = command.getSignal()
+
+        // Assert
+        assertNotNull(signal)
+        assertEquals(signal.rssiBackground, -101)
+        assertNull(signal.rssiSatellite)
+    }
 }

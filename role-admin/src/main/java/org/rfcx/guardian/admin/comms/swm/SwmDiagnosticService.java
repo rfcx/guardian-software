@@ -85,16 +85,19 @@ public class SwmDiagnosticService extends Service {
 
                         if (!app.swmUtils.isInFlight) {
                             app.swmUtils.isInFlight = true;
-                            String[] response = app.swmUtils.getSwmCommand().getRecentSignal().toArray(new String[5]);
+                            Signal signal = app.swmUtils.getSwmCommand().getSignal();
                             app.swmUtils.isInFlight = false;
 
-                            app.swmMetaDb.dbSwmDiagnostic.insert(
-                                    Integer.parseInt(response[0]),
-                                    Integer.parseInt(response[1]),
-                                    Integer.parseInt(response[2]),
-                                    Integer.parseInt(response[3]),
-                                    response[4],
-                                    response[5]);
+                            if (signal != null) {
+                                app.swmMetaDb.dbSwmDiagnostic.insert(
+                                        signal.getRssiBackground(),
+                                        signal.getRssiSatellite(),
+                                        signal.getSignalToNoiseRatio(),
+                                        signal.getFrequencyDeviation(),
+                                        signal.getPacketTimestamp(),
+                                        signal.getSatelliteId()
+                                );
+                            }
                         }
 
                     } catch (InterruptedException e) {

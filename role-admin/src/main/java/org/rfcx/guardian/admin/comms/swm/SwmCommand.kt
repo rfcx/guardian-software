@@ -6,30 +6,36 @@ class SwmCommand(private val shell: SwmShell) {
 
     enum class SwarmCommand { TD, MT, SL, RT, DT }
 
-    private fun execute(command: SwarmCommand, arguments: String): List<String>? {
+    private fun execute(command: SwarmCommand, arguments: String): List<String> {
         val request = makeRequest(command.name, arguments)
         val responseLines = shell.execute(request)
         return findResponseMatching(responseLines, command)
     }
 
-    fun transmitData(msgStr: String): List<String>? {
+    fun transmitData(msgStr: String): List<String> {
         return execute(SwarmCommand.TD, msgStr)
     }
+//
+//    fun getUnsentMessages(): List<String>? {
+//        return execute(SwarmCommand.MT, "L=U")
+//    }
+//
+//    fun sleep(time: Long): List<String>? {
+//        return execute(SwarmCommand.SL, "S=$time")
+//    }
 
-    fun getUnsentMessages(): List<String>? {
-        return execute(SwarmCommand.MT, "L=U")
-    }
-
-    fun sleep(time: Long): List<String>? {
-        return execute(SwarmCommand.SL, "S=$time")
-    }
-
-    fun getRecentSignal(): List<String>? {
-        return execute(SwarmCommand.RT, "@")
+    fun getSignal(): Signal? {
+        return execute(SwarmCommand.RT, "@").firstOrNull()?.let { payload ->
+            return "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { result ->
+                val (rssi) = result.destructured
+                return Signal(rssiBackground = rssi.toInt())
+            }
+        }
     }
 
     fun getDateTime(): Date {
         val response = execute(SwarmCommand.DT, "@")
+        // TODO parse result
         return Date()
     }
 
@@ -39,30 +45,7 @@ class SwmCommand(private val shell: SwmShell) {
         return "$${body}*${checksum}"
     }
 
-    private fun findResponseMatching(responses: List<String>?, command: SwarmCommand): List<String>? {
-        if (responses == null) return null
-        when (command) {
-            SwarmCommand.TD -> {
-                return responses.filter { it.contains(command.name) }
-            }
-            SwarmCommand.MT -> {
-                return responses.filter { it.contains(command.name) }
-            }
-            SwarmCommand.SL -> {
-                return responses.filter { it.contains(command.name) }
-            }
-            SwarmCommand.RT -> {
-                val rtResponse = arrayListOf<String>()
-                responses.filter { it.contains(command.name) }.forEach {
-                    it.split("").forEach { s ->
-                        rtResponse.add(s)
-                    }
-                }
-                return rtResponse
-            }
-            SwarmCommand.DT -> {
-                return responses.filter { it.contains(command.name) }
-            }
-        }
+    private fun findResponseMatching(responses: List<String>, command: SwarmCommand): List<String> {
+        return responses.filter { it.contains(command.name) }
     }
 }
