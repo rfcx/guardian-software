@@ -6,7 +6,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.comms.swm.data.SwmRT;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackground;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTSatellite;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -80,17 +81,18 @@ public class SwmDiagnosticService extends Service {
 
                         if (!app.swmUtils.isInFlight) {
                             app.swmUtils.isInFlight = true;
-                            SwmRT swmRT = app.swmUtils.getRecentSatelliteSignal();
+                            SwmRTBackground rtBackground = app.swmUtils.getSwmCommand().getRTBackground();
+                            SwmRTSatellite rtSatellite = app.swmUtils.getSwmCommand().getRTSatellite();
                             app.swmUtils.isInFlight = false;
 
-                            if (swmRT != null) {
+                            if (rtBackground != null || rtSatellite != null) {
                                 app.swmMetaDb.dbSwmDiagnostic.insert(
-                                        swmRT.getRssiBackground(),
-                                        swmRT.getRssiSatellite(),
-                                        swmRT.getSignalToNoiseRatio(),
-                                        swmRT.getFrequencyDeviation(),
-                                        swmRT.getPacketTimestamp(),
-                                        swmRT.getSatelliteId()
+                                        rtBackground != null ? rtBackground.getRssi() : null,
+                                        rtSatellite != null ? rtSatellite.getRssi() : null,
+                                        rtSatellite != null ? rtSatellite.getSignalToNoiseRatio() : null,
+                                        rtSatellite != null ? rtSatellite.getFrequencyDeviation() : null,
+                                        rtSatellite != null ? rtSatellite.getPacketTimestamp() : null,
+                                        rtSatellite != null ? rtSatellite.getSatelliteId() : null
                                 );
                             }
                         }

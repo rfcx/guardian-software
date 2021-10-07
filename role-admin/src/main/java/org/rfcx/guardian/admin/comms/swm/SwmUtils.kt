@@ -7,7 +7,6 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
-import org.rfcx.guardian.admin.comms.swm.data.SwmRT
 import org.rfcx.guardian.admin.device.android.system.DeviceUtils
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
 import org.rfcx.guardian.utility.misc.ArrayUtils
@@ -97,18 +96,6 @@ class SwmUtils(context: Context) {
     private fun setSleep(time: Long): Boolean {
         val responses = swmCommand.sleep(time) ?: return false
         return true
-    }
-
-    fun getRecentSatelliteSignal(): SwmRT? {
-        return swmCommand.getSignal()
-    }
-
-    private fun getDateTime(): Boolean {
-        val responses = swmCommand?.getDateTime()
-        if (responses != null) {
-            return true
-        }
-        return false
     }
 
     companion object {

@@ -41,13 +41,18 @@ class SwmCommand(private val shell: SwmShell) {
         }
     }
 
-    fun getSignal(): SwmRT? {
-        return execute(SwarmCommand.RT, "@").firstOrNull()?.let { payload ->
-            return "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { result ->
-                val (rssi) = result.destructured
-                return SwmRT(rssiBackground = rssi.toInt())
-            }
-        }
+    fun getRTSatellite(): SwmRTSatellite? {
+//        return execute(SwarmCommand.RT, "@").firstOrNull()?.let { payload ->
+//            return "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { result ->
+//                val (rssi) = result.destructured
+//                return SwmRT(rssiBackground = rssi.toInt())
+//            }
+//        }
+        return null
+    }
+
+    fun getRTBackground(): SwmRTBackground? {
+        return null
     }
 
     fun getDateTime(): Date? {

@@ -12,13 +12,16 @@ data class SwmSL(
     val message: String
 )
 
-data class SwmRT(
-    val rssiBackground: Int,
-    val rssiSatellite: Int? = null,
-    val signalToNoiseRatio: Int? = null,
-    val frequencyDeviation: Int? = null,
-    val packetTimestamp: String? = null,
-    val satelliteId: String? = null
+data class SwmRTSatellite (
+    val rssi: Int,
+    val signalToNoiseRatio: Int,
+    val frequencyDeviation: Int,
+    val packetTimestamp: String,
+    val satelliteId: String
+)
+
+data class SwmRTBackground (
+    val rssi: Int
 )
 
 data class SwmDT(

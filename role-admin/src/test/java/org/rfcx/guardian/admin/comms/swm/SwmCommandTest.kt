@@ -16,7 +16,7 @@ class SwmCommandTest {
         val dateTime = command.getDateTime()
 
         // Assert
-        assertEquals(Date.parse("2021-10-01 12:13:14"), dateTime.time)
+        assertEquals(Date.parse("2021-10-01 12:13:14"), dateTime?.time)
     }
 
     @Test
@@ -26,12 +26,11 @@ class SwmCommandTest {
         val command = SwmCommand(shell)
 
         // Act
-        val signal = command.getSignal()
+        val rtBackground = command.getRTBackground()
 
         // Assert
-        assertNotNull(signal)
-        assertEquals(signal.rssiBackground, -101)
-        assertNull(signal.rssiSatellite)
+        assertNotNull(rtBackground)
+        assertEquals(rtBackground.rssi, -101)
     }
 
     @Test
@@ -41,12 +40,11 @@ class SwmCommandTest {
         val command = SwmCommand(shell)
 
         // Act
-        val signal = command.getSignal()
+        val rtBackground = command.getRTBackground()
 
         // Assert
-        assertNotNull(signal)
-        assertEquals(signal.rssiBackground, -103)
-        assertNull(signal.rssiSatellite)
+        assertNotNull(rtBackground)
+        assertEquals(rtBackground.rssi, -103)
     }
 
     @Test
@@ -56,16 +54,15 @@ class SwmCommandTest {
         val command = SwmCommand(shell)
 
         // Act
-        val signal = command.getSignal()
+        val rtSatellite = command.getRTSatellite()
 
         // Assert
-        assertNotNull(signal)
-        assertEquals(signal.rssiBackground, -103)
-        assertEquals(signal.rssiSatellite, -1)
-        assertEquals(signal.signalToNoiseRatio, -1)
-        assertEquals(signal.frequencyDeviation, -1)
-        assertEquals(signal.packetTimestamp, "2020-10-02 13:56:21")
-        assertEquals(signal.satelliteId, "0x000568")
+        assertNotNull(rtSatellite)
+        assertEquals(rtSatellite.rssi, -102)
+        assertEquals(rtSatellite.signalToNoiseRatio, -1)
+        assertEquals(rtSatellite.frequencyDeviation, 426)
+        assertEquals(rtSatellite.packetTimestamp, "2020-10-02 13:56:21")
+        assertEquals(rtSatellite.satelliteId, "0x000568")
 
     }
 }

@@ -9,7 +9,6 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.lang.Exception
 
 class SwmUartShell(
-    private val executeTimeout: Int = 1000,
     private val ttyPath: String = DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE,
     private val busyboxBin: String = DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH,
     private val baudRate: Int = 115200): SwmShell {
@@ -25,8 +24,8 @@ class SwmUartShell(
     /**
      * Execute a command on tty and read the returned responses (one per line)
      */
-    override fun execute(request: String): List<String> {
-        val ttyCommand = makeTtyCommand(request)
+    override fun execute(request: String, timeout: Int): List<String> {
+        val ttyCommand = makeTtyCommand(request, timeout)
         try {
             return ShellCommands.executeCommandAsRoot(ttyCommand)
         } catch (e: Exception) {
@@ -35,9 +34,9 @@ class SwmUartShell(
         return listOf()
     }
 
-    private fun makeTtyCommand(input: String): String {
+    private fun makeTtyCommand(input: String, timeout: Int): String {
         val stty = "$busyboxBin stty -F $ttyPath $baudRate cs8 -cstopb -parenb && "
-        val echo = "echo -n '${input}' | $busyboxBin microcom -t $executeTimeout -s $baudRate $ttyPath"
+        val echo = "echo -n '${input}' | $busyboxBin microcom -t $timeout -s $baudRate $ttyPath"
         return "$stty && $echo"
     }
 }
