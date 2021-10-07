@@ -85,6 +85,7 @@ public class SwmDiagnosticService extends Service {
 
                             if (swmRT != null) {
                                 app.swmMetaDb.dbSwmDiagnostic.insert(
+                                        swmRT.getRssiBackground(),
                                         swmRT.getRssiSatellite(),
                                         swmRT.getSignalToNoiseRatio(),
                                         swmRT.getFrequencyDeviation(),
