@@ -67,11 +67,16 @@ class SwmUtils(context: Context) {
 
 
     fun sendSwmMessage(msgStr: String): Boolean {
+        if (isInFlight) return false
+        isInFlight = true
         val responses = swmCommand.transmitData(msgStr) ?: return false
+        isInFlight = false
         return true
     }
 
     private fun updateQueueMessagesFromSwarm(): Boolean {
+        if (isInFlight) return false
+        isInFlight = true
         val responses = swmCommand.getUnsentMessages() ?: return false
         val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows
         val swarmMessageIdQueues = ArrayList<String>()
@@ -91,16 +96,24 @@ class SwmUtils(context: Context) {
                 app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(guardianMessage[4])
             }
         }
+        isInFlight = false
         return true
     }
 
     private fun setSleep(time: Long): Boolean {
+        if (isInFlight) return false
+        isInFlight = true
         val responses = swmCommand.sleep(time) ?: return false
+        isInFlight = false
         return true
     }
 
     fun getRecentSatelliteSignal(): SwmRT? {
-        return swmCommand.getSignal()
+        if (isInFlight) return null
+        isInFlight = true
+        val signal = swmCommand.getSignal()
+        isInFlight = false
+        return signal
     }
 
     private fun getDateTime(): Boolean {
