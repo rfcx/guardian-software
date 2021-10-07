@@ -114,12 +114,14 @@ public class SwmDispatchCycleService extends Service {
 								Log.e(logTag, "Swarm Network is not available. Unable to proceed with SWM send...");
 							} else {
 								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
+								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDiagnosticService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 								cyclesSinceLastActivity = 0;
 							}
 
 						} else {
 
 							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
+							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDiagnosticService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 							cyclesSinceLastActivity = 0;
 
 						}

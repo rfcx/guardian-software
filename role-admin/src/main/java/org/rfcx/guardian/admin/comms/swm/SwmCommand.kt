@@ -52,7 +52,13 @@ class SwmCommand(private val shell: SwmShell) {
                 return responses.filter { it.contains(command.name) }
             }
             SwarmCommand.RT -> {
-                return responses.filter { it.contains(command.name) }
+                val rtResponse = arrayListOf<String>()
+                responses.filter { it.contains(command.name) }.forEach {
+                    it.split("").forEach { s ->
+                        rtResponse.add(s)
+                    }
+                }
+                return rtResponse
             }
             SwarmCommand.DT -> {
                 return responses.filter { it.contains(command.name) }
