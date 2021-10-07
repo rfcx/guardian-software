@@ -108,7 +108,7 @@ class SwmUtils(context: Context) {
     }
 
     private fun getRecentSatelliteSignal(): Boolean {
-        val responses = swmCommand?.getSignal()
+        val responses = swmCommand.getSignal()
         if (responses != null) {
             return true
         }
