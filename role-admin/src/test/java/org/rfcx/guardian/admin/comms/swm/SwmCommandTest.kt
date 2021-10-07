@@ -48,4 +48,24 @@ class SwmCommandTest {
         assertEquals(signal.rssiBackground, -103)
         assertNull(signal.rssiSatellite)
     }
+
+    @Test
+    fun canGetAllSignal() {
+        // Arrange
+        val shell = SwmMockShell(listOf("\$RT RSSI=-103*1f", "\$RT RSSI=-102,SNR=-1,FDEV=426,TS=2020-10-02 13:56:21,DI=0x000568*04"))
+        val command = SwmCommand(shell)
+
+        // Act
+        val signal = command.getSignal()
+
+        // Assert
+        assertNotNull(signal)
+        assertEquals(signal.rssiBackground, -103)
+        assertEquals(signal.rssiSatellite, -1)
+        assertEquals(signal.signalToNoiseRatio, -1)
+        assertEquals(signal.frequencyDeviation, -1)
+        assertEquals(signal.packetTimestamp, "2020-10-02 13:56:21")
+        assertEquals(signal.satelliteId, "0x000568")
+
+    }
 }
