@@ -32,8 +32,7 @@ class SwmUartShell(private val ttyPath: String, private val busyboxBin: String, 
 
     private fun makeTtyCommand(input: String): String {
         val timeout = 1000 // TODO make this a param or class var
-        val stty = "$busyboxBin stty -F $ttyPath $baudRate cs8 -cstopb -parenb && "
         val echo = "echo -n '${input}' | $busyboxBin microcom -t $timeout -s $baudRate $ttyPath"
-        return "$stty && $echo"
+        return "$echo"
     }
 }

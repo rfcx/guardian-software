@@ -37,7 +37,7 @@ class SwmUtils(context: Context) {
     fun setupSwmUtils() {
         app.deviceGpioUtils.runGpioCommand("DOUT", "voltage_refr", true)
         setPower(true)
-        setPower(false)
+      //  setPower(false)
     }
 
     fun findRunningSerialProcessIds(): IntArray {
@@ -67,8 +67,6 @@ class SwmUtils(context: Context) {
 
     val isPowerOn: Boolean
         get() = app.deviceGpioUtils.readGpioValue("satellite_power", "DOUT")
-    val isNetworkAvailable: Boolean
-        get() = app.deviceGpioUtils.readGpioValue("satellite_state", "DOUT")
 
 
     fun sendSwmMessage(msgStr: String): Boolean {

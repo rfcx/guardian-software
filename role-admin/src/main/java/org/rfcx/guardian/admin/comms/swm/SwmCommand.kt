@@ -13,7 +13,7 @@ class SwmCommand(private val shell: SwmShell) {
     }
 
     fun transmitData(msgStr: String): List<String>? {
-        return execute(SwarmCommand.TD, msgStr)
+        return execute(SwarmCommand.TD, "\""+msgStr+"\\\\r\"")
     }
 
     fun getUnsentMessages(): List<String>? {

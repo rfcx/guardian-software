@@ -93,7 +93,7 @@ public class SwmDispatchCycleService extends Service {
 
 							// let's add something that checks and eventually powers off the satellite board if not used for a little while
 							if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-								app.swmUtils.setPower(false);
+								app.swmUtils.setPower(true); //app.swmUtils.setPower(false);
 							}
 							cyclesSinceLastActivity++;
 
@@ -110,8 +110,6 @@ public class SwmDispatchCycleService extends Service {
 
 							if (!isAbleToSend) {
 								Log.e(logTag, "Swarm board is STILL powered off. Unable to proceed with SWM send...");
-							} else if (!app.swmUtils.isNetworkAvailable()) {
-								Log.e(logTag, "Swarm Network is not available. Unable to proceed with SWM send...");
 							} else {
 								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 								cyclesSinceLastActivity = 0;
