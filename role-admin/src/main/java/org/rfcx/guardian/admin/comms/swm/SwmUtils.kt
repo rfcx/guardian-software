@@ -57,7 +57,7 @@ class SwmUtils(context: Context) {
 
 
     fun sendSwmMessage(msgStr: String): Boolean {
-        swmCommand.transmitData(msgStr) ?: return false
+        swmCommand.transmitData("\"$msgStr\"") ?: return false
         return true
     }
 

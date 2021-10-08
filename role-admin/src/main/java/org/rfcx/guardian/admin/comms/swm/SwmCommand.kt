@@ -1,5 +1,6 @@
 package org.rfcx.guardian.admin.comms.swm
 
+import android.util.Log
 import org.rfcx.guardian.admin.comms.swm.data.*
 import java.util.*
 
@@ -7,9 +8,10 @@ class SwmCommand(private val shell: SwmShell) {
 
     enum class SwarmCommand { TD, MT, SL, RT, DT }
 
-    private fun execute(command: SwarmCommand, arguments: String, timeout: Int = 1): List<String> {
+    private fun execute(command: SwarmCommand, arguments: String, timeout: Int = 2): List<String> {
         val request = makeRequest(command.name, arguments)
         val responseLines = shell.execute(request, timeout)
+        Log.d("RfcxSwmCommand", "res " + responseLines.joinToString())
         return findResponseMatching(responseLines, command)
     }
 
@@ -21,6 +23,7 @@ class SwmCommand(private val shell: SwmShell) {
         return execute(SwarmCommand.TD, msgStr).firstOrNull()?.let { payload ->
             return "OK,(-?[0-9]+)".toRegex().find(payload)?.let { result ->
                 val (id) = result.destructured
+                Log.d("SwmCommand", "TD= $id")
                 return SwmTD(messageId = id)
             }
         }
@@ -63,6 +66,7 @@ class SwmCommand(private val shell: SwmShell) {
                 SwmRTBackground(rssi = rssi.toInt())
             }
         }
+        Log.d("RfcxSwmCommand", "RSSI= ${results?.rssi}")
         // Set the rate back to off
         execute(SwarmCommand.RT, "0")
         return results
