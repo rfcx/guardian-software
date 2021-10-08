@@ -49,27 +49,27 @@ class SwmCommand(private val shell: SwmShell) {
     }
 
     fun getRTSatellite(): SwmRTSatellite? {
-//        return execute(SwarmCommand.RT, "@").firstOrNull()?.let { payload ->
-//            return "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { result ->
-//                val (rssi) = result.destructured
-//                return SwmRT(rssiBackground = rssi.toInt())
-//            }
-//        }
-        return null
+        val results = execute(SwarmCommand.RT, "@")
+        val regex = "RSSI=(-?[0-9]+),SNR=(-?[0-9]+),FDEV=(-?[0-9]+),TS=([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}),DI=(0x[0-9]+)".toRegex()
+        val firstMatchResult = results.mapNotNull { regex.find(it) }.firstOrNull()
+        return firstMatchResult?.let { match ->
+            val (rssi, snr, fdev, time, satId) = match.destructured
+            return SwmRTSatellite(rssi.toInt(), snr.toInt(), fdev.toInt(), time, satId)
+        }
     }
 
     fun getRTBackground(): SwmRTBackground? {
         // Set the background rate to 1s and wait 1.5s to get a result
-        val results = execute(SwarmCommand.RT, "1", 3).filter { !it.contains("OK") }.firstOrNull()?.let { payload ->
-            "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { result ->
-                val (rssi) = result.destructured
+        val result = execute(SwarmCommand.RT, "1", 3).filter { !it.contains("OK") }.firstOrNull()?.let { payload ->
+            "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { match ->
+                val (rssi) = match.destructured
                 SwmRTBackground(rssi = rssi.toInt())
             }
         }
-        Log.d("RfcxSwmCommand", "RSSI= ${results?.rssi}")
+        Log.d("RfcxSwmCommand", "RSSI=${result?.rssi}")
         // Set the rate back to off
         execute(SwarmCommand.RT, "0")
-        return results
+        return result
     }
 
     fun getDateTime(): Date? {
