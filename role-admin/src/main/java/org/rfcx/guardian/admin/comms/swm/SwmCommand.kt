@@ -13,6 +13,10 @@ class SwmCommand(private val shell: SwmShell) {
         return findResponseMatching(responseLines, command)
     }
 
+    fun setupSerialPort() {
+        shell.setupSerialPort()
+    }
+
     fun transmitData(msgStr: String): SwmTD? {
         return execute(SwarmCommand.TD, msgStr).firstOrNull()?.let { payload ->
             return "OK,(-?[0-9]+)".toRegex().find(payload)?.let { result ->

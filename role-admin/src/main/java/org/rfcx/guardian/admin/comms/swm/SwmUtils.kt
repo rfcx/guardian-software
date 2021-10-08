@@ -20,20 +20,16 @@ class SwmUtils(context: Context) {
     private var busyBoxBin: String? = null
 
     @kotlin.jvm.JvmField
-    var isInFlight = false
-
-    @kotlin.jvm.JvmField
     var consecutiveDeliveryFailureCount = 0
 
     fun setupSwmUtils() {
-        app.deviceGpioUtils.runGpioCommand("DOUT", "voltage_refr", true)
         setPower(true)
+        swmCommand.setupSerialPort()
       //  setPower(false)
     }
 
     fun findRunningSerialProcessIds(): IntArray {
         val processIds: MutableList<Int> = ArrayList()
-        isInFlight = false
         if (!FileUtils.exists(busyBoxBin)) {
             Log.e(
                 logTag,

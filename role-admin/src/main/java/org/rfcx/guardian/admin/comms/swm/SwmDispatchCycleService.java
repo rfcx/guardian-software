@@ -96,7 +96,7 @@ public class SwmDispatchCycleService extends Service {
 							cyclesSinceLastActivity++;
 
 
-						} else if (!app.swmUtils.isInFlight) {
+						} else {
 
 							boolean isAbleToSend = app.swmUtils.isPowerOn();
 
@@ -112,11 +112,6 @@ public class SwmDispatchCycleService extends Service {
 								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 								cyclesSinceLastActivity = 0;
 							}
-
-						} else {
-
-							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
-							cyclesSinceLastActivity = 0;
 
 						}
 

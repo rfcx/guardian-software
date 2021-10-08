@@ -73,14 +73,10 @@ public class SwmDispatchTimeoutService extends Service {
 				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				for (int i = 0; i <= checkIntervalCount; i++) {
-					if (app.swmUtils.isInFlight) {
-						Thread.sleep(667);
-						if (i == checkIntervalCount) {
-							Log.e(logTag, "Timeout Reached for SWM Send. Killing serial processes...");
-							ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
-						}
-					} else {
-						break;
+					Thread.sleep(667);
+					if (i == checkIntervalCount) {
+						Log.e(logTag, "Timeout Reached for SWM Send. Killing serial processes...");
+						ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
 					}
 				}
 
