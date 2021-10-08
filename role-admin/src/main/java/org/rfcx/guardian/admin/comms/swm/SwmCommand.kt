@@ -57,7 +57,7 @@ class SwmCommand(private val shell: SwmShell) {
 
     fun getRTBackground(): SwmRTBackground? {
         // Set the background rate to 1s and wait 1.5s to get a result
-        val results = execute(SwarmCommand.RT, "1", 1).filter { !it.contains("OK") }.firstOrNull()?.let { payload ->
+        val results = execute(SwarmCommand.RT, "1", 3).filter { !it.contains("OK") }.firstOrNull()?.let { payload ->
             "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { result ->
                 val (rssi) = result.destructured
                 SwmRTBackground(rssi = rssi.toInt())

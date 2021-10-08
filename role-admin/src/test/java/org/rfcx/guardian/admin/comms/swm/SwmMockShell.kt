@@ -4,4 +4,8 @@ class SwmMockShell(private val alwaysReturn: List<String> = listOf()): SwmShell 
     override fun execute(request: String, timeout: Int): List<String> {
         return alwaysReturn
     }
+
+    override fun setupSerialPort() {
+        // no need
+    }
 }
