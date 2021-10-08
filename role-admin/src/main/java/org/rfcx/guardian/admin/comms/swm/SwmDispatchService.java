@@ -110,7 +110,7 @@ public class SwmDispatchService extends Service {
 								app.swmUtils.consecutiveDeliveryFailureCount++;
 								Log.e(logTag, "SWM Send Failure (Consecutive Failures: " + app.swmUtils.consecutiveDeliveryFailureCount + ")...");
 								if (app.swmUtils.consecutiveDeliveryFailureCount >= SwmUtils.powerCycleAfterThisManyConsecutiveDeliveryFailures) {
-									app.swmUtils.setPower(false);
+									//app.swmUtils.setPower(false);
 									app.swmUtils.setPower(true);
 									app.swmUtils.consecutiveDeliveryFailureCount = 0;
 									break;
