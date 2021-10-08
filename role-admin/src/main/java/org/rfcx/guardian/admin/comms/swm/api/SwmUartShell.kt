@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.comms.swm
+package org.rfcx.guardian.admin.comms.swm.api
 
 import android.util.Log
 import org.rfcx.guardian.admin.RfcxGuardian
@@ -17,8 +17,9 @@ class SwmUartShell(
 
     init {
         if (!FileUtils.exists(busyboxBin)) {
-            Log.e(logTag, "BusyBox binary not found on system")
+            Log.e(logTag, "Busybox binary not found on system")
         }
+        ShellCommands.executeCommandAsRoot(makeSerialPortSetupCommand())
     }
 
     /**
@@ -34,11 +35,7 @@ class SwmUartShell(
         return listOf()
     }
 
-    override fun setupSerialPort() {
-        ShellCommands.executeCommandAsRoot(makeSerialPortSetupCommand())
-    }
-
-    fun makeTtyCommand(input: String, timeout: Int): String {
+    private fun makeTtyCommand(input: String, timeout: Int): String {
         return "echo -n '${input}\\r' | $busyboxBin timeout $timeout sh -c \"$busyboxBin microcom -t ${timeout}000 -s $baudRate $ttyPath\""
     }
 

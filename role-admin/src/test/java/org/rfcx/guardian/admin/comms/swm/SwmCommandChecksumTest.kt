@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin.comms.swm
 
 import org.junit.Test
+import org.rfcx.guardian.admin.comms.swm.api.SwmCommandChecksum
 import kotlin.test.assertEquals
 
 class SwmCommandChecksumTest {
@@ -19,6 +20,13 @@ class SwmCommandChecksumTest {
     @Test
     fun canVerifyValidChecksum() {
         val valid = SwmCommandChecksum.verify("DT @", "70")
+
+        assertEquals(true, valid)
+    }
+
+    @Test
+    fun canVerifyValidLowercaseChecksum() {
+        val valid = SwmCommandChecksum.verify("GN 15", "2d")
 
         assertEquals(true, valid)
     }

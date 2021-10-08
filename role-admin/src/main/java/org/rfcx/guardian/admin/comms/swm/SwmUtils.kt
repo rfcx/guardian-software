@@ -3,20 +3,21 @@ package org.rfcx.guardian.admin.comms.swm
 import android.content.Context
 import android.util.Log
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.admin.comms.swm.api.SwmApi
+import org.rfcx.guardian.admin.comms.swm.api.SwmConnection
+import org.rfcx.guardian.admin.comms.swm.api.SwmUartShell
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
 import org.rfcx.guardian.utility.misc.ArrayUtils
 import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
-import org.rfcx.guardian.utility.rfcx.RfcxComm
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.util.*
 
 class SwmUtils(context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
-    var swmCommand: SwmCommand = SwmCommand(SwmUartShell())
+    var api: SwmApi = SwmApi(SwmConnection(SwmUartShell()))
     private var busyBoxBin: String? = null
 
     @kotlin.jvm.JvmField
@@ -27,8 +28,6 @@ class SwmUtils(context: Context) {
 
     fun setupSwmUtils() {
         setPower(true)
-        swmCommand.setupSerialPort()
-      //  setPower(false)
     }
 
     fun findRunningSerialProcessIds(): IntArray {
@@ -58,61 +57,11 @@ class SwmUtils(context: Context) {
     val isPowerOn: Boolean
         get() = app.deviceGpioUtils.readGpioValue("satellite_power", "DOUT")
 
-
-    fun sendSwmMessage(msgStr: String): Boolean {
-        swmCommand.transmitData("\"$msgStr\"") ?: return false
-        return true
-    }
-
-    private fun updateQueueMessagesFromSwarm(): Boolean {
-        val responses = swmCommand.getUnsentMessages() ?: return false
-        val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows
-        val swarmMessageIdQueues = ArrayList<String>()
-        for (response in responses.unsentMessages) {
-            //                            hexdecimal data         message id   timestamp
-            // Example message : $MT 68692066726f6d20737761726d,4428826476689,1605639598*55
-            swarmMessageIdQueues.add(response.messageId)
-        }
-        for (guardianMessage in guardianMessageIdQueues) {
-            if (!swarmMessageIdQueues.contains(guardianMessage[4])) {
-                app.swmMessageDb.dbSwmSent.insert(
-                    guardianMessage[1].toLong(),
-                    guardianMessage[2],
-                    guardianMessage[3],
-                    guardianMessage[4]
-                )
-                app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(guardianMessage[4])
-            }
-        }
-        return true
-    }
-
     companion object {
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils")
-        private const val baudRate = 115200
         const val sendCmdTimeout: Long = 70000
         const val prepCmdTimeout: Long = 2500
         const val powerCycleAfterThisManyConsecutiveDeliveryFailures = 5
-
-        // Incoming Message Tools
-        @Throws(JSONException::class)
-        fun processIncomingSwm(smsObj: JSONObject, context: Context) {
-            val app = context.applicationContext as RfcxGuardian
-
-            // In this case, the message arrived from the API SMS address, so we attempt to parse it
-            Log.w(logTag, "SWM received from API ''.")
-            val segmentPayload = smsObj.getString("body")
-            val swmSegmentReceivedResponse = app.resolver.query(
-                RfcxComm.getUri(
-                    "guardian",
-                    "segment_receive_swm",
-                    RfcxComm.urlEncode(segmentPayload)
-                ),
-                RfcxComm.getProjection("guardian", "segment_receive_swm"),
-                null, null, null
-            )
-            swmSegmentReceivedResponse?.close()
-        }
 
         // Scheduling Tools
         @kotlin.jvm.JvmStatic
@@ -132,10 +81,6 @@ class SwmUtils(context: Context) {
                 }
             }
             return isQueued
-        }
-
-        fun addImmediateSwmToQueue(msgPayload: String?, context: Context): Boolean {
-            return addScheduledSwmToQueue(System.currentTimeMillis(), msgPayload, context, true)
         }
 
         @kotlin.jvm.JvmStatic

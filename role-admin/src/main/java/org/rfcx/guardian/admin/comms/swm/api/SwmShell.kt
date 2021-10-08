@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.comms.swm
+package org.rfcx.guardian.admin.comms.swm.api
 
 interface SwmShell {
     /**
@@ -6,7 +6,5 @@ interface SwmShell {
      * retrieve the string response
      */
     fun execute(request: String, timeout: Int = 1): List<String>
-
-    fun setupSerialPort()
 
 }

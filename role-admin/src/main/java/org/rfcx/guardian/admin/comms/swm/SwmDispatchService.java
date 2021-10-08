@@ -7,6 +7,7 @@ import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
+import org.rfcx.guardian.admin.comms.swm.data.SwmTDResponse;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -18,9 +19,9 @@ public class SwmDispatchService extends Service {
 	public static final String SERVICE_NAME = "SwmDispatch";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchService");
-	
+
 	private RfcxGuardian app;
-	
+
 	private boolean runFlag = false;
 	private SwmDispatch swmDispatch;
 
@@ -30,14 +31,14 @@ public class SwmDispatchService extends Service {
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
-	
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		this.swmDispatch = new SwmDispatch();
 		app = (RfcxGuardian) getApplication();
 	}
-	
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
@@ -51,7 +52,7 @@ public class SwmDispatchService extends Service {
 		}
 		return START_NOT_STICKY;
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -60,18 +61,18 @@ public class SwmDispatchService extends Service {
 		this.swmDispatch.interrupt();
 		this.swmDispatch = null;
 	}
-	
-	
+
+
 	private class SwmDispatch extends Thread {
-		
+
 		public SwmDispatch() {
 			super("SwmDispatchService-SwmDispatch");
 		}
-		
+
 		@Override
 		public void run() {
 			SwmDispatchService swmDispatchInstance = SwmDispatchService.this;
-			
+
 			app = (RfcxGuardian) getApplication();
 
 			try {
@@ -97,7 +98,8 @@ public class SwmDispatchService extends Service {
 
 							if (!app.swmUtils.isInFlight) {
 								app.swmUtils.isInFlight = true;
-								if (app.swmUtils.sendSwmMessage(msgBody)) {
+								SwmTDResponse response = null; // app.swmUtils.getApi().transmitData("\"$msgStr\""); // TODO unit test
+								if (response != null) {
 									app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 									app.swmUtils.consecutiveDeliveryFailureCount = 0;
@@ -138,5 +140,5 @@ public class SwmDispatchService extends Service {
 		}
 	}
 
-	
+
 }

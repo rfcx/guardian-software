@@ -1,4 +1,4 @@
-package org.rfcx.guardian.admin.comms.swm
+package org.rfcx.guardian.admin.comms.swm.api
 
 class SwmCommandChecksum {
 
@@ -14,7 +14,7 @@ class SwmCommandChecksum {
         }
 
         fun verify(text: String, checksum: String): Boolean {
-            return get(text) == checksum
+            return get(text) == checksum.toUpperCase()
         }
     }
 }

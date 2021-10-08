@@ -1,32 +1,21 @@
 package org.rfcx.guardian.admin.comms.swm
 
 import org.junit.Test
+import org.rfcx.guardian.admin.comms.swm.api.SwmApi
+import org.rfcx.guardian.admin.comms.swm.api.SwmConnection
 import java.util.*
 import kotlin.test.*
 
-class SwmCommandTest {
-
-    @Test
-    fun canGetDateTimeIgnoringOtherCommands() {
-        // Arrange
-        val shell = SwmMockShell(listOf("\$TILE hello","\$DT 20211001121314,V*XX"))
-        val command = SwmCommand(shell)
-
-        // Act
-        val dateTime = command.getDateTime()
-
-        // Assert
-        assertEquals(Date.parse("2021-10-01 12:13:14"), dateTime?.time)
-    }
+class SwmApiRTTest {
 
     @Test
     fun canGetRTBackgroundWhenNoResponse() {
         // Arrange
         val shell = SwmMockShell(listOf())
-        val command = SwmCommand(shell)
+        val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val rtBackground = command.getRTBackground()
+        val rtBackground = api.getRTBackground()
 
         // Assert
         assertNull(rtBackground)
@@ -36,10 +25,10 @@ class SwmCommandTest {
     fun canGetRTBackground() {
         // Arrange
         val shell = SwmMockShell(listOf("\$RT RSSI=-101*1d"))
-        val command = SwmCommand(shell)
+        val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val rtBackground = command.getRTBackground()
+        val rtBackground = api.getRTBackground()
 
         // Assert
         assertNotNull(rtBackground)
@@ -50,10 +39,10 @@ class SwmCommandTest {
     fun canGetRTBackgroundCombineWithOKResponse() {
         // Arrange
         val shell = SwmMockShell(listOf("\$RT OK*23", "\$RT RSSI=-102*1e"))
-        val command = SwmCommand(shell)
+        val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val rtBackground = command.getRTBackground()
+        val rtBackground = api.getRTBackground()
 
         // Assert
         assertNotNull(rtBackground)
@@ -64,10 +53,10 @@ class SwmCommandTest {
     fun canGetRTBackgroundFirstResultFromMany() {
         // Arrange
         val shell = SwmMockShell(listOf("\$RT RSSI=-103*1f", "\$RT RSSI=-102*1e", "\$RT RSSI=-101*1d"))
-        val command = SwmCommand(shell)
+        val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val rtBackground = command.getRTBackground()
+        val rtBackground = api.getRTBackground()
 
         // Assert
         assertNotNull(rtBackground)
@@ -75,13 +64,13 @@ class SwmCommandTest {
     }
 
     @Test
-    fun canGetRTSatellite() {
+    fun canGetRT() {
         // Arrange
         val shell = SwmMockShell(listOf("\$RT RSSI=-103*1f", "\$RT RSSI=-102,SNR=-1,FDEV=426,TS=2020-10-02 13:56:21,DI=0x000568*04"))
-        val command = SwmCommand(shell)
+        val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val rtSatellite = command.getRTSatellite()
+        val rtSatellite = api.getRTSatellite()
 
         // Assert
         assertNotNull(rtSatellite)

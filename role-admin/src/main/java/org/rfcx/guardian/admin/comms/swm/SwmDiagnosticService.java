@@ -6,8 +6,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackground;
-import org.rfcx.guardian.admin.comms.swm.data.SwmRTSatellite;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
+import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -81,8 +81,8 @@ public class SwmDiagnosticService extends Service {
 
                         if (!app.swmUtils.isInFlight) {
                             app.swmUtils.isInFlight = true;
-                            SwmRTBackground rtBackground = app.swmUtils.getSwmCommand().getRTBackground();
-                            SwmRTSatellite rtSatellite = app.swmUtils.getSwmCommand().getRTSatellite();
+                            SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
+                            SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
                             app.swmUtils.isInFlight = false;
 
                             if (rtBackground != null || rtSatellite != null) {
