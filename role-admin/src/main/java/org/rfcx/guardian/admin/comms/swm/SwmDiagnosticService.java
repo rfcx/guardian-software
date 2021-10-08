@@ -79,20 +79,23 @@ public class SwmDiagnosticService extends Service {
                         // saving every 60s
                         Thread.sleep(checkIntervalCount);
 
-                        SwmRTBackground rtBackground = app.swmUtils.getSwmCommand().getRTBackground();
-                        SwmRTSatellite rtSatellite = app.swmUtils.getSwmCommand().getRTSatellite();
+                        if (!app.swmUtils.isInFlight) {
+                            app.swmUtils.isInFlight = true;
+                            SwmRTBackground rtBackground = app.swmUtils.getSwmCommand().getRTBackground();
+                            SwmRTSatellite rtSatellite = app.swmUtils.getSwmCommand().getRTSatellite();
+                            app.swmUtils.isInFlight = false;
 
-                        if (rtBackground != null || rtSatellite != null) {
-                            app.swmMetaDb.dbSwmDiagnostic.insert(
-                                    rtBackground != null ? rtBackground.getRssi() : null,
-                                    rtSatellite != null ? rtSatellite.getRssi() : null,
-                                    rtSatellite != null ? rtSatellite.getSignalToNoiseRatio() : null,
-                                    rtSatellite != null ? rtSatellite.getFrequencyDeviation() : null,
-                                    rtSatellite != null ? rtSatellite.getPacketTimestamp() : null,
-                                    rtSatellite != null ? rtSatellite.getSatelliteId() : null
-                            );
+                            if (rtBackground != null || rtSatellite != null) {
+                                app.swmMetaDb.dbSwmDiagnostic.insert(
+                                        rtBackground != null ? rtBackground.getRssi() : null,
+                                        rtSatellite != null ? rtSatellite.getRssi() : null,
+                                        rtSatellite != null ? rtSatellite.getSignalToNoiseRatio() : null,
+                                        rtSatellite != null ? rtSatellite.getFrequencyDeviation() : null,
+                                        rtSatellite != null ? rtSatellite.getPacketTimestamp() : null,
+                                        rtSatellite != null ? rtSatellite.getSatelliteId() : null
+                                );
+                            }
                         }
-
 
                     } catch (InterruptedException e) {
                         swmDiagnosticInstance.runFlag = false;

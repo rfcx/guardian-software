@@ -20,6 +20,9 @@ class SwmUtils(context: Context) {
     private var busyBoxBin: String? = null
 
     @kotlin.jvm.JvmField
+    var isInFlight = false
+
+    @kotlin.jvm.JvmField
     var consecutiveDeliveryFailureCount = 0
 
     fun setupSwmUtils() {
