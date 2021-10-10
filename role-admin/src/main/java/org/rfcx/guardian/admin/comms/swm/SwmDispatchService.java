@@ -98,7 +98,7 @@ public class SwmDispatchService extends Service {
 
 							if (!app.swmUtils.isInFlight) {
 								app.swmUtils.isInFlight = true;
-								SwmTDResponse response = null; // app.swmUtils.getApi().transmitData("\"$msgStr\""); // TODO unit test
+								SwmTDResponse response = app.swmUtils.getApi().transmitData("\""+msgBody+"\""); // TODO unit test
 								if (response != null) {
 									app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
