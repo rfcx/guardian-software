@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
 import org.rfcx.guardian.admin.comms.swm.data.SwmTDResponse;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -97,6 +98,7 @@ public class SwmDispatchService extends Service {
 
 							if (!app.swmUtils.isInFlight) {
 								app.swmUtils.isInFlight = true;
+								app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
 								SwmTDResponse response = app.swmUtils.getApi().transmitData("\""+msgBody+"\""); // TODO unit test
 								if (response != null) {
 									app.rfcxSvc.reportAsActive(SERVICE_NAME);

@@ -97,9 +97,9 @@ class SwmUtils(context: Context) {
                 )
             } else {
                 val processScan =
-                    ShellCommands.executeCommandAsRoot("$busyBoxBin ps -ef | grep /dev/ttyMT")
+                    ShellCommands.executeCommandAsRoot("$busyBoxBin ps | grep busybox")
                 for (scanRtrn in processScan) {
-                    if (scanRtrn.contains("microcom") || scanRtrn.contains("stty") || scanRtrn.contains("timeout")) {
+                    if (scanRtrn.contains("busybox")) {
                         val processId = scanRtrn.substring(0, scanRtrn.indexOf("root"))
                         processIds.add(processId.toInt())
                     }

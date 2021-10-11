@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
 import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -81,6 +82,7 @@ public class SwmDiagnosticService extends Service {
 
                         if (!app.swmUtils.isInFlight) {
                             app.swmUtils.isInFlight = true;
+                            app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
                             SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
                             SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
                             app.swmUtils.isInFlight = false;

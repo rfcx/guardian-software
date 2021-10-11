@@ -93,6 +93,7 @@ public class SwmDispatchTimeoutService extends Service {
 
 			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			swmDispatchTimeoutInstance.runFlag = false;
+			Log.v(logTag, "Stopping service: "+logTag);
 		}
 	}
 
