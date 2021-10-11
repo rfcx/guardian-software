@@ -9,6 +9,7 @@ import org.rfcx.guardian.admin.comms.swm.api.SwmApi
 import org.rfcx.guardian.admin.comms.swm.api.SwmConnection
 import org.rfcx.guardian.admin.comms.swm.api.SwmUartShell
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
+import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT
 import org.rfcx.guardian.utility.misc.ArrayUtils
 import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
@@ -18,7 +19,6 @@ import java.util.*
 class SwmUtils(context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
     lateinit var api: SwmApi
-    private var busyBoxBin: String? = null
 
     @kotlin.jvm.JvmField
     var isInFlight = false
@@ -30,26 +30,6 @@ class SwmUtils(context: Context) {
         setPower(true)
         api = SwmApi(SwmConnection(SwmUartShell()))
         app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, false)
-    }
-
-    fun findRunningSerialProcessIds(): IntArray {
-        val processIds: MutableList<Int> = ArrayList()
-        if (!FileUtils.exists(busyBoxBin)) {
-            Log.e(
-                logTag,
-                "Could not run findRunningSerialProcessIds(). BusyBox binary not found on system."
-            )
-        } else {
-            val processScan =
-                ShellCommands.executeCommandAsRoot("$busyBoxBin ps -ef | grep /dev/ttyMT")
-            for (scanRtrn in processScan) {
-                if (scanRtrn.contains("microcom") || scanRtrn.contains("stty")) {
-                    val processId = scanRtrn.substring(0, scanRtrn.indexOf("root"))
-                    processIds.add(processId.toInt())
-                }
-            }
-        }
-        return ArrayUtils.ListToIntArray(processIds)
     }
 
     fun setPower(setToOn: Boolean) {
@@ -105,6 +85,27 @@ class SwmUtils(context: Context) {
             val clearBefore = Date(timeStamp.toLong())
             app.swmMetaDb.dbSwmDiagnostic.clearRowsBefore(clearBefore)
             return 1
+        }
+
+        @kotlin.jvm.JvmStatic
+        fun findRunningSerialProcessIds(busyBoxBin: String): IntArray {
+            val processIds: MutableList<Int> = ArrayList()
+            if (!FileUtils.exists(busyBoxBin)) {
+                Log.e(
+                    logTag,
+                    "Could not run findRunningSerialProcessIds(). BusyBox binary not found on system."
+                )
+            } else {
+                val processScan =
+                    ShellCommands.executeCommandAsRoot("$busyBoxBin ps -ef | grep /dev/ttyMT")
+                for (scanRtrn in processScan) {
+                    if (scanRtrn.contains("microcom") || scanRtrn.contains("stty") || scanRtrn.contains("timeout")) {
+                        val processId = scanRtrn.substring(0, scanRtrn.indexOf("root"))
+                        processIds.add(processId.toInt())
+                    }
+                }
+            }
+            return ArrayUtils.ListToIntArray(processIds)
         }
     }
 }

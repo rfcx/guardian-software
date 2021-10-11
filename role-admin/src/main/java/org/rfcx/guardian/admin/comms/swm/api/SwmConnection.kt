@@ -13,6 +13,13 @@ class SwmConnection(private val shell: SwmShell) {
         return findMatchingResponses(responseLines, command)
     }
 
+    fun executeWithoutTimeout(command: String, arguments: String): List<String> {
+        val request = makeRequest(command, arguments)
+        val responseLines = shell.executeWithoutTimeout(request)
+        Log.d("RfcxSwmCommand", "Responses: " + responseLines.joinToString())
+        return findMatchingResponses(responseLines, command)
+    }
+
     private fun makeRequest(command: String, arguments: String): String {
         val body = "$command $arguments"
         val checksum = SwmCommandChecksum.get(body)

@@ -7,4 +7,6 @@ interface SwmShell {
      */
     fun execute(request: String, timeout: Int = 1): List<String>
 
+    fun executeWithoutTimeout(request: String): List<String>
+
 }

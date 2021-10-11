@@ -2,6 +2,7 @@ package org.rfcx.guardian.admin.comms.swm.api
 
 import android.util.Log
 import org.rfcx.guardian.admin.RfcxGuardian
+import org.rfcx.guardian.admin.comms.swm.SwmUtils
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT
 import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
@@ -28,6 +29,17 @@ class SwmUartShell(
     override fun execute(request: String, timeout: Int): List<String> {
         val ttyCommand = makeTtyCommand(request, timeout)
         try {
+            ShellCommands.killProcessesByIds(SwmUtils.findRunningSerialProcessIds(busyboxBin))
+            return ShellCommands.executeCommandAsRoot(ttyCommand)
+        } catch (e: Exception) {
+            RfcxLog.logExc(logTag, e)
+        }
+        return listOf()
+    }
+
+    override fun executeWithoutTimeout(request: String): List<String> {
+        val ttyCommand = makeTtyCommandWithoutTimeout(request)
+        try {
             return ShellCommands.executeCommandAsRoot(ttyCommand)
         } catch (e: Exception) {
             RfcxLog.logExc(logTag, e)
@@ -36,7 +48,11 @@ class SwmUartShell(
     }
 
     private fun makeTtyCommand(input: String, timeout: Int): String {
-        return "echo -n '${input}<br_r>' | $busyboxBin timeout $timeout sh -c \"$busyboxBin microcom -t ${timeout}000 -s $baudRate $ttyPath\""
+        return "echo -n '${input}\\r' | $busyboxBin timeout $timeout sh -c \"$busyboxBin microcom -t ${timeout}000 -s $baudRate $ttyPath\""
+    }
+
+    private fun makeTtyCommandWithoutTimeout(input: String): String {
+        return "echo -n '${input}\\r' | $busyboxBin microcom -t 1000 -s $baudRate $ttyPath"
     }
 
     private fun makeSerialPortSetupCommand(): String {

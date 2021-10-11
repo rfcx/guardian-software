@@ -6,7 +6,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
 import org.rfcx.guardian.admin.comms.swm.data.SwmTDResponse;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
