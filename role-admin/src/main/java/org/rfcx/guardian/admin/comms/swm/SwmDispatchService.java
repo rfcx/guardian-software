@@ -7,8 +7,10 @@ import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
+import org.rfcx.guardian.admin.comms.swm.data.SwmMTResponse;
 import org.rfcx.guardian.admin.comms.swm.data.SwmTDResponse;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
+import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
@@ -97,9 +99,10 @@ public class SwmDispatchService extends Service {
 							String msgBody = swmForDispatch[3];
 
 							if (!app.swmUtils.isInFlight) {
+								ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
 								app.swmUtils.isInFlight = true;
-								SwmTDResponse response = app.swmUtils.getApi().transmitData("\""+msgBody+"\""); // TODO unit test
-								if (response != null) {
+								SwmTDResponse tdResponse = app.swmUtils.getApi().transmitData("\""+msgBody+"\""); // TODO unit test
+								if (tdResponse != null) {
 									app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 									app.swmUtils.consecutiveDeliveryFailureCount = 0;
@@ -108,6 +111,8 @@ public class SwmDispatchService extends Service {
 									String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
 									Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
 									RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
+
+									SwmMTResponse mtResponse = app.swmUtils.getApi().getUnsentMessageCount();
 
 								} else {
 									app.swmUtils.consecutiveDeliveryFailureCount++;

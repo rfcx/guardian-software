@@ -7,7 +7,7 @@ import java.util.*
 
 class SwmApi(private val connection: SwmConnection) {
 
-    enum class Command { TD, MT, SL, RT, DT }
+    enum class Command { TD, MT, SL, PO, RT, DT }
 
     private val datetimeCompactFormatter = SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
 
@@ -26,6 +26,14 @@ class SwmApi(private val connection: SwmConnection) {
 //                return SwmTDResponse(messageId = id)
 //            }
 //        }
+    }
+
+    // This is just a placeholder so that the command can be run.
+    // Should be replaced with one that properly parses the feedback.
+    fun getUnsentMessageCount(): SwmMTResponse? {
+        val unsentMessageCount = connection.execute(Command.MT.name, "C=U").firstOrNull()
+        val unsentMsgCnt = arrayListOf<SwmUnsentMsg>()
+        return SwmMTResponse(unsentMsgCnt)
     }
 
     // TODO unit test
@@ -48,6 +56,13 @@ class SwmApi(private val connection: SwmConnection) {
 //            return payload.contains("OK")
 //        }
 //    }
+
+    // TODO unit test
+    fun powerOff(): Boolean? {
+        return connection.execute(Command.PO.name, "", 10).firstOrNull()?.let { payload ->
+            return payload.contains("OK")
+        }
+    }
 
     fun getRTSatellite(): SwmRTResponse? {
         val results = connection.execute(Command.RT.name, "@")

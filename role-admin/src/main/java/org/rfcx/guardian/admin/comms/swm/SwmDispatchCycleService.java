@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -21,7 +22,7 @@ public class SwmDispatchCycleService extends Service {
 	private boolean runFlag = false;
 	private SwmDispatchCycleSvc swmDispatchCycleSvc;
 
-	private final long swmDispatchCycleDuration = 15000;
+	private final long swmDispatchCycleDuration = 30000;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -76,7 +77,7 @@ public class SwmDispatchCycleService extends Service {
 				int cyclesSinceLastActivity = 0;
 				int powerOffAfterThisManyInactiveCycles = 6;
 
-				ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
+				ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
 				app.swmUtils.setupSwmUtils();
 
 				while (swmDispatchCycleInstance.runFlag) {
@@ -87,14 +88,19 @@ public class SwmDispatchCycleService extends Service {
 
 						Thread.sleep(swmDispatchCycleDuration);
 
+						// check for satellite on/off hours and enable/disable swarm tile accordingly
+						if (!app.sbdUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+							Log.d(logTag, "POWERING OFF MODEM");
+							app.swmUtils.powerOffModem();
+						} else if (!app.swmUtils.isPowerOn()) {
+							app.swmUtils.setPower(true);
+						}
+
+						// check queue database and send to swarm if there are any segments queued
 						if (app.swmMessageDb.dbSwmQueued.getCount() == 0) {
 
-							// let's add something that checks and eventually powers off the satellite board if not used for a little while
-							if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-								app.swmUtils.setPower(true); //app.swmUtils.setPower(false);
-							}
 							cyclesSinceLastActivity++;
-
+							ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
 
 						} else if (!app.swmUtils.isInFlight) {
 
@@ -109,6 +115,8 @@ public class SwmDispatchCycleService extends Service {
 							if (!isAbleToSend) {
 								Log.e(logTag, "Swarm board is STILL powered off. Unable to proceed with SWM send...");
 							} else {
+
+								ShellCommands.killProcessesByIds(app.sbdUtils.findRunningSerialProcessIds());
 								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 								cyclesSinceLastActivity = 0;
 							}
@@ -117,6 +125,7 @@ public class SwmDispatchCycleService extends Service {
 							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 							cyclesSinceLastActivity = 0;
 						}
+
 
 					} catch (Exception e) {
 						RfcxLog.logExc(logTag, e);

@@ -50,6 +50,15 @@ class SwmUtils(context: Context) {
         return ArrayUtils.ListToIntArray(processIds)
     }
 
+    fun powerOffModem() {
+        if (isPowerOn) {
+            // run shutdown UART command
+            api.powerOff()
+            // after return, kill power to tile
+            setPower(false)
+        }
+    }
+
     fun setPower(setToOn: Boolean) {
         app.deviceGpioUtils.runGpioCommand("DOUT", "satellite_power", setToOn)
     }

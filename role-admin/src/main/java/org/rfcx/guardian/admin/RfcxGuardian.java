@@ -159,7 +159,7 @@ public class RfcxGuardian extends Application {
 					SmsDispatchCycleService.SERVICE_NAME,
 					SbdDispatchCycleService.SERVICE_NAME,
 					SwmDispatchCycleService.SERVICE_NAME,
-					SwmDiagnosticService.SERVICE_NAME,
+			//		SwmDiagnosticService.SERVICE_NAME,
 					CompanionSocketService.SERVICE_NAME,
 			};
 

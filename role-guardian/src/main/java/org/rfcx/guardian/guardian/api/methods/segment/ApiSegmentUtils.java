@@ -47,7 +47,7 @@ public class ApiSegmentUtils {
 		Collections.unmodifiableMap( new HashMap<String, Integer>() {{
 			put("sms", 160 );
 			put("sbd", 100 );
-			put("swm", 192 );
+			put("swm", 170 );//192 ); // temporarily shortening to 170 to test if there is a length overrun during transmission through the hive and webhook
 		}}
 	);
 

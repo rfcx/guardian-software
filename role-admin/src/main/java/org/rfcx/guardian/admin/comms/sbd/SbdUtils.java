@@ -9,14 +9,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.utility.device.DeviceSmsUtils;
+import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ArrayUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.misc.FileUtils;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class SbdUtils {
@@ -135,7 +138,7 @@ public class SbdUtils {
 		if (!FileUtils.exists(busyBoxBin)) {
 			Log.e(logTag, "Could not run findRunningSerialProcessIds(). BusyBox binary not found on system.");
 		} else {
-			List<String> processScan = ShellCommands.executeCommandAsRoot(busyBoxBin + " ps -ef | grep /dev/ttyMT");
+			List<String> processScan = ShellCommands.executeCommandAsRoot(busyBoxBin + " ps -ef | grep "+ ttyPath);
 
 			for (String scanRtrn : processScan) {
 				if ((scanRtrn.contains("microcom")) || (scanRtrn.contains("stty"))) {
@@ -186,5 +189,14 @@ public class SbdUtils {
 		return addScheduledSbdToQueue(System.currentTimeMillis(), msgPayload, context, true);
 	}
 
+	public boolean isSatelliteAllowedAtThisTimeOfDay() {
+		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS), ",")) {
+			String[] offHours = TextUtils.split(offHoursRange, "-");
+			if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 }
