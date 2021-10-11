@@ -6,6 +6,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -76,7 +77,8 @@ public class SwmDispatchCycleService extends Service {
 				int cyclesSinceLastActivity = 0;
 				int powerOffAfterThisManyInactiveCycles = 6;
 
-				ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
+				// somehow calling kill here make setup swm not working being eliminated before done.
+//				ShellCommands.killProcessesByIds(SwmUtils.findRunningSerialProcessIds(DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH));
 				app.swmUtils.setupSwmUtils();
 
 				while (swmDispatchCycleInstance.runFlag) {

@@ -20,38 +20,23 @@ class SwmUartShell(
         if (!FileUtils.exists(busyboxBin)) {
             Log.e(logTag, "Busybox binary not found on system")
         }
-        ShellCommands.executeCommandAsRoot(makeSerialPortSetupCommand())
+        ShellCommands.executeCommandAsRootWithWhitespace(makeSerialPortSetupCommand())
     }
 
     /**
      * Execute a command on tty and read the returned responses (one per line)
      */
-    override fun execute(request: String, timeout: Int): List<String> {
-        val ttyCommand = makeTtyCommand(request, timeout)
+    override fun execute(request: String): List<String> {
+        val ttyCommand = makeTtyCommand(request)
         try {
-            ShellCommands.killProcessesByIds(SwmUtils.findRunningSerialProcessIds(busyboxBin))
-            return ShellCommands.executeCommandAsRoot(ttyCommand)
+            return ShellCommands.executeCommandAsRootWithWhitespace(ttyCommand)
         } catch (e: Exception) {
             RfcxLog.logExc(logTag, e)
         }
         return listOf()
     }
 
-    override fun executeWithoutTimeout(request: String): List<String> {
-        val ttyCommand = makeTtyCommandWithoutTimeout(request)
-        try {
-            return ShellCommands.executeCommandAsRoot(ttyCommand)
-        } catch (e: Exception) {
-            RfcxLog.logExc(logTag, e)
-        }
-        return listOf()
-    }
-
-    private fun makeTtyCommand(input: String, timeout: Int): String {
-        return "echo -n '${input}\\r' | $busyboxBin timeout $timeout sh -c \"$busyboxBin microcom -t ${timeout}000 -s $baudRate $ttyPath\""
-    }
-
-    private fun makeTtyCommandWithoutTimeout(input: String): String {
+    private fun makeTtyCommand(input: String): String {
         return "echo -n '${input}\\r' | $busyboxBin microcom -t 1000 -s $baudRate $ttyPath"
     }
 

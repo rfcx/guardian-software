@@ -6,16 +6,16 @@ class SwmConnection(private val shell: SwmShell) {
 
     private val messageRegex = "\\$([A-Z]+ [^\\$]*)\\*([0-9a-fA-F]{2})$".toRegex()
 
-    fun execute(command: String, arguments: String, timeout: Int = 2): List<String> {
+    fun execute(command: String, arguments: String): List<String> {
         val request = makeRequest(command, arguments)
-        val responseLines = shell.execute(request, timeout)
+        val responseLines = shell.execute(request)
         Log.d("RfcxSwmCommand", "Responses: " + responseLines.joinToString())
         return findMatchingResponses(responseLines, command)
     }
 
     fun executeWithoutTimeout(command: String, arguments: String): List<String> {
         val request = makeRequest(command, arguments)
-        val responseLines = shell.executeWithoutTimeout(request)
+        val responseLines = shell.execute(request)
         Log.d("RfcxSwmCommand", "Responses: " + responseLines.joinToString())
         return findMatchingResponses(responseLines, command)
     }
