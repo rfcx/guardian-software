@@ -17,7 +17,7 @@ import java.util.*
 
 class SwmUtils(context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
-    var api: SwmApi = SwmApi(SwmConnection(SwmUartShell()))
+    lateinit var api: SwmApi
     private var busyBoxBin: String? = null
 
     @kotlin.jvm.JvmField
@@ -28,6 +28,8 @@ class SwmUtils(context: Context) {
 
     fun setupSwmUtils() {
         setPower(true)
+        api = SwmApi(SwmConnection(SwmUartShell()))
+        app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, false)
     }
 
     fun findRunningSerialProcessIds(): IntArray {

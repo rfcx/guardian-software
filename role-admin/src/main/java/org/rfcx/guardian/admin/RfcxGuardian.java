@@ -159,7 +159,6 @@ public class RfcxGuardian extends Application {
 					SmsDispatchCycleService.SERVICE_NAME,
 					SbdDispatchCycleService.SERVICE_NAME,
 					SwmDispatchCycleService.SERVICE_NAME,
-					SwmDiagnosticService.SERVICE_NAME,
 					CompanionSocketService.SERVICE_NAME,
 			};
 
@@ -421,7 +420,6 @@ public class RfcxGuardian extends Application {
 			} else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL)) {
 				rfcxSvc.triggerService(SbdDispatchCycleService.SERVICE_NAME, true);
 				rfcxSvc.triggerService(SwmDispatchCycleService.SERVICE_NAME, true);
-				rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME,  true);
 			}
 
 		}
