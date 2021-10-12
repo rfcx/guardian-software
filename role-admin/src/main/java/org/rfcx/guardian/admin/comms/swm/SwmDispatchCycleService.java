@@ -88,6 +88,14 @@ public class SwmDispatchCycleService extends Service {
 
 						Thread.sleep(swmDispatchCycleDuration);
 
+						// check for satellite on/off hours and enable/disable swarm tile accordingly
+						if (!app.sbdUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+							Log.d(logTag, "POWERING OFF MODEM");
+							app.swmUtils.setPower(false);
+						} else if (!app.swmUtils.isPowerOn()) {
+							app.swmUtils.setPower(true);
+						}
+
 						if (app.swmMessageDb.dbSwmQueued.getCount() == 0) {
 
 							// let's add something that checks and eventually powers off the satellite board if not used for a little while
