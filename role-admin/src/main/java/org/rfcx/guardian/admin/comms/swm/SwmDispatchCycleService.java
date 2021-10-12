@@ -98,12 +98,7 @@ public class SwmDispatchCycleService extends Service {
 
 						if (app.swmMessageDb.dbSwmQueued.getCount() == 0) {
 
-							// let's add something that checks and eventually powers off the satellite board if not used for a little while
-							if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-								app.swmUtils.setPower(true); //app.swmUtils.setPower(false);
-							}
 							cyclesSinceLastActivity++;
-
 
 						} else if (!app.swmUtils.isInFlight) {
 
