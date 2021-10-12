@@ -89,9 +89,9 @@ public class SwmDispatchCycleService extends Service {
 						Thread.sleep(swmDispatchCycleDuration);
 
 						// check for satellite on/off hours and enable/disable swarm tile accordingly
-						if (!app.sbdUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+						if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
 							Log.d(logTag, "POWERING OFF MODEM");
-							app.swmUtils.setPower(false);
+							app.swmUtils.powerOffModem();
 						} else if (!app.swmUtils.isPowerOn()) {
 							app.swmUtils.setPower(true);
 						}

@@ -15,6 +15,14 @@ import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.util.*
+import org.rfcx.guardian.utility.misc.DateTimeUtils
+
+import android.text.TextUtils
+
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
+
+
+
 
 class SwmUtils(context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
@@ -30,6 +38,28 @@ class SwmUtils(context: Context) {
         setPower(true)
         api = SwmApi(SwmConnection(SwmUartShell()))
         app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, true)
+    }
+
+    fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
+        for (offHoursRange in TextUtils.split(
+            app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS),
+            ","
+        )) {
+            val offHours = TextUtils.split(offHoursRange, "-")
+            if (DateTimeUtils.isTimeStampWithinTimeRange(Date(), offHours[0], offHours[1])) {
+                return false
+            }
+        }
+        return true
+    }
+
+    fun powerOffModem() {
+        if (isPowerOn) {
+            // run shutdown UART command
+            api.powerOff()
+            // after return, kill power to tile
+            setPower(false)
+        }
     }
 
     fun setPower(setToOn: Boolean) {

@@ -99,8 +99,8 @@ public class SwmDispatchService extends Service {
 							if (!app.swmUtils.isInFlight) {
 								app.swmUtils.isInFlight = true;
 								app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-								SwmTDResponse response = null; // app.swmUtils.getApi().transmitData("\""+msgBody+"\""); // TODO unit test
-								if (response != null) {
+								SwmTDResponse tdResponse = app.swmUtils.getApi().transmitData("\""+msgBody+"\""); // TODO unit test
+								if (tdResponse != null) {
 									app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 									app.swmUtils.consecutiveDeliveryFailureCount = 0;
