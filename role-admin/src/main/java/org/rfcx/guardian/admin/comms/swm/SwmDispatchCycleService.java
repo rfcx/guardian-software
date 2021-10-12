@@ -13,82 +13,84 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class SwmDispatchCycleService extends Service {
 
-	public static final String SERVICE_NAME = "SwmDispatchCycle";
+    public static final String SERVICE_NAME = "SwmDispatchCycle";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchCycleService");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchCycleService");
 
-	private RfcxGuardian app;
+    private RfcxGuardian app;
 
-	private boolean runFlag = false;
-	private SwmDispatchCycleSvc swmDispatchCycleSvc;
+    private boolean runFlag = false;
+    private SwmDispatchCycleSvc swmDispatchCycleSvc;
 
-	private final long swmDispatchCycleDuration = 15000;
+    private final long swmDispatchCycleDuration = 15000;
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.swmDispatchCycleSvc = new SwmDispatchCycleSvc();
-		app = (RfcxGuardian) getApplication();
-	}
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.swmDispatchCycleSvc = new SwmDispatchCycleSvc();
+        app = (RfcxGuardian) getApplication();
+    }
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
-		Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.swmDispatchCycleSvc.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        Log.v(logTag, "Starting service: " + logTag);
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.swmDispatchCycleSvc.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.swmDispatchCycleSvc.interrupt();
-		this.swmDispatchCycleSvc = null;
-	}
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.swmDispatchCycleSvc.interrupt();
+        this.swmDispatchCycleSvc = null;
+    }
 
 
-	private class SwmDispatchCycleSvc extends Thread {
+    private class SwmDispatchCycleSvc extends Thread {
 
-		public SwmDispatchCycleSvc() { super("SwmDispatchCycleService-SwmDispatchCycleSvc"); }
+        public SwmDispatchCycleSvc() {
+            super("SwmDispatchCycleService-SwmDispatchCycleSvc");
+        }
 
-		@Override
-		public void run() {
-			SwmDispatchCycleService swmDispatchCycleInstance = SwmDispatchCycleService.this;
+        @Override
+        public void run() {
+            SwmDispatchCycleService swmDispatchCycleInstance = SwmDispatchCycleService.this;
 
-			app = (RfcxGuardian) getApplication();
+            app = (RfcxGuardian) getApplication();
 
-			app.rfcxSvc.reportAsActive(SERVICE_NAME);
+            app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-			if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
+            if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
 
-				int cyclesSinceLastActivity = 0;
-				int powerOffAfterThisManyInactiveCycles = 6;
+                int cyclesSinceLastActivity = 0;
+                int powerOffAfterThisManyInactiveCycles = 6;
 
-				app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-				app.swmUtils.setupSwmUtils();
+                app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
+                app.swmUtils.setupSwmUtils();
 
-				while (swmDispatchCycleInstance.runFlag) {
+                while (swmDispatchCycleInstance.runFlag) {
 
-					try {
+                    try {
 
-						app.rfcxSvc.reportAsActive(SERVICE_NAME);
+                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-						Thread.sleep(swmDispatchCycleDuration);
+                        Thread.sleep(swmDispatchCycleDuration);
 
-						// check for satellite on/off hours and enable/disable swarm tile accordingly
+                        // check for satellite on/off hours and enable/disable swarm tile accordingly
                         if (!app.swmUtils.getPower().isSatelliteAllowedAtThisTimeOfDay()) {
                             if (!app.swmUtils.isInFlight) {
                                 Log.d(logTag, "POWERING OFF MODEM");
@@ -136,19 +138,19 @@ public class SwmDispatchCycleService extends Service {
                             }
                         }
 
-					} catch (Exception e) {
-						RfcxLog.logExc(logTag, e);
-						app.rfcxSvc.setRunState(SERVICE_NAME, false);
-						swmDispatchCycleInstance.runFlag = false;
-					}
-				}
-			}
+                    } catch (Exception e) {
+                        RfcxLog.logExc(logTag, e);
+                        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                        swmDispatchCycleInstance.runFlag = false;
+                    }
+                }
+            }
 
-			app.rfcxSvc.setRunState(SERVICE_NAME, false);
-			swmDispatchCycleInstance.runFlag = false;
-			Log.v(logTag, "Stopping service: "+logTag);
-		}
-	}
+            app.rfcxSvc.setRunState(SERVICE_NAME, false);
+            swmDispatchCycleInstance.runFlag = false;
+            Log.v(logTag, "Stopping service: " + logTag);
+        }
+    }
 
 
 }
