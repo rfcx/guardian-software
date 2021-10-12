@@ -20,7 +20,7 @@ class SwmUartShell(
         if (!FileUtils.exists(busyboxBin)) {
             Log.e(logTag, "Busybox binary not found on system")
         }
-        ShellCommands.executeCommandAsRootWithWhitespace(makeSerialPortSetupCommand())
+        ShellCommands.executeCommandAsRoot(makeSerialPortSetupCommand(), false)
     }
 
     /**
@@ -29,7 +29,7 @@ class SwmUartShell(
     override fun execute(request: String): List<String> {
         val ttyCommand = makeTtyCommand(request)
         try {
-            return ShellCommands.executeCommandAsRootWithWhitespace(ttyCommand)
+            return ShellCommands.executeCommandAsRoot(ttyCommand, false)
         } catch (e: Exception) {
             RfcxLog.logExc(logTag, e)
         }

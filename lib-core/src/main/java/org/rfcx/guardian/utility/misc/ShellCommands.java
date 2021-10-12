@@ -31,7 +31,7 @@ public class ShellCommands {
 		return task.get(timeout, timeUnit);
 	}
 	
-	private static List<String> executeCommandInShell(String[] commandLines, boolean asRoot, boolean removeWhitespace) {
+	private static List<String> executeCommandInShell(String[] commandLines, boolean asRoot, boolean stripWhitespace) {
 
 		List<String> outputLines = new ArrayList<String>();
 
@@ -55,7 +55,8 @@ public class ShellCommands {
 				String shellLineContent;
 				while ((shellLineContent = shellReader.readLine()) != null) {
 					String thisLine = shellLineContent;
-					if (removeWhitespace) {
+					// TODO Refactor strip whitespace to a separate function, only called where required
+					if (stripWhitespace) {
 						thisLine = shellLineContent.replaceAll("\\p{Z}", "");
 					}
 					if (thisLine.length() > 0) {
@@ -63,9 +64,7 @@ public class ShellCommands {
 					}
 				}
 			}
-			
 		} catch (Exception e) {
-
 			RfcxLog.logExc(logTag, e);
 	    }
 
@@ -115,8 +114,8 @@ public class ShellCommands {
 		return executeCommandInShell(new String[] { commandContents }, true, true);
 	}
 
-	public static List<String> executeCommandAsRootWithWhitespace(String commandContents) {
-		return executeCommandInShell(new String[] { commandContents }, true, false);
+	public static List<String> executeCommandAsRoot(String commandContents, boolean stripWhitespace) {
+		return executeCommandInShell(new String[] { commandContents }, true, stripWhitespace);
 	}
 
 	public static void executeCommandAndIgnoreOutput(String[] commandContents) {
