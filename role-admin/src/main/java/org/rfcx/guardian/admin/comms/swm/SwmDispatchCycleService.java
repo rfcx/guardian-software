@@ -6,8 +6,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.comms.sbd.SbdDispatchService;
-import org.rfcx.guardian.admin.comms.sbd.SbdUtils;
+import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
@@ -78,7 +77,7 @@ public class SwmDispatchCycleService extends Service {
 				int cyclesSinceLastActivity = 0;
 				int powerOffAfterThisManyInactiveCycles = 6;
 
-				ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
+				app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
 				app.swmUtils.setupSwmUtils();
 
 				while (swmDispatchCycleInstance.runFlag) {
@@ -93,7 +92,7 @@ public class SwmDispatchCycleService extends Service {
 
 							// let's add something that checks and eventually powers off the satellite board if not used for a little while
 							if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-								app.swmUtils.setPower(false);
+								app.swmUtils.setPower(true); //app.swmUtils.setPower(false);
 							}
 							cyclesSinceLastActivity++;
 
@@ -110,18 +109,14 @@ public class SwmDispatchCycleService extends Service {
 
 							if (!isAbleToSend) {
 								Log.e(logTag, "Swarm board is STILL powered off. Unable to proceed with SWM send...");
-							} else if (!app.swmUtils.isNetworkAvailable()) {
-								Log.e(logTag, "Swarm Network is not available. Unable to proceed with SWM send...");
 							} else {
 								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 								cyclesSinceLastActivity = 0;
 							}
 
 						} else {
-
 							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
 							cyclesSinceLastActivity = 0;
-
 						}
 
 					} catch (Exception e) {

@@ -89,6 +89,7 @@
         <service android:name=".comms.swm.SwmDispatchService" />
         <service android:name=".comms.swm.SwmDispatchCycleService" />
         <service android:name=".comms.swm.SwmDispatchTimeoutService" />
+        <service android:name=".comms.swm.SwmDiagnosticService" />
         <service android:name=".companion.CompanionSocketService" />
 
         <!-- IntentServices -->

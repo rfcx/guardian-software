@@ -31,7 +31,7 @@ public class ShellCommands {
 		return task.get(timeout, timeUnit);
 	}
 	
-	private static List<String> executeCommandInShell(String[] commandLines, boolean asRoot) {
+	private static List<String> executeCommandInShell(String[] commandLines, boolean asRoot, boolean stripWhitespace) {
 
 		List<String> outputLines = new ArrayList<String>();
 
@@ -54,15 +54,17 @@ public class ShellCommands {
 			if (shellReader != null) {
 				String shellLineContent;
 				while ((shellLineContent = shellReader.readLine()) != null) {
-					String thisLine = shellLineContent.replaceAll("\\p{Z}", "");
+					String thisLine = shellLineContent;
+					// TODO Refactor strip whitespace to a separate function, only called where required
+					if (stripWhitespace) {
+						thisLine = shellLineContent.replaceAll("\\p{Z}", "");
+					}
 					if (thisLine.length() > 0) {
 						outputLines.add(thisLine);
 					}
 				}
 			}
-			
 		} catch (Exception e) {
-
 			RfcxLog.logExc(logTag, e);
 	    }
 
@@ -73,7 +75,7 @@ public class ShellCommands {
 
 	
 	private static boolean executeCommandAsRoot_ReturnBoolean(String[] commandContents, String ifOutputContainThisStringReturnTrue) {
-		List<String> outputLines = executeCommandInShell(commandContents, true);
+		List<String> outputLines = executeCommandInShell(commandContents, true, true);
 		for (String outputLine : outputLines) {
 			if (outputLine.replaceAll("\\p{Z}","").equalsIgnoreCase(ifOutputContainThisStringReturnTrue.replaceAll("\\p{Z}",""))) { return true; }
 		}
@@ -85,7 +87,7 @@ public class ShellCommands {
 	}
 	
 	private static boolean executeCommand_ReturnBoolean(String[] commandContents, String ifOutputContainThisStringReturnTrue) {
-		List<String> outputLines = executeCommandInShell(commandContents, false);
+		List<String> outputLines = executeCommandInShell(commandContents, false, true);
 		for (String outputLine : outputLines) {
 			if (outputLine.replaceAll("\\p{Z}","").equalsIgnoreCase(ifOutputContainThisStringReturnTrue.replaceAll("\\p{Z}",""))) { return true; }
 		}
@@ -97,35 +99,39 @@ public class ShellCommands {
 	}
 
 	public static List<String> executeCommand(String[] commandContents) {
-		return executeCommandInShell(commandContents, false);
+		return executeCommandInShell(commandContents, false, true);
 	}
 
 	public static List<String> executeCommand(String commandContents) {
-		return executeCommandInShell(new String[] { commandContents }, false);
+		return executeCommandInShell(new String[] { commandContents }, false, true);
 	}
 
 	public static List<String> executeCommandAsRoot(String[] commandContents) {
-		return executeCommandInShell(commandContents, true);
+		return executeCommandInShell(commandContents, true, true);
 	}
 
 	public static List<String> executeCommandAsRoot(String commandContents) {
-		return executeCommandInShell(new String[] { commandContents }, true);
+		return executeCommandInShell(new String[] { commandContents }, true, true);
+	}
+
+	public static List<String> executeCommandAsRoot(String commandContents, boolean stripWhitespace) {
+		return executeCommandInShell(new String[] { commandContents }, true, stripWhitespace);
 	}
 
 	public static void executeCommandAndIgnoreOutput(String[] commandContents) {
-		executeCommandInShell(commandContents, false);
+		executeCommandInShell(commandContents, false, true);
 	}
 
 	public static void executeCommandAndIgnoreOutput(String commandContents) {
-		executeCommandInShell(new String[] { commandContents }, false);
+		executeCommandInShell(new String[] { commandContents }, false, true);
 	}
 
 	public static void executeCommandAsRootAndIgnoreOutput(String[] commandContents) {
-		executeCommandInShell(commandContents, true);
+		executeCommandInShell(commandContents, true, true);
 	}
 
 	public static void executeCommandAsRootAndIgnoreOutput(String commandContents) {
-		executeCommandInShell(new String[] { commandContents }, true);
+		executeCommandInShell(new String[] { commandContents }, true, true);
 	}
 
 	public static boolean executeCommandAndSearchOutput(String[] commandContents, String outputSearchString) {
@@ -149,7 +155,7 @@ public class ShellCommands {
 	public static void killProcessByName(String searchTerm, String excludeTerm) {
 		Log.i(logTag, "Attempting to kill process associated with search term '"+searchTerm+"'.");
 		String grepExclude = (excludeTerm != null) ? " grep -v "+excludeTerm+" |" : "";
-		executeCommandInShell(new String[] { "kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)" }, true);
+		executeCommandInShell(new String[] { "kill $(ps |"+grepExclude+" grep "+searchTerm+" | cut -d \" \" -f 5)" }, true, true);
 	}
 
 	public static void killProcessesByIds(int[] processIds) {
@@ -166,7 +172,7 @@ public class ShellCommands {
 	}
 	
 	public static void triggerNeedForRootAccess() {
-		executeCommandInShell(new String[] { "pm list features" }, true);
+		executeCommandInShell(new String[] { "pm list features" }, true, true);
 	}
 
 
