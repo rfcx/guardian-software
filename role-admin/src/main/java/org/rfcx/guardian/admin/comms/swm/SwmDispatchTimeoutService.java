@@ -6,8 +6,11 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
 import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
+
+import java.util.List;
 
 public class SwmDispatchTimeoutService extends Service {
 
@@ -77,7 +80,10 @@ public class SwmDispatchTimeoutService extends Service {
 						Thread.sleep(667);
 						if (i == checkIntervalCount) {
 							Log.e(logTag, "Timeout Reached for SWM Send. Killing serial processes...");
-							ShellCommands.killProcessesByIds(app.swmUtils.findRunningSerialProcessIds());
+							while (SwmUtils.findRunningSerialProcessIds(DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH).length != 0) {
+								ShellCommands.killProcessesByIds(SwmUtils.findRunningSerialProcessIds(DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH));
+								Thread.sleep(667);
+							}
 						}
 					} else {
 						break;
@@ -92,7 +98,7 @@ public class SwmDispatchTimeoutService extends Service {
 
 			app.rfcxSvc.setRunState(SERVICE_NAME, false);
 			swmDispatchTimeoutInstance.runFlag = false;
-		//	Log.v(logTag, "Stopping service: "+logTag);
+			Log.v(logTag, "Stopping service: "+logTag);
 		}
 	}
 

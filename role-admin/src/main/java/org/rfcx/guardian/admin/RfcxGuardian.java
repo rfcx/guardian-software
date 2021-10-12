@@ -2,8 +2,10 @@ package org.rfcx.guardian.admin;
 
 import org.rfcx.guardian.admin.asset.AssetUtils;
 import org.rfcx.guardian.admin.asset.ScheduledAssetCleanupService;
+import org.rfcx.guardian.admin.comms.swm.SwmDiagnosticService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService;
 import org.rfcx.guardian.admin.comms.swm.SwmDispatchService;
+import org.rfcx.guardian.admin.comms.swm.SwmMetaDb;
 import org.rfcx.guardian.admin.companion.CompanionPingJsonUtils;
 import org.rfcx.guardian.admin.companion.CompanionSocketService;
 import org.rfcx.guardian.admin.companion.CompanionSocketUtils;
@@ -117,6 +119,7 @@ public class RfcxGuardian extends Application {
     public SmsMessageDb smsMessageDb = null;
     public SbdMessageDb sbdMessageDb = null;
 	public SwmMessageDb swmMessageDb = null;
+	public SwmMetaDb swmMetaDb = null;
 
 	public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 	public DeviceAirplaneMode deviceAirplaneMode = new DeviceAirplaneMode(APP_ROLE);
@@ -151,12 +154,12 @@ public class RfcxGuardian extends Application {
 	
 	public String[] RfcxCoreServices = 
 			new String[] {
-				DeviceSystemService.SERVICE_NAME,
-				DeviceI2cService.SERVICE_NAME,
-				SmsDispatchCycleService.SERVICE_NAME,
-				SbdDispatchCycleService.SERVICE_NAME,
-				SwmDispatchCycleService.SERVICE_NAME,
-				CompanionSocketService.SERVICE_NAME
+					DeviceSystemService.SERVICE_NAME,
+					DeviceI2cService.SERVICE_NAME,
+					SmsDispatchCycleService.SERVICE_NAME,
+					SbdDispatchCycleService.SERVICE_NAME,
+					SwmDispatchCycleService.SERVICE_NAME,
+					CompanionSocketService.SERVICE_NAME,
 			};
 
 	@Override
@@ -310,6 +313,7 @@ public class RfcxGuardian extends Application {
         this.smsMessageDb = new SmsMessageDb(this, this.version);
         this.sbdMessageDb = new SbdMessageDb(this, this.version);
 		this.swmMessageDb = new SwmMessageDb(this, this.version);
+		this.swmMetaDb = new SwmMetaDb(this, this.version);
 		this.deviceMobilePhone = new DeviceMobilePhone(this);
 	}
 
@@ -339,6 +343,7 @@ public class RfcxGuardian extends Application {
 		this.rfcxSvc.addService( SwmDispatchService.SERVICE_NAME, SwmDispatchService.class);
 		this.rfcxSvc.addService( SwmDispatchCycleService.SERVICE_NAME, SwmDispatchCycleService.class);
 		this.rfcxSvc.addService( SwmDispatchTimeoutService.SERVICE_NAME, SwmDispatchTimeoutService.class);
+		this.rfcxSvc.addService( SwmDiagnosticService.SERVICE_NAME, SwmDiagnosticService.class);
 
 		this.rfcxSvc.addService( ClockSyncJobService.SERVICE_NAME, ClockSyncJobService.class);
 		this.rfcxSvc.addService( ScheduledClockSyncService.SERVICE_NAME, ScheduledClockSyncService.class);
@@ -451,7 +456,7 @@ public class RfcxGuardian extends Application {
 
 			// Sets Satellite Serial interface
 			this.sbdUtils.init(DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE, DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH);
-			this.swmUtils.init(DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE, DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH);
+			// this.swmUtils.init(DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE, DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH);
 
 			SSHServerUtils.serverInit(this);
 
