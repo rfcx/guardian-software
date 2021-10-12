@@ -12,15 +12,15 @@ class SwmApi(private val connection: SwmConnection) {
     private val datetimeCompactFormatter = SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
 
     // TODO unit test
-    fun transmitData(msgStr: String): SwmTDResponse? {
-        return connection.execute(Command.TD.name, msgStr).firstOrNull()?.let { payload ->
-            return "\$OK,(-?[0-9]+)".toRegex().find(payload)?.let { result ->
-                val (id) = result.destructured
-                Log.d("SwmCommand", "TD= $id")
-                return SwmTDResponse(messageId = id)
-            }
-        }
-    }
+//    fun transmitData(msgStr: String): SwmTDResponse? {
+//        return connection.execute(Command.TD.name, msgStr).firstOrNull()?.let { payload ->
+//            return "\$OK,(-?[0-9]+)".toRegex().find(payload)?.let { result ->
+//                val (id) = result.destructured
+//                Log.d("SwmCommand", "TD= $id")
+//                return SwmTDResponse(messageId = id)
+//            }
+//        }
+//    }
 
     // TODO unit test
 //    fun getUnsentMessages(): SwmMTResponse? {
