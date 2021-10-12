@@ -91,6 +91,8 @@ public class SwmDispatchCycleService extends Service {
 						// check for satellite on/off hours and enable/disable swarm tile accordingly
 						if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
 							Log.d(logTag, "POWERING OFF MODEM");
+							// to kill the process before calling PO command
+							app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
 							app.swmUtils.powerOffModem();
 						} else if (!app.swmUtils.isPowerOn()) {
 							app.swmUtils.setPower(true);
