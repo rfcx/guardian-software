@@ -62,7 +62,6 @@ public class SwmDispatchService extends Service {
 		this.swmDispatch = null;
 	}
 
-
 	private class SwmDispatch extends Thread {
 
 		public SwmDispatch() {
@@ -83,48 +82,53 @@ public class SwmDispatchService extends Service {
 
 				for (String[] swmForDispatch : swmQueuedForDispatch) {
 
+
 					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-					// only proceed with dispatch process if there is a valid queued swm message in the database
-					if (swmForDispatch[0] != null) {
+					// if swarm is on and in working period then do all of these
+					if (app.swmUtils.power.isPowerOn() && app.swmUtils.power.isSatelliteAllowedAtThisTimeOfDay()) {
 
-						long sendAtOrAfter = Long.parseLong(swmForDispatch[1]);
-						long rightNow = System.currentTimeMillis();
+						// only proceed with dispatch process if there is a valid queued swm message in the database
+						if (swmForDispatch[0] != null) {
 
-						if (sendAtOrAfter <= rightNow) {
+							long sendAtOrAfter = Long.parseLong(swmForDispatch[1]);
+							long rightNow = System.currentTimeMillis();
 
-							String msgId = swmForDispatch[4];
-							String msgBody = swmForDispatch[3];
+							if (sendAtOrAfter <= rightNow) {
 
-							if (!app.swmUtils.isInFlight) {
-								app.swmUtils.isInFlight = true;
-								app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-								SwmTDResponse tdResponse = app.swmUtils.getApi().transmitData("\""+msgBody+"\""); // TODO unit test
-								if (tdResponse != null) {
-									app.rfcxSvc.reportAsActive(SERVICE_NAME);
+								String msgId = swmForDispatch[4];
+								String msgBody = swmForDispatch[3];
 
-									app.swmUtils.consecutiveDeliveryFailureCount = 0;
-									app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);
+								if (!app.swmUtils.isInFlight) {
+									app.swmUtils.isInFlight = true;
+									app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
+									SwmTDResponse tdResponse = app.swmUtils.getApi().transmitData("\"" + msgBody + "\""); // TODO unit test
+									if (tdResponse != null) {
+										app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-									String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
-									Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
-									RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
-
-								} else {
-									app.swmUtils.consecutiveDeliveryFailureCount++;
-									Log.e(logTag, "SWM Send Failure (Consecutive Failures: " + app.swmUtils.consecutiveDeliveryFailureCount + ")...");
-									if (app.swmUtils.consecutiveDeliveryFailureCount >= SwmUtils.powerCycleAfterThisManyConsecutiveDeliveryFailures) {
-										//app.swmUtils.setPower(false);
-										app.swmUtils.getPower().setPower(true);
 										app.swmUtils.consecutiveDeliveryFailureCount = 0;
-										break;
+										app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);
+
+										String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
+										Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
+										RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
+
+									} else {
+										app.swmUtils.consecutiveDeliveryFailureCount++;
+										Log.e(logTag, "SWM Send Failure (Consecutive Failures: " + app.swmUtils.consecutiveDeliveryFailureCount + ")...");
+										if (app.swmUtils.consecutiveDeliveryFailureCount >= SwmUtils.powerCycleAfterThisManyConsecutiveDeliveryFailures) {
+											//app.swmUtils.setPower(false);
+											app.swmUtils.getPower().setPower(true);
+											app.swmUtils.consecutiveDeliveryFailureCount = 0;
+											break;
+										}
 									}
+
+									app.swmUtils.isInFlight = false;
 								}
 
-								app.swmUtils.isInFlight = false;
+								Thread.sleep(forcedPauseBetweenEachDispatch);
 							}
-
-							Thread.sleep(forcedPauseBetweenEachDispatch);
 						}
 					}
 				}
@@ -140,6 +144,5 @@ public class SwmDispatchService extends Service {
 
 		}
 	}
-
 
 }

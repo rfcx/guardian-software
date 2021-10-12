@@ -16,9 +16,9 @@ public class SwmDispatchCycleService extends Service {
 	public static final String SERVICE_NAME = "SwmDispatchCycle";
 
 	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchCycleService");
-	
+
 	private RfcxGuardian app;
-	
+
 	private boolean runFlag = false;
 	private SwmDispatchCycleSvc swmDispatchCycleSvc;
 
@@ -28,14 +28,14 @@ public class SwmDispatchCycleService extends Service {
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
-	
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		this.swmDispatchCycleSvc = new SwmDispatchCycleSvc();
 		app = (RfcxGuardian) getApplication();
 	}
-	
+
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		super.onStartCommand(intent, flags, startId);
@@ -49,7 +49,7 @@ public class SwmDispatchCycleService extends Service {
 		}
 		return START_NOT_STICKY;
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -58,16 +58,16 @@ public class SwmDispatchCycleService extends Service {
 		this.swmDispatchCycleSvc.interrupt();
 		this.swmDispatchCycleSvc = null;
 	}
-	
-	
+
+
 	private class SwmDispatchCycleSvc extends Thread {
-		
+
 		public SwmDispatchCycleSvc() { super("SwmDispatchCycleService-SwmDispatchCycleSvc"); }
-		
+
 		@Override
 		public void run() {
 			SwmDispatchCycleService swmDispatchCycleInstance = SwmDispatchCycleService.this;
-			
+
 			app = (RfcxGuardian) getApplication();
 
 			app.rfcxSvc.reportAsActive(SERVICE_NAME);
@@ -89,45 +89,52 @@ public class SwmDispatchCycleService extends Service {
 						Thread.sleep(swmDispatchCycleDuration);
 
 						// check for satellite on/off hours and enable/disable swarm tile accordingly
-						if (!app.swmUtils.getPower().isSatelliteAllowedAtThisTimeOfDay()) {
-							Log.d(logTag, "POWERING OFF MODEM");
-							// to kill the process before calling PO command
-							app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-							app.swmUtils.getPower().powerOffModem();
-						} else if (!app.swmUtils.getPower().isPowerOn()) {
-							app.swmUtils.getPower().setPower(true);
-						}
+                        if (!app.swmUtils.getPower().isSatelliteAllowedAtThisTimeOfDay()) {
+                            if (!app.swmUtils.isInFlight) {
+                                Log.d(logTag, "POWERING OFF MODEM");
+                                // to kill the process before calling PO command
+                                app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
+                                app.swmUtils.getPower().powerOffModem();
+                            }
 
-						if (app.swmMessageDb.dbSwmQueued.getCount() == 0) {
+                            // power on if power is off but in working period
+                        } else if (!app.swmUtils.getPower().isPowerOn()) {
+                            Log.d(logTag, "POWERING ON MODEM");
+                            app.swmUtils.getPower().setPower(true);
 
-							// let's add something that checks and eventually powers off the satellite board if not used for a little while
-							if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-								app.swmUtils.getPower().setPower(true); //app.swmUtils.setPower(false);
-							}
-							cyclesSinceLastActivity++;
+                            // swarm is on and in working period
+                        } else {
+                            if (app.swmMessageDb.dbSwmQueued.getCount() == 0) {
+
+                                // let's add something that checks and eventually powers off the satellite board if not used for a little while
+                                if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
+                                    app.swmUtils.getPower().setPower(true); //app.swmUtils.setPower(false);
+                                }
+                                cyclesSinceLastActivity++;
 
 
-						} else if (!app.swmUtils.isInFlight) {
+                            } else if (!app.swmUtils.isInFlight) {
 
-							boolean isAbleToSend = app.swmUtils.getPower().isPowerOn();
+                                boolean isAbleToSend = app.swmUtils.getPower().isPowerOn();
 
-							if (!isAbleToSend) {
-								Log.i(logTag, "Swarm board is powered OFF. Turning power ON...");
-								app.swmUtils.getPower().setPower(true);
-								isAbleToSend = app.swmUtils.getPower().isPowerOn();
-							}
+                                if (!isAbleToSend) {
+                                    Log.i(logTag, "Swarm board is powered OFF. Turning power ON...");
+                                    app.swmUtils.getPower().setPower(true);
+                                    isAbleToSend = app.swmUtils.getPower().isPowerOn();
+                                }
 
-							if (!isAbleToSend) {
-								Log.e(logTag, "Swarm board is STILL powered off. Unable to proceed with SWM send...");
-							} else {
-								app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
-								cyclesSinceLastActivity = 0;
-							}
+                                if (!isAbleToSend) {
+                                    Log.e(logTag, "Swarm board is STILL powered off. Unable to proceed with SWM send...");
+                                } else {
+                                    app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
+                                    cyclesSinceLastActivity = 0;
+                                }
 
-						} else {
-							app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
-							cyclesSinceLastActivity = 0;
-						}
+                            } else {
+                                app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
+                                cyclesSinceLastActivity = 0;
+                            }
+                        }
 
 					} catch (Exception e) {
 						RfcxLog.logExc(logTag, e);
@@ -143,5 +150,5 @@ public class SwmDispatchCycleService extends Service {
 		}
 	}
 
-	
+
 }

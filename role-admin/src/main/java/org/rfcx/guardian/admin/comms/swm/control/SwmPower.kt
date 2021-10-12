@@ -11,7 +11,10 @@ class SwmPower(context: Context) {
     private val app = context.applicationContext as RfcxGuardian
 
     init {
-        setPower(true)
+        // if power now is off and during working period then power swarm
+        if (!isPowerOn && isSatelliteAllowedAtThisTimeOfDay()) {
+            setPower(true)
+        }
     }
 
     fun powerOffModem() {
