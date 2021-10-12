@@ -76,11 +76,9 @@ public class SwmDiagnosticService extends Service {
             if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
                 while (swmDiagnosticInstance.runFlag) {
 
-                    // if swarm is on and in working period then do all of these
-                    if (app.swmUtils.power.isPowerOn() && app.swmUtils.power.isSatelliteAllowedAtThisTimeOfDay()) {
-                        try {
-                            Thread.sleep(checkIntervalCount);
-
+                    try {
+                        // if swarm is on and in working period then do all of these
+                        if (app.swmUtils.power.isPowerOn() && app.swmUtils.power.isSatelliteAllowedAtThisTimeOfDay()) {
                             if (!app.swmUtils.isInFlight) {
                                 app.swmUtils.isInFlight = true;
                                 app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
@@ -99,12 +97,14 @@ public class SwmDiagnosticService extends Service {
                                     );
                                 }
                             }
-
-                        } catch (InterruptedException e) {
-                            swmDiagnosticInstance.runFlag = false;
-                            app.rfcxSvc.setRunState(SERVICE_NAME, false);
-                            RfcxLog.logExc(logTag, e);
                         }
+                        
+                        Thread.sleep(checkIntervalCount);
+
+                    } catch (InterruptedException e) {
+                        swmDiagnosticInstance.runFlag = false;
+                        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                        RfcxLog.logExc(logTag, e);
                     }
                 }
             }

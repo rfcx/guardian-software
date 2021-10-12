@@ -126,11 +126,10 @@ public class SwmDispatchService extends Service {
 
 									app.swmUtils.isInFlight = false;
 								}
-
-								Thread.sleep(forcedPauseBetweenEachDispatch);
 							}
 						}
 					}
+					Thread.sleep(forcedPauseBetweenEachDispatch);
 				}
 
 			} catch (Exception e) {
