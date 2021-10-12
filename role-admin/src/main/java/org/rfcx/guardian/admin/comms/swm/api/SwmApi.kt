@@ -43,7 +43,6 @@ class SwmApi(private val connection: SwmConnection) {
 //        }
 //    }
 
-    // TODO unit test
     fun powerOff(): Boolean? {
         return connection.execute(Command.PO.name, "").firstOrNull()?.let { payload ->
             return payload.contains("OK")

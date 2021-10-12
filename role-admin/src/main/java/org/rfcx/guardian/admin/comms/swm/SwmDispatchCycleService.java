@@ -89,32 +89,32 @@ public class SwmDispatchCycleService extends Service {
 						Thread.sleep(swmDispatchCycleDuration);
 
 						// check for satellite on/off hours and enable/disable swarm tile accordingly
-						if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+						if (!app.swmUtils.getPower().isSatelliteAllowedAtThisTimeOfDay()) {
 							Log.d(logTag, "POWERING OFF MODEM");
 							// to kill the process before calling PO command
 							app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-							app.swmUtils.powerOffModem();
-						} else if (!app.swmUtils.isPowerOn()) {
-							app.swmUtils.setPower(true);
+							app.swmUtils.getPower().powerOffModem();
+						} else if (!app.swmUtils.getPower().isPowerOn()) {
+							app.swmUtils.getPower().setPower(true);
 						}
 
 						if (app.swmMessageDb.dbSwmQueued.getCount() == 0) {
 
 							// let's add something that checks and eventually powers off the satellite board if not used for a little while
 							if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-								app.swmUtils.setPower(true); //app.swmUtils.setPower(false);
+								app.swmUtils.getPower().setPower(true); //app.swmUtils.setPower(false);
 							}
 							cyclesSinceLastActivity++;
 
 
 						} else if (!app.swmUtils.isInFlight) {
 
-							boolean isAbleToSend = app.swmUtils.isPowerOn();
+							boolean isAbleToSend = app.swmUtils.getPower().isPowerOn();
 
 							if (!isAbleToSend) {
 								Log.i(logTag, "Swarm board is powered OFF. Turning power ON...");
-								app.swmUtils.setPower(true);
-								isAbleToSend = app.swmUtils.isPowerOn();
+								app.swmUtils.getPower().setPower(true);
+								isAbleToSend = app.swmUtils.getPower().isPowerOn();
 							}
 
 							if (!isAbleToSend) {
