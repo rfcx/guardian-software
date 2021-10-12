@@ -77,8 +77,7 @@ public class SwmDispatchCycleService extends Service {
 				int cyclesSinceLastActivity = 0;
 				int powerOffAfterThisManyInactiveCycles = 6;
 
-				// somehow calling kill here make setup swm not working being eliminated before done.
-//				ShellCommands.killProcessesByIds(SwmUtils.findRunningSerialProcessIds(DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH));
+				app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
 				app.swmUtils.setupSwmUtils();
 
 				while (swmDispatchCycleInstance.runFlag) {

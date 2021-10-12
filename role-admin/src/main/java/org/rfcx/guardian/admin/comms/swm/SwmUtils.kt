@@ -29,7 +29,7 @@ class SwmUtils(context: Context) {
     fun setupSwmUtils() {
         setPower(true)
         api = SwmApi(SwmConnection(SwmUartShell()))
-        app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, false)
+        app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, true)
     }
 
     fun setPower(setToOn: Boolean) {
@@ -97,9 +97,9 @@ class SwmUtils(context: Context) {
                 )
             } else {
                 val processScan =
-                    ShellCommands.executeCommandAsRoot("$busyBoxBin ps | grep busybox")
+                    ShellCommands.executeCommandAsRoot("$busyBoxBin ps -ef | grep /dev/ttyMT")
                 for (scanRtrn in processScan) {
-                    if (scanRtrn.contains("busybox")) {
+                    if (scanRtrn.contains("microcom") || scanRtrn.contains("stty")) {
                         val processId = scanRtrn.substring(0, scanRtrn.indexOf("root"))
                         processIds.add(processId.toInt())
                     }
