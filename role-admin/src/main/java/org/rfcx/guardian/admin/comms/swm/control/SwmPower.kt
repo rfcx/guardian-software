@@ -12,18 +12,14 @@ class SwmPower(context: Context) {
     var on: Boolean
         get() = getStatus()
         set(value) {
+            if (value == getStatus()) return
             if (!value) {
-                if (getStatus()) {
-                    Log.d(logTag, "POWERING OFF MODEM")
-                    app.swmUtils.api.powerOff()
-                    input(value)
-                }
+                Log.d(logTag, "POWER OFF MODEM")
+                app.swmUtils.api.powerOff()
             } else {
-                if (!getStatus()) {
-                    Log.d(logTag, "POWERING ON MODEM")
-                    input(value)
-                }
+                Log.d(logTag, "POWER ON MODEM")
             }
+            setStatus(value)
         }
 
     init {
@@ -37,7 +33,7 @@ class SwmPower(context: Context) {
         return app.deviceGpioUtils.readGpioValue("satellite_power", "DOUT")
     }
 
-    private fun input(on: Boolean) {
+    private fun setStatus(on: Boolean) {
         app.deviceGpioUtils.runGpioCommand("DOUT", "satellite_power", on)
     }
 }
