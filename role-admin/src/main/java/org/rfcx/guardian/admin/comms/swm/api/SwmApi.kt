@@ -43,10 +43,10 @@ class SwmApi(private val connection: SwmConnection) {
 //        }
 //    }
 
-    fun powerOff(): Boolean? {
+    fun powerOff(): Boolean {
         return connection.execute(Command.PO.name, "").firstOrNull()?.let { payload ->
             return payload.contains("OK")
-        }
+        } ?: false
     }
 
     fun getRTSatellite(): SwmRTResponse? {
