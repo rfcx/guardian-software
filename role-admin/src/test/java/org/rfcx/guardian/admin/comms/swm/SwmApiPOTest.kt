@@ -9,7 +9,7 @@ import kotlin.test.assertNotNull
 class SwmApiPOTest {
 
     @Test
-    fun canPowerOff() {
+    fun canDetectPowerOffSuccess() {
         // Arrange
         val shell = SwmMockShell(listOf("\$PO OK*3b"))
         val api = SwmApi(SwmConnection(shell))
@@ -23,7 +23,7 @@ class SwmApiPOTest {
     }
 
     @Test
-    fun cannotPowerOff() {
+    fun canDetectPowerOffError() {
         // Arrange
         val shell = SwmMockShell(listOf("\$PO ERR*7a"))
         val api = SwmApi(SwmConnection(shell))
@@ -33,6 +33,19 @@ class SwmApiPOTest {
 
         // Assert
         assertNotNull(powerOffResponse)
+        assertEquals(false, powerOffResponse)
+    }
+
+    @Test
+    fun canDetectPowerOffNoResponse() {
+        // Arrange
+        val shell = SwmMockShell(listOf())
+        val api = SwmApi(SwmConnection(shell))
+
+        // Act
+        val powerOffResponse = api.powerOff()
+
+        // Assert
         assertEquals(false, powerOffResponse)
     }
 }
