@@ -94,13 +94,13 @@ public class SwmDispatchCycleService extends Service {
                                 Log.d(logTag, "POWERING OFF MODEM");
                                 // to kill the process before calling PO command
                                 app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-                                app.swmUtils.getPower().powerOffModem();
+                                app.swmUtils.getPower().setOn(false);
                             }
 
                             // power on if power is off but in working period
                         } else if (!app.swmUtils.getPower().getOn()) {
                             Log.d(logTag, "POWERING ON MODEM");
-                            app.swmUtils.getPower().powerOnModem();
+                            app.swmUtils.getPower().setOn(true);
 
                             // swarm is on and in working period
                         } else {
@@ -108,7 +108,7 @@ public class SwmDispatchCycleService extends Service {
 
                                 // let's add something that checks and eventually powers off the satellite board if not used for a little while
                                 if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-                                    app.swmUtils.getPower().powerOnModem(); //app.swmUtils.setPower(false);
+                                    app.swmUtils.getPower().setOn(true); //app.swmUtils.setPower(false);
                                 }
                                 cyclesSinceLastActivity++;
 
@@ -119,7 +119,7 @@ public class SwmDispatchCycleService extends Service {
 
                                 if (!isAbleToSend) {
                                     Log.i(logTag, "Swarm board is powered OFF. Turning power ON...");
-                                    app.swmUtils.getPower().powerOnModem();
+                                    app.swmUtils.getPower().setOn(true);
                                     isAbleToSend = app.swmUtils.getPower().getOn();
                                 }
 

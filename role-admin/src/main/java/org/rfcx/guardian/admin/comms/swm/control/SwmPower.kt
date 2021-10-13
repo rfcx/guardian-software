@@ -6,29 +6,23 @@ import org.rfcx.guardian.admin.RfcxGuardian
 class SwmPower(context: Context) {
     private val app = context.applicationContext as RfcxGuardian
 
+    var on: Boolean
+        get() = app.deviceGpioUtils.readGpioValue("satellite_power", "DOUT")
+        set(value) {
+            if (!value) {
+                app.swmUtils.api.powerOff()
+            }
+            input(value)
+        }
+
     init {
         // if power now is off and during working period then power swarm
         if (app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
-            powerOnModem()
-        }
-    }
-
-    fun powerOffModem() {
-        if (on) {
-            // run shutdown UART command
-            app.swmUtils.api.powerOff()
-            // after return, kill power to tile
-            on = false
-        }
-    }
-
-    fun powerOnModem() {
-        if (!on) {
             on = true
         }
     }
 
-    var on: Boolean
-        get() = app.deviceGpioUtils.readGpioValue("satellite_power", "DOUT")
-        set(value) { app.deviceGpioUtils.runGpioCommand("DOUT", "satellite_power", value) }
+    private fun input(on: Boolean) {
+        app.deviceGpioUtils.runGpioCommand("DOUT", "satellite_power", on)
+    }
 }
