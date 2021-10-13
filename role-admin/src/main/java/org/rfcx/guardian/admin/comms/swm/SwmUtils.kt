@@ -38,6 +38,16 @@ class SwmUtils(private val context: Context) {
         app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, true)
     }
 
+    fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
+        for (offHoursRange in app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS).split(",")) {
+            val offHours = offHoursRange.split("-")
+            if (DateTimeUtils.isTimeStampWithinTimeRange(Date(), offHours[0], offHours[1])) {
+                return false
+            }
+        }
+        return true
+    }
+
     companion object {
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils")
         const val sendCmdTimeout: Long = 70000

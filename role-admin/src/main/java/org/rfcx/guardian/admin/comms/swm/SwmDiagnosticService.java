@@ -6,7 +6,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
 import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -78,7 +77,7 @@ public class SwmDiagnosticService extends Service {
 
                     try {
                         // if swarm is on and in working period then do all of these
-                        if (app.swmUtils.power.isPowerOn() && app.swmUtils.power.isSatelliteAllowedAtThisTimeOfDay()) {
+                        if (app.swmUtils.power.getOn() && app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
                             if (!app.swmUtils.isInFlight) {
                                 app.swmUtils.isInFlight = true;
                                 app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);

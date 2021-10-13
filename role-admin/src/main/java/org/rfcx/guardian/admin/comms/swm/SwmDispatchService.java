@@ -6,7 +6,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
 import org.rfcx.guardian.admin.comms.swm.data.SwmTDResponse;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
@@ -86,7 +85,7 @@ public class SwmDispatchService extends Service {
 					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 					// if swarm is on and in working period then do all of these
-					if (app.swmUtils.power.isPowerOn() && app.swmUtils.power.isSatelliteAllowedAtThisTimeOfDay()) {
+					if (app.swmUtils.power.getOn() && app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
 
 						// only proceed with dispatch process if there is a valid queued swm message in the database
 						if (swmForDispatch[0] != null) {
@@ -118,7 +117,7 @@ public class SwmDispatchService extends Service {
 										Log.e(logTag, "SWM Send Failure (Consecutive Failures: " + app.swmUtils.consecutiveDeliveryFailureCount + ")...");
 										if (app.swmUtils.consecutiveDeliveryFailureCount >= SwmUtils.powerCycleAfterThisManyConsecutiveDeliveryFailures) {
 											//app.swmUtils.setPower(false);
-											app.swmUtils.getPower().setPower(true);
+											app.swmUtils.getPower().powerOnModem();
 											app.swmUtils.consecutiveDeliveryFailureCount = 0;
 											break;
 										}

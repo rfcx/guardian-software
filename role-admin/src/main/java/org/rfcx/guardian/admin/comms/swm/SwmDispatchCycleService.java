@@ -6,8 +6,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT;
-import org.rfcx.guardian.utility.misc.ShellCommands;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
@@ -91,7 +89,7 @@ public class SwmDispatchCycleService extends Service {
                         Thread.sleep(swmDispatchCycleDuration);
 
                         // check for satellite on/off hours and enable/disable swarm tile accordingly
-                        if (!app.swmUtils.getPower().isSatelliteAllowedAtThisTimeOfDay()) {
+                        if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
                             if (!app.swmUtils.isInFlight) {
                                 Log.d(logTag, "POWERING OFF MODEM");
                                 // to kill the process before calling PO command
@@ -100,9 +98,9 @@ public class SwmDispatchCycleService extends Service {
                             }
 
                             // power on if power is off but in working period
-                        } else if (!app.swmUtils.getPower().isPowerOn()) {
+                        } else if (!app.swmUtils.getPower().getOn()) {
                             Log.d(logTag, "POWERING ON MODEM");
-                            app.swmUtils.getPower().setPower(true);
+                            app.swmUtils.getPower().powerOnModem();
 
                             // swarm is on and in working period
                         } else {
@@ -110,19 +108,19 @@ public class SwmDispatchCycleService extends Service {
 
                                 // let's add something that checks and eventually powers off the satellite board if not used for a little while
                                 if (cyclesSinceLastActivity == powerOffAfterThisManyInactiveCycles) {
-                                    app.swmUtils.getPower().setPower(true); //app.swmUtils.setPower(false);
+                                    app.swmUtils.getPower().powerOnModem(); //app.swmUtils.setPower(false);
                                 }
                                 cyclesSinceLastActivity++;
 
 
                             } else if (!app.swmUtils.isInFlight) {
 
-                                boolean isAbleToSend = app.swmUtils.getPower().isPowerOn();
+                                boolean isAbleToSend = app.swmUtils.getPower().getOn();
 
                                 if (!isAbleToSend) {
                                     Log.i(logTag, "Swarm board is powered OFF. Turning power ON...");
-                                    app.swmUtils.getPower().setPower(true);
-                                    isAbleToSend = app.swmUtils.getPower().isPowerOn();
+                                    app.swmUtils.getPower().powerOnModem();
+                                    isAbleToSend = app.swmUtils.getPower().getOn();
                                 }
 
                                 if (!isAbleToSend) {
