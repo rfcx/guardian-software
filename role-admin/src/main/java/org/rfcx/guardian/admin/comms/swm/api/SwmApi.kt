@@ -36,6 +36,16 @@ class SwmApi(private val connection: SwmConnection) {
 //        return SwmMTResponse(unsentMsgIds)
 //    }
 
+    fun getNumberOfUnsentMessages(): Int? {
+        return connection.execute(Command.MT.name, "C=U").firstOrNull()?.let { payload ->
+            return "(-?[0-9]+)".toRegex().find(payload)?.let { result ->
+                val (count) = result.destructured
+                Log.d("SwmCommand", "MT= $count")
+                return count.toIntOrNull()
+            }
+        }
+    }
+
     // TODO unit test
 //    fun sleep(time: Long): Boolean? {
 //        return connection.execute(Command.SL.name, "S=$time").firstOrNull()?.let { payload ->
