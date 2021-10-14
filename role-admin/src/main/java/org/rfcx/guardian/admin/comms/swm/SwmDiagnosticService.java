@@ -83,6 +83,7 @@ public class SwmDiagnosticService extends Service {
                                 app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
                                 SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
                                 SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
+                                Integer unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
                                 app.swmUtils.isInFlight = false;
 
                                 if (rtBackground != null || rtSatellite != null) {
@@ -92,7 +93,8 @@ public class SwmDiagnosticService extends Service {
                                             rtSatellite != null ? rtSatellite.getSignalToNoiseRatio() : null,
                                             rtSatellite != null ? rtSatellite.getFrequencyDeviation() : null,
                                             rtSatellite != null ? rtSatellite.getPacketTimestamp() : null,
-                                            rtSatellite != null ? rtSatellite.getSatelliteId() : null
+                                            rtSatellite != null ? rtSatellite.getSatelliteId() : null,
+                                            unsentMessageNumbers
                                     );
                                 }
                             }

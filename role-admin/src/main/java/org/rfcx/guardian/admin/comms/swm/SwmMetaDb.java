@@ -28,7 +28,8 @@ public class SwmMetaDb {
     static final String C_FDEV = "fdev";
     static final String C_TIME = "time";
     static final String C_SAT_ID = "sat_id";
-    private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_RSSI_BACKGROUND, C_RSSI_SAT, C_SNR, C_FDEV, C_TIME, C_SAT_ID };
+    static final String C_UNSENT_MESSAGE_COUNT = "unsent_message_count";
+    private static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_RSSI_BACKGROUND, C_RSSI_SAT, C_SNR, C_FDEV, C_TIME, C_SAT_ID, C_UNSENT_MESSAGE_COUNT };
 
     static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] { }; // "0.6.43"
     private boolean DROP_TABLE_ON_UPGRADE = false;
@@ -43,6 +44,7 @@ public class SwmMetaDb {
                 .append(", ").append(C_FDEV).append(" INTEGER")
                 .append(", ").append(C_TIME).append(" TEXT")
                 .append(", ").append(C_SAT_ID).append(" TEXT")
+                .append(", ").append(C_UNSENT_MESSAGE_COUNT).append(" INTEGER")
                 .append(")");
         return sbOut.toString();
     }
@@ -59,7 +61,7 @@ public class SwmMetaDb {
             FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
         }
 
-        public int insert(Integer rssiBackground, Integer rssiSat, Integer snr, Integer fdev, String time, String satId) {
+        public int insert(Integer rssiBackground, Integer rssiSat, Integer snr, Integer fdev, String time, String satId, Integer unsentMessageNumbers) {
 
             ContentValues values = new ContentValues();
             values.put(C_CREATED_AT, (new Date()).getTime());
@@ -69,6 +71,7 @@ public class SwmMetaDb {
             values.put(C_FDEV, fdev);
             values.put(C_TIME, time);
             values.put(C_SAT_ID, satId);
+            values.put(C_UNSENT_MESSAGE_COUNT, unsentMessageNumbers);
 
             return this.dbUtils.insertRow(TABLE, values);
         }
