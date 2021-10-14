@@ -7,14 +7,14 @@ import java.util.*
 
 class SwmApi(private val connection: SwmConnection) {
 
-    enum class Command { TD, MT, SL, RT, DT }
+    enum class Command { TD, MT, SL, RT, DT, PO }
 
     private val datetimeCompactFormatter = SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
 
     // TODO unit test
 //    fun transmitData(msgStr: String): SwmTDResponse? {
 //        return connection.execute(Command.TD.name, msgStr).firstOrNull()?.let { payload ->
-//            return "\$TDOK,(-?[0-9]+)".toRegex().find(payload)?.let { result ->
+//            return "\$OK,(-?[0-9]+)".toRegex().find(payload)?.let { result ->
 //                val (id) = result.destructured
 //                Log.d("SwmCommand", "TD= $id")
 //                return SwmTDResponse(messageId = id)
@@ -42,6 +42,12 @@ class SwmApi(private val connection: SwmConnection) {
 //            return payload.contains("OK")
 //        }
 //    }
+
+    fun powerOff(): Boolean {
+        return connection.execute(Command.PO.name, "").firstOrNull()?.let { payload ->
+            return payload.contains("OK")
+        } ?: false
+    }
 
     fun getRTSatellite(): SwmRTResponse? {
         val results = connection.executeWithoutTimeout(Command.RT.name, "@")

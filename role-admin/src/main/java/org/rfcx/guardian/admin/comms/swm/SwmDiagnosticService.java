@@ -6,7 +6,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
-import org.rfcx.guardian.admin.comms.sbd.SbdDispatchTimeoutService;
 import org.rfcx.guardian.admin.comms.swm.data.SwmRTBackgroundResponse;
 import org.rfcx.guardian.admin.comms.swm.data.SwmRTResponse;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -71,33 +70,35 @@ public class SwmDiagnosticService extends Service {
 
             app = (RfcxGuardian) getApplication();
 
-            int checkIntervalCount = 33000;
+            int checkIntervalCount = 70000;
 
             if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
                 while (swmDiagnosticInstance.runFlag) {
 
                     try {
-                        // saving every 60s
-                        Thread.sleep(checkIntervalCount);
+                        // if swarm is on and in working period then do all of these
+                        if (app.swmUtils.power.getOn() && app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+                            if (!app.swmUtils.isInFlight) {
+                                app.swmUtils.isInFlight = true;
+                                app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
+                                SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
+                                SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
+                                app.swmUtils.isInFlight = false;
 
-                        if (!app.swmUtils.isInFlight) {
-                            app.swmUtils.isInFlight = true;
-                            app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-                            SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
-                            SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
-                            app.swmUtils.isInFlight = false;
-
-                            if (rtBackground != null || rtSatellite != null) {
-                                app.swmMetaDb.dbSwmDiagnostic.insert(
-                                        rtBackground != null ? rtBackground.getRssi() : null,
-                                        rtSatellite != null ? rtSatellite.getRssi() : null,
-                                        rtSatellite != null ? rtSatellite.getSignalToNoiseRatio() : null,
-                                        rtSatellite != null ? rtSatellite.getFrequencyDeviation() : null,
-                                        rtSatellite != null ? rtSatellite.getPacketTimestamp() : null,
-                                        rtSatellite != null ? rtSatellite.getSatelliteId() : null
-                                );
+                                if (rtBackground != null || rtSatellite != null) {
+                                    app.swmMetaDb.dbSwmDiagnostic.insert(
+                                            rtBackground != null ? rtBackground.getRssi() : null,
+                                            rtSatellite != null ? rtSatellite.getRssi() : null,
+                                            rtSatellite != null ? rtSatellite.getSignalToNoiseRatio() : null,
+                                            rtSatellite != null ? rtSatellite.getFrequencyDeviation() : null,
+                                            rtSatellite != null ? rtSatellite.getPacketTimestamp() : null,
+                                            rtSatellite != null ? rtSatellite.getSatelliteId() : null
+                                    );
+                                }
                             }
                         }
+                        
+                        Thread.sleep(checkIntervalCount);
 
                     } catch (InterruptedException e) {
                         swmDiagnosticInstance.runFlag = false;

@@ -9,15 +9,21 @@ import org.rfcx.guardian.admin.comms.swm.api.SwmApi
 import org.rfcx.guardian.admin.comms.swm.api.SwmConnection
 import org.rfcx.guardian.admin.comms.swm.api.SwmUartShell
 import org.rfcx.guardian.utility.device.DeviceSmsUtils
-import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT
 import org.rfcx.guardian.utility.misc.ArrayUtils
 import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 import java.util.*
+import org.rfcx.guardian.utility.misc.DateTimeUtils
 
-class SwmUtils(context: Context) {
+import android.text.TextUtils
+import org.rfcx.guardian.admin.comms.swm.control.SwmPower
+
+import org.rfcx.guardian.utility.rfcx.RfcxPrefs
+
+class SwmUtils(private val context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
+    lateinit var power: SwmPower
     lateinit var api: SwmApi
 
     @kotlin.jvm.JvmField
@@ -27,17 +33,20 @@ class SwmUtils(context: Context) {
     var consecutiveDeliveryFailureCount = 0
 
     fun setupSwmUtils() {
-        setPower(true)
+        power = SwmPower(context)
         api = SwmApi(SwmConnection(SwmUartShell()))
         app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, true)
     }
 
-    fun setPower(setToOn: Boolean) {
-        app.deviceGpioUtils.runGpioCommand("DOUT", "satellite_power", setToOn)
+    fun isSatelliteAllowedAtThisTimeOfDay(): Boolean {
+        for (offHoursRange in app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_OFF_HOURS).split(",")) {
+            val offHours = offHoursRange.split("-")
+            if (DateTimeUtils.isTimeStampWithinTimeRange(Date(), offHours[0], offHours[1])) {
+                return false
+            }
+        }
+        return true
     }
-
-    val isPowerOn: Boolean
-        get() = app.deviceGpioUtils.readGpioValue("satellite_power", "DOUT")
 
     companion object {
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils")
