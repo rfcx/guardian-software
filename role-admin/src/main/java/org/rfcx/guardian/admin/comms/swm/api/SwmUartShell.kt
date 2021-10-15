@@ -2,7 +2,6 @@ package org.rfcx.guardian.admin.comms.swm.api
 
 import android.util.Log
 import org.rfcx.guardian.admin.RfcxGuardian
-import org.rfcx.guardian.admin.comms.swm.SwmUtils
 import org.rfcx.guardian.utility.device.hardware.DeviceHardware_OrangePi_3G_IOT
 import org.rfcx.guardian.utility.misc.FileUtils
 import org.rfcx.guardian.utility.misc.ShellCommands
@@ -26,8 +25,8 @@ class SwmUartShell(
     /**
      * Execute a command on tty and read the returned responses (one per line)
      */
-    override fun execute(request: String): List<String> {
-        val ttyCommand = makeTtyCommand(request)
+    override fun execute(request: String, timeout: Int): List<String> {
+        val ttyCommand = makeTtyCommand(request, timeout)
         try {
             return ShellCommands.executeCommandAsRoot(ttyCommand, false)
         } catch (e: Exception) {
@@ -36,8 +35,8 @@ class SwmUartShell(
         return listOf()
     }
 
-    private fun makeTtyCommand(input: String): String {
-        return "echo -n '${input}\\r' | $busyboxBin microcom -t 1000 -s $baudRate $ttyPath"
+    private fun makeTtyCommand(input: String, timeout: Int = 1): String {
+        return "echo -n '${input}\\r' | $busyboxBin microcom -t ${timeout}000 -s $baudRate $ttyPath"
     }
 
     private fun makeSerialPortSetupCommand(): String {

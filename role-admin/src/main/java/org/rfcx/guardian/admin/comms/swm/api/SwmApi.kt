@@ -37,7 +37,7 @@ class SwmApi(private val connection: SwmConnection) {
 //    }
 
     fun getNumberOfUnsentMessages(): Int? {
-        return connection.execute(Command.MT.name, "C=U").firstOrNull()?.let { payload ->
+        return connection.execute(Command.MT.name, "C=U", 2).firstOrNull()?.let { payload ->
             return "(-?[0-9]+)".toRegex().find(payload)?.let { result ->
                 val (count) = result.destructured
                 Log.d("SwmCommand", "MT= $count")
