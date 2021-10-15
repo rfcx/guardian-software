@@ -16,40 +16,40 @@ import java.util.List;
 
 public class AssetDownloadUtils {
 
-	public AssetDownloadUtils(Context context) {
-		this.app = (RfcxGuardian) context.getApplicationContext();
-		this.downloadDirectoryPath = context.getFilesDir().getAbsolutePath()+"/downloads";
-		FileUtils.initializeDirectoryRecursively(this.downloadDirectoryPath, false);
-	}
+    public AssetDownloadUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+        this.downloadDirectoryPath = context.getFilesDir().getAbsolutePath() + "/downloads";
+        FileUtils.initializeDirectoryRecursively(this.downloadDirectoryPath, false);
+    }
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiDownloadUtils");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiDownloadUtils");
 
-	private RfcxGuardian app;
-	public String downloadDirectoryPath;
+    private RfcxGuardian app;
+    public String downloadDirectoryPath;
 
-	public static final int DOWNLOAD_FAILURE_SKIP_THRESHOLD = 5;
+    public static final int DOWNLOAD_FAILURE_SKIP_THRESHOLD = 5;
 
-	public void createDummyRow() {
+    public void createDummyRow() {
 
-		app.assetDownloadDb.dbQueued.insert(
-				"classifier",
-				"1617208867756",
-				"accfb018701e52696835c9d1c02600a67a228db1",
-				"http",
-				"https://rfcx-install.s3.eu-west-1.amazonaws.com/rfcx-guardian/guardian-asset-classifier/1617208867756.tflite.gz",
-				12465841,
-				"tflite",
-				"{"
-						+"\"classifier_name\":\"chainsaw\","
-						+"\"classifier_version\":\"5\","
-						+"\"sample_rate\":\"12000\","
-						+"\"input_gain\":\"1.0\","
-						+"\"window_size\":\"0.9750\","
-						+"\"step_size\":\"1\","
-						+"\"classifications\":\"chainsaw,environment\","
-						+"\"classifications_filter_threshold\":\"0.95,1.00\""
-						+"}"
-				);
+        app.assetDownloadDb.dbQueued.insert(
+                "classifier",
+                "1617208867756",
+                "accfb018701e52696835c9d1c02600a67a228db1",
+                "http",
+                "https://rfcx-install.s3.eu-west-1.amazonaws.com/rfcx-guardian/guardian-asset-classifier/1617208867756.tflite.gz",
+                12465841,
+                "tflite",
+                "{"
+                        + "\"classifier_name\":\"chainsaw\","
+                        + "\"classifier_version\":\"5\","
+                        + "\"sample_rate\":\"12000\","
+                        + "\"input_gain\":\"1.0\","
+                        + "\"window_size\":\"0.9750\","
+                        + "\"step_size\":\"1\","
+                        + "\"classifications\":\"chainsaw,environment\","
+                        + "\"classifications_filter_threshold\":\"0.95,1.00\""
+                        + "}"
+        );
 
 
 //		app.assetDownloadDb.dbQueued.insert(
@@ -72,73 +72,70 @@ public class AssetDownloadUtils {
 //						+"}"
 //		);
 
-	}
+    }
 
 
+    public String getTmpAssetFilePath(String assetType, String assetId) {
+
+        return this.downloadDirectoryPath + "/" + assetType + "_" + assetId + ".download";
+    }
+
+    public String getPostDownloadAssetFilePath(String assetType, String assetId, String fileType) {
+
+        Context context = app.getApplicationContext();
+        long numericAssetId = Long.parseLong(assetId);
+
+        if (assetType.equalsIgnoreCase("classifier")) {
+            return RfcxClassifierFileUtils.getClassifierFileLocation_Cache(context, numericAssetId);
+
+        } else if (assetType.equalsIgnoreCase("audio")) {
+            return RfcxAudioFileUtils.getAudioFileLocation_Cache(context, numericAssetId, fileType);
+
+        }
+
+        return null;
+    }
 
 
-	public String getTmpAssetFilePath(String assetType, String assetId) {
+    public void followUpOnSuccessfulDownload(String assetType, String assetId, String fileType, String checksum, String metaJsonBlob) throws IOException {
 
-		return this.downloadDirectoryPath + "/" + assetType + "_" + assetId+".download";
-	}
+        Log.i(logTag, "Following up on successful download...");
 
-	public String getPostDownloadAssetFilePath(String assetType, String assetId, String fileType) {
+        String tmpPath = getPostDownloadAssetFilePath(assetType, assetId, fileType);
+        String libraryPath = app.assetLibraryUtils.getLibraryAssetFilePath(assetType, assetId, fileType);
+        FileUtils.initializeDirectoryRecursively(libraryPath.substring(0, libraryPath.lastIndexOf("/")), false);
 
-		Context context = app.getApplicationContext();
-		long numericAssetId = Long.parseLong(assetId);
+        FileUtils.delete(libraryPath);
+        FileUtils.copy(tmpPath, libraryPath);
 
-		if (assetType.equalsIgnoreCase("classifier")) {
-			return RfcxClassifierFileUtils.getClassifierFileLocation_Cache(context, numericAssetId);
+        if (assetType.equalsIgnoreCase("classifier") && (app.assetLibraryDb.dbClassifier.getCountByAssetId(assetId) == 0)) {
 
-		} else if (assetType.equalsIgnoreCase("audio")) {
-			return RfcxAudioFileUtils.getAudioFileLocation_Cache(context, numericAssetId, fileType);
+            app.assetLibraryDb.dbClassifier.insert(assetId, fileType, checksum, libraryPath,
+                    FileUtils.getFileSizeInBytes(libraryPath), metaJsonBlob, 0, 0);
 
-		}
+            app.audioClassifyUtils.activateClassifier(assetId);
 
-		return null;
-	}
+        } else if (assetType.equalsIgnoreCase("audio") && (app.assetLibraryDb.dbAudio.getCountByAssetId(assetId) == 0)) {
 
+            app.assetLibraryDb.dbAudio.insert(assetId, fileType, checksum, libraryPath,
+                    FileUtils.getFileSizeInBytes(libraryPath), metaJsonBlob, 0, 0);
 
-	public void followUpOnSuccessfulDownload(String assetType, String assetId, String fileType, String checksum, String metaJsonBlob) throws IOException {
+        }
 
-		Log.i(logTag, "Following up on successful download...");
-
-		String tmpPath = getPostDownloadAssetFilePath(assetType, assetId, fileType);
-		String libraryPath = app.assetLibraryUtils.getLibraryAssetFilePath(assetType, assetId, fileType);
-		FileUtils.initializeDirectoryRecursively(libraryPath.substring(0, libraryPath.lastIndexOf("/")), false);
-
-		FileUtils.delete(libraryPath);
-		FileUtils.copy(tmpPath, libraryPath);
-
-		if (assetType.equalsIgnoreCase("classifier") && (app.assetLibraryDb.dbClassifier.getCountByAssetId(assetId) == 0)) {
-
-			app.assetLibraryDb.dbClassifier.insert( assetId, fileType, checksum, libraryPath,
-					FileUtils.getFileSizeInBytes(libraryPath), metaJsonBlob,0,0);
-
-			app.audioClassifyUtils.activateClassifier(assetId);
-
-		} else if (assetType.equalsIgnoreCase("audio") && (app.assetLibraryDb.dbAudio.getCountByAssetId(assetId) == 0)) {
-
-			app.assetLibraryDb.dbAudio.insert( assetId, fileType, checksum, libraryPath,
-					FileUtils.getFileSizeInBytes(libraryPath), metaJsonBlob, 0, 0);
-
-		}
-
-		FileUtils.delete(tmpPath);
-	}
+        FileUtils.delete(tmpPath);
+    }
 
 
+    public void cleanupDownloadDirectory(List<String[]> queuedForDownload, long maxAgeInMilliseconds) {
 
-	public void cleanupDownloadDirectory(List<String[]> queuedForDownload, long maxAgeInMilliseconds) {
+        ArrayList<String> assetsQueuedForDownload = new ArrayList<String>();
+        for (String[] queuedRow : queuedForDownload) {
+            //		assetsQueuedForDownload.add(queuedRow[6]);
+        }
 
-		ArrayList<String> assetsQueuedForDownload = new ArrayList<String>();
-		for (String[] queuedRow : queuedForDownload) {
-	//		assetsQueuedForDownload.add(queuedRow[6]);
-		}
+        String[] dirsToScan = new String[]{this.downloadDirectoryPath};
 
-		String[] dirsToScan = new String[]{ this.downloadDirectoryPath };
-
-		(new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup( dirsToScan, assetsQueuedForDownload, Math.round(maxAgeInMilliseconds/60000), false, false );
-	}
+        (new RfcxAssetCleanup(RfcxGuardian.APP_ROLE)).runFileSystemAssetCleanup(dirsToScan, assetsQueuedForDownload, Math.round(maxAgeInMilliseconds / 60000), false, false);
+    }
 
 }

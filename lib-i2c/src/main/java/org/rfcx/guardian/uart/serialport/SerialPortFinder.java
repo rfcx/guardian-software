@@ -95,6 +95,7 @@ public class SerialPortFinder {
         Vector<File> mDevices = null;
         private String mDriverName;
         private String mDeviceRoot;
+
         public Driver(String name, String root) {
             mDriverName = name;
             mDeviceRoot = root;

@@ -11,6 +11,7 @@ public class DeviceConnectivity {
     private boolean isConnected = false;
     private long lastConnectedAt = System.currentTimeMillis();
     private long lastDisconnectedAt = System.currentTimeMillis();
+
     public DeviceConnectivity(String appRole) {
         this.logTag = RfcxLog.generateLogTag(appRole, "DeviceConnectivity");
     }

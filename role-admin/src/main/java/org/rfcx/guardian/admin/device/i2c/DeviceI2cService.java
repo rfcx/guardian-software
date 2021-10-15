@@ -1,6 +1,7 @@
 package org.rfcx.guardian.admin.device.i2c;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -13,203 +14,203 @@ import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class DeviceI2cService extends Service {
 
-	public static final String SERVICE_NAME = "DeviceI2c";
+    public static final String SERVICE_NAME = "DeviceI2c";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceI2cService");
-	
-	private RfcxGuardian app;
-	
-	private boolean runFlag = false;
-	private DeviceI2cSvc deviceI2cSvc;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "DeviceI2cService");
 
-	private int referenceCycleDuration = 1;
-	private int referenceLoopDuration = 1;
+    private RfcxGuardian app;
 
-	private int innerLoopIncrement = 1;
-	private int innerLoopsPerCaptureCycle = 1;
-	private long innerLoopDelayRemainderInMilliseconds = 0;
+    private boolean runFlag = false;
+    private DeviceI2cSvc deviceI2cSvc;
 
-	private double innerLoopsPerCaptureCycle_Power = 0;
-	private double innerLoopsPerCaptureCycle_Accelerometer = 0;
+    private int referenceCycleDuration = 1;
+    private int referenceLoopDuration = 1;
 
-	// Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
-	// This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
-	private double captureCycleLastDurationPercentageMultiplier = 0.98;
-	private long captureCycleLastStartTime = 0;
-	private long[] captureCycleMeasuredDurations = new long[] { 0, 0, 0 };
-	private double[] captureCyclePercentageMultipliers = new double[] { 0, 0, 0 };
+    private int innerLoopIncrement = 1;
+    private int innerLoopsPerCaptureCycle = 1;
+    private long innerLoopDelayRemainderInMilliseconds = 0;
 
-	private int outerLoopIncrement = 0;
-	private int outerLoopCaptureCount = 0;
+    private double innerLoopsPerCaptureCycle_Power = 0;
+    private double innerLoopsPerCaptureCycle_Accelerometer = 0;
 
-	private boolean isSentinelPowerCaptureAllowed = true;
-	private boolean isSentinelAccelCaptureAllowed = true;
-	private boolean isSentinelCompassCaptureAllowed = true;
+    // Sampling adds to the duration of the overall capture cycle, so we cut it short slightly based on an EMPIRICALLY DETERMINED percentage
+    // This can help ensure, for example, that a 60 second capture loop actually returns values with an interval of 60 seconds, instead of 61 or 62 seconds
+    private double captureCycleLastDurationPercentageMultiplier = 0.98;
+    private long captureCycleLastStartTime = 0;
+    private long[] captureCycleMeasuredDurations = new long[]{0, 0, 0};
+    private double[] captureCyclePercentageMultipliers = new double[]{0, 0, 0};
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.deviceI2cSvc = new DeviceI2cSvc();
-		app = (RfcxGuardian) getApplication();
-		
-	}
-	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
-		Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.deviceI2cSvc.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.deviceI2cSvc.interrupt();
-		this.deviceI2cSvc = null;
-	}
-	
-	
-	private class DeviceI2cSvc extends Thread {
-		
-		public DeviceI2cSvc() {
-			super("DeviceI2cService-DeviceI2cSvc");
-		}
-		
-		@Override
-		public void run() {
-			DeviceI2cService deviceI2cService = DeviceI2cService.this;
+    private int outerLoopIncrement = 0;
+    private int outerLoopCaptureCount = 0;
 
-			app = (RfcxGuardian) getApplication();
+    private boolean isSentinelPowerCaptureAllowed = true;
+    private boolean isSentinelAccelCaptureAllowed = true;
+    private boolean isSentinelCompassCaptureAllowed = true;
 
-			while (deviceI2cService.runFlag) {
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
-				try {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.deviceI2cSvc = new DeviceI2cSvc();
+        app = (RfcxGuardian) getApplication();
 
-					confirmOrSetCaptureParameters();
+    }
 
-					if (innerLoopDelayRemainderInMilliseconds > 0) {
-						Thread.sleep(innerLoopDelayRemainderInMilliseconds);
-					}
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        Log.v(logTag, "Starting service: " + logTag);
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.deviceI2cSvc.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-					// Inner Loop Behavior
-					innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.deviceI2cSvc.interrupt();
+        this.deviceI2cSvc = null;
+    }
 
-					if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
 
-						app.rfcxSvc.reportAsActive(SERVICE_NAME);
+    private class DeviceI2cSvc extends Thread {
 
-						// Outer Loop Behavior
-						outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
+        public DeviceI2cSvc() {
+            super("DeviceI2cService-DeviceI2cSvc");
+        }
 
-					}
+        @Override
+        public void run() {
+            DeviceI2cService deviceI2cService = DeviceI2cService.this;
 
-				} catch (InterruptedException e) {
-					deviceI2cService.runFlag = false;
-					app.rfcxSvc.setRunState(SERVICE_NAME, false);
-					RfcxLog.logExc(logTag, e);
-				}
+            app = (RfcxGuardian) getApplication();
 
-			}
-			Log.v(logTag, "Stopping service: " + logTag);
-		}		
-	}
+            while (deviceI2cService.runFlag) {
 
-	private int triggerOrSkipInnerLoopBehavior(int innerLoopIncrement, int innerLoopsPerCaptureCycle) {
+                try {
 
-		innerLoopIncrement++;
-		if (innerLoopIncrement > innerLoopsPerCaptureCycle) {
-			innerLoopIncrement = 1;
-		}
+                    confirmOrSetCaptureParameters();
 
-		//	Log.e(logTag, "RUN INNER LOOP BEHAVIOR...");
+                    if (innerLoopDelayRemainderInMilliseconds > 0) {
+                        Thread.sleep(innerLoopDelayRemainderInMilliseconds);
+                    }
 
-		if ((innerLoopIncrement % this.innerLoopsPerCaptureCycle_Power == 0) && this.isSentinelPowerCaptureAllowed) {
-			app.sentinelPowerUtils.updateSentinelPowerValues();
-		}
+                    // Inner Loop Behavior
+                    innerLoopIncrement = triggerOrSkipInnerLoopBehavior(innerLoopIncrement, innerLoopsPerCaptureCycle);
 
-		if ((innerLoopIncrement % this.innerLoopsPerCaptureCycle_Accelerometer == 0) && this.isSentinelAccelCaptureAllowed) {
-			app.sentryAccelUtils.updateSentryAccelValues();
-		}
+                    if (innerLoopIncrement == innerLoopsPerCaptureCycle) {
 
-		return innerLoopIncrement;
-	}
+                        app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-	private int triggerOrSkipOuterLoopBehavior(int outerLoopIncrement, int outerLoopCaptureCount) {
+                        // Outer Loop Behavior
+                        outerLoopIncrement = triggerOrSkipOuterLoopBehavior(outerLoopIncrement, outerLoopCaptureCount);
 
-		outerLoopIncrement++;
-		if (outerLoopIncrement > outerLoopCaptureCount) {
-			outerLoopIncrement = 1;
-		}
+                    }
 
-		// run this on every loop, if allowed
-		if (this.isSentinelPowerCaptureAllowed) {
-			app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(true);
-		}
+                } catch (InterruptedException e) {
+                    deviceI2cService.runFlag = false;
+                    app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                    RfcxLog.logExc(logTag, e);
+                }
 
-		// run these on specific outer loop iterations
-		if (outerLoopIncrement == outerLoopCaptureCount) {
+            }
+            Log.v(logTag, "Stopping service: " + logTag);
+        }
+    }
 
-			if (this.isSentinelAccelCaptureAllowed) {
-				app.sentryAccelUtils.saveSentryAccelValuesToDatabase(true);
-			}
-		}
+    private int triggerOrSkipInnerLoopBehavior(int innerLoopIncrement, int innerLoopsPerCaptureCycle) {
 
-		return outerLoopIncrement;
-	}
+        innerLoopIncrement++;
+        if (innerLoopIncrement > innerLoopsPerCaptureCycle) {
+            innerLoopIncrement = 1;
+        }
 
-	private boolean confirmOrSetCaptureParameters() {
+        //	Log.e(logTag, "RUN INNER LOOP BEHAVIOR...");
 
-		if ((app != null) && (innerLoopIncrement == 1)) {
+        if ((innerLoopIncrement % this.innerLoopsPerCaptureCycle_Power == 0) && this.isSentinelPowerCaptureAllowed) {
+            app.sentinelPowerUtils.updateSentinelPowerValues();
+        }
 
-			this.captureCycleLastStartTime = System.currentTimeMillis();
+        if ((innerLoopIncrement % this.innerLoopsPerCaptureCycle_Accelerometer == 0) && this.isSentinelAccelCaptureAllowed) {
+            app.sentryAccelUtils.updateSentryAccelValues();
+        }
 
-			this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.checkSetChipConfigByI2c();
+        return innerLoopIncrement;
+    }
 
-			this.isSentinelAccelCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentryAccelUtils.isChipAccessibleByI2c();
+    private int triggerOrSkipOuterLoopBehavior(int outerLoopIncrement, int outerLoopCaptureCount) {
 
-			// when audio capture is disabled (for any number of reasons), we continue to capture system stats...
-			// however, we slow the capture cycle by the multiple indicated in SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
-			int prefsCycleDuration = app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * DeviceI2CUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
-			int prefsLoopDuration =  Math.max(DeviceUtils.minTelemetryCaptureCycleMs, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE)); /*app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE) * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) :*/
+        outerLoopIncrement++;
+        if (outerLoopIncrement > outerLoopCaptureCount) {
+            outerLoopIncrement = 1;
+        }
 
-			if (	(this.referenceCycleDuration != prefsCycleDuration)
-				|| 	(this.referenceLoopDuration != prefsLoopDuration)
-			) {
+        // run this on every loop, if allowed
+        if (this.isSentinelPowerCaptureAllowed) {
+            app.sentinelPowerUtils.saveSentinelPowerValuesToDatabase(true);
+        }
 
-				this.referenceCycleDuration = prefsCycleDuration;
-				this.referenceLoopDuration = prefsLoopDuration;
-				this.innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsCycleDuration, prefsLoopDuration);
-				this.outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsCycleDuration);
+        // run these on specific outer loop iterations
+        if (outerLoopIncrement == outerLoopCaptureCount) {
 
-				long samplingOperationDuration = 0;
-				this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration, prefsLoopDuration);
+            if (this.isSentinelAccelCaptureAllowed) {
+                app.sentryAccelUtils.saveSentryAccelValuesToDatabase(true);
+            }
+        }
 
-				this.innerLoopsPerCaptureCycle_Power = 1;
-				this.innerLoopsPerCaptureCycle_Accelerometer = Math.ceil((double) this.innerLoopsPerCaptureCycle / SentryAccelUtils.samplesTakenPerCaptureCycle);
+        return outerLoopIncrement;
+    }
 
-				Log.d(logTag, "SentinelStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
-						"Snapshots (all metrics) taken every " + Math.round((double) DeviceUtils.getCaptureCycleDuration(prefsCycleDuration) / 1000) + " seconds.");
-			}
+    private boolean confirmOrSetCaptureParameters() {
 
-		} else {
-			return false;
-		}
+        if ((app != null) && (innerLoopIncrement == 1)) {
 
-		return true;
-	}
+            this.captureCycleLastStartTime = System.currentTimeMillis();
+
+            this.isSentinelPowerCaptureAllowed = app.sentinelPowerUtils.checkSetChipConfigByI2c();
+
+            this.isSentinelAccelCaptureAllowed = !app.deviceUtils.isReducedCaptureModeActive && app.sentryAccelUtils.isChipAccessibleByI2c();
+
+            // when audio capture is disabled (for any number of reasons), we continue to capture system stats...
+            // however, we slow the capture cycle by the multiple indicated in SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf
+            int prefsCycleDuration = app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * DeviceI2CUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) : app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION);
+            int prefsLoopDuration = Math.max(DeviceUtils.minTelemetryCaptureCycleMs, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE)); /*app.deviceUtils.isReducedCaptureModeActive ? (app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.ADMIN_TELEMETRY_CAPTURE_CYCLE) * SentinelUtils.inReducedCaptureModeExtendCaptureCycleByFactorOf) :*/
+
+            if ((this.referenceCycleDuration != prefsCycleDuration)
+                    || (this.referenceLoopDuration != prefsLoopDuration)
+            ) {
+
+                this.referenceCycleDuration = prefsCycleDuration;
+                this.referenceLoopDuration = prefsLoopDuration;
+                this.innerLoopsPerCaptureCycle = DeviceUtils.getInnerLoopsPerCaptureCycle(prefsCycleDuration, prefsLoopDuration);
+                this.outerLoopCaptureCount = DeviceUtils.getOuterLoopCaptureCount(prefsCycleDuration);
+
+                long samplingOperationDuration = 0;
+                this.innerLoopDelayRemainderInMilliseconds = DeviceUtils.getInnerLoopDelayRemainder(prefsCycleDuration, this.captureCycleLastDurationPercentageMultiplier, samplingOperationDuration, prefsLoopDuration);
+
+                this.innerLoopsPerCaptureCycle_Power = 1;
+                this.innerLoopsPerCaptureCycle_Accelerometer = Math.ceil((double) this.innerLoopsPerCaptureCycle / SentryAccelUtils.samplesTakenPerCaptureCycle);
+
+                Log.d(logTag, "SentinelStats Capture" + (app.deviceUtils.isReducedCaptureModeActive ? " (currently limited)" : "") + ": " +
+                        "Snapshots (all metrics) taken every " + Math.round((double) DeviceUtils.getCaptureCycleDuration(prefsCycleDuration) / 1000) + " seconds.");
+            }
+
+        } else {
+            return false;
+        }
+
+        return true;
+    }
 
 }

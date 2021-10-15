@@ -37,15 +37,15 @@ class MainActivity : Activity() {
         }
 
         clockSyncButton.setOnClickListener {
-            app.rfcxSvc.triggerService( ClockSyncJobService.SERVICE_NAME, true)
+            app.rfcxSvc.triggerService(ClockSyncJobService.SERVICE_NAME, true)
         }
 
         screenshotButton.setOnClickListener {
-            app.rfcxSvc.triggerService( ScreenShotCaptureService.SERVICE_NAME, true)
+            app.rfcxSvc.triggerService(ScreenShotCaptureService.SERVICE_NAME, true)
         }
 
         rebootButton.setOnClickListener {
-            app.rfcxSvc.triggerService( RebootTriggerService.SERVICE_NAME, true)
+            app.rfcxSvc.triggerService(RebootTriggerService.SERVICE_NAME, true)
         }
 
     }
@@ -64,7 +64,6 @@ class MainActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
     }
-
 
 
 }

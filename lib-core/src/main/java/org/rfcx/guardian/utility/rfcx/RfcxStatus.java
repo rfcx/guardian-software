@@ -36,6 +36,7 @@ public class RfcxStatus {
     private boolean isFetchQueryInFlight = false;
     private long localValueCacheExpiresAfter = Math.round((localCacheExpirationBounds[0] + localCacheExpirationBounds[1]) / 2.0);
     private long fetchedValueCacheExpiresAfter = Math.round((fetchedExpirationBounds[0] + fetchedExpirationBounds[1]) / 2.0);
+
     public RfcxStatus(String appRole, String fetchTargetRole, RfcxGuardianIdentity rfcxGuardianIdentity, ContentResolver contentResolver) {
         this.logTag = RfcxLog.generateLogTag(appRole, "RfcxStatus");
         this.fetchTargetRole = ArrayUtils.doesStringArrayContainString(RfcxRole.ALL_ROLES, fetchTargetRole) ? fetchTargetRole.toLowerCase(Locale.US) : null;

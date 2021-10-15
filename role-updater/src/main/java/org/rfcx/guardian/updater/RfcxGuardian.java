@@ -81,9 +81,11 @@ public class RfcxGuardian extends Application {
         this.unregisterReceiver(connectivityReceiver);
     }
 
-    public void appResume() { }
+    public void appResume() {
+    }
 
-    public void appPause() { }
+    public void appPause() {
+    }
 
     public ContentResolver getResolver() {
         return this.getApplicationContext().getContentResolver();
@@ -93,16 +95,16 @@ public class RfcxGuardian extends Application {
 
         if (!this.rfcxSvc.hasRun("OnLaunchServiceSequence")) {
 
-            String[] runOnceOnlyOnLaunch = new String[] {
+            String[] runOnceOnlyOnLaunch = new String[]{
                     ApiUpdateRequestTrigger.SERVICE_NAME
-                            +"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
-                            +"|"+ ( ( 2 * ApiUpdateRequestUtils.minimumAllowedIntervalBetweenUpdateRequests) * ( 60 * 1000 ) ) // repeats hourly
+                            + "|" + DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
+                            + "|" + ((2 * ApiUpdateRequestUtils.minimumAllowedIntervalBetweenUpdateRequests) * (60 * 1000)) // repeats hourly
             };
 
-            String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
+            String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
             System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
             System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-            this.rfcxSvc.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, true, 0);
+            this.rfcxSvc.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
         }
 
     }
@@ -112,11 +114,11 @@ public class RfcxGuardian extends Application {
     }
 
     private void setServiceHandlers() {
-        this.rfcxSvc.addService( ApiUpdateRequestTrigger.SERVICE_NAME, ApiUpdateRequestTrigger.class);
-        this.rfcxSvc.addService( ApiUpdateRequestService.SERVICE_NAME, ApiUpdateRequestService.class);
-        this.rfcxSvc.addService( DownloadFileService.SERVICE_NAME, DownloadFileService.class);
-        this.rfcxSvc.addService( InstallAppService.SERVICE_NAME, InstallAppService.class);
-        this.rfcxSvc.addService( RebootTriggerService.SERVICE_NAME, RebootTriggerService.class);
+        this.rfcxSvc.addService(ApiUpdateRequestTrigger.SERVICE_NAME, ApiUpdateRequestTrigger.class);
+        this.rfcxSvc.addService(ApiUpdateRequestService.SERVICE_NAME, ApiUpdateRequestService.class);
+        this.rfcxSvc.addService(DownloadFileService.SERVICE_NAME, DownloadFileService.class);
+        this.rfcxSvc.addService(InstallAppService.SERVICE_NAME, InstallAppService.class);
+        this.rfcxSvc.addService(RebootTriggerService.SERVICE_NAME, RebootTriggerService.class);
     }
 
     public void onPrefReSync(String prefKey) {

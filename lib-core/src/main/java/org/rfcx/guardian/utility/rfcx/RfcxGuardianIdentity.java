@@ -23,6 +23,7 @@ public class RfcxGuardianIdentity {
     private String authToken;
     private String keystorePassPhrase;
     private String pinCode;
+
     public RfcxGuardianIdentity(Context context, String appRole) {
         this.logTag = RfcxLog.generateLogTag(appRole, "RfcxGuardianIdentity");
         this.context = context;

@@ -72,9 +72,11 @@ public class RfcxGuardian extends Application {
         super.onTerminate();
     }
 
-    public void appResume() { }
+    public void appResume() {
+    }
 
-    public void appPause() { }
+    public void appPause() {
+    }
 
     public ContentResolver getResolver() {
         return this.getApplicationContext().getContentResolver();
@@ -84,16 +86,16 @@ public class RfcxGuardian extends Application {
 
         if (!this.rfcxSvc.hasRun("OnLaunchServiceSequence")) {
 
-            String[] runOnceOnlyOnLaunch = new String[] {
+            String[] runOnceOnlyOnLaunch = new String[]{
 //                    ApiUpdateRequestTrigger.SERVICE_NAME
 //                            +"|"+DateTimeUtils.nowPlusThisLong("00:02:00").getTimeInMillis() // waits 2 minutes before running
 //                            +"|"+ ( ( 2 * ApiUpdateRequestUtils.minimumAllowedIntervalBetweenUpdateRequests) * ( 60 * 1000 ) ) // repeats hourly
             };
 
-            String[] onLaunchServices = new String[ RfcxCoreServices.length + runOnceOnlyOnLaunch.length ];
+            String[] onLaunchServices = new String[RfcxCoreServices.length + runOnceOnlyOnLaunch.length];
             System.arraycopy(RfcxCoreServices, 0, onLaunchServices, 0, RfcxCoreServices.length);
             System.arraycopy(runOnceOnlyOnLaunch, 0, onLaunchServices, RfcxCoreServices.length, runOnceOnlyOnLaunch.length);
-            this.rfcxSvc.triggerServiceSequence( "OnLaunchServiceSequence", onLaunchServices, true, 0);
+            this.rfcxSvc.triggerServiceSequence("OnLaunchServiceSequence", onLaunchServices, true, 0);
         }
 
     }
@@ -106,9 +108,9 @@ public class RfcxGuardian extends Application {
 
     private void setServiceHandlers() {
 
-        this.rfcxSvc.addService( ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
-        this.rfcxSvc.addService( AudioClassifyJobService.SERVICE_NAME, AudioClassifyJobService.class);
-        this.rfcxSvc.addService( AudioDetectionSendService.SERVICE_NAME, AudioDetectionSendService.class);
+        this.rfcxSvc.addService(ServiceMonitor.SERVICE_NAME, ServiceMonitor.class);
+        this.rfcxSvc.addService(AudioClassifyJobService.SERVICE_NAME, AudioClassifyJobService.class);
+        this.rfcxSvc.addService(AudioDetectionSendService.SERVICE_NAME, AudioDetectionSendService.class);
 
     }
 

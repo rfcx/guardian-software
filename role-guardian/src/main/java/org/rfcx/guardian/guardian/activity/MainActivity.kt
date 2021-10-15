@@ -83,7 +83,7 @@ class MainActivity : Activity(),
 
         downloadDevClassifierButton.setOnClickListener {
             app.assetDownloadUtils.createDummyRow();
-            app.rfcxSvc.triggerService( AssetDownloadJobService.SERVICE_NAME, false );
+            app.rfcxSvc.triggerService(AssetDownloadJobService.SERVICE_NAME, false);
         }
 
         registerButton.setOnClickListener {
@@ -142,7 +142,7 @@ class MainActivity : Activity(),
     }
 
     private fun sendPing() {
-        app.rfcxSvc.triggerService( SendApiPingService.SERVICE_NAME, false);
+        app.rfcxSvc.triggerService(SendApiPingService.SERVICE_NAME, false);
     }
 
     private fun clearRegistration() {

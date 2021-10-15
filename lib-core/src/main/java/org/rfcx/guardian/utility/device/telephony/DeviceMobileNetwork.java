@@ -15,6 +15,7 @@ public class DeviceMobileNetwork {
     private String logTag;
     private TelephonyManager telephonyManager;
     private SignalStrength telephonySignalStrength;
+
     public DeviceMobileNetwork(String appRole) {
         this.logTag = RfcxLog.generateLogTag(appRole, "DeviceMobileNetwork");
     }

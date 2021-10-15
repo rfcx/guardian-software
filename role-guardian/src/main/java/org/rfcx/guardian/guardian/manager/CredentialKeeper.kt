@@ -39,7 +39,8 @@ class CredentialKeeper(val context: Context) {
 
     fun hasValidCredentials(): Boolean {
         val preferences = PreferenceManager.getInstance(context)
-        return preferences.getString(PreferenceManager.ID_TOKEN, "").isNotEmpty() && preferences.getStringSet(PreferenceManager.ROLES).contains("rfcxUser")
+        return preferences.getString(PreferenceManager.ID_TOKEN, "")
+            .isNotEmpty() && preferences.getStringSet(PreferenceManager.ROLES).contains("rfcxUser")
     }
 
 }

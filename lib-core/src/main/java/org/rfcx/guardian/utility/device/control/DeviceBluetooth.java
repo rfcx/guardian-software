@@ -26,6 +26,7 @@ public class DeviceBluetooth {
 
     // Tethering controls
     private Context context;
+
     public DeviceBluetooth(Context context) {
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         this.context = context;

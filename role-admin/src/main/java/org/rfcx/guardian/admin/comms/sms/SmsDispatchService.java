@@ -16,119 +16,119 @@ import java.util.List;
 
 public class SmsDispatchService extends Service {
 
-	public static final String SERVICE_NAME = "SmsDispatch";
+    public static final String SERVICE_NAME = "SmsDispatch";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SmsDispatchService");
-	
-	private RfcxGuardian app;
-	
-	private boolean runFlag = false;
-	private SmsDispatch smsDispatch;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SmsDispatchService");
 
-	private long forcedPauseBetweenEachDispatch = 3333;
+    private RfcxGuardian app;
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.smsDispatch = new SmsDispatch();
-		app = (RfcxGuardian) getApplication();
-	}
-	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
-	//	Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.smsDispatch.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.smsDispatch.interrupt();
-		this.smsDispatch = null;
-	}
-	
-	
-	private class SmsDispatch extends Thread {
-		
-		public SmsDispatch() {
-			super("SmsDispatchService-SmsDispatch");
-		}
-		
-		@Override
-		public void run() {
-			SmsDispatchService smsDispatchInstance = SmsDispatchService.this;
-			
-			app = (RfcxGuardian) getApplication();
+    private boolean runFlag = false;
+    private SmsDispatch smsDispatch;
 
-			try {
+    private long forcedPauseBetweenEachDispatch = 3333;
 
-				app.rfcxSvc.reportAsActive(SERVICE_NAME);
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
-				String apiSmsAddress = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SMS_ADDRESS);
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.smsDispatch = new SmsDispatch();
+        app = (RfcxGuardian) getApplication();
+    }
 
-				List<String[]> smsQueuedForDispatch = app.smsMessageDb.dbSmsQueued.getRowsInOrderOfTimestamp();
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        //	Log.v(logTag, "Starting service: "+logTag);
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.smsDispatch.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-				for (String[] smsForDispatch : smsQueuedForDispatch) {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.smsDispatch.interrupt();
+        this.smsDispatch = null;
+    }
 
-					// only proceed with dispatch process if there is a valid queued sms message in the database
-					if (smsForDispatch[0] != null) {
 
-						long sendAtOrAfter = Long.parseLong(smsForDispatch[1]);
-						long rightNow = System.currentTimeMillis();
+    private class SmsDispatch extends Thread {
 
-						if (sendAtOrAfter <= rightNow) {
+        public SmsDispatch() {
+            super("SmsDispatchService-SmsDispatch");
+        }
 
-							String msgId = smsForDispatch[4];
-							String msgAddress = smsForDispatch[2];
-							String msgBody = smsForDispatch[3];
+        @Override
+        public void run() {
+            SmsDispatchService smsDispatchInstance = SmsDispatchService.this;
 
-							DeviceSmsUtils.sendSmsMessage(msgAddress, msgBody);
+            app = (RfcxGuardian) getApplication();
 
-							app.smsMessageDb.dbSmsQueued.deleteSingleRowByMessageId(msgId);
+            try {
 
-							if (!msgAddress.equalsIgnoreCase(apiSmsAddress)) {
+                app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-								app.smsMessageDb.dbSmsSent.insert(rightNow, msgAddress, msgBody, msgId);
-								Log.w(logTag, "SMS Sent (ID " + msgId + "): To " + msgAddress + " at " + DateTimeUtils.getDateTime(rightNow) + ": \"" + msgBody + "\"");
+                String apiSmsAddress = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SMS_ADDRESS);
 
-							} else {
+                List<String[]> smsQueuedForDispatch = app.smsMessageDb.dbSmsQueued.getRowsInOrderOfTimestamp();
 
-								String concatSegId = msgBody.substring(0,4) + "-" + msgBody.substring(4,7);
-								Log.v(logTag, DateTimeUtils.getDateTime(rightNow)+" - Segment '"+concatSegId + "' sent by SMS ("+msgBody.length()+" chars)");
-								RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
-							}
+                for (String[] smsForDispatch : smsQueuedForDispatch) {
 
-							Thread.sleep(forcedPauseBetweenEachDispatch);
-						}
-					}
-				}
+                    // only proceed with dispatch process if there is a valid queued sms message in the database
+                    if (smsForDispatch[0] != null) {
 
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
+                        long sendAtOrAfter = Long.parseLong(smsForDispatch[1]);
+                        long rightNow = System.currentTimeMillis();
 
-			} finally {
-				app.rfcxSvc.setRunState(SERVICE_NAME, false);
-				app.rfcxSvc.stopService(SERVICE_NAME, false);
-				smsDispatchInstance.runFlag = false;
-			}
+                        if (sendAtOrAfter <= rightNow) {
 
-		}
-	}
+                            String msgId = smsForDispatch[4];
+                            String msgAddress = smsForDispatch[2];
+                            String msgBody = smsForDispatch[3];
 
-	
+                            DeviceSmsUtils.sendSmsMessage(msgAddress, msgBody);
+
+                            app.smsMessageDb.dbSmsQueued.deleteSingleRowByMessageId(msgId);
+
+                            if (!msgAddress.equalsIgnoreCase(apiSmsAddress)) {
+
+                                app.smsMessageDb.dbSmsSent.insert(rightNow, msgAddress, msgBody, msgId);
+                                Log.w(logTag, "SMS Sent (ID " + msgId + "): To " + msgAddress + " at " + DateTimeUtils.getDateTime(rightNow) + ": \"" + msgBody + "\"");
+
+                            } else {
+
+                                String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
+                                Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SMS (" + msgBody.length() + " chars)");
+                                RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
+                            }
+
+                            Thread.sleep(forcedPauseBetweenEachDispatch);
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+
+            } finally {
+                app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                app.rfcxSvc.stopService(SERVICE_NAME, false);
+                smsDispatchInstance.runFlag = false;
+            }
+
+        }
+    }
+
+
 }

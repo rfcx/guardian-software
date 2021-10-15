@@ -9,7 +9,8 @@ class SwmApi(private val connection: SwmConnection) {
 
     enum class Command { TD, MT, SL, RT, DT, PO }
 
-    private val datetimeCompactFormatter = SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
+    private val datetimeCompactFormatter =
+        SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
 
     // TODO unit test
 //    fun transmitData(msgStr: String): SwmTDResponse? {
@@ -61,7 +62,8 @@ class SwmApi(private val connection: SwmConnection) {
 
     fun getRTSatellite(): SwmRTResponse? {
         val results = connection.executeWithoutTimeout(Command.RT.name, "@")
-        val regex = "RSSI=(-?[0-9]+),SNR=(-?[0-9]+),FDEV=(-?[0-9]+),TS=([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}),DI=(0x[0-9]+)".toRegex()
+        val regex =
+            "RSSI=(-?[0-9]+),SNR=(-?[0-9]+),FDEV=(-?[0-9]+),TS=([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}),DI=(0x[0-9]+)".toRegex()
         val firstMatchResult = results.mapNotNull { regex.find(it) }.firstOrNull()
         return firstMatchResult?.let { match ->
             val (rssi, snr, fdev, time, satId) = match.destructured
@@ -71,13 +73,15 @@ class SwmApi(private val connection: SwmConnection) {
 
     fun getRTBackground(): SwmRTBackgroundResponse? {
         // Set the background rate to 1s and wait 1.5s to get a result
-        val result = connection.executeWithoutTimeout(Command.RT.name, "2").filter { !it.contains("OK") }.firstOrNull()?.let { payload ->
-            Log.d("RfcxSwmCommand", "RT Res=$payload")
-            "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { match ->
-                val (rssi) = match.destructured
-                SwmRTBackgroundResponse(rssi = rssi.toInt())
+        val result =
+            connection.executeWithoutTimeout(Command.RT.name, "2").filter { !it.contains("OK") }
+                .firstOrNull()?.let { payload ->
+                Log.d("RfcxSwmCommand", "RT Res=$payload")
+                "RSSI=(-?[0-9]+)".toRegex().find(payload)?.let { match ->
+                    val (rssi) = match.destructured
+                    SwmRTBackgroundResponse(rssi = rssi.toInt())
+                }
             }
-        }
         Log.d("RfcxSwmCommand", "RT RSSI=${result?.rssi}")
         // Set the rate back to off
         connection.executeWithoutTimeout(Command.RT.name, "0")

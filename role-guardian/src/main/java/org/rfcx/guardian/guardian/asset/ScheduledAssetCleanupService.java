@@ -9,31 +9,32 @@ import org.rfcx.guardian.utility.rfcx.RfcxSvc;
 
 public class ScheduledAssetCleanupService extends IntentService {
 
-	public static final String SERVICE_NAME = "ScheduledAssetCleanup";
+    public static final String SERVICE_NAME = "ScheduledAssetCleanup";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledAssetCleanupService");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ScheduledAssetCleanupService");
 
-	public static final int ASSET_CLEANUP_CYCLE_DURATION_MINUTES = 120;
+    public static final int ASSET_CLEANUP_CYCLE_DURATION_MINUTES = 120;
 
-	public ScheduledAssetCleanupService() {
-		super(logTag);
-	}
-	
-	@Override
-	protected void onHandleIntent(Intent inputIntent) {
-		Intent intent = new Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
-		sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));;
-		
-		RfcxGuardian app = (RfcxGuardian) getApplication();
-		
-		app.rfcxSvc.reportAsActive(SERVICE_NAME);
+    public ScheduledAssetCleanupService() {
+        super(logTag);
+    }
 
-		try {
-			app.assetUtils.runFileSystemAssetCleanup();
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
-	}
-	
-	
+    @Override
+    protected void onHandleIntent(Intent inputIntent) {
+        Intent intent = new Intent(RfcxSvc.intentServiceTags(false, RfcxGuardian.APP_ROLE, SERVICE_NAME));
+        sendBroadcast(intent, RfcxSvc.intentServiceTags(true, RfcxGuardian.APP_ROLE, SERVICE_NAME));
+        ;
+
+        RfcxGuardian app = (RfcxGuardian) getApplication();
+
+        app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
+        try {
+            app.assetUtils.runFileSystemAssetCleanup();
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
+    }
+
+
 }

@@ -28,107 +28,105 @@ import java.util.Locale;
 
 public class ApiCheckInJsonUtils {
 
-	public ApiCheckInJsonUtils(Context context) {
+    public ApiCheckInJsonUtils(Context context) {
 
-		this.app = (RfcxGuardian) context.getApplicationContext();
+        this.app = (RfcxGuardian) context.getApplicationContext();
 
-	}
+    }
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInJsonUtils");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInJsonUtils");
 
-	private RfcxGuardian app;
-
-
-	public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta, String[] photoFileMeta, String[] videoFileMeta) throws JSONException, IOException {
-
-		// bundle and add meta blobs
-		JSONObject jsonObj = app.metaJsonUtils.retrieveAndBundleMetaJson(null, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
-
-		// bundle and add detections
-		jsonObj = app.audioDetectionJsonUtils.retrieveAndBundleDetectionJson( jsonObj, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
-
-		// Adding Audio JSON fields from checkin table
-		JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
-		jsonObj.put("queued_at", checkInJsonObj.getLong("queued_at"));
-		jsonObj.put("audio", checkInJsonObj.getString("audio"));
-
-		// Recording number of currently queued/skipped/stashed checkins
-		jsonObj.put("checkins", app.metaJsonUtils.getCheckInStatusInfoForJson( new String[] { "sent" } ));
-
-		jsonObj.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT)));
-
-		// Adding software role versions
-		jsonObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
-
-		// Adding checksum of current prefs values
-		jsonObj.put("prefs", app.metaJsonUtils.buildPrefsJsonObj(false, false));
-
-		// Adding instructions, if there are any
-		if (app.instructionsUtils.getInstructionsCount() > 0) {
-			jsonObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
-		}
-
-		// Adding library assets, if there are any
-		if (app.assetLibraryUtils.getLibraryAssetCount() > 0) {
-			jsonObj.put("library", app.assetLibraryUtils.getLibraryInfoAsJson());
-		}
-
-		// Adding messages to JSON blob
-		JSONArray smsArr = RfcxComm.getQuery("admin", "database_get_all_rows", "sms", app.getResolver());
-		if (smsArr.length() > 0) { jsonObj.put("messages", smsArr); }
-
-		// Adding screenshot meta to JSON blob
-		if (screenShotMeta[0] != null) {
-			jsonObj.put("screenshots", TextUtils.join("*", new String[]{screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6]}));
-		}
-
-		// Adding logs meta to JSON blob
-		if (logFileMeta[0] != null) {
-			jsonObj.put("logs", TextUtils.join("*", new String[]{logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4]}));
-		}
-
-		// Adding photos meta to JSON blob
-		if (photoFileMeta[0] != null) {
-			jsonObj.put("photos", TextUtils.join("*", new String[]{photoFileMeta[1], photoFileMeta[2], photoFileMeta[3], photoFileMeta[4], photoFileMeta[5], photoFileMeta[6]}));
-		}
-
-		// Adding videos meta to JSON blob
-		if (videoFileMeta[0] != null) {
-			jsonObj.put("videos", TextUtils.join("*", new String[]{videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6]}));
-		}
-
-		int limitLogsTo = 1500;
-		String strLogs = jsonObj.toString();
-		Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
-
-		return jsonObj.toString();
-
-	}
-
-	public String buildCheckInQueueJson(String[] audioFileInfo) {
-
-		try {
-			JSONObject queueJson = new JSONObject();
-
-			// Recording the moment the check in was queued
-			queueJson.put("queued_at", System.currentTimeMillis());
-
-			// Adding audio file metadata
-			List<String> audioFiles = new ArrayList<String>();
-			audioFiles.add(TextUtils.join("*", audioFileInfo));
-			queueJson.put("audio", TextUtils.join("|", audioFiles));
-
-			return queueJson.toString();
-
-		} catch (JSONException e) {
-			RfcxLog.logExc(logTag, e);
-			return "{}";
-		}
-	}
+    private RfcxGuardian app;
 
 
+    public String buildCheckInJson(String checkInJsonString, String[] screenShotMeta, String[] logFileMeta, String[] photoFileMeta, String[] videoFileMeta) throws JSONException, IOException {
 
+        // bundle and add meta blobs
+        JSONObject jsonObj = app.metaJsonUtils.retrieveAndBundleMetaJson(null, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
 
+        // bundle and add detections
+        jsonObj = app.audioDetectionJsonUtils.retrieveAndBundleDetectionJson(jsonObj, app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT), false);
+
+        // Adding Audio JSON fields from checkin table
+        JSONObject checkInJsonObj = new JSONObject(checkInJsonString);
+        jsonObj.put("queued_at", checkInJsonObj.getLong("queued_at"));
+        jsonObj.put("audio", checkInJsonObj.getString("audio"));
+
+        // Recording number of currently queued/skipped/stashed checkins
+        jsonObj.put("checkins", app.metaJsonUtils.getCheckInStatusInfoForJson(new String[]{"sent"}));
+
+        jsonObj.put("purged", app.assetUtils.getAssetExchangeLogList("purged", 4 * app.rfcxPrefs.getPrefAsInt(RfcxPrefs.Pref.CHECKIN_META_SEND_BUNDLE_LIMIT)));
+
+        // Adding software role versions
+        jsonObj.put("software", TextUtils.join("|", RfcxRole.getInstalledRoleVersions(RfcxGuardian.APP_ROLE, app.getApplicationContext())));
+
+        // Adding checksum of current prefs values
+        jsonObj.put("prefs", app.metaJsonUtils.buildPrefsJsonObj(false, false));
+
+        // Adding instructions, if there are any
+        if (app.instructionsUtils.getInstructionsCount() > 0) {
+            jsonObj.put("instructions", app.instructionsUtils.getInstructionsInfoAsJson());
+        }
+
+        // Adding library assets, if there are any
+        if (app.assetLibraryUtils.getLibraryAssetCount() > 0) {
+            jsonObj.put("library", app.assetLibraryUtils.getLibraryInfoAsJson());
+        }
+
+        // Adding messages to JSON blob
+        JSONArray smsArr = RfcxComm.getQuery("admin", "database_get_all_rows", "sms", app.getResolver());
+        if (smsArr.length() > 0) {
+            jsonObj.put("messages", smsArr);
+        }
+
+        // Adding screenshot meta to JSON blob
+        if (screenShotMeta[0] != null) {
+            jsonObj.put("screenshots", TextUtils.join("*", new String[]{screenShotMeta[1], screenShotMeta[2], screenShotMeta[3], screenShotMeta[4], screenShotMeta[5], screenShotMeta[6]}));
+        }
+
+        // Adding logs meta to JSON blob
+        if (logFileMeta[0] != null) {
+            jsonObj.put("logs", TextUtils.join("*", new String[]{logFileMeta[1], logFileMeta[2], logFileMeta[3], logFileMeta[4]}));
+        }
+
+        // Adding photos meta to JSON blob
+        if (photoFileMeta[0] != null) {
+            jsonObj.put("photos", TextUtils.join("*", new String[]{photoFileMeta[1], photoFileMeta[2], photoFileMeta[3], photoFileMeta[4], photoFileMeta[5], photoFileMeta[6]}));
+        }
+
+        // Adding videos meta to JSON blob
+        if (videoFileMeta[0] != null) {
+            jsonObj.put("videos", TextUtils.join("*", new String[]{videoFileMeta[1], videoFileMeta[2], videoFileMeta[3], videoFileMeta[4], videoFileMeta[5], videoFileMeta[6]}));
+        }
+
+        int limitLogsTo = 1500;
+        String strLogs = jsonObj.toString();
+        Log.d(logTag, (strLogs.length() <= limitLogsTo) ? strLogs : strLogs.substring(0, limitLogsTo) + "...");
+
+        return jsonObj.toString();
+
+    }
+
+    public String buildCheckInQueueJson(String[] audioFileInfo) {
+
+        try {
+            JSONObject queueJson = new JSONObject();
+
+            // Recording the moment the check in was queued
+            queueJson.put("queued_at", System.currentTimeMillis());
+
+            // Adding audio file metadata
+            List<String> audioFiles = new ArrayList<String>();
+            audioFiles.add(TextUtils.join("*", audioFileInfo));
+            queueJson.put("audio", TextUtils.join("|", audioFiles));
+
+            return queueJson.toString();
+
+        } catch (JSONException e) {
+            RfcxLog.logExc(logTag, e);
+            return "{}";
+        }
+    }
 
 
 }

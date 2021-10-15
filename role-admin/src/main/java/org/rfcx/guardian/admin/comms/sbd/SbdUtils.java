@@ -21,170 +21,170 @@ import java.util.List;
 
 public class SbdUtils {
 
-	public SbdUtils(Context context) {
-		this.app = (RfcxGuardian) context.getApplicationContext();
-	}
-	
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdUtils");
+    public SbdUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+    }
 
-	RfcxGuardian app;
-	private static final int baudRate = 19200;
-	private String busyBoxBin = null;
-	private String ttyPath = null;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SbdUtils");
 
-	public static final long sendCmdTimeout = 70000;
-	public static final long prepCmdTimeout = 2500;
+    RfcxGuardian app;
+    private static final int baudRate = 19200;
+    private String busyBoxBin = null;
+    private String ttyPath = null;
 
-	public boolean isInFlight = false;
-	public int consecutiveDeliveryFailureCount = 0;
-	public static final int powerCycleAfterThisManyConsecutiveDeliveryFailures = 5;
+    public static final long sendCmdTimeout = 70000;
+    public static final long prepCmdTimeout = 2500;
 
-	public void init(String ttyPath, String busyBoxBin) {
-		this.ttyPath = ttyPath;
-		this.busyBoxBin = busyBoxBin;
-	}
+    public boolean isInFlight = false;
+    public int consecutiveDeliveryFailureCount = 0;
+    public static final int powerCycleAfterThisManyConsecutiveDeliveryFailures = 5;
 
-	public void setupSbdUtils() {
-		app.deviceGpioUtils.runGpioCommand("DOUT", "voltage_refr", true);
-		setPower(true);
-		setPower(false);
-	}
+    public void init(String ttyPath, String busyBoxBin) {
+        this.ttyPath = ttyPath;
+        this.busyBoxBin = busyBoxBin;
+    }
 
-	public boolean sendSbdMessage(String msgStr) {
+    public void setupSbdUtils() {
+        app.deviceGpioUtils.runGpioCommand("DOUT", "voltage_refr", true);
+        setPower(true);
+        setPower(false);
+    }
 
-		String errorMsg = "SBD Message was NOT successfully delivered.";
-		isInFlight = false;
+    public boolean sendSbdMessage(String msgStr) {
 
-		try {
+        String errorMsg = "SBD Message was NOT successfully delivered.";
+        isInFlight = false;
 
-			if ((busyBoxBin == null) || !FileUtils.exists(busyBoxBin)) {
-				errorMsg = "BusyBox binary not found on system";
-			} else if (!isNetworkAvailable()) {
-				errorMsg = "No Iridium network currently available";
-			} else {
-				String[] atCmdSeq = new String[]{ "AT&K0", "AT+SBDD0", "AT+SBDWT=" + msgStr, "AT+SBDIX" };
-				Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting AT Command Sequence: " + TextUtils.join(", ", atCmdSeq));
-				isInFlight = true;
-				app.rfcxSvc.triggerService(SbdDispatchTimeoutService.SERVICE_NAME, true);
-				long atCmdLaunchedAt = System.currentTimeMillis();
-				List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
-				isInFlight = false;
-				for (String atCmdResponseLine : atCmdResponseLines) {
-					if (atCmdResponseLine.contains("+SBDIX:")) {
-						if (Integer.parseInt(atCmdResponseLine.substring(atCmdResponseLine.indexOf(":") + 1, atCmdResponseLine.indexOf(","))) <= 2) {
-							Log.i(logTag, DateTimeUtils.getDateTime() + " - SBD Message was successfully transmitted ("+DateTimeUtils.timeStampDifferenceFromNowAsReadableString(atCmdLaunchedAt)+").");
-							return true;
-						}
-					}
-				}
-				errorMsg += " ("+DateTimeUtils.timeStampDifferenceFromNowAsReadableString(atCmdLaunchedAt)+") AT Response: " + TextUtils.join(", ", atCmdResponseLines);
-			}
+        try {
 
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
+            if ((busyBoxBin == null) || !FileUtils.exists(busyBoxBin)) {
+                errorMsg = "BusyBox binary not found on system";
+            } else if (!isNetworkAvailable()) {
+                errorMsg = "No Iridium network currently available";
+            } else {
+                String[] atCmdSeq = new String[]{"AT&K0", "AT+SBDD0", "AT+SBDWT=" + msgStr, "AT+SBDIX"};
+                Log.d(logTag, DateTimeUtils.getDateTime() + " - Attempting AT Command Sequence: " + TextUtils.join(", ", atCmdSeq));
+                isInFlight = true;
+                app.rfcxSvc.triggerService(SbdDispatchTimeoutService.SERVICE_NAME, true);
+                long atCmdLaunchedAt = System.currentTimeMillis();
+                List<String> atCmdResponseLines = ShellCommands.executeCommandAsRoot(atCmdExecStr(ttyPath, busyBoxBin, atCmdSeq));
+                isInFlight = false;
+                for (String atCmdResponseLine : atCmdResponseLines) {
+                    if (atCmdResponseLine.contains("+SBDIX:")) {
+                        if (Integer.parseInt(atCmdResponseLine.substring(atCmdResponseLine.indexOf(":") + 1, atCmdResponseLine.indexOf(","))) <= 2) {
+                            Log.i(logTag, DateTimeUtils.getDateTime() + " - SBD Message was successfully transmitted (" + DateTimeUtils.timeStampDifferenceFromNowAsReadableString(atCmdLaunchedAt) + ").");
+                            return true;
+                        }
+                    }
+                }
+                errorMsg += " (" + DateTimeUtils.timeStampDifferenceFromNowAsReadableString(atCmdLaunchedAt) + ") AT Response: " + TextUtils.join(", ", atCmdResponseLines);
+            }
 
-		isInFlight = false;
-		Log.e(logTag, errorMsg);
-		return false;
-	}
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
 
-	private static String atCmdExecStr(String ttyPath, String busyBoxBin, String[] execSteps) {
-		StringBuilder execFull = new StringBuilder();
+        isInFlight = false;
+        Log.e(logTag, errorMsg);
+        return false;
+    }
 
-		execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb");
+    private static String atCmdExecStr(String ttyPath, String busyBoxBin, String[] execSteps) {
+        StringBuilder execFull = new StringBuilder();
 
-		for (int i = 0; i < execSteps.length; i++) {
-			long waitMs = (execSteps[i].equalsIgnoreCase("AT+SBDIX")) ? Math.round( sendCmdTimeout * 0.5 ) : prepCmdTimeout;
-			execFull.append(" && ")
-					.append("echo").append(" -n").append(" '").append(execSteps[i]).append("<br_r>'")
-					.append(" | ")
-					.append(busyBoxBin).append(" microcom -t ").append(waitMs).append(" -s ").append(baudRate).append(" ").append(ttyPath);
-		}
-		return execFull.toString();
-	}
+        execFull.append(busyBoxBin).append(" stty -F ").append(ttyPath).append(" ").append(baudRate).append(" cs8 -cstopb -parenb");
 
-	// Incoming Message Tools
+        for (int i = 0; i < execSteps.length; i++) {
+            long waitMs = (execSteps[i].equalsIgnoreCase("AT+SBDIX")) ? Math.round(sendCmdTimeout * 0.5) : prepCmdTimeout;
+            execFull.append(" && ")
+                    .append("echo").append(" -n").append(" '").append(execSteps[i]).append("<br_r>'")
+                    .append(" | ")
+                    .append(busyBoxBin).append(" microcom -t ").append(waitMs).append(" -s ").append(baudRate).append(" ").append(ttyPath);
+        }
+        return execFull.toString();
+    }
 
-	public static void processIncomingSbd(JSONObject smsObj, Context context) throws JSONException {
+    // Incoming Message Tools
 
-		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+    public static void processIncomingSbd(JSONObject smsObj, Context context) throws JSONException {
 
-		// In this case, the message arrived from the API SMS address, so we attempt to parse it
-		Log.w(logTag, "SBD received from API ''.");
-		String segmentPayload = smsObj.getString("body");
-		Cursor sbdSegmentReceivedResponse =
-				app.getResolver().query(
-						RfcxComm.getUri("guardian", "segment_receive_sbd", RfcxComm.urlEncode(segmentPayload)),
-						RfcxComm.getProjection("guardian", "segment_receive_sbd"),
-						null, null, null);
+        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
 
-		if (sbdSegmentReceivedResponse != null) {
-			sbdSegmentReceivedResponse.close();
-		}
+        // In this case, the message arrived from the API SMS address, so we attempt to parse it
+        Log.w(logTag, "SBD received from API ''.");
+        String segmentPayload = smsObj.getString("body");
+        Cursor sbdSegmentReceivedResponse =
+                app.getResolver().query(
+                        RfcxComm.getUri("guardian", "segment_receive_sbd", RfcxComm.urlEncode(segmentPayload)),
+                        RfcxComm.getProjection("guardian", "segment_receive_sbd"),
+                        null, null, null);
 
-	}
+        if (sbdSegmentReceivedResponse != null) {
+            sbdSegmentReceivedResponse.close();
+        }
 
-
-
-	public int[] findRunningSerialProcessIds() {
-
-		List<Integer> processIds = new ArrayList<>();
-		isInFlight = false;
-
-		if (!FileUtils.exists(busyBoxBin)) {
-			Log.e(logTag, "Could not run findRunningSerialProcessIds(). BusyBox binary not found on system.");
-		} else {
-			List<String> processScan = ShellCommands.executeCommandAsRoot(busyBoxBin + " ps -ef | grep /dev/ttyMT");
-
-			for (String scanRtrn : processScan) {
-				if ((scanRtrn.contains("microcom")) || (scanRtrn.contains("stty"))) {
-					String processId = scanRtrn.substring(0, scanRtrn.indexOf("root"));
-					processIds.add(Integer.parseInt(processId));
-				}
-			}
-		}
-
-		return ArrayUtils.ListToIntArray(processIds);
-	}
+    }
 
 
+    public int[] findRunningSerialProcessIds() {
 
-	public void setPower(boolean setToOn) {
-		app.deviceGpioUtils.runGpioCommand("DOUT", "satellite_power", setToOn);
-	}
+        List<Integer> processIds = new ArrayList<>();
+        isInFlight = false;
 
-	public boolean isPowerOn() {
-		return app.deviceGpioUtils.readGpioValue("satellite_power", "DOUT");
-	}
+        if (!FileUtils.exists(busyBoxBin)) {
+            Log.e(logTag, "Could not run findRunningSerialProcessIds(). BusyBox binary not found on system.");
+        } else {
+            List<String> processScan = ShellCommands.executeCommandAsRoot(busyBoxBin + " ps -ef | grep /dev/ttyMT");
 
-	public boolean isNetworkAvailable() {
-		return app.deviceGpioUtils.readGpioValue("satellite_state", "DOUT");
-	}
+            for (String scanRtrn : processScan) {
+                if ((scanRtrn.contains("microcom")) || (scanRtrn.contains("stty"))) {
+                    String processId = scanRtrn.substring(0, scanRtrn.indexOf("root"));
+                    processIds.add(Integer.parseInt(processId));
+                }
+            }
+        }
+
+        return ArrayUtils.ListToIntArray(processIds);
+    }
 
 
-	// Scheduling Tools
+    public void setPower(boolean setToOn) {
+        app.deviceGpioUtils.runGpioCommand("DOUT", "satellite_power", setToOn);
+    }
 
-	public static boolean addScheduledSbdToQueue(long sendAtOrAfter, String msgPayload, Context context, boolean triggerDispatchService) {
+    public boolean isPowerOn() {
+        return app.deviceGpioUtils.readGpioValue("satellite_power", "DOUT");
+    }
 
-		boolean isQueued = false;
+    public boolean isNetworkAvailable() {
+        return app.deviceGpioUtils.readGpioValue("satellite_state", "DOUT");
+    }
 
-		if ((msgPayload != null) && !msgPayload.equalsIgnoreCase("")) {
 
-			RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+    // Scheduling Tools
 
-			String msgId = DeviceSmsUtils.generateMessageId();
+    public static boolean addScheduledSbdToQueue(long sendAtOrAfter, String msgPayload, Context context, boolean triggerDispatchService) {
 
-			app.sbdMessageDb.dbSbdQueued.insert(sendAtOrAfter, "", msgPayload, msgId);
+        boolean isQueued = false;
 
-			if (triggerDispatchService) { app.rfcxSvc.triggerService( SbdDispatchService.SERVICE_NAME, false); }
-		}
-		return isQueued;
-	}
+        if ((msgPayload != null) && !msgPayload.equalsIgnoreCase("")) {
 
-	public static boolean addImmediateSbdToQueue(String msgPayload, Context context) {
-		return addScheduledSbdToQueue(System.currentTimeMillis(), msgPayload, context, true);
-	}
+            RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+
+            String msgId = DeviceSmsUtils.generateMessageId();
+
+            app.sbdMessageDb.dbSbdQueued.insert(sendAtOrAfter, "", msgPayload, msgId);
+
+            if (triggerDispatchService) {
+                app.rfcxSvc.triggerService(SbdDispatchService.SERVICE_NAME, false);
+            }
+        }
+        return isQueued;
+    }
+
+    public static boolean addImmediateSbdToQueue(String msgPayload, Context context) {
+        return addScheduledSbdToQueue(System.currentTimeMillis(), msgPayload, context, true);
+    }
 
 
 }

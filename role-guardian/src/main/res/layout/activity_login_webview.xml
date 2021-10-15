@@ -11,6 +11,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent">
+
         <EditText
                 android:id="@+id/codeEditText"
                 android:layout_width="match_parent"
@@ -19,7 +20,8 @@
                 android:layout_marginStart="@dimen/margin_padding_normal"
                 android:layout_marginEnd="@dimen/margin_padding_normal"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/sendButton"/>
+                app:layout_constraintBottom_toTopOf="@id/sendButton" />
+
         <Button
                 android:id="@+id/sendButton"
                 android:layout_width="match_parent"
@@ -33,7 +35,7 @@
                 android:textColor="@color/text_white"
                 android:background="@drawable/button_style1"
                 app:layout_constraintTop_toBottomOf="@id/codeEditText"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent" />
     </LinearLayout>
 
     <ProgressBar
@@ -44,6 +46,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

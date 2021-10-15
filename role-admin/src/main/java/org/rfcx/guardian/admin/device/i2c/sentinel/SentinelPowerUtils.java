@@ -38,7 +38,7 @@ public class SentinelPowerUtils {
     private String[] i2cValueIndex = new String[]{};
     private Map<String, double[]> i2cTmpValues = new HashMap<>();
     private Map<String, String[]> i2cAddresses = new HashMap<String, String[]>();
-    private String[] getWithoutTwoComplement = new String[] {};
+    private String[] getWithoutTwoComplement = new String[]{};
 
     private List<double[]> powerBatteryValues = new ArrayList<>();
     private List<double[]> powerInputValues = new ArrayList<>();
@@ -73,7 +73,9 @@ public class SentinelPowerUtils {
             } else {
                 String i2cConnectAttempt = app.deviceI2cUtils.i2cGetAsString("0x4a", i2cMainAddr, true);
                 isI2cPowerChipConnected = ((i2cConnectAttempt != null) && (Math.abs(DeviceI2cUtils.twosComplementHexToDecAsLong(i2cConnectAttempt)) > 0));
-                if (!isI2cPowerChipConnected) { Log.e(logTag, "Sentinel Power Chip is NOT Accessible via I2C..."); }
+                if (!isI2cPowerChipConnected) {
+                    Log.e(logTag, "Sentinel Power Chip is NOT Accessible via I2C...");
+                }
             }
         }
         return isNotExplicitlyDisabled && isI2cHandlerAccessible && isI2cPowerChipConnected;
@@ -81,13 +83,13 @@ public class SentinelPowerUtils {
 
     private void initSentinelPowerI2cOptions() {
 
-        this.i2cValueIndex =            new String[]{   "voltage",      "current",      "misc",     "power" };
+        this.i2cValueIndex = new String[]{"voltage", "current", "misc", "power"};
 
-        this.i2cAddresses.put("system", new String[]{   "0x3c",         null,           "0x3f" /* die temperature */    });
-        this.i2cAddresses.put("battery", new String[]{  "0x3a",         "0x3d",         "0x13" /* coulomb_counter */    });
-        this.i2cAddresses.put("input", new String[]{    "0x3b",         "0x3e",         "0x34" /* charger_state */      });
+        this.i2cAddresses.put("system", new String[]{"0x3c", null, "0x3f" /* die temperature */});
+        this.i2cAddresses.put("battery", new String[]{"0x3a", "0x3d", "0x13" /* coulomb_counter */});
+        this.i2cAddresses.put("input", new String[]{"0x3b", "0x3e", "0x34" /* charger_state */});
 
-        this.getWithoutTwoComplement = new String[] { "battery-misc", "input-misc" };
+        this.getWithoutTwoComplement = new String[]{"battery-misc", "input-misc"};
 
         resetI2cTmpValues();
     }
@@ -182,8 +184,8 @@ public class SentinelPowerUtils {
     }
 
     private void resetI2cTmpValue(String statAbbr) {
-        											/*	voltage		current 	misc		power       captured_at     */
-        this.i2cTmpValues.put(statAbbr, new double[]{     0,          0,          0,          0,           0           });
+        /*	voltage		current 	misc		power       captured_at     */
+        this.i2cTmpValues.put(statAbbr, new double[]{0, 0, 0, 0, 0});
     }
 
     private void cacheI2cTmpValues() {
@@ -192,7 +194,7 @@ public class SentinelPowerUtils {
 
         double[] sysVals = this.i2cTmpValues.get("system");
         if (ArrayUtils.getAverageAsDouble(sysVals) != 0) {
-            powerSystemValues.add(new double[] { sysVals[0], sysVals[1], sysVals[2], sysVals[3], rightNow });
+            powerSystemValues.add(new double[]{sysVals[0], sysVals[1], sysVals[2], sysVals[3], rightNow});
             if (verboseLogging) {
                 long[] sVals = ArrayUtils.roundArrayValuesAndCastToLong(sysVals);
                 logStr.append("[ temp: ").append(sVals[2]).append(" C").append(" ]");
@@ -201,7 +203,7 @@ public class SentinelPowerUtils {
         }
         double[] battVals = this.i2cTmpValues.get("battery");
         if (ArrayUtils.getAverageAsDouble(battVals) != 0) {
-            powerBatteryValues.add(new double[] { battVals[0], battVals[1], battVals[2], battVals[3], rightNow });
+            powerBatteryValues.add(new double[]{battVals[0], battVals[1], battVals[2], battVals[3], rightNow});
             if (verboseLogging) {
                 long[] bVals = ArrayUtils.roundArrayValuesAndCastToLong(battVals);
                 logStr.append(" [ battery: ").append(battValAsPctStr(bVals[2])).append(" %, ").append(bVals[0]).append(" mV, ").append(bVals[1]).append(" mA, ").append(bVals[3]).append(" mW").append(" ]");
@@ -209,14 +211,16 @@ public class SentinelPowerUtils {
         }
         double[] inpVals = this.i2cTmpValues.get("input");
         if (ArrayUtils.getAverageAsDouble(inpVals) != 0) {
-            powerInputValues.add(new double[] { inpVals[0], inpVals[1], inpVals[2], inpVals[3], rightNow });
+            powerInputValues.add(new double[]{inpVals[0], inpVals[1], inpVals[2], inpVals[3], rightNow});
             if (verboseLogging) {
                 long[] iVals = ArrayUtils.roundArrayValuesAndCastToLong(inpVals);
                 logStr.append(" [ input: ").append(iVals[0]).append(" mV, ").append(iVals[1]).append(" mA, ").append(iVals[3]).append(" mW").append(" ]");
                 logStr.append(" [ (").append(iVals[2]).append(") Charging: ").append(this.isBatteryCharging).append(", Charged: ").append(this.isBatteryCharged).append(" ]");
             }
         }
-        if (verboseLogging) { Log.d(logTag, logStr.toString()); }
+        if (verboseLogging) {
+            Log.d(logTag, logStr.toString());
+        }
     }
 
     private List<String[]> buildI2cQueryList() {
@@ -225,8 +229,8 @@ public class SentinelPowerUtils {
             for (int i = 0; i < this.i2cAddresses.get(sentinelLabel).length; i++) {
                 if (this.i2cAddresses.get(sentinelLabel)[i] != null) {
                     i2cLabelsAndSubAddresses.add(new String[]{
-                        sentinelLabel + "-" + this.i2cValueIndex[i],
-                        this.i2cAddresses.get(sentinelLabel)[i]
+                            sentinelLabel + "-" + this.i2cValueIndex[i],
+                            this.i2cAddresses.get(sentinelLabel)[i]
                     });
                 }
             }
@@ -283,10 +287,10 @@ public class SentinelPowerUtils {
 
         battVals[2] = checkSetQCountCalibration(battVals[2], battVals[0]);
 
-        battVals[2] = (10000*(battVals[2]-this.qCountCalibratedMin)/32768);
+        battVals[2] = (10000 * (battVals[2] - this.qCountCalibratedMin) / 32768);
         this.i2cTmpValues.put("battery", battVals);
 
-        return (battVals[0] >= this.qCountCalibrationVoltageMin) || ((battVals[0] >= (this.qCountCalibrationVoltageMin/2)) && (battVals[2] < 1000));
+        return (battVals[0] >= this.qCountCalibrationVoltageMin) || ((battVals[0] >= (this.qCountCalibrationVoltageMin / 2)) && (battVals[2] < 1000));
     }
 
     private double checkSetQCountCalibration(double qCountVal, double voltageVal) {
@@ -294,29 +298,29 @@ public class SentinelPowerUtils {
         boolean doReCalibration = false;
         String calibrationMsg = null;
 
-        if (    ((qCountVal - this.qCountCalibratedQuarterOfOnePercent) > this.qCountCalibratedMax)
-           ||   (this.isBatteryCharged && !this.isBatteryCharging && (qCountVal != this.qCountCalibratedMax))
+        if (((qCountVal - this.qCountCalibratedQuarterOfOnePercent) > this.qCountCalibratedMax)
+                || (this.isBatteryCharged && !this.isBatteryCharging && (qCountVal != this.qCountCalibratedMax))
         ) {
 
-            calibrationMsg = "Max Charge State Attained. Calibrating Coulomb Counter Maximum (100%) to "+Math.round(this.qCountCalibratedMax)+" (previously at "+Math.round(qCountVal)+")";
+            calibrationMsg = "Max Charge State Attained. Calibrating Coulomb Counter Maximum (100%) to " + Math.round(this.qCountCalibratedMax) + " (previously at " + Math.round(qCountVal) + ")";
             qCountVal = this.qCountCalibratedMax;
             doReCalibration = true;
 
-        } else if ( (qCountVal + this.qCountCalibratedQuarterOfOnePercent) < this.qCountCalibratedMin ) {
+        } else if ((qCountVal + this.qCountCalibratedQuarterOfOnePercent) < this.qCountCalibratedMin) {
 
-            calibrationMsg = "Min Charge State Attained. Calibrating Coulomb Counter Minimum (0%) to "+Math.round(this.qCountCalibratedMin)+" (previously at "+Math.round(qCountVal)+")";
+            calibrationMsg = "Min Charge State Attained. Calibrating Coulomb Counter Minimum (0%) to " + Math.round(this.qCountCalibratedMin) + " (previously at " + Math.round(qCountVal) + ")";
             qCountVal = this.qCountCalibratedMin;
             doReCalibration = true;
 
-        } else if ((voltageVal <= this.qCountCalibrationVoltageMin) && (voltageVal >= (this.qCountCalibrationVoltageMin)/2)) {
+        } else if ((voltageVal <= this.qCountCalibrationVoltageMin) && (voltageVal >= (this.qCountCalibrationVoltageMin) / 2)) {
 //            if (verboseLogging) {
-            Log.e(logTag, "Battery Voltage considered extremely low at "+Math.round(voltageVal)+" mV. Countdown to Coulomb Counter reset: "+this.qCountCalibrationDelayCounter+"/"+this.qCountCalibrationDelayCounterMax);
+            Log.e(logTag, "Battery Voltage considered extremely low at " + Math.round(voltageVal) + " mV. Countdown to Coulomb Counter reset: " + this.qCountCalibrationDelayCounter + "/" + this.qCountCalibrationDelayCounterMax);
             //  }
 
             this.qCountCalibrationDelayCounter--;
 
             if (qCountCalibrationDelayCounter <= 0) {
-                calibrationMsg = "Battery is effectively fully discharged (Voltage: "+Math.round(voltageVal)+" mV). Setting Coulomb Counter to " + Math.round(this.qCountCalibratedMin)+" (0%)";
+                calibrationMsg = "Battery is effectively fully discharged (Voltage: " + Math.round(voltageVal) + " mV). Setting Coulomb Counter to " + Math.round(this.qCountCalibratedMin) + " (0%)";
                 qCountVal = this.qCountCalibratedMin;
                 doReCalibration = true;
                 this.qCountCalibrationDelayCounter = this.qCountCalibrationDelayCounterMax;
@@ -326,7 +330,7 @@ public class SentinelPowerUtils {
         if (doReCalibration) {
             if (isChipAccessibleByI2c()) {
                 List<String[]> i2cLabelsAddressesValues = new ArrayList<String[]>();
-                i2cLabelsAddressesValues.add(new String[]{ "qcount", "0x13", "0x"+Long.toHexString(Long.parseLong(""+Math.round(qCountVal)))});
+                i2cLabelsAddressesValues.add(new String[]{"qcount", "0x13", "0x" + Long.toHexString(Long.parseLong("" + Math.round(qCountVal)))});
                 app.deviceI2cUtils.i2cSet(i2cLabelsAddressesValues, i2cMainAddr);
                 Log.v(logTag, calibrationMsg);
             } else {
@@ -371,7 +375,7 @@ public class SentinelPowerUtils {
 
     public void saveSentinelPowerValuesToDatabase(boolean printValuesToLog) {
 
-        int sampleCount = Math.round((this.powerSystemValues.size()+this.powerBatteryValues.size()+this.powerInputValues.size())/3);
+        int sampleCount = Math.round((this.powerSystemValues.size() + this.powerBatteryValues.size() + this.powerInputValues.size()) / 3);
 
         if (sampleCount > 0) {
 
@@ -382,28 +386,28 @@ public class SentinelPowerUtils {
             long[] inpVals = ArrayUtils.roundArrayValuesAndCastToLong(ArrayUtils.getAverageValuesAsArrayFromArrayList(this.powerInputValues));
             this.powerInputValues = new ArrayList<>();
 
-            double measuredAtAvg = (sysVals[4]+battVals[4]+inpVals[4])/3;
+            double measuredAtAvg = (sysVals[4] + battVals[4] + inpVals[4]) / 3;
             long measuredAt = Math.round(measuredAtAvg);
 
-            long[] voltages = new long[] { _v("voltage", sysVals[0]), _v("voltage", battVals[0]), _v("voltage", inpVals[0]) };
-            long[] currents = new long[] { _v("current", sysVals[1]), _v("current", battVals[1]), _v("current", inpVals[1]) };
-            long[] misc = new long[] { _v("temp", sysVals[2]), _v("percent", battVals[2]), _v("misc", inpVals[2]) };
-            long[] powers = new long[] { _v("power", sysVals[3]), _v("power", battVals[3]), _v("power", inpVals[3]) };
+            long[] voltages = new long[]{_v("voltage", sysVals[0]), _v("voltage", battVals[0]), _v("voltage", inpVals[0])};
+            long[] currents = new long[]{_v("current", sysVals[1]), _v("current", battVals[1]), _v("current", inpVals[1])};
+            long[] misc = new long[]{_v("temp", sysVals[2]), _v("percent", battVals[2]), _v("misc", inpVals[2])};
+            long[] powers = new long[]{_v("power", sysVals[3]), _v("power", battVals[3]), _v("power", inpVals[3])};
 
             String bPctStr = battValAsPctStr(misc[1]);
 
-            app.sentinelPowerDb.dbSentinelPowerSystem.insert( measuredAt, voltages[0], currents[0], misc[0], powers[0] );
-            app.sentinelPowerDb.dbSentinelPowerBattery.insert( measuredAt, voltages[1], currents[1], bPctStr, powers[1] );
-            app.sentinelPowerDb.dbSentinelPowerInput.insert( measuredAt, voltages[2], currents[2], misc[2], powers[2] );
+            app.sentinelPowerDb.dbSentinelPowerSystem.insert(measuredAt, voltages[0], currents[0], misc[0], powers[0]);
+            app.sentinelPowerDb.dbSentinelPowerBattery.insert(measuredAt, voltages[1], currents[1], bPctStr, powers[1]);
+            app.sentinelPowerDb.dbSentinelPowerInput.insert(measuredAt, voltages[2], currents[2], misc[2], powers[2]);
 
             if (printValuesToLog) {
                 Log.d(logTag,
-                    (new StringBuilder("Avg of ")).append(sampleCount).append(" samples for ").append(DateTimeUtils.getDateTime(measuredAt))//.append(":")
-                    .append(" [ system: ").append(voltages[0]).append(" mV, ").append(currents[0]).append(" mA, ").append(powers[0]).append(" mW").append(" ]")
-                    .append(" [ battery: ").append(bPctStr).append(" %, ").append(voltages[1]).append(" mV, ").append(currents[1]).append(" mA, ").append(powers[1]).append(" mW").append(" ]")
-                    .append(" [ input: ").append(voltages[2]).append(" mV, ").append(currents[2]).append(" mA, ").append(powers[2]).append(" mW").append(" ]")
-                    .append(" [ temp: ").append(misc[0]).append(" C").append(" ]")
-                .toString());
+                        (new StringBuilder("Avg of ")).append(sampleCount).append(" samples for ").append(DateTimeUtils.getDateTime(measuredAt))//.append(":")
+                                .append(" [ system: ").append(voltages[0]).append(" mV, ").append(currents[0]).append(" mA, ").append(powers[0]).append(" mW").append(" ]")
+                                .append(" [ battery: ").append(bPctStr).append(" %, ").append(voltages[1]).append(" mV, ").append(currents[1]).append(" mA, ").append(powers[1]).append(" mW").append(" ]")
+                                .append(" [ input: ").append(voltages[2]).append(" mV, ").append(currents[2]).append(" mA, ").append(powers[2]).append(" mW").append(" ]")
+                                .append(" [ temp: ").append(misc[0]).append(" C").append(" ]")
+                                .toString());
             }
         }
     }
@@ -563,7 +567,7 @@ public class SentinelPowerUtils {
 
     private static long _v(String fieldName, long val) {
 
-        double divVal = Double.parseDouble(""+val);
+        double divVal = Double.parseDouble("" + val);
 
         if (fieldName.equalsIgnoreCase("voltage")) {
             if (val < 2000) {
@@ -579,8 +583,8 @@ public class SentinelPowerUtils {
     }
 
     private static String battValAsPctStr(long bValAsLong) {
-        String bValsStr = (bValAsLong >= 100) ? (""+Math.abs(bValAsLong)) : (bValAsLong >= 10) ? ("0"+Math.abs(bValAsLong)) : ("00"+Math.abs(bValAsLong)) ;
-        return ((bValAsLong >= 0) ? "" : "-") + bValsStr.substring(0,bValsStr.length()-2)+"."+bValsStr.substring(bValsStr.length()-2);
+        String bValsStr = (bValAsLong >= 100) ? ("" + Math.abs(bValAsLong)) : (bValAsLong >= 10) ? ("0" + Math.abs(bValAsLong)) : ("00" + Math.abs(bValAsLong));
+        return ((bValAsLong >= 0) ? "" : "-") + bValsStr.substring(0, bValsStr.length() - 2) + "." + bValsStr.substring(bValsStr.length() - 2);
     }
 
 }

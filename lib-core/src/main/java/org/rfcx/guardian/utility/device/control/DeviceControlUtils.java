@@ -12,6 +12,7 @@ public class DeviceControlUtils {
 
     private String logTag;
     private String appRole = "Guardian";
+
     public DeviceControlUtils(String appRole) {
         this.logTag = RfcxLog.generateLogTag(appRole, "DeviceControlUtils");
         this.appRole = appRole;

@@ -24,6 +24,7 @@ public class DeviceCPU {
     private List<Double> cpuPctVals = new ArrayList<>();
     private List<Double> cpuSpdVals = new ArrayList<>();
     private List<Double> cpuCntVals = new ArrayList<>();
+
     public DeviceCPU(String appRole) {
         this.logTag = RfcxLog.generateLogTag(appRole, "DeviceCPU");
     }

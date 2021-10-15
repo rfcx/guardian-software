@@ -22,252 +22,257 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
+
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class ApiCheckInArchiveService extends Service {
 
-	public static final String SERVICE_NAME = "ApiCheckInArchive";
+    public static final String SERVICE_NAME = "ApiCheckInArchive";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInArchiveService");
-	
-	private RfcxGuardian app;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiCheckInArchiveService");
 
-	private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM", Locale.US);
-	private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.US);
-	private static final SimpleDateFormat metaDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
-	
-	private String rfcxDeviceId;
-	private long archiveTimestamp = System.currentTimeMillis();
+    private RfcxGuardian app;
 
-	private String archiveSdCardDir;
-	private String archiveTitle;
-	private String archiveWorkDir;
-	private String archiveTar;
-	private String archiveTarFilePath;
-	private String archiveFinalFilePath;
-	
-	private static final String[] tsvMetaColumns = new String[] { "measured_at", "queued_at", "filename", "format", "sha1checksum", "samplerate", "bitrate", "encode_duration" };
-	
-	private boolean runFlag = false;
-	private ApiCheckInArchive apiCheckInArchive;
-	
-	@Override
-	public IBinder onBind(Intent arg0) {
-		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.apiCheckInArchive = new ApiCheckInArchive();
-		app = (RfcxGuardian) getApplication();
-	}
+    private static final SimpleDateFormat dirDateFormat = new SimpleDateFormat("yyyy-MM", Locale.US);
+    private static final SimpleDateFormat fileDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.US);
+    private static final SimpleDateFormat metaDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
+    private String rfcxDeviceId;
+    private long archiveTimestamp = System.currentTimeMillis();
+
+    private String archiveSdCardDir;
+    private String archiveTitle;
+    private String archiveWorkDir;
+    private String archiveTar;
+    private String archiveTarFilePath;
+    private String archiveFinalFilePath;
+
+    private static final String[] tsvMetaColumns = new String[]{"measured_at", "queued_at", "filename", "format", "sha1checksum", "samplerate", "bitrate", "encode_duration"};
+
+    private boolean runFlag = false;
+    private ApiCheckInArchive apiCheckInArchive;
+
+    @Override
+    public IBinder onBind(Intent arg0) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.apiCheckInArchive = new ApiCheckInArchive();
+        app = (RfcxGuardian) getApplication();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.apiCheckInArchive.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.apiCheckInArchive.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.apiCheckInArchive.interrupt();
-		this.apiCheckInArchive = null;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.apiCheckInArchive.interrupt();
+        this.apiCheckInArchive = null;
 //		Log.v(logTag, "Stopping service: "+logTag);
-	}
-	
-	private class ApiCheckInArchive extends Thread {
+    }
 
-		public ApiCheckInArchive() {
-			super("ApiCheckInArchiveService-ApiCheckInArchive");
-		}
-		
-		@Override
-		public void run() {
-			ApiCheckInArchiveService apiCheckInArchiveInstance = ApiCheckInArchiveService.this;
-			
-			app = (RfcxGuardian) getApplication();
-			Context context = app.getApplicationContext();
-			
-			rfcxDeviceId = app.rfcxGuardianIdentity.getGuid();
-			archiveTimestamp = System.currentTimeMillis();
+    private class ApiCheckInArchive extends Thread {
 
-			setAndInitializeCheckInArchiveDirectories(context); // best to run this before AND after the cleanup
-			String archiveAppFilesDir = context.getFilesDir().toString() + "/archive";
-			for (File fileToRemove : FileUtils.getDirectoryContents(archiveAppFilesDir, true)) { FileUtils.delete(fileToRemove); }
-			for (File fileToRemove : FileUtils.getEmptyDirectories(archiveAppFilesDir)) { FileUtils.delete(fileToRemove); }
-			FileUtils.deleteDirectoryContents(archiveAppFilesDir);
-			setAndInitializeCheckInArchiveDirectories(context); // best to run this before AND after the cleanup
+        public ApiCheckInArchive() {
+            super("ApiCheckInArchiveService-ApiCheckInArchive");
+        }
 
-			long archiveFileSizeTarget = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_ARCHIVE_FILESIZE_TARGET);
-			long archiveFileSizeTargetInBytes = archiveFileSizeTarget*1024*1024;
+        @Override
+        public void run() {
+            ApiCheckInArchiveService apiCheckInArchiveInstance = ApiCheckInArchiveService.this;
 
-			long stashFileSizeBuffer = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_STASH_FILESIZE_BUFFER);
-			long stashFileSizeBufferInBytes = stashFileSizeBuffer*1024*1024;
+            app = (RfcxGuardian) getApplication();
+            Context context = app.getApplicationContext();
 
-			long stashedCumulativeFileSizeInBytes = app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows();
-						
-			if (!(new File(archiveSdCardDir)).isDirectory()) {
-				Log.e(logTag, "CheckIn Archive job cancelled because SD card directory could not be located: "+ archiveSdCardDir);
-				
-			} else if (stashedCumulativeFileSizeInBytes < (stashFileSizeBufferInBytes + archiveFileSizeTargetInBytes)) {
-				Log.e(logTag, "CheckIn Archive job cancelled because archive threshold ("+archiveFileSizeTarget+" MB) has not been reached.");
-				
-			} else {
-			
-				try {
+            rfcxDeviceId = app.rfcxGuardianIdentity.getGuid();
+            archiveTimestamp = System.currentTimeMillis();
 
-					List<String[]> stashedCheckInsBeyondBuffer = new ArrayList<String[]>();
-					List<String[]> allStashedCheckIns = app.apiCheckInDb.dbStashed.getAllRows();
+            setAndInitializeCheckInArchiveDirectories(context); // best to run this before AND after the cleanup
+            String archiveAppFilesDir = context.getFilesDir().toString() + "/archive";
+            for (File fileToRemove : FileUtils.getDirectoryContents(archiveAppFilesDir, true)) {
+                FileUtils.delete(fileToRemove);
+            }
+            for (File fileToRemove : FileUtils.getEmptyDirectories(archiveAppFilesDir)) {
+                FileUtils.delete(fileToRemove);
+            }
+            FileUtils.deleteDirectoryContents(archiveAppFilesDir);
+            setAndInitializeCheckInArchiveDirectories(context); // best to run this before AND after the cleanup
 
-					long fileSizeBufferTracker = 0;
+            long archiveFileSizeTarget = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_ARCHIVE_FILESIZE_TARGET);
+            long archiveFileSizeTargetInBytes = archiveFileSizeTarget * 1024 * 1024;
 
-					for (int i = allStashedCheckIns.size() - 1; i >= 0; i--) {
-						fileSizeBufferTracker += Long.parseLong(allStashedCheckIns.get(i)[6]);
-						if (fileSizeBufferTracker > stashFileSizeBufferInBytes) {
-							stashedCheckInsBeyondBuffer.add(allStashedCheckIns.get(i));
-						}
-					}
+            long stashFileSizeBuffer = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.CHECKIN_STASH_FILESIZE_BUFFER);
+            long stashFileSizeBufferInBytes = stashFileSizeBuffer * 1024 * 1024;
 
-					if (!app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CHECKIN_ARCHIVE)) {
+            long stashedCumulativeFileSizeInBytes = app.apiCheckInDb.dbStashed.getCumulativeFileSizeForAllRows();
 
-						Log.d(logTag, "CheckIn Archive disabled due to preference 'enable_checkin_archive' being explicitly set to false.");
+            if (!(new File(archiveSdCardDir)).isDirectory()) {
+                Log.e(logTag, "CheckIn Archive job cancelled because SD card directory could not be located: " + archiveSdCardDir);
 
-					} else {
+            } else if (stashedCumulativeFileSizeInBytes < (stashFileSizeBufferInBytes + archiveFileSizeTargetInBytes)) {
+                Log.e(logTag, "CheckIn Archive job cancelled because archive threshold (" + archiveFileSizeTarget + " MB) has not been reached.");
 
-						Log.i(logTag, "Preparing CheckIn Archive Process...");
+            } else {
 
-						Log.i(logTag, "Archiving " + stashedCheckInsBeyondBuffer.size() + " Stashed CheckIns.");
+                try {
 
-						// Create Archive File List
-						List<String> archiveFileList = new ArrayList<String>();
+                    List<String[]> stashedCheckInsBeyondBuffer = new ArrayList<String[]>();
+                    List<String[]> allStashedCheckIns = app.apiCheckInDb.dbStashed.getAllRows();
 
-						StringBuilder tsvRows = new StringBuilder();
-						tsvRows.append(TextUtils.join("\t", tsvMetaColumns)).append("\n");
+                    long fileSizeBufferTracker = 0;
 
-						long oldestCheckInTimestamp = System.currentTimeMillis();
-						long newestCheckInTimestamp = 0;
+                    for (int i = allStashedCheckIns.size() - 1; i >= 0; i--) {
+                        fileSizeBufferTracker += Long.parseLong(allStashedCheckIns.get(i)[6]);
+                        if (fileSizeBufferTracker > stashFileSizeBufferInBytes) {
+                            stashedCheckInsBeyondBuffer.add(allStashedCheckIns.get(i));
+                        }
+                    }
 
-						for (String[] checkIn : stashedCheckInsBeyondBuffer) {
+                    if (!app.rfcxPrefs.getPrefAsBoolean(RfcxPrefs.Pref.ENABLE_CHECKIN_ARCHIVE)) {
 
-							// Create TSV contents row
-							JSONObject audioJson = new JSONObject(checkIn[2]);
-							String[] audioMeta = audioJson.getString("audio").split("\\*");
+                        Log.d(logTag, "CheckIn Archive disabled due to preference 'enable_checkin_archive' being explicitly set to false.");
 
-							long measuredAt = Long.parseLong(audioMeta[1]);
-							int audioDuration = Integer.parseInt(audioMeta[10]);
-							int sampleRate = Integer.parseInt(audioMeta[4]);
+                    } else {
 
-							String archivedAudioFileName = RfcxAudioFileUtils.getAudioFileName(rfcxDeviceId, measuredAt, audioMeta[2], audioDuration, sampleRate);
-							String archivedAudioTmpFilePath = archiveWorkDir + "/audio/" + archivedAudioFileName;
+                        Log.i(logTag, "Preparing CheckIn Archive Process...");
 
-							String tsvRow = ""
-									/* measured_at */ + metaDateTimeFormat.format(new Date(measuredAt)) + "\t"
-									/* queued_at */ + metaDateTimeFormat.format(new Date(Long.parseLong(audioJson.getString("queued_at")))) + "\t"
-									/* filename */ + archivedAudioFileName + "\t"
-									/* format */ + audioMeta[2] + "\t"
-									/* sha1checksum */ + audioMeta[3] + "\t"
-									/* samplerate */ + sampleRate + "\t"
-									/* bitrate */ + audioMeta[5] + "\t"
-									/* encode_duration */ + audioMeta[8]
-									+ "\n";
+                        Log.i(logTag, "Archiving " + stashedCheckInsBeyondBuffer.size() + " Stashed CheckIns.");
 
-							// UnGZip audio files into position
-							FileUtils.gUnZipFile(checkIn[4], archivedAudioTmpFilePath);
+                        // Create Archive File List
+                        List<String> archiveFileList = new ArrayList<String>();
 
-							if (FileUtils.exists(archivedAudioTmpFilePath)) {
-								FileUtils.chmod(archivedAudioTmpFilePath, "rw", "rw");
-								tsvRows.append(tsvRow);
-								archiveFileList.add(archivedAudioTmpFilePath);
-							}
+                        StringBuilder tsvRows = new StringBuilder();
+                        tsvRows.append(TextUtils.join("\t", tsvMetaColumns)).append("\n");
 
-							if (measuredAt < oldestCheckInTimestamp) {
-								oldestCheckInTimestamp = measuredAt;
-							}
-							if (measuredAt > newestCheckInTimestamp) {
-								newestCheckInTimestamp = measuredAt;
-							}
-						}
+                        long oldestCheckInTimestamp = System.currentTimeMillis();
+                        long newestCheckInTimestamp = 0;
 
-						StringUtils.saveStringToFile(tsvRows.toString(), archiveWorkDir + "/_metadata_audio.tsv");
-						archiveFileList.add(archiveWorkDir + "/_metadata_audio.tsv");
-						FileUtils.chmod(archiveWorkDir + "/_metadata_audio.tsv", "rw", "rw");
+                        for (String[] checkIn : stashedCheckInsBeyondBuffer) {
 
-						Log.i(logTag, "Creating CheckIn Archive: " + archiveTitle);
-						FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath);
-						FileUtils.chmod(archiveTarFilePath, "rw", "rw");
-						long archiveFileSize = FileUtils.getFileSizeInBytes(archiveTarFilePath);
+                            // Create TSV contents row
+                            JSONObject audioJson = new JSONObject(checkIn[2]);
+                            String[] audioMeta = audioJson.getString("audio").split("\\*");
 
-						if (DeviceStorage.isExternalStorageWritable()) {
+                            long measuredAt = Long.parseLong(audioMeta[1]);
+                            int audioDuration = Integer.parseInt(audioMeta[10]);
+                            int sampleRate = Integer.parseInt(audioMeta[4]);
 
-							Log.i(logTag, "Transferring CheckIn Archive (" + FileUtils.bytesAsReadableString(archiveFileSize) + ") to External Storage: " + archiveFinalFilePath);
-							FileUtils.copy(archiveTarFilePath, archiveFinalFilePath);
-							FileUtils.chmod(archiveFinalFilePath, "rw", "rw");
+                            String archivedAudioFileName = RfcxAudioFileUtils.getAudioFileName(rfcxDeviceId, measuredAt, audioMeta[2], audioDuration, sampleRate);
+                            String archivedAudioTmpFilePath = archiveWorkDir + "/audio/" + archivedAudioFileName;
 
-							app.apiCheckInArchiveDb.dbArchive.insert(
-									new Date(archiveTimestamp),        // archived_at
-									new Date(oldestCheckInTimestamp),    // archive_begins_at
-									new Date(newestCheckInTimestamp),    // archive_ends_at
-									stashedCheckInsBeyondBuffer.size(),  // record_count
-									archiveFileSize,                    // filesize in bytes
-									archiveFinalFilePath                // filepath
-							);
+                            String tsvRow = ""
+                                    /* measured_at */ + metaDateTimeFormat.format(new Date(measuredAt)) + "\t"
+                                    /* queued_at */ + metaDateTimeFormat.format(new Date(Long.parseLong(audioJson.getString("queued_at")))) + "\t"
+                                    /* filename */ + archivedAudioFileName + "\t"
+                                    /* format */ + audioMeta[2] + "\t"
+                                    /* sha1checksum */ + audioMeta[3] + "\t"
+                                    /* samplerate */ + sampleRate + "\t"
+                                    /* bitrate */ + audioMeta[5] + "\t"
+                                    /* encode_duration */ + audioMeta[8]
+                                    + "\n";
 
-							Log.i(logTag, "CheckIn Archive Job Complete: "
-									+ stashedCheckInsBeyondBuffer.size() + " audio files, "
-									+ FileUtils.bytesAsReadableString(archiveFileSize) + ", "
-									+ archiveFinalFilePath);
-						}
-					}
+                            // UnGZip audio files into position
+                            FileUtils.gUnZipFile(checkIn[4], archivedAudioTmpFilePath);
 
-					// Clean up and remove archived originals
-					for (String[] checkIn : stashedCheckInsBeyondBuffer) {
-						FileUtils.delete(checkIn[4]);
-						app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(checkIn[1]);
-					}
+                            if (FileUtils.exists(archivedAudioTmpFilePath)) {
+                                FileUtils.chmod(archivedAudioTmpFilePath, "rw", "rw");
+                                tsvRows.append(tsvRow);
+                                archiveFileList.add(archivedAudioTmpFilePath);
+                            }
 
-					FileUtils.delete(archiveWorkDir);
-					FileUtils.delete(archiveTarFilePath);
+                            if (measuredAt < oldestCheckInTimestamp) {
+                                oldestCheckInTimestamp = measuredAt;
+                            }
+                            if (measuredAt > newestCheckInTimestamp) {
+                                newestCheckInTimestamp = measuredAt;
+                            }
+                        }
 
-					Log.d(logTag, stashedCheckInsBeyondBuffer.size() + " CheckIns have been deleted from stash.");
+                        StringUtils.saveStringToFile(tsvRows.toString(), archiveWorkDir + "/_metadata_audio.tsv");
+                        archiveFileList.add(archiveWorkDir + "/_metadata_audio.tsv");
+                        FileUtils.chmod(archiveWorkDir + "/_metadata_audio.tsv", "rw", "rw");
 
-				
-				} catch (Exception e) {
-					RfcxLog.logExc(logTag, e);
-					
-				}
-			}
-			
-			apiCheckInArchiveInstance.runFlag = false;
-			app.rfcxSvc.setRunState(SERVICE_NAME, false);
-			app.rfcxSvc.stopService(SERVICE_NAME, false);
-		}
-	}
+                        Log.i(logTag, "Creating CheckIn Archive: " + archiveTitle);
+                        FileUtils.createTarArchiveFromFileList(archiveFileList, archiveTarFilePath);
+                        FileUtils.chmod(archiveTarFilePath, "rw", "rw");
+                        long archiveFileSize = FileUtils.getFileSizeInBytes(archiveTarFilePath);
+
+                        if (DeviceStorage.isExternalStorageWritable()) {
+
+                            Log.i(logTag, "Transferring CheckIn Archive (" + FileUtils.bytesAsReadableString(archiveFileSize) + ") to External Storage: " + archiveFinalFilePath);
+                            FileUtils.copy(archiveTarFilePath, archiveFinalFilePath);
+                            FileUtils.chmod(archiveFinalFilePath, "rw", "rw");
+
+                            app.apiCheckInArchiveDb.dbArchive.insert(
+                                    new Date(archiveTimestamp),        // archived_at
+                                    new Date(oldestCheckInTimestamp),    // archive_begins_at
+                                    new Date(newestCheckInTimestamp),    // archive_ends_at
+                                    stashedCheckInsBeyondBuffer.size(),  // record_count
+                                    archiveFileSize,                    // filesize in bytes
+                                    archiveFinalFilePath                // filepath
+                            );
+
+                            Log.i(logTag, "CheckIn Archive Job Complete: "
+                                    + stashedCheckInsBeyondBuffer.size() + " audio files, "
+                                    + FileUtils.bytesAsReadableString(archiveFileSize) + ", "
+                                    + archiveFinalFilePath);
+                        }
+                    }
+
+                    // Clean up and remove archived originals
+                    for (String[] checkIn : stashedCheckInsBeyondBuffer) {
+                        FileUtils.delete(checkIn[4]);
+                        app.apiCheckInDb.dbStashed.deleteSingleRowByAudioAttachmentId(checkIn[1]);
+                    }
+
+                    FileUtils.delete(archiveWorkDir);
+                    FileUtils.delete(archiveTarFilePath);
+
+                    Log.d(logTag, stashedCheckInsBeyondBuffer.size() + " CheckIns have been deleted from stash.");
 
 
-	private void setAndInitializeCheckInArchiveDirectories(Context context) {
+                } catch (Exception e) {
+                    RfcxLog.logExc(logTag, e);
 
-		archiveTitle = "archive_" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(archiveTimestamp));
-		archiveWorkDir = context.getFilesDir().toString() + "/archive/" + archiveTitle;
-		archiveTar = "archive/" + archiveTitle + ".tar";
-		archiveTarFilePath = context.getFilesDir().toString() + "/" + archiveTar;
-		archiveSdCardDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/archive/audio/" + dirDateFormat.format(new Date(archiveTimestamp));
-		archiveFinalFilePath = archiveSdCardDir + "/" + archiveTitle + ".tar";
+                }
+            }
 
-		FileUtils.initializeDirectoryRecursively(archiveSdCardDir, true);
-		FileUtils.initializeDirectoryRecursively(archiveWorkDir+"/audio", false);
-	}
+            apiCheckInArchiveInstance.runFlag = false;
+            app.rfcxSvc.setRunState(SERVICE_NAME, false);
+            app.rfcxSvc.stopService(SERVICE_NAME, false);
+        }
+    }
+
+
+    private void setAndInitializeCheckInArchiveDirectories(Context context) {
+
+        archiveTitle = "archive_" + rfcxDeviceId + "_" + fileDateTimeFormat.format(new Date(archiveTimestamp));
+        archiveWorkDir = context.getFilesDir().toString() + "/archive/" + archiveTitle;
+        archiveTar = "archive/" + archiveTitle + ".tar";
+        archiveTarFilePath = context.getFilesDir().toString() + "/" + archiveTar;
+        archiveSdCardDir = Environment.getExternalStorageDirectory().toString() + "/rfcx/archive/audio/" + dirDateFormat.format(new Date(archiveTimestamp));
+        archiveFinalFilePath = archiveSdCardDir + "/" + archiveTitle + ".tar";
+
+        FileUtils.initializeDirectoryRecursively(archiveSdCardDir, true);
+        FileUtils.initializeDirectoryRecursively(archiveWorkDir + "/audio", false);
+    }
 
 }

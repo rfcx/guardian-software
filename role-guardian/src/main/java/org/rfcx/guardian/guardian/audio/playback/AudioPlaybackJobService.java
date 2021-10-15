@@ -14,154 +14,153 @@ import java.util.List;
 
 public class AudioPlaybackJobService extends Service {
 
-	public static final String SERVICE_NAME = "AudioPlaybackJob";
+    public static final String SERVICE_NAME = "AudioPlaybackJob";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioPlaybackJobService");
-	
-	private RfcxGuardian app;
-	
-	private boolean runFlag = false;
-	private AudioPlaybackJob audioPlaybackJob;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioPlaybackJobService");
 
-	@Override
-	public IBinder onBind(Intent arg0) {
-		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.audioPlaybackJob = new AudioPlaybackJob();
-		app = (RfcxGuardian) getApplication();
-	}
+    private RfcxGuardian app;
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
+    private boolean runFlag = false;
+    private AudioPlaybackJob audioPlaybackJob;
+
+    @Override
+    public IBinder onBind(Intent arg0) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.audioPlaybackJob = new AudioPlaybackJob();
+        app = (RfcxGuardian) getApplication();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.audioPlaybackJob.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.audioPlaybackJob.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.audioPlaybackJob.interrupt();
-		this.audioPlaybackJob = null;
-	}
-	
-	private class AudioPlaybackJob extends Thread {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.audioPlaybackJob.interrupt();
+        this.audioPlaybackJob = null;
+    }
 
-		public AudioPlaybackJob() {
-			super("AudioPlaybackJobService-AudioPlaybackJob");
-		}
-		
-		@Override
-		public void run() {
-			AudioPlaybackJobService audioPlaybackJobInstance = AudioPlaybackJobService.this;
-			
-			app = (RfcxGuardian) getApplication();
+    private class AudioPlaybackJob extends Thread {
 
-			app.rfcxSvc.reportAsActive(SERVICE_NAME);
+        public AudioPlaybackJob() {
+            super("AudioPlaybackJobService-AudioPlaybackJob");
+        }
 
-			MediaPlayer mediaPlayer = new MediaPlayer();
-			
-			try {
+        @Override
+        public void run() {
+            AudioPlaybackJobService audioPlaybackJobInstance = AudioPlaybackJobService.this;
 
-				List<String[]> latestQueuedAudioFilesForPlayback = app.audioPlaybackDb.dbQueued.getAllRows();
+            app = (RfcxGuardian) getApplication();
 
-				for (String[] latestQueuedAudio : latestQueuedAudioFilesForPlayback) {
+            app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-					app.rfcxSvc.reportAsActive(SERVICE_NAME);
+            MediaPlayer mediaPlayer = new MediaPlayer();
 
-					if (latestQueuedAudio[0] != null) {
+            try {
 
-						String queuedAt = latestQueuedAudio[0];
-						String assetId = latestQueuedAudio[1];
-						String audioFormat = latestQueuedAudio[2];
-						int audioSampleRate = Integer.parseInt(latestQueuedAudio[3]);
-						String audioFilePath = latestQueuedAudio[4];
-						int playbackAttempts = Integer.parseInt(latestQueuedAudio[6]);
-						int playbackLoops = 2;
+                List<String[]> latestQueuedAudioFilesForPlayback = app.audioPlaybackDb.dbQueued.getAllRows();
 
-						long intendedDuration = playbackLoops * Long.parseLong(latestQueuedAudio[5]);
-						long expectedDuration = 0;
-						long measuredDuration = 0;
+                for (String[] latestQueuedAudio : latestQueuedAudioFilesForPlayback) {
 
-						if (!FileUtils.exists(audioFilePath)) {
+                    app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-							Log.d(logTag, "Skipping Audio Playback Job for " + assetId + " because input audio file could not be found.");
+                    if (latestQueuedAudio[0] != null) {
 
-							app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
+                        String queuedAt = latestQueuedAudio[0];
+                        String assetId = latestQueuedAudio[1];
+                        String audioFormat = latestQueuedAudio[2];
+                        int audioSampleRate = Integer.parseInt(latestQueuedAudio[3]);
+                        String audioFilePath = latestQueuedAudio[4];
+                        int playbackAttempts = Integer.parseInt(latestQueuedAudio[6]);
+                        int playbackLoops = 2;
 
-						} else if (playbackAttempts >= AudioPlaybackUtils.PLAYBACK_FAILURE_SKIP_THRESHOLD) {
+                        long intendedDuration = playbackLoops * Long.parseLong(latestQueuedAudio[5]);
+                        long expectedDuration = 0;
+                        long measuredDuration = 0;
 
-							Log.d(logTag, "Skipping Audio Playback Job for " + assetId + " after " + AudioPlaybackUtils.PLAYBACK_FAILURE_SKIP_THRESHOLD + " failed attempts.");
+                        if (!FileUtils.exists(audioFilePath)) {
 
-							app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
-							FileUtils.delete(audioFilePath);
+                            Log.d(logTag, "Skipping Audio Playback Job for " + assetId + " because input audio file could not be found.");
 
-						} else {
+                            app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
 
-							Log.i(logTag, "Beginning Audio Playback Job: " + assetId + ", " + audioFormat);
+                        } else if (playbackAttempts >= AudioPlaybackUtils.PLAYBACK_FAILURE_SKIP_THRESHOLD) {
 
-							app.audioPlaybackDb.dbQueued.incrementSingleRowAttempts(queuedAt);
+                            Log.d(logTag, "Skipping Audio Playback Job for " + assetId + " after " + AudioPlaybackUtils.PLAYBACK_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 
-							// Build the player
-							mediaPlayer.reset();
-							mediaPlayer.setDataSource(audioFilePath);
-							mediaPlayer.setVolume(100, 100);
-							mediaPlayer.setLooping(false);
-							mediaPlayer.prepare();
-							expectedDuration = playbackLoops * mediaPlayer.getDuration();
+                            app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
+                            FileUtils.delete(audioFilePath);
 
-							long playbackStartTime = System.currentTimeMillis();
+                        } else {
 
-							for (int loopIteration = 0; loopIteration < playbackLoops; loopIteration++) {
-								mediaPlayer.start();
-							}
+                            Log.i(logTag, "Beginning Audio Playback Job: " + assetId + ", " + audioFormat);
 
-							measuredDuration = (System.currentTimeMillis() - playbackStartTime);
+                            app.audioPlaybackDb.dbQueued.incrementSingleRowAttempts(queuedAt);
 
-							// Release the player
-							mediaPlayer.stop();
+                            // Build the player
+                            mediaPlayer.reset();
+                            mediaPlayer.setDataSource(audioFilePath);
+                            mediaPlayer.setVolume(100, 100);
+                            mediaPlayer.setLooping(false);
+                            mediaPlayer.prepare();
+                            expectedDuration = playbackLoops * mediaPlayer.getDuration();
 
-				//			app.audioPlaybackDb.dbCompleted.insert();
+                            long playbackStartTime = System.currentTimeMillis();
 
-							app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
+                            for (int loopIteration = 0; loopIteration < playbackLoops; loopIteration++) {
+                                mediaPlayer.start();
+                            }
 
-						}
+                            measuredDuration = (System.currentTimeMillis() - playbackStartTime);
 
-					} else {
-						Log.d(logTag, "Queued audio file entry in database is invalid.");
+                            // Release the player
+                            mediaPlayer.stop();
 
-					}
+                            //			app.audioPlaybackDb.dbCompleted.insert();
 
-				}
+                            app.audioPlaybackDb.dbQueued.deleteSingleRowByCreatedAt(queuedAt);
+
+                        }
+
+                    } else {
+                        Log.d(logTag, "Queued audio file entry in database is invalid.");
+
+                    }
+
+                }
 
 
-					
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-				app.rfcxSvc.setRunState(SERVICE_NAME, false);
-				audioPlaybackJobInstance.runFlag = false;
-			} finally {
-				mediaPlayer.release();
-			}
-			
-			app.rfcxSvc.setRunState(SERVICE_NAME, false);
-			audioPlaybackJobInstance.runFlag = false;
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+                app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                audioPlaybackJobInstance.runFlag = false;
+            } finally {
+                mediaPlayer.release();
+            }
 
-		}
-	}
-	
+            app.rfcxSvc.setRunState(SERVICE_NAME, false);
+            audioPlaybackJobInstance.runFlag = false;
+
+        }
+    }
+
 
 }

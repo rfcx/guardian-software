@@ -14,93 +14,95 @@ import java.util.List;
 
 public class SwmDispatchTimeoutService extends Service {
 
-	public static final String SERVICE_NAME = "SwmDispatchTimeout";
+    public static final String SERVICE_NAME = "SwmDispatchTimeout";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchTimeoutService");
-	
-	private RfcxGuardian app;
-	
-	private boolean runFlag = false;
-	private SwmDispatchTimeoutSvc swmDispatchTimeoutSvc;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmDispatchTimeoutService");
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.swmDispatchTimeoutSvc = new SwmDispatchTimeoutSvc();
-		app = (RfcxGuardian) getApplication();
-	}
-	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
-		Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.swmDispatchTimeoutSvc.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
-	
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.swmDispatchTimeoutSvc.interrupt();
-		this.swmDispatchTimeoutSvc = null;
-	}
-	
-	
-	private class SwmDispatchTimeoutSvc extends Thread {
-		
-		public SwmDispatchTimeoutSvc() { super("SwmDispatchTimeoutService-SwmDispatchTimeoutSvc"); }
-		
-		@Override
-		public void run() {
-			SwmDispatchTimeoutService swmDispatchTimeoutInstance = SwmDispatchTimeoutService.this;
-			
-			app = (RfcxGuardian) getApplication();
+    private RfcxGuardian app;
 
-			int checkIntervalCount = Math.round( ( SwmUtils.sendCmdTimeout + ( 3 * SwmUtils.prepCmdTimeout) ) / 667 );
+    private boolean runFlag = false;
+    private SwmDispatchTimeoutSvc swmDispatchTimeoutSvc;
 
-			try {
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
-				app.rfcxSvc.reportAsActive(SERVICE_NAME);
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.swmDispatchTimeoutSvc = new SwmDispatchTimeoutSvc();
+        app = (RfcxGuardian) getApplication();
+    }
 
-				for (int i = 0; i <= checkIntervalCount; i++) {
-					if (app.swmUtils.isInFlight) {
-						Thread.sleep(667);
-						if (i == checkIntervalCount) {
-							Log.e(logTag, "Timeout Reached for SWM Send. Killing serial processes...");
-							while (SwmUtils.findRunningSerialProcessIds(DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH).length != 0) {
-								ShellCommands.killProcessesByIds(SwmUtils.findRunningSerialProcessIds(DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH));
-								Thread.sleep(667);
-							}
-						}
-					} else {
-						break;
-					}
-				}
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        Log.v(logTag, "Starting service: " + logTag);
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.swmDispatchTimeoutSvc.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-				app.rfcxSvc.setRunState(SERVICE_NAME, false);
-				swmDispatchTimeoutInstance.runFlag = false;
-			}
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.swmDispatchTimeoutSvc.interrupt();
+        this.swmDispatchTimeoutSvc = null;
+    }
 
-			app.rfcxSvc.setRunState(SERVICE_NAME, false);
-			swmDispatchTimeoutInstance.runFlag = false;
-			Log.v(logTag, "Stopping service: "+logTag);
-		}
-	}
 
-	
+    private class SwmDispatchTimeoutSvc extends Thread {
+
+        public SwmDispatchTimeoutSvc() {
+            super("SwmDispatchTimeoutService-SwmDispatchTimeoutSvc");
+        }
+
+        @Override
+        public void run() {
+            SwmDispatchTimeoutService swmDispatchTimeoutInstance = SwmDispatchTimeoutService.this;
+
+            app = (RfcxGuardian) getApplication();
+
+            int checkIntervalCount = Math.round((SwmUtils.sendCmdTimeout + (3 * SwmUtils.prepCmdTimeout)) / 667);
+
+            try {
+
+                app.rfcxSvc.reportAsActive(SERVICE_NAME);
+
+                for (int i = 0; i <= checkIntervalCount; i++) {
+                    if (app.swmUtils.isInFlight) {
+                        Thread.sleep(667);
+                        if (i == checkIntervalCount) {
+                            Log.e(logTag, "Timeout Reached for SWM Send. Killing serial processes...");
+                            while (SwmUtils.findRunningSerialProcessIds(DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH).length != 0) {
+                                ShellCommands.killProcessesByIds(SwmUtils.findRunningSerialProcessIds(DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH));
+                                Thread.sleep(667);
+                            }
+                        }
+                    } else {
+                        break;
+                    }
+                }
+
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+                app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                swmDispatchTimeoutInstance.runFlag = false;
+            }
+
+            app.rfcxSvc.setRunState(SERVICE_NAME, false);
+            swmDispatchTimeoutInstance.runFlag = false;
+            Log.v(logTag, "Stopping service: " + logTag);
+        }
+    }
+
+
 }

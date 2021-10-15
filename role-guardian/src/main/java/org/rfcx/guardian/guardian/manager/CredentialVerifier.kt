@@ -44,7 +44,8 @@ class CredentialVerifier(val context: Context) {
             val accessibleSitesRaw = metadata["accessibleSites"]
             if (accessibleSitesRaw != null && accessibleSitesRaw is ArrayList<*> && accessibleSitesRaw.size > 0 && accessibleSitesRaw[0] is String) {
                 @Suppress("UNCHECKED_CAST")
-                accessibleSites = HashSet(accessibleSitesRaw as ArrayList<String>) // TODO: is there a better way to do this @anuphap @jingjoeh
+                accessibleSites =
+                    HashSet(accessibleSitesRaw as ArrayList<String>) // TODO: is there a better way to do this @anuphap @jingjoeh
             }
 
             var roles: Set<String> = setOf()
@@ -66,7 +67,20 @@ class CredentialVerifier(val context: Context) {
                 }
                 else -> {
                     val expireAt = credentials.expiresIn!! + System.currentTimeMillis()
-                    return Ok(UserAuthResponse(guid, email, nickname, token, credentials.accessToken, credentials.refreshToken, roles, accessibleSites, defaultSite, expireAt))
+                    return Ok(
+                        UserAuthResponse(
+                            guid,
+                            email,
+                            nickname,
+                            token,
+                            credentials.accessToken,
+                            credentials.refreshToken,
+                            roles,
+                            accessibleSites,
+                            defaultSite,
+                            expireAt
+                        )
+                    )
                 }
             }
         } catch (e: Exception) {

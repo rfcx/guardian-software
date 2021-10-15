@@ -14,6 +14,7 @@ public class DeviceScreenLock {
     private String logTag;
     private WakeLock wakeLock = null;
     private KeyguardManager.KeyguardLock keyguardLock = null;
+
     public DeviceScreenLock(String appRole) {
         this.logTag = RfcxLog.generateLogTag(appRole, "DeviceScreenLock");
     }

@@ -17,7 +17,6 @@ class OldWifiCommunicationUtils(private val context: Context) {
     )
 
 
-
     fun getAudioBufferAsJson(): JSONArray? {
         if (app.audioCaptureUtils.isAudioChanged) {
             val jsonArray = JSONArray()
@@ -26,7 +25,7 @@ class OldWifiCommunicationUtils(private val context: Context) {
             jsonObject.put("buffer", Base64.encodeToString(audioBufferPair.first, Base64.NO_WRAP))
             jsonObject.put("read_size", audioBufferPair.second)
             jsonArray.put(jsonObject)
-            return  jsonArray
+            return jsonArray
         }
         return JSONArray()
     }

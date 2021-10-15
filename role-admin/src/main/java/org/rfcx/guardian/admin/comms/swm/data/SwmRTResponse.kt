@@ -1,6 +1,6 @@
 package org.rfcx.guardian.admin.comms.swm.data
 
-data class SwmRTResponse (
+data class SwmRTResponse(
     val rssi: Int,
     val signalToNoiseRatio: Int,
     val frequencyDeviation: Int,

@@ -26,6 +26,7 @@ public class DbUtils {
     private static final String DEFAULT_ORDER = "DESC";
     public DbHelper dbHelper;
     private SQLiteDatabase sqlLiteDb = null;
+
     public DbUtils(Context context, String database, String table, int version, String createColumnQuery, boolean dropTableOnUpgrade) {
         this.dbHelper = new DbHelper(context, database, table, version, createColumnQuery, dropTableOnUpgrade);
     }

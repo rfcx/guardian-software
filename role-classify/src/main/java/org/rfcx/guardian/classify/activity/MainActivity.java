@@ -20,24 +20,24 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_home, menu);
-		return true;
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_home, menu);
+        return true;
+    }
 
-		}
-		return true;
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_home);
+        }
+        return true;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
 
 
 //		Button placeholderButton = findViewById(R.id.clickMe);
@@ -50,17 +50,17 @@ public class MainActivity extends Activity {
 //			}
 //		});
 
-	}
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-	}
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
-	@Override
-	public void onPause() {
-		super.onPause();
-		((RfcxGuardian) getApplication()).appPause();
-	}
-	
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((RfcxGuardian) getApplication()).appPause();
+    }
+
 }

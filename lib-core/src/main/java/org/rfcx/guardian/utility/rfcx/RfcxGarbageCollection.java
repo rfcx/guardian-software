@@ -14,6 +14,7 @@ public class RfcxGarbageCollection {
     private String logTag;
     private Context context;
     private String appRole;
+
     public RfcxGarbageCollection(Context context, String appRole) {
         this.logTag = RfcxLog.generateLogTag(appRole, "RfcxGarbageCollection");
         this.context = context;

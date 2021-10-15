@@ -52,7 +52,8 @@ class SwmApiRTTest {
     @Test
     fun canGetRTBackgroundFirstResultFromMany() {
         // Arrange
-        val shell = SwmMockShell(listOf("\$RT RSSI=-103*1f", "\$RT RSSI=-102*1e", "\$RT RSSI=-101*1d"))
+        val shell =
+            SwmMockShell(listOf("\$RT RSSI=-103*1f", "\$RT RSSI=-102*1e", "\$RT RSSI=-101*1d"))
         val api = SwmApi(SwmConnection(shell))
 
         // Act
@@ -66,7 +67,12 @@ class SwmApiRTTest {
     @Test
     fun canGetRT() {
         // Arrange
-        val shell = SwmMockShell(listOf("\$RT RSSI=-103*1f", "\$RT RSSI=-102,SNR=-1,FDEV=426,TS=2020-10-02 13:56:21,DI=0x000568*04"))
+        val shell = SwmMockShell(
+            listOf(
+                "\$RT RSSI=-103*1f",
+                "\$RT RSSI=-102,SNR=-1,FDEV=426,TS=2020-10-02 13:56:21,DI=0x000568*04"
+            )
+        )
         val api = SwmApi(SwmConnection(shell))
 
         // Act

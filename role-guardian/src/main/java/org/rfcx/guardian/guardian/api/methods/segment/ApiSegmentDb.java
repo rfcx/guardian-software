@@ -12,264 +12,267 @@ import java.util.List;
 
 public class ApiSegmentDb {
 
-	public ApiSegmentDb(Context context, String appVersion) {
-		this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
-		this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
-		this.dbGroups = new DbGroups(context);
-		this.dbReceived = new DbReceived(context);
-		this.dbQueued = new DbQueued(context);
-	}
+    public ApiSegmentDb(Context context, String appVersion) {
+        this.VERSION = RfcxRole.getRoleVersionValue(appVersion);
+        this.DROP_TABLE_ON_UPGRADE = ArrayUtils.doesStringArrayContainString(DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS, appVersion);
+        this.dbGroups = new DbGroups(context);
+        this.dbReceived = new DbReceived(context);
+        this.dbQueued = new DbQueued(context);
+    }
 
-	private int VERSION = 1;
-	static final String DATABASE = "segments";
-	static final String C_CREATED_AT = "created_at";
-	static final String C_GROUP_ID = "group_id";
-	static final String C_SEGMENT_ID_OR_COUNT = "segment_id";
-	static final String C_BODY_OR_CHECKSUM = "body";
-	static final String C_PROTOCOL = "protocol";
-	static final String C_TYPE = "type";
-	static final String C_ATTEMPTS = "attempts";
-	static final String C_LAST_ACCESSED_AT = "last_accessed_at";
-	public static final String[] ALL_COLUMNS = new String[] { C_CREATED_AT, C_GROUP_ID, C_SEGMENT_ID_OR_COUNT, C_BODY_OR_CHECKSUM, C_PROTOCOL, C_TYPE, C_ATTEMPTS, C_LAST_ACCESSED_AT };
+    private int VERSION = 1;
+    static final String DATABASE = "segments";
+    static final String C_CREATED_AT = "created_at";
+    static final String C_GROUP_ID = "group_id";
+    static final String C_SEGMENT_ID_OR_COUNT = "segment_id";
+    static final String C_BODY_OR_CHECKSUM = "body";
+    static final String C_PROTOCOL = "protocol";
+    static final String C_TYPE = "type";
+    static final String C_ATTEMPTS = "attempts";
+    static final String C_LAST_ACCESSED_AT = "last_accessed_at";
+    public static final String[] ALL_COLUMNS = new String[]{C_CREATED_AT, C_GROUP_ID, C_SEGMENT_ID_OR_COUNT, C_BODY_OR_CHECKSUM, C_PROTOCOL, C_TYPE, C_ATTEMPTS, C_LAST_ACCESSED_AT};
 
-	static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[] {  }; // "0.6.43"
-	private boolean DROP_TABLE_ON_UPGRADE = false;
-	
-	private String createColumnString(String tableName) {
-		StringBuilder sbOut = new StringBuilder();
-		sbOut.append("CREATE TABLE ").append(tableName)
-			.append("(").append(C_CREATED_AT).append(" INTEGER")
-			.append(", ").append(C_GROUP_ID).append(" TEXT")
-			.append(", ").append(C_SEGMENT_ID_OR_COUNT).append(" TEXT")
-			.append(", ").append(C_BODY_OR_CHECKSUM).append(" TEXT")
-			.append(", ").append(C_PROTOCOL).append(" TEXT")
-			.append(", ").append(C_TYPE).append(" TEXT")
-			.append(", ").append(C_ATTEMPTS).append(" INTEGER")
-			.append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
-			.append(")");
-		return sbOut.toString();
-	}
+    static final String[] DROP_TABLES_ON_UPGRADE_TO_THESE_VERSIONS = new String[]{}; // "0.6.43"
+    private boolean DROP_TABLE_ON_UPGRADE = false;
 
-	public class DbGroups {
+    private String createColumnString(String tableName) {
+        StringBuilder sbOut = new StringBuilder();
+        sbOut.append("CREATE TABLE ").append(tableName)
+                .append("(").append(C_CREATED_AT).append(" INTEGER")
+                .append(", ").append(C_GROUP_ID).append(" TEXT")
+                .append(", ").append(C_SEGMENT_ID_OR_COUNT).append(" TEXT")
+                .append(", ").append(C_BODY_OR_CHECKSUM).append(" TEXT")
+                .append(", ").append(C_PROTOCOL).append(" TEXT")
+                .append(", ").append(C_TYPE).append(" TEXT")
+                .append(", ").append(C_ATTEMPTS).append(" INTEGER")
+                .append(", ").append(C_LAST_ACCESSED_AT).append(" INTEGER")
+                .append(")");
+        return sbOut.toString();
+    }
 
-		final DbUtils dbUtils;
-		public String FILEPATH;
+    public class DbGroups {
 
-		private String TABLE = "groups";
+        final DbUtils dbUtils;
+        public String FILEPATH;
 
-		public DbGroups(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
-			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
-		}
+        private String TABLE = "groups";
 
-		public int insert(String groupId, int segmentCount, String fullMsgChecksum, String fullMsgType, String protocol) {
-			return insert(groupId, ""+segmentCount, fullMsgChecksum, fullMsgType, protocol);
-		}
+        public DbGroups(Context context) {
+            this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+            FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
+        }
 
-		public int insert(String groupId, String segmentCount, String fullMsgChecksum, String fullMsgType, String protocol) {
+        public int insert(String groupId, int segmentCount, String fullMsgChecksum, String fullMsgType, String protocol) {
+            return insert(groupId, "" + segmentCount, fullMsgChecksum, fullMsgType, protocol);
+        }
 
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_GROUP_ID, groupId);
-			values.put(C_SEGMENT_ID_OR_COUNT, segmentCount);
-			values.put(C_BODY_OR_CHECKSUM, fullMsgChecksum);
-			values.put(C_PROTOCOL, protocol);
-			values.put(C_TYPE, fullMsgType);
-			values.put(C_ATTEMPTS, 0);
-			values.put(C_LAST_ACCESSED_AT, 0);
+        public int insert(String groupId, String segmentCount, String fullMsgChecksum, String fullMsgType, String protocol) {
 
-			return this.dbUtils.insertRow(TABLE, values);
-		}
+            ContentValues values = new ContentValues();
+            values.put(C_CREATED_AT, (new Date()).getTime());
+            values.put(C_GROUP_ID, groupId);
+            values.put(C_SEGMENT_ID_OR_COUNT, segmentCount);
+            values.put(C_BODY_OR_CHECKSUM, fullMsgChecksum);
+            values.put(C_PROTOCOL, protocol);
+            values.put(C_TYPE, fullMsgType);
+            values.put(C_ATTEMPTS, 0);
+            values.put(C_LAST_ACCESSED_AT, 0);
 
-		public int getCountById(String groupId) {
-			return this.dbUtils.getCount(TABLE, C_GROUP_ID +"=?",new String[] { groupId });
-		}
+            return this.dbUtils.insertRow(TABLE, values);
+        }
 
-		public List<String[]> getAllRows() {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_SEGMENT_ID_OR_COUNT);
-		}
+        public int getCountById(String groupId) {
+            return this.dbUtils.getCount(TABLE, C_GROUP_ID + "=?", new String[]{groupId});
+        }
 
-		public String[] getSingleRowById(String groupId) {
-			return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr("+C_GROUP_ID+",1,"+groupId.length()+") = ?", new String[] { groupId }, C_CREATED_AT, 0);
-		}
+        public List<String[]> getAllRows() {
+            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, null, null, C_SEGMENT_ID_OR_COUNT);
+        }
 
-		public int deleteSingleRowById(String groupId) {
-			this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_GROUP_ID, groupId);
-			return 0;
-		}
+        public String[] getSingleRowById(String groupId) {
+            return this.dbUtils.getSingleRow(TABLE, ALL_COLUMNS, "substr(" + C_GROUP_ID + ",1," + groupId.length() + ") = ?", new String[]{groupId}, C_CREATED_AT, 0);
+        }
 
-		public long updateLastAccessedAt(String groupId) {
-			long rightNow = (new Date()).getTime();
-			this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId);
-			return rightNow;
-		}
+        public int deleteSingleRowById(String groupId) {
+            this.dbUtils.deleteRowsWithinQueryByTimestamp(TABLE, C_GROUP_ID, groupId);
+            return 0;
+        }
 
-		public void incrementSingleRowAttempts(String groupId) {
-			this.dbUtils.adjustNumericColumnValuesWithinQueryByOneColumn("+1", TABLE, C_ATTEMPTS, C_GROUP_ID, groupId);
-		}
+        public long updateLastAccessedAt(String groupId) {
+            long rightNow = (new Date()).getTime();
+            this.dbUtils.setDatetimeColumnValuesWithinQueryByTimestamp(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId);
+            return rightNow;
+        }
 
-		public int getCount() {
-			return this.dbUtils.getCount(TABLE, null, null);
-		}
+        public void incrementSingleRowAttempts(String groupId) {
+            this.dbUtils.adjustNumericColumnValuesWithinQueryByOneColumn("+1", TABLE, C_ATTEMPTS, C_GROUP_ID, groupId);
+        }
 
-	}
-	public final DbGroups dbGroups;
+        public int getCount() {
+            return this.dbUtils.getCount(TABLE, null, null);
+        }
 
+    }
 
-	public class DbReceived {
-
-		final DbUtils dbUtils;
-		public String FILEPATH;
-
-		private String TABLE = "received";
-
-		public DbReceived(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
-			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
-		}
-
-		public int insert(String groupId, int segmentId, String segmentBody) {
-			return insert(groupId, segmentId+"", segmentBody);
-		}
-
-		public int insert(String groupId, String segmentId, String segmentBody) {
-
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_GROUP_ID, groupId);
-			values.put(C_SEGMENT_ID_OR_COUNT, segmentId);
-			values.put(C_BODY_OR_CHECKSUM, segmentBody);
-		//	values.put(C_PROTOCOL, protocol);
-		//	values.put(C_TYPE, protocol);
-			values.put(C_ATTEMPTS, 0);
-			values.put(C_LAST_ACCESSED_AT, 0);
-
-			return this.dbUtils.insertRow(TABLE, values);
-		}
-
-		public int getCountByGroupId(String groupId) {
-			return this.dbUtils.getCount(TABLE, C_GROUP_ID +"=?",new String[] { groupId });
-		}
-
-		public List<String[]> getAllSegmentsForGroupOrderedBySegmentId(String groupId) {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr("+C_GROUP_ID+",1,"+ApiSegmentUtils.GROUP_ID_LENGTH+") = ?", new String[] { groupId }, C_SEGMENT_ID_OR_COUNT+" ASC");
-		}
-
-		public String[] getSegmentByGroupAndId(String groupId, int segmentId) {
-			String[] rtrnRow = DbUtils.placeHolderStringArray(ALL_COLUMNS.length);
-			for (String[] segmentRow : getAllSegmentsForGroupOrderedBySegmentId(groupId)) {
-				if (segmentRow[2].equalsIgnoreCase(""+segmentId)) {
-					rtrnRow = segmentRow;
-					break;
-				}
-			}
-			return rtrnRow;
-		}
-
-		public int deleteSegmentsForGroup(String groupId) {
-			this.dbUtils.deleteRowsWithinQueryByOneColumn(TABLE, C_GROUP_ID, groupId);
-			return 0;
-		}
-
-		public int deleteSegmentsByGroupAndId(String groupId, int segmentId) {
-			this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
-			return 0;
-		}
-
-		public long updateLastAccessedAt(String groupId, int segmentId) {
-			long rightNow = (new Date()).getTime();
-			this.dbUtils.setDatetimeColumnValuesWithinQueryByTwoColumns(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
-			return rightNow;
-		}
-
-		public void incrementSingleRowAttempts(String groupId, int segmentId) {
-			this.dbUtils.adjustNumericColumnValuesWithinQueryByTwoColumns("+1", TABLE, C_ATTEMPTS, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
-		}
-
-		public int getCount() {
-			return this.dbUtils.getCount(TABLE, null, null);
-		}
-
-	}
-	public final DbReceived dbReceived;
+    public final DbGroups dbGroups;
 
 
-	public class DbQueued {
+    public class DbReceived {
 
-		final DbUtils dbUtils;
-		public String FILEPATH;
+        final DbUtils dbUtils;
+        public String FILEPATH;
 
-		private String TABLE = "queued";
+        private String TABLE = "received";
 
-		public DbQueued(Context context) {
-			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
-			FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
-		}
+        public DbReceived(Context context) {
+            this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+            FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
+        }
 
-		public int insert(String groupId, int segmentId, String segmentBody) {
-			return insert(groupId, segmentId+"", segmentBody);
-		}
+        public int insert(String groupId, int segmentId, String segmentBody) {
+            return insert(groupId, segmentId + "", segmentBody);
+        }
 
-		public int insert(String groupId, String segmentId, String segmentBody) {
+        public int insert(String groupId, String segmentId, String segmentBody) {
 
-			ContentValues values = new ContentValues();
-			values.put(C_CREATED_AT, (new Date()).getTime());
-			values.put(C_GROUP_ID, groupId);
-			values.put(C_SEGMENT_ID_OR_COUNT, segmentId);
-			values.put(C_BODY_OR_CHECKSUM, segmentBody);
-			//	values.put(C_PROTOCOL, protocol);
-			//	values.put(C_TYPE, protocol);
-			values.put(C_ATTEMPTS, 0);
-			values.put(C_LAST_ACCESSED_AT, 0);
+            ContentValues values = new ContentValues();
+            values.put(C_CREATED_AT, (new Date()).getTime());
+            values.put(C_GROUP_ID, groupId);
+            values.put(C_SEGMENT_ID_OR_COUNT, segmentId);
+            values.put(C_BODY_OR_CHECKSUM, segmentBody);
+            //	values.put(C_PROTOCOL, protocol);
+            //	values.put(C_TYPE, protocol);
+            values.put(C_ATTEMPTS, 0);
+            values.put(C_LAST_ACCESSED_AT, 0);
 
-			return this.dbUtils.insertRow(TABLE, values);
-		}
+            return this.dbUtils.insertRow(TABLE, values);
+        }
 
-		public int getCountByGroupId(String groupId) {
-			return this.dbUtils.getCount(TABLE, C_GROUP_ID +"=?",new String[] { groupId });
-		}
+        public int getCountByGroupId(String groupId) {
+            return this.dbUtils.getCount(TABLE, C_GROUP_ID + "=?", new String[]{groupId});
+        }
 
-		public List<String[]> getAllSegmentsForGroupOrderedBySegmentId(String groupId) {
-			return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr("+C_GROUP_ID+",1,"+ApiSegmentUtils.GROUP_ID_LENGTH+") = ?", new String[] { groupId }, C_SEGMENT_ID_OR_COUNT+" ASC");
-		}
+        public List<String[]> getAllSegmentsForGroupOrderedBySegmentId(String groupId) {
+            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr(" + C_GROUP_ID + ",1," + ApiSegmentUtils.GROUP_ID_LENGTH + ") = ?", new String[]{groupId}, C_SEGMENT_ID_OR_COUNT + " ASC");
+        }
 
-		public String[] getSegmentByGroupAndId(String groupId, int segmentId) {
-			String[] rtrnRow = DbUtils.placeHolderStringArray(ALL_COLUMNS.length);
-			for (String[] segmentRow : getAllSegmentsForGroupOrderedBySegmentId(groupId)) {
-				if (segmentRow[2].equalsIgnoreCase(""+segmentId)) {
-					rtrnRow = segmentRow;
-					break;
-				}
-			}
-			return rtrnRow;
-		}
+        public String[] getSegmentByGroupAndId(String groupId, int segmentId) {
+            String[] rtrnRow = DbUtils.placeHolderStringArray(ALL_COLUMNS.length);
+            for (String[] segmentRow : getAllSegmentsForGroupOrderedBySegmentId(groupId)) {
+                if (segmentRow[2].equalsIgnoreCase("" + segmentId)) {
+                    rtrnRow = segmentRow;
+                    break;
+                }
+            }
+            return rtrnRow;
+        }
 
-		public int deleteSegmentsForGroup(String groupId) {
-			this.dbUtils.deleteRowsWithinQueryByOneColumn(TABLE, C_GROUP_ID, groupId);
-			return 0;
-		}
+        public int deleteSegmentsForGroup(String groupId) {
+            this.dbUtils.deleteRowsWithinQueryByOneColumn(TABLE, C_GROUP_ID, groupId);
+            return 0;
+        }
 
-		public int deleteSegmentsByGroupAndId(String groupId, int segmentId) {
-			this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
-			return 0;
-		}
+        public int deleteSegmentsByGroupAndId(String groupId, int segmentId) {
+            this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId + "");
+            return 0;
+        }
 
-		public long updateLastAccessedAt(String groupId, int segmentId) {
-			long rightNow = (new Date()).getTime();
-			this.dbUtils.setDatetimeColumnValuesWithinQueryByTwoColumns(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
-			return rightNow;
-		}
+        public long updateLastAccessedAt(String groupId, int segmentId) {
+            long rightNow = (new Date()).getTime();
+            this.dbUtils.setDatetimeColumnValuesWithinQueryByTwoColumns(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId + "");
+            return rightNow;
+        }
 
-		public void incrementSingleRowAttempts(String groupId, int segmentId) {
-			this.dbUtils.adjustNumericColumnValuesWithinQueryByTwoColumns("+1", TABLE, C_ATTEMPTS, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId+"");
-		}
+        public void incrementSingleRowAttempts(String groupId, int segmentId) {
+            this.dbUtils.adjustNumericColumnValuesWithinQueryByTwoColumns("+1", TABLE, C_ATTEMPTS, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId + "");
+        }
 
-		public int getCount() {
-			return this.dbUtils.getCount(TABLE, null, null);
-		}
+        public int getCount() {
+            return this.dbUtils.getCount(TABLE, null, null);
+        }
 
-	}
-	public final DbQueued dbQueued;
+    }
 
-	
+    public final DbReceived dbReceived;
+
+
+    public class DbQueued {
+
+        final DbUtils dbUtils;
+        public String FILEPATH;
+
+        private String TABLE = "queued";
+
+        public DbQueued(Context context) {
+            this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
+            FILEPATH = DbUtils.getDbFilePath(context, DATABASE, TABLE);
+        }
+
+        public int insert(String groupId, int segmentId, String segmentBody) {
+            return insert(groupId, segmentId + "", segmentBody);
+        }
+
+        public int insert(String groupId, String segmentId, String segmentBody) {
+
+            ContentValues values = new ContentValues();
+            values.put(C_CREATED_AT, (new Date()).getTime());
+            values.put(C_GROUP_ID, groupId);
+            values.put(C_SEGMENT_ID_OR_COUNT, segmentId);
+            values.put(C_BODY_OR_CHECKSUM, segmentBody);
+            //	values.put(C_PROTOCOL, protocol);
+            //	values.put(C_TYPE, protocol);
+            values.put(C_ATTEMPTS, 0);
+            values.put(C_LAST_ACCESSED_AT, 0);
+
+            return this.dbUtils.insertRow(TABLE, values);
+        }
+
+        public int getCountByGroupId(String groupId) {
+            return this.dbUtils.getCount(TABLE, C_GROUP_ID + "=?", new String[]{groupId});
+        }
+
+        public List<String[]> getAllSegmentsForGroupOrderedBySegmentId(String groupId) {
+            return this.dbUtils.getRows(TABLE, ALL_COLUMNS, "substr(" + C_GROUP_ID + ",1," + ApiSegmentUtils.GROUP_ID_LENGTH + ") = ?", new String[]{groupId}, C_SEGMENT_ID_OR_COUNT + " ASC");
+        }
+
+        public String[] getSegmentByGroupAndId(String groupId, int segmentId) {
+            String[] rtrnRow = DbUtils.placeHolderStringArray(ALL_COLUMNS.length);
+            for (String[] segmentRow : getAllSegmentsForGroupOrderedBySegmentId(groupId)) {
+                if (segmentRow[2].equalsIgnoreCase("" + segmentId)) {
+                    rtrnRow = segmentRow;
+                    break;
+                }
+            }
+            return rtrnRow;
+        }
+
+        public int deleteSegmentsForGroup(String groupId) {
+            this.dbUtils.deleteRowsWithinQueryByOneColumn(TABLE, C_GROUP_ID, groupId);
+            return 0;
+        }
+
+        public int deleteSegmentsByGroupAndId(String groupId, int segmentId) {
+            this.dbUtils.deleteRowsWithinQueryByTwoColumns(TABLE, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId + "");
+            return 0;
+        }
+
+        public long updateLastAccessedAt(String groupId, int segmentId) {
+            long rightNow = (new Date()).getTime();
+            this.dbUtils.setDatetimeColumnValuesWithinQueryByTwoColumns(TABLE, C_LAST_ACCESSED_AT, rightNow, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId + "");
+            return rightNow;
+        }
+
+        public void incrementSingleRowAttempts(String groupId, int segmentId) {
+            this.dbUtils.adjustNumericColumnValuesWithinQueryByTwoColumns("+1", TABLE, C_ATTEMPTS, C_GROUP_ID, groupId, C_SEGMENT_ID_OR_COUNT, segmentId + "");
+        }
+
+        public int getCount() {
+            return this.dbUtils.getCount(TABLE, null, null);
+        }
+
+    }
+
+    public final DbQueued dbQueued;
+
+
 }

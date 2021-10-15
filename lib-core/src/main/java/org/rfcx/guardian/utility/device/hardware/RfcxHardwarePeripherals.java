@@ -14,6 +14,7 @@ public class RfcxHardwarePeripherals {
     private String pcb_satellite_version = "0.0.0";
     private String modem_satellite_iridium_imei = "0";
     private String modem_satellite_swarm_serial = "0";
+
     public RfcxHardwarePeripherals(Context context, String appRole) {
         this.logTag = RfcxLog.generateLogTag(appRole, "RfcxHardwarePeripherals");
         this.context = context;

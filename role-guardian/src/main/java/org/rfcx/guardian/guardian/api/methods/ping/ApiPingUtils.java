@@ -15,91 +15,93 @@ import java.util.Locale;
 
 public class ApiPingUtils {
 
-	public ApiPingUtils(Context context) {
+    public ApiPingUtils(Context context) {
 
-		this.app = (RfcxGuardian) context.getApplicationContext();
-		updateRepeatingPingCycleDuration();
-	}
+        this.app = (RfcxGuardian) context.getApplicationContext();
+        updateRepeatingPingCycleDuration();
+    }
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiPingUtils");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ApiPingUtils");
 
-	private RfcxGuardian app;
+    private RfcxGuardian app;
 
-	public static final long delayInitialRepeatingPingCycleByThisManyMs = 2 * 60 * 1000; // two minutes
-	public long repeatingPingCycleDuration;
+    public static final long delayInitialRepeatingPingCycleByThisManyMs = 2 * 60 * 1000; // two minutes
+    public long repeatingPingCycleDuration;
 
-	public long repeatingPingLastAttemptedAt = 0;
-	public long repeatingPingLastQueuedAt = 0;
-	public long repeatingPingLastCompletedOrSkippedAt = 0;
+    public long repeatingPingLastAttemptedAt = 0;
+    public long repeatingPingLastQueuedAt = 0;
+    public long repeatingPingLastCompletedOrSkippedAt = 0;
 
-	public void updateRepeatingPingCycleDuration() {
-		this.repeatingPingCycleDuration = ( app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_PING_CYCLE_DURATION) * 60 * 1000 );
-	}
+    public void updateRepeatingPingCycleDuration() {
+        this.repeatingPingCycleDuration = (app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.API_PING_CYCLE_DURATION) * 60 * 1000);
+    }
 
-	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount, String forceProtocol, boolean allowSegmentProtocols) {
+    public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, int includeAssetBundleCount, String forceProtocol, boolean allowSegmentProtocols) {
 
-		String[] apiProtocols = app.rfcxPrefs.getDefaultPrefValueAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(",");
-		if (forceProtocol.equalsIgnoreCase("all")) {
-			apiProtocols = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(",");
-			Log.v(logTag, "Allowed Ping protocols (in order): " + TextUtils.join(", ", apiProtocols).toUpperCase(Locale.US));
-		} else if (ArrayUtils.doesStringArrayContainString(apiProtocols,forceProtocol)) {
-			apiProtocols = new String[] { forceProtocol };
-		}
+        String[] apiProtocols = app.rfcxPrefs.getDefaultPrefValueAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(",");
+        if (forceProtocol.equalsIgnoreCase("all")) {
+            apiProtocols = app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PROTOCOL_ESCALATION_ORDER).split(",");
+            Log.v(logTag, "Allowed Ping protocols (in order): " + TextUtils.join(", ", apiProtocols).toUpperCase(Locale.US));
+        } else if (ArrayUtils.doesStringArrayContainString(apiProtocols, forceProtocol)) {
+            apiProtocols = new String[]{forceProtocol};
+        }
 
-		boolean isPublished = false;
+        boolean isPublished = false;
 
-		try {
+        try {
 
-			String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, includeAssetBundleCount, true, new String[]{} );
+            String pingJson = app.apiPingJsonUtils.buildPingJson(includeAllExtraFields, includeExtraFields, includeAssetBundleCount, true, new String[]{});
 
-			for (String apiProtocol : apiProtocols) {
+            for (String apiProtocol : apiProtocols) {
 
-				Log.v(logTag, "Attempting Ping publication via "+apiProtocol.toUpperCase(Locale.US)+" protocol...");
+                Log.v(logTag, "Attempting Ping publication via " + apiProtocol.toUpperCase(Locale.US) + " protocol...");
 
-				if (	(	apiProtocol.equalsIgnoreCase("mqtt")
-						&& 	app.apiMqttUtils.sendMqttPing(pingJson)
-						)
-					||	(	apiProtocol.equalsIgnoreCase("rest")
-						&&  app.apiRestUtils.sendRestPing(pingJson)
-						)
-					|| 	(	allowSegmentProtocols
-						&&	(	(	apiProtocol.equalsIgnoreCase("sms")
-								&& 	app.apiSmsUtils.sendSmsPing(pingJson)
-								)
-							||	(	( apiProtocol.equalsIgnoreCase("sat") || apiProtocol.equalsIgnoreCase("sbd") || apiProtocol.equalsIgnoreCase("swm") )
-								&& 	app.apiSatUtils.sendSatPing(pingJson)
-								)
-							)
-						)
-				) {
-					isPublished = true;
-					String actionVerb = (apiProtocol.equalsIgnoreCase("mqtt") || apiProtocol.equalsIgnoreCase("rest")) ? "published" : "queued to be sent";
-					Log.v(logTag, "Ping has been "+actionVerb+" via "+apiProtocol.toUpperCase(Locale.US)+".");
-					break;
-				}
-			}
+                if ((apiProtocol.equalsIgnoreCase("mqtt")
+                        && app.apiMqttUtils.sendMqttPing(pingJson)
+                )
+                        || (apiProtocol.equalsIgnoreCase("rest")
+                        && app.apiRestUtils.sendRestPing(pingJson)
+                )
+                        || (allowSegmentProtocols
+                        && ((apiProtocol.equalsIgnoreCase("sms")
+                        && app.apiSmsUtils.sendSmsPing(pingJson)
+                )
+                        || ((apiProtocol.equalsIgnoreCase("sat") || apiProtocol.equalsIgnoreCase("sbd") || apiProtocol.equalsIgnoreCase("swm"))
+                        && app.apiSatUtils.sendSatPing(pingJson)
+                )
+                )
+                )
+                ) {
+                    isPublished = true;
+                    String actionVerb = (apiProtocol.equalsIgnoreCase("mqtt") || apiProtocol.equalsIgnoreCase("rest")) ? "published" : "queued to be sent";
+                    Log.v(logTag, "Ping has been " + actionVerb + " via " + apiProtocol.toUpperCase(Locale.US) + ".");
+                    break;
+                }
+            }
 
-		} catch (Exception e) {
-			RfcxLog.logExc(logTag, e);
-		}
+        } catch (Exception e) {
+            RfcxLog.logExc(logTag, e);
+        }
 
-		if (!isPublished) { Log.e(logTag, "Ping failed to publish via protocol(s): "+TextUtils.join(", ", apiProtocols).toUpperCase(Locale.US)); }
+        if (!isPublished) {
+            Log.e(logTag, "Ping failed to publish via protocol(s): " + TextUtils.join(", ", apiProtocols).toUpperCase(Locale.US));
+        }
 
-		return isPublished;
-	}
+        return isPublished;
+    }
 
-	public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, boolean allowSegmentProtocols) {
-		return sendPing(includeAllExtraFields, includeExtraFields, 0, "all", allowSegmentProtocols);
-	}
+    public boolean sendPing(boolean includeAllExtraFields, String[] includeExtraFields, boolean allowSegmentProtocols) {
+        return sendPing(includeAllExtraFields, includeExtraFields, 0, "all", allowSegmentProtocols);
+    }
 
-	public boolean isScheduledPingAllowedAtThisTimeOfDay() {
-		for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PING_SCHEDULE_OFF_HOURS), ",")) {
-			String[] offHours = TextUtils.split(offHoursRange, "-");
-			if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
-				return false;
-			}
-		}
-		return true;
-	}
+    public boolean isScheduledPingAllowedAtThisTimeOfDay() {
+        for (String offHoursRange : TextUtils.split(app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_PING_SCHEDULE_OFF_HOURS), ",")) {
+            String[] offHours = TextUtils.split(offHoursRange, "-");
+            if (DateTimeUtils.isTimeStampWithinTimeRange(new Date(), offHours[0], offHours[1])) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 }

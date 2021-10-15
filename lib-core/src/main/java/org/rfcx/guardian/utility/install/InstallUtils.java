@@ -33,6 +33,7 @@ public class InstallUtils {
     public int installVersionValue = 0;
     private Context context;
     private String thisAppRole;
+
     public InstallUtils(Context context, String appRole) {
 
         this.context = context;

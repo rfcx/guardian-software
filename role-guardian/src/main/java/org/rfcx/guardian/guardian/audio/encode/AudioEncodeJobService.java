@@ -18,206 +18,209 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+
 import org.rfcx.guardian.guardian.RfcxGuardian;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
 public class AudioEncodeJobService extends Service {
 
-	public static final String SERVICE_NAME = "AudioEncodeJob";
+    public static final String SERVICE_NAME = "AudioEncodeJob";
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioEncodeJobService");
-	
-	private RfcxGuardian app;
-	
-	private boolean runFlag = false;
-	private AudioEncodeJob audioEncodeJob;
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "AudioEncodeJobService");
 
-	@Override
-	public IBinder onBind(Intent arg0) {
-		return null;
-	}
-	
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		this.audioEncodeJob = new AudioEncodeJob();
-		app = (RfcxGuardian) getApplication();
-	}
+    private RfcxGuardian app;
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		super.onStartCommand(intent, flags, startId);
+    private boolean runFlag = false;
+    private AudioEncodeJob audioEncodeJob;
+
+    @Override
+    public IBinder onBind(Intent arg0) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        this.audioEncodeJob = new AudioEncodeJob();
+        app = (RfcxGuardian) getApplication();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
 //		Log.v(logTag, "Starting service: "+logTag);
-		this.runFlag = true;
-		app.rfcxSvc.setRunState(SERVICE_NAME, true);
-		try {
-			this.audioEncodeJob.start();
-		} catch (IllegalThreadStateException e) {
-			RfcxLog.logExc(logTag, e);
-		}
-		return START_NOT_STICKY;
-	}
+        this.runFlag = true;
+        app.rfcxSvc.setRunState(SERVICE_NAME, true);
+        try {
+            this.audioEncodeJob.start();
+        } catch (IllegalThreadStateException e) {
+            RfcxLog.logExc(logTag, e);
+        }
+        return START_NOT_STICKY;
+    }
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		this.runFlag = false;
-		app.rfcxSvc.setRunState(SERVICE_NAME, false);
-		this.audioEncodeJob.interrupt();
-		this.audioEncodeJob = null;
-	}
-	
-	private class AudioEncodeJob extends Thread {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.runFlag = false;
+        app.rfcxSvc.setRunState(SERVICE_NAME, false);
+        this.audioEncodeJob.interrupt();
+        this.audioEncodeJob = null;
+    }
 
-		public AudioEncodeJob() {
-			super("AudioEncodeJobService-AudioEncodeJob");
-		}
-		
-		@Override
-		public void run() {
-			AudioEncodeJobService audioEncodeJobInstance = AudioEncodeJobService.this;
-			
-			app = (RfcxGuardian) getApplication();
-			Context context = app.getApplicationContext();
+    private class AudioEncodeJob extends Thread {
 
-			app.rfcxSvc.reportAsActive(SERVICE_NAME);
-			
-			try {
-				
-				List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbQueued.getAllRows();
-				if (latestQueuedAudioFilesToEncode.size() == 0) { Log.d(logTag, "No audio files are queued to be encoded."); }
-				long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
-				AudioEncodeUtils.cleanupEncodeDirectory( context, latestQueuedAudioFilesToEncode, Math.round( RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration ) );
-				
-				for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
+        public AudioEncodeJob() {
+            super("AudioEncodeJobService-AudioEncodeJob");
+        }
 
-					app.rfcxSvc.reportAsActive(SERVICE_NAME);
-									
-					// only proceed with encode process if there is a valid queued audio file in the database
-					if (latestQueuedAudioToEncode[0] != null) {
+        @Override
+        public void run() {
+            AudioEncodeJobService audioEncodeJobInstance = AudioEncodeJobService.this;
 
-						String encodePurpose = latestQueuedAudioToEncode[9];
-						String timestamp = latestQueuedAudioToEncode[1];
-						String inputFileExt = latestQueuedAudioToEncode[2];
-						int targetAudioFileCaptureDuration = Integer.parseInt(latestQueuedAudioToEncode[7]);
-						String codec = latestQueuedAudioToEncode[6];
-						int bitRate = Integer.parseInt(latestQueuedAudioToEncode[5]);
-						int inputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[11]);
-						int outputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[4]);
+            app = (RfcxGuardian) getApplication();
+            Context context = app.getApplicationContext();
 
-						File preEncodeFile = new File(latestQueuedAudioToEncode[10]);
-						File finalDestinationFile = null;
-						
-						if (!preEncodeFile.exists()) {
-							
-							Log.e(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " because input audio file could not be found.");
-							
-							app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
-							
-						} else if (Integer.parseInt(latestQueuedAudioToEncode[12]) >= AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD) {
-							
-							Log.e(logTag, "Skipping Audio Encode Job ("+StringUtils.capitalizeFirstChar(encodePurpose)+") for " + timestamp + " after " + AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD + " failed attempts.");
-							
-							app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
-							FileUtils.delete(preEncodeFile);
-							
-						} else {
+            app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-							Log.i(logTag, "Beginning Audio Encode Job ("+ StringUtils.capitalizeFirstChar(encodePurpose) +"): "
-									+ timestamp + ", "
-									+ inputFileExt.toUpperCase(Locale.US) + " ("+Math.round((double) inputSampleRate/1000)+" kHz) "
-									+"to " + codec.toUpperCase(Locale.US)+" ("+Math.round((double) outputSampleRate/1000)+" kHz"+ ((codec.equalsIgnoreCase("opus")) ? (", "+Math.round(bitRate/1024)+" kbps") : "")+")"
-							);
+            try {
 
-							app.audioEncodeDb.dbQueued.incrementSingleRowAttempts(timestamp);
+                List<String[]> latestQueuedAudioFilesToEncode = app.audioEncodeDb.dbQueued.getAllRows();
+                if (latestQueuedAudioFilesToEncode.size() == 0) {
+                    Log.d(logTag, "No audio files are queued to be encoded.");
+                }
+                long audioCycleDuration = app.rfcxPrefs.getPrefAsLong(RfcxPrefs.Pref.AUDIO_CYCLE_DURATION) * 1000;
+                AudioEncodeUtils.cleanupEncodeDirectory(context, latestQueuedAudioFilesToEncode, Math.round(RfcxAssetCleanup.DEFAULT_AUDIO_CYCLE_CLEANUP_BUFFER * audioCycleDuration));
 
-							// if needed, re-sample wav file prior to encoding
-							preEncodeFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, encodePurpose, preEncodeFile.getAbsolutePath(), Long.parseLong(timestamp), inputFileExt, inputSampleRate, outputSampleRate, 1);
+                for (String[] latestQueuedAudioToEncode : latestQueuedAudioFilesToEncode) {
 
-							File postEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PostEncode(context, Long.parseLong(timestamp), codec, outputSampleRate, encodePurpose));
+                    app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-							// just in case there's already a post-encoded file, delete it first
-							FileUtils.delete(postEncodeFile);
+                    // only proceed with encode process if there is a valid queued audio file in the database
+                    if (latestQueuedAudioToEncode[0] != null) {
 
-							long encodeStartTime = System.currentTimeMillis();
+                        String encodePurpose = latestQueuedAudioToEncode[9];
+                        String timestamp = latestQueuedAudioToEncode[1];
+                        String inputFileExt = latestQueuedAudioToEncode[2];
+                        int targetAudioFileCaptureDuration = Integer.parseInt(latestQueuedAudioToEncode[7]);
+                        String codec = latestQueuedAudioToEncode[6];
+                        int bitRate = Integer.parseInt(latestQueuedAudioToEncode[5]);
+                        int inputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[11]);
+                        int outputSampleRate = Integer.parseInt(latestQueuedAudioToEncode[4]);
 
-							// perform audio encoding and return encoding true bit rate
-							int measuredBitRate = AudioEncodeUtils.encodeAudioFile( preEncodeFile, postEncodeFile, codec, outputSampleRate, bitRate, AudioEncodeUtils.ENCODE_QUALITY );
+                        File preEncodeFile = new File(latestQueuedAudioToEncode[10]);
+                        File finalDestinationFile = null;
 
-							long encodeDuration = (System.currentTimeMillis() - encodeStartTime);
+                        if (!preEncodeFile.exists()) {
 
-							if (measuredBitRate >= 0) {
+                            Log.e(logTag, "Skipping Audio Encode Job (" + StringUtils.capitalizeFirstChar(encodePurpose) + ") for " + timestamp + " because input audio file could not be found.");
 
-								int measuredAudioFileDuration = AudioCaptureUtils.getAudioFileDurationInMilliseconds(preEncodeFile, targetAudioFileCaptureDuration, true);
+                            app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
 
-								// generate file checksum of encoded file
-								String encodedFileDigest = FileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
+                        } else if (Integer.parseInt(latestQueuedAudioToEncode[12]) >= AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD) {
 
-								if (encodePurpose.equalsIgnoreCase("stream")) {
+                            Log.e(logTag, "Skipping Audio Encode Job (" + StringUtils.capitalizeFirstChar(encodePurpose) + ") for " + timestamp + " after " + AudioEncodeUtils.ENCODE_FAILURE_SKIP_THRESHOLD + " failed attempts.");
 
-									File gZippedFile = new File(RfcxAudioFileUtils.getAudioFileLocation_GZip(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec)));
+                            app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp);
+                            FileUtils.delete(preEncodeFile);
 
-									// GZIP encoded file into final location
-									FileUtils.gZipFile(postEncodeFile, gZippedFile);
+                        } else {
 
-									// If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
-									if (gZippedFile.exists()) {
+                            Log.i(logTag, "Beginning Audio Encode Job (" + StringUtils.capitalizeFirstChar(encodePurpose) + "): "
+                                    + timestamp + ", "
+                                    + inputFileExt.toUpperCase(Locale.US) + " (" + Math.round((double) inputSampleRate / 1000) + " kHz) "
+                                    + "to " + codec.toUpperCase(Locale.US) + " (" + Math.round((double) outputSampleRate / 1000) + " kHz" + ((codec.equalsIgnoreCase("opus")) ? (", " + Math.round(bitRate / 1024) + " kbps") : "") + ")"
+                            );
 
-										FileUtils.delete(postEncodeFile);
+                            app.audioEncodeDb.dbQueued.incrementSingleRowAttempts(timestamp);
 
-										finalDestinationFile = new File(RfcxAudioFileUtils.getAudioFileLocation_Queue(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec)));
+                            // if needed, re-sample wav file prior to encoding
+                            preEncodeFile = AudioCaptureUtils.checkOrCreateReSampledWav(context, encodePurpose, preEncodeFile.getAbsolutePath(), Long.parseLong(timestamp), inputFileExt, inputSampleRate, outputSampleRate, 1);
 
-										if (app.apiCheckInUtils.sendEncodedAudioToQueue(timestamp, gZippedFile, finalDestinationFile)) {
+                            File postEncodeFile = new File(RfcxAudioFileUtils.getAudioFileLocation_PostEncode(context, Long.parseLong(timestamp), codec, outputSampleRate, encodePurpose));
 
-											app.audioEncodeDb.dbEncoded.insert(
-													timestamp, RfcxAudioFileUtils.getFileExt(codec), encodedFileDigest, outputSampleRate, measuredBitRate, codec,
-													measuredAudioFileDuration, encodeDuration, encodePurpose, finalDestinationFile.getAbsolutePath(), inputSampleRate
-											);
-										}
-									}
+                            // just in case there's already a post-encoded file, delete it first
+                            FileUtils.delete(postEncodeFile);
 
-									app.rfcxSvc.triggerIntentServiceImmediately( ApiCheckInQueueService.SERVICE_NAME );
+                            long encodeStartTime = System.currentTimeMillis();
 
-								} else if (encodePurpose.equalsIgnoreCase("vault")) {
+                            // perform audio encoding and return encoding true bit rate
+                            int measuredBitRate = AudioEncodeUtils.encodeAudioFile(preEncodeFile, postEncodeFile, codec, outputSampleRate, bitRate, AudioEncodeUtils.ENCODE_QUALITY);
 
-									finalDestinationFile = new File(RfcxAudioFileUtils.getAudioFileLocation_Vault( app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec), measuredAudioFileDuration, outputSampleRate));
+                            long encodeDuration = (System.currentTimeMillis() - encodeStartTime);
 
-									if (AudioEncodeUtils.sendEncodedAudioToVault(timestamp, postEncodeFile, finalDestinationFile)) {
+                            if (measuredBitRate >= 0) {
 
-										String vaultRowId = AudioEncodeUtils.vaultStatsDayId.format(new Date(Long.parseLong(timestamp)));
+                                int measuredAudioFileDuration = AudioCaptureUtils.getAudioFileDurationInMilliseconds(preEncodeFile, targetAudioFileCaptureDuration, true);
 
-										if (app.audioVaultDb.dbVault.getCountById(vaultRowId) > 0) {
-											app.audioVaultDb.dbVault.incrementSingleRowDuration(vaultRowId, Math.round(((double) measuredAudioFileDuration)/1000));
-											app.audioVaultDb.dbVault.incrementSingleRowRecordCount(vaultRowId, 1);
-											app.audioVaultDb.dbVault.incrementSingleRowFileSize(vaultRowId, FileUtils.getFileSizeInBytes(finalDestinationFile));
-										} else {
-											app.audioVaultDb.dbVault.insert(vaultRowId, Math.round(((double) measuredAudioFileDuration)/1000), 1, FileUtils.getFileSizeInBytes(finalDestinationFile));
-										}
+                                // generate file checksum of encoded file
+                                String encodedFileDigest = FileUtils.sha1Hash(postEncodeFile.getAbsolutePath());
 
-									}
-								}
+                                if (encodePurpose.equalsIgnoreCase("stream")) {
 
-								app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp, encodePurpose);
+                                    File gZippedFile = new File(RfcxAudioFileUtils.getAudioFileLocation_GZip(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec)));
 
-							}
-						}		
-					} else {
-						Log.e(logTag, "Queued audio file entry in database is invalid.");
-						
-					}
-				}
+                                    // GZIP encoded file into final location
+                                    FileUtils.gZipFile(postEncodeFile, gZippedFile);
 
-			} catch (Exception e) {
-				RfcxLog.logExc(logTag, e);
-				app.rfcxSvc.setRunState(SERVICE_NAME, false);
-				audioEncodeJobInstance.runFlag = false;
-			}
-			
-			app.rfcxSvc.setRunState(SERVICE_NAME, false);
-			audioEncodeJobInstance.runFlag = false;
+                                    // If successful, cleanup pre-GZIP file and make sure final file is accessible by other roles (like 'api')
+                                    if (gZippedFile.exists()) {
 
-		}
-	}
-	
+                                        FileUtils.delete(postEncodeFile);
+
+                                        finalDestinationFile = new File(RfcxAudioFileUtils.getAudioFileLocation_Queue(app.rfcxGuardianIdentity.getGuid(), context, Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec)));
+
+                                        if (app.apiCheckInUtils.sendEncodedAudioToQueue(timestamp, gZippedFile, finalDestinationFile)) {
+
+                                            app.audioEncodeDb.dbEncoded.insert(
+                                                    timestamp, RfcxAudioFileUtils.getFileExt(codec), encodedFileDigest, outputSampleRate, measuredBitRate, codec,
+                                                    measuredAudioFileDuration, encodeDuration, encodePurpose, finalDestinationFile.getAbsolutePath(), inputSampleRate
+                                            );
+                                        }
+                                    }
+
+                                    app.rfcxSvc.triggerIntentServiceImmediately(ApiCheckInQueueService.SERVICE_NAME);
+
+                                } else if (encodePurpose.equalsIgnoreCase("vault")) {
+
+                                    finalDestinationFile = new File(RfcxAudioFileUtils.getAudioFileLocation_Vault(app.rfcxGuardianIdentity.getGuid(), Long.parseLong(timestamp), RfcxAudioFileUtils.getFileExt(codec), measuredAudioFileDuration, outputSampleRate));
+
+                                    if (AudioEncodeUtils.sendEncodedAudioToVault(timestamp, postEncodeFile, finalDestinationFile)) {
+
+                                        String vaultRowId = AudioEncodeUtils.vaultStatsDayId.format(new Date(Long.parseLong(timestamp)));
+
+                                        if (app.audioVaultDb.dbVault.getCountById(vaultRowId) > 0) {
+                                            app.audioVaultDb.dbVault.incrementSingleRowDuration(vaultRowId, Math.round(((double) measuredAudioFileDuration) / 1000));
+                                            app.audioVaultDb.dbVault.incrementSingleRowRecordCount(vaultRowId, 1);
+                                            app.audioVaultDb.dbVault.incrementSingleRowFileSize(vaultRowId, FileUtils.getFileSizeInBytes(finalDestinationFile));
+                                        } else {
+                                            app.audioVaultDb.dbVault.insert(vaultRowId, Math.round(((double) measuredAudioFileDuration) / 1000), 1, FileUtils.getFileSizeInBytes(finalDestinationFile));
+                                        }
+
+                                    }
+                                }
+
+                                app.audioEncodeDb.dbQueued.deleteSingleRow(timestamp, encodePurpose);
+
+                            }
+                        }
+                    } else {
+                        Log.e(logTag, "Queued audio file entry in database is invalid.");
+
+                    }
+                }
+
+            } catch (Exception e) {
+                RfcxLog.logExc(logTag, e);
+                app.rfcxSvc.setRunState(SERVICE_NAME, false);
+                audioEncodeJobInstance.runFlag = false;
+            }
+
+            app.rfcxSvc.setRunState(SERVICE_NAME, false);
+            audioEncodeJobInstance.runFlag = false;
+
+        }
+    }
+
 
 }

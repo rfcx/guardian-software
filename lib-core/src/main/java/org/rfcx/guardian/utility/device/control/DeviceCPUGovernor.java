@@ -16,6 +16,7 @@ public class DeviceCPUGovernor {
     private boolean haveActiveValsBeenSet = false;
     private String cpuGovernorDirPath;
     private Map<String, String[]> activeValsMap = new HashMap<>();
+
     public DeviceCPUGovernor(String appRole) {
         this.logTag = RfcxLog.generateLogTag(appRole, "DeviceCPUGovernor");
     }

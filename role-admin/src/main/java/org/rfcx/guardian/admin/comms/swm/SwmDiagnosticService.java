@@ -99,7 +99,7 @@ public class SwmDiagnosticService extends Service {
                                 }
                             }
                         }
-                        
+
                         Thread.sleep(checkIntervalCount);
 
                     } catch (InterruptedException e) {

@@ -21,6 +21,7 @@ public class RfcxLogcatFileUtils {
     private String logTag;
     private String appRole = "Utils";
     private String rfcxDeviceId = null;
+
     public RfcxLogcatFileUtils(Context context, String appRole, String rfcxDeviceId, String logLevel) {
         this.logTag = RfcxLog.generateLogTag(appRole, "RfcxLogcatUtils");
         this.appRole = appRole;

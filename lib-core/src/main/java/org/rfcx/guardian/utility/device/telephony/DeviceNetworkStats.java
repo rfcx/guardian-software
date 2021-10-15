@@ -17,6 +17,7 @@ public class DeviceNetworkStats {
     private long networkTxNow = 0;
     private long networkRxTotal = 0;
     private long networkTxTotal = 0;
+
     public DeviceNetworkStats(String appRole) {
         logTag = RfcxLog.generateLogTag(appRole, "DeviceNetworkStats");
     }

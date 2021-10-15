@@ -12,7 +12,8 @@ import java.lang.Exception
 class SwmUartShell(
     private val ttyPath: String = DeviceHardware_OrangePi_3G_IOT.DEVICE_TTY_FILEPATH_SATELLITE,
     private val busyboxBin: String = DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH,
-    private val baudRate: Int = 115200): SwmShell {
+    private val baudRate: Int = 115200
+) : SwmShell {
 
     private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUartShell")
 

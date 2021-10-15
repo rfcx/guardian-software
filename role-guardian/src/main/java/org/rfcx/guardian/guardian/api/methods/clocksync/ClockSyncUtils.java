@@ -12,14 +12,13 @@ import java.util.Locale;
 
 public class ClockSyncUtils {
 
-	public ClockSyncUtils(Context context) {
-		this.app = (RfcxGuardian) context.getApplicationContext();
-	}
+    public ClockSyncUtils(Context context) {
+        this.app = (RfcxGuardian) context.getApplicationContext();
+    }
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ClockSyncUtils");
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "ClockSyncUtils");
 
-	private RfcxGuardian app;
-
+    private RfcxGuardian app;
 
 
 }

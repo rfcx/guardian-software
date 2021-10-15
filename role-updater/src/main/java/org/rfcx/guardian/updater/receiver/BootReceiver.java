@@ -10,16 +10,16 @@ import org.rfcx.guardian.utility.rfcx.RfcxLog;
 
 public class BootReceiver extends BroadcastReceiver {
 
-	private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "BootReceiver");
-	
-	@Override
-	public void onReceive(Context context, Intent intent) {
+    private static final String logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "BootReceiver");
 
-		Log.v(logTag, "Rfcx-"+RfcxGuardian.APP_ROLE+" BootReceiver Launched...");
+    @Override
+    public void onReceive(Context context, Intent intent) {
 
-		// initializing rfcx application
-		RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
-	}
+        Log.v(logTag, "Rfcx-" + RfcxGuardian.APP_ROLE + " BootReceiver Launched...");
+
+        // initializing rfcx application
+        RfcxGuardian app = (RfcxGuardian) context.getApplicationContext();
+    }
 
 }
 
