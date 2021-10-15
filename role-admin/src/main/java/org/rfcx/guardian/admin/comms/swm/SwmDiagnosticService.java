@@ -86,16 +86,26 @@ public class SwmDiagnosticService extends Service {
                                 Integer unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
                                 app.swmUtils.isInFlight = false;
 
+                                Integer rssiBackground = null;
+                                if (rtBackground != null) {
+                                    rssiBackground = rtBackground.getRssi();
+                                }
+
+                                Integer rssiSat = null;
+                                Integer snr = null;
+                                Integer fdev = null;
+                                String time = null;
+                                String satId = null;
+                                if (rtSatellite != null) {
+                                    if (rtSatellite.getRssi() != 0) rssiSat = rtSatellite.getRssi();
+                                    if (rtSatellite.getSignalToNoiseRatio() != 0) snr = rtSatellite.getSignalToNoiseRatio();
+                                    if (rtSatellite.getFrequencyDeviation() != 0) fdev = rtSatellite.getFrequencyDeviation();
+                                    if (!rtSatellite.getPacketTimestamp().equals("1970-01-01 00:00:00")) time = rtSatellite.getPacketTimestamp();
+                                    if (!rtSatellite.getSatelliteId().equals("0x000000")) satId = rtSatellite.getSatelliteId();
+                                }
+
                                 if (rtBackground != null || rtSatellite != null) {
-                                    app.swmMetaDb.dbSwmDiagnostic.insert(
-                                            rtBackground != null ? rtBackground.getRssi() : null,
-                                            rtSatellite != null ? rtSatellite.getRssi() : null,
-                                            rtSatellite != null ? rtSatellite.getSignalToNoiseRatio() : null,
-                                            rtSatellite != null ? rtSatellite.getFrequencyDeviation() : null,
-                                            rtSatellite != null ? rtSatellite.getPacketTimestamp() : null,
-                                            rtSatellite != null ? rtSatellite.getSatelliteId() : null,
-                                            unsentMessageNumbers
-                                    );
+                                    app.swmMetaDb.dbSwmDiagnostic.insert(rssiBackground, rssiSat, snr, fdev, time, satId, unsentMessageNumbers);
                                 }
                             }
                         }

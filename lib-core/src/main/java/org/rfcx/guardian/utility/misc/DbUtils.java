@@ -497,6 +497,20 @@ public class DbUtils {
 		}
 		return concatRows;
 	}
+	public static String getConcatRowsIgnoreNull(List<String[]> getRowsOutput) {
+		String concatRows = null;
+		ArrayList<String> rowList = new ArrayList<String>();
+		try {
+			for (String[] row : getRowsOutput) {
+				String[] nonNullRow = StringUtils.removeNullFromStringArray(row);
+				rowList.add(TextUtils.join("*", nonNullRow));
+			}
+			concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return concatRows;
+	}
 	
 	public static String getConcatRowsWithLabelPrepended(String labelToPrepend, List<String[]> getRowsOutput) {
 		String concatRows = null;
