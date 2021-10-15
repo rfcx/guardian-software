@@ -41,6 +41,8 @@ import org.rfcx.guardian.guardian.audio.encode.AudioVaultDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackDb;
 import org.rfcx.guardian.guardian.audio.playback.AudioPlaybackJobService;
 import org.rfcx.guardian.guardian.companion.CompanionSocketService;
+import org.rfcx.guardian.guardian.file.FileSocketService;
+import org.rfcx.guardian.guardian.file.FileSocketUtils;
 import org.rfcx.guardian.guardian.instructions.InstructionsCycleService;
 import org.rfcx.guardian.guardian.instructions.InstructionsDb;
 import org.rfcx.guardian.guardian.instructions.InstructionsExecutionService;
@@ -48,6 +50,7 @@ import org.rfcx.guardian.guardian.instructions.InstructionsSchedulerService;
 import org.rfcx.guardian.guardian.instructions.InstructionsUtils;
 import org.rfcx.guardian.guardian.status.GuardianStatus;
 import org.rfcx.guardian.guardian.status.StatusCacheService;
+import org.rfcx.guardian.utility.install.InstallUtils;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.device.capture.DeviceBattery;
 import org.rfcx.guardian.utility.device.DeviceConnectivity;
@@ -152,6 +155,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
     public AudioDetectionJsonUtils audioDetectionJsonUtils = null;
     public InstructionsUtils instructionsUtils = null;
     public DeviceMobilePhone deviceMobilePhone = null;
+    public FileSocketUtils fileSocketUtils = null;
+    public InstallUtils installUtils = null;
+
     public DeviceConnectivity deviceConnectivity = new DeviceConnectivity(APP_ROLE);
 
     public DeviceControlUtils deviceControlUtils = new DeviceControlUtils(APP_ROLE);
@@ -166,7 +172,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
                     InstructionsSchedulerService.SERVICE_NAME,
                     ApiPingCycleService.SERVICE_NAME,
                     CompanionSocketService.SERVICE_NAME,
-                    AudioCastSocketService.SERVICE_NAME
+                    AudioCastSocketService.SERVICE_NAME,
+                    FileSocketService.SERVICE_NAME
             };
 
     @Override
@@ -216,6 +223,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.audioDetectionJsonUtils = new AudioDetectionJsonUtils(this);
         this.instructionsUtils = new InstructionsUtils(this);
         this.deviceMobilePhone = new DeviceMobilePhone(this);
+        this.fileSocketUtils = new FileSocketUtils(this);
+        this.installUtils = new InstallUtils(this, APP_ROLE);
 
     //    reSyncIdentityAcrossRoles();
         reSyncPrefAcrossRoles("all");
@@ -353,6 +362,8 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
         this.rfcxSvc.addService( InstructionsSchedulerService.SERVICE_NAME, InstructionsSchedulerService.class);
 
         this.rfcxSvc.addService( CompanionSocketService.SERVICE_NAME, CompanionSocketService.class);
+
+        this.rfcxSvc.addService( FileSocketService.SERVICE_NAME, FileSocketService.class);
     }
 
     @Override
@@ -406,6 +417,9 @@ public class RfcxGuardian extends Application implements OnSharedPreferenceChang
 
             } else if ( prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_AUDIO_CAST) ) {
                 this.rfcxSvc.triggerService( AudioCastSocketService.SERVICE_NAME, true);
+
+            } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.ENABLE_FILE_SOCKET)) {
+                this.rfcxSvc.triggerService(FileSocketService.SERVICE_NAME, true);
 
             } else if (prefKey.equalsIgnoreCase(RfcxPrefs.Pref.CHECKIN_FAILURE_THRESHOLDS)
                     || prefKey.equalsIgnoreCase(RfcxPrefs.Pref.API_CHECKIN_PUBLISH_SCHEDULE_OFF_HOURS)

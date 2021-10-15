@@ -690,6 +690,15 @@
 			android:entryValues="@array/prefs_values_true_or_false"
 			android:defaultValue="@string/prefs_value_default_admin_enable_airplane_mode" />
 
+	<ListPreference
+			android:key="enable_file_socket"
+			android:title="enable_file_socket"
+			android:dialogTitle="enable_file_socket"
+			android:summary="string - true/false"
+			android:entries="@array/prefs_values_true_or_false"
+			android:entryValues="@array/prefs_values_true_or_false"
+			android:defaultValue="@string/prefs_value_default_enable_file_socket" />
+
 
 
  	

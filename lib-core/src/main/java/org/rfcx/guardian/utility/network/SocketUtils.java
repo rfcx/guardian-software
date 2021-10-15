@@ -7,10 +7,14 @@ import org.json.JSONObject;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Collections;
@@ -56,6 +60,11 @@ public class SocketUtils {
 		String jsonStr = this.streamInput.readUTF();
 		this.streamOutput = new DataOutputStream(this.socket.getOutputStream());
 		return jsonStr;
+	}
+
+	public InputStream streamFileSetup(InputStream socketInput) throws IOException {
+		this.streamOutput = new DataOutputStream(this.socket.getOutputStream());
+		return socketInput;
 	}
 
 	public void stopServer() {
@@ -107,7 +116,7 @@ public class SocketUtils {
 
 
 
-	public boolean sendAudioSocketJson(String jsonStr, boolean areSocketInteractionsAllowed) {
+	public boolean sendJson(String jsonStr, boolean areSocketInteractionsAllowed) {
 
 		boolean isSent = false;
 

@@ -97,6 +97,7 @@
         <service android:name=".api.methods.download.AssetDownloadJobService" android:exported="false" />
         <service android:name=".asset.detections.AudioDetectionFilterJobService" android:exported="false" />
         <service android:name=".companion.CompanionSocketService" android:exported="false" />
+        <service android:name=".file.FileSocketService" android:exported="false" />
 
         <!-- IntentServices -->
         <service android:name=".ServiceMonitor" android:exported="false" />
