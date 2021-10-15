@@ -47,7 +47,8 @@ class SwmApiMTTest {
         val unsentCount = api.getNumberOfUnsentMessages()
 
         // Assert
-        assertNull(unsentCount)
+        assertNotNull(unsentCount)
+        assertEquals(0, unsentCount)
     }
 
     @Test

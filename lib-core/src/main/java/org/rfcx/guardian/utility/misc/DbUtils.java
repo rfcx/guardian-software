@@ -512,9 +512,9 @@ public class DbUtils {
 				if (tempRow[5] == null) {
 					tempRow = new String[] { tempRow[0], tempRow[1], tempRow[7]};
 				}
-				rowList.add(TextUtils.join("*", tempRow));
+				rowList.add(StringUtils.joinArrayString(tempRow, "*"));
 			}
-			concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
+			concatRows = (rowList.size() > 0) ? StringUtils.joinArrayString(rowList.toArray(new String[0]), "|") : null;
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}

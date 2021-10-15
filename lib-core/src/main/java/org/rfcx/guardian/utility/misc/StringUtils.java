@@ -266,4 +266,15 @@ public class StringUtils {
 		return null;
 	}
 
+	public static String joinArrayString(String[] arr, String delimiter) {
+		if (arr == null || 0 == arr.length) return "";
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(arr[0]);
+
+		for (int i = 1; i < arr.length; i++) sb.append(delimiter).append(arr[i]);
+
+		return sb.toString();
+	}
+
 }
