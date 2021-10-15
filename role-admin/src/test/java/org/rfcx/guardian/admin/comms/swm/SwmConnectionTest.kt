@@ -25,7 +25,13 @@ class SwmConnectionTest {
     @Test
     fun canReturnMultipleValidMessages() {
         // Arrange
-        val shell = SwmMockShell(listOf("\$GN 15*2d","\$GN 37.8921,-122.0155,77,89,2*01","\$GN 37.8921,-122.0155,77,89,3*00"))
+        val shell = SwmMockShell(
+            listOf(
+                "\$GN 15*2d",
+                "\$GN 37.8921,-122.0155,77,89,2*01",
+                "\$GN 37.8921,-122.0155,77,89,3*00"
+            )
+        )
         val connection = SwmConnection(shell)
 
         // Act

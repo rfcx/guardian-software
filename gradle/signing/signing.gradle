@@ -4,13 +4,14 @@ def signingDir = "$rootDir/gradle/signing"
 def keystoreFile = file(("$signingDir/$KEY_STORE"))
 
 try {
-        android.signingConfigs.create(buildType, {
-            storeFile = keystoreFile
-            storePassword = new File("$signingDir/$KEY_STORE_PASSWORD").getText("UTF-8")
-            keyAlias = new File("$signingDir/$KEY_ALIAS").getText("UTF-8")
-            keyPassword = new File("$signingDir/$KEY_ALIAS_PASSWORD").getText("UTF-8")
-        })
+    android.signingConfigs.create(buildType, {
+        storeFile = keystoreFile
+        storePassword = new File("$signingDir/$KEY_STORE_PASSWORD").getText("UTF-8")
+        keyAlias = new File("$signingDir/$KEY_ALIAS").getText("UTF-8")
+        keyPassword = new File("$signingDir/$KEY_ALIAS_PASSWORD").getText("UTF-8")
+    })
 
-        android.buildTypes[buildType].signingConfig = android.signingConfigs[buildType]
+    android.buildTypes[buildType].signingConfig = android.signingConfigs[buildType]
 }
-catch (ignored){}
+catch (ignored) {
+}
