@@ -82,7 +82,7 @@ public class CompanionPingJsonUtils {
 
 		if (printJsonToLogs) {
 			int limitLogsTo = 1800;
-			JSONObject jsonLogObj = jsonObj;
+			JSONObject jsonLogObj = new JSONObject(jsonObj.toString());
 			for (String excludeField : excludeFieldsFromLogs) {
 				jsonLogObj.remove(excludeField);
 				jsonLogObj.put(excludeField, "{...}");

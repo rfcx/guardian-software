@@ -18,7 +18,6 @@ class SwmApiPOTest {
         val powerOffResponse = api.powerOff()
 
         // Assert
-        assertNotNull(powerOffResponse)
         assertEquals(true, powerOffResponse)
     }
 
@@ -32,7 +31,6 @@ class SwmApiPOTest {
         val powerOffResponse = api.powerOff()
 
         // Assert
-        assertNotNull(powerOffResponse)
         assertEquals(false, powerOffResponse)
     }
 

@@ -3,7 +3,6 @@ package org.rfcx.guardian.admin.comms.swm.control
 import android.content.Context
 import android.util.Log
 import org.rfcx.guardian.admin.RfcxGuardian
-import org.rfcx.guardian.admin.comms.swm.SwmDispatchCycleService
 import org.rfcx.guardian.utility.rfcx.RfcxLog
 
 class SwmPower(context: Context) {
@@ -11,20 +10,16 @@ class SwmPower(context: Context) {
     private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmPower")
 
     var on: Boolean
-        get() = getPowerStatus()
+        get() = getStatus()
         set(value) {
+            if (value == getStatus()) return
             if (!value) {
-                if (getPowerStatus()) {
-                    Log.d(logTag, "POWERING OFF MODEM")
-                    app.swmUtils.api.powerOff()
-                    input(value)
-                }
+                Log.d(logTag, "POWER OFF MODEM")
+                app.swmUtils.api.powerOff()
             } else {
-                if (!getPowerStatus()) {
-                    Log.d(logTag, "POWERING ON MODEM")
-                    input(value)
-                }
+                Log.d(logTag, "POWER ON MODEM")
             }
+            setStatus(value)
         }
 
     init {
@@ -34,11 +29,11 @@ class SwmPower(context: Context) {
         }
     }
 
-    private fun getPowerStatus(): Boolean {
+    private fun getStatus(): Boolean {
         return app.deviceGpioUtils.readGpioValue("satellite_power", "DOUT")
     }
 
-    private fun input(on: Boolean) {
+    private fun setStatus(on: Boolean) {
         app.deviceGpioUtils.runGpioCommand("DOUT", "satellite_power", on)
     }
 }

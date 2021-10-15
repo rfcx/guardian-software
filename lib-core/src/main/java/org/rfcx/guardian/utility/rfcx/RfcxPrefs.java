@@ -164,6 +164,7 @@ public class RfcxPrefs {
 
 		public static final String API_SATELLITE_PROTOCOL = "api_satellite_protocol";
 
+		public static final String ENABLE_FILE_SOCKET = "enable_file_socket";
 	}
 
 
@@ -288,6 +289,7 @@ public class RfcxPrefs {
 			put(Pref.ADMIN_WIFI_HOTSPOT_AUTH_CREDS, "[ssid]:rfcxrfcx");
 			put(Pref.ADMIN_BLUETOOTH_FUNCTION, "off");
 
+			put(Pref.ENABLE_FILE_SOCKET, "false");
 		}}
 	);
 
