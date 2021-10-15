@@ -1,6 +1,7 @@
 package org.rfcx.guardian.utility.misc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -497,13 +498,21 @@ public class DbUtils {
 		}
 		return concatRows;
 	}
-	public static String getConcatRowsIgnoreNull(List<String[]> getRowsOutput) {
+
+	/**
+	 * Used by swm diagnostic db to compress null satellite values
+	 */
+	public static String getConcatRowsIgnoreNullSatellite(List<String[]> getRowsOutput) {
 		String concatRows = null;
 		ArrayList<String> rowList = new ArrayList<String>();
 		try {
 			for (String[] row : getRowsOutput) {
-				String[] nonNullRow = StringUtils.removeNullFromStringArray(row);
-				rowList.add(TextUtils.join("*", nonNullRow));
+				String[] tempRow = row;
+				// if time is null then others also null
+				if (tempRow[5] == null) {
+					tempRow = new String[] { tempRow[0], tempRow[1], tempRow[7]};
+				}
+				rowList.add(TextUtils.join("*", tempRow));
 			}
 			concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
 		} catch (Exception e) {

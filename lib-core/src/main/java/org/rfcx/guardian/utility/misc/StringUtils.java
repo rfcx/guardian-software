@@ -266,16 +266,4 @@ public class StringUtils {
 		return null;
 	}
 
-	public static String[] removeNullFromStringArray(String[] arr) {
-		List<String> tempList = new ArrayList<>();
-
-		for(String s : arr) {
-			if(s != null && s.length() > 0) {
-				tempList.add(s);
-			}
-		}
-
-		return tempList.toArray(new String[0]);
-	}
-
 }

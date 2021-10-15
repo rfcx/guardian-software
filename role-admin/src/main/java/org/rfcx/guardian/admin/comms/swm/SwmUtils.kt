@@ -80,7 +80,7 @@ class SwmUtils(private val context: Context) {
             val metaJsonArray = JSONArray()
             try {
                 val metaJson = JSONObject()
-                metaJson.put("diagnostic", app.swmMetaDb.dbSwmDiagnostic.concatRowsIgnoreNull)
+                metaJson.put("swm", app.swmMetaDb.dbSwmDiagnostic.concatRowsIgnoreNull)
                 metaJsonArray.put(metaJson)
             } catch (e: Exception) {
                 RfcxLog.logExc(logTag, e)

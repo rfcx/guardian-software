@@ -16,11 +16,11 @@ class SwmApiMTTest {
         val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val dateTime = api.getNumberOfUnsentMessages()
+        val unsentCount = api.getNumberOfUnsentMessages()
 
         // Assert
-        assertNotNull(dateTime)
-        assertEquals(12, dateTime)
+        assertNotNull(unsentCount)
+        assertEquals(12, unsentCount)
     }
 
     @Test
@@ -30,11 +30,11 @@ class SwmApiMTTest {
         val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val dateTime = api.getNumberOfUnsentMessages()
+        val unsentCount = api.getNumberOfUnsentMessages()
 
         // Assert
-        assertNotNull(dateTime)
-        assertEquals(0, dateTime)
+        assertNotNull(unsentCount)
+        assertEquals(0, unsentCount)
     }
 
     @Test
@@ -44,10 +44,10 @@ class SwmApiMTTest {
         val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val dateTime = api.getNumberOfUnsentMessages()
+        val unsentCount = api.getNumberOfUnsentMessages()
 
         // Assert
-        assertNull(dateTime)
+        assertNull(unsentCount)
     }
 
     @Test
@@ -57,10 +57,10 @@ class SwmApiMTTest {
         val api = SwmApi(SwmConnection(shell))
 
         // Act
-        val dateTime = api.getNumberOfUnsentMessages()
+        val unsentCount = api.getNumberOfUnsentMessages()
 
         // Assert
-        assertNotNull(dateTime)
-        assertEquals(12, dateTime)
+        assertNotNull(unsentCount)
+        assertEquals(12, unsentCount)
     }
 }

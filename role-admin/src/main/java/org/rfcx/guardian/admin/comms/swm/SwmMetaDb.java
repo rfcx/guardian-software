@@ -93,7 +93,7 @@ public class SwmMetaDb {
         }
 
         public String getConcatRowsIgnoreNull() {
-            return DbUtils.getConcatRowsIgnoreNull(getAllRows());
+            return DbUtils.getConcatRowsIgnoreNullSatellite(getAllRows());
         }
 
         public String getConcatRowsWithLabelPrepended(String labelToPrepend) {
