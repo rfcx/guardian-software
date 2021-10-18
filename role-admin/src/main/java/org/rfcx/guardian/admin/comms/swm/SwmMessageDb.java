@@ -168,8 +168,8 @@ public class SwmMessageDb {
 		}
 
         public int deleteSingleRowBySwmMessageId(String swmMessageId) {
-            this.dbUtils.deleteRowsWithinQueryByOneColumn(TABLE, C_SWM_MESSAGE_ID, swmMessageId);
-            return 0;
+			this.dbUtils.deleteRowsWithinQueryByOneColumn(TABLE, C_SWM_MESSAGE_ID, swmMessageId);
+			return 0;
         }
 
         public void updateSwmMessageIdByMessageId(String messageId, String swmMessageId) {
