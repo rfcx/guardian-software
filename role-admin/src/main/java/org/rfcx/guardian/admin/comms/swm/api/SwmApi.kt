@@ -11,7 +11,6 @@ class SwmApi(private val connection: SwmConnection) {
 
     private val datetimeCompactFormatter = SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
 
-    // TODO unit test
     fun transmitData(msgStr: String): String? {
         val results = connection.executeWithoutTimeout(Command.TD.name, msgStr)
         val regex = "OK,(-?[0-9]+)".toRegex()
@@ -22,18 +21,17 @@ class SwmApi(private val connection: SwmConnection) {
         }
     }
 
-    // TODO unit test
-    fun getUnsentMessages(): SwmMTResponse? {
-        val unsentMessages = connection.execute(Command.MT.name, "L=U")
-        val unsentMsgIds = arrayListOf<SwmUnsentMsg>()
-        if (unsentMessages.isEmpty()) return null
-        unsentMessages.forEach { payload ->
-            "OK,(-?[0-9]+)".toRegex().find(payload)?.let { result ->
-                val (id) = result.destructured
-                unsentMsgIds.add(SwmUnsentMsg("", id))
-            }
+    fun getUnsentMessages(): List<SwmUnsentMsg>? {
+        val results = connection.execute(Command.MT.name, "L=U")
+        val unsentMessages = arrayListOf<SwmUnsentMsg>()
+        if (results.isEmpty()) return null
+        results.forEach { payload ->
+            "(-?[a-z0-9]+),(-?[0-9]+),(-?[0-9]+)".toRegex().find(payload)?.let { result ->
+                val (message, id, timestamp) = result.destructured
+                unsentMessages.add(SwmUnsentMsg(message, id, timestamp))
+            } ?: return null
         }
-        return SwmMTResponse(unsentMsgIds)
+        return unsentMessages
     }
 
     fun getNumberOfUnsentMessages(): Int {
