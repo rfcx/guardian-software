@@ -102,29 +102,35 @@ public class SwmDispatchService extends Service {
 								if (!app.swmUtils.isInFlight) {
 									app.swmUtils.isInFlight = true;
 									app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
+
 									// update queue between Guardian and Swarm
 									app.swmUtils.updateQueueMessagesFromSwarm(app.swmUtils.getApi().getUnsentMessages());
 
-									// send message
-									String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
-									if (swmMessageId != null) {
-										app.rfcxSvc.reportAsActive(SERVICE_NAME);
+									// getting unsent message count from Swarm
+									int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
+									if (unsentMessageNumbers <= 50) {
 
-										app.swmUtils.consecutiveDeliveryFailureCount = 0;
-										app.swmMessageDb.dbSwmQueued.updateSwmMessageIdByMessageId(msgId, swmMessageId);
+										// send message
+										String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
+										if (swmMessageId != null) {
+											app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
-										String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
-										Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
-										RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
-
-									} else {
-										app.swmUtils.consecutiveDeliveryFailureCount++;
-										Log.e(logTag, "SWM Send Failure (Consecutive Failures: " + app.swmUtils.consecutiveDeliveryFailureCount + ")...");
-										if (app.swmUtils.consecutiveDeliveryFailureCount >= SwmUtils.powerCycleAfterThisManyConsecutiveDeliveryFailures) {
-											//app.swmUtils.setPower(false);
-											app.swmUtils.getPower().setOn(true);
 											app.swmUtils.consecutiveDeliveryFailureCount = 0;
-											break;
+											app.swmMessageDb.dbSwmQueued.updateSwmMessageIdByMessageId(msgId, swmMessageId);
+
+											String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
+											Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
+											RfcxComm.updateQuery("guardian", "database_set_last_accessed_at", "segments|" + concatSegId, app.getResolver());
+
+										} else {
+											app.swmUtils.consecutiveDeliveryFailureCount++;
+											Log.e(logTag, "SWM Send Failure (Consecutive Failures: " + app.swmUtils.consecutiveDeliveryFailureCount + ")...");
+											if (app.swmUtils.consecutiveDeliveryFailureCount >= SwmUtils.powerCycleAfterThisManyConsecutiveDeliveryFailures) {
+												//app.swmUtils.setPower(false);
+												app.swmUtils.getPower().setOn(true);
+												app.swmUtils.consecutiveDeliveryFailureCount = 0;
+												break;
+											}
 										}
 									}
 
