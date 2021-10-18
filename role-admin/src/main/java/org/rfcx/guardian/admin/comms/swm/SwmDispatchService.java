@@ -98,6 +98,7 @@ public class SwmDispatchService extends Service {
 
 								String msgId = swmForDispatch[4];
 								String msgBody = swmForDispatch[3];
+								String msgSwmMsgId = swmForDispatch[5];
 
 								if (!app.swmUtils.isInFlight) {
 									app.swmUtils.isInFlight = true;
@@ -108,7 +109,7 @@ public class SwmDispatchService extends Service {
 
 									// getting unsent message count from Swarm
 									int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
-									if (unsentMessageNumbers <= 50) {
+									if (unsentMessageNumbers <= 50 && msgSwmMsgId == null) {
 
 										// send message
 										String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
