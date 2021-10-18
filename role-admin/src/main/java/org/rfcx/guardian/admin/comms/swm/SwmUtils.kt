@@ -18,6 +18,7 @@ import org.rfcx.guardian.utility.misc.DateTimeUtils
 
 import android.text.TextUtils
 import org.rfcx.guardian.admin.comms.swm.control.SwmPower
+import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg
 
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
 
@@ -46,6 +47,23 @@ class SwmUtils(private val context: Context) {
             }
         }
         return true
+    }
+
+    fun updateQueueMessagesFromSwarm(swmUnsentMessages: List<SwmUnsentMsg>?) {
+        val swarmMessageIdQueues = swmUnsentMessages?.map { it.messageId } ?: return
+        val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows
+        for (guardianMessage in guardianMessageIdQueues) {
+            if (!swarmMessageIdQueues.contains(guardianMessage[5])) {
+                app.swmMessageDb.dbSwmSent.insert(
+                    guardianMessage[1].toLong(),
+                    guardianMessage[2],
+                    guardianMessage[3],
+                    guardianMessage[4],
+                    guardianMessage[5]
+                )
+                app.swmMessageDb.dbSwmQueued.deleteSingleRowBySwmMessageId(guardianMessage[5])
+            }
+        }
     }
 
     companion object {

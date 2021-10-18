@@ -7,6 +7,7 @@ import android.util.Log;
 
 import org.rfcx.guardian.admin.RfcxGuardian;
 import org.rfcx.guardian.admin.comms.swm.data.SwmTDResponse;
+import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg;
 import org.rfcx.guardian.utility.misc.DateTimeUtils;
 import org.rfcx.guardian.utility.rfcx.RfcxComm;
 import org.rfcx.guardian.utility.rfcx.RfcxLog;
@@ -101,7 +102,11 @@ public class SwmDispatchService extends Service {
 								if (!app.swmUtils.isInFlight) {
 									app.swmUtils.isInFlight = true;
 									app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-									String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\""); // TODO unit test
+									// update queue between Guardian and Swarm
+									app.swmUtils.updateQueueMessagesFromSwarm(app.swmUtils.getApi().getUnsentMessages());
+
+									// send message
+									String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
 									if (swmMessageId != null) {
 										app.rfcxSvc.reportAsActive(SERVICE_NAME);
 

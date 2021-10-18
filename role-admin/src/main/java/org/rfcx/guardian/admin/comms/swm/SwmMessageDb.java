@@ -98,7 +98,7 @@ public class SwmMessageDb {
 			this.dbUtils = new DbUtils(context, DATABASE, TABLE, VERSION, createColumnString(TABLE), DROP_TABLE_ON_UPGRADE);
 		}
 
-		public int insert(long timestamp, String address, String body, String message_id) {
+		public int insert(long timestamp, String address, String body, String message_id, String swmMessageId) {
 
 			ContentValues values = new ContentValues();
 			values.put(C_CREATED_AT, (new Date()).getTime());
@@ -106,6 +106,7 @@ public class SwmMessageDb {
 			values.put(C_ADDRESS, address);
 			values.put(C_BODY, body);
 			values.put(C_MESSAGE_ID, message_id);
+			values.put(C_SWM_MESSAGE_ID, swmMessageId);
 			values.put(C_LAST_ACCESSED_AT, 0);
 
 			return this.dbUtils.insertRow(TABLE, values);
