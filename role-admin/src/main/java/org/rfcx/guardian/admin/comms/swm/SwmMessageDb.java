@@ -172,7 +172,7 @@ public class SwmMessageDb {
             return 0;
         }
 
-		public void updateSwmMessageIdByMessageId(String messageId, String swmMessageId) {
+        public void updateSwmMessageIdByMessageId(String messageId, String swmMessageId) {
 			this.dbUtils.updateRowByColumn(TABLE, C_SWM_MESSAGE_ID, swmMessageId, C_MESSAGE_ID, messageId);
 		}
 
