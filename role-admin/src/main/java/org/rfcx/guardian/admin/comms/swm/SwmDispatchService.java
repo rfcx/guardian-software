@@ -101,12 +101,12 @@ public class SwmDispatchService extends Service {
 								if (!app.swmUtils.isInFlight) {
 									app.swmUtils.isInFlight = true;
 									app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
-									SwmTDResponse tdResponse = null; //app.swmUtils.getApi().transmitData("\"" + msgBody + "\""); // TODO unit test
-									if (tdResponse != null) {
+									String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\""); // TODO unit test
+									if (swmMessageId != null) {
 										app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 										app.swmUtils.consecutiveDeliveryFailureCount = 0;
-										app.swmMessageDb.dbSwmQueued.deleteSingleRowByMessageId(msgId);
+										app.swmMessageDb.dbSwmQueued.updateSwmMessageIdByMessageId(msgId, swmMessageId);
 
 										String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
 										Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");

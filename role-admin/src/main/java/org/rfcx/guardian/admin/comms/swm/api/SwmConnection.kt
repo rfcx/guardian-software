@@ -9,14 +9,12 @@ class SwmConnection(private val shell: SwmShell) {
     fun execute(command: String, arguments: String, timeout: Int = 1): List<String> {
         val request = makeRequest(command, arguments)
         val responseLines = shell.execute(request, timeout)
-        Log.d("RfcxSwmCommand", "Responses: " + responseLines.joinToString())
         return findMatchingResponses(responseLines, command)
     }
 
     fun executeWithoutTimeout(command: String, arguments: String): List<String> {
         val request = makeRequest(command, arguments)
         val responseLines = shell.execute(request)
-        Log.d("RfcxSwmCommand", "Responses: " + responseLines.joinToString())
         return findMatchingResponses(responseLines, command)
     }
 
