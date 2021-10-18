@@ -12,29 +12,29 @@ class SwmApi(private val connection: SwmConnection) {
     private val datetimeCompactFormatter = SimpleDateFormat("yyyyMMddHHmmss").also { it.timeZone = TimeZone.getTimeZone("GMT") }
 
     // TODO unit test
-//    fun transmitData(msgStr: String): SwmTDResponse? {
-//        return connection.execute(Command.TD.name, msgStr).firstOrNull()?.let { payload ->
-//            return "\$OK,(-?[0-9]+)".toRegex().find(payload)?.let { result ->
-//                val (id) = result.destructured
-//                Log.d("SwmCommand", "TD= $id")
-//                return SwmTDResponse(messageId = id)
-//            }
-//        }
-//    }
+    fun transmitData(msgStr: String): String? {
+        val results = connection.executeWithoutTimeout(Command.TD.name, msgStr)
+        val regex = "OK,(-?[0-9]+)".toRegex()
+        val firstMatchResult = results.mapNotNull { regex.find(it) }.firstOrNull()
+        return firstMatchResult?.let { match ->
+            val (messageId) = match.destructured
+            return messageId
+        }
+    }
 
     // TODO unit test
-//    fun getUnsentMessages(): SwmMTResponse? {
-//        val unsentMessages = connection.execute(Command.MT.name, "L=U")
-//        val unsentMsgIds = arrayListOf<SwmUnsentMsg>()
-//        if (unsentMessages.isEmpty()) return null
-//        unsentMessages.forEach { payload ->
-//            "OK,(-?[0-9]+)".toRegex().find(payload)?.let { result ->
-//                val (id) = result.destructured
-//                unsentMsgIds.add(SwmUnsentMsg("", id))
-//            }
-//        }
-//        return SwmMTResponse(unsentMsgIds)
-//    }
+    fun getUnsentMessages(): SwmMTResponse? {
+        val unsentMessages = connection.execute(Command.MT.name, "L=U")
+        val unsentMsgIds = arrayListOf<SwmUnsentMsg>()
+        if (unsentMessages.isEmpty()) return null
+        unsentMessages.forEach { payload ->
+            "OK,(-?[0-9]+)".toRegex().find(payload)?.let { result ->
+                val (id) = result.destructured
+                unsentMsgIds.add(SwmUnsentMsg("", id))
+            }
+        }
+        return SwmMTResponse(unsentMsgIds)
+    }
 
     fun getNumberOfUnsentMessages(): Int {
         return connection.execute(Command.MT.name, "C=U", 2).firstOrNull()?.let { payload ->
@@ -45,13 +45,6 @@ class SwmApi(private val connection: SwmConnection) {
             } ?: 0
         } ?: 0
     }
-
-    // TODO unit test
-//    fun sleep(time: Long): Boolean? {
-//        return connection.execute(Command.SL.name, "S=$time").firstOrNull()?.let { payload ->
-//            return payload.contains("OK")
-//        }
-//    }
 
     fun powerOff(): Boolean {
         return connection.execute(Command.PO.name, "").firstOrNull()?.let { payload ->
