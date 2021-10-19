@@ -1,6 +1,7 @@
 package org.rfcx.guardian.utility.misc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -119,6 +120,19 @@ public class DbUtils {
 		try {
 			String where = "rowid=(SELECT MIN(rowid) FROM " + table + ")";
 			db.update(table, values, where, null);
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		} finally {
+			closeDb();
+		}
+	}
+
+	public void updateRowByColumn(String table, String updateColumn, String updateValue, String pointColumn, String pointValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			ContentValues cv = new ContentValues();
+			cv.put(updateColumn, updateValue);
+			db.update(table, cv, pointColumn + "=" + pointValue, null);
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		} finally {
@@ -492,6 +506,28 @@ public class DbUtils {
 				rowList.add(TextUtils.join("*", row));
 			}
 			concatRows = (rowList.size() > 0) ? TextUtils.join("|", rowList) : null;
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		}
+		return concatRows;
+	}
+
+	/**
+	 * Used by swm diagnostic db to compress null satellite values
+	 */
+	public static String getConcatRowsIgnoreNullSatellite(List<String[]> getRowsOutput) {
+		String concatRows = null;
+		ArrayList<String> rowList = new ArrayList<String>();
+		try {
+			for (String[] row : getRowsOutput) {
+				String[] tempRow = row;
+				// if time is null then others also null
+				if (tempRow[5] == null) {
+					tempRow = new String[] { tempRow[0], tempRow[1], tempRow[7]};
+				}
+				rowList.add(StringUtils.joinArrayString(tempRow, "*"));
+			}
+			concatRows = (rowList.size() > 0) ? StringUtils.joinArrayString(rowList.toArray(new String[0]), "|") : null;
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
 		}

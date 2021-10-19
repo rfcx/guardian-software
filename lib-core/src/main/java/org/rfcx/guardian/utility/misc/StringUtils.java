@@ -10,6 +10,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -264,5 +266,15 @@ public class StringUtils {
 		return null;
 	}
 
+	public static String joinArrayString(String[] arr, String delimiter) {
+		if (arr == null || 0 == arr.length) return "";
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(arr[0]);
+
+		for (int i = 1; i < arr.length; i++) sb.append(delimiter).append(arr[i]);
+
+		return sb.toString();
+	}
 
 }

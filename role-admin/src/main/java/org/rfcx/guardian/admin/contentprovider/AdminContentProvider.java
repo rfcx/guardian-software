@@ -263,8 +263,8 @@ public class AdminContentProvider extends ContentProvider {
                 } else if (pathSeg.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"system_meta", DeviceUtils.getSystemMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
-                } else if (pathSeg.equalsIgnoreCase("swm_meta")) {
-                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"swm_meta", SwmUtils.getSwmMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
+                } else if (pathSeg.equalsIgnoreCase("swm_diagnostic")) {
+                    return RfcxComm.getProjectionCursor(appRole, "database_get_all_rows", new Object[]{"swm_diagnostic", SwmUtils.getSwmMetaValuesAsJsonArray(app.getApplicationContext()).toString(), System.currentTimeMillis()});
 
                 } else {
                     return null;
@@ -330,7 +330,7 @@ public class AdminContentProvider extends ContentProvider {
                 } else if (pathSegTable.equalsIgnoreCase("system_meta")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, DeviceUtils.deleteSystemMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
-                } else if (pathSegTable.equalsIgnoreCase("swm_meta")) {
+                } else if (pathSegTable.equalsIgnoreCase("swm_diagnostic")) {
                     return RfcxComm.getProjectionCursor(appRole, "database_delete_rows_before", new Object[]{pathSeg, SwmUtils.deleteSwmMetaValuesBeforeTimestamp(pathSegTimeStamp, app.getApplicationContext()), System.currentTimeMillis()});
 
                 }

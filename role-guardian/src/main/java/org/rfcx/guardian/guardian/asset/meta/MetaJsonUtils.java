@@ -74,8 +74,8 @@ public class MetaJsonUtils {
 
 		// Adding Swarm diagnostic data, if they can be retrieved from admin role via content provider
 		String swmDiagnostic = getConcatMetaField(RfcxComm.getQuery("admin", "database_get_all_rows",
-				"swm_meta", app.getResolver()));
-		if (swmDiagnostic.length() > 0) { metaDataJsonObj.put("swm_diagnostic", swmDiagnostic); }
+				"swm_diagnostic", app.getResolver()));
+		if (swmDiagnostic.length() > 0) { metaDataJsonObj.put("swm", swmDiagnostic); }
 
 		ArrayList<String> dateTimeOffsets = new ArrayList<String>();
 		if (metaDataJsonObj.has("datetime_offsets")) { dateTimeOffsets.add(metaDataJsonObj.getString("datetime_offsets")); }
@@ -118,7 +118,7 @@ public class MetaJsonUtils {
 
 			RfcxComm.deleteQuery("admin", "database_delete_rows_before", "sentinel_sensor|" + deleteBefore.getTime(), app.getResolver());
 
-			RfcxComm.deleteQuery("admin", "database_delete_rows_before", "swm_meta|" + deleteBefore.getTime(), app.getResolver());
+			RfcxComm.deleteQuery("admin", "database_delete_rows_before", "swm_diagnostic|" + deleteBefore.getTime(), app.getResolver());
 
 		} catch (Exception e) {
 			RfcxLog.logExc(logTag, e);
