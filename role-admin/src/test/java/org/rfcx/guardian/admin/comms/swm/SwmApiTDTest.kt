@@ -24,6 +24,20 @@ class SwmApiTDTest {
     }
 
     @Test
+    fun canSendMessageWithMultipleOutput() {
+        // Arrange
+        val shell = SwmMockShell(listOf("\$TD OK,5354468575855*2a", "\$MT SOMETHING*2a"))
+        val api = SwmApi(SwmConnection(shell))
+
+        // Act
+        val messageId = api.transmitData("") // no need to add any message here since we mocked Shell class
+
+        // Assert
+        assertNotNull(messageId)
+        assertEquals("5354468575855", messageId)
+    }
+
+    @Test
     fun canSendMessageButError() {
         // Arrange
         val shell = SwmMockShell(listOf("\$TD ERR,BADDATA*0e"))
