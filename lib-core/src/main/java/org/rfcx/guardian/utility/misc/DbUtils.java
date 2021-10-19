@@ -126,6 +126,19 @@ public class DbUtils {
 			closeDb();
 		}
 	}
+
+	public void updateRowByColumn(String table, String updateColumn, String updateValue, String pointColumn, String pointValue) {
+		SQLiteDatabase db = openDb();
+		try {
+			ContentValues cv = new ContentValues();
+			cv.put(updateColumn, updateValue);
+			db.update(table, cv, pointColumn + "=" + pointValue, null);
+		} catch (Exception e) {
+			RfcxLog.logExc(logTag, e);
+		} finally {
+			closeDb();
+		}
+	}
 	
 	public static List<String[]> getRows(SQLiteDatabase db, String tableName, String[] tableColumns, String selection, String[] selectionArgs, String orderBy, int rowOffset, int rowLimit) {
 		
