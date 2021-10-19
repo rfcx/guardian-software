@@ -42,8 +42,8 @@ class SwmApi(private val connection: SwmConnection) {
                 val (count) = result.destructured
                 Log.d("SwmCommand", "MT= $count")
                 return count.toInt()
-            } ?: 0
-        } ?: 0
+            } ?: -1
+        } ?: -1
     }
 
     // TODO unit test
