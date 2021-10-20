@@ -49,10 +49,11 @@ class SwmUtils(private val context: Context) {
         return true
     }
 
-    fun isLastSatellitePacketAllowToSave(lastTime: String): Boolean {
+    fun isLastSatellitePacketAllowToSave(lastDate: String): Boolean {
         val minRange = 60 * 3
-        val lastDate = DateTimeUtils.getDateFromString(lastTime)
-        if (System.currentTimeMillis() - lastDate.time > minRange) return false
+        val lastTime = DateTimeUtils.getDateFromString(lastDate).time
+        val currentTime = DateTimeUtils.getCurrentTimeInUTC()
+        if (currentTime - lastTime > minRange) return false
         return true
     }
 

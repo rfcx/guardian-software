@@ -46,6 +46,11 @@ public class DateTimeUtils {
 		}
 		return null;
 	}
+
+	public static long getCurrentTimeInUTC() {
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		return cal.getTime().getTime();
+	}
 	
 	public static Calendar nextOccurrenceOf(int hour, int minute, int second) {
 		Calendar rightNow = Calendar.getInstance();
