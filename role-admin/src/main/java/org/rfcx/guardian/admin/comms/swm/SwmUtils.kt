@@ -49,6 +49,13 @@ class SwmUtils(private val context: Context) {
         return true
     }
 
+    fun isLastSatellitePacketAllowToSave(lastTime: String): Boolean {
+        val minRange = 60 * 3
+        val lastDate = DateTimeUtils.getDateFromString(lastTime)
+        if (System.currentTimeMillis() - lastDate.time > minRange) return false
+        return true
+    }
+
     fun updateQueueMessagesFromSwarm(swmUnsentMessages: List<SwmUnsentMsg>?) {
         val swarmMessageIdQueues = swmUnsentMessages?.map { it.messageId } ?: return
         val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows.filter { it.getOrNull(5) != null }
