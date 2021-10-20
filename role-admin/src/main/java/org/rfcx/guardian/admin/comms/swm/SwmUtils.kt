@@ -21,6 +21,7 @@ import org.rfcx.guardian.admin.comms.swm.control.SwmPower
 import org.rfcx.guardian.admin.comms.swm.data.SwmUnsentMsg
 
 import org.rfcx.guardian.utility.rfcx.RfcxPrefs
+import kotlin.math.log
 
 class SwmUtils(private val context: Context) {
     var app: RfcxGuardian = context.applicationContext as RfcxGuardian
@@ -35,7 +36,9 @@ class SwmUtils(private val context: Context) {
 
     fun setupSwmUtils() {
         power = SwmPower(context)
+        isInFlight = true
         api = SwmApi(SwmConnection(SwmUartShell()))
+        isInFlight = false
         app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, true)
     }
 
@@ -50,9 +53,10 @@ class SwmUtils(private val context: Context) {
     }
 
     fun isLastSatellitePacketAllowToSave(lastDate: String): Boolean {
-        val minRange = 60 * 3
-        val lastTime = DateTimeUtils.getDateFromString(lastDate).time
+        val minRange = 1000 * 60 * 3
+        val lastTime = DateTimeUtils.getDateFromStringUTC(lastDate).time
         val currentTime = DateTimeUtils.getCurrentTimeInUTC()
+        Log.d(logTag, "$currentTime $lastTime")
         if (currentTime - lastTime > minRange) return false
         return true
     }
