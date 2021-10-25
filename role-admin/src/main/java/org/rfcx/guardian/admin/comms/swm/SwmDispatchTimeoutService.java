@@ -76,7 +76,7 @@ public class SwmDispatchTimeoutService extends Service {
 				app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 				for (int i = 0; i <= checkIntervalCount; i++) {
-					if (app.swmUtils.isInFlight) {
+					if (SwmUtils.isInFlight) {
 						Thread.sleep(667);
 						if (i == checkIntervalCount) {
 							Log.e(logTag, "Timeout Reached for SWM Send. Killing serial processes...");
@@ -84,6 +84,7 @@ public class SwmDispatchTimeoutService extends Service {
 								ShellCommands.killProcessesByIds(SwmUtils.findRunningSerialProcessIds(DeviceHardware_OrangePi_3G_IOT.BUSYBOX_FILEPATH));
 								Thread.sleep(667);
 							}
+							SwmUtils.isInFlight = false;
 						}
 					} else {
 						break;

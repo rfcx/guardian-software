@@ -70,7 +70,7 @@ public class SwmDiagnosticService extends Service {
 
             app = (RfcxGuardian) getApplication();
 
-            int checkIntervalCount = 70000;
+            int checkIntervalCount = 33333;
 
             if (app.rfcxPrefs.getPrefAsString(RfcxPrefs.Pref.API_SATELLITE_PROTOCOL).equalsIgnoreCase("swm")) {
                 while (swmDiagnosticInstance.runFlag) {
@@ -78,13 +78,14 @@ public class SwmDiagnosticService extends Service {
                     try {
                         // if swarm is on and in working period then do all of these
                         if (app.swmUtils.power.getOn() && app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
-                            if (!app.swmUtils.isInFlight) {
-                                app.swmUtils.isInFlight = true;
+                            if (!SwmUtils.isInFlight) {
+                                Log.d(logTag, "Getting Diagnostic Values");
+                                SwmUtils.isInFlight = true;
                                 app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
                                 SwmRTBackgroundResponse rtBackground = app.swmUtils.getApi().getRTBackground();
                                 SwmRTResponse rtSatellite = app.swmUtils.getApi().getRTSatellite();
                                 Integer unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
-                                app.swmUtils.isInFlight = false;
+                                SwmUtils.isInFlight = false;
 
                                 Integer rssiBackground = null;
                                 if (rtBackground != null) {

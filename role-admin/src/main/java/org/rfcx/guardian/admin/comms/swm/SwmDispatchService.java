@@ -25,7 +25,7 @@ public class SwmDispatchService extends Service {
 	private boolean runFlag = false;
 	private SwmDispatch swmDispatch;
 
-	private long forcedPauseBetweenEachDispatch = 3333;
+	private long forcedPauseBetweenEachDispatch = 333;
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -86,7 +86,7 @@ public class SwmDispatchService extends Service {
 					app.rfcxSvc.reportAsActive(SERVICE_NAME);
 
 					// if swarm is on and in working period then do all of these
-					if (app.swmUtils.power.getOn() && app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
+					if (app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
 
 						// only proceed with dispatch process if there is a valid queued swm message in the database
 						if (swmForDispatch[0] != null) {
@@ -100,17 +100,17 @@ public class SwmDispatchService extends Service {
 								String msgBody = swmForDispatch[3];
 								String msgSwmMsgId = swmForDispatch[5];
 
-								if (!app.swmUtils.isInFlight && msgSwmMsgId == null) {
-									app.swmUtils.isInFlight = true;
+								if (!SwmUtils.isInFlight && msgSwmMsgId == null) {
+									Log.d(logTag, "Sending Queued message");
+									SwmUtils.isInFlight = true;
 									app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
 
 									// update queue between Guardian and Swarm
-									app.swmUtils.updateQueueMessagesFromSwarm(app.swmUtils.getApi().getUnsentMessages());
-
-									// getting unsent message count from Swarm
-									int unsentMessageNumbers = app.swmUtils.getApi().getNumberOfUnsentMessages();
-									if (unsentMessageNumbers <= 50) {
-
+									int swarmQueue = app.swmUtils.getApi().getNumberOfUnsentMessages();
+									app.swmUtils.checkQueue(swarmQueue);
+									Log.d(logTag, "Now Swarm has " + swarmQueue + " queue in database");
+									if (swarmQueue <= 20) {
+										Log.d(logTag, "less than 20 so proceed transmit message");
 										// send message
 										String swmMessageId = app.swmUtils.getApi().transmitData("\"" + msgBody + "\"");
 										if (swmMessageId != null) {
@@ -118,6 +118,7 @@ public class SwmDispatchService extends Service {
 
 											app.swmUtils.consecutiveDeliveryFailureCount = 0;
 											app.swmMessageDb.dbSwmQueued.updateSwmMessageIdByMessageId(msgId, swmMessageId);
+											app.swmMessageDb.dbSwmQueued.deleteSingleRowBySwmMessageId(swmMessageId);
 
 											String concatSegId = msgBody.substring(0, 4) + "-" + msgBody.substring(4, 7);
 											Log.v(logTag, DateTimeUtils.getDateTime(rightNow) + " - Segment '" + concatSegId + "' sent by SWM (" + msgBody.length() + " chars)");
@@ -135,7 +136,7 @@ public class SwmDispatchService extends Service {
 										}
 									}
 
-									app.swmUtils.isInFlight = false;
+									SwmUtils.isInFlight = false;
 								}
 							}
 						}

@@ -90,7 +90,7 @@ public class SwmDispatchCycleService extends Service {
 
                         // check for satellite on/off hours and enable/disable swarm tile accordingly
                         if (!app.swmUtils.isSatelliteAllowedAtThisTimeOfDay()) {
-                            if (!app.swmUtils.isInFlight) {
+                            if (!SwmUtils.isInFlight) {
                                 // to kill the process before calling PO command
                                 app.rfcxSvc.triggerService(SwmDispatchTimeoutService.SERVICE_NAME, true);
                                 app.swmUtils.getPower().setOn(false);
@@ -111,7 +111,7 @@ public class SwmDispatchCycleService extends Service {
                                 cyclesSinceLastActivity++;
 
 
-                            } else if (!app.swmUtils.isInFlight) {
+                            } else if (!SwmUtils.isInFlight) {
 
                                 boolean isAbleToSend = app.swmUtils.getPower().getOn();
 
@@ -128,9 +128,6 @@ public class SwmDispatchCycleService extends Service {
                                     cyclesSinceLastActivity = 0;
                                 }
 
-                            } else {
-                                app.rfcxSvc.triggerOrForceReTriggerIfTimedOut(SwmDispatchService.SERVICE_NAME, Math.round(1.5 * SwmUtils.sendCmdTimeout));
-                                cyclesSinceLastActivity = 0;
                             }
                         }
 

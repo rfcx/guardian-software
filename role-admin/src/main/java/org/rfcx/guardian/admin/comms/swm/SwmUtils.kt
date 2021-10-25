@@ -29,16 +29,11 @@ class SwmUtils(private val context: Context) {
     lateinit var api: SwmApi
 
     @kotlin.jvm.JvmField
-    var isInFlight = false
-
-    @kotlin.jvm.JvmField
     var consecutiveDeliveryFailureCount = 0
 
     fun setupSwmUtils() {
         power = SwmPower(context)
-        isInFlight = true
         api = SwmApi(SwmConnection(SwmUartShell()))
-        isInFlight = false
         app.rfcxSvc.triggerService(SwmDiagnosticService.SERVICE_NAME, true)
     }
 
@@ -61,8 +56,8 @@ class SwmUtils(private val context: Context) {
         return true
     }
 
-    fun updateQueueMessagesFromSwarm(swmUnsentMessages: List<SwmUnsentMsg>?) {
-        val swarmMessageIdQueues = swmUnsentMessages?.map { it.messageId } ?: return
+    fun updateQueueMessagesFromSwarm(swmUnsentMessages: List<SwmUnsentMsg>?): Int {
+        val swarmMessageIdQueues = swmUnsentMessages?.map { it.messageId } ?: return 0
         val guardianMessageIdQueues = app.swmMessageDb.dbSwmQueued.allRows.filter { it.getOrNull(5) != null }
         Log.d(logTag, "Swarm queue: ${swarmMessageIdQueues.size}  Guardian queue: ${guardianMessageIdQueues.size}")
         for (guardianMessage in guardianMessageIdQueues) {
@@ -77,13 +72,23 @@ class SwmUtils(private val context: Context) {
                 app.swmMessageDb.dbSwmQueued.deleteSingleRowBySwmMessageId(guardianMessage[5])
             }
         }
+        return swarmMessageIdQueues.size
+    }
+
+    fun checkQueue(swm: Int) {
+        val queue = app.swmMessageDb.dbSwmQueued.allRows
+        val sent = queue.filter { it.getOrNull(5) != null }
+        val awaiting = queue.filter { it.getOrNull(5) == null }
+        Log.d(logTag, "Swarm queue: $swm  Guardian queue sent: ${sent.size}  Guardian queue awaiting: ${awaiting.size}")
     }
 
     companion object {
         private val logTag = RfcxLog.generateLogTag(RfcxGuardian.APP_ROLE, "SwmUtils")
-        const val sendCmdTimeout: Long = 70000
+        const val sendCmdTimeout: Long = 10000
         const val prepCmdTimeout: Long = 2500
         const val powerCycleAfterThisManyConsecutiveDeliveryFailures = 5
+        @kotlin.jvm.JvmField
+        var isInFlight = false
 
         // Scheduling Tools
         @kotlin.jvm.JvmStatic
